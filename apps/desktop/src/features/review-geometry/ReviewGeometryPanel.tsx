@@ -161,7 +161,7 @@ export function buildReviewGeometryPacket({
       "DEL-17-01",
       "DEL-17-02",
       "GLTF-2.0",
-      "fixtures/product_preview/invented_preview_model.json"
+      "fixtures/product_preview/invented_demo_model.json"
     ],
     model_ref: reference("Model", model.project.id),
     model_state_ref: modelStateRef,

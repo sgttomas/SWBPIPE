@@ -59,7 +59,7 @@ describe("actual joined physics-1 source consumers", () => {
     for (const key of ["source_block_recovery", "carrier_evidence"]) {
       expect(sourceContract(Object.assign(raw(), { [key]: null }))).toBe("unsupported");
     }
-    const ordinary = json("fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json") as MechanicsResult;
+    const ordinary = json("fixtures/results/precision_connected_ui_mechanics_sparse.json") as MechanicsResult;
     Object.assign(ordinary, { contract_evidence: null });
     expect(sourceContract(ordinary)).toBe("precision");
     const changed = raw(); changed.producer!.semantic_contract_id = PRECISION_CONTRACT_ID;

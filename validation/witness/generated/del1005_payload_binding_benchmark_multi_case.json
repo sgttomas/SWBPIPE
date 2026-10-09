@@ -143,24 +143,6 @@
             "observed": 652616.9056891649,
             "delta": 0.0,
             "within_recorded_basis": true
-          },
-          {
-            "name": "pressure_hoop",
-            "unit": "Pa",
-            "dimension": "stress",
-            "recorded": 28629.62962962963,
-            "observed": 28629.62962962963,
-            "delta": 0.0,
-            "within_recorded_basis": true
-          },
-          {
-            "name": "pressure_longitudinal",
-            "unit": "Pa",
-            "dimension": "stress",
-            "recorded": 14314.814814814816,
-            "observed": 14314.814814814816,
-            "delta": 0.0,
-            "within_recorded_basis": true
           }
         ],
         "regression_detail": null,

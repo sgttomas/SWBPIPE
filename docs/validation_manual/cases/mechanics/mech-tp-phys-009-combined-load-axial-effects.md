@@ -24,9 +24,14 @@ refs:
 ## Test Purpose And Problem Statement
 
 Invented mechanics benchmark for combined straight-pipe load assembly and
-resultant recovery. The fixture prepares thermal and pressure primitive axial
-effects, then includes them with an explicit partial-span distributed user load
-in straight-pipe equivalent user-load assembly.
+resultant recovery. The fixture prepares a thermal primitive axial effect, then
+includes it with an explicit partial-span distributed user load in
+straight-pipe equivalent user-load assembly.
+
+The fixture's former closed-end pressure-thrust half (`p = 90.0 Pa` over
+`A_internal = 0.1 m^2`, `F = p A_internal = 9.0 N`) was removed with the legacy
+pressure contract (U3, piping T3): it was a second copy of the retired legacy
+thrust. The fixture id is kept for continuity.
 
 All inputs are invented or user-entered fixture data; nothing is copied from
 protected standards, commercial software examples, or proprietary data.

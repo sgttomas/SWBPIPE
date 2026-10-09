@@ -36,7 +36,6 @@ The project unit catalog and conversion constants remain `TBD`.
 | `STRESS-AXIAL-NORMAL-ORIGINAL` | [axial_normal.md](axial_normal.md) |
 | `STRESS-BENDING-NORMAL-ORIGINAL` | [bending_normal.md](bending_normal.md) |
 | `STRESS-TORSIONAL-SHEAR-ORIGINAL` | [torsional_shear.md](torsional_shear.md) |
-| `STRESS-PRESSURE-MEMBRANE-ORIGINAL` | [pressure_membrane.md](pressure_membrane.md) |
 | `STRESS-RANGE-MECHANICS-ORIGINAL` | [stress_range.md](stress_range.md) |
 | `STRESS-INTEGRATED-STRAIGHT-PIPE-ORIGINAL` | [integrated_straight_pipe_resultants.md](integrated_straight_pipe_resultants.md) |
 | `STRESS-TP-PHYS-004-LOAD-TO-RESULTANT` | [tp_phys_004_load_to_resultant_stress.md](tp_phys_004_load_to_resultant_stress.md) |

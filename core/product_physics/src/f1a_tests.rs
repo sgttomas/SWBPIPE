@@ -248,13 +248,11 @@ fn guard_inputs(request: &Value) -> (AssembledForce, Option<formation_guard::For
         &built.sections,
         &mut diagnostics,
     );
-    let thrust = build_pressure_thrust_loads(&model, load_case, &pipe_map, &built.sections);
     let ledger = case_force_ledger(
         &model,
         &built,
         &application,
         &bends,
-        &thrust,
         &thermal,
         None,
         &load_case.id,

@@ -248,7 +248,8 @@ def test_explicit_legacy_constructor_rejects_header_presence_even_when_empty(ver
 
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_explicit_legacy_constructor_refuses_actual_current_precision_fixture(mode: str) -> None:
-    fixture = PROJECT / f"fixtures/product_preview/invented_mechanics_result_precision_1_{mode}.json"
+    # Actual precision-1 producer output (the connected UI fixture; no joint, no legacy pressure).
+    fixture = PROJECT / f"fixtures/results/precision_connected_ui_mechanics_{mode}.json"
     original_bytes = fixture.read_bytes()
     source = json.loads(original_bytes)
     before = deepcopy(source)

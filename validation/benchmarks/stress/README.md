@@ -49,7 +49,6 @@ the current fixture inventory.
 | Axial normal stress | `STRESS-AXIAL-NORMAL-ORIGINAL` |
 | Bending normal stress | `STRESS-BENDING-NORMAL-ORIGINAL` |
 | Torsional shear stress | `STRESS-TORSIONAL-SHEAR-ORIGINAL` |
-| Pressure membrane stress | `STRESS-PRESSURE-MEMBRANE-ORIGINAL` |
 | Stress range | `STRESS-RANGE-MECHANICS-ORIGINAL` |
 | Integrated straight-pipe stress | `STRESS-INTEGRATED-STRAIGHT-PIPE-ORIGINAL` |
 | Load-to-resultant stress | `STRESS-TP-PHYS-004-LOAD-TO-RESULTANT` |

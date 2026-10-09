@@ -35,7 +35,8 @@ from core.project_persistence import (  # noqa: E402
 )
 
 
-PREVIEW_RESULT_PATH = ROOT / "fixtures" / "product_preview" / "invented_mechanics_result.json"
+# The bundled demo's historical-format (0.1.0) carrier of the product's output.
+PREVIEW_RESULT_PATH = ROOT / "fixtures" / "product_preview" / "invented_demo_result_legacy_0_1.json"
 ANALYSIS_RUN_SCHEMA_PATH = ROOT / "schemas" / "analysis_run.schema.json"
 
 
@@ -51,7 +52,7 @@ def manifest_evidence():
     payload = {
         "schema_version": "1.0.0",
         "document_kind": "openpipestress.current_session_input_manifest",
-        "model_ref": "project:invented-loop-01",
+        "model_ref": "project:invented-demo-loop-01",
         "solver_mode": "sparse_interactive",
         "test_basis": "invented-del-14-02-focused-evidence",
     }
@@ -59,7 +60,7 @@ def manifest_evidence():
     return (
         {
             "object_type": "InputManifest",
-            "ref": f"input-manifest:project-invented-loop-01:{digest}",
+            "ref": f"input-manifest:project-invented-demo-loop-01:{digest}",
         },
         digest,
     )
@@ -270,17 +271,19 @@ def test_result_refs_bind_computed_result_ids_to_hashes():
     assert "result:force:pipe-P-120:midspan:axial" in refs
     assert "result:force:pipe-P-120:quarter-1:shear-y" in refs
     assert "result:force:pipe-P-120:shear-y" in refs
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial" in refs
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y" in refs
+    assert "result:loadcase:load-L-200:force:pipe-P-120:axial" in refs
+    assert "result:loadcase:load-L-200:force:pipe-P-120:quarter-1:shear-y" in refs
     assert "result:stress:pipe-P-120:end-j:torsional-shear" in refs
     assert "result:stress:pipe-P-120:quarter-1:torsional-shear" in refs
+    # The demo's mechanics combination is withheld for its nonlinear supports.
+    assert not any(ref.startswith("result:combination:") for ref in refs)
     axial = refs["result:force:pipe-P-120:axial"]
     axial_end_j = refs["result:force:pipe-P-120:axial:end-j"]
     axial_midspan = refs["result:force:pipe-P-120:midspan:axial"]
     shear_quarter = refs["result:force:pipe-P-120:quarter-1:shear-y"]
-    combination_axial = refs["result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"]
-    combination_shear_quarter = refs[
-        "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y"
+    load_case_axial = refs["result:loadcase:load-L-200:force:pipe-P-120:axial"]
+    load_case_shear_quarter = refs[
+        "result:loadcase:load-L-200:force:pipe-P-120:quarter-1:shear-y"
     ]
     torsional_stress_end_j = refs["result:stress:pipe-P-120:end-j:torsional-shear"]
     torsional_stress_quarter = refs["result:stress:pipe-P-120:quarter-1:torsional-shear"]
@@ -289,23 +292,23 @@ def test_result_refs_bind_computed_result_ids_to_hashes():
     assert axial_end_j["result_family"] == "force"
     assert axial_midspan["result_family"] == "force"
     assert shear_quarter["result_family"] == "force"
-    assert combination_axial["result_family"] == "force"
-    assert combination_shear_quarter["result_family"] == "force"
+    assert load_case_axial["result_family"] == "force"
+    assert load_case_shear_quarter["result_family"] == "force"
     assert torsional_stress_end_j["result_family"] == "stress"
     assert torsional_stress_quarter["result_family"] == "stress"
     assert axial["privacy_classification"] == "invented_public_example"
     assert axial_end_j["privacy_classification"] == "invented_public_example"
     assert axial_midspan["privacy_classification"] == "invented_public_example"
     assert shear_quarter["privacy_classification"] == "invented_public_example"
-    assert combination_axial["privacy_classification"] == "invented_public_example"
-    assert combination_shear_quarter["privacy_classification"] == "invented_public_example"
+    assert load_case_axial["privacy_classification"] == "invented_public_example"
+    assert load_case_shear_quarter["privacy_classification"] == "invented_public_example"
     assert torsional_stress_end_j["privacy_classification"] == "invented_public_example"
     assert torsional_stress_quarter["privacy_classification"] == "invented_public_example"
     assert axial["hash_refs"][0]["payload_scope"] == "result_value"
     assert axial_end_j["hash_refs"][0]["payload_scope"] == "result_value"
     assert shear_quarter["hash_refs"][0]["payload_scope"] == "result_value"
-    assert combination_axial["hash_refs"][0]["payload_scope"] == "result_value"
-    assert combination_shear_quarter["hash_refs"][0]["payload_scope"] == "result_value"
+    assert load_case_axial["hash_refs"][0]["payload_scope"] == "result_value"
+    assert load_case_shear_quarter["hash_refs"][0]["payload_scope"] == "result_value"
     assert torsional_stress_end_j["hash_refs"][0]["payload_scope"] == "result_value"
     assert torsional_stress_quarter["hash_refs"][0]["payload_scope"] == "result_value"
     assert axial["hash_refs"][0]["payload_ref"] == {
@@ -316,9 +319,9 @@ def test_result_refs_bind_computed_result_ids_to_hashes():
         "object_type": "Result",
         "ref": "result:force:pipe-P-120:axial:end-j",
     }
-    assert combination_axial["hash_refs"][0]["payload_ref"] == {
+    assert load_case_axial["hash_refs"][0]["payload_ref"] == {
         "object_type": "Result",
-        "ref": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial",
+        "ref": "result:loadcase:load-L-200:force:pipe-P-120:axial",
     }
     assert torsional_stress_end_j["hash_refs"][0]["payload_ref"] == {
         "object_type": "Result",
@@ -353,18 +356,11 @@ def test_run_binds_distinct_exact_input_manifest_and_explicit_source_dimensions(
         }
     ]
     assert manifest_hash != result_envelope_hash
-    assert dimensions["result:component-stiffness:component-C-150:axial"] == (
+    # The demo's stiffness row is its spring hanger's (it has no joint).
+    assert dimensions["result:spring-hanger:support-SH-140:stiffness"] == (
         "linear_stiffness"
     )
-    assert dimensions["result:component-stiffness:component-C-150:lateral"] == (
-        "linear_stiffness"
-    )
-    assert dimensions["result:component-stiffness:component-C-150:angular"] == (
-        "rotational_stiffness"
-    )
-    assert dimensions["result:component-stiffness:component-C-150:torsional"] == (
-        "rotational_stiffness"
-    )
+    assert not any("component-stiffness" in ref for ref in dimensions)
 
 
 def test_result_family_uses_exact_kind_and_dimension_not_deceptive_unit_text():
@@ -425,7 +421,7 @@ def test_missing_or_invalid_manifest_evidence_blocks_without_result_substitution
 
     wrong_prefix = {
         "object_type": "InputManifest",
-        "ref": f"result-envelope:project-invented-loop-01:{manifest_hash}",
+        "ref": f"result-envelope:project-invented-demo-loop-01:{manifest_hash}",
     }
     wrong_model = {
         "object_type": "InputManifest",

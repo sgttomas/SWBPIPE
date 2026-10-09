@@ -17,7 +17,8 @@ test("built browser keeps preserved references separate from native Current expo
     await openSection(page, "results");
     await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
     await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
-    await expect(page.getByTestId("result-filter-summary")).toContainText(mode === "sparse" ? "830" : "832");
+    // The bundled reference is the demo model's product output: 625 sparse rows, 627 dense.
+    await expect(page.getByTestId("result-filter-summary")).toContainText(mode === "sparse" ? "625 of 625 results match filter" : "627 of 627 results match filter");
     await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
     await openSection(page, "exports");
     await expect(page.getByTestId("result-export-empty")).toBeVisible();

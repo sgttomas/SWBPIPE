@@ -1074,6 +1074,72 @@ mod tests {
         assert!(raw.results.is_empty());
     }
 
+    /// U3 (D-2 A1): a model declaring the retired 1.0.0/legacy_pressure_v1 contract
+    /// is refused by a CLI solve in both modes, with PRESSURE_MODEL_REAUTHOR_REQUIRED.
+    #[test]
+    fn retired_legacy_pressure_label_is_refused_by_a_cli_solve() {
+        let mut preview_model: Value = serde_json::from_str(include_str!(
+            "../../../../../fixtures/product_preview/physics_source/n05.request.json"
+        ))
+        .expect("exact fixture must parse");
+        preview_model["model"]["pressure_contract"] =
+            json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+        for case in preview_model["model"]["load_cases"].as_array_mut().unwrap() {
+            case.as_object_mut().unwrap().remove("pressure_regions");
+        }
+        let input = json!({
+            "request": request(RunnerOperation::Solve),
+            "solve": {"preview_model": preview_model}
+        })
+        .to_string();
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let (code, output) = execute_json_with_mode("solve", &input, mode);
+            assert_eq!(code, 1, "{mode:?}");
+            let raw = output.mechanics_envelope.unwrap();
+            assert_eq!(raw.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(raw.results.is_empty());
+            assert!(raw.diagnostics.iter().any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"
+                && d.affected_refs == ["pressure_contract"]));
+        }
+    }
+
+    /// U3 (D-2 A1; RV127 N-6): a zero-valued legacy pressure primitive in a 0.1.0
+    /// document is refused by a CLI solve in both modes.
+    #[test]
+    fn zero_legacy_pressure_primitive_is_refused_by_a_cli_solve() {
+        let mut model: Value = serde_json::from_str(include_str!(
+            "../../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+        ))
+        .expect("pressure-free fixture must parse");
+        model["load_cases"][0]["primitive_loads"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"id": "load:zero-pressure", "category": "pressure",
+                "target": {"type": "element", "pipe": "pipe"}, "direction": "global_x",
+                "dimension": "pressure", "magnitude": {"value": 0.0, "unit": "Pa"},
+                "provenance": "retired_legacy_zero_pressure"}));
+        let input = json!({
+            "request": request(RunnerOperation::Solve),
+            "solve": {"preview_model": {"model": model, "materials": []}}
+        })
+        .to_string();
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let (code, output) = execute_json_with_mode("solve", &input, mode);
+            assert_eq!(code, 1, "{mode:?}");
+            let raw = output.mechanics_envelope.unwrap();
+            assert_eq!(raw.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(raw.results.is_empty());
+            assert!(raw.diagnostics.iter().any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"
+                && d.affected_refs == ["case", "load:zero-pressure"]));
+        }
+    }
+
     #[test]
     fn stable_verbs_map_to_runner_operations() {
         assert_eq!(operation_for_verb("solve"), Some(RunnerOperation::Solve));
@@ -1215,9 +1281,9 @@ mod tests {
         assert_eq!(code, 1);
         let report = output.suite_run.expect("suite run report present");
         assert!(report.whole_suite_default_applied);
-        assert_eq!(report.requested_case_count, 15);
-        assert_eq!(report.cases.len(), 15);
-        assert_eq!(report.executed_and_matched, 12);
+        assert_eq!(report.requested_case_count, 14);
+        assert_eq!(report.cases.len(), 14);
+        assert_eq!(report.executed_and_matched, 11);
         assert_eq!(report.executed_and_mismatched, 0);
         assert_eq!(report.blocked, 3);
         assert_eq!(

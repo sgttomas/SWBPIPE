@@ -23,7 +23,7 @@ refs:
 
 ## Test Purpose And Problem Statement
 
-Verify mechanics-only stress range computation between two solved states: the range is the component-by-component absolute difference of recovered mechanics components (not an equivalent stress and not a code stress range), and asymmetric optional pressure components must block with a diagnostic rather than collapse into a silent success.
+Verify mechanics-only stress range computation between two solved states: the range is the component-by-component absolute difference of recovered mechanics components (not an equivalent stress and not a code stress range).
 
 All inputs are invented or user-entered fixture data; nothing is copied from
 protected standards, commercial software examples, or proprietary data.
@@ -41,14 +41,13 @@ slots. The reference derivation uses elementary open mechanics only.
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) `computes_mechanics_only_stress_range_fixture`, `stress_range_blocks_asymmetric_optional_pressure_components`, which run the current in-repo solver path on the fixture
+test(s) `computes_mechanics_only_stress_range_fixture`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
 Reproduction (from `projects/chirality-piping`):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml computes_mechanics_only_stress_range_fixture
-cargo test --manifest-path validation/benchmarks/stress/Cargo.toml stress_range_blocks_asymmetric_optional_pressure_components
 ```
 
 Recorded run: 2026-07-10, toolchain rustc 1.92.0 / cargo 1.92.0; suite

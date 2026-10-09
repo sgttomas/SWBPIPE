@@ -430,7 +430,7 @@ pub(super) fn derived_for(
                     primary[&m.section_functional_indices[s][component]].value
                 }
             });
-            let stress = recover_section_stress(&actions, section, None);
+            let stress = recover_section_stress(&actions, section);
             if !stress.findings.is_empty() {
                 return Err(bad("straight stress source unavailable"));
             }
@@ -464,7 +464,7 @@ pub(super) fn derived_for(
             if actions[3] != 0.0 && !(actions[3] * section.torsion_radius).is_normal() {
                 return Err(bad("straight stress torsion intermediate range"));
             }
-            let local = open_formula_summary_mpa(&stress, false)
+            let local = open_formula_summary_mpa(&stress)
                 .ok_or_else(|| bad("summary unavailable"))?;
             let nonzero_normal = [
                 c.axial_normal.unwrap(),
@@ -487,8 +487,6 @@ pub(super) fn derived_for(
                     &m.member_id,
                     location,
                     c,
-                    false,
-                    false,
                     STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION,
                 );
             } else {
@@ -497,8 +495,6 @@ pub(super) fn derived_for(
                     &m.member_id,
                     location,
                     c,
-                    false,
-                    false,
                     "recovered_from_open_mechanics_stress_components",
                     None,
                 );

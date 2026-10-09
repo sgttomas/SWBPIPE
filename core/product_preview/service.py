@@ -41,9 +41,14 @@ PROHIBITED_TEXT = (
 
 
 def load_preview_model(path: Path | None = None) -> dict[str, Any]:
-    """Load the invented preview model fixture."""
+    """Load the invented demo model fixture.
 
-    return _read_json(path or FIXTURE_DIR / "invented_preview_model.json")
+    The demo is the invented loop without its retired legacy pressure primitives
+    and its refused expansion joint; its frozen result (below) carries the
+    product's own output for it.
+    """
+
+    return _read_json(path or FIXTURE_DIR / "invented_demo_model.json")
 
 
 def load_design_knowledge(path: Path | None = None) -> dict[str, Any]:
@@ -55,12 +60,18 @@ def load_design_knowledge(path: Path | None = None) -> dict[str, Any]:
 def run_preview_mechanics(model: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Return a deterministic mechanics/status envelope for the preview.
 
-    The current technical preview consumes an invented result fixture. It does
-    not perform external solver/prover execution or rule-pack checking.
+    The current technical preview returns a frozen invented result fixture,
+    ``invented_demo_result_legacy_0_1.json``: a carrier derived from the product's
+    sparse output for the demo model in the historical 0.1.0 result format this
+    service has always returned. Rows of kinds the 0.1.0 semantics do not define
+    are removed, and the summary members that describe them are withheld (see
+    ``fixtures/product_preview/DEMO_FIXTURES.md``). It is not a solve of the given
+    model, and it does not perform external solver/prover execution or rule-pack
+    checking.
     """
 
     model_record = deepcopy(dict(model or load_preview_model()))
-    result = _read_json(FIXTURE_DIR / "invented_mechanics_result.json")
+    result = _read_json(FIXTURE_DIR / "invented_demo_result_legacy_0_1.json")
     diagnostics = list(result.get("diagnostics", []))
     diagnostics.extend(validate_preview_model(model_record)["diagnostics"])
     result["diagnostics"] = _stable(diagnostics)
@@ -319,8 +330,9 @@ def _selected_result_refs(mechanics_result: Mapping[str, Any]) -> list[str]:
     results = mechanics_result.get("results", [])
     result_ids = [str(item.get("id", "")) for item in results if isinstance(item, Mapping)]
     selected = [
-        mechanics_result.get("summary", {}).get("max_displacement", {}).get("result_ref"),
-        mechanics_result.get("summary", {}).get("max_open_formula_stress", {}).get("result_ref"),
+        # A headline may be withheld (null).
+        (mechanics_result.get("summary", {}).get("max_displacement") or {}).get("result_ref"),
+        (mechanics_result.get("summary", {}).get("max_open_formula_stress") or {}).get("result_ref"),
         "result:force:pipe-P-120:axial" if "result:force:pipe-P-120:axial" in result_ids else None,
         "result:force:pipe-P-120:axial:end-j"
         if "result:force:pipe-P-120:axial:end-j" in result_ids

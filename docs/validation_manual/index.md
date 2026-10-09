@@ -76,7 +76,8 @@ Suite crate: `validation/benchmarks/mechanics/`. Recorded run 2026-07-10:
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`).
 
 Inventory updated 2026-08-09: 64 case pages total (21 mechanics, 15 stress,
-28 nonlinear). The DEC-092 row below uses its 2026-08-03 implementation run
+28 nonlinear); 2026-10-08: 63 (14 stress), after `STRESS-PRESSURE-MEMBRANE-ORIGINAL`
+was removed with the legacy pressure contract (U3). The DEC-092 row below uses its 2026-08-03 implementation run
 and commit-bound evidence; the other mechanics rows retain their historical
 2026-07-10 run metadata.
 
@@ -114,7 +115,6 @@ Suite crate: `validation/benchmarks/stress/`. Recorded run 2026-07-10:
 | [`STRESS-AXIAL-NORMAL-ORIGINAL`](cases/stress/stress-axial-normal-original.md) | `validation/hand_calcs/stress/axial_normal.md` |
 | [`STRESS-BENDING-NORMAL-ORIGINAL`](cases/stress/stress-bending-normal-original.md) | `validation/hand_calcs/stress/bending_normal.md` |
 | [`STRESS-INTEGRATED-STRAIGHT-PIPE-ORIGINAL`](cases/stress/stress-integrated-straight-pipe-original.md) | `validation/hand_calcs/stress/integrated_straight_pipe_resultants.md` |
-| [`STRESS-PRESSURE-MEMBRANE-ORIGINAL`](cases/stress/stress-pressure-membrane-original.md) | `validation/hand_calcs/stress/pressure_membrane.md` |
 | [`STRESS-RANGE-MECHANICS-ORIGINAL`](cases/stress/stress-range-mechanics-original.md) | `validation/hand_calcs/stress/stress_range.md` |
 | [`STRESS-TORSIONAL-SHEAR-ORIGINAL`](cases/stress/stress-torsional-shear-original.md) | `validation/hand_calcs/stress/torsional_shear.md` |
 | [`STRESS-TP-PHYS-004-LOAD-TO-RESULTANT`](cases/stress/stress-tp-phys-004-load-to-resultant.md) | `validation/hand_calcs/stress/tp_phys_004_load_to_resultant_stress.md` |
@@ -180,10 +180,10 @@ governed `DEC-046` policy records committed beside the crate
 | Solver theory summary | Verification context | `docs/theory/centerline_analysis.md`, solver docs | Stated mechanics assumptions, element families, load handling, nonlinear support limits, result-envelope policy |
 | Unit and schema verification | Mechanics verification | schema tests, `core/units/`, `docs/TYPES.md` | Unit dimensions, schema validation, invalid-input behavior, serialization boundaries |
 | Element verification | Mechanics verification | [section 3.1 cases](#31-mechanics-benchmark-cases-del-09-01) | Frame, straight-pipe, support, thermal, imposed displacement, curved-bend, and transform benchmarks |
-| Load and stress recovery verification | Mechanics verification | [section 3.2 cases](#32-stress-recovery-cases-del-09-02) | Axial, bending, torsion, pressure membrane, stress range, load-case algebra, documented tolerances |
+| Load and stress recovery verification | Mechanics verification | [section 3.2 cases](#32-stress-recovery-cases-del-09-02) | Axial, bending, torsion, stress range, load-case algebra, documented tolerances |
 | Nonlinear support verification | Mechanics verification | [section 3.3 cases](#33-nonlinear-support-cases-del-09-03) | Active-set behavior, gap/lift-off/friction cases, convergence and non-convergence diagnostics |
 | Rule-pack evaluator verification | User rule check | rule schemas, evaluator tests, invented rule packs | Required inputs, unit awareness, sandboxing, deterministic pass/fail status, checksum/provenance |
-| GUI workflow validation | Workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; `fixtures/product_preview/invented_preview_model.json`; `fixtures/product_preview/invented_mechanics_result.json` | Missing-data behavior, warning visibility, assumptions, solve status, result state transitions |
+| GUI workflow validation | Workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; `fixtures/product_preview/invented_demo_model.json`; `fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json` | Missing-data behavior, warning visibility, assumptions, solve status, result state transitions |
 | Report reproducibility validation | Workflow validation | report generator, audit manifest, protected-content linter | Stable output, checksums, warning inclusion, provenance disclosure, professional-boundary notice |
 | Known limitations and open issues | Cross-cutting | issue records, release notes, `TBD` queue | Missing evidence, unapproved thresholds, source restrictions, model limitations, accepted risks |
 

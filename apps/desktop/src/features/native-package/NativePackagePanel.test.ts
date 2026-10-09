@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { buildNativePackageReview, buildUnitPreservationEvidence } from "./NativePackagePanel";
-import { loadPreviewModel, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 
 // Pure received-hash inspection of preserved reference data. This constructs
 // an analysis record, never a native invocation or Current/qualified export.
-async function referencePrecisionAnalysis() {
-  const model = await loadPreviewModel(), reference = await loadBundledMechanicsReference();
+async function referenceAnalysis() {
+  // The bundled reference carries its own demo model; the session model is not its basis.
+  const reference = await loadBundledMechanicsReference(), model = reference.model;
   const result = reference.source;
   const manifest = {
     model_basis: { model_ref: model.project.id, model_payload: model },
@@ -25,7 +26,7 @@ async function referencePrecisionAnalysis() {
 
 describe("native review package received-result hash binding", () => {
   it("uses the preserved reference received hash and discloses unsupported future versions", async () => {
-    const session = await referencePrecisionAnalysis();
+    const session = await referenceAnalysis();
     const input = { ...session, editorIntents: [], modelHash: null, projectSummary: null, proposal: null, selectedReviewTarget: null, storageCapability: null };
     const before = JSON.stringify(input);
     const packet = buildNativePackageReview(input);

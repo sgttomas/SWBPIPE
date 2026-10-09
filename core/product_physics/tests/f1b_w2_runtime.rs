@@ -346,12 +346,6 @@ fn cantilever_family(family: &str, modulus_scale: f64) -> Value {
             "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 375.0, "unit": "N"},
                        "travel_range": {"value": 0.05, "unit": "m"}, "source_reference": "invented"},
             "provenance": PROV})),
-        // A zero-valued pressure element load on the legacy route: the legacy
-        // refusal names only a nonzero pressure (PRESSURE_MODEL_REAUTHOR_REQUIRED),
-        // so this one reaches `build_pressure_thrust_loads` (F1b RETURN D11).
-        "pressure_thrust_load" => loads.push(json!({"id": "p", "category": "pressure",
-            "target": {"type": "element", "pipe": "pipe:a-b"}, "direction": "global_x",
-            "magnitude": {"value": 0.0, "unit": "Pa"}, "dimension": "pressure", "provenance": PROV})),
         other => panic!("{other}"),
     }
     t0r(
@@ -706,8 +700,9 @@ fn f1b_w2_lef_large_analogue_scales_by_exact_powers_of_two() {
 /// excluded family is published by the orchestrator at b != 0 and then refused
 /// by name, with b; its b = 0 twin solves with no `range_scaling:` text.
 /// (The user-stiffness element and non-nodal checks are unreachable in the
-/// product and pinned at unit level; the pressure-thrust check is reachable and
-/// pinned by `f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust`.)
+/// product and pinned at unit level. The legacy pressure-thrust check, reachable
+/// through a zero-valued legacy pressure primitive until U3 refused such
+/// primitives before any solve, was removed with the legacy computation.)
 #[test]
 fn f1b_w2_admission_refuses_each_reachable_family_by_name() {
     let evaluation = "Evaluation(Range(\"arithmetic outside normal range\"))";
@@ -809,57 +804,6 @@ fn f1b_w2_admission_refuses_each_reachable_family_by_name() {
                     .iter()
                     .all(|d| !d.message.contains("range_scaling")));
             }
-        }
-    }
-}
-
-/// Admission check 4, `pressure_thrust_load` (F1b RETURN D11, the correction of
-/// A2's "unreachable"; ROOT's approval of this pin): a zero-valued pressure
-/// element load on the legacy route reaches the check. The range case (moduli
-/// times 2^-1000) is published by the orchestrator at b = 516 and then refused
-/// by name, on both entries and in both modes; main refuses the same runs with
-/// `NUMERICAL_INTEGRITY_UNRESOLVED` `Range("arithmetic outside normal range")`.
-///
-/// Its b = 0 twin (moduli times 1) is byte-identical to main: the sha256 of its
-/// serialized `MechanicsEnvelope` equals Mac main's (`e7d930d49`, recorded with
-/// the gate's full-envelope probe; F1b `_run_records/pin_pressure_thrust/`), the
-/// same on both entries. The pinned bytes are platform-independent: the twin's
-/// every magnitude has at most one nonzero component, so its `hypot` calls are
-/// exact on every platform (C Annex F: hypot(x, +-0) = |x|), and it has no
-/// thermal load (the platform calibration found the product reaching only
-/// `hypot`, `exp` and `expm1`, the latter two through thermal strain). A re-pin
-/// is due if a later slice legitimately changes this model's envelope (RV17-N4).
-#[test]
-fn f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust() {
-    use sha2::{Digest, Sha256};
-    assert_w2_refusal(
-        &cantilever_family("pressure_thrust_load", pow2(-1000)),
-        Entries::Both,
-        &MODES,
-        "case:f",
-        "NUMERICAL_INTEGRITY_UNRESOLVED",
-        "range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range(\"arithmetic outside normal range\")); force_scale_exponent=516; basis=exact power-of-two",
-    );
-    let twin = cantilever_family("pressure_thrust_load", 1.0);
-    for (mode, main_sha256) in [
-        (
-            PreviewSolverMode::SparseInteractive,
-            "2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f",
-        ),
-        (
-            PreviewSolverMode::DenseScrutiny,
-            "235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a",
-        ),
-    ] {
-        for (entry, envelope) in envelopes(&twin, mode, Entries::Both) {
-            assert_eq!(
-                envelope.status.mechanics, "MECHANICS_SOLVED",
-                "{entry} {mode:?}: {:?}",
-                envelope.diagnostics
-            );
-            let bytes = serde_json::to_vec(&envelope).unwrap();
-            let sha256 = format!("{:x}", Sha256::digest(&bytes));
-            assert_eq!(sha256, main_sha256, "{entry} {mode:?}");
         }
     }
 }
@@ -1252,6 +1196,9 @@ fn full_envelope_sha256(envelope: &MechanicsEnvelope) -> String {
 ///   gate's full-envelope probe; RV17 recorded the same). Platform-independent:
 ///   every magnitude here has one nonzero component (Annex F: hypot(x, +-0) =
 ///   |x|), there is no thermal load, and exact-block's arithmetic is exact.
+///   Re-pinned for the pressure retirement (U3 T2): main's bytes with only the
+///   declared formulation-limitation string replaced and the two receipt
+///   digests recomputed by the product's digest rule (ROOT's mechanical check).
 /// - Typed entry (no capture, so exact-block is not eligible), both modes: W2
 ///   refuses the case by name (`ScaledEvaluation`, no b under c2), where main
 ///   refuses it with the ordinary Range text (the C1 kind).
@@ -1263,11 +1210,11 @@ fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes(
     for (mode, main_sha256) in [
         (
             PreviewSolverMode::SparseInteractive,
-            "d953a68396df615a62a8e9192993e89dd489e1582c6533a117935ce7d3ffbc8c",
+            "aaabc777a0f2f3bff2392fc442eb2fac48c305345b25164ceb9d7cfbb90ecf9c",
         ),
         (
             PreviewSolverMode::DenseScrutiny,
-            "10d312a1f3fc2f7f6293eb078b7e028c9979cab97b2aba212d1f8d3308ecf02d",
+            "7db0edaf667ef1d38fcdfb72da9df313adf2f716c305a5d22219fc64a5400f7f",
         ),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();

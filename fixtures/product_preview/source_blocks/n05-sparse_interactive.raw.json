@@ -44,7 +44,7 @@
   "formulation_basis": {
     "limitations": [
       "Small-displacement product-preview mechanics; numerical integrity does not establish physical formulation correctness.",
-      "Pressure thrust and pressure stress retain the existing preview formulation and capability qualifications; pressure formulation qualification remains open.",
+      "Pressure is not solved on this profile: legacy pressure inputs are refused, and pressure is solved only on the exact straight-pressure profile, under that profile's own qualifications.",
       "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.",
       "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.",
       "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.",
@@ -3281,11 +3281,11 @@
         "publication_charged": 126992
       },
       "policy": "SOURCE-BLOCKS-1",
-      "publication_sha256": "88d833dd945a582dd3747dc0f799ace3f0c269860a095db049a289a8759a596b",
+      "publication_sha256": "5403d5d860d6536bb866d3444e57808e381b5361ae2c64e412ca38519b05144f",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "c69f5f64d43e274affbd717306bb7a3d9fa0b7e1f0ede8dcfa5c24c272001060"
+    "receipt_sha256": "f7743dbcb70cbb6d5b263cd6693beb7d6e12c931fc58120e57c6e1f4137ed37d"
   },
   "status": {
     "mechanics": "MECHANICS_SOLVED",

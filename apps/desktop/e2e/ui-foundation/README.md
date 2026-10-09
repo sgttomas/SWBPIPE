@@ -73,7 +73,7 @@ are outside individual point timers, and no capture or instrumentation cost is
 subtracted.
 
 Baseline fixture injection replaces only the existing bundled
-`invented_preview_model` module response. It leaves product source unchanged.
+`invented_demo_model` module response (the default session model). It leaves product source unchanged.
 The baseline uses the visible Iso preset and real canvas orbit gesture. Current
 camera state is unobservable and remains so in evidence. Point samples switch
 the real Labels control OFF and send ordinary pointer input through the canvas.

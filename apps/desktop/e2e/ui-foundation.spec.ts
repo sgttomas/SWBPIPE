@@ -877,21 +877,21 @@ for (const theme of APPEARANCE_THEMES) {
         await activateWithKeyboard(page, inspectReference);
         const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
         await expect(reference).toBeVisible();
-        await expect(reference).toContainText("Reference model: project:invented-loop-01");
-        await expect(reference.getByTestId("result-filter-summary")).toHaveText("830 of 830 results match filter");
+        await expect(reference).toContainText("Reference model: project:invented-demo-loop-01");
+        await expect(reference.getByTestId("result-filter-summary")).toHaveText("625 of 625 results match filter");
         // Preserve the five-node displacement oracle in the retained source, without
         // claiming those rows are a current-model deformation overlay.
         const referenceFilter = reference.getByTestId("result-filter-input");
         await referenceFilter.scrollIntoViewIfNeeded();
         await expectCenterUnobscured(referenceFilter);
         await referenceFilter.fill("displacement_magnitude");
-        await expect(reference.getByTestId("result-filter-summary")).toHaveText("15 of 830 results match filter");
+        await expect(reference.getByTestId("result-filter-summary")).toHaveText("10 of 625 results match filter");
         const referenceNodes = await reference.locator("tbody tr td:nth-child(2)").allTextContents();
         expect(new Set(referenceNodes).size).toBe(5);
         await activateWithKeyboard(page, reference.getByTestId("clear-result-filter"));
         await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
         evidence.push({ phase: "bundled reference inspection", title: await reference.getAttribute("aria-label"),
-          retainedRows: 830, displacementNodeCount: new Set(referenceNodes).size,
+          retainedRows: 625, displacementNodeCount: new Set(referenceNodes).size,
           bounds: await reference.boundingBox(), freshInvocationPerformed: false });
         await openWorkspaceSection(page, "solve");
         await expect(page.getByTestId("rule-check-run")).toBeDisabled();

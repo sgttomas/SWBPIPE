@@ -480,8 +480,8 @@ describe("the toolbar band", () => {
     await renderShell();
     fireEvent.click(rail("loads"));
     expect(screen.queryByTestId("workspace-review")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("load-manager-primitive-load:L-100-P"));
-    fireEvent.change(screen.getByTestId("load-manager-magnitude-value"), { target: { value: "1500000" } });
+    fireEvent.click(screen.getByTestId("load-manager-primitive-load:L-100-T"));
+    fireEvent.change(screen.getByTestId("load-manager-magnitude-value"), { target: { value: "20" } });
     fireEvent.click(screen.getByTestId("queue-load-magnitude-intent"));
     // Queueing a change summons Review changes, as before: that is now the Model stage's second tab.
     expect(rail("model")).toHaveAttribute("aria-current", "page");

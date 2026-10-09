@@ -3,9 +3,13 @@
 ## Purpose
 
 Invented mechanics benchmark for the straight-pipe axial-effect path. The
-fixture combines fixed-fixed thermal restraint with closed-end pressure thrust,
-then checks equivalent nodal loads and axial-resultant recovery with zero
-displacement.
+fixture applies fixed-fixed thermal restraint, then checks equivalent nodal
+loads and axial-resultant recovery with zero displacement.
+
+The fixture's former closed-end pressure-thrust half (`p = 90.0 Pa` over
+`A_internal = 0.1 m^2`, `F = p A_internal = 9.0 N`) was removed with the legacy
+pressure contract (U3, piping T3): it was a second copy of the retired legacy
+thrust. The fixture id is kept for continuity.
 
 ## Provenance
 
@@ -30,8 +34,6 @@ The member is a two-node straight pipe aligned to global `X`.
 | `J` | 1.0 | m^4 | second_moment_area |
 | `alpha` | 0.00001 | 1/K | thermal_expansion_coefficient |
 | `DeltaT` | 75.0 | K | temperature_interval |
-| `p` | 90.0 | Pa | pressure |
-| `A_internal` | 0.1 | m^2 | area |
 | Node `0` support | fixed | count | dimensionless |
 | Node `1` support | fixed | count | dimensionless |
 
@@ -47,20 +49,11 @@ F_thermal = E A alpha DeltaT
           = 3.0 N
 ```
 
-Closed-end pressure thrust:
+Total axial-effect force (the thermal effect is the only one):
 
 ```text
-F_pressure = p A_internal
-           = 90.0 * 0.1
-           = 9.0 N
-```
-
-Total axial-effect force:
-
-```text
-F_total = F_thermal + F_pressure
-        = 3.0 + 9.0
-        = 12.0 N
+F_total = F_thermal
+        = 3.0 N
 ```
 
 ## Equivalent Nodal Loads
@@ -68,8 +61,8 @@ F_total = F_thermal + F_pressure
 The straight-pipe axial-effect path applies the local axial load pair:
 
 ```text
-Node i, Ux = -F_total = -12.0 N
-Node j, Ux =  F_total =  12.0 N
+Node i, Ux = -F_total = -3.0 N
+Node j, Ux =  F_total =  3.0 N
 ```
 
 The member is aligned to global `X`, so local and global axial load components
@@ -86,14 +79,14 @@ u_i = u_j = 0.0
 The recovered fixed-end local force vector is:
 
 ```text
-K u - f_equivalent = 0 - [-12.0, 12.0]
+K u - f_equivalent = 0 - [-3.0, 3.0]
 ```
 
 Expected local axial resultants:
 
 ```text
-N_i =  12.0 N
-N_j = -12.0 N
+N_i =  3.0 N
+N_j = -3.0 N
 ```
 
 ## Station Resultants
@@ -102,7 +95,7 @@ With no transverse load and zero displacement, axial force remains constant
 along the member:
 
 ```text
-N(x/L = 0.5) = 12.0 N
+N(x/L = 0.5) = 3.0 N
 V_y = 0.0 N
 M_z = 0.0 N-m
 ```
@@ -111,9 +104,9 @@ The station sweep is intentionally requested out of geometric order:
 
 | Requested index | Station fraction | Axial force | `V_y` | `M_z` |
 |---:|---:|---:|---:|---:|
-| 0 | 1.0 | 12.0 | 0.0 | 0.0 |
-| 1 | 0.0 | 12.0 | 0.0 | 0.0 |
-| 2 | 0.5 | 12.0 | 0.0 | 0.0 |
+| 0 | 1.0 | 3.0 | 0.0 | 0.0 |
+| 1 | 0.0 | 3.0 | 0.0 | 0.0 |
+| 2 | 0.5 | 3.0 | 0.0 | 0.0 |
 
 ## Boundary
 

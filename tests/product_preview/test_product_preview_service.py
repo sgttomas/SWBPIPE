@@ -61,9 +61,12 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert result["status"]["professional_acceptance"] == "NOT_PROVIDED"
     assert result["accepted_model_state_mutated"] is False
     assert "RULE_CHECK_INPUTS_MISSING" in {item["code"] for item in result["diagnostics"]}
-    assert "COMBINATION_STRESS_SUMMARY_SKIPPED" in {item["code"] for item in result["diagnostics"]}
+    # The demo's mechanics combination is withheld for its nonlinear supports.
+    assert "NONLINEAR_COMBINATION_REQUIRES_SOLVE" in {item["code"] for item in result["diagnostics"]}
     assert result["summary"]["load_case_count"] == 2
-    assert result["summary"]["component_pressure_thrust_load_count"] == 2
+    # The demo has no legacy pressure and no expansion joint.
+    assert result["summary"]["component_pressure_thrust_load_count"] == 0
+    assert result["summary"]["component_user_stiffness_macro_element_count"] == 0
     assert result["summary"]["max_displacement"]["result_ref"] == "result:disp:node-N-140"
     assert "result:force:pipe-P-120:axial" in result_ids
     assert "result:force:pipe-P-120:axial:end-j" in result_ids
@@ -74,20 +77,16 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "result:force:pipe-P-120:midspan:shear-z" in result_ids
     assert "result:force:pipe-P-120:quarter-3:shear-z" in result_ids
     assert "result:loadcase:load-L-200:force:pipe-P-120:axial" in result_ids
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial" in result_ids
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y" in result_ids
+    assert not any(item.startswith("result:combination:") for item in result_ids)
     assert "result:moment:pipe-P-120:bending-z" in result_ids
     assert "result:moment:pipe-P-120:bending-z:end-j" in result_ids
     assert "result:moment:pipe-P-120:quarter-1:bending-z" in result_ids
     assert "result:moment:pipe-P-120:midspan:bending-z" in result_ids
-    assert "result:stress:pipe-P-120" in result_ids
     assert "result:stress:pipe-P-120:end-i:axial-normal" in result_ids
     assert "result:stress:pipe-P-120:end-j:torsional-shear" in result_ids
     assert "result:stress:pipe-P-120:quarter-1:torsional-shear" in result_ids
     assert "result:stress:pipe-P-120:midspan:torsional-shear" in result_ids
-    assert "result:stress:pipe-P-120:end-i:pressure-hoop" in result_ids
-    assert "result:stress:pipe-P-120:quarter-1:pressure-hoop" in result_ids
-    assert "result:stress:pipe-P-120:quarter-1:pressure-longitudinal" not in result_ids
+    assert not any("pressure" in item for item in result_ids)
     assert "result:stress:pipe-P-120:quarter-1:shear-y" not in result_ids
     assert "result:nonlinear-support:iteration-count" in result_ids
     assert "result:nonlinear-support:final-residual-count" in result_ids
@@ -98,12 +97,10 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-displacement" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-reaction" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction" in result_ids
-    assert "result:pressure-thrust:component-C-150" in result_ids
-    assert "result:loadcase:load-L-200:pressure-thrust:component-C-150" in result_ids
-    assert "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150" in result_ids
+    assert not any("C-150" in item for item in result_ids)
     assert "TOLERANCE_POLICY_TBD" not in {item["code"] for item in result["diagnostics"]}
     assert "NONLINEAR_SUPPORT_LOOP_CONVERGED" in {item["code"] for item in result["diagnostics"]}
-    assert "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED" in {item["code"] for item in result["diagnostics"]}
+    assert "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED" not in {item["code"] for item in result["diagnostics"]}
     axial = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial")
     axial_end_j = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial:end-j")
     nonlinear_iteration_count = next(
@@ -132,8 +129,10 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "threshold_policy_status=accepted" in nonlinear_free_work_residual["metadata"]["basis"]
     assert "residual_basis=free_dof_work_residual" in nonlinear_free_work_residual["metadata"]["basis"]
     assert "DEC-046-CV-B-product-preview-general-energy-residual-v1" in nonlinear_free_work_residual["metadata"]["basis"]
-    assert "general_energy_threshold_policy_status=accepted" in nonlinear_free_work_residual["metadata"]["basis"]
-    assert "general_energy_threshold=0 N*m" in nonlinear_free_work_residual["metadata"]["basis"]
+    # The product's current basis: the general-energy alias is residual work, with
+    # the superseded policies' zero limits recorded as historical.
+    assert "general_energy_alias=residual_work_not_total_energy_balance" in nonlinear_free_work_residual["metadata"]["basis"]
+    assert "historical_limits=0 N*m,0 N*m" in nonlinear_free_work_residual["metadata"]["basis"]
     assert "general_energy_threshold=TBD" not in nonlinear_free_work_residual["metadata"]["basis"]
     assert "observed_residual_only" not in nonlinear_free_work_residual["metadata"]["basis"]
     nonlinear_loop_messages = [
@@ -182,23 +181,10 @@ def test_mechanics_result_keeps_status_boundaries_separate():
         for item in result["results"]
         if item["id"] == "result:stress:pipe-P-120:end-j:torsional-shear"
     )
-    pressure_hoop = next(
+    load_case_axial = next(
         item
         for item in result["results"]
-        if item["id"] == "result:stress:pipe-P-120:end-i:pressure-hoop"
-    )
-    combination_axial = next(
-        item
-        for item in result["results"]
-        if item["id"] == "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"
-    )
-    pressure_thrust = next(
-        item for item in result["results"] if item["id"] == "result:pressure-thrust:component-C-150"
-    )
-    pressure_thrust_combination = next(
-        item
-        for item in result["results"]
-        if item["id"] == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
+        if item["id"] == "result:loadcase:load-L-200:force:pipe-P-120:axial"
     )
     assert axial["metadata"]["coordinate_system"] == "element_local"
     assert axial["metadata"]["location"] == "end_i"
@@ -213,10 +199,11 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert nonlinear_friction_state["metadata"]["basis"].endswith("final_state=sliding")
     assert nonlinear_friction_displacement["value"] != 0
     # Generated-fixture parity plus the accepted same-iterate current-normal law.
-    assert nonlinear_friction_reaction["value"] == 0.411203
+    # The joint-free normal is the independent record's 52.37 N (I111 O6).
+    assert nonlinear_friction_reaction["value"] == 0.5237328200600512
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 41.120279
-    assert nonlinear_friction_reaction["value"] == round(
+    assert nonlinear_friction_normal["value"] == 52.373281987314456
+    assert round(nonlinear_friction_reaction["value"], 6) == round(
         0.01 * nonlinear_friction_normal["value"], 6
     )
     assert "derived_support_reaction" in nonlinear_friction_normal["metadata"]["basis"]
@@ -241,38 +228,8 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "j-side section action" in torsional_stress_end_j["metadata"]["sign_convention"]
     assert "element-local frame" in torsional_stress_end_j["metadata"]["sign_convention"]
     assert "section equilibrium" in torsional_stress_end_j["metadata"]["sign_convention"]
-    assert pressure_hoop["metadata"]["coordinate_system"] == "pipe_section"
-    assert pressure_hoop["metadata"]["component"] == "pressure_hoop_stress"
-    assert (
-        pressure_hoop["metadata"]["basis"]
-        == "recovered_from_open_mechanics_stress_components"
-    )
-    assert (
-        pressure_hoop["metadata"]["sign_convention"]
-        == "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
-    )
-    assert "section action" not in pressure_hoop["metadata"]["sign_convention"]
-    assert combination_axial["basis_ref"] == {
-        "ref_type": "combination",
-        "ref_id": "combination:C-OPER-ALT",
-    }
-    assert combination_axial["source_result_refs"] == [
-        "result:force:pipe-P-120:axial",
-        "result:loadcase:load-L-200:force:pipe-P-120:axial",
-    ]
-    assert combination_axial["metadata"]["basis"] == "explicit_user_linear_combination"
-    assert pressure_thrust["kind"] == "expansion_joint_pressure_thrust_load_review"
-    assert pressure_thrust["value"] == 21600
-    assert pressure_thrust["unit"] == "N"
-    assert pressure_thrust["source_result_refs"] == ["load:L-100-P-EJ"]
-    assert pressure_thrust["metadata"]["location"] == "pipe:P-130"
-    assert "effective_area=0.018" in pressure_thrust["metadata"]["basis"]
-    assert "load_side_user_effective_area" in pressure_thrust["metadata"]["basis"]
-    assert pressure_thrust_combination["value"] == 27000
-    assert pressure_thrust_combination["source_result_refs"] == [
-        "result:pressure-thrust:component-C-150",
-        "result:loadcase:load-L-200:pressure-thrust:component-C-150",
-    ]
+    assert load_case_axial["basis_ref"] == {"ref_type": "load_case", "ref_id": "load:L-200"}
+    assert load_case_axial["metadata"]["component"] == "axial_force"
 
 
 def test_analysis_run_preview_binds_mechanics_results_to_immutable_run_record():
@@ -290,15 +247,15 @@ def test_analysis_run_preview_binds_mechanics_results_to_immutable_run_record():
     assert "result:force:pipe-P-120:midspan:axial" in result_refs
     assert "result:force:pipe-P-120:quarter-1:shear-y" in result_refs
     assert "result:force:pipe-P-120:shear-y" in result_refs
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial" in result_refs
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y" in result_refs
+    assert "result:loadcase:load-L-200:force:pipe-P-120:axial" in result_refs
+    assert "result:loadcase:load-L-200:force:pipe-P-120:quarter-1:shear-y" in result_refs
     assert "result:stress:pipe-P-120:end-j:torsional-shear" in result_refs
     assert "result:stress:pipe-P-120:quarter-1:torsional-shear" in result_refs
     assert result_refs["result:force:pipe-P-120:axial"]["result_family"] == "force"
-    assert result_refs["result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"]["result_family"] == "force"
+    assert result_refs["result:loadcase:load-L-200:force:pipe-P-120:axial"]["result_family"] == "force"
     assert result_refs["result:force:pipe-P-120:axial"]["hash_refs"][0]["payload_scope"] == "result_value"
     assert (
-        result_refs["result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"]["hash_refs"][0][
+        result_refs["result:loadcase:load-L-200:force:pipe-P-120:axial"]["hash_refs"][0][
             "payload_scope"
         ]
         == "result_value"
@@ -328,11 +285,10 @@ def test_report_packet_preview_materializes_read_only_audit_context():
     assert "result:force:pipe-P-120:midspan:axial" in packet["selected_result_refs"]
     assert "result:force:pipe-P-120:quarter-1:shear-y" in packet["selected_result_refs"]
     assert "result:force:pipe-P-120:shear-y" in packet["selected_result_refs"]
-    assert "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial" in packet["selected_result_refs"]
-    assert (
-        "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y"
-        in packet["selected_result_refs"]
-    )
+    # The demo's combination is withheld, and its stress headline is not carried
+    # by the historical-format carrier (null): neither is selected.
+    assert not any(ref.startswith("result:combination:") for ref in packet["selected_result_refs"])
+    assert not any(ref.startswith("result:elastic-maximum:") for ref in packet["selected_result_refs"])
     assert "result:stress:pipe-P-120:end-j:torsional-shear" in packet["selected_result_refs"]
     assert "result:stress:pipe-P-120:quarter-1:torsional-shear" in packet["selected_result_refs"]
     assert packet["analysis_run_context"]["deliverable_id"] == "DEL-14-02"
@@ -369,7 +325,7 @@ def test_report_packet_preview_materializes_read_only_audit_context():
     assert any(
         item["payload_ref"] == {
             "object_type": "Result",
-            "ref": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial",
+            "ref": "result:loadcase:load-L-200:force:pipe-P-120:axial",
         }
         for item in packet["hash_refs"]
     )

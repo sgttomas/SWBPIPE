@@ -122,8 +122,8 @@ async function prepareScenario(scenario: string, container: HTMLElement): Promis
     // visible path the unit suites use) so the apply/validate row controls
     // exist for the audit.
     openWorkspaceSection("loads");
-    fireEvent.click(screen.getByTestId("load-manager-primitive-load:L-100-P"));
-    fireEvent.change(screen.getByTestId("load-manager-magnitude-value"), { target: { value: "1500000" } });
+    fireEvent.click(screen.getByTestId("load-manager-primitive-load:L-100-T"));
+    fireEvent.change(screen.getByTestId("load-manager-magnitude-value"), { target: { value: "20" } });
     fireEvent.click(screen.getByTestId("queue-load-magnitude-intent"));
     await screen.findByTestId("apply-intent-editor-intent-1");
     return;
