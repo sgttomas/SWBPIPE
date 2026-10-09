@@ -1,4 +1,4 @@
-import { loadPreviewModel, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 // DEC-021 (A7) coverage: the rendered-report seam routes through the Tauri
@@ -527,8 +527,9 @@ describe("RenderedReportPanel", () => {
 
 // Pure received-hash inspection of preserved reference data. This constructs
 // an analysis record, never a native invocation or Current/qualified export.
-async function referencePrecisionAnalysis() {
-  const model = await loadPreviewModel(), reference = await loadBundledMechanicsReference();
+async function referenceAnalysis() {
+  // The bundled reference carries its own demo model; the session model is not its basis.
+  const reference = await loadBundledMechanicsReference(), model = reference.model;
   const result = reference.source;
   const manifest = {
     model_basis: { model_ref: model.project.id, model_payload: model },
@@ -546,7 +547,7 @@ async function referencePrecisionAnalysis() {
 
 describe("renderer received-result hash binding", () => {
   it("uses the reference received hash and rejects unknown analysis versions", async () => {
-    const session = await referencePrecisionAnalysis();
+    const session = await referenceAnalysis();
     const input = await buildRenderableReportInput({ ...session, projectSummary: null });
     expect(input.calculation_report.audit_manifest_refs[1].checksum.value).toBe(session.receivedHash);
     const future = structuredClone(session.analysisRun);

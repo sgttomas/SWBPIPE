@@ -2,7 +2,7 @@ import { selectCompactOption } from "./workspace-driver";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
-  new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
+  new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
 import { projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
@@ -48,7 +48,7 @@ async function inspectBundledReference(page: Page) {
   await expect(page.getByTestId("workspace-section-results")).toBeVisible();
   const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
   await expect(reference).toBeVisible();
-  await expect(reference.getByTestId("result-filter-summary")).toHaveText("830 of 830 results match filter");
+  await expect(reference.getByTestId("result-filter-summary")).toHaveText("625 of 625 results match filter");
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
   return reference;
 }

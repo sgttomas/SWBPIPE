@@ -37,7 +37,7 @@ mod source_budget_tests;
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 // I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
 use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
-use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
+use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
@@ -93,7 +93,7 @@ use open_pipe_stress_straight_pipe::{
     UniformLoadSpan,
 };
 use open_pipe_stress_stress_recovery::{
-    recover_stresses, AnalysisStatus, ForceResultants, PressureBasis, StressComponents,
+    recover_stresses, AnalysisStatus, ForceResultants, StressComponents,
     StressRecoveryInput, StressSectionProperties,
 };
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
@@ -105,7 +105,6 @@ mod validation;
 use validation::validate_model_inputs;
 
 #[cfg(test)]
-mod historical_pressure_reference;
 #[cfg(test)]
 mod membrane_publication_range;
 #[allow(dead_code)]
@@ -1422,7 +1421,6 @@ fn force_scaling_attempt(
     load_case: &PreviewLoadCase,
     load_application: &LoadApplication,
     thermal_loads: &[ThermalElementLoad],
-    pressure_thrust_loads: &[PressureThrustLoad],
     exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
     force: &AssembledForce,
     prescribed: &[(usize, f64)],
@@ -1480,7 +1478,6 @@ fn force_scaling_attempt(
         load_case,
         load_application,
         thermal_loads,
-        pressure_thrust_loads,
         exact_pressure,
         force,
         b,
@@ -1527,8 +1524,8 @@ fn force_scaling_attempt(
 /// frames, ground springs, rigid restraints, prescribed support motion and
 /// authored nodal loads. The first failing check names the family. Every
 /// element-targeted primitive (distributed, weight, thermal, pressure) is an
-/// `element_uniform_loads` entry, so the thermal, pressure-thrust and
-/// exact-pressure checks precede that one, which names what remains (A2: a
+/// `element_uniform_loads` entry, so the thermal and exact-pressure checks
+/// precede that one, which names what remains (A2: a
 /// thermal load was named `uniform_element_load` in the plan's order). The
 /// authored value of a nodal load is not available here (units are normalized
 /// in place; a 0.4.0 case's magnitudes are factored), so every exactly-zero
@@ -1542,7 +1539,6 @@ fn force_scaling_admission(
     load_case: &PreviewLoadCase,
     load_application: &LoadApplication,
     thermal_loads: &[ThermalElementLoad],
-    pressure_thrust_loads: &[PressureThrustLoad],
     exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
     force: &AssembledForce,
     b: i32,
@@ -1565,8 +1561,6 @@ fn force_scaling_admission(
         Some("curved_bend_macro_element")
     } else if !thermal_loads.is_empty() {
         Some("thermal_or_eigen_load")
-    } else if !pressure_thrust_loads.is_empty() {
-        Some("pressure_thrust_load")
     } else if exact_pressure.is_some_and(|exact| !exact.assembled_operands.is_empty()) {
         Some("exact_pressure_operand")
     } else if !load_application.element_uniform_loads.is_empty() {
@@ -1949,7 +1943,7 @@ pub fn preview_formulation_basis() -> FormulationBasis {
         profile_id: "product_preview_mechanics_v1".to_string(),
         limitations: vec![
             "Small-displacement product-preview mechanics; numerical integrity does not establish physical formulation correctness.".to_string(),
-            "Pressure thrust and pressure stress retain the existing preview formulation and capability qualifications; pressure formulation qualification remains open.".to_string(),
+            "Pressure is not solved on this profile: legacy pressure inputs are refused, and pressure is solved only on the exact straight-pressure profile, under that profile's own qualifications.".to_string(),
             "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.".to_string(),
             "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.".to_string(),
             "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.".to_string(),
@@ -2116,30 +2110,6 @@ struct CurvedBendMacroBuild {
     macro_element: CurvedBendMacroElement,
 }
 
-#[derive(Debug, Clone)]
-struct PressureThrustLoad {
-    element_index: usize,
-    axial_load: f64,
-    source_load_id: String,
-    source: PressureThrustSource,
-}
-
-#[derive(Debug, Clone)]
-enum PressureThrustSource {
-    PipeInternalArea,
-    ExpansionJointEffectiveArea(ExpansionJointPressureThrustInput),
-}
-
-#[derive(Debug, Clone)]
-struct ExpansionJointPressureThrustInput {
-    component_id: String,
-    pipe_id: String,
-    effective_area: f64,
-    pressure_thrust_reference: String,
-    source_reference: String,
-    solver_consumption: String,
-}
-
 #[derive(Debug, Clone, Copy)]
 struct DerivedSection {
     area: f64,
@@ -2148,7 +2118,6 @@ struct DerivedSection {
     torsion_constant: f64,
     section_modulus: f64,
     torsion_radius: f64,
-    membrane_radius: f64,
     wall_thickness: f64,
 }
 
@@ -3982,15 +3951,15 @@ fn push_nodal_loads(ledger: &mut LoadLedger, application: &LoadApplication, node
 
 /// The case's load ledger (S11 sections 4.2 and 4.3): every force producer
 /// pushes its contributions, term by term, in this fixed order (nodal loads,
-/// uniform element equivalents, pressure thrust, thermal and eigen
-/// equivalents, exact-pressure group operands, constant effort).
+/// uniform element equivalents, thermal and eigen equivalents, exact-pressure
+/// group operands, constant effort). The legacy pressure thrust producer is
+/// retired with legacy pressure (U3).
 #[allow(clippy::too_many_arguments)]
 fn case_force_ledger(
     model: &PreviewModel,
     built: &BuiltModel,
     load_application: &LoadApplication,
     curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
-    pressure_thrust_loads: &[PressureThrustLoad],
     thermal_loads: &[ThermalElementLoad],
     exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
     load_case_id: &str,
@@ -4006,18 +3975,6 @@ fn case_force_ledger(
         curved_bends_by_pipe,
         load_case_id,
         diagnostics,
-    );
-    // Pressure thrust on macro-realized bend spans applies the complete
-    // self-equilibrated arc system: end-cap forces along the validated arc
-    // end tangents plus the exact work-equivalent consistent nodal vector of
-    // the outward radial wall load (decision recorded in the curved-bend
-    // review-row basis). Straight spans keep the equal/opposite chord-axial
-    // end forces unchanged.
-    add_pressure_thrust_loads(
-        &mut ledger,
-        pressure_thrust_loads,
-        &built.pipes,
-        curved_bends_by_pipe,
     );
     add_thermal_equivalent_loads(
         &mut ledger,
@@ -4273,8 +4230,6 @@ fn solve_load_case_observed(
             diagnostics,
         ),
     };
-    let pressure_thrust_loads =
-        build_pressure_thrust_loads(model, load_case, &pipe_map, &built.sections);
 
     let curved_bends_by_pipe = built
         .curved_bend_elements
@@ -4295,7 +4250,6 @@ fn solve_load_case_observed(
         built,
         &load_application,
         &curved_bends_by_pipe,
-        &pressure_thrust_loads,
         &thermal_loads,
         exact_pressure.as_ref(),
         &load_case.id,
@@ -4303,7 +4257,7 @@ fn solve_load_case_observed(
     );
     if let Some(observer) = product.as_deref_mut() {
         observer.case_source(model, built, materials, load_case, restrained_dofs, spring_entries,
-            &load_application, &thermal_loads, &pressure_thrust_loads);
+            &load_application, &thermal_loads);
     }
     let force = finish_case_ledger(ledger, built.nodes.len())?;
     // S11-G section 3.5: the load-row guard reads the ledger's formation
@@ -4475,7 +4429,7 @@ fn solve_load_case_observed(
     let recovery_input = || source_recovery::Input {
         model, built, stiffness: &recovery_stiffness, force: &force, free: free_dofs,
         prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
-        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
+        thermal_loads: &thermal_loads,
         load_state,
     };
     if source_eligible && needs_source_recovery {
@@ -4619,7 +4573,6 @@ fn solve_load_case_observed(
                     load_case,
                     &load_application,
                     &thermal_loads,
-                    &pressure_thrust_loads,
                     exact_pressure.as_ref(),
                     &force,
                     &prescribed,
@@ -4890,12 +4843,8 @@ fn solve_load_case_observed(
         }
     }
     require_finite_mechanics(displacements.iter().copied())?;
-    let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
-        &mut results,
-        diagnostics,
-        load_case,
-        &pressure_thrust_loads,
-    );
+    // U3: legacy pressure thrust is retired; the published summary count stays 0.
+    let component_pressure_thrust_load_count = 0;
     let mut max_displacement = None;
     for node in &model.nodes {
         let node_index = node_index(&model, &node.id).unwrap();
@@ -5095,7 +5044,6 @@ fn solve_load_case_observed(
             .get(&pipe_index)
             .map(Vec::as_slice)
             .unwrap_or(&[]);
-        let pressure_thrusts = pressure_thrusts_for_pipe(pipe_index, &pressure_thrust_loads);
         let straight_loads = if macro_bend.is_none() {
             match straight_local_uniform_loads(
                 pipe,
@@ -5132,7 +5080,6 @@ fn solve_load_case_observed(
                 pipe,
                 &displacements,
                 &thermal_loads,
-                &pressure_thrusts,
                 uniform_intensities,
             ) {
                 Ok(local_forces) => local_forces,
@@ -5186,11 +5133,6 @@ fn solve_load_case_observed(
                 &equivalent_terms,
                 pipe_index,
                 &thermal_loads,
-                if pressure_runtime::is_exact(model) {
-                    &[]
-                } else {
-                    &pressure_thrust_loads
-                },
             );
             if let Some(state) = exact_pressure
                 .as_ref()
@@ -5257,7 +5199,6 @@ fn solve_load_case_observed(
                 pipe,
                 &corrected_local_forces,
                 uniform_intensities,
-                &pressure_thrusts,
             ) {
                 Ok(stations) => stations.to_vec(),
                 Err(message) => {
@@ -5323,7 +5264,6 @@ fn solve_load_case_observed(
                     pipe,
                     &corrected_local_forces,
                     uniform_intensities,
-                    &pressure_thrusts,
                     fraction,
                 )
             };
@@ -5414,19 +5354,14 @@ fn solve_load_case_observed(
                 section_modulus: section.section_modulus,
             });
         }
-        let pressure = pressure_for_pipe(model, load_case, pipe_index, &pipe.element_id);
-        // Whether the thrust loads on the pipe have a nonzero exact net.
-        let pressure_thrust_active =
-            exact_rounded_sum(pressure_thrusts.iter().copied()).map_or(true, |net| net != 0.0);
-        let include_pressure_longitudinal = !pressure_thrust_active;
-        let end_i_stress = recover_section_stress(&endpoint_resultants[0], section, pressure);
-        let end_j_stress = recover_section_stress(&endpoint_resultants[1], section, pressure);
+        let end_i_stress = recover_section_stress(&endpoint_resultants[0], section);
+        let end_j_stress = recover_section_stress(&endpoint_resultants[1], section);
         let station_stresses = station_resultants
             .iter()
             .map(|station| {
                 (
                     station.location,
-                    recover_section_stress(&station.resultants, section, pressure),
+                    recover_section_stress(&station.resultants, section),
                 )
             })
             .collect::<Vec<_>>();
@@ -5441,8 +5376,6 @@ fn solve_load_case_observed(
                     c.bending_normal_y,
                     c.bending_normal_z,
                     c.torsional_shear,
-                    c.pressure_hoop,
-                    c.pressure_longitudinal,
                 ]
                 .into_iter()
                 .flatten(),
@@ -5486,8 +5419,6 @@ fn solve_load_case_observed(
                 &pipe.element_id,
                 "end_i",
                 &end_i_stress.components,
-                pressure.is_some(),
-                include_pressure_longitudinal,
                 if macro_bend.is_some() {
                     CURVED_BEND_SECTION_SIGN_CONVENTION
                 } else {
@@ -5501,8 +5432,6 @@ fn solve_load_case_observed(
                 &pipe.element_id,
                 "end_j",
                 &end_j_stress.components,
-                pressure.is_some(),
-                include_pressure_longitudinal,
                 if macro_bend.is_some() {
                     CURVED_BEND_SECTION_SIGN_CONVENTION
                 } else {
@@ -5519,8 +5448,6 @@ fn solve_load_case_observed(
                 &pipe.element_id,
                 location,
                 &stress.components,
-                pressure.is_some(),
-                include_pressure_longitudinal,
                 if macro_bend.is_some() {
                     station_basis
                 } else {
@@ -5532,14 +5459,14 @@ fn solve_load_case_observed(
             );
         }
         let mut summary_values = [
-            open_formula_summary_mpa(&end_i_stress, include_pressure_longitudinal),
-            open_formula_summary_mpa(&end_j_stress, include_pressure_longitudinal),
+            open_formula_summary_mpa(&end_i_stress),
+            open_formula_summary_mpa(&end_j_stress),
         ]
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
         for (_, stress) in &station_stresses {
-            if let Some(value) = open_formula_summary_mpa(stress, include_pressure_longitudinal) {
+            if let Some(value) = open_formula_summary_mpa(stress) {
                 summary_values.push(value);
             }
         }
@@ -5549,8 +5476,6 @@ fn solve_load_case_observed(
                 &corrected_local_forces,
                 &straight_loads,
                 section,
-                pressure,
-                include_pressure_longitudinal,
             ) {
                 Ok(value) => summary_values.push(value),
                 Err(error) => diagnostics.push(diag(
@@ -5693,7 +5618,6 @@ fn solve_load_case_observed(
             &pipe.element_id,
             &end_i_stress,
             &end_j_stress,
-            include_pressure_longitudinal,
         );
     }
 
@@ -5831,8 +5755,7 @@ fn solve_load_case_observed(
     } else { None };
     if let Some(observer) = product.as_deref_mut() {
         observer.prepared_case_source(source_selected, model, built, materials, load_case,
-            restrained_dofs, spring_entries, &load_application, &thermal_loads,
-            &pressure_thrust_loads);
+            restrained_dofs, spring_entries, &load_application, &thermal_loads);
     }
     Ok(LoadCaseSolve {
         load_state_evidence,
@@ -10430,7 +10353,6 @@ fn derive_pipe_section(
         torsion_constant,
         section_modulus: second_moment / (od / 2.0),
         torsion_radius: od / 2.0,
-        membrane_radius: (od - thickness) / 2.0,
         wall_thickness: thickness,
     })
 }
@@ -10631,8 +10553,6 @@ fn straight_summary_extrema(
     end_forces: &[f64],
     loads: &[SpannedUniformLocalLoad],
     section: &DerivedSection,
-    pressure: Option<f64>,
-    include_pressure_longitudinal: bool,
 ) -> Result<f64, StraightPipeError> {
     let mut boundaries = vec![0.0, 1.0];
     for load in loads {
@@ -10642,15 +10562,12 @@ fn straight_summary_extrema(
     boundaries.dedup();
     let components = |fraction| -> Result<[f64; 3], StraightPipeError> {
         let r = straight_section_resultants(pipe, end_forces, loads, fraction)?;
-        let stress = recover_section_stress(&r, section, pressure);
+        let stress = recover_section_stress(&r, section);
         let c = stress.components;
         let values = [
-            c.axial_normal.unwrap_or(0.0)
-                + if include_pressure_longitudinal {
-                    c.pressure_longitudinal.unwrap_or(0.0)
-                } else {
-                    0.0
-                },
+            // H-1 (U3): the retired legacy pressure term was always +0.0 here;
+            // the explicit + 0.0 keeps a zero axial stress's published sign.
+            c.axial_normal.unwrap_or(0.0) + 0.0,
             c.bending_normal_y.unwrap_or(0.0),
             c.bending_normal_z.unwrap_or(0.0),
         ];
@@ -10914,242 +10831,6 @@ fn build_thermal_element_loads(
     loads
 }
 
-fn build_pressure_thrust_loads(
-    model: &PreviewModel,
-    load_case: &PreviewLoadCase,
-    pipe_map: &HashMap<&str, usize>,
-    sections: &HashMap<String, DerivedSection>,
-) -> Vec<PressureThrustLoad> {
-    let mut loads = Vec::new();
-    let expansion_joint_inputs = expansion_joint_pressure_thrust_inputs_by_pipe(model);
-    for load in &load_case.primitive_loads {
-        let Some(pipe) = genuine_pressure_element_target(load) else {
-            continue;
-        };
-        let Some(&element_index) = pipe_map.get(pipe) else {
-            continue;
-        };
-        if let Some(inputs) = expansion_joint_inputs.get(pipe) {
-            for input in inputs {
-                loads.push(PressureThrustLoad {
-                    element_index,
-                    axial_load: load.magnitude.value * input.effective_area,
-                    source_load_id: load.id.clone(),
-                    source: PressureThrustSource::ExpansionJointEffectiveArea(input.clone()),
-                });
-            }
-            continue;
-        }
-        let Some(section) = sections.get(pipe) else {
-            continue;
-        };
-        loads.push(PressureThrustLoad {
-            element_index,
-            axial_load: load.magnitude.value * section.internal_area,
-            source_load_id: load.id.clone(),
-            source: PressureThrustSource::PipeInternalArea,
-        });
-    }
-    loads
-}
-
-fn genuine_pressure_element_target(load: &PreviewPrimitiveLoad) -> Option<&str> {
-    if load.category != "pressure" || load.dimension != "pressure" {
-        return None;
-    }
-    let LoadTargetInput::Element { pipe } = &load.target else {
-        return None;
-    };
-    Some(pipe.as_str())
-}
-
-fn expansion_joint_pressure_thrust_inputs_by_pipe(
-    model: &PreviewModel,
-) -> HashMap<String, Vec<ExpansionJointPressureThrustInput>> {
-    let mut inputs_by_pipe: HashMap<String, Vec<ExpansionJointPressureThrustInput>> =
-        HashMap::new();
-    for component in model
-        .components
-        .iter()
-        .filter(|component| is_expansion_joint_component(component))
-    {
-        let solver_consumption = component
-            .mechanics_interface
-            .as_ref()
-            .and_then(|interface| interface.solver_consumption.as_deref())
-            .unwrap_or("not_provided");
-        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
-            continue;
-        }
-        let Some(geometry) = component.geometry.as_ref() else {
-            continue;
-        };
-        let Some(pipe_id) = geometry
-            .expansion_joint_pipe_ref
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-        else {
-            continue;
-        };
-        let Some(effective_area) = geometry
-            .effective_area
-            .as_ref()
-            .map(|quantity| quantity.value)
-            .filter(|value| positive_finite(*value))
-        else {
-            continue;
-        };
-        let pressure_thrust_reference = geometry
-            .pressure_thrust_reference
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or("load_side_pressure_thrust_reference_missing")
-            .to_string();
-        let source_reference = geometry
-            .expansion_joint_source_reference
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or("expansion_joint_source_reference_missing")
-            .to_string();
-        inputs_by_pipe.entry(pipe_id.to_string()).or_default().push(
-            ExpansionJointPressureThrustInput {
-                component_id: component.id.clone(),
-                pipe_id: pipe_id.to_string(),
-                effective_area,
-                pressure_thrust_reference,
-                source_reference,
-                solver_consumption: solver_consumption.to_string(),
-            },
-        );
-    }
-    inputs_by_pipe
-}
-
-fn add_pressure_thrust_loads(
-    ledger: &mut LoadLedger,
-    pressure_loads: &[PressureThrustLoad],
-    pipes: &[StraightPipeElement],
-    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
-) {
-    for load in pressure_loads {
-        if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
-            add_curved_bend_pressure_thrust_load(
-                ledger,
-                &load.source_load_id,
-                bend,
-                load.axial_load,
-            );
-            continue;
-        }
-        let Some(pipe) = pipes.get(load.element_index) else {
-            continue;
-        };
-        let Ok(frame_element) = pipe.frame_element() else {
-            continue;
-        };
-        let Ok(orientation) = frame_element.orientation() else {
-            continue;
-        };
-        let local_x = orientation.local_axes[0];
-        let i_base = pipe.node_i.index * DOF_PER_NODE;
-        let j_base = pipe.node_j.index * DOF_PER_NODE;
-        // S11 section 4.2: fl(P * x_a) per axis, one term at each end; S11-G:
-        // each is an exact rounded product of a self-equilibrated pair.
-        for axis in 0..3 {
-            let (a, b) = (load.axial_load, local_x[axis]);
-            let value = a * b;
-            let product = |k| Formation::RoundedProduct { k, a, b };
-            ledger.push_formed(
-                &load.source_load_id,
-                i_base + axis,
-                -value,
-                product(-1.0),
-                0.0,
-                true,
-            );
-            ledger.push_formed(
-                &load.source_load_id,
-                j_base + axis,
-                value,
-                product(1.0),
-                0.0,
-                true,
-            );
-        }
-    }
-}
-
-// Complete self-equilibrated arc pressure system for a macro-realized bend
-// span: end-cap forces -pA t_i at node i and +pA t_j at node j (unit end
-// tangents from the build-time validated macro element, the single geometry
-// source) PLUS the exact work-equivalent consistent nodal vector of the
-// outward radial wall load q(theta) = (pA / R) n(theta) (closed form in the
-// curved-bend crate). The cap pair and wall load together carry zero net
-// force and zero net moment, and segment equilibrium of the completely
-// loaded arc yields wall tension +pA along the local tangent at every
-// station (see validation/hand_calcs/mechanics/
-// curved_bend_pressure_thrust_arc.md). The build-time validated geometry
-// makes the crate calls infallible on this path; a failure would only
-// repeat a validation already enforced at model build.
-fn add_curved_bend_pressure_thrust_load(
-    ledger: &mut LoadLedger,
-    source: &str,
-    bend: &CurvedBendMacroBuild,
-    axial_load: f64,
-) {
-    let Ok([tangent_i, tangent_j]) = bend.macro_element.end_tangents() else {
-        return;
-    };
-    let Ok(wall_loads) = bend
-        .macro_element
-        .consistent_radial_pressure_nodal_loads(axial_load)
-    else {
-        return;
-    };
-    let i_base = bend.node_i * DOF_PER_NODE;
-    let j_base = bend.node_j * DOF_PER_NODE;
-    // S11 section 4.2: fl(P * t_a) per axis for the caps; one term per wall slot.
-    // S11-G: the caps are exact rounded products (self-equilibrated with the
-    // wall vector); the wall vector is a curved consistent vector, CannotBound.
-    for axis in 0..3 {
-        ledger.push_formed(
-            source,
-            i_base + axis,
-            -(axial_load * tangent_i[axis]),
-            Formation::RoundedProduct {
-                k: -1.0,
-                a: axial_load,
-                b: tangent_i[axis],
-            },
-            0.0,
-            true,
-        );
-        ledger.push_formed(
-            source,
-            j_base + axis,
-            axial_load * tangent_j[axis],
-            Formation::RoundedProduct {
-                k: 1.0,
-                a: axial_load,
-                b: tangent_j[axis],
-            },
-            0.0,
-            true,
-        );
-    }
-    let dof_map = element_dof_map(bend.node_i, bend.node_j);
-    for (local_slot, &global_slot) in dof_map.iter().enumerate() {
-        ledger.push_formed(
-            source,
-            global_slot,
-            wall_loads[local_slot],
-            Formation::CannotBound,
-            0.0,
-            false,
-        );
-    }
-}
-
 fn add_thermal_equivalent_loads(
     ledger: &mut LoadLedger,
     thermal_loads: &[ThermalElementLoad],
@@ -11254,7 +10935,7 @@ fn curved_bend_free_expansion_displacements(
 
 /// E5 (S11 section 4.4): each straight end force is one exact sum of the
 /// formed elastic term `local_i`, minus every load's own fixed-end term (SP's
-/// per-load E1 terms), plus each thermal and each pressure-thrust `axial_load`
+/// per-load E1 terms), plus each thermal `axial_load`
 /// on the end UX rows (+ at i, - at j), rounded once. This replaces the two
 /// roundings of `mechanical = local - equivalent` and the summed axial
 /// correction. A non-finite or out-of-range sum keeps a non-finite value,
@@ -11264,18 +10945,11 @@ fn exact_straight_end_forces(
     equivalent_terms: &[[f64; ELEMENT_DOF]],
     element_index: usize,
     thermal_loads: &[ThermalElementLoad],
-    pressure_loads: &[PressureThrustLoad],
 ) -> Vec<f64> {
     let axial_loads = thermal_loads
         .iter()
         .filter(|load| load.element_index == element_index)
         .map(|load| load.axial_load)
-        .chain(
-            pressure_loads
-                .iter()
-                .filter(|load| load.element_index == element_index)
-                .map(|load| load.axial_load),
-        )
         .collect::<Vec<_>>();
     (0..local_forces.len())
         .map(|slot| {
@@ -11321,7 +10995,6 @@ fn recover_curved_bend_local_forces(
     pipe: &StraightPipeElement,
     displacements: &[f64],
     thermal_loads: &[ThermalElementLoad],
-    pressure_thrusts: &[f64],
     uniform_intensities: &[[f64; 3]],
 ) -> Result<Vec<f64>, String> {
     let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
@@ -11356,15 +11029,6 @@ fn recover_curved_bend_local_forces(
             equivalents.push(
                 bend.macro_element
                     .consistent_uniform_nodal_loads(intensity)
-                    .map_err(|error| error.to_string())?,
-            );
-        }
-    }
-    for &thrust in pressure_thrusts {
-        if thrust != 0.0 {
-            equivalents.push(
-                bend.macro_element
-                    .consistent_radial_pressure_nodal_loads(thrust)
                     .map_err(|error| error.to_string())?,
             );
         }
@@ -11467,7 +11131,6 @@ fn curved_bend_section_resultants(
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
     uniform_intensities: &[[f64; 3]],
-    pressure_thrusts: &[f64],
     fraction: f64,
 ) -> Result<[f64; 6], String> {
     if corrected_local_forces.len() < ELEMENT_DOF {
@@ -11503,7 +11166,6 @@ fn curved_bend_section_resultants(
             fraction,
             node_j_force,
             uniform_intensities,
-            pressure_thrusts,
         )
         .map_err(|error| error.to_string())
 }
@@ -11513,7 +11175,6 @@ fn curved_bend_station_resultants(
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
     uniform_intensities: &[[f64; 3]],
-    pressure_thrusts: &[f64],
 ) -> Result<[StationResultants; 3], String> {
     let locations: [(&'static str, f64); 3] =
         [("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75)];
@@ -11538,121 +11199,10 @@ fn curved_bend_station_resultants(
             pipe,
             corrected_local_forces,
             uniform_intensities,
-            pressure_thrusts,
             fraction,
         )?;
     }
     Ok(stations)
-}
-
-/// Each pressure-thrust load's axial load on the pipe, one entry per load.
-fn pressure_thrusts_for_pipe(
-    element_index: usize,
-    pressure_loads: &[PressureThrustLoad],
-) -> Vec<f64> {
-    pressure_loads
-        .iter()
-        .filter(|load| load.element_index == element_index)
-        .map(|load| load.axial_load)
-        .collect()
-}
-
-#[derive(Debug, Clone)]
-struct ExpansionJointPressureThrustAggregate {
-    input: ExpansionJointPressureThrustInput,
-    /// E16 (S11 section 4.4): each pressure load's `axial_load`, summed
-    /// exactly and rounded once.
-    axial_loads: Vec<f64>,
-    source_load_ids: Vec<String>,
-}
-
-fn append_expansion_joint_pressure_thrust_results(
-    results: &mut Vec<ResultItem>,
-    diagnostics: &mut Vec<Diagnostic>,
-    load_case: &PreviewLoadCase,
-    pressure_loads: &[PressureThrustLoad],
-) -> usize {
-    let mut aggregates: BTreeMap<String, ExpansionJointPressureThrustAggregate> = BTreeMap::new();
-    for load in pressure_loads {
-        let PressureThrustSource::ExpansionJointEffectiveArea(input) = &load.source else {
-            continue;
-        };
-        let entry = aggregates
-            .entry(input.component_id.clone())
-            .or_insert_with(|| ExpansionJointPressureThrustAggregate {
-                input: input.clone(),
-                axial_loads: Vec::new(),
-                source_load_ids: Vec::new(),
-            });
-        entry.axial_loads.push(load.axial_load);
-        entry.source_load_ids.push(load.source_load_id.clone());
-    }
-
-    let mut appended = 0;
-    for (_, mut aggregate) in aggregates {
-        // A non-finite operand or an out-of-range net keeps a non-finite
-        // value, as the binary64 fold did.
-        let axial_load =
-            exact_rounded_sum(aggregate.axial_loads.iter().copied()).unwrap_or(f64::NAN);
-        if axial_load == 0.0 {
-            continue;
-        }
-        aggregate.source_load_ids.sort();
-        aggregate.source_load_ids.dedup();
-        let component_suffix = stable_suffix(&aggregate.input.component_id);
-        let result_id = format!("result:pressure-thrust:{component_suffix}");
-        results.push(ResultItem {
-            id: result_id.clone(),
-            kind: "expansion_joint_pressure_thrust_load_review".to_string(),
-            value: axial_load,
-            unit: "N".to_string(),
-            entity_ref: aggregate.input.component_id.clone(),
-            basis_ref: None,
-            source_result_refs: aggregate.source_load_ids.clone(),
-            metadata: Some(ResultMetadata {
-                component: "expansion_joint_pressure_thrust".to_string(),
-                coordinate_system: "element_local".to_string(),
-                location: aggregate.input.pipe_id.clone(),
-                basis: format!(
-                    "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area={};source={};pressure_thrust={};solver_consumption={}",
-                    scalar_string(aggregate.input.effective_area),
-                    aggregate.input.source_reference,
-                    aggregate.input.pressure_thrust_reference,
-                    aggregate.input.solver_consumption
-                ),
-                sign_convention:
-                    "positive value is explicit pressure multiplied by user-entered effective pressure area and applied as equal/opposite axial load along the mapped pipe; no compliance claim is made"
-                        .to_string(),
-            }),
-        });
-        let mut affected_refs = vec![
-            aggregate.input.component_id.clone(),
-            aggregate.input.pipe_id.clone(),
-            load_case.id.clone(),
-            result_id,
-            aggregate.input.pressure_thrust_reference.clone(),
-        ];
-        affected_refs.extend(aggregate.source_load_ids.clone());
-        diagnostics.push(diag(
-            &format!(
-                "diagnostic:pressure-thrust:{}:{}",
-                stable_suffix(&load_case.id),
-                component_suffix
-            ),
-            "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
-            "info",
-            format!(
-                "expansion joint {} pressure thrust uses explicit effective area {} m^2 and pressure primitive(s) from load case {}; applied on load side along {}; no protected/default manufacturer value is supplied",
-                aggregate.input.component_id,
-                scalar_string(aggregate.input.effective_area),
-                load_case.id,
-                aggregate.input.pipe_id
-            ),
-            affected_refs,
-        ));
-        appended += 1;
-    }
-    appended
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -12152,7 +11702,6 @@ fn append_exact_pressure_results(
 fn recover_section_stress(
     resultants: &[f64; 6],
     section: &DerivedSection,
-    pressure: Option<f64>,
 ) -> open_pipe_stress_stress_recovery::StressRecoveryResult {
     recover_stresses(&StressRecoveryInput {
         resultants: ForceResultants::new(
@@ -12168,34 +11717,23 @@ fn recover_section_stress(
             Some(section.torsion_constant),
             Some(section.torsion_radius),
         ),
-        pressure: pressure.map(|p| {
-            PressureBasis::new(
-                Some(p),
-                Some(section.membrane_radius),
-                Some(section.wall_thickness),
-            )
-        }),
         statuses: vec![AnalysisStatus::MechanicsSolved],
     })
 }
 
 fn open_formula_summary_mpa(
     stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
-    include_pressure_longitudinal: bool,
 ) -> Option<f64> {
     if !stress.findings.is_empty() {
         return None;
     }
     let components = &stress.components;
     let axial = components.axial_normal.unwrap_or(0.0);
-    let pressure_longitudinal = if include_pressure_longitudinal {
-        components.pressure_longitudinal.unwrap_or(0.0)
-    } else {
-        0.0
-    };
     let bending_y = components.bending_normal_y.unwrap_or(0.0).abs();
     let bending_z = components.bending_normal_z.unwrap_or(0.0).abs();
-    let base_normal = axial + pressure_longitudinal;
+    // H-1 (U3): the retired legacy pressure term was always +0.0 here; the
+    // explicit + 0.0 keeps the arithmetic, and so the published bytes, as before.
+    let base_normal = axial + 0.0;
     let bending_total = bending_y + bending_z;
     Some(
         (base_normal + bending_total)
@@ -12213,7 +11751,6 @@ fn append_component_stress_multiplier_results(
     pipe_id: &str,
     end_i_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
     end_j_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
-    include_pressure_longitudinal: bool,
 ) -> usize {
     let Some(pipe) = model
         .pipe_segments
@@ -12228,8 +11765,7 @@ fn append_component_stress_multiplier_results(
     ];
     let mut appended = 0;
     for (location, node_id, stress) in endpoint_stresses {
-        let Some(base_value_mpa) = open_formula_summary_mpa(stress, include_pressure_longitudinal)
-        else {
+        let Some(base_value_mpa) = open_formula_summary_mpa(stress) else {
             continue;
         };
         for component in model
@@ -12565,14 +12101,14 @@ fn append_expansion_joint_user_stiffness_results(
                     coordinate_system: "component_local_preview".to_string(),
                     location: pipe_ref.to_string(),
                     basis: format!(
-                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust={}",
+                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=none_pressure_refused_outside_the_exact_straight_contract;user_pressure_thrust_reference={}",
                         geometry
                             .pressure_thrust_reference
                             .as_deref()
                             .unwrap_or("load_side_pressure_thrust_reference_missing")
                     ),
                     sign_convention:
-                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
+                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; no joint pressure thrust is generated and no compliance claim is made"
                             .to_string(),
                 }),
             });
@@ -12605,7 +12141,7 @@ fn append_curved_bend_macro_element_results(
                 coordinate_system: "component_local_preview".to_string(),
                 location: element.pipe_id.clone(),
                 basis: format!(
-                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=none_pressure_refused_outside_the_exact_straight_contract;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
                     scalar_string(element.flexibility_factor),
                     scalar_string(element.bend_radius),
                     scalar_string(element.included_angle),
@@ -13134,8 +12670,6 @@ fn append_endpoint_stress_results(
     pipe_id: &str,
     location: &str,
     components: &StressComponents,
-    include_pressure: bool,
-    include_pressure_longitudinal: bool,
     section_sign_convention: &str,
 ) {
     let suffix = stable_suffix(pipe_id);
@@ -13186,39 +12720,6 @@ fn append_endpoint_stress_results(
             );
         }
     }
-
-    if include_pressure {
-        if let Some(value) = components.pressure_hoop {
-            append_endpoint_stress_result(
-                results,
-                pipe_id,
-                &format!("result:stress:{suffix}:{id_location}:pressure-hoop"),
-                "pipe_section_pressure_hoop_stress",
-                "pressure_hoop_stress",
-                value,
-                "pipe_section",
-                location,
-                "recovered_from_open_mechanics_stress_components",
-                "positive pressure membrane hoop stress follows the explicit pipe pressure basis",
-            );
-        }
-        if include_pressure_longitudinal {
-            if let Some(value) = components.pressure_longitudinal {
-                append_endpoint_stress_result(
-                    results,
-                    pipe_id,
-                    &format!("result:stress:{suffix}:{id_location}:pressure-longitudinal"),
-                    "pipe_section_pressure_longitudinal_stress",
-                    "pressure_longitudinal_stress",
-                    value,
-                    "pipe_section",
-                    location,
-                    "recovered_from_open_mechanics_stress_components",
-                    "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis",
-                );
-            }
-        }
-    }
 }
 
 fn append_station_stress_results(
@@ -13226,8 +12727,6 @@ fn append_station_stress_results(
     pipe_id: &str,
     location: &str,
     components: &StressComponents,
-    include_pressure: bool,
-    include_pressure_longitudinal: bool,
     basis: &str,
     section_sign_convention: Option<&str>,
 ) {
@@ -13288,39 +12787,6 @@ fn append_station_stress_results(
                 basis,
                 &sign_convention,
             );
-        }
-    }
-
-    if include_pressure {
-        if let Some(value) = components.pressure_hoop {
-            append_station_stress_result(
-                results,
-                pipe_id,
-                &format!("result:stress:{suffix}:{station}:pressure-hoop"),
-                "pipe_section_pressure_hoop_stress",
-                "pressure_hoop_stress",
-                value,
-                "pipe_section",
-                location,
-                basis,
-                "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station",
-            );
-        }
-        if include_pressure_longitudinal {
-            if let Some(value) = components.pressure_longitudinal {
-                append_station_stress_result(
-                    results,
-                    pipe_id,
-                    &format!("result:stress:{suffix}:{station}:pressure-longitudinal"),
-                    "pipe_section_pressure_longitudinal_stress",
-                    "pressure_longitudinal_stress",
-                    value,
-                    "pipe_section",
-                    location,
-                    basis,
-                    "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis at this station",
-                );
-            }
         }
     }
 }
@@ -13998,33 +13464,6 @@ fn solver_blocked(
         vec!["model".to_string()],
     ));
     blocked_envelope(model, diagnostics)
-}
-
-fn pressure_for_pipe(
-    model: &PreviewModel,
-    load_case: &PreviewLoadCase,
-    pipe_index: usize,
-    pipe_id: &str,
-) -> Option<f64> {
-    // E15 (S11 section 4.4): the pipe's pressure is one exact sum of every
-    // pressure load's magnitude, rounded once; the pressure stresses are then
-    // formed from that net as before.
-    let mut pressures = Vec::new();
-    let resolved_pipe_id = model
-        .pipe_segments
-        .get(pipe_index)
-        .map(|pipe| pipe.id.as_str())
-        .unwrap_or(pipe_id);
-    for load in load_case.primitive_loads.iter() {
-        let Some(target_pipe_id) = genuine_pressure_element_target(load) else {
-            continue;
-        };
-        if target_pipe_id == resolved_pipe_id {
-            pressures.push(load.magnitude.value);
-        }
-    }
-    (!pressures.is_empty())
-        .then(|| exact_rounded_sum(pressures.iter().copied()).unwrap_or(f64::NAN))
 }
 
 fn displacement_magnitude(displacements: &[f64], node_index: usize) -> f64 {
@@ -14938,7 +14377,6 @@ mod tests {
             | "tests::constant_effort_coexists_with_nonlinear_supports_and_nonlinear_field_precedence"
             | "tests::curved_bend_macro_element_emits_arc_interior_station_results"
             | "tests::dense_scrutiny_mode_keeps_sparse_parity_row"
-            | "tests::expansion_joint_user_stiffness_emits_macro_element_review_rows"
             | "tests::f3_canonical_spring_retains_elastic_stiffness"
             | "tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations"
             | "tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads"
@@ -14968,24 +14406,27 @@ mod tests {
             | "tests::p5_adjacent_spans_and_qualified_case_edges_preserve_physics"
             | "tests::mixed_units_are_normalized_at_preview_mechanics_boundary_without_pressure"
             | "tests::valid_invented_model_exposes_endpoint_stress_components_without_pressure"
-            | "tests::current_composite_derived_normal_friction_and_reversal"
             | "tests::integrity_exact_case_ids_keep_actual_linear_passes_and_component_warnings_distinct"
             | "tests::integrity_multicase_evidence_and_component_diagnostics_have_unique_real_case_identity"
         ), "unreviewed pressure-free fixture purpose: {purpose}");
+        // U3 (D-2 A1): a pressure primitive of any value, zero included, is refused
+        // on every route, so the demo's named legacy pressures are removed.
         let mut changed = 0;
         for case in &mut input.model.load_cases {
-            for load in &mut case.primitive_loads {
-                if matches!(
-                    (case.id.as_str(), load.id.as_str()),
+            let case_id = case.id.clone();
+            case.primitive_loads.retain(|load| {
+                let named = matches!(
+                    (case_id.as_str(), load.id.as_str()),
                     ("load:L-100", "load:L-100-P" | "load:L-100-P-EJ")
                         | ("load:L-200", "load:L-200-P" | "load:L-200-P-EJ")
-                ) {
+                );
+                if named {
                     assert_eq!(load.category, "pressure");
                     assert_eq!(load.dimension, "pressure");
-                    load.magnitude.value = 0.0;
                     changed += 1;
                 }
-            }
+                !named
+            });
         }
         assert!(
             changed > 0 && changed <= 4,
@@ -15017,267 +14458,17 @@ mod tests {
         input
     }
 
-    fn historical_pressure_preview(input: LinearStaticPreviewRequest) -> MechanicsEnvelope {
-        historical_pressure_preview_with_mode(input, PreviewSolverMode::default())
-    }
-
-    fn historical_pressure_preview_with_mode(
-        input: LinearStaticPreviewRequest,
-        mode: PreviewSolverMode,
-    ) -> MechanicsEnvelope {
-        crate::historical_pressure_reference::run(input, mode)
-    }
-
-    // Independent Decimal 30-DOF strain-energy/reference branch enumeration froze both
-    // cases and reversal before product execution. Original historical constants remain
-    // in their original test; this current companion tests the explicit pressure-free premise.
-    // T0R (R2 N4): despite the historical "current" name, this is now a retained
-    // historical premise. Its frozen oracle includes the refused joint C-150, so it
-    // runs inside `historical_pressure_reference::with_scope`, which suspends both
-    // the legacy-pressure refusal and the joint refusal for named tests only.
     #[test]
-    fn current_composite_derived_normal_friction_and_reversal() {
-        for mode in [
-            PreviewSolverMode::DenseScrutiny,
-            PreviewSolverMode::SparseInteractive,
-        ] {
-            for reversal in ["original", "reverse_z", "reverse_all"] {
-                let mut input = mechanical_fixture_for_test(
-                    request(),
-                    "tests::current_composite_derived_normal_friction_and_reversal",
-                );
-                // T0R: the frozen Decimal oracle includes the demo's joint C-150,
-                // which the ordinary route now refuses (M07). Keep the joint and
-                // run this oracle only inside the private historical test scope;
-                // it is retained evidence, not a Current qualification.
-                input.model.components = request_with_refused_joint().model.components;
-                input.model.supports.retain(|support| {
-                    support.stiffness.is_none()
-                        && support.family.as_deref() != Some("variable_spring_hanger")
-                });
-                // Also freeze the old distributed-load assembly as explicit qL/2
-                // nodal inputs. This is an explicit nodal-load premise, not
-                // the current distributed-load formulation (tested independently).
-                for case in &mut input.model.load_cases {
-                    let mut old_nodal_loads = Vec::new();
-                    for load in &case.primitive_loads {
-                        if load.dimension != "force_per_length" {
-                            old_nodal_loads.push(load.clone());
-                            continue;
-                        }
-                        let LoadTargetInput::Element { pipe } = &load.target else {
-                            unreachable!()
-                        };
-                        let pipe = input
-                            .model
-                            .pipe_segments
-                            .iter()
-                            .find(|p| &p.id == pipe)
-                            .unwrap();
-                        let i = input
-                            .model
-                            .nodes
-                            .iter()
-                            .find(|n| n.id == pipe.from)
-                            .unwrap()
-                            .position;
-                        let j = input
-                            .model
-                            .nodes
-                            .iter()
-                            .find(|n| n.id == pipe.to)
-                            .unwrap()
-                            .position;
-                        let length =
-                            ((j.x - i.x).powi(2) + (j.y - i.y).powi(2) + (j.z - i.z).powi(2))
-                                .sqrt();
-                        for (end, node) in [("i", &pipe.from), ("j", &pipe.to)] {
-                            let mut nodal = load.clone();
-                            nodal.id = format!("{}:historical-nodal-{end}", load.id);
-                            nodal.target = LoadTargetInput::Node { node: node.clone() };
-                            nodal.dimension = "force".to_string();
-                            nodal.category = "occasional".to_string();
-                            nodal.magnitude = Quantity {
-                                value: load.magnitude.value * length / 2.0,
-                                unit: "N".to_string(),
-                            };
-                            old_nodal_loads.push(nodal);
-                        }
-                    }
-                    case.primitive_loads = old_nodal_loads;
-                }
-
-                if reversal != "original" {
-                    for case in &mut input.model.load_cases {
-                        for load in &mut case.primitive_loads {
-                            if reversal == "reverse_all"
-                                || matches!(
-                                    load.id.as_str(),
-                                    "load:L-100-Z:historical-nodal-i"
-                                        | "load:L-100-Z:historical-nodal-j"
-                                        | "load:L-200-Z:historical-nodal-i"
-                                        | "load:L-200-Z:historical-nodal-j"
-                                )
-                            {
-                                load.magnitude.value = -load.magnitude.value;
-                            }
-                        }
-                    }
-                }
-                let result = crate::historical_pressure_reference::with_scope(|| {
-                    run_linear_static_preview_with_mode(input, mode)
-                });
-                assert_eq!(
-                    result.status.mechanics, "MECHANICS_SOLVED",
-                    "{:?}",
-                    result.diagnostics
-                );
-                assert!(!result.accepted_model_state_mutated);
-                let sign = if reversal == "original" { 1.0 } else { -1.0 };
-                // Independent equilibrium expectations, not fitted product outputs.
-                for (
-                    case,
-                    prefix,
-                    forward_normal_n,
-                    forward_slip_mm,
-                    applied_y_n,
-                    reverse_all_slip_mm,
-                    reverse_all_stop_mm,
-                ) in [
-                    (
-                        "load:L-100",
-                        "result:",
-                        48.95271889097364,
-                        -5.469174519535312,
-                        350.0,
-                        5.392795815727053,
-                        -0.3150817339455187,
-                    ),
-                    (
-                        "load:L-200",
-                        "result:loadcase:load-L-200:",
-                        24.47635944548682,
-                        -2.734587259767656,
-                        125.0,
-                        2.709083407550966,
-                        -0.10520992865888537,
-                    ),
-                ] {
-                    let released = reversal == "reverse_all";
-                    let normal_n = if released {
-                        applied_y_n
-                    } else {
-                        forward_normal_n
-                    };
-                    let expected_slip = if released {
-                        reverse_all_slip_mm
-                    } else {
-                        sign * forward_slip_mm
-                    };
-                    let value = |tail: &str| {
-                        result_value(&result, &format!("{prefix}nonlinear-support:{tail}"))
-                    };
-                    assert_eq!(value("iteration-count"), 2.0);
-                    assert_eq!(value("converged-flag"), 1.0);
-                    assert_eq!(value("final-residual-count"), 0.0);
-                    assert_eq!(
-                        value("support-NL-140:state-code"),
-                        if released { 0.0 } else { 1.0 }
-                    );
-                    if released {
-                        analytic_close!(value("support-NL-140:uy-displacement"), reverse_all_stop_mm);
-                    } else {
-                        assert_eq!(value("support-NL-140:uy-displacement"), 0.0);
-                    }
-                    // Signed normal-source reaction is -sign*N. Global Y equilibrium:
-                    // source reaction + one-way stop reaction + applied Y = 0.
-                    if released {
-                        // Zero analytical reaction uses the authored Y-force scale
-                        // at the same 1e-9 criterion, with no display-quantum allowance.
-                        assert!(value("support-NL-140:uy-reaction").abs() <= 1e-9 * applied_y_n);
-                    } else {
-                        analytic_close!(value("support-NL-140:uy-reaction"), sign * normal_n - applied_y_n);
-                    }
-                    assert_eq!(value("support-NL-130-FRIC:state-code"), 3.0);
-                    let slip = value("support-NL-130-FRIC:uz-displacement");
-                    let friction = value("support-NL-130-FRIC:uz-reaction");
-                    analytic_close!(slip, expected_slip);
-                    analytic_close!(friction, sign * 0.01 * normal_n);
-                    assert!(friction * slip < 0.0);
-                    let normal_id = format!(
-                        "{prefix}nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"
-                    );
-                    let normal = result
-                        .results
-                        .iter()
-                        .find(|row| row.id == normal_id)
-                        .unwrap();
-                    assert_eq!(
-                        normal.kind,
-                        "nonlinear_support_friction_normal_reaction_derived"
-                    );
-                    analytic_close!(normal.value, normal_n);
-                    assert_eq!(normal.unit, "N");
-                    // This source support restrains UY only; its magnitude establishes
-                    // the current normal linkage but does not publish the signed source UY.
-                    assert_eq!(
-                        normal.value,
-                        support_force_norm(&result, &format!("{prefix}reaction:support-S-130"))
-                    );
-                    assert_eq!(normal.basis_ref.as_ref().unwrap().ref_id, case);
-                    let metadata = normal.metadata.as_ref().unwrap();
-                    assert!(metadata.basis.contains("derived_support_reaction"));
-                    assert!(metadata.basis.contains("source_ref=support:S-130"));
-                    assert!(metadata.basis.contains("source_dof=uy"));
-                }
-                assert!(!result
-                    .diagnostics
-                    .iter()
-                    .any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"
-                        || d.code == "NONLINEAR_SUPPORT_LOOP_BLOCKED"));
-            }
-        }
-    }
-
-    #[test]
-    fn private_historical_pressure_scope_restores_public_refusal_and_rejects_exact() {
-        fn refused(output: &MechanicsEnvelope) {
-            assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE");
-            assert!(output.results.is_empty());
-            assert!(output
-                .diagnostics
-                .iter()
-                .any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"));
-        }
-        refused(&run_linear_static_preview(request()));
-        assert_eq!(
-            historical_pressure_preview(request()).status.mechanics,
-            "MECHANICS_SOLVED"
-        );
-        refused(&run_linear_static_preview(request()));
-        let mut exact_namespace = request();
-        exact_namespace.model.pressure_contract = Some(PressureContractInput {
-            version: Some("2.0.0".into()),
-            mode: Some("exact_straight_pressure_v2".into()),
-        });
-        assert!(std::panic::catch_unwind(|| historical_pressure_preview(exact_namespace)).is_err());
-        refused(&run_linear_static_preview(request()));
-    }
-
-    #[test]
-    fn private_historical_scope_restores_after_unwind_and_is_thread_local() {
-        assert!(!crate::historical_pressure_reference::active());
-        let outcome = std::panic::catch_unwind(|| {
-            crate::historical_pressure_reference::with_scope(|| {
-                assert!(crate::historical_pressure_reference::active());
-                std::thread::spawn(|| assert!(!crate::historical_pressure_reference::active()))
-                    .join()
-                    .unwrap();
-                panic!("intentional restoration witness");
-            })
-        });
-        assert!(outcome.is_err());
-        assert!(!crate::historical_pressure_reference::active());
+    fn bundled_demo_with_legacy_nonzero_pressure_is_refused_on_the_ordinary_route() {
+        // U3: legacy pressure is retired; the unchanged bundled demo carries nonzero
+        // legacy pressure primitives and is refused before any solve.
+        let output = run_linear_static_preview(request());
+        assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(output.results.is_empty());
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"));
     }
 
     // Current arc/chord integration control: tip force plus uniform weight, no pressure input.
@@ -15334,8 +14525,6 @@ mod tests {
         .unwrap();
         let build = curved_bend_direct_build();
         let intensity = [0.0, 0.0, -190.0];
-        let pressure = 0.0;
-        let pressure_thrust = pressure * derived.internal_area;
         let node_j_force: [f64; DOF_PER_NODE] = corrected[DOF_PER_NODE..]
             .try_into()
             .expect("six j-end action slots");
@@ -15347,19 +14536,7 @@ mod tests {
             .macro_element
             .consistent_uniform_nodal_loads(intensity)
             .unwrap();
-        let radial_equivalent = build
-            .macro_element
-            .consistent_radial_pressure_nodal_loads(pressure_thrust)
-            .unwrap();
-        let [tangent_i, tangent_j] = build.macro_element.end_tangents().unwrap();
-        let mut applied = [0.0; ELEMENT_DOF];
-        for slot in 0..ELEMENT_DOF {
-            applied[slot] = uniform_equivalent[slot] + radial_equivalent[slot];
-        }
-        for axis in 0..3 {
-            applied[axis] -= pressure_thrust * tangent_i[axis];
-            applied[DOF_PER_NODE + axis] += pressure_thrust * tangent_j[axis];
-        }
+        let mut applied = uniform_equivalent;
         applied[DOF_PER_NODE + UY] += 1000.0;
         let displacements = curved_bend_direct_solution(&applied);
         let stiffness = build.macro_element.global_stiffness().unwrap();
@@ -15368,7 +14545,7 @@ mod tests {
             for col in 0..ELEMENT_DOF {
                 expected_raw[row] += stiffness[row][col] * displacements[col];
             }
-            expected_raw[row] -= uniform_equivalent[row] + radial_equivalent[row];
+            expected_raw[row] -= uniform_equivalent[row];
             assert!(
                 (corrected[row] - round6(expected_raw[row])).abs() <= 1.1e-6,
                 "raw chord-frame action slot {row}: {} != {}",
@@ -15402,18 +14579,12 @@ mod tests {
                 &pipe,
                 &corrected,
                 &[intensity],
-                &[pressure_thrust],
                 fraction,
             )
             .unwrap();
             let expected = build
                 .macro_element
-                .arc_section_resultants_with_radial_pressure(
-                    fraction,
-                    node_j_force,
-                    intensity,
-                    pressure_thrust,
-                )
+                .arc_section_resultants(fraction, node_j_force, intensity)
                 .unwrap();
             for slot in 0..6 {
                 assert!(
@@ -15423,7 +14594,7 @@ mod tests {
                     expected[slot]
                 );
             }
-            let recovered = recover_section_stress(&actual, &derived, None);
+            let recovered = recover_section_stress(&actual, &derived);
             let expected_stresses = [
                 ("axial-normal", recovered.components.axial_normal.unwrap()),
                 (
@@ -15466,12 +14637,7 @@ mod tests {
         for (fraction, station) in [(0.25, "quarter-1"), (0.5, "midspan"), (0.75, "quarter-3")] {
             let expected = build
                 .macro_element
-                .arc_section_resultants_with_radial_pressure(
-                    fraction,
-                    node_j_force,
-                    intensity,
-                    pressure_thrust,
-                )
+                .arc_section_resultants(fraction, node_j_force, intensity)
                 .unwrap();
             for (slot, (family, tail)) in [
                 ("force", "axial"),
@@ -16691,194 +15857,6 @@ mod tests {
             .contains("DEC-053 dense_scrutiny_sparse_parity"));
         assert!(metadata.basis.contains("solver_mode=dense_scrutiny"));
         assert!(metadata.basis.contains("sparse_interactive_default=true"));
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn valid_invented_model_exposes_nonlinear_support_loop_evidence_historical_pressure_premise() {
-        for mode in [
-            PreviewSolverMode::DenseScrutiny,
-            PreviewSolverMode::SparseInteractive,
-        ] {
-            // Reference control for the historical nonlinear fixture: the former
-            // nonlinear path omitted linear springs. Keep that exact no-spring
-            // case explicit, rather than rewriting its friction oracle from output.
-            // T0R: this historical oracle includes the demo's joint C-150, which the
-            // ordinary route now refuses (M07); it stays a historical premise and
-            // runs only inside the private test-only historical scope.
-            let mut input = request_with_refused_joint();
-            input.model.supports.retain(|support| {
-                support.stiffness.is_none()
-                    && support.family.as_deref() != Some("variable_spring_hanger")
-            });
-            // Also freeze the old distributed-load assembly as explicit qL/2
-            // nodal inputs. This is a historical friction-policy control, not
-            // the current distributed-load formulation (tested independently).
-            for case in &mut input.model.load_cases {
-                let mut old_nodal_loads = Vec::new();
-                for load in &case.primitive_loads {
-                    if load.dimension != "force_per_length" {
-                        old_nodal_loads.push(load.clone());
-                        continue;
-                    }
-                    let LoadTargetInput::Element { pipe } = &load.target else {
-                        unreachable!()
-                    };
-                    let pipe = input
-                        .model
-                        .pipe_segments
-                        .iter()
-                        .find(|p| &p.id == pipe)
-                        .unwrap();
-                    let i = input
-                        .model
-                        .nodes
-                        .iter()
-                        .find(|n| n.id == pipe.from)
-                        .unwrap()
-                        .position;
-                    let j = input
-                        .model
-                        .nodes
-                        .iter()
-                        .find(|n| n.id == pipe.to)
-                        .unwrap()
-                        .position;
-                    let length =
-                        ((j.x - i.x).powi(2) + (j.y - i.y).powi(2) + (j.z - i.z).powi(2)).sqrt();
-                    for (end, node) in [("i", &pipe.from), ("j", &pipe.to)] {
-                        let mut nodal = load.clone();
-                        nodal.id = format!("{}:historical-nodal-{end}", load.id);
-                        nodal.target = LoadTargetInput::Node { node: node.clone() };
-                        nodal.dimension = "force".to_string();
-                        nodal.category = "occasional".to_string();
-                        nodal.magnitude = Quantity {
-                            value: load.magnitude.value * length / 2.0,
-                            unit: "N".to_string(),
-                        };
-                        old_nodal_loads.push(nodal);
-                    }
-                }
-                case.primitive_loads = old_nodal_loads;
-            }
-            let result = historical_pressure_preview_with_mode(input, mode);
-            let result_ids = result
-                .results
-                .iter()
-                .map(|item| item.id.as_str())
-                .collect::<HashSet<_>>();
-            let diagnostic_codes = result
-                .diagnostics
-                .iter()
-                .map(|item| item.code.as_str())
-                .collect::<HashSet<_>>();
-
-            assert!(result_ids.contains("result:nonlinear-support:iteration-count"));
-            assert!(result_ids.contains("result:nonlinear-support:final-residual-count"));
-            assert!(result_ids.contains("result:nonlinear-support:converged-flag"));
-            assert!(result_ids.contains("result:nonlinear-support:support-NL-140:state-code"));
-            assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-displacement"));
-            assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-reaction"));
-            assert!(result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:state-code"));
-            assert!(
-                result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:uz-displacement")
-            );
-            assert!(result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:uz-reaction"));
-            assert!(result_ids
-                .contains("result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"));
-            assert!(result_ids.contains(
-                "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"
-            ));
-            // T0R (B-1): superposed nonlinear states are withheld; the case rows stay.
-            assert!(!result_ids.iter().any(|id| id.starts_with("result:combination:combination-C-OPER-ALT:")));
-            assert!(result.diagnostics.iter().any(|d| d.code == "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
-                && d.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
-            // DEC-067: the sliding-seeded friction support defers convergence one
-            // iteration so the bounded sliding force is applied before the loop
-            // converges.
-            assert_eq!(
-                result_value(&result, "result:nonlinear-support:iteration-count"),
-                2.0
-            );
-            assert_eq!(
-                result_value(&result, "result:nonlinear-support:final-residual-count"),
-                0.0
-            );
-            assert_eq!(
-                result_value(&result, "result:nonlinear-support:converged-flag"),
-                1.0
-            );
-            assert_eq!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-140:state-code"
-                ),
-                1.0
-            );
-            assert_eq!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-140:uy-displacement"
-                ),
-                0.0
-            );
-            assert!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-140:uy-reaction"
-                ) < 0.0
-            );
-            assert_eq!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-130-FRIC:state-code"
-                ),
-                3.0
-            );
-            assert_ne!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-130-FRIC:uz-displacement"
-                ),
-                0.0
-            );
-            // DEC-067: the sliding support carries the bounded +mu*N tangential
-            // reaction opposing its negative-Z motion instead of a released zero
-            // reaction.
-            let friction_reaction = result_value(
-                &result,
-                "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
-            );
-            let normal_evidence = result
-                .results
-                .iter()
-                .find(|item| {
-                    item.id
-                        == "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"
-                })
-                .expect("derived normal evidence row is present");
-            assert_eq!(
-                normal_evidence.kind,
-                "nonlinear_support_friction_normal_reaction_derived"
-            );
-            // Historical carrier regression only: these constants recorded six-decimal values.
-            assert_eq!(round6(friction_reaction), 0.489527);
-            assert_eq!(round6(normal_evidence.value), 48.952719);
-            // SI force-balance admissibility, not bit identity between separately
-            // recovered force components; preserves the analytic 1e-9 criterion.
-            assert_coulomb_force_balance_n(friction_reaction, 0.01 * normal_evidence.value);
-            let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
-            assert!(normal_metadata.basis.contains("derived_support_reaction"));
-            assert!(normal_metadata.basis.contains("source_ref=support:S-130"));
-            assert!(normal_metadata.basis.contains("source_dof=uy"));
-            assert!(!normal_metadata
-                .basis
-                .contains("derived_normal_force_model=TBD"));
-            assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
-            assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
-            assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
-            assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
-        }
     }
 
     fn two_node_nonlinear_preview_request(
@@ -18454,108 +17432,6 @@ mod tests {
         assert_eq!(first, second);
     }
 
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn valid_invented_model_exposes_endpoint_stress_components_historical_pressure_premise() {
-        let result = historical_pressure_preview(request());
-        let result_ids = result
-            .results
-            .iter()
-            .map(|item| item.id.as_str())
-            .collect::<HashSet<_>>();
-
-        assert!(has_member_maximum(&result, "pipe:P-120"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:end-i:axial-normal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:end-i:torsional-shear"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:end-i:pressure-hoop"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:end-j:axial-normal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:end-j:torsional-shear"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:end-j:pressure-longitudinal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-1:axial-normal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-1:bending-normal-y"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-1:bending-normal-z"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-1:torsional-shear"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-1:pressure-hoop"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:quarter-1:pressure-longitudinal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:midspan:axial-normal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:midspan:bending-normal-y"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:midspan:bending-normal-z"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:midspan:torsional-shear"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:midspan:pressure-hoop"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:midspan:pressure-longitudinal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-3:axial-normal"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-3:bending-normal-y"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-3:bending-normal-z"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-3:torsional-shear"));
-        assert!(result_ids.contains("result:stress:pipe-P-120:quarter-3:pressure-hoop"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:quarter-3:pressure-longitudinal"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:midspan:shear-y"));
-        assert!(!result_ids.contains("result:stress:pipe-P-120:quarter-1:shear-y"));
-        assert!(result.results.iter().any(|item| {
-            item.id == "result:stress:pipe-P-120:end-j:torsional-shear"
-                && item.kind == "element_local_torsional_shear_stress"
-                && item.unit == "MPa"
-                && item
-                    .metadata
-                    .as_ref()
-                    .map(|metadata| {
-                        metadata.component == "torsional_shear_stress"
-                            && metadata.coordinate_system == "element_local"
-                            && metadata.location == "end_j"
-                            && metadata.basis == "recovered_from_local_element_stiffness"
-                    })
-                    .unwrap_or(false)
-        }));
-        assert!(result.results.iter().any(|item| {
-            item.id == "result:stress:pipe-P-120:end-i:pressure-hoop"
-                && item.kind == "pipe_section_pressure_hoop_stress"
-                && item.unit == "MPa"
-                && item
-                    .metadata
-                    .as_ref()
-                    .map(|metadata| {
-                        metadata.component == "pressure_hoop_stress"
-                            && metadata.coordinate_system == "pipe_section"
-                            && metadata.location == "end_i"
-                    })
-                    .unwrap_or(false)
-        }));
-        assert!(result.results.iter().any(|item| {
-            item.id == "result:stress:pipe-P-120:midspan:torsional-shear"
-                && item.kind == "element_local_torsional_shear_stress"
-                && item.unit == "MPa"
-                && item
-                    .metadata
-                    .as_ref()
-                    .map(|metadata| {
-                        metadata.component == "torsional_shear_stress"
-                            && metadata.coordinate_system == "element_local"
-                            && metadata.location == "midspan"
-                            && metadata.basis == "recovered_from_open_mechanics_stress_components"
-                    })
-                    .unwrap_or(false)
-        }));
-        assert!(result.results.iter().any(|item| {
-            item.id == "result:stress:pipe-P-120:quarter-1:torsional-shear"
-                && item.kind == "element_local_torsional_shear_stress"
-                && item.unit == "MPa"
-                && item
-                    .metadata
-                    .as_ref()
-                    .map(|metadata| {
-                        metadata.component == "torsional_shear_stress"
-                            && metadata.coordinate_system == "element_local"
-                            && metadata.location == "quarter_1"
-                            && metadata.basis == "recovered_from_open_mechanics_stress_components"
-                    })
-                    .unwrap_or(false)
-        }));
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|item| item.code == "PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR"));
-    }
-
     #[test]
     fn bend_component_user_multipliers_emit_stress_review_rows() {
         // T0R (SF-8/M08): the SIF×k review row is retired; a geometry-only bend
@@ -18628,8 +17504,9 @@ mod tests {
     }
 
     #[test]
-    fn expansion_joint_user_stiffness_emits_macro_element_review_rows() {
-        // T0R (M07 containment): the ordinary route refuses the realized joint.
+    fn realized_user_stiffness_joint_is_refused_on_the_ordinary_route() {
+        // T0R (M07 containment; owner decision, option A): the ordinary route refuses
+        // the realized joint until T4 lands the corrected element.
         let mut refused_input = request_with_refused_joint();
         for case in &mut refused_input.model.load_cases {
             // The demo's legacy nonzero pressure is refused first; remove it here.
@@ -18640,138 +17517,187 @@ mod tests {
         assert!(refused.results.is_empty());
         assert!(refused.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
             && d.affected_refs == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]));
-        // The retained review-row premise runs only in the private historical scope.
-        let mut input = mechanical_fixture_for_test(
-            request(),
-            "tests::expansion_joint_user_stiffness_emits_macro_element_review_rows",
-        );
-        input.model.components = request_with_refused_joint().model.components;
-        let result = crate::historical_pressure_reference::with_scope(|| run_linear_static_preview(input));
-        let axial = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:component-stiffness:component-C-150:axial")
-            .expect("expansion joint axial stiffness review row should be emitted");
-        let torsional = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:component-stiffness:component-C-150:torsional")
-            .expect("expansion joint torsional stiffness review row should be emitted");
-
-        assert_eq!(
-            result.summary.component_user_stiffness_macro_element_count,
-            4
-        );
-        assert_eq!(axial.kind, "component_user_stiffness_macro_element_review");
-        assert_eq!(axial.entity_ref, "component:C-150");
-        assert_eq!(axial.value, 3_200_000.0);
-        assert_eq!(axial.unit, "N/m");
-        let axial_metadata = axial
-            .metadata
-            .as_ref()
-            .expect("expansion joint row carries macro-element metadata");
-        assert_eq!(axial_metadata.component, "axial_user_stiffness");
-        assert_eq!(axial_metadata.coordinate_system, "component_local_preview");
-        assert_eq!(axial_metadata.location, "pipe:P-130");
-        assert!(axial_metadata
-            .basis
-            .contains("component_family=expansion_joint"));
-        assert!(axial_metadata
-            .basis
-            .contains("solver_consumption=mechanics_geometry_and_user_flexibility"));
-        assert!(axial_metadata
-            .basis
-            .contains("macro_element_solve=assembled_user_stiffness"));
-        assert!(axial_metadata
-            .basis
-            .contains("pressure_thrust_generation=load_side_user_effective_area"));
-        assert!(axial_metadata
-            .basis
-            .contains("pressure_thrust=load_side_pressure_thrust_user_review_required"));
-        assert!(axial_metadata
-            .sign_convention
-            .contains("consumed by the assembled user-stiffness macro-element"));
-
-        assert_eq!(torsional.value, 620_000.0);
-        assert_eq!(torsional.unit, "N*m/rad");
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.code == "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED"));
-        assert!(
-            result
-                .diagnostics
-                .iter()
-                .all(|diagnostic| diagnostic.code
-                    != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
-        );
     }
 
-    // Retained historical pressure premise; this private test route cannot qualify Current.
     #[test]
-    fn expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence_historical_pressure_premise(
-    ) {
-        // T0R: historical premise with the demo's joint C-150 (refused on the ordinary route, M07).
-        let result = historical_pressure_preview(request_with_refused_joint());
-        let default_row = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:pressure-thrust:component-C-150")
-            .expect("default load case expansion joint pressure-thrust row should be emitted");
-        let alternate_row = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:loadcase:load-L-200:pressure-thrust:component-C-150")
-            .expect("alternate load case expansion joint pressure-thrust row should be emitted");
-        // T0R: a load-side review row is never combined (and this fixture's
-        // mechanics combination is withheld for its nonlinear supports).
-        assert!(!result.results.iter().any(|item| {
-            item.id == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
-        }));
+    fn flexibility_joint_missing_a_user_stiffness_is_refused_not_dropped() {
+        // G11 (I111): a joint declaring mechanics_geometry_and_user_flexibility
+        // without its lateral value passed the M07 refusal, the element builder
+        // skipped it silently, and the model solved without the joint while the
+        // joint's review rows said its stiffness was consumed by the assembled
+        // element. The builder needs all four values, so a missing one refuses.
+        // When another value is missing, the lateral value is set to zero so that
+        // M07 (which keys on a nonzero lateral value) cannot mask the defect
+        // (RV127 A1-N-4); a zero value is itself refused once an element forms.
+        let consumed = |output: &MechanicsEnvelope| {
+            output
+                .results
+                .iter()
+                .filter(|row| row.kind == "component_user_stiffness_macro_element_review")
+                .count()
+        };
+        let mut observed = Vec::new();
+        for missing in ["lateral", "axial", "angular", "torsional"] {
+            let mut input = request_with_refused_joint();
+            for case in &mut input.model.load_cases {
+                // The demo's legacy nonzero pressure is refused first; remove it here.
+                case.primitive_loads.retain(|load| load.category != "pressure");
+            }
+            let joint = input
+                .model
+                .components
+                .iter_mut()
+                .find(|component| component.id == "component:C-150")
+                .unwrap();
+            let modifiers = joint.modifiers.as_mut().unwrap();
+            if missing != "lateral" {
+                modifiers.lateral_stiffness_user_value.as_mut().unwrap().value = 0.0;
+            }
+            match missing {
+                "lateral" => modifiers.lateral_stiffness_user_value = None,
+                "axial" => modifiers.axial_stiffness_user_value = None,
+                "angular" => modifiers.angular_stiffness_user_value = None,
+                _ => modifiers.torsional_stiffness_user_value = None,
+            }
+            let output = run_linear_static_preview(input);
+            let refused = output.diagnostics.iter().any(|d| {
+                d.code == "JOINT_ELEMENT_STIFFNESS_INCOMPLETE"
+                    && d.severity == "blocking"
+                    && d.message.contains(&format!("no user-entered {missing} stiffness"))
+                    && d.affected_refs
+                        == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]
+            });
+            observed.push((
+                missing,
+                output.status.mechanics.clone(),
+                consumed(&output),
+                output.results.is_empty(),
+                refused,
+            ));
+        }
+        let expected = ["lateral", "axial", "angular", "torsional"]
+            .map(|missing| (missing, "MODEL_INCOMPLETE".to_string(), 0, true, true))
+            .to_vec();
+        assert_eq!(observed, expected, "(missing value, status, consumed review rows, no results, refused by name)");
+    }
 
-        assert_eq!(result.summary.component_pressure_thrust_load_count, 2);
-        assert_eq!(
-            default_row.kind,
-            "expansion_joint_pressure_thrust_load_review"
-        );
-        assert_eq!(default_row.entity_ref, "component:C-150");
-        assert_eq!(default_row.value, 21_600.0);
-        assert_eq!(default_row.unit, "N");
-        assert_eq!(default_row.source_result_refs, vec!["load:L-100-P-EJ"]);
-        let metadata = default_row
-            .metadata
-            .as_ref()
-            .expect("pressure-thrust row carries load-side evidence metadata");
-        assert_eq!(metadata.component, "expansion_joint_pressure_thrust");
-        assert_eq!(metadata.coordinate_system, "element_local");
-        assert_eq!(metadata.location, "pipe:P-130");
-        assert!(metadata
-            .basis
-            .contains("pressure_thrust_generation=load_side_user_effective_area"));
-        assert!(metadata.basis.contains("effective_area=0.018"));
-        assert!(metadata
-            .basis
-            .contains("source=invented_user_entered_expansion_joint_preview_geometry"));
-        assert!(metadata
-            .sign_convention
-            .contains("user-entered effective pressure area"));
+    #[test]
+    fn flexibility_joint_with_an_unresolved_mapping_is_refused_not_dropped() {
+        // G11, extended by ROOT: the element builder also skips a joint whose pipe
+        // or node does not resolve, so the model solved without the joint while
+        // its review rows said its stiffness was consumed. The lateral value is
+        // set to zero so that M07 (which keys on a nonzero lateral value over a
+        // resolved pipe) cannot mask the defect (RV127 A1-N-4); a zero value is
+        // itself refused once an element forms. Every case is now refused by
+        // name, before M07.
+        let consumed = |output: &MechanicsEnvelope| {
+            output
+                .results
+                .iter()
+                .filter(|row| row.kind == "component_user_stiffness_macro_element_review")
+                .count()
+        };
+        let mut observed = Vec::new();
+        for case in ["no pipe", "unknown pipe", "unknown node", "node not on the pipe"] {
+            let mut input = request_with_refused_joint();
+            for load_case in &mut input.model.load_cases {
+                // The demo's legacy nonzero pressure is refused first; remove it here.
+                load_case.primitive_loads.retain(|load| load.category != "pressure");
+            }
+            let joint = input
+                .model
+                .components
+                .iter_mut()
+                .find(|component| component.id == "component:C-150")
+                .unwrap();
+            joint
+                .modifiers
+                .as_mut()
+                .unwrap()
+                .lateral_stiffness_user_value
+                .as_mut()
+                .unwrap()
+                .value = 0.0;
+            let pipe_ref = &mut joint.geometry.as_mut().unwrap().expansion_joint_pipe_ref;
+            match case {
+                "no pipe" => *pipe_ref = None,
+                "unknown pipe" => *pipe_ref = Some("pipe:missing".into()),
+                "unknown node" => joint.node = "node:missing".into(),
+                _ => joint.node = "node:N-100".into(),
+            }
+            let output = run_linear_static_preview(input);
+            let refusal = output
+                .diagnostics
+                .iter()
+                .find(|d| d.code == "JOINT_ELEMENT_MAPPING_UNRESOLVED" && d.severity == "blocking")
+                .map(|d| d.affected_refs.clone());
+            observed.push((
+                case,
+                output.status.mechanics.clone(),
+                consumed(&output),
+                output.results.is_empty(),
+                refusal,
+            ));
+        }
+        let refs = |pipe: Option<&str>| {
+            let mut refs = vec!["component:C-150".to_string()];
+            refs.extend(pipe.map(str::to_string));
+            Some(refs)
+        };
+        let expected = vec![
+            ("no pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(None)),
+            ("unknown pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:missing"))),
+            ("unknown node", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:P-130"))),
+            ("node not on the pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:P-130"))),
+        ];
+        assert_eq!(observed, expected, "(case, status, consumed review rows, no results, mapping refusal refs)");
+    }
 
-        assert_eq!(alternate_row.value, 10_800.0);
-        assert_eq!(alternate_row.source_result_refs, vec!["load:L-200-P-EJ"]);
-        assert!(result
-            .results
-            .iter()
-            .any(|item| item.id == "result:stress:pipe-P-130:end-i:pressure-hoop"));
-        assert!(!result
-            .results
-            .iter()
-            .any(|item| item.id == "result:stress:pipe-P-130:end-i:pressure-longitudinal"));
-        assert!(result.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED"
-                && diagnostic
-                    .affected_refs
-                    .contains(&"load:L-100-P-EJ".to_string())
-        }));
+    #[test]
+    fn flexibility_joint_pipe_without_orientation_or_a_known_end_is_refused_by_the_pipe() {
+        // G11, extended by ROOT: the builder's other two skips, a joint pipe
+        // without y_reference and a joint pipe whose end node is unknown, cannot
+        // drop the joint silently: the pipe itself is refused, by name. A zero
+        // lateral value keeps the M07 refusal, which runs first, out of the way
+        // (the zero value is itself refused when an element is assembled).
+        for (case, code) in [
+            ("no y_reference", "PIPE_ORIENTATION_INPUT_MISSING"),
+            ("unknown end node", "PIPE_ENDPOINT_UNKNOWN"),
+        ] {
+            let mut input = request_with_refused_joint();
+            for load_case in &mut input.model.load_cases {
+                load_case.primitive_loads.retain(|load| load.category != "pressure");
+            }
+            let joint = input
+                .model
+                .components
+                .iter_mut()
+                .find(|component| component.id == "component:C-150")
+                .unwrap();
+            let modifiers = joint.modifiers.as_mut().unwrap();
+            modifiers.lateral_stiffness_user_value.as_mut().unwrap().value = 0.0;
+            let pipe = input
+                .model
+                .pipe_segments
+                .iter_mut()
+                .find(|pipe| pipe.id == "pipe:P-130")
+                .unwrap();
+            match case {
+                "no y_reference" => pipe.y_reference = None,
+                // The joint sits at P-130's to-node; its from-node becomes unknown.
+                _ => pipe.from = "node:missing".into(),
+            }
+            let output = run_linear_static_preview(input);
+            assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE", "{case}");
+            assert!(output.results.is_empty(), "{case}");
+            assert!(
+                output.diagnostics.iter().any(|d| d.code == code
+                    && d.severity == "blocking"
+                    && d.affected_refs.first().map(String::as_str) == Some("pipe:P-130")),
+                "{case}: {:?}",
+                output.diagnostics.iter().map(|d| &d.code).collect::<Vec<_>>()
+            );
+        }
     }
 
     #[test]
@@ -20968,77 +19894,6 @@ mod tests {
         assert_eq!(global_axial, legacy_axial);
     }
 
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn pressure_thrust_applies_axial_fixed_end_correction_without_longitudinal_rows_historical_pressure_premise(
-    ) {
-        let request = fixed_fixed_pressure_request("global_z");
-        let section = derive_pipe_section(
-            &request.model.pipe_segments[0].section,
-            "pipe:P-100",
-            &mut Vec::new(),
-        )
-        .unwrap();
-        let expected_force = 1_000_000.0 * section.internal_area;
-        let result = historical_pressure_preview(request);
-        let result_ids = result
-            .results
-            .iter()
-            .map(|item| item.id.as_str())
-            .collect::<HashSet<_>>();
-        let axial_i = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:force:pipe-P-100:axial")
-            .unwrap();
-        let axial_j = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:force:pipe-P-100:axial:end-j")
-            .unwrap();
-        let stress_i = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:stress:pipe-P-100:end-i:axial-normal")
-            .unwrap();
-
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        assert!((axial_i.value - expected_force).abs() < 1.0e-6);
-        assert!((axial_j.value + expected_force).abs() < 1.0e-6);
-        assert!((stress_i.value + expected_force / section.area / 1_000_000.0).abs() < 1.0e-6);
-        assert!(result_ids.contains("result:stress:pipe-P-100:end-i:pressure-hoop"));
-        assert!(!result_ids.contains("result:stress:pipe-P-100:end-i:pressure-longitudinal"));
-        assert!(has_member_maximum(&result, "pipe:P-100"));
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|item| item.code == "PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR"));
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn pressure_load_direction_does_not_change_thrust_magnitude_or_sign_historical_pressure_premise(
-    ) {
-        let global = historical_pressure_preview(fixed_fixed_pressure_request("global_z"));
-        let legacy = historical_pressure_preview(fixed_fixed_pressure_request("RZ"));
-        let global_axial = global
-            .results
-            .iter()
-            .find(|item| item.id == "result:force:pipe-P-100:axial")
-            .unwrap()
-            .value;
-        let legacy_axial = legacy
-            .results
-            .iter()
-            .find(|item| item.id == "result:force:pipe-P-100:axial")
-            .unwrap()
-            .value;
-
-        assert_eq!(global.status.mechanics, "MECHANICS_SOLVED");
-        assert_eq!(legacy.status.mechanics, "MECHANICS_SOLVED");
-        assert_eq!(global_axial, legacy_axial);
-    }
-
     #[test]
     fn thermal_load_requires_explicit_material_expansion_coefficient() {
         let mut request = request();
@@ -21052,71 +19907,6 @@ mod tests {
             .iter()
             .any(|item| item.code == "THERMAL_EXPANSION_INPUT_MISSING"));
         assert!(result.results.is_empty());
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn generated_result_metadata_and_historical_quantization_match_legacy_fixture_historical_pressure_premise(
-    ) {
-        let generated = serde_json::to_value(historical_pressure_preview(request())).unwrap();
-        let fixture: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/invented_mechanics_result.json"
-        ))
-        .unwrap();
-        let generated_force = find_result(&generated, "result:force:pipe-P-120:axial");
-        let fixture_force = find_result(&fixture, "result:force:pipe-P-120:axial");
-
-        assert_eq!(generated_force["kind"], fixture_force["kind"]);
-        assert_eq!(generated_force["unit"], fixture_force["unit"]);
-        assert_eq!(generated_force["metadata"], fixture_force["metadata"]);
-        let fixture_force_end_j = find_result(&fixture, "result:force:pipe-P-120:axial:end-j");
-        assert_eq!(fixture_force_end_j["metadata"]["location"], "end_j");
-        let fixture_force_midspan = find_result(&fixture, "result:force:pipe-P-120:midspan:axial");
-        assert_eq!(fixture_force_midspan["metadata"]["location"], "midspan");
-        assert_eq!(
-            fixture_force_midspan["metadata"]["basis"],
-            "recovered_from_local_element_stiffness"
-        );
-        let fixture_force_quarter =
-            find_result(&fixture, "result:force:pipe-P-120:quarter-1:shear-y");
-        assert_eq!(fixture_force_quarter["kind"], "element_local_shear_force_y");
-        assert_eq!(
-            fixture_force_quarter["metadata"]["component"],
-            "shear_force_y"
-        );
-        assert_eq!(fixture_force_quarter["metadata"]["location"], "quarter_1");
-        let fixture_stress_quarter = find_result(
-            &fixture,
-            "result:stress:pipe-P-120:quarter-1:torsional-shear",
-        );
-        assert_eq!(
-            fixture_stress_quarter["metadata"]["basis"],
-            "recovered_from_open_mechanics_stress_components"
-        );
-        assert!(find_result(&fixture, "result:moment:pipe-P-120:bending-z")
-            .get("metadata")
-            .is_some());
-        let fixture_stress_end_j =
-            find_result(&fixture, "result:stress:pipe-P-120:end-j:torsional-shear");
-        assert_eq!(fixture_stress_end_j["metadata"]["location"], "end_j");
-        assert_eq!(
-            fixture_stress_end_j["metadata"]["basis"],
-            "recovered_from_local_element_stiffness"
-        );
-        let generated_disp_uy = find_result(&generated, "result:disp:node-N-140:uy");
-        let fixture_disp_uy = find_result(&fixture, "result:disp:node-N-140:uy");
-        assert_eq!(generated_disp_uy["kind"], fixture_disp_uy["kind"]);
-        assert_eq!(generated_disp_uy["unit"], fixture_disp_uy["unit"]);
-        // This is explicitly a legacy carrier check, not a current physics oracle.
-        assert_eq!(
-            round6(generated_disp_uy["value"].as_f64().unwrap()),
-            fixture_disp_uy["value"].as_f64().unwrap()
-        );
-        assert_eq!(generated_disp_uy["metadata"], fixture_disp_uy["metadata"]);
-        assert_eq!(fixture_disp_uy["metadata"]["coordinate_system"], "global");
-        let fixture_disp_rz = find_result(&fixture, "result:disp:node-N-140:rz");
-        assert_eq!(fixture_disp_rz["kind"], "global_nodal_rotation_z");
-        assert_eq!(fixture_disp_rz["unit"], "rad");
     }
 
     #[test]
@@ -22154,78 +20944,6 @@ mod tests {
         }
     }
 
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn mixed_units_are_normalized_at_preview_mechanics_boundary_historical_pressure_premise() {
-        let baseline = historical_pressure_preview(request());
-        let mut request = request();
-        request.materials[0].elastic_modulus = Quantity {
-            value: 200_000.0,
-            unit: "MPa".to_string(),
-        };
-        request.materials[0].shear_modulus = Some(Quantity {
-            value: 77_000.0,
-            unit: "MPa".to_string(),
-        });
-        for pipe in &mut request.model.pipe_segments {
-            pipe.section.outside_diameter = Quantity {
-                value: 168.0,
-                unit: "mm".to_string(),
-            };
-            pipe.section.wall_thickness = Quantity {
-                value: 7.0,
-                unit: "mm".to_string(),
-            };
-        }
-        for load in request
-            .model
-            .load_cases
-            .iter_mut()
-            .flat_map(|case| case.primitive_loads.iter_mut())
-            .filter(|load| load.dimension == "pressure")
-        {
-            load.magnitude.value /= 1_000.0;
-            load.magnitude.unit = "kPa".to_string();
-        }
-
-        let result = historical_pressure_preview(request);
-
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        assert!(result
-            .diagnostics
-            .iter()
-            .all(|item| item.code != "UNIT_INPUT_INVALID"));
-        assert_eq!(result.results.len(), baseline.results.len());
-        assert_eq!(
-            result
-                .summary
-                .max_displacement
-                .as_ref()
-                .map(|item| item.value),
-            baseline
-                .summary
-                .max_displacement
-                .as_ref()
-                .map(|item| item.value)
-        );
-        assert_eq!(
-            result
-                .summary
-                .max_open_formula_stress
-                .as_ref()
-                .map(|item| item.value),
-            baseline
-                .summary
-                .max_open_formula_stress
-                .as_ref()
-                .map(|item| item.value)
-        );
-        assert_eq!(
-            result_value(&result, "result:stress:pipe-P-120:end-i:pressure-hoop"),
-            result_value(&baseline, "result:stress:pipe-P-120:end-i:pressure-hoop")
-        );
-    }
-
     #[test]
     fn incompatible_material_unit_blocks_with_diagnostic() {
         let mut request = request();
@@ -22435,50 +21153,43 @@ mod tests {
         }
     }
 
-    // Retained historical pressure premise; this private test route cannot qualify Current.
+    // U3 (RV127 B-1): the pressure-free thermal half of the retired
+    // `endpoint_section_cut_fixed_and_free_pressure_thermal_match_uniform_stations_historical_pressure_premise`,
+    // a current public check: fixed-fixed and free thermal states have uniform
+    // endpoint and station axial-normal stress, and the fixed state is compressive.
     #[test]
-    fn endpoint_section_cut_fixed_and_free_pressure_thermal_match_uniform_stations_historical_pressure_premise(
-    ) {
-        for (kind, mut fixed) in [
-            ("thermal", fixed_fixed_thermal_request("global_x")),
-            ("pressure", fixed_fixed_pressure_request("global_x")),
-        ] {
-            for free in [false, true] {
-                if free {
-                    fixed.model.supports.truncate(1);
-                }
-                for mode in [
-                    PreviewSolverMode::DenseScrutiny,
-                    PreviewSolverMode::SparseInteractive,
-                ] {
-                    let result = if kind == "pressure" {
-                        historical_pressure_preview_with_mode(fixed.clone(), mode)
-                    } else {
-                        // The pressure-free thermal premise remains a current public check.
-                        run_linear_static_preview_with_mode(fixed.clone(), mode)
-                    };
-                    assert_eq!(
-                        result.status.mechanics, "MECHANICS_SOLVED",
-                        "{kind} free={free}: {:?}",
-                        result.diagnostics
+    fn endpoint_section_cut_fixed_and_free_thermal_match_uniform_stations() {
+        let mut fixed = fixed_fixed_thermal_request("global_x");
+        for free in [false, true] {
+            if free {
+                fixed.model.supports.truncate(1);
+            }
+            for mode in [
+                PreviewSolverMode::DenseScrutiny,
+                PreviewSolverMode::SparseInteractive,
+            ] {
+                let result = run_linear_static_preview_with_mode(fixed.clone(), mode);
+                assert_eq!(
+                    result.status.mechanics, "MECHANICS_SOLVED",
+                    "thermal free={free}: {:?}",
+                    result.diagnostics
+                );
+                let endpoint_i =
+                    result_value(&result, "result:stress:pipe-P-100:end-i:axial-normal");
+                let endpoint_j =
+                    result_value(&result, "result:stress:pipe-P-100:end-j:axial-normal");
+                p5_close(endpoint_i, endpoint_j);
+                for station in ["quarter-1", "midspan", "quarter-3"] {
+                    p5_close(
+                        result_value(
+                            &result,
+                            &format!("result:stress:pipe-P-100:{station}:axial-normal"),
+                        ),
+                        endpoint_i,
                     );
-                    let endpoint_i =
-                        result_value(&result, "result:stress:pipe-P-100:end-i:axial-normal");
-                    let endpoint_j =
-                        result_value(&result, "result:stress:pipe-P-100:end-j:axial-normal");
-                    p5_close(endpoint_i, endpoint_j);
-                    for station in ["quarter-1", "midspan", "quarter-3"] {
-                        p5_close(
-                            result_value(
-                                &result,
-                                &format!("result:stress:pipe-P-100:{station}:axial-normal"),
-                            ),
-                            endpoint_i,
-                        );
-                    }
-                    if !free {
-                        assert!(endpoint_i < 0.0, "fixed {kind} state is compressive");
-                    }
+                }
+                if !free {
+                    assert!(endpoint_i < 0.0, "fixed thermal state is compressive");
                 }
             }
         }
@@ -22526,77 +21237,6 @@ mod tests {
                 .iter()
                 .any(|d| d.code == "HYDROTEST_PRESSURE_UNSUPPORTED"));
             assert!(result.results.is_empty());
-        }
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn endpoint_section_cut_genuine_pressure_preserves_existing_result_leaves_historical_pressure_premise(
-    ) {
-        let request =
-            endpoint_section_cut_pressure_request(&[("load:L-PRESSURE", "pressure", 1_000_000.0)]);
-        let section = derive_pipe_section(
-            &request.model.pipe_segments[0].section,
-            "pipe:P-100",
-            &mut Vec::new(),
-        )
-        .unwrap();
-        let thrust = 1_000_000.0 * section.internal_area;
-        let result = historical_pressure_preview(request);
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        p5_close(
-            result_value(&result, "result:force:pipe-P-100:axial"),
-            thrust,
-        );
-        p5_close(
-            result_value(&result, "result:force:pipe-P-100:axial:end-j"),
-            -thrust,
-        );
-        let expected_axial = -thrust / section.area / 1.0e6;
-        for location in ["end-i", "end-j", "quarter-1", "midspan", "quarter-3"] {
-            p5_close(
-                result_value(
-                    &result,
-                    &format!("result:stress:pipe-P-100:{location}:axial-normal"),
-                ),
-                expected_axial,
-            );
-        }
-        let expected_hoop = 1_000_000.0 * section.membrane_radius / section.wall_thickness / 1.0e6;
-        p5_close(
-            result_value(&result, "result:stress:pipe-P-100:end-i:pressure-hoop"),
-            expected_hoop,
-        );
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn endpoint_section_cut_two_genuine_pressures_sum_once_for_thrust_and_stress_historical_pressure_premise(
-    ) {
-        let split = historical_pressure_preview(endpoint_section_cut_pressure_request(&[
-            ("load:L-P-400", "pressure", 400_000.0),
-            ("load:L-P-900", "pressure", 900_000.0),
-        ]));
-        let summed = historical_pressure_preview(endpoint_section_cut_pressure_request(&[(
-            "load:L-P-1300",
-            "pressure",
-            1_300_000.0,
-        )]));
-        assert_eq!(split.status.mechanics, "MECHANICS_SOLVED");
-        assert_eq!(summed.status.mechanics, "MECHANICS_SOLVED");
-        for row_id in [
-            "result:force:pipe-P-100:axial",
-            "result:force:pipe-P-100:axial:end-j",
-            "result:stress:pipe-P-100:end-i:axial-normal",
-            "result:stress:pipe-P-100:end-j:axial-normal",
-            "result:stress:pipe-P-100:end-i:pressure-hoop",
-            "result:stress:pipe-P-100:midspan:pressure-hoop",
-        ] {
-            assert_eq!(
-                result_value(&split, row_id),
-                result_value(&summed, row_id),
-                "{row_id} must consume the sum of both genuine pressures exactly once"
-            );
         }
     }
 
@@ -23542,7 +22182,7 @@ mod tests {
             .basis
             .contains("distributed_load_treatment=arc_consistent_fixed_end_integration"));
         assert!(metadata.basis.contains(
-            "pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load"
+            "pressure_thrust_treatment=none_pressure_refused_outside_the_exact_straight_contract"
         ));
         assert!(!metadata
             .basis
@@ -23982,23 +22622,6 @@ mod tests {
         );
     }
 
-    fn curved_bend_pressure_load() -> PreviewPrimitiveLoad {
-        PreviewPrimitiveLoad {
-            id: "load:L-100-P".to_string(),
-            category: "pressure".to_string(),
-            target: LoadTargetInput::Element {
-                pipe: "pipe:P-100".to_string(),
-            },
-            direction: "global_x".to_string(),
-            magnitude: Quantity {
-                value: 2.0e6,
-                unit: "Pa".to_string(),
-            },
-            dimension: "pressure".to_string(),
-            provenance: Some("invented_example_user_input".to_string()),
-        }
-    }
-
     // The invented arc as a CurvedBendMacroBuild, mirroring the assembly of
     // `build_curved_bend_macro_elements` for the direct oracle element.
     fn curved_bend_direct_build() -> CurvedBendMacroBuild {
@@ -24019,589 +22642,6 @@ mod tests {
             source_reference: "invented_example_user_input".to_string(),
             macro_element: element,
         }
-    }
-
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn endpoint_section_cut_curved_endpoints_use_all_six_arc_resultants_historical_pressure_premise(
-    ) {
-        let mut request = curved_bend_span_request();
-        request.model.load_cases[0]
-            .primitive_loads
-            .push(curved_bend_uniform_weight_load());
-        request.model.load_cases[0]
-            .primitive_loads
-            .push(curved_bend_pressure_load());
-        let derived = derive_pipe_section(
-            &request.model.pipe_segments[0].section,
-            "pipe:P-100",
-            &mut Vec::new(),
-        )
-        .unwrap();
-        let result = historical_pressure_preview(request);
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-
-        let row_ids = [
-            "result:force:pipe-P-100:axial",
-            "result:force:pipe-P-100:shear-y",
-            "result:force:pipe-P-100:shear-z",
-            "result:moment:pipe-P-100:torsion",
-            "result:moment:pipe-P-100:bending-y",
-            "result:moment:pipe-P-100:bending-z",
-        ];
-        let mut corrected = vec![0.0; ELEMENT_DOF];
-        for (slot, row_id) in row_ids.iter().enumerate() {
-            corrected[slot] = result_value(&result, row_id);
-            corrected[DOF_PER_NODE + slot] = result_value(&result, &format!("{row_id}:end-j"));
-        }
-        let material = &invented_materials()[0];
-        let pipe_section = StraightPipeSectionProperties::new(
-            material.elastic_modulus.value,
-            material
-                .shear_modulus
-                .as_ref()
-                .expect("validated material G")
-                .value,
-            derived.area,
-            derived.second_moment,
-            derived.second_moment,
-            derived.torsion_constant,
-            None,
-        )
-        .unwrap();
-        let pipe = StraightPipeElement::new(
-            "pipe:P-100",
-            FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
-            FrameNode::new(1, [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0]).unwrap(),
-            pipe_section,
-            [0.0, 1.0, 0.0],
-        )
-        .unwrap();
-        let build = curved_bend_direct_build();
-        let intensity = [0.0, 0.0, -190.0];
-        let pressure = 2.0e6;
-        let pressure_thrust = pressure * derived.internal_area;
-        let node_j_force: [f64; DOF_PER_NODE] = corrected[DOF_PER_NODE..]
-            .try_into()
-            .expect("six j-end action slots");
-
-        // The public endpoint rows stay the chord-frame node-on-element
-        // actions. Reconstruct that independent direct solve before testing
-        // the separate arc section-cut resultants consumed by stress.
-        let uniform_equivalent = build
-            .macro_element
-            .consistent_uniform_nodal_loads(intensity)
-            .unwrap();
-        let radial_equivalent = build
-            .macro_element
-            .consistent_radial_pressure_nodal_loads(pressure_thrust)
-            .unwrap();
-        let [tangent_i, tangent_j] = build.macro_element.end_tangents().unwrap();
-        let mut applied = [0.0; ELEMENT_DOF];
-        for slot in 0..ELEMENT_DOF {
-            applied[slot] = uniform_equivalent[slot] + radial_equivalent[slot];
-        }
-        for axis in 0..3 {
-            applied[axis] -= pressure_thrust * tangent_i[axis];
-            applied[DOF_PER_NODE + axis] += pressure_thrust * tangent_j[axis];
-        }
-        applied[DOF_PER_NODE + UY] += 1000.0;
-        let displacements = curved_bend_direct_solution(&applied);
-        let stiffness = build.macro_element.global_stiffness().unwrap();
-        let mut expected_raw = [0.0; ELEMENT_DOF];
-        for row in 0..ELEMENT_DOF {
-            for col in 0..ELEMENT_DOF {
-                expected_raw[row] += stiffness[row][col] * displacements[col];
-            }
-            expected_raw[row] -= uniform_equivalent[row] + radial_equivalent[row];
-            assert!(
-                (corrected[row] - expected_raw[row]).abs() <= 1.1e-6,
-                "raw chord-frame action slot {row}: {} != {}",
-                corrected[row],
-                expected_raw[row]
-            );
-        }
-        for row_id in &row_ids {
-            for (id, location) in [
-                ((*row_id).to_string(), "end_i"),
-                (format!("{row_id}:end-j"), "end_j"),
-            ] {
-                let metadata = result
-                    .results
-                    .iter()
-                    .find(|row| row.id == id)
-                    .and_then(|row| row.metadata.as_ref())
-                    .unwrap();
-                assert_eq!(metadata.location, location);
-                // T0R (N-2): arc endpoint force rows are labelled with their
-                // actual chord frame on preview-physics-1; values unchanged.
-                assert_eq!(metadata.coordinate_system, "arc_chord_frame");
-                assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
-                assert!(metadata.sign_convention.contains("force vector"));
-            }
-        }
-
-        for (fraction, location) in [(0.0, "end-i"), (1.0, "end-j")] {
-            let actual = curved_bend_section_resultants(
-                &build,
-                &pipe,
-                &corrected,
-                &[intensity],
-                &[pressure_thrust],
-                fraction,
-            )
-            .unwrap();
-            let expected = build
-                .macro_element
-                .arc_section_resultants_with_radial_pressure(
-                    fraction,
-                    node_j_force,
-                    intensity,
-                    pressure_thrust,
-                )
-                .unwrap();
-            for slot in 0..6 {
-                assert!(
-                    (actual[slot] - expected[slot]).abs() <= 1.0e-9 * expected[slot].abs().max(1.0),
-                    "{location} resultant slot {slot}: {} != {}",
-                    actual[slot],
-                    expected[slot]
-                );
-            }
-            let recovered = recover_section_stress(&actual, &derived, Some(pressure));
-            let expected_stresses = [
-                ("axial-normal", recovered.components.axial_normal.unwrap()),
-                (
-                    "bending-normal-y",
-                    recovered.components.bending_normal_y.unwrap(),
-                ),
-                (
-                    "bending-normal-z",
-                    recovered.components.bending_normal_z.unwrap(),
-                ),
-                (
-                    "torsional-shear",
-                    recovered.components.torsional_shear.unwrap(),
-                ),
-            ];
-            for (tail, expected_pa) in expected_stresses {
-                p5_close(
-                    result_value(
-                        &result,
-                        &format!("result:stress:pipe-P-100:{location}:{tail}"),
-                    ),
-                    expected_pa / 1.0e6,
-                );
-            }
-            let metadata = result
-                .results
-                .iter()
-                .find(|row| row.id == format!("result:stress:pipe-P-100:{location}:axial-normal"))
-                .and_then(|row| row.metadata.as_ref())
-                .unwrap();
-            assert_eq!(metadata.coordinate_system, "element_local");
-            // T0R (N-2): arc stress components carry the nominal-basis discriminator.
-            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
-            assert_eq!(
-                metadata.sign_convention,
-                CURVED_BEND_SECTION_SIGN_CONVENTION
-            );
-        }
-
-        for (fraction, station) in [(0.25, "quarter-1"), (0.5, "midspan"), (0.75, "quarter-3")] {
-            let expected = build
-                .macro_element
-                .arc_section_resultants_with_radial_pressure(
-                    fraction,
-                    node_j_force,
-                    intensity,
-                    pressure_thrust,
-                )
-                .unwrap();
-            for (slot, (family, tail)) in [
-                ("force", "axial"),
-                ("force", "shear-y"),
-                ("force", "shear-z"),
-                ("moment", "torsion"),
-                ("moment", "bending-y"),
-                ("moment", "bending-z"),
-            ]
-            .into_iter()
-            .enumerate()
-            {
-                let actual = result_value(
-                    &result,
-                    &format!("result:{family}:pipe-P-100:{station}:{tail}"),
-                );
-                assert!(
-                    (actual - expected[slot]).abs() <= 1.1e-6,
-                    "{station} resultant slot {slot}: {actual} != {}",
-                    expected[slot]
-                );
-            }
-            let metadata = result
-                .results
-                .iter()
-                .find(|row| row.id == format!("result:force:pipe-P-100:{station}:axial"))
-                .and_then(|row| row.metadata.as_ref())
-                .unwrap();
-            assert_eq!(metadata.coordinate_system, "element_local");
-            assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
-            assert_eq!(
-                metadata.sign_convention,
-                CURVED_BEND_SECTION_SIGN_CONVENTION
-            );
-            let stress_metadata = result
-                .results
-                .iter()
-                .find(|row| row.id == format!("result:stress:pipe-P-100:{station}:axial-normal"))
-                .and_then(|row| row.metadata.as_ref())
-                .unwrap();
-            assert_eq!(stress_metadata.coordinate_system, "element_local");
-            // T0R (N-2): arc station stress rows carry the nominal-basis discriminator.
-            assert_eq!(stress_metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
-            assert_eq!(
-                stress_metadata.sign_convention,
-                CURVED_BEND_SECTION_SIGN_CONVENTION
-            );
-        }
-    }
-
-    // Predicate: the pressure-thrust contribution assembled for a
-    // macro-realized span is the complete self-equilibrated arc system —
-    // end-cap forces along the validated end tangents plus the exact
-    // consistent radial wall-load vector — for the pipe-internal-area and
-    // expansion-joint effective-area sources alike, with zero net force and
-    // zero net moment about an arbitrary point at floating-point precision.
-    #[test]
-    fn pressure_thrust_on_macro_span_assembles_complete_self_equilibrated_arc_system() {
-        let build = curved_bend_direct_build();
-        let pipe_thrust = 4321.0;
-        let joint_thrust = 1234.5;
-        let loads = vec![
-            PressureThrustLoad {
-                element_index: 0,
-                axial_load: pipe_thrust,
-                source_load_id: "load:L-100-P".to_string(),
-                source: PressureThrustSource::PipeInternalArea,
-            },
-            PressureThrustLoad {
-                element_index: 0,
-                axial_load: joint_thrust,
-                source_load_id: "load:L-100-P".to_string(),
-                source: PressureThrustSource::ExpansionJointEffectiveArea(
-                    ExpansionJointPressureThrustInput {
-                        component_id: "component:EJ-1".to_string(),
-                        pipe_id: "pipe:P-100".to_string(),
-                        effective_area: 6.0e-4,
-                        pressure_thrust_reference: "invented".to_string(),
-                        source_reference: "invented".to_string(),
-                        solver_consumption: "mechanics_geometry_and_user_flexibility".to_string(),
-                    },
-                ),
-            },
-        ];
-        let bends_by_pipe: HashMap<usize, &CurvedBendMacroBuild> =
-            [(0usize, &build)].into_iter().collect();
-        let mut ledger = LoadLedger::new();
-        add_pressure_thrust_loads(&mut ledger, &loads, &[], &bends_by_pipe);
-        let force = ledger.finish(2 * DOF_PER_NODE).unwrap();
-        let force = force.values();
-
-        // Both sources receive the identical arc treatment: the assembled
-        // vector is linear in the thrust, so it equals cap pair plus
-        // consistent wall vector at the summed thrust.
-        let total_thrust = pipe_thrust + joint_thrust;
-        let [tangent_i, tangent_j] = build.macro_element.end_tangents().unwrap();
-        let wall = build
-            .macro_element
-            .consistent_radial_pressure_nodal_loads(total_thrust)
-            .unwrap();
-        for axis in 0..3 {
-            let expected_i = -total_thrust * tangent_i[axis] + wall[axis];
-            let expected_j = total_thrust * tangent_j[axis] + wall[DOF_PER_NODE + axis];
-            assert!((force[axis] - expected_i).abs() <= 1.0e-9 * total_thrust);
-            assert!((force[DOF_PER_NODE + axis] - expected_j).abs() <= 1.0e-9 * total_thrust);
-            let expected_moment_i = wall[3 + axis];
-            let expected_moment_j = wall[DOF_PER_NODE + 3 + axis];
-            assert!((force[3 + axis] - expected_moment_i).abs() <= 1.0e-9 * total_thrust);
-            assert!(
-                (force[DOF_PER_NODE + 3 + axis] - expected_moment_j).abs() <= 1.0e-9 * total_thrust
-            );
-        }
-
-        // Self-equilibrium of the assembled system: zero net force, zero net
-        // moment about an arbitrary off-arc point.
-        let positions = [[0.0, 0.0, 0.0], [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0]];
-        let reference_point = [0.7, -1.3, 0.4];
-        let force_scale = total_thrust;
-        let moment_scale = total_thrust * CURVED_BEND_TEST_RADIUS_M;
-        for axis in 0..3 {
-            let net = force[axis] + force[DOF_PER_NODE + axis];
-            assert!(
-                net.abs() <= 1.0e-12 * force_scale,
-                "net pressure force component {axis} is {net}, expected zero"
-            );
-        }
-        let mut net_moment = [0.0; 3];
-        for (node_slot, position) in positions.iter().enumerate() {
-            let base = node_slot * DOF_PER_NODE;
-            let arm = [
-                position[0] - reference_point[0],
-                position[1] - reference_point[1],
-                position[2] - reference_point[2],
-            ];
-            let nodal_force = [force[base], force[base + 1], force[base + 2]];
-            net_moment[0] += force[base + 3] + arm[1] * nodal_force[2] - arm[2] * nodal_force[1];
-            net_moment[1] += force[base + 4] + arm[2] * nodal_force[0] - arm[0] * nodal_force[2];
-            net_moment[2] += force[base + 5] + arm[0] * nodal_force[1] - arm[1] * nodal_force[0];
-        }
-        for (axis, net) in net_moment.iter().enumerate() {
-            assert!(
-                net.abs() <= 1.0e-12 * moment_scale,
-                "net pressure moment component {axis} is {net}, expected zero"
-            );
-        }
-
-        // No-pressure invariance: an empty pressure-load list leaves the
-        // assembled vector untouched on the same macro span.
-        let mut untouched = LoadLedger::new();
-        add_pressure_thrust_loads(&mut untouched, &[], &[], &bends_by_pipe);
-        assert!(untouched.terms().is_empty());
-        let untouched = untouched.finish(2 * DOF_PER_NODE).unwrap();
-        assert!(untouched.values().iter().all(|value| *value == 0.0));
-    }
-
-    // THE SHARP CHECK (brief predicate 3): an invented end-supported
-    // pressurized arc with no other load is in the pure membrane state — at
-    // every tested interior station the recovered axial force equals +pA
-    // along the local tangent with zero shear and zero internal moment, the
-    // recovered end forces are the cap forces themselves, and the tip
-    // displacement matches the closed-form membrane stretch, all within the
-    // recorded DEC-026 analytic tier. The `include_pressure_longitudinal`
-    // gating semantics are preserved on the macro span.
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn endpoint_section_cut_curved_bend_pressure_shows_membrane_end_and_station_state_historical_pressure_premise(
-    ) {
-        let mut request = curved_bend_span_request();
-        request.model.load_cases[0].primitive_loads = vec![curved_bend_pressure_load()];
-        let section = derive_pipe_section(
-            &request.model.pipe_segments[0].section,
-            "pipe:P-100",
-            &mut Vec::new(),
-        )
-        .unwrap();
-        let thrust = 2.0e6 * section.internal_area;
-        let result = historical_pressure_preview(request);
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-
-        // Membrane end forces: -pA t_i at end i and +pA t_j at end j. The
-        // replaced chord frame coincides with the global frame in this
-        // fixture, so the chord-frame rows carry the tangent components
-        // directly.
-        let element = curved_bend_direct_element();
-        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
-        let force_rows = [
-            ("result:force:pipe-P-100:axial", -thrust * tangent_i[0]),
-            ("result:force:pipe-P-100:shear-y", -thrust * tangent_i[1]),
-            ("result:force:pipe-P-100:shear-z", -thrust * tangent_i[2]),
-            ("result:force:pipe-P-100:axial:end-j", thrust * tangent_j[0]),
-            (
-                "result:force:pipe-P-100:shear-y:end-j",
-                thrust * tangent_j[1],
-            ),
-            (
-                "result:force:pipe-P-100:shear-z:end-j",
-                thrust * tangent_j[2],
-            ),
-            ("result:moment:pipe-P-100:torsion", 0.0),
-            ("result:moment:pipe-P-100:bending-y", 0.0),
-            ("result:moment:pipe-P-100:bending-z", 0.0),
-            ("result:moment:pipe-P-100:torsion:end-j", 0.0),
-            ("result:moment:pipe-P-100:bending-y:end-j", 0.0),
-            ("result:moment:pipe-P-100:bending-z:end-j", 0.0),
-        ];
-        for (row_id, expected) in force_rows {
-            let value = result_value(&result, row_id);
-            assert!(
-                (value - expected).abs() <= 1.0e-9 * thrust.max(1.0),
-                "end-force row {row_id} value {value} must match the membrane cap force {expected}"
-            );
-        }
-
-        // Interior stations: axial +pA along the local tangent, zero shear,
-        // zero torsion, zero bending at every tested station.
-        for station in ["quarter-1", "midspan", "quarter-3"] {
-            let axial = result_value(&result, &format!("result:force:pipe-P-100:{station}:axial"));
-            assert!(
-                (axial - thrust).abs() <= 1.0e-9 * thrust,
-                "station {station} axial {axial} must equal the wall tension {thrust}"
-            );
-            for row_id in [
-                format!("result:force:pipe-P-100:{station}:shear-y"),
-                format!("result:force:pipe-P-100:{station}:shear-z"),
-                format!("result:moment:pipe-P-100:{station}:torsion"),
-                format!("result:moment:pipe-P-100:{station}:bending-y"),
-                format!("result:moment:pipe-P-100:{station}:bending-z"),
-            ] {
-                let value = result_value(&result, &row_id);
-                assert!(
-                    value.abs() <= 1.0e-9 * thrust,
-                    "membrane station row {row_id} must vanish, got {value}"
-                );
-            }
-            let station_stress = result_value(
-                &result,
-                &format!("result:stress:pipe-P-100:{station}:axial-normal"),
-            );
-            let expected_stress = thrust / section.area / 1_000_000.0;
-            assert!(
-                (station_stress - expected_stress).abs() <= 1.0e-6,
-                "station {station} axial stress {station_stress} must equal pA / A_s = {expected_stress}"
-            );
-        }
-        let expected_stress = thrust / section.area / 1_000_000.0;
-        for location in ["end-i", "end-j"] {
-            let row_id = format!("result:stress:pipe-P-100:{location}:axial-normal");
-            p5_close(result_value(&result, &row_id), expected_stress);
-            let metadata = result
-                .results
-                .iter()
-                .find(|row| row.id == row_id)
-                .and_then(|row| row.metadata.as_ref())
-                .unwrap();
-            assert_eq!(metadata.coordinate_system, "element_local");
-            // T0R (N-2): arc stress components carry the nominal-basis discriminator.
-            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
-            assert_eq!(
-                metadata.sign_convention,
-                CURVED_BEND_SECTION_SIGN_CONVENTION
-            );
-        }
-
-        // Tip displacement: closed-form membrane stretch (independent of the
-        // flexibility factor) and the direct macro-element oracle under the
-        // same complete load system agree with the assembled solve.
-        let material = &invented_materials()[0];
-        let stretch = thrust / (material.elastic_modulus.value * section.area);
-        let expected_ux_mm = stretch * CURVED_BEND_TEST_CHORD_M * 1000.0;
-        let ux_mm = result_value(&result, "result:disp:node-N-110:ux");
-        let uy_mm = result_value(&result, "result:disp:node-N-110:uy");
-        assert!(
-            (ux_mm - expected_ux_mm).abs() <= 1.0e-6,
-            "membrane tip stretch {ux_mm} mm must match the closed form {expected_ux_mm} mm"
-        );
-        assert!(
-            uy_mm.abs() <= 1.0e-6,
-            "membrane state produces no transverse tip displacement, got {uy_mm} mm"
-        );
-        let wall = element
-            .consistent_radial_pressure_nodal_loads(thrust)
-            .unwrap();
-        let mut complete = wall;
-        for axis in 0..3 {
-            complete[axis] -= thrust * tangent_i[axis];
-            complete[DOF_PER_NODE + axis] += thrust * tangent_j[axis];
-        }
-        let oracle = curved_bend_direct_solution(&complete);
-        assert!(
-            (ux_mm - oracle[DOF_PER_NODE + UX] * 1000.0).abs() <= 1.0e-6,
-            "assembled tip displacement must match the direct oracle under the complete system"
-        );
-
-        // Pressure gating semantics preserved: the active thrust suppresses
-        // the separate longitudinal-pressure stress row while the hoop row
-        // remains.
-        let result_ids = result
-            .results
-            .iter()
-            .map(|item| item.id.as_str())
-            .collect::<HashSet<_>>();
-        assert!(result_ids.contains("result:stress:pipe-P-100:end-i:pressure-hoop"));
-        assert!(!result_ids.contains("result:stress:pipe-P-100:end-i:pressure-longitudinal"));
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|item| item.code == "PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR"));
-    }
-
-    // Nonlinear parity: the same assembled force vector (complete arc
-    // pressure system included) reaches the active-set loop, so the
-    // released nonlinear solve reproduces the linear macro-span solve of
-    // the identical pressurized model exactly.
-    // Retained historical pressure premise; this private test route cannot qualify Current.
-    #[test]
-    fn curved_bend_macro_span_pressure_reaches_nonlinear_loop_with_same_vector_historical_pressure_premise(
-    ) {
-        let mut request = curved_bend_span_request();
-        request.model.load_cases[0]
-            .primitive_loads
-            .push(curved_bend_pressure_load());
-        request.model.supports.push({
-            let mut support = request.model.supports[0].clone();
-            support.id = "support:S-110".to_string();
-            support.node = "node:N-110".to_string();
-            support.restraints = vec![];
-            support.nonlinear = Some(NonlinearSupportInput {
-                behavior: "one_way".to_string(),
-                dof: "UY".to_string(),
-                initial_state: Some("inactive".to_string()),
-                active_when: Some("positive".to_string()),
-                contact_when: None,
-                closes_when: None,
-                gap: None,
-                friction_coefficient: None,
-                normal_reaction: None,
-                normal_reaction_source: None,
-            });
-            support
-        });
-        let result = historical_pressure_preview(request);
-
-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
-        assert_eq!(
-            result_value(&result, "result:nonlinear-support:converged-flag"),
-            1.0
-        );
-        let linear_uy_mm = result_value(&result, "result:disp:node-N-110:uy");
-        let nonlinear_uy_mm = result_value(
-            &result,
-            "result:nonlinear-support:support-S-110:uy-displacement",
-        );
-        assert!(
-            (nonlinear_uy_mm - linear_uy_mm).abs() <= 1.0e-6,
-            "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the linear pressurized macro-span solve {linear_uy_mm} mm"
-        );
-
-        // Independent oracle for the combined tip force + complete pressure
-        // system on the direct macro element.
-        let section = derive_pipe_section(
-            &curved_bend_span_request().model.pipe_segments[0].section,
-            "pipe:P-100",
-            &mut Vec::new(),
-        )
-        .unwrap();
-        let thrust = 2.0e6 * section.internal_area;
-        let element = curved_bend_direct_element();
-        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
-        let mut complete = element
-            .consistent_radial_pressure_nodal_loads(thrust)
-            .unwrap();
-        for axis in 0..3 {
-            complete[axis] -= thrust * tangent_i[axis];
-            complete[DOF_PER_NODE + axis] += thrust * tangent_j[axis];
-        }
-        complete[DOF_PER_NODE + UY] += 1000.0;
-        let oracle = curved_bend_direct_solution(&complete);
-        assert!(
-            (linear_uy_mm - oracle[DOF_PER_NODE + UY] * 1000.0).abs() <= 1.0e-6,
-            "pressurized macro-span solve must match the direct oracle"
-        );
     }
 
     #[test]

@@ -25,8 +25,9 @@ from schema_validation import (  # noqa: E402
 )
 
 SCHEMA_PATH = ROOT / "schemas" / "results.v0.1.schema.yaml"  # Exact legacy contract; version dispatch has its own focused tests.
+# The bundled demo's historical-format (0.1.0) carrier of the product's output.
 PRODUCT_PREVIEW_RESULT_PATH = (
-    ROOT / "fixtures" / "product_preview" / "invented_mechanics_result.json"
+    ROOT / "fixtures" / "product_preview" / "invented_demo_result_legacy_0_1.json"
 )
 TP_PHYS_015_RESULT_ENVELOPE_PATH = (
     ROOT
@@ -394,20 +395,10 @@ def main():
         for result in preview_result["results"]
         if result["id"] == "result:stress:pipe-P-120:midspan:torsional-shear"
     )
-    combination_axial_force = next(
+    load_case_axial_force = next(
         result
         for result in preview_result["results"]
-        if result["id"] == "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"
-    )
-    pressure_hoop = next(
-        result
-        for result in preview_result["results"]
-        if result["id"] == "result:stress:pipe-P-120:end-i:pressure-hoop"
-    )
-    stress_summary = next(
-        result
-        for result in preview_result["results"]
-        if result["id"] == "result:stress:pipe-P-120"
+        if result["id"] == "result:loadcase:load-L-200:force:pipe-P-120:axial"
     )
     assert axial_force["unit"] == "N"
     assert axial_force["basis_ref"] == {"ref_type": "load_case", "ref_id": "load:L-100"}
@@ -435,8 +426,6 @@ def main():
     assert shear_force_quarter["metadata"]["component"] == "shear_force_z"
     assert shear_force_quarter["metadata"]["location"] == "quarter_1"
     assert shear_force_quarter["metadata"]["basis"] == "recovered_from_local_element_stiffness"
-    assert stress_summary["kind"] == "open_formula_stress_summary"
-    assert "metadata" not in stress_summary
     assert torsional_stress_end_j["unit"] == "MPa"
     assert torsional_stress_end_j["metadata"]["component"] == "torsional_shear_stress"
     assert torsional_stress_end_j["metadata"]["coordinate_system"] == "element_local"
@@ -456,29 +445,14 @@ def main():
         torsional_stress_midspan["metadata"]["basis"]
         == "recovered_from_open_mechanics_stress_components"
     )
-    assert pressure_hoop["unit"] == "MPa"
-    assert pressure_hoop["metadata"]["component"] == "pressure_hoop_stress"
-    assert pressure_hoop["metadata"]["coordinate_system"] == "pipe_section"
-    assert (
-        pressure_hoop["metadata"]["basis"]
-        == "recovered_from_open_mechanics_stress_components"
-    )
-    assert (
-        pressure_hoop["metadata"]["sign_convention"]
-        == "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
-    )
-    assert "section action" not in pressure_hoop["metadata"]["sign_convention"]
-    assert combination_axial_force["unit"] == "N"
-    assert combination_axial_force["basis_ref"] == {
-        "ref_type": "combination",
-        "ref_id": "combination:C-OPER-ALT",
-    }
-    assert combination_axial_force["source_result_refs"] == [
-        "result:force:pipe-P-120:axial",
-        "result:loadcase:load-L-200:force:pipe-P-120:axial",
-    ]
-    assert combination_axial_force["metadata"]["basis"] == "explicit_user_linear_combination"
-    assert combination_axial_force["metadata"]["basis"] in metadata["basis"]["enum"]
+    # The demo has no legacy pressure (no hoop rows), and its mechanics
+    # combination is withheld for its nonlinear supports (no combination rows).
+    assert not any("pressure" in result["id"] for result in preview_result["results"])
+    assert not any(result.get("basis_ref", {}).get("ref_type") == "combination" for result in preview_result["results"])
+    assert load_case_axial_force["unit"] == "N"
+    assert load_case_axial_force["basis_ref"] == {"ref_type": "load_case", "ref_id": "load:L-200"}
+    assert load_case_axial_force["metadata"]["basis"] == "recovered_from_local_element_stiffness"
+    assert load_case_axial_force["metadata"]["basis"] in metadata["basis"]["enum"]
 
     tp_phys_015_result = load_tp_phys_015_result_envelope()
     result_envelope = tp_phys_015_result["result_envelope"]
@@ -676,9 +650,10 @@ def test_preview_station_metadata_matches_complete_canonical_contract():
         "axial_force", "shear_force_y", "shear_force_z",
         "torsional_moment", "bending_moment_y", "bending_moment_z",
     }
+    # The demo carries no legacy pressure, so there is no pressure-hoop station row.
     stress = {
         "axial_normal_stress", "bending_normal_stress_y",
-        "bending_normal_stress_z", "torsional_shear_stress", "pressure_hoop_stress",
+        "bending_normal_stress_z", "torsional_shear_stress",
     }
     rows = [
         row for row in load_product_preview_result()["results"]
@@ -692,22 +667,13 @@ def test_preview_station_metadata_matches_complete_canonical_contract():
         component = metadata["component"]
         assert component in force_moment | stress, row["id"]
         seen.add((component, metadata["location"]))
-        assert metadata["coordinate_system"] == (
-            "pipe_section" if component == "pressure_hoop_stress" else "element_local"
-        ), row["id"]
+        assert metadata["coordinate_system"] == "element_local", row["id"]
         assert metadata["basis"] == (
             "recovered_from_local_element_stiffness" if component in force_moment
             else "recovered_from_open_mechanics_stress_components"
         ), row["id"]
-        if component == "pressure_hoop_stress":
-            assert (
-                metadata["sign_convention"]
-                == "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
-            ), row["id"]
-            assert "section action" not in metadata["sign_convention"], row["id"]
-        else:
-            assert "section equilibrium" in metadata["sign_convention"], row["id"]
-            assert "consistent distributed-load fixed-end correction" in metadata["sign_convention"], row["id"]
+        assert "section equilibrium" in metadata["sign_convention"], row["id"]
+        assert "consistent distributed-load fixed-end correction" in metadata["sign_convention"], row["id"]
     assert seen == {(component, location) for component in force_moment | stress for location in locations}
     # Validate all five fields, requiredness and closed enums/extra fields together.
     collection_schema = {

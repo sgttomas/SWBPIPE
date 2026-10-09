@@ -14,8 +14,9 @@ Fixture ID: `STRESS-RANGE-MECHANICS-ORIGINAL`
 ## Inputs
 
 The fixture compares two invented mechanics states using the same section
-properties. Pressure inputs are omitted for this mechanics range case; omitted
-pressure in both states produces no pressure range component.
+properties. The recovery path has no pressure components (the legacy pressure
+membrane was removed with the legacy pressure contract, U3), so the range has
+none.
 
 | Quantity | State A | State B | Unit | Canonical dimension |
 |---|---:|---:|---|---|
@@ -57,8 +58,6 @@ Bending-z range:
 | `bending_normal_y_range` | 4.0 | Pa | stress |
 | `bending_normal_z_range` | 0.0 | Pa | stress |
 | `torsional_shear_range` | 1.0 | Pa | stress |
-| `pressure_hoop_range` | omitted | Pa | stress |
-| `pressure_longitudinal_range` | omitted | Pa | stress |
 
 ## Boundary
 

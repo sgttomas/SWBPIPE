@@ -1,8 +1,10 @@
 # Stress Recovery
 
 This crate is the bounded implementation slice for `DEL-05-03`. It recovers
-code-neutral mechanics stresses from explicit element force resultants, section
-properties, and optional pressure basis inputs.
+code-neutral mechanics stresses from explicit element force resultants and section
+properties. It has no pressure components: the legacy thin-wall pressure
+membrane was removed with the legacy pressure contract (U3), and pressure
+stress is published only by the product's exact straight-pressure route.
 
 ## Scope
 
@@ -11,14 +13,11 @@ properties, and optional pressure basis inputs.
   moduli.
 - Torsional shear stress from supplied torque, torsion radius, and torsion
   constant.
-- Thin-wall pressure membrane components from explicit pressure, radius, and
-  wall thickness inputs.
 - Mechanics-only component stress ranges from two recovered stress states.
 - Neutral construction of force resultants from solver element-end resultants,
   with finite-input validation and no code stress interpretation.
-- Input unit metadata validation for force resultants, section properties, and
-  pressure-basis quantities using the accepted PKG-02 canonical dimension
-  vocabulary.
+- Input unit metadata validation for force resultants and section properties
+  using the accepted PKG-02 canonical dimension vocabulary.
 - Recovered stress boundary records that bind explicit stress-unit metadata to
   the canonical result/result-envelope schema surface with payload and
   payload-hash references.
@@ -52,7 +51,7 @@ claims.
 
 ## Verification
 
-The unit tests cover axial, bending, torsion, pressure membrane components,
+The unit tests cover axial, bending and torsion components,
 combined normal/shear summaries, mechanics-only stress ranges, element-end
 resultant input construction, missing inputs, invalid numeric values, unit
 metadata validation including force-per-length rejection for force resultants,

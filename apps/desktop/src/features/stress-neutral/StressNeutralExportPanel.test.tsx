@@ -9,8 +9,8 @@ import {afterEach,it,expect,vi} from 'vitest';
 import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
-import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
+import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,bindSourceResultDimensions,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow} from './StressNeutralExportPanel';
@@ -20,17 +20,17 @@ import type {PreviewModel,MechanicsResult} from '../../types';
 import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/nativeResultSave';
 vi.mock('../result-export/nativeResultSave',()=>({isNativeResultSaveRuntime:vi.fn(()=>false),saveNativeResultJson:vi.fn()}));
 afterEach(()=>{vi.restoreAllMocks();delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
-it('retains every native-shaped source row and hash while deriving 828 semantic witnesses and two diagnostic-work withholdings',async()=>{
+it('retains every native-shaped source row and hash while deriving 511 semantic witnesses and two diagnostic-work withholdings',async()=>{
  const model=modelJson as PreviewModel,result=structuredClone(resultJson) as unknown as MechanicsResult;
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunV02(result,inputManifest),before=JSON.stringify({result,analysisRun});const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
  expect(packet.schema_version).toBe('0.2.0');expect(packet.manifest.package_members).toHaveLength(9);expect(packet.manifest.checksums).toHaveLength(9);expect(packet.package_checksum.payload_scope).toBe('complete_package_excluding_self_checksum');
  expect(packet.export_profile).toMatchObject({profile_id:'ops.stress_neutral.v2',profile_version:'0.2.0'});expect(packet.manifest.export_profile_ref).toEqual({object_type:'StressNeutralExportProfile',ref:'ops.stress_neutral.v2'});
  expect(packet.result_rows).toHaveLength(result.results.length);expect(packet.csv_text.trim().split('\n')).toHaveLength(result.results.length+1);
- expect(packet.unit_preservation_witnesses).toHaveLength(828);
+ expect(packet.unit_preservation_witnesses).toHaveLength(511);
  const withheld=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK');expect(withheld).toHaveLength(2);expect(new Set(withheld.map((d:any)=>d.source.ref))).toEqual(new Set(['result:nonlinear-support:free-dof-work-residual','result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual']));expect(packet.validation_ready).toBe(false);
- const aggregate=packet.diagnostics.find((d:any)=>d.code==='SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE');expect(aggregate.message).toContain('2 retained rows');expect(aggregate.message).toContain('828 rows');expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-DIMENSION-MISSING')).toBe(false);expect(packet.validation_report.checks.find((check:any)=>check.check_id==='unit_preservation_witness_per_row')).toMatchObject({check_status:'blocking',blocking_count:2,diagnostic_count:2});
- expect(packet.loss_report.find((entry:any)=>entry.category==='exported').reason).toContain('830 received numerical rows');expect(packet.loss_report.find((entry:any)=>entry.category==='exported').reason).toContain('828 rows have accepted semantic-contract dimension witnesses and 2 rows');
+ const aggregate=packet.diagnostics.find((d:any)=>d.code==='SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE');expect(aggregate.message).toContain('2 retained rows');expect(aggregate.message).toContain('511 rows');expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-DIMENSION-MISSING')).toBe(false);expect(packet.validation_report.checks.find((check:any)=>check.check_id==='unit_preservation_witness_per_row')).toMatchObject({check_status:'blocking',blocking_count:2,diagnostic_count:2});
+ expect(packet.loss_report.find((entry:any)=>entry.category==='exported').reason).toContain('513 received numerical rows');expect(packet.loss_report.find((entry:any)=>entry.category==='exported').reason).toContain('511 rows have accepted semantic-contract dimension witnesses and 2 rows');
  expect(packet.diagnostics.some((d:any)=>d.code==='SN-DESKTOP-PREVIEW-HASH-TBD')).toBe(false);expect(packet.export_profile.boundary_notes.some((note:string)=>note.includes('does not emit canonical package member hashes'))).toBe(false);
  for(const row of packet.result_rows){const original=result.results.find(r=>r.id===row.result_id)!;expect(row.value).toBe(original.value);expect(row.unit).toBe(original.unit);if(resultSemantics(original)?.family==='rotation' && resultSemantics(original)?.category==='physical_quantity'){expect(row.dimension).toBe('angle');expect(row.result_family).toBe('rotation');}}
  for(const w of packet.unit_preservation_witnesses){const row=result.results.find(r=>r.id===w.result_id)!;expect(w.source_quantity.dimension).toBe(resultSemantics(row)!.derivative_target_dimension);expect(w.target_quantity).toEqual(w.source_quantity);}
@@ -61,9 +61,9 @@ it('constructs and materializes a validated packet from an explicitly bound auth
  if(!resultPath||!modelPath||!analysisPath)return;
  const rawResult=readFileSync(resultPath,'utf8'),rawModel=readFileSync(modelPath,'utf8'),rawAnalysis=readFileSync(analysisPath,'utf8');
  const result=JSON.parse(rawResult) as MechanicsResult,model=JSON.parse(rawModel) as PreviewModel,analysisRun=JSON.parse(rawAnalysis);
- expect(result.results).toHaveLength(830);expect(result.results.every(row=>!('dimension' in row))).toBe(true);
+ expect(result.results).toHaveLength(513);expect(result.results.every(row=>!('dimension' in row))).toBe(true);
  const before=JSON.stringify({model,result,analysisRun});const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
- expect(packet.result_rows).toHaveLength(830);expect(packet.unit_preservation_witnesses).toHaveLength(828);expect(packet.diagnostics.filter((item:any)=>item.code==='SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK')).toHaveLength(2);expect(JSON.stringify({model,result,analysisRun})).toBe(before);await expect(validateStressNeutralExportPacket(packet)).resolves.toBeUndefined();
+ expect(packet.result_rows).toHaveLength(513);expect(packet.unit_preservation_witnesses).toHaveLength(511);expect(packet.diagnostics.filter((item:any)=>item.code==='SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK')).toHaveLength(2);expect(JSON.stringify({model,result,analysisRun})).toBe(before);await expect(validateStressNeutralExportPacket(packet)).resolves.toBeUndefined();
  if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){mkdirSync(process.env.RESULTS_CONTRACT_OUTPUT_DIR,{recursive:true});const materialized=JSON.stringify(packet);writeFileSync(path.join(process.env.RESULTS_CONTRACT_OUTPUT_DIR,'authentic-native-stress-neutral.packet.json'),materialized);expect(JSON.parse(materialized)).toEqual(packet);}
 });
 

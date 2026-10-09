@@ -1,0 +1,8 @@
+# source_equality.py (--no-renames) at 3bfcceb4c0 against NUM 70aa51b076, main ba500defa4; run by WORKING_ITEMS
+check1: PASS: "PR non-execution paths equal S"
+check2: PASS: "136 paths identical in blob and mode"
+check3: PASS: {"rules_not_needed": ["projects/chirality-piping/core/analysis_runs/compatibility.py"]}
+check4: PASS: {"execution_files": 5, "outside_package": [], "sha256_mismatch": []}
+check5: PASS: "136 rows; 136 equal; 0 recorded three-way merge(s); unexplained []"
+RESULT: PASS
+# negative control at 98733368f9 (the unrepaired head): checks 1, 2 and 5 FAIL

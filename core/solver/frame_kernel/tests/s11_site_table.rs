@@ -273,8 +273,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("SP/lib.rs", "exact_terms_sum", 0, "E4/E6 accumulator"),
     // ---- CB
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "exempt: one source's consistent equivalent (section 2.2 declared formation)"),
-    ("CB/lib.rs", "consistent_radial_pressure_nodal_loads", 2, "exempt: one source's consistent equivalent (section 2.2 declared formation)"),
-    ("CB/lib.rs", "arc_section_resultants_with_radial_pressure", 3, "E11 in S11-F: PP's summed-thrust section (dormant terms API below replaces it at S11-F)"),
     ("CB/lib.rs", "cross_quad", 1, "exempt: flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "exempt: formed rotation"),
     ("CB/lib.rs", "quad", 1, "exempt: flexibility quadrature (stiffness formation)"),

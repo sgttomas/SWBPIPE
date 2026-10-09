@@ -1219,9 +1219,12 @@ fn profile_in_build_record() {
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
 /// The pinned record (W1, W2, W3, W4, W5, X1, X2), sparse then dense, in that build.
 /// B1 SQ: regenerated at C = 3 on B1's code (G5, with RV112 N-5's reservations; RETURN.md).
+/// U3 (piping T3, I110 round 3): regenerated after the legacy pressure fields left
+/// `StressComponents` (two `Option<f64>`) and `DerivedSection` (`membrane_radius`): every
+/// phase is 800 bytes lower in both modes (9 x 32 + 64 x 8); no binding, form or phase changed.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_069_321_390, 5_392_753_352, 9_733_567_302, 9_518_381_725, 5_964_775_312, 8_846_487_786, 5_023_851_824],
-    [5_128_452_734, 5_451_884_696, 9_792_698_646, 9_577_513_069, 6_023_906_656, 8_905_619_130, 5_082_983_168],
+    [5_069_320_590, 5_392_752_552, 9_733_566_502, 9_518_380_925, 5_964_774_512, 8_846_486_986, 5_023_851_024],
+    [5_128_451_934, 5_451_883_896, 9_792_697_846, 9_577_512_269, 6_023_905_856, 8_905_618_330, 5_082_982_368],
 ];
 
 #[test]

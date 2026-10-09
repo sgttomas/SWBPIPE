@@ -1156,7 +1156,7 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                 ),
                 "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED",
                 "warning",
-                "expansion joint components require solver_consumption=mechanics_geometry_and_user_flexibility under DEC-045; pressure thrust remains load-side input evidence",
+                "expansion joint components require solver_consumption=mechanics_geometry_and_user_flexibility under DEC-045; no joint pressure thrust is generated",
                 vec![component.id.clone()],
             ));
         }
@@ -1347,7 +1347,7 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     ),
                     "EXPANSION_JOINT_GEOMETRY_INPUT_INVALID",
                     "warning",
-                    "expansion joint effective pressure area and movement limit must be finite positive user-entered values before load-side pressure-thrust evidence can be generated",
+                    "expansion joint effective pressure area and movement limit must be finite positive user-entered values; they are recorded as input evidence only, and no joint pressure thrust is generated",
                     vec![component.id.clone()],
                 ));
             }

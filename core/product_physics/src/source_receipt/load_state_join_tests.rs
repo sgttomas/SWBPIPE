@@ -356,7 +356,6 @@ impl Parts {
             load_case: &self.resolved.effective_case,
             load_application: &self.loads,
             thermal_loads: &self.eigen,
-            pressure_thrust_loads: &[],
             load_state: Some(&self.resolved),
         }
     }

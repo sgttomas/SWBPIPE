@@ -762,7 +762,6 @@ impl FinalizedSourceBlockCase {
                     load_case: input.load_case,
                     load_application: input.load_application,
                     thermal_loads: input.thermal_loads,
-                    pressure_thrust_loads: input.pressure_thrust_loads,
                     load_state: input.load_state,
                 })
                 .map_err(|e| bad(format!("composite current source: {e:?}")))?;

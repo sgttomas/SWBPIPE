@@ -1359,15 +1359,12 @@ mod tests {
     #[test]
     fn preview_bridge_executes_product_physics_with_deterministic_refs() {
         // This control asserts current torsional/source references and hashes,
-        // not pressure physics. Declare its local input unpressurized before
-        // solving; do not change the shared fixture or other tests' inputs.
+        // not pressure physics. Remove the retired legacy pressure primitives from
+        // its local input before solving (U3: any value is refused); do not change
+        // the shared fixture or other tests' inputs.
         let mut current_request = preview_request();
         for case in &mut current_request.model.load_cases {
-            for load in &mut case.primitive_loads {
-                if load.category == "pressure" || load.dimension == "pressure" {
-                    load.magnitude.value = 0.0;
-                }
-            }
+            case.primitive_loads.retain(|load| !(load.category == "pressure" || load.dimension == "pressure"));
         }
         let output = run_preview_in_memory(request(), current_request);
         let mechanics = output
@@ -1443,14 +1440,10 @@ mod tests {
     fn preview_bridge_preserves_producer_and_drives_user_rule_failed_into_analysis_status() {
         // The final runner validation assertion requires computed row refs.
         // Pressure is incidental to the rule/source-status behavior under test;
-        // declare only this current input unpressurized before the real solve.
+        // remove the retired legacy pressure primitives from this input only.
         let mut current_request = preview_request();
         for case in &mut current_request.model.load_cases {
-            for load in &mut case.primitive_loads {
-                if load.category == "pressure" || load.dimension == "pressure" {
-                    load.magnitude.value = 0.0;
-                }
-            }
+            case.primitive_loads.retain(|load| !(load.category == "pressure" || load.dimension == "pressure"));
         }
         let output = run_preview_in_memory_with_rule_check(
             request(),
@@ -1504,18 +1497,14 @@ mod tests {
         let exact: Value = serde_json::from_str(include_str!(
             "../../../product_physics/tests/fixtures/exact_pressure_connected_request.json"
         )).unwrap();
-        // Pressure is incidental to the legacy source-binding control. Declare
-        // zero pressure in a local input before solving; keep fixture bytes intact.
+        // Pressure is incidental to the legacy source-binding control. Remove any
+        // legacy pressure primitive from a local input; keep fixture bytes intact.
         // T0R A1: the derived joint-free invented model (the original demo's joint is refused).
         let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
             "../../../product_physics/tests/fixtures/preview_physics_invented_model.json"
         )).unwrap(), "materials": []});
         for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
-            for load in case["primitive_loads"].as_array_mut().unwrap() {
-                if load["category"] == "pressure" || load["dimension"] == "pressure" {
-                    load["magnitude"]["value"] = serde_json::json!(0.0);
-                }
-            }
+            case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));
         }
         // T0R: a fresh non-exact solve publishes preview-physics-1, never precision-1.
         for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID),

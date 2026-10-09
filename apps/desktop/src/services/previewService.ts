@@ -624,9 +624,12 @@ export async function loadSampleProposal(
   );
 }
 
+/** The default session model and the model of the bundled reference results:
+ * the valid demo, the invented loop without the retired legacy pressure
+ * primitives and the refused expansion joint, which the product solves. */
 async function loadModelFixture(): Promise<PreviewModel> {
   return structuredClone((
-    await import("../../../../fixtures/product_preview/invented_preview_model.json")
+    await import("../../../../fixtures/product_preview/invented_demo_model.json")
   ).default) as PreviewModel;
 }
 
@@ -641,22 +644,23 @@ async function loadMechanicsFixture(
 ): Promise<MechanicsResult> {
   assertPreviewSolverMode(solverMode);
   const fixture = solverMode === "sparse_interactive"
-    ? (await import("../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json")).default
-    : (await import("../../../../fixtures/product_preview/invented_mechanics_result_precision_1_dense.json")).default;
+    ? (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json")).default
+    : (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json")).default;
   // Return a copy so one caller cannot change the imported producer evidence for
   // subsequent invocations. No header, row, dimension or quality is manufactured.
   return structuredClone(fixture) as MechanicsResult;
 }
 
-/** Validate mode evidence of a selected bundled producer result, not authenticate
- * an arbitrary caller's source/build or upgrade its numerical quality. */
+/** Validate the preview-physics-1 evidence and mode evidence of a selected bundled
+ * producer result, not authenticate an arbitrary caller's source/build or upgrade
+ * its numerical quality. */
 export function validateBrowserMechanicsFixture(
   result: MechanicsResult,
   solverMode: PreviewSolverMode,
   fixtureModel: PreviewModel,
 ): MechanicsResult {
   assertPreviewSolverMode(solverMode);
-  if (sourceContract(result) !== "precision") {
+  if (sourceContract(result) !== "preview_physics") {
     throw new Error("BROWSER_FIXTURE_PRODUCER_CONTRACT_UNSUPPORTED");
   }
   if (result.model_ref !== fixtureModel.project.id) {
@@ -664,7 +668,10 @@ export function validateBrowserMechanicsFixture(
   }
   // A genuine blocked producer return can have no execution rows. Preserve that
   // failure as received; it supplies no completed mode/solve evidence to promote.
-  if (result.status.mechanics !== "MECHANICS_SOLVED" && result.results.length === 0) return result;
+  if (result.status.mechanics !== "MECHANICS_SOLVED" && result.results.length === 0) {
+    validatePreviewPhysicsEvidence(result, fixtureModel);
+    return result;
+  }
   const cases = fixtureModel.load_cases.map(item => item.id);
   const rows = result.results.filter(item => item.kind === "linear_solver_mode_basis");
   const expectedValue = solverMode === "sparse_interactive" ? 1 : 2;
@@ -683,6 +690,8 @@ export function validateBrowserMechanicsFixture(
       || field(row.metadata.basis, "solution_basis").join() !== `solution_basis=${expectedBasis}`)) {
     throw new Error(`BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH: ${solverMode}`);
   }
+  // The preview-physics-1 reader checks the bundled bytes as received.
+  validatePreviewPhysicsEvidence(result, fixtureModel);
   return result;
 }
 
@@ -716,8 +725,8 @@ export async function loadBundledMechanicsReference(
     provenance: {
       origin: "preserved_bundled_producer_record",
       fixture_ref: solverMode === "sparse_interactive"
-        ? "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json"
-        : "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+        ? "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"
+        : "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json",
       recorded_solver_mode: solverMode,
       fresh_invocation_performed: false,
       current_use_eligible: false,

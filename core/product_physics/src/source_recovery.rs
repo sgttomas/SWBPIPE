@@ -7,7 +7,7 @@ use super::case_state::resolve::ResolvedCase;
 use super::{
     dof_index, is_constant_effort_support, parse_category, parse_direction, parse_dof,
     parse_load_dimension, support_stiffness_input, AssemblyEvidence, BuiltModel, LoadDimension,
-    LoadTargetInput, Matrix12, PressureThrustLoad, PreviewLoadCase, PreviewModel,
+    LoadTargetInput, Matrix12, PreviewLoadCase, PreviewModel,
     PreviewPrimitiveLoad, PrimitiveLoadCategory, Quantity, SpringEntry, SupportFamily,
     ThermalElementLoad, DOF_PER_NODE,
 };
@@ -45,7 +45,6 @@ pub(super) struct Input<'a> {
     pub load_case: &'a PreviewLoadCase,
     pub load_application: &'a LoadApplication,
     pub thermal_loads: &'a [ThermalElementLoad],
-    pub pressure_thrust_loads: &'a [PressureThrustLoad],
     /// The one resolved case of a 0.4.0 load/reference-state invocation. It is
     /// the only admitted owner of eigen element loads and nonzero prescribed
     /// support motion; absent for every pre-0.4 invocation.
@@ -611,7 +610,6 @@ fn prepare_sources(
         || !input.load_application.element_uniform_loads.is_empty()
         || !input.load_application.imposed_displacements.is_empty()
         || (load_state.is_none() && !input.thermal_loads.is_empty())
-        || !input.pressure_thrust_loads.is_empty()
         || input.model.supports.iter().any(|s| {
             is_constant_effort_support(s)
                 || s.hanger.as_ref().is_some_and(|h| h.constant_load.is_some())
@@ -1678,7 +1676,6 @@ mod tests {
                 load_case: &self.model.load_cases[0],
                 load_application: &self.loads,
                 thermal_loads: &[],
-                pressure_thrust_loads: &[],
                 load_state: None,
             }
         }
@@ -1723,6 +1720,45 @@ mod tests {
         assert_eq!(sources.spring_ids[0].1, sources.spring_ids[1].1);
         assert_ne!(sources.spring_ids[0].0, sources.spring_ids[1].0);
         assert_eq!(sources.descriptors.len(), 42 + 12 + 2 + 18);
+    }
+
+    // RV127 N-4: `validate_profile` refuses every one of these documents before
+    // a solve, so this gate is defence in depth for the non-exact namespace;
+    // it is pinned here at unit level (U3).
+    #[test]
+    fn non_exact_source_blocks_gate_refuses_a_later_version_a_contract_or_regions() {
+        const GATE: &str = "legacy source-blocks namespace requires model0.1/0.2 without pressure contract or regions";
+        let refuse = |fixture: &Fixture| {
+            prepare_sources(
+                &fixture.input(),
+                &mut AttemptBudget::new(exact::Limits::default()),
+            )
+            .err()
+        };
+        let fixture = Fixture::new(Fixture::model());
+        assert_eq!(fixture.model.schema_version, "0.1.0");
+        assert_eq!(refuse(&fixture), None);
+        let mut later = Fixture::new(Fixture::model());
+        later.model.schema_version = "0.3.0".into();
+        assert_eq!(refuse(&later), Some(RecoveryError::Unsupported(GATE)));
+        for (version, mode) in [
+            ("1.0.0", "legacy_pressure_v1"),
+            ("2.0.0", "exact_straight_pressure_v2"),
+        ] {
+            let mut contract = Fixture::new(Fixture::model());
+            contract.model.pressure_contract = Some(super::super::PressureContractInput {
+                version: Some(version.into()),
+                mode: Some(mode.into()),
+            });
+            assert_eq!(
+                refuse(&contract),
+                Some(RecoveryError::Unsupported(GATE)),
+                "{version}/{mode}"
+            );
+        }
+        let mut regions = Fixture::new(Fixture::model());
+        regions.model.load_cases[0].pressure_regions = Some(Vec::new());
+        assert_eq!(refuse(&regions), Some(RecoveryError::Unsupported(GATE)));
     }
 
     #[test]

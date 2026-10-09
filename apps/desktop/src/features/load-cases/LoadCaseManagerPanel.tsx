@@ -43,7 +43,6 @@ type PrimitiveLoadCategory =
   | "concentrated_force"
   | "distributed_force"
   | "concentrated_moment"
-  | "pressure"
   | "thermal"
   | "imposed_displacement";
 
@@ -588,11 +587,13 @@ export function LoadCaseManagerPanel({
               <option value="concentrated_force">concentrated_force</option>
               <option value="distributed_force">distributed_force</option>
               <option value="concentrated_moment">concentrated_moment</option>
-              <option value="pressure">pressure</option>
               <option value="thermal">thermal</option>
               <option value="imposed_displacement">imposed_displacement</option>
             </select>
           </label>
+          <p className="muted" data-testid="load-manager-pressure-primitive-retired">
+            Legacy pressure primitives are retired. Author pressure as exact pressure regions in the pressure mechanics profile.
+          </p>
           <VirtualTargetPicker label="Primitive load case" testId="load-manager-create-primitive-load-case" options={loadCaseOptions} value={primitiveLoadDraft.loadCaseId} onChange={(value) => updatePrimitiveLoadDraft("loadCaseId", value)} />
           <label>
             <span>ID</span>
@@ -2188,13 +2189,11 @@ function nextPrimitiveLoadIdentifier(
       ? "D"
       : category === "concentrated_moment"
         ? "M"
-        : category === "pressure"
-          ? "P"
-          : category === "thermal"
-            ? "T"
-            : category === "imposed_displacement"
-              ? "I"
-              : "F";
+        : category === "thermal"
+          ? "T"
+          : category === "imposed_displacement"
+            ? "I"
+            : "F";
   for (let index = 300; index < 1000; index += 1) {
     const candidate = loadCaseId ? `${loadCaseId}-${suffix}${index}` : `load:${suffix}-${index}`;
     if (!primitiveLoadExists(model, candidate)) return candidate;
@@ -2520,10 +2519,6 @@ function projectMomentUnit(model: PreviewModel): string {
   return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
 }
 
-function projectPressureUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.pressure) ?? "TBD";
-}
-
 function projectTemperatureUnit(model: PreviewModel): string {
   const unit = optionalString(model.project.units.temperature) ?? "TBD";
   return unit === "C" ? "degC" : unit;
@@ -2536,7 +2531,6 @@ function projectRotationUnit(model: PreviewModel): string {
 function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
   if (category === "distributed_force") return projectDistributedForceUnit(model);
   if (category === "concentrated_moment") return projectMomentUnit(model);
-  if (category === "pressure") return projectPressureUnit(model);
   if (category === "thermal") return projectTemperatureUnit(model);
   if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
   return projectForceUnit(model);
@@ -2545,7 +2539,6 @@ function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCa
 function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, direction: string): string {
   if (category === "distributed_force") return "force_per_length";
   if (category === "concentrated_moment") return "moment";
-  if (category === "pressure") return "pressure";
   if (category === "thermal") return "temperature_interval";
   if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? "rotation" : "displacement";
   return "force";
@@ -2558,14 +2551,13 @@ function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
 
 function primitiveLoadCategoryFromValue(value: string): PrimitiveLoadCategory {
   if (value === "concentrated_moment") return "concentrated_moment";
-  if (value === "pressure") return "pressure";
   if (value === "thermal") return "thermal";
   if (value === "imposed_displacement") return "imposed_displacement";
   return value === "distributed_force" ? "distributed_force" : "concentrated_force";
 }
 
 function primitiveLoadUsesPipeTarget(category: PrimitiveLoadCategory): boolean {
-  return category === "distributed_force" || category === "pressure" || category === "thermal";
+  return category === "distributed_force" || category === "thermal";
 }
 
 function primitiveLoadUsesSupportTarget(category: PrimitiveLoadCategory): boolean {
@@ -2579,7 +2571,6 @@ function primitiveLoadDirectionOptions(category: PrimitiveLoadCategory): string[
 
 function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): string {
   if (category === "concentrated_moment") return "rotation_z";
-  if (category === "pressure") return "global_x";
   if (category === "thermal") return "global_z";
   if (category === "imposed_displacement") return "UZ";
   return "global_y";
@@ -2588,7 +2579,6 @@ function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): string 
 function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
   if (category === "distributed_force") return "Distributed force primitive load";
   if (category === "concentrated_moment") return "Concentrated moment primitive load";
-  if (category === "pressure") return "Pressure primitive load";
   if (category === "thermal") return "Thermal primitive load";
   if (category === "imposed_displacement") return "Imposed displacement primitive load";
   return "Concentrated force primitive load";
@@ -2600,9 +2590,6 @@ function primitiveLoadSourceNote(category: PrimitiveLoadCategory): string {
   }
   if (category === "concentrated_moment") {
     return "explicit user-entered concentrated nodal moment; no pressure, temperature, or imposed displacements inferred";
-  }
-  if (category === "pressure") {
-    return "explicit user-entered pressure primitive; no temperature or imposed displacements inferred";
   }
   if (category === "thermal") {
     return "explicit user-entered temperature-interval primitive; no pressure or imposed displacements inferred";

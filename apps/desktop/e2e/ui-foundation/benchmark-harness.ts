@@ -1514,7 +1514,7 @@ export async function routeModelFixture(page: Page, fixture: Pick<LoadedFixture,
     "if(globalThis.__uifHarness){globalThis.__uifHarness.fixtureModuleEvaluated=performance.now();globalThis.__uifHarness.causal?.prepareAssignment?.();}",
     "export { model as default };"
   ].join("\n");
-  await page.route(/(?:invented_preview_model-[^/]+\.js|fixtures\/product_preview\/invented_preview_model\.json)(?:\?.*)?$/, async (route) => {
+  await page.route(/(?:invented_demo_model-[^/]+\.js|fixtures\/product_preview\/invented_demo_model\.json)(?:\?.*)?$/, async (route) => {
     await route.fulfill({ status: 200, contentType: "application/javascript", body: moduleBody });
   });
 }

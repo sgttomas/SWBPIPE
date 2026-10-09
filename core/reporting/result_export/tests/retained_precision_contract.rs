@@ -4742,6 +4742,26 @@ fn b1_r2_g_model_scope_at_g8_invocation() {
                 invocation(vec![set(model("pressure_contract"), json!(false))]),
                 refused.clone(),
             ),
+            // U3: the retired legacy pressure label is refused here, at any schema.
+            (
+                "pressure_contract 1.0.0/legacy_pressure_v1 (retired)",
+                invocation(vec![set(
+                    model("pressure_contract"),
+                    json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}),
+                )]),
+                refused.clone(),
+            ),
+            (
+                "schema 0.3.0 with pressure_contract 1.0.0/legacy_pressure_v1 (retired)",
+                invocation(vec![
+                    set(model("schema_version"), json!("0.3.0")),
+                    set(
+                        model("pressure_contract"),
+                        json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}),
+                    ),
+                ]),
+                refused.clone(),
+            ),
             (
                 "combinations and components []",
                 invocation(vec![

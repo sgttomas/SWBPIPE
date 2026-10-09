@@ -472,7 +472,8 @@ def test_preview_evidence_is_required_and_exclusive():
 
 
 def precision_fixture():
-    return json.loads((PROJECT / "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json").read_text())
+    # Actual precision-1 producer output (the connected UI fixture; no joint, no legacy pressure).
+    return json.loads((PROJECT / "fixtures/results/precision_connected_ui_mechanics_sparse.json").read_text())
 
 
 def test_precision_1_is_readable_but_never_current():
@@ -1018,8 +1019,8 @@ def test_actual_invented_output_tamper_controls(mode, change):
 
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
-    """The recipe's preview mode captures the unchanged demo model; whatever
-    it records (a blocked envelope for legacy nonzero pressure) is read as is."""
+    """The recipe's preview mode captures the unchanged refused demo model; whatever
+    it records (a blocked envelope for its legacy pressure primitives) is read as is."""
     source = actual(PROJECT / f"fixtures/product_preview/invented_mechanics_result_preview_physics_1_{mode}.json")
     record = json.loads((PROJECT / "fixtures/product_preview/preview_physics_fixture_generation.json").read_text())
     output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))
@@ -1031,12 +1032,43 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
     if source["status"]["mechanics"] != "MECHANICS_SOLVED":
         assert source["contract_evidence"] == {"preview_cases": [], "combination_gates": []}
         assert numerical_use_standing(source, bases(source)) == "needs_recompute"
-    precision = json.loads((PROJECT / "fixtures/product_preview/precision_fixture_generation.json").read_text())
-    for item in precision["outputs"]:
-        assert hashlib.sha256((PROJECT / item["path"]).read_bytes()).hexdigest() == item["sha256"]
-    preserved = {item["path"]: item["sha256"] for item in record["historical_precision_fixtures_preserved"]}
-    for name, digest in preserved.items():
-        assert hashlib.sha256((PROJECT / name).read_bytes()).hexdigest() == digest
+    # One re-author text for every legacy pressure primitive (RV127 S-1).
+    reauthor = {d["message"] for d in source["diagnostics"] if d["code"] == "PRESSURE_MODEL_REAUTHOR_REQUIRED"}
+    assert len(reauthor) == 1 and "2.0.0/exact_straight_pressure_v2" in reauthor.pop()
+
+
+@pytest.mark.parametrize("mode", ["sparse", "dense"])
+def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
+    """The recipe's default mode captures the valid demo model (no joint, no legacy
+    pressure): a solved preview-physics-1 result per mode, read as is, and its
+    historical-format carrier, derived from the sparse output as recorded."""
+    source = actual(PROJECT / f"fixtures/product_preview/invented_demo_result_preview_physics_1_{mode}.json")
+    record = json.loads((PROJECT / "fixtures/product_preview/demo_fixture_generation.json").read_text())
+    output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))
+    assert hashlib.sha256((PROJECT / output["path"]).read_bytes()).hexdigest() == output["sha256"]
+    assert record["input_model"]["path"] == "fixtures/product_preview/invented_demo_model.json"
+    assert hashlib.sha256((PROJECT / record["input_model"]["path"]).read_bytes()).hexdigest() == record["input_model"]["sha256"]
+    assert output["mechanics_status"] == source["status"]["mechanics"] == "MECHANICS_SOLVED"
+    validate_preview_physics_evidence(source)
+    assert verify_analysis_run_record(build(source)) == "match"
+    carrier = record["derived_outputs"][0]
+    carried = json.loads((PROJECT / carrier["path"]).read_text())
+    assert hashlib.sha256((PROJECT / carrier["path"]).read_bytes()).hexdigest() == carrier["sha256"]
+    assert carrier["derived_from"]["sha256"] == next(item["sha256"] for item in record["outputs"] if item["mode"] == "sparse_interactive")
+    sparse = json.loads((PROJECT / carrier["derived_from"]["path"]).read_text())
+    for key in carrier["removed_members"]:
+        del sparse[key]
+    sparse["schema_version"] = "0.1.0"
+    sparse["results"] = [row for row in sparse["results"] if row["kind"] not in carrier["removed_row_kinds"]]
+    # The summary members that describe removed rows are withheld (RV128 N-4).
+    assert carrier["nulled_summary_members"] == ["component_stress_modifier_count", "max_open_formula_stress"]
+    for key in carrier["nulled_summary_members"]:
+        sparse["summary"][key] = None
+    assert carried == sparse
+    # The record is portable: no hash of cargo's checkout-dependent stderr (RV128 N-7).
+    assert all("stderr_sha256" not in item for item in record["outputs"])
+    ids = {row["id"] for row in carried["results"]}
+    assert all(value["result_ref"] in ids for value in carried["summary"].values() if isinstance(value, dict) and "result_ref" in value)
 
 
 def test_shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required():

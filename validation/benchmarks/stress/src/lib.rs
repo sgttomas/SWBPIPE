@@ -24,7 +24,7 @@ use open_pipe_stress_straight_pipe::{
 use open_pipe_stress_stress_recovery::{
     recover_station_stress_sweep, recover_station_stresses, recover_stress_range,
     recover_stress_range_with_modulus_basis, recover_stresses, AnalysisStatus, ForceResultants,
-    PressureBasis, StationStressRecoveryInput, StationStressRecoveryResult,
+    StationStressRecoveryInput, StationStressRecoveryResult,
     StressRangeModulusBasisRecord, StressRangeResult, StressRecoveryInput, StressRecoveryResult,
     StressSectionProperties,
 };
@@ -74,7 +74,6 @@ pub enum StressBenchmarkFamily {
     AxialNormal,
     BendingNormal,
     TorsionalShear,
-    PressureMembrane,
     StressRange,
     IntegratedStraightPipeStress,
     LoadToResultantStress,
@@ -274,11 +273,6 @@ pub fn governed_complete_stress_result_envelope() -> GovernedStressBenchmarkEnve
         ("bending-normal-y", recovered.components.bending_normal_y),
         ("bending-normal-z", recovered.components.bending_normal_z),
         ("torsional-shear", recovered.components.torsional_shear),
-        ("pressure-hoop", recovered.components.pressure_hoop),
-        (
-            "pressure-longitudinal",
-            recovered.components.pressure_longitudinal,
-        ),
     ];
     let values = components
         .into_iter()
@@ -440,7 +434,6 @@ pub fn fixture_inventory() -> Vec<StressBenchmark> {
         axial_normal_fixture(),
         bending_normal_fixture(),
         torsional_shear_fixture(),
-        pressure_membrane_fixture(),
         stress_range_fixture(),
         integrated_straight_pipe_stress_fixture(),
         tp_phys_004_load_to_resultant_stress_fixture(),
@@ -472,7 +465,6 @@ pub fn missing_required_families(fixtures: &[StressBenchmark]) -> Vec<StressBenc
         StressBenchmarkFamily::AxialNormal,
         StressBenchmarkFamily::BendingNormal,
         StressBenchmarkFamily::TorsionalShear,
-        StressBenchmarkFamily::PressureMembrane,
         StressBenchmarkFamily::StressRange,
         StressBenchmarkFamily::IntegratedStraightPipeStress,
         StressBenchmarkFamily::LoadToResultantStress,
@@ -570,39 +562,6 @@ pub fn torsional_shear_fixture() -> StressBenchmark {
             dimension: "stress",
             tolerance_policy: None,
         }],
-    }
-}
-
-pub fn pressure_membrane_fixture() -> StressBenchmark {
-    StressBenchmark {
-        fixture_id: "STRESS-PRESSURE-MEMBRANE-ORIGINAL",
-        family: StressBenchmarkFamily::PressureMembrane,
-        description: "Invented thin-wall pressure membrane components from explicit pressure basis inputs.",
-        assumptions: &[
-            "Pressure, membrane radius, and wall thickness are explicit fixture inputs.",
-            "Hoop and longitudinal membrane components follow the upstream stress-recovery mechanics boundary.",
-            "The fixture does not provide pressure design criteria or code equations.",
-        ],
-        provenance: BenchmarkProvenance::public_original(
-            "validation/hand_calcs/stress/pressure_membrane.md",
-        ),
-        unit_basis: STRESS_FIXTURE_UNIT_BASIS,
-        expected_values: vec![
-            ExpectedValue {
-                name: "pressure_hoop",
-                value: 100.0 * 3.0 / 0.5,
-                unit: "Pa",
-                dimension: "stress",
-                tolerance_policy: None,
-            },
-            ExpectedValue {
-                name: "pressure_longitudinal",
-                value: (100.0 * 3.0 / 0.5) / 2.0,
-                unit: "Pa",
-                dimension: "stress",
-                tolerance_policy: None,
-            },
-        ],
     }
 }
 
@@ -1173,7 +1132,6 @@ pub fn complete_stress_input() -> StressRecoveryInput {
     StressRecoveryInput {
         resultants: ForceResultants::new(Some(120.0), Some(50.0), Some(-30.0), Some(40.0)),
         section: benchmark_section(),
-        pressure: Some(PressureBasis::new(Some(100.0), Some(3.0), Some(0.5))),
         statuses: vec![AnalysisStatus::MechanicsSolved],
     }
 }
@@ -1190,7 +1148,6 @@ pub fn recover_range_start() -> StressRecoveryResult {
     let input = StressRecoveryInput {
         resultants: ForceResultants::new(Some(60.0), Some(-20.0), Some(10.0), Some(20.0)),
         section: benchmark_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
     recover_stresses(&input)
@@ -1200,7 +1157,6 @@ pub fn recover_range_end() -> StressRecoveryResult {
     let input = StressRecoveryInput {
         resultants: ForceResultants::new(Some(180.0), Some(80.0), Some(10.0), Some(60.0)),
         section: benchmark_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
     recover_stresses(&input)
@@ -1210,13 +1166,11 @@ pub fn recover_range_fixture() -> StressRangeResult {
     let start = StressRecoveryInput {
         resultants: ForceResultants::new(Some(60.0), Some(-20.0), Some(10.0), Some(20.0)),
         section: benchmark_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
     let end = StressRecoveryInput {
         resultants: ForceResultants::new(Some(180.0), Some(80.0), Some(10.0), Some(60.0)),
         section: benchmark_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
     recover_stress_range(&start, &end)
@@ -1253,7 +1207,6 @@ pub fn recover_integrated_straight_pipe_stress_fixture() -> IntegratedStraightPi
             Some(2.0),
             Some(0.5),
         ),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
     IntegratedStraightPipeStressResult {
@@ -1289,7 +1242,6 @@ pub fn recover_tp_phys_004_load_to_resultant_stress_fixture() -> LoadToResultant
         "station:midspan",
         &station,
         StressSectionProperties::new(Some(3.0), Some(2.5), Some(2.0), Some(1.0), Some(0.5)),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress input is valid");
@@ -1327,7 +1279,6 @@ pub fn recover_tp_phys_005_oriented_load_to_stress_fixture() -> LoadToResultantS
         "station:tp-phys-005:midspan",
         &station,
         StressSectionProperties::new(Some(3.0), Some(2.5), Some(2.0), Some(1.0), Some(0.5)),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress input is valid");
@@ -1364,7 +1315,6 @@ pub fn recover_tp_phys_006_partial_span_load_to_stress_fixture() -> LoadToResult
         "station:tp-phys-006:midspan",
         &station,
         StressSectionProperties::new(Some(3.0), Some(2.5), Some(2.0), Some(1.0), Some(0.5)),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress input is valid");
@@ -1413,7 +1363,6 @@ pub fn recover_tp_phys_007_station_sweep_stress_fixture() -> StationSweepStressR
         "station:tp-phys-007",
         &station_resultants,
         StressSectionProperties::new(Some(3.0), Some(2.5), Some(2.0), Some(1.0), Some(0.5)),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress sweep is valid");
@@ -1456,7 +1405,6 @@ pub fn recover_tp_phys_008_thermal_axial_effect_to_stress_fixture() -> ThermalAx
         )
         .expect("fixture end resultants are finite"),
         section: section.clone(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     };
 
@@ -1472,7 +1420,6 @@ pub fn recover_tp_phys_008_thermal_axial_effect_to_stress_fixture() -> ThermalAx
         "station:tp-phys-008:midspan",
         &station_resultants,
         section.clone(),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress input is valid");
@@ -1488,7 +1435,6 @@ pub fn recover_tp_phys_008_thermal_axial_effect_to_stress_fixture() -> ThermalAx
         "station:tp-phys-008:sweep",
         &station_sweep_resultants,
         section,
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress sweep is valid");
@@ -1542,7 +1488,6 @@ pub fn recover_tp_phys_009_combined_axial_bending_to_stress_fixture() -> LoadToR
         "station:tp-phys-009:midspan",
         &station,
         StressSectionProperties::new(Some(6.0), Some(3.0), Some(2.0), Some(1.0), Some(0.5)),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .expect("fixture station stress input is valid");
@@ -1570,7 +1515,6 @@ pub fn recover_tp_phys_015_canonical_resultant_stress_fixture(
         "station:tp-phys-015:canonical-midspan",
         &station,
         section_evidence.stress_section_properties(),
-        None,
         vec![AnalysisStatus::MechanicsSolved],
     )
     .map_err(|error| error.to_string())?;
@@ -1597,22 +1541,6 @@ pub fn tp_stress_016_governed_section_evidence() -> GovernedStressSectionEvidenc
     }
 }
 
-pub fn recover_asymmetric_pressure_range_fixture() -> StressRangeResult {
-    let first = StressRecoveryInput {
-        resultants: ForceResultants::new(Some(60.0), Some(-20.0), Some(10.0), Some(20.0)),
-        section: benchmark_section(),
-        pressure: None,
-        statuses: vec![AnalysisStatus::MechanicsSolved],
-    };
-    let second = StressRecoveryInput {
-        resultants: ForceResultants::new(Some(180.0), Some(80.0), Some(10.0), Some(60.0)),
-        section: benchmark_section(),
-        pressure: Some(PressureBasis::new(Some(100.0), Some(3.0), Some(0.5))),
-        statuses: vec![AnalysisStatus::MechanicsSolved],
-    };
-    recover_stress_range(&first, &second)
-}
-
 // --- Mill-tolerance effective-wall stress fixture (TP-PMM-P3-MILLTOL-001) ---
 
 const MILLTOL_OUTSIDE_DIAMETER: f64 = 0.2;
@@ -1623,7 +1551,6 @@ const MILLTOL_AXIAL_FORCE: f64 = 5000.0;
 const MILLTOL_BENDING_MOMENT_Y: f64 = 1000.0;
 const MILLTOL_BENDING_MOMENT_Z: f64 = -400.0;
 const MILLTOL_TORSIONAL_MOMENT: f64 = 250.0;
-const MILLTOL_PRESSURE: f64 = 2000.0;
 
 /// Effective wall per the mill-tolerance slot semantics: nominal wall minus
 /// corrosion allowance minus the user-entered absolute mill tolerance.
@@ -1664,11 +1591,6 @@ pub fn milltol_stress_input() -> StressRecoveryInput {
             Some(MILLTOL_TORSIONAL_MOMENT),
         ),
         section: milltol_effective_wall_section(),
-        pressure: Some(PressureBasis::new(
-            Some(MILLTOL_PRESSURE),
-            Some((MILLTOL_OUTSIDE_DIAMETER - milltol_effective_wall()) / 2.0),
-            Some(milltol_effective_wall()),
-        )),
         statuses: vec![AnalysisStatus::MechanicsSolved],
     }
 }
@@ -1689,8 +1611,6 @@ pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
     let torsion_radius = section
         .torsion_radius
         .expect("fixture torsion radius is explicit");
-    let membrane_radius = (MILLTOL_OUTSIDE_DIAMETER - milltol_effective_wall()) / 2.0;
-    let hoop = MILLTOL_PRESSURE * membrane_radius / milltol_effective_wall();
     StressBenchmark {
         fixture_id: "STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS",
         family: StressBenchmarkFamily::MillToleranceEffectiveWallStress,
@@ -1698,7 +1618,7 @@ pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
         assumptions: &[
             "Mill tolerance is a user-entered absolute thickness dimension; no fractional form, catalog value, or default is encoded.",
             "Absence of the mill-tolerance slot means no reduction; absence is not a default value of zero.",
-            "Effective wall feeds area, section modulus, torsion constant, and the pressure membrane basis identically to the section-property calculator closed forms.",
+            "Effective wall feeds area, section modulus, and torsion constant identically to the section-property calculator closed forms.",
             "The fixture does not encode a code stress category, stress index, or acceptance criterion.",
         ],
         provenance: BenchmarkProvenance::public_original(
@@ -1730,20 +1650,6 @@ pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
             ExpectedValue {
                 name: "torsional_shear",
                 value: MILLTOL_TORSIONAL_MOMENT * torsion_radius / torsion_constant,
-                unit: "Pa",
-                dimension: "stress",
-                tolerance_policy: None,
-            },
-            ExpectedValue {
-                name: "pressure_hoop",
-                value: hoop,
-                unit: "Pa",
-                dimension: "stress",
-                tolerance_policy: None,
-            },
-            ExpectedValue {
-                name: "pressure_longitudinal",
-                value: hoop / 2.0,
                 unit: "Pa",
                 dimension: "stress",
                 tolerance_policy: None,
@@ -1805,7 +1711,6 @@ pub fn modulusbasis_hot_state_input() -> StressRecoveryInput {
             Some(0.0),
         ),
         section: modulusbasis_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     }
 }
@@ -1814,7 +1719,6 @@ pub fn modulusbasis_cold_state_input() -> StressRecoveryInput {
     StressRecoveryInput {
         resultants: ForceResultants::new(Some(0.0), Some(0.0), Some(0.0), Some(0.0)),
         section: modulusbasis_section(),
-        pressure: None,
         statuses: vec![AnalysisStatus::MechanicsSolved],
     }
 }
@@ -1956,7 +1860,7 @@ mod tests {
     fn inventory_covers_required_stress_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 15);
+        assert_eq!(fixtures.len(), 14);
         assert!(fixtures.iter().any(|fixture| {
             fixture.fixture_id == "STRESS-TP-PHYS-007-STATION-SWEEP-STRESS"
                 && fixture.family == StressBenchmarkFamily::StationSweepStress
@@ -2102,11 +2006,6 @@ mod tests {
             components.torsional_shear.unwrap(),
             expected("torsional_shear"),
         );
-        assert_close(components.pressure_hoop.unwrap(), expected("pressure_hoop"));
-        assert_close(
-            components.pressure_longitudinal.unwrap(),
-            expected("pressure_longitudinal"),
-        );
     }
 
     #[test]
@@ -2158,22 +2057,6 @@ mod tests {
     }
 
     #[test]
-    fn recovers_pressure_membrane_fixture() {
-        let fixture = pressure_membrane_fixture();
-        let result = recover_complete_fixture();
-
-        assert!(!result.is_blocked());
-        assert_close(
-            result.components.pressure_hoop.unwrap(),
-            fixture.expected_values[0].value,
-        );
-        assert_close(
-            result.components.pressure_longitudinal.unwrap(),
-            fixture.expected_values[1].value,
-        );
-    }
-
-    #[test]
     fn computes_mechanics_only_stress_range_fixture() {
         let fixture = stress_range_fixture();
         let range = recover_range_fixture();
@@ -2195,24 +2078,6 @@ mod tests {
             range.ranges.torsional_shear_range.unwrap(),
             fixture.expected_values[3].value,
         );
-        assert_eq!(range.ranges.pressure_hoop_range, None);
-        assert_eq!(range.ranges.pressure_longitudinal_range, None);
-    }
-
-    #[test]
-    fn stress_range_blocks_asymmetric_optional_pressure_components() {
-        let range = recover_asymmetric_pressure_range_fixture();
-
-        assert!(range.is_blocked());
-        assert!(range.ranges.axial_normal_range.is_none());
-        assert!(range.findings.iter().any(|finding| {
-            finding.code == FindingCode::MissingResultant
-                && finding.subject_id == "pressure_hoop_range"
-        }));
-        assert!(range.findings.iter().any(|finding| {
-            finding.code == FindingCode::MissingResultant
-                && finding.subject_id == "pressure_longitudinal_range"
-        }));
     }
 
     #[test]
@@ -2427,8 +2292,6 @@ mod tests {
             result.end_stress.components.axial_normal.unwrap(),
             fixture.expected_values[2].value,
         );
-        assert_eq!(result.end_stress.components.pressure_hoop, None);
-        assert_eq!(result.end_stress.components.pressure_longitudinal, None);
 
         assert_eq!(
             result.station_stress.station_id,
@@ -2446,15 +2309,6 @@ mod tests {
                 .axial_normal
                 .unwrap(),
             fixture.expected_values[4].value,
-        );
-        assert_eq!(result.station_stress.stress.components.pressure_hoop, None);
-        assert_eq!(
-            result
-                .station_stress
-                .stress
-                .components
-                .pressure_longitudinal,
-            None
         );
 
         assert_eq!(
@@ -2510,15 +2364,6 @@ mod tests {
                 .bending_normal_z
                 .unwrap(),
             fixture.expected_values[4].value,
-        );
-        assert_eq!(result.station_stress.stress.components.pressure_hoop, None);
-        assert_eq!(
-            result
-                .station_stress
-                .stress
-                .components
-                .pressure_longitudinal,
-            None
         );
         assert!(result
             .station_stress
@@ -2594,15 +2439,6 @@ mod tests {
                 .unwrap(),
             fixture.expected_values[5].value,
         );
-        assert_eq!(result.station_stress.stress.components.pressure_hoop, None);
-        assert_eq!(
-            result
-                .station_stress
-                .stress
-                .components
-                .pressure_longitudinal,
-            None
-        );
         assert!(result
             .station_stress
             .stress
@@ -2634,7 +2470,7 @@ mod tests {
         let evidence = governed_complete_stress_result_envelope();
         let envelope = &evidence.envelope;
 
-        assert_eq!(evidence.quantity_result_count, 6);
+        assert_eq!(evidence.quantity_result_count, 4);
         assert_eq!(evidence.export_validation_diagnostic_count, 0);
         assert_eq!(envelope.result_sets[0].set_type, "stress_recovery");
         assert_eq!(envelope.diagnostics.len(), 1);

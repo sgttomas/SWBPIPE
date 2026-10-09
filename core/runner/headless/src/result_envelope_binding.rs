@@ -452,21 +452,25 @@ mod tests {
  }
  fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
  // These tests exercise source/proof/derivative binding. Pressure is not an
- // oracle for those assertions. Keep the historical fixtures unchanged and
- // declare a zero-pressure current companion before invoking the public solver.
+ // oracle for those assertions. Keep the historical fixtures unchanged and remove
+ // the retired legacy pressure primitives (U3: any value is refused) before
+ // invoking the public solver.
  fn unpressurized_binding_model(mut model: Value) -> Value {
    for case in model["load_cases"].as_array_mut().unwrap() {
-     for load in case["primitive_loads"].as_array_mut().unwrap() {
-       if load["category"] == "pressure" || load["dimension"] == "pressure" {
-         load["magnitude"]["value"] = serde_json::json!(0.0);
-       }
-     }
+     case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));
    }
    model
  }
  #[test] fn qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity(){
    for case in cases()["producer_cases"].as_array().unwrap(){
      let mut model = unpressurized_binding_model(case["model"].clone());
+     // U3: a case whose only load was a legacy pressure has no pressure-free
+     // companion (it would be load-free); its refusal is pinned by
+     // `public_nonzero_legacy_pressure_refuses_before_opaque_proof_or_export`.
+     if model["load_cases"].as_array().unwrap().iter().all(|c| c["primitive_loads"].as_array().unwrap().is_empty()) {
+       assert_eq!(case["case_id"], "curved-pressure-full");
+       continue;
+     }
      let joints = realized_joint_ids(&model);
      if !joints.is_empty() && case["expected_status"] == "MECHANICS_SOLVED" {
        // T0R A1: a realized user-stiffness joint is refused before solving.

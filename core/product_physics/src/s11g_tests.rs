@@ -250,13 +250,11 @@ fn guard_view(request: &Value, case_index: usize) -> GuardView {
         &built.sections,
         &mut diagnostics,
     );
-    let thrust = build_pressure_thrust_loads(&model, load_case, &pipe_map, &built.sections);
     let ledger = case_force_ledger(
         &model,
         &built,
         &application,
         &bends,
-        &thrust,
         &thermal,
         None,
         &load_case.id,
@@ -464,12 +462,6 @@ fn thermal(id: &str, pipe: &str, delta_t: f64) -> Value {
     json!({"id": id, "category": "thermal", "target": {"type": "element", "pipe": pipe},
         "direction": "global_x", "magnitude": {"value": delta_t, "unit": "degC"},
         "dimension": "temperature_interval", "provenance": INVENTED})
-}
-
-fn pressure(id: &str, pipe: &str, value: f64) -> Value {
-    json!({"id": id, "category": "pressure", "target": {"type": "element", "pipe": pipe},
-        "direction": "global_x", "magnitude": {"value": value, "unit": "Pa"},
-        "dimension": "pressure", "provenance": INVENTED})
 }
 
 fn request_of(model: Value) -> Value {
@@ -1252,8 +1244,8 @@ fn t6_collinear_skew_pair_cancels_signed_defects() {
 /// V1's collinear runs (`probe_thermal_skew`, `probe_sf4`): a straight run
 /// from the origin to `end` through the given station fractions (positions
 /// rounded to 6 decimals as V1 did), anchored at both ends, with the same
-/// temperature interval (or internal pressure 2 MPa) on every member.
-fn collinear_run(end: [f64; 3], stations: &[f64], pressure_run: bool) -> Value {
+/// temperature interval on every member.
+fn collinear_run(end: [f64; 3], stations: &[f64]) -> Value {
     let mut model = preview_model("collinear");
     let round6 = |v: f64| (v * 1e6).round() / 1e6;
     model["nodes"] = json!(stations
@@ -1281,53 +1273,28 @@ fn collinear_run(end: [f64; 3], stations: &[f64], pressure_run: bool) -> Value {
         support("an", &format!("s{last}"), &ALL)
     ]);
     model["load_cases"][0]["primitive_loads"] = json!((0..last)
-        .map(|i| if pressure_run {
-            pressure(&format!("p:{i}"), &format!("m{i}"), 2e6)
-        } else {
-            thermal(&format!("t:{i}"), &format!("m{i}"), 75.0)
-        })
+        .map(|i| thermal(&format!("t:{i}"), &format!("m{i}"), 75.0))
         .collect::<Vec<_>>());
     request_of(model)
 }
 
-/// T6a (SF-4): V1's collinear runs and the pressure run stay silent (the
-/// pressure run inside the test-only historical pressure scope). Without
+/// T6a (SF-4): V1's collinear runs stay silent. (V1's legacy pressure-thrust
+/// run was retired with legacy pressure, U3.) Without
 /// the floor the self-equilibrated statistic is at least 1e8 on the runs V1
 /// found firing (computed here from the ledger rows); with the floor every
 /// row is below 1e-3 of its threshold. Kills dropping the floor (M11).
 #[test]
 fn t6a_collinear_runs_are_silent_with_the_floor() {
-    let runs: [([f64; 3], &[f64], bool, bool); 5] = [
-        (
-            [12.0, 5.0, 0.0],
-            &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0],
-            false,
-            true,
-        ),
-        ([10.0, 3.7, 2.2], &[0.0, 0.3, 0.55, 0.7, 1.0], false, true),
-        ([6.0, 6.0, 0.0], &[0.0, 0.25, 0.5, 0.75, 1.0], false, false),
+    let runs: [([f64; 3], &[f64], bool); 4] = [
+        ([12.0, 5.0, 0.0], &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0], true),
+        ([10.0, 3.7, 2.2], &[0.0, 0.3, 0.55, 0.7, 1.0], true),
+        ([6.0, 6.0, 0.0], &[0.0, 0.25, 0.5, 0.75, 1.0], false),
         // Axis-aligned: FK's normalization gives bit-identical unit vectors
         // here (V1's emulation did not), so there is no noise to silence.
-        (
-            [9.0, 0.0, 0.0],
-            &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0],
-            false,
-            false,
-        ),
-        // V1's pressure-thrust run. A fresh solve refuses the legacy nonzero
-        // pressure model on every entry before the ledger
-        // (`pressure_runtime.rs`, PRESSURE_MODEL_REAUTHOR_REQUIRED), so the
-        // straight thrust family is exercised inside the test-only
-        // `historical_pressure_reference::with_scope`, as S11-F's F10 does.
-        (
-            [12.0, 5.0, 0.0],
-            &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0],
-            true,
-            true,
-        ),
+        ([9.0, 0.0, 0.0], &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0], false),
     ];
-    for (end, stations, pressure_run, fires_without_floor) in runs {
-        let request = collinear_run(end, stations, pressure_run);
+    for (end, stations, fires_without_floor) in runs {
+        let request = collinear_run(end, stations);
         let view = guard_view(&request, 0);
         let mut unfloored = 0.0_f64;
         let mut floored = 0.0_f64;
@@ -1353,13 +1320,7 @@ fn t6a_collinear_runs_are_silent_with_the_floor() {
         assert!(floored < 1e-3, "{end:?}: floored statistic {floored:e}");
         for entry in [Entry::Captured, Entry::Typed] {
             for mode in MODES {
-                let envelope = if pressure_run {
-                    crate::historical_pressure_reference::with_scope(|| {
-                        solved(entry, &request, mode)
-                    })
-                } else {
-                    solved(entry, &request, mode)
-                };
+                let envelope = solved(entry, &request, mode);
                 assert_eq!(
                     integrity(&envelope, "case").code,
                     "NUMERICAL_INTEGRITY_CHECKS_PASSED",
@@ -1369,7 +1330,7 @@ fn t6a_collinear_runs_are_silent_with_the_floor() {
             }
         }
         eprintln!(
-            "T6a {end:?} pressure={pressure_run}: unfloored {unfloored:e}, floored {floored:e}"
+            "T6a {end:?}: unfloored {unfloored:e}, floored {floored:e}"
         );
     }
 }
@@ -2675,7 +2636,6 @@ fn t21_selection_is_declined_for_a_formation_finding() {
         load_case: &model.load_cases[0],
         load_application: &loads,
         thermal_loads: &[],
-        pressure_thrust_loads: &[],
         load_state: None,
     };
     let finding = formation_guard::FormationFinding {

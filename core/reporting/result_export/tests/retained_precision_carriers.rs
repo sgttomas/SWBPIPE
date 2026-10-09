@@ -531,7 +531,7 @@ fn u6a_downgrades_to_a_base_identity_are_refused() {
     }
 }
 
-const LEGACY: &str = include_str!("../../../../fixtures/product_preview/invented_mechanics_result.json");
+const LEGACY: &str = include_str!("../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json");
 
 /// RV88 U6a S-1 (R06) and U6b S-1: a legacy 0.1.0 source is refused with a
 /// receipt member of any value, at raw, metadata, standing and derive, and with
@@ -708,7 +708,7 @@ fn shared_fixtures(cases: &Value) -> Vec<(String, Value, Value)> {
             let text = match f["path"].as_str().unwrap() {
                 "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json" => SPARSE,
                 "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json" => DENSE,
-                "fixtures/product_preview/invented_mechanics_result.json" => LEGACY,
+                "fixtures/product_preview/invented_demo_result_legacy_0_1.json" => LEGACY,
                 "fixtures/results/preview_physics_invented_sparse.json" => PREVIEW_SPARSE,
                 "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json" => BLOCKS_N05,
                 p => panic!("{p}"),

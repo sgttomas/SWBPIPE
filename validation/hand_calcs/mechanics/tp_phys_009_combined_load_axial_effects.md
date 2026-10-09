@@ -3,9 +3,14 @@
 ## Purpose
 
 Invented mechanics benchmark for combined straight-pipe load assembly and
-resultant recovery. The fixture prepares thermal and pressure primitive axial
-effects, then includes them with an explicit partial-span distributed user load
-in straight-pipe equivalent user-load assembly.
+resultant recovery. The fixture prepares a thermal primitive axial effect, then
+includes it with an explicit partial-span distributed user load in
+straight-pipe equivalent user-load assembly.
+
+The fixture's former closed-end pressure-thrust half (`p = 90.0 Pa` over
+`A_internal = 0.1 m^2`, `F = p A_internal = 9.0 N`) was removed with the legacy
+pressure contract (U3, piping T3): it was a second copy of the retired legacy
+thrust. The fixture id is kept for continuity.
 
 ## Provenance
 
@@ -30,8 +35,6 @@ The member is a two-node straight pipe aligned to global `X`.
 | `J` | 1.0 | m^4 | second_moment_area |
 | `alpha` | 0.00001 | 1/K | thermal_expansion_coefficient |
 | `DeltaT` | 75.0 | K | temperature_interval |
-| `p` | 90.0 | Pa | pressure |
-| `A_internal` | 0.1 | m^2 | area |
 | Uniform local/global `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Span start, `a/L` | 0.25 | ratio | dimensionless |
 | Span end, `b/L` | 0.75 | ratio | dimensionless |
@@ -50,26 +53,17 @@ F_thermal = E A alpha DeltaT
           = 3.0 N
 ```
 
-Pressure thrust effect:
+Total axial effect (the thermal effect is the only one):
 
 ```text
-F_pressure = p A_internal
-           = 90.0 * 0.1
-           = 9.0 N
-```
-
-Total axial effect:
-
-```text
-F_total = 3.0 + 9.0
-        = 12.0 N
+F_total = 3.0 N
 ```
 
 The straight-pipe axial-effect equivalent load pair is:
 
 ```text
-Node i, Ux = -12.0 N
-Node j, Ux =  12.0 N
+Node i, Ux = -3.0 N
+Node j, Ux =  3.0 N
 ```
 
 ## Distributed User Load
@@ -89,10 +83,10 @@ Combining distributed and axial-effect assembly gives the global load-vector
 entries:
 
 ```text
-Node 0 Ux = -12.0 N
+Node 0 Ux =  -3.0 N
 Node 0 Uy =  -3.0 N
 Node 0 Rz =  -4.125 N-m
-Node 1 Ux =  12.0 N
+Node 1 Ux =   3.0 N
 Node 1 Uy =  -3.0 N
 Node 1 Rz =   4.125 N-m
 ```
@@ -119,7 +113,7 @@ loads and the axial-effect equivalent loads before station accumulation.
 At the I end:
 
 ```text
-N_i   = 12.0 N
+N_i   =  3.0 N
 V_y,i =  6.0 N
 M_z,i = 18.0 N-m
 ```
@@ -138,7 +132,7 @@ lever_integral = integral_active_start^active_end (x - s) ds
 The repository straight-pipe signed-resultant recurrence is:
 
 ```text
-N(x) = 12.0
+N(x) = 3.0
 V_y(x) = V_y,i + q active_length
 M_z(x) = M_z,i - V_y,i x - q lever_integral
 ```
@@ -147,10 +141,10 @@ Expected station sweep values:
 
 | Requested index | Station fraction | `x` | `N(x)` | `V_y(x)` | `M_z(x)` |
 |---:|---:|---:|---:|---:|---:|
-| 0 | 0.25 | 1.5 | 12.0 | 6.0 | 9.0 |
-| 1 | 0.5 | 3.0 | 12.0 | 3.0 | 2.25 |
-| 2 | 0.75 | 4.5 | 12.0 | 0.0 | 0.0 |
-| 3 | 1.0 | 6.0 | 12.0 | 0.0 | 0.0 |
+| 0 | 0.25 | 1.5 | 3.0 | 6.0 | 9.0 |
+| 1 | 0.5 | 3.0 | 3.0 | 3.0 | 2.25 |
+| 2 | 0.75 | 4.5 | 3.0 | 0.0 | 0.0 |
+| 3 | 1.0 | 6.0 | 3.0 | 0.0 | 0.0 |
 
 ## Boundary
 

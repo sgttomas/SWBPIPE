@@ -1,6 +1,7 @@
-import historicalMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result.json";
-import sparseMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
-import denseMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result_precision_1_dense.json";
+import historicalMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import sparseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json";
+import denseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json";
+import inventedPreviewModel from "../../../../fixtures/product_preview/invented_preview_model.json";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
 import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
 import { numericalResultStanding, sourceContract, PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
@@ -110,7 +111,8 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect(hasNativeMechanicsInvocation(result, await loadPreviewModel())).toBe(false);
 
     expect(result.status.mechanics).toBe(sparseMechanicsFixture.status.mechanics);
-    expect(result.model_ref).toBe("project:invented-loop-01");
+    expect(result.model_ref).toBe("project:invented-demo-loop-01");
+    expect(reference.model.project.id).toBe(result.model_ref);
     expect(result.results.length).toBe(sparseMechanicsFixture.results.length);
   });
 
@@ -124,7 +126,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect((await loadBundledMechanicsReference()).source).toEqual(sparseMechanicsFixture);
   });
 
-  it("preserves historical rounded nonlinear fixture evidence without calling it a fresh solve", async () => {
+  it("preserves the historical-format carrier's nonlinear evidence without calling it a fresh solve", async () => {
     const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
     const run = await buildAnalysisRunV02(result, await manifestFor(result));
 
@@ -167,7 +169,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      value: 0.411203,
+      value: 0.5237328200600512,
     });
     const frictionNormal = result.results.find(
       (item) =>
@@ -177,10 +179,11 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect(frictionNormal).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 41.120279,
+      value: 52.373281987314456,
       unit: "N",
     });
-    expect(frictionReaction?.value).toBe(
+    // The accepted same-iterate current-normal law, at the old fixture's 6-digit rounding.
+    expect(Math.round((frictionReaction?.value ?? Number.NaN) * 1_000_000) / 1_000_000).toBe(
       Math.round(
         0.01 * (frictionNormal?.value ?? Number.NaN) * 1_000_000,
       ) / 1_000_000,
@@ -225,7 +228,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
     edited.materials![0].elastic_modulus.value = 195_000_000_000;
     await expect(runPreviewMechanics(edited)).rejects.toThrow("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(invokeMock).not.toHaveBeenCalled();
-    expect(original.project.id).toBe("project:invented-loop-01");
+    expect(original.project.id).toBe("project:invented-demo-loop-01");
     expect(original.materials![0].elastic_modulus.value).toBe(200_000_000_000);
   });
 
@@ -237,7 +240,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
     const reference = await loadBundledMechanicsReference(mode);
     const result = reference.source;
     expect(result).toEqual(fixture);
-    expect(sourceContract(result)).toBe("precision");
+    expect(sourceContract(result)).toBe("preview_physics");
     expect(result.numerical_quality).toEqual(fixture.numerical_quality);
     // Numerical evidence remains unchanged; its standing cannot prove a new
     // invocation. This analysis-record exercise is reference interpretation.
@@ -288,8 +291,12 @@ describe("previewService explicit reference inspection and browser refusal", () 
   });
 
   it("rejects crossed, missing and ambiguous actual mode evidence", async () => {
-    const model = await loadPreviewModel();
+    // The bundled results bind the demo model (also the default session model),
+    // never another model such as the invented preview model.
+    const model = (await loadBundledMechanicsReference()).model, other = structuredClone(inventedPreviewModel) as unknown as PreviewModel;
+    expect(model).toEqual(await loadPreviewModel());
     const sparse = structuredClone(sparseMechanicsFixture) as MechanicsResult;
+    expect(() => validateBrowserMechanicsFixture(sparse, "sparse_interactive", other)).toThrow("BROWSER_FIXTURE_MODEL_BINDING_MISMATCH");
     expect(() => validateBrowserMechanicsFixture(sparse, "dense_scrutiny", model)).toThrow("BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH");
     const modeRow = sparse.results.find(row => row.kind === "linear_solver_mode_basis");
     expect(modeRow).toBeDefined();
@@ -398,7 +405,7 @@ describe("buildAnalysisRunPreview reference rule-check aggregate (TP-C4-APPAGG-0
 
 describe("reference analysis-run input-manifest and source-dimension binding", () => {
   it("binds the exact manifest independently from the result envelope and declares stiffness dimensions", async () => {
-    const result = await precisionFixtureSource();
+    const result = await referenceFixtureSource();
     const manifest = await manifestFor(result);
     const env = await buildAnalysisRunPreview(result, {
       inputManifest: manifest,
@@ -425,20 +432,17 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
     ]);
     expect(manifest.manifest_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(manifest.manifest_sha256).not.toBe(resultEnvelopeHash);
+    // The demo's stiffness rows are its spring hanger's (it has no joint).
     expect(
       byId.get(
-        "result:component-stiffness:component-C-150:axial",
+        "result:spring-hanger:support-SH-140:stiffness",
       ),
     ).toBe("linear_stiffness");
-    expect(
-      byId.get(
-        "result:component-stiffness:component-C-150:torsional",
-      ),
-    ).toBe("rotational_stiffness");
+    expect([...byId.keys()].some((id) => id.includes("component-stiffness"))).toBe(false);
   });
 
   it("blocks manifest evidence for a different model", async () => {
-    const result = await precisionFixtureSource();
+    const result = await referenceFixtureSource();
     const manifest = await manifestFor(result);
     const mismatched = structuredClone(result);
     mismatched.model_ref = "project:different-model";
@@ -449,7 +453,7 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
   });
 
   it("blocks transformed manifest evidence until its ref and hash are recomputed", async () => {
-    const result = await precisionFixtureSource();
+    const result = await referenceFixtureSource();
     const manifest = await manifestFor(result);
     manifest.manifest.solver_basis.settings.sparse_evidence_lane = false;
 
@@ -459,10 +463,10 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
   });
 
   it("blocks wrong-prefix and wrong-model manifest refs with a valid digest", async () => {
-    const result = await precisionFixtureSource();
+    const result = await referenceFixtureSource();
     const manifest = await manifestFor(result);
     for (const refValue of [
-      `result-envelope:project-invented-loop-01:${manifest.manifest_sha256}`,
+      `result-envelope:project-invented-demo-loop-01:${manifest.manifest_sha256}`,
       `input-manifest:project-different:${manifest.manifest_sha256}`,
     ]) {
       const invalid = structuredClone(manifest);
@@ -474,19 +478,22 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
   });
 
   it("blocks a unit that contradicts the exact kind semantics", async () => {
-    const result = structuredClone(await precisionFixtureSource());
+    const result = structuredClone(await referenceFixtureSource());
     const target = result.results.find(
       (item) => item.kind === "element_local_axial_force",
     );
     expect(target).toBeDefined();
     target!.unit = "MPa";
+    // The bundled reference is preview-physics-1, so its reader refuses the
+    // changed unit before the kind-semantics check (SOURCE_UNIT_CONTRADICTION,
+    // still pinned on a precision-1 source in reportPackageRequest.test.ts).
     await expect(buildAnalysisRunPreview(result, {
       inputManifest: await manifestFor(result),
-    })).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
+    })).rejects.toThrow("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID");
   });
 
   it("blocks an explicit dimension that contradicts exact result kind semantics", async () => {
-    const result = structuredClone(await precisionFixtureSource());
+    const result = structuredClone(await referenceFixtureSource());
     const target = result.results.find(
       (item) => item.kind === "element_local_axial_force",
     );
@@ -557,7 +564,7 @@ it("does not enrich precision or unsupported raw0.2 carriers while reading histo
  expect(raw.results[0].value).toBe(-1e-12);
 });
 
-async function precisionFixtureSource(): Promise<MechanicsResult> {
+async function referenceFixtureSource(): Promise<MechanicsResult> {
  return (await loadBundledMechanicsReference()).source;
 }
 it("analysis composition refuses legacy and unknown raw without a historical fallback",async()=>{

@@ -1132,7 +1132,6 @@ pub struct ElementAxialEffectProperties {
     pub elastic_modulus: Option<f64>,
     pub area: Option<f64>,
     pub thermal_expansion_coefficient: Option<f64>,
-    pub internal_area: Option<f64>,
 }
 
 impl ElementAxialEffectProperties {
@@ -1141,14 +1140,12 @@ impl ElementAxialEffectProperties {
         elastic_modulus: Option<f64>,
         area: Option<f64>,
         thermal_expansion_coefficient: Option<f64>,
-        internal_area: Option<f64>,
     ) -> Self {
         Self {
             element_index,
             elastic_modulus,
             area,
             thermal_expansion_coefficient,
-            internal_area,
         }
     }
 }
@@ -2336,37 +2333,6 @@ pub fn prepare_straight_pipe_axial_effects(
                 };
                 let axial_force =
                     elastic_modulus * area * thermal_expansion_coefficient * magnitude_value;
-                push_axial_effect_if_finite(
-                    &mut axial_effects,
-                    load,
-                    element_index,
-                    axial_force,
-                    &mut findings,
-                );
-            }
-            PrimitiveLoadCategory::Pressure => {
-                if magnitude.dimension != LoadDimension::Pressure {
-                    findings.push(LoadFinding::new(
-                        FindingCode::InvalidLoadDimension,
-                        &load.load_id,
-                        "pressure thrust axial effect requires Pressure magnitude",
-                    ));
-                    continue;
-                }
-                let Some(element_properties) =
-                    find_axial_effect_properties(properties, element_index, load, &mut findings)
-                else {
-                    continue;
-                };
-                let Some(internal_area) = positive_physical_property(
-                    element_properties.internal_area,
-                    "internal_area",
-                    load,
-                    &mut findings,
-                ) else {
-                    continue;
-                };
-                let axial_force = magnitude_value * internal_area;
                 push_axial_effect_if_finite(
                     &mut axial_effects,
                     load,
@@ -3626,13 +3592,15 @@ mod tests {
     }
 
     #[test]
-    fn straight_pipe_axial_effects_prepare_thermal_and_pressure_forces() {
+    fn straight_pipe_axial_effects_prepare_thermal_force_and_refuse_pressure() {
+        // U3 (A1-S-1): the closed-end pressure thrust F = p A_internal was a second
+        // copy of the retired legacy thrust; a pressure load now has no axial effect
+        // here and is refused, which blocks every output.
         let properties = [ElementAxialEffectProperties::new(
             0,
             Some(200.0e9),
             Some(0.01),
             Some(12.0e-6),
-            Some(0.003),
         )];
         let loads = vec![
             PrimitiveLoad::uniform_element_load(
@@ -3651,21 +3619,25 @@ mod tests {
             ),
         ];
 
-        let prepared = prepare_straight_pipe_axial_effects(1, &loads, &properties);
-
+        let prepared = prepare_straight_pipe_axial_effects(1, &loads[..1], &properties);
         assert!(!prepared.is_blocked());
-        assert_eq!(prepared.axial_effects.len(), 2);
-        assert_eq!(prepared.axial_effects[0].load_id, "pressure-thrust");
-        assert_close(prepared.axial_effects[0].axial_force, 3000.0);
-        assert_eq!(prepared.axial_effects[1].load_id, "thermal-axial");
-        assert_close(prepared.axial_effects[1].axial_force, 1_200_000.0);
+        assert_eq!(prepared.axial_effects.len(), 1);
+        assert_eq!(prepared.axial_effects[0].load_id, "thermal-axial");
+        assert_close(prepared.axial_effects[0].axial_force, 1_200_000.0);
+
+        let refused = prepare_straight_pipe_axial_effects(1, &loads, &properties);
+        assert!(refused.is_blocked());
+        assert!(refused.axial_effects.is_empty());
+        assert_eq!(refused.findings.len(), 1);
+        assert_eq!(refused.findings[0].code, FindingCode::UnsupportedTargetForCategory);
+        assert_eq!(refused.findings[0].load_id, "pressure-thrust");
     }
 
     #[test]
     fn straight_pipe_axial_effects_block_all_outputs_when_any_finding_exists() {
         let properties = [
-            ElementAxialEffectProperties::new(0, Some(200.0e9), Some(0.01), None, Some(0.003)),
-            ElementAxialEffectProperties::new(1, Some(200.0e9), Some(0.0), Some(12.0e-6), None),
+            ElementAxialEffectProperties::new(0, Some(200.0e9), Some(0.01), None),
+            ElementAxialEffectProperties::new(1, Some(200.0e9), Some(0.0), Some(12.0e-6)),
         ];
         let loads = vec![
             PrimitiveLoad::nodal_force(
@@ -3690,11 +3662,11 @@ mod tests {
                 q(1.0, LoadDimension::Pressure),
             ),
             PrimitiveLoad::uniform_element_load(
-                "pressure-missing-properties",
-                PrimitiveLoadCategory::Pressure,
+                "thermal-missing-properties",
+                PrimitiveLoadCategory::Thermal,
                 2,
                 LoadDirection::GlobalX,
-                q(1.0, LoadDimension::Pressure),
+                q(1.0, LoadDimension::TemperatureChange),
             ),
             PrimitiveLoad::uniform_element_load(
                 "thermal-missing-alpha",
@@ -3752,7 +3724,6 @@ mod tests {
             Some(1.0e308),
             Some(10.0),
             Some(10.0),
-            Some(0.003),
         )];
         let load = PrimitiveLoad::uniform_element_load(
             "thermal-overflow",

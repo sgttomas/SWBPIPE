@@ -14,7 +14,6 @@ import { StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportP
 import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_P1, N_REPORT, N_SB } from "./knownSemanticLimitations";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { formatComponentStressModifierSummary } from "../report/ReportPanel";
-import inventedPrecision from "../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 const clone = (value: unknown) => structuredClone(value) as MechanicsResult;
@@ -73,8 +72,13 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     expect(reportPackageUnavailableReason(clone(precisionSparse))).toBe(`REPORT-PACKAGE-PRECISION-1-HISTORICAL: ${N_P1}`);
   });
   it("report packet SIF section never presents SIF×k rows as stress", () => {
-    const precision = clone(inventedPrecision);
-    const records = precision.results.filter(r => r.kind === "component_user_stress_multiplier_review").map(r => ({ component_ref: r.entity_ref }));
+    // A historical precision-1 source and the component refs of its SIF×k review
+    // rows (component_user_stress_multiplier_review). No committed precision-1
+    // fixture carries such rows since the flawed demo pair was removed, so the
+    // records are supplied directly; the formatter reads only the records and the
+    // source's intensified rows.
+    const precision = clone(precisionSparse);
+    const records = ["component:C-110", "component:C-110", "component:C-120"].map(component_ref => ({ component_ref }));
     const historical = formatComponentStressModifierSummary(records, precision);
     expect(historical).toContain(`${records.length} historical precision-1 SIF×k review rows (retired; not a stress)`);
     expect(historical).not.toMatch(/MPa|units=/);

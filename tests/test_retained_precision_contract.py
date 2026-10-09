@@ -1469,6 +1469,12 @@ def test_b1_repair02_model_scope_at_g8_invocation():
         "reference_configurations []": [_set(model + ["reference_configurations"], [])],
         "pressure_contract {}": [_set(model + ["pressure_contract"], {})],
         "pressure_contract false": [_set(model + ["pressure_contract"], False)],
+        # U3: the retired legacy pressure label is refused here, at any schema.
+        "pressure_contract 1.0.0/legacy_pressure_v1 (retired)": [
+            _set(model + ["pressure_contract"], {"version": "1.0.0", "mode": "legacy_pressure_v1"})],
+        "schema 0.3.0 with pressure_contract 1.0.0/legacy_pressure_v1 (retired)": [
+            _set(model + ["schema_version"], "0.3.0"),
+            _set(model + ["pressure_contract"], {"version": "1.0.0", "mode": "legacy_pressure_v1"})],
         "combinations null": [_set(model + ["combinations"], None)],
         "combinations {'x': 1}": [_set(model + ["combinations"], {"x": 1})],
         "combinations [{}]": [_set(model + ["combinations"], [{}])],

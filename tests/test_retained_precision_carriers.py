@@ -648,7 +648,7 @@ def test_legacy_record_wrapper_refuses_a_receipt(mode):
     raises("ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", build_preview_analysis_run_envelope, source)
     # The wrapper's own preview input still builds; the same input carrying a
     # receipt member (even an empty one) is refused before anything is recorded.
-    preview = json.loads((ROOT / "fixtures/product_preview/invented_mechanics_result.json").read_text())
+    preview = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json").read_text())
     assert build_preview_analysis_run_envelope(preview)["schema_version"] == "0.1.0"
     for receipt in (deepcopy(source["retained_precision"]), None):
         raises("ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", build_preview_analysis_run_envelope, dict(preview, retained_precision=receipt))
@@ -660,7 +660,7 @@ def test_legacy_sources_with_a_token_row_are_refused_on_every_python_path():
     0.2 constructor and the 0.1.0 wrapper, as Rust and TS refuse it. The header-only
     transport dispatch reads no rows, as Rust's for_source_metadata."""
     from core.analysis_runs.records import build_preview_analysis_run_envelope
-    legacy = json.loads((ROOT / "fixtures/product_preview/invented_mechanics_result.json").read_text())
+    legacy = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json").read_text())
     assert legacy["schema_version"] == "0.1.0"
     manifest = {"input_manifest_ref": {"object_type": "InputManifest", "ref": "manifest:u6b"}, "input_manifest_hash": "1" * 64}
     for method, refused in ((c.RETAINED_METHOD, True), ("other_method", False)):

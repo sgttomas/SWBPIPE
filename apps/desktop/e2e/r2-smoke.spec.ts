@@ -38,10 +38,15 @@ const rehearsal = JSON.parse(
 
 // Immutable recorded-source oracles are separate from browser freshness.
 // No fixture headers, model references, quality flags or values are rewritten.
-const referenceModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url), "utf8"));
-const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json", import.meta.url), "utf8"));
-const historicalSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_mechanics_result.json", import.meta.url), "utf8"));
-const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_precision_1.json", import.meta.url), "utf8"));
+// The bundled reference: the valid demo model (the invented loop without its legacy
+// pressure and its joint; also the default session model), its actual sparse output,
+// and that output's historical-format (0.1.0) carrier. Each source is read with its
+// own semantics.
+const demoModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
+const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json", import.meta.url), "utf8"));
+const historicalSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json", import.meta.url), "utf8"));
+const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json", import.meta.url), "utf8"));
+const historicalSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_2.json", import.meta.url), "utf8"));
 
 async function expectBackendRefusal(page: Page): Promise<void> {
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
@@ -57,49 +62,52 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
   const reference = page.getByTestId("historical-run-context");
   await expect(reference).toContainText("Bundled reference — not a solve for the current model");
   await expect(reference).toContainText("NO_CURRENT_MODEL_INVOCATION");
-  await expect(reference.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
+  await expect(reference.getByTestId("result-filter-summary")).toContainText("625 of 625 results match filter");
   return reference;
 }
 
 // The old overlay and packet cardinalities remain recorded-source oracles,
 // not evidence that bundled data was solved for the current browser model.
 test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
-  for (const source of [historicalSource, referenceSource]) {
-    expect(source.results).toHaveLength(830);
+  // Per source: [semantics, rows, reaction rows, pipe-P-120 rows, summary quantities].
+  // The carrier keeps only the rows whose kinds its historical format defines, and
+  // withholds (null) the stress headline whose row it does not carry.
+  for (const [source, semantics, rows, reactions, p120, headlines] of [
+    [historicalSource, historicalSemantics, 513, 6, 100, 1],
+    [referenceSource, referenceSemantics, 625, 102, 102, 2],
+  ] as const) {
+    expect(source.model_ref).toBe(demoModel.project.id);
+    expect(source.results).toHaveLength(rows);
     const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
     expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
-    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("4.927112");
+    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.635384");
     const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
     expect(vectors.length).toBeGreaterThanOrEqual(15);
     expect(vectors.every((row: any) => row.metadata.coordinate_system === "global" && row.unit === "mm")).toBe(true);
-    const reactionRows = source.results.filter((row: any) => referenceSemantics.rows.some((signature: any) => signature.family === "reaction" && signature.kind === row.kind && signature.unit === row.unit && (signature.component === null || signature.component === row.metadata?.component)));
-    expect(reactionRows).toHaveLength(29);
-    expect(source.results.filter((row: any) => row.id.includes("pipe-P-120"))).toHaveLength(170);
+    const reactionRows = source.results.filter((row: any) => semantics.rows.some((signature: any) => signature.family === "reaction" && signature.kind === row.kind && signature.unit === row.unit && (signature.component === null || signature.component === row.metadata?.component)));
+    expect(reactionRows).toHaveLength(reactions);
+    expect(source.results.filter((row: any) => row.id.includes("pipe-P-120"))).toHaveLength(p120);
     const summaryQuantities = Object.values(source.summary).filter((item: any) => item && typeof item === "object" && typeof item.value === "number" && typeof item.unit === "string");
-    expect(source.results.length + summaryQuantities.length).toBe(832);
-    const diagnostic = source.diagnostics.find((item: any) => item.code === "COMBINATION_STRESS_SUMMARY_SKIPPED" && item.affected_refs.includes("result:stress:pipe-P-130"));
+    expect(source.results.length + summaryQuantities.length).toBe(rows + headlines);
+    // No legacy pressure and no joint: no hoop, thrust or joint-stiffness rows.
+    expect(source.results.some((row: any) => row.id.includes("pressure") || row.id.includes("C-150"))).toBe(false);
+    const diagnostic = source.diagnostics.find((item: any) => item.code === "HIGH_DISPLACEMENT_REVIEW" && item.affected_refs.includes("result:disp:node-N-140"));
     expect(diagnostic).toBeDefined();
     const linked = source.results.filter((row: any) => diagnostic.affected_refs.includes(row.id));
     expect(linked).toHaveLength(1);
-    expect(linked[0].unit).toBe("MPa");
+    expect(linked[0].unit).toBe("mm");
     const knowledgeRefs = [source.summary.max_displacement, source.results.find((row: any) => row.id === "result:force:pipe-P-120:axial")];
     expect(knowledgeRefs).toHaveLength(2);
     expect(knowledgeRefs.map((item: any) => item.unit).sort()).toEqual(["N", "mm"]);
-    // Spring and expansion-joint stiffness rows keep the N*m/rad and N/m units they were
-    // entered in: each carries its user-entered model value and unit, unconverted.
+    // The spring hanger's stiffness row keeps the N/m unit it was entered in:
+    // it carries its user-entered model value and unit, unconverted.
     const springRows = source.results.filter((row: any) => ["N*m/rad", "N/m"].includes(row.unit));
-    expect([...new Set(springRows.map((row: any) => row.unit))].sort()).toEqual(["N*m/rad", "N/m"]);
-    const joint = referenceModel.components.find((item: any) => item.id === "component:C-150").modifiers;
-    const hanger = referenceModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
+    const hanger = demoModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
     expect(Object.fromEntries(springRows.map((row: any) => [row.id, { value: row.value, unit: row.unit }]))).toEqual({
-      "result:component-stiffness:component-C-150:axial": joint.axial_stiffness_user_value,
-      "result:component-stiffness:component-C-150:lateral": joint.lateral_stiffness_user_value,
-      "result:component-stiffness:component-C-150:angular": joint.angular_stiffness_user_value,
-      "result:component-stiffness:component-C-150:torsional": joint.torsional_stiffness_user_value,
       "result:spring-hanger:support-SH-140:stiffness": hanger.stiffness.value,
     });
   }
-  // The 828 accepted witnesses / two withheld diagnostic-work rows are retained
+  // The accepted witnesses and the two withheld diagnostic-work rows are retained
   // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
 });
 
@@ -123,12 +131,13 @@ test("pure recorded-source projections retain quantity and comparison unit oracl
     const analysisRun = await buildAnalysisRunV02(result, manifest);
     const comparison = buildPreviewComparison({ result, analysisRun });
     return { summary: evidence.summary, conversion: evidence.conversion_performed, comparison: comparison.unit_policy_evidence, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
-  }, { model: referenceModel, result: historicalSource });
+  }, { model: demoModel, result: historicalSource });
   expect(projection.summary.project_unit_declaration_count).toBe(6);
-  expect(projection.summary.model_quantity_witness_count).toBe(50);
-  expect(projection.summary.result_quantity_witness_count).toBe(832);
+  expect(projection.summary.model_quantity_witness_count).toBe(40);
+  expect(projection.summary.result_quantity_witness_count).toBe(514);
   expect(projection.conversion).toBe(false);
-  expect(projection.comparison.matched_result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+  // The demo's mechanics combination is withheld for its nonlinear supports: no rows to compare.
+  expect(projection.comparison.matched_result_units).toEqual([]);
   expect(projection.comparison.conversion_performed).toBe(false);
   expect(projection.comparison.tolerance_status).toBe("not_tolerance_checked");
   expect(projection.registered).toBe(false);
@@ -260,7 +269,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
   await openReviewTab(page, "agent");
   await expect(page.getByTestId("agent-workbench-panel")).toBeVisible();
-  await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-loop-01");
+  await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-demo-loop-01");
   await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
   // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the Review
@@ -449,7 +458,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
-    "2 load cases; 9 primitive loads; 1 combinations"
+    "2 load cases; 5 primitive loads; 1 combinations"
   );
   await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
   await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
@@ -486,16 +495,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=node:N-100; direction=rotation_z; unit=N*m; moment"
   );
-  await page.getByTestId("load-manager-create-primitive-category").selectOption("pressure");
-  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-P300");
-  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
-  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_x");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-P300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=pipe:P-100; direction=global_x; unit=Pa; pressure"
-  );
+  // U3: legacy pressure primitives are retired; pressure is authored as exact regions.
+  await expect(page.getByTestId("load-manager-create-primitive-category").locator('option[value="pressure"]')).toHaveCount(0);
+  await expect(page.getByTestId("load-manager-pressure-primitive-retired")).toContainText("Legacy pressure primitives are retired");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
@@ -531,7 +533,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
     "before=not_present; after=combination:C-300; term=load:L-100 x 0.5; unit=none; dimensionless"
   );
-  await page.getByTestId("load-manager-primitive-load:L-100-P").click();
+  await page.getByTestId("load-manager-primitive-load:L-100-T").click();
   await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
     "primitive_loads.2.magnitude.value"
   );
@@ -553,7 +555,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "op:load-manager-load:L-100-delete"
   );
   await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
-    "before=load:L-100; Invented operating gravity and pressure preview; primitive_user_load; preview_only; primitives=5; after=not_present; unit=none; dimensionless"
+    "before=load:L-100; Invented operating gravity, occasional and thermal preview; primitive_user_load; preview_only; primitives=3; after=not_present; unit=none; dimensionless"
   );
   await expect(page.getByTestId("load-manager-selected-combination")).toContainText(
     "field=basis; current=mechanics"
@@ -688,7 +690,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await showCanvas(page);
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  // The preserved 5-node / 4.927112 mm and signed-vector source oracles above
+  // The preserved 5-node / 7.635384 mm and signed-vector source oracles above
   // do not grant a current-model overlay from reference inspection.
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 
@@ -717,24 +719,24 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
-  // The reference's retained source units include its spring rows' N*m/rad and N/m, as entered.
-  await expect(page.getByTestId("result-unit-policy")).toContainText("N*m/rad, N/m");
-  await expect(page.getByTestId("result-unit-policy")).toContainText("830 rows");
+  // The reference's retained source units include its spring hanger row's N/m, as entered.
+  await expect(page.getByTestId("result-unit-policy")).toContainText("mode_code, N/m");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("625 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
-  await expect(page.getByTestId("result-family-count-reaction")).toContainText("29");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("625 of 625 results match filter");
+  await expect(page.getByTestId("result-family-count-reaction")).toContainText("102");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("29 of 830 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 625 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
-    "Showing 1 to 29 of 29 matching results; page 1 of 1"
+    "Showing 1 to 50 of 102 matching results; page 1 of 3"
   );
-  await expect(page.getByTestId("result-row-result:reaction:support-S-120")).toBeVisible();
+  await expect(page.getByTestId("result-row-result:support-action:10:load:L-100:13:support:S-120:Fz")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("625 of 625 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("170 of 830 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 625 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
-    "Showing 1 to 50 of 170 matching results; page 1 of 4"
+    "Showing 1 to 50 of 102 matching results; page 1 of 3"
   );
   await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
   const inspectorBeforeReferenceSelection = await page.getByTestId("property-inspector").textContent();
@@ -829,10 +831,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   const handoffPackage = page.getByLabel("Handoff package");
   await expect(handoffPackage.getByTestId("handoff-empty")).toBeVisible();
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toHaveCount(0);
-  // The unchanged 830 raw rows and 828 qualified dimension witnesses remain
+  // The unchanged raw rows and their qualified dimension witnesses remain
   // checked by the recorded-source and pure stress-neutral contract tests.
   const reviewGeometryExport = page.getByLabel("Review geometry export");
-  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=75");
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=72");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
   );
@@ -896,7 +898,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
-    "2 load cases; 9 primitive loads; 2 combinations"
+    "2 load cases; 5 primitive loads; 2 combinations"
   );
   await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
     "basis=result_state_subtraction"
@@ -1162,23 +1164,23 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-preview")).toHaveCount(0);
 });
 
-test("reference result detail retains linked diagnostics and MPa units without current diagnostic state", async ({ page }) => {
+test("reference result detail retains linked diagnostics and mm units without current diagnostic state", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await ensureEngineReady(page);
   const reference = await inspectBundledReference(page);
-  await reference.getByTestId("result-filter-input").fill("result:stress:pipe-P-130");
+  await reference.getByTestId("result-filter-input").fill("result:disp:node-N-140");
   const inspector = page.getByTestId("property-inspector");
   const before = await inspector.textContent();
-  await reference.getByTestId("result-row-result:stress:pipe-P-130").click();
-  await expect(reference.getByTestId("selected-result-id")).toContainText("result:stress:pipe-P-130");
-  await expect(reference.getByTestId("result-detail-panel")).toContainText("MPa");
-  await expect(reference.getByTestId("result-detail-panel")).toContainText("COMBINATION_STRESS_SUMMARY_SKIPPED");
+  await reference.getByTestId("result-row-result:disp:node-N-140").click();
+  await expect(reference.getByTestId("selected-result-id")).toContainText("result:disp:node-N-140");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("mm");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("diagnostic:physics:high-displacement-review");
   await expect(inspector).toHaveText(before ?? "");
-  // The exact one-linked-row/MPa source relation is preserved in the source
+  // The exact one-linked-row/mm source relation is preserved in the source
   // oracle above; reference diagnostics do not enter the current issue drawer.
   await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED")).toHaveCount(0);
+  await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toHaveCount(0);
 });
 
 // Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
@@ -1752,7 +1754,7 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   // missing and the rule check blocked. A bundled reference never lends its recorded status.
   const issues = page.getByTestId("issues-home");
   await expect(issues.getByTestId("missing-data-status-separation")).toContainText(
-    `rule_check=${referenceModel.analysis_status.rule_check}`
+    `rule_check=${demoModel.analysis_status.rule_check}`
   );
   await expect(issues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
   await expect(issues.getByTestId("missing-data-warning-rule-check-required-inputs")).toContainText("RULE_CHECK_BLOCKING");

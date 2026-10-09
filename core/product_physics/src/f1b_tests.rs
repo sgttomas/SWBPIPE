@@ -1106,7 +1106,6 @@ fn f1b_source_recovery_budget_refusal_precedes_every_stiffness_read() {
                 load_case: &model.load_cases[0],
                 load_application: &loads,
                 thermal_loads: &[],
-                pressure_thrust_loads: &[],
                 load_state: None,
             },
             exact::Limits::default(),
@@ -2190,7 +2189,6 @@ impl AdmissionInputs {
         &self,
         built: Option<&BuiltModel>,
         thermal: &[ThermalElementLoad],
-        thrust: &[PressureThrustLoad],
         force: Option<&AssembledForce>,
     ) -> Result<(), ForceScalingFailure> {
         force_scaling_admission(
@@ -2199,7 +2197,6 @@ impl AdmissionInputs {
             &self.model.load_cases[0],
             &self.load_application,
             thermal,
-            thrust,
             None,
             force.unwrap_or(&self.force),
             734,
@@ -2219,16 +2216,17 @@ fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
 }
 
 /// Admission (ROOT Q3, OQ13 narrowed; the A2 order): each check names its
-/// family, including the three the product cannot reach at b != 0 (a
+/// family, including the two the product cannot reach at b != 0 (a
 /// user-stiffness element: every realizable one is refused by M07 containment
-/// or input validation; a pressure thrust; a non-nodal ledger term), and a
-/// thermal load is named as thermal although it is also an element primitive.
-/// (The exact-pressure operand is reached at product level, in
-/// `tests/f1b_w2_runtime.rs`.)
+/// or input validation; a non-nodal ledger term), and a thermal load is named
+/// as thermal although it is also an element primitive. (The exact-pressure
+/// operand, family 4, is reached at product level, in
+/// `tests/f1b_w2_runtime.rs`; the legacy pressure-thrust family is retired
+/// with legacy pressure, U3.)
 #[test]
 fn f1b_admission_names_each_family() {
     let base = admission_inputs(&chain_request(2));
-    assert_eq!(family_of(base.admit(None, &[], &[], None)), "admitted");
+    assert_eq!(family_of(base.admit(None, &[], None)), "admitted");
     // 1. A user-stiffness joint (M07 refuses its solve; the builder forms it).
     let mut joint = chain_request(2);
     joint["model"]["components"] = json!([{"id": "component:joint", "label": "invented joint",
@@ -2246,28 +2244,22 @@ fn f1b_admission_names_each_family() {
     let joint = admission_inputs(&joint);
     assert!(!joint.built.user_stiffness_elements.is_empty());
     assert_eq!(
-        family_of(base.admit(Some(&joint.built), &[], &[], None)),
+        family_of(base.admit(Some(&joint.built), &[], None)),
         "user_stiffness_element"
     );
     // 2. A realized curved bend.
     let elbow = admission_inputs(&curved_elbow_request());
     assert_eq!(
-        family_of(base.admit(Some(&elbow.built), &[], &[], None)),
+        family_of(base.admit(Some(&elbow.built), &[], None)),
         "curved_bend_macro_element"
     );
-    // 3-5. Thermal (named first, with its element primitive), pressure
-    // thrust, and an element primitive alone.
+    // 3 and 5. Thermal (named first, with its element primitive) and an
+    // element primitive alone.
     let thermal = [ThermalElementLoad {
         element_index: 0,
         source: "load:t".into(),
         axial_load: 1.0,
         thermal_strain: 1.0e-5,
-    }];
-    let thrust = [PressureThrustLoad {
-        element_index: 0,
-        axial_load: 1.0,
-        source_load_id: "load:p".into(),
-        source: PressureThrustSource::PipeInternalArea,
     }];
     let mut uniform = chain_request(2);
     uniform["model"]["load_cases"][0]["primitive_loads"]
@@ -2279,18 +2271,14 @@ fn f1b_admission_names_each_family() {
     let uniform = admission_inputs(&uniform);
     assert_eq!(uniform.load_application.element_uniform_loads.len(), 1);
     assert_eq!(
-        family_of(uniform.admit(None, &thermal, &[], None)),
+        family_of(uniform.admit(None, &thermal, None)),
         "thermal_or_eigen_load"
     );
     assert_eq!(
-        family_of(uniform.admit(None, &[], &thrust, None)),
-        "pressure_thrust_load"
-    );
-    assert_eq!(
-        family_of(uniform.admit(None, &[], &[], None)),
+        family_of(uniform.admit(None, &[], None)),
         "uniform_element_load"
     );
-    // 7. A consumed constant-effort support.
+    // 6. A consumed constant-effort support.
     let mut effort = chain_request(2);
     effort["model"]["supports"].as_array_mut().unwrap().push(json!({
         "id": "support:ce", "node": "N1", "family": "constant_effort_support", "restraints": ["UY"],
@@ -2299,10 +2287,10 @@ fn f1b_admission_names_each_family() {
         "provenance": PROV}));
     let effort = admission_inputs(&effort);
     assert_eq!(
-        family_of(effort.admit(None, &[], &[], None)),
+        family_of(effort.admit(None, &[], None)),
         "constant_effort_support"
     );
-    // 8-9. A ledger term that is not an authored nodal load, and an authored
+    // 7-8. A ledger term that is not an authored nodal load, and an authored
     // nodal term of exactly zero (OQ13 narrowed: refused, disclosed).
     let n = base.force.len();
     let ledger = |source: &str, value: f64| {
@@ -2312,19 +2300,19 @@ fn f1b_admission_names_each_family() {
         ledger.finish(n).unwrap()
     };
     assert_eq!(
-        family_of(base.admit(None, &[], &[], Some(&ledger("support:x", 1.0)))),
+        family_of(base.admit(None, &[], Some(&ledger("support:x", 1.0)))),
         "non_nodal_load_term"
     );
     assert_eq!(
-        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", 0.0)))),
+        family_of(base.admit(None, &[], Some(&ledger("load:tip-rx", 0.0)))),
         "zero_nodal_load_term"
     );
     assert_eq!(
-        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", -0.0)))),
+        family_of(base.admit(None, &[], Some(&ledger("load:tip-rx", -0.0)))),
         "zero_nodal_load_term"
     );
     assert_eq!(
-        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", 1.0)))),
+        family_of(base.admit(None, &[], Some(&ledger("load:tip-rx", 1.0)))),
         "admitted"
     );
 }
@@ -2546,7 +2534,6 @@ fn f1b_solve_ordinary_refuses_force_scaled_evidence_with_zero_work() {
                 load_case: &model.load_cases[0],
                 load_application: &loads,
                 thermal_loads: &[],
-                pressure_thrust_loads: &[],
                 load_state: None,
             },
             limits,

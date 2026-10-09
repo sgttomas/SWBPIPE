@@ -814,6 +814,79 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
     rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
 }
 
+/// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A model
+/// declaring 1.0.0/legacy_pressure_v1 is refused with zero pressure, with and
+/// without a combination (a feature the exact contract refuses); a 0.2.0 model with
+/// a zero-valued pressure primitive is refused; the same 0.2.0 model without the
+/// primitive is pressure-free and solves.
+#[test]
+fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {
+    let only = |input: &Value, code: &str, refs: &[&str]| {
+        for mode in MODES {
+            let result = solve(input.clone(), mode);
+            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(result.results.is_empty());
+            let blocking = result
+                .diagnostics
+                .iter()
+                .filter(|d| d.severity == "blocking")
+                .collect::<Vec<_>>();
+            assert_eq!(blocking.len(), 1, "{blocking:?}");
+            assert_eq!(blocking[0].code, code);
+            assert_eq!(blocking[0].affected_refs, refs);
+            assert!(blocking[0].message.contains("2.0.0/exact_straight_pressure_v2"));
+        }
+    };
+    let mut labelled = model(true, true, 0.012);
+    labelled["model"]["pressure_contract"] =
+        json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
+    labelled["model"]["load_cases"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("pressure_regions");
+    // Without the exact contract the material route needs an explicit G.
+    labelled["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
+    only(&labelled, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+    let mut combined = labelled.clone();
+    combined["model"]["combinations"] = json!([{"id":"combination:one","label":"one",
+        "basis":"mechanics","terms":[{"load_case":CASE,"factor":1.0}],
+        "provenance":"synthetic_combination"}]);
+    only(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+
+    let mut free = labelled;
+    free["model"]["schema_version"] = json!("0.2.0");
+    free["model"].as_object_mut().unwrap().remove("pressure_contract");
+    let mut zero = free.clone();
+    zero["model"]["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"id":"load:zero-pressure","category":"pressure",
+            "target":{"type":"element","pipe":PIPE},"direction":"global_x",
+            "dimension":"pressure","magnitude":{"value":0.0,"unit":"Pa"},
+            "provenance":"retired_legacy_zero_pressure"}));
+    only(&zero, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &[CASE, "load:zero-pressure"]);
+    // RV127 S-1: a nonzero primitive gets the same re-author text, naming the exact contract.
+    let mut nonzero = zero.clone();
+    nonzero["model"]["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .last_mut()
+        .unwrap()["magnitude"]["value"] = json!(1.2e6);
+    only(&nonzero, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &[CASE, "load:zero-pressure"]);
+    let message = |input: &Value| {
+        solve(input.clone(), MODES[0])
+            .diagnostics
+            .into_iter()
+            .find(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED")
+            .unwrap()
+            .message
+    };
+    assert_eq!(message(&nonzero), message(&zero));
+    for mode in MODES {
+        solved(&solve(free.clone(), mode));
+    }
+}
+
 #[test]
 fn exact_override_materials_replace_base_list_and_redundant_g_is_not_authoritative() {
     let mut missing_nu = model(false, true, 0.0);
