@@ -6,6 +6,10 @@ created: 2026-04-30
 revised: 2026-09-19
 ---
 
+> Development procedures in this document are superseded by Root `AGENTS.md`
+> and `loop/LOOP_INIT.md` (2026-10-09). Current product contracts and explicit
+> holds remain in force; omission from navigation supersedes nothing.
+
 # AGENTS — SWBPIPE Project Instructions
 
 Root `AGENTS.md` and the selected `agents/AGENT_*.md` package govern agent roles
