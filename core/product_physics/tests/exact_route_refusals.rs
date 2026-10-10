@@ -1,7 +1,8 @@
 //! T4-U0 (exact-route hardening) public-entry controls.
 //!
 //! Pins the exact route's previously untested refusals (A1.1-A1.9), the
-//! emission order where two apply. Every input is a committed invented fixture
+//! emission order where two apply, and the 2.0.0/exact_straight_pressure_v2
+//! refusal of p < 0 (A2.1-A2.5). Every input is a committed invented fixture
 //! patched inline: X0 = `fixtures/exact_pressure_connected_request.json`
 //! (0.3.0), Y0 = `fixtures/product_preview/load_reference/pressure.request.json`
 //! (0.4.0). "Both entries" are the captured value entry and the typed entry;
@@ -11,6 +12,7 @@ use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
     PreviewSolverMode,
 };
+use open_pipe_stress_result_export::semantic_contract;
 use serde_json::{json, Value};
 
 const X0: &str = include_str!("fixtures/exact_pressure_connected_request.json");
@@ -23,6 +25,7 @@ const MODES: [PreviewSolverMode; 2] = [
 const SOURCE: &str = "core/product_physics/src/pressure_runtime.rs";
 const COMPOSITION: &str = "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED";
 const COMBINATION: &str = "EXACT_PRESSURE_COMBINATION_UNSUPPORTED";
+const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
 const PROVENANCE: &str = "invented_u0_control";
 
 #[derive(Clone, Copy)]
@@ -174,6 +177,10 @@ fn with_support(base: Base, support: Value, declare: bool) -> Value {
         declare_support_state(&mut document, &id);
     }
     document
+}
+
+fn set_region_pressure(document: &mut Value, case: &str, pressure: Value) {
+    case_mut(document, case)["pressure_regions"][0]["pressure"] = pressure;
 }
 
 /// Runs both entries in both modes and requires the same status from all four,
@@ -407,5 +414,104 @@ fn a1_precedence_follows_emission_order() {
     assert!(
         position(&envelope, COMPOSITION, &["support:gap"])
             < index_of(&envelope, "LOAD_STATE_SUPPORT_STATE_MISSING")
+    );
+}
+
+#[test]
+fn a2_negative_pressure_is_refused_by_name_on_both_document_versions() {
+    for (base, case, region, pressure) in [
+        (
+            Base::X0,
+            "case:closed-pressure",
+            "region:fixture-pressure",
+            json!({"value":-2000,"unit":"kPa"}),
+        ),
+        (
+            Base::Y0,
+            "case:cold-pressure",
+            "region:closed",
+            json!({"value":-2,"unit":"MPa"}),
+        ),
+        // A2.3: the smallest negative subnormal.
+        (
+            Base::X0,
+            "case:closed-pressure",
+            "region:fixture-pressure",
+            json!({"value":-5e-324,"unit":"Pa"}),
+        ),
+    ] {
+        let mut document = base.document();
+        set_region_pressure(&mut document, case, pressure.clone());
+        let envelope = run_all(&document);
+        assert_blocked(&envelope, base);
+        position(&envelope, NEGATIVE, &[case, region, "pressure"]);
+        assert!(
+            envelope["diagnostics"][position(&envelope, NEGATIVE, &[case, region, "pressure"])]
+                ["message"]
+                .as_str()
+                .unwrap()
+                .contains("admits internal differential pressure p >= 0 only"),
+            "{pressure}"
+        );
+    }
+}
+
+/// A2.4 and A2.5: both signed zeros are admitted (the readers' `>= 0` admits
+/// -0.0). An authored Pa value is published unchanged, so -0.0 Pa publishes
+/// p_pa = -0.0; a scaled unit goes through the affine unit transform (offset
+/// +0.0), so -0.0 kPa publishes +0.0, as it did before T4-U0. Byte equality
+/// with the base is the SP-1 probe's, not this test's.
+#[test]
+fn a2_signed_zero_pressure_is_admitted() {
+    for (value, unit, negative_zero) in [
+        (json!(-0.0), "Pa", true),
+        (json!(-0.0), "kPa", false),
+        (json!(0.0), "kPa", false),
+    ] {
+        let mut document = Base::X0.document();
+        set_region_pressure(
+            &mut document,
+            "case:closed-pressure",
+            json!({"value":value,"unit":unit}),
+        );
+        let envelope = run_all(&document);
+        assert_eq!(
+            envelope["status"]["mechanics"], "MECHANICS_SOLVED",
+            "{:#?}",
+            envelope["diagnostics"]
+        );
+        assert!(!has_code(&envelope, NEGATIVE));
+        let region = envelope["contract_evidence"]["pressure"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["region_id"] == "region:fixture-pressure")
+            .expect("region evidence");
+        let p_pa = region["p_pa"].as_f64().unwrap();
+        assert_eq!(p_pa, 0.0);
+        assert_eq!(p_pa.is_sign_negative(), negative_zero, "{value} {unit}");
+        // The accepted Rust reader admits the envelope.
+        semantic_contract::for_source(&envelope).expect("the Rust reader admits p_pa = +-0");
+    }
+}
+
+/// Order: exact-profile composition precedes the per-case region code.
+#[test]
+fn a2_composition_precedes_the_negative_pressure_code() {
+    let mut document = with_valve(Base::X0);
+    set_region_pressure(
+        &mut document,
+        "case:closed-pressure",
+        json!({"value":-2000,"unit":"kPa"}),
+    );
+    let envelope = run_all(&document);
+    assert_blocked(&envelope, Base::X0);
+    assert!(
+        position(&envelope, COMPOSITION, &["component:valve"])
+            < position(
+                &envelope,
+                NEGATIVE,
+                &["case:closed-pressure", "region:fixture-pressure", "pressure"],
+            )
     );
 }

@@ -1,6 +1,6 @@
 //! T4-U0 (exact-route hardening) through the headless runner: an exact
-//! document refused for a metadata-only component (A1.1) or a combination
-//! (A1.6) is blocked with no export, in both
+//! document refused for a metadata-only component (A1.1), a combination (A1.6)
+//! or a negative region pressure (A2.1) is blocked with no export, in both
 //! solver modes. The input is PP's committed invented X0 fixture.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
@@ -62,6 +62,9 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
         "terms":[{"load_case":"case:closed-pressure","factor":1.0},
             {"load_case":"case:six-component-load","factor":1.0}],
         "provenance":"invented_u0_control"}]);
+    let mut negative = base.clone();
+    negative["model"]["load_cases"][0]["pressure_regions"][0]["pressure"] =
+        json!({"value":-2000,"unit":"kPa"});
     for (name, payload, code, refs) in [
         (
             "A1.1",
@@ -74,6 +77,12 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
             combination,
             "EXACT_PRESSURE_COMBINATION_UNSUPPORTED",
             json!(["combination:sum"]),
+        ),
+        (
+            "A2.1",
+            negative,
+            "PRESSURE_REGION_PRESSURE_NEGATIVE",
+            json!(["case:closed-pressure", "region:fixture-pressure", "pressure"]),
         ),
     ] {
         for mode in MODES {

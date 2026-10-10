@@ -283,6 +283,22 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                     "pressure region requires an explicit finite signed pressure quantity",
                 );
             }
+            // T4-U0: the v2 readers refuse p_pa < 0, so the producer refuses it
+            // by name. Every pressure unit converts by a positive factor, so a
+            // negative authored value is a negative published value. The strict
+            // IEEE test admits -0.0 and +0.0, as the readers' `>= 0` tests do.
+            if region
+                .pressure
+                .as_ref()
+                .is_some_and(|pressure| pressure.value.is_finite() && pressure.value < 0.0)
+            {
+                problem(
+                    diagnostics,
+                    "PRESSURE_REGION_PRESSURE_NEGATIVE",
+                    &[&case.id, id, "pressure"],
+                    "the 2.0.0/exact_straight_pressure_v2 profile admits internal differential pressure p >= 0 only, and its result readers refuse p_pa < 0; a negative differential (external pressure exceeding internal) is refused, not published; external-pressure stability and collapse are not assessed by this profile",
+                );
+            }
             if present(&region.provenance).is_none() {
                 problem(
                     diagnostics,
@@ -1286,9 +1302,11 @@ mod tests {
     }
 
     #[test]
-    fn signed_pressure_and_zero_poisson_limit_do_not_include_thermal_load() {
+    fn zero_poisson_limit_does_not_include_thermal_load() {
+        // T4-U0: the input's p = +3 replaces the former p = -3, which is now
+        // refused by name (`negative_pressure_is_refused_by_name_before_assembly`);
+        // the cap load at node A is -p*Ai = -3*pi with Ai = pi.
         let mut value = input();
-        value["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(-3.0);
         value["materials"][0]["poisson_ratio"]["value"] = json!(0.0);
         value["materials"][0]["shear_modulus"]["value"] = json!(60.0);
         value["materials"][0]["thermal_expansion_coefficient"] =
@@ -1299,7 +1317,42 @@ mod tests {
         assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
         let result = result.unwrap();
         assert!(result.eigenloads.iter().all(|value| *value == 0.0));
-        assert_close(result.cap_loads[0], 3.0 * PI, 3.0 * PI);
+        assert_close(result.cap_loads[0], -3.0 * PI, 3.0 * PI);
+    }
+
+    /// T4-U0 A2.6: p < 0 is refused by name before any load is assembled; the
+    /// strict IEEE test admits both signed zeros.
+    #[test]
+    fn negative_pressure_is_refused_by_name_before_assembly() {
+        for (pressure, refused) in [(-3.0, true), (-5e-324, true), (-0.0, false), (0.0, false)] {
+            let mut value = input();
+            value["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(pressure);
+            let (result, diagnostics) = assemble(value);
+            let negative = diagnostics
+                .iter()
+                .filter(|d| d.code == "PRESSURE_REGION_PRESSURE_NEGATIVE")
+                .collect::<Vec<_>>();
+            if refused {
+                assert!(result.is_none(), "{pressure:e}: assembled a refused case");
+                assert_eq!(negative.len(), 1, "{pressure:e}: {diagnostics:?}");
+                let finding = negative[0];
+                assert_eq!(finding.severity, "blocking");
+                assert_eq!(finding.affected_refs, ["case:A", "region:A", "pressure"]);
+                assert_eq!(
+                    finding.id,
+                    "diagnostic:pressure-runtime:case-A-region-A-pressure:PRESSURE_REGION_PRESSURE_NEGATIVE"
+                );
+                assert_eq!(
+                    finding.source.as_deref(),
+                    Some("core/product_physics/src/pressure_runtime.rs")
+                );
+            } else {
+                assert!(negative.is_empty(), "{pressure:e}: {diagnostics:?}");
+                assert!(!has_blocking(&diagnostics), "{pressure:e}: {diagnostics:?}");
+                let result = result.expect("a signed-zero pressure assembles");
+                assert!(result.cap_loads.iter().all(|value| *value == 0.0));
+            }
+        }
     }
 
     #[test]
