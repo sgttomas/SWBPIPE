@@ -633,44 +633,6 @@ fn kd5_acceptance_range_from_1e_8_rad_to_pi_at_ordinary_and_utm_coordinates() {
 }
 
 #[test]
-#[ignore = "M31b0 equivalence pending ROOT ruling (DEL-04-01 Design); see K1/K2 for M31b"]
-fn kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error() {
-    // RV5-B1 (the M31b counterexample, RV5's admissible inputs): one realized
-    // bend on a cantilever with stiff root springs and a tip moment (1, 1, 1),
-    // its binary64 centre moved along the chord to the edge of the product's
-    // radius-match tolerance (1e-9). Planar 60° and skew 30°. The chord error
-    // gives a first-order translation error at node 1 above the criterion,
-    // which the check sees because its H uses the actual chord x_j − x_i.
-    // Mutation 31b (H from the product's chord R(cos φ − 1), R sin φ) sees
-    // none of it and fails the demotion assertion below.
-    for model in [&CPLANAR_60, &CSKEW_30_N122] {
-        let built = Built::from_model(model);
-        for mode in MODES {
-            let plain = built.plain(mode);
-            let actual = actual_ratio(model, &plain.displacements);
-            // Preconditions: main publishes Passed, and its published error
-            // against the exact intended solution is above the criterion.
-            assert_eq!(
-                plain.report.quality,
-                SolveQuality::Passed,
-                "{} {mode:?}",
-                model.name
-            );
-            assert!(actual > 1.0, "{} {mode:?}: actual {actual}", model.name);
-            let checked = built.checked(mode);
-            record(model.name, mode, Some(actual), &checked);
-            assert_demoted_only_in_quality(&plain, &checked);
-            let ef = estimate(&checked) / 2.0;
-            assert!(
-                (ef / actual - 1.0).abs() < 0.05,
-                "{} {mode:?}: EF {ef} actual {actual}",
-                model.name
-            );
-        }
-    }
-}
-
-#[test]
 fn kd5_large_coordinate_pp_route_elbow_does_not_demote() {
     // RV5-B1's PP-route elbow at X = 5e5 m (R = 0.3 m, φ = 2°, y = +y as PP
     // states it): no designed mismatch. Against the exact
