@@ -37,9 +37,9 @@ checks and independent scrutiny specified in Root `AGENTS.md`.
 
 ## Hard boundaries
 
-The following fence text is preserved verbatim from the accepted workplan.
-The reset retires administrative lifecycle tracking; owner acceptance, issuance
-and release gates and protected baselines remain reserved.
+F-PIP-1 and F-PIP-2 are preserved verbatim from the accepted workplan. The owner
+amended F-PIP-3 and F-PIP-4 on 2026-10-10 ("Adopt both F-PIP drafts as written"),
+replacing references to the retired register gates and lifecycle states.
 
 - **F-PIP-1 (boundary prohibitions):** local-only operation — no cloud, daemon,
   network, or telemetry features; no repository-default private-data writes;
@@ -52,18 +52,34 @@ and release gates and protected baselines remain reserved.
   is never edited. New artifacts do not restate it as an ad-hoc litany — write
   "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)." and use
   `docs/claims_registry.md` for any surface-facing boundary statement.
-- **F-PIP-3 (lifecycle):** deliverable lifecycle transitions follow the register's
-  ruled gates; no `CHECKING -> ISSUED` issuance without the owner's gate; the
-  currently `ISSUED` baseline is opened only through a human-approved change path.
-- **F-PIP-4 (scope-gated integrations):** live external SDK/harness promotion,
-  domain-engine bindings, and version-scope promotions stay behind their named
-  register rows; tier-0/domain-engine surfaces (`_DomainEngines/**`) belong to their
-  own loops — this loop never writes them.
+- **F-PIP-3 (acceptance and issuance):** acceptance, issuance and release of any
+  deliverable, package or product baseline are the owner's acts. Agents do not
+  record, imply or derive acceptance, issuance or lifecycle standing from completed
+  work, checks, reviews or merges. A baseline the owner has issued or protected
+  changes only through a change the owner approves.
+- **F-PIP-4 (scope-gated integrations):** promoting a live external SDK or harness,
+  binding a domain engine, and promoting a version scope each require the owner's
+  explicit steer for that scope; ruled decisions that bear on them (for example
+  D-22, D-24 and D-30) continue to apply. Tier-0 and domain-engine surfaces
+  (`_DomainEngines/**`) belong to their own projects; SWBPIPE work never writes them.
 
 ## Knowledge-source constraint (DEC-043)
 
-The accepted decision below is preserved verbatim from SOFTWARE_DECOMP.md.
+The owner amended DEC-043 on 2026-10-10 ("Adopt DEC-043 as drafted"); the
+original decision remains in `execution/_Decomposition/SOFTWARE_DECOMP.md`.
 
-| Decision | Constraint | Basis | Standing |
-|---|---|---|---|
-|DEC-043|Knowledge-source reliability constraint for the external engineering corpus `domains/piping-design/` (BM25 + dense retrieval index built 2026-06-18, ~48.2k chunks): its prose / concept / design-guidance content is vetted and reliable, but its extracted **equation artifacts are NOT reliable** — they are unreviewed `pdf2md`/OCR extractions pending the maintainer's manual equation review, which writes a machine-readable per-artifact JSON review status. Therefore: (1) `RESEARCH`/`RESEARCHER` and any retrieval consumer (including a future embedded design agent) may cite piping-design for concepts / terminology / approach but must never present an extracted equation from this corpus as authoritative, and must surface each artifact's review status (cleared vs unverified); (2) piping-design equation artifacts must NOT be used as references for any physics-model build (solver / kernel / analytic-verification), including grounding the Phase-D engineering decisions D-16 / D-18 / D-19 — physics and equations come from the maintainer's vetted sources, not the corpus extractions. Routed into `AGENTS.md` (Knowledge-source reliability section) so agents honor it at runtime.|Human project authority directive on 2026-06-18 during the embedded-agent design session, recorded now that the piping-design retrieval index exists (DEC-042 prep) and `RESEARCHER` could otherwise surface the unreviewed equation artifacts as authoritative.|Accepted; recorded as a standing knowledge-source reliability constraint (no register D-row — not a gated decision packet); routed to `AGENTS.md`; binds `RESEARCH`/`RESEARCHER` and any retrieval consumer; the maintainer's JSON equation-review status is the system of record for per-artifact clearance; no lifecycle, release, professional, certification, sealing, authentication, or code-compliance claim is created.|
+**DEC-043 (knowledge-source reliability):** in the `domains/piping-design/`
+retrieval corpus, prose, concept and design-guidance content is reliable and may
+be cited for concepts, terminology and approach. Its extracted equation artifacts
+are unreviewed OCR extractions and are not reliable. Any agent, skill (including
+`researcher`) or retrieval consumer, including a future embedded design agent:
+
+1. never presents an extracted equation from this corpus as authoritative, and
+   shows each artifact's review status (cleared or unverified) from the
+   maintainer's per-artifact JSON review, which is the system of record;
+2. never uses a corpus equation artifact as a reference for a physics-model build
+   (solver, kernel or analytic verification) or to ground an engineering decision.
+   Physics and equations come from the maintainer's vetted sources.
+
+This creates no lifecycle, release, professional, certification, sealing,
+authentication or code-compliance claim.
