@@ -2201,7 +2201,7 @@ where
 /// decided exactly (the summary ratios rounded upward when accepted). Charged
 /// to the candidate attempt, with budget checks. Revision 5a.2's rule, with no
 /// resolution term: `decide` is revision 5a.3's.
-#[allow(dead_code)] // test entry: the rule (a) predicate's tests (SD-G5, O6)
+#[cfg(test)]
 pub(crate) fn stop_rule<const L: usize, const M: usize>(
     layout: &[QuantityMeta],
     extents: &[f64],
@@ -3753,14 +3753,13 @@ impl RetainedSolve {
     pub fn selected_precision(&self) -> u32 {
         self.selected
     }
-    #[allow(dead_code)] // F2a API
     pub(crate) fn state(&self, precision: u32) -> Option<&PrecisionState> {
         self.states.iter().find(|s| s.precision() == precision)
     }
 
     /// Private producer integration only; no report borrow or public radius API.
     /// Kind names its SI coordinate (m, rad, N, N·m). Absence is never zero.
-    #[allow(dead_code)] // future bounded F2a integration; tested here
+    #[cfg(test)]
     fn publication_radius(
         &self,
         index: usize,
@@ -3772,6 +3771,7 @@ impl RetainedSolve {
         self.publication_radius_checked(index, expected)
     }
 
+    #[cfg(test)]
     fn validate_publication_owner(
         &self,
         source_identity: &[u8],
@@ -3811,6 +3811,7 @@ impl RetainedSolve {
 
     // The checked case borrow establishes the common checks once. Every row
     // still passes the original metadata, class, absence and ceiling checks.
+    #[cfg(test)]
     fn publication_radius_checked(
         &self,
         index: usize,

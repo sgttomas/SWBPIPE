@@ -775,7 +775,7 @@ where
 {
     /// A profile given directly (the low-precision stress and V4's F2 family):
     /// `rows[i]` holds K̃_ij for j in first[i]..=i.
-    #[allow(dead_code)] // test entry (the stress and the F2 family)
+    #[cfg(test)]
     pub(crate) fn from_rows(
         first: Vec<usize>,
         rows: Vec<Vec<Wide<L>>>,
@@ -794,7 +794,7 @@ where
         }
     }
 
-    #[allow(dead_code)] // test entry
+    #[cfg(test)]
     pub(crate) fn block_of_row(&self) -> &[u32] {
         &self.block_of_row
     }
@@ -1414,7 +1414,7 @@ where
 /// amendment A2, as `verify_state` composes them). Returns the certificates,
 /// the number of shifted factorizations, and the refusal that stops the
 /// attempt, if any.
-#[allow(dead_code)] // test entry: 7b–7d composed as `verify_state` does
+#[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 #[allow(clippy::type_complexity)]
 pub(crate) fn certify<const L: usize>(

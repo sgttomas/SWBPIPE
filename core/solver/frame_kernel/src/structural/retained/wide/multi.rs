@@ -606,6 +606,7 @@ where
 }
 
 /// Knuth's TwoSum at p: (s, e) with s = fl_p(a + b) and s + e = a + b.
+#[cfg(test)]
 fn two_sum_rounded<const L: usize>(
     a: &Wide<L>,
     b: &Wide<L>,
@@ -721,7 +722,6 @@ fn half_quantum_over(k: u64) -> f64 {
 impl<const L: usize> Wide<L> {
     /// The value rounded once to binary64, with its outcome (module
     /// documentation).
-    #[allow(dead_code)] // K4 API (publication of retained quantities)
     pub(crate) fn to_binary64(&self) -> Binary64Outcome {
         let negative = self.negative;
         let sign = u64::from(negative) << 63;
@@ -766,7 +766,6 @@ impl<const L: usize> Wide<L> {
     }
 
     /// The same value at a width M ≥ L (exact).
-    #[allow(dead_code)] // K4 API (the stop rule and the p + 64 residual across widths)
     pub(crate) fn widen<const M: usize>(&self) -> Wide<M> {
         const { assert!(M >= L) };
         let mut significand = [0u64; M];
@@ -787,13 +786,11 @@ impl<const L: usize> Wide<L>
 where
     Wide<L>: SupportedWidth,
 {
-    #[allow(dead_code)] // K4 API
     pub(crate) const ZERO: Self = Self {
         negative: false,
         exponent: 0,
         significand: [0; L],
     };
-    #[allow(dead_code)] // K4 API
     pub(crate) const ONE: Self = {
         let mut significand = [0u64; L];
         significand[L - 1] = 1 << 63;
@@ -805,7 +802,6 @@ where
     };
 
     /// Validated construction from raw parts (value model above).
-    #[allow(dead_code)] // K4 API
     pub(crate) fn from_parts(
         negative: bool,
         exponent: i64,
@@ -837,14 +833,12 @@ where
 
     /// (negative, exponent of the leading bit, little-endian significand):
     /// the canonical limbs (D1 §4.1.8's retained-state digest).
-    #[allow(dead_code)] // K4 API
     pub(crate) fn parts(&self) -> (bool, i64, [u64; L]) {
         (self.negative, self.exponent, self.significand)
     }
 
     /// The exact value of a finite binary64 number, including subnormals and
     /// the sign of zero. NaN and infinities are refused.
-    #[allow(dead_code)] // K4 API
     pub(crate) fn from_f64(value: f64) -> Result<Self, WideError> {
         if !value.is_finite() {
             return Err(WideError::NonFinite);
@@ -868,28 +862,23 @@ where
         })
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn is_zero(&self) -> bool {
         is_zero_value(self)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn is_sign_negative(&self) -> bool {
         self.negative
     }
 
     /// Exponent of the leading bit (0 for zero).
-    #[allow(dead_code)] // K4 API
     pub(crate) fn exponent(&self) -> i64 {
         self.exponent
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn neg(&self) -> Self {
         negated(self)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn abs(&self) -> Self {
         Self {
             negative: false,
@@ -898,13 +887,11 @@ where
     }
 
     /// True when the value has at most p significant bits.
-    #[allow(dead_code)] // K4 API
     pub(crate) fn fits_precision(&self, p: u32) -> bool {
         fits(self, p)
     }
 
     /// Exact multiplication by 2^k.
-    #[allow(dead_code)] // K4 API
     pub(crate) fn mul_pow2(&self, k: i64) -> Result<Self, WideError> {
         if is_zero_value(self) {
             return Ok(*self);
@@ -914,7 +901,6 @@ where
     }
 
     /// Numerical comparison (+0 and −0 are equal).
-    #[allow(dead_code)] // K4 API
     pub(crate) fn cmp_value(&self, other: &Self) -> Ordering {
         match (is_zero_value(self), is_zero_value(other)) {
             (true, true) => Ordering::Equal,
@@ -1085,7 +1071,7 @@ impl WidthWork {
     }
 
     /// All operations counted.
-    #[allow(dead_code)] // K4 API (budgets)
+    #[cfg(test)]
     pub(crate) fn operations(&self) -> u64 {
         OpKind::ALL
             .iter()
@@ -1110,7 +1096,6 @@ pub struct AttemptWork {
 
 impl AttemptWork {
     /// Adds a context's counts to its width. Record each context once.
-    #[allow(dead_code)] // K4 API (budgets)
     pub(crate) fn record<const L: usize>(&mut self, context: &WideContext<L>)
     where
         Wide<L>: SupportedWidth,
@@ -1119,7 +1104,6 @@ impl AttemptWork {
     }
 
     /// Adds another attempt's counts, width by width.
-    #[allow(dead_code)] // K4 API (budgets)
     pub(crate) fn merge(&mut self, other: &Self) {
         for ((mine, theirs), limbs) in self.widths.iter_mut().zip(&other.widths).zip(SLOT_LIMBS) {
             mine.merge(theirs, limbs);
@@ -1127,7 +1111,7 @@ impl AttemptWork {
     }
 
     /// The counts of width L.
-    #[allow(dead_code)] // K4 API (budgets)
+    #[cfg(test)]
     pub(crate) fn width<const L: usize>(&self) -> WidthWork
     where
         Wide<L>: SupportedWidth,
@@ -1165,7 +1149,6 @@ impl<const L: usize> WideContext<L>
 where
     Wide<L>: SupportedWidth,
 {
-    #[allow(dead_code)] // K4 API
     pub(crate) fn new(precision: u32) -> Result<Self, WideError> {
         if !(MIN_PRECISION..=(64 * L) as u32).contains(&precision) {
             return Err(WideError::InvalidPrecision(precision));
@@ -1176,41 +1159,34 @@ where
         })
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn precision(&self) -> u32 {
         self.precision
     }
 
-    #[allow(dead_code)] // K4 API (budgets)
     pub(crate) fn work(&self) -> WidthWork {
         self.work
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn add(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Add, L)?;
         add_rounded(a, b, self.precision)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn sub(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Sub, L)?;
         add_rounded(a, &negated(b), self.precision)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn mul(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Mul, L)?;
         mul_rounded(a, b, self.precision)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn div(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Div, L)?;
         div_rounded(a, b, self.precision)
     }
 
-    #[allow(dead_code)] // K4 API
     pub(crate) fn sqrt(&mut self, a: &Wide<L>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Sqrt, L)?;
         sqrt_rounded(a, self.precision)
@@ -1219,7 +1195,6 @@ where
     /// A value of any width M rounded once to this width and precision:
     /// narrowing (M > L), re-rounding (M = L) or widening with rounding. A
     /// zero keeps its sign.
-    #[allow(dead_code)] // K4 API
     pub(crate) fn round<const M: usize>(&mut self, x: &Wide<M>) -> Result<Wide<L>, WideError> {
         self.work.charge(OpKind::Round, L)?;
         round_from::<L, M>(x, self.precision)
@@ -1227,7 +1202,6 @@ where
 
     /// ±magnitude · 2^exponent (little-endian limbs, any length) rounded once;
     /// +0 for a zero magnitude, whatever `negative`.
-    #[allow(dead_code)] // K4 API (the ledger projection, D1 §4.1.2 item 5)
     pub(crate) fn from_integer(
         &mut self,
         negative: bool,
@@ -1241,7 +1215,7 @@ where
 
     /// (s, e): s = fl_p(a + b), s + e = a + b exactly. Operands of at most p
     /// significant bits.
-    #[allow(dead_code)] // K4 API (exact assembly and combinations)
+    #[cfg(test)]
     pub(crate) fn two_sum(
         &mut self,
         a: &Wide<L>,
@@ -1253,7 +1227,6 @@ where
 
     /// (s, e): s = fl_p(a · b), s + e = a · b exactly. Operands of at most p
     /// significant bits.
-    #[allow(dead_code)] // K4 API (exact assembly and combinations)
     pub(crate) fn two_product(
         &mut self,
         a: &Wide<L>,
