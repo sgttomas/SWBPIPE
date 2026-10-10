@@ -36,6 +36,7 @@ import {
   openLocalProject,
   saveLocalProject
 } from "../../services/projectService";
+import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type {
@@ -1915,6 +1916,74 @@ export function useWorkspaceSession() {
     }
   }
 
+  /** File > Open Model Document…: adopt a model document file from disk as the
+   * session's model, unchanged. It starts unsaved, as the bundled demo does; New
+   * Local Project saves it as a project. A refusal leaves the session as it was. */
+  async function handleOpenModelDocument() {
+    const owner = acquireProjectOperation();
+    if (!owner) return;
+    const request = ++projectRequest.current;
+    const epoch = requestEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    try {
+      const opened = await openModelDocumentFile();
+      if (!stillCurrent() || opened.outcome === "cancelled") return;
+      if (opened.outcome === "refused") {
+        setProjectMessage(modelFileRefusalMessage(opened.file_name, opened.diagnostics));
+        setProjectOperation("open_model_refused");
+        return;
+      }
+      const document = opened.document;
+      ruleRevisionGate.current.invalidate();
+      setModelHashIntegrity(null);
+      setProjectEnvelopeHashIntegrity(null);
+      advanceProjectSession();
+      commitModel(document);
+      const generation = projectSessionGenerationRef.current;
+      const revision = uiModelRevisionRef.current;
+      const sequence = ++savedBasisSequence.current;
+      setSavedModelBasis({ generation, revision, hash: null, source: "loaded-source" });
+      setSelection(defaultSelection(document));
+      setUndoStack([]);
+      setRedoStack([]);
+      setAppliedOperations([]);
+      setQueuedBatches([]);
+      setBatchOutcomes({});
+      setBatchReceipts([]);
+      setBatchMessage(null);
+      setOperationOutcomes({});
+      setOperationMessage(null);
+      setHistoricalRun(null);
+      setResult(null);
+      setAnalysisRun(null);
+      setInputManifest(null);
+      setRuleCheckAggregate(null);
+      setProposal(null);
+      setRetainedReviewContext([]);
+      setEditorIntents([]);
+      setSelectedReviewTarget(null);
+      setSolveJob(initialSolveJob());
+      setProjectSummary(null);
+      setProjectEnvelopeHash(null);
+      setModelDocumentMigration(null);
+      setModelMigrationLedger([]);
+      const schemaNote = opened.schema_status === "migrated" ? "migrated when saved as a project" : opened.schema_status;
+      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${schemaNote}). Not saved as a local project yet.`);
+      setProjectOperation("open_model");
+      setActiveSection(null);
+      const hash = await computeModelHash(document);
+      if (generation === projectSessionGenerationRef.current && sequence === savedBasisSequence.current) {
+        setSavedModelBasis({ generation, revision, hash: hash?.value ?? null, source: "loaded-source" });
+      }
+    } catch (error) {
+      if (!stillCurrent()) return;
+      setProjectMessage(`Open model document failed: ${String(error)}`);
+      setProjectOperation("open_model_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
+  }
+
   async function handleSaveProject() {
     if (!model) return;
     const owner = acquireProjectOperation();
@@ -2267,6 +2336,9 @@ export function useWorkspaceSession() {
         break;
       case "file.new-blank":
         void handleCreateBlankProject();
+        break;
+      case "file.open-model":
+        void handleOpenModelDocument();
         break;
       case "file.open-local":
         void handleOpenProject();
@@ -2743,6 +2815,7 @@ export function useWorkspaceSession() {
       handleCreateBlankProject,
       handleCreateBlankLoadStateProject,
       handleOpenProject,
+      handleOpenModelDocument,
       handleSaveProject,
       handleListProjects
     },
