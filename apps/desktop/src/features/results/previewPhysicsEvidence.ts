@@ -96,7 +96,9 @@ export function compareCodePoints(a: string, b: string): number {
   }
   return x.length === y.length ? 0 : x.length < y.length ? -1 : 1;
 }
-function consistentNorm(magnitude: number, [x, y, z]: number[]): boolean {
+/** G7's 64-epsilon magnitude guard: |p - r| <= 64 eps max(|p|, MIN_POSITIVE), r the nested binary64 hypot of the components.
+ * @internal Exported only for B2-C REVISION_02 §4.5's (NC-3) unit test; not a public entry point. */
+export function consistentNorm(magnitude: number, [x, y, z]: number[]): boolean {
   const expected = Math.hypot(Math.hypot(x, y), z);
   return magnitude >= 0 && Math.abs(magnitude - expected) <= GUARD * Math.max(Math.abs(magnitude), TINY);
 }
@@ -164,7 +166,8 @@ function readCases(evidence: Json): Map<string, Json> {
       demand(text(x.pipe_id) && text(x.result_id) && Object.entries(EXTREMA_CONSTANTS).every(([k, v]) => x[k] === v), "extrema identity or basis");
       // RR "I4 made at `30f3d1b24a`; …", rulings 2 and 3: PY's extrema-number demand, at PY's place and with its
       // detail. readCases serves the raw reader and the transport check, so both refuse a non-number (null included).
-      demand(finite(x.global_upper_bound_pa) && finite(x.certified_gap_pa), "extrema numbers");
+      // N-1 (RV125; PR-B2 ruling 2): the same demand refuses a value below zero; -0 and +0 pass (no zero refusal).
+      demand(finite(x.global_upper_bound_pa) && finite(x.certified_gap_pa) && x.global_upper_bound_pa >= 0 && x.certified_gap_pa >= 0, "extrema numbers");
       // A1 d + A2 1: these checks; no certified-gap bound (the two members above are typed, never bounded).
       demand(finite(x.station_fraction) && x.station_fraction >= 0 && x.station_fraction <= 1
         && finite(x.local_fraction) && x.local_fraction >= 0 && x.local_fraction <= 1, "extrema fractions");
