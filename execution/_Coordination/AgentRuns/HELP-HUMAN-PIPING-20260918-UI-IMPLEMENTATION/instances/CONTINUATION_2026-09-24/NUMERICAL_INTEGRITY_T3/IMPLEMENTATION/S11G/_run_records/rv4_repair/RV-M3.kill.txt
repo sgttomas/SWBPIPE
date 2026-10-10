@@ -1,2 +1,0 @@
-thread 's11g_tests::curved_thermal_records_name_the_pushed_products' (3690) panicked at src/s11g_tests.rs:2465:9:
-row 0: A_se differs from the pushed products

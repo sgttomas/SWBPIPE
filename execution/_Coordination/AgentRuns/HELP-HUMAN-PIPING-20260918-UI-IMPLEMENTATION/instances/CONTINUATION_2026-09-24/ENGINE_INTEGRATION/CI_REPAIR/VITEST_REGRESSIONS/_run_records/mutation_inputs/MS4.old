@@ -1,2 +1,0 @@
-      if (!stillCurrent()) return;
-      setAnalysisRun(revisedRecord);

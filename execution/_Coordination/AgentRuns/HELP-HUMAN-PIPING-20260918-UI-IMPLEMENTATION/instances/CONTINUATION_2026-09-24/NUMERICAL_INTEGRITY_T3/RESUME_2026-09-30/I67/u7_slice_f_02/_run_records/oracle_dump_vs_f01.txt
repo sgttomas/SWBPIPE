@@ -1,5 +1,0 @@
-TS dump, u7_slice_f_01 candidate vs u7_slice_f_02 candidate: inputs 380 changed 4
-  declared|D-U7-4:ts_requires_live_native_capture|invocation_without_native_capture|milestone_dense_scrutiny ['ipc_summary'] ipc_summary withheld f01 [69] f02 [97] base (pre-U7) [97]
-  declared|D-U7-4:ts_requires_live_native_capture|invocation_without_native_capture|milestone_sparse_interactive ['ipc_summary'] ipc_summary withheld f01 [69] f02 [97] base (pre-U7) [97]
-  declared|D-U7-4:ts_requires_live_native_capture|stale_current_model_same_case_ids|milestone_dense_scrutiny ['ipc_summary'] ipc_summary withheld f01 [69] f02 [97] base (pre-U7) [97]
-  declared|D-U7-4:ts_requires_live_native_capture|stale_current_model_same_case_ids|milestone_sparse_interactive ['ipc_summary'] ipc_summary withheld f01 [69] f02 [97] base (pre-U7) [97]

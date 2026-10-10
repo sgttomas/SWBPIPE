@@ -50,12 +50,11 @@ from run_seeded_faults import TEST_LINE, sanitize  # noqa: E402
 
 P = 'projects/chirality-piping'
 VR = 'validation/benchmarks/numerical_robustness'
-T3 = ('execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
-      'instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3')
+T3 = 'validation/references/t3_r1'
 # The generator's hash-pinned inputs (gen_vk_cases.py PINNED), the only
-# execution-tree files a copy holds.
+# frozen reference files a copy holds.
 GEN_INPUTS = [T3 + '/REFERENCES/references.json', T3 + '/REFERENCES/references.py',
-              T3 + '/DESIGN_NUMERICS/_run_records/floor_kinds.json']
+              T3 + '/floor_kinds.json']
 
 LANE = VR + '/src/lane.rs'
 COMPARE = VR + '/src/compare.rs'

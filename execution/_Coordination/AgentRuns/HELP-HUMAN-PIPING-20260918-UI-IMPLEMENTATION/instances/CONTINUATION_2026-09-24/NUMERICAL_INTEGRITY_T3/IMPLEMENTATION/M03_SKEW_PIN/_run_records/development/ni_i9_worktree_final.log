@@ -1,8 +1,0 @@
-   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/skewpin/projects/chirality-piping/core/solver/nonlinear_integration)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.35s
-     Running unittests src/lib.rs (<wt>/skewpin-target/debug/deps/open_pipe_stress_nonlinear_integration-b79b831ee5832067)
-
-running 1 test
-test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 97 filtered out; finished in 0.02s

@@ -1,6 +1,0 @@
-122a123,127
-> src/lib.rs :: test retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases ... ok
-> src/lib.rs :: test retained_facade_tests::b1_sp_t2_the_capture_holds_each_requested_case ... ok
-> src/lib.rs :: test retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a ... ok
-> src/lib.rs :: test retained_facade_tests::b1_sp_t6_custody_refuses_the_whole_invocation ... ok
-> src/lib.rs :: test retained_facade_tests::b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a ... ok

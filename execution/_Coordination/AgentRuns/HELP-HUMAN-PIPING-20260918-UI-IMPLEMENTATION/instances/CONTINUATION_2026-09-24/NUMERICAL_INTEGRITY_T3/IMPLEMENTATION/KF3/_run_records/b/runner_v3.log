@@ -1,6 +1,0 @@
-baseline (no-op) peak RSS 1818624 bytes, footprint 1147192 bytes; memory-guard kills so far 0
-13_RF-LARGE-CHAIN-n10000-AX_w1a: ok 8.8s rss=1148157952 outcome=Selected at 128
-14_RF-LARGE-CHAIN-n10000-ROT_w1a: ok 15.8s rss=1149222912 outcome=Selected at 128
-15_RF-LARGE-TREE-n10000-AX_w1a: ok 41.2s rss=3616751616 outcome=Unresolved Ceiling [Restrained]
-STOP: not selected: Unresolved Ceiling [Restrained]; 1 failure(s): ['RF-LARGE-TREE-n10000-AX: not selected: Unresolved Ceiling [Restrained]']
-python3 runner/vk_scale_runner.py --run V3 --binary $W/kf3-b/vk_scale --model  65.00s user 2.48s system 102% cpu 1:06.11 total

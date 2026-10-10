@@ -1,5 +1,0 @@
-RF-CHAIN-T-n03-r1e-10 T.M1 named predicate witness
-RF-CHAIN-T-n03-r1e-10 tw.M1 named predicate witness
-RF-CHAIN-A-n03-r1e-10 N.M1 named predicate witness
-RF-CHAIN-A-n03-r1e-10 ext.M1 named predicate witness
-PASS176 unique actual predicate failures map exactly to unchanged frozen case/row/reference strings; all30selected, not availability/work/certificate drift. Initial compact lookup used space instead of the observed case colon and failed read-only; corrected lookup changed no evidence/runtime.

@@ -1,4 +1,0 @@
-RV-PUB focused re-run (cargo test --offline --locked --lib option_c_public_original_residual, frame_kernel, mutant applied):
-thread structural::s11k_tests::option_c_public_original_residual_stays_binary64_on_coupled_rows panicked at src/structural/s11k_tests.rs:660:9 (the assert_eq of the public row; the precondition assert_ne! at :655 held)
-  left: 13725861977277087718
- right: 13725861977283100672

@@ -1,8 +1,0 @@
-{
-  "origin_revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
-  "origin_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
-  "origin_sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
-  "method": "Original constants plus model_bytes and estimate bodies copied without formula edits into private legacy_vr_port module; only Counts/Sizes and Estimate type imports use current paths. Current interface outputs the legacy single estimate in both metric result projections. Caller phase/addend diagnostics remain current, avoiding fabricated zero-field kills.",
-  "not_a_constant_fault": true,
-  "compile_status": "unverified pending explicit build grant"
-}

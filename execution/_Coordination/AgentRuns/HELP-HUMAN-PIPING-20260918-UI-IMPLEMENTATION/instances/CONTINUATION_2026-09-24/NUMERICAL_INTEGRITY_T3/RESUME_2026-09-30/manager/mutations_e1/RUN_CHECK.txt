@@ -1,3 +1,0 @@
-PASS:14 baseline logs each run one passing exact test; two controls each run one passing test from unchanged source.
-PASS:PM01/PM02 stdout read and intended assertion failures verified; PM03 empty stdout/no binary/E0308, not kill;32 later variants UNRUN.
-No source correction or Rust command was performed by manager.

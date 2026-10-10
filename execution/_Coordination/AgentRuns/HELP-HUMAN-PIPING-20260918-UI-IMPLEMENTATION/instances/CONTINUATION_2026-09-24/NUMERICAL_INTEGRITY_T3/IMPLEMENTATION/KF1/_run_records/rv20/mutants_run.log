@@ -1,6 +1,0 @@
-{"mutant": "NONE", "overlaid": ["tests/retained_k4/kf1_tracker_tests.rs"]}
-{"mutant": "NONE", "edit": "no edit", "exit": 0, "built": true, "failed": [], "killed": false, "seconds": 74.8}
-{"mutant": "RV20-M4", "overlaid": ["tests/retained_k4/kf1_tracker_tests.rs"]}
-{"mutant": "RV20-M4", "edit": "the shared cap's collapse work is not charged (throwaway ctx16) [RV20's edit]", "exit": 101, "built": true, "failed": ["structural::retained::adaptive::kf1_tracker_tests::kf1_the_shared_cap_bounds_a_calls_trackers_together"], "killed": true, "seconds": 75.3}
-{"mutant": "RV20-M5", "overlaid": ["tests/retained_k4/kf1_tracker_tests.rs"]}
-{"mutant": "RV20-M5", "edit": "RuleTest ordered (d), (a), (b): trackers finished in another order [RV20's edit]", "exit": 101, "built": true, "failed": ["structural::retained::adaptive::kf1_tracker_tests::kf1_the_stop_rules_trackers_finish_in_k4s_map_order"], "killed": true, "seconds": 73.8}

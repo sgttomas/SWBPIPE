@@ -1,4 +1,0 @@
-free 12G before baseline
-free 12G after lib build
-free 12G after kd5 build
-free 12G at end

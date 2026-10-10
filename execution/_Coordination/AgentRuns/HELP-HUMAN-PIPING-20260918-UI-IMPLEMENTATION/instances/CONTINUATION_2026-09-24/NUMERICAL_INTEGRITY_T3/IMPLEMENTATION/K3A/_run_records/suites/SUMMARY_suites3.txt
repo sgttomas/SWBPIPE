@@ -1,5 +1,0 @@
-  before apps/desktop/src-tauri: disk_free_kb=13203476
-apps/desktop/src-tauri exit=0 secs=133 waited=0 passed=114 failed=0 ignored=0
-  disk_free_kb=9575744 target=3627084kb
-  pruned own debug output
-DONE

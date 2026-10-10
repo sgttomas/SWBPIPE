@@ -1,6 +1,0 @@
-## batch 3
-NONE exit: frame_kernel=0 sparse_direct=0 nonlinear_integration=0 product_physics=0 compile_errors=0 killed_by: NONE panic_sites: NONE
-K2B-THIRD-ATTEMPT exit: frame_kernel=101 sparse_direct=0 nonlinear_integration=101 product_physics=0 compile_errors=0 killed_by: site_table_is_exactly_the_accumulations_of_the_scanned_files structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves  panic_sites: src/structural_adapter/k2b_tests.rs:1030:13x1 tests/s11_site_table.rs:529:5x1
-DRIVE3-DONE
-K2B-THIRD-ATTEMPT-B exit: frame_kernel=0 sparse_direct=0 nonlinear_integration=101 product_physics=0 compile_errors=0 killed_by: structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves  panic_sites: src/structural_adapter/k2b_tests.rs:1030:13x1
-DRIVE3B-DONE

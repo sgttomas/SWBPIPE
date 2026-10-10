@@ -1,8 +1,0 @@
-{
-  "raw_heap_fields": 4922,
-  "window_matched_arithmetic_fields": 3934,
-  "outside_H_metric_fields": 886,
-  "configuration_fields": 102,
-  "negative_slack_fields": 0,
-  "limits": "H global and pre-reset measurements remain outside the qualified staged/prefix expression; no new whole-process H theorem"
-}

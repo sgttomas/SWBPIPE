@@ -1,7 +1,0 @@
-{
-  "time": "2026-10-01T20:58:00.249314+00:00",
-  "source189_bytes_modes_unchanged": true,
-  "lane_binary_fingerprint_unchanged": true,
-  "no_owned_process": true,
-  "guard": "5387     1 03-19:21:41 /bin/bash <wt>/guard/memguard.sh"
-}

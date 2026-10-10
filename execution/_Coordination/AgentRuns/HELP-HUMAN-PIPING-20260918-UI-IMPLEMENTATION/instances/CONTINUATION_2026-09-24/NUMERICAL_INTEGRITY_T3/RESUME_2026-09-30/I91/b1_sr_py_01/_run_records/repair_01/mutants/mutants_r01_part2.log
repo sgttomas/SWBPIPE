@@ -1,5 +1,0 @@
-N0 passes 0 []
-R-c-count killed 1 ['test_b1_repair01_g8_every_material_basis_has_its_materials_checked']
-R-e-values killed 1 ['test_b1_repair01_g8_every_material_basis_has_its_materials_checked']
-N2-removed killed 1 ['test_b1_rv108_n2_a_missing_verdict_is_g5_attempt']
-PRE killed 3 ['test_b1_repair01_g8_invocation_members_and_solver_mode', 'test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices', 'test_b1_repair01_g8_every_material_basis_has_its_materials_checked']

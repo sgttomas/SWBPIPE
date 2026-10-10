@@ -1,6 +1,0 @@
-# RV101: TS deriveResultDocument against Rust derive_document (request none), same inputs, corpus via the product base/origin functions; -0 inputs rebuilt for Rust (derive_negzero)
-{"('both_ok', True, 'OK')": 63, "('both_refuse',)": 256}
-codes equal among both-refuse: {"True": 253, "False": 3}
-mut_g0_retained_precision_absent | TS SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED | Rust SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
-mut_g7_maximum_off_enclosure | TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | Rust SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS
-mut_g7_not_required_quality_enum_invalid | TS SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED | Rust SOURCE_NUMERICAL_CASE_INVALID

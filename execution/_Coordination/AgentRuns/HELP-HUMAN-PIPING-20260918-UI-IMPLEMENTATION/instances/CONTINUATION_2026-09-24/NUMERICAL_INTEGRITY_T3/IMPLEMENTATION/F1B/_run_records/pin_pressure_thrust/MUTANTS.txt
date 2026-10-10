@@ -1,3 +1,0 @@
-NONE exit: frame_kernel=0 sparse_direct=0 nonlinear_integration=0 product_physics=101 compile_errors=0 aborts=0 failed: s11g_tests::t13_committed_fallback_uz_is_byte_identical  panic_sites: src/s11g_tests.rs:1666:9x1 
-F1B-M22-PRESSURE-THRUST exit: nonlinear_integration=0 product_physics=101 compile_errors=0 aborts=0 failed: f1b_tests::f1b_admission_names_each_family f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust s11g_tests::t13_committed_fallback_uz_is_byte_identical  panic_sites: src/f1b_tests.rs:2285:5x1 src/s11g_tests.rs:1666:9x1 tests/f1b_w2_runtime.rs:510:13x1 
-DRIVE-DONE

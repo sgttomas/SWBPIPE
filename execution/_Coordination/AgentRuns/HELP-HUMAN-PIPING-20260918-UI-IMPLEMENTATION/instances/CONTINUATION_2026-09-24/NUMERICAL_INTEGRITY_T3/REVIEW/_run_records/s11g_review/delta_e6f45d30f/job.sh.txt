@@ -1,8 +1,0 @@
-#!/bin/bash
-. <scratch>/runs/env.sh
-O=$S/runs/out; mkdir -p $O; cd $W
-( unset CARGO_TARGET_DIR; python3 tools/serialization/build_checked_json.py && python3 tools/serialization/build_checked_json.py --profile openpipestress_jcs_binary64_v1 && python3 tools/units/build_units_authority.py ) > $O/authority.log 2>&1; echo "authority exit=$?" >> $O/summary.txt
-(cd $W/core/product_physics && nice cargo test --offline --locked --no-fail-fast > $O/pp.log 2>&1); echo "product_physics exit=$? $(grep -c '^test result: ok' $O/pp.log) ok-lines $(grep -c '^test result: FAILED' $O/pp.log) failed-lines" >> $O/summary.txt
-df -h / | tail -1 >> $O/summary.txt
-cd $W && PYTHONPATH=$S/mut PYTHONDONTWRITEBYTECODE=1 nice python3 $S/mut/rv4_mutants.py $S/runs/mut RV-M1 RV-M2 RV-M3 RV-M6 RV-M10 > $O/mut_driver.log 2>&1; echo "mutations exit=$?" >> $O/summary.txt
-echo DONE >> $O/summary.txt

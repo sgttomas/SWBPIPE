@@ -1,6 +1,0 @@
-probes: each L = 0 fixture's whole text; sizes and sha256 {'sparse_interactive': (226746, '93c6c86548b9'), 'dense_scrutiny': (228096, 'dbb3d4773642')} ; corpus 07l (5517810, '5ac13296c697')
-PP lib test binary (cfg(test)): 1 artefact(s); L0 fixture found in: {'sparse_interactive': 1, 'dense_scrutiny': 1}; corpus found in: 0
-PP rlib, PP target (no cfg(test)): 1 artefact(s); L0 fixture found in: {'sparse_interactive': 0, 'dense_scrutiny': 0}; corpus found in: 0
-PP integration-test binaries (PP lib without cfg(test)): 22 artefact(s); L0 fixture found in: {'sparse_interactive': 0, 'dense_scrutiny': 0}; corpus found in: 0
-PP rlib, runner target (no cfg(test)): 1 artefact(s); L0 fixture found in: {'sparse_interactive': 0, 'dense_scrutiny': 0}; corpus found in: 0
-runner/headless binaries: 10 artefact(s); L0 fixture found in: {'sparse_interactive': 0, 'dense_scrutiny': 0}; corpus found in: 0

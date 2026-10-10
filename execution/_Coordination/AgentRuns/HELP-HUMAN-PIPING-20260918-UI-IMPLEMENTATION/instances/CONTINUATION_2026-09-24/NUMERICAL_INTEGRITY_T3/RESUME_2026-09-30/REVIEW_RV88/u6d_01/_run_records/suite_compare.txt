@@ -1,4 +1,0 @@
-base 3257 tests, cand 3416 tests
-only base: [('src/features/results/knownSemanticLimitations.test.ts', "static fresh-identity set and standing reasons > admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1")]
-only cand: 160 in ['src/features/results/knownSemanticLimitations.test.ts', 'src/features/results/retainedPrecisionIntegration.test.tsx', 'src/features/results/retainedPrecisionOutputRefusal.test.tsx', 'src/services/retainedPrecisionAnalysisRun.test.ts'] + renamed S-1 pin
-changed outcome: []

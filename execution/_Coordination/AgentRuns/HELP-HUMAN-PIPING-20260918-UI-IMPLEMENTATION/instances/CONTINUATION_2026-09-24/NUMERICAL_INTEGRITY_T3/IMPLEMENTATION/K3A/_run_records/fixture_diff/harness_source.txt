@@ -1,1 +1,0 @@
-src/main.rs = S11-K _run_records/fixture_diff/fixdiff_main.rs.txt, sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53; base harness identical except the product_physics path (<scratch>/base/...)

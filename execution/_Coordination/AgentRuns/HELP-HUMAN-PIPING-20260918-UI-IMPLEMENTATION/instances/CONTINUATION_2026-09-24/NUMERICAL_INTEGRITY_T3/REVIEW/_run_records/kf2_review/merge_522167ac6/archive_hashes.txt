@@ -1,5 +1,0 @@
-sha256 in the reviewer's archive of 522167ac6 (FK):
-32dfe5971f95be3eb276fa594c5ab4b0c5ce8724b942a098f2fda1104886d9d2  src/structural.rs
-4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29  src/structural/kf2_witness_tests.rs
-b15aa8b82382808da06814a4355b7c6e553e7efd292d5332510328ff2411b121  tests/s11_site_table.rs
-kf2_witness_tests.rs and s11_site_table.rs equal 1c7558df5's; structural.rs is 1c7558df5's plus main's three-line re-export (merge_check.out).

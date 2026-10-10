@@ -1,9 +1,0 @@
-$ patch -p1 -F3 -i RV-M2.patch
-patching file projects/chirality-piping/core/product_physics/src/lib.rs
-Hunk #1 succeeded at 2414 (offset 9 lines).
-$ cargo test --offline --locked --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --lib -- --exact s11g_tests::exact_pressure_operand_bound_is_gamma_20 s11g_tests::exact_pressure_operand_rows_carry_their_bound
-test s11g_tests::exact_pressure_operand_bound_is_gamma_20 ... FAILED
-test s11g_tests::exact_pressure_operand_rows_carry_their_bound ... FAILED
-thread 's11g_tests::exact_pressure_operand_bound_is_gamma_20' (3639) panicked at src/s11g_tests.rs:716:9:
-thread 's11g_tests::exact_pressure_operand_rows_carry_their_bound' (3640) panicked at src/s11g_tests.rs:2372:13:
-test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 382 filtered out; finished in 0.09s

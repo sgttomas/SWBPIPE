@@ -1,9 +1,0 @@
-# S2 retarget manager return
-
-Completed only original P36 and the planned RF-FINITE NONE/S2/NONE triplet in the fresh23:01:19–23:16:19 UTC block. P36 and both new normal controls passed exactly one test and all original assertions/stored records. The old expired P36 preparation remains untouched and supplied no execution authority. P35 remains zero-credit.
-
-The retargeted S2 run reached36 unique named nonzero constrained-reaction VALUE predicates across all six selected cases. Manager independently matched every case/key/reference string to the unchanged fixture and verified every reference is nonzero using exact rational parsing. The six R.N0 components for each case and reviewed THIRDS-O0 references are preserved. No generic refusal, CLASS, certificate, work or record-only substitute is counted. The source link is the independently reviewed constrained-reaction sign-reversal loop, distinct from spring action.
-
-Verified all17 child payloads at I22/vk_s2_retarget_01 seal 2be7738ba030b2aff4141a717bc264d07939eea9ab0148fab8212ca7f512dd54, RETURN 8e4076ed88f508e58429d6574ee9db56a02baeb727a20491d183f2f713d9f101. Manager checked all exact plan commands/cwd/env/unsets/streams/exits, eight raw copies, all189 source hashes and original artifacts/fingerprints/dependencies, numerical witnesses, all three controls and34 remaining-stream absence. Guard5387 live; no owned runtime job; I22 idle and host slot released. I21 continues only its separate source-arithmetic assignment to23:22:50.
-
-Submit actual S2 evidence for independent result qualification. P37–P53 remain held, including the separately identified R02 unprinted-field limitation. No automatic follow-on, new source/test/oracle/criterion/observation/Git/index change, build, tool/collector, cleanup or complete V-K/A1 acceptance.

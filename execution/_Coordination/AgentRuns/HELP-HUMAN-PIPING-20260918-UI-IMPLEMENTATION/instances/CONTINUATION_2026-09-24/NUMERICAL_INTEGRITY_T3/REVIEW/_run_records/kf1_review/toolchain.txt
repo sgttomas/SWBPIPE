@@ -1,7 +1,0 @@
-RV20 toolchain and host
-rustc 1.97.1 (8bab26f4f 2026-07-14)
-cargo 1.97.1 (c980f4866 2026-06-30)
-Python 3.13.14
-host: Darwin arm64, 18 cores, 128 GiB, macOS 26.6.2
-cargo settings: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 --offline --locked -j 4, RUST_TEST_THREADS=2; one cargo job at a time; targets under <wt>/rv20-target (deleted at the end)
-memory guard: <wt>/guard/memguard.sh running (pid 5387, floor 35%); its log records no kill

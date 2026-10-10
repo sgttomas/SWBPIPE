@@ -1,4 +1,0 @@
-A_renamed (the committed test case)                        exit 3 refusal cont_n10000_identity_lane counted_first False peak_so_far 6115930
-B_renamed_as_CHAIN_family_id                               exit 3 refusal cont_n10000_identity_lane counted_first False peak_so_far 6115925
-C_renamed_node0_RZ_freed (escapes the signature)           exit 3 refusal estimate_exceeds_half_cap counted_first True peak_so_far 157650957
-D_renamed_last_support_4_dofs (escapes the signature)      exit 3 refusal estimate_exceeds_half_cap counted_first True peak_so_far 157650698

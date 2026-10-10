@@ -1,5 +1,0 @@
-# Held corrected historical R46 mapping
-
-ROOT c86c1bb86bb63e46b02499e8f8e3ad37b9eba8b2 corrects its selected filter mapping: historical focused test passed under RV19-D2; actual old kill was the_classification_matches_the_binary64_reimplementation_bit_for_bit, assertion96/set19 row20 bound_bits2 instead of3. No test/fault/oracle/source change is proposed. Old mapping and survivor stay preserved.
-
-Runtime06 is held until this named R33 packet fully succeeds/seals/releases slot with no unexpected outcome, and RV29/I23 sealed diagnoses are read/verified. SAME17:43:57 end: original focused R46 control once, historical vector-filter baseline/existing unchanged mutant/returned control, exact one-test lists. Full source/postimage/corpus/test/binary/raw-fingerprint manager rebind; no rebuild. Only actual historical set19 numeric mismatch qualifies. If qualified, prepared R47–R52 original schedule/per-ID releases, selected hard checker, R52 both filters. R51 contingency not implied. No automatic extension, V-K until full closure.

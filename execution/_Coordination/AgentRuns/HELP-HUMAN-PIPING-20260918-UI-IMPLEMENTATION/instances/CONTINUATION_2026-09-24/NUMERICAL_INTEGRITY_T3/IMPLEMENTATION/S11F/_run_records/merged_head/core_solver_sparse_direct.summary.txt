@@ -1,4 +1,0 @@
-     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_sparse_direct-d2f656ebe26e3ef6)
-test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
-   Doc-tests open_pipe_stress_sparse_direct
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

@@ -1,1 +1,0 @@
-nice -n 10 python3 -B gen_vk_cases.py  239.04s user 0.65s system 99% cpu 4:00.57 total

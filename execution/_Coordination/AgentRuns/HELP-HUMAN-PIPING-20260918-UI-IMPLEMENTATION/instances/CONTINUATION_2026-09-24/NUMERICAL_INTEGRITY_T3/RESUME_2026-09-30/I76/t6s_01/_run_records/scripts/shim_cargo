@@ -1,5 +1,0 @@
-#!/bin/bash
-# I76: direct cargo is refused during pytest runs (T3 host rule: cargo only via t3_cargo.sh).
-echo "$(date -u +%FT%TZ) REFUSED label=${I76_LABEL:-?} cwd=$PWD args: $*" >> WT/scratch/i76_t6s/logs/shim_cargo.log
-echo "i76 shim: direct cargo refused under the T3 host rule" >&2
-exit 97

@@ -1,7 +1,0 @@
-# Actual parent clarification and disposition
-
-Received during this review from `/root` through `collaboration.send_message`; this is ROOT caller-contract steering within authorized repair, not a new human/owner approval.
-
-> ROOT selects for your review a narrow refusal serialization preserving numeric field schema: typed SourceRefused variant, positive composed source-window max; sel128 carries same padded source-window bound without selectionclaim; fixed is the defined caller-only retained baseline; decide/shared/state/solve/verify/pass numeric components explicitly serialize0 because those phases are NOT EXECUTED on the source-refused path, never because a proof is missing. Document that variant/mapping at library and serializer; don't construct fake successfulKernelEnvelope. Existing source_ok=false plus normal staged SourceRefused/stop_reason remains. Check for concrete incompatibility; no automatic blanketdescriptor refusal. Runner pre-admission rebind/known planned args and repeatdigit correction are mandatoryintegrationitems; OriginalK6bPair remains immutable reference-only. This is proposedROOTcallercontract within authorizedrepair, not expandedruntime/newtool scope.
-
-Independent disposition: compatible with the bound library/parser/main/runner/analysis source paths. REVIEW.md gives exact source anchors, required raw-input failure facts, and the distinction between design closure and later implementation verification.

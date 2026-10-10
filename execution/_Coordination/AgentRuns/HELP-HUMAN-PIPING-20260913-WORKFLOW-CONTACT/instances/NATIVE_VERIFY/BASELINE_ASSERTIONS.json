@@ -1,9 +1,0 @@
-{
-  "schema": "portable-baseline-assertions-reference/v1",
-  "status": "qualified baseline PASS with historical findings; immutable numerical/hash assertions preserved",
-  "raw_assertions": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_ASSERTIONS.json",
-  "raw_assertions_sha256": "25db04b763016aaecb6c40cd6071b670c8318b4fdb07337effa09aab14c2aa72",
-  "historical_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_EVIDENCE_MANIFEST.json",
-  "historical_manifest_sha256": "3cb24944061b869060a2ab3bfededbba98e560cde9071a819da38138b1cc7728",
-  "note": "Raw machine identity is available only via the repo-relative raw evidence reference. This wrapper makes no change to frozen numerical, model or hash assertions."
-}

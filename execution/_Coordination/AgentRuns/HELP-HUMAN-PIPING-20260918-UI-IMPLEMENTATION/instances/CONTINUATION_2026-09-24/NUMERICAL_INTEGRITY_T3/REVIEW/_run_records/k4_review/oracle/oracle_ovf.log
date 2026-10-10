@@ -1,3 +1,0 @@
-ORACLE OVF-ROT-928 sel 128 rows 32 worst 9.003e+15 at u.1.5; worst rel vs 1e-9 inf at u.1.5; ISSUES FALSE u.1.5 cls=rel pub=-1.6905424996341288e+271 truth=-5.669106e-1290 ratio=9.003e+15
-ORACLE OVF-ROT-900 sel 128 rows 32 worst 4.374e-01 at end.1.i.0; worst rel vs 1e-9 4.859e-08 at u.1.1
-ORACLE worst five: [(9002803352570366.0, 'OVF-ROT-928', 'u.1.5'), (0.43741304342583137, 'OVF-ROT-900', 'end.1.i.0')]

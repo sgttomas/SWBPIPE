@@ -1,8 +1,0 @@
-from pathlib import Path
-import json,subprocess,os,datetime,sys,hashlib
-out=Path(__file__).parent;arc=json.loads((out/'ARCHIVE.json').read_text());a=Path(arc['archive']);python=json.loads((out/'RUN.json').read_text())['python_requested'];h=a/'projects/chirality-piping/core/solver/performance_harness/runner';v=a/'projects/chirality-piping/validation/benchmarks/numerical_robustness/runner';env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'};meta={'python':python,'python_version':subprocess.check_output([python,'-c','import sys;print(sys.version);print(sys.executable)'],text=True),'environment_overrides':{'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'},'commands':[]}
-for name,argv,cwd in [('REPRO',[python,str(out/'REPRO_RUNNER_HOLD.py')],a),('H_SUITE',[python,'-m','unittest','-v','test_k6_runner'],h),('VR_SUITE',[python,'-m','unittest','-v','test_vk_scale_runner'],v)]:
- rec={'name':name,'argv':argv,'cwd':str(cwd),'start_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()};meta['commands'].append(rec);(out/'CHECK_COMMANDS.json').write_text(json.dumps(meta,indent=2)+'\n')
- with (out/(name+'.log')).open('w') as f:p=subprocess.run(argv,cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT)
- rec.update(exit_code=p.returncode,end_utc=datetime.datetime.now(datetime.timezone.utc).isoformat());(out/'CHECK_COMMANDS.json').write_text(json.dumps(meta,indent=2)+'\n');print(name,p.returncode,flush=True)
-meta['archive_unchanged']=all(hashlib.sha256((a/x['path']).read_bytes()).hexdigest()==x['sha256'] for x in arc['files']);(out/'CHECK_COMMANDS.json').write_text(json.dumps(meta,indent=2)+'\n');print('done',meta['archive_unchanged'])

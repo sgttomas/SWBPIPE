@@ -1,6 +1,0 @@
-PASS6 unique payloads; manager read full RETURN and SERIALIZER_ENVELOPE.
-PASS7 prior seals/ 88 payloads unchanged.
-PASS10 immutable source blobs,9 selected installed serializer pages and inherited BTree clone-source hash. Git reads explicitly GIT_OPTIONAL_LOCKS=0. Authenticated package-membership proof remains the separately reviewed prior basis.
-PASS fixed schema unique keys/key-byte sums and21-object/274-entry/60-node coarse retained arithmetic; private request sizes stay symbolic. This is consistency verification, not complete independent serializer/caller proof acceptance.
-RETURN 1efff9326e9efcf50044c65829c453a39258dfe7d5718bb5c9779e6411d62b2a
-ENVELOPE 887b234931a89b9f5b75ef3cac69f54d3e5943362925d1aaa09feecbd4aeca4d

@@ -1,9 +1,0 @@
-{
-  "seals": 10,
-  "payloads": 326,
-  "historical_inputs": 39,
-  "raw_named_inputs": 20,
-  "failures": [],
-  "seal_failures": [],
-  "completed_at_utc": "2026-10-02T03:22:57.333896+00:00"
-}

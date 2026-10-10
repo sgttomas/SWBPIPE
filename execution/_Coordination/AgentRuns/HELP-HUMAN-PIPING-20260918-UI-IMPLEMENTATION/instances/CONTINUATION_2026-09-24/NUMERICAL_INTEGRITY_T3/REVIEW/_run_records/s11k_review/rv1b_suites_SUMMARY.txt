@@ -1,3 +1,0 @@
-core/solver/frame_kernel exit=0 passed=116 failed=0 ignored=0
-core/solver/nonlinear_integration exit=0 passed=71 failed=0 ignored=0
-validation/benchmarks/nonlinear exit=0 passed=19 failed=0 ignored=0

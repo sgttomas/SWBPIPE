@@ -1,2 +1,0 @@
-# ROOT supplement
-ROOT's active-chat direction grants PP/tests/s11f_site_test.rs as tenth maintained path solely to retarget original scopes/body lookups/dispositions to actual observed bodies and register real new module sites. Scanner logic, assertions, numerical criteria and protections remain unchanged. G5a operational-operand derivation remains held for independent operation-order review. Initial recipe observations are partial until G5a, observables and coverage close.

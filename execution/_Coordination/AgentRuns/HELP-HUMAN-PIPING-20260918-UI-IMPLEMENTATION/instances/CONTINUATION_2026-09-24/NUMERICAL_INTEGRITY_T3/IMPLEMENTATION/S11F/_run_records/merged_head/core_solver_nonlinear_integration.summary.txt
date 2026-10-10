@@ -1,4 +1,0 @@
-     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_nonlinear_integration-3fa3ca5568ea5811)
-test result: ok. 70 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.06s
-   Doc-tests open_pipe_stress_nonlinear_integration
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s

@@ -1,1 +1,0 @@
-{"id": "selected_case_without_c3_attempt", "base": "two_case_synthetic", "python": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", "raise_lines": [1621, 863, 848, 128], "rv79_reading": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH (C3 reference, D16) or an earlier gate"}

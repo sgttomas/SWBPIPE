@@ -1,6 +1,0 @@
-### g6r_record_release (release build of the registered copy: Stale, identity-gated skips)
-test retained_memory::law_tests::admission_bound_adds_r_before_comparing_with_m ... ok
-RV89_G6_BUILD status=Err(Stale)
-RV89_G6_STALE ok
-test retained_memory::rv89g6::rv89g6r_required_is_maximum_plus_r ... ok
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 550 filtered out; finished in 0.01s

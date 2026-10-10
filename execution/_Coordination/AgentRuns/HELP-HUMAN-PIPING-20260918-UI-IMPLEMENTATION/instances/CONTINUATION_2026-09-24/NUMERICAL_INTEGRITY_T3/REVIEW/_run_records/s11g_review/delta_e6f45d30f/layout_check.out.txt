@@ -1,4 +1,0 @@
-whitespace-stripped equal: False
-trailing commas added before ) ] }: 10
-other differences: [] | both fully consumed: True
-rustfmt --check --config skip_children=true (stable 1.8.0) Diff-in counts on PP lib.rs: repair head 78, base 72d5ff864 78, b62e40d4d 87

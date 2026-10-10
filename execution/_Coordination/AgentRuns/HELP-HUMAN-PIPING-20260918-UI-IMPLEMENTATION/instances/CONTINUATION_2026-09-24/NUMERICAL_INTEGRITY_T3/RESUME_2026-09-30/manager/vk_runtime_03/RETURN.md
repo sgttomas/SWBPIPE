@@ -1,9 +1,0 @@
-# V-K remainder03 stopped manager return
-
-Actual start2026-10-01 19:55:30 UTC; hard end20:30:30 retained. Exactly5 fresh calls, no builds/repeats: P14 actual rf_chain returnPASS; P16 fresh rf_skew baselinePASS; P17 F04 rf_skew415namedvalue failures/P18returnPASS; P19 F04 invariance mixed STOP. ROOT's explicit P15UNRUN/SUPERSEDED disposition and originalP09/P13unqualified status are preserved.
-
-P19 launch19:59:54.770Z,exit101/0.99s:360named numerical predicates across6 selected rotated cases, plus19 Unresolved Arithmetic(DivisionByZero) cases. Manager read all19 unavailable-case names and independently matched all360 predicate case/row/reference strings to frozen input, retaining the full mixed set. Required rotated value evidence is visible but no final P19 credit is assigned; no availability substitution/selective omission or automatic diagnostic. P20–P53 remain unrun, including pending return control.
-
-Independent verification covers5 exact argv/env/cwd/exit/raw/portable bindings,4original binaries/raw fingerprints,189unchangedsource files,78 initially unused streams and currentP20–P53absence. All415P17 predicates likewise match frozen references; P14/P16/P18 pass exactly one original test each. STOP_VERIFICATION.txt records checks. Manager20:01:12 process snapshot found no ownedRust/test/example job; child20:01:14 final check confirms guard5387live/prior116payloads unchanged. Slot released, later conditional authority held pending ROOT.
-
-Child seal381b0809cd324d28f90bcbfc4b2592e6c80e1e17d6a0500702fc593f236090bb (22 unique payloads) independently verified; RETURN73aac65682fb00eaf20bab92ab84023593e25cc8d000916dffd3a73eb85b4cd7 fully read. Original logs/artifacts remain. No source/oracle/criterion/tool/helper/Git/index mutation, build, cleanup or acceptance. I22 idle; separately granted H numeric19 source calculation continues.

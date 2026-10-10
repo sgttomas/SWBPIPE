@@ -1,6 +1,0 @@
-NONE: failed ['s11g_tests::t13_committed_fallback_uz_is_byte_identical'] exit frame_kernel=0 sparse_direct=0 nonlinear_integration=0 product_physics=101
-F1B-M8: KILLED by 1 test(s) intended NOT among the failures: f1b_w2_publication_refuses_a_value_outside_binary64
-    f1b_a_subnormal_spring_action_is_the_checked_helpers_value
-F1B-LEAK-W2: KILLED by 1 test(s) intended NOT among the failures: f1b_range_classification_equals_the_orchestrators
-    f1b_a_non_range_failure_never_engages_w2
-survivors: none

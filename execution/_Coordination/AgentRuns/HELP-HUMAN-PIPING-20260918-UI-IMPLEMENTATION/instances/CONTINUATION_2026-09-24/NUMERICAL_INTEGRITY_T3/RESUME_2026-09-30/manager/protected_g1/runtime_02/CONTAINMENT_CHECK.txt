@@ -1,4 +1,0 @@
-PASS:53 G02–G54 roots/empty exact targets and read-only base rechecked;6264 complete frozen40129 files, unique nlink1/no symlinks/maintained aliases.
-PASS:all prior28 exact baseline pass/tool/source/test/lock/binary/fingerprint bindings match; manifest unchanged.
-ROOT G01 nine-entry seal separately verified; no repeated G01/baseline batch. Existing apply_patch only; no env/TMPDIR/tool change or Rust by manager.
-child_RECHECK_sha256 ecd8d4f1c633f545389a86603f54b44305188759dd40f09aaaeaeba2e31d47fb

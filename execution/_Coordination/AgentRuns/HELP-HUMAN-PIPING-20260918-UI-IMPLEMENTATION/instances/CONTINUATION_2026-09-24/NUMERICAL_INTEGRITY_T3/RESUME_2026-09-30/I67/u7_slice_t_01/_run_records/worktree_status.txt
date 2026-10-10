@@ -1,8 +1,0 @@
- M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx
- M projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
- M projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
- M projects/chirality-piping/apps/desktop/src/services/previewService.ts
-?? projects/chirality-piping/node_modules

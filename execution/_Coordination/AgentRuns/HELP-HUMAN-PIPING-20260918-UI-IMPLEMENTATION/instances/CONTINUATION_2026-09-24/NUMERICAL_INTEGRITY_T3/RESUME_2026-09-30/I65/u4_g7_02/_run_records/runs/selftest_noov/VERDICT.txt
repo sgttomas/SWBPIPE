@@ -1,1 +1,0 @@
-VERDICT DELTAS TO READ exit=6 basis=ba1faa1c858ce3630a22767677310b1902a14b83 tag=selftest_noov overlay=none gates=tree:0 entry:0 law:0 statics:0 linemap:0 premise:0 delta:0 text:0 forms:6 noncand:0 controls:0 pp_outcomes:0 runner_outcomes:0 witnesses:0 challenge:0 

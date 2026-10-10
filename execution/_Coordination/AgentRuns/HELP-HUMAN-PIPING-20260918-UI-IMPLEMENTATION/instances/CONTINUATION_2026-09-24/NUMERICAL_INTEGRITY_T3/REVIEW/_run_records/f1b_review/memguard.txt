@@ -1,5 +1,0 @@
-<wt>/guard/memguard.log at the end of RV17's runs (2026-09-29): 2 lines, sha256 79e2ce8eb2bd8f4a6432beb5b919cb46f37c22046c08a057b21a36183801cc41; no KILLED line
-2026-09-27 19:36:07 memguard start floor=35% pid=5266
-2026-09-27 19:36:20 memguard start floor=35% pid=5387
-kern.memorystatus_level at the end: 94
-<wt>/rv17 and <wt>/rv17-target deleted at the end: yes

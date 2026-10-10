@@ -1,5 +1,0 @@
-SKIPPED [10] tests/test_source_block_schema_contract.py:237: Actual source-block headless derivative artifacts unavailable; this is not a canonical schema pass
-FAILED tests/test_ci_numerical.py::NumericalTests::test_real_rust_literal_includes_require_numerical
-1 failed, 1494 passed, 11 skipped, 21 subtests passed in 726.45s (0:12:06)
-FAILED tests/test_ci_numerical.py::NumericalTests::test_real_rust_literal_includes_require_numerical
-105 passed, 21 subtests passed in 21.25s

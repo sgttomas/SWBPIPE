@@ -1,1 +1,0 @@
-56c5579f07b1cf3203c178e10add51bba0b24a58 piping(T3 B1 SP): T-2, T-5, T-6 and T-7 of the n-case transaction

@@ -1,4 +1,0 @@
-head: ef266247dea454f4ed4525fc67f9013be568adff
-command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: S-I1 checkout root)
-.                                                                        [100%]
-1 passed, 10 deselected in 31.74s

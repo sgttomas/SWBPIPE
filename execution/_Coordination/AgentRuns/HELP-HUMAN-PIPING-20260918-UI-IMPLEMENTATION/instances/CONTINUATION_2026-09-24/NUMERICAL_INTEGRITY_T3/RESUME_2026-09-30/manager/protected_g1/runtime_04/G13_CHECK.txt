@@ -1,4 +1,0 @@
-PASS G13 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "128e082747b2ee022842e18f914f41fc967e2c73afc35432eb776e3ca8e4a137"}
-filter structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly
-aliases [('R7_K4', 'D17')]

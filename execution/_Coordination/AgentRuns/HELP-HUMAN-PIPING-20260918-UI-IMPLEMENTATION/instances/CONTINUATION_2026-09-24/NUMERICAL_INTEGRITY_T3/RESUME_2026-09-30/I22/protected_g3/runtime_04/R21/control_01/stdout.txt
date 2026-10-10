@@ -1,6 +1,0 @@
-
-running 1 test
-test structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
-

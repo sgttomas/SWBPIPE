@@ -1,8 +1,0 @@
-{
-  "sealed_utc": "2026-10-02T03:25:46.206655+00:00",
-  "current_head_observed": "2ae028eb275684ac0aa8082e034128ff251027a4",
-  "frozen_basis": "40179f1da5961cfef7edeaf7be4eb675379f79b5",
-  "source_sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
-  "maintained_integration_test_unchanged": true,
-  "remaining": "ROOT integration and fresh independent candidate review; no follow-on running"
-}

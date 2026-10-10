@@ -1,6 +1,0 @@
-{
-  "initial_checker_sha256": "6e177d2449496907597af29aa37c7c7dff8730ab35b3c3d20b736a62361acae1",
-  "initial_result": "FAIL on fixed midpoint control: reviewer helper returned Thi-T instead of Thi-Tlo as denominator.",
-  "repair": "Corrected only reviewer helper return to Thi-Tlo; no author or maintained source changed.",
-  "initial_output": "AssertionError at midpoint expected (1,1); diagnostic showed numerator 2 and incorrect denominator 1."
-}

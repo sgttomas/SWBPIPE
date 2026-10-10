@@ -1,3 +1,0 @@
-F1B-LANE-UNGUARDED exit: nonlinear_integration=0 product_physics=101 compile_errors=0 aborts=0 failed: f1b_tests::f1b_lowered_ceiling_skips_the_observation_lane_with_a_named_reason s11g_tests::t13_committed_fallback_uz_is_byte_identical  panic_sites: src/f1b_tests.rs:1018:9x1 src/s11g_tests.rs:1666:9x1 
-NONE exit: frame_kernel=0 sparse_direct=0 nonlinear_integration=0 product_physics=101 compile_errors=0 aborts=0 failed: s11g_tests::t13_committed_fallback_uz_is_byte_identical  panic_sites: src/s11g_tests.rs:1666:9x1 
-DRIVE-DONE

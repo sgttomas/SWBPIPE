@@ -1,5 +1,0 @@
-== diff_ee_cand_frozen start 2026-10-06T02:12:45Z dir=<WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/expression_evaluator
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
-     Running tests/i73_point_diff.rs (<WT>/targets/i73-s-i1/debug/deps/i73_point_diff)
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
-== diff_ee_cand_frozen exit=0 2026-10-06T02:12:47Z

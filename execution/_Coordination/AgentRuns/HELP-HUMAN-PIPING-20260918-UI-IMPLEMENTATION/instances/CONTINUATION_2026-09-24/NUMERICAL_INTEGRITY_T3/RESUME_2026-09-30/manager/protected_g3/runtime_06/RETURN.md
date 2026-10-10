@@ -1,9 +1,0 @@
-# Runtime06 manager return
-
-Complete at2026-10-01 17:48:32.748 UTC. Actual restart17:37:35; original17:43:57 preserved. ROOT's explicit5bfd7755… addendum sets remaining calls' end17:54:33; manager receipt17:40:29 and child receipt17:41:31 are retained, without rebinding earlier commands.
-
-Restored historical R46 filter reached classification_tests.rs96/set19: only zero-based row20 changed from protected bound_bits3 to2. Original focused control, historical baseline and returned historical control passed; no R46 rebuild. Old focused mutant survival remains sealed/uncredited. R47–R52 all reached mapped assertions and controls passed: actual full-core S11 ledger/from_source0→1, GROUP-DIR128 E rows, original LOADONLY-y345128 ResidualGate, and both correctedR52 Force-class/accepted-Force-scale assertions. R51 contingency remains unrun.
-
-Manager read raw assertions and independently verified all35 command/raw/artifact bindings,6 new builds/11 exact lists/18tests (8 required failures,10 passes),9 binaries/raw fingerprints and1256 full source files acrossR46–R52 including560 S11 files. Exact frozen postimages/protected corpus/tests/locks remain; no repatching/helper change. Full checks in FINAL_VERIFICATION.txt. Child seal6e48d1d419947986ecd80096b0ecdaf13db34ce8c04eb102abc643b66985f208 (147 unique payloads) verified; RETURNe96cd521f4465db6de0fe078225632276ad28273e2cd991b0fc1766c28e2ac04 fully read. No owned job; slot released.
-
-All granted G3 runtime obligations now have their mapped evidence across the separate preserved packets, including R09/R10 tail and R33 named diagnostics plus restored R46 historical mapping. Earlier wrong-witness stops and focused survivor remain uncredited. Independent acceptance and final merge/qualification gates stay ROOT-owned. Under its prior conditional grant, V-K may next be dispatched after this seal; no A1/Emax/W1/F2a acceptance follows. No source/test/oracle/criterion/tool/Git/index change or cleanup occurred.

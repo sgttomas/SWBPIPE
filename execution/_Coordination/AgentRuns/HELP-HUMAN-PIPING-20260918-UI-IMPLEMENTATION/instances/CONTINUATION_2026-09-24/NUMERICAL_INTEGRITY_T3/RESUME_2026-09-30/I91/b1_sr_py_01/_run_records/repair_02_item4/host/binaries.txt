@@ -1,4 +1,0 @@
-I91's own CLI builds, rebuilt for item 4 (the repair-02 builds had been deleted at REPAIR_02's cleanup): WT/tools/t3_cargo.sh, 2026-10-08 01:23:48-01:23:56Z (lock_log.txt; cached, so each build took seconds), in WT/b1-p at 2843a59a16, which changes no CLI source. Byte-identical to the repair-02 builds (REPAIR_02 host/binaries.txt):
-549cc2ca31d750c4e2f82f6a8b114df1af2c5de546668e4fe2d913f1d423d9a9  WT/targets/i91-b1-sr-py/checked-json/release/openpipestress_jcs_ijson
-6a52871d366eb09eeaeb2ca7aab30295645fec0d8f82ea2e4be3e6bede49c70d  WT/targets/i91-b1-sr-py/checked-json/release/openpipestress_jcs_binary64
-57064fa92f4e41934ef7873e463446d2a7ef2dfd6b8cf22c4cbe104eb0d74a33  WT/targets/i91-b1-sr-py/units-authority/release/openpipestress_units

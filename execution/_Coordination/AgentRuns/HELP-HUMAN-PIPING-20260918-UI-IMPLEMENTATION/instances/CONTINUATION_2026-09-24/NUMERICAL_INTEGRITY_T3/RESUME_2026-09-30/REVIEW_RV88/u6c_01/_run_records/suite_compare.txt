@@ -1,8 +1,0 @@
-base (844448112f): {'PASSED': 1738, 'SKIPPED': 4, 'FAILED': 22}
-cand (cb03315779): {'PASSED': 1766, 'SKIPPED': 4, 'FAILED': 19}
-fail->pass: ['tests/test_load_reference_schema.py::test_carrier_branches_are_appended_after_the_existing_methods', 'tests/test_load_reference_source_schema.py::test_joined_branches_are_appended_with_pinned_identities', 'tests/test_source_block_schema_contract.py::test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route']
-pass->not pass: []
-absent in cand: []
-new in cand: {'PASSED': 25}
-failing in cand (all): ['tests/test_handoff_export_workflow.py', 'tests/test_handoff_package_schema.py']
-failing in base (files): ['tests/test_handoff_export_workflow.py', 'tests/test_handoff_package_schema.py', 'tests/test_load_reference_schema.py', 'tests/test_load_reference_source_schema.py', 'tests/test_source_block_schema_contract.py']

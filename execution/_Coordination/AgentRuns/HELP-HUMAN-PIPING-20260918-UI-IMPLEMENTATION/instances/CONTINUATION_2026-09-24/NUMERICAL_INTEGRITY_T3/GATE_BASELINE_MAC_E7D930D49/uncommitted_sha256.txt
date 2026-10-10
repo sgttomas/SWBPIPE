@@ -1,4 +1,0 @@
-Files kept uncommitted in ROOT's scratch (<wt>/scratch/gate_base_e7d930d49/) because of their size (runs.jsonl 235 MB; envelopes 221 MB). ROOT keeps them for as long as a record cites them.
-
-8525c06d5c6fb07bf0c9ad9e698aaf691756e4b166d32297eba7e1f90e7e525c  runs.jsonl
-dd4338f30e60aacd63a0dfa0022fe6a7377b2104581e18e7b1dd0c52265e8f75  SHA256SUMS (the full baseline's digest list: 2,813 files, including the 794 envelopes and all raw stdout and stderr)

@@ -1,3 +1,0 @@
-   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/kf2-mut/M1/projects/chirality-piping/core/solver/frame_kernel)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.02s
-  Executable unittests src/lib.rs (<wt>/kf2-mut/M1/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)

@@ -1,6 +1,0 @@
-{
-  "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i23/r09_r10_tail/BASELINE/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
-  "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
-  "first_line": 304,
-  "text": "pub(crate) fn tok<const L: usize>(w: &Wide<L>) -> String\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let (negative, exponent, significand) = w.parts();\n    if w.is_zero() {\n        return if negative { \"Z-\" } else { \"Z+\" }.to_string();\n    }\n    let mut hex = String::new();\n    for limb in significand.iter().rev() {\n        hex.push_str(&format!(\"{limb:016x}\"));\n    }\n    let sign = if negative { '-' } else { '+' };\n    format!(\"{sign}{}p{exponent}\", hex.trim_end_matches('0'))\n}\n\n/// K3's record encoding of a value: sign, exponent (LE), limbs (LE).\npub(crate) fn enc<const L: usize>(w: &Wide<L>, out: &mut Vec<u8>)\nwhere\n    Wide<L>: SupportedWidth,\n{\n    let (negative, exponent, significand) = w.parts();\n    out.push(u8::from(negative));\n    out.extend_from_slice(&exponent.to_le_bytes());\n    for limb in significand {\n        out.extend_from_slice(&limb.to_le_bytes());\n    }\n}\n\n/// The value mag\u00b72^(e \u2212 bits + 1) with leading-bit exponent e (the"
-}

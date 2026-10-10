@@ -1,9 +1,0 @@
-# N4 follow-up on a scratch git archive of 5a689fdb4 (Node 24; candidate-built wasm copied from the f3270ea79 sweep; operation_applier unchanged between them)
-vitest src/features/load-cases/LoadReferenceStateInputs.test.tsx (fix in place)
-  Test Files 1 passed (1); Tests 14 passed (14)
-fix reverted (`&& scalarValue` removed from the quantity test), same file
-  FAIL "the payload conversion keeps absence and refuses non-numbers": Error: Input value must be a finite number.   (first new expectation)
-  Tests 1 failed | 13 passed (14)
-fix reverted and first new expectation commented out, -t "payload conversion"
-  FAIL same test: Error: Input 1 value must be a finite number.   (second new expectation, array form)
-sources restored; cmp against git show 5a689fdb4 for both files: identical

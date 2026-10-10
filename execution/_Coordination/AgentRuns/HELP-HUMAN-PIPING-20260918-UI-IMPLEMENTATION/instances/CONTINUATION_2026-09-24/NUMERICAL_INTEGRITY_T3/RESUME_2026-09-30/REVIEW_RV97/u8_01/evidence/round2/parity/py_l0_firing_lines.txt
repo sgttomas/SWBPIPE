@@ -1,8 +1,0 @@
-isolated_rotation_stop_sparse_interactive G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1247 | need(feasible)
-isolated_has_data_sparse_interactive G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1273 | if not free: need(not has_data[b["body"]])
-isolated_estimate_coupled_sparse_interactive G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1260 | need([(x["body"], x["kind"]) for x in s["verification_estimate"]] == expected["verification_estimate"])
-isolated_rotation_stop_dense_scrutiny G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1247 | need(feasible)
-isolated_has_data_dense_scrutiny G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1273 | if not free: need(not has_data[b["body"]])
-isolated_estimate_coupled_dense_scrutiny G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1260 | need([(x["body"], x["kind"]) for x in s["verification_estimate"]] == expected["verification_estimate"])
-isolated_translation_rotation_stop_sparse_interactive G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1247 | need(feasible)
-isolated_translation_rotation_stop_dense_scrutiny G5a RETAINED_PRECISION_SCALE_MISMATCH _g5a_coverage:1247 | need(feasible)

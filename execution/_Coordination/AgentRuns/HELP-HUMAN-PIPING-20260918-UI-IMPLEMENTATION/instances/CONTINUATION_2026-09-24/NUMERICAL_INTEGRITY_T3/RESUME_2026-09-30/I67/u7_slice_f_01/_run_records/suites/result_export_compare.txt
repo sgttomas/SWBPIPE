@@ -1,3 +1,0 @@
-result_export, I67 final (one-line scope extension in tests/retained_precision_carriers.rs) vs I66's cand_re_final.outcomes:
-identical outcomes
-counts: 169 ok, 0 failed, 0 ignored

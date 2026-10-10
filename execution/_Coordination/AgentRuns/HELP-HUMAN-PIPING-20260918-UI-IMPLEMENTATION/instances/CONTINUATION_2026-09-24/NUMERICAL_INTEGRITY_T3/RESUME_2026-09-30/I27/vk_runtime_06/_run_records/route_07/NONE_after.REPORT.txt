@@ -1,3 +1,0 @@
-RF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0
-RF-CANCEL: outcomes {"selected Some(128)": 38}
-RF-CANCEL: controls discriminated 90, non-discriminating 62, undiscriminated [], unexpectedly failing []

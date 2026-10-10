@@ -1,3 +1,0 @@
-# RV101: targeted exact-tie words (exact decimal of 18 significant digits ending in 5), TS rustLowerExp (current and with the suggested repair) against Rust {:e}
-tie words 21332 current mismatches 5262 repaired mismatches 0
-# generator: binades 2^44..2^53 with random 52-bit mantissas, and m*2^-k for k<=25; both signs

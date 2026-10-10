@@ -1,9 +1,0 @@
-identical_reparse: selected=EMITTED unavailable=EMITTED
-key_order_only: selected=EMITTED unavailable=EMITTED
-label: selected=refused association:invocation unavailable=refused association:invocation
-project_id: selected=refused association:invocation unavailable=refused association:invocation
-load_magnitude: selected=refused association:invocation unavailable=refused association:invocation
-load_provenance: selected=refused association:invocation unavailable=refused association:invocation
-unknown_member: selected=refused association:invocation unavailable=refused association:invocation
-other_mode: selected=refused association:invocation unavailable=refused association:invocation
-own: selected=EMITTED

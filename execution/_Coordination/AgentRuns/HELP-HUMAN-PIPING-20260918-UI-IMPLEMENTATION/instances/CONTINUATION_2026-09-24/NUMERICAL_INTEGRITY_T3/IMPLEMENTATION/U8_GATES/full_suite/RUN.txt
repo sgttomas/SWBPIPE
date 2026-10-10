@@ -1,6 +1,0 @@
-U8 pre-freeze full 40-manifest suite
-head: bd6b4be2c33cc64edf3e273bc126083872d03e24 (git archive copy)
-command: WT/scratch/calib/run_suites_nff.sh <archive> <out> WT/targets/u8-full-suite, one job under WT/guard/cargo_job.lock (lockf)
-run: 2026-10-06T13:20:23Z to 13:43:51Z, rc 0
-compare: IMPLEMENTATION/F2A_D1_MERGE/dec025/compare_suites.py WT/scratch/u9_dec025/Fp <this run>
-per-manifest logs: WT/scratch/u8_full_suite/out/ (host-only)

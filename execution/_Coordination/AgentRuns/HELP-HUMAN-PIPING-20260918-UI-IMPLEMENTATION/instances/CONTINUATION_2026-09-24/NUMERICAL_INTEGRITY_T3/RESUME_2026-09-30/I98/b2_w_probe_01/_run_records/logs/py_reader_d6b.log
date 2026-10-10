@@ -1,9 +1,0 @@
-reader_sha256=9d1156ed6dacce332d9cd962b9c09f699aa456698d0f3880f96bbf432936c6fc
-  PY_READER_FIRST_FAILURE gate=G5 code=ATTEMPT_MISMATCH reader_lines=[1719, 924, 902] text=['fail = lambda ok: _need(ok, "G5", "ATTEMPT_MISMATCH")']
-PY_READER unchanged precommit_refused_sparse_interactive_256edeb38d21.json text_sha=9d1156ed6dacce33 FAIL RetainedPrecisionError: RETAINED_PRECISION_ATTEMPT_MISMATCH
-  PY_READER_FIRST_FAILURE gate=G5 code=ATTEMPT_MISMATCH reader_lines=[1719, 924, 902] text=['fail = lambda ok: _need(ok, "G5", "ATTEMPT_MISMATCH")']
-PY_READER unchanged precommit_refused_dense_scrutiny_6699beb1eb17.json text_sha=9d1156ed6dacce33 FAIL RetainedPrecisionError: RETAINED_PRECISION_ATTEMPT_MISMATCH
-  PY_READER_FIRST_FAILURE gate=G8 code=PREPARATION_MISMATCH reader_lines=[1734, 1535, 1417] text=['need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)']
-PY_READER D6b_neutralised precommit_refused_sparse_interactive_256edeb38d21.json text_sha=a8d60e06b94c5bca FAIL RetainedPrecisionError: RETAINED_PRECISION_PREPARATION_MISMATCH
-  PY_READER_FIRST_FAILURE gate=G8 code=PREPARATION_MISMATCH reader_lines=[1734, 1535, 1417] text=['need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)']
-PY_READER D6b_neutralised precommit_refused_dense_scrutiny_6699beb1eb17.json text_sha=a8d60e06b94c5bca FAIL RetainedPrecisionError: RETAINED_PRECISION_PREPARATION_MISMATCH

@@ -1,4 +1,0 @@
-RV97_TS {"file":"neg_rebound_mode_l0_dense.json","label":"bound","ok":false,"gate":"G8","code":"RETAINED_PRECISION_INVOCATION_MISMATCH","message":"RETAINED_PRECISION_INVOCATION_MISMATCH"}
-RV97_TS {"file":"neg_rebound_mode_l0_dense.json","label":"unbound","ok":true,"bound":false,"eligible":false,"standing":"needs_recompute","rows":114,"classes":{"absolute_verified":78,"input_derived":9,"non_quantity":2,"relative_verified":25},"publication_sha256":"ee5a3f29ce1423f037e9fc668c3f311ec36841af8419bb6c6761cd51aff23d9d"}
-RV97_TS {"file":"neg_receipt_nibble_l0_sparse.json","label":"bound","ok":false,"gate":"G1","code":"RETAINED_PRECISION_RECEIPT_MISMATCH","message":"RETAINED_PRECISION_RECEIPT_MISMATCH"}
-RV97_TS {"file":"neg_receipt_nibble_l0_sparse.json","label":"unbound","ok":false,"gate":"G1","code":"RETAINED_PRECISION_RECEIPT_MISMATCH","message":"RETAINED_PRECISION_RECEIPT_MISMATCH"}

@@ -1,2 +1,0 @@
-PASS raw/artifact command hashes, binary identities, raw fingerprints, NONE environment and exit/result counts: {'control': 5, 'build': 4, 'list': 4, 'mutant': 4} unique binaries 5
-PASS52 complete copies/ 6476 files at partial checkpoint; R01-R14 frozen postimages, R15-R52 original.

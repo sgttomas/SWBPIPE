@@ -1,5 +1,0 @@
-{"check":"non_successor_class_code","code":"retained_precision_absolute_verified","validate_document":"DERIVATIVE_HASH_MISMATCH"}
-{"check":"non_successor_other_ordinary_code","validate_document":"DERIVATIVE_HASH_MISMATCH"}
-{"check":"non_successor_class_code","code":"retained_precision_not_covered","validate_document":"DERIVATIVE_HASH_MISMATCH"}
-{"check":"non_successor_other_ordinary_code","validate_document":"DERIVATIVE_HASH_MISMATCH"}
-{"binding_all_rows_ms":3717.4032500000003,"check":"cost","derive_and_validate_ms":402.895709,"profile":"debug","refused":69,"rows":98,"validate_ms":40.3866084}

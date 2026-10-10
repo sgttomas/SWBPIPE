@@ -1,2 +1,0 @@
-applied K5-M20
-apply exit=0 (script k5)

@@ -1,7 +1,0 @@
-{
-  "origin": "Native followup_task from /root HELP_HUMAN Agent0",
-  "task": "/root/rv30_k6c_kernel TASK Type2 RV30",
-  "text": "Next bounded independent review: 20 minutes for K6C R/I21/source_11 (full RETURN, VR_ENVELOPE and FORMULAS_AND_GAPS); ROOT verified all8 payloads, full seal can be read from SHA256SUMS. Manager counterpart is A1 R/manager/source_11 seal4d6d95a68e371b061f8d50c9d57d31bf62595e90e70d0f412ace4fe890659b84. Check finite VR owner/lifetime/clone map, retained record2 and not_covered_full through late work, JSON schema/sample-prefix arithmetic, six-buffer SD RCM correction and precise gaps. Serializer-dependent claims are explicitly conditional because local checksum manifests were missing; do not treat that as authenticated or start a dependency audit. External12 input gap is now separately closed to your external_inputs_06 scope; note additive reconciliation without changing sealed source11. No Rust/runtime/probes/source edits/tools or broad missing-cell derivation. Writes only K6C R/source_review_RV30/vr_caller_07 plus own scratch; no Git/index/delegation. Return actual defects or checked conditional terms and residual premises, not full Emax acceptance. Active source12 remains untouched.",
-  "text_sha256": "42e2658c0ffbeb85dad05b84e33e45951c2ce20d4a65b2ffeaa708c1e960f16c",
-  "instruction_binding": "../kernel_01/INSTRUCTION_BINDING.json; unchanged role/project/software-code-review origins/hashes"
-}

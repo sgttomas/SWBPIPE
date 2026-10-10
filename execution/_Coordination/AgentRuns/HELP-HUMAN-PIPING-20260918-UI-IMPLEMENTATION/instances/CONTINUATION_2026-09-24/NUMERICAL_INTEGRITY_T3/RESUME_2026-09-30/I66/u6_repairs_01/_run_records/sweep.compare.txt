@@ -1,9 +1,0 @@
-base:      1823 passed, 30 skipped in 947.70s (0:15:47)
-candidate: 1843 passed, 30 skipped in 883.40s (0:14:43)
-passing at base, not passing in candidate: 1 ['tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes']
-failing in candidate, passing at base: 0 []
-failing at base, passing in candidate: 0 []
-tests added in candidate: 21 (files: ['tests/test_retained_precision_carriers.py', 'tests/test_retained_precision_schema.py'])
-tests removed: 1 ['tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes']
-candidate non-passing: []
-base non-passing: []

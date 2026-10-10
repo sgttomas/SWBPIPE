@@ -1,9 +1,0 @@
-{
-  "utc": "2026-10-03T05:15:07.594199+00:00",
-  "status": "CLEAR for bounded manager fan-in",
-  "checkpoint_due": "2026-10-03T05:14:23Z",
-  "checkpoint_account": "sent after review write at05:14:08Z",
-  "runtime_release": "2026-10-03T05:12:15.956633Z",
-  "source": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
-  "work_after_release": "reviewer-only oracle assertions, documentary evidence and sealing; no source/compiler/test commands"
-}

@@ -1,4 +1,0 @@
-RF-MECH: rows 26: passes 26, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
-RF-MECH: outcomes {"refused None": 8, "selected Some(128)": 1}
-RF-MECH: controls discriminated 26, non-discriminating 0, undiscriminated [], unexpectedly failing []
-RF-MECH: 0.3s

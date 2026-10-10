@@ -1,9 +1,0 @@
-# RV22: observations/k6b/counts.jsonl at 1123d19b9 against 011911e4e, key by key
-lines: old 33, new 33; model order equal: True
-keys added: ['estimate_w1_pass_1024', 'estimate_w1_pass_256', 'estimate_w1_pass_512', 'estimate_w1_solve_1024', 'estimate_w1_solve_128', 'estimate_w1_solve_256', 'estimate_w1_solve_512']
-keys removed: []
-keys changed (lines): {'estimate_adm_bytes_w1a': 33, 'estimate_w1_decide_bytes': 33, 'estimate_w1_sel128_bytes': 33, 'phase_elapsed_ns': 33}
-changed keys that are not W1 estimate keys: ['phase_elapsed_ns']
-  phase_elapsed_ns: e.g. 830041 -> 681583
-W1 count keys (28) identical on every line: True
-K6 estimate keys (estimate_f1b_bytes_sparse, estimate_adm_bytes_sparse, estimate_f1b_bytes_dense, estimate_adm_bytes_dense, estimate_f1b_bytes_lane_id, estimate_adm_bytes_lane_id, estimate_f1b_bytes_lane_lu, estimate_adm_bytes_lane_lu) identical: True

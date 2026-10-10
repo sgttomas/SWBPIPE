@@ -1,2 +1,0 @@
-thread 's11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt' (3731) panicked at src/s11g_tests.rs:2532:9:
-E-1 Err SparseInteractive: main's real attempt, not the zero-work decline: The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: "formation guard", helper_stage: SourceClosure, error: Unsupported("the load-row formation guard fired for this case"), work: WorkReport { charged: 0, rejected: 0, limit: 0 } }

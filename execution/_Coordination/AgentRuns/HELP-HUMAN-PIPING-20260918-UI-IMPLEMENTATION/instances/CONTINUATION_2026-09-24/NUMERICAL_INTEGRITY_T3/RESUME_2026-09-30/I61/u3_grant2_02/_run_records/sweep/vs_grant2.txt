@@ -1,2 +1,0 @@
-sweep_cand_reg: byte-identical to grant 2's run (R/I61/u3_grant2_01/_run_records/sweep/sweep_cand_reg.tsv, 9a74ff16d42c2b5a)
-sweep_cand_stale: byte-identical to grant 2's run (R/I61/u3_grant2_01/_run_records/sweep/sweep_cand_stale.tsv, 0e2db8b89745fdf1)

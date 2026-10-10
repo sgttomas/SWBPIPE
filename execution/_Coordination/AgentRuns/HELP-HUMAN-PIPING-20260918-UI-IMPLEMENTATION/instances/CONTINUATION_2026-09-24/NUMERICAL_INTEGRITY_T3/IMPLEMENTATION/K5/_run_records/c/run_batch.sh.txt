@@ -1,5 +1,0 @@
-#!/bin/bash
-S=<wt>/scratch/i14/mut
-echo "NONE start $(date -u +%FT%TZ)"; $S/run_mutant.sh NONE fk,ni,pp k5; echo "NONE end $(date -u +%FT%TZ)"
-cat $S/queue.txt | xargs -P 2 -L 1 $S/run_mutant.sh
-echo "BATCH-DONE $(date -u +%FT%TZ)"

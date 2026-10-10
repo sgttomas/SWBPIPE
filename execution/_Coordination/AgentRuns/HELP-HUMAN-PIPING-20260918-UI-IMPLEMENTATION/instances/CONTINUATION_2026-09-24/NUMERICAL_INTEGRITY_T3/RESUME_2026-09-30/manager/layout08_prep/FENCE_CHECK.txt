@@ -1,4 +1,0 @@
-PASS: reproduced exact40129 nine-package archive hash 008e627242d766a48573780e959437a0ab9f6a16d443f623d7d15a993063435b
-PASS:227 original files, exactly2 hook/export modifications+1 new H example; all other originals including18 manifests/locks and allocator unchanged; actual archive contained/no symlink/hardlink.
-PASS:both declared empty targets remain empty; future command must use siblingWT target only. No build/runtime grant or private layout binding implied.
-overlay 0d6c1ff750241f76ffb15a590ae76b70b23581013e32fb78fb10899214d0d13a

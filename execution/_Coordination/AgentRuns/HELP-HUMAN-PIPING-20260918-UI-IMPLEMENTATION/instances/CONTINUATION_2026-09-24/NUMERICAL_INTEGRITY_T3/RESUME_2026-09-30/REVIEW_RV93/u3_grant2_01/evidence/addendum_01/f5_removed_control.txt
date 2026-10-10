@@ -1,6 +1,0 @@
-# RV93 control: F5's exact-list check removed from the head's Rust reader (RV93's copy only; restored and cmp-checked afterwards).
-# Edit 1 (swap the first two diagnostic_refs) is then admitted: F5 alone refuses it.
-test zz_rv93::zz_rv93_f5_precommit_fallback ... RV93_F5_READER sparse_interactive untampered: PASS classes=98
-RV93_F5_READER sparse_interactive edit=1: ADMITTED
-thread 'zz_rv93::zz_rv93_f5_precommit_fallback' (59903908) panicked at src/zz_rv93.rs:354:13:
-assertion failed: r.is_err()

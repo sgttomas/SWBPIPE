@@ -1,3 +1,0 @@
-I61_RS "milestone_dense_scrutiny" PASS eligible=false invocation_bound=true classes=99
-I61_RS "milestone_sparse_interactive" PASS eligible=false invocation_bound=true classes=98
-I61_RS "refusal_preparation_sparse_interactive" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None

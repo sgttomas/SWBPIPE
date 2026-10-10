@@ -1,6 +1,0 @@
-PR #1106 (draft), branch codex/piping-t3-si1b-pr-20261007, head b4f22e6ce7ccc705df919a4eb3f7bc26861dbb83
-cut from main 47a3bdfcf5a37e856465c45cf904383f10181498 (worktree WT/si1b-pr), one commit:
-  the 3 slice files checked out from 0730c87aef (git diff --name-only f8ed4f0551 0730c87aef)
-  the 4 package files checked out from NUM 9e09bc2a35 (IMPLEMENTATION/SI1B/{CHANGE_RECORD.md,PR_BODY.md,citations.json,SHA256SUMS})
-full-SHA dispatch: gh workflow run piping-desktop-e2e.yml --ref codex/piping-t3-si1b-pr-20261007 -f target_base=47a3bdfcf5 -> run 37555520168
-DEC-025: label SI1b_b4f22e6ce7, candidate WT/sweep-skewpin at b4f22e6ce7, baseline WT/main-baseline at 47a3bdfcf5, fresh targets

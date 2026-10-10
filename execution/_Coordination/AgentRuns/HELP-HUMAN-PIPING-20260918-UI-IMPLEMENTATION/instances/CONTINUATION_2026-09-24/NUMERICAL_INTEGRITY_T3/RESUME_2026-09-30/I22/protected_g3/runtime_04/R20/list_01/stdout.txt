@@ -1,3 +1,0 @@
-structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule: test
-
-1 test, 0 benchmarks

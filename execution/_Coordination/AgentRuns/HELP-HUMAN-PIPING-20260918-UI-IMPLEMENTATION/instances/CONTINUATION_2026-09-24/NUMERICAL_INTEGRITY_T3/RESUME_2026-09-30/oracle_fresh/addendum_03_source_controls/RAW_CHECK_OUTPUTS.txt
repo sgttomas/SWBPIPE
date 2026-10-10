@@ -1,7 +1,0 @@
-freeze stdout:
-{"cases": 3, "rows": 116, "truth_sha256": "aac399bfb68bbb8b1cbcce08cc2901229535e88860dc5cc812cf08c9fe3ba0ee"}
-
-verification stdout:
-{"cases": 3, "rows": 116, "all_checks": "pass"}
-
-final hash-pinned interface verification: all three synthetic cases pass; no actual solver output read.

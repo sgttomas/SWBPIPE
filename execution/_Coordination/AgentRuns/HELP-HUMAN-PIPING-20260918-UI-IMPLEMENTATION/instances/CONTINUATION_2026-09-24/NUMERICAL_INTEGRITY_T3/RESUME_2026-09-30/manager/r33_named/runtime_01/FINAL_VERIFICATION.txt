@@ -1,5 +1,0 @@
-PASS7 commands/3tests, raw/artifact/binary/rawfingerprint/env/selection/result bindings {'list': 2, 'control': 1, 'build': 2, 'mutant': 1, 'baseline': 1}
-PASS232 full source files, append-only test overlay+frozenD2 only; all protected inputs unchanged.
-binary <wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904 220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15
-binary <wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904 da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7
-RAW thread 'structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale' (26278444) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:185:24: | assertion `left == right` failed: N05 128 E rows |   left: "9b17bdf22dba9892165702f05502429745e814a39988d05b3a213bbe102c2654" |  right: "b88b19d13da180293e8c6788a98eca8bf77eb7801e5ffb6eaba7973105e0a30a" | note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

@@ -1,4 +1,0 @@
-base 3258/3258 cand 3417/3417
-missing [('src/features/results/knownSemanticLimitations.test.ts', "static fresh-identity set and standing reasons > admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1")]
-changed []
-new 160 {'src/services/retainedPrecisionAnalysisRun.test.ts': 19, 'src/features/results/knownSemanticLimitations.test.ts': 1, 'src/features/results/retainedPrecisionIntegration.test.tsx': 76, 'src/features/results/retainedPrecisionOutputRefusal.test.tsx': 64}

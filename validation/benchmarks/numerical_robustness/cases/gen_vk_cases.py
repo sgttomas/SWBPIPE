@@ -51,11 +51,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 VR = HERE.parent
 P_ROOT = VR.parents[2]
-T3 = P_ROOT / ('execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
-               'instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3')
+T3 = P_ROOT / "validation/references/t3_r1"
 R1_JSON = T3 / 'REFERENCES/references.json'
 R1_PY = T3 / 'REFERENCES/references.py'
-FLOOR_JSON = T3 / 'DESIGN_NUMERICS/_run_records/floor_kinds.json'
+FLOOR_JSON = T3 / 'floor_kinds.json'
 K4T = P_ROOT / 'core/solver/frame_kernel/tests/retained_k4'
 
 PINNED = {

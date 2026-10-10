@@ -1,6 +1,0 @@
-before.txt 3708de522804fc325280e11857ef93509e7885404f836017d8e6b5b70a533e85
-after.txt b6313acb720917b3bfb549a049aacfe9097bf95f224ec7c001afc794164c1029
-check_body.txt fb78e41a07d518f9e709af48c8fccfcda10fad1d7dde281457d9aad91101e9d5
-PASS only a pre-Cargo insertion plus blank line; original launcher suffix unchanged. Initial literal-removal comparison failed solely on that blank line, inspected via textual diff; no helper repair required.
-Read-only negative mismatch and positive original-source check evidence inspected; no Rust calls or release fabrication. Exact original source-check block is reused before launch; post-check retention reported by child.
-Manager read full checker, including complete root file set, symlink/inode/target/log checks, pinned group and compile fields, baseline identities and live guard. Ready for source preparation review only; no runtime approval.

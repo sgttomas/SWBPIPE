@@ -1,6 +1,0 @@
-# python3 compare_runs.py probe_run2.log probe_run3.log  (the final input set, two runs)
-probe_run2.log vs probe_run3.log: run1 lines=300 run2 lines=300 identical=True
-
-# the probe's written outputs: run2 against run3 (diff -r), and every run1 file against run2's same-named file (cmp)
-run2 vs run3: 77 files, diff -r: identical
-run1 vs run2: 65 run1 files compared with run2's same-named files, 0 differ

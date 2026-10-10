@@ -1,3 +1,0 @@
-archive: git archive 64470c6ba40151d5dfe63bc47b8b8bee0f872be7 (piping tree without execution/, plus the generator's three pinned inputs) into <wt>/vk-mut/b/src
-binary: <wt>/vk-mut/b/target/release/examples/vk_scale
-binary sha256: 8f5d6316d0ede53e6bf813765141dc5747972d03c01caa33a27cbfb75b54bbc9

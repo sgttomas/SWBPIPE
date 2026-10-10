@@ -1,1 +1,0 @@
-nice -n 19 python3 $N/IMPLEMENTATION/K6/_run_records/oracle/k6_oracle.py   >   3.73s user 0.13s system 96% cpu 3.984 total

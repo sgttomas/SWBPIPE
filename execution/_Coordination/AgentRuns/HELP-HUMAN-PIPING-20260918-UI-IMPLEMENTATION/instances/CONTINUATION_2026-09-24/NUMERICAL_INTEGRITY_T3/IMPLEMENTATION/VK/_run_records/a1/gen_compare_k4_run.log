@@ -1,2 +1,0 @@
-compared 140 cases with K4T; unexpected differences: 0
-nice -n 10 python3 -B gen_vk_cases.py --compare-k4   237.90s user 0.67s system 99% cpu 3:59.49 total

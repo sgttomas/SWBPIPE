@@ -1,6 +1,0 @@
-impl_fn_param 17 with alloc in body: 0
-op_impl 41 with alloc in body: 2
-macro_rules 7 with alloc in body: 0
-fmt_impl 39 with alloc in body: 0
-dyn 6 with alloc in body: 0
-impl_trait_param 1 with alloc in body: 0

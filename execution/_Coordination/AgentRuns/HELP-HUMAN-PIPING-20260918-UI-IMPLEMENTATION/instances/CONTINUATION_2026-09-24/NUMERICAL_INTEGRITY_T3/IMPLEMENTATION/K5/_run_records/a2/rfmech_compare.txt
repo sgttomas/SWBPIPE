@@ -1,4 +1,0 @@
-RF-MECH harness output, Mac main 24dea2dae against the K5 candidate (A2 working tree), both built from git archive copies:
-main      2a40070774ca5f8028f9ecc799d513f08c18991b8714165fe15495121ad661bd  133 lines
-candidate 2a40070774ca5f8028f9ecc799d513f08c18991b8714165fe15495121ad661bd  133 lines
-byte-identical: yes (rfmech_main.txt holds the common bytes)

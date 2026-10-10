@@ -1,5 +1,0 @@
-
-> @openpipestress/desktop@0.1.0 tauri
-> tauri --version
-
-tauri-cli 2.11.1

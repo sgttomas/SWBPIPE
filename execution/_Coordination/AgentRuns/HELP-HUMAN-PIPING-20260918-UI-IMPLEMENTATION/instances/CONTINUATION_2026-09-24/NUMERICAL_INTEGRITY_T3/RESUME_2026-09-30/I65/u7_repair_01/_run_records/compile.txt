@@ -1,4 +1,0 @@
-# law tests on an isolated copy (git archive ffe65ef203 core/fixtures/schemas + the edited retained_memory.rs, three sites): cargo test --lib retained_memory
-test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 502 filtered out; finished in 3.23s
-# cargo build --lib (production): exit 0
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.57s

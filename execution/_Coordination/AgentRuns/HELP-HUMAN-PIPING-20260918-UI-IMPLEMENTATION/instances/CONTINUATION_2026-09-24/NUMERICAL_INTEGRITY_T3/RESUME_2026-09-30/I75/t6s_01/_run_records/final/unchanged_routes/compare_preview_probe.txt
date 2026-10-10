@@ -1,8 +1,0 @@
-base distinct inputs: 4 {('rc', 'preview_physics'): 2, ('rd', 'preview_physics'): 2}
-  inputs with more than one output (nondeterministic): 0
-cand distinct inputs: 4 {('rc', 'preview_physics'): 2, ('rd', 'preview_physics'): 2}
-  inputs with more than one output (nondeterministic): 0
-non-successor inputs in both: 4 differing: 0
-base-only inputs: 0 Counter()
-cand-only inputs: 0 Counter()
-successor inputs in base: 0

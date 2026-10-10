@@ -1,2 +1,0 @@
-applied K1-PIN-BINARY64
-apply exit=0

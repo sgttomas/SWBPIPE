@@ -1,6 +1,0 @@
- ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible 0ms
- ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68) 39ms
- ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the 8 appended mutations are refused at G5a SCALE 187ms
- ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the 4 appended must-pass entries are admitted, eligible, with their base classifications 110ms
- Test Files  1 passed (1)
-      Tests  474 passed (474)

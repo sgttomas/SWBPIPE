@@ -1,8 +1,0 @@
-#!/bin/bash
-# Dispatch one mutant id: K2B-* -> mutate_k2b.py (I10's); everything else -> K1's mutate_k1.py
-# (unchanged from K1's records: K1's pin mutants and the original pins' mutants it reproduces).
-X=$1; CORE=$2; m=$3
-case $m in
-  K2B-*) python3 -B $X/mutate_k2b.py $CORE $m ;;
-  *) python3 -B $X/mutate_k1.py $CORE $m ;;
-esac

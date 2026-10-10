@@ -1,3 +1,0 @@
-a7de2a918ff3332133ce1f9d06e205fb87aae3d9 piping(T3 B6): Rust's 07k and 07m slices also pin their entry ids, as Python's and TS's do
-a79dbd2e4acf013c984023916be765c69096db56 piping(T3 B6): Python's transport validator for the retained successor (F-U6b-2); RV92's tampered set refused alike in three languages
-5e38293530720a3519839baabd72bede87d880ea piping(T3 B6): TS's G7 header refusal carries the base readers' codes (RV94 N-3, PLAN decision 11); corpus 07m with the 07k and 07m slices in three harnesses; Python reads its own expectation (RV94 N-5)

@@ -1,3 +1,0 @@
-   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv24-mut/RV24-M2/core/solver/frame_kernel)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.32s
-  Executable unittests src/lib.rs (<wt>/rv24-mut/RV24-M2/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)

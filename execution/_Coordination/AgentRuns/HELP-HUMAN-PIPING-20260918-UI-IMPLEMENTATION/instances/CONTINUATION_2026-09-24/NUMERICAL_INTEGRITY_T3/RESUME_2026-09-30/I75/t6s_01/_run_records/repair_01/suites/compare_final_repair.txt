@@ -1,8 +1,0 @@
-base tests 3590 passed 3590
-cand tests 3590 passed 3590
-added 1
-  + src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx :: the disclosure texts are Rust derivative's (D-U6-2; CQ-1) prints b as Rust's {:e} does: shortest round-trip digits, exact ties rounded up, and no '+' in the exponent
-removed 1
-  - src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx :: the disclosure texts are Rust derivative's (D-U6-2; CQ-1) prints b as Rust's {:e} does: shortest round-trip digits and no '+' in the exponent
-status changed 0
-unchanged 3589

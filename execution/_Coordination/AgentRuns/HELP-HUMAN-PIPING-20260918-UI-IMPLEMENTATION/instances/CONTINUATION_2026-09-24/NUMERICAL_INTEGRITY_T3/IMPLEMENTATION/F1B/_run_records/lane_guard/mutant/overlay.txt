@@ -1,3 +1,0 @@
-projects/chirality-piping/core/product_physics/src/lib.rs
-projects/chirality-piping/core/product_physics/src/f1b_tests.rs
-projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs

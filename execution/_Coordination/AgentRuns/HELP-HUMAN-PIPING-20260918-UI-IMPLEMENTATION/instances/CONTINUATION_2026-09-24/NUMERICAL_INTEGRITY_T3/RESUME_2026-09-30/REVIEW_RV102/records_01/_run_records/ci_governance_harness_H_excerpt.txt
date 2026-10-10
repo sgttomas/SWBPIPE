@@ -1,3 +1,0 @@
-harness	Run actions/checkout@v4	2026-10-06T15:08:54.7420029Z HEAD is now at 972e7ac1a Merge 11b2d04f13f48ce7821aa08d0261318fadcb1d09 into 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
-harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-06T15:09:10.7230291Z   CHIRALITY_REQUIRE_LIVE_TESTS: 1
-harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-06T15:10:46.2676928Z 1156 passed, 48 subtests passed in 93.87s (0:01:33)

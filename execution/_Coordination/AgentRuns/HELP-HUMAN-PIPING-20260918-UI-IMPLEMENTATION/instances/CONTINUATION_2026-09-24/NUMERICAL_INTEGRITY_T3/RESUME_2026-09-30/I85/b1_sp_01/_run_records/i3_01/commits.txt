@@ -1,3 +1,0 @@
-03f55e71786a58ce9ed61863813e2410a9f53827 piping(T3 B1 SP): check the ordinary owner after SF-2's structure
-105e1a78c6030f2e387991742457e0d9b3b53f83 piping(T3 B1 SP): assert SF-2's structure on the successor precommit received
-2fb55b60e20d14bd7182db5c6469a998545f6b7e piping(T3 B1 SP): I3's pins; RV109's SF-1 and SF-2; the nodal-term ordinal

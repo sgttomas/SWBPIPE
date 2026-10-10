@@ -1,1 +1,0 @@
-zsh:51: no such file or directory: projects/chirality-piping/apps/desktop/node_modules/.bin/tsc

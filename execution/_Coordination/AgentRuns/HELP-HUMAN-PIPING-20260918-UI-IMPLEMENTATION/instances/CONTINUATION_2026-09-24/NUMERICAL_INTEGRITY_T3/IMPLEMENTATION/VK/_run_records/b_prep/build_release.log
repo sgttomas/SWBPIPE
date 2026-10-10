@@ -1,4 +1,0 @@
-   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
-   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/sparse_direct)
-   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness)
-    Finished `release` profile [optimized] target(s) in 12.11s

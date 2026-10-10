@@ -1,3 +1,0 @@
-# REDACTED by owner decision (2026-10-05): this whole-host process listing is filtered to the build and test processes it was captured to check; app and agent lines are removed. Original: 1034 lines, sha256 fc0b2c02dd2632d676e00b954652413b45a405c3dac73d82fda1f579e1a16612. See T3 ROOT_RULINGS_V1, "Records PR #1084: redactions, GEN-8 repair and re-cut", and IMPLEMENTATION/HANDOFF_2026-10-05/_run_records/REDACTIONS.json.
-  PID  PPID COMM             ARGS
-31708 89168 python3          python3 -

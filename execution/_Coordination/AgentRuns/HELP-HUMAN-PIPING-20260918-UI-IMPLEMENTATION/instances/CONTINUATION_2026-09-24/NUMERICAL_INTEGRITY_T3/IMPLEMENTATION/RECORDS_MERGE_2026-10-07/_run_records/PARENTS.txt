@@ -1,4 +1,0 @@
-merge 47a3bdfcf5a37e856465c45cf904383f10181498
-parents bfb26596bf81a90f98bfde06051f9a3b9907783a
-date 2026-10-06T18:42:00-06:00
-subject piping(T3): records after #1104 (records only) (#1105)

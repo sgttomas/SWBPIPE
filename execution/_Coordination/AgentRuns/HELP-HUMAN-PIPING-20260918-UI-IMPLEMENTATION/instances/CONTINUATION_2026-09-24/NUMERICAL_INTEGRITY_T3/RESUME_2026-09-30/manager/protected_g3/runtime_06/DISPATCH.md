@@ -1,8 +1,0 @@
-# Runtime06 restored historical discriminator
-
-ROOT NUMc86c1bb86bb63e46b02499e8f8e3ad37b9eba8b2 fully read. RV29 r46_diagnosis_22 seal aef93612ec9da1a8a98badc13009bb33572f050abeedabfcfbc0743af1b3bd90 and I23 r46_diagnosis_14 seal869dd7af2f03e8c856ffb5a2260bc68366ddde26e022956a89181b84db00820e verified/read. They recover the actual historical set19 filter; the old focused survivor remains uncredited, with no source/test/fault/expectation change.
-
-R33 named diagnostic succeeded and sealed569cfbfc8df69c3130f05fcb317e8b7bfb75695a34b005defd271e581680312e; manager verified33 payloads,7commands/2binaries/232files and slot release. Existing I22 actually resumed via collaboration.followup_task approximately17:36:45 UTC2026-10-01, SAME17:43:57 hard end.
-
-After independent release: original focused R46 control once; historical vector filter baseline/existing unchanged mutant/returned control with exact listings. Only assertion96/set19 row20 bound2 versus3 qualifies. No rebuild. If qualified, R47–R52 original prepared sequence/per-ID releases/selected hard checker; R52bothfilters. Any unexpected result/deadline stops. No repatch/helper/tool/criteria/Git/index change or automatic extension.
-Child actual restart17:37:35 UTC; SAME17:43:57 hard end. Manager released the exact four-test R46 stage17:38:08 after full rebind in R46_REBIND.txt: original focused control, historical vector baseline, existing mutant, returned baseline, with exact one-test lists. Only restored96/set19 row20 bound2 versus3 qualifies. If qualified, original R47–R52 release conditions apply; no omitted checks or extension.

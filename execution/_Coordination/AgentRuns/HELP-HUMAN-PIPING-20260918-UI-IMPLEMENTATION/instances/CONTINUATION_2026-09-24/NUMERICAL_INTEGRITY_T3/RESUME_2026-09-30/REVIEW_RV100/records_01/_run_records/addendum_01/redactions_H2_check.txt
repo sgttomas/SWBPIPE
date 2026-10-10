@@ -1,4 +1,0 @@
-13 REDACTIONS.json original blob IDs (from dfa5e2dc44) present in trees: H2 0/13, combination 5033cd22 0/13, af7510c3a3 0/13 (H 0/13, main f506f3e2de 0/13 in records_01)
-content sha256 of the 60 changed blobs at H2 equal to an original_sha256: 0/60
-dfa5e2dc44, 59b72619fe, 3798d5eca7, 29160bbc1c ancestors of H2: none; rev-list f506f3e2de..H2 = 3 commits (e2b83da584, af7510c3a3, 020d25a3d6)
-REDACTIONS.json byte-identical at H and H2

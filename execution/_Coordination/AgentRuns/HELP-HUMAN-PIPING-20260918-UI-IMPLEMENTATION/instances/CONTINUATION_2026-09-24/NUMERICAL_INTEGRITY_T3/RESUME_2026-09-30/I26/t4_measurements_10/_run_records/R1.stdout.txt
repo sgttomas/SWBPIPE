@@ -1,5 +1,0 @@
-PASS RF-LARGE-CHAIN-n10000-AX compared=103 failures=0 missing=0 worst=1.746e-06 of the allowance at tw.M1
-PASS RF-LARGE-CHAIN-n10000-ROT compared=103 failures=0 missing=0 worst=1.746e-06 of the allowance at tw.M1
-PASS RF-LARGE-CONT-n10000-AX compared=215 failures=0 missing=0 worst=1.573e-06 of the allowance at th.S5000.RZ
-PASS RF-LARGE-CONT-n10000-ROT compared=215 failures=0 missing=0 worst=1.393e-06 of the allowance at th.S5000.RX
-summary: 636 comparisons, 0 failures or missing

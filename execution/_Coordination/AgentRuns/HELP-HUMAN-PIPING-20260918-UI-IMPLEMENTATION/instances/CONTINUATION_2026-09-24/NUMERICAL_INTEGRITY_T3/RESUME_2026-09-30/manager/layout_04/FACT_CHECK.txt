@@ -1,4 +1,0 @@
-PASS: all159 layout rows match raw portable build rows;151 VR+8 H; three FK crosschecks agree.
-PASS: all15 derived Arc request sizes independently recalculated from authenticated repr(C) source and measured components.
-PASS: both executable hashes and both original/portable log hashes verify.
-Derived Arc facts are not direct measurements; no complete E_max/capacity/lifetime or private tree node layout established.

@@ -1,7 +1,0 @@
-# RV101 ADDENDUM_01: further checks over the six word lists (vectors excluded), 185,332 words
-ties by V8 shortest length (exact decimal of n+1 significant digits ending in 5): {17: 10788, 16: 21997}; none at 15 digits or fewer
-smallest |x| with a tie: 2.9802322387695312e-08 = 2^-25 exactly (the review's reach bound is tight)
-round-trip guard on rv101_pow2 (16,772 words): the nearest n-digit decimal fails to round-trip on 90 words; with the guard dropped all 90 differ from Rust; with it, 0
-test vectors: 69 of 69 equal RV101's Rust oracle; a round-half-even printer (Python repr in this form) prints at least 29 of them differently (every tie whose lower candidate is even)
-I75 gen_words_2.py (seed 75016) regenerated: ties16.txt 9c0ad6db..., pow2.txt a1cff274..., equal to I75's recorded hashes
-standalone oracle crate output equals the review's RE-crate oracle output on the 60,000 random words (cmp)

@@ -1,9 +1,0 @@
-{
-  "completed_utc": "2026-10-03T05:35:08.210745+00:00",
-  "verdict": "CLEAR at bounded one-row exact mathematical/source scope; no blocking findings",
-  "subject_return_sha256": "7c5da65a02762ae34e3e2847e61571e5ae4f7fa7516165460d118f7da7bf353c",
-  "return_sha256": "52e15bcf18f5ca7caba217368350082df855533fbfaa6fcd770b5ff1e7608f31",
-  "inventory_sha256": "fa4f45d156219c9fc43ec7335c9fce4be887bc1d409b37797d06204b3891e5bb",
-  "payload_count": 32,
-  "limits": "No compiler/model/solver/native execution; no source/Git/index/API writes; no public availability or acceptance; no actual private endpoints or radius reconstructed."
-}

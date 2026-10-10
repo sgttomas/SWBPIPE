@@ -1,1 +1,0 @@
-projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs

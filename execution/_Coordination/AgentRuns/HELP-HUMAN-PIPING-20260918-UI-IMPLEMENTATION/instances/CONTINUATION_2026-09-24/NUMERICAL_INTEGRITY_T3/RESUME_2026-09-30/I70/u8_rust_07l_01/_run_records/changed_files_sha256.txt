@@ -1,9 +1,0 @@
-# U8 head 69a925bd68 (HEAD of WT/f2a-u8 at the run): 69a925bd68417736fdb513229b954770d869c324
-# before (69a925bd68 = d449097085, unchanged by 07l):
-c74c8c852dbcdf5aad3a55ab9b37ad250bc3b53db939bc755ef4d6403b31c3a0  P/core/reporting/result_export/tests/retained_precision_contract.rs
-# after (candidate, uncommitted):
-7832a6024c8c460bd02d145ec490fbe5ee798e118ab14c6163fd919030d6d5d0  P/core/reporting/result_export/tests/retained_precision_contract.rs
-# corpus at the U8 head (07l), read only:
-5ac13296c69745ae837e41b93c42e4daa0c4100dc863229f8e6a4cdbe2692ccd  P/fixtures/results/retained_precision_cases.json
-# reader source, read only (unchanged):
-4722b505279810ce1a016150b6351f5dbf8e17e6d1d1323d3eef3bb6a3f93b69  P/core/reporting/result_export/src/retained_precision.rs

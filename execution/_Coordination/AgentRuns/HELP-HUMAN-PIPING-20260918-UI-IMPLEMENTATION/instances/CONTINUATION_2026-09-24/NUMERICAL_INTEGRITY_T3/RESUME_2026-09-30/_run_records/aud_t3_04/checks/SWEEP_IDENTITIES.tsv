@@ -1,7 +1,0 @@
-sweep	candidate	clean	manifest_count	log_count	sweep_original_hash_matches_prior_record	suite_summary_matches_prior_record
-sweep_k4	5a46a6278af3c857a52ecb9be6880990493190f8	true	39	39	PASS	PASS
-sweep_kf1	66adfede42de817efb5e0090342c02e3e4382f21	true	39	39	PASS	PASS
-sweep_vk	5f0d394262516e4053322730506cb88dfb36a2f0	true	40	40	PASS	PASS
-sweep_k6b	597c81ba4b3dcf9a1154ef438a3c827054a57ad9	true	40	40	PASS	PASS
-sweep_kf3	aa83f67969c2f618034b856ba6e1fc13ae10762e	true	40	40	PASS	PASS
-sweep_kf2	522167ac62f27ad999a4416d10b95f922ff8c665	true	40	40	PASS	PASS

@@ -1,6 +1,0 @@
-# G3 batch preparation dispatch
-
-ROOT grant NUM076253e8baaabc930767ac25732786b6bcfcaeb9, R/BRIEFS/A1_G3_BATCH_PREPARATION.md, SHA25608dd60a4e0bd2f81836e1795319e22b68b90809e122c76c6ea9543f7e92b757b, fully read. Existing I22 actually resumed via collaboration.followup_task at approximately16:16:05 UTC2026-10-01. Child read full grant16:16:22 and will first seal runtime03 partial through R14, preserving original16:23:26 field but ending its runtime authority.
-
-Then a fresh15-minute source-only block, first at most5minutes for exact existing check-order reuse before Cargo, keeping postchecks and recording before/after helper text plus read-only mismatch/match evidence. No Rust or fake release/file tampering; stop if5minutes exceeded or new tooling needed. Remaining frozen R15–R52 source preparation only, existing apply_patch and first-mismatch stop; no criteria changes. Manager independently checks every copy and produces individually enumerated release PROPOSALS only. ROOT must grant any later runtime; R09/R10 remainopen and V-Kheld.
-Child actual source-only start16:17:11 UTC; existing-check correction limit16:22:11; total preparation end16:32:11. No further Rust under the separately preserved original16:23:26 window.

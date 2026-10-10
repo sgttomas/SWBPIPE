@@ -1,3 +1,0 @@
-harness	Run actions/checkout@v4	2026-10-07T13:59:13.2893249Z  * [new ref]             c691744a05a40c732b2497acf1e53e859922fdbf -> pull/1108/merge
-harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-07T14:00:08.1108907Z   CHIRALITY_REQUIRE_LIVE_TESTS: 1
-harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-07T14:01:09.9209081Z 1156 passed, 48 subtests passed in 60.85s (0:01:00)

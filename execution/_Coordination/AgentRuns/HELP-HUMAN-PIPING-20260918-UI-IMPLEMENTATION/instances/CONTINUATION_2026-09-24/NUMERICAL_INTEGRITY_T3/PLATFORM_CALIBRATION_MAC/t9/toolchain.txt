@@ -1,5 +1,0 @@
-rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
-host: aarch64-apple-darwin
-main: 649162522 (piping tree identical to 134eefc24: no commit in 134eefc24..649162522 touches projects/chirality-piping/{core,fixtures,validation,schemas})
-harness: S11-K fixdiff_main.rs sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53, unchanged (native); the libm variant appends libm_shim_appended_to_s11k_harness.rs.txt
-build: RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 cargo build --release --offline, lock copied from core/product_physics (resolution adds only the harness package)

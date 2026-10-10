@@ -1,2 +1,0 @@
-command: python tools/validation/validate_run_record_leaks.py --base origin/main --head HEAD (cwd: WT/records-pr-c; origin/main = e33f3e2f1b, HEAD = 18a20d329f; VENV's python)
-PASS: 1044 changed run-record file(s) scanned; 0 possible credential(s); 0 machine-local symlink(s).

@@ -1,3 +1,0 @@
-PASS BASELINE complete116 files/exact append-only overlay/original tests-corpus-lock/source; distinct inodes/no symlinks/empty targets+logs.
-PASS D2 complete116 files/exact append-only overlay/original tests-corpus-lock/source; distinct inodes/no symlinks/empty targets+logs.
-PASS frozen D2 patch and guard5387. Fault remains unapplied. Filter structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale

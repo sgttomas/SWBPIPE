@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-03T13:39:03.946379+00:00",
-  "actor": "ROOT /root",
-  "seal": "ca8f4c2653cf4d2d71277f7f328e9a2097dd0893caf79c87593756dfe482cff8",
-  "payloads_verified": 5,
-  "root_read": "Full RETURN and BACKCHECK; full author ADDENDUM already read and verified",
-  "disposition": "Accept corrected conditional interface, with no native population/allowance/qualification credit."
-}

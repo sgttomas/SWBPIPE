@@ -1,3 +1,0 @@
-structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero: test
-
-1 test, 0 benchmarks

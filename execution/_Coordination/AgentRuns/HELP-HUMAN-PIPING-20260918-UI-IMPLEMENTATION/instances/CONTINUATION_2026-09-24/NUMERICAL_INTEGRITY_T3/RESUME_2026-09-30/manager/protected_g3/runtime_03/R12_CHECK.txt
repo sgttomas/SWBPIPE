@@ -1,5 +1,0 @@
-PASS R12 K4-M5 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "b18bd60a0cf4b2d1aa1e631c52831faca3e1c72f8f543553c85585e1b888c077"}
-filters ["structural::retained::wide_sum::tests::a_refused_span_adds_nothing"]
-target --lib
-semantic Adding 2^-8128 to1 returns SumRefusal::Span, not Ok; existing value stays1.

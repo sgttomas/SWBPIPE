@@ -1,7 +1,0 @@
-NONE rc=0 passed=44 failed=[] compiled=True 49s
-RV21-H1 killed (the floor comparison strict (>) instead of >=): rc=101 passed=43 failed=['exact::tests::the_floor_is_r_times_s_star_exactly'] compiled=True 48s
-RV21-H2 killed (the tolerance 1e-8 instead of 1e-9): rc=101 passed=34 failed=['exact::tests::the_magnitude_predicate_holds_at_both_bounds_and_not_one_ulp_beyond', 'exact::tests::the_predicate_holds_at_its_boundary_and_not_one_ulp_beyond', 'the_comparison_scale_is_exps_magnitude_never_obss', 'every_discriminating_value_control_fails_the_predicate', 'the_exact_engine_agrees_with_the_generators_fractions_on_every_vector', 'rf_cancel', 'rf_chain', 'rf_skew', 'rf_weak', 'rf_zero'] compiled=True 44s
-RV21-H3 killed (N and ext read from the i end): rc=101 passed=38 failed=['rf_finite', 'rf_chain', 'rf_skew', 'rf_weak', 'rf_zero', 'rf_large_at_10_and_100_members'] compiled=True 43s
-RV21-H4 SURVIVED (an overflowed row observed as +0 (plan 5.2: Overflow fails)): rc=0 passed=44 failed=[] compiled=True 44s
-RV21-H5 killed (a magnitude judged on |My| alone): rc=101 passed=35 failed=['rf_cancel', 'rf_finite', 'rf_invariance', 'rf_mech', 'rf_range', 'rf_skew', 'rf_weak', 'rf_zero', 'rf_large_at_10_and_100_members'] compiled=True 45s
-RV21-H6 SURVIVED (a sub-range reference passes as absolute-range whatever the observation): rc=0 passed=44 failed=[] compiled=True 45s

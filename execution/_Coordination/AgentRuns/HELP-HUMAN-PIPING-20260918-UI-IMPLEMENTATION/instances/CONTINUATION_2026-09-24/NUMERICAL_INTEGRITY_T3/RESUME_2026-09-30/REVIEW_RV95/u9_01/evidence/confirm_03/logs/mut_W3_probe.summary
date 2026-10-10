@@ -1,5 +1,0 @@
-test s11k_tests::zz_rv95_walker_probe ... FAILED
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 130 filtered out; finished in 0.00s
-thread 's11k_tests::zz_rv95_walker_probe' (67628657) panicked at src/s11k_tests.rs:1081:63:
-WT/scratch/rv95_u9_01/conf2/synth/src/pp.rs: No such file or directory (os error 2)
-error: test failed, to rerun pass `--lib`

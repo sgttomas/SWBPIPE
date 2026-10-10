@@ -1,8 +1,0 @@
-rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
-cargo: cargo 1.97.1 (c980f4866 2026-06-30)
-python (runner, analysis, probes): Python 3.13.14
-python (pytest wrapper): repository venv, Python 3.13.14, pytest pytest 9.1.1
-host: Darwin 25.6.0 arm64, 18 cores, 128 GiB
-env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2, --offline --locked, -j 4, one cargo job at a time; target <wt>/rv22-target
-release k6_observe from the archive of 1123d19b9: sha256 feb3ccfefa954fbb967ea6c315fcc905b6d857905be152074f97b681bfb7c116 (differs from b3's 20b67776... because the archive path is embedded; the Rust sources are unchanged since 4eeb206c0)
-memory guard: <wt>/guard/memguard.sh running throughout (pid 5387); log unchanged since its 2026-09-27 start lines (no kill)

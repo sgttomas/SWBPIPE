@@ -1,4 +1,0 @@
-# REDACTED by owner decision (2026-10-05): this whole-host process listing is filtered to the build and test processes it was captured to check; app and agent lines are removed. Original: 1055 lines, sha256 32c5b816ab71d91058110c89f479afb30c1821818127f6eddb51e83cd6d9c77d. See T3 ROOT_RULINGS_V1, "Records PR #1084: redactions, GEN-8 repair and re-cut", and IMPLEMENTATION/HANDOFF_2026-10-05/_run_records/REDACTIONS.json.
-    1     0 /sbin/launchd
- 9283  9268 /Users/ryan/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo
- 9287  9283 /Users/ryan/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc

@@ -1,8 +1,0 @@
-#!/bin/bash
-# F1b review fixes: dispatch F1b's own F1B-M2 (C's mutate_f1b.py, unchanged) and RV17's RV17-M1/M2
-# (RV17's mutate_rv17.py from its review records, unchanged in content).
-X=$1; CORE=$2; m=$3
-case $m in
-  RV17-*) python3 -B $X/mutate_rv17.py $CORE $m ;;
-  *) python3 -B $X/mutate_f1b.py $CORE $m ;;
-esac

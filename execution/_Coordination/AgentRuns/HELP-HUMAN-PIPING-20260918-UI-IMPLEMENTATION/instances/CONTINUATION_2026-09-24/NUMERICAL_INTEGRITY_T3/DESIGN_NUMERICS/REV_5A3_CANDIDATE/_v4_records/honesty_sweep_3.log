@@ -1,5 +1,0 @@
-L2-n=16-s=1-k=1 sign+1 (2.2693465213623087e-54, 256, ('end', 0, 'i', 0)) (2.6s)
-L2-n=16-s=1-k=1 sign-1 (2.2693465213623087e-54, 256, ('end', 0, 'i', 0)) (2.6s)
-ran 200
-current selected: {'512': 117, 'None': 29, '128': 49, '256': 5} false claims: 38 [('ADV-3', "(6.197674100999672e+101, ('end', 0, 'i', 2), 'absolute')"), ('ADV-6', "(1.9503993067215267e+115, ('end', 0, 'i', 4), 'absolute')"), ('ADV-9', "('inf', ('end', 0, 'i', 5), 'absolute')"), ('ADV-10', "('inf', ('end', 1, 'i', 5), 'absolute')"), ('ADV-21', "('inf', ('end', 0, 'i', 2), 'relative')"), ('ADV-34', "('inf', ('end', 1, 'i', 1), 'absolute')"), ('ADV-48', "(2.90631178894915e+107, ('end', 0, 'i', 2), 'absolute')"), ('ADV-52', "(3.290736670947001e+35, ('end', 2, 'i', 0), 'absolute')")]
-iii selected: {'512': 174, 'None': 15, '256': 11} false claims: 0 []

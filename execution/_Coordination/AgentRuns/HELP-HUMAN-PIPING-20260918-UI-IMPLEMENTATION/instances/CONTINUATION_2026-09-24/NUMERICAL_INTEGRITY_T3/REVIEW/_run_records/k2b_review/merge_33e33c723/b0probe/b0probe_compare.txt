@@ -1,7 +1,0 @@
-RV11 merge confirmation: I10's b = 0 Debug probe (checkpoint_b/probe/main.rs.txt, unchanged), rebuilt at opt-level 0
-against the git-archive tree of the merge 33e33c723. All 439 outputs, not a sample.
-  33e33c723: 439 outputs
-  33e33c723 == eb52114e9: yes, 439 of 439
-  33e33c723 == 98b1723b1: yes, 439 of 439
-  33e33c723 == f385a8bc8: yes, 439 of 439
-  33e33c723 == 112c1729d: yes, 439 of 439

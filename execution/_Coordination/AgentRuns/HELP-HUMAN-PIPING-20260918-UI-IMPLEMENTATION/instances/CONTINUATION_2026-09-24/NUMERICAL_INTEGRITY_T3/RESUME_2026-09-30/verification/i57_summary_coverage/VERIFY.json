@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-03T19:14:38.486243+00:00",
-  "seal_sha256": "aa066abea66697b7fecc9054095c31b6d5ae3d90d1eaff58937db3297a57c67b",
-  "payloads": 5,
-  "source_copies": 8,
-  "root_read": "complete proposal and RETURN",
-  "disposition": "proposed, RV76 review pending"
-}

@@ -1,5 +1,0 @@
-PASS R06 K4-M39 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "e00edb58e89c1ae6a4d5b65a6039a23ca0be91db658b70918303939674bcd0a7"}
-filters ["structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order"]
-target --lib
-semantic Above the fixed epsilon*M - V boundary requires StopRule index0; synthetic report e_rows=None cannot replace nonzero published e_hat.

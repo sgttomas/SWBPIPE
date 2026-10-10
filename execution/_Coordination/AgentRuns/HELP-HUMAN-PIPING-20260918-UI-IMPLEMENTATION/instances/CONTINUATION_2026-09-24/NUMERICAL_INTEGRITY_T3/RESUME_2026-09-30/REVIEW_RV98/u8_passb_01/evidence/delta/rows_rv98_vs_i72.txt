@@ -1,3 +1,0 @@
-i72: files 46, rows 97, classes {'not-d1': 30, 'no-code': 35, 'item': 4, 'cfg-test-stmt': 3, 'test': 12, 'generated': 1, 'qualification-test': 4, 'unreachable': 8}
-rv98: files 46, rows 97, classes {'not-d1': 30, 'no-code': 35, 'item': 4, 'cfg-test-stmt': 3, 'test': 12, 'generated': 1, 'qualification-test': 4, 'unreachable': 8}
-rows only in rv98: 0; rows only in i72: 0

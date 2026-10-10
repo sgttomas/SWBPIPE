@@ -1,4 +1,0 @@
-RF-CHAIN: rows 2760: passes 2700, absolute-range passes 0, not covered 0 | structural zeros 60, expected unresolved 0, failures 0
-RF-CHAIN: outcomes {"selected Some(128)": 30}
-RF-CHAIN: controls discriminated 82, non-discriminating 38, undiscriminated [], unexpectedly failing []
-RF-CHAIN: 0.2s

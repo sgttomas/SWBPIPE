@@ -1,9 +1,0 @@
-RV102 addendum 01 checks at H3 (2026-10-06T15:35:10Z)
-13 original blob ids (from redactions_check.txt) in H3's full tree:
-  tree entries: 80486
-  present: 0/13
-delta blob content sha256 equal to an original_sha256:
-  0/52
-delta sizes and types:
-  total 1832818 B; largest 1121319 B
-  modes:   52 100644 

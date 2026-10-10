@@ -1,4 +1,0 @@
-# K4 records and vectors (from the clean archive of 7d8fa9c0e)
-_run_records/SHA256SUMS: 214 OK, 0 not OK; own sha256 f79cfe574edda8cb71ea57c772a74017871ae37b84db28939f78f03bdfada586; files in folder besides SHA256SUMS: 214
-retained_k4/SHA256SUMS: 22 OK, 0 not OK
-scan of IMPLEMENTATION/K4, FK/src/structural/retained and FK/tests/retained_k4 for home, temp and tool paths, user and host names, and model identifiers: 0 matches (a case-insensitive o3 token matches only ROOT's ruling name O3, 4 times)

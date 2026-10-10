@@ -1,4 +1,0 @@
-== build_cj start 2026-10-06T02:01:45Z dir=<WT>/scratch/i73_s_i1/base/projects/chirality-piping/core/serialization/canonical_json
-   Compiling open_pipe_stress_canonical_json v0.1.0 (<WT>/scratch/i73_s_i1/base/projects/chirality-piping/core/serialization/canonical_json)
-    Finished `release` profile [optimized] target(s) in 4.70s
-== build_cj exit=0 2026-10-06T02:01:49Z

@@ -1,9 +1,0 @@
-# rustfmt --edition 2021 --check at f5665f8862 (Diff hunks listed; rc 0 = clean). RCR's two hunks are the pre-existing drift (same on main).
-== expression_evaluator/src/lib.rs
-rc=0
-== rule_check_runner/src/lib.rs
-Diff in WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs:2118:
-Diff in WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs:2125:
-rc=1
-== rule_check_runner/tests/point_path_non_finite_run.rs
-rc=0

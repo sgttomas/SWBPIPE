@@ -1,1 +1,0 @@
-RV4 T9: base_outputs.sha256 == candidate_outputs.sha256 (218 entries); both equal I5's manifests byte for byte after path normalization; 6 ERR outputs identical on both trees; 0 outputs contain 'S11-G'; 88 carry NUMERICAL_INTEGRITY_SENSITIVE on both trees.

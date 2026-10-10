@@ -1,5 +1,0 @@
-PASS13commands/6tests raw+artifact hashes,3actual binaries,raw fingerprint bytes,NONE environment,exact selections and exits {'baseline': 2, 'build': 3, 'list': 4, 'control': 2, 'mutant': 2}
-binary <wt>/a1-diagnostic-target/r09_r10_tail/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904 3ffde24a8803fafea6700d072ec141584b3e551a90a480aacef2225c04d5d714
-binary <wt>/a1-diagnostic-target/r09_r10_tail/K4-M2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904 50b513d305d6f8b0da2ef325a0494b8ccde1c37bfb5090add938c56fd5e17087
-binary <wt>/a1-diagnostic-target/r09_r10_tail/K4-M3/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904 a2674bf5dd770fa2d7333d519efc7322f6d527fc994373cb54e840c787173db4
-PASS348 source files: combined overlay+only assigned frozen faults, protected originals unchanged, distinct inodes/no symlinks.

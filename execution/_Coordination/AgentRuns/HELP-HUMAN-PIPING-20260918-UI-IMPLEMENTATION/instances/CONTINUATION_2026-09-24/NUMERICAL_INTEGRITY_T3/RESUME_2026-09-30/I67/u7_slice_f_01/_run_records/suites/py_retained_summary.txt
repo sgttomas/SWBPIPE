@@ -1,3 +1,0 @@
-PASSED tests/test_retained_precision_schema.py::test_rv78_n2_y0_every_successor_statement_has_a_valid_derivative_shape[two_case_shared_failed_cache_synthetic-]
-PASSED tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[two_case_shared_failed_cache_synthetic-]
-459 passed in 168.40s (0:02:48)

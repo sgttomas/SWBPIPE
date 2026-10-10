@@ -1,8 +1,0 @@
-{
-  "ports": {
-    "5174": "",
-    "5175": ""
-  },
-  "sharedLockAbsent": true,
-  "nativeUsed": false
-}

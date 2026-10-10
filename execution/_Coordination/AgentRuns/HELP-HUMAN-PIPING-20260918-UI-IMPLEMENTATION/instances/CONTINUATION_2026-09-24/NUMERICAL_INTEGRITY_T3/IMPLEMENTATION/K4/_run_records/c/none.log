@@ -1,2 +1,0 @@
-{"name": "NONE", "result": "PASS", "build_s": 7, "killed_by": []}
-python3 -B mut.py NONE  611.86s user 2.55s system 100% cpu 10:11.83 total

@@ -1,6 +1,0 @@
-CB3_ROWS v1 sparse_interactive rows=113 same_row_keys=False rows_differing=2 by_entity={'rigid:N2': 2} kinds_differing=['support_reaction_component_v2', 'support_reaction_force_magnitude_v2'] recovery_methods={'contribution_preserving_multiprecision_v1': 113}
-  ('support_reaction_component_v2', 'rigid:N2', 'node', 'Fy') A=0.0 A+B=-1.0
-  ('support_reaction_force_magnitude_v2', 'rigid:N2', 'node', 'force_magnitude') A=0.0 A+B=1.0
-CB3_ROWS v1 dense_scrutiny rows=114 same_row_keys=False rows_differing=2 by_entity={'rigid:N2': 2} kinds_differing=['support_reaction_component_v2', 'support_reaction_force_magnitude_v2'] recovery_methods={'contribution_preserving_multiprecision_v1': 114}
-  ('support_reaction_component_v2', 'rigid:N2', 'node', 'Fy') A=0.0 A+B=-1.0
-  ('support_reaction_force_magnitude_v2', 'rigid:N2', 'node', 'force_magnitude') A=0.0 A+B=1.0

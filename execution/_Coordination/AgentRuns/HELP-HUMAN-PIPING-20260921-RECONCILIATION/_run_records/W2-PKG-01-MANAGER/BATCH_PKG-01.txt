@@ -1,3 +1,0 @@
-# Manager batch — PKG-01 (W2)
-PASS batch of 4 ledgers: 0 consistency findings
-# exit: 0

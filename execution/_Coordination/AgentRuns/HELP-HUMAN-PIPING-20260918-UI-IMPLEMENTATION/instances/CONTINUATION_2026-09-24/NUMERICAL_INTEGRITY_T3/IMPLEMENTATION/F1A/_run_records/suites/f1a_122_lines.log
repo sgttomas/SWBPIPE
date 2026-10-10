@@ -1,5 +1,0 @@
-f1a 122 Captured SparseInteractive: formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378
-f1a 122 Captured DenseScrutiny: formation_check: reason=estimate; row=N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372
-f1a 122 Typed SparseInteractive: formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378
-f1a 122 Typed DenseScrutiny: formation_check: reason=estimate; row=N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.04s

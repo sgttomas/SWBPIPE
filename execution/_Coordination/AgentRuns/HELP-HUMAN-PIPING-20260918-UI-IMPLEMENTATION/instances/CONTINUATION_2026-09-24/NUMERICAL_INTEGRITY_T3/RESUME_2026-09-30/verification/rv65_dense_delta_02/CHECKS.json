@@ -1,9 +1,0 @@
-{
-  "utc": "2026-10-03T07:02:27.368397+00:00",
-  "actor": "ROOT",
-  "full_review_read": true,
-  "payloads_excluding_seal": 5,
-  "seal_sha256": "e4129d78536dfcb3f9cf852021a1cd6c80a4e968b5ac5e2196b5318b78d6daa4",
-  "review_sha256": "dc755a35a5e50520633c715bc8f45d339db32fb3bd59e5d8b67185de62244276",
-  "decision": "Select exact seven-file private dense observation delta; no numerical/implementation acceptance"
-}

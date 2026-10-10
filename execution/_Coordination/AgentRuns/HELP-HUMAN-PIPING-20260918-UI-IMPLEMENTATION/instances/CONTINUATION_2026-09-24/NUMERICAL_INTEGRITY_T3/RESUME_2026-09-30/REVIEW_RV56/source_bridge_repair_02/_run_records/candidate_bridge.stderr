@@ -1,3 +1,0 @@
-   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.84s
-     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_repair_02/target/candidate/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)

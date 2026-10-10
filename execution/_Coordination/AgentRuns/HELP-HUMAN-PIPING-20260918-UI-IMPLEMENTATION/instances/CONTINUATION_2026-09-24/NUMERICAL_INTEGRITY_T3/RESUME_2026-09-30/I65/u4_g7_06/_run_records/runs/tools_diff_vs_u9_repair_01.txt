@@ -1,7 +1,0 @@
-# u4_g7_06's tools against u9_repair_01's prepared pass_b (excluding runs/, SHA256SUMS): only REC differs; delta_reviewed.json (11 entries) is identical.
-diff -r -x runs -x SHA256SUMS -x __pycache__ R/I65/u9_repair_01/_run_records/pass_b/g7_pass.sh R/I65/u4_g7_06/_run_records/g7_pass.sh
-20c20
-< REC=$R0/I65/u9_repair_01/_run_records/pass_b; REC_A=$R0/I65/u4_g7_01/_run_records
----
-> REC=$R0/I65/u4_g7_06/_run_records; REC_A=$R0/I65/u4_g7_01/_run_records
-

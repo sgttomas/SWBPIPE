@@ -1,1 +1,0 @@
-{"id": "S8a2_domain_c_plus_1_truncated", "compiled": true, "killed": true, "failed_tests": ["retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases", "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes", "s11g_tests::t13_committed_fallback_uz_is_byte_identical"], "seconds": 109.3}

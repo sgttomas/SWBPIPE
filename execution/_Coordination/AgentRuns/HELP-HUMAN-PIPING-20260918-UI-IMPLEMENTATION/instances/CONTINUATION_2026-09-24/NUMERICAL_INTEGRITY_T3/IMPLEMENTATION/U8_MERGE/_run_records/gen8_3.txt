@@ -1,3 +1,0 @@
-head: f7a7572e3541202dc25a563b43816b678381b481
-command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: U8-PR checkout root)
-1 passed, 10 deselected in 28.31s

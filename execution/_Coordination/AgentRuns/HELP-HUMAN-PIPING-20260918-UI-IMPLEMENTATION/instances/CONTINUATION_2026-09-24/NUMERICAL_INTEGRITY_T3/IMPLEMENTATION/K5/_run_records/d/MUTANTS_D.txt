@@ -1,5 +1,0 @@
-Checkpoint D (base f89662e1f, no overlay): the NONE control, then K5-PREFILTER (declared equivalent; RETURN §2.8 derives it). Survival is expected and is not the proof.
-| Mutant | Site | Result | Killing tests (assertion site) |
-|---|---|---|---|
-| D-NONE | no patch (control, checkpoint D base f89662e1f) | control passes | — |
-| K5-PREFILTER | FK `try_candidate`: the prefilter's row loop removed (declared equivalent) | SURVIVED | — |

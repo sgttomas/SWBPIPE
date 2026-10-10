@@ -1,3 +1,0 @@
-1199726f695f92ddeccc36f7b47079dedf5b9854	refs/heads/codex/piping-t3-b6-pr-20261007
-025c1cf326f1b9ef827626f27d0e2b9cf5b415fe	refs/heads/main
-1199726f695f92ddeccc36f7b47079dedf5b9854	refs/pull/1107/head

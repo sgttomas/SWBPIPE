@@ -1,9 +1,0 @@
-#!/bin/bash
-WT=<wt>
-cd $WT/rv22/head/projects/chirality-piping/core/solver/performance_harness || exit 1
-export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$WT/rv22-target RUST_TEST_THREADS=2
-start=$(date +%s)
-cargo test --offline --locked -j 4 --all-targets > $WT/rv22/logs/h_suite.log 2>&1
-rc=$?
-end=$(date +%s)
-echo "rc=$rc wall=$((end-start))s" >> $WT/rv22/logs/h_suite.log

@@ -1,4 +1,0 @@
-Harness Pre-merge Validation 3f8a405c33 success: Select App coverage=success; Harness pre-merge=success; App instruction bundle=skipped; App Runtime integration=skipped
-Piping Desktop E2E 3f8a405c33 success: Select source coverage=success; Desktop E2E (source mode)=success; Numerical cargo suite=skipped; Accessibility barrier and selected coverage=skipped; Source remainder (${{ matrix.shard }}/4)=skipped
-pec-tests 3f8a405c33 success: Select PEC coverage=success; pec=success; PEC workspace tests=skipped
-governance-harness 3f8a405c33 success: harness=success

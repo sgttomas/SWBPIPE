@@ -1,9 +1,0 @@
-
- RUN  v4.1.10 WT/scratch/i75_t6s/probe/projects/chirality-piping/apps/desktop
-
-
- Test Files  2 passed (2)
-      Tests  16 passed (16)
-   Start at  10:46:10
-   Duration  4.12s (transform 383ms, setup 154ms, import 499ms, tests 3.46s, environment 520ms)
-

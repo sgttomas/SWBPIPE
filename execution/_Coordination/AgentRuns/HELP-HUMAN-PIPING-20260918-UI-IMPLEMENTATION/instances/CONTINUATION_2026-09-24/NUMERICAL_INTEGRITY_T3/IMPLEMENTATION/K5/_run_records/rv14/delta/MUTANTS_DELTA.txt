@@ -1,5 +1,0 @@
-RV14 delta, stage 2: git archive 28517eaaa plus the RV14-D1 test file (overlay_d3.txt), NONE first; RV14-M5 from mutate_k5.py (RV14's delta text; RV14-M5.patch.txt).
-| Mutant | Site | Result | Killing tests (assertion site) |
-|---|---|---|---|
-| D3-NONE | no patch (control, RV14 delta: 28517eaaa plus the RV14-D1 test file) | control passes | — |
-| RV14-M5 | FK `WitnessContext::publish`: exactness clause dropped, finiteness only (RV14 delta) | KILLED | fk `k5_b5_parameters_are_exact_or_refused` (k5_constrained_bodies.rs:269) |

@@ -1,7 +1,0 @@
-{
-  "inventory_sha256": "925760c1fdcee0fc66ee4c1ee87476ea3c5d6d05236b14ee663140e9d75cb067",
-  "payloads": 12,
-  "stage0_sha256": "e431fc0bb02e724aa1315b366f80fe8df260b6579869d245c500fe69a21ca4b5",
-  "author_revision": "4c2c1e9857ecb1b98e88c986327b1f1a95017278",
-  "sealed_UTC": "2026-10-02T20:50:24.564969+00:00"
-}

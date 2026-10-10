@@ -1,7 +1,0 @@
-override: CONDITIONAL_TIERS emptied for W1-T4 (ROOT approval)
-baseline (no-op) peak RSS 1835008 bytes, footprint 1163576 bytes
-247_RF-LARGE-CHAIN-n10000-AX_w1a RF-LARGE-CHAIN-n10000-AX w1a: refused_by_binary 0.0s rss=6619136
-STOP: the binary refused a run the runner admitted
-{"stop": ["the binary refused a run the runner admitted"], "stop_after_tier": []}
-STOPPED: ['the binary refused a run the runner admitted']
-exit=1

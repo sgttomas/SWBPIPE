@@ -1,2 +1,0 @@
-RV17: every 7th candidate run of gate 2 part 1: sha256 of the raw full envelope (<wt>/scratch/i13/gate2/part1/full/) against the committed envelope_sha256.tsv
-sampled 116 match 116 missing 10 bad []

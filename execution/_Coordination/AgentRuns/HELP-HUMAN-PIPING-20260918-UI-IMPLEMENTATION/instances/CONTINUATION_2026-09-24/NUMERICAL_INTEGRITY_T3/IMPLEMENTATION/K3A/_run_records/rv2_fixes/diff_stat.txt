@@ -1,6 +1,0 @@
- .../frame_kernel/src/structural/retained/wide.rs   | 36 ++++++++++++++--------
- .../frame_kernel/tests/retained_wide/SHA256SUMS    |  2 +-
- .../frame_kernel/tests/retained_wide/atan.txt      | 14 +++++++++
- .../tests/retained_wide/gen_wide_vectors.py        | 34 ++++++++++++++++++++
- .../frame_kernel/tests/retained_wide/wide_tests.rs |  8 +++--
- 5 files changed, 78 insertions(+), 16 deletions(-)

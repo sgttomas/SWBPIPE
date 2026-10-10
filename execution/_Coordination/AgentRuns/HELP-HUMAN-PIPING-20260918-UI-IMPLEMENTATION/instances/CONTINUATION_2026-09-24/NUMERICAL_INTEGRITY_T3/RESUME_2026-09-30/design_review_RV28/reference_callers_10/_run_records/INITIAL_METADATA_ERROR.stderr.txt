@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/reference_callers_10/_run_records/check.py", line 83, in <module>
-    stripped=copy.deepcopy(new[metric]);stripped.pop('result5_components');ck(new['id']+metric+' CLI values unchanged',stripped,prior[metric])
-             ^^^^^^^^^^^^^
-AttributeError: 'function' object has no attribute 'deepcopy'

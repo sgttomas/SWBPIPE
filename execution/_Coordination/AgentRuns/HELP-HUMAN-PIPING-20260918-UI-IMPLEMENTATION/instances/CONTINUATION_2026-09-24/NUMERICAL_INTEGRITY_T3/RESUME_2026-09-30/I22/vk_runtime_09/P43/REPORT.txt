@@ -1,6 +1,0 @@
-RF-RANGE: rows 2720: passes 2640, absolute-range passes 0, not covered 0 | structural zeros 80, expected unresolved 0, failures 0
-RF-RANGE: outcomes {"selected Some(128)": 30, "selected Some(512)": 2}
-RF-RANGE: controls discriminated 80, non-discriminating 12, undiscriminated [], unexpectedly failing []
-RF-RANGE: FAILURE RF-RANGE-THIN-A: on the expected-unresolved list, but Selected at 512
-RF-RANGE: FAILURE RF-RANGE-THIN-B: on the expected-unresolved list, but Selected at 512
-RF-RANGE: 0.2s

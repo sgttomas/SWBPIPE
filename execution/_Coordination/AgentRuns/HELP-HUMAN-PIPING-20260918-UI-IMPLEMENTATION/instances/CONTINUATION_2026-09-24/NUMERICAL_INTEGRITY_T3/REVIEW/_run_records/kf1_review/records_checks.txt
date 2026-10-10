@@ -1,7 +1,0 @@
-RV20 record checks at 1854911d16d73a4c66b3e158e26de60febe71dc6
-1. KF1 SHA256SUMS: 35 lines, 35 match the committed bytes, 0 mismatch; listed == committed files (less SHA256SUMS): True (35 files)
-2. GEN-8's MACHINE_ABS_PATH_RE (tools/practitioner_harness/surface_roles.py) and a user-name scan over the 40 files the PR adds or changes: 0 hits
-3. ReferenceTracker (kf1_tracker_tests.rs) equals K4's ExtremeTracker at 8cca91701d (adaptive.rs), after renaming and dropping pub(crate): impl True, struct True
-   K4's ExtremeTracker at base: adaptive.rs lines 547 to 596
-4. 'ExtremeTracker' tokens left in adaptive.rs (other than BoundedExtremeTracker): 0
-   BoundedExtremeTracker::new sites: [802, 1243, 1482, 1620] TrackerSet::new sites: [1983]

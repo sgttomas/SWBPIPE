@@ -1,8 +1,0 @@
-python {'passed': 1937, 'skipped': 30} -> {'passed': 1944, 'skipped': 30} added 7 {'passed': 7} removed 0 changed 0
-  + tests.test_retained_precision_carriers::test_repair02_transport_reports_the_header_at_g2_and_the_metadata_at_g7[dense_scrutiny]
-  + tests.test_retained_precision_carriers::test_repair02_transport_reports_the_header_at_g2_and_the_metadata_at_g7[sparse_interactive]
-  + tests.test_retained_precision_contract::test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere
-  + tests.test_retained_precision_contract::test_b1_repair02_c2_cause_table_in_the_reader
-  + tests.test_retained_precision_contract::test_b1_repair02_c2_cause_table_reader_logic
-  + tests.test_retained_precision_contract::test_b1_repair02_model_scope_at_g8_invocation
-  + tests.test_retained_precision_contract::test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5

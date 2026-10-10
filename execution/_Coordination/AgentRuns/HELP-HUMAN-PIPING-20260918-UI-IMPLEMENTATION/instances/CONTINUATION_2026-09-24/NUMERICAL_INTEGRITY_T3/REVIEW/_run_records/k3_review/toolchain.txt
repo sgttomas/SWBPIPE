@@ -1,9 +1,0 @@
-Platform: aarch64-apple-darwin (macOS 26.6.2, arm64), the owner's Mac.
-rustc 1.97.1 (8bab26f4f 2026-07-14), cargo 1.97.1 (c980f4866 2026-06-30)
-Environment for every cargo run: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0,
-  --offline --locked, RUST_TEST_THREADS=4, -j 8 (single jobs) or -j 4 (mutants, at most three at once).
-Default profiles only: FK tests at opt-level 0 ([unoptimized + debuginfo]); the T9 harness --release.
-Targets: <wt>/rv12-target/** (deleted after use). Sources: git archive copies under <wt>/scratch/rv12.
-rustfmt 1.9.0-stable (check only).
-Python 3.13.14 from <VENV>, standard library only.
-Memory guard log (<wt>/guard/memguard.log): no kills during this review.

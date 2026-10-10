@@ -1,3 +1,0 @@
-gh pr ready 1107 --repo sgttomas/chirality
-gh pr merge 1107 --repo sgttomas/chirality --merge --match-head-commit 1199726f695f92ddeccc36f7b47079dedf5b9854
-# result: MERGED 2007709549e9701b302e0eb62a1474d82acc1c40 2026-10-07T13:15:15Z

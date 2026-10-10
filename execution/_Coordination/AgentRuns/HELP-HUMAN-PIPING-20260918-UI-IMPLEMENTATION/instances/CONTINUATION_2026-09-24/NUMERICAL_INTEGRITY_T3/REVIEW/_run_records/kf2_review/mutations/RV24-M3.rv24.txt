@@ -1,3 +1,0 @@
-RV24 adversarial: -0 below, +0 above, hidden source coupling, negative diagonal: SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[bff0000000000000,3ff0000000000000]}
-RV24 adversarial: +0 below, -0 above, negative diagonal: SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[bff0000000000000,3ff0000000000000]}
-RV24 adversarial: -0 both sides, source -0: SOME:NegativeEnergy{e=bfe0000000000000,a=3d44000000000005,d=[bff0000000000000,3ff0000000000000]}

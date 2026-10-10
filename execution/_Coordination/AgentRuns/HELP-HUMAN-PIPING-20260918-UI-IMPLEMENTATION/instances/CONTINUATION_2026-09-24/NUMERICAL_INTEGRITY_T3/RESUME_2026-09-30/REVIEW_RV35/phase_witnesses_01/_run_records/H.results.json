@@ -1,9 +1,0 @@
-{
-  "independent_normal": "compiled, 10 passed",
-  "independent_original_M05": "compiled, 9 passed, only intended new numeric assertion failed",
-  "mutant_normal_binary_hashes_differ": true,
-  "earlier_I21_packet_changed_paths": [],
-  "candidate_scope": "2ae028eb275684ac0aa8082e034128ff251027a4 versus 40179f1da5961cfef7edeaf7be4eb675379f79b5",
-  "blocking_findings": [],
-  "nonblocking_findings": []
-}

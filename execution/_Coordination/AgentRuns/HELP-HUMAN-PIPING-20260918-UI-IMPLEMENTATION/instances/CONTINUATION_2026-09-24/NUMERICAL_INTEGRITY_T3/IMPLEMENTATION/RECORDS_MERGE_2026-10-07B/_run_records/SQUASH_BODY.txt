@@ -1,9 +1,0 @@
-NUM's projects/chirality-piping/execution/ at 6f983f12f3: the records after #1105 (47a3bdfcf5), through the merges of #1106 (SI1b) and #1107 (B6) and the start of B1's phase 2. 869 added, 2 modified, 0 deleted.
-
-It adds: RV106's review of #1105 and RECORDS_MERGE_2026-10-07; SESSION_2026-10-07; I79's REPAIR_01; SI1B_MERGE and B6_MERGE (with its GEN-8 addendum); B1's phase-1 records (I81, I82, I84, I85 with its repair round and the four build/ files of erratum E-7, I86) and I83's B6 return; I87's SI1c plan with the owner's decision, and I88's SI1c return; the reviews RV104, RV107, RV108 and RV109 (each with its addenda) and RV110's review; the briefs; errata E-7 to E-9; the T3 rulings and the work graph.
-
-B6's package and the RV103 and RV105 reviews were already on main. Nothing outside execution/.
-
-Reviewed by RV110 (PASS; delta confirmed by its ADDENDUM_01). Agent reviews, not personal owner review.
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

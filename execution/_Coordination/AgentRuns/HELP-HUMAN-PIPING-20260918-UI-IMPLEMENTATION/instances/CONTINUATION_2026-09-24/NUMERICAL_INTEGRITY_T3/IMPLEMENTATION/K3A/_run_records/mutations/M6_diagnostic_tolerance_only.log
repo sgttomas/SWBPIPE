@@ -1,3 +1,0 @@
-thread 'structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation' (22492) panicked at src/structural/retained/../../../tests/retained_wide/wide_tests.rs:1045:9:
-angle v1:0.1 128 +cc75765c5e5960000000000000000000p-4 +feb897cd40be08000000000000000000p-1 +cccccccccccccca325dc954e03ecccebp-4 +cccccccccccccca325dc954e03ecccecp-4 -c05176a60e849eb0cf11808d40563728p-133: 209203865.37562153 ulp beyond the proved bound
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.14s

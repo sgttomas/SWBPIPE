@@ -1,9 +1,0 @@
-projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt
-projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt
-projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs
-projects/chirality-piping/core/product_physics/tests/k5_curved_mechanism_runtime.rs

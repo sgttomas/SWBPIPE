@@ -1,9 +1,0 @@
-== tauri_base start 2026-10-06T02:08:33Z dir=<WT>/scratch/i73_s_i1/base/projects/chirality-piping/apps/desktop/src-tauri
-   Compiling open_pipe_stress_canonical_json v0.1.0 (<WT>/scratch/i73_s_i1/base/projects/chirality-piping/core/serialization/canonical_json)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 00s
-     Running unittests src/lib.rs (<WT>/targets/i73-s-i1-base/debug/deps/openpipestress_desktop_lib)
-test result: ok. 116 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.79s
-     Running unittests src/main.rs (<WT>/targets/i73-s-i1-base/debug/deps/openpipestress_desktop)
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-== tauri_base exit=0 2026-10-06T02:09:36Z

@@ -1,3 +1,0 @@
-structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p: test
-
-1 test, 0 benchmarks

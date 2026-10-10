@@ -1,4 +1,0 @@
-     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_nonlinear_supports-3ae334c1328e409f)
-test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-   Doc-tests open_pipe_stress_nonlinear_supports
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

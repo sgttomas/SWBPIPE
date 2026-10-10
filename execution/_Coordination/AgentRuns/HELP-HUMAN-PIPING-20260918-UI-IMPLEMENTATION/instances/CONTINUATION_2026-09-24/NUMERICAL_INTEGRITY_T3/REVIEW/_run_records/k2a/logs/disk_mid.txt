@@ -1,2 +1,0 @@
-/dev/vda        252G   26G   12G  70% /
-204M	<wt>/rv7-target

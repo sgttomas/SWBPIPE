@@ -1,4 +1,0 @@
-== build_units start 2026-10-06T02:01:49Z dir=<WT>/scratch/i73_s_i1/base/projects/chirality-piping/core/units
-   Compiling open_pipe_stress_units v0.1.0 (<WT>/scratch/i73_s_i1/base/projects/chirality-piping/core/units)
-    Finished `release` profile [optimized] target(s) in 3.29s
-== build_units exit=0 2026-10-06T02:01:53Z

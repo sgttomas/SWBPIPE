@@ -1,3 +1,0 @@
-structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification: test
-
-1 test, 0 benchmarks

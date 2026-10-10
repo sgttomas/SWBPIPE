@@ -1,9 +1,0 @@
-{
-  "utc": "2026-10-03T06:08:34.205501+00:00",
-  "payloads": 24,
-  "inventory_sha256": "c09eacd62767d5dc27643ac4a7279f030a7e28ed8f2b41f0b054a5ce805088f3",
-  "return_sha256": "9cd02aa6cb7aebf5173c637db4c27751e50c175c3170922ec1057a4a061bb83b",
-  "results_sha256": "529003c849fb394b5bc88d2972d9e2aff35828a9d024b15b92004052314797a1",
-  "comparison_sha256": "26197744e52e15d4639996abafbf3508a1c5629393c5c3a892cca9ec4917d6cf",
-  "status": "corrected truth coverage sealed; same RV62 backcheck pending; runtime unused"
-}

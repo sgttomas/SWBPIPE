@@ -1,8 +1,0 @@
-gen8_whole	broad_whole	gen8_added	broad_added	status	path	broad_samples(added)	(samples: a tmp root is written t-mp)
-2	2	2	2	A	T3/RESUME_2026-09-30/I83/b6_01/_run_records/scripts/mutants.py	73:/t-mp/mut/{mid};85:/t-mp/mut
-0	1	0	1	A	T3/RESUME_2026-09-30/REVIEW_RV106/records_01/REVIEW.md	147:/U-sers/<user>
-0	1	0	1	A	T3/RESUME_2026-09-30/REVIEW_RV106/records_01/_run_records/abs_paths_by_file.tsv	3:~/dev;128:/U-sers/<user>;129:/U-sers/<user>
-0	1	0	1	A	T3/RESUME_2026-09-30/REVIEW_RV106/records_01/_run_records/publication_hits.tsv	111:~/dev;128:/U-sers/<user>;129:/U-sers/<user>
-1	1	1	1	A	T3/RESUME_2026-09-30/REVIEW_RV108/b6_01/evidence/scripts/mutants.py	46:/t-mp/mut/bt
-0	2	0	0	M	T3/ROOT_RULINGS_V1.md	
-TOTAL	3	8	3	6

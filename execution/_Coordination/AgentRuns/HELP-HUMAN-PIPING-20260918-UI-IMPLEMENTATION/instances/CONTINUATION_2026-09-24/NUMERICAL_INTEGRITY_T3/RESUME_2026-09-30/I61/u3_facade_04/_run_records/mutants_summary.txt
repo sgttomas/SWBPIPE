@@ -1,6 +1,0 @@
-W01_message_reservation_short [mut] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes', 'retained_facade_tests::u3_r2_notice_bytes_are_pinned']
-W02_message_not_reserved [mut] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes', 'retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor', 'retained_facade_tests::u3_r1_carrier_names_exactly_one_publication', 'retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread', 'retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop']
-U2a_worker_does_not_hand_back [mut] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop']
-U2b_unrun_work_drops_faults [mut] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop']
-U2c_reclaim_drops_handed_back [mut] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop']
-U2d_dispatch_does_not_reclaim [mutstub] KILLED rc=101 compile_error=False crashed=False failed=['retained_facade_tests::u3_archive_stub_permitted_dispatch_end_to_end']

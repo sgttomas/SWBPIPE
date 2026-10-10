@@ -1,3 +1,0 @@
-structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit: test
-
-1 test, 0 benchmarks

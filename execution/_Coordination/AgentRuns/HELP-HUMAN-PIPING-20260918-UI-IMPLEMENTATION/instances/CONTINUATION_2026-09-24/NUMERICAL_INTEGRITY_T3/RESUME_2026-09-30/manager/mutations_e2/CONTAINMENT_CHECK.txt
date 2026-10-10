@@ -1,5 +1,0 @@
-PASS: freshPM03+32 untouched later copies (3828 files) and baseline (116 files) match complete40129 archive;3944 unique nlink1 file inodes, no symlink/hardlink/maintained alias.
-PASS: exact resolved roots/33 empty targets within grant, baseline readonly and binary2c9ff111... unchanged; original failedPM03 retained unchanged.
-child_containment_sha256 7c0cb8501997da85c25c235f3b6091a8457f02469a00bab25b0cb29db4676c2d
-scratch_bindings_sha256 74595f0cbf455960050234020b32777ba600a35183211419d0aef2e7cfeccc46
-No Rust or source mutation by manager.

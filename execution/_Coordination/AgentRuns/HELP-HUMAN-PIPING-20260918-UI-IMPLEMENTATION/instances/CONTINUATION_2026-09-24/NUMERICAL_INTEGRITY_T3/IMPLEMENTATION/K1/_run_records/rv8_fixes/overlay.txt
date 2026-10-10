@@ -1,1 +1,0 @@
-projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs

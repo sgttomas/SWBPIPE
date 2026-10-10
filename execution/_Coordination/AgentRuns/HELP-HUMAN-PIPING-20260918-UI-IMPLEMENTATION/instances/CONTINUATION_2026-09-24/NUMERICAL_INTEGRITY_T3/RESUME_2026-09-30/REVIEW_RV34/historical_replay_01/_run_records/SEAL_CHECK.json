@@ -1,6 +1,0 @@
-{
-  "seal_sha256": "8a1b2e9b1921773bc25a4e15dfc5e208728f00aa1492013692b0c1c04100436b",
-  "expected_seal": "8a1b2e9b1921773bc25a4e15dfc5e208728f00aa1492013692b0c1c04100436b",
-  "payloads": 65,
-  "failures": []
-}

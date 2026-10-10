@@ -1,4 +1,0 @@
-thread 's11g_tests::exact_pressure_operand_bound_is_gamma_20' (3639) panicked at src/s11g_tests.rs:716:9:
-assertion `left == right` failed: 370000
-thread 's11g_tests::exact_pressure_operand_rows_carry_their_bound' (3640) panicked at src/s11g_tests.rs:2372:13:
-case:cold-pressure: dof 0 bound 0

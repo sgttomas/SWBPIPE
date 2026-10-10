@@ -1,6 +1,0 @@
-07l corpus sha256 5ac13296…; counts (17, 286, 28)
-case tests (3 per base): 51 of 51 passed
-mutation tests: 286 of 286 passed (each refused with its TypeScript expectation)
-must-pass tests: 28 of 28 passed (each admitted with its eligibility and the base classifications)
-other tests in the file: 109 of 109 passed
-total 474 passed 474

@@ -1,6 +1,0 @@
-harness rc=0
-suite ee rc=0
-suite rcr rc=0
-suite rpd rc=0
-pytest rc=0
-mutants rc=0

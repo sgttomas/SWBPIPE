@@ -1,6 +1,0 @@
-.............................................
-----------------------------------------------------------------------
-Ran 45 tests in 7.849s
-
-OK
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest test_k6_runner  2.37s user 0.24s system 32% cpu 7.936 total

@@ -1,1 +1,0 @@
-{"source_rows": 104, "full_native_predicates": {"zero": 52, "loaded": 52}, "relative_gates": "H<=A_exact, H<=A_f64, 10^9 H<=abs(x) in SI and raw=SI", "initial_and_recomputed_source_residual_components": 24, "actual_cast_checks": 6, "actual_center_checks": 6, "wrong_K_only_residual": "1/64", "note": "actual factor output observed, never used as an expected source solution"}

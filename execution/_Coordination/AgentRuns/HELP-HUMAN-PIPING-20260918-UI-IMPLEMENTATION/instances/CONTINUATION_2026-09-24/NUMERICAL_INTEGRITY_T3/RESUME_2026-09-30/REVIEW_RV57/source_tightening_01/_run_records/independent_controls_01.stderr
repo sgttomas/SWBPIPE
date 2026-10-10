@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV57/source_tightening_01/_run_records/independent_controls.py", line 104, in <module>
-    for i,p in q.items():assert encloses(proof_intervals[i],p),('proof interval fails dense interval control',i)
-AssertionError: ('proof interval fails dense interval control', 15)

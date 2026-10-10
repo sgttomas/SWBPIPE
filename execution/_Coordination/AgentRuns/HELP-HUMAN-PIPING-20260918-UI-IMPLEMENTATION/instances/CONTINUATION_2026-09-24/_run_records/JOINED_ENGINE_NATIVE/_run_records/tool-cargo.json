@@ -1,7 +1,0 @@
-{
-  "argv": [
-    "cargo",
-    "--version"
-  ],
-  "output": "cargo 1.97.1 (c980f4866 2026-06-30)"
-}

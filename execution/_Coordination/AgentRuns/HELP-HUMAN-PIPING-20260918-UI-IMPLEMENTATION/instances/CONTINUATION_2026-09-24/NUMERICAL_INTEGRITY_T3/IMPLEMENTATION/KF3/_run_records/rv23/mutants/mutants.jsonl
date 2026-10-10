@@ -1,7 +1,0 @@
-{"mutant": "NONE", "passed": 14, "failed": 0, "killed_by": [], "compile_error": false, "seconds": 81.3}
-{"mutant": "RV23-1-M1-uc-refusals-dropped-in-verify-precision", "passed": 13, "failed": 1, "killed_by": ["kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence"], "compile_error": false, "seconds": 76.0}
-{"mutant": "RV23-1-M2-uc-refusals-dropped-in-build-verify-shared", "passed": 13, "failed": 1, "killed_by": ["kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence"], "compile_error": false, "seconds": 76.8}
-{"mutant": "RV23-1-M3-s-refusals-dropped-in-shift-schedule", "passed": 13, "failed": 1, "killed_by": ["kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence"], "compile_error": false, "seconds": 80.6}
-{"mutant": "RV23-1-M3a-kept-results-refusals-dropped", "passed": 13, "failed": 1, "killed_by": ["kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence"], "compile_error": false, "seconds": 81.2}
-{"mutant": "RV23-1-M3b-in-flight-refusals-dropped", "passed": 13, "failed": 1, "killed_by": ["kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence"], "compile_error": false, "seconds": 80.5}
-{"mutant": "RV23-M4b-precedence-swapped-in-verify-state", "passed": 13, "failed": 1, "killed_by": ["kf3_in_verify_state_a_refusal_stop_outranks_uc"], "compile_error": false, "seconds": 84.3}

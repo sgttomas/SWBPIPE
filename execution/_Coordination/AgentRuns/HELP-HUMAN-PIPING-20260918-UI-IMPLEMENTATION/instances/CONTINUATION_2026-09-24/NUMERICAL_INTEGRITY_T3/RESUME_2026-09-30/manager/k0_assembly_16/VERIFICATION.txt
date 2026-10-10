@@ -1,6 +1,0 @@
-PASS13payloads; full six-part prose package read. OWNER_LEDGER 0b5ccb990e89e35d0fa0f2904cbd639cd914c0277a00f14f1e0a0bfd5950d22e
-PASS34 prior seals/365payloads unchanged.
-PASS33rows/99width substitutions: exact shift old/new/delta, capacities, factor helper/Uc and coarse sparse values. TREE10000 delta10799688B is a subtotal only.
-PASS66H/18VK/18KF3 historical identities and hashes;66planned W1 rows/33models/path byte counts/original12+12 W1-T4 schedule. No admission replay executed.
-PASS10 actual immutable manifests/proposed VR->H local-dependency DAG,2 lock inventories,7 existing-local package additions; no Cargo/lock generation. All Git reads explicitly GIT_OPTIONAL_LOCKS=0.
-Limits: manager binding/cardinality/arithmetic consistency, not full independent owner-proof/implementation/admission acceptance. All residuals stay explicit. RETURN a64acab9bcaec6c8c5c8c941548bf4c032207ad1be80751ad865e5efdab8ae6b

@@ -1,6 +1,0 @@
-id	site	compiled	passed	failed	killed	wall_s	behavioural kills (test @ assertion)
-NONE	-:-	True	229	0	False	236.9	-
-RV1	multi.rs:929	True	228	1	True	258.2	cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width @ k3_tests.rs:1149
-RV4	multi.rs:606	True	228	1	True	258.7	two_sum_and_two_product_refuse_a_wide_operand_in_either_position @ k3_tests.rs:1214
-RV2	multi.rs:902	True	228	1	True	259.7	cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width @ k3_tests.rs:1172
-RV5	multi.rs:504	True	225	4	True	232.2	l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests @ k3_tests.rs:711; targeted_hard_classes_match_the_fraction_oracle_at_l16 @ k3_tests.rs:856; targeted_hard_classes_match_the_fraction_oracle_at_l4 @ k3_tests.rs:856; targeted_hard_classes_match_the_fraction_oracle_at_l8 @ k3_tests.rs:856

@@ -1,7 +1,0 @@
-{
-  "artifact": "historical-evidence-manifest-location/v1",
-  "exact_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX/_run_records/manifest-custody/original.json",
-  "sha256": "a579a68a042b6103866dc40ee7e63f90352325604e7186c6bb356358c0b8fe7a",
-  "original_relative_evidence_base": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CI-ECONOMY-CODEX",
-  "note": "Original absolute input origins and all hash bindings are preserved byte-for-byte in structural run evidence; relative evidence members resolve against the recorded original base."
-}

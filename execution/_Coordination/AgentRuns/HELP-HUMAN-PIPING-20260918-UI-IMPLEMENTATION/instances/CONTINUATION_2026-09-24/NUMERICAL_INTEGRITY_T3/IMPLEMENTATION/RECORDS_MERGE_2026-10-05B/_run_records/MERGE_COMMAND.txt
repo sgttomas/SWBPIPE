@@ -1,3 +1,0 @@
-Preconditions: origin/main = a5ecca3b598ecd145a6b08d828c792fa8ae0c81e (moved from the PR base f506f3e2de by #1089, projects/chirality-app-v4 only); PR head = 020d25a3d61c0a8f63ad92b5e0c602328b1a3ddb; CLEAN.
-gh pr ready 1088 --repo sgttomas/chirality
-gh pr merge 1088 --repo sgttomas/chirality --squash --match-head-commit 020d25a3d61c0a8f63ad92b5e0c602328b1a3ddb --subject "piping(T3): records since #1084 and the handoff's final form (records only) (#1088)" --body-file SQUASH_MESSAGE.txt

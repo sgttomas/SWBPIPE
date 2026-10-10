@@ -1,4 +1,0 @@
-0 passed=179 failed=0 ignored=0 targets=5 frame_kernel
-0 passed=30 failed=0 ignored=0 targets=2 sparse_direct
-0 passed=101 failed=0 ignored=0 targets=2 nonlinear_integration
-SUITES-DONE

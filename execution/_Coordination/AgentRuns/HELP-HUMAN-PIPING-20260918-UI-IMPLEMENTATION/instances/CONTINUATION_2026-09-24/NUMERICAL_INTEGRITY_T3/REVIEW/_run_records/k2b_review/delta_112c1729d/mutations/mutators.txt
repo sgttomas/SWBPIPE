@@ -1,4 +1,0 @@
-RV11 second delta check: the mutant generators used (in <wt>/scratch/rv11/mutd2/):
-- mutate_rv11d.py: RV11's first-delta generator, unchanged (sha256 1f9aca9c82f13fbbb6ef97e56771448fd51aab98a792fd05bdac9a3a2f500a88); its three survivors re-run.
-- mutate_rv11d2.py: RV11's two new mutants (the file's docstring states each).
-Every patch was dry-run against 112c1729d first; each matched once.

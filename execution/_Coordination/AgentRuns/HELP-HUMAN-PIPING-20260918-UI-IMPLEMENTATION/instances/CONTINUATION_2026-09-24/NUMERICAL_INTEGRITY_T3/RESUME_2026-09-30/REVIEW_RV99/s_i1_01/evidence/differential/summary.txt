@@ -1,3 +1,0 @@
-packs 2888 runs 63086 statuses {'USER_RULE_CHECKED': 18128, 'RULE_INPUTS_INCOMPLETE': 32902, 'USER_RULE_FAILED': 12056}
-committed packs: ['examples/rule_packs/invented_demo.yaml', 'fixtures/product_preview/invented_demo_rule_pack.json']
-demo variants: ['demo_rel_less_than', 'demo_rel_less_than_or_equal', 'demo_rel_greater_than', 'demo_rel_greater_than_or_equal', 'demo_rel_equal', 'demo_rel_bogus', 'demo_rel_empty', 'demo_unit_MPa', 'demo_unit_Pa', 'demo_restricted_statuses']

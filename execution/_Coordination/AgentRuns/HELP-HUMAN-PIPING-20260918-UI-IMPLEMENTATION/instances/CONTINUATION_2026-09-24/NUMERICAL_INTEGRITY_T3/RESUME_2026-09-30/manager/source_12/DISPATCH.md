@@ -1,9 +1,0 @@
-# Source12 conditional grant activated
-
-Source11 returned/sealed andits8payloadsverified. ExistingI21 resumed viacollaboration.followup_task under ROOT NUM871f985e2b70fdb257e51cf84d1e0b20c7a52b56 R/BRIEFS/I21_SOURCE_12_H_LEAVES.md SHA4f128232aea8c05e95ecc25459cbe2e847426253325e5a1fafded0763164f0ac, fullbriefread. Manager read fullRV30h_caller_05 andverifiedits9payloads;N1geometry40/N2GlobalAllocThread/current_id limits supplied.25minactualstartpending,nochild/hostslot.
-
-Fourdirectinstalled1.97.1Macsourceleaves only:selectedstdoutmutex registeredchild;reachedbyteslicewrite/flush droppedResults; sixfinitef64defaultDebug;directsurvivingregisteredstartup/init mainthreadowners. Deadstartup/SystemOS-only/unrelatedentrypoints excluded. NoN1geometryrederivation/Threadlayout/newprobe/genericruntimeIOdependencyformat audit/tool/Rust/measurement/install/API/admission/source/Gitindex/delegation. Exactpaths/lines/hashes/requestidentityprooforprecisegap bydeadline; no612/allowance/safetyfactor/fullEmax.
-
-WritesK6C R/I21/source_12+ownedscratch;priorseals/source11externalgap remainunchanged. A1slotI22only; noautomaticextension.
-
-I21actualsource-onlystart15:02:46UTC; fixedend15:27:46UTC, fullgrantread. Source11I23notice arrivedafterseal andwasnotconsumed;ROOTmayreconcileexternalsealedpacket independently.

@@ -1,6 +1,0 @@
-Dense differential on the combined tree (RV8): the review's probe source (dense_diff.rs, unchanged) built against
-git archives of merged main f12e06876 and of the K1 head b6f1724b4, debug, --offline --locked.
-main  a96f5eae56ee15f15bcfec2a5c382e398d27c93694bafd96b4297573e09c33d9  58867961 bytes  2713 lines
-cand  a96f5eae56ee15f15bcfec2a5c382e398d27c93694bafd96b4297573e09c33d9  58867961 bytes  2713 lines
-The same sha256 as the review's base (134eefc24) and candidate (43f9e6a78) outputs: a96f5eae56ee15f15bcfec2a5c382e398d27c93694bafd96b4297573e09c33d9.
-So K2a changes no dense result on these inputs, and K1 changes none on the combined tree.

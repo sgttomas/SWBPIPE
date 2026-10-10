@@ -1,6 +1,0 @@
-{"case": "RF-LARGE-CHAIN-n01000-AX", "free": 6000, "lambda_est": 5.902881829472494e-13, "sigma": 2.951440914736247e-13, "shift_factor_positive": true, "log2_B": 47.89901916564471, "seconds": 3.3}
-{"case": "RF-LARGE-CHAIN-n01000-ROT", "free": 6000, "lambda_est": 9.235084474535854e-15, "sigma": 4.617542237267927e-15, "shift_factor_positive": true, "log2_B": 53.89716965821215, "seconds": 4.6}
-{"case": "RF-LARGE-TREE-n01000-AX", "free": 6000, "lambda_est": 1.4548362905931928e-13, "sigma": 7.274181452965964e-14, "shift_factor_positive": true, "log2_B": 49.9195818071401, "seconds": 3.3}
-{"case": "RF-LARGE-TREE-n01000-ROT", "free": 6000, "lambda_est": 1.234455162247873e-13, "sigma": 6.172275811239365e-14, "shift_factor_positive": true, "log2_B": 50.15656419021436, "seconds": 4.7}
-{"case": "RF-LARGE-CONT-n01000-AX", "free": 4500, "lambda_est": 3.3863071788847434e-06, "sigma": 1.6931535894423717e-06, "shift_factor_positive": true, "log2_B": 25.23971036337411, "seconds": 3.2}
-{"case": "RF-LARGE-CONT-n01000-ROT", "free": 4500, "lambda_est": 8.465767949821354e-07, "sigma": 4.232883974910677e-07, "shift_factor_positive": true, "log2_B": 27.23971036292941, "seconds": 4.5}
