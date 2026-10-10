@@ -20,6 +20,9 @@ const SAMPLE: &str = include_str!("k5_constrained/b1_sample.txt");
 const CASES: &str = include_str!("k5_constrained/cases.txt");
 const SUBNORMAL: &str = include_str!("k5_constrained/subnormal.txt");
 const SOURCE: &str = include_str!("../src/rigid_body.rs");
+/// T4-U3 (slot table S-5(d)): W4's link rule reads the connector's exact
+/// definiteness decision, so its source is scanned too.
+const CONNECTOR_SOURCE: &str = include_str!("../src/connector.rs");
 
 // ------------------------------------------------------------------ records
 
@@ -913,6 +916,17 @@ fn k5_b10_libm_free_source_scan() {
         assert!(scanned.contains(&format!("fn {name}(")), "{name} scanned");
     }
     assert_eq!(forbidden_calls(&scanned), Vec::<String>::new());
+    // S-5(d): the connector module, its definiteness decision included.
+    let connector = without_test_modules(&lex(CONNECTOR_SOURCE));
+    for name in [
+        "exact_definiteness",
+        "definiteness",
+        "global_stiffness",
+        "b",
+    ] {
+        assert!(connector.contains(&format!("fn {name}(")), "{name} scanned");
+    }
+    assert_eq!(forbidden_calls(&connector), Vec::<String>::new());
 }
 
 // ------------------------------------------------------------------ C: user elements

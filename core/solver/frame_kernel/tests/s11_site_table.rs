@@ -62,6 +62,11 @@ const SOURCES: &[Source] = &[
         name: "FK/load_ledger.rs",
         text: include_str!("../src/load_ledger.rs"),
     },
+    // T4-U3 (slot table S15): the objective connector.
+    Source {
+        name: "FK/connector.rs",
+        text: include_str!("../src/connector.rs"),
+    },
     Source {
         name: "FK/exact_sum.rs",
         text: include_str!("../src/exact_sum.rs"),
@@ -334,6 +339,16 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/retained/verify.rs", "formation_scale", 0, "K4 (5a.3): E's stages, each one exact expansion rounded once (the ledger's net enters exactly)"),
     // ---- KF1 (declared, additive; no row above changes).
     ("FK/structural/retained/adaptive.rs", "offer", 0, "integer: tracker sequence and capacity use checked arithmetic"),
+    // ---- T4-U3 (slot table S13-S15, declared, additive; no row above
+    // changes): the objective connector sums through ExactAccumulator only.
+    ("FK/connector.rs", "b", 0, "T4-U3: each rotational entry of B one exact dot of Q with the once-rounded S(a) + S(r)/2, rounded once"),
+    ("FK/connector.rs", "global_stiffness", 0, "T4-U3 (S1): each Ke entry sum_kl B_ki K_kl B_lj one exact sum (error-free split of K*B) rounded once"),
+    ("FK/connector.rs", "formation_roundoff", 0, "T4-U3 (S4): the allowance, upward products in one exact sum rounded upward"),
+    ("FK/connector.rs", "stress_free", 0, "T4-U3 (N-7): K q_ref = 0 decided exactly"),
+    ("FK/connector.rs", "reference_load", 0, "T4-U3 (S13): each +B^T K q_ref entry one exact sum rounded once"),
+    ("FK/connector.rs", "connector_reference_load_bound", 0, "T4-U3 (S13): the bound, upward products in exact sums rounded upward"),
+    ("FK/connector.rs", "rotational_operand_bound", 0, "T4-U3 (S13): |B-hat - B| operand bound, upward products in exact sums rounded upward"),
+    ("FK/connector.rs", "recover", 0, "T4-U3 (S14): each q - q_ref one exact sum rounded once; g, B^T g, Q g and U exact sums rounded once"),
 ];
 
 // ------------------------------------------------------------- scanner

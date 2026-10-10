@@ -3,6 +3,7 @@
 //! This crate contains open mechanics routines only. It does not encode design
 //! code compliance checks, protected standards content, or private project data.
 
+pub mod connector;
 pub mod correct_norm;
 pub mod exact_sum;
 pub mod load_ledger;
@@ -1296,6 +1297,28 @@ pub fn assemble_global_stiffness_with_user_elements(
     elements: &[FrameElement],
     user_stiffness_elements: &[UserStiffnessElement],
 ) -> Result<DenseMatrix, FrameKernelError> {
+    assemble_dense(node_count, elements, user_stiffness_elements, &[])
+}
+
+/// T4-U3 (S1): the frames, then each objective connector's Ke = fl(BᵀKB)
+/// (`ObjectiveConnector::global_stiffness`), in the order given, then the
+/// finiteness check. With no connector it is `assemble_global_stiffness`,
+/// bit for bit.
+pub fn assemble_global_stiffness_with_connectors(
+    node_count: usize,
+    elements: &[FrameElement],
+    connectors: &[connector::ObjectiveConnector],
+) -> Result<DenseMatrix, FrameKernelError> {
+    assemble_dense(node_count, elements, &[], connectors)
+}
+
+/// The dense assembly in the slot order frames, user elements, connectors.
+fn assemble_dense(
+    node_count: usize,
+    elements: &[FrameElement],
+    user_stiffness_elements: &[UserStiffnessElement],
+    connectors: &[connector::ObjectiveConnector],
+) -> Result<DenseMatrix, FrameKernelError> {
     let total_dofs = node_count * DOF_PER_NODE;
     let mut global = vec![vec![0.0; total_dofs]; total_dofs];
 
@@ -1321,6 +1344,19 @@ pub fn assemble_global_stiffness_with_user_elements(
             &mut global,
             element.node_i.index,
             element.node_j.index,
+            &element_stiffness,
+        );
+    }
+
+    for element in connectors {
+        validate_node_index(element.node_i().index, node_count)?;
+        validate_node_index(element.node_j().index, node_count)?;
+
+        let element_stiffness = element.global_stiffness()?;
+        assemble_element_contribution(
+            &mut global,
+            element.node_i().index,
+            element.node_j().index,
             &element_stiffness,
         );
     }
