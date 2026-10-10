@@ -17,7 +17,7 @@ use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub(crate) use super::exact_admission::ExactContract;
-use super::exact_admission::{admission, component_family, support_family, Admission, ExactFamily};
+use super::exact_admission::{self, component_family, support_family, Admission, ExactFamily};
 /// The retired legacy contract: recognized only so that it is refused by name.
 const RETIRED_MODE: &str = "legacy_pressure_v1";
 const RETIRED_VERSION: &str = "1.0.0";
@@ -99,19 +99,6 @@ pub(crate) fn is_exact(model: &PreviewModel) -> bool {
 /// The exact contract a model declares, if it is on the exact route.
 pub(crate) fn exact_contract(model: &PreviewModel) -> Option<ExactContract> {
     ExactContract::of(model)
-}
-
-/// T4-U2a: one exact-route object through the admission seam. Under v2 the
-/// table returns v2's existing code and text; under v3 it names the family.
-fn admit(
-    diagnostics: &mut Vec<Diagnostic>,
-    contract: ExactContract,
-    family: ExactFamily,
-    refs: &[&str],
-) {
-    if let Admission::Refused { code, message } = admission(contract, family) {
-        problem(diagnostics, code, refs, message);
-    }
 }
 
 fn problem(
@@ -245,15 +232,25 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     let exact = contract.is_some();
     if let Some(contract) = contract {
         // T4-U2a: every non-base family goes through the admission seam, in
-        // v2's emission order. Metadata-only fitting records are also
+        // v2's emission order; under v2 the table returns v2's existing code
+        // and text, under v3 it names the family. Each refusal is pushed here
+        // through `problem`, as v2 did. Metadata-only fitting records are also
         // excluded: accepting one as a straight span would misrepresent the
         // explicit composition.
         for component in &model.components {
-            admit(diagnostics, contract, component_family(component), &[&component.id]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, component_family(component))
+            {
+                problem(diagnostics, code, &[&component.id], message);
+            }
         }
         for support in &model.supports {
             if let Some(family) = support_family(support) {
-                admit(diagnostics, contract, family, &[&support.id]);
+                if let Admission::Refused { code, message } =
+                    exact_admission::admission(contract, family)
+                {
+                    problem(diagnostics, code, &[&support.id], message);
+                }
             }
         }
         check_suffixes(
@@ -277,7 +274,11 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
         );
         for combination in &model.combinations {
-            admit(diagnostics, contract, ExactFamily::Combination, &[&combination.id]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, ExactFamily::Combination)
+            {
+                problem(diagnostics, code, &[&combination.id], message);
+            }
         }
     }
 
@@ -299,7 +300,11 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         }
         let contract = contract.expect("exact cases have a contract");
         if case.equivalent_static.is_some() {
-            admit(diagnostics, contract, ExactFamily::EquivalentStatic, &[&case.id, "equivalent_static"]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, ExactFamily::EquivalentStatic)
+            {
+                problem(diagnostics, code, &[&case.id, "equivalent_static"], message);
+            }
         }
         for load in &case.primitive_loads {
             if load.category == "pressure" || load.dimension == "pressure" {

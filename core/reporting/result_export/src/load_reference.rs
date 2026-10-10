@@ -14,6 +14,7 @@
 //! already bound: `load_reference_states`, the two extra resolved-member keys of
 //! `pipe_materials`, the `material_basis` constant and the region
 //! `temperature_basis` constant.
+use crate::physics_evidence::PressureContract;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
@@ -347,22 +348,24 @@ pub fn transport_schema() -> Result<&'static Value, String> {
 /// Raw load-reference-1 publication: closed evidence, cross-bindings, rows and
 /// diagnostics. Never authenticates the producer.
 pub fn validate_load_reference_evidence(source: &Value) -> Check {
-    validate(source, true)
+    validate(source, true, PressureContract::StraightV2)
 }
 
 /// Retained load-reference-1 statements without raw rows or diagnostics:
 /// frozen schema shape, closed evidence and internal joins only. This cannot
 /// qualify a publication or a current invocation.
 pub fn validate_load_reference_transport_metadata(source: &Value) -> Check {
-    validate(source, false)
+    validate(source, false, PressureContract::StraightV2)
 }
 
-fn validate(source: &Value, raw: bool) -> Check {
+/// T4-U2a: `contract` selects the inherited raw physics checks: v2's
+/// (physics-1) or, for a 0.4.0 `pressure-1` envelope, v3's.
+fn validate(source: &Value, raw: bool, contract: PressureContract) -> Check {
     prepass(source, raw, Method::LoadReference)?;
     // S14 inherited physics-1 checks on the projected copy.
     let projected = project(source);
     let inherited = if raw {
-        crate::physics_evidence::validate_physics_evidence(&projected)
+        crate::physics_evidence::validate_physics_evidence_in(&projected, false, contract)
     } else {
         crate::physics_evidence::validate_transport_metadata(&projected)
     };
@@ -372,13 +375,7 @@ fn validate(source: &Value, raw: bool) -> Check {
 /// T4-U2a: a 0.4.0 `pressure-1` envelope (`3.0.0/exact_pressure_v3`): the same
 /// pre-pass S1-S13, then the inherited physics checks under the v3 contract.
 pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check {
-    prepass(source, true, Method::LoadReference)?;
-    crate::physics_evidence::validate_physics_evidence_for(
-        &project(source),
-        false,
-        crate::physics_evidence::PressureContract::PressureV3,
-    )
-    .map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
+    validate(source, true, PressureContract::PressureV3)
 }
 
 /// Steps S1-S13, shared with the joined reader. The joined method differs only
