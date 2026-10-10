@@ -213,3 +213,41 @@ class AffectedCratesTests(unittest.TestCase):
             self.assertEqual(ci.affected_manifests(root, manifests, [ci.PROJECT + 'tests/test_schema.py']), [])
             self.assertEqual(ci.affected_manifests(root, manifests, ['tools/shared.py']), manifests)
             self.assertEqual(ci.affected_manifests(root, manifests, [ci.PROJECT + 'core/deleted/lib.rs']), manifests)
+
+
+class SourceReadTests(unittest.TestCase):
+    def test_cross_crate_literals_add_edges_without_cargo_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            manifests = []
+            for name in ['supplier', 'reader', 'consumer', 'unrelated']:
+                manifest = Path('core') / name / 'Cargo.toml'
+                (project / manifest).parent.mkdir(parents=True)
+                text = f'[package]\nname="{name}"\nversion="0.1.0"\n'
+                if name == 'consumer':
+                    text += '[dependencies]\nreader={path="../reader"}\n'
+                (project / manifest).write_text(text)
+                manifests.append(manifest)
+            source = project / 'core/reader/tests/read.rs'
+            source.parent.mkdir()
+            for expression in ['include_str!("../../supplier/src/lib.rs")',
+                               'Path::new(env!("CARGO_MANIFEST_DIR")).join("../supplier/fixture.json")']:
+                source.write_text(expression)
+                self.assertEqual(ci.affected_manifests(project, manifests,
+                    [ci.PROJECT + 'core/supplier/src/lib.rs']), manifests[:3])
+
+    def test_repository_cross_crate_examples_select_readers(self):
+        project = MODULE.parents[2]
+        manifests = ci.readiness.discover_cargo_manifests(project)
+        cases = [
+            ('core/solver/nonlinear_integration/src/lib.rs', 'core/solver/frame_kernel/Cargo.toml'),
+            ('core/solver/straight_pipe/src/lib.rs', 'core/solver/frame_kernel/Cargo.toml'),
+            ('core/solver/curved_bend/src/lib.rs', 'core/solver/frame_kernel/Cargo.toml'),
+            ('core/loads/load_case_algebra/src/lib.rs', 'core/solver/frame_kernel/Cargo.toml'),
+            ('core/reporting/result_export/tests/fixtures/example.json', 'core/product_physics/Cargo.toml'),
+            ('core/product_physics/tests/fixtures/example.json', 'core/reporting/result_export/Cargo.toml'),
+            ('core/loads/self_weight_wasm/tests/fixtures/example.json', 'core/model_operations/operation_applier/Cargo.toml'),
+        ]
+        for changed, reader in cases:
+            with self.subTest(changed=changed):
+                self.assertIn(Path(reader), ci.affected_manifests(project, manifests, [ci.PROJECT + changed]))

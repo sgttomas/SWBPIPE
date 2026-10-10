@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -34,6 +35,38 @@ def validate_plan(root, plan):
         raise ValueError('Numerical runner requires explicit selected coverage')
 
 
+def source_read_dependencies(project, manifests):
+    """Conservative edges for Rust source/fixture reads outside Cargo deps.
+
+    Resolve relative path literals against both Rust source and manifest roots:
+    include_str!/include_bytes! use the former, CARGO_MANIFEST_DIR joins the
+    latter. Considering both can over-select but cannot drop either form.
+    Also recognize project-relative core paths used after finding the root.
+    """
+    roots = {(project / m.parent).resolve(): (project / m).resolve() for m in manifests}
+    edges = {m: set() for m in manifests}
+    for manifest in manifests:
+        crate = project / manifest.parent
+        for directory, dirs, files in os.walk(crate):
+            dirs[:] = [d for d in dirs if d not in ('target', '.git')]
+            for filename in files:
+                if not filename.endswith('.rs'):
+                    continue
+                source = Path(directory) / filename
+                for literal in re.findall(r'"([^"\n]+)"', source.read_text()):
+                    if literal.startswith('core/'):
+                        candidates = [(project / literal).resolve()]
+                    elif '../' in literal:
+                        candidates = [(base / literal).resolve() for base in (source.parent, crate)]
+                    else:
+                        continue
+                    for candidate in candidates:
+                        for root, supplier in roots.items():
+                            if candidate.is_relative_to(root) and supplier != (project / manifest).resolve():
+                                edges[manifest].add(supplier)
+    return edges
+
+
 def affected_manifests(project, manifests, paths):
     """Select changed crates and transitive path-dependency consumers.
 
@@ -55,7 +88,7 @@ def affected_manifests(project, manifests, paths):
         if not owners:
             return manifests
         selected.update(owners)
-    dependencies = {}
+    dependencies = source_read_dependencies(project, manifests)
     for manifest in manifests:
         data = tomllib.loads((project / manifest).read_text())
         targets = set()
@@ -77,7 +110,7 @@ def affected_manifests(project, manifests, paths):
                 visit(data.get(key, {}))
         except ValueError:
             return manifests
-        dependencies[manifest] = targets
+        dependencies[manifest].update(targets)
     while True:
         selected_paths = {(project / m).resolve() for m in selected}
         consumers = {m for m, deps in dependencies.items() if deps & selected_paths}
