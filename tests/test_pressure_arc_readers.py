@@ -1,6 +1,6 @@
 """T4-U2: the Python pressure-1 reader admits realized-arc envelopes over the
-shared arc corpus (Rust ``tests/pressure_arc_contract.rs`` and TypeScript
-``pressureArcEvidence.test.ts`` read the same bytes), refuses each broken arc
+shared arc corpus (Rust ``tests/pressure_arc_contract.rs`` reads the same
+bytes; the desktop has no pressure-1 reader), refuses each broken arc
 binding by name, refuses arc evidence under v2, and covers a model whose only
 pipe is a replaced span by its connector (T4-RV23 NOTE-4).
 """

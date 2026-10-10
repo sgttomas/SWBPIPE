@@ -2,7 +2,7 @@
 //! A solved v3 connector envelope carries one `contract_evidence.connector`
 //! record per connector and the connector rows bound to it, discloses that no
 //! joint temperature law is provided, and is admitted by the pressure-1 reader;
-//! the shared reader corpus (RE, Python, TypeScript) is generated here.
+//! the shared reader corpus (RE, Python) is generated here.
 //!
 //! The inputs are the frozen T4-I12 system documents (0.3.0 and 0.4.0), bytes
 //! unchanged. Under pressure-1 the variable spring hanger's input review rows
@@ -76,7 +76,7 @@ fn a_model_without_a_connector_has_no_record_or_disclosure() {
     assert!(!envelope["results"].to_string().contains("connector_"));
 }
 
-/// The shared connector reader corpus (RE, Python, TypeScript): the 0.3.0
+/// The shared connector reader corpus (RE, Python): the 0.3.0
 /// system document in sparse mode and the 0.4.0 one in dense mode, captured
 /// entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
 /// bytes must be current.

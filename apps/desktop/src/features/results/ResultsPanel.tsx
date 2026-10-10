@@ -1,5 +1,5 @@
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
-import { sourceContract, isRetainedRoute } from "./numericalResultQuality";
+import { sourceContract, isRetainedRoute, isPressure1Result, PRESSURE_1_RESULT_REFUSAL } from "./numericalResultQuality";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
@@ -41,7 +41,7 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
 export function ResultsPanel({
-  result,
+  result: received,
   knowledge,
   analysisRun,
   selectedResultId,
@@ -53,6 +53,9 @@ export function ResultsPanel({
   selectedResultId: string | null;
   onSelectResult: (resultId: string) => void;
 }) {
+  // The desktop does not read pressure-1: the result is refused by name, never listed.
+  const unreadable = isPressure1Result(received);
+  const result = unreadable ? null : received;
   const [filterText, setFilterText] = useState("");
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   const [pageIndex, setPageIndex] = useState(0);
@@ -102,7 +105,9 @@ export function ResultsPanel({
   return (
     <section className="panel results-panel" aria-label="Results" data-testid="results-panel">
       <div className="panel-title">Results</div>
-      {result ? (
+      {unreadable ? (
+        <p role="status" data-testid="pressure-1-not-readable">{PRESSURE_1_RESULT_REFUSAL}</p>
+      ) : result ? (
         <>
           <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />

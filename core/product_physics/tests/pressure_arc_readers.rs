@@ -1,6 +1,6 @@
 //! T4-U2 phase 2: realized arcs under `pressure-1` (`3.0.0/exact_pressure_v3`)
-//! reach the readers. Generates the shared arc reader corpus (RE, Python,
-//! TypeScript) from PP's public captured entry:
+//! reach the readers. Generates the shared arc reader corpus (RE, Python)
+//! from PP's public captured entry:
 //!
 //! - the T4-I7 L line (anchored, pressure + thermal + weight, k = 2) on 0.3.0
 //!   (sparse) and 0.4.0 (dense), and the admitted kink (θ = 5e-4 rad);

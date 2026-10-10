@@ -1,6 +1,6 @@
 //! T4-U3 (S14): the pressure-1 reader admits objective connector records and
-//! rows over the shared connector corpus (also read by the Python and
-//! TypeScript readers), refuses each broken binding by name, and every other
+//! rows over the shared connector corpus (also read by the Python
+//! reader), refuses each broken binding by name, and every other
 //! contract refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};

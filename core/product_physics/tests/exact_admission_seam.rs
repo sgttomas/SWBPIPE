@@ -634,7 +634,7 @@ fn region_id(base: Base) -> &'static str {
     }
 }
 
-/// The shared reader corpus (RE, Python, TypeScript): X0 under v3 with p < 0
+/// The shared reader corpus (RE, Python): X0 under v3 with p < 0
 /// and Y0's v3 twin, both modes, captured entry. Regenerate with
 /// `T4_U2A_WRITE_CORPUS=1`; otherwise the committed bytes must be current.
 #[test]

@@ -13,10 +13,10 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
-import { numericalResultStanding, type SourceContract } from "./numericalResultQuality";
+import { numericalResultStanding, PRESSURE_1_RESULT_REFUSAL, type SourceContract } from "./numericalResultQuality";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import {
-  LOAD_REFERENCE_OUTPUT_REFUSAL, PRESSURE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES,
+  LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES,
   RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL, routeOutputPolicy, routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
 } from "./outputPolicy";
 import { loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
@@ -65,7 +65,7 @@ describe("the output policy (T6S-3)", () => {
       expect(Object.values(policy.surfaces).every(decision => decision === "refused")).toBe(true);
     }
     const pressure = OUTPUT_POLICY.pressure as Json;
-    expect([pressure.gate, pressure.reason]).toStrictEqual(["per_surface", PRESSURE_OUTPUT_REFUSAL]);
+    expect([pressure.gate, pressure.reason]).toStrictEqual(["per_surface", PRESSURE_1_RESULT_REFUSAL]);
     expect(Object.keys(pressure.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
     expect(Object.values(pressure.surfaces).every(decision => decision === "refused")).toBe(true);
     const successor = OUTPUT_POLICY.retained_preview_physics as Json;

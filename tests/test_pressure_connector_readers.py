@@ -1,6 +1,6 @@
 """T4-U3 (S14): the Python pressure-1 reader admits objective connector records
 and rows over the shared connector corpus (Rust ``tests/connector_contract.rs``
-and TypeScript ``pressureConnectorEvidence.test.ts`` read the same bytes),
+reads the same bytes; the desktop has no pressure-1 reader),
 refuses each broken binding by name, and every other contract refuses
 connector evidence.
 """

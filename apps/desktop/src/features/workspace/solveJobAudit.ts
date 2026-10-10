@@ -4,6 +4,7 @@
 // backend job. No React.
 
 import { pollPreviewMechanicsJob } from "../../services/previewService";
+import { isPressure1Result, PRESSURE_1_RESULT_REFUSAL } from "../results/numericalResultQuality";
 import type {
   BackendSolveJobCancellationReceipt,
   BackendSolveJobStatus,
@@ -152,6 +153,11 @@ export async function awaitBackendSolveJob(jobId: string): Promise<BackendSolveJ
   while (status.state === "queued" || status.state === "running") {
     await new Promise((resolve) => setTimeout(resolve, 50));
     status = await pollPreviewMechanicsJob(jobId);
+  }
+  // The desktop does not read pressure-1: the completed job's result is withheld
+  // and the solve surface shows the named refusal instead of a silent gap.
+  if (status.state === "completed" && isPressure1Result(status.result)) {
+    return { ...status, result: null, error_message: PRESSURE_1_RESULT_REFUSAL };
   }
   return status;
 }

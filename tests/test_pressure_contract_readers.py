@@ -1,7 +1,7 @@
 """T4-U2a: Python reader dispatch on the exact pressure contract identity.
 
 Reads the shared generated pressure-1 corpus (Rust ``tests/pressure_contract.rs``
-and TypeScript ``pressureContractEvidence.test.ts`` read the same bytes). v2 is
+reads the same bytes; the desktop has no pressure-1 reader). v2 is
 unchanged and still refuses p_pa < 0; v3 admits straight families with signed
 p_pa; neither is read as the other; unknown identities are refused.
 """

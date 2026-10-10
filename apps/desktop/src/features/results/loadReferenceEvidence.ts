@@ -20,7 +20,7 @@
  * `1.0` there. The shared corpus never depends on that distinction.
  */
 import transportSchemaJson from "../../../../../schemas/load_reference_state.schema.json";
-import { validatePhysicsEvidence, validatePhysicsEvidenceFor, validatePhysicsTransportMetadata, PRESSURE_V3, arcMembers, ARC_REGION_KEYS } from "./physicsResultEvidence";
+import { validatePhysicsEvidence, validatePhysicsTransportMetadata } from "./physicsResultEvidence";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1";
@@ -34,9 +34,7 @@ export const NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
 export const EXACT_METHOD = "retained_source_blocks_exact_v1";
 export const SELECTED = "SOURCE_BLOCK_RECOVERY_SELECTED";
 export const UNAVAILABLE = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
-/** `pressure` (T4-U3): the pressure-1 0.4.0 pre-pass; as `load_reference`,
- * except that connector records are left to the inherited physics pass (v3). */
-export type LoadReferenceMethod = "load_reference" | "joined" | "pressure";
+export type LoadReferenceMethod = "load_reference" | "joined";
 const REGION_TEMPERATURE_BASIS = "resolved_member_state";
 const G_BASIS = "E/[2(1+nu)] from the selected pair";
 const COMPOSITION = "lambda_fit*lambda_thermal-1";
@@ -247,18 +245,6 @@ export function validateLoadReferenceEvidence(source: MechanicsResult, model?: P
 export function validateLoadReferenceTransportMetadata(source: Partial<MechanicsResult>): void {
   guarded(() => validate(source as MechanicsResult, false));
 }
-/** T4-U2a: a 0.4.0 pressure-1 envelope (3.0.0/exact_pressure_v3): the same
- * pre-pass, then the inherited physics checks under the v3 contract. */
-export function validatePressureLoadReferenceEvidence(source: MechanicsResult, model?: PhysicsModel): void {
-  guarded(() => {
-    prepass(source, true, "pressure");
-    const projected = project(source);
-    try { validatePhysicsEvidenceFor(projected, PRESSURE_V3, model); }
-    catch (error) {
-      throw new LoadReferenceError(`${code("PHYSICS_EVIDENCE")}: ${error instanceof Error && error.message ? error.message : "SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence"}`);
-    }
-  });
-}
 export function guarded<T>(action: () => T): T {
   try { return action(); }
   catch (error) {
@@ -296,7 +282,7 @@ export function prepass(source: Json, raw: boolean, method: LoadReferenceMethod)
   if (!raw && !joined) require_(schemaShape(evidence, transportSchema.$defs.LoadReferenceContractEvidence, transportSchema), "TRANSPORT_SHAPE");
   // S3-S5 namespace.
   require_(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE");
-  require_(method === "pressure" || !array(at(evidence, "connector")).length, "CONNECTOR_UNSUPPORTED");
+  require_(!array(at(evidence, "connector")).length, "CONNECTOR_UNSUPPORTED");
   const pressure = array(at(evidence, "pressure"));
   const exact = array(at(evidence, "exact_cases"));
   const records = array(at(evidence, "load_reference_states"));
@@ -369,12 +355,7 @@ export function prepass(source: Json, raw: boolean, method: LoadReferenceMethod)
   }
   // S12 pressure-region materials are the resolved member pair of their case.
   for (const region of pressure) {
-    // T4-U2: a pressure-1 region with a realized arc adds the arc keys
-    // (checked with the arc members by the inherited physics pass).
-    let arcs: Set<string>;
-    try { arcs = arcMembers(region, method === "pressure"); }
-    catch (error) { throw new LoadReferenceError(error instanceof Error ? error.message : String(error)); }
-    require_(keys(region, arcs.size ? [...REGION_KEYS, ...ARC_REGION_KEYS] : REGION_KEYS), "REGION_SHAPE");
+    require_(keys(region, REGION_KEYS), "REGION_SHAPE");
     const caseId = text(region.load_case_id);
     text(region.region_id);
     const found = cases.find(([known]) => known === caseId);

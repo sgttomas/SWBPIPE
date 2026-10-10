@@ -1,6 +1,6 @@
 //! T4-U2a: reader dispatch on the exact pressure contract identity, over the
-//! shared generated pressure-1 corpus (also read by the Python and TypeScript
-//! readers). v2 is unchanged and still refuses p_pa < 0; v3 admits straight
+//! shared generated pressure-1 corpus (also read by the Python
+//! reader). v2 is unchanged and still refuses p_pa < 0; v3 admits straight
 //! families with signed p_pa; neither is read as the other; unknown
 //! identities are refused.
 use open_pipe_stress_result_export::semantic_contract as s;

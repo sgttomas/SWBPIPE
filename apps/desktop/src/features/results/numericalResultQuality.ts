@@ -3,7 +3,6 @@ import { SOURCE_BLOCKS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_SHA256, sourceBlockRe
 import { validatePhysicsEvidence } from "./physicsResultEvidence";
 import { validatePreviewPhysicsEvidence } from "./previewPhysicsEvidence";
 import { validateLoadReferenceEvidence } from "./loadReferenceEvidence";
-import { validatePressureEvidence, PRESSURE_CONTRACT_ID, PRESSURE_PROFILE } from "./pressureContractEvidence";
 import { loadReferenceSourceReceiptShape, loadReferenceSourceStanding, LOAD_REFERENCE_SOURCE_PROFILE } from "./loadReferenceSourceEvidence";
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { RETAINED_METHOD, validateRetainedPrecisionTransport } from "./retainedPrecision";
@@ -24,10 +23,20 @@ export const LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa53447
 export const LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1";
 export const LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337";
-/** T4-U2 (RV13 N-2): pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0
- * documents, bound to its one profile and its pinned table. */
-export { PRESSURE_CONTRACT_ID, PRESSURE_PROFILE };
-export const PRESSURE_CONTRACT_SHA256 = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1";
+/** pressure-1 (`3.0.0/exact_pressure_v3`): recognized by its header only. The
+ * desktop has no pressure-1 reader (the product reader is Rust's), so such a
+ * result is refused by name on every desktop surface: no rows, standing or
+ * output is derived from it here. */
+export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1";
+export const PRESSURE_PROFILE = "exact_pressure_v3";
+export const PRESSURE_1_RESULT_NOT_READABLE_IN_DESKTOP = "PRESSURE_1_RESULT_NOT_READABLE_IN_DESKTOP";
+export const N_PRESSURE_1_NOT_READABLE = "This result carries pressure-1 semantics (3.0.0/exact_pressure_v3), which the desktop does not read: no result rows, numerical standing or output are shown or offered for it here. The native solver and the headless export read it. This is not a finding about the result.";
+export const PRESSURE_1_RESULT_REFUSAL = `${PRESSURE_1_RESULT_NOT_READABLE_IN_DESKTOP}: ${N_PRESSURE_1_NOT_READABLE}`;
+/** True when a source's header names pressure-1 (the named desktop refusal applies). */
+export function isPressure1Result(source: MechanicsResult | null | undefined): boolean {
+  if (!source) return false;
+  try { return sourceContract(source) === "pressure"; } catch { return false; }
+}
 /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor and its pinned
  * table. Header dispatch only selects the route; the statement is checked only
  * by the accepted reader (`retainedPrecision.ts`), and standing comes only from
@@ -66,7 +75,7 @@ export function sourceSemanticBinding(source: MechanicsResult) {
   if (route === "precision") return { id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 };
   if (route === "load_reference") return { id: LOAD_REFERENCE_CONTRACT_ID, sha256: LOAD_REFERENCE_CONTRACT_SHA256 };
   if (route === "load_reference_source") return { id: LOAD_REFERENCE_SOURCE_CONTRACT_ID, sha256: LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 };
-  if (route === "pressure") return { id: PRESSURE_CONTRACT_ID, sha256: PRESSURE_CONTRACT_SHA256 };
+  if (route === "pressure") throw new Error(PRESSURE_1_RESULT_REFUSAL);
   if (route === "retained_preview_physics") return { id: PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 };
   if (route === "retained_physics") return { id: PHYSICS_RETAINED_CONTRACT_ID, sha256: PHYSICS_RETAINED_CONTRACT_SHA256 };
   throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
@@ -107,7 +116,7 @@ export function sourceContract(source: MechanicsResult): SourceContract {
   // T1: explicit load/reference-state dispatch, each bound to its one profile.
   const loadReference = p?.semantic_contract_id === LOAD_REFERENCE_CONTRACT_ID;
   const joined = p?.semantic_contract_id === LOAD_REFERENCE_SOURCE_CONTRACT_ID;
-  // T4-U2: pressure-1, bound to its one profile.
+  // pressure-1: header dispatch only (refused by name; no desktop reader).
   const pressure = p?.semantic_contract_id === PRESSURE_CONTRACT_ID;
   // U6d: the successor's header route; its receipt is checked only by the reader.
   const retained = p?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID;
@@ -162,6 +171,7 @@ export function ordinaryCaseEligible(c: NonNullable<MechanicsResult["numerical_q
 export async function sourceContractTransport(source: MechanicsResult): Promise<Exclude<SourceContract, "unsupported">> {
   const route = sourceContract(source);
   if (route === "unsupported") throw new Error(retainedPrecisionDowngrade(source) ? RETAINED_PRECISION_DOWNGRADE_FORBIDDEN : "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
+  if (route === "pressure") throw new Error(PRESSURE_1_RESULT_REFUSAL);
   if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(source);
   return route;
 }
@@ -184,6 +194,10 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
     // eligible in T1, as in Rust and Python.
     return { contract, status: "needs_recompute" as const, eligible: false, findings: loadReferenceSourceStanding(source).findings };
   }
+  else if (contract === "pressure") {
+    // No desktop pressure-1 reader: the result is never read, so it is never eligible.
+    return { contract, status: "needs_recompute" as const, eligible: false, findings: [PRESSURE_1_RESULT_NOT_READABLE_IN_DESKTOP] };
+  }
   else if (isRetainedRoute(contract)) {
     // U6d (D2 4.9.4; plan 3): standing reads only the registered accepted-reader
     // validation of these exact bytes. numerical_quality never contributes.
@@ -200,11 +214,6 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
       // T0R's generic standing, unchanged, after the load-reference-1 reader.
       try { validateLoadReferenceEvidence(source, model ?? undefined); }
       catch (error) { findings.push(error instanceof Error ? error.message : "SOURCE_LOAD_REFERENCE_MALFORMED"); }
-    }
-    if (contract === "pressure") {
-      // T4-U2 (RV13 N-2): the pressure-1 reader, then T0R's generic standing.
-      try { validatePressureEvidence(source, model ?? undefined); }
-      catch (error) { findings.push(error instanceof Error ? error.message : "PHYSICS_EVIDENCE_INVALID"); }
     }
     if (contract === "preview_physics") {
       try { validatePreviewPhysicsEvidence(source, model ?? undefined); }

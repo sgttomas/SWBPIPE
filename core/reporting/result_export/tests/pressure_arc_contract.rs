@@ -1,5 +1,5 @@
 //! T4-U2: the pressure-1 reader admits realized-arc envelopes over the shared
-//! arc corpus (also read by the Python and TypeScript readers): N_w = N_el +
+//! arc corpus (also read by the Python reader): N_w = N_el +
 //! pAi and S = N_el in the arc's own sign conventions, end rows along the end
 //! tangents, and the straight Lame rows and maximum withheld with the named
 //! reason. Each broken arc binding is refused by name; arc evidence under the
