@@ -29,7 +29,8 @@ pub(super) struct MemberData {
     pub(super) i: usize,
     pub(super) j: usize,
     pub(super) y_reference: [f64; 3],
-    /// (the product's binary64 arc centre, flexibility factor) for a realized bend.
+    /// (the product's binary64 arc centre, flexibility factor) for a realized
+    /// bend; T4-U1 builds the element from `arc_inputs_from_centre`.
     pub(super) bend: Option<([f64; 3], f64)>,
 }
 pub(super) struct ModelData {
@@ -42,6 +43,30 @@ pub(super) struct ModelData {
     pub(super) loads: &'static [(usize, f64)],
     /// Exact intended free displacements (empty where not computed).
     pub(super) u_int: &'static [(usize, f64)],
+}
+
+/// T4-U1 phase A adapter: the (R, y_reference) inputs of the arc that a
+/// committed binary64 centre described, so the committed models keep their
+/// arcs until phase B regenerates them with their stated (R, y): R is the
+/// mean of the two radial lengths (the old element's radius) and y the bow
+/// vector from the centre to the chord midpoint. Test-only; no centre
+/// reaches the element or K-D5.
+pub(crate) fn arc_inputs_from_centre(
+    xi: [f64; 3],
+    xj: [f64; 3],
+    centre: [f64; 3],
+) -> (f64, [f64; 3]) {
+    let radial = |x: [f64; 3]| {
+        let r = [x[0] - centre[0], x[1] - centre[1], x[2] - centre[2]];
+        (r[0] * r[0] + r[1] * r[1] + r[2] * r[2]).sqrt()
+    };
+    let radius = 0.5 * (radial(xi) + radial(xj));
+    let bow = [
+        0.5 * (xi[0] + xj[0]) - centre[0],
+        0.5 * (xi[1] + xj[1]) - centre[1],
+        0.5 * (xi[2] + xj[2]) - centre[2],
+    ];
+    (radius, bow)
 }
 
 pub(crate) const MODES: [LinearSolveMode; 2] = [
@@ -95,10 +120,13 @@ impl Built {
                     e.global_stiffness().unwrap()
                 }
                 Some((center, factor)) => {
+                    let (radius, y_reference) =
+                        arc_inputs_from_centre(m.nodes[member.i], m.nodes[member.j], center);
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
-                        center,
+                        radius,
+                        y_reference,
                         s.e,
                         s.g,
                         s.a,
@@ -397,6 +425,7 @@ fn kd5_realistic_elbows_e1_and_e6_do_not_demote() {
 }
 
 #[test]
+#[ignore = "T4-U1 phase B: with the objective element CSKEW_8_5's precondition actual > 1 fails (DenseScrutiny actual 0.166); its outcome and dependants are T3's to agree (annex A T4-U1 item 2)"]
 fn kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes() {
     let built = Built::from_model(&CSKEW_8_5);
     for mode in MODES {
@@ -416,6 +445,7 @@ fn kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes() {
 }
 
 #[test]
+#[ignore = "T4-U1 phase B: a radius mismatch cannot be constructed from (R, y), so CSKEW_30_RADIUS_MISMATCH is an ordinary elbow (DenseScrutiny actual 0.119); M31a's kill moves to K2 and the model is regenerated (annex A item 1; T4-I6 B5.2)"]
 fn kd5_curved_intended_element_uses_the_actual_chord() {
     // The k_X = 30 skew elbow with its binary64 centre moved 6.5e-10 R along
     // the chord: admissible to the product (radius mismatch 9.2e-10, tolerance
@@ -444,6 +474,7 @@ fn kd5_curved_intended_element_uses_the_actual_chord() {
 }
 
 #[test]
+#[ignore = "T4-U1 phase B: a centre mismatch cannot be constructed from (R, y) (CPLANAR_60 DenseScrutiny actual 0.035); M31b's kill moves to K1 and the models are regenerated as controls (annex A item 1; T4-I6 B5.2)"]
 fn kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error() {
     // RV5-B1 (the M31b counterexample, RV5's admissible inputs): one realized
     // bend on a cantilever with stiff root springs and a tip moment (1, 1, 1),

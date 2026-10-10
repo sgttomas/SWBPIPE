@@ -11,7 +11,9 @@
 //! references and the independent generator's b), and the models stated here.
 //! Comparisons are of `Debug` bytes or bits, or, against the references, the
 //! protected 1e-9 criterion |observed - expected| <= 1e-9 max(|expected|, scale).
-use super::kd5_tests::{bits, MemberData, ModelData, SectionData, MODES};
+use super::kd5_tests::{
+    arc_inputs_from_centre, bits, MemberData, ModelData, SectionData, MODES,
+};
 use super::*;
 use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
@@ -124,10 +126,13 @@ impl Model {
                         .unwrap(),
                 ),
                 Some((center, factor)) => {
+                    let (radius, y_reference) =
+                        arc_inputs_from_centre(m.nodes[member.i], m.nodes[member.j], center);
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
-                        center,
+                        radius,
+                        y_reference,
                         s.e,
                         s.g,
                         s.a,

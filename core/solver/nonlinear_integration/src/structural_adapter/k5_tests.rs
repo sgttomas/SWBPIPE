@@ -7,7 +7,9 @@
 //! exact by construction (dyadic geometry; derivations beside each model):
 //! they never pass through the platform libm. A product-formed curved element
 //! (through `sin`, `cos` and `atan2`) is asserted by outcome only.
-use super::kd5_tests::{bits, MemberData, ModelData, SectionData, MODES};
+use super::kd5_tests::{
+    arc_inputs_from_centre, bits, MemberData, ModelData, SectionData, MODES,
+};
 use super::*;
 use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
@@ -74,10 +76,12 @@ impl Model {
     }
     fn bend(&mut self, i: (usize, [f64; 3]), j: (usize, [f64; 3]), center: [f64; 3]) {
         let s = &E1.section;
+        let (radius, y_reference) = arc_inputs_from_centre(i.1, j.1, center);
         let e = CurvedBendMacroElement::new(
             node(i.0, i.1),
             node(j.0, j.1),
-            center,
+            radius,
+            y_reference,
             s.e,
             s.g,
             s.a,
@@ -273,8 +277,20 @@ fn from_kd5(m: &ModelData) -> Model {
                 .frames
                 .push(FrameElement::new(i, j, section, member.y_reference).unwrap()),
             Some((center, factor)) => {
+                let (radius, y_reference) =
+                    arc_inputs_from_centre(m.nodes[member.i], m.nodes[member.j], center);
                 let e = CurvedBendMacroElement::new(
-                    i, j, center, s.e, s.g, s.a, s.i, s.j, factor, factor,
+                    i,
+                    j,
+                    radius,
+                    y_reference,
+                    s.e,
+                    s.g,
+                    s.a,
+                    s.i,
+                    s.j,
+                    factor,
+                    factor,
                 )
                 .unwrap();
                 model.slots.push(

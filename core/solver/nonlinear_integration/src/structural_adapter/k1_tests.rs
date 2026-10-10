@@ -8,7 +8,9 @@
 //! to the product's dense assembly order). Every comparison is of `Debug`
 //! bytes or bits, never within a tolerance; the reference comparisons (N, T0R,
 //! relabelling) use the protected 1e-9 relative criterion.
-use super::kd5_tests::{bits, MemberData, ModelData, SectionData, MODES};
+use super::kd5_tests::{
+    arc_inputs_from_centre, bits, MemberData, ModelData, SectionData, MODES,
+};
 use super::*;
 use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
@@ -154,10 +156,13 @@ impl Case {
                         .unwrap(),
                 ),
                 Some((center, factor)) => {
+                    let (radius, y_reference) =
+                        arc_inputs_from_centre(m.nodes[member.i], m.nodes[member.j], center);
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
-                        center,
+                        radius,
+                        y_reference,
                         s.e,
                         s.g,
                         s.a,
@@ -333,6 +338,7 @@ fn k1_pattern_entries_are_byte_identical_to_todays_entries_in_both_modes() {
 }
 
 #[test]
+#[ignore = "T4-U1 phase B: depends on CSKEW_8_5 demoting, which no longer holds with the objective element (DenseScrutiny Passed); T3 agrees the outcome (annex A T4-U1 item 2)"]
 fn k1_kd5_parity_cases_demote_identically_in_both_representations() {
     // P1's 122 (required true positive) and the skew-plane elbow at
     // k_X = 8.5 demote in both representations and both modes; R5-4's
@@ -1158,10 +1164,12 @@ fn rv8_bend(
     center: [f64; 3],
     flex: f64,
 ) -> CurvedBendMacroElement {
+    let (radius, y_reference) = arc_inputs_from_centre(pi, pj, center);
     CurvedBendMacroElement::new(
         FrameNode::new(i, pi).unwrap(),
         FrameNode::new(j, pj).unwrap(),
-        center,
+        radius,
+        y_reference,
         2.0e11,
         8.0e10,
         0.005969026041820614,
@@ -1310,6 +1318,7 @@ fn k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2() {
 /// representations. Kills RV8-FC-TERMS (the sparse check drops the terms), in
 /// SparseInteractive.
 #[test]
+#[ignore = "T4-U1 phase B: its precondition needs CSKEW_8_5 demoted (terms and folded force give different records), which no longer holds with the objective element; T3 agrees the outcome (annex A T4-U1 item 2)"]
 fn k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3() {
     for m in [&F122, &CSKEW_8_5] {
         let case = Case::from_model(m);
