@@ -102,6 +102,7 @@
           "enum": [
             "draft",
             "stable",
+            "deprecated",
             "TBD"
           ]
         },
