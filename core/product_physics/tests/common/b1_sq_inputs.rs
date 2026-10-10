@@ -12,6 +12,12 @@
 //! - `i3_case(…)` and `i3_three_case()`: the three case components on c1's model, each stressed
 //!   (every provenance escaped, a raw value of depth 16), and their three-case assembly (|A| = 3);
 //! - `w_c2()`: W-C2 (R/I81/b1_probe_01 PROBE §4), the facade tests' `w_c2()`.
+//!
+//! SQ2 (B2 combinations, B3b's exact route) adds the B2/B3 qualification inputs, each the facade
+//! tests' builder transcribed (a lib test asserts the two are equal): `w_cb1()` (W-CB1, the
+//! cap-maximal C_eq = 3 input: SW's cases A and B and 1·A + 0.5·B), `w_cb2()`,
+//! `b2_c1_range_mechanics()`, `m3x()` (the exact successor), and `exact_cap_maximal()`, the
+//! cap-maximal three-case input authored as 0.3.0 exact (c = 3, z = 0: route E's priced shape).
 #![allow(dead_code)]
 use serde_json::{json, Value};
 
@@ -378,4 +384,76 @@ pub fn w_c2_ac() -> Value {
 /// value of depth 16; its support shapes stop it at preparation.
 pub fn w2() -> Value {
     stressed(law_cap_maximal())
+}
+
+// ---- SQ2: the B2/B3 qualification inputs ---------------------------------------------------
+
+const B2W: &str = "invented_t3_b2_w_probe_input_no_library_data";
+const B2P: &str = "invented_t3_b2_p_witness_input_no_library_data";
+/// I98's `combination(a, b)`: mechanics `a` + `factor`·`b` (the facade tests' `b2w_combination`).
+fn b2w_combination(a: &str, b: &str, factor: f64, label: &str) -> Value {
+    json!({"id": "combination:ab", "label": label, "basis": "mechanics",
+        "terms": [{"load_case": a, "factor": 1.0}, {"load_case": b, "factor": factor}], "provenance": B2W})
+}
+/// W-CB1 (I98 `r7_cb1_halfb`; the facade tests' `w_cb1()`): i3's stressed cases A and B on c1's
+/// model, and 1·A + 0.5·B (C_eq = 3 at the count caps).
+pub fn w_cb1() -> Value {
+    let ms = milestone();
+    let [(a, loads_a), (b, loads_b), _] = i3_sets(&ms);
+    let mut raw = stressed(build_model(&ms, 7, 16, vec![one_case(a, loads_a)]));
+    let mut case_b = one_case(b, loads_b);
+    escape_every_provenance(&mut case_b);
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(case_b);
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 0.5, "I98 B2-W R-7 count: A + 0.5 B")]);
+    raw
+}
+/// W-CB2 (I98 `r7_cb2`; the facade tests' `w_cb2()`): W-C2's two-body cases A and B, and A + B.
+pub fn w_cb2() -> Value {
+    let mut raw = w_c2();
+    let cases = raw["model"]["load_cases"].as_array_mut().unwrap();
+    cases.truncate(2);
+    cases[0]["id"] = json!("case:a");
+    cases[1]["id"] = json!("case:b");
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "I98 B2-W R-7 count: A + B")]);
+    raw
+}
+/// `b2_c1_range_mechanics` (REVISION_01 §5.1): the milestone with `[range(case), 2·case]` (z = 2, C_eq = 3).
+pub fn b2_c1_range_mechanics() -> Value {
+    let mut raw = milestone();
+    raw["model"]["combinations"] = json!([
+        {"id": "combination:range", "label": "B2-P c = 1: range(case)", "basis": "range_envelope", "operand_ids": ["case"], "mode": "max_abs", "provenance": B2P},
+        {"id": "combination:2case", "label": "B2-P c = 1: 2 case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}], "provenance": B2P}]);
+    raw
+}
+/// I99's `exact` (the facade tests' `exact3`): `raw` authored as 0.3.0 exact, with the common E/ν
+/// basis (ν = 0.25, no shear modulus) and explicitly empty pressure regions on every case.
+pub fn exact3(mut raw: Value) -> Value {
+    let m = &mut raw["model"];
+    m["schema_version"] = json!("0.3.0");
+    m["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    for material in m["materials"].as_array_mut().unwrap() {
+        material.as_object_mut().unwrap().remove("shear_modulus");
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    for case in m["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    raw
+}
+/// B3-W's `m3x`: the milestone authored as 0.3.0 exact (the exact successor).
+pub fn m3x() -> Value {
+    exact3(milestone())
+}
+/// The cap-maximal exact input: `i3_three_case()` (C cases at the count caps, Σ l_i = L, 16
+/// temperature points per material) authored as 0.3.0 exact: route E at c = 3. Its request-level
+/// `materials` take the same E/ν basis (the exact route requires it on every material).
+pub fn exact_cap_maximal() -> Value {
+    let mut raw = exact3(i3_three_case());
+    for material in raw["materials"].as_array_mut().unwrap() {
+        material.as_object_mut().unwrap().remove("shear_modulus");
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    raw
 }

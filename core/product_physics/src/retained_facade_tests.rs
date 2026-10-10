@@ -2401,7 +2401,7 @@ fn exact3(mut raw: Value) -> Value {
     raw
 }
 /// B3-W's `m3x`.
-fn m3x() -> Value { exact3(raw()) }
+pub(super) fn m3x() -> Value { exact3(raw()) }
 
 /// B3-W's mixed exact base `m3x_mix_anchor` (I99 item 2, variant 2): the milestone with a second
 /// case `case:b`, a 1 N global-X force on N0, whose translations are rigid (a zero response, so
@@ -3225,7 +3225,7 @@ fn w_cb3() -> Value {
     raw
 }
 /// W-CB2 (I98 `r7_cb2`): U8's two-body cases A and B, and A + B.
-fn w_cb2() -> Value {
+pub(super) fn w_cb2() -> Value {
     let mut raw = u8_two_body_case_a();
     let c0 = raw["model"]["load_cases"][0].clone();
     let b = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].clone();
@@ -3254,7 +3254,7 @@ fn w_cb5() -> Value {
 }
 /// `b2_c1_range_mechanics` (REVISION_01 §5.1, REVISION_02 A-3): the milestone (c = 1) with
 /// `[range(case), 2·case]`, in that order (z = 2, C_eq = 3): S-2's layout.
-fn b2_c1_range_mechanics() -> Value {
+pub(super) fn b2_c1_range_mechanics() -> Value {
     let mut raw = raw();
     raw["model"]["combinations"] = json!([
         {"id": "combination:range", "label": "B2-P c = 1: range(case)", "basis": "range_envelope", "operand_ids": ["case"], "mode": "max_abs", "provenance": B2P},
@@ -3727,7 +3727,7 @@ fn w_cb1_with(factor: f64, label: &str) -> Value {
     raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", factor, label)]);
     raw
 }
-fn w_cb1() -> Value { w_cb1_with(0.5, "I98 B2-W R-7 count: A + 0.5 B") }
+pub(super) fn w_cb1() -> Value { w_cb1_with(0.5, "I98 B2-W R-7 count: A + 0.5 B") }
 fn w_cb1z() -> Value { w_cb1_with(1.0, "I98 B2-W R-7 count: A + B") }
 
 
