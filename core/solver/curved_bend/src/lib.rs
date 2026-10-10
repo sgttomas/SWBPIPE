@@ -961,16 +961,26 @@ fn rotate_to_global(local_axes: &[[f64; 3]; 3], local: [f64; 3]) -> [f64; 3] {
 }
 
 // Inverse of a symmetric positive-definite 6x6 via the frame-kernel dense
-// solver, one unit column at a time in fixed order, then symmetrized.
+// solver, one unit column at a time in fixed order, then symmetrized. The
+// matrix is first multiplied by one power of two c ≥ 1 that brings its
+// largest diagonal entry into [1, 2), and the solution by c again: every
+// operation of the solve then scales exactly, so the inverse is bit for bit
+// the unscaled one wherever that is formed, while the solver's absolute
+// pivot guard (1e-12) acts relative to the matrix's own scale and no longer
+// refuses a short arc for the size of its flexibilities (T4-U1 phase B).
 fn invert_symmetric6(matrix: &Matrix6) -> Result<Matrix6, CurvedBendError> {
-    let dense: Vec<Vec<f64>> = matrix.iter().map(|row| row.to_vec()).collect();
+    let scale = flexibility_scale(matrix);
+    let dense: Vec<Vec<f64>> = matrix
+        .iter()
+        .map(|row| row.iter().map(|value| scale * value).collect())
+        .collect();
     let mut inverse = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
     for col in 0..DOF_PER_NODE {
         let mut rhs = vec![0.0; DOF_PER_NODE];
         rhs[col] = 1.0;
         let solution = solve_dense(&dense, &rhs)?;
         for (row, value) in solution.iter().enumerate() {
-            inverse[row][col] = *value;
+            inverse[row][col] = scale * *value;
         }
     }
     // The symmetric pair update touches both (row, col) and (col, row).
@@ -983,6 +993,17 @@ fn invert_symmetric6(matrix: &Matrix6) -> Result<Matrix6, CurvedBendError> {
         }
     }
     Ok(inverse)
+}
+
+// 2^-e for the largest diagonal entry m·2^e (1 ≤ m < 2) when that entry is
+// a positive normal number below 1; otherwise 1 (no scaling).
+fn flexibility_scale(matrix: &Matrix6) -> f64 {
+    let largest = (0..DOF_PER_NODE).fold(0.0_f64, |m, i| m.max(matrix[i][i]));
+    if !(largest.is_normal() && largest > 0.0 && largest < 1.0) {
+        return 1.0;
+    }
+    let exponent = ((largest.to_bits() >> 52) & 0x7ff) as i64 - 1023;
+    f64::from_bits(((1023 - exponent) as u64) << 52)
 }
 
 // Rigid equilibrium transfer H from node j loads to node i reactions:
@@ -1095,6 +1116,9 @@ fn cross(left: [f64; 3], right: [f64; 3]) -> [f64; 3] {
 
 #[cfg(test)]
 mod s11k_tests;
+
+#[cfg(test)]
+mod short_arc_tests;
 
 #[cfg(test)]
 mod tests {

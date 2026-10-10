@@ -65,3 +65,13 @@ comparison, worst 5.0e-11 of the criterion (the frozen values' 20-digit
 storage); rows differing after rounding to binary64 are exact zeros of the
 model (both sides below 1e-80). SHA-256: script `92097bca…`, generated
 `kd5_models.rs` `f3e8ae03…`.
+
+## Short arcs (added by T4-I15, T4-U1 phase B)
+
+`t4_i15_short_arc_matrices.py` evaluates the frozen generator
+`curved_ref.py` (110 digits) for R = 0.3 m arcs of 0.06°, 0.1°, 0.5° and 5°,
+in-plane and skew, d on the 2^-30 m grid, and prints each 12x12 entry
+rounded once to binary64; `t4_i15_short_arc_matrices.stdout.txt` is its
+output, embedded in CB's `short_arc_tests.rs`. Regenerate with
+`python3 -I t4_i15_short_arc_matrices.py _run_records` here. SHA-256:
+script `52b811325257b76d4e97da19550d5ea9432226893f0af215716c948ae2afa0a3`, output `85ff2e972791c365cc201359752fefec7ee27dd0935ac26239cb920424412116`.
