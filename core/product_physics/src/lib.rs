@@ -7213,8 +7213,9 @@ fn build_model_for_members(
     let mut pipes = Vec::new();
     let mut frame_elements = Vec::new();
     let mut sections = HashMap::new();
-    // Each pipe's resolved (E, G): the material's, or the 0.4.0 member pair.
-    let mut member_moduli: HashMap<String, (f64, f64)> = HashMap::new();
+    // Each realized-bend pipe's resolved (E, G): the material's, or the 0.4.0
+    // member pair. Straight pipes insert nothing (RV12 S-3).
+    let mut member_moduli: HashMap<&str, (f64, f64)> = HashMap::new();
     let mut exact_sections = HashMap::new();
     for pipe in &model.pipe_segments {
         let Some(&from) = node_map.get(pipe.from.as_str()) else {
@@ -7326,7 +7327,9 @@ fn build_model_for_members(
                     continue;
                 }
             };
-        if !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+        if curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+            member_moduli.insert(pipe.id.as_str(), (elastic_modulus, shear_modulus));
+        } else {
             frame_elements.push(
                 element
                     .frame_element()
@@ -7334,7 +7337,6 @@ fn build_model_for_members(
             );
         }
         sections.insert(pipe.id.clone(), derived);
-        member_moduli.insert(pipe.id.clone(), (elastic_modulus, shear_modulus));
         pipes.push(element);
     }
 
@@ -7636,7 +7638,7 @@ fn build_curved_bend_macro_elements(
     nodes: &[FrameNode],
     node_map: &HashMap<&str, usize>,
     sections: &HashMap<String, DerivedSection>,
-    member_moduli: &HashMap<String, (f64, f64)>,
+    member_moduli: &HashMap<&str, (f64, f64)>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<CurvedBendMacroBuild> {
     let pipe_map = model
@@ -22520,6 +22522,62 @@ mod tests {
         assert_eq!(element.elastic_modulus, pair.elastic_modulus_pa());
         assert_eq!(element.shear_modulus, pair.shear_modulus_pa());
         assert_ne!(element.elastic_modulus, material.elastic_modulus.value);
+    }
+
+    // SP-1 (T4-RV12 B-1): D-B's relaxed bend-geometry warning applies on every
+    // route except documents declaring 2.0.0/exact_straight_pressure_v2, which
+    // keep the pre-T4-U1 condition and text whatever their schema version.
+    #[test]
+    fn t4_u1_bend_geometry_warning_keeps_its_v2_condition_and_text() {
+        const V2_TEXT: &str = "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review";
+        const D_B_TEXT: &str = "bend/elbow component requires explicit radius, angle (unless realized as a curved bend), and invented or cleared geometry source to support component provenance review";
+        let warnings = |model: &PreviewModel| {
+            let mut diagnostics = Vec::new();
+            validation::validate_model_inputs(model, &[], &mut diagnostics);
+            diagnostics
+                .into_iter()
+                .filter(|d| d.code == "BEND_GEOMETRY_INPUT_MISSING")
+                .map(|d| d.message)
+                .collect::<Vec<_>>()
+        };
+        let v2 = |model: &mut PreviewModel, schema: &str| {
+            model.schema_version = schema.to_string();
+            model.pressure_contract = Some(PressureContractInput {
+                version: Some("2.0.0".to_string()),
+                mode: Some("exact_straight_pressure_v2".to_string()),
+            });
+        };
+        let complete = curved_bend_span_request().model;
+        assert!(complete.components[0].geometry.as_ref().unwrap().bend_plane_orientation.is_some());
+        // A realized bend without angle and plane orientation, and the same
+        // component as a geometry-only bend without plane orientation.
+        let mut realized = complete.clone();
+        let geometry = realized.components[0].geometry.as_mut().unwrap();
+        geometry.bend_angle = None;
+        geometry.bend_plane_orientation = None;
+        let mut geometry_only = complete.clone();
+        geometry_only.components[0].geometry.as_mut().unwrap().bend_plane_orientation = None;
+        geometry_only.components[0]
+            .mechanics_interface
+            .as_mut()
+            .unwrap()
+            .solver_consumption = Some("mechanics_geometry_only".to_string());
+        for model in [&realized, &geometry_only] {
+            assert_eq!(warnings(model), Vec::<String>::new(), "D-B off v2");
+            for schema in ["0.3.0", "0.4.0", "0.1.0"] {
+                let mut declared = model.clone();
+                v2(&mut declared, schema);
+                assert_eq!(warnings(&declared), vec![V2_TEXT.to_string()], "v2 at {schema}");
+            }
+        }
+        let mut no_radius = realized.clone();
+        no_radius.components[0].geometry.as_mut().unwrap().bend_radius = None;
+        assert_eq!(warnings(&no_radius), vec![D_B_TEXT.to_string()]);
+        v2(&mut no_radius, "0.3.0");
+        assert_eq!(warnings(&no_radius), vec![V2_TEXT.to_string()]);
+        let mut complete_v2 = complete.clone();
+        v2(&mut complete_v2, "0.4.0");
+        assert_eq!(warnings(&complete_v2), Vec::<String>::new());
     }
 
     // T4-U1 (I1 §5.3 #12): a fit on a realized bend's span refers to its arc
