@@ -240,6 +240,11 @@ def move_operand_source(source):
     ("the combination attempt's owner index", [_set(B + ["product_attempts", 1, "owner_ref", "index"], 1)], None),
     ("a CombinationSource naming another id", [_set(B + ["sources", 2, "owner", "combination_id"], "combination:other")], None),
     ("a combination row's basis naming no entry", [_set(["results", 226, "basis_ref", "ref_id"], "combination:other")], None),
+    ("the combination attempt's id", [_set(B + ["product_attempts", 1, "id"], 5)], None),
+    ("a projection outcome on a displacement magnitude row", [_set(B + ["product_attempts", 1, "proof", "projection_outcomes", 0, "row_index"], 0)], None),
+    ("the combination attempt's summary roster reversed", [], lambda s: body(s)["product_attempts"][1]["proof"]["summary_coverage"].reverse()),
+    ("(d) requested_by repeated", [_set(B + ["operand_preparations", 0, "requested_by"], [0, 0])], None),
+    ("(d) requested_by naming a missing combination", [_set(B + ["operand_preparations", 0, "requested_by"], [0, 1])], None),
 ])
 def test_b2_g3_coverage(label, edits, change):
     assert verdict(*edited(edits, change=change)) == COVERAGE, label
@@ -284,12 +289,15 @@ def _g3(snapshot, body):
 def test_b2_g3_first_need_order_and_record_order_reader_logic():
     snapshot, body = _two_records()
     assert _g3(snapshot, body) == "pass"
-    # (h): the records swapped (ids, owners' sources and their back-references kept consistent), so only the order fails.
+    # (h): C's record first, then B's, each source in record order, so only the first-need order fails.
     swapped = deepcopy(body)
-    swapped["operand_preparations"] = [dict(swapped["operand_preparations"][1], id=0), dict(swapped["operand_preparations"][0], id=1)]
-    swapped["sources"][1]["preparation"]["operand_preparation_ref"] = 1
-    swapped["sources"][2]["preparation"]["operand_preparation_ref"] = 0
+    swapped["operand_preparations"] = [dict(swapped["operand_preparations"][1], id=0, source_ref=1), dict(swapped["operand_preparations"][0], id=1, source_ref=2)]
+    swapped["sources"][1]["owner"].update(case_index=2, case_id="c")
+    swapped["sources"][2]["owner"].update(case_index=1, case_id="b")
     assert _g3(snapshot, swapped) == COVERAGE
+    # (g): a CaseSource no case and no record names.
+    orphan = deepcopy(body); orphan["cases"][0]["source_ref"] = None
+    assert _g3(snapshot, orphan) == COVERAGE
     # (i): the two operand-prepared CaseSources out of record order.
     reordered = deepcopy(body)
     reordered["sources"][1], reordered["sources"][2] = reordered["sources"][2], reordered["sources"][1]
@@ -338,6 +346,9 @@ def test_b2_g4_combination_diagnostics():
     ("a case group with imports", [_set(B + ["groups", 0, "imports"], [])], None, ATTEMPT),
     ("the mechanics Call's owner index", [_set(B + ["calls", 1, "owner_refs", 0, "index"], 1)], None, ATTEMPT),
     ("the combination Call run_refs emptied", [_set(B + ["calls", 1, "run_refs"], [])], None, ATTEMPT),
+    ("a requested operand's factor only", [_set(B + ["calls", 1, "requested_operands", 1, "factor"], "4000000000000000")], None, ATTEMPT),
+    ("a second mechanics Call for the entry", [], lambda s: body(s)["calls"].append(dict(deepcopy(body(s)["calls"][1]), id=2, run_refs=[], source_refs=[],
+        invocation_before=body(s)["calls"][1]["invocation_after"], result={"kind": "pre_source_refusal", "stage": "operand_validation", "reason": {"space": "combination", "tag": "operands_differ"}})), ATTEMPT),
     ("the combination Call's invocation_before (m43)", [_set(B + ["calls", 1, "invocation_before"], 1)], None, WORK),
     ("work.charged the batch Call's after (m44)", [], lambda s: body(s)["work"].update(charged=body(s)["calls"][0]["invocation_after"]), WORK),
 ])
@@ -345,23 +356,25 @@ def test_b2_g5_native_class(label, edits, change, expected):
     assert verdict(*edited(edits, change=change)) == expected, label
 
 
+def native(b):
+    try:
+        rp._g5_combination_native(b, [], lambda ok: rp._need(ok, "G5", "ATTEMPT_MISMATCH"))
+        return "pass"
+    except rp.RetainedPrecisionError as error:
+        return (error.gate, error.code)
+
+
 def test_b2_g5_native_no_operands_names_an_empty_operand_list():
     """A `no_operands` pre-source refusal is read with an empty `requested_operands` (FK `validate_preps` gives it only
     then); with the terms requested, the Call contradicts its own reason."""
     source, _ = base()
     b = body(source)
-    failures = []
-    rp._g5_combination_native(b, [], failures.append)
-    assert False not in failures
+    assert native(b) == "pass"
     b["calls"][1].update(result={"kind": "pre_source_refusal", "stage": "operand_validation", "reason": {"space": "combination", "tag": "no_operands"}}, source_refs=[], run_refs=[])
     b["combinations"][0].update(run=None, source_ref=None)
-    failures = []
-    rp._g5_combination_native(b, [], failures.append)
-    assert False in failures
+    assert native(b) == ATTEMPT
     b["calls"][1]["requested_operands"] = []
-    failures = []
-    rp._g5_combination_native(b, [], failures.append)
-    assert False not in failures
+    assert native(b) == "pass"
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -679,3 +692,55 @@ def test_b2_rehash_rule_at_the_new_reference_sites():
     b = body(zeroed)
     b["sources"][1]["preparation"]["sha256"] = b["sources"][2]["operands"][1]["source_identity_sha256"] = b["combinations"][0]["source_identity_sha256"] = "0" * 64
     assert body(apply_mutation(zeroed, {"edits": [], "rehash": "all"})) == body(source)
+
+
+def test_b2_g0_exact_route_refuses_an_operand_preparation():
+    """§8 row 9 on the exact route: its table binds DEF-E only, so an OperandPreparation (DEF-O's id) fails G0."""
+    exact = json.loads((ROOT / "fixtures/results/retained_precision_exact_successor_sparse_interactive.json").read_text())["source"]
+    receipt = deepcopy(exact["retained_precision"])
+    rp._g0_exact(deepcopy(receipt))
+    receipt["body"]["operand_preparations"] = deepcopy(body(base()[0])["operand_preparations"])
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp._g0_exact(receipt)
+    assert (error.value.gate, error.value.code) == UNSUPPORTED
+
+
+def test_b2_g5_native_pre_source_call_names_its_entry_reader_logic():
+    """A pre-source refusal's Call has no Run, so only the Call/entry check binds its owner and `call_ref`."""
+    source, _ = base()
+    b = body(source)
+    b["calls"][1].update(result={"kind": "pre_source_refusal", "stage": "operand_validation", "reason": {"space": "combination", "tag": "operands_differ"}}, source_refs=[], run_refs=[])
+    b["combinations"][0].update(run=None, source_ref=None)
+    assert native(b) == "pass"
+    for change in (lambda x: x["calls"][1].update(owner_refs=[{"kind": "combination", "index": 1}]), lambda x: x["combinations"][0].update(call_ref=2),
+                   lambda x: x["calls"][1].update(run_refs=[1]),
+                   lambda x: x["combinations"][0].update(expression={"kind": "result_state_subtraction", "minuend_id": "case:a", "subtrahend_id": "case:b"})):
+        bad = deepcopy(b); change(bad)
+        assert native(bad) == ATTEMPT
+
+
+def test_b2_g5_products_more_reader_logic():
+    """The projection list of a Ready combination attempt; a native error's Run; a no-Call cause with a Call; and a
+    prepared record that is not complete."""
+    assert verdict(*edited([], change=lambda s: body(s)["product_attempts"][1]["proof"]["projection_outcomes"].pop()))[0] == "G5"
+    source, _ = base()
+    failed_native(source)
+    b = body(source)
+    rows = {c["basis_ref"]["ref_id"]: [r for r in source["results"] if r["basis_ref"] == c["basis_ref"]] for c in b["combinations"]}
+    fail = lambda ok: rp._need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH")
+    b["product_attempts"][1]["result"]["error"]["run_ref"] = 0
+    with pytest.raises(rp.RetainedPrecisionError):
+        rp._g5_combination_attempt(b, b["product_attempts"][1], 1, rows, fail, lambda ok: None)
+    s2, _ = base()
+    recast_unavailable({"kind": "operand_source_unavailable", "operand_index": 1}, call_ref=1)(s2)
+    body(s2)["cases"][1].update(status="unavailable", source_ref=None)
+    with pytest.raises(rp.RetainedPrecisionError):
+        rp._g5_combination_entries(body(s2), fail)
+    s3, _ = base()
+    record = body(s3)["operand_preparations"][0]
+    record["preparation"]["members"][0]["result"] = {"kind": "refused", "error": {"kind": "invalid_geometry"}}
+    record["operational"]["new"] = []
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp._g5_operand_preparations(body(s3), fail, lambda ok: None)
+    assert (error.value.gate, error.value.code) == PRODUCT
+

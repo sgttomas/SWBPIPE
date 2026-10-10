@@ -167,6 +167,11 @@ def test_complete_synthetic_draft_control_is_not_qualification():
     from copy import deepcopy
     for fixture in corpus()["cases"]:
         source, invocation = deepcopy(fixture["source"]), deepcopy(fixture["invocation"])
+        if fixture["id"] in O07_PY_BOUND_G8:
+            # 07o's two hook bases: PY's bound read is the declared open item below; the unbound read is the corpus's.
+            assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+            assert rp._validate_draft(source)["classifications"] == fixture["expected_classifications"]
+            continue
         result = rp._validate_draft(source, invocation)
         assert result["classifications"] == fixture["expected_classifications"]
         assert result["invocation_bound"]
@@ -677,8 +682,9 @@ def test_snapshot_07_counts_and_entry_format():
     17 cases, 294 mutations, 28 must-pass and the D37 table; only rehash "all" (D11); one expectation
     per entry except the two per-reader G7 entries; each must-pass entry also states its eligibility."""
     c = corpus()
-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (26, 534, 78)
-    assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+    # 07o (B2) appends 19 cases, 69 mutations and 19 must-pass entries and states S-6's rehash as `format_rule`.
+    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (26 + 19, 534 + 69, 78 + 19)
+    assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37", "format_rule"}
     entries = c["mutations"][:294] + c["must_pass"][:28]
     assert all(e["rehash"] == "all" for e in entries)
     assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"} for e in entries)
@@ -1795,13 +1801,13 @@ N07_KEYS = {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash",
 
 def _n07_entries():
     c = corpus()
-    return c["mutations"][294:] + c["must_pass"][28:]
+    return c["mutations"][294:534] + c["must_pass"][28:78]
 
 
 def test_snapshot_07n_appends_only_and_states_every_read():
     c = corpus()
-    assert [x["id"] for x in c["cases"][17:]] == N07_BASES
-    assert (len(c["mutations"]) - 294, len(c["must_pass"]) - 28) == (240, 50)
+    assert [x["id"] for x in c["cases"][17:26]] == N07_BASES
+    assert (len(c["mutations"][294:534]), len(c["must_pass"][28:78])) == (240, 50)
     new = _n07_entries()
     assert all(set(e) <= N07_KEYS and e["rehash"] == "all" and "after_rehash" not in e for e in new)
     assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in new)
@@ -1812,10 +1818,10 @@ def test_snapshot_07n_appends_only_and_states_every_read():
     # unbound read is the same raw read per reader.
     assert all(e["expected_by_reader"]["python"] == e["expected_by_reader"]["typescript"] == e["expected"] != e["expected_by_reader"]["rust"]
                and e["expected"]["gate"] == e["expected_by_reader"]["rust"]["gate"] == "G7" and e["expected_unbound_by_reader"] == e["expected_by_reader"] for e in per)
-    assert sum("expected_classifications" in e for e in c["must_pass"][28:]) == 16
+    assert sum("expected_classifications" in e for e in c["must_pass"][28:78]) == 16
     eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
-    assert (eligible(c["cases"], "expected"), eligible(c["must_pass"], "expected_eligibility")) == (19, 46)
-    entries = c["mutations"] + c["must_pass"]
+    assert (eligible(c["cases"][:26], "expected"), eligible(c["must_pass"][:78], "expected_eligibility")) == (19, 46)
+    entries = c["mutations"][:534] + c["must_pass"][:78]
     assert len({e["id"] for e in entries}) == len(entries) == 612
 
 
@@ -1828,7 +1834,7 @@ def _n07_read(read, source):
     return "pass"
 
 
-@pytest.mark.parametrize("entry", corpus()["mutations"][294:] + corpus()["must_pass"][28:], ids=lambda x: x["id"])
+@pytest.mark.parametrize("entry", corpus()["mutations"][294:534] + corpus()["must_pass"][28:78], ids=lambda x: x["id"])
 def test_snapshot_07n_unbound_and_transport_reads(entry):
     """07n: each entry's unbound read (no invocation) and transport read, as the corpus states them for Python."""
     fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
@@ -1845,7 +1851,7 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
     eligible without it."""
     import hashlib
     c = corpus()
-    bases = {x["id"]: x for x in c["cases"][17:]}
+    bases = {x["id"]: x for x in c["cases"][17:26]}
     for mode, (file_sha, receipt_sha) in N07_W_C2.items():
         base = bases[f"w_c2_{mode}"]
         raw = (ROOT / base["provenance"]["fixture"]).read_bytes()
@@ -1882,3 +1888,73 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
         assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == base["expected"], base["id"]
         assert result["classifications"] == base["expected_classifications"], base["id"]
         assert rp.validate_retained_precision(deepcopy(base["source"]))["numerical_eligible"] is False
+
+
+# ---------------------------------------------------------------------------------------------
+# Snapshot 07o (B2, lane C's SC2 corpus; B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4): 19 bases
+# (15 producer-solved, 2 hook-produced, 2 synthetic), 69 mutations with their designed first failures (one per-reader
+# expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
+# Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.
+# ---------------------------------------------------------------------------------------------
+O07_SHA256 = "c2849ad53d1927a15c1a5b8254c649e0597d3230b21fc094bb2a4a7dd56c7a98"
+O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
+    f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
+    "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]
+O07_KEYS = {"id", "base", "edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"}
+# Open item for the manager (lane PY): both hook bases record case B's prepared member with old_facts D = +0 (the hooks'
+# forced refusal), while their invocation's OD is 0.2 m. C3's G8 tuple binding (the existing case-attempt rule, and
+# C3a-7's for an OperandPreparation) refuses that at G8 PREPARATION_MISMATCH; the corpus expects them to pass bound.
+O07_PY_BOUND_G8 = {"b2_operand_preparation_failure", "b2_operand_source_unavailable"}
+
+
+def test_snapshot_07o_appends_only_and_states_its_bases():
+    import hashlib
+    assert hashlib.sha256((ROOT / "fixtures/results/retained_precision_cases.json").read_bytes()).hexdigest() == O07_SHA256
+    c = corpus()
+    assert [x["id"] for x in c["cases"][26:]] == O07_BASES
+    new = c["mutations"][534:] + c["must_pass"][78:]
+    assert (len(c["mutations"][534:]), len(c["must_pass"][78:])) == (69, 19)
+    assert all(set(e) <= O07_KEYS and e["rehash"] == "all" for e in new)
+    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in new)
+    assert [e["id"] for e in new if "after_rehash" in e] == ["b2o_m10_combination_identity_changed", "b2o_m11_operand_identity_changed", "b2o_m12_operand_prepared_hash_case_domain"]
+    assert [e["id"] for e in new if "expected_by_reader" in e] == ["b2o_m69_combination_magnitude_off"]
+    assert [e["base"] for e in c["must_pass"][78:]] == O07_BASES
+    assert len({e["id"] for e in c["mutations"] + c["must_pass"]}) == 603 + 97
+    # The producer-solved and hook-produced bases state their pinned receipt; W-CB3's are the committed fixtures.
+    for base in c["cases"][26:41] + c["cases"][41:43]:
+        assert base["provenance"]["receipt_sha256"] == base["source"]["retained_precision"]["receipt_sha256"], base["id"]
+    for mode in ("sparse_interactive", "dense_scrutiny"):
+        doc = json.loads((ROOT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_text())
+        base = next(x for x in c["cases"] if x["id"] == f"w_cb3_{mode}")
+        assert json.dumps(base["source"]) == json.dumps(doc["source"]) and json.dumps(base["invocation"]) == json.dumps(doc["invocation"])
+    for step in ("operand_preparation_ref", "operands[*].source_ref", "combinations[*].source_ref"):
+        assert step in c["format_rule"]["rehash_indexing"]
+
+
+def test_snapshot_07o_mutation_slice():
+    """The 69 designed first failures (B2-C §10.3 as amended), by this reader's own first failure."""
+    _slice_outcomes(534, 603, {"G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED": 7, "G1 RETAINED_PRECISION_RECEIPT_MISMATCH": 9,
+                               "G2 RETAINED_PRECISION_ENCODING_MISMATCH": 2, "G3 RETAINED_PRECISION_COVERAGE_MISMATCH": 14,
+                               "G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH": 4, "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH": 10,
+                               "G5 RETAINED_PRECISION_WORK_MISMATCH": 3, "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH": 8,
+                               "G5b RETAINED_PRECISION_SCALE_MISMATCH": 1, "G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH": 1,
+                               "G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH": 3, "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID": 1,
+                               "G8 RETAINED_PRECISION_INVOCATION_MISMATCH": 3, "G8 RETAINED_PRECISION_PREPARATION_MISMATCH": 3})
+
+
+@pytest.mark.parametrize("entry", corpus()["must_pass"][78:], ids=lambda x: x["id"])
+def test_snapshot_07o_must_pass(entry):
+    """Each 07o must-pass entry: bound, its stated eligibility and its base's classifications (R-COMB-1's included);
+    unbound and transport, never eligible. The two hook bases' bound reads are the open item above."""
+    fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
+    source, invocation = apply_entry(fixture, entry)
+    if entry["base"] in O07_PY_BOUND_G8:
+        assert _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+    else:
+        result = rp.validate_retained_precision(deepcopy(source), deepcopy(invocation))
+        assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == entry["expected_eligibility"]
+        assert result["classifications"] == fixture["expected_classifications"]
+    unbound = rp.validate_retained_precision(deepcopy(source))
+    assert not unbound["invocation_bound"] and not unbound["numerical_eligible"] and unbound["classifications"] == fixture["expected_classifications"]
+    assert rp.validate_retained_precision_transport(deepcopy(source))["standing"] == "needs_recompute"
+

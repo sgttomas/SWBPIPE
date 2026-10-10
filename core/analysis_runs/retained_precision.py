@@ -1998,20 +1998,21 @@ def _operand_preparation_payload(record, definition_hash):
 
 
 def _g1_combinations(body, route):
-    """CONTRACT §10.1 G1 (RECEIPT_MISMATCH), on already-addressable records only (S-6 steps 2, 4 and 5): a
-    `retained_selected` combination's identity, each CombinationSource operand's identity at its `source_ref`, and each
-    operand-prepared CaseSource's preparation hash when its record and every member are prepared."""
+    """CONTRACT §10.1 G1 (RECEIPT_MISMATCH), on already-addressable records of the named kind only (S-6 steps 2, 4 and
+    5; §2.7's hashes): a `retained_selected` combination's identity over its CombinationSource, each CombinationSource
+    operand's identity over the CaseSource at its `source_ref`, and each operand-prepared CaseSource's preparation hash
+    when its record and every member are prepared. A reference to a source of the other kind is G3's or G5's."""
     need = lambda ok: _need(ok, "G1", "RECEIPT_MISMATCH")
     sources = body["sources"]
     for entry in body["combinations"]:
         if entry["disposition"] == "retained_selected":
             source = _resolve(sources, entry["source_ref"])
-            if source is not None: need(entry["source_identity_sha256"] == _source_hash(source))
+            if source is not None and source["owner"]["kind"] == "combination": need(entry["source_identity_sha256"] == _source_hash(source))
     for source in sources:
         if source["owner"]["kind"] == "combination":
             for operand in source["operands"]:
                 case_source = _resolve(sources, operand["source_ref"])
-                if case_source is not None: need(operand["source_identity_sha256"] == _source_hash(case_source))
+                if case_source is not None and case_source["owner"]["kind"] == "case": need(operand["source_identity_sha256"] == _source_hash(case_source))
         elif source["preparation"] is not None and "operand_preparation_ref" in source["preparation"]:
             record = _resolve(_records(body), source["preparation"]["operand_preparation_ref"])
             if record is not None and record["result"]["kind"] == "prepared" and all(m["result"]["kind"] == "prepared" for m in record["preparation"]["members"]):
@@ -2092,8 +2093,10 @@ def _g3_combinations(snapshot, body, ids, crows):
     need([a["owner_ref"]["index"] for a in attempts if a["owner_ref"]["kind"] == "combination"] == [k for k, e in enumerate(combos) if e.get("run") is not None])
     need(all((e.get("product_attempt_ref") is not None) == (e.get("run") is not None) for e in combos))
     # (g) Each CaseSource is named by exactly one case or one prepared operand preparation; each CombinationSource by
-    # exactly one combination entry.
-    for si, source in enumerate(sources):
+    # exactly one combination entry. Like (a), it binds once the receipt has an entry or an operand preparation: on a
+    # receipt with neither, today's checks place a source no case names (07n's `d38_m8_case_source_other` at G5,
+    # `orphan_source_beside_t7` at G8), and no 07n first failure moves (R5).
+    for si, source in enumerate(sources if combos or records else []):
         if source["owner"]["kind"] == "combination":
             need(sum(1 for e in combos if e.get("source_ref") == si) == 1)
         else:

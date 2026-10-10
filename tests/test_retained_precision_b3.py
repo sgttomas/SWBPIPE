@@ -376,6 +376,8 @@ B3B_REFUSALS = {
     "19 invocation contract legacy": (_model(lambda m: m.update(pressure_contract=dict(LEGACY))), INVOCATION),
     "20 invocation schema 0.4.0": (_model(lambda m: m.update(schema_version="0.4.0")), INVOCATION),
     "21 invocation pressure_contract false": (_model(lambda m: m.update(pressure_contract=False)), INVOCATION),
+    # Entry 22, settled (B2 readers): the exact route admits no combination (B3b, z = 0), and B2-C's G8 equality of the
+    # entries with the invocation's combinations would refuse it too, so the expectation stays G8 INVOCATION_MISMATCH.
     "22 a combination added to the invocation": (_model(lambda m: m.update(combinations=[{"id": "combination:x", "label": "x", "terms": [{"load_case": "case", "factor": 1.0}]}])), INVOCATION),
     "23 a case naming modulus_basis_ref": (_model(lambda m: m["load_cases"][0].update(modulus_basis_ref="point:x")), PREPARATION),
     "24 shear_origin explicit_g": (_receipt_material(lambda m: m.update(shear_origin={"kind": "explicit_g"})), PREPARATION),
