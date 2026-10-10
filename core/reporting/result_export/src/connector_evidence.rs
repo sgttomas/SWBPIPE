@@ -20,7 +20,7 @@ pub(crate) const LOCAL: &str = "connector_local";
 pub(crate) const LOCAL_FRAME: &str = "connector_axes_q";
 pub(crate) const LOCAL_SIGN: &str = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes";
 pub(crate) const END_SIGN: &str =
-    "global end action of the connector on its node (node on element), f = B^T g";
+    "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f";
 pub(crate) const MOTION_BASIS: &str = "symmetric_midpoint_small_rotation_v1";
 /// (kind, unit, components, locations). Generalized rows are local; end rows
 /// are global at `end_i` and `end_j`.

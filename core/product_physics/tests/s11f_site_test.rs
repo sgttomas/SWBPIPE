@@ -536,7 +536,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", 0, "producer"),
     ("PP/lib.rs", "push_exact_pressure_operands", 0, "producer"),
     ("PP/lib.rs", "add_constant_effort_support_loads", 0, "producer"),
-    ("PP/lib.rs", "add_connector_reference_loads", 0, "producer"),
     // ---- PP/pressure_runtime.rs
     ("PP/pressure_runtime.rs", "finish_source_groups", 1, "max fold of the pressure-RHS screen magnitude"),
     ("PP/pressure_runtime.rs", "traverse_region", 1, "geometry: chord projection (section 2.5)"),

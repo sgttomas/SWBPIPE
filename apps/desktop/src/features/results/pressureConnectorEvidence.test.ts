@@ -30,7 +30,7 @@ const mutations: [string, (e: Probe) => void, string][] = [
   ["row unknown kind", e => { connectorRow(e).kind = "connector_energy_v1"; }, "CONNECTOR_ROW_KIND"],
   ["row unit", e => { connectorRow(e).unit = "mm"; }, "CONNECTOR_ROW_SEMANTICS"],
   ["row basis", e => { connectorRow(e).metadata.basis = "objective_connector_v1;replaces_span=pipe:P-120;symmetric_midpoint_small_rotation_v1"; }, "CONNECTOR_ROW_SEMANTICS"],
-  ["row sign", e => { connectorRow(e).metadata.sign_convention = "global end action of the connector on its node (node on element), f = B^T g"; }, "CONNECTOR_ROW_SEMANTICS"],
+  ["row sign", e => { connectorRow(e).metadata.sign_convention = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"; }, "CONNECTOR_ROW_SEMANTICS"],
   ["row duplicated", e => { e.results.push({ ...structuredClone(connectorRow(e)), id: "result:connector:duplicate" }); }, "CONNECTOR_ROW_DUPLICATE"],
   ["replaced span row", e => {
     const row = structuredClone(e.results.find((r: Probe) => r.kind === "element_local_axial_force"));

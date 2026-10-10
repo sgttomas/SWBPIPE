@@ -2455,7 +2455,7 @@ fn run_linear_static_preview_observed(
         if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
             return blocked_envelope(model, diagnostics);
         }
-        joint::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
         if has_blocking(&diagnostics) {
             return blocked_envelope(model, diagnostics);
         }
@@ -3924,8 +3924,6 @@ pub(crate) fn nodal_and_eigen_case_force(
     ledger.finish(built.nodes.len() * DOF_PER_NODE)
 }
 
-/// S11 section 4.2: each exact-pressure source group's operand, never the
-/// group's pre-summed per-DOF total.
 /// The replaced spans of a built model (S20/S21 lookup set), by pipe ID.
 fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<String> {
     built.connector_records.iter().map(|r| r.span_id.clone()).collect()
@@ -3960,8 +3958,11 @@ fn append_connector_results(
                 continue;
             }
         };
-        for (kind, components, unit, values, location) in joint::connector_rows(&recovery) {
-            for (component, value) in components.iter().zip(values) {
+        let rows = joint::connector_rows(&recovery);
+        for row in 0..8 {
+            let (kind, components, unit, values, location) = rows[row];
+            for axis in 0..3 {
+                let (component, value) = (components[axis], values[axis]);
                 results.push(ResultItem {
                     id: format!(
                         "result:connector:{}:{}:{location}:{}",
@@ -3983,7 +3984,7 @@ fn append_connector_results(
                         sign_convention: if location == "connector_local" {
                             "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
                         } else {
-                            "global end action of the connector on its node (node on element), f = B^T g"
+                            "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
                         }
                         .to_string(),
                     }),
@@ -4027,7 +4028,8 @@ fn add_connector_reference_loads(
             }
         };
         let dofs = element_dof_map(connector.node_i().index, connector.node_j().index);
-        for ((&dof, &value), &bound) in dofs.iter().zip(&values).zip(&bounds) {
+        for index in 0..12 {
+            let (dof, value, bound) = (dofs[index], values[index], bounds[index]);
             if value == 0.0 {
                 continue;
             }
@@ -4043,6 +4045,8 @@ fn add_connector_reference_loads(
     }
 }
 
+/// S11 section 4.2: each exact-pressure source group's operand, never the
+/// group's pre-summed per-DOF total.
 fn push_exact_pressure_operands(
     ledger: &mut LoadLedger,
     exact: &pressure_runtime::ExactPressureCase,
@@ -7518,26 +7522,23 @@ fn build_model_for_members(
     }
 
     // T4-U3 (S1, S18): every admitted v3 connector is formed here or refused
-    // by code; none is skipped.
+    // by code (its replaced span too); none is skipped.
     let mut connectors = Vec::new();
     let mut connector_records = Vec::new();
     if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        for spec in joint::connector_specs(model) {
+        for component in &model.components {
+            let Some(spec) = joint::connector_spec(component) else {
+                continue;
+            };
             let span_index = pipes
                 .iter()
                 .position(|pipe: &StraightPipeElement| pipe.element_id == spec.span_id);
-            match (joint::build_connector(&spec, &nodes, &node_map), span_index) {
-                (Ok(connector), Some(span_index)) => {
+            match joint::build_connector(&spec, &nodes, &node_map, span_index) {
+                Ok((connector, record)) => {
                     connectors.push(connector);
-                    connector_records.push(joint::ConnectorRecord {
-                        component_id: spec.component_id.clone(),
-                        span_id: spec.span_id.clone(),
-                        span_index,
-                    });
+                    connector_records.push(record);
                 }
-                (Err(refusal), _) => diagnostics.push(refusal),
-                // The span's own pipe diagnostic is already blocking.
-                (Ok(_), None) => {}
+                Err(refusal) => diagnostics.push(refusal),
             }
         }
     }

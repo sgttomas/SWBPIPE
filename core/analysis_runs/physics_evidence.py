@@ -57,7 +57,7 @@ CONNECTOR_KINDS = {
 }
 CONNECTOR_ROWS_PER_CASE = 24
 CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
-CONNECTOR_END_SIGN = "global end action of the connector on its node (node on element), f = B^T g"
+CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
 CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
 CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
 

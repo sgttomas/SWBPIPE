@@ -59,7 +59,7 @@ fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
         ("row unknown kind", Box::new(|e: &mut Value| first_connector_row(e)["kind"] = json!("connector_energy_v1")), "CONNECTOR_ROW_KIND"),
         ("row unit", Box::new(|e: &mut Value| first_connector_row(e)["unit"] = json!("mm")), "CONNECTOR_ROW_SEMANTICS"),
         ("row basis", Box::new(|e: &mut Value| first_connector_row(e)["metadata"]["basis"] = json!("objective_connector_v1;replaces_span=pipe:P-120;symmetric_midpoint_small_rotation_v1")), "CONNECTOR_ROW_SEMANTICS"),
-        ("row sign", Box::new(|e: &mut Value| first_connector_row(e)["metadata"]["sign_convention"] = json!("global end action of the connector on its node (node on element), f = B^T g")), "CONNECTOR_ROW_SEMANTICS"),
+        ("row sign", Box::new(|e: &mut Value| first_connector_row(e)["metadata"]["sign_convention"] = json!("global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f")), "CONNECTOR_ROW_SEMANTICS"),
         ("row duplicated", Box::new(|e: &mut Value| {
             let mut r = first_connector_row(e).clone();
             r["id"] = json!("result:connector:duplicate");

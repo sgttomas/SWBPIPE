@@ -61,7 +61,7 @@ MUTATIONS = [
     ("row unknown kind", lambda e: first_connector_row(e).__setitem__("kind", "connector_energy_v1"), "unknown connector kind"),
     ("row unit", lambda e: first_connector_row(e).__setitem__("unit", "mm"), "connector row semantics"),
     ("row basis", lambda e: first_connector_row(e)["metadata"].__setitem__("basis", "objective_connector_v1;replaces_span=pipe:P-120;symmetric_midpoint_small_rotation_v1"), "connector row semantics"),
-    ("row sign", lambda e: first_connector_row(e)["metadata"].__setitem__("sign_convention", "global end action of the connector on its node (node on element), f = B^T g"), "connector row semantics"),
+    ("row sign", lambda e: first_connector_row(e)["metadata"].__setitem__("sign_convention", "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"), "connector row semantics"),
     ("row duplicated", _push_duplicate_row, "duplicate connector row"),
     ("replaced span row", _push_replaced_span_row, "connector replaced span published"),
 ]

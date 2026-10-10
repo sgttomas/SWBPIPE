@@ -211,9 +211,9 @@ fn vector(value: Option<&Value>, dimension: Dimension) -> Result<[f64; 3], Strin
     let value = value.ok_or("missing")?;
     let unit = text(value, "unit").ok_or("missing unit")?;
     let mut out = [0.0; 3];
-    for (slot, key) in out.iter_mut().zip(["x", "y", "z"]) {
+    for (axis, key) in ["x", "y", "z"].into_iter().enumerate() {
         let number = value.get(key).and_then(Value::as_f64).ok_or("missing component")?;
-        *slot = si(number, unit, dimension)?;
+        out[axis] = si(number, unit, dimension)?;
     }
     Ok(out)
 }
@@ -270,10 +270,12 @@ fn decode_fields(component: &PreviewComponent, connector: &Value) -> Result<Conn
     let end_j = attachment(connector.get("end_j")).map_err(|e| format!("end_j {e}"));
     let axes = matrix3(connector.get("connector_axes_global"))
         .map_err(|e| format!("connector_axes_global {e}"));
-    match connector.get("installed_reference_temperature") {
-        Some(t) if t.get("value").and_then(Value::as_f64).is_some_and(f64::is_finite)
-            && text(t, "unit").is_some_and(|u| unit_by_symbol(u, Dimension::Temperature).is_ok()) => {}
-        _ => problems.push("installed_reference_temperature is missing or invalid".into()),
+    // The readers require a positive absolute temperature (K); so does the
+    // decode (T4-RV19 N-6): a value at or below absolute zero is refused.
+    match installed_reference_temperature_k(connector) {
+        Some(kelvin) if kelvin > 0.0 => {}
+        Some(_) => problems.push("installed_reference_temperature must be above absolute zero".into()),
+        None => problems.push("installed_reference_temperature is missing or invalid".into()),
     }
     if text(connector, "temperature_applicability") != Some("fixed_installed_parameters_v1") {
         problems.push("temperature_applicability must be fixed_installed_parameters_v1".into());
@@ -441,11 +443,13 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
         if component.kind != "expansion_joint" {
             continue;
         }
-        let push = |diagnostics: &mut Vec<Diagnostic>, code: &str, extra: &[&str], message: String| {
+        let push = |diagnostics: &mut Vec<Diagnostic>, code: &str, extra: Option<&str>, message: String| {
             let mut refs = vec![component.id.clone()];
-            refs.extend(extra.iter().map(|r| r.to_string()));
+            if let Some(extra) = extra {
+                refs.push(extra.to_string());
+            }
             diagnostics.push(diag(
-                &format!("diagnostic:joint:{}:{}", stable_suffix(&component.id), stable_suffix(&format!("{code}:{}", extra.join(":")))),
+                &format!("diagnostic:joint:{}:{}", stable_suffix(&component.id), stable_suffix(&format!("{code}:{}", extra.unwrap_or_default()))),
                 code,
                 "blocking",
                 message,
@@ -455,7 +459,7 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
         let spec = match decode_fields(component, connector) {
             Ok(spec) => spec,
             Err(problems) => {
-                push(diagnostics, INPUT_INCOMPLETE, &["objective_connector"], format!(
+                push(diagnostics, INPUT_INCOMPLETE, Some("objective_connector"), format!(
                     "objective connector {} is incomplete or invalid: {problems}; it is never assembled with assumed values", component.id));
                 continue;
             }
@@ -463,11 +467,11 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
         let findings = model_findings(model, connector, &spec, &mut replaced);
         let span_known = !findings.iter().any(|(code, _)| *code == TOPOLOGY_UNRESOLVED);
         for (code, message) in findings {
-            push(diagnostics, code, &[], message);
+            push(diagnostics, code, None, message);
         }
         for case in &model.load_cases {
             if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
-                push(diagnostics, PRESSURE_INTERFACE_UNRESOLVED, &[&case.id], format!(
+                push(diagnostics, PRESSURE_INTERFACE_UNRESOLVED, Some(&case.id), format!(
                     "load case {} has pressure regions, and a joint's pressure interface is not resolved until T4-U5; a pressurized model with a joint is refused", case.id));
             }
         }
@@ -503,15 +507,19 @@ fn refuse_applied_span_loads(model: &PreviewModel, spec: &ConnectorSpec, diagnos
     }
 }
 
-/// The admitted connectors' specs (after `classify_connectors` found no
-/// blocking code), in model order.
+/// The decoded spec of a component that is an expansion joint with an
+/// objective connector whose fields decode (admitted after
+/// `classify_connectors` found no blocking code); `None` for any other.
+pub(crate) fn connector_spec(component: &PreviewComponent) -> Option<ConnectorSpec> {
+    if component.kind != "expansion_joint" {
+        return None;
+    }
+    decode_fields(component, component.objective_connector.as_ref()?).ok()
+}
+
+/// The admitted connectors' specs, in model order.
 pub(crate) fn connector_specs(model: &PreviewModel) -> Vec<ConnectorSpec> {
-    model
-        .components
-        .iter()
-        .filter(|c| c.kind == "expansion_joint")
-        .filter_map(|c| decode_fields(c, c.objective_connector.as_ref()?).ok())
-        .collect()
+    model.components.iter().filter_map(connector_spec).collect()
 }
 
 /// The pipes replaced by admitted connectors (S20/S21 lookup set), by ID.
@@ -522,14 +530,18 @@ pub(crate) fn replaced_span_ids(model: &PreviewModel) -> HashSet<String> {
     connector_specs(model).into_iter().map(|spec| spec.span_id).collect()
 }
 
-/// The FK connector of a decoded spec on the built nodes, or the blocking
-/// `OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE` naming the constructor's refusal
-/// (and the stress-free condition K q_ref = 0, decided exactly).
+/// The FK connector of a decoded spec on the built nodes with its record, or
+/// the blocking `OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE` naming the
+/// constructor's refusal (and the stress-free condition K q_ref = 0, decided
+/// exactly). `span_index` is the replaced span's index among the built pipes;
+/// a span that was not built is refused here too (its own pipe diagnostic is
+/// already blocking, so this refusal never stands alone).
 pub(crate) fn build_connector(
     spec: &ConnectorSpec,
     nodes: &[FrameNode],
     node_map: &HashMap<&str, usize>,
-) -> Result<ObjectiveConnector, Diagnostic> {
+    span_index: Option<usize>,
+) -> Result<(ObjectiveConnector, ConnectorRecord), Diagnostic> {
     let refuse = |message: String| {
         diag(
             &format!("diagnostic:joint:{}:connector-build", stable_suffix(&spec.component_id)),
@@ -559,7 +571,13 @@ pub(crate) fn build_connector(
     if spec.stress_free && !connector.stress_free() {
         return Err(refuse("reference_state stress_free requires K q_ref = 0 exactly".into()));
     }
-    Ok(connector)
+    let span_index = span_index.ok_or_else(|| refuse(format!("replaced span {} is not built", spec.span_id)))?;
+    let record = ConnectorRecord {
+        component_id: spec.component_id.clone(),
+        span_id: spec.span_id.clone(),
+        span_index,
+    };
+    Ok((connector, record))
 }
 
 /// The PP record of one built connector (unpriced; beside the FK type in
@@ -570,37 +588,6 @@ pub(crate) struct ConnectorRecord {
     pub span_id: String,
     /// The replaced span's index in `BuiltModel::pipes`.
     pub span_index: usize,
-}
-
-/// S20 (b) (RV6 C-1): on 0.4.0, a resolved total eigenstrain on a replaced
-/// span that is not exactly zero refuses its case; an explicit zero is
-/// admitted with no effect. The resolver still resolves every pipe.
-pub(crate) fn refuse_resolved_span_strain(
-    model: &PreviewModel,
-    cases: &[super::case_state::resolve::ResolvedCase],
-    diagnostics: &mut Vec<Diagnostic>,
-) {
-    let specs = connector_specs(model);
-    if replaced_span_ids(model).is_empty() {
-        return;
-    }
-    for case in cases {
-        for member in &case.members {
-            let Some(spec) = specs.iter().find(|s| s.span_id == member.pipe_id) else {
-                continue;
-            };
-            if member.strain.total_eigenstrain == 0.0 {
-                continue;
-            }
-            diagnostics.push(diag(
-                &format!("diagnostic:joint:{}:replaced-span-strain:{}", stable_suffix(&spec.component_id), stable_suffix(&case.effective_case.id)),
-                SPAN_LOAD_UNOWNED,
-                "blocking",
-                format!("load case {} resolves a nonzero eigenstrain ({}) on pipe {}, which objective connector {} replaces; the strain has no owner until its producer is implemented and is never moved to the connector or dropped", case.effective_case.id, member.strain.total_eigenstrain, spec.span_id, spec.component_id),
-                vec![spec.component_id.clone(), format!("element_state:{}", spec.span_id), spec.span_id.clone()],
-            ));
-        }
-    }
 }
 
 /// S21 (and RV6 C-2): replaced spans are left out of every published
@@ -645,9 +632,9 @@ pub(crate) fn exclude_replaced_spans(evidence: &mut Value, replaced: &HashSet<St
 /// recovery bound (S-9).
 pub(crate) fn connector_rows(
     recovery: &open_pipe_stress_frame_kernel::connector::ConnectorRecovery,
-) -> Vec<(&'static str, [&'static str; 3], &'static str, [f64; 3], &'static str)> {
+) -> [(&'static str, [&'static str; 3], &'static str, [f64; 3], &'static str); 8] {
     let e = &recovery.end_actions;
-    vec![
+    [
         ("connector_generalized_translation_v1", ["qt_x", "qt_y", "qt_z"], "m", [recovery.deformation[0], recovery.deformation[1], recovery.deformation[2]], "connector_local"),
         ("connector_generalized_rotation_v1", ["qr_x", "qr_y", "qr_z"], "rad", [recovery.deformation[3], recovery.deformation[4], recovery.deformation[5]], "connector_local"),
         ("connector_generalized_force_v1", ["gt_x", "gt_y", "gt_z"], "N", [recovery.g[0], recovery.g[1], recovery.g[2]], "connector_local"),
@@ -692,7 +679,10 @@ pub(crate) fn disclose_connector_temperature_law(model: &PreviewModel, diagnosti
     if !is_pressure_v3(model) {
         return;
     }
-    for spec in connector_specs(model) {
+    for component in &model.components {
+        let Some(spec) = connector_spec(component) else {
+            continue;
+        };
         let temperature = connector_value(model, &spec)
             .and_then(|c| c.get("installed_reference_temperature"))
             .map(|t| format!(" ({} {})", t.get("value").map(Value::to_string).unwrap_or_default(), text(t, "unit").unwrap_or_default()))
@@ -719,8 +709,10 @@ pub(crate) fn connector_evidence(model: &PreviewModel) -> Value {
     if !is_pressure_v3(model) {
         return Value::Array(Vec::new());
     }
-    let records = connector_specs(model)
-        .into_iter()
+    let records = model
+        .components
+        .iter()
+        .filter_map(connector_spec)
         .map(|spec| {
             let authored = connector_value(model, &spec);
             let source = |value: Option<&Value>| value.and_then(|v| text(v, "source_reference")).unwrap_or_default().to_string();

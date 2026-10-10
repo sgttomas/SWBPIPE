@@ -2642,7 +2642,6 @@ pub(crate) fn scrutinize_gaps(
         .iter()
         .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
         || !input.connectors.is_empty()
-        || !input.connectors.is_empty()
         || !input.curved_bend_elements.is_empty()
         || !assembly.qualified_passive_family()
         || !input.friction_normal_reactions.is_empty()

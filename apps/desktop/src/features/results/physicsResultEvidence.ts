@@ -290,7 +290,7 @@ export const CONNECTOR_KINDS: Record<string, [string, string[], string[]]> = {
 };
 const CONNECTOR_ROWS_PER_CASE = 24;
 const CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes";
-const CONNECTOR_END_SIGN = "global end action of the connector on its node (node on element), f = B^T g";
+const CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f";
 const connectorRecordFields = ["component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"];
 const connectorMatrixFields = ["representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"];
 const matrix3 = (v: unknown) => Array.isArray(v) && v.length === 3 && v.every(row => vector(row, 3));

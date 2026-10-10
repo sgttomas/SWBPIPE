@@ -5081,7 +5081,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -1.3639522552172137e-12
@@ -5099,7 +5099,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -349.9999999999999
@@ -5117,7 +5117,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -5135,7 +5135,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 770.0000000000002
@@ -5153,7 +5153,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -2.3330147492078024e-12
@@ -5171,7 +5171,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -5189,7 +5189,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 1.3639522552172137e-12
@@ -5207,7 +5207,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 349.9999999999999
@@ -5225,7 +5225,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -5243,7 +5243,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -3.7818637110831333e-13
@@ -5261,7 +5261,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -6.676802122700678e-13
@@ -5279,7 +5279,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -9312,7 +9312,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -6.692172170929559e-13
@@ -9330,7 +9330,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -125.00000000000007
@@ -9348,7 +9348,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -9366,7 +9366,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 275.00000000000017
@@ -9384,7 +9384,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -7.361389388022515e-13
@@ -9402,7 +9402,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -9420,7 +9420,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 6.692172170929559e-13
@@ -9438,7 +9438,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 125.00000000000007
@@ -9456,7 +9456,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -9474,7 +9474,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 3.99680288865057e-15
@@ -9492,7 +9492,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -7.361389388022515e-13
@@ -9510,7 +9510,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -13543,7 +13543,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -200.0000000000005
@@ -13561,7 +13561,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 5.0942851332652546e-14
@@ -13579,7 +13579,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -13597,7 +13597,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -8.205798860556991e-14
@@ -13615,7 +13615,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -360.0000000000007
@@ -13633,7 +13633,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -150.00000000000003
@@ -13651,7 +13651,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 200.0000000000005
@@ -13669,7 +13669,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -5.0942851332652546e-14
@@ -13687,7 +13687,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -13705,7 +13705,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -3.0016284326265696e-14
@@ -13723,7 +13723,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -80.0000000000005
@@ -13741,7 +13741,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 150.00000000000003
@@ -19508,7 +19508,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -7.199361647608463e-13
@@ -19526,7 +19526,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -350.0000000000002
@@ -19544,7 +19544,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -19562,7 +19562,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 770.0000000000001
@@ -19580,7 +19580,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -1.2082634154713647e-12
@@ -19598,7 +19598,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -19616,7 +19616,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 7.199361647608463e-13
@@ -19634,7 +19634,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 350.0000000000002
@@ -19652,7 +19652,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 0.0
@@ -19670,7 +19670,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 4.517275442594837e-13
@@ -19688,7 +19688,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -3.755961470024973e-13
@@ -19706,7 +19706,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -23757,7 +23757,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -3.721873071092922e-15
@@ -23775,7 +23775,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -125.00000000000014
@@ -23793,7 +23793,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 5.551115123125783e-12
@@ -23811,7 +23811,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 275.0000000000002
@@ -23829,7 +23829,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -2.1226087749541907e-13
@@ -23847,7 +23847,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -23865,7 +23865,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 3.721873071092922e-15
@@ -23883,7 +23883,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 125.00000000000014
@@ -23901,7 +23901,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -5.551115123125783e-12
@@ -23919,7 +23919,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 1.105782132526656e-13
@@ -23937,7 +23937,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 2.0407275673901463e-13
@@ -23955,7 +23955,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 0.0
@@ -28006,7 +28006,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -199.99999999999986
@@ -28024,7 +28024,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 9.97319490945015e-14
@@ -28042,7 +28042,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 2.7755575615628914e-12
@@ -28060,7 +28060,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -8.368429186429955e-14
@@ -28078,7 +28078,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -359.9999999999998
@@ -28096,7 +28096,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -149.99999999999997
@@ -28114,7 +28114,7 @@
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": 199.99999999999986
@@ -28132,7 +28132,7 @@
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -9.97319490945015e-14
@@ -28150,7 +28150,7 @@
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
             "value": -2.7755575615628914e-12
@@ -28168,7 +28168,7 @@
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -1.3572599614360377e-13
@@ -28186,7 +28186,7 @@
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": -79.99999999999997
@@ -28204,7 +28204,7 @@
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
-              "sign_convention": "global end action of the connector on its node (node on element), f = B^T g"
+              "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
             "value": 149.99999999999997
