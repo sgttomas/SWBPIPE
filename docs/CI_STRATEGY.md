@@ -8,8 +8,9 @@ runs. An irrelevant change is reported as not selected, not as a test pass.
 
 Selected desktop changes run the production build, Vitest and one desktop
 browser project for the core R2 journey and save/reopen checks. Selected
-numerical inputs run the locked Cargo suite and Python product schemas,
-qualification, preview and security checks. Numerical resource selection also
+numerical inputs run the locked Cargo suite and, in parallel, Python product
+schemas, qualification, preview and security checks. Python implementation and
+test changes select that coverage too. Numerical resource selection also
 covers fixtures loaded by Rust tests. Linux and WASM checks exercise portability
 that local macOS checks cannot establish.
 
