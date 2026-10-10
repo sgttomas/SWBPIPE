@@ -562,6 +562,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "rotate_to_global", 1, "formed rotation"),
     ("CB/lib.rs", "multiply6", 1, "stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "stiffness formation"),
+    ("CB/lib.rs", "flexibility_scale", 1, "max fold of the flexibility diagonal (one exact power-of-two scale)"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11"),
     ("load_case_algebra/lib.rs", "evaluate_linear_combination", 1, "E13: the fold is kept only as today's non-finite value"),
 ];

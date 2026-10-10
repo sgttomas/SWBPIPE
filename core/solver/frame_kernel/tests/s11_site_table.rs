@@ -277,6 +277,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "rotate_to_global", 1, "exempt: formed rotation"),
     ("CB/lib.rs", "multiply6", 1, "exempt: stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "exempt: stiffness formation"),
+    ("CB/lib.rs", "flexibility_scale", 1, "exempt: max fold of the flexibility diagonal (one exact power-of-two scale; T4-U1)"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11 terms API: exact sum of single-input section values"),
     // ---- load_case_algebra
     ("load_case_algebra/lib.rs", "evaluate_linear_combination", 1, "E13: the binary64 fold is kept only as today's non-finite value; the published value is the exact sum of exact products"),
