@@ -324,6 +324,10 @@ def test_shared_publicly_consistent_attestations_must_pass(entry):
     fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
     assert entry["expected"] == "pass"
     source, invocation = apply_entry(fixture, entry)
+    if entry["base"] in O07_PY_BOUND_G8:
+        # 07o's two hook bases: the declared open item (see O07_PY_BOUND_G8).
+        assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+        return
     result = rp._validate_draft(source, invocation)
     # 07n (B1 SC): an admitted rewrite that changes the classes (a case no longer selected, a row added or removed)
     # states its own `expected_classifications`, which the three readers agree on; otherwise the base's.
