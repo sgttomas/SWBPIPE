@@ -3,7 +3,8 @@
 This crate is the P1 formulation sub-tranche of the `DEC-070` ruling (D-34
 Option O-B): a dedicated arc-consistent curved-bend macro-element carrying
 user-entered in-plane and out-of-plane flexibility factors, assembled per the
-expansion-joint `UserStiffnessElement` precedent. Formulation only — no
+expansion-joint user-stiffness precedent (that element is deleted by T4-U3).
+Formulation only — no
 product-physics integration, schema change, or recovery path.
 
 ## Scope

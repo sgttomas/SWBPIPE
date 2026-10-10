@@ -154,7 +154,7 @@ fn curved_elbow_request() -> Value {
 }
 
 /// The declared B1–B3 subset (ROOT's brief, test B1): realized curved bends,
-/// user elements, several modulus bases, 0.4.0 prescribed motion, springs.
+/// objective connectors, several modulus bases, 0.4.0 prescribed motion, springs.
 fn declared_subset() -> Vec<(&'static str, Value)> {
     let parse = |text: &str| as_request(serde_json::from_str(text).unwrap());
     vec![

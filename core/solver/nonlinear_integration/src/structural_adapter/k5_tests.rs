@@ -1174,7 +1174,7 @@ fn k5_screen_ratio_is_recorded_per_element() {
 /// body's selected outcome is its plain one.
 #[test]
 fn k5_basis_text_and_family_flag_are_unchanged() {
-    const MIXED: &str = "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory";
+    const MIXED: &str = "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing curved elements or connectors; matrix positivity remains mandatory";
     for (name, m) in [
         ("curved companion", curved_mechanism(0.0, true)),
         ("connector companion", connector_mechanism(true)),
@@ -1230,7 +1230,7 @@ fn selected_is_unselected(m: &Model, sources: &[CurvedBendMacroElement], what: &
 }
 
 /// RV14-2 (Q2(b), RETURN §2.3 Step 2): two matched bends meet at node 1, which
-/// no frame or user element touches, and their macro sources disagree on it:
+/// no frame or connector touches, and their macro sources disagree on it:
 /// A ends at (0.25, 0.25, 0), B starts at (0.5, 0.25, 0). W4 takes a
 /// curved-only node's coordinates from its matched sources, so they must agree
 /// with each other, not only with a frame. The body is unqualified

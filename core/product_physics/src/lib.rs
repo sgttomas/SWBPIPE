@@ -6660,7 +6660,7 @@ fn assemble_reduced_sparse_entry_system(
 }
 
 // Dense-path assembly of the curved-bend macro-element stiffness beside the
-// frame and user-stiffness elements (the replaced chord element is excluded in
+// frame elements and connectors (the replaced chord element is excluded in
 // `build_model`, so the arc contribution is never double-counted).
 fn add_curved_bend_stiffness_contributions(
     stiffness: &mut [Vec<f64>],

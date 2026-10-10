@@ -9,8 +9,7 @@
 //!   shared with binary64 `local_stiffness`), realized curved bends as an
 //!   objective element (radial vectors, square roots, the K3a included angle,
 //!   the closed-form end flexibility, its inverse, and the equilibrium
-//!   transfer from the actual chord), user-stiffness elements with zero
-//!   lateral stiffness, and objective connectors (T4-U3: BᵀKB from the
+//!   transfer from the actual chord), and objective connectors (T4-U3: BᵀKB from the
 //!   binary64 decode, r from the node and offset differences); ground springs
 //!   are their exact binary64 values.
 //! - Each free row's ρ_i is one `ExactAccumulator` sum (the same exact-sum

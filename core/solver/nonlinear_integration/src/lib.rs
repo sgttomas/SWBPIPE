@@ -164,7 +164,7 @@ impl DerivedFrictionNormalReaction {
 /// arc stiffness — either formed once at model build time or through
 /// [`CurvedBendStiffnessElement::from_macro_element`] — so every linearized
 /// active-set iteration assembles the identical arc stiffness beside the frame
-/// and user-stiffness elements. No straight-chord fallback is derived here.
+/// and objective connectors. No straight-chord fallback is derived here.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CurvedBendStiffnessElement {
     pub element_id: String,
@@ -1108,8 +1108,8 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "Friction support normal reactions are either explicit input evidence or derived from the same linearized iterate through a named support-normal DOF supplied by the caller.".to_string(),
         "A friction support remains sliding only when its current post-force contact, motion, applied-force, and reported-force evidence is admissible; an inconsistent trial returns to the exact sticking candidate on the next iteration.".to_string(),
         "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate has one explicit nonconvergent warm-start iteration so the bounded force is tried without treating the seed as physical history.".to_string(),
-        "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
-        "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame and user-stiffness elements in every linearized iteration.".to_string(),
+        "Objective connectors are not assembled by this loop; a model containing one is refused (T5).".to_string(),
+        "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame elements in every linearized iteration.".to_string(),
     ]
 }
 
@@ -1118,7 +1118,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "DEC-053 sparse interactive mode uses direct reduced profile-entry sparse solves as the default linearized active-set path; dense scrutiny remains an explicit parity/review mode.".to_string(),
         "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.".to_string(),
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
-        "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
+        "Curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The bounded sliding friction force is a same-iterate affine Coulomb coupling, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
     ]
 }
@@ -1227,7 +1227,7 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
 }
 
 /// Scatter-add the explicit curved-bend macro-element global stiffness beside
-/// the frame and user-stiffness assembly for every linearized iteration.
+/// the frame assembly for every linearized iteration.
 fn add_curved_bend_stiffness_contributions(
     stiffness: &mut DenseMatrix,
     curved_bend_elements: &[CurvedBendStiffnessElement],
@@ -4779,7 +4779,7 @@ mod tests {
             let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
             assert!(solved.converged);
             assert_eq!(solved.iterations.len(), 2);
-            assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/user/affine"));
+            assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/connector/affine"));
             assert!(product_unsupported_gap_state_is_inspectable(&input, &[], &solved).unwrap());
             assert!(!product_selected_state_is_qualified(&input, &[], &solved).unwrap());
             assert_eq!(
@@ -4921,7 +4921,7 @@ mod tests {
             assert!(result
                 .strict_gap_unqualified_reason()
                 .unwrap()
-                .contains("mixed/curved/user/affine"));
+                .contains("mixed/curved/connector/affine"));
             assert!(!product_selected_state_is_qualified(&mixed, &[], &result).unwrap());
         }
     }

@@ -1612,7 +1612,7 @@ fn symmetry_basis(edges: &[(usize, usize, bool)]) -> String {
     let family_basis = if edges.iter().all(|(_, _, qualified)| *qualified) {
         "objective welded unreleased straight-frame family"
     } else {
-        "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
+        "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing curved elements or connectors; matrix positivity remains mandatory"
     };
     format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}")
 }
@@ -2649,7 +2649,7 @@ pub(crate) fn scrutinize_gaps(
         || !input.derived_friction_normal_reactions.is_empty()
         || !solve.applied_forces.is_empty()
     {
-        return unsupported("strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified".into(),work);
+        return unsupported("strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/connector/affine source capability remains unqualified".into(),work);
     }
     let mut gap_dofs = std::collections::HashSet::new();
     if input

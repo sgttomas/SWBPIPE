@@ -1034,7 +1034,7 @@ pub fn force_scaled_spring_action(
 ///   each lies within [predicted - 3, predicted + 2] (at most three mantissa
 ///   factors in [1, 2) above, at most three below), which the margins absorb.
 ///   A, I, J and L do not scale with b; only a subnormal one matters.
-/// - User stiffnesses, ground springs, the entries of realized curved-bend
+/// - Ground springs, the entries of realized curved-bend
 ///   matrices, objective connectors' K and formed Ke entries (T4-U3) and
 ///   load terms contribute their exact exponents; a load product x·y
 ///   contributes e(x) + e(y).
