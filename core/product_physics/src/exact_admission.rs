@@ -85,8 +85,9 @@ impl ExactContract {
 /// v3's own formulation basis (its approximation text). It names the admitted
 /// families, states the D-3 exclusions and that external-pressure stability
 /// and collapse are not assessed. A 0.4.0 document adds the load/reference
-/// state method's statements.
-pub(crate) fn pressure_v3_formulation_basis(load_state: bool) -> FormulationBasis {
+/// state method's statements; a model with an objective connector (T4-U3)
+/// then adds the connector law's statement.
+pub(crate) fn pressure_v3_formulation_basis(load_state: bool, connectors: bool) -> FormulationBasis {
     let mut limitations = vec![
         "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.".to_string(),
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.".to_string(),
@@ -105,6 +106,9 @@ pub(crate) fn pressure_v3_formulation_basis(load_state: bool) -> FormulationBasi
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.".to_string(),
         ]);
+    }
+    if connectors {
+        limitations.push(super::joint::CONNECTOR_LIMITATION.to_string());
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }

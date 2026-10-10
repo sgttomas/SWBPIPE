@@ -1007,14 +1007,12 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
     if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        let mut basis =
-            exact_admission::pressure_v3_formulation_basis(case_state::is_load_state(model));
         // T4-U3: a model with an objective connector states its law; a model
         // without one keeps v3's text unchanged.
-        if model.components.iter().any(|c| c.objective_connector.is_some()) {
-            basis.limitations.push(joint::CONNECTOR_LIMITATION.to_string());
-        }
-        return basis;
+        return exact_admission::pressure_v3_formulation_basis(
+            case_state::is_load_state(model),
+            model.components.iter().any(|c| c.objective_connector.is_some()),
+        );
     }
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
