@@ -5,9 +5,14 @@ import struct
 from copy import deepcopy
 from fractions import Fraction
 from pathlib import Path
+import sys
 
 import pytest
 from core.analysis_runs import retained_precision as rp
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from retained_precision_corpus import CORPUS_FILES, load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,7 +38,7 @@ def assert_least_upper(result, target):
 
 
 def corpus():
-    return json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())
+    return load_corpus()
 
 
 def test_small_bounds_against_independent_fraction_oracle():
@@ -1901,7 +1906,12 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
 # Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.
 # ---------------------------------------------------------------------------------------------
-O07_SHA256 = "78d6d7c50cb220678e599294f9df05c9543c9614d1422772593e055e5a816b11"
+# The corpus files' bytes, in CORPUS_FILES order: the 07m + 07n file is byte-identical to its pre-07o state, and 07o is its
+# own compact file. Joined (`retained_precision_corpus.py`) and written as the single file was (indent 2, ASCII, final
+# newline), they are byte for byte the single-file corpus 07o was merged as (O07_JOINED_SHA256).
+O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "0703ec17402037b01155e0f74bf2646d87a6bdf31850121628fc4f5e763396fa",
+              "fixtures/results/retained_precision_cases_07o.json": "ee5b8af2c8f186d349933cede51b36397ed63cecb20ab55071c7027de7a2adac"}
+O07_JOINED_SHA256 = "78d6d7c50cb220678e599294f9df05c9543c9614d1422772593e055e5a816b11"
 O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
     f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
     "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]
@@ -1916,7 +1926,10 @@ O07_REFUSED_BOUND = ["b2_operand_preparation_failure", "b2_operand_source_unavai
 
 def test_snapshot_07o_appends_only_and_states_its_bases():
     import hashlib
-    assert hashlib.sha256((ROOT / "fixtures/results/retained_precision_cases.json").read_bytes()).hexdigest() == O07_SHA256
+    assert tuple(O07_SHA256) == CORPUS_FILES[:2]
+    assert {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in O07_SHA256} == O07_SHA256
+    joined = json.dumps(load_corpus(CORPUS_FILES[:2]), indent=2) + "\n"
+    assert hashlib.sha256(joined.encode()).hexdigest() == O07_JOINED_SHA256
     c = corpus()
     assert [x["id"] for x in c["cases"][26:]] == O07_BASES
     new = c["mutations"][534:] + c["must_pass"][78:]

@@ -1,6 +1,6 @@
 {
  "description": "B2 three-reader parity probes (PR-B2 lane X): forgeries on which the RS, PY and TS retained-precision readers disagreed, or on which a manager's alignment ruling places a check, each with the gate and code every reader gives once aligned. Each shape is stated as edits from a shared corpus base in the corpus entry grammar (07n's edits and invocation_edits, rehash all by 07o's format rule) and is pinned in all three readers' tests.",
- "bases": "fixtures/results/retained_precision_cases.json, the case with the shape's base id",
+ "bases": "the shared corpus (fixtures/results/retained_precision_cases.json then retained_precision_cases_07o.json, joined), the case with the shape's base id",
  "shapes": [
   {
    "name": "ruling 1 (g): with a combination entry, case B names case A's CaseSource",
