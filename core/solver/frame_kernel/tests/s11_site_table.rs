@@ -275,7 +275,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "exempt: one source's consistent equivalent (section 2.2 declared formation)"),
     ("CB/lib.rs", "cross_quad", 1, "exempt: flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "exempt: formed rotation"),
-    ("CB/lib.rs", "quad", 1, "exempt: flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "multiply6", 1, "exempt: stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "exempt: stiffness formation"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11 terms API: exact sum of single-input section values"),

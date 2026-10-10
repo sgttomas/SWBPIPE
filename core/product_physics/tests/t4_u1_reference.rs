@@ -303,16 +303,17 @@ impl Lcg {
 #[test]
 fn t4_u1_seeded_elbows_at_every_x_are_formed_and_annihilate_rigid_motions() {
     // P5 (and P1) on N = 2,000 seeded elbows per X ∈ {0, 5e5, 2e6, 5e6,
-    // 7.3e6} (T4-I2 §1.4's column). Angles U(1e-4, π − 1e-4) rad (RV2 N-8:
-    // inside [1e-9, π − 1e-9]); R U(0.05, 3) m; node i on a 1 mm grid near
-    // (X, 0.7X, 0); random plane; bow toward y.
+    // 7.3e6}, as T4-I2 §1.4's column (R = 0.3 m) with B5.4's angle range
+    // U(5°, 175°) (RV2 N-8: inside [1e-9, π − 1e-9]); node i on a 1 mm grid
+    // near (X, 0.7X, 0); random chord direction and reference vector.
     let mut rng = Lcg(20261010);
     let mut worst = 0.0_f64;
     let (mut formed, mut plane_refused) = (0usize, 0usize);
     for x in [0.0, 5.0e5, 2.0e6, 5.0e6, 7.3e6] {
         for _ in 0..2000 {
-            let phi = 1.0e-4 + rng.next() * (std::f64::consts::PI - 2.0e-4);
-            let radius = 0.05 + rng.next() * 2.95;
+            let degree = std::f64::consts::PI / 180.0;
+            let phi = (5.0 + 170.0 * rng.next()) * degree;
+            let radius = 0.3;
             let chord_length = 2.0 * radius * (0.5 * phi).sin();
             // A random unit chord direction and a random reference vector.
             let z = 2.0 * rng.next() - 1.0;
@@ -335,11 +336,7 @@ fn t4_u1_seeded_elbows_at_every_x_are_formed_and_annihilate_rigid_motions() {
                 xi[1] + chord_length * direction[1],
                 xi[2] + chord_length * direction[2],
             ];
-            // The represented chord may be a little longer than 2R for
-            // nearly semicircular arcs; use a radius that spans it.
             let d = subtract(xj, xi);
-            let length = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
-            let radius = radius.max(0.5 * length * (1.0 + 1.0e-12));
             let inputs = Inputs {
                 radius,
                 y,
