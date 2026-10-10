@@ -109,16 +109,39 @@ def apply_mutation(base, mutation):
     receipt = value.get("retained_precision")
     if isinstance(receipt, dict) and isinstance(receipt.get("body"), dict):
         body = receipt["body"]
+        records = body.get("operand_preparations") if isinstance(body.get("operand_preparations"), list) else []
+        # B2-C REVISION_01 §5.2 (S-6), steps 1 and 2: the CaseSource preparation hashes. A CombinationSource has no
+        # `preparation`, and an operand-prepared CaseSource's names its record, so both reads are guarded.
         for source in body["sources"]:
-            preparation = source["preparation"]
-            attempt = _rehash_ref(body["product_attempts"], preparation["attempt_ref"]) if preparation is not None else None
-            if attempt is not None and all(m["result"]["kind"] == "prepared" for m in attempt["preparation"]["members"]):
+            preparation = source.get("preparation")
+            if not isinstance(preparation, dict):
+                continue
+            # Step 1: through `attempt_ref`, when every member of that attempt is prepared.
+            attempt = _rehash_ref(body["product_attempts"], preparation.get("attempt_ref"))
+            if isinstance(attempt, dict) and isinstance(attempt.get("preparation"), dict) and all(m["result"]["kind"] == "prepared" for m in attempt["preparation"]["members"]):
                 # The shared corpus is on the preview route: DEF-O's H (S-1; the reader's payload has no default).
                 preparation["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.DEFINITION_HASH))
+            # Step 2: through `operand_preparation_ref`, when that record and every member are prepared: C3a-5's
+            # payload (with `purpose`), under the same DEF-O H.
+            record = _rehash_ref(records, preparation.get("operand_preparation_ref"))
+            if isinstance(record, dict) and record["result"]["kind"] == "prepared" and all(m["result"]["kind"] == "prepared" for m in record["preparation"]["members"]):
+                preparation["sha256"] = rp._hash("retained_precision_operand_preparation_v1", rp._operand_preparation_payload(record, rp.DEFINITION_HASH))
+        # Step 3: each selected case's identity.
         for case in body["cases"]:
             source = _rehash_ref(body["sources"], case.get("source_ref")) if case["status"] == "selected" else None
             if source is not None:
                 case["source_identity_sha256"] = rp._source_hash(source)
+        # Step 4: each CombinationSource operand's identity, the identity of the CaseSource at its `source_ref`.
+        for source in body["sources"]:
+            for operand in source.get("operands") if isinstance(source.get("operands"), list) else []:
+                case_source = _rehash_ref(body["sources"], operand.get("source_ref"))
+                if case_source is not None:
+                    operand["source_identity_sha256"] = rp._source_hash(case_source)
+        # Step 5: each retained_selected combination's identity, over its CombinationSource (after step 4).
+        for entry in body.get("combinations") if isinstance(body.get("combinations"), list) else []:
+            source = _rehash_ref(body["sources"], entry.get("source_ref")) if entry.get("disposition") == "retained_selected" else None
+            if source is not None:
+                entry["source_identity_sha256"] = rp._source_hash(source)
         body["publication_sha256"] = rp._hash("retained_precision_publication_mp_v2", {k:v for k,v in value.items() if k != "retained_precision"})
         receipt["receipt_sha256"] = rp._hash("retained_precision_receipt_mp_v2", body)
     # D24 (snapshot 07b): optional after_rehash edits are applied literally after rehash "all",
