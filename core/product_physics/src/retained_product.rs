@@ -5673,8 +5673,9 @@ impl ProductCapture {
     /// on its own block: the adapter (`require`, one `LibraryBoundary`); its gate entry not
     /// withheld (T-10a's consistency); the support coverage and guard (`support_observables`, base
     /// G7's `combination_magnitudes`); per model node exactly one displacement magnitude and one
-    /// row of each translation, the magnitude within 64ε·max(|p|, MIN_POSITIVE) of
-    /// hypot(hypot(x,y),z) of them; and no maximum or intensified row. No preview case evidence,
+    /// row of each translation, the magnitude within 64ε·max(|p|, MIN_POSITIVE) of the correctly
+    /// rounded norm of them (PR-N's `norm3`, as the support guard and base G7); and no maximum or
+    /// intensified row. No preview case evidence,
     /// maximum or headline check.
     fn combination_observables(&self, view: ProductCaseView<'_>, combination: &str) -> Result<(), CaptureError> {
         self.adapter.require()?;
@@ -5718,7 +5719,7 @@ impl ProductCapture {
                 found = Some(*r.value);
             }
             let p = found.ok_or("combination magnitude identity")?;
-            if (p - v[0].hypot(v[1]).hypot(v[2])).abs() > 64.0 * f64::EPSILON * p.abs().max(f64::MIN_POSITIVE) {
+            if (p - norm3(v[0], v[1], v[2])).abs() > 64.0 * f64::EPSILON * p.abs().max(f64::MIN_POSITIVE) {
                 return Err("combination magnitude guard".into());
             }
         }
