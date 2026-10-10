@@ -9,8 +9,12 @@ relevant neighbourhood. Code and checks are located through
 The current objective comes from the init prompt and subsequent owner steering.
 Edit current source documents when decisions or dependency conditions change;
 the PR is the change record. No routine progress or lifecycle files are updated.
-DEC-025's existing product-code evidence sweep remains until the CI migration
-provides its useful coverage a hosted home; required checks cover the merge head.
+Hosted checks cover the exact merge head: selected desktop build, behavioural
+tests and core browser journey; selected Cargo numerical oracles and Python
+product contracts. Broad browser matrices run nightly or on demand. Once the
+replacement required checks are applied and demonstrated, this rule supersedes
+DEC-025's blanket local merge sweep. `tools/release/run_evidence_sweep.py` remains
+optional preparation for macOS release candidates; release is an owner act.
 
 ## Hard boundaries
 

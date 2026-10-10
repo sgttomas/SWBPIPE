@@ -20,7 +20,17 @@ def load_module(name, path):
 
 HERE = Path(__file__).resolve().parent
 readiness = load_module('numerical_release_readiness', HERE.parent / 'release/check_release_readiness.py')
-selection = load_module('numerical_selection', HERE / 'e2e_plan.py')
+PROJECT = 'projects/chirality-piping/'
+
+
+def validate_plan(root, plan):
+    if plan.get('schema') != 'chirality-hosted-ci/v1':
+        raise ValueError('Unknown selection schema')
+    head = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+    if plan.get('head') != head:
+        raise ValueError('Selection does not name the checked-out candidate')
+    if plan.get('modes', {}).get('piping-numerical') != 'full':
+        raise ValueError('Numerical runner requires explicit selected coverage')
 
 
 def cargo_plan(project):
@@ -70,11 +80,9 @@ def run(root, plan, evidence_dir):
                     plan=plan, commands=[], manifests=[], plan_validated=False)
     code = 1
     try:
-        selection.validate(root, plan)
+        validate_plan(root, plan)
         evidence['plan_validated'] = True
-        if plan.get('numerical_required') is not True:
-            raise ValueError('Numerical runner requires explicit numerical_required=true')
-        project = root / selection.PROJECT
+        project = root / PROJECT
         manifests, commands = cargo_plan(project)
         evidence['manifests'] = [p.as_posix() for p in manifests]
         evidence['input_sha256'] = {p.as_posix(): hashlib.sha256((project / p).read_bytes()).hexdigest()

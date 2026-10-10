@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""DEC-025 five-surface evidence sweep — the deterministic local merge gate.
+"""Optional macOS release-candidate evidence sweep.
 
-Runs the five evidence surfaces sequentially in F-4-safe order (cargo crate
-sweep, Python pytest, desktop Vitest with the wasm engine built first,
-Playwright e2e, desktop production build) and writes a machine-readable
-summary artifact bound to the current commit hash. This sweep is the required
-clean-candidate evidence for each coherent reviewed integration batch before product merge
-(`DEC-025`, recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12;
-basis `execution/_Coordination/_DECISIONS/D-05_ci_provider_workflow.md`
-Option D).
+Runs Cargo, Python, Vitest/WASM, browser and production-build surfaces locally.
+Selected hosted checks replace the former DEC-025 blanket merge requirement
+once the new required-check configuration is applied and demonstrated. This
+optional tool remains available for macOS release preparation; it grants no
+release authority.
 
 The tool performs no network lookup: surface 4 either runs through the existing
 local host path or consumes a caller-supplied, commit-bound record of the

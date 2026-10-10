@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -12,6 +13,15 @@ MODULE = Path(__file__).resolve().parents[1] / 'tools/ci/numerical_ci.py'
 spec = importlib.util.spec_from_file_location('numerical_ci', MODULE)
 ci = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ci)
+
+ROOT = MODULE.parents[4]
+sys.path.insert(0, str(ROOT / 'tools/software_workflow'))
+import hosted_ci
+from software_workflow_common import load_profile
+
+
+def numerical_input(path):
+    return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['modes']['piping-numerical'] == 'full'
 
 
 class NumericalTests(unittest.TestCase):
@@ -64,7 +74,7 @@ class NumericalTests(unittest.TestCase):
             self.assertTrue((Path(tmp) / evidence['commands'][0]['output']).exists())
 
     def test_invalid_candidate_still_writes_failure_evidence(self):
-        with tempfile.TemporaryDirectory() as tmp, patch.object(ci.selection, 'validate', side_effect=ValueError('wrong candidate')):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(ci, 'validate_plan', side_effect=ValueError('wrong candidate')):
             self.assertEqual(ci.run(tmp, {'head': 'wrong'}, tmp), 1)
             evidence = json.loads((Path(tmp) / 'numerical.json').read_text())
             self.assertFalse(evidence['plan_validated'])
@@ -74,8 +84,8 @@ class NumericalTests(unittest.TestCase):
     def test_cargo_launch_exception_after_version_success_is_nonzero(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            self.fixture(root / ci.selection.PROJECT)
-            with patch.object(ci.selection, 'validate'), patch.object(ci, 'execute_commands', return_value=0), patch.object(ci, 'execute_cargo', side_effect=OSError('launch failed')):
+            self.fixture(root / ci.PROJECT)
+            with patch.object(ci, 'validate_plan'), patch.object(ci, 'execute_commands', return_value=0), patch.object(ci, 'execute_cargo', side_effect=OSError('launch failed')):
                 self.assertEqual(ci.run(root, {'numerical_required': True}, root / 'evidence'), 1)
             evidence = json.loads((root / 'evidence/numerical.json').read_text())
             self.assertEqual(evidence['exit_code'], 1)
@@ -111,11 +121,10 @@ class NumericalTests(unittest.TestCase):
                 path = (source.parent / self.rust_path_literal(match.group(1))).resolve()
                 self.assertTrue(path.is_file(), f'Unresolved Rust include: {source} -> {path}')
                 relative = path.relative_to(repo).as_posix()
-                self.assertTrue(ci.selection.numerical_input(relative), f'Rust include omitted by numerical policy: {source} -> {relative}')
+                self.assertTrue(numerical_input(relative), f'Rust include omitted by numerical policy: {source} -> {relative}')
                 references.add(relative)
         self.assertTrue(references, 'Real include coverage must be nonempty')
-        self.assertTrue(ci.selection.NUMERICAL_EVIDENCE_INPUTS <= references,
-                        'Escaped multiline frozen-evidence include must be discovered')
+        self.assertIn(ci.PROJECT + 'validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json', references)
 
     def test_real_rust_runtime_resource_literals_require_numerical(self):
         project, sources = self.rust_sources()
@@ -135,20 +144,28 @@ class NumericalTests(unittest.TestCase):
                     if not path.is_relative_to(project) or not path.exists():
                         continue
                     relative = path.relative_to(repo).as_posix()
-                    self.assertTrue(ci.selection.numerical_input(relative), f'Runtime resource omitted by numerical policy: {source} -> {relative}')
+                    self.assertTrue(numerical_input(relative), f'Runtime resource omitted by numerical policy: {source} -> {relative}')
                     references.add(relative)
         self.assertTrue(references, 'Real runtime resource coverage must be nonempty')
         for prefix in ('fixtures/', 'schemas/', 'examples/', 'validation/'):
-            self.assertTrue(any(path.startswith(ci.selection.PROJECT + prefix) for path in references), prefix)
+            self.assertTrue(any(path.startswith(ci.PROJECT + prefix) for path in references), prefix)
 
     def test_gate_requires_exact_numerical_state(self):
-        for mode, barrier, remainder in [('full', 'skipped', 'success'), ('lean', 'success', 'skipped'), ('not-applicable', 'skipped', 'skipped')]:
-            for required, expected in [('true', 'success'), ('false', 'skipped')]:
-                self.assertTrue(ci.selection.aggregate(mode, 'success', barrier, remainder, required, expected))
-                for state in {'failure', 'cancelled', '', 'unknown', 'skipped', 'success'} - {expected}:
-                    self.assertFalse(ci.selection.aggregate(mode, 'success', barrier, remainder, required, state))
-            for invalid in ['', 'unknown', None, True]:
-                self.assertFalse(ci.selection.aggregate(mode, 'success', barrier, remainder, invalid, 'skipped'))
+        for mode, expected in [('full', 'success'), ('not-applicable', 'skipped')]:
+            self.assertTrue(hosted_ci.aggregate('piping-numerical', mode, 'success', expected))
+            for state in {'failure', 'cancelled', '', 'unknown', 'skipped', 'success'} - {expected}:
+                self.assertFalse(hosted_ci.aggregate('piping-numerical', mode, 'success', state))
+        for mode in ['', 'unknown', None]:
+            self.assertFalse(hosted_ci.aggregate('piping-numerical', mode, 'success', 'skipped'))
+
+    def test_plan_must_name_exact_selected_candidate(self):
+        plan = {'schema': 'chirality-hosted-ci/v1', 'head': 'abc', 'modes': {'piping-numerical': 'full'}}
+        with patch.object(ci.subprocess, 'check_output', return_value='abc\n'):
+            ci.validate_plan(Path('.'), plan)
+            with self.assertRaises(ValueError):
+                ci.validate_plan(Path('.'), dict(plan, head='other'))
+            with self.assertRaises(ValueError):
+                ci.validate_plan(Path('.'), dict(plan, modes={'piping-numerical': 'not-applicable'}))
 
 
 if __name__ == '__main__':
