@@ -112,10 +112,16 @@ function launch(phase) {
       stdio: ["ignore", "inherit", "inherit"],
       detached: true
     });
-    // On timeout, kill the whole group: caffeinate and the app under it.
-    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); process.kill(-child.pid, "SIGKILL"); }, PHASE_TIMEOUT_MS);
+    // On timeout or interruption, kill the whole group: caffeinate and the app under it.
+    const killGroup = () => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* already gone */ } };
+    const interrupted = () => { killGroup(); process.exit(130); };
+    process.once("SIGINT", interrupted);
+    process.once("SIGTERM", interrupted);
+    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); killGroup(); }, PHASE_TIMEOUT_MS);
     child.on("exit", (code, signal) => {
       clearTimeout(timer);
+      process.off("SIGINT", interrupted);
+      process.off("SIGTERM", interrupted);
       const parsed = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${code ?? signal})` };
       resolve(parsed);
     });
@@ -181,9 +187,16 @@ for (const item of first.exports ?? []) {
   // row count is the one the export panel showed for the current result.
   const packet = JSON.parse(readFileSync(path.join(downloads, name), "utf8"));
   const doc = documents.find((entry) => entry.case === item.label);
-  const rows = packet.result_envelope?.result_sets?.[0]?.values?.length;
-  check(`${item.label}: exported file is bound to the solved model`, packet.result_envelope?.model_ref?.ref_id === doc?.project_id, packet.result_envelope?.model_ref?.ref_id);
+  const envelope = packet.result_envelope ?? {};
+  const rows = envelope.result_sets?.[0]?.values?.length;
+  // Every solved row is accounted for as an exported value, review evidence or
+  // a disclosure; the export follows the case's last solve.
+  const accounted = (envelope.result_sets ?? []).reduce((n, set) => n + set.values.length, 0)
+    + (envelope.review_evidence?.length ?? 0) + (envelope.row_disclosures?.length ?? 0);
+  const solvedRows = observation(first, item.label, doc?.modes.at(-1))?.proof_rows;
+  check(`${item.label}: exported file is bound to the solved model`, envelope.model_ref?.ref_id === doc?.project_id, envelope.model_ref?.ref_id);
   check(`${item.label}: exported rows match the export panel`, rows !== undefined && item.summary?.includes(`rows=${rows};`), `${rows}; ${item.summary}`);
+  check(`${item.label}: export accounts for every solved row`, accounted === solvedRows, `${accounted} accounted; ${solvedRows} solved`);
 }
 check("at least one result export written", exported.length > 0, exported);
 

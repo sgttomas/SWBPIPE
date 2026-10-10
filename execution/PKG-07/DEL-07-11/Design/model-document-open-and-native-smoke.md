@@ -68,8 +68,10 @@ export use their existing routes unchanged.
 - **No implicit model.** The working-directory fixture lookup is gone. The
   bundled invented demo and its design knowledge are compiled into the binary
   (`include_str!`), so a packaged app starts the same from any directory. A
-  solve without a model is refused (`PREVIEW-SOLVE-MODEL-REQUIRED`), and so is
-  a sample proposal without the session's mechanics result.
+  solve without a model is refused (`PREVIEW-SOLVE-MODEL-REQUIRED`). So is the
+  native sample-proposal command without the session's mechanics result. The
+  webview's fixture-backed sample proposal for the browser preview is
+  unchanged, and the app disables that action until a result exists.
 - **Browser preview.** The browser preview cannot open files and refuses with
   `MODEL-FILE-NATIVE-ONLY`.
 - **Scope fence.** This is the ordinary route only. The retained/Direct entry,
@@ -119,7 +121,8 @@ It also checks:
 - the proof hash against its own JCS hash of each file;
 - each saved model against the opened document;
 - that the exported file in Downloads is bound to the solved model's project,
-  with the row count the export panel showed.
+  shows the row count the export panel showed, and accounts for every row of the
+  solve.
 
 Run it on a Mac with a GUI session:
 
