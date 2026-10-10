@@ -473,6 +473,160 @@ fn sq2_inputs_are_the_committed_helpers() {
     assert_eq!(exact["materials"], exact["model"]["materials"], "the request-level materials take the same basis");
 }
 
+// ---- T3 F1: G-C's contract-evidence bounds per W1 route ----------------------------------------
+
+/// The G-C observations of `raw`'s ordinary run, observed on its own W1 route as `permitted_run`
+/// observes it, and the run's envelope.
+fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObservation; COMPLETE_FACTS], crate::MechanicsEnvelope, crate::retained_product::W1Route) {
+    let (request, capture) = CapturedInvocation::parse(raw, mode).unwrap();
+    let requested_cases = request.model.load_cases.len();
+    let route = crate::w1_route(&request.model).unwrap();
+    let mut observer = crate::retained_product::ProductCapture::prepared_probe_on(route);
+    let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut observer));
+    (complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases }), ordinary, route)
+}
+
+/// T3 F1 (SQ2's G-C finding): route E's G-C bounds. Route L's bounds are `phase_caps()`, whose
+/// entries row is cut from C·553 = 1,659 to 1,654 so that objects + ⌊entries / 5⌋ stays within the
+/// 531 BTree nodes the profile prices; route E's differ only in the five contract-evidence rows, which are C times route E's
+/// per-case facts (the componentwise maximum of the preview tree and I95's exact-evidence census
+/// at the D1 caps), the facts the registered profile prices for the evidence owner. At
+/// (n, m, g) = (32, 32, 32) and C = 3, per case: arrays max(160, 1,900), objects max(67, 419),
+/// entries max(553, 2,073), string bytes max(66,816, 226,200), key bytes max(22,120, 21,561); the
+/// entries bound is cut to 6,214 so that objects + ⌊entries / 5⌋ ≤ 3·(419 + ⌊2,073 / 5⌋) = 2,499,
+/// the BTree nodes the profile prices.
+#[test]
+fn f1_g_c_contract_evidence_bounds_are_per_route() {
+    use crate::retained_product::W1Route;
+    let (l, e) = (phase_caps_on(W1Route::Preview), phase_caps_on(W1Route::Exact));
+    assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L's bounds are phase_caps()");
+    assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");
+    assert_eq!(e.complete[9..14], [5_700, 1_257, 6_214, 678_600, 66_360], "route E: C times max(preview tree, exact census)");
+    assert_eq!(e.late, l.late, "G-B is route-independent");
+    for i in (0..COMPLETE_FACTS).filter(|i| !(9..14).contains(i)) {
+        assert_eq!(e.complete[i], l.complete[i], "row {i} is route-independent");
+    }
+    // The node count the profile prices (`value_tree`: objects + ⌊entries / 5⌋ per case, times C),
+    // reached and not exceeded on each route: 531 on route L, 2,499 on route E.
+    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (419 + 2_073 / 5))] {
+        assert!(caps.complete[10] + caps.complete[11] / 5 == nodes && caps.complete[10] + (caps.complete[11] + 1) / 5 > nodes, "{nodes}");
+    }
+    // The profile prices the evidence owner at these facts: route E's chain's
+    // "Preview tree final copy (envelope evidence)" family is 2,499·Node(String,Value) + 5,700·s(Value)
+    // + 744,960 B, and the arrays and bytes bounds sum to it.
+    assert_eq!((e.complete[9], e.complete[12] + e.complete[13]), (5_700, 744_960));
+    // Each fact admits its bound and refuses one more on route E.
+    let (facts, _, _) = complete_facts_on_route(inputs::exact_cap_maximal(), PreviewSolverMode::SparseInteractive);
+    let mut at = facts;
+    for (o, cap) in at.iter_mut().zip(e.complete) {
+        o.observed = cap;
+    }
+    assert_eq!(check_phase(PhaseGate::Complete, &at, &e.complete), Ok(()));
+    for i in 0..COMPLETE_FACTS {
+        let mut over = at;
+        over[i].observed += 1;
+        assert_eq!(check_phase(PhaseGate::Complete, &over, &e.complete).unwrap_err().fact, facts[i].fact);
+    }
+}
+
+/// T3 F1: the cap-maximal exact input passes G-C on route E (route L's bounds refused it at the
+/// evidence's array elements), while an exact owner one array element over route E's bound is
+/// still refused there, and the milestone keeps route L's bounds.
+#[test]
+fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
+    use crate::retained_product::W1Route;
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let (facts, ordinary, route) = complete_facts_on_route(inputs::exact_cap_maximal(), mode);
+        assert_eq!(route, W1Route::Exact);
+        let caps = phase_caps_on(route);
+        assert_eq!(check_phase(PhaseGate::Complete, &facts, &caps.complete), Ok(()), "{mode:?}: inside route E's bounds");
+        let refusal = check_phase(PhaseGate::Complete, &facts, &phase_caps().complete).unwrap_err();
+        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's bounds refuse it");
+        let arrays = facts.iter().find(|o| o.fact == PhaseFact::ContractEvidenceArrayElements).unwrap().observed;
+        assert!(arrays > 480 && arrays <= caps.complete[9], "{mode:?}: {arrays}");
+        // Over the bound: the same owner with array slots added up to route E's bound plus one.
+        let mut over = ordinary.clone();
+        let base = borrowed_value_census(over.contract_evidence.as_ref().unwrap()).array_capacity_elements as u64;
+        let extra = (caps.complete[9] + 1 - base) as usize;
+        let mut pad = Vec::with_capacity(extra);
+        pad.resize(extra, Value::Null);
+        over.contract_evidence.as_mut().unwrap().as_object_mut().unwrap().insert("f1_over_cap".into(), Value::Array(pad));
+        let census = borrowed_value_census(over.contract_evidence.as_ref().unwrap());
+        assert_eq!(census.array_capacity_elements as u64, caps.complete[9] + 1, "{mode:?}");
+        let (request, capture) = CapturedInvocation::parse(inputs::exact_cap_maximal(), mode).unwrap();
+        let mut observer = crate::retained_product::ProductCapture::prepared_probe_on(route);
+        let requested_cases = request.model.load_cases.len();
+        let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut observer));
+        let o = complete_observations(&CompleteFacts { ordinary: &over, capture: &observer, requested_cases });
+        let refusal = check_phase(PhaseGate::Complete, &o, &caps.complete).unwrap_err();
+        assert_eq!((refusal.fact, refusal.observed, refusal.cap), (PhaseFact::ContractEvidenceArrayElements, caps.complete[9] + 1, caps.complete[9]), "{mode:?}");
+    }
+    let (facts, _, route) = complete_facts_on_route(milestone(), PreviewSolverMode::SparseInteractive);
+    assert_eq!(route, W1Route::Preview);
+    assert_eq!(phase_caps_on(route).complete, phase_caps().complete);
+    assert_eq!(check_phase(PhaseGate::Complete, &facts, &phase_caps().complete), Ok(()));
+}
+
+/// T3 F1 (PR #1235 review R1): the permit's own G-C, `CapturePermit::check_complete`, selects the
+/// bounds of the observer's W1 route. One admitted cap-maximal exact invocation, one ordinary owner:
+/// with the Exact-route observer that `permitted_run` would build, G-C passes; with a Preview-route
+/// observer over the same owner, G-C refuses at the contract evidence's array elements against
+/// route L's 480. Ordinary runs only (no W1). In a Stale build there is no permit and nothing to drive.
+#[test]
+fn f1_check_complete_reads_the_observer_route() {
+    use crate::retained_product::{ProductCapture, W1Route};
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let raw = inputs::exact_cap_maximal();
+        let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let permit = match super::admit(&capture, &request, super::Entry::Direct) {
+            Ok((permit, report)) => {
+                assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
+                permit
+            }
+            Err(report) => {
+                assert_ne!(COMPILED_IDENTITY, Some(REGISTERED_PROFILES[0].identity), "{mode:?}: the registered build admits it: {:?}", report.law());
+                println!("F1_ROUTE_GATE_SKIP {mode:?}: Stale build, no permit");
+                return;
+            }
+        };
+        let route = crate::w1_route(&request.model).unwrap();
+        assert_eq!(route, W1Route::Exact);
+        let requested_cases = request.model.load_cases.len();
+        let mut exact = ProductCapture::prepared_probe_on(route);
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut exact));
+        assert_eq!(permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &exact, requested_cases }), Ok(()), "{mode:?}: route E's bounds");
+        let (request, capture) = CapturedInvocation::parse(raw, mode).unwrap();
+        let mut preview = ProductCapture::prepared_probe_on(W1Route::Preview);
+        let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(W1Route::Preview), Some(&mut preview));
+        let refusal = permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &preview, requested_cases }).unwrap_err();
+        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's bounds");
+        assert!(refusal.observed > 480 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[9], "{mode:?}: {}", refusal.observed);
+    }
+}
+
+per_mode! {
+    /// T3 F1 (a): the cap-maximal exact input through the public Direct entry in the registered
+    /// build: admitted (branch E), through G-C on route E's bounds, W1 on the exact route, and the
+    /// successor RS's precommit validated published. A Stale build refuses at D1.1 instead.
+    f1_exact_cap_maximal_direct_publishes, |mode| {
+        let raw = inputs::exact_cap_maximal();
+        let output = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+        let report = output.admission().unwrap();
+        assert_eq!(report.law().domain, None, "{mode:?}: inside D1");
+        if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+            assert!(output.successor().is_none(), "{mode:?}: Stale, no W1");
+            return;
+        }
+        assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
+        match output.retained() {
+            Some(Ok(_)) => {}
+            other => panic!("{mode:?}: {:?}", other.map(|r| r.as_ref().err())),
+        }
+        let successor = output.successor().expect("the validated successor is published");
+        println!("F1_EXACT_DIRECT {mode:?} successor_bytes={}", serde_json::to_vec(successor).unwrap().len());
+    }
+}
+
 /// B1 SQ: the shared inputs are I86's (their `input_sha` pins) and equal the committed helpers
 /// they transcribe. Not a witness; no solve.
 #[test]

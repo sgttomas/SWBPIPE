@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync as readCorpus } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 import { absoluteBound, upwardProduct, upwardSmallSum, binary64Bits, decodeBinary64 } from './retainedPrecision';
-// Read from disk, not as a `?raw` module import: since 07o (B2's producer-solved bases) the corpus is about 70 MB, and
-// the module transform of that text exhausts the default heap.
-const corpus = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_cases.json'), 'utf8'));
+import { readRetainedPrecisionCorpus } from '../../test-support/retainedPrecisionCorpus';
+// The shared corpus's snapshot files, joined (read from disk, not as `?raw` module imports).
+const corpus = readRetainedPrecisionCorpus();
 type Rational = readonly [bigint, bigint];
 // Independent test oracle: exact fractions plus a binary search over ordered
 // positive binary64 words. It shares neither the reader's quantum rounding nor

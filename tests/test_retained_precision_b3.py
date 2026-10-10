@@ -12,10 +12,15 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 import pytest
 
 from core.analysis_runs import retained_precision as rp
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from retained_precision_corpus import load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 PINNED = {"sparse_interactive": "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
@@ -149,7 +154,7 @@ def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
 # pin alike, entry for entry: invocation edits on the shared corpus bases (07e's rule, `reseal`). Only branch L
 # (0.1.0 or 0.2.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
 # refused on every base and before any load is read (the former N-11 entries).
-SHARED = {case["id"]: case for case in json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())["cases"]}
+SHARED = {case["id"]: case for case in load_corpus()["cases"]}
 B3A_DROPPED_BASES = ("ordinary_prepared_synthetic", "ordinary_prepared_dense_synthetic", "two_case_synthetic",
                      "u8_l0_isolated_node_sparse_interactive", "u8_l0_isolated_node_dense_scrutiny")
 ORD, DENSE = B3A_DROPPED_BASES[:2]
@@ -846,7 +851,7 @@ def rv120_input(shape):
     kind, key = shape["base"]
     if kind == "corpus":
         if not _RV120_CORPUS:
-            cases = json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())["cases"]
+            cases = load_corpus()["cases"]
             _RV120_CORPUS.update((c["id"], c) for c in cases)
         source, invocation = deepcopy(_RV120_CORPUS[key]["source"]), deepcopy(_RV120_CORPUS[key]["invocation"])
     else:

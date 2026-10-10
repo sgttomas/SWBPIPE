@@ -36,7 +36,11 @@ T4-I6 repair round 01, produced 2026-10-10 in scratch; SHA256SUMS digest
 `4a53e72144eba25ff56736f3a155890b680eb292e9050213e284c28b159a9919`;
 independently confirmed by T4-RV10 (values: PASS WITH FINDINGS; the M31b0
 derivation: HOLDS WITH CORRECTIONS; that review's record is outside the
-repository). `u1_reference_cases_r01.json`
+repository). HELP_HUMAN ruled M31b0 equivalent on 2026-10-10 with T4-RV10's
+C-1 to C-4 applied (DEL-04-01 Design): CB's relative plane tolerance bounds
+|y|/|y_perp| below 1e12, so the residual domain that `_run_records/i7_m31b0.py`'s
+comments describe (|y|/|y_perp| above about 2e19) is unreachable; the script is
+kept byte for byte. `u1_reference_cases_r01.json`
 and the scripts that wrote it (`_run_records/r01_lib.py`, `i1_curved122.py`
 … `i8_acceptance.py`, `freeze_r01.py`) are copied byte for byte;
 `round_01/SHA256SUMS` holds their lines verbatim from round 01's
