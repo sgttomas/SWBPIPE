@@ -1,6 +1,7 @@
 import { physicsEvidenceTransportShape, physicsSourceReceiptShape, physicsSourcePhysicalShape } from './sourceBlockRecovery';
 import { validatePhysicsSourceMaximum, PHYSICS_SOURCE_MAX_SIGN, PHYSICS_SOURCE_MAX_BASIS } from './physicsSourceRecovery';
 import type { MechanicsResult, PreviewModel } from "../../types";
+import pressureTable from "../../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json";
 
 /** T4-U2a: the exact pressure contract a reader admits. v2 (physics-1,
  * load-reference-1) refuses p_pa < 0; v3 (pressure-1) admits straight families
@@ -73,6 +74,91 @@ const physicalSigns: Record<string, string> = {
   "pipe_lame_radial_stress_v2": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment",
   "pipe_lame_hoop_stress_v2": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
 };
+/** T4-U2 (pressure-1 only): realized-arc members of a pressure region (Rust
+ * `arc_evidence`, Python `arc_members`). A region with an arc adds
+ * ARC_REGION_KEYS; an arc member adds ARC_GEOMETRY_KEYS and its own
+ * applied-load record (the bend term K_b*u_free(eps_p) - c_b). */
+const ARC_MEMBER_KIND = "realized_arc";
+const ARC_APPROXIMATION = "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3";
+const ARC_TANGENCY_TOLERANCE_RAD = 1e-3;
+const ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)";
+const ARC_WITHHELD_REASON = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc";
+const ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2"];
+export const ARC_REGION_KEYS = ["tangency_tolerance_rad", "tangency_rule", "bend_adjacent_junctions", "withheld_on_arcs"];
+const ARC_GEOMETRY_KEYS = ["member_kind", "arc_end_tangents_global"];
+const arcAppliedFields = ["pipe_id", "bend_term", "arc_pressure_strain", "arc_pressure_strain_definition", "mathematical_cap_pair_local_n", "arc_end_tangents_global", "bend_cap_pair_removed_global_n", "thermal_included"];
+const arcJunctionFields = ["node_ref", "pipe_in", "pipe_out", "t_in_global", "t_out_global", "theta_rad"];
+const arcSigns: Record<string, string> = {
+  pipe_wall_endpoint_action_v2: "node-on-element wall action along the arc end tangent (local x toward end j at that end); N_w = N_el + pAi; cap transfer is not subtracted from wall recovery",
+  pipe_wall_axial_force_v2: "tension-positive material wall section resultant Nw = N_el + pAi along the arc tangent; shear and moments are the elastic section actions",
+  pipe_effective_axial_force_v2: "effective wall-fluid resultant S=Nw-pAi (the arc's elastic axial force); not material stress or a support reaction",
+  pipe_axial_membrane_stress_v2: "tension-positive axial wall membrane stress Nw/As on the arc section; no added longitudinal pressure scalar",
+};
+const arcRows: [string, string, string[]][] = [
+  ["pipe_wall_endpoint_action_v2", "wall_axial_end_action", ["end_i", "end_j"]],
+  ["pipe_wall_axial_force_v2", "wall_axial_force", ["end_i", "end_j", "quarter_1", "midspan", "quarter_3"]],
+  ["pipe_effective_axial_force_v2", "effective_axial_force", ["end_i", "end_j", "quarter_1", "midspan", "quarter_3"]],
+  ["pipe_axial_membrane_stress_v2", "axial_membrane_stress", ["end_i", "end_j", "quarter_1", "midspan", "quarter_3"]],
+];
+const pair3 = (v: unknown): v is number[][] => Array.isArray(v) && v.length === 2 && v.every(t => vector(t, 3));
+/** Exact binary64 value equality (a signed zero equals zero, as in Rust and Python). */
+const sameBits = (a: number[], b: number[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+/** The realized-arc members of one region; refused under v2 or when malformed. */
+export function arcMembers(region: unknown, admitted: boolean): Set<string> {
+  const arcs = new Set<string>();
+  const geometry = (region as RecordValue)?.geometry;
+  for (const g of Array.isArray(geometry) ? geometry : []) {
+    if (!g || typeof g !== "object" || !ARC_GEOMETRY_KEYS.some(k => Object.hasOwn(g, k))) continue;
+    demand(admitted, "ARC_UNSUPPORTED");
+    demand(g.member_kind === ARC_MEMBER_KIND && pair3(g.arc_end_tangents_global), "ARC_GEOMETRY");
+    arcs.add(g.pipe_id);
+  }
+  return arcs;
+}
+function arcApplied(load: RecordValue, tangents: number[][], p: number): void {
+  shape(load, arcAppliedFields, "ARC_APPLIED_LOAD");
+  const caps = load.mathematical_cap_pair_local_n, strain = load.arc_pressure_strain;
+  demand(load.bend_term === "K_b*u_free(eps_p)-c_b" && load.arc_pressure_strain_definition === "(1-2nu)pAi/(E As)" && load.thermal_included === false
+    && vector(caps, 2) && finite(strain) && (strain > 0) === (p > 0) && (strain < 0) === (p < 0), "ARC_APPLIED_LOAD");
+  demand(pair3(load.arc_end_tangents_global) && load.arc_end_tangents_global.every((t: number[], i: number) => sameBits(t, tangents[i])), "ARC_APPLIED_LOAD");
+  const removed = [tangents[0].map(v => -v * caps[0]), tangents[1].map(v => -v * caps[1])];
+  demand(pair3(load.bend_cap_pair_removed_global_n) && load.bend_cap_pair_removed_global_n.every((t: number[], i: number) => sameBits(t, removed[i])), "ARC_APPLIED_LOAD");
+}
+/** Region-level arc statements, arc applied loads and junctions. */
+function arcRegion(r: RecordValue, arcs: Set<string>): void {
+  const w = r.withheld_on_arcs;
+  demand(r.approximation === ARC_APPROXIMATION && r.tangency_tolerance_rad === ARC_TANGENCY_TOLERANCE_RAD && r.tangency_rule === ARC_TANGENCY_RULE
+    && w && typeof w === "object" && Object.keys(w).length === 2 && w.reason === ARC_WITHHELD_REASON
+    && JSON.stringify(w.result_kinds) === JSON.stringify(ARC_WITHHELD_KINDS), "ARC_REGION_PROFILE");
+  const directions: [string, number[], number[]][] = [];
+  for (const pipe of r.member_pipe_ids as string[]) {
+    const g = r.geometry.find((x: RecordValue) => x.pipe_id === pipe), load = r.applied_loads.find((x: RecordValue) => x.pipe_id === pipe);
+    let ti: number[], tj: number[];
+    if (arcs.has(pipe)) { arcApplied(load, g.arc_end_tangents_global, r.p_pa); [ti, tj] = g.arc_end_tangents_global; }
+    else { demand(vector(load?.local_x_global, 3), "ARC_APPLIED_LOAD"); ti = tj = load.local_x_global; }
+    directions.push(g.traversal_forward ? [pipe, ti, tj] : [pipe, tj.map(v => -v), ti.map(v => -v)]);
+  }
+  const expected: number[] = [];
+  for (let k = 1; k < directions.length; k++) if (arcs.has(directions[k - 1][0]) || arcs.has(directions[k][0])) expected.push(k);
+  const junctions = r.bend_adjacent_junctions;
+  demand(Array.isArray(junctions) && junctions.length === expected.length, "ARC_JUNCTIONS");
+  junctions.forEach((j: RecordValue, n: number) => {
+    const k = expected[n];
+    shape(j, arcJunctionFields, "ARC_JUNCTIONS");
+    demand(text(j.node_ref) && j.pipe_in === directions[k - 1][0] && j.pipe_out === directions[k][0]
+      && finite(j.theta_rad) && j.theta_rad >= 0 && j.theta_rad <= ARC_TANGENCY_TOLERANCE_RAD, "ARC_JUNCTIONS");
+    demand(vector(j.t_in_global, 3) && vector(j.t_out_global, 3) && sameBits(j.t_in_global, directions[k - 1][2]) && sameBits(j.t_out_global, directions[k][1]), "ARC_JUNCTION_TANGENT");
+  });
+}
+/** T4-U2 (pressure-1): an input review row without `basis_ref` whose pressure-1
+ * signature is `review_evidence` is model scoped (Rust `model_scoped_review`);
+ * physics-1 keeps its case-scoped rule. */
+function modelScopedReview(row: RecordValue, contract: PressureContract): boolean {
+  if (contract.mode !== PRESSURE_V3.mode || Object.hasOwn(row, "basis_ref")) return false;
+  const component = row.metadata?.component;
+  const matches = (pressureTable as RecordValue).rows.filter((e: RecordValue) => e.kind === row.kind && e.unit === row.unit && (e.component === null || e.component === undefined || e.component === component));
+  return matches.length > 0 && matches.every((e: RecordValue) => e.category === "review_evidence");
+}
 function material(m: unknown, region = false): asserts m is RecordValue {
   shape(m, region ? [...materialFields, "temperature_basis"] : materialFields, "MATERIAL_SHAPE");
   demand(text(m.pipe_id) && text(m.material_id) && text(m.provenance) && m.constitutive_basis === "homogeneous_isotropic_E_nu_v1"
@@ -86,8 +172,8 @@ function material(m: unknown, region = false): asserts m is RecordValue {
     else { shape(t, ["selection", "temperature_value", "temperature_unit"], "TEMPERATURE_BASIS"); demand(t.selection === "interpolation" && finite(t.temperature_value) && ["K", "degC", "degF"].includes(t.temperature_unit), "TEMPERATURE_BASIS"); }
   }
 }
-function section(s: unknown, region = false): asserts s is RecordValue {
-  shape(s, region ? [...sectionFields, "traversal_forward"] : sectionFields, "SECTION_SHAPE");
+function section(s: unknown, region = false, arc = false): asserts s is RecordValue {
+  shape(s, region ? [...sectionFields, "traversal_forward", ...(arc ? ARC_GEOMETRY_KEYS : [])] : sectionFields, "SECTION_SHAPE");
   demand(text(s.pipe_id) && s.geometry_basis === "authored_normalized_od_wall_v1"
     && sectionFields.slice(2).every(k => finite(s[k]) && s[k] > 0)
     && s.effective_wall_thickness_m < s.outside_diameter_m / 2 && s.ri_m < s.ro_m
@@ -128,7 +214,20 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
   demand(finiteTree(evidence) && source.results.every(row => finite(row.value)), "NONFINITE");
   demand(Array.isArray(evidence.pressure) && Array.isArray(evidence.exact_cases) && Array.isArray(evidence.connector) && (contract.mode === PRESSURE_V3.mode || evidence.connector.length === 0), "UNSUPPORTED_COMPOSITION");
   const replacedSpans = (evidence.connector as RecordValue[]).map(r => r?.replaced_pipe_id);
+  // RV23 NOTE-4: a case's structural members are its pipes and (pressure-1) its
+  // objective connectors; a replaced-span-only model is still covered.
+  const hasConnector = (evidence.connector as RecordValue[]).length > 0;
   const cases = evidence.exact_cases as RecordValue[], regions = evidence.pressure as RecordValue[];
+  // T4-U2: the realized-arc members of each case's pressure regions.
+  const arcsByCase = new Map<string, Set<string>>();
+  const regionArcs = new Map<RecordValue, Set<string>>();
+  for (const r of regions) {
+    const arcs = arcMembers(r, contract.mode === PRESSURE_V3.mode);
+    regionArcs.set(r, arcs);
+    const known = arcsByCase.get(r?.load_case_id) ?? new Set<string>();
+    arcs.forEach(a => known.add(a)); arcsByCase.set(r?.load_case_id, known);
+  }
+  const isArc = (caseId: string, pipe: string) => arcsByCase.get(caseId)?.has(pipe) ?? false;
   for (const c of cases) {
     shape(c, composite ? [...caseFields, "recovery_method"] : caseFields, "CASE_SHAPE");
     demand(Array.isArray(c.pipe_materials) && Array.isArray(c.pipe_sections) && Array.isArray(c.pipe_stress_extrema), "CASE_INVALID");
@@ -153,10 +252,11 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
   }
   const regionMembers = new Set<string>(), boundRows = new Set<string>(), regionKeys = new Set<string>();
   for (const r of regions) {
-    shape(r, pressureFields, "PRESSURE_SHAPE");
+    const arcs = regionArcs.get(r)!;
+    shape(r, arcs.size ? [...pressureFields, ...ARC_REGION_KEYS] : pressureFields, "PRESSURE_SHAPE");
     demand(text(r.region_id) && caseIds.includes(r.load_case_id) && r.profile_version === contract.version && r.profile_mode === contract.mode
       && r.pressure_basis === "internal_differential_zero_external_v1" && finite(r.p_pa) && (contract.mode === PRESSURE_V3.mode || r.p_pa >= 0) && r.external_pressure_increment_pa === 0
-      && r.approximation === "long_straight_annulus_small_strain_v2" && text(r.provenance)
+      && (arcs.size > 0 || r.approximation === "long_straight_annulus_small_strain_v2") && text(r.provenance)
       && unique(r.member_pipe_ids) && r.member_pipe_ids.length > 0 && unique(r.result_ids), "PRESSURE_INVALID");
     const key = JSON.stringify([r.load_case_id, r.region_id]); demand(!regionKeys.has(key), "REGION_ID_AMBIGUOUS"); regionKeys.add(key);
     shape(r.geometry_representation_guard, ["epsilon_multiplier", "meaning"], "GEOMETRY_GUARD");
@@ -164,7 +264,7 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     const c = cases.find(c => c.load_case_id === r.load_case_id)!;
     for (const [field, validate] of [["geometry", section], ["materials", material]] as const) {
       demand(Array.isArray(r[field]), "MEMBER_SCOPE");
-      r[field].forEach((v: unknown) => validate(v, true));
+      r[field].forEach((v: RecordValue) => field === "geometry" ? section(v, true, arcs.has(v?.pipe_id)) : material(v, true));
       demand(unique(r[field].map((v: RecordValue) => v.pipe_id)) && sameSet(r.member_pipe_ids, r[field].map((v: RecordValue) => v.pipe_id)), "MEMBER_SCOPE");
     }
     for (const m of r.materials) {
@@ -181,6 +281,7 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     }
     demand(Array.isArray(r.applied_loads) && unique(r.applied_loads.map((l: RecordValue) => l.pipe_id)) && sameSet(r.member_pipe_ids, r.applied_loads.map((l: RecordValue) => l.pipe_id)), "APPLIED_LOADS");
     for (const l of r.applied_loads) {
+      if (arcs.has(l?.pipe_id)) continue; // the bend term's record (arcRegion)
       shape(l, ["pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"], "APPLIED_LOADS");
       demand(vector(l.eigenload_pair_local_n, 2) && vector(l.local_x_global, 3) && vector(l.mathematical_cap_pair_local_n, 2)
         // This ledger carries only pressure cap/Poisson loads. Thermal mechanics
@@ -194,6 +295,10 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
       if (t.closure_transfer === "transfers_to_wall") demand(t.remote_closure_excluded_from_pipe_solve === false && t.remote_closure_support_reaction_global_n === null && t.closure_pressure_load_global_n.every((v: number, i: number) => v === t.pipe_cap_transfer_global_n[i]), "TERMINALS");
       else demand(t.closure_transfer === "separately_supported_or_compensated" && t.remote_closure_excluded_from_pipe_solve === true && vector(t.remote_closure_support_reaction_global_n, 3) && t.pipe_cap_transfer_global_n.every((v: number) => v === 0) && t.closure_pressure_load_global_n.every((v: number, i: number) => -v === t.remote_closure_support_reaction_global_n[i]), "TERMINALS");
     }
+    if (arcs.size) {
+      arcRegion(r, arcs);
+      demand(!source.results.some(row => ARC_WITHHELD_KINDS.includes(row.kind) && arcs.has(row.entity_ref) && row.basis_ref?.ref_id === r.load_case_id), "ARC_WITHHELD");
+    }
     for (const id of r.result_ids) {
       const row = rows.get(id); demand(row && !boundRows.has(id) && row.kind.startsWith("pipe_") && Object.hasOwn(physicalKinds, row.kind)
         && row.basis_ref?.ref_type === "load_case" && row.basis_ref.ref_id === r.load_case_id && r.member_pipe_ids.includes(row.entity_ref), "REGION_RESULT_BINDING"); boundRows.add(id);
@@ -203,12 +308,13 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     demand(c.profile_mode === contract.mode && text(c.material_basis) && Array.isArray(c.pipe_materials) && Array.isArray(c.pipe_sections) && Array.isArray(c.pipe_stress_extrema), "CASE_INVALID");
     c.pipe_materials.forEach((m: unknown) => material(m)); c.pipe_sections.forEach((s: unknown) => section(s));
     const members = c.pipe_materials.map((m: RecordValue) => m.pipe_id);
-    demand(unique(members) && members.length > 0 && unique(c.pipe_sections.map((s: RecordValue) => s.pipe_id)) && sameSet(members, c.pipe_sections.map((s: RecordValue) => s.pipe_id)), "CASE_MEMBER_SCOPE");
+    demand(unique(members) && (members.length > 0 || hasConnector) && unique(c.pipe_sections.map((s: RecordValue) => s.pipe_id)) && sameSet(members, c.pipe_sections.map((s: RecordValue) => s.pipe_id)), "CASE_MEMBER_SCOPE");
     demand(sameSet(members, cases[0].pipe_materials.map((m: RecordValue) => m.pipe_id)), "CASE_MEMBER_COVERAGE");
     // T4-U3 (S21): a pipe replaced by an objective connector is in no case.
     if (model?.pipe_segments) demand(sameSet(members, model.pipe_segments.map(p => p.id).filter(id => !replacedSpans.includes(id))), "MODEL_MEMBER_COVERAGE");
     shape(c.stress_maximum_coverage, ["complete", "unavailable_pipe_ids"], "EXTREMA_COVERAGE");
     const unavailable = c.stress_maximum_coverage.unavailable_pipe_ids;
+    demand(!Array.isArray(unavailable) || [...(arcsByCase.get(c.load_case_id) ?? [])].every(pipe => unavailable.includes(pipe)), "ARC_WITHHELD");
     demand(unique(unavailable) && unavailable.every(id => members.includes(id)) && c.stress_maximum_coverage.complete === (unavailable.length === 0)
       && unique(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id)) && sameSet(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id), members.filter((id: string) => !unavailable.includes(id))), "EXTREMA_COVERAGE");
     for (const x of c.pipe_stress_extrema) {
@@ -226,10 +332,14 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
         && row.value === x.value_lower_pa + 0.5 * (x.value_upper_pa - x.value_lower_pa)
         && x.global_upper_bound_pa - x.value_lower_pa <= x.certified_gap_pa, "EXTREMA_BINDING");
     }
-    validateRhs(c.pressure_rhs_assembly, c.load_case_id, regions);
+    validateRhs(c.pressure_rhs_assembly, c.load_case_id, regions, contract.mode === PRESSURE_V3.mode ? regionArcs : null);
   }
   const physicalSignatures = new Set<string>();
   for (const row of source.results) {
+    if (modelScopedReview(row as RecordValue, contract)) {
+      demand(text(row.kind) && text(row.entity_ref) && text(row.unit) && (!Object.hasOwn(row, "source_result_refs") || (Array.isArray(row.source_result_refs) && row.source_result_refs.length === 0)), "ROW_IDENTITY");
+      continue;
+    }
     shape(row.basis_ref, ["ref_type", "ref_id"], "ROW_CASE_REFERENCE");
     demand(row.basis_ref.ref_type === "load_case" && caseIds.includes(row.basis_ref.ref_id)
       && (!Object.hasOwn(row, "source_result_refs") || (Array.isArray(row.source_result_refs) && row.source_result_refs.length === 0)), "UNSUPPORTED_DERIVATION");
@@ -239,8 +349,10 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     const md = row.metadata;
     shape(md, ["component", "coordinate_system", "location", "basis", "sign_convention"], "ROW_METADATA_SHAPE");
     const unit = row.kind === "support_reaction_component_v2" ? (md?.component.startsWith("M") ? "N*m" : "N") : rule[1];
+    const arc = row.kind.startsWith("pipe_") && isArc(row.basis_ref.ref_id, row.entity_ref);
+    demand(!(arc && ARC_WITHHELD_KINDS.includes(row.kind)), "ARC_WITHHELD");
     const retainedMaximum = composite && row.kind === 'pipe_elastic_normal_stress_maximum_v2' && cases.find(c => c.load_case_id === row.basis_ref!.ref_id)?.recovery_method === 'retained_source_blocks_exact_v1';
-    demand(md && rule[0].includes(md.component) && row.unit === unit && md.coordinate_system === rule[2] && md.basis === (retainedMaximum ? PHYSICS_SOURCE_MAX_BASIS : rule[3]) && rule[4].includes(md.location) && md.sign_convention === (retainedMaximum ? PHYSICS_SOURCE_MAX_SIGN : physicalSigns[row.kind]), "ROW_SEMANTICS");
+    demand(md && rule[0].includes(md.component) && row.unit === unit && md.coordinate_system === rule[2] && md.basis === (retainedMaximum ? PHYSICS_SOURCE_MAX_BASIS : rule[3]) && rule[4].includes(md.location) && md.sign_convention === (arc ? arcSigns[row.kind] : retainedMaximum ? PHYSICS_SOURCE_MAX_SIGN : physicalSigns[row.kind]), "ROW_SEMANTICS");
     if (row.kind.endsWith("_magnitude_v2")) demand(row.value >= 0, "ROW_SEMANTICS");
     const signature = JSON.stringify([row.basis_ref.ref_id, row.entity_ref, row.kind, md.component, md.location]);
     demand(!physicalSignatures.has(signature), "ROW_SEMANTIC_DUPLICATE"); physicalSignatures.add(signature);
@@ -254,6 +366,11 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     } else if (model?.supports) demand(model.supports.some(s => s.id === row.entity_ref), "SUPPORT_BINDING");
   }
   for (const region of regions) for (const member of region.member_pipe_ids) {
+    if (regionArcs.get(region)!.has(member)) {
+      for (const [kind, component, locations] of arcRows) for (const location of locations)
+        demand(physicalSignatures.has(JSON.stringify([region.load_case_id, member, kind, component, location])), "PRESSURE_ROW_COVERAGE");
+      continue;
+    }
     for (const [kind, [components, , , , locations]] of Object.entries(physicalKinds)) {
       if (!kind.startsWith("pipe_") || kind === "pipe_elastic_normal_stress_maximum_v2") continue;
       for (const component of components) for (const location of locations)
@@ -342,7 +459,8 @@ function validateConnectors(records: RecordValue[], results: MechanicsResult["re
     demand(counts.get(JSON.stringify([caseId, component])) === CONNECTOR_ROWS_PER_CASE, "CONNECTOR_ROW_COVERAGE");
 }
 
-function validateRhs(rhs: unknown, caseId: string, regions: RecordValue[]): void {
+/** `arcs` is null under v2; under v3 it maps each region to its arc members. */
+function validateRhs(rhs: unknown, caseId: string, regions: RecordValue[], arcs: Map<RecordValue, Set<string>> | null = null): void {
   shape(rhs, ["method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"], "RHS_SHAPE");
   demand(rhs.method === "source_factor_grouped_pressure_rhs_v1" && rhs.load_case_id === caseId && unique(rhs.node_order) && rhs.node_order.length > 0
     && JSON.stringify(rhs.dof_order) === JSON.stringify(["Fx", "Fy", "Fz", "Mx", "My", "Mz"])
@@ -366,9 +484,17 @@ function validateRhs(rhs: unknown, caseId: string, regions: RecordValue[]): void
       const region = regions.find(r => r.load_case_id === caseId && r.region_id === term.region_id);
       const geometry = region?.geometry.find((g: RecordValue) => g.pipe_id === term.pipe_id);
       const bore = geometry ? sourceBoreBits(geometry) : null;
+      const arcKinds = arcs ? ["bend_cap_removed", "kink_remainder"] : [];
       demand(region && region.member_pipe_ids.includes(term.pipe_id) && group.pressure_bits === binary64Bits(region.p_pa)
         && bore && group.source_inner_radius_hi_bits === bore[0] && group.source_inner_radius_lo_bits === bore[1] && finite(term.coefficient)
-        && ["poisson_eigen", "terminal_cap"].includes(term.kind), "RHS_TERM");
+        && ["poisson_eigen", "terminal_cap", ...arcKinds].includes(term.kind), "RHS_TERM");
+      const regionArcSet = arcs?.get(region) ?? new Set<string>();
+      if (term.kind === "bend_cap_removed") { demand(regionArcSet.has(term.pipe_id) && Math.abs(term.coefficient) === 1, "ARC_RHS_TERM"); continue; }
+      if (term.kind === "kink_remainder") {
+        demand(Array.isArray(region.bend_adjacent_junctions) && region.bend_adjacent_junctions.some((j: RecordValue) => j.pipe_in === term.pipe_id || j.pipe_out === term.pipe_id) && Math.abs(term.coefficient) === 1, "ARC_RHS_TERM");
+        continue;
+      }
+      demand(!(term.kind === "poisson_eigen" && regionArcSet.has(term.pipe_id)), "ARC_RHS_TERM");
       const material = region.materials.find((m: RecordValue) => m.pipe_id === term.pipe_id);
       demand(material && Math.abs(term.coefficient) === (term.kind === "terminal_cap" ? 1 : Math.abs(2 * material.nu)), "RHS_TERM_COEFFICIENT");
     }

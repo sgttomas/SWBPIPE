@@ -398,7 +398,11 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
             _require(_same(_get(record["solve"], "requested_mode"), _get(first["solve"], "requested_mode")), "SOLVE_CONSISTENCY")
     # S12 pressure-region materials are the resolved member pair of their case.
     for region in pressure:
-        _require(_keys(region, REGION_KEYS), "REGION_SHAPE")
+        # T4-U2: a pressure-1 region with a realized arc adds the arc keys
+        # (checked with the arc members by the inherited physics pass).
+        from .physics_evidence import ARC_REGION_KEYS, arc_members
+        arcs = arc_members(region, method == PRESSURE)
+        _require(_keys(region, REGION_KEYS + (sorted(ARC_REGION_KEYS) if arcs else [])), "REGION_SHAPE")
         case_id = _text(region["load_case_id"])
         _text(region["region_id"])
         case = next((value for known, value in cases if known == case_id), None)

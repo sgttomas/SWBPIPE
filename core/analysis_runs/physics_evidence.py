@@ -61,6 +61,30 @@ CONNECTOR_END_SIGN = "global end action on the connector at its node (node on el
 CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
 CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
 
+# T4-U2 (pressure-1 only): realized-arc members of a pressure region (Rust
+# ``arc_evidence``). A region with an arc adds ARC_REGION_KEYS; an arc member
+# adds ARC_GEOMETRY_KEYS and its own applied-load record (the bend term).
+ARC_MEMBER_KIND = "realized_arc"
+ARC_APPROXIMATION = "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3"
+ARC_TANGENCY_TOLERANCE_RAD = 1e-3
+ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)"
+ARC_WITHHELD_REASON = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc"
+ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2"]
+ARC_BEND_TERM = "K_b*u_free(eps_p)-c_b"
+ARC_STRAIN_DEFINITION = "(1-2nu)pAi/(E As)"
+ARC_REGION_KEYS = {"tangency_tolerance_rad", "tangency_rule", "bend_adjacent_junctions", "withheld_on_arcs"}
+ARC_GEOMETRY_KEYS = {"member_kind", "arc_end_tangents_global"}
+ARC_APPLIED_KEYS = {"pipe_id", "bend_term", "arc_pressure_strain", "arc_pressure_strain_definition", "mathematical_cap_pair_local_n", "arc_end_tangents_global", "bend_cap_pair_removed_global_n", "thermal_included"}
+ARC_JUNCTION_KEYS = {"node_ref", "pipe_in", "pipe_out", "t_in_global", "t_out_global", "theta_rad"}
+ARC_SIGNS = {
+    "pipe_wall_endpoint_action_v2": "node-on-element wall action along the arc end tangent (local x toward end j at that end); N_w = N_el + pAi; cap transfer is not subtracted from wall recovery",
+    "pipe_wall_axial_force_v2": "tension-positive material wall section resultant Nw = N_el + pAi along the arc tangent; shear and moments are the elastic section actions",
+    "pipe_effective_axial_force_v2": "effective wall-fluid resultant S=Nw-pAi (the arc's elastic axial force); not material stress or a support reaction",
+    "pipe_axial_membrane_stress_v2": "tension-positive axial wall membrane stress Nw/As on the arc section; no added longitudinal pressure scalar",
+}
+ARC_STATIONS = {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")} | {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress")}
+REGION_KEYS = {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids"}
+
 GEOMETRY = {"pipe_id", "geometry_basis", "outside_diameter_m", "effective_wall_thickness_m", "ri_m", "ro_m", "Ai_m2", "As_m2", "I_m4", "J_m4", "Z_m3"}
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
 
@@ -160,6 +184,78 @@ def _contract_identity(evidence: Any, contract: tuple[str, str]) -> None:
         raise ValueError(V3_READ_AS_V2 if contract == STRAIGHT_V2 else V2_READ_AS_V3)
 
 
+def arc_members(region: Any, admitted: bool) -> set[str]:
+    """The realized-arc members of one region; refused under v2 or when malformed."""
+    arcs: set[str] = set()
+    for geometry in region.get("geometry", []) if isinstance(region, Mapping) and isinstance(region.get("geometry"), list) else []:
+        if not isinstance(geometry, Mapping) or not ARC_GEOMETRY_KEYS & set(geometry):
+            continue
+        _require(admitted, "arc unsupported")
+        tangents = geometry.get("arc_end_tangents_global")
+        _require(geometry.get("member_kind") == ARC_MEMBER_KIND and isinstance(tangents, list) and len(tangents) == 2 and all(_vector(t, 3) for t in tangents), "arc geometry")
+        arcs.add(geometry.get("pipe_id"))
+    return arcs
+
+
+def _bits(vector: list[Any]) -> list[float]:
+    """Exact binary64 values (a signed zero equals zero, as in Rust and TypeScript)."""
+    return [float(x) for x in vector]
+
+
+def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
+    """Region-level arc statements, arc applied loads and junctions (Rust ``arc_evidence::region``)."""
+    withheld = region["withheld_on_arcs"]
+    _require(region["approximation"] == ARC_APPROXIMATION and region["tangency_tolerance_rad"] == ARC_TANGENCY_TOLERANCE_RAD and type(region["tangency_tolerance_rad"]) is float
+             and region["tangency_rule"] == ARC_TANGENCY_RULE and isinstance(withheld, Mapping) and set(withheld) == {"result_kinds", "reason"}
+             and withheld["reason"] == ARC_WITHHELD_REASON and withheld["result_kinds"] == ARC_WITHHELD_KINDS, "arc region profile")
+    geometry = {g["pipe_id"]: g for g in region["geometry"]}
+    loads = {l["pipe_id"]: l for l in region["applied_loads"]}
+    directions = []
+    for pid in region["member_pipe_ids"]:
+        load, forward = loads[pid], geometry[pid]["traversal_forward"]
+        if pid in arcs:
+            tangents = geometry[pid]["arc_end_tangents_global"]
+            _arc_applied(load, tangents, p)
+            t_i, t_j = tangents
+        else:
+            _require(_vector(load.get("local_x_global"), 3), "arc applied load")
+            t_i = t_j = load["local_x_global"]
+        directions.append((pid, t_i, t_j) if forward else (pid, [-x for x in t_j], [-x for x in t_i]))
+    expected = [k for k in range(1, len(directions)) if directions[k - 1][0] in arcs or directions[k][0] in arcs]
+    junctions = region["bend_adjacent_junctions"]
+    _require(isinstance(junctions, list) and len(junctions) == len(expected), "arc junctions")
+    for junction, k in zip(junctions, expected):
+        _require(isinstance(junction, Mapping) and set(junction) == ARC_JUNCTION_KEYS and _text(junction["node_ref"])
+                 and junction["pipe_in"] == directions[k - 1][0] and junction["pipe_out"] == directions[k][0]
+                 and _number(junction["theta_rad"]) and 0 <= junction["theta_rad"] <= ARC_TANGENCY_TOLERANCE_RAD, "arc junctions")
+        _require(_vector(junction["t_in_global"], 3) and _vector(junction["t_out_global"], 3)
+                 and _bits(junction["t_in_global"]) == _bits(directions[k - 1][2]) and _bits(junction["t_out_global"]) == _bits(directions[k][1]), "arc junction tangent")
+
+
+def _arc_applied(load: Any, tangents: list[list[float]], p: float) -> None:
+    _require(isinstance(load, Mapping) and set(load) == ARC_APPLIED_KEYS and load["bend_term"] == ARC_BEND_TERM and load["arc_pressure_strain_definition"] == ARC_STRAIN_DEFINITION
+             and load["thermal_included"] is False and _vector(load["mathematical_cap_pair_local_n"], 2) and _number(load["arc_pressure_strain"])
+             # (1-2nu) > 0 for an admitted nu, so eps_p has the sign of p.
+             and (load["arc_pressure_strain"] > 0) == (p > 0) and (load["arc_pressure_strain"] < 0) == (p < 0), "arc applied load")
+    given = load["arc_end_tangents_global"]
+    _require(isinstance(given, list) and len(given) == 2 and all(_vector(t, 3) for t in given) and [_bits(t) for t in given] == [_bits(t) for t in tangents], "arc applied load")
+    caps = load["mathematical_cap_pair_local_n"]
+    removed = [[-v * caps[0] for v in tangents[0]], [-v * caps[1] for v in tangents[1]]]
+    given = load["bend_cap_pair_removed_global_n"]
+    _require(isinstance(given, list) and len(given) == 2 and all(_vector(t, 3) for t in given) and [_bits(t) for t in given] == [_bits(t) for t in removed], "arc applied load")
+
+
+def _model_scoped_review(row: Mapping[str, Any], table: Mapping[str, Any], contract: tuple[str, str]) -> bool:
+    """T4-U2 (pressure-1): an input review row without ``basis_ref`` whose
+    pressure-1 signature is ``review_evidence`` is model scoped (Rust
+    ``model_scoped_review``); physics-1 keeps its case-scoped rule."""
+    if contract != PRESSURE_V3 or "basis_ref" in row:
+        return False
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
+    matches = [entry for entry in table["rows"] if entry["kind"] == row.get("kind") and entry["unit"] == row.get("unit") and entry.get("component") in (None, metadata.get("component"))]
+    return bool(matches) and all(entry["category"] == "review_evidence" for entry in matches)
+
+
 def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None, contract: tuple[str, str] = STRAIGHT_V2) -> None:
     _require(context is None or contract == STRAIGHT_V2, "composite contract")
     _contract_identity(source.get("contract_evidence"), contract)
@@ -169,6 +265,13 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
     _finite_tree(evidence)
     _require((contract == PRESSURE_V3 and isinstance(evidence["connector"], list) or evidence["connector"] == []) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
+    # T4-U2: the realized-arc members of each case's pressure regions.
+    arcs_by_case: dict[str, set[str]] = {}
+    for region in evidence["pressure"]:
+        arcs_by_case.setdefault(region.get("load_case_id") if isinstance(region, Mapping) else None, set()).update(arc_members(region, contract == PRESSURE_V3))
+    # RV23 NOTE-4: a case's structural members are its pipes and (pressure-1)
+    # its objective connectors; a replaced-span-only model is still covered.
+    has_connector = bool(evidence["connector"])
     rows = _indexed(source.get("results"), "id", "result IDs")
     quality = source.get("numerical_quality", {}).get("cases", [])
     numerical_ids = [case.get("basis_ref", {}).get("ref_id") for case in quality]
@@ -183,7 +286,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         _require(case["profile_mode"] == contract[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
-        _require(bool(geometries[cid]) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
+        _require((bool(geometries[cid]) or has_connector) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
         for material in materials[cid].values():
             _shape(material, MATERIAL, "material shape")
             _require(_text(material["material_id"]) and _text(material["provenance"]) and material["constitutive_basis"] == "homogeneous_isotropic_E_nu_v1", "material basis")
@@ -202,6 +305,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]), "maximum coverage values")
         missing = set(coverage["unavailable_pipe_ids"])
         _require(missing <= set(geometries[cid]) and coverage["complete"] == (not missing), "maximum coverage contradiction")
+        _require(arcs_by_case.get(cid, set()) <= missing, "arc withheld")
         extrema = _indexed(case["pipe_stress_extrema"], "pipe_id", "extrema")
         _require(set(extrema) == set(geometries[cid]) - missing, "maximum member coverage")
         for pid, extremum in extrema.items():
@@ -219,20 +323,21 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
             _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate", "extrema witness")
-        _validate_rhs(case["pressure_rhs_assembly"], cid)
+        _validate_rhs(case["pressure_rhs_assembly"], cid, arc_terms=contract == PRESSURE_V3)
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
     region_pressures: dict[tuple[str, str], float] = {}
     _require(not geometries or all(set(members) == set(next(iter(geometries.values()))) for members in geometries.values()), "active member coverage across cases")
     for region in evidence["pressure"]:
-        _shape(region, {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids"}, "region shape")
+        arcs = arc_members(region, contract == PRESSURE_V3)
+        _shape(region, REGION_KEYS | (ARC_REGION_KEYS if arcs else set()), "region shape")
         cid, rid = region["load_case_id"], region["region_id"]
         _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
         regions.add((cid, rid))
         region_pressures[cid, rid] = region["p_pa"]
         _require(region["profile_mode"] == contract[1] and region["profile_version"] == contract[0] and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]) and (contract == PRESSURE_V3 or region["p_pa"] >= 0), "region pressure basis")
-        _require(_text(region["provenance"]) and region["approximation"] == "long_straight_annulus_small_strain_v2" and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
+        _require(_text(region["provenance"]) and (bool(arcs) or region["approximation"] == "long_straight_annulus_small_strain_v2") and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
         members = region["member_pipe_ids"]
         _require(_strings(members, True) and set(members) <= set(geometries[cid]), "region members")
         for pid in members:
@@ -243,11 +348,13 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         loads = _indexed(region["applied_loads"], "pipe_id", "region loads")
         _require(set(gm) == set(mm) == set(loads) == set(members), "region evidence coverage")
         for pid in members:
-            _shape(gm[pid], GEOMETRY | {"traversal_forward"}, "region geometry shape")
-            _require(type(gm[pid]["traversal_forward"]) is bool and {k:v for k,v in gm[pid].items() if k != "traversal_forward"} == geometries[cid][pid], "geometry disagreement")
+            _shape(gm[pid], GEOMETRY | {"traversal_forward"} | (ARC_GEOMETRY_KEYS if pid in arcs else set()), "region geometry shape")
+            _require(type(gm[pid]["traversal_forward"]) is bool and {k:v for k,v in gm[pid].items() if k not in {"traversal_forward"} | ARC_GEOMETRY_KEYS} == geometries[cid][pid], "geometry disagreement")
             _shape(mm[pid], MATERIAL | {"temperature_basis"}, "region material shape")
             _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
             _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k:v for k,v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
+            if pid in arcs:
+                continue  # the bend term's record (``_arc_region``)
             _shape(loads[pid], {"pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"}, "applied load shape")
             _require(_vector(loads[pid]["local_x_global"], 3) and all(_vector(loads[pid][k], 2) for k in ("eigenload_pair_local_n", "mathematical_cap_pair_local_n")) and loads[pid]["thermal_included"] is False, "applied load vectors")
         terminals = region["terminals"]
@@ -261,10 +368,13 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
                 _require(all(value == 0 for value in terminal["pipe_cap_transfer_global_n"]) and terminal["remote_closure_support_reaction_global_n"] == [-value for value in terminal["closure_pressure_load_global_n"]], "terminal remote transfer disagreement")
             else:
                 _require(terminal["pipe_cap_transfer_global_n"] == terminal["closure_pressure_load_global_n"], "terminal wall transfer disagreement")
+        if arcs:
+            _arc_region(region, arcs, region["p_pa"])
+            _require(not any(row.get("kind") in ARC_WITHHELD_KINDS and row.get("entity_ref") in arcs and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} for row in rows.values()), "arc withheld")
         for pid in members:
             physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
             observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component")) for row in physical]
-            expected_locations = {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
+            expected_locations = ARC_STATIONS if pid in arcs else {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
             _require(len(observed) == len(expected_locations) and set(observed) == expected_locations, "pressure station coverage")
         ids = region["result_ids"]
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
@@ -275,6 +385,9 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
     physical_slots: set[tuple[str, str, str, str, str]] = set()
     for row in rows.values():
         _require(_number(row.get("value")), "nonfinite source row")
+        if _model_scoped_review(row, table, contract):
+            _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")) and row.get("source_result_refs", []) == [], "source row identity")
+            continue
         basis = row.get("basis_ref")
         _shape(basis, {"ref_type", "ref_id"}, "row case reference")
         _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
@@ -286,7 +399,9 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
             _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "physical metadata shape")
             _require(_text(metadata["sign_convention"]) and len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata["component"] and ("source_basis" not in entry or entry["source_basis"] == metadata["basis"])]) == 1, "physical signature")
             support = row["kind"].startswith("support_reaction_")
-            _require(metadata["sign_convention"] == (context.MAX_SIGN if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
+            arc = row["entity_ref"] in arcs_by_case.get(basis["ref_id"], set())
+            _require(not (arc and row["kind"] in ARC_WITHHELD_KINDS), "arc withheld")
+            _require(metadata["sign_convention"] == (ARC_SIGNS[row["kind"]] if arc else context.MAX_SIGN if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
             force = row["kind"] in {"pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2"}
             _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and metadata["basis"] == (context.MAX_BASIS if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else "recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
             locations = {"node"} if support else {"governing_station"} if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else {"end_i", "end_j"} if row["kind"] == "pipe_wall_endpoint_action_v2" else {"end_i", "end_j", "quarter_1", "midspan", "quarter_3"}
@@ -321,8 +436,16 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         for group in case["pressure_rhs_assembly"]["groups"]:
             for term in group["terms"]:
                 _require(owners.get((cid, term["pipe_id"])) == term["region_id"], "RHS term region/member binding")
-                expected_magnitude = 1 if term["kind"] == "terminal_cap" else abs(2 * materials[cid][term["pipe_id"]]["nu"])
-                _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
+                arcs = arcs_by_case.get(cid, set())
+                if term["kind"] == "bend_cap_removed":
+                    _require(term["pipe_id"] in arcs and abs(term["coefficient"]) == 1, "arc RHS term")
+                elif term["kind"] == "kink_remainder":
+                    region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
+                    _require(any(term["pipe_id"] in (j["pipe_in"], j["pipe_out"]) for j in region.get("bend_adjacent_junctions", [])) and abs(term["coefficient"]) == 1, "arc RHS term")
+                else:
+                    _require(not (term["kind"] == "poisson_eigen" and term["pipe_id"] in arcs), "arc RHS term")
+                    expected_magnitude = 1 if term["kind"] == "terminal_cap" else abs(2 * materials[cid][term["pipe_id"]]["nu"])
+                    _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
                 _require(group["pressure_bits"] == struct.pack(">d", region_pressures[cid, term["region_id"]]).hex(), "RHS source pressure bits")
                 geometry = geometries[cid][term["pipe_id"]]
                 a, b = geometry["outside_diameter_m"] * 0.5, geometry["effective_wall_thickness_m"]
@@ -415,7 +538,7 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str) -> None:
+def _validate_rhs(rhs: Any, cid: str, arc_terms: bool = False) -> None:
     _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
     _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
@@ -433,7 +556,7 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
         _require(all(math.isfinite(struct.unpack(">d", bytes.fromhex(group[field]))[0]) for field in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "nonfinite pressure RHS source bits")
         for term in group["terms"]:
             _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
-            _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap"}, "pressure RHS term values")
+            _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in ({"poisson_eigen", "terminal_cap"} | ({"bend_cap_removed", "kink_remainder"} if arc_terms else set())), "pressure RHS term values")
 
 
 def validate_transport_metadata(source: Mapping[str, Any]) -> None:

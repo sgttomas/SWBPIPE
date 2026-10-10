@@ -20,7 +20,7 @@
  * `1.0` there. The shared corpus never depends on that distinction.
  */
 import transportSchemaJson from "../../../../../schemas/load_reference_state.schema.json";
-import { validatePhysicsEvidence, validatePhysicsEvidenceFor, validatePhysicsTransportMetadata, PRESSURE_V3 } from "./physicsResultEvidence";
+import { validatePhysicsEvidence, validatePhysicsEvidenceFor, validatePhysicsTransportMetadata, PRESSURE_V3, arcMembers, ARC_REGION_KEYS } from "./physicsResultEvidence";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1";
@@ -369,7 +369,12 @@ export function prepass(source: Json, raw: boolean, method: LoadReferenceMethod)
   }
   // S12 pressure-region materials are the resolved member pair of their case.
   for (const region of pressure) {
-    require_(keys(region, REGION_KEYS), "REGION_SHAPE");
+    // T4-U2: a pressure-1 region with a realized arc adds the arc keys
+    // (checked with the arc members by the inherited physics pass).
+    let arcs: Set<string>;
+    try { arcs = arcMembers(region, method === "pressure"); }
+    catch (error) { throw new LoadReferenceError(error instanceof Error ? error.message : String(error)); }
+    require_(keys(region, arcs.size ? [...REGION_KEYS, ...ARC_REGION_KEYS] : REGION_KEYS), "REGION_SHAPE");
     const caseId = text(region.load_case_id);
     text(region.region_id);
     const found = cases.find(([known]) => known === caseId);
