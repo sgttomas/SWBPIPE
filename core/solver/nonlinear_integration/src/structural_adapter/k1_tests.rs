@@ -8,9 +8,7 @@
 //! to the product's dense assembly order). Every comparison is of `Debug`
 //! bytes or bits, never within a tolerance; the reference comparisons (N, T0R,
 //! relabelling) use the protected 1e-9 relative criterion.
-use super::kd5_tests::{
-    arc_inputs_from_centre, bits, MemberData, ModelData, SectionData, MODES,
-};
+use super::kd5_tests::{bits, MemberData, ModelData, SectionData, MODES};
 use super::*;
 use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
@@ -155,9 +153,7 @@ impl Case {
                     FrameElement::new(node(member.i), node(member.j), section, member.y_reference)
                         .unwrap(),
                 ),
-                Some((center, factor)) => {
-                    let (radius, y_reference) =
-                        arc_inputs_from_centre(m.nodes[member.i], m.nodes[member.j], center);
+                Some((radius, y_reference, factor)) => {
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
@@ -185,7 +181,7 @@ impl Case {
     }
 }
 
-const KD5: [&ModelData; 13] = [
+const KD5: [&ModelData; 10] = [
     &F122,
     &F345,
     &PROBE_C,
@@ -194,10 +190,7 @@ const KD5: [&ModelData; 13] = [
     &E1,
     &E6,
     &CSKEW_8_5,
-    &CSKEW_30_RADIUS_MISMATCH,
     &M11,
-    &CPLANAR_60,
-    &CSKEW_30_N122,
     &PP_UTM_2,
 ];
 
@@ -338,14 +331,15 @@ fn k1_pattern_entries_are_byte_identical_to_todays_entries_in_both_modes() {
 }
 
 #[test]
-#[ignore = "T4-U1 phase B: depends on CSKEW_8_5 demoting, which no longer holds with the objective element (DenseScrutiny Passed); T3 agrees the outcome (annex A T4-U1 item 2)"]
 fn k1_kd5_parity_cases_demote_identically_in_both_representations() {
-    // P1's 122 (required true positive) and the skew-plane elbow at
-    // k_X = 8.5 demote in both representations and both modes; R5-4's
-    // realistic elbows E1 and E6 do not; the records are identical.
+    // P1's 122 (required true positive) and the conditioning-driven curved
+    // true positive (F122 realized as a bend, R = 10 m; T4-U1 phase B, in
+    // CSKEW_8_5's former place) demote in both representations and both
+    // modes; R5-4's realistic elbows E1 and E6 do not; the records are
+    // identical.
     for (m, demotes) in [
         (&F122, true),
-        (&CSKEW_8_5, true),
+        (&C122_R10_Y100, true),
         (&E1, false),
         (&E6, false),
     ] {
@@ -1161,10 +1155,10 @@ fn rv8_bend(
     pi: [f64; 3],
     j: usize,
     pj: [f64; 3],
-    center: [f64; 3],
+    y_reference: [f64; 3],
     flex: f64,
 ) -> CurvedBendMacroElement {
-    let (radius, y_reference) = arc_inputs_from_centre(pi, pj, center);
+    let radius = RV8_R;
     CurvedBendMacroElement::new(
         FrameNode::new(i, pi).unwrap(),
         FrameNode::new(j, pj).unwrap(),
@@ -1239,8 +1233,8 @@ fn k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1() {
                 frame(1, p[1], 5, p[5], s, [1.0, 0.0, 0.0]),
             ],
             vec![
-                rv8_bend(0, p[0], 1, p[1], [0.0, 0.0, 0.0], flex),
-                rv8_bend(1, p[1], 2, p[2], [0.0, 2.0 * r, 0.0], flex),
+                rv8_bend(0, p[0], 1, p[1], [1.0, 1.0, 0.0], flex),
+                rv8_bend(1, p[1], 2, p[2], [-1.0, -1.0, 0.0], flex),
             ],
             Vec::new(),
             &(18..36).collect::<Vec<_>>(),
@@ -1285,7 +1279,7 @@ fn k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2() {
                     frame(2, p[2], 0, p[0], s, [0.0, 0.0, 1.0]),
                     frame(1, p[1], 3, p[3], s, [0.0, 0.0, 1.0]),
                 ],
-                vec![rv8_bend(0, p[0], 1, p[1], [0.0, 0.0, 0.0], flex)],
+                vec![rv8_bend(0, p[0], 1, p[1], [1.0, 1.0, 0.0], flex)],
                 springs,
                 &(12..24).collect::<Vec<_>>(),
                 vec![(1, -1800.0), (8, 350.0), (9, 42.0), (10, 700.0)],
@@ -1312,15 +1306,14 @@ fn k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2() {
 
 /// RV8-3: the sparse formation check reads the same load inputs as the dense
 /// one: the ledger terms, not the folded force. K-D5's demoting models F122
-/// and CSKEW_8_5 with each load split into three ledger terms (0.1v, 0.7v and
+/// and C122-R10-Y100 (the curved true positive) with each load split into three ledger terms (0.1v, 0.7v and
 /// v - 0.1v - 0.7v), whose exact sum is not the rounded net on some load. In
 /// both modes the records are identical and the case demotes in both
 /// representations. Kills RV8-FC-TERMS (the sparse check drops the terms), in
 /// SparseInteractive.
 #[test]
-#[ignore = "T4-U1 phase B: its precondition needs CSKEW_8_5 demoted (terms and folded force give different records), which no longer holds with the objective element; T3 agrees the outcome (annex A T4-U1 item 2)"]
 fn k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3() {
-    for m in [&F122, &CSKEW_8_5] {
+    for m in [&F122, &C122_R10_Y100] {
         let case = Case::from_model(m);
         let mut split = LoadLedger::new();
         let mut parts = Vec::new();

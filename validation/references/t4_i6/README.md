@@ -29,3 +29,39 @@ and prints each 12x12 entry rounded once to binary64;
 `t4_i14_l30_matrix.stdout.txt` is its output, embedded in the FK test.
 Regenerate with `python3 -I t4_i14_l30_matrix.py _run_records` here.
 SHA-256: script `bee26d7d8bed2fa19464bf61a8dd292517ced462dd3e70e54bb07388449af11c`, output `0f2828beaefb5709b11fad5e4f3d8696e2b063316baed786f8fa4cb4cdfce10c`.
+
+## Round 01 (`round_01/`, added by T4-I15, T4-U1 phase B)
+
+T4-I6 repair round 01, produced 2026-10-10 in scratch; SHA256SUMS digest
+`4a53e72144eba25ff56736f3a155890b680eb292e9050213e284c28b159a9919`;
+independent confirmation by T4-RV10 pending. `u1_reference_cases_r01.json`
+and the scripts that wrote it (`_run_records/r01_lib.py`, `i1_curved122.py`
+… `i8_acceptance.py`, `freeze_r01.py`) are copied byte for byte;
+`round_01/SHA256SUMS` holds their lines verbatim from round 01's
+`SHA256SUMS`. Check with `shasum -a 256 -c SHA256SUMS` in `round_01/`. The
+scripts import round 00's `curved_ref.py` from a sibling `rerun00/`
+directory; it is `_run_records/curved_ref.py` here (same SHA-256,
+`1f524bcc…`). Consumed by: the curved true-positive candidates, CSKEW_9/10,
+K1/K1F and the acceptance-range samples (through `kd5_models/`), FK's K2
+test (`k2_kernel_kill`, embedded literals) and PP's acceptance-range guard
+test (`acceptance_range_samples`).
+
+## `kd5_models/` (added by T4-I15, T4-U1 phase B)
+
+`kd5_models.py` regenerates NI's `structural_adapter/kd5_models.rs`. It is
+T3's K-D5 generator (T3 `IMPLEMENTATION/KD5/_run_records/repair/models/
+kd5_models.py.txt`, SHA-256 `f445b579…`) revised for T4-U1: each realized
+bend is (R, y_reference, k), y taken as an explicit recorded input from round
+00's `t3_models[*].regenerated_bend_inputs` bow vectors (O6), and the
+intended curved element is D1's objective Decimal re-formation given the
+exact centre of that arc (120 digits). It imports T3's cited V1
+`probe_d5_check.py` (SHA-256 `d13cf7c8…`) and D1 `curved_ef.py`
+(`1c862cea…`) unchanged from a directory given on the command line:
+`python3 -I -B kd5_models.py <v1_dir> . <out.rs> <out.json>` from this
+directory's parent. Every re-derived u_int is compared with T4-I6's frozen
+value (an independent element, `curved_ref.py` at 110 digits):
+`kd5_models.stdout.txt` and `kd5_models_comparison.json` record the
+comparison, worst 5.0e-11 of the criterion (the frozen values' 20-digit
+storage); rows differing after rounding to binary64 are exact zeros of the
+model (both sides below 1e-80). SHA-256: script `92097bca…`, generated
+`kd5_models.rs` `f3e8ae03…`.
