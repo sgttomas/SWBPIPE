@@ -5388,12 +5388,13 @@ fn solve_load_case_observed(
             // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
             // unloaded circular straight span only; the arc policy gates it.
             // The withheld reason is a static text borrowed, not formatted, inside
-            // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it.
+            // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it
+            // as `error.0`, like the composite error's own text.
             let maximum = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
-                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(std::borrow::Cow::Borrowed(reason)),
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err((std::borrow::Cow::Borrowed(reason),)),
                 pressure_runtime::ExactMemberMaximumPolicy::Compute => source_receipt::composite_member_maximum(
                     &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-                ).map_err(|error| std::borrow::Cow::Owned(error.0)),
+                ).map_err(|error| (std::borrow::Cow::Owned(error.0),)),
             };
             match maximum {
                 Ok(maximum) => {
@@ -5410,7 +5411,7 @@ fn solve_load_case_observed(
                 }
                 Err(error) => {
                     unavailable_stress_maximum_members.push(pipe.element_id.clone());
-                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error, vec![load_case.id.clone(),pipe.element_id.clone()]));
+                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.0, vec![load_case.id.clone(),pipe.element_id.clone()]));
                 }
             }
             None
