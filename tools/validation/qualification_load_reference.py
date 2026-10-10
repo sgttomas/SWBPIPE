@@ -54,9 +54,10 @@ PROFILE = 'resolved_straight_load_state_v1'
 TABLE = 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'
 TABLE_SHA256 = '44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d'
 MODULE = 'core/analysis_runs/load_reference_evidence.py'
-# Reader bytes as integrated with WP1 at 1ccca8b87 (REVIEW_A follow-up; earlier pins bfef71b19 and the WP5 start commit d8f0dc4f7);
+# Reader bytes as integrated with T4-U2a's pressure-contract dispatch at eeb16c35ba (re-pinned at
+# integration; earlier pins 1ccca8b87 after REVIEW_A, bfef71b19 and the WP5 start commit d8f0dc4f7);
 # re-pin deliberately whenever the reader changes.
-MODULE_SHA256 = '14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7'
+MODULE_SHA256 = '5b9615aaa9e5f846eea83f522cc653e039fceac9748474e60f76ecd11de540e3'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
