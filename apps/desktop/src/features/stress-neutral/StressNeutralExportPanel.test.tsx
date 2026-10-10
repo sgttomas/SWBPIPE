@@ -9,6 +9,7 @@ import {afterEach,it,expect,vi} from 'vitest';
 import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {readRetainedPrecisionCorpus} from '../../test-support/retainedPrecisionCorpus';
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
 import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
@@ -419,7 +420,7 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
 // selected A: quantity rows not_covered, its two records non_quantity) and W-CB2 (A + B retained_unavailable: every row
 // not_covered). Their quantity rows' witnesses are withheld with D-U6-2's existing not-covered code and message.
 it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 rows are disclosed not_covered and withheld; records keep no class finding',async(id)=>{
- const corpus=JSON.parse(readFileSync(path.resolve(__dirname,'../../../../../fixtures/results/retained_precision_cases.json'),'utf8'));
+ const corpus=readRetainedPrecisionCorpus();
  const entry=corpus.cases.find((c:any)=>c.id===id);expect(entry?.id).toBe(id);
  const source=structuredClone(entry.source) as MechanicsResult,invocation=structuredClone(entry.invocation),model=structuredClone(invocation.request.model) as PreviewModel;
  const captured=checkedJsonText(model);

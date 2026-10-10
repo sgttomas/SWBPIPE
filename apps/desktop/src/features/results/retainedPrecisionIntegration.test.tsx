@@ -22,6 +22,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisionCorpus";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 const u7 = vi.hoisted(() => ({ simulate: false, held: false, notCovered: null as string | null, noAbsolute: false }));
@@ -1059,7 +1060,7 @@ describe("notices, labels and the results-panel standing text", () => {
   });
   it("the case count is the validated receipt's selected cases over all its cases (RV91 N-4)", async () => {
     // A valid two-case statement from the shared reader corpus: one selected, one unavailable.
-    const corpus = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_cases.json"), "utf8"));
+    const corpus = readRetainedPrecisionCorpus();
     const entry = corpus.cases.find((c: Json) => c.id === "two_case_facade_after_certificate_synthetic");
     const statuses = entry.source.retained_precision.body.cases.map((c: Json) => c.status);
     expect(statuses).toStrictEqual(["selected", "unavailable"]);

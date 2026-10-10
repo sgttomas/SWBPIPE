@@ -4,11 +4,38 @@
 //! from the synthetic bases. Reading them establishes no execution; no native Current evidence.
 use open_pipe_stress_result_export::retained_precision as rp;
 use serde_json::Value;
+/// The shared corpus is one logical document stored as ordered snapshot files
+/// (07m + 07n, then 07o), each kept under 50 MB: a new snapshot is a new file,
+/// listed here, in PY's `tests/retained_precision_corpus.py` and in TS's
+/// `src/test-support/retainedPrecisionCorpus.ts`. `cases`, `mutations` and
+/// `must_pass` concatenate in file order; any other member appears once or
+/// identically in each file.
+const CORPUS_FILES: [&str; 2] = [
+    include_str!("../../../../fixtures/results/retained_precision_cases.json"),
+    include_str!("../../../../fixtures/results/retained_precision_cases_07o.json"),
+];
 fn corpus() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../../fixtures/results/retained_precision_cases.json"
-    ))
-    .unwrap()
+    let mut merged = serde_json::Map::new();
+    for text in CORPUS_FILES {
+        let Value::Object(part) = serde_json::from_str::<Value>(text).unwrap() else {
+            panic!("a corpus file is a JSON object")
+        };
+        for (key, value) in part {
+            let list = matches!(key.as_str(), "cases" | "mutations" | "must_pass");
+            if let Some(existing) = merged.get_mut(&key) {
+                match (list, existing, value) {
+                    (true, Value::Array(entries), Value::Array(more)) => entries.extend(more),
+                    (false, existing, value) => {
+                        assert_eq!(*existing, value, "corpus member {key} differs between files")
+                    }
+                    _ => panic!("corpus member {key} is not an array in every file"),
+                }
+            } else {
+                merged.insert(key, value);
+            }
+        }
+    }
+    Value::Object(merged)
 }
 fn decode(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
