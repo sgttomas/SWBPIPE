@@ -1,0 +1,135 @@
+id: DEL-02-05
+name: Project persistence and round-trip serialization
+needs:
+- from: DEL-00-01
+  condition: 'DEL-02-05 applies AB-00-01 as an upstream architecture-basis prerequisite for decision-record
+    discipline.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-02-05 applies AB-00-02 as an upstream architecture-basis prerequisite for module and
+    boundary constraints.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-02-05 applies AB-00-03 as an upstream prerequisite for schema-first service/result-envelope
+    behavior.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Procedure.md
+- from: DEL-00-04
+  condition: 'DEL-02-05 applies AB-00-04 as the direct persistence schema versioning canonicalization
+    and round-trip prerequisite.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Datasheet.md
+- from: DEL-00-06
+  condition: 'DEL-02-05 applies AB-00-06 as an upstream prerequisite for persistence diagnostics and result-envelope
+    coverage.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Specification.md
+- from: DEL-00-07
+  condition: 'DEL-02-05 applies AB-00-07 as an upstream prerequisite for adapter validation and public/private
+    boundary constraints.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Specification.md
+- from: DEL-00-08
+  condition: 'DEL-02-05 applies AB-00-08 as an upstream prerequisite for round-trip schema hash migration
+    and protected-content test obligations.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Specification.md
+- from: DEL-02-01
+  condition: 'DEL-02-05 interfaces with DEL-02-01 because persistence serializes and round-trips the canonical
+    model and schema-backed objects.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical INTERFACE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Datasheet.md
+- from: DEL-02-02
+  condition: 'DEL-02-05 interfaces with DEL-02-02 because persistence must preserve explicit units and
+    unit-system references for downstream dimensional checks.
+
+
+    Notes: Target deliverable resolved through decomposition PKG-02 row for unit system contract; retained
+    conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Specification.md
+- from: DEL-02-03
+  condition: 'DEL-02-05 interfaces with DEL-02-03 because persisted statuses and optional review records
+    must preserve the mechanics rule-check and human-review boundary.
+
+
+    Notes: Target deliverable resolved through decomposition PKG-02 row for code-neutral analysis boundary;
+    retained conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/Specification.md
+code_paths:
+- schemas/project_persistence.schema.yaml

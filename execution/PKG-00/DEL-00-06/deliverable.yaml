@@ -1,0 +1,8 @@
+id: DEL-00-06
+name: Diagnostics, warning, and result-envelope contract
+needs: []
+code_paths:
+- schemas/analysis_run.v0.1.schema.json
+- schemas/operation_outcome.schema.json
+- schemas/results.v0.1.schema.yaml
+- schemas/results.v0.2.schema.yaml

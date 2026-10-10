@@ -1,0 +1,8 @@
+id: DEL-00-03
+name: Application service command-query-job model
+needs: []
+code_paths:
+- apps/desktop/src/services/projectService.ts
+- core/gui/viewport_editor/
+- schemas/analysis_run.schema.json
+- schemas/operation_outcome.schema.json

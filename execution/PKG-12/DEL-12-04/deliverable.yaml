@@ -1,0 +1,219 @@
+id: DEL-12-04
+name: Secret and private-library handling
+needs:
+- from: DEL-00-01
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-12-04 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-12-05
+  condition: 'DEL-12-04 needs DEL-12-05 as a predecessor: secret/private-library handling follows threat
+    model.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this prerequisite satisfied for DEL-12-04 evidence
+    only because DEL-12-05 is CHECKING and latest run records threat-model hardening; exact secret provider,
+    encrypted-storage default, storage roots, cloud/network behavior, external secret manager behavior,
+    approval choices, release/security claims, and threat-model iteration remain owning-workflow deferrals.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/_STATUS.md; execution/PKG-12_Security, Privacy, and Private Data
+    Handling/1_Working/DEL-12-05_Security threat model/_run_records/TASK_RUN_2026-06-06_1102.md
+- from: DEL-12-01
+  condition: 'DEL-12-04 needs DEL-12-01 as a predecessor: secret/private-library handling uses private
+    path conventions.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for current evidence
+    only because DEL-12-04 consumed DEL-12-01 local-first storage/private path semantics; DEL-12-01 and
+    DEL-12-04 remain IN_PROGRESS and storage roots, physical project package/container, real private paths/secrets,
+    encryption/key-management, cloud exception behavior, and approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-01/_run_records/TASK_RUN_2026-06-07_1024_DEL-12-01_readiness-evidence-alignment.md;
+    execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library
+    handling/_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md
+- from: DEL-03-07
+  condition: 'DEL-12-04 needs DEL-03-07 as a predecessor: private library handling uses provenance/import
+    controls.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for DEL-12-04 evidence
+    only because DEL-03-07 is CHECKING with resolved review findings and current import provenance checker
+    evidence; concrete external import formats, legal/license policy, accepted public source catalogs,
+    downstream adapter mechanics, and release/legal/professional approvals remain deferred.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/_STATUS.md; execution/PKG-03_Piping Components, Materials, and
+    Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/Review_Findings.csv;
+    execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private
+    library import provenance checker/_run_records/TASK_RUN_2026-06-05_DEL-03-07_evidence-reconciliation.md
+- from: DEL-06-04
+  condition: 'DEL-12-04 needs DEL-06-04 as a predecessor: private rule-pack lifecycle interacts with private-library
+    handling.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for DEL-12-04 evidence
+    only because DEL-06-04 is CHECKING with resolved review finding and current caller-supplied checksum
+    verification evidence; private storage path, encryption defaults, access control, secret handling,
+    GUI/report/API integration, result-envelope integration, and approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-06/DEL-06-04/_STATUS.md; execution/PKG-06_Rule Packs and User-Supplied Code
+    Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/_REVIEW.md; execution/PKG-06_Rule
+    Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum
+    handling/Review_Findings.csv; execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private
+    rule-pack lifecycle and checksum handling/_run_records/TASK_RUN_2026-06-05_2159.md
+- from: DEL-12-02
+  condition: 'DEL-12-04 needs DEL-12-02 as an interface: private-library handling invokes warning, redaction,
+    omission, and export safeguards for private data exposure paths.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this interface satisfied for current evidence only
+    because DEL-12-02 redaction/export controls and DEL-12-04 secret/private-library guards were aligned
+    and fan-in tested together; runtime report/export integration, destructive quarantine movement, legal
+    review workflow, cloud exception workflow, storage roots, UI/CLI/API/adapter/report integration, and
+    approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-02/_run_records/TASK_RUN_2026-06-07_1034_DEL-12-02_readiness-evidence-alignment.md;
+    execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library
+    handling/_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md
+- from: DEL-12-03
+  condition: 'DEL-12-04 needs DEL-12-03 as an interface: secret/private-library handling must exclude
+    private library and credential-reference fields from telemetry payloads.
+
+
+    Notes: FACT: 2026-06-07 readiness alignment marks this interface satisfied for current evidence only
+    because DEL-12-03 telemetry-off evidence exists and DEL-12-04 guards block telemetry exposure markers;
+    runtime telemetry endpoint/vendor/transport, event allowlist/schema, consent UI/CLI, support-bundle
+    workflow, plugin/adapter/report/private-library runtime route integration, and approval choices remain
+    deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-03/_run_records/TASK_RUN_2026-06-07_1024_DEL-12-03_readiness-evidence-alignment.md;
+    execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library
+    handling/_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md
+code_paths:
+- core/security/secret_private_library/
+- core/security/secret_private_library/controls.py
+- tools/validation/validate_dependencies_schema.py
+checks:
+- tests/security/test_secret_private_library_handling.py

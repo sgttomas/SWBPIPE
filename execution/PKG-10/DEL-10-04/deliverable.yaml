@@ -1,0 +1,105 @@
+id: DEL-10-04
+name: Build, packaging, and CI/CD pipeline
+needs:
+- from: DEL-00-01
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-05
+  condition: 'DEL-09-05 provides release-gate requirements input for future CI implementation in DEL-10-04.
+
+
+    Notes: Prior candidate retained as ACTIVE downstream enablement because assigned source explicitly
+    names future CI implementation consumption.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Guidance.md
+code_paths:
+- apps/desktop
+- apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
+- core/product_preview
+- tools/validation/validate_dependencies_schema.py

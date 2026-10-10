@@ -2,9 +2,9 @@
 
 Work in `projects/chirality-piping` relative to the repository root. Read Root
 `AGENTS.md`, the assigned role, `docs/PRD.md` and the affected deliverables under
-`execution/PKG-*/1_Working/DEL-*/`. ScopeOfWork and Design hold commitments;
-`Dependencies.csv` holds needs until the dependency migration. Follow only the
-relevant neighbourhood. Code and checks are located through
+`execution/PKG-*/DEL-*/`. ScopeOfWork and Design hold commitments;
+`deliverable.yaml` holds needs and relevant code/check pointers. Query the local
+neighbourhood from Root with `python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-xx-xx`. Code and checks are located through
 `software-workflow.json`; use `coordinated-knowledge-work` for coordination.
 The current objective comes from the init prompt and subsequent owner steering.
 Edit current source documents when decisions or dependency conditions change;

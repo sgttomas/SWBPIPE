@@ -1,0 +1,123 @@
+id: DEL-07-11
+name: Desktop workspace shell and host integration
+needs:
+- from: DEL-00-03
+  condition: 'DEL-07-11 consumes Application service command-query-job model from DEL-00-03: shell consumes
+    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
+    mounting does not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E039; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-00-05
+  condition: 'DEL-07-11 consumes GUI state and interaction architecture from DEL-00-05: shell consumes
+    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
+    mounting does not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E040; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-00-07
+  condition: 'DEL-07-11 consumes API boundary and adapter contract map from DEL-00-07: shell consumes
+    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
+    mounting does not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E041; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-02-05
+  condition: 'DEL-07-11 consumes Project persistence and round-trip serialization from DEL-02-05: shell
+    consumes service/GUI/host constraints, persistence, accessibility, actual run records and controlled
+    application; mounting does not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E042; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-07-06
+  condition: 'DEL-07-11 consumes Accessibility and usability baseline from DEL-07-06: shell consumes service/GUI/host
+    constraints, persistence, accessibility, actual run records and controlled application; mounting does
+    not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E043; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-14-02
+  condition: 'DEL-07-11 consumes Analysis run records from DEL-14-02: shell consumes service/GUI/host
+    constraints, persistence, accessibility, actual run records and controlled application; mounting does
+    not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E044; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-16-06
+  condition: 'DEL-07-11 consumes Controlled model operation application from DEL-16-06: shell consumes
+    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
+    mounting does not transfer feature semantics.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E045; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+code_paths:
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/tauri.conf.json
+- apps/desktop/src/App.tsx
+- apps/desktop/src/features/workspace/

@@ -1,0 +1,130 @@
+id: DEL-09-04
+name: Validation manual skeleton
+needs:
+- from: DEL-00-01
+  condition: 'DEL-09-04 requires architecture-basis constraint AB-00-01 from DEL-00-01 before product-development
+    execution.
+
+
+    Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
+    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-09-04 requires architecture-basis constraint AB-00-02 from DEL-00-02 before product-development
+    execution.
+
+
+    Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
+    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-09-04 requires architecture-basis constraint AB-00-06 from DEL-00-06 before product-development
+    execution.
+
+
+    Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
+    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-09-04 requires architecture-basis constraint AB-00-08 from DEL-00-08 before product-development
+    execution.
+
+
+    Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
+    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-01
+  condition: 'DEL-09-04 needs mechanics benchmark evidence from DEL-09-01 for the validation manual skeleton''s
+    mechanics-verification sections.
+
+
+    Notes: Current DAG-006 active row DAG-004-R0515 carries this edge from source_dependency_id=DAG-002-E0543.
+    Target _STATUS.md reports CHECKING on 2026-06-06 after TP-PKG09-READINESS evidence. Target MEMORY.md
+    records invented public mechanics benchmark fixtures and passing tests. RequiredMaturity SEMANTIC_READY
+    is met by current CHECKING status. Satisfaction is dependency maturity only; final benchmark tolerance
+    policy, source acceptance, release thresholds, CI gate policy, publication scope, result-envelope/export
+    integration, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-02
+  condition: 'DEL-09-04 needs stress benchmark evidence from DEL-09-02 for load and stress recovery verification
+    sections.
+
+
+    Notes: Current DAG-006 active row DAG-004-R0516 carries this edge from source_dependency_id=DAG-002-E0544.
+    Target _STATUS.md reports CHECKING on 2026-06-06 after TP-PKG09-READINESS evidence. Target MEMORY.md
+    records invented public stress recovery benchmarks and passing tests. RequiredMaturity SEMANTIC_READY
+    is met by current CHECKING status. Satisfaction is dependency maturity only; final benchmark tolerance
+    policy, source acceptance, release thresholds, CI gate policy, result-envelope/export integration,
+    publication scope, canonical units/conversions, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-03
+  condition: 'DEL-09-04 needs nonlinear support regression evidence from DEL-09-03 for nonlinear support
+    verification sections.
+
+
+    Notes: Current DAG-006 active row DAG-004-R0517 carries this edge from source_dependency_id=DAG-002-E0545.
+    Target _STATUS.md reports CHECKING on 2026-06-06 after TP-PKG09-READINESS evidence. Target MEMORY.md
+    records nonlinear support regression fixtures and passing tests. RequiredMaturity SEMANTIC_READY is
+    met by current CHECKING status. Satisfaction is dependency maturity only; final nonlinear convergence
+    tolerance policy, release thresholds, CI/publication policy, external validation claims, unit catalog,
+    conversion constants, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-04
+  condition: 'DEL-09-04 must preserve professional reliance boundaries from DEL-01-04 and cannot certify
+    approve seal authenticate or declare code compliance.
+
+
+    Notes: Current DAG-006 active row DAG-004-R0514 carries this edge from source_dependency_id=DAG-002-E0546.
+    Target _STATUS.md reports CHECKING on 2026-06-04 after deferral of final professional/legal/release/human-acceptance
+    workflow judgments. Target MEMORY.md records professional-boundary and report-notice draft surfaces
+    refreshed to current basis. RequiredMaturity SEMANTIC_READY is met by current CHECKING status. Satisfaction
+    is dependency maturity only; jurisdiction-specific wording, human-acceptance workflow, release-label
+    vocabulary, final release policy, legal-review authority, and final policy/template acceptance remain
+    TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- core/runner/headless/src/bin/openpipestress-runner.rs
+- tools/validation/validate_dependencies_schema.py
+- validation/evidence/reproduction/
+- validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/
+- validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/

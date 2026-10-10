@@ -1,0 +1,89 @@
+id: DEL-02-04
+name: Plugin and extension domain contracts
+needs:
+- from: DEL-00-01
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-01 from DEL-00-01 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-02 from DEL-00-02 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-03 from DEL-00-03 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-04 from DEL-00-04 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-06 from DEL-00-06 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-07 from DEL-00-07 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-08 from DEL-00-08 before product-development
+    execution.
+
+
+    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- schemas/plugin_manifest.schema.yaml

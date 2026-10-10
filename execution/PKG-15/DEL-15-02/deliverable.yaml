@@ -1,0 +1,216 @@
+id: DEL-15-02
+name: Target mapping and unsupported-behavior contract
+needs:
+- from: DEL-00-01
+  condition: 'DEL-15-02 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-15-02 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-15-02 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-04
+  condition: 'DEL-15-02 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-15-02 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-15-02 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-15-02 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-15-01
+  condition: 'DEL-15-02 needs DEL-15-01 as a predecessor: Target mapping consumes canonical handoff package
+    schema.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-10-02
+  condition: 'DEL-15-02 needs DEL-10-02 as a predecessor: Target mapping consumes adapter framework contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-10-03
+  condition: 'DEL-15-02 needs DEL-10-03 as a predecessor: Target mapping aligns with local FEA handoff
+    contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-12-02
+  condition: 'DEL-15-02 needs DEL-12-02 as a predecessor: Target mapping must preserve redaction/export
+    controls.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=SECURITY_PREDECESSOR,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-13-04
+  condition: 'DEL-15-02 needs DEL-13-04 as a predecessor: Target mapping consumes physical-to-analytical
+    transform output.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-05
+  condition: 'DEL-15-02 needs DEL-14-05 as a predecessor: Target mapping consumes comparison export contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
+    normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+code_paths:
+- core/handoff/exporter/workflow.py
+- core/handoff/target_mapping/contract.py
+- schemas/target_mapping.schema.json
+- tools/validation/validate_dependencies_schema.py
+checks:
+- tests/test_target_mapping_contract.py

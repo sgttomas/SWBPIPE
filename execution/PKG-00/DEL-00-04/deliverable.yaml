@@ -1,0 +1,6 @@
+id: DEL-00-04
+name: Persistence and schema versioning architecture
+needs: []
+code_paths:
+- apps/desktop/src-tauri/src/model_document_migration.rs
+- apps/desktop/src/services/hashService.ts

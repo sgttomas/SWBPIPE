@@ -1,0 +1,146 @@
+id: DEL-04-01
+name: 3D frame stiffness kernel
+needs:
+- from: DEL-00-01
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0100 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0101 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0102 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0103 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0104 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-04-01 needs DEL-02-01 as a predecessor: frame stiffness kernel consumes canonical nodes/elements/model
+    entities
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0429 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    refreshed by TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; 2026-06-05 blocker-closure ruling: canonical model/schema predecessor
+    satisfied for lifecycle-review purposes by current frame-kernel boundary evidence and DEL-02-01 foundation
+    maturity.; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-02
+  condition: 'DEL-04-01 needs DEL-02-02 as a predecessor: solver calculations must be unit-aware
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0430 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; refreshed by TP-DAG-004 conservative update for RECONCILIATION
+    consumer against execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.5; edge set unchanged; 2026-06-05
+    blocker-closure ruling: unit-system predecessor satisfied for lifecycle-review purposes; conversion
+    constants and production unit policy remain downstream TBDs.; legacy_anchortype=TRACES_TO_REQUIREMENT;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-03
+  condition: 'DEL-04-01 needs DEL-02-03 as a predecessor: solver results must preserve code-neutral mechanics
+    boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0431 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; refreshed by TP-DAG-004 conservative update for RECONCILIATION
+    consumer against execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.5; edge set unchanged; 2026-06-05
+    blocker-closure ruling: code-neutral analysis boundary predecessor satisfied for lifecycle-review
+    purposes.; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- core/solver/curved_bend
+- core/solver/frame_kernel
+- core/solver/frame_kernel/
+- core/solver/frame_kernel/README.md
+- core/solver/frame_kernel/src/lib.rs
+- core/solver/sparse_direct/
+- core/solver/sparse_direct/README.md
+- tools/validation/validate_dependencies_schema.py

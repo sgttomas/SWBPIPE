@@ -1,0 +1,155 @@
+id: DEL-12-01
+name: Local-first storage and private data paths
+needs:
+- from: DEL-00-01
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-03 from DEL-00-03 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-04 from DEL-00-04 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-06 from DEL-00-06 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-07 from DEL-00-07 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-12-01 must apply architecture-basis constraint AB-00-08 from DEL-00-08 when refreshing
+    local-first storage and private data path conventions.
+
+
+    Notes: Normalized from approved DAG-002 architecture-basis mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-05
+  condition: 'DEL-12-01 needs DEL-02-05 as a predecessor because storage conventions must remain compatible
+    with deterministic project persistence and round-trip serialization.
+
+
+    Notes: Retained from approved DAG-002 mirror and normalized to canonical dependency-extract enums;
+    target resolved through DAG-002/decomposition authority. 2026-06-07 readiness alignment: DEL-02-05
+    local status is CHECKING after human-approved source/test traceability reconciliation, satisfying
+    the required SEMANTIC_READY predecessor for storage-compatibility evidence only; runtime storage service,
+    package/container mechanics, OS roots, migration implementation, and approval choices remain deferred.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-12-05
+  condition: 'DEL-12-01 needs DEL-12-05 as a security predecessor for storage/private path threat-model
+    coverage.
+
+
+    Notes: Retained from approved DAG-002 mirror for reconciliation; local DEL-12-01 docs identify threat-model
+    scope at package level. 2026-06-07 readiness alignment: DEL-12-05 local status is CHECKING and latest
+    run records threat-model hardening, satisfying the storage/private-path threat-model predecessor for
+    readiness evidence only; target-specific runtime controls, encryption/key-management, cloud exception,
+    and approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/_STATUS.md; execution/PKG-12_Security, Privacy, and Private Data
+    Handling/1_Working/DEL-12-05_Security threat model/_run_records/TASK_RUN_2026-06-06_1102.md
+- from: DEL-01-02
+  condition: 'DEL-12-01 needs DEL-01-02 as a protected-content and private-data boundary constraint for
+    public/private path separation.
+
+
+    Notes: Retained from approved DAG-002 mirror and normalized to CONSTRAINT; source also cites OPS-K-IP-1,
+    OPS-K-DATA-1, and IP/data boundary policy. 2026-06-07 readiness alignment: DEL-01-02 is CHECKING with
+    PASS_WITH_WARNINGS review evidence, satisfying the protected/private-data boundary constraint for
+    DEL-12-01 readiness evidence only; final contributor/legal/reviewer authority and related governance
+    approvals remain deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-01/DEL-01-02/_STATUS.md; execution/PKG-01_Governance, IP Boundary, and Professional
+    Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/_REVIEW.md
+code_paths:
+- apps/desktop/e2e/b3b-project-persistence.spec.ts
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/services/reportPackageSaveService.test.ts
+- core/security/local_first_storage/
+- core/security/local_first_storage/controls.py
+- tools/validation/validate_dependencies_schema.py
+checks:
+- tests/security/test_local_first_storage_policy.py

@@ -1,0 +1,171 @@
+id: DEL-01-04
+name: Professional responsibility and product-claims policy
+needs:
+- from: DEL-00-01
+  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
+    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
+    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
+    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
+    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: doc:docs/CONTRACT.md
+  condition: 'DEL-01-04 requires the governing invariant catalog for authority reporting governance and
+    agent boundaries.
+
+
+    Notes: FACT; document target is referenced by repo path and not treated as aggregate graph authority.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation: docs/CONTRACT.md'
+  evidence: execution/PKG-01/DEL-01-04/Specification.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'DEL-01-04 drafting inputs must avoid protected standards/code text and proprietary engineering
+    data.
+
+
+    Notes: FACT; uses governing boundary read in this task brief.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Protected-content and private-data boundary; TargetRefID: OPS-IP-DATA-BOUNDARY;
+    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
+  evidence: execution/PKG-01/DEL-01-04/Procedure.md
+- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
+  condition: 'The workflow requires the current decomposition for deliverable context scope objectives
+    and product-claims boundaries.
+
+
+    Notes: FACT; current-basis refresh clears stale revision 0.4 references without changing lifecycle
+    or aggregate DAG state.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Software decomposition current basis; TargetRefID: OPS-SOFTWARE-DECOMP;
+    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
+  evidence: execution/PKG-01/DEL-01-04/Procedure.md
+- from: external:HUMAN_LEGAL_PROFESSIONAL_REVIEW
+  condition: 'Jurisdiction-specific professional-practice wording and legal interpretations require qualified
+    human legal or professional review.
+
+
+    Notes: No legal conclusion inferred; external review remains pending for jurisdiction-specific wording.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Human legal/professional review; TargetRefID: HUMAN_LEGAL_PROFESSIONAL_REVIEW'
+  evidence: execution/PKG-01/DEL-01-04/Specification.md
+- from: external:HUMAN_PROJECT_AUTHORITY
+  condition: 'Final acceptance or revision of the professional-boundary policy and report notice template
+    requires a human project authority gate.
+
+
+    Notes: No lifecycle transition or issued-policy claim; final governance acceptance remains pending.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Human project authority acceptance; TargetRefID: HUMAN_PROJECT_AUTHORITY'
+  evidence: execution/PKG-01/DEL-01-04/Specification.md
+- from: doc:docs/PROFESSIONAL_BOUNDARY.md
+  condition: 'DEL-01-04 provides and constrains the draft professional-boundary policy document; final
+    acceptance remains human-gated.
+
+
+    Notes: FACT; draft repo-level policy artifact exists; final acceptance or revision remains TBD and
+    no issued policy or professional/code-compliance claim is made.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Professional-boundary policy document; TargetRefID: docs/PROFESSIONAL_BOUNDARY.md;
+    TargetLocation: docs/PROFESSIONAL_BOUNDARY.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-01/DEL-01-04/docs/PROFESSIONAL_BOUNDARY.md
+- from: doc:docs/report_notice_template.md
+  condition: 'DEL-01-04 provides and constrains the draft report notice template; final acceptance remains
+    human-gated.
+
+
+    Notes: FACT; draft repo-level report notice template exists; final acceptance or revision remains
+    TBD and no issued report-template claim is made.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Report notice template; TargetRefID: OPS-REPORT-NOTICE-TEMPLATE;
+    TargetLocation: docs/report_notice_template.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-01/DEL-01-04/docs/report_notice_template.md

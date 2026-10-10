@@ -116,7 +116,7 @@ function buildSecurityThreatModelPacket({
       policy_doc: "docs/security/threat_model.md",
       guard_tests: "tests/test_security_threat_model.py",
       deliverable_context:
-        "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/_CONTEXT.md",
+        "execution/PKG-12/DEL-12-05/ScopeOfWork.md",
       app_surfaces: [
         "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",

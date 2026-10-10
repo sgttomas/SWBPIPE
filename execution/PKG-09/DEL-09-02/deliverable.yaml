@@ -1,0 +1,102 @@
+id: DEL-09-02
+name: Stress recovery benchmark suite
+needs:
+- from: DEL-00-01
+  condition: 'DEL-09-02 must apply architecture-basis constraint AB-00-01 from DEL-00-01 during sealed
+    execution.
+
+
+    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-09-02 must apply architecture-basis constraint AB-00-02 from DEL-00-02 during sealed
+    execution.
+
+
+    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-09-02 must preserve diagnostics and result-envelope boundaries from AB-00-06.
+
+
+    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
+    ARCHITECTURE_BASIS to INTERFACE; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-09-02 must apply layered validation and protected-content gates from AB-00-08.
+
+
+    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-03
+  condition: 'DEL-09-02 requires the accepted mechanics stress recovery interface from the upstream stress
+    recovery deliverable.
+
+
+    Notes: Target DEL-05-03 resolved from SOFTWARE_DECOMP revision 0.5; source does not name the deliverable
+    ID directly.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-02/Procedure.md
+- from: DEL-03-08
+  condition: 'DEL-09-02 benchmark planning depends on unit-aware section-property behavior used by stress
+    recovery comparisons.
+
+
+    Notes: Target DEL-03-08 retained from prior DAG mirror and supported indirectly by decomposition SOW-051/DEL-03-08;
+    no fixture values are introduced.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-02/Specification.md
+- from: DEL-01-02
+  condition: 'DEL-09-02 requires protected-content review before accepting future source fixtures or hand-calc
+    notes.
+
+
+    Notes: Target DEL-01-02 resolved from SOFTWARE_DECOMP revision 0.5 copyright and protected-data boundary
+    policy row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-02/Procedure.md
+code_paths:
+- core/loads/stress_recovery/
+- validation/benchmarks/stress
+- validation/benchmarks/stress/
+- validation/benchmarks/stress/README.md
+- validation/benchmarks/stress/src/lib.rs
+- validation/hand_calcs/stress/

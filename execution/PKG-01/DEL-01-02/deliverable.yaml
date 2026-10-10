@@ -1,0 +1,135 @@
+id: DEL-01-02
+name: Copyright and protected-data boundary policy
+needs:
+- from: DEL-00-01
+  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
+    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
+    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
+    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
+    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-01
+  condition: 'DEL-01-02 needs DEL-01-01 as a predecessor: protected-data policy should sit under the project
+    governance baseline.
+
+
+    Notes: Preserved historical DAG-002 synchronized evidence row; current-basis evidence confirms DEL-01-01
+    supplies the governance baseline context required by DEL-01-02 without promoting aggregate graph authority
+    or lifecycle state.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: doc:docs/CONTRACT.md
+  condition: 'Applicable invariants from CONTRACT are required input for producing or reviewing the protected-data
+    boundary policy.
+
+
+    Notes: Document prerequisite resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: docs/CONTRACT.md; TargetLocation:
+    docs/CONTRACT.md'
+  evidence: execution/PKG-01/DEL-01-02/Procedure.md
+- from: external:HUMAN_LEGAL_REVIEW
+  condition: 'Unresolved legal wording license contributor certification mechanism and legal-review authority
+    require human/legal availability.
+
+
+    Notes: No legal conclusion inferred; default quarantine path exists but final legal/governance mechanism
+    and legal-review authority remain external prerequisites.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Human/legal review; TargetRefID: HUMAN_LEGAL_REVIEW'
+- from: external:HUMAN_PROJECT_AUTHORITY
+  condition: 'Reviewer role and final governance/legal mechanism require human project authority assignment
+    before field-by-field checklist acceptance review.
+
+
+    Notes: Checklist path is resolved; reviewer role and final governance/legal mechanism remain unresolved
+    human-authority prerequisites.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Human project authority assignment; TargetRefID: HUMAN_PROJECT_AUTHORITY'
+  evidence: execution/PKG-01/DEL-01-02/Procedure.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'Repo-level protected-data policy and contribution review checklist artifacts exist as draft
+    governance surfaces.
+
+
+    Notes: Repo-level artifacts exist and are cited by the current-basis local kit; this satisfies artifact
+    handoff evidence without approving aggregate DAG changes or lifecycle transition.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: IP and data boundary policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
+    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-01/DEL-01-02/Specification.md

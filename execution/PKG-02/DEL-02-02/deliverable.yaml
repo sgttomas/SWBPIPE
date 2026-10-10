@@ -1,0 +1,217 @@
+id: DEL-02-02
+name: Unit system and dimensional-analysis core contract
+needs:
+- from: DEL-00-01
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
+    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-02-02 needs DEL-02-01 as a predecessor: unit and dimensional-analysis contracts must
+    bind to canonical domain entities.
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and scope mapping; preserved
+    as declared DAG mirror; normalized to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-02/docs/_Registers/Deliverables.csv
+- from: external:HUMAN-REVIEW-GATE
+  condition: 'Human review is required before open unit catalog dimension basis conversion storage diagnostic-code
+    schema-location and special-quantity decisions can be treated as accepted.
+
+
+    Notes: FACT; external human gate target intentionally unresolved to avoid inventing an authority.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=EXTERNAL;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Human decision owner or review gate; TargetRefID: HUMAN-REVIEW-GATE'
+  evidence: execution/PKG-02/DEL-02-02/Procedure.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'Public/protected data policy constrains unit and conversion data sources and protected-content
+    handling for DEL-02-02.
+
+
+    Notes: FACT; governing document target resolved from prerequisite row and governing read set.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
+    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
+  evidence: execution/PKG-02/DEL-02-02/Procedure.md
+- from: doc:docs/VALIDATION_STRATEGY.md
+  condition: 'Unit and schema test obligations depend on the project validation strategy available to
+    the deliverable.
+
+
+    Notes: FACT; document pointer preserved from local procedure without reading outside allowed governing/decomposition/source
+    scope.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Validation strategy; TargetRefID: docs/VALIDATION_STRATEGY.md; TargetLocation:
+    docs/VALIDATION_STRATEGY.md'
+  evidence: execution/PKG-02/DEL-02-02/Procedure.md
+- from: unknown
+  condition: 'DEL-02-02 provides a conservative unit contract for downstream solver schema rule evaluator
+    adapter persistence and reporting surfaces.
+
+
+    Notes: FACT for consumer class; TargetType UNKNOWN because the local source does not name stable downstream
+    deliverable IDs.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES;
+    legacy_targettype=UNKNOWN; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=NOT_APPLICABLE;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: solver, schema layer, rule evaluator, adapters, persistence, and
+    reporting unit consumers; TargetRefID: DOWNSTREAM-UNIT-CONSUMERS'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-02/DEL-02-02/Guidance.md
+- from: doc:core/units module contract
+  condition: 'DEL-02-02 must produce a core/units module contract documenting quantity shape dimension
+    signature conversion API operation rules diagnostics and storage hooks.
+
+
+    Notes: FACT; local output artifact path remains TBD because repository module layout is not fixed
+    in source.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: core/units module contract; TargetRefID: core/units module contract'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-02/DEL-02-02/Specification.md
+- from: doc:docs/SPEC.md
+  condition: 'DEL-02-02 must hand off a unit-system section or equivalent linked technical specification
+    update for docs/SPEC.md.
+
+
+    Notes: FACT; document target named by local specification.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: docs/SPEC.md unit-system section; TargetRefID: docs/SPEC.md unit-system
+    section; TargetLocation: docs/SPEC.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-02/DEL-02-02/Specification.md
+code_paths:
+- core/units
+- core/units/README.md
+- core/units/schema_vocabulary.py
+- core/units/src/lib.rs
+- schemas/units.schema.yaml

@@ -1,0 +1,181 @@
+id: DEL-10-02
+name: Import/export adapter framework
+needs:
+- from: DEL-00-03
+  condition: 'DEL-10-02 depends on the application-service command/query/job envelope basis for adapter
+    operations.
+
+
+    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
+    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-10-02 depends on deterministic schema versioning and canonical JSON/hash basis where
+    adapter payloads are schema-governed or hashed.
+
+
+    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
+    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-10-02 depends on the diagnostics and result-envelope contract for adapter warnings errors
+    and provenance-bearing diagnostics.
+
+
+    Notes: Target deliverable resolved from AB-00-06 context and decomposition deliverables table.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/Specification.md
+- from: DEL-00-07
+  condition: 'DEL-10-02 depends on the API boundary and adapter contract map because adapters cannot bypass
+    validation sandboxing envelopes or report controls.
+
+
+    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
+    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-10-02 depends on layered validation and protected-content test gates for future adapter
+    implementation acceptance.
+
+
+    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
+    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-04
+  condition: 'DEL-10-02 interfaces with plugin and extension domain contracts because the adapter framework
+    is an extension surface governed by plugin/adapter constraints.
+
+
+    Notes: Target deliverable resolved from decomposition row DEL-02-04; assigned source states extension-surface
+    obligation but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/Guidance.md
+- from: DEL-03-07
+  condition: 'DEL-10-02 depends on provenance and redistribution-status import checking before imported
+    data can be accepted or reused.
+
+
+    Notes: Target deliverable resolved from decomposition row DEL-03-07; assigned source states provenance-check
+    obligation but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/Specification.md
+- from: DEL-12-01
+  condition: 'DEL-10-02 is constrained by local-first private data handling for imports and exports involving
+    private project libraries rule packs and results.
+
+
+    Notes: Target deliverable resolved from decomposition row DEL-12-01; assigned source states privacy
+    constraint but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/Datasheet.md
+- from: DEL-02-01
+  condition: 'DEL-10-02 depends on DEL-02-01 because adapter capabilities include model import/export
+    and external data is accepted into schema-governed domain workflows.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; local
+    evidence only, not aggregate DAG authority or lifecycle approval.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+- from: DEL-02-02
+  condition: 'DEL-10-02 depends on DEL-02-02 because adapter framework validation must preserve unit validation
+    before external data enters domain workflows.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
+    in accepted PKG-02 unit contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/Specification.md
+- from: DEL-02-03
+  condition: 'DEL-10-02 depends on DEL-02-03 because adapter results and validation plans must preserve
+    diagnostics and the human-review boundary rather than emitting approval or compliance claims.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
+    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+- from: DEL-02-05
+  condition: 'DEL-10-02 depends on DEL-02-05 because adapter declarations and operation results preserve
+    checksum/audit references and persistence/hash controls for reproducible imported and exported artifacts.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
+    in accepted PKG-02 persistence/hash contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-02/schemas/adapter_framework.schema.yaml
+- from: DEL-08-04
+  condition: 'DEL-08-04 enables import/export adapters to consume governed result envelopes without bypassing
+    unit, provenance, diagnostic, or data-boundary checks.
+
+
+    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Specification.md
+code_paths:
+- tools/validation/validate_dependencies_schema.py

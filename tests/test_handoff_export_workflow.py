@@ -28,9 +28,8 @@ from core.security.redaction.route_control import control_route_export  # noqa: 
 FIXTURE_PATH = (
     ROOT
     / "execution"
-    / "PKG-15_Handoff and External Prover Workflow"
-    / "1_Working"
-    / "DEL-15-03_Downstream modeling export workflow"
+    / "PKG-15"
+    / "DEL-15-03"
     / "fixtures"
     / "invented_target_fixture.json"
 )
@@ -68,7 +67,7 @@ def validate_with_schema(payload: dict[str, object], path: Path) -> None:
 def provenance(source_name: str = "Invented DEL-15-03 fixture") -> dict[str, str]:
     return {
         "source_name": source_name,
-        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/fixtures/invented_target_fixture.json",
+        "source_location": "execution/PKG-15/DEL-15-03/fixtures/invented_target_fixture.json",
         "source_license": "project-invented-test-data",
         "contributor": "OpenPipeStress",
         "contributor_attestation": "invented non-engineering fixture",

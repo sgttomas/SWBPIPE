@@ -1,0 +1,109 @@
+id: DEL-17-04
+name: CAEPIPE MBF export profile and deterministic writer
+needs:
+- from: DEL-00-01
+  condition: 'DEL-17-04 must apply AB-00-01 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Decision baseline for architecture choices and unresolved rulings.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-17-04 must apply AB-00-02 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Repository/module boundaries and inward dependency direction.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-17-04 must apply AB-00-03 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Schema-first command/query/job result envelope constraints.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-17-04 must apply AB-00-04 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-17-04 must apply AB-00-06 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Diagnostics, warnings, blockers, and result-envelope obligations.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-17-04 must apply AB-00-07 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    No-bypass API/plugin/adapter validation and boundary controls.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-17-04 must apply AB-00-08 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Layered architecture/schema/service/adapter acceptance strategy.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-17-01
+  condition: 'DEL-17-04 consumes DEL-17-01 for CAEPIPE source facts and target TBDs.
+
+
+    Notes: CAEPIPE-specific unknowns remain TBD.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=SOURCE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-17/DEL-17-04/Guidance.md
+- from: DEL-17-02
+  condition: 'DEL-17-04 depends on DEL-17-02 under DAG-005.
+
+
+    Notes: Downstream production docs not populated in this tranche.; legacy_anchortype=DELIVERABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=CONSUMED_BY; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
+    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-17/DEL-17-02/Specification.md
+code_paths:
+- core/handoff/caepipe_mbf/
+- schemas/caepipe_mbf_export.schema.json
+checks:
+- tests/test_caepipe_mbf_export_package.py

@@ -1,0 +1,187 @@
+id: DEL-07-04
+name: Missing-data warning and blocking UX
+needs:
+- from: DEL-00-01
+  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when executed.
+
+
+    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when executed.
+
+
+    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-07-04 needs AB-00-03 command/query/job result-envelope and status-separation architecture
+    before implementation.
+
+
+    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
+    external inputs.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-00-05
+  condition: 'DEL-07-04 needs AB-00-05 GUI state and diagnostic-preservation architecture before implementation.
+
+
+    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
+    external inputs.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-00-06
+  condition: 'DEL-07-04 needs AB-00-06 diagnostics and warning-class contract before implementation.
+
+
+    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
+    external inputs.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-00-07
+  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-07 from DEL-00-07 when executed.
+
+
+    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-08 from DEL-00-08 when executed.
+
+
+    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-04
+  condition: 'DEL-07-04 requires analysis status semantics to preserve incomplete model mechanics-solved
+    rule-inputs-incomplete and human-review-required distinctions.
+
+
+    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-06-03
+  condition: 'DEL-07-04 requires rule-pack required-input completeness signals for rule-check-blocking
+    missing-data behavior.
+
+
+    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-04-06
+  condition: 'DEL-07-04 requires solver diagnostics for solve-blocking and nonlinear warning producers.
+
+
+    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/Specification.md
+- from: DEL-06-02
+  condition: 'DEL-07-04 consumes Sandboxed unit-aware expression evaluator from DEL-06-02: rule-check
+    interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E079; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-06; dependency table rule-check UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/ScopeOfWork.md
+- from: DEL-02-02
+  condition: 'DEL-07-04 consumes Unit system and dimensional-analysis core contract from DEL-02-02: rule-check
+    interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E080; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-06; dependency table rule-check UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/ScopeOfWork.md
+- from: DEL-02-03
+  condition: 'DEL-07-04 directly depends on DEL-02-03 because local warning classes are mapped to canonical
+    software statuses and external hash-bound human records.
+
+
+    Notes: Restores active package-local PKG-02 compatibility evidence while preserving the retired legacy
+    mirror row for reconciliation history.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-04/core/gui/warnings/engine.py; tests/test_missing_data_warning_ux.py
+- from: DEL-07-02
+  condition: 'DEL-07-02 exposes missing-data findings but leaves blocking UX ownership to DEL-07-04 unless
+    a later brief changes the boundary
+
+
+    Notes: FACT: downstream interface edge supports RECONCILIATION boundary checking between adjacent
+    GUI slices.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Guidance.md

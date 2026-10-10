@@ -1,0 +1,124 @@
+id: DEL-05-05
+name: Concentrated and distributed user load application
+needs:
+- from: DEL-00-01
+  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-01 for future design notes before
+    product implementation.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
+    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-02 for future design notes before
+    product implementation.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
+    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-03 for command query job and
+    result-envelope boundaries.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
+    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-05/Procedure.md
+- from: DEL-00-06
+  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-06 for diagnostics result hooks
+    and status provenance distinctions.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
+    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-05/Specification.md
+- from: DEL-00-08
+  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-08 for deterministic tests before
+    release use.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
+    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-05/Specification.md
+- from: DEL-05-01
+  condition: 'DEL-05-05 requires DEL-05-01 as primitive load-case context but must not reimplement the
+    primitive load-case engine.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps load stress predecessor
+    to PREREQUISITE.; 2026-06-05 blocker-closure ruling: primitive-load context predecessor satisfied
+    for lifecycle-review purposes.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-01/_STATUS.md; core/loads/user_loads/src/lib.rs
+- from: DEL-04-01
+  condition: 'DEL-05-05 requires the global 3D centerline frame mechanics model for load application.
+
+
+    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps solver predecessor
+    to PREREQUISITE.; 2026-06-05 blocker-closure ruling: frame-kernel predecessor satisfied for lifecycle-review
+    purposes.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-01/_STATUS.md; core/loads/user_loads/src/lib.rs
+- from: DEL-02-02
+  condition: 'DEL-05-05 requires the unit system contract for unit-aware load input application and result
+    handoff.
+
+
+    Notes: STAGE2: unit contract predecessor technically satisfied for PKG-05 user-load boundary metadata.
+    ForcePerLength remains explicit canonical dimension TBD until upstream vocabulary change; no lifecycle
+    or aggregate DAG action.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-05/core/loads/user_loads/src/lib.rs; core/loads/primitive_loads/src/lib.rs;
+    core/loads/user_loads/README.md
+code_paths:
+- core/loads/user_loads
+- core/loads/user_loads/Cargo.toml
+- core/loads/user_loads/README.md
+- core/loads/user_loads/src/lib.rs
+- core/product_physics/
+- schemas/model.schema.yaml
+- schemas/results.schema.yaml

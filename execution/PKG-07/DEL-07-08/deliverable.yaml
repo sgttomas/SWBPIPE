@@ -1,0 +1,344 @@
+id: DEL-07-08
+name: Design-authoring state and comparison workspace
+needs:
+- from: DEL-00-01
+  condition: 'DEL-07-08 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-07-08 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-07-08 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-05
+  condition: 'DEL-07-08 needs DEL-00-05 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-07-08 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-07-08 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-07-08 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-07-01
+  condition: 'DEL-07-08 needs DEL-07-01 as a predecessor: Design-authoring workspace builds on GUI shell/navigation.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GUI_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-07-02
+  condition: 'DEL-07-08 needs DEL-07-02 as a predecessor: Design-authoring workspace builds on model-tree/editor
+    foundations.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GUI_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-07-04
+  condition: 'DEL-07-08 needs DEL-07-04 as a predecessor: Design-authoring workspace consumes validation/warnings
+    presentation.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GUI_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-07-05
+  condition: 'DEL-07-08 needs DEL-07-05 as a predecessor: Design-authoring workspace consumes result/comparison
+    presentation foundations.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GUI_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-13-01
+  condition: 'DEL-07-08 needs DEL-13-01 as a predecessor: Design-authoring workspace consumes design knowledge
+    schema.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-13-03
+  condition: 'DEL-07-08 needs DEL-13-03 as a predecessor: Design-authoring workspace consumes constraint
+    validation output.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-01
+  condition: 'DEL-07-08 needs DEL-14-01 as a predecessor: Design-authoring workspace consumes immutable
+    model states.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-03
+  condition: 'DEL-07-08 needs DEL-14-03 as a predecessor: Design-authoring workspace consumes state comparison.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-04
+  condition: 'DEL-07-08 needs DEL-14-04 as a predecessor: Design-authoring workspace consumes run comparison.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-05
+  condition: 'DEL-07-08 needs DEL-14-05 as a predecessor: Design-authoring workspace consumes comparison
+    mapping/tolerance contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-16-01
+  condition: 'DEL-07-08 needs DEL-16-01 as a predecessor: Design-authoring workspace consumes operation
+    schema.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-16-02
+  condition: 'DEL-07-08 needs DEL-16-02 as a predecessor: Design-authoring workspace consumes operation
+    validation/diff preview.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-16-03
+  condition: 'DEL-07-08 needs DEL-16-03 as a predecessor: Design-authoring workspace consumes user acceptance/audit
+    trail.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-16-06
+  condition: 'DEL-07-08 consumes Controlled model operation application from DEL-16-06: operation outcomes
+    and common comparison envelope; existing scope remains.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E081; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03/06; dependency table operations/comparison; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-08/ScopeOfWork.md
+- from: DEL-02-03
+  condition: 'DEL-07-08 directly depends on DEL-02-03 because state/run browser rows display canonical
+    analysis status and preserve external human-acceptance boundaries.
+
+
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-08/core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
+- from: DEL-02-05
+  condition: 'DEL-07-08 directly depends on DEL-02-05 because state/run browser and workspace comparison
+    records expose model/run hashes while keeping workspace_hash scoped to GUI composition state.
+
+
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-08/core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
+- from: DEL-13-04
+  condition: 'DEL-13-04 enables DEL-07-08 because design-authoring workspace consumes physical-to-analytical
+    transform output.
+
+
+    Notes: Downstream consumer preserved from approved DAG-002 for reconciliation context; not promoted
+    beyond DAG-002 authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
+code_paths:
+- apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx

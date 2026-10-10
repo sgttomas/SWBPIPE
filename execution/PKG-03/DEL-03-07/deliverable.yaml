@@ -1,0 +1,157 @@
+id: DEL-03-07
+name: Public/private library import provenance checker
+needs:
+- from: DEL-00-01
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-01 from DEL-00-01 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-02 from DEL-00-02 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-04 from DEL-00-04 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-06 from DEL-00-06 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-07 from DEL-00-07 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-08 from DEL-00-08 as sealed-context
+    constraint evidence.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
+    enums.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-03-01
+  condition: 'DEL-03-07 interfaces with DEL-03-01 because the checker validates material-library import
+    records for provenance/license/redistribution metadata.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; target deliverable resolution uses decomposition; conservative
+    source evidence supports material-library interface but not implementation completion.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/Specification.md
+- from: DEL-03-02
+  condition: 'DEL-03-07 interfaces with DEL-03-02 because the checker validates component-library import
+    records for provenance/license/redistribution metadata.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; target deliverable resolution uses decomposition; conservative
+    source evidence supports component-library interface but not implementation completion.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/Specification.md
+- from: DEL-01-02
+  condition: 'DEL-03-07 is constrained by protected-data boundary rules because suspected protected standards
+    or vendor content must be quarantined and escalated.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; normalized to CONSTRAINT because source docs frame
+    protected-content policy as a boundary.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/Datasheet.md
+- from: DEL-01-03
+  condition: 'DEL-03-07 is constrained by contributor/reviewer disposition metadata and review authority
+    for public data imports.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; contributor certification is supported as a governance
+    constraint rather than a completed dependency.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/Specification.md
+- from: DEL-02-04
+  condition: 'DEL-03-07 interfaces with plugin/adapter governance constraints because import mechanisms
+    must preserve validation and public/private data boundaries.
+
+
+    Notes: Preserved existing DAG-002 mirror edge; source evidence supports interface/constraint signal
+    but not completion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/Guidance.md
+code_paths:
+- core/library_import/README.md
+- core/library_import/library_import_document/
+- core/library_import/provenance_checker.py
+checks:
+- tests/test_library_import_provenance.py

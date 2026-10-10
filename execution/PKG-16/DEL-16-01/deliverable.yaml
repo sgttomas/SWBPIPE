@@ -1,0 +1,143 @@
+id: DEL-16-01
+name: Structured model operation schema
+needs:
+- from: DEL-00-01
+  condition: 'DEL-16-01 needs DEL-00-01 architecture decision context as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0730; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-16-01 needs DEL-00-02 repository and module boundary architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0731; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-16-01 needs DEL-00-03 command/query/job model architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0732; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-16-01 needs DEL-00-04 persistence and schema versioning architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0733; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-16-01 needs DEL-00-06 diagnostics and result-envelope architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0734; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-16-01 needs DEL-00-07 API boundary architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0735; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-16-01 needs DEL-00-08 layered test and acceptance architecture as a predecessor.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0736; dependency type normalized from
+    ARCHITECTURE_BASIS to PREREQUISITE for local dependency-extract enum compliance.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-16-01 needs DEL-02-01 because operation records reference canonical model/domain contracts.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0823; dependency type normalized from
+    DOMAIN_MODEL to INTERFACE.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-01/Specification.md
+- from: DEL-13-01
+  condition: 'DEL-16-01 needs DEL-13-01 because structured operations include design-knowledge operations.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0824; dependency type normalized from
+    DOMAIN_MODEL to INTERFACE.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-05
+  condition: 'DEL-16-01 needs DEL-02-05 for persisted-operation and round-trip semantics.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0825; local source keeps exact hash binding
+    TBD; dependency type normalized from PERSISTENCE_CONTRACT to INTERFACE.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-01/Specification.md
+- from: DEL-01-04
+  condition: 'DEL-16-01 needs DEL-01-04 professional-boundary framing for operation records.
+
+
+    Notes: Preserved from approved DAG-002 active edge DAG-002-E0826; dependency type normalized from
+    GOVERNANCE_PREDECESSOR to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-01/Specification.md
+code_paths:
+- schemas/model_operation.schema.json
+checks:
+- tests/test_model_operation_schema.py
+- tests/test_operation_validation_preview.py

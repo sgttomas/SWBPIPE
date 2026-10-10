@@ -1,0 +1,119 @@
+id: DEL-05-02
+name: Load-case algebra engine
+needs:
+- from: DEL-00-01
+  condition: 'DEL-05-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: FACT: normalized from graph-local ARCHITECTURE_BASIS to canonical CONSTRAINT; architecture
+    basis is context evidence and not independent graph authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-05-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: FACT: normalized from graph-local ARCHITECTURE_BASIS to canonical CONSTRAINT; architecture
+    basis is context evidence and not independent graph authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-05-02 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: FACT: normalized from graph-local ARCHITECTURE_BASIS to canonical CONSTRAINT; architecture
+    basis is context evidence and not independent graph authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-05-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: FACT: normalized from graph-local ARCHITECTURE_BASIS to canonical CONSTRAINT; architecture
+    basis is context evidence and not independent graph authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-05-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: FACT: normalized from graph-local ARCHITECTURE_BASIS to canonical CONSTRAINT; architecture
+    basis is context evidence and not independent graph authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-01
+  condition: 'DEL-05-02 needs primitive load cases and result states before load-case algebra can combine
+    them.
+
+
+    Notes: FACT: direct predecessor retained conservatively; satisfaction remains pending because target
+    maturity was not read in this bounded run.; 2026-06-05 blocker-closure ruling: primitive-load predecessor
+    satisfied for lifecycle-review purposes.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-01/_STATUS.md; core/loads/load_case_algebra/src/lib.rs
+- from: DEL-02-02
+  condition: 'DEL-05-02 needs the unit system and dimensional-analysis contract before unit-aware algebra
+    can be implemented.
+
+
+    Notes: STAGE2: unit contract predecessor technically satisfied for PKG-05 algebra boundary metadata.
+    Conversion constants/calculation-unit policy remain upstream/governed; no lifecycle or aggregate DAG
+    action.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-02/core/loads/load_case_algebra/src/lib.rs; core/loads/primitive_loads/src/lib.rs;
+    core/loads/load_case_algebra/README.md
+- from: DEL-05-04
+  condition: 'DEL-05-02 needs analysis status semantics so algebra results preserve mechanics-solved,
+    rule-checked, and human-approved distinctions.
+
+
+    Notes: FACT: interface dependency retained conservatively; satisfaction remains pending because target
+    maturity was not read in this bounded run.; 2026-06-05 blocker-closure ruling: analysis-status interface
+    satisfied for lifecycle-review purposes.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-04/_STATUS.md; schemas/analysis_status.schema.yaml
+code_paths:
+- core/loads/load_case_algebra
+- core/loads/load_case_algebra/Cargo.toml
+- core/loads/load_case_algebra/README.md
+- core/loads/load_case_algebra/src/lib.rs

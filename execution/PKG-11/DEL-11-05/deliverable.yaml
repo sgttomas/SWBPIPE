@@ -1,0 +1,141 @@
+id: DEL-11-05
+name: Contributor tutorial and onboarding
+needs:
+- from: DEL-00-01
+  condition: 'DEL-11-05 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0349 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
+    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-11-05 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0350 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
+    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-11-05 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0351 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
+    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-11-05 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0352 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
+    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-11-05 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0353 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
+    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-01
+  condition: 'DEL-11-05 needs DEL-01-01 as a predecessor: contributor tutorial uses project governance
+    baseline
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0595 into DAG-002 revision 0.5
+    proposal; current DAG-006 active row is DAG-004-R0643 with RequiredMaturity=SEMANTIC_READY and prior
+    local SatisfactionStatus=TBD.; 2026-06-07 local evidence refresh: upstream DEL-01-01 is ISSUED in
+    _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
+    contributor onboarding.; Satisfaction is dependency evidence only, not Type 2 dispatch authority,
+    release acceptance, legal advice, professional approval, certification, sealing, authentication, or
+    code-compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-02
+  condition: 'DEL-11-05 needs DEL-01-02 as a predecessor: contributor tutorial teaches protected-data
+    boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0596 into DAG-002 revision 0.5
+    proposal; current DAG-006 active row is DAG-004-R0644 with RequiredMaturity=SEMANTIC_READY and prior
+    local SatisfactionStatus=TBD.; 2026-06-07 local evidence refresh: upstream DEL-01-02 is CHECKING in
+    _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
+    contributor onboarding.; Remaining contributor legal mechanism, reviewer role, legal-review authority,
+    and related governance decisions remain TBD upstream and are not resolved by this dependency evidence
+    update.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-03
+  condition: 'DEL-11-05 needs DEL-01-03 as a predecessor: contributor tutorial teaches certification workflow
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0597 into DAG-002 revision 0.5
+    proposal; current DAG-006 active row is DAG-004-R0645 with RequiredMaturity=SEMANTIC_READY and prior
+    local SatisfactionStatus=TBD.; 2026-06-07 local evidence refresh: upstream DEL-01-03 is CHECKING in
+    _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
+    contributor onboarding.; Final contributor legal mechanism, legal sufficiency, maintainer/reviewer
+    authority, and related governance decisions remain TBD upstream and are not resolved by this dependency
+    evidence update.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- tools/validation/validate_dependencies_schema.py

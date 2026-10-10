@@ -1,3 +1,5 @@
+# Legacy adapter compatibility only. Current deliverable sources are flat YAML;
+# harness lifecycle commands report their retirement and point to tools/deliverables.
 # Harness configuration authority only — governed, committed, human-reviewed; never lifecycle or project truth (plan v3 §Authority Classes).
 schema: practitioner-harness-adapter/v1
 project: chirality-piping

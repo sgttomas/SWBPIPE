@@ -1,0 +1,5 @@
+id: DEL-00-08
+name: Layered software test and acceptance strategy
+needs: []
+code_paths:
+- tools/release/run_evidence_sweep.py

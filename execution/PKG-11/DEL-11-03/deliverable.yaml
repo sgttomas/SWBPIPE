@@ -1,0 +1,172 @@
+id: DEL-11-03
+name: 'Theory notes: classical to modern centerline analysis'
+needs:
+- from: DEL-00-01
+  condition: 'DEL-11-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 as dispatchable context
+    constraints.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0616; retained local historical DependencyID
+    DAG-002-E0339 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-00-01 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-01
+    MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
+    This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-11-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 as dispatchable context
+    constraints.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0617; retained local historical DependencyID
+    DAG-002-E0340 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-00-02 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-02
+    MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
+    This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-11-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 as dispatchable context
+    constraints.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0618; retained local historical DependencyID
+    DAG-002-E0341 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-00-06 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-06
+    MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
+    This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-11-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 as dispatchable context
+    constraints.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0619; retained local historical DependencyID
+    DAG-002-E0342 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-00-07 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-07
+    MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
+    This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-11-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 as dispatchable context
+    constraints.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0620; retained local historical DependencyID
+    DAG-002-E0343 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-00-08 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-08
+    MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
+    This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-01
+  condition: 'DEL-11-03 needs solver-frame context to explain modern 3D frame implementation.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0622; retained local historical DependencyID
+    DAG-002-E0586 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-04-01 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-05); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after approved blocker-closure ruling and lifecycle-readiness review REV_DEL-04-01_2026-06-05_2120.
+    Upstream DEL-04-01 MEMORY.md records current-authority refresh plus parent fan-in/readiness evidence
+    without release or professional/code-compliance claims. This is local dependency-readiness evidence
+    only and does not mark the upstream or this deliverable ISSUED, released, professionally approved,
+    certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-03/Specification.md
+- from: DEL-04-02
+  condition: 'DEL-11-03 needs line-element and element-force context to explain centerline behavior.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0623; retained local historical DependencyID
+    DAG-002-E0587 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-04-02 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-05); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after approved blocker-closure ruling and lifecycle-readiness review REV_DEL-04-02_2026-06-05_2120.
+    Upstream DEL-04-02 MEMORY.md records current-authority refresh plus parent fan-in/readiness evidence
+    without release or professional/code-compliance claims. This is local dependency-readiness evidence
+    only and does not mark the upstream or this deliverable ISSUED, released, professionally approved,
+    certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-03/Guidance.md
+- from: DEL-09-01
+  condition: 'DEL-11-03 should align theory claims with mechanics benchmark scope where examples or validation
+    claims are discussed.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0624; retained local historical DependencyID
+    DAG-002-E0588 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-09-01 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-06); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after human-approved lifecycle transition for TP-PKG09-READINESS evidence. Upstream DEL-09-01
+    MEMORY.md records current-authority refresh and validation/readiness evidence while leaving release
+    thresholds, tolerance policy, and publication scope separately gated. This is local dependency-readiness
+    evidence only and does not mark the upstream or this deliverable ISSUED, released, professionally
+    approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-03/Specification.md
+- from: DEL-01-02
+  condition: 'DEL-11-03 is constrained by the protected-content and public/permissive citation boundary.
+
+
+    Notes: Refreshed 2026-06-07 against DAG-006 active edge DAG-004-R0621; retained local historical DependencyID
+    DAG-002-E0589 for continuity. RequiredMaturity=SEMANTIC_READY is satisfied by upstream DEL-01-02 local
+    _STATUS.md current state CHECKING (Last Updated 2026-06-04); history records SEMANTIC_READY on 2026-04-30
+    and CHECKING after approved 2026-06-04 governance/readiness review. Upstream DEL-01-02 MEMORY.md records
+    current-authority refresh plus CHECKING transition evidence; DEL-11-03 public/permissive source TBDs
+    remain separate content-source gaps. This is local dependency-readiness evidence only and does not
+    mark the upstream or this deliverable ISSUED, released, professionally approved, certified, sealed,
+    authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-03/Specification.md
+code_paths:
+- tools/validation/validate_dependencies_schema.py

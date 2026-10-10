@@ -99,7 +99,7 @@ function buildAccessibilityBaselinePacket(model: PreviewModel) {
       core_module: "core/gui/accessibility/engine.py",
       guard_tests: "tests/test_accessibility_usability_baseline.py",
       deliverable_context:
-        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md",
+        "execution/PKG-07/DEL-07-06/ScopeOfWork.md",
       app_surfaces: [
         "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",

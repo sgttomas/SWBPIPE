@@ -178,7 +178,7 @@ function buildDesignWorkspacePacket({
       core_module: "core/gui/design_workspace/engine.py",
       guard_tests: "tests/test_design_authoring_comparison_workspace.py",
       deliverable_context:
-        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+        "execution/PKG-07/DEL-07-08/ScopeOfWork.md",
       app_surfaces: [
         "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
         "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",

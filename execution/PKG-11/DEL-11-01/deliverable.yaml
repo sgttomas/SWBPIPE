@@ -1,0 +1,353 @@
+id: DEL-11-01
+name: User guide skeleton
+needs:
+- from: DEL-00-01
+  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when shaping
+    the user guide skeleton.
+
+
+    Notes: Normalized from DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not PKG-00 issuance
+    authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0588 verified; local
+    lifecycle authority execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture
+    decision record baseline/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04 and contains
+    prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-00_Software
+    Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006''
+    reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
+    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when shaping
+    setup and repository-boundary guide content.
+
+
+    Notes: Normalized from DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not PKG-00 issuance
+    authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0589 verified; local
+    lifecycle authority execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and
+    module boundary architecture/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04 and
+    contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory
+    execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/MEMORY.md
+    heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency satisfaction evidence only;
+    no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
+    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-06 for diagnostics warnings and
+    result-envelope guide content.
+
+
+    Notes: Normalized from DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not PKG-00 issuance
+    authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0590 verified; local
+    lifecycle authority execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics,
+    warning, and result-envelope contract/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04
+    and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local
+    memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and
+    result-envelope contract/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency
+    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
+    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-07 for public API adapter and private-data
+    boundary guide content.
+
+
+    Notes: Normalized from DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not PKG-00 issuance
+    authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0591 verified; local
+    lifecycle authority execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary
+    and adapter contract map/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04 and contains
+    prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-00_Software
+    Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006''
+    reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
+    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-08 for test gates validation and
+    acceptance-status guide content.
+
+
+    Notes: Normalized from DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not PKG-00 issuance
+    authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0592 verified; local
+    lifecycle authority execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software
+    test and acceptance strategy/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04 and
+    contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory
+    execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance
+    strategy/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency satisfaction
+    evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
+    or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-07-01
+  condition: 'DEL-11-01 needs DEL-07-01 as a predecessor because the user guide skeleton covers centerline
+    model-building workflow.
+
+
+    Notes: Retained from DAG-002 DOCS_PREDECESSOR mirror and normalized to PREREQUISITE; target resolution
+    uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active
+    row DAG-004-R0597 verified; local lifecycle authority execution/PKG-07_Graphical User Interface and
+    Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md records Current
+    State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
+    supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D
+    viewport and centerline editor/MEMORY.md heading ''Lifecycle update to CHECKING'' reviewed. This is
+    dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
+    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-07-03
+  condition: 'DEL-11-01 needs DEL-07-03 as a predecessor because the guide skeleton covers private material
+    component and rule-pack editor workflows.
+
+
+    Notes: Retained from DAG-002 DOCS_PREDECESSOR mirror and normalized to PREREQUISITE; target resolution
+    uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active
+    row DAG-004-R0598 verified; local lifecycle authority execution/PKG-07_Graphical User Interface and
+    Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md records
+    Current State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history, meeting
+    RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical User Interface
+    and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md
+    heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence
+    only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
+    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-07-05
+  condition: 'DEL-11-01 needs DEL-07-05 as a predecessor because the guide skeleton covers results review.
+
+
+    Notes: Retained from DAG-002 DOCS_PREDECESSOR mirror and normalized to PREREQUISITE; target resolution
+    uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active
+    row DAG-004-R0600 verified; local lifecycle authority execution/PKG-07_Graphical User Interface and
+    Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md records Current State=CHECKING
+    Last Updated=2026-06-06 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
+    supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results
+    viewer/MEMORY.md heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction
+    evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
+    or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-08-01
+  condition: 'DEL-11-01 needs DEL-08-01 as a predecessor because the guide skeleton covers report generation.
+
+
+    Notes: Retained from DAG-002 DOCS_PREDECESSOR mirror and normalized to PREREQUISITE; target resolution
+    uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence refresh: DAG-006 active
+    row DAG-004-R0602 verified; local lifecycle authority execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation
+    report generator/_STATUS.md records Current State=CHECKING Last Updated=2026-06-06 and contains prior
+    SEMANTIC_READY history plus the 2026-06-06 Human-approved Gate 5 transition, meeting RequiredMaturity=SEMANTIC_READY;
+    supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation
+    report generator/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency
+    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
+    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-01-04
+  condition: 'DEL-11-01 needs DEL-01-04 as a professional-boundary constraint for user guide limitations
+    and claims language.
+
+
+    Notes: Retained from DAG-002 GOVERNANCE_PREDECESSOR mirror and normalized to CONSTRAINT.; 2026-06-07
+    dependency-evidence refresh: DAG-006 active row DAG-004-R0594 verified; local lifecycle authority
+    execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional
+    responsibility and product-claims policy/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04
+    and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local
+    memory execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional
+    responsibility and product-claims policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This
+    is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
+    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Specification.md
+- from: DEL-01-02
+  condition: 'DEL-11-01 needs DEL-01-02 as a protected-content and private-data boundary constraint for
+    public user-guide content.
+
+
+    Notes: Added by TP-DAG-004 refresh; conservative governance constraint directly supported by UG-REQ-008.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0593 verified; local lifecycle
+    authority execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright
+    and protected-data boundary policy/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04
+    and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local
+    memory execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright
+    and protected-data boundary policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This is dependency
+    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
+    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Specification.md
+- from: DEL-05-04
+  condition: 'DEL-11-01 needs DEL-05-04 as a predecessor for canonical user-facing solve status and rule-check
+    status vocabulary.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0595 verified; local lifecycle
+    authority execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status
+    semantics/_STATUS.md records Current State=CHECKING Last Updated=2026-06-05 and contains prior SEMANTIC_READY
+    history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-05_Loads,
+    Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/MEMORY.md heading ''Blocker
+    closure ruling applied'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release,
+    professional-approval, certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Specification.md
+- from: DEL-06-03
+  condition: 'DEL-11-01 needs DEL-06-03 as a predecessor for user-guide content on missing rule-check
+    inputs and blockers.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0596 verified; local lifecycle
+    authority execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input
+    completeness checker/_STATUS.md records Current State=CHECKING Last Updated=2026-06-03 and contains
+    prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-06_Rule
+    Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/MEMORY.md
+    heading ''TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001 CHECKING transition'' reviewed. This is dependency
+    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
+    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Guidance.md
+- from: DEL-07-04
+  condition: 'DEL-11-01 needs DEL-07-04 as a predecessor for user-guide content on missing-data warnings
+    and blocking workflows.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0599 verified; local lifecycle
+    authority execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data
+    warning and blocking UX/_STATUS.md records Current State=CHECKING Last Updated=2026-06-06 and contains
+    prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical
+    User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md
+    heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence
+    only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
+    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-07-07
+  condition: 'DEL-11-01 needs DEL-07-07 as a predecessor for user-guide content on solve execution diagnostics
+    and nonconverged states.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0601 verified; local lifecycle
+    authority execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve
+    execution UX- progress, cancellation, and diagnostics/_STATUS.md records Current State=CHECKING Last
+    Updated=2026-06-06 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
+    supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve
+    execution UX- progress, cancellation, and diagnostics/MEMORY.md heading ''CHECKING-readiness review
+    addendum'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
+    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Datasheet.md
+- from: DEL-08-02
+  condition: 'DEL-11-01 needs DEL-08-02 as a predecessor for report-guide content on manifests model hashes
+    and checksums.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0603 verified; local lifecycle
+    authority execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest
+    and model hash/_STATUS.md records Current State=CHECKING Last Updated=2026-06-06 and contains prior
+    SEMANTIC_READY history plus the 2026-06-06 Human-approved Gate 5 transition, meeting RequiredMaturity=SEMANTIC_READY;
+    supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit
+    manifest and model hash/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency
+    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
+    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Specification.md
+- from: DEL-08-03
+  condition: 'DEL-11-01 needs DEL-08-03 as a predecessor for report-guide content on warnings assumptions
+    provenance notes and limitations.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority.;
+    2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0604 verified; local lifecycle
+    authority execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions,
+    and provenance report section/_STATUS.md records Current State=CHECKING Last Updated=2026-06-06 and
+    contains prior SEMANTIC_READY history plus the 2026-06-06 Human-approved Gate 5 transition, meeting
+    RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings,
+    assumptions, and provenance report section/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed.
+    This is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
+    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-11/DEL-11-01/Specification.md
+code_paths:
+- tools/validation/validate_dependencies_schema.py

@@ -1,0 +1,212 @@
+id: DEL-16-02
+name: Operation validation and diff preview
+needs:
+- from: DEL-00-01
+  condition: 'DEL-16-02 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-16-02 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-16-02 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-04
+  condition: 'DEL-16-02 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-16-02 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-16-02 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-16-02 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
+    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
+    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-16-01
+  condition: 'DEL-16-02 needs DEL-16-01 as a predecessor: Operation validation consumes operation schema.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL,
+    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
+    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is
+    frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-13-03
+  condition: 'DEL-16-02 needs DEL-13-03 as a predecessor: Operation validation consumes constraint validation.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
+    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
+    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-03
+  condition: 'DEL-16-02 needs DEL-14-03 as a predecessor: Operation diff preview consumes state comparison.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
+    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
+    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-05
+  condition: 'DEL-16-02 needs DEL-14-05 as a predecessor: Operation diff preview consumes mapping/tolerance
+    contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
+    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
+    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-04-06
+  condition: 'DEL-16-02 needs DEL-04-06 as a predecessor: Operation validation consumes diagnostics/warning
+    contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
+    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
+    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
+    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+code_paths:
+- core/model_operations/operation_applier/src/lib.rs
+- core/model_operations/validation_preview/engine.py
+- schemas/model_operation.schema.json
+checks:
+- tests/test_model_operation_schema.py
+- tests/test_operation_validation_preview.py

@@ -1,0 +1,250 @@
+id: DEL-12-02
+name: Private data redaction and export controls
+needs:
+- from: DEL-00-01
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
+    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-12-05
+  condition: 'DEL-12-02 needs DEL-12-05 as a predecessor: redaction/export controls follow threat model.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; target-specific
+    runtime controls and approval choices remain deferred; no aggregate DAG or lifecycle promotion.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/_STATUS.md; execution/PKG-12_Security, Privacy, and Private Data
+    Handling/1_Working/DEL-12-05_Security threat model/_run_records/TASK_RUN_2026-06-06_1102.md
+- from: DEL-12-01
+  condition: 'DEL-12-02 needs DEL-12-01 as a predecessor: redaction/export controls use private path markers.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
+    storage roots cloud exception and approval choices remain deferred; no aggregate DAG or lifecycle
+    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-01/_run_records/TASK_RUN_2026-06-07_1024_DEL-12-01_readiness-evidence-alignment.md;
+    execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction
+    and export controls/_run_records/TASK_RUN_2026-06-07_0935_redaction-export-hardening.md
+- from: DEL-08-01
+  condition: 'DEL-12-02 needs DEL-08-01 as a predecessor: report exports may expose private data.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
+    report integration styling and approval choices remain deferred; no aggregate DAG or lifecycle promotion.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-01/_STATUS.md; execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation
+    report generator/_run_records/TASK_RUN_2026-06-06_1017_report-generator-hardening.md
+- from: DEL-08-04
+  condition: 'DEL-12-02 needs DEL-08-04 as a predecessor: structured exports may expose private data.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; additional
+    formats public transport and runtime redaction integration remain deferred; no aggregate DAG or lifecycle
+    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-06-04
+  condition: 'DEL-12-02 needs DEL-06-04 as a predecessor: private rule-pack metadata and checksums need
+    export controls.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; private
+    storage report API and result-envelope integration remain deferred; no aggregate DAG or lifecycle
+    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-06/DEL-06-04/_STATUS.md; execution/PKG-06_Rule Packs and User-Supplied Code
+    Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/_REVIEW.md; execution/PKG-06_Rule
+    Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum
+    handling/Review_Findings.csv
+- from: DEL-03-07
+  condition: 'DEL-12-02 needs DEL-03-07 as a predecessor: library provenance and redistribution status
+    drive export controls.
+
+
+    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; external
+    import formats legal policy and accepted source catalogs remain deferred; no aggregate DAG or lifecycle
+    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-07/_STATUS.md; execution/PKG-03_Piping Components, Materials, and
+    Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/Review_Findings.csv;
+    execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private
+    library import provenance checker/_run_records/TASK_RUN_2026-06-05_DEL-03-07_evidence-reconciliation.md
+- from: doc:docs/CONTRACT.md
+  condition: 'DEL-12-02 is constrained by OPS-K-IP OPS-K-DATA OPS-K-AUTH OPS-K-REPORT OPS-K-PRIV OPS-K-RULE
+    and OPS-K-AGENT invariants.
+
+
+    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
+    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation: docs/CONTRACT.md'
+  evidence: execution/PKG-12/DEL-12-02/Datasheet.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'DEL-12-02 export controls must follow the public/private data policy quarantine rule and
+    report boundary.
+
+
+    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
+    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Public/private data policy and report boundary; TargetRefID: OPS-IP-DATA-BOUNDARY;
+    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
+  evidence: execution/PKG-12/DEL-12-02/Datasheet.md
+- from: doc:docs/SPEC.md
+  condition: 'DEL-12-02 redaction/export controls are constrained by report audit content warning classes
+    adapter no-bypass and validation expectations.
+
+
+    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
+    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Technical and agentic implementation specification; TargetRefID:
+    OPS-SPEC; TargetLocation: docs/SPEC.md'
+  evidence: execution/PKG-12/DEL-12-02/Datasheet.md
+code_paths:
+- core/security/redaction/
+- schemas/redaction_export_controls.schema.yaml
+- tools/validation/validate_dependencies_schema.py
+checks:
+- tests/security/test_redaction_export_controls.py

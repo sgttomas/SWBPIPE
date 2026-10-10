@@ -1,0 +1,134 @@
+id: DEL-04-02
+name: Straight pipe element
+needs:
+- from: DEL-00-01
+  condition: 'DEL-04-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved active SCA-001 sealed-context architecture-basis
+    edge; does not mark PKG-00 as ISSUED; retained original DAG-002 identifier for reconciliation traceability.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-04-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved active SCA-001 sealed-context architecture-basis
+    edge; does not mark PKG-00 as ISSUED; retained original DAG-002 identifier for reconciliation traceability.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-04-02 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved active SCA-001 sealed-context architecture-basis
+    edge; does not mark PKG-00 as ISSUED; retained original DAG-002 identifier for reconciliation traceability.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-04-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved active SCA-001 sealed-context architecture-basis
+    edge; does not mark PKG-00 as ISSUED; retained original DAG-002 identifier for reconciliation traceability.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-04-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved active SCA-001 sealed-context architecture-basis
+    edge; does not mark PKG-00 as ISSUED; retained original DAG-002 identifier for reconciliation traceability.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-01
+  condition: 'DEL-04-02 needs DEL-04-01 as a predecessor because straight pipe element behavior must fit
+    the global 3D frame solver model and must not bypass the solver kernel boundary.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved predecessor edge from decomposition and local Specification
+    RQ-001; satisfaction remains UNKNOWN without reading target deliverable evidence.; 2026-06-05 blocker-closure
+    ruling: frame-kernel predecessor satisfied for lifecycle-review purposes.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=SOLVER_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-01/_STATUS.md; core/solver/straight_pipe/src/lib.rs
+- from: DEL-03-08
+  condition: 'DEL-04-02 needs DEL-03-08 as a predecessor because straight pipe section-property integration
+    and weight hooks require governed section and mass-property calculations from user-entered or lawful
+    inputs.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved predecessor edge from decomposition and local Specification
+    RQ-003; satisfaction remains UNKNOWN without reading target deliverable evidence.; 2026-06-05 blocker-closure
+    ruling: section-property predecessor satisfied for lifecycle-review purposes.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-08/_STATUS.md; core/solver/straight_pipe/src/lib.rs
+- from: DEL-02-02
+  condition: 'DEL-04-02 needs DEL-02-02 as a predecessor because straight pipe stiffness, section-property
+    integration, weight hooks, and force recovery require unit-aware dimensional checks.
+
+
+    Notes: TP-DAG-004 conservative refresh preserved predecessor edge from decomposition and local Specification
+    RQ-003/RQ-005; satisfaction remains UNKNOWN without reading target deliverable evidence.; 2026-06-05
+    blocker-closure ruling: unit-contract predecessor satisfied for lifecycle-review purposes.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-02/core/solver/straight_pipe/README.md; core/solver/straight_pipe/src/lib.rs
+code_paths:
+- core/loads/primitive_loads/
+- core/product_physics/
+- core/solver/frame_kernel/
+- core/solver/straight_pipe
+- core/solver/straight_pipe/
+- core/solver/straight_pipe/README.md
+- core/solver/straight_pipe/src/lib.rs
+- tools/validation/validate_dependencies_schema.py

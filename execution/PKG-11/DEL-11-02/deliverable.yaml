@@ -1,0 +1,156 @@
+id: DEL-11-02
+name: Developer guide for solver and rule packs
+needs:
+- from: DEL-00-01
+  condition: 'DEL-11-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0605; target local status CHECKING meets required
+    SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
+    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-11-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0606; target local status CHECKING meets required
+    SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
+    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-11-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0607; target local status CHECKING meets required
+    SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
+    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-11-02 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0608; target local status CHECKING meets required
+    SEMANTIC_READY. Architecture/API basis remains coordination evidence only and does not make PKG-00
+    ISSUED or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-11-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0609; target local status CHECKING meets required
+    SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
+    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-02
+  condition: 'DEL-11-02 needs DEL-01-02 as a predecessor: developer guide documents protected-data contribution
+    boundary
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0610; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md records current IP/data boundary evidence and residual TBDs for contributor/legal/reviewer
+    authority; no legal, release, or professional claim is inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-11-02 needs DEL-02-01 as a predecessor: developer guide documents domain schema
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0611; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md preserves current schema evidence and downstream ownership TBDs without
+    release, compatibility, or professional claims.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-02
+  condition: 'DEL-11-02 needs DEL-02-02 as a predecessor: developer guide documents unit system
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0612; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md records unit-contract evidence and residual unit-system TBDs; no protected
+    dimensional tables or conversion defaults are inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-01
+  condition: 'DEL-11-02 needs DEL-04-01 as a predecessor: developer guide documents solver architecture
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0613; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md records frame-kernel evidence and residual solver TBDs; no release, code-compliance,
+    or professional reliance claim is inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-06-01
+  condition: 'DEL-11-02 needs DEL-06-01 as a predecessor: developer guide documents rule-pack schema
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0614; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md records rule-pack schema evidence and residual rule-engine TBDs; no protected/code-specific
+    values or compliance claims are inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-10-01
+  condition: 'DEL-11-02 needs DEL-10-01 as a predecessor: developer guide documents public API/plugin
+    boundaries
+
+
+    Notes: Current DAG-006 active edge row is DAG-004-R0615; target local status CHECKING meets required
+    SEMANTIC_READY. MEMORY.md records API/plugin boundary evidence and residual transport/plugin/export
+    TBDs; no release, external compatibility, or professional claim is inferred.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- tools/validation/validate_dependencies_schema.py
