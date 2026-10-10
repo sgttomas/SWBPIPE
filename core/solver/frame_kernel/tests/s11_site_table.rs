@@ -82,6 +82,13 @@ const SOURCES: &[Source] = &[
         name: "CB/lib.rs",
         text: include_str!("../../curved_bend/src/lib.rs"),
     },
+    // T4-U1 (T4-RV12 N-1, a declared extension): CB's stable small-angle
+    // series (stiffness formation). Its Horner and power updates are not a
+    // counted shape today; a later fold there changes a count here.
+    Source {
+        name: "CB/arc_integrals.rs",
+        text: include_str!("../../curved_bend/src/arc_integrals.rs"),
+    },
     Source {
         name: "load_case_algebra/lib.rs",
         text: include_str!("../../../loads/load_case_algebra/src/lib.rs"),

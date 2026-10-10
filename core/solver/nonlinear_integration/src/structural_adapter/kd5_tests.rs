@@ -547,6 +547,32 @@ fn kd5_skew_plane_elbow_at_kx_30_is_an_ordinary_control() {
 }
 
 #[test]
+fn kd5_regenerated_cplanar_60_and_cskew_30_n122_are_ordinary_controls() {
+    // T4-I6 B5.2: the M31b counterexample models, regenerated on their bow
+    // vectors from (R, y) (no centre mismatch is expressible), run as
+    // no-demotion controls in both modes (T4-RV11 S-2 measured 2.1e-5 /
+    // 1.5e-5 and 8.0e-5 / 1.4e-4 of the criterion). The M31b0 kill test
+    // below keeps the same models under its pre-T4-U1 preconditions.
+    for model in [&CPLANAR_60, &CSKEW_30_N122] {
+        let built = Built::from_model(model);
+        for mode in MODES {
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "{} {mode:?}",
+                model.name
+            );
+            assert!(actual < 0.45, "{} {mode:?}: actual {actual}", model.name);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert_d5c1(model.name, mode, actual, &plain, &checked);
+        }
+    }
+}
+
+#[test]
 fn kd5_k1_stable_form_at_1e_8_rad_is_published_accurately_and_not_demoted() {
     // K1 and K1F (T4-I6 round 01 item 4; RV131 S-1): the cantilever bend at
     // φ = 1e-8 rad (R ≈ 3e7 m, chord 0.3 m), in-plane and skew, with a tip

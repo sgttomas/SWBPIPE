@@ -48,12 +48,13 @@ impl fmt::Display for CurvedBendError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Kernel(error) => write!(f, "frame kernel error: {error}"),
-            Self::RadiusCannotSpanChord {
-                radius,
-                chord_length,
-            } => write!(
+            // The values stay in the variant (and its Debug). A caller that
+            // screens R ≤ L/2 itself (PP) publishes both numbers; this exact
+            // refusal is reached only where they agree to rounding, so the
+            // text is fixed (no unclassified text arguments, T4-I19 O-10).
+            Self::RadiusCannotSpanChord { .. } => write!(
                 f,
-                "bend radius {radius} cannot span the chord of length {chord_length}; the arc included angle would reach or exceed pi"
+                "bend radius cannot span the chord: 4R^2 <= |x_j - x_i|^2, so the arc included angle would reach or exceed pi"
             ),
             Self::DegenerateArc { detail } => write!(f, "degenerate arc geometry: {detail}"),
             Self::IncludedAngleOutOfRange { included_angle } => write!(

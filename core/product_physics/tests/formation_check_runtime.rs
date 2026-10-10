@@ -246,8 +246,10 @@ struct PpRouteElbow {
     u_int: [(usize, f64); 9],
 }
 
-/// X ≈ 5e5 m, φ = 2°: PP's binary64 centre is equidistant to 1.5e-12 R, and the
-/// product's element is objective here (model PP_UTM_2_PRODUCT_SECTION).
+/// X ≈ 5e5 m, φ = 2° (model PP_UTM_2_PRODUCT_SECTION). u_int is T4-I6's
+/// exact reference for T4-U1's objective element formed from (x_i, x_j, R, y)
+/// (round 00 `t3_models[15]`, `u_int_new`, rounded once; T4-I6 B5.2). The
+/// pre-T4-U1 centre-based value differed by 4.1e-5 of the criterion.
 const PP_UTM_5E5: PpRouteElbow = PpRouteElbow {
     id: "PP-UTM-5E5-PHI2",
     x0: [500000.0, 350000.0],
@@ -257,12 +259,51 @@ const PP_UTM_5E5: PpRouteElbow = PpRouteElbow {
         (3, 1e-06),
         (4, 1e-06),
         (5, 1e-06),
-        (6, -1.8287001134315171e-10),
-        (7, 1.0479998171669618e-08),
-        (8, -1.0297158446337196e-08),
-        (9, 1.0024314433163164e-06),
-        (10, 1.0019471998915866e-06),
+        (6, -1.828700113427223e-10),
+        (7, 1.0479998171669623e-08),
+        (8, -1.0297158446337628e-08),
+        (9, 1.0024314433162965e-06),
+        (10, 1.0019471998915654e-06),
         (11, 1.0019385480234911e-06),
+    ],
+};
+
+/// T4-I6 B5.2's controls at X = 5e6 m, φ = 2° and at X = 7.3e6 m, φ = 10°
+/// (R = 0.3 m): u_int from round 00 `t3_models[17]` and `[18]`, `u_int_new`,
+/// rounded once.
+const PP_UTM_5E6_PHI2: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-5E6-PHI2",
+    x0: [5000000.0, 3500000.0],
+    x1: [5000000.010469849, 3500000.000182752],
+    radius: 0.3,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -1.8287012787089394e-10),
+        (7, 1.0479998404954246e-08),
+        (8, -1.0297158563096431e-08),
+        (9, 1.0024314433758393e-06),
+        (10, 1.001947199940615e-06),
+        (11, 1.0019385480669685e-06),
+    ],
+};
+
+const PP_UTM_7E3_PHI10: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-7.3E6-PHI10",
+    x0: [7300000.0, 5110000.0],
+    x1: [7300000.052094453, 5110000.004557674],
+    radius: 0.3,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -4.572414236612032e-09),
+        (7, 5.234756485614931e-08),
+        (8, -4.777928278565204e-08),
+        (9, 1.0123007940576355e-06),
+        (10, 1.0099265197240842e-06),
+        (11, 1.009692740080273e-06),
     ],
 };
 
@@ -444,6 +485,15 @@ fn kd5_very_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demo
     // published u is within half the criterion of the exact intended
     // solution, and K-D5 leaves it Passed on both entries in both modes.
     assert_published_accurately_and_not_demoted(&PP_UTM_5E6_OBJECTIVE);
+}
+
+#[test]
+fn kd5_utm_controls_at_5e6_and_7_3e6_are_published_accurately_and_not_demoted() {
+    // T4-I6 B5.2: PP-UTM-7.3e6-φ10 is the 7.3e6 control, with the 5e6 φ = 2°
+    // elbow beside it (T4-RV11 S-2 measured 8.6e-5 / 6.8e-5 and 2.0e-3 /
+    // 7.0e-4 of the criterion, dense / sparse).
+    assert_published_accurately_and_not_demoted(&PP_UTM_7E3_PHI10);
+    assert_published_accurately_and_not_demoted(&PP_UTM_5E6_PHI2);
 }
 
 #[test]

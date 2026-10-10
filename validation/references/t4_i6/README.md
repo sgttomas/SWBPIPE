@@ -34,7 +34,9 @@ SHA-256: script `bee26d7d8bed2fa19464bf61a8dd292517ced462dd3e70e54bb07388449af11
 
 T4-I6 repair round 01, produced 2026-10-10 in scratch; SHA256SUMS digest
 `4a53e72144eba25ff56736f3a155890b680eb292e9050213e284c28b159a9919`;
-independent confirmation by T4-RV10 pending. `u1_reference_cases_r01.json`
+independently confirmed by T4-RV10 (values: PASS WITH FINDINGS; the M31b0
+derivation: HOLDS WITH CORRECTIONS; that review's record is outside the
+repository). `u1_reference_cases_r01.json`
 and the scripts that wrote it (`_run_records/r01_lib.py`, `i1_curved122.py`
 … `i8_acceptance.py`, `freeze_r01.py`) are copied byte for byte;
 `round_01/SHA256SUMS` holds their lines verbatim from round 01's
