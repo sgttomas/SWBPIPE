@@ -973,6 +973,71 @@ fn w4_link_rule_decisions_are_exact() {
     );
 }
 
+/// SF-3 (T4-RV19): the decision reads both the authored H and its binary64
+/// decode K = D⁻¹HD⁻¹. With a non-dyadic Ls (0.3 m) the divisions round, so
+/// a singular (rank-deficient) H can decode to a K of either inertia. The
+/// three H's are rank-1 in their tx–rx block ([[s², st], [st, t²]], other
+/// diagonals 1); which K inertia each gives was found independently of FK by
+/// exact rational elimination of the IEEE quotients (T4-I27's
+/// `decode_inertia.py`, standard library only), and is re-checked here by
+/// `exact_definiteness` on `stiffness()`.
+#[test]
+fn definiteness_reads_h_and_its_binary64_decode_at_a_non_dyadic_ls() {
+    let root = references();
+    let base = connector_from(case(&root, "U3-J1-LATERAL").at("inputs"), [0.0; 6]).unwrap();
+    let with = |tt: f64, tr: f64, rr: f64| {
+        let mut upper = [0.0; 21];
+        for diagonal in [0, 6, 11, 15, 18, 20] {
+            upper[diagonal] = 1.0;
+        }
+        (upper[0], upper[3], upper[15]) = (tt, tr, rr);
+        let h = ScaledWorkMatrix {
+            upper_triangle: upper,
+            translation_scale: 0.3,
+        };
+        assert_eq!(
+            exact_definiteness(&sym21(&upper)),
+            ConnectorDefiniteness::PositiveSemidefinite,
+            "H ({tt}, {tr}, {rr}) is singular PSD"
+        );
+        ObjectiveConnector::new(
+            base.node_i(),
+            base.node_j(),
+            ConnectorAttachment::global([0.0; 3]),
+            ConnectorAttachment::global([0.0; 3]),
+            base.axes(),
+            h,
+            [0.0; 6],
+        )
+    };
+    // H PSD, K indefinite: refused under its own reason (never assembled).
+    assert_eq!(
+        with(1.0, 5.0, 25.0),
+        Err(ConnectorError::DecodedStiffnessIndefinite)
+    );
+    assert!(ConnectorError::DecodedStiffnessIndefinite
+        .to_string()
+        .contains("non-dyadic Ls"));
+    // H PSD, K PD: admitted as PSD (the H operand keeps it unqualified for
+    // W4; a K-only decision would link a mechanism).
+    let rounded_pd = with(1.0, 1.0, 1.0).unwrap();
+    assert_eq!(
+        exact_definiteness(&rounded_pd.stiffness()),
+        ConnectorDefiniteness::PositiveDefinite
+    );
+    assert_eq!(
+        rounded_pd.definiteness(),
+        ConnectorDefiniteness::PositiveSemidefinite
+    );
+    // Control: H PSD, K PSD.
+    let both = with(9.0, 3.0, 1.0).unwrap();
+    assert_eq!(
+        exact_definiteness(&both.stiffness()),
+        ConnectorDefiniteness::PositiveSemidefinite
+    );
+    assert_eq!(both.definiteness(), ConnectorDefiniteness::PositiveSemidefinite);
+}
+
 fn sym21(upper: &[f64]) -> [[f64; 6]; 6] {
     let mut m = [[0.0; 6]; 6];
     let mut index = 0;

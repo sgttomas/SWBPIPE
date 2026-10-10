@@ -478,6 +478,10 @@ impl SparseStiffness {
 pub struct SparseAssemblyOptions {
     /// K2b (D1 §4.7, formation-time scaling): 2^b, even; `UNSCALED` by default.
     force_scale: ForceScale,
+    /// T4-U3 (K2b N-5): set only by the K2b retry of `assemble_sparse_stiffness`
+    /// (never by a caller): the connectors' end nodes and Ke formed at b = 0
+    /// times 2^b, in order, used in place of forming them.
+    formed_connectors: Option<Vec<(usize, usize, Matrix12)>>,
 }
 
 impl SparseAssemblyOptions {
@@ -485,6 +489,7 @@ impl SparseAssemblyOptions {
     pub fn new() -> Self {
         Self {
             force_scale: ForceScale::UNSCALED,
+            formed_connectors: None,
         }
     }
 
@@ -593,65 +598,36 @@ pub fn assemble_sparse_stiffness(
     springs: &[(usize, f64)],
     options: &SparseAssemblyOptions,
 ) -> Result<SparseStiffness, FrameKernelError> {
-    let form = |force_scale: ForceScale| -> Result<Vec<(usize, usize, Matrix12)>, FrameKernelError> {
-        connectors
+    let SparseAssemblyOptions {
+        force_scale,
+        formed_connectors,
+    } = options;
+    if !force_scale.is_unscaled() {
+        // K2b: the same assembly, of the inputs formed at 2^b: the frames',
+        // blocks' and springs' scaled operands are checked first, then each
+        // connector's Ke formed at b = 0 times 2^b.
+        let (frames, blocks, springs) =
+            force_scaled_inputs(frames, blocks, springs, *force_scale)?;
+        let formed = connectors
             .iter()
             .map(|connector| {
                 Ok((
                     connector.node_i().index,
                     connector.node_j().index,
-                    connector.force_scaled_global_stiffness(force_scale)?,
+                    connector.force_scaled_global_stiffness(*force_scale)?,
                 ))
             })
-            .collect()
-    };
-    let SparseAssemblyOptions { force_scale } = options;
-    if !force_scale.is_unscaled() {
-        // K2b: the frames' scaled operands are checked first (dense order),
-        // then each connector's Ke formed at b = 0 times 2^b.
-        let (frames, blocks, springs) =
-            force_scaled_inputs(frames, blocks, springs, *force_scale)?;
-        return assemble_sparse_formed(
+            .collect::<Result<Vec<_>, FrameKernelError>>()?;
+        return assemble_sparse_stiffness(
             node_count,
             &frames,
-            &form(*force_scale)?,
+            &[],
             &blocks,
             &springs,
-            &SparseAssemblyOptions::new(),
-        );
-    }
-    assemble_sparse_formed(
-        node_count,
-        frames,
-        &form(ForceScale::UNSCALED)?,
-        blocks,
-        springs,
-        options,
-    )
-}
-
-/// The sparse assembly with the connectors' matrices already formed (at the
-/// options' 2^b).
-fn assemble_sparse_formed(
-    node_count: usize,
-    frames: &[FrameElement],
-    connectors: &[(usize, usize, Matrix12)],
-    blocks: &[StiffnessBlock],
-    springs: &[(usize, f64)],
-    options: &SparseAssemblyOptions,
-) -> Result<SparseStiffness, FrameKernelError> {
-    let SparseAssemblyOptions { force_scale } = options;
-    if !force_scale.is_unscaled() {
-        // K2b: the same assembly, of the inputs formed at 2^b.
-        let (frames, blocks, springs) =
-            force_scaled_inputs(frames, blocks, springs, *force_scale)?;
-        return assemble_sparse_formed(
-            node_count,
-            &frames,
-            connectors,
-            &blocks,
-            &springs,
-            &SparseAssemblyOptions::new(),
+            &SparseAssemblyOptions {
+                force_scale: ForceScale::UNSCALED,
+                formed_connectors: Some(formed),
+            },
         );
     }
     let dimension = node_count * DOF_PER_NODE;
@@ -666,10 +642,25 @@ fn assemble_sparse_formed(
             element.global_stiffness()?,
         ));
     }
-    for &(node_i, node_j, matrix) in connectors {
-        check_node(node_i, node_count)?;
-        check_node(node_j, node_count)?;
-        formed.push((node_i, node_j, matrix));
+    match formed_connectors {
+        Some(scaled) => {
+            for &(node_i, node_j, matrix) in scaled {
+                check_node(node_i, node_count)?;
+                check_node(node_j, node_count)?;
+                formed.push((node_i, node_j, matrix));
+            }
+        }
+        None => {
+            for element in connectors {
+                check_node(element.node_i().index, node_count)?;
+                check_node(element.node_j().index, node_count)?;
+                formed.push((
+                    element.node_i().index,
+                    element.node_j().index,
+                    element.global_stiffness()?,
+                ));
+            }
+        }
     }
     for block in blocks {
         check_node(block.node_i, node_count)?;

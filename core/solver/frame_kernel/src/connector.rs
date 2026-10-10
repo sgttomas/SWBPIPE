@@ -106,8 +106,12 @@ pub enum ConnectorError {
     AxisMisaligned,
     /// Ls is not positive, finite and normal.
     TranslationScale,
-    /// H (or the decoded K) is indefinite: never projected.
+    /// The authored H is indefinite: never projected.
     NotPositiveSemidefinite,
+    /// The authored H is positive (semi)definite, but its binary64 decode
+    /// K = D⁻¹HD⁻¹ is indefinite: the divisions by a non-dyadic Ls rounded a
+    /// singular H across zero. Refused (never assembled indefinite).
+    DecodedStiffnessIndefinite,
     /// A decoded or formed value leaves the binary64 normal range.
     Range { name: &'static str },
 }
@@ -132,6 +136,10 @@ impl std::fmt::Display for ConnectorError {
             Self::NotPositiveSemidefinite => {
                 write!(f, "connector work matrix is not positive semidefinite")
             }
+            Self::DecodedStiffnessIndefinite => write!(
+                f,
+                "connector work matrix is positive semidefinite, but its binary64 decode K at the translation scale Ls is indefinite (rounding of the divisions by a non-dyadic Ls); a dyadic Ls or a nonsingular work matrix avoids it"
+            ),
             Self::Range { name } => write!(f, "connector {name} outside the binary64 normal range"),
         }
     }
@@ -238,8 +246,11 @@ impl ObjectiveConnector {
         aligned(&axes, [node_i.coordinates, node_j.coordinates, a_i, a_j], r)?;
         let authored = symmetric_from_upper(&stiffness.upper_triangle);
         let definiteness = match (exact_definiteness(&authored), exact_definiteness(&k)) {
-            (ConnectorDefiniteness::Indefinite, _) | (_, ConnectorDefiniteness::Indefinite) => {
+            (ConnectorDefiniteness::Indefinite, _) => {
                 return Err(ConnectorError::NotPositiveSemidefinite)
+            }
+            (_, ConnectorDefiniteness::Indefinite) => {
+                return Err(ConnectorError::DecodedStiffnessIndefinite)
             }
             (ConnectorDefiniteness::PositiveDefinite, ConnectorDefiniteness::PositiveDefinite) => {
                 ConnectorDefiniteness::PositiveDefinite
