@@ -3073,3 +3073,6 @@ fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
         );
     }
 }
+
+// HELP_HUMAN's ruling 5 (T4): short stiff bends.
+mod short_bend;

@@ -116,6 +116,21 @@ pub(crate) fn joins_retained_source(model: &PreviewModel) -> bool {
     ExactContract::of(model) != Some(ExactContract::PressureV3)
 }
 
+/// HELP_HUMAN's ruling 3 (2026-10-10; DEL-04-07 Design, SP-1(b)): a v3 case
+/// that a v2 document would route to retained-source recovery names the
+/// missing join. Emitted (severity `info`, refs naming the case) on a captured
+/// invocation whose model does not join retained-source recovery
+/// ([`joins_retained_source`]), for each case that is retained-source eligible
+/// (no nonlinear support, no combination) and whose ordinary attempt needs
+/// recovery (Sensitive, refused, or a load-row finding): exactly the cases v2's
+/// captured entry would attempt. It appears whether the case then publishes or
+/// is left `MODEL_INCOMPLETE`. The typed entry never attempts retained-source
+/// recovery under either contract, so it carries no such diagnostic.
+pub(crate) const RETAINED_SOURCE_NOT_JOINED: &str =
+    "EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED";
+/// The diagnostic's text, held whole as one static (T3 O-10: no run-time text).
+pub(crate) const RETAINED_SOURCE_NOT_JOINED_TEXT: &str = "retained-source recovery is not joined for 3.0.0/exact_pressure_v3: this case's ordinary attempt needed recovery, which 2.0.0/exact_straight_pressure_v2 would attempt on this entry, and only the ordinary structural route is published; a straight-only document authored as 2.0.0/exact_straight_pressure_v2 keeps retained-source recovery";
+
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExactFamily {

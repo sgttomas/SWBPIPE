@@ -305,12 +305,13 @@ const PHYSICS_SOURCE_N05: &str =
 const LOAD_REFERENCE_SOURCE_N05: &str =
     include_str!("../../../fixtures/product_preview/load_reference_source/n05.request.json");
 
-/// T4-RV13 S-1: the current, declared behaviour of a v3 twin of a document
-/// whose v2 run selects retained-source recovery (the scope of SP-1's twin
-/// clause for such documents is pending a ruling). The v3 twin solves on the
-/// ordinary route with no source-block recovery, and its captured envelope
-/// equals v2's typed (ordinary-route) envelope apart from the closed exclusion
-/// list; the v3 typed envelope equals it too.
+/// T4-RV13 S-1 with HELP_HUMAN's ruling 3 (SP-1's twin clause covers
+/// ordinary-route publications): a v3 twin of a document whose v2 run selects
+/// retained-source recovery solves on the ordinary route with no source-block
+/// recovery. Its captured envelope equals v2's typed (ordinary-route) envelope
+/// apart from the closed exclusion list and exactly one added diagnostic per
+/// case that v2 routed to recovery, `EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED`
+/// (info, refs naming the case); the v3 typed envelope equals v2 typed exactly.
 #[test]
 fn v3_twins_of_retained_source_documents_publish_the_ordinary_route() {
     for (name, text, v2_source) in [
@@ -346,10 +347,117 @@ fn v3_twins_of_retained_source_documents_publish_the_ordinary_route() {
             assert_eq!(v3_captured["formulation_basis"]["profile_id"], "exact_pressure_v3", "{name} {mode:?}");
             semantic_contract::validate_pressure_evidence(&v3_captured)
                 .unwrap_or_else(|e| panic!("{name} {mode:?}: {e}"));
-            for twin in [&v3_captured, &v3_typed] {
+            assert_eq!(
+                not_joined_cases(&v3_captured),
+                v2_recovery_cases(&v2_captured),
+                "{name} {mode:?}"
+            );
+            assert!(not_joined_cases(&v3_typed).is_empty(), "{name} {mode:?}");
+            for twin in [&without_not_joined(&v3_captured), &v3_typed] {
                 let mut differences = Vec::new();
                 compare("", &v2_typed, twin, &mut differences);
                 assert!(differences.is_empty(), "{name} {mode:?}: {differences:#?}");
+            }
+        }
+    }
+}
+
+const PHYSICS_SOURCE_N06: &str =
+    include_str!("../../../fixtures/product_preview/physics_source/n06.request.json");
+const LOAD_REFERENCE_SOURCE_N06: &str =
+    include_str!("../../../fixtures/product_preview/load_reference_source/n06.request.json");
+const NOT_JOINED: &str = "EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED";
+const NOT_JOINED_TEXT: &str = "retained-source recovery is not joined for 3.0.0/exact_pressure_v3: this case's ordinary attempt needed recovery, which 2.0.0/exact_straight_pressure_v2 would attempt on this entry, and only the ordinary structural route is published; a straight-only document authored as 2.0.0/exact_straight_pressure_v2 keeps retained-source recovery";
+
+/// The cases named by the ruling-3 diagnostic, each checked for its shape.
+fn not_joined_cases(envelope: &Value) -> Vec<String> {
+    envelope["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|d| d["code"] == NOT_JOINED)
+        .map(|d| {
+            assert_eq!(d["severity"], "info", "{d}");
+            assert_eq!(d["message"], NOT_JOINED_TEXT, "{d}");
+            let refs = d["affected_refs"].as_array().unwrap();
+            assert_eq!(refs.len(), 1, "{d}");
+            refs[0].as_str().unwrap().to_string()
+        })
+        .collect()
+}
+
+/// The cases v2's captured run routed to retained-source recovery: those it
+/// selected (in the receipt) or attempted without a selection.
+fn v2_recovery_cases(envelope: &Value) -> Vec<String> {
+    let mut cases: Vec<String> = envelope["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|d| {
+            d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
+                || d["code"] == "SOURCE_BLOCK_RECOVERY_SELECTED"
+        })
+        .map(|d| d["affected_refs"][0].as_str().unwrap().to_string())
+        .collect();
+    cases.dedup();
+    assert!(!cases.is_empty(), "the fixture must exercise v2's recovery");
+    cases
+}
+
+fn without_not_joined(envelope: &Value) -> Value {
+    let mut stripped = envelope.clone();
+    stripped["diagnostics"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|d| d["code"] != NOT_JOINED);
+    stripped
+}
+
+/// HELP_HUMAN's ruling 3 (c), on the documents v2 rescues: n06 (0.3.0 and
+/// 0.4.0) solves under v2 only through retained-source recovery; its v3 twin is
+/// left `MODEL_INCOMPLETE` and still names the missing join, in both modes, on
+/// the captured entry. The typed entry attempts no retained-source recovery
+/// under either contract and carries no such diagnostic. Making
+/// `joins_retained_source` always true (T4-RV13's mutant M1) removes the
+/// diagnostic and fails this test.
+#[test]
+fn v3_twins_that_v2_rescues_name_the_missing_retained_source_join() {
+    for (name, text) in [
+        ("physics_source/n06", PHYSICS_SOURCE_N06),
+        ("load_reference_source/n06", LOAD_REFERENCE_SOURCE_N06),
+    ] {
+        let v2: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(v2["model"]["pressure_contract"]["mode"], "exact_straight_pressure_v2", "{name}");
+        let mut v3 = v2.clone();
+        v3["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
+        for mode in MODES {
+            let captured = |document: &Value| {
+                serde_json::to_value(
+                    run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap(),
+                )
+                .unwrap()
+            };
+            let typed = |document: &Value| {
+                serde_json::to_value(run_linear_static_preview_with_mode(
+                    serde_json::from_value(document.clone()).unwrap(),
+                    mode,
+                ))
+                .unwrap()
+            };
+            // v2 rescues: it solves only through the selected source response.
+            let v2_captured = captured(&v2);
+            assert_eq!(v2_captured["status"]["mechanics"], "MECHANICS_SOLVED", "{name} {mode:?}");
+            assert!(v2_captured.get("source_block_recovery").is_some(), "{name} {mode:?}");
+            assert!(has_code(&v2_captured, "SOURCE_BLOCK_RECOVERY_SELECTED"), "{name} {mode:?}");
+            assert!(not_joined_cases(&v2_captured).is_empty(), "{name} {mode:?}");
+            // v3 does not: MODEL_INCOMPLETE, and the missing join is named.
+            let v3_captured = captured(&v3);
+            assert_eq!(v3_captured["status"]["mechanics"], "MODEL_INCOMPLETE", "{name} {mode:?}");
+            assert!(has_code(&v3_captured, "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"), "{name} {mode:?}");
+            assert!(v3_captured.get("source_block_recovery").is_none(), "{name} {mode:?}");
+            assert_eq!(not_joined_cases(&v3_captured), v2_recovery_cases(&v2_captured), "{name} {mode:?}");
+            for document in [&v2, &v3] {
+                assert!(not_joined_cases(&typed(document)).is_empty(), "{name} {mode:?}");
             }
         }
     }

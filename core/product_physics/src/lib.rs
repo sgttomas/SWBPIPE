@@ -864,9 +864,13 @@ struct SourceRecoveryBudget {
     /// 0.4.0 only: the first cause for which a selected join could not
     /// finalize. The captured route then republishes ordinarily.
     load_state_join_failure: Option<String>,
+    /// HELP_HUMAN's ruling 3: the invocation was captured, but its model does
+    /// not join retained-source recovery (`exact_admission::joins_retained_source`);
+    /// each case v2 would route to recovery names the missing join.
+    retained_source_not_joined: bool,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None, retained_source_not_joined: false } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
@@ -884,6 +888,7 @@ impl SourceRecoveryBudget {
             attempts: self.attempts,
             load_state_join_withheld: Some(cause),
             load_state_join_failure: self.load_state_join_failure.clone(),
+            retained_source_not_joined: self.retained_source_not_joined,
         }
     }
     fn record_load_state_join_failure(&mut self, cause: String) {
@@ -1335,6 +1340,113 @@ fn append_integrity_failure(
 ) {
     let code = integrity_failure_code(error);
     diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+}
+
+/// HELP_HUMAN's ruling 3 (`exact_admission::RETAINED_SOURCE_NOT_JOINED`): for
+/// a case of a captured invocation whose model does not join retained-source
+/// recovery and whose ordinary attempt needs recovery, the diagnostic is added
+/// when the case would be retained-source eligible on the captured entry
+/// (main's predicate). Static text; refs name the case.
+fn append_retained_source_not_joined(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    built: &BuiltModel,
+    model: &PreviewModel,
+) {
+    if source_eligible(true, !built.nonlinear_supports.is_empty(), !model.combinations.is_empty()) {
+        diagnostics.push(diag(
+            &format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id)),
+            exact_admission::RETAINED_SOURCE_NOT_JOINED,
+            "info",
+            exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT,
+            vec![case_id.to_string()],
+        ));
+    }
+}
+
+/// HELP_HUMAN's ruling 5 (2026-10-10; DEL-04-01 "Stable small-angle
+/// evaluation"): a refusal by FK's structural pivot screen (`screen_pivot`,
+/// T3's M03-INTEGRITY policy, unchanged) of a model holding a realized bend
+/// that is short against its neighbours names that bend.
+pub(crate) const CURVED_BEND_SHORT: &str = "CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS";
+/// The ratio test: arc length R*phi over the shorter adjacent member's length
+/// below 1e-4. T4-I22 measured the screen's refusal boundary on the L line
+/// (R = 0.2286 m, 3 m / 4 m straights) at R*phi/L of about 5e-5, where the
+/// condensed transverse pivot, about 0.67*(R*phi/L)^3 of the stiff diagonal,
+/// meets the screen's bound of about 8.5e-14; 1e-4 is that boundary with a
+/// factor-of-two margin for the bound's constants (k, operation count), so a
+/// case refused near the boundary is still identified. The diagnostic is only
+/// added to a case the screen has already refused.
+pub(crate) const CURVED_BEND_SHORT_RATIO: f64 = 1e-4;
+/// FK `screen_pivot`'s refusal reason, verbatim (pinned by the L-line tests).
+const PIVOT_SCREEN_REASON: &str = "nonpositive or cancellation-unresolved structural pivot";
+const CURVED_BEND_SHORT_TEXT: &str = "the bend is too short relative to its neighbours for a reliable solution: its arc is stiff against the adjacent members, so the assembled system is ill-conditioned beyond binary64 resolution (a straight chord of the same length behaves identically)";
+
+/// The realized bend with the smallest arc-length ratio to its shorter
+/// adjacent member (a straight's chord length, or a neighbouring bend's arc
+/// length), with that ratio; `None` when no bend has a neighbour.
+fn shortest_bend_against_neighbours(built: &BuiltModel) -> Option<(&CurvedBendMacroBuild, f64)> {
+    let member_length = |index: usize| {
+        built
+            .curved_bend_elements
+            .iter()
+            .find(|bend| bend.pipe_index == index)
+            .map_or_else(
+                || {
+                    let pipe = &built.pipes[index];
+                    let (a, b) = (pipe.node_i.coordinates, pipe.node_j.coordinates);
+                    norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+                },
+                |bend| bend.arc_length,
+            )
+    };
+    built
+        .curved_bend_elements
+        .iter()
+        .filter_map(|bend| {
+            let shorter = built
+                .pipes
+                .iter()
+                .enumerate()
+                .filter(|(index, pipe)| {
+                    *index != bend.pipe_index
+                        && [pipe.node_i.index, pipe.node_j.index]
+                            .iter()
+                            .any(|node| *node == bend.node_i || *node == bend.node_j)
+                })
+                .map(|(index, _)| member_length(index))
+                .min_by(|a, b| a.total_cmp(b))?;
+            Some((bend, bend.arc_length / shorter))
+        })
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+}
+
+/// Ruling 5: after a pivot-screen refusal, one diagnostic per refused case
+/// naming the shortest bend when its ratio is below [`CURVED_BEND_SHORT_RATIO`].
+fn append_short_bend_refusal(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    error: &StructuralError,
+    built: &BuiltModel,
+) {
+    if !matches!(error, StructuralError::NumericallyUnresolved { reason, .. } if *reason == PIVOT_SCREEN_REASON) {
+        return;
+    }
+    let Some((bend, ratio)) = shortest_bend_against_neighbours(built) else {
+        return;
+    };
+    if ratio < CURVED_BEND_SHORT_RATIO {
+        diagnostics.push(diag(
+            &format!("diagnostic:curved-bend-short:{}", stable_suffix(case_id)),
+            CURVED_BEND_SHORT,
+            "blocking",
+            format!(
+                "Load case {case_id}: realized bend {} (pipe {}): arc length / shorter adjacent member length = {ratio:.3e}, below {CURVED_BEND_SHORT_RATIO:e}; {CURVED_BEND_SHORT_TEXT}",
+                bend.component_id, bend.pipe_id
+            ),
+            vec![case_id.to_string(), bend.component_id.clone(), bend.pipe_id.clone()],
+        ));
+    }
 }
 
 // ------------------------------------------------------------ F1b: W2 (range)
@@ -2368,7 +2480,9 @@ fn run_linear_static_preview_observed(
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
     // T4-U2a: a v3 invocation is not joined to retained-source recovery.
-    let capture = capture.filter(|_| exact_admission::joins_retained_source(&request.model));
+    let joins = exact_admission::joins_retained_source(&request.model);
+    source_budget.retained_source_not_joined = capture.is_some() && !joins;
+    let capture = capture.filter(|_| joins);
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
@@ -4518,6 +4632,11 @@ fn solve_load_case_observed(
             }
         }
     }
+    // HELP_HUMAN's ruling 3: a case v2's captured entry would route to
+    // retained-source recovery names the join v3 lacks.
+    if source_budget.retained_source_not_joined && needs_source_recovery {
+        append_retained_source_not_joined(diagnostics, &load_case.id, built, model);
+    }
     // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
     if let Some(observer) = product.as_deref_mut() {
         observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
@@ -4640,6 +4759,7 @@ fn solve_load_case_observed(
                     if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
                         observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
                     }
+                    append_short_bend_refusal(diagnostics, &load_case.id, &error, built);
                     return Ok(LoadCaseSolve {
                 load_state_evidence: None,
                 pressure_evidence: Vec::new(),
