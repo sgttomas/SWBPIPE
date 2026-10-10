@@ -21,3 +21,13 @@ No automatic nightly or post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
 macOS release sweep remains available for release preparation.
+
+Successful numerical and core-browser results can be reused on PRs. The key
+covers every tracked file available in the sparse product checkout, the runner
+image/architecture, language runtime and selected numerical command set. This
+is intentionally conservative: source, fixture, test or workflow changes rerun;
+changes confined to excluded execution records can reuse a pass. Cache restore
+uses an exact key only, and records are saved only after successful execution.
+A hit reports the original run and commit, explicitly saying tests were not
+executed again. Manual runs bypass result reuse. Missing caches run normally;
+this is separate from dependency/build-output caching.
