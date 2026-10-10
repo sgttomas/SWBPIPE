@@ -33,10 +33,10 @@ use b1_sq_inputs as inputs;
 
 /// The profile's in-build W1 phase (requested + moving, without R), sparse and dense, in the
 /// pinned record's build (the lib test `challenge_bounds_are_the_profile` checks it there).
-const W1_PHASE_BYTES: [u64; 2] = [5_069_320_590, 5_128_451_934];
+const W1_PHASE_BYTES: [u64; 2] = [4_853_594_736, 4_912_726_080];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6).
-const MAX_PHASE_BYTES: [u64; 2] = [9_733_566_502, 9_792_697_846];
+const MAX_PHASE_BYTES: [u64; 2] = [9_688_537_748, 9_747_669_092];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.
@@ -186,4 +186,9 @@ entries! {
     b2_k1e3: inputs::b2_k1e3(), "b2_k1e3", [sparse => SPARSE, dense => DENSE];
     c1: inputs::c1(), "c1", [sparse => SPARSE, dense => DENSE];
     i3_three_case: inputs::i3_three_case(), "i3_three_case", [sparse => SPARSE, dense => DENSE];
+    // SQ2 (B2/B3): the combination and exact-route witnesses.
+    w_cb1: inputs::w_cb1(), "w_cb1", [sparse => SPARSE, dense => DENSE];
+    w_cb2: inputs::w_cb2(), "w_cb2", [sparse => SPARSE, dense => DENSE];
+    m3x: inputs::m3x(), "m3x", [sparse => SPARSE, dense => DENSE];
+    exact_cap_maximal: inputs::exact_cap_maximal(), "exact_cap_maximal", [sparse => SPARSE, dense => DENSE];
 }

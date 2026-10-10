@@ -2,14 +2,15 @@
  * per surface.
  *
  * `OUTPUT_POLICY` has one deliberate entry for every `SourceContract`; `tsc`
- * refuses a route without one (B3's `physics-retained-1` will not compile until it
- * is given an entry). A gated route names every output surface: each surface either
+ * refuses a route without one (B3b gave `physics-retained-1`'s route,
+ * `retained_physics`, its own entry). A gated route names every output surface: each surface either
  * refuses with the route's shared reason or admits the route only at numerically
  * eligible standing with the live native capture (D2 4.9.4; D-U7-4). A surface
  * left unadmitted refuses, and a route value missing from the table fails closed.
  *
  * Only the Result Export and Stress-Neutral Export panels admit the F2a preview
- * successor (`retained_preview_physics`). The other eighteen surfaces (T1's group
+ * successor (`retained_preview_physics`), and, likewise, B3b's exact successor
+ * (`retained_physics`; B3-D §7, decision B3D-14), each with its own reason text. The other eighteen surfaces (T1's group
  * a, through `LoadReferenceOutputGate`) and the report package keep refusing it.
  * The report package refuses at its own point, T0R's fresh-result refusal
  * (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE); its entry here records that decision.
@@ -31,6 +32,9 @@ export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-O
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
 export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.";
 export const RETAINED_PRECISION_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PRECISION_OUTPUT}`;
+/** B3b (B3-D §7; B3D-14): the exact successor's own reason; the preview text is untouched. */
+export const N_RETAINED_PHYSICS_OUTPUT = "This output of retained-precision results (physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.";
+export const RETAINED_PHYSICS_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PHYSICS_OUTPUT}`;
 /** An admitted surface refuses a gated route that is not numerically eligible. The
  * reason starts with the standing's own finding code (for example
  * RETAINED_PRECISION_VALIDATION_REQUIRED or RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED). */
@@ -78,6 +82,19 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
   retained_preview_physics: Object.freeze({
     gate: "per_surface",
     reason: RETAINED_PRECISION_OUTPUT_REFUSAL,
+    surfaces: Object.freeze({
+      "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
+      "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",
+      "rule-check": "refused", "report-lint": "refused", "solve-job": "refused", "headless-runner": "refused",
+      "local-fea": "refused", "native-package": "refused", "handoff": "refused", "export-review": "refused",
+      "report": "refused", "rendered-report": "refused", "report-package": "refused",
+      "result-export": "admitted_when_eligible", "stress-neutral": "admitted_when_eligible",
+    }),
+  }),
+  // B3b (B3-D §7, decision 21): the exact successor, admitted by the same two T6 panels only.
+  retained_physics: Object.freeze({
+    gate: "per_surface",
+    reason: RETAINED_PHYSICS_OUTPUT_REFUSAL,
     surfaces: Object.freeze({
       "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
       "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",

@@ -62,12 +62,91 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.preparation |= faults.preparation;
     a.candidate = a.candidate.or(faults.candidate);
     a.preparation_of_case = a.preparation_of_case.or(faults.preparation_of_case);
+    a.exact_capture |= faults.exact_capture;
+    a.section_staging |= faults.section_staging;
+    a.operand_preparation_of_case = a.operand_preparation_of_case.or(faults.operand_preparation_of_case);
+    a.combination_call = a.combination_call.or(faults.combination_call);
+    a.combination_freeze |= faults.combination_freeze;
+    a.freeze_of_case = a.freeze_of_case.or(faults.freeze_of_case);
+    a.meter_chain |= faults.meter_chain;
+    a.ledger_of_case = a.ledger_of_case.or(faults.ledger_of_case);
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 5] {
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 13] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
-        (a.preparation_of_case.is_some(), "preparation_of_case")]
+        (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging"),
+        (a.operand_preparation_of_case.is_some(), "operand_preparation_of_case"), (a.combination_call.is_some(), "combination_call"),
+        (a.combination_freeze, "combination_freeze"), (a.freeze_of_case.is_some(), "freeze_of_case"), (a.meter_chain, "meter_chain"),
+        (a.ledger_of_case.is_some(), "ledger_of_case")]
 }
+/// RV123 S-2: the freeze of case `index` (request index) refuses at its maxima stage (the
+/// existing `TraceFault::Maxima`, for that case only), after its selected Run: the case is
+/// `unavailable` (`facade_certificate`) with its prepared source, and the other cases go on.
+pub(crate) fn fail_freeze_of_case(index: usize) { arm(|a| a.freeze_of_case = Some(index)); }
+/// At each case freeze (`PreparedCases::freeze`): whether the armed fault fires for it (consumed).
+pub(crate) fn freeze_fault_of_case(request: usize) -> bool {
+    consume(|a| if a.freeze_of_case == Some(request) { a.freeze_of_case.take() } else { None }).is_some()
+}
+/// B2-P hook (PLAN §1.2.4; B2-C §2.6): the operand preparation of `not_required` case `index`
+/// (request index) refuses, through the real section preparation (its first member's diameter
+/// is 0, as `fail_preparation_of_case` does for a case attempt). Each combination that needs it
+/// becomes `retained_unavailable` with `operand_preparation_failure`.
+pub(crate) fn fail_operand_preparation(index: usize) { arm(|a| a.operand_preparation_of_case = Some(index)); }
+/// At each operand preparation, before C3's preparation stage, on the owner in the capture's fields.
+pub(crate) fn before_operand_preparation(capture: &mut crate::retained_product::ProductCapture, owner: usize) {
+    if consume(|a| if a.operand_preparation_of_case == Some(owner) { a.operand_preparation_of_case.take() } else { None }).is_some() {
+        capture.facts[0].diameter = 0.0;
+    }
+}
+/// B2-P hook: the Call of combination `index` (authored index) refuses before any source, through
+/// the kernel's own operand validation (the Call is made with no operand: `no_operands`), so the
+/// combination is `retained_unavailable` with that `pre_source_refusal`.
+pub(crate) fn fail_combination_call(index: usize) { arm(|a| a.combination_call = Some(index)); }
+/// At a combination's Call: whether the armed Call fault fires for it (consumed).
+pub(crate) fn combination_call_fault(index: usize) -> bool {
+    consume(|a| if a.combination_call == Some(index) { a.combination_call.take() } else { None }).is_some()
+}
+/// B2-P hook: the next combination freeze refuses at its observables stage (`facade_certificate`).
+pub(crate) fn fault_next_combination_freeze() { arm(|a| a.combination_freeze = true); }
+/// At a combination's observables stage: whether the armed freeze fault fires (consumed).
+pub(crate) fn combination_freeze_fault() -> bool { consume(|a| std::mem::take(&mut a.combination_freeze)) }
+/// B2-P hook: the serializer's meter-chain check (B2-C §2.7) reads its Calls as unchained (each
+/// later Call's `invocation_before` one past the previous Call's `invocation_after`), so a
+/// successor with a combination Call refuses with `work_counter_inconsistent` (`work.charged`).
+pub(crate) fn break_next_meter_chain() { arm(|a| a.meter_chain = true); }
+/// At the serializer's meter-chain check: whether the armed fault fires (consumed).
+pub(crate) fn meter_chain_fault() -> bool { consume(|a| std::mem::take(&mut a.meter_chain)) }
+/// RV123 (B2-P round 2) S-1: the batch Run of case `index` (request index) reads as refused
+/// `ledger_unavailable` (B2-C §2.4 (i), row 2). After the Call its outcome is replaced by
+/// `Refused { LedgerUnavailable(Accumulator(NonFinite)) }`, keeping its attempt records, so the
+/// Run's records and work still conserve. The case is then `unavailable` with a CaseSource, and a
+/// combination naming it is `operand_source_unavailable`, with no rebuild, preparation or Call.
+pub(crate) fn refuse_ledger_of_case(index: usize) { arm(|a| a.ledger_of_case = Some(index)); }
+/// After the batch Call, for each submitted case: the armed ledger refusal, if it names this one
+/// (consumed).
+pub(crate) fn after_batch_run(request: usize, mut case: open_pipe_stress_frame_kernel::structural::retained_api::RecordedCase)
+    -> open_pipe_stress_frame_kernel::structural::retained_api::RecordedCase {
+    use open_pipe_stress_frame_kernel::exact_sum::SumError;
+    use open_pipe_stress_frame_kernel::structural::retained_api as k;
+    if consume(|a| if a.ledger_of_case == Some(request) { a.ledger_of_case.take() } else { None }).is_some() {
+        let attempts = match &case.outcome {
+            k::ExecutionOutcome::Selected(solve) => solve.evidence().attempts.clone(),
+            k::ExecutionOutcome::Refused { attempts, .. } | k::ExecutionOutcome::Unresolved { attempts, .. } => attempts.clone(),
+        };
+        case.outcome = k::ExecutionOutcome::Refused { refusal: k::Refusal::LedgerUnavailable(k::LedgerRefusal::Accumulator(SumError::NonFinite)),
+            attempts, geometry: Vec::new() };
+    }
+    case
+}
+/// B3b-P (B3-D P-12): the exact route's material capture refuses: its Ĝ check (retained_product.rs
+/// `exact_material_nu`) sees the represented Ĝ one ulp up, so the capture records a typed
+/// association error and W1 falls back at preparation (custody).
+pub(crate) fn fault_next_exact_capture() { arm(|a| a.exact_capture = true); }
+/// At the exact route's Ĝ check: whether the armed exact-capture fault fires here (consumed).
+pub(crate) fn exact_capture_fault() -> bool { consume(|a| std::mem::take(&mut a.exact_capture)) }
+/// B3b-P (B3-D P-12): an evidence-overlay fault: the next frozen exact case's first section patch
+/// names an index past its `pipe_sections`, so staging refuses (`StagingFault("pipe_sections[]")`).
+pub(crate) fn break_next_section_overlay() { arm(|a| a.section_staging = true); }
 /// `run_linear_static_preview_observed`'s first statement: one ordinary run.
 pub(crate) fn ordinary_run_entered() {
     if let Some(t) = tally() { t.runs.fetch_add(1, SeqCst); }

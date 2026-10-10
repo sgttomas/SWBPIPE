@@ -12,7 +12,7 @@ import table from "../../../../../fixtures/results/semantic_contract_v0_3_previe
 import unicodeIdsSparse from "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json";
 import unicodeIdsModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
-import { compareCodePoints, lengthPrefixed, lengthPrefixedSegments, previewPhysicsSignature, validatePreviewPhysicsEvidence, validatePreviewPhysicsTransportMetadata } from "./previewPhysicsEvidence";
+import { compareCodePoints, consistentNorm, lengthPrefixed, lengthPrefixedSegments, previewPhysicsSignature, validatePreviewPhysicsEvidence, validatePreviewPhysicsTransportMetadata } from "./previewPhysicsEvidence";
 import { numericalResultStanding, sourceContract, sourceSemanticBinding, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./numericalResultQuality";
 import { resultSemantics, semanticContractForSource } from "./resultSemantics";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -361,5 +361,82 @@ describe("rulings 2 and 3: each extremum's global_upper_bound_pa and certified_g
     expect(both(edited(connectedSparse, x => { x.global_upper_bound_pa = "x"; x.station_fraction = 2; }))).toEqual(refused("extrema numbers"));
     expect(both(edited(connectedSparse, x => { x.certified_gap_pa = null; x.span_index = -1; }))).toEqual(refused("extrema numbers"));
     expect(both(edited(connectedSparse, x => { x.station_fraction = 2; }))).toEqual(refused("extrema fractions"));
+  });
+});
+
+/** B2-C REVISION_02 §4.5 (NC-3), with the binding Design text's correction: G7's guard admits p, a combination's
+ * displacement magnitude formed as RN64 (ties to even) of the exact 3-norm of its components, and refuses p * (1 + 2^-40)
+ * for p >= MIN_POSITIVE, or p + 256 * 2^-1074 below it (+0 included). The vectors are I97's `exact_norm_vectors.json`
+ * (frozen NUM `e85d383b64`, `I97/b2_c_01/_run_records/r2/`): its curated cases with a finite result and its RV118 triples
+ * whose result is subnormal, as [label, x, y, z, p] binary64 words. Run on the JavaScript engine that CI uses (Node's V8). */
+describe("NC-3: consistentNorm on the adversarial and subnormal exact-norm vectors", () => {
+  const VECTORS: [string, string, string, string, string][] = [
+    ["A-5 midpoint, ties to even", "3de0000002000000", "3f80000004000000", "0000000000000000", "3f80000004000000"],
+    ["A-5 midpoint plus 2^-1074: rounds up", "3de0000002000000", "3f80000004000000", "0000000000000001", "3f80000004000001"],
+    ["A-5 midpoint plus 2^-600: rounds up", "3de0000002000000", "3f80000004000000", "1a70000000000000", "3f80000004000001"],
+    ["A-5 midpoint, first component one ulp lower: rounds down", "3de0000001ffffff", "3f80000004000000", "0000000000000000", "3f80000004000000"],
+    ["A-5 midpoint, signs flipped", "bde0000002000000", "bf80000004000000", "8000000000000000", "3f80000004000000"],
+    ["3,4,12 -> 13 exactly", "c008000000000000", "4010000000000000", "4028000000000000", "402a000000000000"],
+    ["1, 2^-1074, 0 -> 1", "3ff0000000000000", "0000000000000001", "0000000000000000", "3ff0000000000000"],
+    ["1e300, 1e-300, 2^-1074", "7e37e43c8800759c", "01a56e1fc2f8f359", "0000000000000001", "7e37e43c8800759c"],
+    ["smallest subnormal", "0000000000000001", "0000000000000000", "0000000000000000", "0000000000000001"],
+    ["three smallest subnormals", "0000000000000001", "8000000000000001", "0000000000000001", "0000000000000002"],
+    ["two smallest subnormals", "0000000000000001", "0000000000000001", "0000000000000000", "0000000000000001"],
+    ["largest subnormal, three times", "000fffffffffffff", "000fffffffffffff", "000fffffffffffff", "001bb67ae8584ca9"],
+    ["MIN_POSITIVE and a subnormal", "0010000000000000", "0000000000000001", "8000000000000001", "0010000000000000"],
+    ["MAX, 0, 0 -> MAX", "7fefffffffffffff", "0000000000000000", "8000000000000000", "7fefffffffffffff"],
+    ["2^1023, 2^1023, 0 -> finite", "7fe0000000000000", "7fe0000000000000", "0000000000000000", "7fe6a09e667f3bcd"],
+    ["1e308 three times -> finite", "7fe1ccf385ebc8a0", "7fe1ccf385ebc8a0", "7fe1ccf385ebc8a0", "7feed4df0150215a"],
+    ["1e200 (an unscaled hypot would overflow)", "6974e718d7d7625a", "e974e718d7d7625a", "6974e718d7d7625a", "69821a2f9c3d2c96"],
+    ["1e-200 (an unscaled hypot would underflow)", "16687e92154ef7ac", "16687e92154ef7ac", "96687e92154ef7ac", "167536793539fd32"],
+    ["zeros +0,+0,+0", "0000000000000000", "0000000000000000", "0000000000000000", "0000000000000000"],
+    ["zeros +0,+0,-0", "0000000000000000", "0000000000000000", "8000000000000000", "0000000000000000"],
+    ["zeros +0,-0,+0", "0000000000000000", "8000000000000000", "0000000000000000", "0000000000000000"],
+    ["zeros +0,-0,-0", "0000000000000000", "8000000000000000", "8000000000000000", "0000000000000000"],
+    ["zeros -0,+0,+0", "8000000000000000", "0000000000000000", "0000000000000000", "0000000000000000"],
+    ["zeros -0,+0,-0", "8000000000000000", "0000000000000000", "8000000000000000", "0000000000000000"],
+    ["zeros -0,-0,+0", "8000000000000000", "8000000000000000", "0000000000000000", "0000000000000000"],
+    ["zeros -0,-0,-0", "8000000000000000", "8000000000000000", "8000000000000000", "0000000000000000"],
+    ["RV118 triple 28", "8000000000056ef8", "8000000000056f17", "0000000000056ef8", "000000000009694c"],
+    ["RV118 triple 35", "80000001240332be", "800000012422ffc9", "00000001240332be", "00000001f9da2a11"],
+    ["RV118 triple 37", "0000000000000003", "0000000000000000", "0000000000000000", "0000000000000003"],
+    ["RV118 triple 38", "00000171f4a4f7ea", "000001722c0f0e6e", "80000171f4a4f7ea", "00000280e82f0cf2"],
+    ["RV118 triple 74", "800000000022403a", "0000000000000000", "0000000000000000", "000000000022403a"],
+    ["RV118 triple 79", "8000000001fd3f07", "8000000001fd5372", "0000000001fd3f07", "000000000372161b"],
+    ["RV118 triple 81", "8000000000b4cd3c", "8000000000000000", "8000000000000000", "0000000000b4cd3c"],
+    ["RV118 triple 103", "800102f7655fac9b", "800000000000817c", "800000000000817c", "000102f7655fac9b"],
+    ["RV118 triple 120", "800000001dc02eb6", "800000001dc6a936", "000000001dc02eb6", "00000000338b5b3e"],
+    ["RV118 triple 131", "80000000b49c4932", "0000000000000000", "80000148ffdcf8ea", "00000149000e8c0b"],
+    ["RV118 triple 132", "80000000002b88a6", "80000000002b9344", "00000000002b88a6", "00000000004b6d3b"],
+    ["RV118 triple 146", "80000000000000ca", "8000000000000000", "8000000000000000", "00000000000000ca"],
+    ["RV118 triple 174", "80000183e84d7803", "8000000000000000", "8000000000000000", "00000183e84d7803"],
+    ["RV118 triple 200", "000000000015d1ee", "000000000015d6dd", "800000000015d1ee", "000000000025cdf7"],
+    ["RV118 triple 209", "0000016a138d50f7", "0000016a68f160b3", "8000016a138d50f7", "0000027353cb0884"],
+    ["RV118 triple 221", "0000008e5765893b", "000000000000008e", "0000000000000000", "0000008e5765893b"],
+    ["RV118 triple 225", "0000000000003cef", "0000000000000000", "0000000000000000", "0000000000003cef"],
+    ["RV118 triple 230", "000000000022fdaf", "0000000000000000", "0000000000000000", "000000000022fdaf"],
+    ["RV118 triple 234", "00000000023d100d", "00000000023d3cfb", "80000000023d100d", "0000000003e0acd0"],
+    ["RV118 triple 235", "0000000000007287", "000000000000728a", "8000000000007287", "000000000000c660"],
+    ["RV118 triple 238", "80000021134953f0", "80000021158f9762", "00000021134953f0", "000000394b156654"],
+    ["RV118 triple 239", "8003c41c92b94122", "8003c484fef22c2a", "0003c41c92b94122", "0006862036b01474"],
+    ["RV118 triple 246", "00000000000002c8", "00000000000002c8", "80000000000002c8", "00000000000004d1"],
+  ];
+  const word = (bits: string) => { const view = new DataView(new ArrayBuffer(8)); view.setBigUint64(0, BigInt(`0x${bits}`)); return view.getFloat64(0); };
+  const MIN_POSITIVE = 2 ** -1022, TINY_STEP = 256 * 2 ** -1074;
+  it("accepts each vector's RN64 magnitude and refuses the perturbed one", () => {
+    expect(VECTORS).toHaveLength(49);
+    const labels = VECTORS.map(v => v[0]);
+    for (const required of ["A-5 midpoint, ties to even", "A-5 midpoint plus 2^-1074: rounds up", "smallest subnormal", "largest subnormal, three times", "1e200 (an unscaled hypot would overflow)", "1e-200 (an unscaled hypot would underflow)", "1e308 three times -> finite", "zeros -0,-0,-0"]) expect(labels).toContain(required);
+    const misses: string[] = [], unrepresentable: string[] = [];
+    for (const [label, x, y, z, p] of VECTORS) {
+      const components = [x, y, z].map(word), magnitude = word(p);
+      const perturbed = magnitude >= MIN_POSITIVE ? magnitude * (1 + 2 ** -40) : magnitude + TINY_STEP;
+      if (!consistentNorm(magnitude, components)) misses.push(`${label}: p refused`);
+      // MAX * (1 + 2^-40) is not a finite binary64, so no published row can carry it.
+      if (!Number.isFinite(perturbed)) unrepresentable.push(label);
+      else if (consistentNorm(perturbed, components)) misses.push(`${label}: the perturbed magnitude admitted`);
+    }
+    expect(misses).toEqual([]);
+    expect(unrepresentable).toEqual(["MAX, 0, 0 -> MAX"]);
   });
 });

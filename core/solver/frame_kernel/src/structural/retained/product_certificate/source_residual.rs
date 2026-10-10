@@ -619,13 +619,17 @@ fn residual(
             eta_member(view, &m, globals, rows, w)?;
         }
     }
-    // Actual individual terms, including cancelling terms; no pre-rounded net.
-    for load in view.source().loads() {
-        w.visit()?;
-        let a = view.group().ordering.position[load.dof.global()];
-        if a != usize::MAX {
-            out[a] = w.add(out[a], point(load.value)?)?;
+    if view.owner().prep.factors.is_empty() {
+        // Actual individual terms, including cancelling terms; no pre-rounded net.
+        for load in view.source().loads() {
+            w.visit()?;
+            let a = view.group().ordering.position[load.dof.global()];
+            if a != usize::MAX {
+                out[a] = w.add(out[a], point(load.value)?)?;
+            }
         }
+    } else {
+        combination_free_loads(view, &mut out, w)?;
     }
     for spring in view.source().springs() {
         w.visit()?;
@@ -640,6 +644,102 @@ fn residual(
         *v = shift_interval(*v, view.scales()[a])?;
     }
     Ok(out)
+}
+/// B2-K (KD §3.3, free rows): a combination owner's load is its own combined
+/// exact ledger (K4LED, bound by the view), never the representative's
+/// individual terms. Each free DOF with a nonzero net adds that net enclosed
+/// outward at 1024 bits; one visit per DOF examined.
+fn combination_free_loads(
+    view: &SourceBridgeView<'_>,
+    out: &mut [Enclosure],
+    w: &mut ResidualWork,
+) -> Result<(), Error> {
+    #[cfg(test)]
+    if hooks::representative(hooks::Site::Free) {
+        for load in view.source().loads() {
+            w.visit()?;
+            let a = view.group().ordering.position[load.dof.global()];
+            if a != usize::MAX {
+                out[a] = w.add(out[a], point(load.value)?)?;
+            }
+        }
+        return Ok(());
+    }
+    let ledger = &view.owner().prep.ledger;
+    for (a, &g) in view.group().ordering.free.iter().enumerate() {
+        w.visit()?;
+        if ledger.net(g).is_some_and(|net| !net.is_zero()) {
+            let net = w.numeric.ledger_net(ledger, g)?;
+            out[a] = w.add(out[a], net)?;
+        }
+    }
+    Ok(())
+}
+/// B2-K (KD §3.3, reaction offsets): each constrained DOF with a nonzero
+/// combined net subtracts that net, enclosed outward, from its reaction.
+fn combination_reaction_loads(
+    view: &SourceBridgeView<'_>,
+    reaction: &mut [Enclosure],
+    w: &mut ResidualWork,
+) -> Result<(), Error> {
+    let source = view.source();
+    #[cfg(test)]
+    if hooks::representative(hooks::Site::Constrained) {
+        for load in source.loads() {
+            w.visit()?;
+            if let Ok(ci) = source
+                .constraints()
+                .binary_search_by_key(&load.dof.global(), |c| c.dof.global())
+            {
+                reaction[ci] = w.sub(reaction[ci], point(load.value)?)?;
+            }
+        }
+        return Ok(());
+    }
+    let ledger = &view.owner().prep.ledger;
+    for (ci, c) in source.constraints().iter().enumerate() {
+        w.visit()?;
+        let g = c.dof.global();
+        if ledger.net(g).is_some_and(|net| !net.is_zero()) {
+            let net = w.numeric.ledger_net(ledger, g)?;
+            reaction[ci] = w.sub(reaction[ci], net)?;
+        }
+    }
+    Ok(())
+}
+/// B2-K K-08 (test-only): both combination load branches alone on a fresh work
+/// record, so their own entries and visits are observable.
+#[cfg(test)]
+pub(crate) fn test_combination_loads(
+    view: &SourceBridgeView<'_>,
+) -> Result<(Vec<Enclosure>, Vec<Enclosure>, ResidualWork), Error> {
+    let mut w = ResidualWork::new();
+    let mut free = buffer(view.group().ordering.free.len(), ZERO)?;
+    combination_free_loads(view, &mut free, &mut w)?;
+    let mut reaction = buffer(view.source().constraints().len(), ZERO)?;
+    combination_reaction_loads(view, &mut reaction, &mut w)?;
+    Ok((free, reaction, w))
+}
+/// B2-K K-10 and SF-2's mutation controls (test-only): read the
+/// representative's individual load terms instead of the combined ledger at the
+/// free rows or at the constrained reaction offsets.
+#[cfg(test)]
+pub(crate) mod hooks {
+    use std::cell::Cell;
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    pub(crate) enum Site {
+        Free,
+        Constrained,
+    }
+    thread_local! {
+        static REPRESENTATIVE: Cell<[bool; 2]> = const { Cell::new([false; 2]) };
+    }
+    pub(crate) fn set_representative(free: bool, constrained: bool) {
+        REPRESENTATIVE.with(|h| h.set([free, constrained]));
+    }
+    pub(crate) fn representative(site: Site) -> bool {
+        REPRESENTATIVE.with(|h| h.get()[site as usize])
+    }
 }
 fn anchored(view: &SourceBridgeView<'_>, body: u32, w: &mut ResidualWork) -> Result<bool, Error> {
     for node in 0..view.source().node_count() {
@@ -1158,14 +1258,18 @@ fn recover(
             reaction[ci] = w.sub(reaction[ci], action)?;
         }
     }
-    for load in source.loads() {
-        w.visit()?;
-        if let Ok(ci) = source
-            .constraints()
-            .binary_search_by_key(&load.dof.global(), |c| c.dof.global())
-        {
-            reaction[ci] = w.sub(reaction[ci], point(load.value)?)?;
+    if view.owner().prep.factors.is_empty() {
+        for load in source.loads() {
+            w.visit()?;
+            if let Ok(ci) = source
+                .constraints()
+                .binary_search_by_key(&load.dof.global(), |c| c.dof.global())
+            {
+                reaction[ci] = w.sub(reaction[ci], point(load.value)?)?;
+            }
         }
+    } else {
+        combination_reaction_loads(view, &mut reaction, w)?;
     }
     for (ci, c) in source.constraints().iter().enumerate() {
         set(

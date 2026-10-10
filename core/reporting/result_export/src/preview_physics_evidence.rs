@@ -460,8 +460,13 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             )?;
             let lower = number(&extrema["value_lower_pa"])?;
             let upper = number(&extrema["value_upper_pa"])?;
-            number(&extrema["global_upper_bound_pa"])?;
-            number(&extrema["certified_gap_pa"])?;
+            // PR-B2 N-1: the extrema-number demand refuses a negative value, with
+            // the demand's own code (-0 and +0 pass).
+            for k in ["global_upper_bound_pa", "certified_gap_pa"] {
+                if number(&extrema[k])? < 0.0 {
+                    return Err("SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID".into());
+                }
+            }
             let value = number(&row["value"])?;
             require(
                 lower >= 0.0
@@ -520,10 +525,17 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             None => first_dispositions = Some(dispositions),
         }
         let mut actions: HashMap<&str, HashMap<&str, &Value>> = HashMap::new();
+        // I101 repair 03 (class closure of RV120's N2): the supports are checked in the
+        // order they first appear in the case's rows, as TS's and PY's grouping is, so the
+        // first failure (the code) never depends on a hash map's per-process order.
+        let mut support_order: Vec<&str> = Vec::new();
         for row in rows_list.iter().filter(in_case) {
             let kind = row["kind"].as_str().unwrap_or("");
             if matches!(kind, SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT) {
                 let support = text(&row["entity_ref"])?;
+                if !actions.contains_key(support) {
+                    support_order.push(support);
+                }
                 let c = component(row);
                 require(
                     text(&row["id"])?
@@ -563,7 +575,8 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             actions.keys().copied().collect::<HashSet<_>>() == attributed.iter().copied().collect(),
             "SUPPORT_ATTRIBUTION_COVERAGE",
         )?;
-        for components in actions.values() {
+        for support in &support_order {
+            let components = &actions[support];
             require(
                 components.len() == 8
                     && SUPPORT_COMPONENTS
@@ -675,6 +688,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         }
     }
     let mut combined: HashMap<&str, Vec<&Value>> = HashMap::new();
+    // I101 repair 03: the combinations are checked in the order they first appear in the
+    // rows, as TS's and PY's grouping is, never in a hash map's per-process order.
+    let mut combination_order: Vec<&str> = Vec::new();
     for row in rows_list {
         let Some(combination) = combination_of(row) else {
             continue;
@@ -690,9 +706,14 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 require(rows.contains_key(text(reference)?), "DANGLING_RESULT_REF")?;
             }
         }
-        combined.entry(combination).or_default().push(row);
+        let members = combined.entry(combination).or_default();
+        if members.is_empty() {
+            combination_order.push(combination);
+        }
+        members.push(row);
     }
-    for members in combined.values() {
+    for combination in &combination_order {
+        let members = &combined[combination];
         if members
             .iter()
             .any(|r| r["metadata"]["basis"] == RANGE_BASIS)

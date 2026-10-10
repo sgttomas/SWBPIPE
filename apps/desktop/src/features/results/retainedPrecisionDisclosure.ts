@@ -17,7 +17,7 @@
  */
 import { decodeBinary64, validateRetainedPrecision, type RowClassification } from "./retainedPrecision";
 import { classificationSummary } from "./retainedPrecisionStanding";
-import { PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sourceContract } from "./numericalResultQuality";
+import { isRetainedIdentity, isRetainedRoute, sourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 /** D-U6-2's two `RowDisclosure` reason codes (Rust `RETAINED_ABSOLUTE_VERIFIED`, `RETAINED_NOT_COVERED`). */
@@ -81,7 +81,7 @@ export function retainedClassDisclosure(kind: string, unit: string, classified: 
  * reader run on these bytes without an invocation; null for any other identity. A
  * statement the reader refuses throws the reader's code. */
 export async function retainedRowClassesFromReader(source: MechanicsResult): Promise<ReadonlyMap<string, RowClassification> | null> {
-  if (source?.producer?.semantic_contract_id !== PREVIEW_PHYSICS_RETAINED_CONTRACT_ID) return null;
+  if (!isRetainedIdentity(source?.producer?.semantic_contract_id)) return null;
   const validation = await validateRetainedPrecision(source);
   return new Map(validation.classifications.map(row => [row.result_id, row]));
 }
@@ -92,7 +92,7 @@ export async function retainedRowClassesFromReader(source: MechanicsResult): Pro
  * successor with a validated registration. It changes no standing. */
 export function retainedPrecisionSummaryLine(result: MechanicsResult | null | undefined, model: PreviewModel | null | undefined): string | null {
   if (!result) return null;
-  try { if (sourceContract(result) !== "retained_preview_physics") return null; } catch { return null; }
+  try { if (!isRetainedRoute(sourceContract(result))) return null; } catch { return null; }
   const summary = classificationSummary(result, model);
   if (!summary.length) return null;
   return `Retained precision, per case: ${summary.map(c => `${String(c.case_id)}: ${c.absolute_verified} verified only to an absolute bound; ${c.not_covered} uncovered`).join(". ")}.`;

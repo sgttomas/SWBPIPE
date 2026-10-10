@@ -1254,6 +1254,10 @@
     {
       "id": "RP-PREPARED-ORDINARY-DUAL-v1",
       "sha256": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+    },
+    {
+      "id": "RP-PREPARED-COMBINATION-DUAL-v1",
+      "sha256": "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"
     }
   ],
   "accuracy_classification": {
@@ -1270,17 +1274,40 @@
     "absolute_bound": "RU64(2^-64 S); for 0<S<2^-988, one RU64 of b0+r+minimum_subnormal; for S=0, canonical +0",
     "small_components": "b0 and r use selected RN64 divide, multiply-back and conditional next-up operations",
     "standing": "G0 through G8 and actual invocation required; before S-I, absolute_verified and not_covered quantity/headline binding stays refused",
-    "scope": "registered ordinary-prepared source only; no exact-profile or prepared-combination extension"
+    "scope": "registered ordinary-prepared source, and registered prepared mechanics combinations (RP-PREPARED-COMBINATION-DUAL-v1: their own solve on the combined exact ledger, at least one operand selected); no exact-profile, subtraction or range extension; R-COMB-1: each quantity row of a retained_unavailable combination, and of an ordinary combination whose expression names a load case that is not not_required, is not_covered and withheld from binding with its value unchanged; record rows stay non_quantity"
   },
-  "formation_warrant": {
-    "definition_id": "RP-PREPARED-ORDINARY-DUAL-v1",
-    "affected_historical_clauses": [
-      "D2 section4.9.10",
-      "D2 section4.11.2",
-      "D2 section5 I-9"
-    ],
-    "native": "p/P and stop records describe native operational convergence only",
-    "final": "actual final values use the direct certificate against both physical readouts with unchanged b and inequalities",
-    "standing": "no S-I activation or new interval-binding grant"
+  "formation_warrant": [
+    {
+      "definition_id": "RP-PREPARED-ORDINARY-DUAL-v1",
+      "affected_historical_clauses": [
+        "D2 section4.9.10",
+        "D2 section4.11.2",
+        "D2 section5 I-9"
+      ],
+      "native": "p/P and stop records describe native operational convergence only",
+      "final": "actual final values use the direct certificate against both physical readouts with unchanged b and inequalities",
+      "standing": "no S-I activation or new interval-binding grant"
+    },
+    {
+      "definition_id": "RP-PREPARED-COMBINATION-DUAL-v1",
+      "affected_historical_clauses": [
+        "D2 section4.9.10",
+        "D2 section4.11.2",
+        "D2 section5 I-9"
+      ],
+      "native": "p/P and stop records describe native operational convergence only",
+      "final": "actual final values use the direct certificate against both physical readouts with unchanged b and inequalities",
+      "standing": "no S-I activation or new interval-binding grant"
+    }
+  ],
+  "receipt_bindings": {
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "method": "contribution_preserving_multiprecision_v1",
+    "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
+    "work": {
+      "case_limit": 20000000000,
+      "invocation_limit": 60000000000
+    },
+    "work_policy": "W1-LME-20B-60B-v1"
   }
 }

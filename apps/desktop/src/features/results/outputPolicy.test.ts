@@ -17,7 +17,7 @@ import { numericalResultStanding, type SourceContract } from "./numericalResultQ
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import {
   LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES,
-  RETAINED_PRECISION_OUTPUT_REFUSAL, routeOutputPolicy, routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
+  RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL, routeOutputPolicy, routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
 } from "./outputPolicy";
 import { loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
 
@@ -48,7 +48,7 @@ async function eligible(mode: PreviewSolverMode) {
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
 
 /** Every SourceContract value, tied to the type in both directions by `tsc`. */
-const ROUTES: Record<SourceContract, true> = { legacy: true, precision: true, physics: true, source_blocks: true, physics_source: true, preview_physics: true, load_reference: true, load_reference_source: true, retained_preview_physics: true, unsupported: true };
+const ROUTES: Record<SourceContract, true> = { legacy: true, precision: true, physics: true, source_blocks: true, physics_source: true, preview_physics: true, load_reference: true, load_reference_source: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
 /** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
 const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
@@ -69,6 +69,28 @@ describe("the output policy (T6S-3)", () => {
     expect(Object.keys(successor.surfaces).sort()).toStrictEqual([...OUTPUT_SURFACES].sort());
     expect(Object.entries(successor.surfaces).filter(([, decision]) => decision === "admitted_when_eligible").map(([surface]) => surface)).toStrictEqual(PANELS);
     expect(Object.entries(successor.surfaces).filter(([, decision]) => decision === "refused").map(([surface]) => surface)).toStrictEqual([...GATED_PREFIXES, "report-package"]);
+    // B3b (B3-D §7; B3D-14): the exact successor's own entry and reason, the same two panels.
+    const exact = OUTPUT_POLICY.retained_physics as Json;
+    expect([exact.gate, exact.reason]).toStrictEqual(["per_surface", RETAINED_PHYSICS_OUTPUT_REFUSAL]);
+    expect(Object.keys(exact.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
+    expect(Object.entries(exact.surfaces).filter(([, decision]) => decision === "admitted_when_eligible").map(([surface]) => surface)).toStrictEqual(PANELS);
+    expect(Object.entries(exact.surfaces).filter(([, decision]) => decision === "refused").map(([surface]) => surface)).toStrictEqual([...GATED_PREFIXES, "report-package"]);
+    expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).not.toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
+  });
+  it("B3b: an exact successor reads its own reason on every refused surface, and the two panels need eligible standing", () => {
+    // Header dispatch only (no reader run): the milestone relabelled as the exact successor routes to `retained_physics`.
+    const { source, model } = milestone("sparse_interactive");
+    const exact = structuredClone(source) as Json;
+    exact.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+    exact.formulation_basis.profile_id = "exact_straight_retained_w1a_v2";
+    expect(routeSurfaceDecision("retained_physics", "stress-neutral")).toStrictEqual({ decision: "admitted_when_eligible", reason: RETAINED_PHYSICS_OUTPUT_REFUSAL });
+    expect(routeSurfaceDecision("retained_physics", "invented-surface")).toStrictEqual({ decision: "refused", reason: RETAINED_PHYSICS_OUTPUT_REFUSAL });
+    expect(loadReferenceOutputRefusal(exact)).toBe(RETAINED_PHYSICS_OUTPUT_REFUSAL);
+    for (const surface of OUTPUT_SURFACES) {
+      const admitted = PANELS.includes(surface);
+      expect(surfaceRouteRefusal(exact, surface)).toBe(admitted ? null : RETAINED_PHYSICS_OUTPUT_REFUSAL);
+      expect(surfaceOutputRefusal(exact, model, surface)).toBe(admitted ? `${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}` : RETAINED_PHYSICS_OUTPUT_REFUSAL);
+    }
   });
   it("fails closed for a route or a surface without an entry", () => {
     expect(routeOutputPolicy("physics_retained")).toBeNull();

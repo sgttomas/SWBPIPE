@@ -794,8 +794,31 @@ fn source_residual_combination_and_missing_uniqueness_are_explicit_refusals() {
         super::super::combine::CombinationOutcome::Selected(s) => s,
         other => panic!("{other:?}"),
     };
+    // B2-K K-11 (ROOT ruling R-5, the declared re-pin): the 1*s combination is
+    // admitted under P2. Its residual reads its own combined ledger, and every
+    // source row contains the closed oracle truth of the same loads.
     let input = laws(&combined);
     let spent = run(&combined, &input);
+    let native = spent.result().unwrap();
+    assert_eq!(spent.work.correction.calls.exact(), Ok(1));
+    assert_eq!(native.rows.len(), combined.publish().rows.len());
+    for (i, row) in combined.publish().rows.iter().enumerate() {
+        contains(&native.rows[i], exact(row.id, true, true), &format!("1*s {:?}", row.id));
+    }
+    // A nonzero prescribed term in a non-representative operand still refuses.
+    let mut p = parts_from(&source(true, false));
+    p.constraints[0].value = 1e-3;
+    let t = solved(PrimitiveSource::new(p).unwrap());
+    let prescribed = match super::super::combine::RetainedCombination::solve(
+        &[(1., &s), (1., &t)],
+        CaseLimit::new(u64::MAX),
+        &mut InvocationMeter::new(u64::MAX),
+    ) {
+        super::super::combine::CombinationOutcome::Selected(s) => s,
+        other => panic!("{other:?}"),
+    };
+    let input = laws(&prescribed);
+    let spent = run(&prescribed, &input);
     assert!(matches!(
         spent.result(),
         Err(BridgeError::View(

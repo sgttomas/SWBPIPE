@@ -132,8 +132,9 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 }
 
 // ---- D-6's reviewed inputs (RR "U4 G4: the margin rule trips") ----------------
-// The reviewed-lock record binds the PP lock and the precommit reader's 13
-// `include_str!` inputs by SHA-256. build.rs hashes them (no build-dependency:
+// The reviewed-lock record binds 17 inputs by SHA-256: the PP lock, the precommit
+// reader's 13 `include_str!` statics, and J1's three appended statics (DEF-C, DEF-E,
+// XTABLE; I93 REVISION_01 §1.4). build.rs hashes them (no build-dependency:
 // the digest below is self-contained) and emits one line,
 // `OPS_RETAINED_REVIEWED_INPUTS=v1;<path>=<hex>;…`, in `REVIEWED_INPUTS` order,
 // with `unavailable` for any input it cannot read. A registered profile records
@@ -145,7 +146,7 @@ pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS"
 /// The reviewed inputs, relative to this package's manifest directory: the PP
 /// lock, then the reader's statics in G4's ORIGINS.json order.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUTS: [&str; 14] = [
+pub(crate) const REVIEWED_INPUTS: [&str; 17] = [
     "Cargo.lock",
     "../../schemas/physics_source_recovery.schema.json",
     "../../schemas/retained_precision_mp_v2.schema.json",
@@ -160,11 +161,17 @@ pub(crate) const REVIEWED_INPUTS: [&str; 14] = [
     "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
     "../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
     "../../schemas/source_block_recovery.schema.json",
+    // B2/B3 J1 (I93 REVISION_01 §1.4; B3-D decision B3D-18: appended, so existing
+    // positions keep their meaning): the combination and exact formation definitions
+    // and the physics-retained-1 table.
+    "../../fixtures/results/retained_precision_prepared_combination_v1.json",
+    "../../fixtures/results/retained_precision_prepared_exact_v1.json",
+    "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).
 #[allow(dead_code)]
-pub(crate) fn encode_reviewed_inputs(digests: &[Option<[u8; 32]>; 14]) -> String {
+pub(crate) fn encode_reviewed_inputs(digests: &[Option<[u8; 32]>; 17]) -> String {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut out = String::from(IDENTITY_VERSION);
     for (path, digest) in REVIEWED_INPUTS.iter().zip(digests.iter()) {

@@ -65,8 +65,11 @@ enum Ran {
 fn permitted_work(raw: Value, mode: PreviewSolverMode, before_w1: impl FnOnce(&mut crate::retained_product::ProductCapture) + Send) -> Ran {
     let start = std::time::Instant::now();
     let (request, capture) = CapturedInvocation::parse(raw, mode).expect("a valid request");
-    let mut observer = crate::retained_product::ProductCapture::prepared_probe();
-    let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+    // SQ2 (B3b-P, B3-D P-1 and P-2): the W1 route and its exact-block budget, as `permitted_run`
+    // decides them (the preview route's are the default observer and budget, as before).
+    let route = crate::w1_route(&request.model).expect("a model on a W1 route");
+    let mut observer = crate::retained_product::ProductCapture::prepared_probe_on(route);
+    let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut observer));
     let ordinary_ms = start.elapsed().as_secs_f64() * 1e3;
     if ordinary.source_block_recovery.is_some() {
         let (_, retained) = crate::retained_w1(observer, ordinary, &capture);
@@ -391,6 +394,85 @@ per_mode! {
     }
 }
 
+// ---- SQ2 (B2 combinations, B3b's exact route): the B2/B3 witnesses --------------------------
+
+/// The input is inside D1 with `cases` load cases and `combinations` combinations (the private
+/// driver skips admission; RV107 N-7), on the expected W1 route.
+fn inside_d1(label: &str, raw: &Value, mode: PreviewSolverMode, cases: usize, combinations: usize, exact: bool) {
+    let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let report = super::assess(&capture, &request, super::Entry::Direct);
+    assert_eq!(report.law().domain, None, "{label}: inside D1");
+    assert_eq!((request.model.load_cases.len(), request.model.combinations.len()), (cases, combinations), "{label}: c and z");
+    let branch = if exact { NamespaceBranch::Exact } else { NamespaceBranch::Legacy };
+    assert_eq!(namespace_branch(&request.model), Ok(branch), "{label}: the W1 route");
+}
+
+per_mode! {
+    /// W-CB1 (I98 `r7_cb1_halfb`): the cap-maximal C_eq = 3 input, SW's cap-maximal cases A and B
+    /// (128 moments each, every provenance escaped, a raw value of depth 16) and 1·A + 0.5·B:
+    /// route L's priced worst shape but for z (c = 2, z = 1). A successor.
+    witness_w_cb1, |mode| {
+        let raw = inputs::w_cb1();
+        inside_d1("W-CB1", &raw, mode, 2, 1, false);
+        let ran = witness(&format!("W-CB1 {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
+        assert_eq!(ran, Ran::Successor, "W-CB1 {mode:?}");
+    }
+}
+
+per_mode! {
+    /// W-CB2 (I98 `r7_cb2`): W-C2's two-body cases A and B, and A + B (its combination is
+    /// `retained_unavailable`; case A publishes). A successor.
+    witness_w_cb2, |mode| {
+        let raw = inputs::w_cb2();
+        inside_d1("W-CB2", &raw, mode, 2, 1, false);
+        let ran = witness(&format!("W-CB2 {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
+        assert_eq!(ran, Ran::Successor, "W-CB2 {mode:?}");
+    }
+}
+
+per_mode! {
+    /// `b2_c1_range_mechanics`: the milestone with `[range(case), 2·case]` (c = 1, z = 2). A successor.
+    witness_b2_c1_range_mechanics, |mode| {
+        let raw = inputs::b2_c1_range_mechanics();
+        inside_d1("b2_c1_range_mechanics", &raw, mode, 1, 2, false);
+        let ran = witness(&format!("b2_c1_range_mechanics {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
+        assert_eq!(ran, Ran::Successor, "b2_c1_range_mechanics {mode:?}");
+    }
+}
+
+per_mode! {
+    /// The exact successor (B3-W's `m3x`): the milestone authored as 0.3.0 exact. A successor.
+    witness_m3x, |mode| {
+        let raw = inputs::m3x();
+        inside_d1("m3x", &raw, mode, 1, 0, true);
+        let ran = witness(&format!("m3x {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
+        assert_eq!(ran, Ran::Successor, "m3x {mode:?}");
+    }
+}
+
+per_mode! {
+    /// The cap-maximal exact input: the cap-maximal three-case input (`i3_three_case`) authored as
+    /// 0.3.0 exact, route E's priced shape (c = 3, z = 0) at the count caps.
+    witness_exact_cap_maximal, |mode| {
+        let raw = inputs::exact_cap_maximal();
+        inside_d1("exact cap-maximal", &raw, mode, 3, 0, true);
+        let ran = witness(&format!("exact cap-maximal {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
+        assert_eq!(ran, Ran::Successor, "exact cap-maximal {mode:?}");
+    }
+}
+
+/// SQ2: the B2/B3 shared inputs equal the facade tests' builders they transcribe. No solve.
+#[test]
+fn sq2_inputs_are_the_committed_helpers() {
+    assert_eq!(inputs::w_cb1(), crate::retained_facade_tests::w_cb1(), "W-CB1");
+    assert_eq!(inputs::w_cb2(), crate::retained_facade_tests::w_cb2(), "W-CB2");
+    assert_eq!(inputs::b2_c1_range_mechanics(), crate::retained_facade_tests::b2_c1_range_mechanics(), "b2_c1_range_mechanics");
+    assert_eq!(inputs::m3x(), crate::retained_facade_tests::m3x(), "m3x");
+    let exact = inputs::exact_cap_maximal();
+    assert_eq!(exact["model"], inputs::exact3(inputs::i3_three_case())["model"], "the cap-maximal exact model is i3's, authored as exact");
+    assert_eq!(exact["materials"], exact["model"]["materials"], "the request-level materials take the same basis");
+}
+
 /// B1 SQ: the shared inputs are I86's (their `input_sha` pins) and equal the committed helpers
 /// they transcribe. Not a witness; no solve.
 #[test]
@@ -437,6 +519,8 @@ macro_rules! control_ordinary {
 }
 control_ordinary! {
     control_ordinary_milestone: milestone();
+    control_ordinary_w_cb1: inputs::w_cb1();
+    control_ordinary_exact_cap_maximal: inputs::exact_cap_maximal();
     control_ordinary_w_c2: crate::retained_facade_tests::w_c2();
     control_ordinary_w2: inputs::w2();
     control_ordinary_b2_k1e3: inputs::b2_k1e3();
