@@ -2694,16 +2694,8 @@ fn run_linear_static_preview_observed(
     let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
-    let max_displacement = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
-        maximum_across_cases(&load_case_solves, false)
-    } else {
-        load_case_solves.first().and_then(|solve| solve.max_displacement.clone())
-    };
-    let max_stress = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
-        maximum_across_cases(&load_case_solves, true)
-    } else {
-        load_case_solves.first().and_then(|solve| solve.max_stress.clone())
-    };
+    let max_displacement = maximum_across_cases(&load_case_solves, false);
+    let max_stress = maximum_across_cases(&load_case_solves, true);
     let component_stress_modifier_count = load_case_solves
         .iter()
         .map(|solve| solve.component_stress_modifier_count)
