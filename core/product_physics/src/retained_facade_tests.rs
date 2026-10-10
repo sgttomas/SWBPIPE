@@ -2463,11 +2463,8 @@ fn b3b_witness_inputs_and_routes() {
     assert_eq!(w1_budget(R::Preview).per_case_limit, SourceRecoveryBudget::default().per_case_limit);
 }
 
-/// RS's precommit gates publication (decision 5). Until B3's readers land (BRIEFS/B3_READERS.md),
-/// the accepted Rust reader refuses every `physics-retained-1` successor at its first G0 check,
-/// so W1 falls back with the ordinary bytes and one N1 notice per case in A. The tests below
-/// accept that refusal, or the validated successor once the readers land, and say which.
-const EXACT_PRECOMMIT_TODAY: (&str, &str) = ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED");
+/// RS's precommit gates publication (decision 5). B3's readers are in, so the Rust reader
+/// validates every `physics-retained-1` successor the tests below produce.
 /// The exact successor's pinned bytes, both modes: (mode, receipt sha256, successor bytes sha256,
 /// fixture document sha256).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
@@ -2489,11 +2486,10 @@ fn exact_w1(raw: &Value, mode: PreviewSolverMode) -> (MechanicsEnvelope, Result<
     assert_eq!(counts, Counts { runs: 0, complete_gates: 0 });
     (envelope, retained, captured)
 }
-/// W1's result against today's readers: the validated successor (then equal to the one precommit
-/// received), or exactly `EXACT_PRECOMMIT_TODAY` (then the ordinary owner carries one notice per
-/// case in A). Returns whether the successor was published.
+/// W1's result: the validated successor, equal to the one precommit received, with the ordinary
+/// owner untouched (B3's readers validate it). Returns whether the successor was published.
 fn exact_outcome(label: &str, retained: &Result<RetainedSuccessor, W1Fallback>, captured: &Value, envelope: &MechanicsEnvelope,
-    plain: &[u8], noticed: &[&str]) -> bool {
+    plain: &[u8], _noticed: &[&str]) -> bool {
     match retained {
         Ok(successor) => {
             assert_eq!(successor.value(), captured, "{label}: the validated successor is the one precommit received");
@@ -2501,18 +2497,7 @@ fn exact_outcome(label: &str, retained: &Result<RetainedSuccessor, W1Fallback>, 
             println!("B3B_PRECOMMIT {label} validated");
             true
         }
-        Err(W1Fallback::Precommit { gate, code }) => {
-            assert_eq!((*gate, code.as_str()), EXACT_PRECOMMIT_TODAY, "{label}: today's reader");
-            let mut expected = plain.to_vec();
-            for case in noticed {
-                expected = with_notice(&expected, case, None);
-            }
-            assert_eq!(String::from_utf8(serde_json::to_vec(envelope).unwrap()).unwrap(), String::from_utf8(expected).unwrap(),
-                "{label}: the ordinary bytes, then the notices (T-12)");
-            println!("B3B_PRECOMMIT {label} {gate} {code}");
-            false
-        }
-        Err(other) => panic!("{label}: {other:?}"),
+        Err(other) => panic!("{label}: B3's RS reader validates the exact successor: {other:?}"),
     }
 }
 /// RN64(E/(2·RN64(1+ν))) (B3-D §1.2).
@@ -2694,10 +2679,8 @@ fn b3b_exact_successor_fixtures_are_the_live_successors() {
 
 /// The exact route on the actual Direct entry (registered: admitted at J2 by B3b-A): one
 /// ordinary run, G-C once, then W1 on the exact route; the successor precommit receives is the
-/// private driver's, byte for byte (P-1 and P-2 decided alike). Today RS refuses it at G0, so the
-/// publication is the ordinary physics-1 bytes plus `case`'s N1 notice, which physics-1's Rust
-/// base readers accept with the same contract and standing (N-11's acceptance, here on the
-/// ordinary fallback). Stale: the plain bytes from one run.
+/// private driver's, byte for byte (P-1 and P-2 decided alike). RS validates it, so the one
+/// publication is the successor. Stale: the plain bytes from one run.
 #[test]
 fn b3b_direct_entry_runs_the_exact_route() {
     for mode in MODES {
@@ -2718,13 +2701,8 @@ fn b3b_direct_entry_runs_the_exact_route() {
         assert_eq!(captured, private.unwrap(), "{mode:?}: the Direct entry's successor is the private driver's, byte for byte");
         let envelope = output.envelope().clone();
         let retained = output.retained().unwrap().clone();
-        if !exact_outcome(&format!("direct {mode:?}"), &retained, &captured, &envelope, &plain, &["case"]) {
-            let bytes = published(output);
-            assert_eq!(notices(&bytes), 1, "{mode:?}");
-            n11_base_readers_accept(&raw, mode, &plain, &bytes, &format!("direct {mode:?}"));
-        } else {
-            assert_eq!(published(output), serde_json::to_vec(&captured).unwrap(), "{mode:?}: the one publication is the successor");
-        }
+        assert!(exact_outcome(&format!("direct {mode:?}"), &retained, &captured, &envelope, &plain, &["case"]));
+        assert_eq!(published(output), serde_json::to_vec(&captured).unwrap(), "{mode:?}: the one publication is the successor");
     }
 }
 
@@ -3501,7 +3479,7 @@ fn b2p_custody_binds_the_combination_rows() {
     ] {
         assert_eq!(run(tamper.as_ref()).err(), Some(W1Fallback::Preparation), "{label}");
     }
-    assert!(run(&|_| {}).is_err(), "control: the untampered layout reaches precommit (today's reader refuses)");
+    assert!(run(&|_| {}).is_ok(), "control: the untampered layout reaches precommit and validates (B2's RS reader)");
 }
 
 /// B2-P (C-1): a mechanics combination naming one case twice is `ordinary` (the ordinary route
@@ -3753,15 +3731,6 @@ fn w_cb1() -> Value { w_cb1_with(0.5, "I98 B2-W R-7 count: A + 0.5 B") }
 fn w_cb1z() -> Value { w_cb1_with(1.0, "I98 B2-W R-7 count: A + B") }
 
 
-/// B2-P: what today's precommit (RS before B2's readers) does with each witness's successor: a
-/// combination attempt's DEF-C id is not yet a reader's (G0), and a combination row is not yet a
-/// load-case row (G3). A validated successor is the other accepted outcome, once B2's readers land.
-fn b2p_precommit_today(name: &str) -> (&'static str, &'static str) {
-    match name {
-        "w_cb4a" | "w_cb4b" | "w_cb5" => ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH"),
-        _ => ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
-    }
-}
 /// The witnesses' combination dispositions, in authored order (W-CB1z, A + B, is the labelled
 /// cancellation pin: its copies' nets cancel exactly).
 fn b2p_dispositions(name: &str) -> &'static [&'static str] {
@@ -3771,14 +3740,6 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
         "c1_range_mechanics" => &["ordinary", "retained_selected"],
         "rv123_c1_two_mechanics" => &["retained_selected", "retained_unavailable"],
         _ => &["retained_selected"],
-    }
-}
-/// The witnesses' cases in A (their notices on a fallback), in request order.
-fn b2p_attempted(name: &str) -> &'static [&'static str] {
-    match name {
-        "c1_range_mechanics" | "rv123_c1_two_mechanics" => &["case"],
-        "w_cb1" | "w_cb1z" => &["case:a", "case:b"],
-        _ => &["case:a"],
     }
 }
 /// B2-P's witness pins (PLAN §1.2.6; REVISION_01 §5.1), both modes: (witness, mode, receipt
@@ -3972,10 +3933,10 @@ fn successor_request(_successor: &Value, plain: &Value) -> Vec<Value> {
 }
 
 /// B2-P's witnesses through the private driver, both modes: the successor precommit receives meets
-/// B2-C's producer requirements (`assert_combination_successor`) and is pinned; precommit is today's
-/// reader (`b2p_precommit_today`) or a validated successor, and on a fallback the ordinary bytes take
-/// one notice per case in A (none for a combination; T-12). With `I105_B2P_OUT` set, each
-/// successor document, and W-CB3's fixture documents, are written there.
+/// B2-C's producer requirements (`assert_combination_successor`) and is pinned; precommit (B2's RS
+/// reader) validates it, so W1's result is that successor and the ordinary owner is untouched.
+/// With `I105_B2P_OUT` set, each successor document, and W-CB3's fixture documents, are written
+/// there.
 #[test]
 fn b2p_witness_successors_are_pinned_in_both_modes() {
     b2p_pin_witnesses(b2p_witnesses());
@@ -4001,16 +3962,11 @@ fn b2p_pin_witnesses(witnesses: Vec<(&'static str, Value)>) {
             assert_eq!(dispositions, b2p_dispositions(name), "{label}");
             assert_combination_successor(&label, &successor, &plain_value);
             match &retained {
-                Ok(validated) => assert_eq!(validated.value(), &successor, "{label}"),
-                Err(W1Fallback::Precommit { gate, code }) => {
-                    assert_eq!((*gate, code.as_str()), b2p_precommit_today(name), "{label}: today's reader");
-                    let mut expected = plain.clone();
-                    for case in b2p_attempted(name) {
-                        expected = with_notice(&expected, case, None);
-                    }
-                    assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(expected).unwrap(), "{label}: T-12");
+                Ok(validated) => {
+                    assert_eq!(validated.value(), &successor, "{label}: the validated successor is the one precommit received");
+                    assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
                 }
-                Err(other) => panic!("{label}: {other:?}"),
+                Err(other) => panic!("{label}: B2's RS reader validates every witness successor: {other:?}"),
             }
             let (receipt, bytes) = (successor["retained_precision"]["receipt_sha256"].as_str().unwrap().to_owned(), sha(&serde_json::to_vec(&successor).unwrap()));
             println!("B2P_PIN {name} {} receipt={receipt} bytes={bytes}", mode.as_str());
@@ -4050,8 +4006,8 @@ fn fixture_source_sha(fixture: &str) -> String {
 
 /// B2-P on the actual Direct entry, both modes (registered build): each witness is admitted (D1.4
 /// with combinations), runs one ordinary run and G-C once, and precommit receives the private
-/// driver's successor byte for byte. Today's readers refuse it (`b2p_precommit_today`), so the
-/// publication is the plain bytes plus one notice per case in A. Unregistered builds: no W1.
+/// driver's successor byte for byte. B2's RS reader validates it, so the publication is that
+/// successor's bytes. Unregistered builds: no W1.
 #[test]
 fn b2p_direct_entry_runs_the_combinations() {
     b2p_direct(b2p_witnesses());
@@ -4079,35 +4035,11 @@ fn b2p_direct(witnesses: Vec<(&'static str, Value)>) {
             assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label}");
             assert_eq!(captured, private, "{label}: the Direct entry's successor is the private driver's");
             match output.retained().unwrap().clone() {
-                Ok(_) => assert_eq!(published(output), serde_json::to_vec(&captured.unwrap()).unwrap(), "{label}"),
-                Err(W1Fallback::Precommit { gate, code }) => {
-                    assert_eq!((gate, code.as_str()), b2p_precommit_today(name), "{label}");
-                    let mut expected = plain.clone();
-                    for case in b2p_attempted(name) {
-                        expected = with_notice(&expected, case, None);
-                    }
-                    let bytes = published(output);
-                    assert_eq!(String::from_utf8(bytes.clone()).unwrap(), String::from_utf8(expected).unwrap(), "{label}: T-12");
-                    b2p_base_readers_accept(&raw, mode, &plain, &bytes, &label);
-                }
-                Err(other) => panic!("{label}: {other:?}"),
+                Ok(_) => assert_eq!(published(output), serde_json::to_vec(&captured.unwrap()).unwrap(), "{label}: the published bytes are the successor's"),
+                Err(other) => panic!("{label}: B2's RS reader validates every witness successor: {other:?}"),
             }
         }
     }
-}
-/// The noticed ordinary fallback is read by the base readers as the plain bytes are: the same
-/// contract (`for_source`), standing reason and numerical-use standing over the load cases.
-fn b2p_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], noticed: &[u8], label: &str) {
-    use open_pipe_stress_result_export::semantic_contract as sc;
-    let (base, noticed): (Value, Value) = (serde_json::from_slice(plain).unwrap(), serde_json::from_slice(noticed).unwrap());
-    assert!(sc::for_source(&base).is_ok(), "{label}: precondition, the base is admitted");
-    assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label}: admitted with the same contract");
-    assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base), "{label}");
-    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
-    let bases: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect();
-    let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
-    assert_eq!(standing, sc::numerical_use_standing_with_context(&base, &bases, Some(&invocation)), "{label}");
-    println!("B2P_READERS {label} for_source=ok standing={standing}");
 }
 
 /// RV125 N-2 (a forward constraint on lane P): the capture's modulus-basis custody
@@ -4234,8 +4166,8 @@ fn rv123_c1_two_mechanics() -> Value {
     raw
 }
 /// RV123 (B2-P round 2) N-3: the two in-domain shapes, pinned in both modes through the
-/// witnesses' checks (`b2p_pin_witnesses`: B2-C's producer requirements, today's precommit,
-/// T-12) and on the Direct entry (`b2p_direct`), and:
+/// witnesses' checks (`b2p_pin_witnesses`: B2-C's producer requirements, the validated
+/// successor at precommit) and on the Direct entry (`b2p_direct`), and:
 /// - B + A: the CombinationSource's representative is the operand preparation's source (case
 ///   B's, the `not_required` operand 0);
 /// - [2·case, −3·case]: three Calls, one per combination after the batch, and −3·case
