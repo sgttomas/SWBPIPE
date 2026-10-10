@@ -2878,18 +2878,16 @@ const fn evidence_caps(route: crate::retained_product::W1Route, n: u64, m: u64, 
     }
 }
 /// The gate bounds on a W1 route: route L's (`phase_caps`) on Preview; on Exact the same but
-/// for the contract-evidence rows, C times route E's per-case facts (`evidence_caps`). Route E's
-/// entries bound is cut so that objects + ⌊entries / 5⌋, the BTree node count the profile prices
-/// (`value_tree`: one node per object and per 5 entries), stays within C·(objects + ⌊entries / 5⌋)
-/// at the per-case facts.
+/// for the contract-evidence rows, C times route E's per-case facts (`evidence_caps`). On both
+/// routes the entries bound is cut so that objects + ⌊entries / 5⌋, the BTree node count the
+/// profile prices (`value_tree`: one node per object and per 5 entries), stays within
+/// C·(objects + ⌊entries / 5⌋) at the per-case facts (T3 F1: route L's C·entries left one node
+/// above it, 532 against 531).
 pub(super) const fn phase_caps_on(route: crate::retained_product::W1Route) -> PhaseCaps {
     use caps::*;
     let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
     let ev = evidence_caps(route, n, m, g);
-    let entries = match route {
-        crate::retained_product::W1Route::Preview => c * ev[2],
-        crate::retained_product::W1Route::Exact => 5 * (c * (ev[1] + ev[2] / 5) - c * ev[1]) + 4,
-    };
+    let entries = 5 * (c * (ev[1] + ev[2] / 5) - c * ev[1]) + 4;
     let ceq = CASE_EQUIVALENTS as u64;
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {

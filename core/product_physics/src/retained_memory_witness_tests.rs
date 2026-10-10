@@ -486,8 +486,9 @@ fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObserv
     (complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases }), ordinary, route)
 }
 
-/// T3 F1 (SQ2's G-C finding): route E's G-C bounds. Route L's bounds are `phase_caps()`, byte for
-/// byte; route E's differ only in the five contract-evidence rows, which are C times route E's
+/// T3 F1 (SQ2's G-C finding): route E's G-C bounds. Route L's bounds are `phase_caps()`, whose
+/// entries row is cut from C·553 = 1,659 to 1,654 so that objects + ⌊entries / 5⌋ stays within the
+/// 531 BTree nodes the profile prices; route E's differ only in the five contract-evidence rows, which are C times route E's
 /// per-case facts (the componentwise maximum of the preview tree and I95's exact-evidence census
 /// at the D1 caps), the facts the registered profile prices for the evidence owner. At
 /// (n, m, g) = (32, 32, 32) and C = 3, per case: arrays max(160, 1,900), objects max(67, 419),
@@ -498,15 +499,18 @@ fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObserv
 fn f1_g_c_contract_evidence_bounds_are_per_route() {
     use crate::retained_product::W1Route;
     let (l, e) = (phase_caps_on(W1Route::Preview), phase_caps_on(W1Route::Exact));
-    assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L keeps today's bounds");
-    assert_eq!(l.complete[9..14], [480, 201, 1_659, 200_448, 66_360], "route L: C times the preview tree");
+    assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L's bounds are phase_caps()");
+    assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");
     assert_eq!(e.complete[9..14], [5_700, 1_257, 6_214, 678_600, 66_360], "route E: C times max(preview tree, exact census)");
     assert_eq!(e.late, l.late, "G-B is route-independent");
     for i in (0..COMPLETE_FACTS).filter(|i| !(9..14).contains(i)) {
         assert_eq!(e.complete[i], l.complete[i], "row {i} is route-independent");
     }
-    // The node count the profile prices (`value_tree`: objects + ⌊entries / 5⌋ per case, times C).
-    assert!(e.complete[10] + e.complete[11] / 5 <= 3 * (419 + 2_073 / 5) && e.complete[10] + (e.complete[11] + 1) / 5 > 3 * (419 + 2_073 / 5));
+    // The node count the profile prices (`value_tree`: objects + ⌊entries / 5⌋ per case, times C),
+    // reached and not exceeded on each route: 531 on route L, 2,499 on route E.
+    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (419 + 2_073 / 5))] {
+        assert!(caps.complete[10] + caps.complete[11] / 5 == nodes && caps.complete[10] + (caps.complete[11] + 1) / 5 > nodes, "{nodes}");
+    }
     // The profile prices the evidence owner at these facts: route E's chain's
     // "Preview tree final copy (envelope evidence)" family is 2,499·Node(String,Value) + 5,700·s(Value)
     // + 744,960 B, and the arrays and bytes bounds sum to it.

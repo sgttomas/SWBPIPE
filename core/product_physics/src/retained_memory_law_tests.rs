@@ -1931,7 +1931,9 @@ fn b1_sa_gate_bounds_at_c_are_the_stated_expressions() {
         (F::ContractEvidenceStatus, 0),
         (F::ContractEvidenceArrayElements, c * 160),
         (F::ContractEvidenceObjects, c * 67),
-        (F::ContractEvidenceEntries, c * 553),
+        // T3 F1: cut from C·553 = 1,659 so that objects + ⌊entries / 5⌋ ≤ C·(67 + ⌊553 / 5⌋) = 531,
+        // the BTree nodes the profile prices for the preview tree.
+        (F::ContractEvidenceEntries, 5 * (c * (67 + 553 / 5) - c * 67) + 4),
         (F::ContractEvidenceStringBytes, c * 66_816),
         (F::ContractEvidenceKeyBytes, c * 22_120),
         (F::SourceBlockRecovery, 0),
