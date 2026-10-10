@@ -298,7 +298,8 @@ mod tests {
         let from_s = |s: f64| {
             let c = (1.0 - s * s).sqrt();
             HalfAngle {
-                phi: 2.0 * s.atan2(c),
+                phi: open_pipe_stress_frame_kernel::structural::twice_atan2_nonnegative(s, c)
+                    .unwrap(),
                 s,
                 c,
             }
