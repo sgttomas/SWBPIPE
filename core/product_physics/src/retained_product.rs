@@ -590,7 +590,12 @@ impl ProductCapture {
         // B3b-P (P-3): an exact model is in scope on the exact route only, and only there.
         // B2-P (T-2′, REVISION_01 S-1): combinations as D1.4 admits them (the predicate T-4's
         // re-check uses), and none on the exact route (B3-D §4.2).
-        if pressure_runtime::is_exact(model) != (self.route == W1Route::Exact)
+        // T4 (RV14 N2): "exact" here is the literal v2 contract that D1.3's branch E admits,
+        // not `pressure_runtime::is_exact`, which since T4-U2a also covers the v3 successor.
+        // A v3 model takes the refusal it took before that change.
+        if (pressure_runtime::exact_contract(model)
+            == Some(pressure_runtime::ExactContract::StraightV2))
+            != (self.route == W1Route::Exact)
             || case_state::is_load_state(model)
             || !super::w1_model_combinations_admitted(model)
             || (self.route == W1Route::Exact && !model.combinations.is_empty())
