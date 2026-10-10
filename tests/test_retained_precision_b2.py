@@ -813,5 +813,5 @@ def test_b2_parity_probes_shared(shape):
             return "pass"
         except rp.RetainedPrecisionError as error:
             return {"gate": error.gate, "code": error.code}
-    assert len(PARITY["shapes"]) == 16
+    assert len(PARITY["shapes"]) == 20
     assert (read(invocation), read()) == (shape["expected"], shape["expected_unbound"])

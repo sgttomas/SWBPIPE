@@ -7490,7 +7490,7 @@ fn b2_parity_probes_shared() {
         Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
     };
     let shapes = probes["shapes"].as_array().unwrap();
-    assert_eq!(shapes.len(), 16);
+    assert_eq!(shapes.len(), 20);
     let mut misses = Vec::new();
     for shape in shapes {
         let (source, invocation) = apply_entry(&shared, shape);

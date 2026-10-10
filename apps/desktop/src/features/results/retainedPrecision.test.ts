@@ -2349,7 +2349,7 @@ describe('07o (B2): counts, format and slices', () => {
 describe('B2 parity probes, shared with the RS and PY readers', () => {
   const parity = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_b2_parity_probes.json'), 'utf8'));
   const read = async (run: () => Promise<unknown>) => { try { await run(); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
-  it('16 shapes', () => expect(parity.shapes.length).toBe(16));
+  it('20 shapes', () => expect(parity.shapes.length).toBe(20));
   for (const shape of parity.shapes) it(shape.name, async () => {
     const { source, invocation } = await applyEntry(shape);
     expect([await read(() => validateRetainedPrecision(structuredClone(source), structuredClone(invocation))), await read(() => validateRetainedPrecision(structuredClone(source)))])

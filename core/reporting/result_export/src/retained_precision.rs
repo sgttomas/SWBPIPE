@@ -2090,9 +2090,12 @@ fn g5_native_combinations(b: &Value) -> VResult {
         af(s["owner"]["kind"] == "combination"
             && operands.len() == terms.len()
             && s["representative_source_ref"] == operands[0]["source_ref"])?;
-        for ((o, r), ci) in operands.iter().zip(requested).zip(&term_cases) {
+        // C2 §3: each operand's case and factor are its term's (as PY and TS
+        // check them), and its factor and source are its requested operand's.
+        for (((o, r), ci), t) in operands.iter().zip(requested).zip(&term_cases).zip(terms) {
             let case_source = at(&b["sources"], &o["source_ref"], "G5", "ATTEMPT_MISMATCH")?;
             af(u(&o["case_index"]) == *ci as u64
+                && o["factor"] == t["factor"]
                 && o["factor"] == r["factor"]
                 && o["source_ref"] == r["source_ref"]
                 && case_source["owner"]["kind"] == "case"

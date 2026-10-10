@@ -3180,6 +3180,192 @@
    }
   },
   {
+   "name": "a combination Call and its CombinationSource name an operand factor the expression does not",
+   "why": "G5 native class: requested_operands are the expression's terms with their factor bits (CONTRACT §2.5), and each CombinationSource operand's factor is its term's (C2 §3); K4CMB is recomputed from the forged factors, so G8 alone would not see it",
+   "base": "w_cb1_sparse_interactive",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "calls",
+      1,
+      "requested_operands",
+      1,
+      "factor"
+     ],
+     "op": "set",
+     "value": "3fd0000000000000"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      2,
+      "kernel_source_sha256"
+     ],
+     "op": "set",
+     "value": "3e8c2c366692d68888385b9120d54a1cc4f1663fff4d5b2beddc9525e650c532"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      2,
+      "operands",
+      1,
+      "factor"
+     ],
+     "op": "set",
+     "value": "3fd0000000000000"
+    }
+   ],
+   "rehash": "all",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "expected_unbound": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   }
+  },
+  {
+   "name": "a pre-source-refused Call requests an operand factor the expression does not",
+   "why": "G5 native class: requested_operands are the expression's terms with their factor bits (CONTRACT §2.5); with no CombinationSource, only this binding sees it",
+   "base": "b2_pre_source_refusal",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "calls",
+      1,
+      "requested_operands",
+      1,
+      "factor"
+     ],
+     "op": "set",
+     "value": "3fd0000000000000"
+    }
+   ],
+   "rehash": "all",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "expected_unbound": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   }
+  },
+  {
+   "name": "the gate evidence has an entry no combination entry has",
+   "why": "G3 (a): one combination entry per gate-evidence entry, in the same order and with the same ids",
+   "base": "w_cb1_sparse_interactive",
+   "edits": [
+    {
+     "path": [
+      "contract_evidence",
+      "combination_gates"
+     ],
+     "op": "set",
+     "value": [
+      {
+       "combination_id": "combination:ab",
+       "reason": null,
+       "withheld": false
+      },
+      {
+       "combination_id": "combination:zz-extra",
+       "withheld": false,
+       "reason": null
+      }
+     ]
+    }
+   ],
+   "rehash": "all",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "expected_unbound": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   }
+  },
+  {
+   "name": "a combination attempt's native stage completed while its Run is not selected",
+   "why": "CONTRACT §4: native is completed iff the Run is selected; a capture error after a completed native stage is otherwise consistent (D37) and the reason table holds, so only the native-stage rule sees it",
+   "base": "w_cb2_sparse_interactive",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result",
+      "error",
+      "run_ref"
+     ],
+     "op": "remove"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result",
+      "error",
+      "kind"
+     ],
+     "op": "set",
+     "value": "capture"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result",
+      "error",
+      "cause"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "association",
+      "detail": "x"
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "stages",
+      "native"
+     ],
+     "op": "set",
+     "value": "completed"
+    }
+   ],
+   "rehash": "all",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "expected_unbound": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   }
+  },
+  {
    "name": "range operand ids in UTF-8 byte order (non-ASCII ids whose UTF-16 order differs)",
    "why": "CONTRACT §2.7 and §10.1 G8: the producer sorts range operand_ids in UTF-8 byte order (Rust String order), never UTF-16",
    "base": "w_cb4b_sparse_interactive",
