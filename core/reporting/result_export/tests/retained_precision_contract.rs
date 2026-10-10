@@ -59,12 +59,29 @@ fn index(v: &Value) -> Option<usize> {
     (n.is_finite() && n >= 0.0 && n.fract() == 0.0 && !(n == 0.0 && n.is_sign_negative()))
         .then_some(n as usize)
 }
-/// The 07e format rule (SHARED_SNAPSHOT_07E `format_rule`): 1 preparation
-/// hashes, for each `sources[*].preparation.attempt_ref` that resolves and
-/// whose members are all prepared; 2 source identities, for each selected
-/// case whose `source_ref` resolves; 3 publication hash; 4 receipt hash. A
-/// reference that is not an index, or does not resolve, is skipped.
+/// The 07e format rule (SHARED_SNAPSHOT_07E `format_rule`) with 07o's steps
+/// (B2-C REVISION_01 §5.2, S-6), in dependency order: 1 preparation hashes, for
+/// each `sources[*].preparation.attempt_ref` that resolves and whose members are
+/// all prepared; 2 operand-preparation hashes, for each
+/// `sources[*].preparation.operand_preparation_ref` that resolves to a prepared
+/// record whose members are all prepared (DEF-O's H); 3 source identities, for
+/// each selected case whose `source_ref` resolves; 4 each CombinationSource
+/// operand's identity, for each operand `source_ref` that resolves; 5 each
+/// `retained_selected` combination's identity, when its `source_ref` resolves;
+/// 6 publication hash; 7 receipt hash. A reference that is not an index, or
+/// does not resolve, is skipped.
 fn rehash(source: &mut Value) {
+    // S-1 (REVISION_01 §2): every preparation hash carries the route's
+    // definition H: DEF-E's on the exact identity, DEF-O's otherwise.
+    let h = if source["producer"]["semantic_contract_id"] == rp::EXACT_CONTRACT_ID {
+        rp::EXACT_DEFINITION_HASH
+    } else {
+        rp::DEFINITION_HASH
+    };
+    rehash_with(source, h);
+}
+/// The 07e format rule with an explicit preparation-payload definition H.
+fn rehash_with(source: &mut Value, definition_hash: &str) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
     // Snapshot 07 format: an entry that removes retained_precision or its body
     // (a G0 pin) has nothing to rehash.
@@ -91,9 +108,32 @@ fn rehash(source: &mut Value) {
                 .all(|m| m["result"]["kind"] == "prepared")
             {
                 let members: Vec<_> = a["preparation"]["members"].as_array().unwrap().iter().map(|m| serde_json::json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect();
-                let payload = serde_json::json!({"definition_id":a["definition_id"],"definition_sha256":rp::DEFINITION_HASH,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members});
+                let payload = serde_json::json!({"definition_id":a["definition_id"],"definition_sha256":definition_hash,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members});
                 s["preparation"]["sha256"] =
                     domain_hash("retained_precision_preparation_v1", &payload)
+                        .unwrap()
+                        .into();
+            }
+        }
+    }
+    // S-6 step 2: operand-preparation hashes (C3a-5), with DEF-O's H.
+    let records = b["operand_preparations"].clone();
+    for s in b["sources"].as_array_mut().unwrap() {
+        if let Some(pi) = index(&s["preparation"]["operand_preparation_ref"]) {
+            let p = &records[pi];
+            if !p.is_object() || p["result"]["kind"] != "prepared" {
+                continue;
+            }
+            if p["preparation"]["members"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|m| m["result"]["kind"] == "prepared")
+            {
+                let members: Vec<_> = p["preparation"]["members"].as_array().unwrap().iter().map(|m| serde_json::json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect();
+                let payload = serde_json::json!({"definition_id":p["definition_id"],"definition_sha256":rp::DEFINITION_HASH,"owner_ref":p["owner_ref"],"ordinary_attempt_ref":p["ordinary_attempt_ref"],"material_basis_ref":p["material_basis_ref"],"purpose":p["purpose"],"members":members});
+                s["preparation"]["sha256"] =
+                    domain_hash("retained_precision_operand_preparation_v1", &payload)
                         .unwrap()
                         .into();
             }
@@ -114,6 +154,32 @@ fn rehash(source: &mut Value) {
             c["source_identity_sha256"] = domain_hash("retained_precision_source_mp_v2", &s)
                 .unwrap()
                 .into();
+        }
+    }
+    // S-6 step 4: each CombinationSource operand's identity of the CaseSource it names.
+    let identity = |s: &Value| {
+        let mut s = s.clone();
+        s.as_object_mut().unwrap().remove("index");
+        Value::from(domain_hash("retained_precision_source_mp_v2", &s).unwrap())
+    };
+    for s in b["sources"].as_array_mut().unwrap() {
+        if s["owner"]["kind"] != "combination" {
+            continue;
+        }
+        for o in s["operands"].as_array_mut().into_iter().flatten() {
+            if let Some(named) = index(&o["source_ref"]).and_then(|i| sources.get(i)).filter(|x| x.is_object()) {
+                o["source_identity_sha256"] = identity(named);
+            }
+        }
+    }
+    // S-6 step 5: each retained_selected combination's identity of its CombinationSource.
+    let sources = b["sources"].clone();
+    for c in b["combinations"].as_array_mut().into_iter().flatten() {
+        if c["disposition"] != "retained_selected" {
+            continue;
+        }
+        if let Some(s) = index(&c["source_ref"]).and_then(|i| sources.get(i)).filter(|x| x.is_object()) {
+            c["source_identity_sha256"] = identity(s);
         }
     }
     let mut public = source.clone();
@@ -203,6 +269,14 @@ fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
 fn complete_synthetic_controls_carry_their_shared_eligibility() {
     let shared = corpus();
     for case in shared["cases"].as_array().unwrap() {
+        // PR-B2 ruling 5: a base the corpus states refused bound (`expected` a gate
+        // and code) is refused there, and passes unbound and on transport.
+        if case["expected"].get("gate").is_some() {
+            assert_eq!(observe_validation(rp::validate(&case["source"], Some(&case["invocation"]))), case["expected"], "{}", case["id"]);
+            assert!(matches!(rp::validate(&case["source"], None), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+            assert!(matches!(rp::validate_transport_metadata(&case["source"]), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+            continue;
+        }
         let got = rp::validate(&case["source"], Some(&case["invocation"]))
             .unwrap_or_else(|e| panic!("{}: {e:?}", case["id"]));
         assert!(got.invocation_bound);
@@ -275,11 +349,11 @@ fn shared_rehashed_first_failure_mutations() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
-/// Every shared mutation's id, in corpus order (07m's 294, then 07n's 240), pinned here
+/// Every shared mutation's id, in corpus order (07m's 294, 07n's 240, then 07o's 69), pinned here
 /// so that `slice_outcomes` checks each slice's entries by id and position (I83 §7
 /// item 8; B1 SC item 12): a reorder of same-code entries inside a slice, which the
 /// code tally cannot see, fails. Generated from 07n (sha256 `ea113e7b…e283`).
-const MUTATION_IDS: [&str; 534] = [
+const MUTATION_IDS: [&str; 603] = [
     "method_null",
     "method_number",
     "method_alternate_metadata",
@@ -814,6 +888,76 @@ const MUTATION_IDS: [&str; 534] = [
     "t_gate_withheld_string",
     "t_measure_extra_member",
     "t_gate_extra_member",
+    // 07o (B2-C REVISION_01 §5.1-§5.3; lane C's corpus): 69 more.
+    "b2o_m01_combination_attempt_definition_unknown",
+    "b2o_m02_operand_preparation_definition_unknown",
+    "b2o_m03_projection_policy_changed",
+    "b2o_m04_work_policy_changed",
+    "b2o_m05_canonicalization_changed",
+    "b2o_m06_work_case_limit_changed",
+    "b2o_m07_work_invocation_limit_changed",
+    "b2o_m08_case_attempt_definition_def_c",
+    "b2o_m09_combination_attempt_definition_def_o",
+    "b2o_m10_combination_identity_changed",
+    "b2o_m11_operand_identity_changed",
+    "b2o_m12_operand_prepared_hash_case_domain",
+    "b2o_m13_operand_preparations_empty",
+    "b2o_m14_ordinary_entry_run_null",
+    "b2o_m15_withheld_result_ids_gain_row",
+    "b2o_m16_term_factor_uppercase",
+    "b2o_m17_requested_operand_factor_nan",
+    "b2o_m18_entries_swapped",
+    "b2o_m19_entry_removed",
+    "b2o_m20_combination_renamed_to_case_id",
+    "b2o_m21_result_ids_lose_row",
+    "b2o_m22_result_ids_gain_case_row",
+    "b2o_m23_result_ids_swapped",
+    "b2o_m24_execution_order_loses_combination",
+    "b2o_m25_execution_order_combination_index",
+    "b2o_m26_combination_attempt_first",
+    "b2o_m27_operand_preparation_owner_selected",
+    "b2o_m28_operand_preparation_for_ordinary",
+    "b2o_m29_operand_preparation_removed",
+    "b2o_m30_operand_preparation_duplicated",
+    "b2o_m31_combination_selected_diagnostic_removed",
+    "b2o_m32_unavailable_diagnostic_ref_other",
+    "b2o_m33_selected_diagnostic_on_ordinary",
+    "b2o_m34_combination_diagnostic_two_refs",
+    "b2o_m35_ordinary_term_selected_case",
+    "b2o_m36_subtraction_recast_unavailable",
+    "b2o_m37_withheld_reason_other_code",
+    "b2o_m38_requested_operands_swapped",
+    "b2o_m39_representative_operand_1",
+    "b2o_m40_operand_case_index_other",
+    "b2o_m41_import_from_operand_1",
+    "b2o_m42_combination_group_imports_removed",
+    "b2o_m43_combination_call_before_off",
+    "b2o_m44_charged_batch_after",
+    "b2o_m45_import_from_prepared_operand",
+    "b2o_m46_pre_source_run_refs_gain_run",
+    "b2o_m47_pre_source_after_ne_before",
+    "b2o_m48_combination_reason_without_call",
+    "b2o_m49_operand_index_selected_term",
+    "b2o_m50_refused_record_source_ref",
+    "b2o_m51_prepared_record_stage_failed",
+    "b2o_m52_unresolved_attempt_native_completed",
+    "b2o_m53_reason_code_kernel_unresolved",
+    "b2o_m54_combination_translation_scale_ulp",
+    "b2o_m55_combination_row_not_covered",
+    "b2o_m56_method_on_unavailable_row",
+    "b2o_m57_method_removed_from_selected_row",
+    "b2o_m58_method_on_ordinary_row",
+    "b2o_m59_range_mode_changed",
+    "b2o_m60_subtraction_operands_swapped",
+    "b2o_m61_range_operand_ids_reversed",
+    "b2o_m62_kernel_source_replaced",
+    "b2o_m63_operand_effective_wall_changed",
+    "b2o_m64_operand_old_facts_d_changed",
+    "b2o_m65_operand_preparation_definition_def_c",
+    "b2o_m66_refused_record_origin_capture",
+    "b2o_m67_combination_attempt_origin_capture",
+    "b2o_m68_operand_prepared_source_after_combination",
+    "b2o_m69_combination_magnitude_off",
 ];
 /// Observe one slice of the shared mutations against this reader's own
 /// expectation, print one outcome per mutation (visible with --nocapture) and
@@ -1455,11 +1599,10 @@ fn shared_must_pass_entries_validate() {
     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
     // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
     // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28;
-    // 07n (B1 SC) appends 50, 28 to 78.
-    assert_eq!(entries.len(), 78);
+    // 07n (B1 SC) appends 50, 28 to 78; 07o (B2-C REVISION_01 §5.1) appends 19, to 97.
+    assert_eq!(entries.len(), 97);
     let mut failures = Vec::new();
     for entry in entries {
-        assert_eq!(entry["expected"], "pass");
         assert_eq!(entry["rehash"], "all");
         let case = shared["cases"]
             .as_array()
@@ -1468,6 +1611,17 @@ fn shared_must_pass_entries_validate() {
             .find(|c| c["id"] == entry["base"])
             .unwrap();
         let (source, invocation) = apply_entry(&shared, entry);
+        // PR-B2 ruling 5: an entry on a base refused bound states that refusal as its
+        // `expected` (its unbound and transport reads: `snapshot_07o_unbound_and_transport_reads`).
+        if entry["expected"] != "pass" {
+            assert_eq!(entry["expected"], case["expected"], "{}", entry["id"]);
+            let got = observe_validation(rp::validate(&source, Some(&invocation)));
+            println!("I63_MUST_PASS {} stated {got}", entry["id"]);
+            if got != entry["expected"] {
+                failures.push(format!("{} got {got}", entry["id"]));
+            }
+            continue;
+        }
         let got = match rp::validate(&source, Some(&invocation)) {
             Ok(got) => got,
             Err(e) => {
@@ -3569,8 +3723,12 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31: G8 admits model schema_version 0.1.0, 0.2.0 or 0.3.0; 0.4.0 stays
-/// excluded. The invocation edit rebinds the receipt's invocation digest.
+/// D31: G8 admits model schema_version 0.1.0 or 0.2.0 without a pressure
+/// contract; 0.4.0 stays excluded. B3a (B3-D §6.3, decision B3D-10): 0.3.0
+/// without a contract is outside D1.3 (the producer cannot emit it,
+/// `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0 with
+/// the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
+/// The invocation edit rebinds the receipt's invocation digest.
 #[test]
 fn d31_model_schema_versions_at_g8() {
     use serde_json::json;
@@ -3583,7 +3741,7 @@ fn d31_model_schema_versions_at_g8() {
     for (version, want) in [
         ("0.1.0", Value::Null),
         ("0.2.0", Value::Null),
-        ("0.3.0", Value::Null),
+        ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.4.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.0.9", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
     ] {
@@ -3645,6 +3803,11 @@ fn d32_integers_by_value() {
         let mut source = case["source"].clone();
         as_integral_floats(&mut source["retained_precision"]["body"]);
         rehash(&mut source);
+        // A base stated refused bound (PR-B2 ruling 5) keeps its stated refusal.
+        if case["expected"].get("gate").is_some() {
+            assert_eq!(observe_validation(rp::validate(&source, Some(&case["invocation"]))), case["expected"], "{}", case["id"]);
+            continue;
+        }
         assert!(
             rp::validate(&source, Some(&case["invocation"])).is_ok(),
             "{}: {:?}",
@@ -3906,6 +4069,24 @@ fn rehash_index_rule_07e() {
         source["retained_precision"]["body"]["sources"][0]["preparation"]["attempt_ref"] = r.clone();
         rehash(&mut source);
         assert_eq!(source["retained_precision"]["body"]["cases"][0]["source_identity_sha256"], before, "{r}");
+    }
+    // 07o (S-6 steps 2, 4 and 5): the same rule for an operand-prepared source's
+    // `operand_preparation_ref`, a CombinationSource operand's `source_ref` and a
+    // combination entry's `source_ref`, each on W-CB3.
+    let (fresh, _) = b2_w_cb3("sparse_interactive");
+    for r in [json!(true), json!(0.5), json!(-0.0), json!(9)] {
+        for (reference, digest) in [
+            (json!(["sources", 1, "preparation", "operand_preparation_ref"]), json!(["sources", 1, "preparation", "sha256"])),
+            (json!(["sources", 2, "operands", 1, "source_ref"]), json!(["sources", 2, "operands", 1, "source_identity_sha256"])),
+            (json!(["combinations", 0, "source_ref"]), json!(["combinations", 0, "source_identity_sha256"])),
+        ] {
+            let mut source = fresh.clone();
+            let pointer = |v: &Value| format!("/retained_precision/body/{}", v.as_array().unwrap().iter().map(|x| x.to_string().trim_matches('"').to_owned()).collect::<Vec<_>>().join("/"));
+            let before = source.pointer(&pointer(&digest)).unwrap().clone();
+            edit(&mut source, &set(rb(reference.clone()), r.clone()));
+            rehash(&mut source);
+            assert_eq!(source.pointer(&pointer(&digest)).unwrap(), &before, "{reference} {r}");
+        }
     }
 }
 
@@ -4676,8 +4857,9 @@ fn b1_r2_ordinary_basis_reference_at_g5_attempt() {
 }
 
 /// Item 2, (g), at G8 INVOCATION, PP's acceptance: no `reference_configurations` member
-/// (null included); `pressure_contract` absent or null; `combinations` and `components`
-/// absent or []. Unbound reads do not see the invocation.
+/// (null included); `pressure_contract` absent or null; `components` absent or [];
+/// `combinations` absent or an array whose entries the receipt's equal (B2-C §10.1 G8).
+/// Unbound reads do not see the invocation.
 #[test]
 fn b1_r2_g_model_scope_at_g8_invocation() {
     use serde_json::json;
@@ -5628,6 +5810,905 @@ fn b1_i4p_transport_metadata_demands_alone() {
     );
 }
 
+/// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
+/// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
+/// namespace predicate is type-strict. Only branch L (0.1.0 or 0.2.0,
+/// `pressure_contract` absent or JSON null) is admitted; any other value is G8
+/// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
+/// `{"version":"1.0.0","mode":"legacy_pressure_v1"}` on 0.3.0, now refused on
+/// every base, and before any load is read (the former N-11 entries). The
+/// table is the one shape RS, TS and PY pin alike, entry for entry.
+/// Reader-local synthetic receipts: invocation edits on the shared bases,
+/// rehashed.
+#[test]
+fn b3a_legacy_pressure_contract_namespace_at_g8() {
+    use serde_json::json;
+    let shared = corpus();
+    let l3 = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    let schema = |v: &str| set(json!(["request", "model", "schema_version"]), json!(v));
+    let contract = |v: Value| set(json!(["request", "model", "pressure_contract"]), v);
+    let no_contract = || remove(json!(["request", "model", "pressure_contract"]));
+    let inv = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
+    let base_invocation = |id: &str| {
+        shared["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == id)
+            .unwrap()["invocation"]
+            .clone()
+    };
+    // N-11: a zero-magnitude element pressure load appended to case 0.
+    let zero_pressure = |id: &str| {
+        let mut loads = base_invocation(id)["request"]["model"]["load_cases"][0]["primitive_loads"].clone();
+        loads.as_array_mut().unwrap().push(json!({
+            "id": "load:b3a-zero-pressure", "category": "pressure",
+            "target": {"type": "element", "pipe": "pipe:fixture-span"},
+            "magnitude": {"value": 0, "unit": "Pa"}, "dimension": "pressure",
+            "provenance": "synthetic_integration_input_not_library_data"}));
+        set(json!(["request", "model", "load_cases", 0, "primitive_loads"]), loads)
+    };
+    let with = |key: &str, value: Value| {
+        let mut c = l3.clone();
+        c[key] = value;
+        c
+    };
+    let mut entries: Vec<(String, &str, Vec<Value>, Value)> = Vec::new();
+    for base in [
+        ORD,
+        "ordinary_prepared_dense_synthetic",
+        "two_case_synthetic",
+        "u8_l0_isolated_node_sparse_interactive",
+        "u8_l0_isolated_node_dense_scrutiny",
+    ] {
+        entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], inv.clone()));
+    }
+    for (name, edits, want) in [
+        ("L: 0.2.0, contract null", vec![contract(Value::Null)], Value::Null),
+        ("L: 0.1.0, contract absent", vec![schema("0.1.0"), no_contract()], Value::Null),
+        ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
+        ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
+        ("L3: the exact contract 2.0.0", vec![schema("0.3.0"), contract(json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))], inv.clone()),
+        ("0.3.0, contract null", vec![schema("0.3.0"), contract(Value::Null)], inv.clone()),
+        ("0.3.0, contract absent", vec![schema("0.3.0"), no_contract()], inv.clone()),
+        ("L3: an extra key", vec![schema("0.3.0"), contract(with("extra", json!("x")))], inv.clone()),
+        ("L3: an extra key valued null", vec![schema("0.3.0"), contract(with("extra", Value::Null))], inv.clone()),
+        ("L3: version only", vec![schema("0.3.0"), contract(json!({"version": "1.0.0"}))], inv.clone()),
+        ("L3: mode only", vec![schema("0.3.0"), contract(json!({"mode": "legacy_pressure_v1"}))], inv.clone()),
+        ("L3: version a number", vec![schema("0.3.0"), contract(with("version", json!(1.0)))], inv.clone()),
+        ("L3: mode null", vec![schema("0.3.0"), contract(with("mode", Value::Null))], inv.clone()),
+        ("0.3.0, contract {}", vec![schema("0.3.0"), contract(json!({}))], inv.clone()),
+        ("0.2.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
+        ("0.1.0 keeping the L3 contract", vec![schema("0.1.0"), contract(l3.clone())], inv.clone()),
+        ("0.4.0 with the L3 contract", vec![schema("0.4.0"), contract(l3.clone())], inv.clone()),
+        ("N-4: 0.2.0, contract {}", vec![contract(json!({}))], inv.clone()),
+        ("N-4: 0.2.0, contract false", vec![contract(json!(false))], inv.clone()),
+        ("N-4: 0.2.0, contract []", vec![contract(json!([]))], inv.clone()),
+        ("N-4: 0.2.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
+        ("N-4: 0.2.0, contract 0", vec![contract(json!(0))], inv.clone()),
+        ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], inv.clone()),
+    ] {
+        entries.push((name.to_string(), ORD, edits, want));
+    }
+    entries.push((
+        "N-11: L3 dense with a zero-magnitude element pressure load".into(),
+        "ordinary_prepared_dense_synthetic",
+        vec![schema("0.3.0"), contract(l3.clone()), zero_pressure("ordinary_prepared_dense_synthetic")],
+        inv.clone(),
+    ));
+    let mut misses = Vec::new();
+    for (name, base, edits, want) in &entries {
+        let got = observe(
+            &shared,
+            &json!({"id": "i101_b3a", "base": base, "edits": [], "rehash": "all", "invocation_edits": edits}),
+        );
+        if got != *want {
+            misses.push(format!("{name}: got {got}, want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(entries.len(), 29);
+}
+
+// ---- B3b (I101): the exact successor `<physics-retained>` on reader-local synthetic receipts ----
+/// RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the
+/// synthetic exact successor keeps every receipt number of its preview base.
+const EXACT_NU: f64 = 0.2987012987012987;
+/// The exact producer's seven `exact_straight_pressure_formulation_basis`
+/// strings, as physics-source-1's committed n05 envelope publishes them.
+fn exact_limitations() -> Value {
+    let n05: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+    ))
+    .unwrap();
+    n05["formulation_basis"]["limitations"].clone()
+}
+fn decode_bits(v: &Value) -> f64 {
+    f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
+}
+/// A reader-local synthetic exact successor (not producer output; lane P's
+/// `m3x` successors replace it as the witness): a shared preview base whose
+/// cases are all selected, re-stated on the exact route.
+/// - Invocation: model 0.3.0 with `{2.0.0, exact_straight_pressure_v2}`, every
+///   case's `pressure_regions` explicitly [], each material with `poisson_ratio`
+///   EXACT_NU and `homogeneous_isotropic_E_nu_v1`.
+/// - Envelope: the exact identity and profile with the exact producer's
+///   limitations; physics-1's `contract_evidence` built from the receipt's own
+///   sections (OD, wall, ro, A, I, J, Z), the base's extrema and coverage, the
+///   material's E, nu and G-hat, and a zero pressure assembly.
+/// - Receipt: `derived_e_nu` shear origins, `geometry.route` exact, the exact
+///   definition id; the invocation digest bound; rehashed with DEF-E's H.
+fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    use serde_json::json;
+    let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == base).unwrap();
+    let mut source = case["source"].clone();
+    let mut invocation = case["invocation"].clone();
+    {
+        let model = &mut invocation["request"]["model"];
+        model["schema_version"] = json!("0.3.0");
+        model["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+        for c in model["load_cases"].as_array_mut().unwrap() {
+            c["pressure_regions"] = json!([]);
+        }
+        for m in model["materials"].as_array_mut().unwrap() {
+            m["poisson_ratio"] = json!({"value": EXACT_NU, "unit": "1"});
+            m["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        }
+    }
+    let model = invocation["request"]["model"].clone();
+    let body = source["retained_precision"]["body"].clone();
+    let nodes: Vec<Value> = model["nodes"].as_array().unwrap().iter().map(|n| n["id"].clone()).collect();
+    let mut exact_cases = Vec::new();
+    for (ci, rc) in body["cases"].as_array().unwrap().iter().enumerate() {
+        assert_eq!(rc["status"], "selected", "{base}: every case selected");
+        let id = rc["basis_ref"]["ref_id"].clone();
+        let s = &body["sources"][rc["source_ref"].as_u64().unwrap() as usize];
+        let mb = &body["material_bases"][body["product_attempts"][rc["product_attempt_ref"].as_u64().unwrap() as usize]["material_basis_ref"].as_u64().unwrap() as usize];
+        let mut sections = Vec::new();
+        let mut materials = Vec::new();
+        for (i, p) in model["pipe_segments"].as_array().unwrap().iter().enumerate() {
+            let st = &s["section_terms"][i];
+            assert_eq!(s["id_maps"]["members"][i]["id"], p["id"]);
+            let g = &st["geometry"];
+            let (od, wall) = (decode_bits(&g["normalized_od"]), decode_bits(&g["effective_wall"]));
+            let ri = od * 0.5 - wall;
+            sections.push(json!({"pipe_id": p["id"], "geometry_basis": "authored_normalized_od_wall_v1",
+                "outside_diameter_m": od, "effective_wall_thickness_m": wall, "ri_m": ri,
+                "ro_m": decode_bits(&g["actual_radius"]), "Ai_m2": std::f64::consts::PI * ri * ri,
+                "As_m2": decode_bits(&st["area"]), "I_m4": decode_bits(&g["actual_second_moment"]),
+                "J_m4": decode_bits(&g["actual_polar_moment"]), "Z_m3": decode_bits(&st["section_modulus"])}));
+            let m = mb["materials"].as_array().unwrap().iter().find(|m| m["id"] == p["material"]).unwrap();
+            let e = decode_bits(&m["elastic_modulus"]);
+            let g_hat = e / (2.0 * (1.0 + EXACT_NU));
+            assert_eq!(g_hat.to_bits(), decode_bits(&m["shear_modulus"]).to_bits(), "G-hat keeps the receipt's G");
+            let authored = model["materials"].as_array().unwrap().iter().find(|a| a["id"] == p["material"]).unwrap();
+            materials.push(json!({"pipe_id": p["id"], "material_id": p["material"], "E_pa": e, "nu": EXACT_NU,
+                "G_pa": g_hat, "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "thermal_consumed": false,
+                "alpha_per_kelvin": null, "provenance": authored["provenance"]}));
+        }
+        let preview = source["contract_evidence"]["preview_cases"].as_array().unwrap().iter()
+            .find(|c| c["load_case_id"] == id).unwrap();
+        let zeros = json!(vec![0.0; nodes.len() * 6]);
+        exact_cases.push(json!({"load_case_id": id, "profile_mode": "exact_straight_pressure_v2",
+            "material_basis": "base_material_common_E_nu", "pipe_materials": materials, "pipe_sections": sections,
+            "pipe_stress_extrema": preview["pipe_stress_extrema"],
+            "stress_maximum_coverage": {"complete": preview["stress_maximum_coverage"]["complete"],
+                "unavailable_pipe_ids": preview["stress_maximum_coverage"]["unavailable_pipe_ids"]},
+            "pressure_rhs_assembly": {"method": "source_factor_grouped_pressure_rhs_v1", "load_case_id": id,
+                "node_order": nodes, "dof_order": ["Fx", "Fy", "Fz", "Mx", "My", "Mz"],
+                "dof_units": ["N", "N", "N", "N*m", "N*m", "N*m"], "assembled_pressure_rhs_global": zeros,
+                "groups": [], "rounded_cap_rhs_global": zeros, "rounded_poisson_rhs_global": zeros,
+                "rounded_cap_and_eigen_ledgers_are_observational": true, "cancellation_screen": 0.0,
+                "screen_limit": 1e-9, "screen_roundoff_multiplier": 32,
+                "screen_is_not_numerical_qualification": true}}));
+        let _ = ci;
+    }
+    source["producer"]["semantic_contract_id"] = json!(rp::EXACT_CONTRACT_ID);
+    source["formulation_basis"] = json!({"profile_id": rp::EXACT_PROFILE, "limitations": exact_limitations()});
+    source["contract_evidence"] = json!({"pressure": [], "connector": [], "exact_cases": exact_cases});
+    let b = &mut source["retained_precision"]["body"];
+    for mb in b["material_bases"].as_array_mut().unwrap() {
+        for m in mb["materials"].as_array_mut().unwrap() {
+            m["shear_origin"] = json!({"kind": "derived_e_nu", "poisson_ratio": format!("{:016x}", EXACT_NU.to_bits()),
+                "constitutive_basis": "homogeneous_isotropic_E_nu_v1"});
+        }
+    }
+    for s in b["sources"].as_array_mut().unwrap() {
+        for st in s["section_terms"].as_array_mut().unwrap() {
+            st["geometry"]["route"] = json!("exact");
+        }
+    }
+    for a in b["product_attempts"].as_array_mut().unwrap() {
+        a["definition_id"] = json!(rp::EXACT_DEFINITION_ID);
+    }
+    b["invocation"]["value"] = domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    rehash(&mut source);
+    (source, invocation)
+}
+/// The three readings of a statement: bound, unbound and transport (gate and
+/// code, or "ok" with the eligibility).
+fn readings(source: &Value, invocation: &Value) -> Value {
+    use serde_json::json;
+    let one = |r: Result<rp::Validation, rp::ValidationError>| match r {
+        Ok(v) => json!({"ok": {"eligible": v.numerical_eligible}}),
+        Err(e) => json!({"gate": e.gate, "code": e.code}),
+    };
+    json!({"bound": one(rp::validate(source, Some(invocation))), "unbound": one(rp::validate(source, None)),
+        "transport": one(rp::validate_transport_metadata(source))})
+}
+/// One B3b shape: `edits` on the synthetic exact successor's source and
+/// `invocation_edits` on its invocation (rebinding the digest), rehashed with the
+/// route's H, then `after` (edits after the rehash).
+struct ExactShape {
+    name: &'static str,
+    base: &'static str,
+    edits: Vec<Value>,
+    invocation_edits: Vec<Value>,
+    after: Vec<Value>,
+}
+/// The optional file base: `B3B_EXACT_BASE` names a `{source, invocation}` file (for
+/// example lane P's `m3x` exact successor); every shape is then also read on it.
+const FILE_BASE: &str = "<file>";
+/// Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base
+/// name, its S-1 shape's base, the document text, its sha256 and the receipt sha256. Every
+/// shape is also read on each.
+const M3X: [(&str, &str, &str, &str, &str); 2] = [
+    (
+        "m3x_sparse_interactive",
+        "<s1:m3x_sparse_interactive>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
+        "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6",
+        "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f",
+    ),
+    (
+        "m3x_dense_scrutiny",
+        "<s1:m3x_dense_scrutiny>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
+        "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc",
+        "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d",
+    ),
+];
+fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
+    use sha2::{Digest, Sha256};
+    if let Some((name, _, text, document_sha, receipt_sha)) = M3X.iter().find(|m| m.0 == base) {
+        assert_eq!(format!("{:x}", Sha256::digest(text.as_bytes())), *document_sha, "{name}: lane P's pinned document");
+        let doc: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(doc["source"]["retained_precision"]["receipt_sha256"], *receipt_sha, "{name}");
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
+    if base == FILE_BASE {
+        let path = std::env::var("B3B_EXACT_BASE").unwrap();
+        let doc: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
+    exact_successor(shared, base)
+}
+fn exact_shape_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let (mut source, mut invocation) = exact_base(shared, shape.base);
+    for e in &shape.edits {
+        edit(&mut source, e);
+    }
+    for e in &shape.invocation_edits {
+        edit(&mut invocation, e);
+    }
+    if !shape.invocation_edits.is_empty() {
+        source["retained_precision"]["body"]["invocation"]["value"] =
+            domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    }
+    rehash(&mut source);
+    for e in &shape.after {
+        edit(&mut source, e);
+    }
+    (source, invocation)
+}
+fn ulps(v: f64, n: i64) -> f64 {
+    f64::from_bits((v.to_bits() as i64 + n) as u64)
+}
+const EXACT_BASES: [&str; 3] = [ORD, "ordinary_prepared_dense_synthetic", "two_case_synthetic"];
+const INVOCATION: &str = "RETAINED_PRECISION_INVOCATION_MISMATCH";
+const PREPARATION: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
+const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
+/// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
+/// entry 9 relabels the shared preview base), plus this reader's added shapes; then
+/// every row, the base and S-1's shape on each of lane P's two m3x successors.
+/// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
+/// bound, unbound and transport readings (JSON lines), and `B3B_INPUTS_OUT` the
+/// materialized inputs, for the three-reader comparison.
+fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
+    let mut out = Vec::new();
+    for b in EXACT_BASES {
+        out.push((ExactShape { name: "base", base: b, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+    }
+    out.extend(b3b_rows(shared, ORD));
+    // 09: the shared preview base relabelled physics-retained-1 (identity and profile).
+    out.push((ExactShape { name: "09 the preview successor relabelled physics-retained-1", base: "<preview:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G0", UNSUPPORTED)));
+    // 11 (S-1): the preparation hash over a payload with DEF-O's H; source
+    // identity, publication and receipt hashes recomputed.
+    out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    for (name, s1, ..) in M3X {
+        out.push((ExactShape { name: "base", base: name, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, name));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: s1, edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
+    // RV120's F2 forgeries (B28, B29): only G8 step 4's E and G-hat bits refuse them.
+    for (name, base, edits) in rv120_forgeries() {
+        out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, gate("G8", PREPARATION)));
+    }
+    out.extend(rv120_probes(shared));
+    out.extend(repair03_probes());
+    if std::env::var("B3B_EXACT_BASE").is_ok() {
+        out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, FILE_BASE));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:file>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
+    out
+}
+/// RV120's F2 forgeries (REVIEW_RV120 b3_readers_01: its `forge_eg.py` and
+/// `forge_eg_inputs.jsonl`, here as edits on the synthetic exact base and lane P's sparse
+/// m3x successor; the 07e rehash recomputes the rest). E or G-hat moves one ulp in all five
+/// receipt copies (the material basis, the id-map member, the prepared `old_source`, the old
+/// and new operational inputs), the operational stiffness the readers derive moves with it
+/// (the attempt results and both section-term copies), the evidence `G_pa` moves for G-hat
+/// (N-6), and the sources' native hashes and their copies are resealed. The shipped readers
+/// refuse each at G8 step 4 (`PREPARATION_MISMATCH`); without step 4's E bits (mutant B28)
+/// or G-hat bits (B29) the matching forgeries read bound and eligible.
+fn rv120_forgeries() -> Vec<(&'static str, &'static str, Vec<Value>)> {
+    use serde_json::json;
+    vec![
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("57dc66560ce90fb976a633b07f55c736b11f2b78265d791a3a4123c0751be478")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4231ed8ec2000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa82")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("d098e88140c2f23621802f449f296928412138208b2adf72553b0a4790fe8f58")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+        ]),
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("ab4596d0b1a50b195b0368d573dbf26ed4c2cb6c1e76da6490052217b12b8bb2")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4232a05f20000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a831")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("7f965da3aaa6d9720c549022c8947fa602a2065c26415d5663f5dc398e8f7b84")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+        ]),
+    ]
+}
+/// RV120's probes for repair 02 (REVIEW_RV120 b3_readers_01, `gen_b3_probes.py`): N2, an
+/// `exact_cases` entry for a case not in the invocation (entry 0 copied, renamed), on the
+/// synthetic exact base and lane P's sparse m3x successor; and F1's G5b order probes on the
+/// exact `two_case_synthetic` (case 0's evidence `As_m2` one ulp, with or without case 1's
+/// body-scale force or section-term area changed). Bound: G7 (physics-1's base code) for N2;
+/// the shared G5b's SCALE or SECTION code, then the exact evidence, for F1.
+fn rv120_probes(shared: &Value) -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let mut out = Vec::new();
+    for base in [ORD, "m3x_sparse_interactive"] {
+        let (source, _) = exact_base(shared, base);
+        let entry = source["contract_evidence"]["exact_cases"][0].clone();
+        let mut other = entry.clone();
+        other["load_case_id"] = json!("case:rv120-other");
+        out.push((
+            ExactShape { name: "RV120 N2: an exact_cases entry for a case not in the invocation", base, edits: vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, other]))], invocation_edits: vec![], after: vec![] },
+            gate("G7", "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"),
+        ));
+    }
+    let base = "two_case_synthetic";
+    let (source, _) = exact_base(shared, base);
+    let as_m2 = json!(ulps(source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["As_m2"].as_f64().unwrap(), 1));
+    let evidence = set(json!(["contract_evidence", "exact_cases", 0, "pipe_sections", 0, "As_m2"]), as_m2);
+    let force = set(rb(json!(["cases", 1, "selection", "body_scales", 0, "force"])), json!("0000000000000001"));
+    let area = set(rb(json!(["cases", 1, "selection", "section_terms", 0, "area"])), json!("3f00000000000000"));
+    for (name, edits, want) in [
+        ("RV120 F1 control: case 0's evidence As_m2 one ulp", vec![evidence.clone()], gate("G5b", SECTION)),
+        ("RV120 F1 control: case 1's body_scales force one ulp", vec![force.clone()], gate("G5b", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("RV120 F1 order: case 0's evidence As_m2 and case 1's body_scales force", vec![evidence.clone(), force], gate("G5b", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("RV120 F1 order: case 0's evidence As_m2 and case 1's section term area", vec![evidence, area], gate("G5b", SECTION)),
+    ] {
+        out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, want));
+    }
+    out
+}
+/// RV120 N2: RS's physics-1 transport check reads RV120's probe with one code, run after
+/// run (it iterates its cases in array order, as TS and PY do): entry 0 passes, and the
+/// copy's maximum result ids repeat entry 0's. Bound and unbound stay at G7's case coverage.
+#[test]
+fn b3b_rv120_n2_transport_code_is_array_ordered_and_stable() {
+    use serde_json::json;
+    let shared = corpus();
+    let probes: Vec<_> = rv120_probes(&shared).into_iter().filter(|(s, _)| s.name.starts_with("RV120 N2: ")).collect();
+    assert_eq!(probes.len(), 2);
+    let mut digests = Vec::new();
+    for (shape, _) in &probes {
+        let (source, invocation) = b3b_input(&shared, shape);
+        digests.push(sha256_canonical(&json!([source, invocation])));
+        let want = json!({"bound": {"gate": "G7", "code": "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"},
+            "unbound": {"gate": "G7", "code": "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"},
+            "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_RESULT"}});
+        // Each call builds fresh hash maps (a fresh random order), so a hash-ordered loop
+        // would show both of the probe's first failures well within these runs.
+        for run in 0..64 {
+            assert_eq!(readings(&source, &invocation), want, "{} [{}], run {run}", shape.name, shape.base);
+        }
+    }
+    assert_eq!(digests, RV120_N2_INPUTS, "RV120's N2 inputs");
+}
+/// Repair 03 (N2b, WORKING_ITEMS' ruling on RV120's N2): two faults in the two
+/// `exact_cases` entries of the exact `two_case_synthetic` (one entry's `profile_mode`
+/// "x", the other's `material_basis` not a string), and the same faults swapped. physics-1's
+/// base validator reads its cases in array order on the bound and unbound path, as TS and
+/// PY do, so entry 0's fault is G7's code: CASE_PROFILE, or STRING_INVALID when swapped.
+fn repair03_probes() -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let profile = |i: usize| set(json!(["contract_evidence", "exact_cases", i, "profile_mode"]), json!("x"));
+    let basis = |i: usize| set(json!(["contract_evidence", "exact_cases", i, "material_basis"]), json!(0));
+    let base = "two_case_synthetic";
+    vec![
+        (ExactShape { name: "N2b: entry 0's profile_mode and entry 1's material_basis", base, edits: vec![profile(0), basis(1)], invocation_edits: vec![], after: vec![] }, gate("G7", "SOURCE_PHYSICS_CASE_PROFILE")),
+        (ExactShape { name: "N2b: entry 0's material_basis and entry 1's profile_mode", base, edits: vec![basis(0), profile(1)], invocation_edits: vec![], after: vec![] }, gate("G7", "SOURCE_PHYSICS_STRING_INVALID")),
+    ]
+}
+/// Repair 03 (N2b): RS's physics-1 base validator reads the two-fault probes with one code
+/// on the bound and unbound path, run after run: entry 0's fault, in array order. Transport
+/// refuses both by its closed shape.
+#[test]
+fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
+    use serde_json::json;
+    let shared = corpus();
+    let mut digests = Vec::new();
+    for (shape, want) in repair03_probes() {
+        let (source, invocation) = b3b_input(&shared, &shape);
+        digests.push(sha256_canonical(&json!([source, invocation])));
+        let want = json!({"bound": want, "unbound": want,
+            "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_SHAPE"}});
+        // Each call builds fresh hash maps (a fresh random order), so a hash-ordered loop
+        // would show both entries' faults well within these runs.
+        for run in 0..64 {
+            assert_eq!(readings(&source, &invocation), want, "{} [{}], run {run}", shape.name, shape.base);
+        }
+    }
+    assert_eq!(digests, REPAIR03_N2B_INPUTS, "the N2b probe inputs");
+}
+/// The N2b probe inputs (sha256 of the canonical `[source, invocation]`).
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["ab2807e39c79015c5929dac4c4a4a86f82e9e6187c66511686c93f57de60759d", "9451b8272ac84a10984b6848fe44d5fcd3585903ce7ab1f3d8fd59f4a3675da6"];
+/// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
+const RV120_N2_INPUTS: [&str; 2] = ["b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0", "a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe"];
+fn sha256_canonical(v: &Value) -> String {
+    use open_pipe_stress_canonical_json::canonical_json;
+    use sha2::{Digest, Sha256};
+    format!("{:x}", Sha256::digest(canonical_json(v).as_bytes()))
+}
+/// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
+/// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
+const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6"),
+];
+/// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
+/// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
+#[test]
+fn b3b_rv120_f2_forgeries_are_refused_at_g8_step_4() {
+    use open_pipe_stress_canonical_json::canonical_json;
+    use serde_json::json;
+    use sha2::{Digest, Sha256};
+    let shared = corpus();
+    let shapes = b3b_shapes(&shared);
+    let forged: Vec<_> = shapes.iter().filter(|(s, _)| s.name.starts_with("RV120 F2: ")).collect();
+    assert_eq!(forged.len(), 4);
+    let mut digests = Vec::new();
+    for ((shape, want), (prefix, base, _)) in forged.into_iter().zip(RV120_FORGERY_INPUTS) {
+        assert!(shape.name.starts_with(prefix) && shape.base == base, "{}", shape.name);
+        assert_eq!(*want, json!({"gate": "G8", "code": PREPARATION}));
+        let (source, invocation) = b3b_input(&shared, shape);
+        digests.push(format!("{:x}", Sha256::digest(canonical_json(&json!([source, invocation])).as_bytes())));
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}}),
+            "{} [{base}]",
+            shape.name
+        );
+    }
+    assert_eq!(digests, RV120_FORGERY_INPUTS.map(|f| f.2), "RV120's inputs");
+}
+/// REVISION_01 §4.3's entries and the added shapes on one exact base, with every
+/// edited value taken from that base (its owner entry, material, nu, case and pipe).
+fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let ce = |tail: Value| {
+        let mut p = vec![json!("contract_evidence"), json!("exact_cases"), json!(0)];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let (base, base_invocation) = exact_base(shared, base_name);
+    let entry = &base["contract_evidence"]["exact_cases"][0];
+    let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
+    let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
+    let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
+    let receipt_e = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["elastic_modulus"]);
+    let base_model = &base_invocation["request"]["model"];
+    let authored_nu = base_model["materials"][0]["poisson_ratio"]["value"].as_f64().unwrap();
+    let (case_id, pipe_id) = (base_model["load_cases"][0]["id"].clone(), base_model["pipe_segments"][0]["id"].clone());
+    let model = |tail: Value| {
+        let mut p = vec![json!("request"), json!("model")];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let shape = |name, edits, invocation_edits, after| ExactShape { name, base: base_name, edits, invocation_edits, after };
+    let g0 = gate("G0", UNSUPPORTED);
+    let inv = gate("G8", INVOCATION);
+    let prep = gate("G8", PREPARATION);
+    let sec = gate("G5b", SECTION);
+    let mut out = Vec::new();
+    let rows = vec![
+        ("01 identity -> the preview id", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID))], vec![], vec![], g0.clone()),
+        ("02 profile -> the preview profile", vec![set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
+        ("02b producer component_version 0.2.1", vec![set(json!(["producer", "component_version"]), json!("0.2.1"))], vec![], vec![], g0.clone()),
+        ("03 an attempt's definition_id -> the ordinary id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], g0.clone()),
+        ("04 projection_policy changed", vec![set(rb(json!(["projection_policy"])), json!("RP-LOGICAL-ATTEMPTS-v2"))], vec![], vec![], g0.clone()),
+        ("04b policy changed", vec![set(rb(json!(["policy"])), json!("M03-INTEGRITY-MP-v3"))], vec![], vec![], g0.clone()),
+        ("04c facade_policy changed", vec![set(rb(json!(["facade_policy"])), json!("RP-FACADE-SI-v3"))], vec![], vec![], g0.clone()),
+        ("05 work_policy changed", vec![set(rb(json!(["work_policy"])), json!("W1-LME-20B-60B-v2"))], vec![], vec![], g0.clone()),
+        ("06 canonicalization changed", vec![set(rb(json!(["canonicalization"])), json!("openpipestress_jcs_ijson_v2"))], vec![], vec![], g0.clone()),
+        ("07 work.case_limit changed", vec![set(rb(json!(["work", "case_limit"])), json!(19_999_999_999u64))], vec![], vec![], g0.clone()),
+        ("08 work.invocation_limit changed", vec![set(rb(json!(["work", "invocation_limit"])), json!(60_000_000_001u64))], vec![], vec![], g0.clone()),
+        ("08b receipt_version 2", vec![set(rb(json!(["receipt_version"])), json!(2))], vec![], vec![], g0.clone()),
+        ("10 the exact successor relabelled preview (identity and profile)", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID)), set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
+        ("12 owner entry's As_m2 one ulp", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(ulps(section("As_m2"), 1)))], vec![], vec![], sec.clone()),
+        ("13 owner entry's Z_m3 one ulp", vec![set(ce(json!(["pipe_sections", 0, "Z_m3"])), json!(ulps(section("Z_m3"), 1)))], vec![], vec![], sec.clone()),
+        ("14 owner entry's I_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "I_m4"])), json!(ulps(section("I_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15 owner entry's ro_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "ro_m"])), json!(ulps(section("ro_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15b owner entry's J_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "J_m4"])), json!(ulps(section("J_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15c owner entry's outside_diameter_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "outside_diameter_m"])), json!(ulps(section("outside_diameter_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15d owner entry's effective_wall_thickness_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "effective_wall_thickness_m"])), json!(ulps(section("effective_wall_thickness_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15e the owner entry's load_case_id renamed (no entry for the selected case)", vec![set(ce(json!(["load_case_id"])), json!("case:other"))], vec![], vec![], sec.clone()),
+        ("15f the owner entry's pipe section listed twice", vec![set(ce(json!(["pipe_sections"])), json!([entry["pipe_sections"][0], entry["pipe_sections"][0]]))], vec![], vec![], sec.clone()),
+        ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
+        ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
+        ("16b contract_evidence removed", vec![remove(json!(["contract_evidence"]))], vec![], vec![], sec.clone()),
+        ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED")),
+        ("17 an entry's G_pa three ulps", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 3)))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_MATERIAL_G_BINDING")),
+        ("18 recovery_method added to an exact_cases entry", vec![set(ce(json!(["recovery_method"])), json!("retained_source_blocks_exact_v1"))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CASE_SHAPE")),
+        ("19 invocation contract -> legacy 1.0.0", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}))], vec![], inv.clone()),
+        ("20 invocation schema -> 0.4.0", vec![], vec![set(model(json!(["schema_version"])), json!("0.4.0"))], vec![], inv.clone()),
+        ("21 invocation pressure_contract false", vec![], vec![set(model(json!(["pressure_contract"])), json!(false))], vec![], inv.clone()),
+        ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2", "extra": null}))], vec![], inv.clone()),
+        ("21c invocation contract version 2.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.1", "mode": "exact_straight_pressure_v2"}))], vec![], inv.clone()),
+        ("21d invocation contract removed (0.3.0, absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
+        // Entry 22: B2-C admits model combinations; G8's entry and expression equality refuses this one (no receipt entry names it).
+        ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
+        ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
+        ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
+        // D1.5: only the base common E/nu, even a named point equal to the base, with
+        // the receipt's selector naming it alike (step 3 alone refuses it).
+        ("23b a case naming a point equal to the base, the receipt's selector alike", vec![set(rb(json!(["material_bases", 0, "selector"])), json!({"kind": "named", "id": "point:base"}))], vec![
+            set(model(json!(["materials", 0, "temperature_points"])), json!([{"id": "point:base", "elastic_modulus": base_model["materials"][0]["elastic_modulus"], "poisson_ratio": base_model["materials"][0]["poisson_ratio"]}])),
+            set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:base")),
+        ], vec![], prep.clone()),
+        ("24 a material's shear_origin -> explicit_g", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin"])), json!({"kind": "explicit_g"}))], vec![], vec![], prep.clone()),
+        ("24b a material's selection -> named_point", vec![set(rb(json!(["material_bases", 0, "materials", 0, "selection"])), json!({"kind": "named_point", "point_id": "point:x"}))], vec![], vec![], prep.clone()),
+        ("25b a material's elastic_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "elastic_modulus"])), json!(format!("{:016x}", ulps(receipt_e, 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(receipt_g, 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(material("nu"), 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(authored_nu, 1)))], vec![], prep.clone()),
+        ("28 S-C only: an entry's pipe_materials nu one ulp", vec![set(ce(json!(["pipe_materials", 0, "nu"])), json!(ulps(material("nu"), 1)))], vec![], vec![], prep.clone()),
+        ("29 N-6: an entry's G_pa one ulp", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 1)))], vec![], vec![], prep.clone()),
+        ("30 a case's pressure_regions -> null", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), Value::Null)], vec![], prep.clone()),
+        ("30b a case's pressure_regions absent", vec![], vec![remove(model(json!(["load_cases", 0, "pressure_regions"])))], vec![], prep.clone()),
+        ("31 a case's pressure_regions -> one region", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), json!([{"id": "region:x", "member_pipe_ids": [pipe_id], "pressure": {"value": 0, "unit": "Pa"}}]))], vec![], prep.clone()),
+        ("32 a member's geometry.route -> preview", vec![set(rb(json!(["sources", 0, "section_terms", 0, "geometry", "route"])), json!("preview"))], vec![], vec![], prep.clone()),
+        ("32b the authored poisson_ratio unit -> \"\"", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "unit"])), json!(""))], vec![], prep.clone()),
+        ("32c the authored constitutive_basis removed (S-C)", vec![], vec![remove(model(json!(["materials", 0, "constitutive_basis"])))], vec![], prep.clone()),
+    ];
+    for (name, edits, invocation_edits, after, want) in rows {
+        out.push((shape(name, edits, invocation_edits, after), want));
+    }
+    out
+}
+fn b3b_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
+    use serde_json::json;
+    match shape.base {
+        "<preview:ordinary_prepared_synthetic>" => {
+            let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == ORD).unwrap();
+            let mut source = case["source"].clone();
+            source["producer"]["semantic_contract_id"] = json!(rp::EXACT_CONTRACT_ID);
+            source["formulation_basis"]["profile_id"] = json!(rp::EXACT_PROFILE);
+            rehash(&mut source);
+            (source, case["invocation"].clone())
+        }
+        s1 if s1.starts_with("<s1:") => {
+            let name = &s1[4..s1.len() - 1];
+            let (mut source, invocation) = exact_base(shared, if name == "file" { FILE_BASE } else { name });
+            rehash_with(&mut source, rp::DEFINITION_HASH);
+            (source, invocation)
+        }
+        _ => exact_shape_input(shared, shape),
+    }
+}
+#[test]
+fn b3b_exact_successor_shapes_first_failures() {
+    use std::io::Write;
+    let shared = corpus();
+    let shapes = b3b_shapes(&shared);
+    let mut misses = Vec::new();
+    let mut lines = Vec::new();
+    for (shape, want) in &shapes {
+        let (source, invocation) = b3b_input(&shared, shape);
+        let got = observe_validation(rp::validate(&source, Some(&invocation)));
+        if got != *want {
+            misses.push(format!("{} [{}]: got {got}, want {want}", shape.name, shape.base));
+        }
+        let mut line = readings(&source, &invocation);
+        line["name"] = shape.name.into();
+        line["base"] = shape.base.into();
+        lines.push(line);
+    }
+    if let Ok(path) = std::env::var("B3B_SHAPES_OUT") {
+        let mut f = std::fs::File::create(path).unwrap();
+        for l in &lines {
+            writeln!(f, "{}", serde_json::to_string(l).unwrap()).unwrap();
+        }
+    }
+    // `B3B_INPUTS_OUT`: every shape's materialized statement and invocation (JSON lines),
+    // for the other readers' comparison on identical bytes.
+    if let Ok(path) = std::env::var("B3B_INPUTS_OUT") {
+        let mut f = std::fs::File::create(path).unwrap();
+        for (shape, want) in &shapes {
+            let (source, invocation) = b3b_input(&shared, shape);
+            let line = serde_json::json!({"name": shape.name, "base": shape.base, "expected_bound": want, "source": source, "invocation": invocation});
+            writeln!(f, "{}", serde_json::to_string(&line).unwrap()).unwrap();
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4 + 2);
+}
+fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
+    match r {
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+        Ok(_) => Value::Null,
+    }
+}
+/// B3b: the synthetic exact successors and lane P's m3x successors validate bound
+/// (eligible), unbound and on transport (never eligible); the standing is the receipt's; the base
+/// dispatch returns the exact table; S-C's code is the G8 failure's detail.
+#[test]
+fn b3b_exact_successor_readings_standing_and_dispatch() {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    use serde_json::json;
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": {"ok": {"eligible": true}}, "unbound": {"ok": {"eligible": false}},
+                "transport": {"ok": {"eligible": false}}}),
+            "{base}"
+        );
+        let refs: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        assert_eq!(sc::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "numerically_eligible", "{base}");
+        assert_eq!(sc::numerical_use_standing_with_context(&source, &refs, None), "needs_recompute", "{base}");
+        let (table, version) = sc::for_source(&source).unwrap();
+        assert_eq!((table["semantic_contract_id"].as_str(), version), (Some(rp::EXACT_CONTRACT_ID), "0.3.0"));
+        assert!(std::ptr::eq(table, sc::physics_retained_contract()));
+        let (table, _) = sc::for_source_metadata(&source).unwrap();
+        assert!(std::ptr::eq(table, sc::physics_retained_contract()));
+        let classes = sc::retained_row_classes(&source).unwrap().unwrap();
+        assert_eq!(classes.len(), rp::validate(&source, None).unwrap().classifications.len());
+        // F-5: the receipt member and the method token stay the successors' own.
+        let mut downgraded = source.clone();
+        downgraded["producer"]["semantic_contract_id"] = json!(sc::PHYSICS_ID);
+        downgraded["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
+        assert_eq!(sc::for_source(&downgraded).unwrap_err(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
+    }
+    // Unbound and transport readings of three shapes: a G8 shape reads unbound and on
+    // transport; removing the evidence is G5b bound and unbound, and on transport
+    // physics-1's own transport-shape code at G7 (no header refusal: physics-1's
+    // header does not require the evidence, as preview-physics-1's does).
+    let shapes = b3b_shapes(&shared);
+    for (prefix, want) in [
+        ("29 ", json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})),
+        ("16b ", json!({"bound": {"gate": "G5b", "code": SECTION}, "unbound": {"gate": "G5b", "code": SECTION}, "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_SHAPE"}})),
+        ("01 ", json!({"bound": {"gate": "G0", "code": UNSUPPORTED}, "unbound": {"gate": "G0", "code": UNSUPPORTED}, "transport": {"gate": "G0", "code": UNSUPPORTED}})),
+    ] {
+        let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with(prefix)).unwrap();
+        let (source, invocation) = b3b_input(&shared, shape);
+        assert_eq!(readings(&source, &invocation), want, "{}", shape.name);
+    }
+    // S-C's own code is the detail of G8's PREPARATION_MISMATCH (B3D-13).
+    let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with("28 ")).unwrap();
+    let (source, invocation) = b3b_input(&shared, shape);
+    let e = rp::validate(&source, Some(&invocation)).unwrap_err();
+    assert_eq!((e.gate, e.code.as_str()), ("G8", PREPARATION));
+    assert!(e.detail.as_deref().is_some_and(|d| d.contains("ACTUAL_SELECTED_MATERIAL")), "{e:?}");
+    // The table pins: identity, profile and bytes.
+    assert_eq!(sc::verify_physics_retained_table(b"{}").unwrap_err(), "SOURCE_PHYSICS_RETAINED_TABLE_HASH");
+    assert_eq!(sc::physics_retained_contract()["formulation_profile_id"], rp::EXACT_PROFILE);
+}
+
+/// B3b (D2 §4.9.7; B3-D §7): derivative.rs carries the exact successor's
+/// `contract_evidence` and its receipt whole, and validates the document against
+/// the source (the synthetic exact successors and lane P's m3x successors). The base and origin are a minimal 0.2.0 scaffold of the desktop's
+/// (T6S-2's `desktop_base` and `desktop_origin`, retained_precision_derivative_golden.rs);
+/// the exact successor's golden, on lane P's `m3x` successors, is lane T's.
+#[test]
+fn b3b_exact_successor_derivative_carries_the_receipt_and_evidence() {
+    use open_pipe_stress_result_export::{derivative as d, semantic_contract as sc};
+    use serde_json::json;
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        let model = &invocation["request"]["model"];
+        let run = source["run_id"].as_str().unwrap();
+        let project = model["project"]["id"].as_str().unwrap();
+        let provenance = json!({"source_name":"b3b exact successor derivative control","source_location":"core/reporting/result_export/tests/retained_precision_contract.rs","source_license":"project-local","contributor":"test","contributor_certification":"test","redistribution_status":"private_only","review_status":"pending"});
+        let diagnostics: Vec<Value> = source["diagnostics"].as_array().unwrap().iter().map(|x| json!({
+            "code": x["code"], "class": "ASSUMPTION_WARNING", "severity": x["severity"],
+            "source": {"ref_type":"source","ref_id":x["source"]}, "affected_object": {"ref_type":"preview_entity","ref_id":x["affected_refs"][0]},
+            "message": x["message"], "remediation": "Review source model and preview limitations.", "provenance": provenance})).collect();
+        let mut statuses = vec!["HUMAN_REVIEW_REQUIRED".to_string(), source["status"]["mechanics"].as_str().unwrap().into(), source["status"]["rule_check"].as_str().unwrap().into()];
+        statuses.sort();
+        let doc_base = json!({
+            "schema_version": "0.2.0", "deliverable_id": "DEL-08-04", "package_id": "PKG-08", "scope_item": "SOW-046", "objectives": ["OBJ-007", "OBJ-009"],
+            "export_format_status": {"baseline_format":"schema_first_json_result_envelope","additional_formats":"TBD","public_transport_protocol":"TBD","local_fea_package_format":"TBD","external_adapter_formats":"TBD"},
+            "result_envelope": {
+                "schema_version": "0.2.0", "envelope_id": format!("result-envelope:{run}"), "model_ref": d::reference("model_payload", project),
+                "run_ref": d::reference("analysis_run", run),
+                "solver_version": {"solver_name": source["producer"]["component_name"], "solver_version": source["producer"]["component_version"], "solver_build_ref": "test:b3b-exact-derivative-control"},
+                "unit_system_ref": d::reference("unit_system", &format!("{project}:units")),
+                "load_basis_refs": model["load_cases"].as_array().unwrap().iter().map(|c| d::reference("LoadCase", c["id"].as_str().unwrap())).collect::<Vec<_>>(),
+                "result_sets": [{"set_id":format!("result-set:{run}:mechanics"),"set_type":"mechanics","basis_ref":d::reference("analysis_run", run),"values":[]}],
+                "diagnostics": diagnostics, "provenance": provenance,
+                "reproducibility": {"model_hash":null,"run_hashes":[],"audit_manifest_ref":d::reference("audit_manifest", "test:b3b-manifest"),"deterministic_ordering":true},
+                "analysis_status": statuses,
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "downstream_use": {"review":true,"regression_comparison":true,"report_consumption":true,"headless_automation":true,"governed_downstream_tooling":true,"additional_export_formats":"TBD"},
+            }
+        });
+        let origin = json!({
+            "origin_id": "source-origin:current-received", "origin_class": "received_current_dimension_absent",
+            "qualification_ref": d::reference("current_manifest", "test:b3b-manifest"), "authentic_producer_available": false,
+            "received_carrier_checksum": d::checksum(&source, "received_current_dimension_absent_carrier", d::reference("received_current_carrier", run)).unwrap(),
+            "original_producer_checksum": null,
+            "origin_limit": "Test-built origin: a reader-local synthetic exact successor, not a qualified Current received carrier",
+            "actual_model_ref": d::reference("model_payload", project), "mechanics_run_ref": d::reference("mechanics_run", run),
+            "request_model_ref": null, "request_run_ref": null, "request_alias_disclosure": null,
+        });
+        let doc = d::derive_document(doc_base, model, &source, origin, None).unwrap_or_else(|e| panic!("{base}: {e}"));
+        let e = &doc["result_envelope"];
+        assert_eq!(e["retained_precision"], source["retained_precision"], "{base}: the receipt travels whole");
+        assert_eq!(e["contract_evidence"], source["contract_evidence"], "{base}: physics-1's evidence as received");
+        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", sc::PHYSICS_RETAINED_ID));
+        d::validate_document(&doc, &source).unwrap();
+        // A document without the receipt is refused against the exact successor.
+        let mut stripped = doc.clone();
+        stripped["result_envelope"].as_object_mut().unwrap().remove("retained_precision");
+        assert_eq!(d::validate_document(&stripped, &source).unwrap_err(), d::RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH);
+    }
+}
+
+/// ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check, on the preview and
+/// exact routes. A sourced case passes only with `pressure_regions` absent, null or []
+/// (type-strict; [] only on the exact route), `equivalent_static` absent or null, and no
+/// `analysis_state` member (null included); a case-level `pressure`, a key PP's typed case
+/// lacks, is not read. I100's 22 values on PP's milestone successors, both modes (an
+/// invocation edit, resealed with DEF-O's H), and its x08 (`analysis_state`) and p02 (a
+/// case-level `pressure`) on the synthetic and m3x exact successors (DEF-E's H): bound G8
+/// or eligible; unbound and on transport never refused and never eligible (G8 does not run).
+#[test]
+fn b3_add1_g8_sourced_case_on_the_preview_and_exact_routes() {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    use serde_json::json;
+    const MILESTONES: [(&str, &str); 2] = [
+        ("sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+        ("dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+    ];
+    let preview: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference_state"}), false),
+        ("analysis_state", Value::Null, false),
+        ("analysis_state", json!({}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+        ("pressure", Value::Null, true),
+        ("pressure", json!(0), true),
+        ("pressure_regions", json!("x"), false),
+        ("pressure_regions", json!({}), false),
+        ("pressure_regions", json!({"id": "region:x"}), false),
+        ("pressure_regions", json!(0), false),
+        ("pressure_regions", json!(1), false),
+        ("pressure_regions", json!(true), false),
+        ("pressure_regions", json!(false), false),
+        ("pressure_regions", json!(""), false),
+        ("pressure_regions", json!([]), true),
+        ("pressure_regions", Value::Null, true),
+        ("pressure_regions", json!([{"id": "region:x", "member_pipe_ids": ["M1"]}]), false),
+        ("equivalent_static", json!({}), false),
+        ("equivalent_static", json!(false), false),
+        ("equivalent_static", json!(0), false),
+        ("equivalent_static", Value::Null, true),
+        ("notes", json!("free text"), true),
+    ];
+    let exact: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference"}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+    ];
+    let want = |passes: bool| {
+        let bound = if passes { json!({"ok": {"eligible": true}}) } else { json!({"gate": "G8", "code": PREPARATION}) };
+        json!({"bound": bound, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})
+    };
+    let mut misses = Vec::new();
+    let mut checked = 0;
+    let mut read = |label: String, source: &Value, invocation: &Value, rows: &[(&str, Value, bool)]| {
+        assert_eq!(readings(source, invocation), want(true), "{label}: the base");
+        for (key, value, passes) in rows {
+            let mut invocation = invocation.clone();
+            invocation["request"]["model"]["load_cases"][0][*key] = value.clone();
+            let mut source = source.clone();
+            source["retained_precision"]["body"]["invocation"]["value"] =
+                domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+            rehash(&mut source);
+            let got = readings(&source, &invocation);
+            if got != want(*passes) {
+                misses.push(format!("{label}: {key} = {value}: got {got}, want {}", want(*passes)));
+            }
+            checked += 1;
+        }
+    };
+    for (mode, text) in MILESTONES {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        read(format!("milestone {mode}"), &doc["source"], &doc["invocation"], &preview);
+    }
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        read(base.to_string(), &source, &invocation, &exact);
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(checked, 2 * 22 + 5 * 2);
+}
+
 // ---------------------------------------------------------------------------
 // Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two
 // producer-solved bases, `d38_beside_selected`, the out-of-order-authored and
@@ -5653,9 +6734,9 @@ const N07_BASES: [&str; 9] = [
 ];
 /// 07n's entries: the mutations after 07m's 294 and the must-pass entries after 07m's 28.
 fn n07_entries(shared: &Value) -> Vec<Value> {
-    let mut entries = shared["mutations"].as_array().unwrap()[294..].to_vec();
+    let mut entries = shared["mutations"].as_array().unwrap()[294..534].to_vec();
     entries.extend(
-        shared["must_pass"].as_array().unwrap()[28..]
+        shared["must_pass"].as_array().unwrap()[28..78]
             .iter()
             .cloned(),
     );
@@ -5678,14 +6759,12 @@ fn snapshot_07n_counts_and_format() {
             .map(|e| e["id"].as_str().unwrap().to_owned())
             .collect()
     };
+    // 07o appends after 07n (`snapshot_07o_counts_and_format`); 07n is the prefix.
     let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
-    assert_eq!(
-        (cases.len(), mutations.len(), must_pass.len()),
-        (26, 534, 78)
-    );
+    let (cases, mutations, must_pass) = (&cases[..26], &mutations[..534], &must_pass[..78]);
     assert_eq!(cases[17..], N07_BASES);
-    assert_eq!(mutations, MUTATION_IDS);
-    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(mutations, &MUTATION_IDS[..534]);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(must_pass).collect();
     assert_eq!(all.len(), 612, "entry ids are unique");
     let new_keys = [
         "expected_unbound",
@@ -5750,23 +6829,21 @@ fn snapshot_07n_counts_and_format() {
             e["id"]
         );
     }
-    let classes = shared["must_pass"].as_array().unwrap()[28..]
+    let classes = shared["must_pass"].as_array().unwrap()[28..78]
         .iter()
         .filter(|e| e.get("expected_classifications").is_some())
         .count();
     assert_eq!(classes, 16);
-    let eligible = |key: &str, field: &str| {
-        shared[key]
-            .as_array()
-            .unwrap()
+    let eligible = |key: &str, field: &str, n: usize| {
+        shared[key].as_array().unwrap()[..n]
             .iter()
             .filter(|e| e[field]["numerical_eligible"] == true)
             .count()
     };
     assert_eq!(
         (
-            eligible("cases", "expected"),
-            eligible("must_pass", "expected_eligibility")
+            eligible("cases", "expected", 26),
+            eligible("must_pass", "expected_eligibility", 78)
         ),
         (19, 46)
     );
@@ -5856,6 +6933,571 @@ fn snapshot_07n_unbound_and_transport_reads() {
                 "{} transport: got {got} want {}",
                 entry["id"], entry["expected_transport"]
             ));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+// ---- B2 (B2-C CONTRACT with REVISION_01 and REVISION_02): combinations ----
+
+/// The committed W-CB3 combination successor documents (B2-P's live successors):
+/// `(source, invocation)` for a mode.
+fn b2_w_cb3(mode: &str) -> (Value, Value) {
+    let text = match mode {
+        "sparse_interactive" => include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
+        _ => include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
+    };
+    let doc: Value = serde_json::from_str(text).unwrap();
+    (doc["source"].clone(), doc["invocation"].clone())
+}
+const B2_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
+/// S-6 from step `from` (4, 5 or 6) on: the hashes that depend on an edited
+/// inner hash, leaving that inner hash as written (REVISION_01 §5.2's inner-hash
+/// tests: each inner conjunct is then the only one a test can reach).
+fn b2_reseal(source: &mut Value, from: u8) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let identity = |s: &Value| {
+        let mut s = s.clone();
+        s.as_object_mut().unwrap().remove("index");
+        Value::from(domain_hash("retained_precision_source_mp_v2", &s).unwrap())
+    };
+    let body = &mut source["retained_precision"]["body"];
+    if from <= 4 {
+        let sources = body["sources"].clone();
+        for s in body["sources"].as_array_mut().unwrap() {
+            if s["owner"]["kind"] != "combination" {
+                continue;
+            }
+            for o in s["operands"].as_array_mut().unwrap() {
+                o["source_identity_sha256"] = identity(&sources[o["source_ref"].as_u64().unwrap() as usize]);
+            }
+        }
+    }
+    if from <= 5 {
+        let sources = body["sources"].clone();
+        for c in body["combinations"].as_array_mut().unwrap() {
+            if c["disposition"] == "retained_selected" {
+                c["source_identity_sha256"] = identity(&sources[c["source_ref"].as_u64().unwrap() as usize]);
+            }
+        }
+    }
+    let mut public = source.clone();
+    public.as_object_mut().unwrap().remove("retained_precision");
+    source["retained_precision"]["body"]["publication_sha256"] =
+        domain_hash("retained_precision_publication_mp_v2", &public).unwrap().into();
+    source["retained_precision"]["receipt_sha256"] =
+        domain_hash("retained_precision_receipt_mp_v2", &source["retained_precision"]["body"]).unwrap().into();
+}
+/// One W-CB3 shape: `edits` on the source, `invocation_edits` on the invocation
+/// (its digest rebound), the full rehash, then `inner` edits resealed by the S-6
+/// steps after the edited hash's own (`b2_reseal`); the bound first failure, or
+/// null when the statement validates.
+fn b2_shape(mode: &str, edits: &[Value], invocation_edits: &[Value], inner: &[Value]) -> Value {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let (mut source, mut invocation) = b2_w_cb3(mode);
+    for e in edits {
+        edit(&mut source, e);
+    }
+    for e in invocation_edits {
+        edit(&mut invocation, e);
+    }
+    if !invocation_edits.is_empty() {
+        source["retained_precision"]["body"]["invocation"]["value"] =
+            domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    }
+    rehash(&mut source);
+    if !inner.is_empty() {
+        for e in inner {
+            edit(&mut source, e);
+        }
+        // The edited hash's S-6 step: 2 (a preparation hash), 4 (an operand
+        // identity) or 5 (the combination identity); reseal the steps after it.
+        let path = inner[0]["path"].to_string();
+        let from = if path.contains("preparation") { 4 } else if path.contains("operands") { 5 } else { 6 };
+        b2_reseal(&mut source, from);
+    }
+    observe_validation(rp::validate(&source, Some(&invocation)))
+}
+
+/// B2-P's committed W-CB3 successors (`retained_selected` with one operand
+/// preparation), both modes, are read whole: bound, eligible, with the selected
+/// case's classes then the combination's own G5c classes; unbound and on
+/// transport never eligible; and the 07o rehash (S-6, steps 1-7) is a fixed
+/// point of each.
+#[test]
+fn b2_w_cb3_successors_validate() {
+    for mode in B2_MODES {
+        let (source, invocation) = b2_w_cb3(mode);
+        let got = rp::validate(&source, Some(&invocation)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+        assert!(got.invocation_bound && got.numerical_eligible, "{mode}");
+        let rows = source["results"].as_array().unwrap();
+        let expected: Vec<&Value> = rows
+            .iter()
+            .filter(|r| r["basis_ref"]["ref_id"] == "case:a")
+            .chain(rows.iter().filter(|r| r["basis_ref"]["ref_type"] == "combination"))
+            .map(|r| &r["id"])
+            .collect();
+        assert_eq!(got.classifications.iter().map(|c| Value::from(c.result_id.clone())).collect::<Vec<_>>().iter().collect::<Vec<_>>(), expected, "{mode}");
+        assert!(got.classifications.iter().any(|c| c.basis_ref["ref_type"] == "combination" && c.scale_bits.is_some()), "{mode}: G5c classes the combination's rows");
+        assert!(matches!(rp::validate(&source, None), Ok(v) if !v.numerical_eligible), "{mode}");
+        assert!(matches!(rp::validate_transport_metadata(&source), Ok(v) if !v.numerical_eligible), "{mode}");
+        let mut resealed = source.clone();
+        rehash(&mut resealed);
+        assert_eq!(resealed, source, "{mode}: the 07o rehash reseals the producer's receipt to itself");
+    }
+}
+
+/// B2-C §10.1, every new check by gate, on W-CB3 (both modes): each edit reaches
+/// its gate and code. Rows name CONTRACT §10.3's mutation where one is the
+/// same edit. The `inner` rows are REVISION_01 §5.2's three inner-hash tests:
+/// each inner hash edited and only the publication and receipt hashes resealed.
+#[test]
+fn b2_w_cb3_new_checks_first_failures() {
+    let mut misses = Vec::new();
+    for mode in B2_MODES {
+        b2_w_cb3_rows(mode, &mut misses);
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
+    use serde_json::json;
+    let (source, _) = b2_w_cb3(mode);
+    let body = &source["retained_precision"]["body"];
+    let result_ids = body["combinations"][0]["result_ids"].as_array().unwrap().clone();
+    let diagnostics = source["diagnostics"].as_array().unwrap();
+    let selected_diagnostic = diagnostics.iter().position(|d| d["id"] == "diagnostic:retained-precision:combination:ab:selected").unwrap();
+    let combination_row = source["results"].as_array().unwrap().iter().position(|r| r["basis_ref"]["ref_type"] == "combination").unwrap();
+    // The combination's last row (a support moment magnitude, not hull-projected).
+    let last_row = source["results"].as_array().unwrap().iter().rposition(|r| r["basis_ref"]["ref_type"] == "combination").unwrap();
+    assert_eq!(source["results"][last_row]["kind"], "support_reaction_moment_magnitude_v2");
+    let mut swapped_attempts = body["product_attempts"].clone();
+    swapped_attempts.as_array_mut().unwrap().swap(0, 1);
+    swapped_attempts[0]["id"] = json!(0);
+    swapped_attempts[1]["id"] = json!(1);
+    let mut duplicated = body["operand_preparations"].as_array().unwrap().clone();
+    let mut copy = duplicated[0].clone();
+    copy["id"] = json!(1);
+    duplicated.push(copy);
+    // m68: the operand-prepared CaseSource moved after the CombinationSource.
+    let mut moved = body["sources"].as_array().unwrap().clone();
+    let combination_source = moved.remove(2);
+    moved.insert(1, combination_source);
+    moved[1]["index"] = json!(1);
+    moved[2]["index"] = json!(2);
+    moved[1]["operands"][1]["source_ref"] = json!(2);
+    // m20: the combination renamed to case A's id throughout (entry, evidence, rows,
+    // diagnostics, its CombinationSource's owner).
+    let mut renamed = vec![
+        set(rb(json!(["combinations", 0, "basis_ref", "ref_id"])), json!("case:a")),
+        set(json!(["contract_evidence", "combination_gates", 0, "combination_id"]), json!("case:a")),
+        set(rb(json!(["sources", 2, "owner", "combination_id"])), json!("case:a")),
+    ];
+    for (i, r) in source["results"].as_array().unwrap().iter().enumerate() {
+        if r["basis_ref"]["ref_type"] == "combination" {
+            renamed.push(set(json!(["results", i, "basis_ref", "ref_id"]), json!("case:a")));
+        }
+    }
+    for (i, d) in diagnostics.iter().enumerate() {
+        if d["affected_refs"] == json!(["combination:ab"]) {
+            renamed.push(set(json!(["diagnostics", i, "affected_refs"]), json!(["case:a"])));
+        }
+    }
+    let swapped_operands = json!([body["calls"][1]["requested_operands"][1], body["calls"][1]["requested_operands"][0]]);
+    let factor = |v: &str| json!(v);
+    let wf = gate("G5", "RETAINED_PRECISION_WORK_MISMATCH");
+    let rows: Vec<(&str, Vec<Value>, Vec<Value>, Vec<Value>, Value)> = vec![
+        ("control", vec![], vec![], vec![], Value::Null),
+        // G1: the three inner hashes (S-6 steps 2, 4, 5).
+        ("inner: the operand-prepared CaseSource's preparation hash", vec![], vec![], vec![set(rb(json!(["sources", 1, "preparation", "sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("inner: a CombinationSource operand's identity", vec![], vec![], vec![set(rb(json!(["sources", 2, "operands", 1, "source_identity_sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("inner: the combination's identity", vec![], vec![], vec![set(rb(json!(["combinations", 0, "source_identity_sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m8 a case attempt carries DEF-C's id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::COMBINATION_DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m9 the combination attempt carries DEF-O's id", vec![set(rb(json!(["product_attempts", 1, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m65 the operand preparation carries DEF-C's id", vec![set(rb(json!(["operand_preparations", 0, "definition_id"])), json!(rp::COMBINATION_DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m1 the combination attempt's id unknown", vec![set(rb(json!(["product_attempts", 1, "definition_id"])), json!("RP-UNKNOWN"))], vec![], vec![], gate("G0", UNSUPPORTED)),
+        ("m2 the operand preparation's id unknown", vec![set(rb(json!(["operand_preparations", 0, "definition_id"])), json!("RP-UNKNOWN"))], vec![], vec![], gate("G0", UNSUPPORTED)),
+        // G2.
+        ("m16 a term's factor in uppercase hex", vec![set(rb(json!(["combinations", 0, "expression", "terms", 0, "factor"])), factor("3FF0000000000000"))], vec![], vec![], gate("G2", "RETAINED_PRECISION_ENCODING_MISMATCH")),
+        ("m17 a requested operand's factor NaN", vec![set(rb(json!(["calls", 1, "requested_operands", 0, "factor"])), factor("7ff8000000000000"))], vec![], vec![], gate("G2", "RETAINED_PRECISION_ENCODING_MISMATCH")),
+        // G3.
+        ("(a) the gate entry names another combination", vec![set(json!(["contract_evidence", "combination_gates", 0, "combination_id"]), json!("combination:other"))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(b) m20 the combination renamed to a case id throughout", renamed, vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m21 result_ids loses a row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids[..result_ids.len() - 1]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m22 result_ids gains a case row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!([result_ids.clone(), vec![source["results"][0]["id"].clone()]].concat()))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m23 two result_ids swapped", vec![set(rb(json!(["combinations", 0, "result_ids", 0])), result_ids[1].clone()), set(rb(json!(["combinations", 0, "result_ids", 1])), result_ids[0].clone())], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) a combination row naming no entry (and in no result_ids)", vec![
+            set(json!(["results", last_row, "basis_ref", "ref_id"]), json!("combination:other")),
+            set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids[..result_ids.len() - 1])),
+        ], vec![], vec![], gate("G3", COVERAGE)),
+        ("(e) m26 the combination attempt before the case attempt", vec![set(rb(json!(["product_attempts"])), swapped_attempts), set(rb(json!(["cases", 0, "product_attempt_ref"])), json!(1)), set(rb(json!(["combinations", 0, "product_attempt_ref"])), json!(0)), set(rb(json!(["sources", 0, "preparation", "attempt_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(f) m24 execution_order loses the combination Run", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(f) m25 the combination's execution index changed", vec![set(rb(json!(["work", "execution_order", 1, "index"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d) m27 the operand preparation's owner is the selected case", vec![set(rb(json!(["operand_preparations", 0, "owner_ref", "index"])), json!(0))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d) requested_by names no combination", vec![set(rb(json!(["operand_preparations", 0, "requested_by"])), json!([1]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d, h) m30 the operand preparation duplicated", vec![set(rb(json!(["operand_preparations"])), json!(duplicated))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d) m29 the operand preparation removed (its source too)", vec![
+            remove(rb(json!(["operand_preparations"]))),
+            remove(rb(json!(["sources", 1]))),
+            set(rb(json!(["sources", 1, "index"])), json!(1)),
+            set(rb(json!(["sources", 1, "operands", 1, "source_ref"])), json!(0)),
+            set(rb(json!(["combinations", 0, "source_ref"])), json!(1)),
+            set(rb(json!(["combinations", 0, "run", "origin", "source_ref"])), json!(1)),
+            set(rb(json!(["product_attempts", 1, "source_ref"])), json!(1)),
+            set(rb(json!(["calls", 1, "source_refs"])), json!([1])),
+            set(rb(json!(["calls", 1, "requested_operands", 1, "source_ref"])), json!(0)),
+            set(rb(json!(["groups", 1, "first_source_ref"])), json!(1)),
+            set(rb(json!(["groups", 1, "source_refs"])), json!([1])),
+        ], vec![], vec![], gate("G3", COVERAGE)),
+        ("(g) the combination names the operand-prepared CaseSource", vec![set(rb(json!(["combinations", 0, "source_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(i) m68 the operand-prepared CaseSource after the CombinationSource", vec![
+            set(rb(json!(["sources"])), json!(moved)),
+            set(rb(json!(["operand_preparations", 0, "source_ref"])), json!(2)),
+            set(rb(json!(["combinations", 0, "source_ref"])), json!(1)),
+            set(rb(json!(["combinations", 0, "run", "origin", "source_ref"])), json!(1)),
+            set(rb(json!(["product_attempts", 1, "source_ref"])), json!(1)),
+            set(rb(json!(["calls", 1, "source_refs"])), json!([1])),
+            set(rb(json!(["calls", 1, "requested_operands", 1, "source_ref"])), json!(2)),
+            set(rb(json!(["groups", 1, "first_source_ref"])), json!(1)),
+            set(rb(json!(["groups", 1, "source_refs"])), json!([1])),
+        ], vec![], vec![], gate("G3", COVERAGE)),
+        // G4.
+        ("m31 the combination's selected diagnostic removed", vec![remove(json!(["diagnostics", selected_diagnostic]))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        ("m34 its affected_refs name the combination and a case", vec![set(json!(["diagnostics", selected_diagnostic, "affected_refs"]), json!(["combination:ab", "case:a"]))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        ("an unavailable diagnostic for the selected combination", vec![set(json!(["diagnostics", selected_diagnostic, "code"]), json!("RETAINED_PRECISION_UNAVAILABLE"))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        // G5, ordinary class.
+        ("disposition: the gate entry withheld", vec![set(json!(["contract_evidence", "combination_gates", 0, "withheld"]), json!(true)), set(json!(["contract_evidence", "combination_gates", 0, "reason"]), json!("NONLINEAR_COMBINATION_REQUIRES_SOLVE"))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("D6a: the combination's diagnostic_refs emptied", vec![set(rb(json!(["combinations", 0, "diagnostic_refs"])), json!([]))], vec![], vec![], gate("G5", ATTEMPT)),
+        // G5, native class.
+        ("m38 requested_operands swapped", vec![set(rb(json!(["calls", 1, "requested_operands"])), swapped_operands.clone())], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the terms' order: requested and CombinationSource operands both swapped", vec![
+            set(rb(json!(["calls", 1, "requested_operands"])), swapped_operands.clone()),
+            set(rb(json!(["sources", 2, "operands"])), json!([body["sources"][2]["operands"][1], body["sources"][2]["operands"][0]])),
+            set(rb(json!(["sources", 2, "representative_source_ref"])), json!(1)),
+        ], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the combination Run's cache_before drops an import", vec![set(rb(json!(["combinations", 0, "run", "cache_before"])), json!(body["combinations"][0]["run"]["cache_before"].as_array().unwrap()[1..]))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m39 representative_source_ref -> operand 1's", vec![set(rb(json!(["sources", 2, "representative_source_ref"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m40 operands[0].case_index -> the other case", vec![set(rb(json!(["sources", 2, "operands", 0, "case_index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m45 an import from the prepared operand", vec![set(rb(json!(["groups", 1, "imports", 0, "operand_index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m42 the combination group's imports removed", vec![remove(rb(json!(["groups", 1, "imports"])))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the mechanics Call names another combination", vec![set(rb(json!(["calls", 1, "owner_refs", 0, "index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the ledger hash differs from the Selection's", vec![set(rb(json!(["sources", 2, "ledger_sha256"])), json!("0".repeat(64)))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m43 the combination Call's before is not the batch's after", vec![set(rb(json!(["calls", 1, "invocation_before"])), json!(body["calls"][1]["invocation_before"].as_u64().unwrap() + 1))], vec![], vec![], wf.clone()),
+        ("m44 charged is the batch Call's after", vec![set(rb(json!(["work", "charged"])), body["calls"][0]["invocation_after"].clone())], vec![], vec![], wf.clone()),
+        // G5, products.
+        ("the combination attempt's native failed beside a selected Run", vec![set(rb(json!(["product_attempts", 1, "stages", "native"])), json!("failed"))], vec![], vec![], gate("G5", PRODUCT)),
+        ("m51 the operand preparation failed while prepared", vec![set(rb(json!(["operand_preparations", 0, "stage"])), json!("failed"))], vec![], vec![], gate("G5", PRODUCT)),
+        // G5a-G5c on the combination owner.
+        ("G5a: the combination's floor ratio", vec![set(rb(json!(["combinations", 0, "selection", "floor_ratio"])), json!("3dd0000000000001"))], vec![], vec![], gate("G5a", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("m55 a combination row listed not_covered", vec![set(rb(json!(["combinations", 0, "selection", "not_covered"])), json!([result_ids[1].clone()]))], vec![], vec![], gate("G5c", "RETAINED_PRECISION_CLASSIFICATION_MISMATCH")),
+        // G6.
+        ("m57 recovery_method removed from a combination row", vec![remove(json!(["results", combination_row, "recovery_method"]))], vec![], vec![], gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH")),
+        // G8, invocation.
+        ("a model combination's factor 2", vec![], vec![set(json!(["request", "model", "combinations", 0, "terms", 1, "factor"]), json!(2.0))], vec![], gate("G8", INVOCATION)),
+        ("the model's combination renamed", vec![], vec![set(json!(["request", "model", "combinations", 0, "id"]), json!("combination:other"))], vec![], gate("G8", INVOCATION)),
+        ("the model's combinations removed", vec![], vec![remove(json!(["request", "model", "combinations"]))], vec![], gate("G8", INVOCATION)),
+        ("the model's combination a subtraction", vec![], vec![set(json!(["request", "model", "combinations", 0]), json!({"id": "combination:ab", "basis": "result_state_subtraction", "minuend_id": "case:a", "subtrahend_id": "case:b"}))], vec![], gate("G8", INVOCATION)),
+        // G8, preparation.
+        ("m62 kernel_source_sha256 replaced", vec![set(rb(json!(["sources", 2, "kernel_source_sha256"])), json!("0".repeat(64)))], vec![], vec![], gate("G8", PREP)),
+        ("m63 the operand CaseSource's effective wall", vec![set(rb(json!(["sources", 1, "section_terms", 0, "geometry", "effective_wall"])), json!("3f847ae147ae147c"))], vec![], vec![], gate("G8", PREP)),
+        ("m64 the operand preparation's old D", vec![set(rb(json!(["operand_preparations", 0, "preparation", "members", 0, "old_facts", 0])), json!("3fc999999999999b"))], vec![], vec![], gate("G8", PREP)),
+        ("the combination attempt's material basis", vec![set(rb(json!(["product_attempts", 1, "material_basis_ref"])), json!(1))], vec![], vec![], gate("G8", PREP)),
+    ];
+    for (name, edits, invocation_edits, inner, want) in &rows {
+        let got = b2_shape(mode, edits, invocation_edits, inner);
+        println!("B2_RS_SHAPE {mode} {name}: {got}");
+        if got != *want {
+            misses.push(format!("{mode} {name}: got {got}, want {want}"));
+        }
+    }
+}
+
+/// B2-C §4's reason table for a `retained_unavailable` combination with an
+/// attempt, by the attempt's own error (reader logic).
+#[test]
+fn b2_combination_reason_table_rows() {
+    use serde_json::json;
+    let entry = |code: &str, phase: &str, terminal: &str| json!({"reason": {"code": code, "phase": phase}, "run": {"id": 1, "kernel_terminal": {"kind": terminal}}});
+    let attempt = |error: Value| json!({"result": {"kind": "unavailable", "error": error}, "proof": {"checks": {"observables": {"kind": "failed", "error": {"kind": "observable", "cause": {"kind": "x"}}}}}});
+    let ok = |e: Value, a: Value| rp::reader_logic::combination_reason_table(&e, &a).is_ok();
+    assert!(ok(entry("combination_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 1}))));
+    assert!(!ok(entry("combination_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 0}))), "native names its Run");
+    assert!(!ok(entry("combination_unresolved", "kernel", "selected"), attempt(json!({"kind": "native", "run_ref": 1}))), "native with a selected Run");
+    assert!(!ok(entry("kernel_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 1}))), "m53: a case code");
+    assert!(ok(entry("combination_unresolved", "kernel", "refused"), attempt(json!({"kind": "capture", "cause": {"kind": "x"}}))));
+    assert!(ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "capture", "cause": {"kind": "x"}}))));
+    assert!(ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "observable", "cause": {"kind": "x"}}))));
+    assert!(!ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "observable", "cause": {"kind": "y"}}))), "the observables check's error");
+    assert!(!ok(entry("facade_certificate", "facade", "unresolved"), attempt(json!({"kind": "proof", "cause": {}}))), "a facade error needs a selected Run");
+    assert!(!ok(entry("facade_certificate", "kernel", "selected"), attempt(json!({"kind": "proof", "cause": {}}))));
+    assert!(!ok(entry("combination_unresolved", "preparation", "unresolved"), attempt(json!({"kind": "preparation"}))), "a preparation error is refused");
+}
+
+/// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause (reader
+/// logic, on a two-case body: A selected, B as the row states).
+#[test]
+fn b2_combination_cause_rows() {
+    use serde_json::json;
+    let body = |b: Value, cause: Value, refs: Value, ops: Value, call: Value| {
+        let mut body = json!({
+            "cases": [{"basis_ref": {"ref_id": "case:a"}, "status": "selected", "source_ref": 0},
+                      {"basis_ref": {"ref_id": "case:b"}, "status": b["status"], "source_ref": b["source_ref"], "run": b["run"]}],
+            "combinations": [{"disposition": "retained_unavailable", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}, {"case_id": "case:b"}]},
+                "reason": {"code": "combination_unresolved", "phase": "preparation", "cause": cause}}],
+            "calls": [{}, call]});
+        for (k, v) in refs.as_object().unwrap() {
+            body["combinations"][0][k] = v.clone();
+        }
+        if !ops.is_null() {
+            body["operand_preparations"] = ops;
+        }
+        body
+    };
+    let none = json!({"call_ref": null, "run": null, "source_ref": null, "product_attempt_ref": null});
+    let unsourced = json!({"status": "unavailable", "source_ref": null, "run": null});
+    let ledger = json!({"status": "unavailable", "source_ref": 1, "run": {"kernel_terminal": {"kind": "refused", "reason": {"tag": "ledger_unavailable"}}}});
+    let rebuilt = json!({"status": "unavailable", "source_ref": 1, "run": {"kernel_terminal": {"kind": "unresolved", "reason": {"tag": "ceiling"}}}});
+    let not_required = json!({"status": "not_required", "source_ref": null, "run": null});
+    let refused = json!([{"owner_ref": {"index": 1}, "result": {"kind": "refused"}}]);
+    let prepared = json!([{"owner_ref": {"index": 1}, "result": {"kind": "prepared"}}]);
+    let osu = |i: u64| json!({"kind": "operand_source_unavailable", "operand_index": i});
+    let opf = json!({"kind": "operand_preparation_failure", "operand_preparation_ref": 0});
+    let reason = json!({"space": "combination", "tag": "operands_differ"});
+    let pre = json!({"result": {"kind": "pre_source_refusal", "reason": reason}});
+    let with_call = json!({"call_ref": 1, "run": null, "source_ref": null, "product_attempt_ref": null});
+    let rows: Vec<(&str, Value, bool)> = vec![
+        ("OSU at the unsourced term", body(unsourced.clone(), osu(1), none.clone(), Value::Null, json!({})), true),
+        ("OSU at the ledger-refused term", body(ledger.clone(), osu(1), none.clone(), Value::Null, json!({})), true),
+        ("m49 OSU naming the selected term", body(unsourced.clone(), osu(0), none.clone(), Value::Null, json!({})), false),
+        ("OSU at a rebuilt (unavailable, sourced) term", body(rebuilt, osu(1), none.clone(), Value::Null, json!({})), false),
+        ("OSU with a Call", body(unsourced.clone(), osu(1), with_call.clone(), Value::Null, json!({})), false),
+        ("OPF at the refused record", body(not_required.clone(), opf.clone(), none.clone(), refused.clone(), json!({})), true),
+        ("OPF at a prepared record", body(not_required.clone(), opf.clone(), none.clone(), prepared, json!({})), false),
+        ("OPF where a term is unsourced", body(unsourced.clone(), opf.clone(), none.clone(), refused.clone(), json!({})), false),
+        ("m48 a CombinationReason with no Call", body(not_required.clone(), reason.clone(), none.clone(), refused.clone(), json!({})), false),
+        ("a CombinationReason with its pre-source Call", body(not_required.clone(), reason.clone(), with_call.clone(), Value::Null, pre.clone()), true),
+        ("a CombinationReason not the Call's", body(not_required.clone(), json!({"space": "combination", "tag": "no_operands"}), with_call.clone(), Value::Null, pre.clone()), false),
+        ("a no-Call cause in phase kernel", {
+            let mut b = body(unsourced.clone(), osu(1), none.clone(), Value::Null, json!({}));
+            b["combinations"][0]["reason"]["phase"] = json!("kernel");
+            b
+        }, false),
+    ];
+    for (name, b, want) in rows {
+        assert_eq!(rp::reader_logic::combination_causes(&b).is_ok(), want, "{name}");
+    }
+}
+
+/// R-COMB-1 (R) (B2-C §5; REVISION_01 §2, S-3; REVISION_02 §4.1): after the G5c
+/// classes, every row of a `retained_unavailable` combination, and of an
+/// `ordinary` one naming a case that is not `not_required`, in authored and then
+/// publication order: quantity rows `not_covered`, record rows `non_quantity`,
+/// `normalized_bits` from the value, `scale_bits` null. An `ordinary` combination
+/// over `not_required` cases only, and a `retained_selected` or `base_withheld`
+/// one, append nothing (reader logic).
+#[test]
+fn b2_r_comb_1_appended_classes() {
+    use serde_json::json;
+    let row = |id: &str, combination: &str, kind: &str, unit: &str, value: f64| json!({"id": id, "basis_ref": {"ref_type": "combination", "ref_id": combination}, "kind": kind, "unit": unit, "value": value});
+    let source = json!({
+        "results": [
+            row("r:sub:1", "combination:sub", "global_nodal_displacement_x", "mm", 2.0),
+            row("r:2b:1", "combination:2b", "global_nodal_displacement_x", "mm", 3.0),
+            row("r:unavailable:1", "combination:unavailable", "element_local_axial_force", "kN", -1.5),
+            row("r:sub:record", "combination:sub", "combination_modulus_basis_record", "1", 1.0),
+            row("r:selected:1", "combination:selected", "global_nodal_displacement_x", "mm", 1.0),
+        ],
+        "retained_precision": {"body": {
+            "cases": [{"basis_ref": {"ref_id": "case:a"}, "status": "selected"}, {"basis_ref": {"ref_id": "case:b"}, "status": "not_required"}],
+            "combinations": [
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:sub"}, "disposition": "ordinary", "expression": {"kind": "result_state_subtraction", "minuend_id": "case:a", "subtrahend_id": "case:b"}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:2b"}, "disposition": "ordinary", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:b"}]}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:unavailable"}, "disposition": "retained_unavailable", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}, {"case_id": "case:b"}]}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:selected"}, "disposition": "retained_selected", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}]}},
+            ]}}});
+    let got: Vec<(String, u64, Option<u64>, rp::AccuracyClass)> = rp::reader_logic::r_comb_1(&source)
+        .into_iter()
+        .map(|c| (c.result_id, c.normalized_bits, c.scale_bits, c.class))
+        .collect();
+    assert_eq!(got, vec![
+        ("r:sub:1".to_owned(), 0.002f64.to_bits(), None, rp::AccuracyClass::NotCovered),
+        ("r:sub:record".to_owned(), 1.0f64.to_bits(), None, rp::AccuracyClass::NonQuantity),
+        ("r:unavailable:1".to_owned(), (-1500.0f64).to_bits(), None, rp::AccuracyClass::NotCovered),
+    ]);
+}
+
+/// PR-B2 N-1 (the shared negative-value refusal): an extremum's
+/// `global_upper_bound_pa` or `certified_gap_pa` below zero fails exactly where
+/// a non-number fails today: on transport at G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID
+/// ("extrema numbers"), and bound or unbound in the base reader at G7
+/// SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID. +0 and -0 are accepted; no zero refusal.
+#[test]
+fn n1_negative_extrema_numbers_refused_zero_accepted() {
+    use serde_json::json;
+    let shared = corpus();
+    let path = |k: &str| json!(["contract_evidence", "preview_cases", 0, "pipe_stress_extrema", 0, k]);
+    let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == ORD).unwrap();
+    for k in ["global_upper_bound_pa", "certified_gap_pa"] {
+        for (value, want) in [
+            (json!(-1.0), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!(-5e-324), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!("1"), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!(0.0), None),
+            (json!(-0.0), None),
+        ] {
+            let mut source = case["source"].clone();
+            edit(&mut source, &set(path(k), value.clone()));
+            rehash(&mut source);
+            let transport = rp::validate_transport_metadata(&source);
+            let bound = rp::validate(&source, Some(&case["invocation"]));
+            let unbound = rp::validate(&source, None);
+            match want {
+                Some((metadata, base)) => {
+                    let t = transport.unwrap_err();
+                    assert_eq!((t.gate, t.code.as_str(), t.detail.as_deref()), ("G7", metadata, Some(format!("{metadata}: extrema numbers").as_str())), "{k} {value}");
+                    for e in [bound.unwrap_err(), unbound.unwrap_err()] {
+                        assert_eq!((e.gate, e.code.as_str()), ("G7", base), "{k} {value}");
+                    }
+                }
+                None => {
+                    assert!(transport.is_ok() && bound.is_ok() && unbound.is_ok(), "{k} {value}: zero is accepted");
+                }
+            }
+        }
+    }
+}
+
+/// 07o (B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4; lane C's
+/// corpus, appended after 07n): 19 bases (45), 69 mutations (603) and 19 must-pass
+/// entries (97), ids unique; the format rule states S-6's seven steps; each 07o
+/// must-pass entry's standing (`expected_eligibility.standing`) is this reader's.
+#[test]
+fn snapshot_07o_counts_and_format() {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    let shared = corpus();
+    let ids = |key: &str| -> Vec<String> {
+        shared[key].as_array().unwrap().iter().map(|e| e["id"].as_str().unwrap().to_owned()).collect()
+    };
+    let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
+    assert_eq!((cases.len(), mutations.len(), must_pass.len()), (45, 603, 97));
+    assert_eq!(mutations, MUTATION_IDS);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(all.len(), 700, "entry ids are unique");
+    let rule = shared["format_rule"]["order"].as_str().unwrap();
+    for step in ["operand_preparation_ref", "retained_precision_operand_preparation_v1", "operands[*].source_identity_sha256", "retained_selected combination"] {
+        assert!(rule.contains(step), "{step}");
+    }
+    for entry in &shared["must_pass"].as_array().unwrap()[78..] {
+        let (source, invocation) = apply_entry(&shared, entry);
+        let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        let standing = sc::numerical_use_standing_with_context(&source, &order, Some(&invocation));
+        println!("B2_RS_07O_STANDING {} {standing}", entry["id"]);
+        // An entry stated refused bound (PR-B2 ruling 5) has no numerical-use standing.
+        if entry["expected"] != "pass" {
+            assert_eq!(standing, "unsupported", "{}", entry["id"]);
+            continue;
+        }
+        // The corpus's `eligible` is this reader's `numerically_eligible`.
+        let want = match entry["expected_eligibility"]["standing"].as_str().unwrap() {
+            "eligible" => "numerically_eligible",
+            other => other,
+        };
+        assert_eq!(standing, want, "{}", entry["id"]);
+    }
+}
+
+/// 07o's 69 mutations as one slice, observed by this reader against its own
+/// expectation (the designed first failure; m69 at Rust's own G7 base code) and
+/// tallied against a literal.
+#[test]
+fn snapshot_07o_mutation_outcomes() {
+    slice_outcomes(
+        "B2_RS_OUTCOME_07O",
+        534..603,
+        &[
+            ("G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", 7),
+            ("G1 RETAINED_PRECISION_RECEIPT_MISMATCH", 9),
+            ("G2 RETAINED_PRECISION_ENCODING_MISMATCH", 2),
+            ("G3 RETAINED_PRECISION_COVERAGE_MISMATCH", 14),
+            ("G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH", 4),
+            ("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 10),
+            ("G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH", 8),
+            ("G5 RETAINED_PRECISION_WORK_MISMATCH", 3),
+            ("G5b RETAINED_PRECISION_SCALE_MISMATCH", 1),
+            ("G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH", 1),
+            ("G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_COMBINATION_MAGNITUDE", 1),
+            ("G8 RETAINED_PRECISION_INVOCATION_MISMATCH", 3),
+            ("G8 RETAINED_PRECISION_PREPARATION_MISMATCH", 3),
+        ],
+    );
+}
+
+/// PR-B2 ruling 5: 07o states the two hook-produced bases refused bound at G8
+/// PREPARATION_MISMATCH (each hook records the refused member's old facts with
+/// D = +0 against the invocation's OD, which B1's and C3a's old-fact binding
+/// refuses), and passing unbound and on transport. Exactly those two bases and
+/// their must-pass entries carry a refused statement; every 07o entry that states
+/// an unbound or transport read is read so by this reader.
+#[test]
+fn snapshot_07o_unbound_and_transport_reads() {
+    let shared = corpus();
+    let refused: Vec<&Value> = shared["cases"].as_array().unwrap()[26..]
+        .iter()
+        .filter(|c| c["expected"].get("gate").is_some())
+        .map(|c| &c["id"])
+        .collect();
+    assert_eq!(refused, ["b2_operand_preparation_failure", "b2_operand_source_unavailable"]);
+    let stated: Vec<&Value> = shared["must_pass"].as_array().unwrap()[78..]
+        .iter()
+        .filter(|e| e["expected"] != "pass")
+        .map(|e| &e["base"])
+        .collect();
+    assert_eq!(stated, refused);
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(v) => {
+            assert!(!v.invocation_bound && !v.numerical_eligible);
+            Value::from("pass")
+        }
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
+    let mut seen = 0;
+    for entry in shared["mutations"].as_array().unwrap()[534..].iter().chain(&shared["must_pass"].as_array().unwrap()[78..]) {
+        if entry.get("expected_unbound").is_none() && entry.get("expected_transport").is_none() {
+            continue;
+        }
+        seen += 1;
+        let (source, _) = apply_entry(&shared, entry);
+        assert_eq!(read(rp::validate(&source, None)), entry["expected_unbound"], "{}", entry["id"]);
+        assert_eq!(read(rp::validate_transport_metadata(&source)), entry["expected_transport"], "{}", entry["id"]);
+    }
+    assert_eq!(seen, 2);
+}
+
+/// PR-B2 lane X: the shared B2 parity probes, pinned alike in the RS, PY and TS
+/// readers. Each shape is a forgery on a corpus base in the corpus entry grammar
+/// (S-6 rehash), with the bound and unbound reading every reader gives: a gate
+/// and code, or "pass" (rulings 1-3, a prepared operand preparation's
+/// completeness, a refused Call's members, and UTF-8 range order).
+#[test]
+fn b2_parity_probes_shared() {
+    let shared = corpus();
+    let probes: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/retained_precision_b2_parity_probes.json"
+    ))
+    .unwrap();
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(_) => Value::from("pass"),
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
+    let shapes = probes["shapes"].as_array().unwrap();
+    assert_eq!(shapes.len(), 20);
+    let mut misses = Vec::new();
+    for shape in shapes {
+        let (source, invocation) = apply_entry(&shared, shape);
+        let bound = read(rp::validate(&source, Some(&invocation)));
+        let unbound = read(rp::validate(&source, None));
+        if bound != shape["expected"] || unbound != shape["expected_unbound"] {
+            misses.push(format!("{}: bound {bound}, unbound {unbound}", shape["name"]));
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));

@@ -291,9 +291,11 @@ pub(super) fn raw_text_census(root: &Value) -> RawTextFacts {
 
 /// RESIDUALS.md T03: the nested typed owners of a D1 request, read from the
 /// borrowed typed request (actual lengths and capacities, never construction
-/// history). Owners of excluded families (hangers, nonlinear supports, pressure,
-/// sections, components, combinations, generated and load-state inputs) are not
-/// read: their presence is refused by D1.3–D1.6 instead. Allocation-free.
+/// history). Owners of excluded families (hangers, nonlinear supports, pressure
+/// regions, sections, components, generated and load-state inputs) are not read: their
+/// presence is refused by D1.3–D1.6 instead. Allocation-free. The pressure contract's
+/// strings are read (D1.3's branch E admits one, B3b). B2-A: each combination's
+/// strings are read (D1.4 admits combinations); its arrays are `CombinationFacts`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct NestedTypedFacts {
     pub(super) status: CensusStatus,
@@ -368,6 +370,11 @@ impl TypedWalk {
             self.material(material)?;
         }
         self.string(&m.schema_version)?;
+        // D1.3 admits a pressure contract on branch E (B3b), so its two typed strings are read.
+        if let Some(contract) = &m.pressure_contract {
+            self.optional(&contract.version)?;
+            self.optional(&contract.mode)?;
+        }
         self.string(&m.document_kind)?;
         self.string(&m.project.id)?;
         let s = &m.analysis_status;
@@ -429,6 +436,24 @@ impl TypedWalk {
                 self.quantity(&load.magnitude)?;
             }
         }
+        // B2-A (B2-C REVISION_01 N-10): D1.4 admits combinations, so each one's typed strings
+        // are read as a case's are: its id, label, basis, term case ids, minuend and
+        // subtrahend ids, range operand ids, mode and provenance.
+        for combination in &m.combinations {
+            self.string(&combination.id)?;
+            self.optional(&combination.label)?;
+            self.string(&combination.basis)?;
+            for term in &combination.terms {
+                self.string(&term.load_case)?;
+            }
+            self.optional(&combination.minuend_id)?;
+            self.optional(&combination.subtrahend_id)?;
+            for id in combination.operand_ids.iter().flatten() {
+                self.string(id)?;
+            }
+            self.optional(&combination.mode)?;
+            self.optional(&combination.provenance)?;
+        }
         let units = &m.project.units;
         self.facts.units = borrowed_value_census(units);
         self.facts.units_text = raw_text_census(units);
@@ -465,6 +490,32 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
     }
     walk.facts
 }
+/// B2-A (B2-C §9 and REVISION_01 N-10): each combination's typed arrays, read from the
+/// borrowed typed request as the per-case load facts are: the largest `terms` and the
+/// largest `operand_ids`, length and capacity, over every combination of any basis (a basis
+/// that does not use one still owns it, before validation). Allocation-free. It is
+/// computed beside the report (`DomainFacts`), not inside it: the report's layout is a
+/// priced atom of the generated profile (`s(ThreadPacketOutput)`), unchanged until SQ2.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct CombinationFacts {
+    pub(super) terms: CapacityFact,
+    pub(super) range_operands: CapacityFact,
+}
+pub(super) fn combination_census(request: &LinearStaticPreviewRequest) -> CombinationFacts {
+    let empty = CapacityFact { length: 0, capacity: 0 };
+    let mut facts = CombinationFacts { terms: empty, range_operands: empty };
+    let widest = |fact: &mut CapacityFact, length: usize, capacity: usize| {
+        fact.length = fact.length.max(length);
+        fact.capacity = fact.capacity.max(capacity);
+    };
+    for combination in &request.model.combinations {
+        widest(&mut facts.terms, combination.terms.len(), combination.terms.capacity());
+        if let Some(ids) = &combination.operand_ids {
+            widest(&mut facts.range_operands, ids.len(), ids.capacity());
+        }
+    }
+    facts
+}
 
 // ---- D1: the domain predicate (DOMAIN.md as amended) ------------------------
 
@@ -490,6 +541,16 @@ pub(super) mod caps {
     /// L: the primitive loads over every load case (Σ l_i ≤ L). At option S3 it equals
     /// C·l, so it is stated and does not bind.
     pub(crate) const TOTAL_LOADS: usize = 384;
+    /// B2-A (B2-C §9; decision 10): z, the combinations of any basis. With c ≥ 1 and
+    /// C_eq ≤ 3, z ≤ 2.
+    pub(crate) const COMBINATIONS: usize = 2;
+    /// C_eq = c + z, the result sets of one invocation (one tier at D1's model caps; I93
+    /// PLAN §3.3, REVISION_01 N-4: three Runs keep C1's 60B invocation limit non-binding).
+    pub(crate) const CASE_EQUIVALENTS: usize = 3;
+    /// h: the terms of each combination, repeats counted (a mechanics combination's terms).
+    pub(crate) const COMBINATION_TERMS: usize = 3;
+    /// The operand ids of each combination (a range envelope's operands).
+    pub(crate) const RANGE_OPERANDS: usize = 3;
     pub(crate) const TEXT_BYTES: usize = 128;
     pub(crate) const RAW_VALUES: usize = 16_384;
     pub(crate) const RAW_DEPTH: usize = 16;
@@ -579,7 +640,11 @@ pub(super) enum FamilyFact {
     Sections,
     SectionRef,
     LoadCases,
+    /// B3b-A (B3-D §4.2; RR "I95's B3-S: …", ruling 4): the exact route's D1.4 clause. On L
+    /// combinations are counted by D1.9 (B2-A).
     Combinations,
+    /// B2-A (C-9): a combination id equal to a load-case id.
+    CombinationIds,
     Components,
     PressureRegions,
     EquivalentStatic,
@@ -610,6 +675,14 @@ pub(super) enum CapFact {
     LoadsCapacity,
     /// B1 SA: Σ l_i over every load case.
     TotalLoads,
+    /// B2-A: z, C_eq = c + z, each combination's terms and each combination's operand ids
+    /// (with their typed capacities).
+    Combinations,
+    CaseEquivalents,
+    CombinationTerms,
+    CombinationTermsCapacity,
+    RangeOperands,
+    RangeOperandsCapacity,
     ModelMaterials,
     ModelMaterialsCapacity,
     RequestMaterials,
@@ -618,6 +691,10 @@ pub(super) enum CapFact {
     TemperaturePointsCapacity,
     LoadCasesCapacity,
     SectionsCapacity,
+    /// B3b-A repair 01 (RV122 SF-2): on branch E a case's explicitly empty `pressure_regions`
+    /// list, whose typed capacity must be 0 like the other empty owners'. Raised by D1.5's exact
+    /// clause, not a D1.9 row.
+    PressureRegionsCapacity,
     ComponentsCapacity,
     CombinationsCapacity,
     RequestExpansionLawsCapacity,
@@ -698,6 +775,8 @@ pub(super) struct DomainFacts<'a> {
     pub(super) nested: &'a NestedTypedFacts,
     pub(super) headless: Option<&'a HeadlessRootFacts>,
     pub(super) digest: &'a CapacityFact,
+    /// B2-A: each combination's typed arrays (`combination_census`).
+    pub(super) combinations: &'a CombinationFacts,
 }
 fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
     let incomplete = |part, status| match status {
@@ -716,6 +795,33 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
     }
     Ok(())
 }
+/// D1.3's namespace branches (B3-D §4.1). One decision per request: `family_clauses`
+/// applies the branch's own D1.4 and D1.5 clauses, which is also the route split G5's
+/// per-route pricing needs (B3-D §4.4). B3a's branch L3 (0.3.0 with `legacy_pressure_v1`)
+/// is dropped: the owner retired that contract product-wide, so D1.3 refuses it with
+/// `PressureContract`, as any other contract outside L and E.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum NamespaceBranch {
+    /// L: schema 0.1.0 or 0.2.0, no pressure contract.
+    Legacy,
+    /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
+    /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
+    Exact,
+}
+/// The pressure contract `{version, mode}` matched exactly (typed: `PressureContractInput`
+/// denies unknown fields, so these two members are the whole contract).
+fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &str) -> bool {
+    contract.version.as_deref() == Some(version) && contract.mode.as_deref() == Some(mode)
+}
+/// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
+pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
+    match (m.schema_version.as_str(), &m.pressure_contract) {
+        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Legacy),
+        ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
+        ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
+        _ => Err(FamilyFact::SchemaVersion),
+    }
+}
 /// D1.3–D1.8 over the borrowed typed request (DOMAIN.md §1, G2_AMENDMENTS §3).
 fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionRefusal> {
     use crate::Authored;
@@ -723,13 +829,15 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     use FamilyFact as F;
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
-    // D1.3: the legacy source-blocks namespace, no sections (S-4).
-    if !matches!(m.schema_version.as_str(), "0.1.0" | "0.2.0") {
-        return refuse(C::Namespace, F::SchemaVersion);
-    }
-    if m.pressure_contract.is_some() {
-        return refuse(C::Namespace, F::PressureContract);
-    }
+    // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
+    // branch L, 0.1.0 or 0.2.0 with no pressure contract; or branch E (B3b), 0.3.0 with
+    // exactly `{version "2.0.0", mode "exact_straight_pressure_v2"}` (0.4.0 stays out). A
+    // schema in no branch refuses with `SchemaVersion`, a contract that does not match its
+    // schema's branch with `PressureContract`. Then, on every branch, no sections (S-4).
+    let exact = match namespace_branch(m) {
+        Ok(branch) => branch == NamespaceBranch::Exact,
+        Err(fact) => return refuse(C::Namespace, fact),
+    };
     if !matches!(m.reference_configurations, Authored::Absent) {
         return refuse(C::Namespace, F::ReferenceConfigurations);
     }
@@ -745,20 +853,41 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.pipe_segments.iter().any(|pipe| pipe.section_ref.is_some()) {
         return refuse(C::Namespace, F::SectionRef);
     }
-    // D1.4 (B1 SA): 1 ≤ c ≤ C load cases, no combinations or components.
+    // D1.4 (B1 SA; B2-A, B2-C §9): 1 ≤ c ≤ C load cases; combinations of any basis, which
+    // D1.9's rows count (z ≤ 2, C_eq = c + z ≤ 3, at most 3 terms and 3 range operands
+    // each); no combination id equal to a load-case id (C-9: the producer and the readers
+    // match rows and diagnostics by the bare id); no components.
     if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
-    if !m.combinations.is_empty() {
+    // D1.4's exact clause (B3-D §4.2; RR "I95's B3-S: …", ruling 4): no combination on the
+    // exact route, which the ordinary route also blocks, so its forms never price
+    // combination text. B2-C's combination clauses apply on L only.
+    if exact && !m.combinations.is_empty() {
         return refuse(C::Invocation, F::Combinations);
+    }
+    if m.combinations.iter().any(|combination| m.load_cases.iter().any(|case| case.id == combination.id)) {
+        return refuse(C::Invocation, F::CombinationIds);
     }
     if !m.components.is_empty() {
         return refuse(C::Invocation, F::Components);
     }
-    // D1.5 (B1 SA): every case, in request order.
+    // D1.5 (B1 SA): every case, in request order. B3b (B3-D §4.2): on branch E every case's
+    // `pressure_regions` is explicitly empty (`Some([])`, as physics-source-1 requires); absent
+    // or non-empty refuses. On L it is absent. RV122 SF-2 (RESIDUALS T03: actual
+    // capacities, never construction history): the empty list's typed capacity is 0 too, or
+    // it refuses with its capacity fact (the reason an empty `sections` with spare capacity
+    // gets at D1.9). A parsed request always has capacity 0 here.
     for case in &m.load_cases {
-        if case.pressure_regions.is_some() {
+        let regions_in_domain = match &case.pressure_regions {
+            Some(regions) => exact && regions.is_empty(),
+            None => !exact,
+        };
+        if !regions_in_domain {
             return refuse(C::Case, F::PressureRegions);
+        }
+        if let Some(regions) = case.pressure_regions.as_ref().filter(|regions| regions.capacity() != 0) {
+            return Err(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: regions.capacity(), cap: 0 });
         }
         if case.equivalent_static.is_some() {
             return refuse(C::Case, F::EquivalentStatic);
@@ -810,14 +939,17 @@ pub(super) struct CapRow {
     pub(super) observed: usize,
     pub(super) cap: usize,
 }
-pub(super) const CAP_ROWS: usize = 47;
+pub(super) const CAP_ROWS: usize = 53;
 /// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row). B1 SA: `Loads` and
 /// `LoadsCapacity` bound every case (the census's maxima over cases), `TotalLoads` bounds
-/// Σ l_i, and `LoadCasesCapacity` is capped by C.
+/// Σ l_i, and `LoadCasesCapacity` is capped by C. B2-A (B2-C §9; REVISION_01 N-10): six
+/// rows after the load rows, before `ControlBytes`: z ≤ 2, C_eq = c + z ≤ 3, and each
+/// combination's terms and operand ids ≤ 3 with their capacities; `CombinationsCapacity`
+/// is capped by z's cap.
 pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
     use caps::*;
     use CapFact as K;
-    let (t, n, raw, u) = (f.typed, f.nested, f.raw, &f.nested.units);
+    let (t, n, raw, u, z) = (f.typed, f.nested, f.raw, &f.nested.units, f.combinations);
     let row = |fact, observed, cap| CapRow { fact, observed, cap };
     [
         row(K::Nodes, t.nodes.length, NODES),
@@ -833,6 +965,12 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::Loads, n.primitive_loads.length, LOADS),
         row(K::LoadsCapacity, n.primitive_loads.capacity, LOADS),
         row(K::TotalLoads, n.total_loads as usize, TOTAL_LOADS),
+        row(K::Combinations, t.combinations.length, COMBINATIONS),
+        row(K::CaseEquivalents, t.load_cases.length.saturating_add(t.combinations.length), CASE_EQUIVALENTS),
+        row(K::CombinationTerms, z.terms.length, COMBINATION_TERMS),
+        row(K::CombinationTermsCapacity, z.terms.capacity, COMBINATION_TERMS),
+        row(K::RangeOperands, z.range_operands.length, RANGE_OPERANDS),
+        row(K::RangeOperandsCapacity, z.range_operands.capacity, RANGE_OPERANDS),
         row(K::ModelMaterials, t.model_materials.length, MATERIALS),
         row(K::ModelMaterialsCapacity, t.model_materials.capacity, MATERIALS),
         row(K::RequestMaterials, t.request_materials.length, MATERIALS),
@@ -842,7 +980,7 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::LoadCasesCapacity, t.load_cases.capacity, LOAD_CASES),
         row(K::SectionsCapacity, t.sections.capacity, 0),
         row(K::ComponentsCapacity, t.components.capacity, 0),
-        row(K::CombinationsCapacity, t.combinations.capacity, 0),
+        row(K::CombinationsCapacity, t.combinations.capacity, COMBINATIONS),
         row(K::RequestExpansionLawsCapacity, t.request_expansion_law_indices.capacity, 0),
         row(K::MaterialExpansionLawsCapacity, t.material_expansion_laws.capacity, MATERIALS),
         row(K::TypedTextBytes, n.max_string_bytes, TEXT_BYTES),
@@ -911,9 +1049,10 @@ fn caller_clause(caller: RetainedCaller) -> Result<(), AdmissionRefusal> {
 /// The compiled identity text from build.rs (`None` when the variable is absent,
 /// for example in a build without the script: Stale, never a compile error).
 const COMPILED_IDENTITY: Option<&str> = option_env!("OPS_RETAINED_BUILD_IDENTITY");
-/// The compiled reviewed-input record from build.rs: the PP lock and the
-/// precommit reader's 13 `include_str!` inputs, by SHA-256 (D-6 as extended by
-/// RR "U4 G4: the margin rule trips").
+/// The compiled reviewed-input record from build.rs, by SHA-256: 17 inputs, the PP lock,
+/// the precommit reader's 13 `include_str!` statics (D-6 as extended by RR "U4 G4: the
+/// margin rule trips"), and J1's three appended statics, DEF-C, DEF-E and XTABLE (I93
+/// REVISION_01 §1.4; `build_identity::REVIEWED_INPUTS`).
 const COMPILED_REVIEWED_INPUTS: Option<&str> = option_env!("OPS_RETAINED_REVIEWED_INPUTS");
 
 /// BUILD.md §2.3: the layouts the formulas assume. Evaluated by the compiler; a
@@ -972,16 +1111,22 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // reviewed_inputs: SQ2's registration (B2 combinations and B3b's exact route), the 17 inputs'
+    // sha256 in REVIEWED_INPUTS order at 2243be380b, the statics the profile was priced on (equal
+    // to J1's interim re-pin, which it replaces as the basis); identity, reader layouts and M are
+    // unchanged.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b;../../schemas/physics_source_recovery.schema.json=3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c;../../schemas/retained_precision_mp_v2.schema.json=07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8;../../fixtures/results/semantic_contract_v0_2.json=4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da;../../fixtures/results/semantic_contract_v0_3_precision_1.json=d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e;../../fixtures/results/semantic_contract_v0_3_physics_1.json=9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc;../../fixtures/results/semantic_contract_v0_3_load_reference_1.json=44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d;../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json=d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337;../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json=ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a;../../fixtures/results/semantic_contract_v0_3_physics_source_1.json=ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1;../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json=5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f;../../schemas/source_block_recovery.schema.json=544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
+    reviewed_inputs: "v1;Cargo.lock=4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b;../../schemas/physics_source_recovery.schema.json=3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c;../../schemas/retained_precision_mp_v2.schema.json=abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c;../../fixtures/results/semantic_contract_v0_2.json=4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da;../../fixtures/results/semantic_contract_v0_3_precision_1.json=d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e;../../fixtures/results/semantic_contract_v0_3_physics_1.json=9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc;../../fixtures/results/semantic_contract_v0_3_load_reference_1.json=44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d;../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json=d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337;../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json=ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a;../../fixtures/results/semantic_contract_v0_3_physics_source_1.json=ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1;../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json=5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f;../../schemas/source_block_recovery.schema.json=544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c;../../fixtures/results/retained_precision_prepared_combination_v1.json=3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22;../../fixtures/results/retained_precision_prepared_exact_v1.json=71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },
         TypeLayout { size: 96, align: 8 },
         TypeLayout { size: 16, align: 8 },
     ],
-    // M (D-7; RR "R6b: RV124 passes SQ and confirms M"; B1 SQ QUAL_B1.md):
-    // E_mov,max + R <= 0.8745 M in this build (dense W3; sparse 0.8693 M).
+    // M (D-7; RR "R6b: RV124 passes SQ and confirms M"; B1 SQ QUAL_B1.md), kept by SQ2: with
+    // the maximum over routes L and E at C_eq = 3, E_mov,max + R <= 0.8705 M in this build
+    // (dense W3; sparse 0.8653 M); the 0.9 M rule leaves 8.1 % (dense) and 9.6 % (sparse) of
+    // TAV_W for text error, and 10.25 GiB would leave 2.2 %.
     threshold_bytes: 11_274_289_152,
 }];
 
@@ -1076,8 +1221,9 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 // ---- BEGIN GENERATED PROFILE (part2/_run_records/g5_profile.py from profile_tree.json; do not edit by hand) ----
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
-/// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// b1-q 57c92a7b33 (B1 SQ G5: C = 3, L <= 384, I104 rules); text at l <= 128 on the R-4 graph.
+/// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
+/// re-run as SQ2 G5 at f78f52b7e2: the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0)
+/// and E (c = 3), under SQ2's rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1110,20 +1256,20 @@ pub(super) mod profile {
     }
     /// The text atoms of the T08 closure at this basis (byte counts, layout-free), and the
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
-    pub(crate) const TEXT_D: u64 = 41769; // D
-    pub(crate) const TEXT_D_ENV: u64 = 22911; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 6236994628; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 6234394666; // TAV_text_requested
+    pub(crate) const TEXT_D: u64 = 51938; // D
+    pub(crate) const TEXT_D_ENV: u64 = 23877; // D_env
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 6645502739; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 6642903382; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
-    pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 175409684; // Text(diag_env)
-    pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 271493888; // Text(diag_total)
+    pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 185021551; // Text(diag_env)
+    pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 392744793; // Text(diag_total)
     pub(crate) const TEXT_TEXT_ERR: u64 = 16384; // Text(err)
     pub(crate) const TEXT_TEXT_FORMATION_DETAIL: u64 = 16426; // Text(formation_detail)
-    pub(crate) const TEXT_TEXT_RECOVERY_FINDING: u64 = 10466306; // Text(recovery_finding)
+    pub(crate) const TEXT_TEXT_RECOVERY_FINDING: u64 = 10463886; // Text(recovery_finding)
     pub(crate) const TEXT_TEXT_ROW: u64 = 11474; // Text(row)
     pub(crate) const TEXT_TEXT_SYM: u64 = 368; // Text(sym)
     pub(crate) const L_DIAGID: u64 = 2330;
-    pub(crate) const L_PUB: u64 = 2599962;
+    pub(crate) const L_PUB: u64 = 2599357;
     pub(crate) const ATOMS: usize = 247;
     /// The atoms, in index order: their names (as the records write them) and bindings.
     pub(crate) const ATOM_NAMES: [&str; ATOMS] = [
@@ -1643,7 +1789,7 @@ pub(super) mod profile {
         16384, // Text(audit_error): text closure
         16384, // Text(err): text closure
         16426, // Text(formation_detail): text closure
-        10466306, // Text(recovery_finding): text closure
+        10463886, // Text(recovery_finding): text closure
         11474, // Text(row): text closure
         368, // Text(sym): text closure
         (size_of::<&'static Value>()) as u64, // s(&Value)
@@ -1894,7 +2040,7 @@ pub(super) mod profile {
         16384,
         16384,
         16426,
-        10466306,
+        10463886,
         11474,
         368,
         8,
@@ -2132,16 +2278,16 @@ pub(super) mod profile {
         pub(crate) terms: &'static [(usize, u64)],
     }
     pub(crate) const FORMS: [Form; 47] = [
-        Form { name: "BODY", constant: 176510682, terms: &[(8, 91557), (224, 106209)] },
+        Form { name: "BODY", constant: 183263022, terms: &[(8, 91557), (224, 109107)] },
         Form { name: "HELPER_moving", constant: 8388608, terms: &[] },
         Form { name: "INVOC", constant: 262272, terms: &[(8, 19662), (224, 32768)] },
         Form { name: "NOTICE", constant: 2154, terms: &[(94, 3), (210, 3)] },
-        Form { name: "NOTICE_moving", constant: 0, terms: &[(94, 22911)] },
-        Form { name: "O_base_dense", constant: 163415409, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 57541), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (51, 608), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 1440576), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 4032), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 24576), (219, 256), (224, 78338), (225, 158622), (226, 1728), (227, 6912), (229, 1728), (230, 7520), (240, 192), (246, 7162)] },
-        Form { name: "O_base_sparse", constant: 142055889, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 57541), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (50, 3456), (51, 4064), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 280512), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 3456), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 12288), (219, 256), (224, 78338), (225, 141342), (226, 1728), (229, 3456), (230, 9824), (240, 192), (246, 7156)] },
-        Form { name: "STAGED", constant: 248544558, terms: &[(8, 531), (94, 22911), (117, 1), (177, 6345), (210, 25380), (224, 480)] },
-        Form { name: "STATICS", constant: 369376, terms: &[(8, 5801), (224, 23712)] },
-        Form { name: "SUCC", constant: 429924104, terms: &[(8, 182010), (224, 254328)] },
+        Form { name: "NOTICE_moving", constant: 0, terms: &[(94, 23877)] },
+        Form { name: "O_base_dense", constant: 164371713, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 61477), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (51, 608), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 1440576), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 4032), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 24576), (219, 256), (224, 88778), (225, 158622), (226, 1728), (227, 6912), (229, 1728), (230, 7520), (240, 192), (246, 7162)] },
+        Form { name: "O_base_sparse", constant: 143012193, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 61477), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (50, 3456), (51, 4064), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 280512), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 3456), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 12288), (219, 256), (224, 88778), (225, 141342), (226, 1728), (229, 3456), (230, 9824), (240, 192), (246, 7156)] },
+        Form { name: "STAGED", constant: 258634577, terms: &[(8, 2499), (94, 23877), (117, 1), (177, 6345), (210, 25380), (224, 5700)] },
+        Form { name: "STATICS", constant: 380694, terms: &[(8, 6252), (224, 25584)] },
+        Form { name: "SUCC", constant: 446859199, terms: &[(8, 186103), (224, 267276)] },
         Form { name: "T07_moving", constant: 1797413, terms: &[] },
         Form { name: "T11", constant: 281152, terms: &[(34, 32), (36, 8), (37, 96), (63, 1), (85, 3), (86, 2), (115, 8), (118, 96), (129, 192), (136, 576), (139, 12), (155, 96), (193, 3), (196, 96), (198, 768), (199, 96), (200, 96), (201, 384), (202, 96), (203, 384), (204, 96), (220, 384), (241, 96), (242, 6), (244, 576)] },
         Form { name: "T11_late_capture", constant: 49536, terms: &[(136, 576), (198, 768), (199, 96), (200, 96), (201, 384), (202, 96), (203, 384), (204, 96), (244, 576)] },
@@ -2150,35 +2296,35 @@ pub(super) mod profile {
         Form { name: "T13", constant: 751698, terms: &[(9, 156), (10, 156), (28, 768), (29, 6144), (30, 6144), (38, 1536), (39, 768), (41, 384), (42, 192), (61, 15), (64, 6144), (65, 1536), (66, 768), (67, 768), (68, 768), (69, 768), (70, 768), (71, 768), (72, 768), (73, 768), (74, 10752), (77, 96), (79, 96), (80, 96), (81, 96), (82, 288), (83, 96), (84, 96), (110, 1536), (120, 192), (121, 192), (122, 96), (130, 768), (132, 63744), (133, 31488), (134, 31488), (142, 768), (143, 1536), (144, 768), (145, 12), (154, 3), (163, 12288), (168, 6144), (180, 3), (187, 3), (188, 6), (189, 3), (190, 3), (191, 6), (192, 3), (217, 62400), (222, 5376), (228, 4032), (230, 576), (231, 3), (232, 3), (233, 3), (234, 3), (235, 3), (236, 3), (237, 418752), (238, 226752), (239, 152928)] },
         Form { name: "T14", constant: 6550704, terms: &[(56, 12288), (60, 3), (76, 96), (90, 12288), (92, 96), (95, 12288), (107, 12288), (109, 12288), (116, 96), (128, 786432), (157, 12288), (158, 12288), (159, 12288), (160, 24576), (162, 12288), (185, 6144), (212, 96), (237, 13824), (243, 12288)] },
         Form { name: "T15", constant: 12288, terms: &[(54, 3), (91, 1536), (100, 12288), (108, 6), (129, 192), (147, 96), (171, 3), (172, 3)] },
-        Form { name: "T16_P1", constant: 301279080, terms: &[(8, 203587), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 247670)] },
-        Form { name: "T16_P2", constant: 3179483861, terms: &[(8, 492724), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 1436616)] },
-        Form { name: "T16_P3", constant: 2392798627, terms: &[(8, 494938), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8480), (224, 1143246)] },
-        Form { name: "T16_P4", constant: 807075258, terms: &[(8, 403382), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8192), (224, 505992)] },
-        Form { name: "T16_moving", constant: 505455619, terms: &[] },
-        Form { name: "T17_V1", constant: 1762234115, terms: &[(8, 183114), (210, 288), (224, 743463)] },
-        Form { name: "T17_V2_clone", constant: 429924104, terms: &[(8, 182010), (224, 254328)] },
-        Form { name: "T17_V2_hash", constant: 2802332626, terms: &[(8, 271350), (210, 256), (224, 1184952)] },
+        Form { name: "T16_P1", constant: 311461835, terms: &[(8, 207680), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 258686)] },
+        Form { name: "T16_P2", constant: 3305933040, terms: &[(8, 505003), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 1523778)] },
+        Form { name: "T16_P3", constant: 2484102198, terms: &[(8, 499031), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8480), (224, 1180344)] },
+        Form { name: "T16_P4", constant: 837515033, terms: &[(8, 407475), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8192), (224, 525702)] },
+        Form { name: "T16_moving", constant: 526032401, terms: &[] },
+        Form { name: "T17_V1", constant: 1829850251, terms: &[(8, 183114), (210, 288), (224, 763749)] },
+        Form { name: "T17_V2_clone", constant: 446859199, terms: &[(8, 186103), (224, 267276)] },
+        Form { name: "T17_V2_hash", constant: 2915277125, terms: &[(8, 283629), (210, 256), (224, 1265352)] },
         Form { name: "T17_V3", constant: 31959932, terms: &[(8, 84990), (210, 384), (224, 72448)] },
-        Form { name: "T17_V4", constant: 20638269, terms: &[(2, 10455), (3, 39), (8, 24111), (20, 204743), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 25380), (225, 32768)] },
-        Form { name: "T17_V5", constant: 437110973, terms: &[(2, 10455), (3, 39), (8, 188355), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 254328), (225, 32768)] },
-        Form { name: "T17_V6", constant: 277198989, terms: &[(2, 10455), (3, 39), (8, 238583), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 154453), (224, 403223), (225, 32768)] },
+        Form { name: "T17_V4", constant: 20638269, terms: &[(2, 10841), (3, 39), (8, 24111), (20, 205709), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 25380), (225, 32768)] },
+        Form { name: "T17_V5", constant: 454046068, terms: &[(2, 10841), (3, 39), (8, 192448), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 267276), (225, 32768)] },
+        Form { name: "T17_V6", constant: 287381744, terms: &[(2, 10841), (3, 39), (8, 242676), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 154453), (224, 413273), (225, 32768)] },
         Form { name: "T17_moving_invocation", constant: 1179864, terms: &[] },
-        Form { name: "T17_moving_publication", constant: 505455619, terms: &[] },
+        Form { name: "T17_moving_publication", constant: 526032401, terms: &[] },
         Form { name: "T17_output", constant: 0, terms: &[(183, 8192), (223, 1)] },
         Form { name: "T19", constant: 8192, terms: &[(221, 1)] },
-        Form { name: "T25_I1", constant: 3093923008, terms: &[(2, 5852), (4, 1270), (8, 376467), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6729), (219, 128), (224, 1296181)] },
-        Form { name: "T25_I2", constant: 1252731066, terms: &[(2, 5852), (4, 1270), (8, 248673), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6793), (219, 128), (224, 397276)] },
-        Form { name: "T25_I3", constant: 619075938, terms: &[(2, 5852), (4, 1270), (8, 223395), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6537), (219, 128), (224, 279088)] },
+        Form { name: "T25_I1", constant: 3206867690, terms: &[(2, 6045), (4, 1270), (8, 388746), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6761), (219, 128), (224, 1376581)] },
+        Form { name: "T25_I2", constant: 1262913821, terms: &[(2, 6045), (4, 1270), (8, 252766), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6793), (219, 128), (224, 407326)] },
+        Form { name: "T25_I3", constant: 629258693, terms: &[(2, 6045), (4, 1270), (8, 227488), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6537), (219, 128), (224, 289138)] },
         Form { name: "T25_S1", constant: 20579900, terms: &[(8, 39320), (21, 384), (22, 400), (25, 192), (26, 32), (27, 16384), (31, 64), (37, 64), (49, 256), (53, 32), (55, 16784), (62, 4), (75, 256), (98, 37248), (102, 256), (103, 256), (104, 64), (105, 32), (106, 3088), (111, 64), (114, 12), (125, 128), (131, 256), (135, 32), (136, 192), (138, 192), (148, 3), (149, 32), (150, 32), (151, 32), (152, 256), (153, 384), (169, 2144), (195, 32), (207, 12832), (208, 32), (210, 2272), (213, 256), (219, 192), (224, 65536), (225, 14154), (230, 640), (246, 256)] },
         Form { name: "T25_S2", constant: 5594299, terms: &[(21, 384), (22, 320), (25, 128), (26, 32), (37, 64), (49, 64), (53, 32), (55, 16784), (102, 128), (103, 128), (104, 32), (106, 3088), (131, 128), (135, 32), (136, 192), (138, 192), (207, 8192), (210, 2080), (225, 13386), (230, 192)] },
         Form { name: "T25_S3", constant: 78439670, terms: &[(1, 424), (4, 353), (7, 424), (8, 2034), (12, 353), (13, 353), (93, 2115), (161, 2048), (184, 2115), (224, 1152)] },
         Form { name: "T25_S4", constant: 367697553, terms: &[(8, 384010), (11, 78), (161, 2048), (184, 2115), (210, 512), (224, 1051510), (230, 192)] },
         Form { name: "T25_S5", constant: 70217356, terms: &[(8, 13718), (101, 1), (161, 2048), (184, 2115), (224, 9036)] },
         Form { name: "T25_carried_case", constant: 137034882, terms: &[(8, 22107), (161, 6144), (184, 6345), (224, 14418)] },
-        Form { name: "T25_moving", constant: 504784788, terms: &[] },
-        Form { name: "TAV_W", constant: 4301774658, terms: &[] },
-        Form { name: "TAV_X", constant: 4009007112, terms: &[] },
-        Form { name: "TXT_moving", constant: 2599962, terms: &[] },
+        Form { name: "T25_moving", constant: 525361570, terms: &[] },
+        Form { name: "TAV_W", constant: 4081465626, terms: &[] },
+        Form { name: "TAV_X", constant: 4536200784, terms: &[] },
+        Form { name: "TXT_moving", constant: 2599357, terms: &[] },
     ];
     pub(crate) const F_BODY: usize = 0;
     pub(crate) const F_HELPER_MOVING: usize = 1;
@@ -2332,7 +2478,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(9521295491, "W3 publication (T16) with the staged copy"), (9580426835, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(9476274465, "W3 publication (T16) with the staged copy"), (9535405809, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 
@@ -2697,17 +2843,22 @@ pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps
 /// the per-case preview facts, and the retained error text by C·(3m + 1)·Text(err) (I82's
 /// assumption, checked against SP's producer in phase 4). The diagnostic, string and byte
 /// bounds read the profile's text atoms and forms, which SQ regenerates at C = 3.
+/// B2-A (I93 PLAN §1.2.4; B2-C §9): the result rows, their capacity and text, and the
+/// retained error text are per result set, so they are bounded by C_eq = `CASE_EQUIVALENTS`
+/// (numerically today's 3, since C_eq's cap equals C's); the contract-evidence facts and
+/// G-B stay per case (a combination has no loads or contract evidence of its own).
 pub(super) const fn phase_caps() -> PhaseCaps {
     use caps::*;
     let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
+    let ceq = CASE_EQUIVALENTS as u64;
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {
         late: [n, m, m, g, LOADS as u64, TOTAL_LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
             profile_bytes(profile::F_T11).saturating_sub(profile_bytes(profile::F_T11_LATE_CAPTURE) / c)],
         complete: [
-            c * P_FINAL,
-            push_capacity(c * P_FINAL),
-            2 * c * P_FINAL * text_atoms::ROW,
+            ceq * P_FINAL,
+            push_capacity(ceq * P_FINAL),
+            2 * ceq * P_FINAL * text_atoms::ROW,
             text_atoms::D_ENV,
             push_capacity(text_atoms::D_ENV),
             2 * text_atoms::DIAG_ENV,
@@ -2722,7 +2873,7 @@ pub(super) const fn phase_caps() -> PhaseCaps {
             0,
             profile_bytes(profile::F_T11),
             profile_bytes(profile::F_T11_ORDINARY_SEED),
-            c * (3 * m + 1) * text_atoms::ERR,
+            ceq * (3 * m + 1) * text_atoms::ERR,
             0,
         ],
     }
@@ -2990,6 +3141,7 @@ pub(super) fn admit(
             required: None,
         },
     };
+    let combinations = combination_census(request);
     let domain = domain_clauses(
         &DomainFacts {
             raw: &report.raw,
@@ -2998,6 +3150,7 @@ pub(super) fn admit(
             nested: &report.law.nested,
             headless: report.headless.as_ref(),
             digest: &report.captured_digest,
+            combinations: &combinations,
         },
         request,
     );

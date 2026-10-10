@@ -1,6 +1,6 @@
 import { validatePhysicsSourceRecovery } from "../features/results/physicsSourceRecovery";
 import { validateSourceBlockRecovery } from "../features/results/sourceBlockRecovery";
-import { sourceContract, hasCurrentSourceContract } from '../features/results/numericalResultQuality';
+import { sourceContract, hasCurrentSourceContract, isRetainedRoute } from '../features/results/numericalResultQuality';
 import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
 import { validateLoadReferenceEvidence } from '../features/results/loadReferenceEvidence';
 import { validateLoadReferenceSourceEvidence } from '../features/results/loadReferenceSourceEvidence';
@@ -129,7 +129,7 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // U6d: a preview successor registers only after the accepted reader passes with
     // this captured invocation; its outcome is recorded against the exact bytes.
     // U7 slice T: its standing is bound to this live native capture and the current model.
-    if (sourceContract(source) === "retained_preview_physics") await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel));
+    if (isRetainedRoute(sourceContract(source))) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel));
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });

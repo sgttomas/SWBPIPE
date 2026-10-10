@@ -10,6 +10,18 @@ pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
     "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
+/// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
+pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
+pub const COMBINATION_DEFINITION_HASH: &str =
+    "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957";
+/// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
+/// read on its own route (`EXACT`), whose base is physics-1.
+pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
+pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
+/// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
+pub const EXACT_DEFINITION_HASH: &str =
+    "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -340,6 +352,16 @@ fn definition() -> &'static Value {
         .expect("packaged retained definition")
     })
 }
+/// DEF-C, packaged as DEF-O is (B2-C §8 row 4).
+fn combination_definition() -> &'static Value {
+    static S: OnceLock<Value> = OnceLock::new();
+    S.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/retained_precision_prepared_combination_v1.json"
+        ))
+        .expect("packaged combination retained definition")
+    })
+}
 fn table() -> &'static Value {
     static S: OnceLock<Value> = OnceLock::new();
     S.get_or_init(|| {
@@ -348,6 +370,60 @@ fn table() -> &'static Value {
         ))
         .expect("packaged retained table")
     })
+}
+fn exact_definition() -> &'static Value {
+    static S: OnceLock<Value> = OnceLock::new();
+    S.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/retained_precision_prepared_exact_v1.json"
+        ))
+        .expect("packaged exact retained definition")
+    })
+}
+fn exact_table() -> &'static Value {
+    static S: OnceLock<Value> = OnceLock::new();
+    S.get_or_init(|| {
+        serde_json::from_slice(EXACT_TABLE_BYTES).expect("packaged exact retained table")
+    })
+}
+/// B3-D §6.1: the route a statement is read on, decided once from
+/// `producer.semantic_contract_id` (the exact identity reads exactly; every
+/// other statement reads on the preview route, whose G0 refuses a foreign
+/// identity). Each route's G0 table read, G1 preparation hash, G5b evidence
+/// cross-check, G7 projection and G8 namespace and material checks sit behind
+/// their own call edges (ruling 1).
+#[derive(Debug)]
+struct Route {
+    exact: bool,
+    /// The preparation payload's `definition_sha256` (S-1): the H of the
+    /// definition the route's table binds.
+    definition_hash: &'static str,
+    /// G7's projection: the base identity and profile.
+    base_id: &'static str,
+    base_profile: &'static str,
+    /// G8: each member's `section_terms[].geometry.route`.
+    geometry: &'static str,
+}
+const PREVIEW: Route = Route {
+    exact: false,
+    definition_hash: DEFINITION_HASH,
+    base_id: "openpipestress.result_semantics/0.3.0/preview-physics-1",
+    base_profile: "product_preview_mechanics_v1",
+    geometry: "preview",
+};
+const EXACT: Route = Route {
+    exact: true,
+    definition_hash: EXACT_DEFINITION_HASH,
+    base_id: "openpipestress.result_semantics/0.3.0/physics-1",
+    base_profile: "exact_straight_pressure_v2",
+    geometry: "exact",
+};
+fn route(source: &Value) -> &'static Route {
+    if source["producer"]["semantic_contract_id"] == EXACT_CONTRACT_ID {
+        &EXACT
+    } else {
+        &PREVIEW
+    }
 }
 fn equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
@@ -477,14 +553,16 @@ fn source_hash(s: &Value) -> VResult<String> {
         "RECEIPT_MISMATCH",
     )
 }
-fn preparation_payload(a: &Value) -> VResult<Value> {
+/// S-1 (REVISION_01 §2): `definition_sha256` is the route's table-bound
+/// definition H, never a module constant.
+fn preparation_payload(a: &Value, definition_hash: &str) -> VResult<Value> {
     let mut members = Vec::new();
     for m in list(&a["preparation"]["members"]) {
         need(m["result"]["kind"] == "prepared", "G1", "RECEIPT_MISMATCH")?;
         members.push(json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]}));
     }
     Ok(
-        json!({"definition_id":a["definition_id"],"definition_sha256":DEFINITION_HASH,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members}),
+        json!({"definition_id":a["definition_id"],"definition_sha256":definition_hash,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members}),
     )
 }
 /// The bound inherited preview table and this successor table, as bytes.
@@ -493,7 +571,30 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
+const TABLE_HASH: &str = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
+/// The exact successor's table (XTABLE) and its inherited physics-1 table.
+const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
+    "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+);
+const PHYSICS_TABLE_BYTES: &[u8] =
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
+const EXACT_TABLE_HASH: &str = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
+/// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
+/// binds from version 1, keyed by the receipt body's own paths.
+fn receipt_bindings() -> Value {
+    json!({"canonicalization":"openpipestress_jcs_ijson_v1","method":METHOD,
+        "projection_policy":"RP-LOGICAL-ATTEMPTS-v1",
+        "work":{"case_limit":20_000_000_000u64,"invocation_limit":60_000_000_000u64},
+        "work_policy":"W1-LME-20B-60B-v1"})
+}
+/// B3-D §2.4 step 6: the table's `receipt_bindings`, `receipt_policy` and
+/// `accuracy_classification.policy` each equal the reader's constants, so
+/// neither the table nor a constant can drift alone.
+fn table_binds_reader_constants(table: &Value) -> bool {
+    table["receipt_bindings"] == receipt_bindings()
+        && table["receipt_policy"] == "M03-INTEGRITY-MP-v2"
+        && table["accuracy_classification"]["policy"] == "RP-FACADE-SI-v2"
+}
 fn sha256_hex(bytes: &[u8]) -> String {
     use sha2::{Digest, Sha256};
     Sha256::digest(bytes)
@@ -507,7 +608,15 @@ fn sha256_hex(bytes: &[u8]) -> String {
 /// the 20B/60B thresholds. A G0 field that is absent or of the wrong type
 /// fails G0; every other shape defect waits for G1.
 fn g0(source: &Value) -> VResult {
+    g0_with(source, table())
+}
+/// G0 on the preview route (B2-C §8, rows 1-9, in order), with the table as a
+/// parameter: production passes the packaged PTABLE, and the reader-local unit
+/// tests a test-only copy. Every row is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+/// except row 4, RETAINED_PRECISION_FORMATION_MISMATCH.
+fn g0_with(source: &Value, t: &Value) -> VResult {
     let unsupported = |ok| need(ok, "G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED");
+    // 1-2. Identity and profile; producer component and schema versions.
     unsupported(
         source.is_object()
             && source["producer"]["semantic_contract_id"] == CONTRACT_ID
@@ -518,10 +627,12 @@ fn g0(source: &Value) -> VResult {
             && source["producer"]["component_name"] == "open_pipe_stress_product_physics"
             && source["producer"]["component_version"] == "0.2.0",
     )?;
+    // 3. The table's identity and profile.
     unsupported(
-        table()["semantic_contract_id"] == CONTRACT_ID
-            && table()["formulation_profile_id"] == PROFILE,
+        t["semantic_contract_id"] == CONTRACT_ID && t["formulation_profile_id"] == PROFILE,
     )?;
+    // 4. The table's definitions are [DEF-O, DEF-C] in that order, and each
+    // packaged definition's H equals its constant.
     need(
         hash(
             "retained_precision_formation_v1",
@@ -529,42 +640,130 @@ fn g0(source: &Value) -> VResult {
             "G0",
             "FORMATION_MISMATCH",
         )? == DEFINITION_HASH
-            && table()["product_formation_definitions"]
-                == json!([{"id":DEFINITION_ID,"sha256":DEFINITION_HASH}]),
+            && hash(
+                "retained_precision_formation_v1",
+                combination_definition(),
+                "G0",
+                "FORMATION_MISMATCH",
+            )? == COMBINATION_DEFINITION_HASH
+            && t["product_formation_definitions"]
+                == json!([{"id":DEFINITION_ID,"sha256":DEFINITION_HASH},
+                    {"id":COMBINATION_DEFINITION_ID,"sha256":COMBINATION_DEFINITION_HASH}]),
         "G0",
         "FORMATION_MISMATCH",
     )?;
+    // 5. The table's bytes and its inherited hash.
     unsupported(
         sha256_hex(TABLE_BYTES) == TABLE_HASH
-            && table()["inherited_semantic_contract_sha256"] == sha256_hex(INHERITED_TABLE_BYTES),
+            && t["inherited_semantic_contract_sha256"] == sha256_hex(INHERITED_TABLE_BYTES),
     )?;
+    // 6. N-12's cross-check: the table against the reader's constants.
+    unsupported(table_binds_reader_constants(t))?;
     let b = &source["retained_precision"]["body"];
-    // D32: integers by value (finite, integral, in range, not -0), never by
+    // 7. D32: integers by value (finite, integral, in range, not -0), never by
     // the JSON number's host type: `1.0` is the receipt version 1.
     unsupported(uint(&b["receipt_version"]) == Some(1))?;
-    for (key, value) in [
-        ("policy", "M03-INTEGRITY-MP-v2"),
-        ("projection_policy", "RP-LOGICAL-ATTEMPTS-v1"),
-        ("work_policy", "W1-LME-20B-60B-v1"),
-        ("facade_policy", "RP-FACADE-SI-v2"),
-        ("canonicalization", "openpipestress_jcs_ijson_v1"),
-    ] {
-        unsupported(b[key] == value)?;
-    }
+    // 8. The bound receipt members against the table (row 6 binds the table
+    // to the constants, so each is one check).
+    let rb = &t["receipt_bindings"];
     for (key, want) in [
-        ("case_limit", 20_000_000_000u64),
-        ("invocation_limit", 60_000_000_000),
+        ("policy", &t["receipt_policy"]),
+        ("projection_policy", &rb["projection_policy"]),
+        ("work_policy", &rb["work_policy"]),
+        ("facade_policy", &t["accuracy_classification"]["policy"]),
+        ("canonicalization", &rb["canonicalization"]),
     ] {
-        unsupported(uint(&b["work"][key]) == Some(want))?;
+        unsupported(want.is_string() && b[key] == *want)?;
     }
-    for a in list(&b["product_attempts"]) {
+    for key in ["case_limit", "invocation_limit"] {
+        unsupported(
+            rb["work"][key].as_u64().is_some() && uint(&b["work"][key]) == rb["work"][key].as_u64(),
+        )?;
+    }
+    // 9. Every product attempt's and operand preparation's definition is one
+    // of the table's (which owner carries which is G1's).
+    let ids: Vec<&Value> = list(&t["product_formation_definitions"])
+        .iter()
+        .map(|d| &d["id"])
+        .collect();
+    for a in list(&b["product_attempts"])
+        .iter()
+        .chain(list(&b["operand_preparations"]))
+    {
         if a.is_object() {
-            unsupported(a["definition_id"] == DEFINITION_ID)?;
+            unsupported(ids.contains(&&a["definition_id"]))?;
         }
     }
     Ok(())
 }
-fn g1(source: &Value, raw: bool) -> VResult {
+/// G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3
+/// entries 1-10): every step is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except
+/// step 4, RETAINED_PRECISION_FORMATION_MISMATCH.
+fn g0_exact(source: &Value) -> VResult {
+    let unsupported = |ok| need(ok, "G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED");
+    let t = exact_table();
+    // 1. Identity and profile.
+    unsupported(
+        source.is_object()
+            && source["producer"]["semantic_contract_id"] == EXACT_CONTRACT_ID
+            && source["formulation_basis"]["profile_id"] == EXACT_PROFILE,
+    )?;
+    // 2. Producer component and version; envelope schema 0.2.0.
+    unsupported(
+        source["schema_version"] == "0.2.0"
+            && source["producer"]["component_name"] == "open_pipe_stress_product_physics"
+            && source["producer"]["component_version"] == "0.2.0",
+    )?;
+    // 3. XTABLE's identity and profile.
+    unsupported(
+        t["semantic_contract_id"] == EXACT_CONTRACT_ID && t["formulation_profile_id"] == EXACT_PROFILE,
+    )?;
+    // 4. H(DEF-E) and the table's one bound definition.
+    need(
+        hash(
+            "retained_precision_formation_v1",
+            exact_definition(),
+            "G0",
+            "FORMATION_MISMATCH",
+        )? == EXACT_DEFINITION_HASH
+            && t["product_formation_definitions"]
+                == json!([{"id":EXACT_DEFINITION_ID,"sha256":EXACT_DEFINITION_HASH}]),
+        "G0",
+        "FORMATION_MISMATCH",
+    )?;
+    // 5. XTABLE's bytes and its inherited physics-1 hash.
+    unsupported(
+        sha256_hex(EXACT_TABLE_BYTES) == EXACT_TABLE_HASH
+            && t["inherited_semantic_contract_sha256"] == sha256_hex(PHYSICS_TABLE_BYTES),
+    )?;
+    // 6. The table against the reader's constants.
+    unsupported(table_binds_reader_constants(t))?;
+    let b = &source["retained_precision"]["body"];
+    // 7. receipt_version 1 (D32: by value).
+    unsupported(uint(&b["receipt_version"]) == Some(1))?;
+    // 8. The body's policies and limits equal the table's.
+    let rb = &t["receipt_bindings"];
+    for (key, want) in [
+        ("policy", &t["receipt_policy"]),
+        ("facade_policy", &t["accuracy_classification"]["policy"]),
+        ("projection_policy", &rb["projection_policy"]),
+        ("work_policy", &rb["work_policy"]),
+        ("canonicalization", &rb["canonicalization"]),
+    ] {
+        unsupported(want.is_string() && b[key] == *want)?;
+    }
+    for key in ["case_limit", "invocation_limit"] {
+        unsupported(rb["work"][key].as_u64().is_some() && uint(&b["work"][key]) == rb["work"][key].as_u64())?;
+    }
+    // 9. Every attempt names the exact definition.
+    for a in list(&b["product_attempts"]) {
+        if a.is_object() {
+            unsupported(a["definition_id"] == EXACT_DEFINITION_ID)?;
+        }
+    }
+    Ok(())
+}
+fn g1(source: &Value, raw: bool, route: &Route) -> VResult {
     let r = &source["retained_precision"];
     need(shape(r, schema()), "G1", "RECEIPT_MISMATCH")?;
     if raw {
@@ -617,7 +816,7 @@ fn g1(source: &Value, raw: bool) -> VResult {
                     need(
                         hash(
                             "retained_precision_preparation_v1",
-                            &preparation_payload(a)?,
+                            &preparation_payload(a, route.definition_hash)?,
                             "G1",
                             "RECEIPT_MISMATCH",
                         )? == s["preparation"]["sha256"],
@@ -637,7 +836,70 @@ fn g1(source: &Value, raw: bool) -> VResult {
             }
         }
     }
+    g1_combinations(&r["body"])
+}
+/// B2-C §10.1's G1 row (C3a-5; §2.7 "Hashes"), after the case hashes: each
+/// operand-prepared CaseSource's preparation hash over its prepared record;
+/// each CombinationSource operand's identity of the CaseSource it names; each
+/// `retained_selected` combination's identity of its CombinationSource. A
+/// reference that does not resolve (or an operand naming no CaseSource) is left
+/// to G3/G5.
+fn g1_combinations(body: &Value) -> VResult {
+    let sources = list(&body["sources"]);
+    let resolve = |v: &Value| uint(v).and_then(|i| sources.get(i as usize));
+    for s in sources {
+        if let Some(p) = uint(&s["preparation"]["operand_preparation_ref"])
+            .and_then(|i| list(&body["operand_preparations"]).get(i as usize))
+        {
+            if p["result"]["kind"] == "prepared"
+                && list(&p["preparation"]["members"])
+                    .iter()
+                    .all(|m| m["result"]["kind"] == "prepared")
+            {
+                need(
+                    hash(
+                        "retained_precision_operand_preparation_v1",
+                        &operand_preparation_payload(p)?,
+                        "G1",
+                        "RECEIPT_MISMATCH",
+                    )? == s["preparation"]["sha256"],
+                    "G1",
+                    "RECEIPT_MISMATCH",
+                )?;
+            }
+        }
+    }
+    for s in sources.iter().filter(|s| s["owner"]["kind"] == "combination") {
+        for o in list(&s["operands"]) {
+            // The identity is a CaseSource's (§2.7); an operand naming any other
+            // source is an association defect, left to G3/G5.
+            if let Some(case_source) =
+                resolve(&o["source_ref"]).filter(|x| x["owner"]["kind"] != "combination")
+            {
+                need(
+                    source_hash(case_source)? == o["source_identity_sha256"],
+                    "G1",
+                    "RECEIPT_MISMATCH",
+                )?;
+            }
+        }
+    }
+    for c in list(&body["combinations"]) {
+        if let Some(h) = c.get("source_identity_sha256") {
+            if let Some(s) = resolve(&c["source_ref"]) {
+                need(source_hash(s)? == *h, "G1", "RECEIPT_MISMATCH")?;
+            }
+        }
+    }
     Ok(())
+}
+/// C3a-5: the operand preparation payload, `{definition_id, definition_sha256,
+/// owner_ref, ordinary_attempt_ref, material_basis_ref, purpose, members}`, with
+/// DEF-O's H (an operand preparation is always DEF-O's; SCHEMA `const`).
+fn operand_preparation_payload(p: &Value) -> VResult<Value> {
+    let mut payload = preparation_payload(p, DEFINITION_HASH)?;
+    payload["purpose"] = p["purpose"].clone();
+    Ok(payload)
 }
 /// C3 conversion kinds (checklist P5, at G5 PRODUCT_ATTEMPT per snapshot 06a):
 /// Normal is a normal binary64 or ±0; Subnormal has nonzero subnormal bits.
@@ -699,6 +961,60 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
             )?;
         }
     }
+    // B2-C §10.1 G3 (a), (b), (e) and (f) (REVISION_01 N-3 branch points 1 and 2):
+    // the combination entries follow the gate evidence one for one; one id set
+    // for cases and combinations; a combination attempt and Run exactly for an
+    // entry with a Run, each naming its entry. (a) binds once the receipt has a
+    // combination entry or an `operand_preparations` member (PR-B2 ruling 1;
+    // REVISION_01 §4.1: today's predicate at z = 0); with neither, gate evidence
+    // naming no entry is the base reader's (07n `t_gate_ok`).
+    let combos = list(&b["combinations"]);
+    let gates = list(&source["contract_evidence"]["combination_gates"]);
+    let b2 = !combos.is_empty() || b.get("operand_preparations").is_some();
+    fail(!b2 || combos.len() == gates.len())?;
+    let mut combination_ids = BTreeSet::new();
+    let mut combination_runs = Vec::new();
+    for (j, e) in combos.iter().enumerate() {
+        let id = text(&e["basis_ref"]["ref_id"]);
+        fail(
+            e["basis_ref"]["ref_id"] == gates[j]["combination_id"]
+                && !ids.contains(id)
+                && combination_ids.insert(id)
+                && e["product_attempt_ref"].is_null() == e["run"].is_null(),
+        )?;
+        if !e["product_attempt_ref"].is_null() {
+            let ai = u(&e["product_attempt_ref"]);
+            fail(refs.insert(ai))?;
+            let a = at(
+                &b["product_attempts"],
+                &e["product_attempt_ref"],
+                "G3",
+                "COVERAGE_MISMATCH",
+            )?;
+            fail(u(&a["id"]) == ai && a["owner_ref"] == json!({"kind":"combination","index":j}))?;
+        }
+        if let Some(r) = e.get("run").filter(|r| !r.is_null()) {
+            combination_runs.push(u(&r["id"]));
+            fail(
+                runs.insert(u(&r["id"]), json!({"kind":"combination","index":j}))
+                    .is_none(),
+            )?;
+        }
+    }
+    // (e) Case attempts first, then combination attempts.
+    let attempt_kinds: Vec<bool> = list(&b["product_attempts"])
+        .iter()
+        .map(|a| a["owner_ref"]["kind"] == "combination")
+        .collect();
+    fail(attempt_kinds.windows(2).all(|w| w[0] <= w[1]))?;
+    // (f) The case Runs, then the combination Runs in Call (authored) order.
+    fail(
+        combination_runs.windows(2).all(|w| w[0] < w[1])
+            && runs
+                .iter()
+                .filter(|(_, o)| o["kind"] == "case")
+                .all(|(id, _)| combination_runs.iter().all(|c| id < c)),
+    )?;
     fail(
         list(&b["ordinary_attempts"]).len() == cs.len()
             && refs
@@ -717,12 +1033,26 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
                 .eq(cs.iter().map(|x| &x["basis_ref"]["ref_id"])),
         )?;
     }
+    // (c), N-3 branch point 5: every row's basis names a case or a combination
+    // entry.
     let mut rowids = BTreeSet::new();
     for r in list(&source["results"]) {
+        let named = text(&r["basis_ref"]["ref_id"]);
         fail(
             rowids.insert(text(&r["id"]))
-                && r["basis_ref"]["ref_type"] == "load_case"
-                && ids.contains(text(&r["basis_ref"]["ref_id"])),
+                && match text(&r["basis_ref"]["ref_type"]) {
+                    "load_case" => ids.contains(named),
+                    "combination" => combination_ids.contains(named),
+                    _ => false,
+                },
+        )?;
+    }
+    // (c): a combination's `result_ids` are exactly its rows, in publication order.
+    for e in combos {
+        fail(
+            list(&e["result_ids"])
+                .iter()
+                .eq(rows_for(source, e).iter().map(|r| &r["id"])),
         )?;
     }
     // D29 (source.rs `PrimitiveSource::new` NoNodes; I57 s1): every CaseSource has a
@@ -734,6 +1064,18 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
     // from the invocation.
     for (si, s) in list(&b["sources"]).iter().enumerate() {
         let owner = &s["owner"];
+        // N-3 branch point 4: a CombinationSource's index is its position and its
+        // owner is the combination entry at `owner.combination_index`.
+        if owner["kind"] == "combination" {
+            fail(
+                u(&s["index"]) == si as u64
+                    && usize::try_from(u(&owner["combination_index"]))
+                        .ok()
+                        .and_then(|j| combos.get(j))
+                        .is_some_and(|e| e["basis_ref"]["ref_id"] == owner["combination_id"]),
+            )?;
+            continue;
+        }
         fail(
             !list(&s["body_membership"]).is_empty()
                 && u(&s["index"]) == si as u64
@@ -755,6 +1097,17 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
     }
     for (i, a) in list(&b["product_attempts"]).iter().enumerate() {
         fail(u(&a["id"]) == i as u64)?;
+        // N-3 branch point 3: a combination attempt is owned by its entry and
+        // indexes that entry's rows; its summary coverage is checked against
+        // operand 0's CaseSource body inventory (a CombinationSource has none).
+        // It has no operational or preparation members.
+        if a["owner_ref"]["kind"] == "combination" {
+            let e = at(&b["combinations"], &a["owner_ref"]["index"], "G3", "COVERAGE_MISMATCH")?;
+            let operand0 = at(&b["sources"], &a["source_ref"], "G3", "COVERAGE_MISMATCH")
+                .and_then(|s| at(&b["sources"], &s["operands"][0]["source_ref"], "G3", "COVERAGE_MISMATCH"));
+            g3_attempt_rows(source, a, e, operand0)?;
+            continue;
+        }
         let old = list(&a["operational"]["old"]);
         let pm = list(&a["preparation"]["members"]);
         let new = list(&a["operational"]["new"]);
@@ -781,6 +1134,7 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
             fail(
                 list(&b["sources"])
                     .iter()
+                    .filter(|s| s["owner"]["kind"] != "combination")
                     .all(|s| list(&s["id_maps"]["members"]).len() == old.len()),
             )?;
         }
@@ -802,46 +1156,171 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
             "G3",
             "COVERAGE_MISMATCH",
         )?;
-        let rows = rows_for(source, c);
-        let mut prior = None;
-        for o in list(&a["proof"]["projection_outcomes"]) {
-            let idx = u(&o["row_index"]);
-            // C3 G3 row-index coverage (ROOT ruling): an index must name a
-            // hull-projected row of this case, ascending and unique.
-            fail(
-                idx < rows.len() as u64
-                    && prior.is_none_or(|p| idx > p)
-                    && hull_projected(rows[idx as usize]),
-            )?;
-            prior = Some(idx);
-        }
-        // I57 s4 G3: a complete proof-owned coverage vector has exactly one entry
-        // per native body of the source associated through this attempt, in
-        // ascending body order 0..body_count-1. There is no empty complete vector
-        // (a complete source has at least one body). A null source reference is
-        // left to the G5 same-source binding; an out-of-range one already fails
-        // the existing G3 member association above.
-        let coverage = &a["proof"]["summary_coverage"];
         let resolved = at(&b["sources"], &a["source_ref"], "G3", "COVERAGE_MISMATCH");
-        if let (false, Ok(s)) = (coverage.is_null(), resolved) {
-            let inventory = list(&s["body_membership"]);
+        g3_attempt_rows(source, a, c, resolved)?;
+    }
+    g3_combinations(b)
+}
+/// The case ids a mechanics expression's terms name, in authored order (other
+/// expressions name none for retention).
+fn mechanics_terms(e: &Value) -> Vec<&Value> {
+    if e["expression"]["kind"] == "mechanics" {
+        list(&e["expression"]["terms"]).iter().map(|t| &t["case_id"]).collect()
+    } else {
+        Vec::new()
+    }
+}
+/// C3a-1: a retained combination that requests operand preparations (its cause
+/// is not `operand_source_unavailable`, which is decided first).
+fn requests_preparations(e: &Value) -> bool {
+    matches!(text(&e["disposition"]), "retained_selected" | "retained_unavailable")
+        && e["reason"]["cause"]["kind"] != "operand_source_unavailable"
+}
+/// B2-C §10.1 G3 (d), (g), (h) and (i) (C3a-7's G3 row; REVISION_01 N-11 and
+/// §4.3): operand preparations, one per `not_required` term case of a
+/// requesting combination, in first-need order, each naming exactly its
+/// requesting combinations, and a prepared one its own CaseSource; every
+/// source named once; sources ordered batch, operand-prepared (record order),
+/// then combination. On a receipt with no combination entry and no
+/// `operand_preparations` member every predicate here is today's: (d), (h)
+/// and (i) are vacuous, and (g) names no batch CaseSource (PR-B2 ruling 1).
+fn g3_combinations(b: &Value) -> VResult {
+    let fail = |ok| need(ok, "G3", "COVERAGE_MISMATCH");
+    let cs = list(&b["cases"]);
+    let combos = list(&b["combinations"]);
+    let sources = list(&b["sources"]);
+    let ops = list(&b["operand_preparations"]);
+    fail(b.get("operand_preparations").is_none() || !ops.is_empty())?;
+    let b2 = !combos.is_empty() || b.get("operand_preparations").is_some();
+    let case_of = |id: &Value| cs.iter().position(|c| c["basis_ref"]["ref_id"] == *id);
+    // (d) and (h): the not_required term cases of requesting combinations, in
+    // first-need order (combinations, then terms, in authored order).
+    let mut need_order = Vec::new();
+    for e in combos.iter().filter(|e| requests_preparations(e)) {
+        for t in mechanics_terms(e) {
+            if let Some(ci) = case_of(t) {
+                if cs[ci]["status"] == "not_required" && !need_order.contains(&ci) {
+                    need_order.push(ci);
+                }
+            }
+        }
+    }
+    for (i, p) in ops.iter().enumerate() {
+        let ci = usize::try_from(u(&p["owner_ref"]["index"])).ok().filter(|ci| *ci < cs.len());
+        fail(u(&p["id"]) == i as u64 && p["owner_ref"]["kind"] == "case" && ci.is_some())?;
+        let ci = ci.unwrap_or_default();
+        let owner = &cs[ci]["basis_ref"]["ref_id"];
+        let requested: Vec<u64> = combos
+            .iter()
+            .enumerate()
+            .filter(|(_, e)| requests_preparations(e) && mechanics_terms(e).contains(&owner))
+            .map(|(j, _)| j as u64)
+            .collect();
+        fail(
+            cs[ci]["status"] == "not_required"
+                && list(&p["requested_by"]).iter().map(u).eq(requested.iter().copied()),
+        )?;
+        // A prepared record's source is its own operand-prepared CaseSource; a
+        // refused record's `source_ref` is G5's (REVISION_01 §4.3).
+        if p["result"]["kind"] == "prepared" {
+            let s = at(&b["sources"], &p["source_ref"], "G3", "COVERAGE_MISMATCH")?;
             fail(
-                !inventory.is_empty()
-                    && inventory
-                        .iter()
-                        .map(|x| u(&x["body"]))
-                        .eq(0..inventory.len() as u64)
-                    && list(coverage)
-                        .iter()
-                        .map(|e| u(&e["body"]))
-                        .eq(0..inventory.len() as u64),
+                s["owner"]["kind"] == "case"
+                    && u(&s["owner"]["case_index"]) == ci as u64
+                    && u(&s["preparation"]["operand_preparation_ref"]) == i as u64,
             )?;
         }
+    }
+    fail(
+        ops.iter()
+            .map(|p| u(&p["owner_ref"]["index"]))
+            .eq(need_order.iter().map(|ci| *ci as u64)),
+    )?;
+    // (g) A CombinationSource is named by exactly one combination entry, and an
+    // operand-prepared CaseSource by exactly one prepared operand preparation
+    // and no case, always; a batch CaseSource by exactly one case or one
+    // prepared operand preparation once the receipt has a combination entry or
+    // an `operand_preparations` member (PR-B2 ruling 1).
+    for (si, s) in sources.iter().enumerate() {
+        let names = |v: &Value| uint(v) == Some(si as u64);
+        let by_cases = cs.iter().filter(|c| names(&c["source_ref"])).count();
+        let by_records = ops
+            .iter()
+            .filter(|p| p["result"]["kind"] == "prepared" && names(&p["source_ref"]))
+            .count();
+        let by_combinations = combos.iter().filter(|e| names(&e["source_ref"])).count();
+        fail(if s["owner"]["kind"] == "combination" {
+            by_combinations == 1
+        } else if s["preparation"].get("operand_preparation_ref").is_some() {
+            by_records == 1 && by_cases == 0
+        } else {
+            !b2 || by_cases + by_records == 1
+        })?;
+    }
+    // (i) Batch CaseSources, then the operand-prepared ones in record order,
+    // then the CombinationSources.
+    let class = |s: &Value| {
+        if s["owner"]["kind"] == "combination" {
+            2
+        } else if s["preparation"].get("operand_preparation_ref").is_some() {
+            1
+        } else {
+            0
+        }
+    };
+    let prepared: Vec<u64> = sources
+        .iter()
+        .filter(|s| class(s) == 1)
+        .map(|s| u(&s["preparation"]["operand_preparation_ref"]))
+        .collect();
+    fail(
+        sources.windows(2).all(|w| class(&w[0]) <= class(&w[1]))
+            && prepared.windows(2).all(|w| w[0] < w[1]),
+    )
+}
+/// G3's per-attempt row checks, for a case attempt (its own source) and a
+/// combination attempt (operand 0's CaseSource).
+fn g3_attempt_rows(source: &Value, a: &Value, owner: &Value, inventory_source: VResult<&Value>) -> VResult {
+    let fail = |ok| need(ok, "G3", "COVERAGE_MISMATCH");
+    let rows = rows_for(source, owner);
+    let mut prior = None;
+    for o in list(&a["proof"]["projection_outcomes"]) {
+        let idx = u(&o["row_index"]);
+        // C3 G3 row-index coverage (ROOT ruling): an index must name a
+        // hull-projected row of this owner, ascending and unique.
+        fail(
+            idx < rows.len() as u64
+                && prior.is_none_or(|p| idx > p)
+                && owner_projected(owner, rows[idx as usize]),
+        )?;
+        prior = Some(idx);
+    }
+    // I57 s4 G3: a complete proof-owned coverage vector has exactly one entry
+    // per native body of the source associated through this attempt, in
+    // ascending body order 0..body_count-1. There is no empty complete vector
+    // (a complete source has at least one body). A null source reference is
+    // left to the G5 same-source binding; an out-of-range one already fails
+    // the existing G3 member association above.
+    let coverage = &a["proof"]["summary_coverage"];
+    if let (false, Ok(s)) = (coverage.is_null(), inventory_source) {
+        let inventory = list(&s["body_membership"]);
+        fail(
+            !inventory.is_empty()
+                && inventory
+                    .iter()
+                    .map(|x| u(&x["body"]))
+                    .eq(0..inventory.len() as u64)
+                && list(coverage)
+                    .iter()
+                    .map(|e| u(&e["body"]))
+                    .eq(0..inventory.len() as u64),
+        )?;
     }
     Ok(())
 }
 fn g4(source: &Value) -> VResult {
     let cs = list(&source["retained_precision"]["body"]["cases"]);
+    let combos = list(&source["retained_precision"]["body"]["combinations"]);
     let ds = list(&source["diagnostics"]);
     let fail = |ok| need(ok, "G4", "DIAGNOSTIC_MISMATCH");
     let mut ids = BTreeSet::new();
@@ -851,6 +1330,7 @@ fn g4(source: &Value) -> VResult {
                 && ids.insert(text(&d["id"]))
                 && d["code"] != "SOURCE_BLOCK_RECOVERY_SELECTED",
         )?;
+        // N-3 branch point 6: one case or one combination entry.
         if matches!(
             text(&d["code"]),
             "RETAINED_PRECISION_SELECTED" | "RETAINED_PRECISION_UNAVAILABLE"
@@ -859,6 +1339,7 @@ fn g4(source: &Value) -> VResult {
                 list(&d["affected_refs"]).len() == 1
                     && cs
                         .iter()
+                        .chain(combos)
                         .any(|c| d["affected_refs"][0] == c["basis_ref"]["ref_id"]),
             )?;
         }
@@ -892,6 +1373,29 @@ fn g4(source: &Value) -> VResult {
             }))?;
         }
     }
+    // B2-C §10.1 G4: one RETAINED_PRECISION_SELECTED per `retained_selected` and
+    // one RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination,
+    // none for `ordinary` or `base_withheld`; an unavailable entry's
+    // `diagnostic_ref` is its diagnostic's id.
+    for e in combos {
+        let id = &e["basis_ref"]["ref_id"];
+        let named = |code: &str| -> Vec<&Value> {
+            ds.iter()
+                .filter(|d| d["code"] == code && list(&d["affected_refs"]).contains(id))
+                .collect()
+        };
+        let (selected, unavailable) = (
+            named("RETAINED_PRECISION_SELECTED"),
+            named("RETAINED_PRECISION_UNAVAILABLE"),
+        );
+        fail(
+            selected.len() == usize::from(e["disposition"] == "retained_selected")
+                && unavailable.len() == usize::from(e["disposition"] == "retained_unavailable"),
+        )?;
+        if e["disposition"] == "retained_unavailable" {
+            fail(unavailable[0]["id"] == e["diagnostic_ref"])?;
+        }
+    }
     Ok(())
 }
 fn stages_sum(v: &Value) -> VResult<u64> {
@@ -918,10 +1422,21 @@ fn g5_native(b: &Value) -> VResult {
             u64::MAX
         })
     };
-    let mut runs: Vec<_> = list(&b["cases"])
+    // N-3 branch point 7: the cases' and the combination entries' Runs, each
+    // with its owner reference, indexed by Run id.
+    let mut runs: Vec<(Value, &Value, &Value)> = list(&b["cases"])
         .iter()
         .enumerate()
-        .filter_map(|(ci, c)| c.get("run").filter(|r| !r.is_null()).map(|r| (ci, c, r)))
+        .filter_map(|(ci, c)| {
+            c.get("run")
+                .filter(|r| !r.is_null())
+                .map(|r| (json!({"kind":"case","index":ci}), c, r))
+        })
+        .chain(list(&b["combinations"]).iter().enumerate().filter_map(|(j, e)| {
+            e.get("run")
+                .filter(|r| !r.is_null())
+                .map(|r| (json!({"kind":"combination","index":j}), e, r))
+        }))
         .collect();
     runs.sort_by_key(|(_, _, r)| u(&r["id"]));
     // D8 kernel scope (checkpoint A; C1:66-68): a work_accounting stop or reason
@@ -955,32 +1470,57 @@ fn g5_native(b: &Value) -> VResult {
                 && list(&call["source_refs"]).contains(si)
                 && s["stiffness_sha256"] == g["stiffness_sha256"])?;
         }
-        group_caches.insert(i as u64, BTreeMap::new());
+        // B2-C §10.1 G5 native class (N-3 branch point 10): a combination Call's
+        // Group is a CombinationGroup, whose cache starts as its imports; a
+        // batch's is a Group.
+        af(g.get("imports").is_some() == (call["kind"] == "mechanics_combination"))?;
+        group_caches.insert(
+            i as u64,
+            list(&g["imports"])
+                .iter()
+                .map(|x| (text(&x["slot"]).to_owned(), u(&x["build"])))
+                .collect(),
+        );
     }
     for (i, build) in list(&b["builds"]).iter().enumerate() {
         wf(u(&build["id"]) == i as u64 && u(&build["work"]) == tw(stages_sum(&build["stages"])))?;
     }
     for (call_id, call) in list(&b["calls"]).iter().enumerate() {
+        let mechanics = call["kind"] == "mechanics_combination";
+        // N-3 branch point 8: a mechanics Call has one owner, and one source and
+        // one Run (`runs`) or neither (`pre_source_refusal`).
         af(u(&call["id"]) == call_id as u64
             && list(&call["run_refs"]).len() == list(&call["source_refs"]).len()
-            && list(&call["run_refs"]).len() == list(&call["owner_refs"]).len())?;
+            && if mechanics {
+                list(&call["owner_refs"]).len() == 1 && list(&call["run_refs"]).len() <= 1
+            } else {
+                list(&call["run_refs"]).len() == list(&call["owner_refs"]).len()
+            })?;
         wf(u(&call["invocation_before"]) == current)?;
         for (position, ri) in list(&call["run_refs"]).iter().enumerate() {
-            let (ci, c, r) = runs
+            let (owner, c, r) = runs
                 .get(u(ri) as usize)
-                .copied()
+                .cloned()
                 .ok_or_else(|| error("G5", "ATTEMPT_MISMATCH"))?;
             run_order.push(u(ri));
             let si = &call["source_refs"][position];
             let oi = &call["owner_refs"][position];
+            // N-3 branch point 9: the Run's origin names its own owner (a case,
+            // or a combination entry on a mechanics Call) and its source.
             af(r["origin"]
                 == json!({"call":call_id,"position":position,"group":r["origin"]["group"],"source_ref":si,"owner_ref":oi})
-                && r["origin"]["owner_ref"]["kind"] == "case"
-                && *oi == json!({"kind":"case","index":ci})
+                && *oi == owner
+                && (owner["kind"] == "combination") == mechanics
                 && c["source_ref"] == *si)?;
-            // The source's owner id is bound to its case index at G3 (item 1 (f)).
+            // The source's owner id is bound to its case index at G3 (item 1 (f)),
+            // a CombinationSource's to its combination index.
             let src = at(&b["sources"], si, "G5", "ATTEMPT_MISMATCH")?;
-            af(src["owner"]["case_index"] == oi["index"])?;
+            af(if mechanics {
+                src["owner"]["kind"] == "combination"
+                    && src["owner"]["combination_index"] == oi["index"]
+            } else {
+                src["owner"]["case_index"] == oi["index"]
+            })?;
             let records = list(&r["records"]);
             let attempts = list(&r["attempts"]);
             af(records.len() <= 4 && attempts.len() <= 3)?;
@@ -993,9 +1533,14 @@ fn g5_native(b: &Value) -> VResult {
             }
             wf(u(&r["invocation_before"]) == current)?;
             let gid = uint(&r["origin"]["group"]);
+            let mut imported = BTreeSet::new();
             let mut cache = if let Some(gid) = gid {
                 let g = at(&b["groups"], &json!(gid), "G5", "ATTEMPT_MISMATCH")?;
                 af(u(&g["call"]) == call_id as u64 && list(&g["source_refs"]).contains(si))?;
+                imported = list(&g["imports"])
+                    .iter()
+                    .map(|x| (text(&x["slot"]).to_owned(), u(&x["build"])))
+                    .collect();
                 if g["preparation"]["kind"] == "refused" {
                     af(records.is_empty()
                         && r["kernel_terminal"]["kind"] == "refused"
@@ -1021,6 +1566,10 @@ fn g5_native(b: &Value) -> VResult {
                     .collect::<Vec<_>>())
             };
             wf(r["cache_before"] == snapshot(&cache))?;
+            // A combination Run's `cache_before` is exactly its Group's imports.
+            if mechanics {
+                af(r["cache_before"] == snapshot(&imported.iter().cloned().collect()))?;
+            }
             let mut amounts = Vec::new();
             let mut prior_precision = 0;
             for (index, record) in records.iter().enumerate() {
@@ -1069,7 +1618,13 @@ fn g5_native(b: &Value) -> VResult {
                         "stop_rule" | "verification_estimate" | "charge" | "publication_enclosure"
                     )
                 {
-                    let layout = list(&at(&b["sources"], si, "G5", "ATTEMPT_MISMATCH")?["layout"]);
+                    // A combination Run's layout is its representative's (operand 0's
+                    // CaseSource: the kernel source is that operand's, KD I5).
+                    let mut layout_source = at(&b["sources"], si, "G5", "ATTEMPT_MISMATCH")?;
+                    if mechanics {
+                        layout_source = at(&b["sources"], &layout_source["representative_source_ref"], "G5", "ATTEMPT_MISMATCH")?;
+                    }
+                    let layout = list(&layout_source["layout"]);
                     af(layout.iter().any(|row| {
                         row["quantity"] == reason["quantity"]
                             && row["body"] == reason["body"]
@@ -1132,7 +1687,9 @@ fn g5_native(b: &Value) -> VResult {
                         work_ok.set(false);
                         continue;
                     };
-                    wf(build["group"] == r["origin"]["group"]
+                    // An imported build belongs to its operand's group.
+                    wf((build["group"] == r["origin"]["group"]
+                        || (!built && imported.contains(&(slot.clone(), bi))))
                         && build["slot"] == slot
                         && u(&build["work"]) == cost)?;
                     if built {
@@ -1384,7 +1941,7 @@ fn g5_native(b: &Value) -> VResult {
                     && !vr["verification"].is_null())?;
                 wf(charge <= u(&b["work"]["case_limit"])
                     && current <= u(&b["work"]["invocation_limit"]))?;
-                if c["status"] == "selected" {
+                if c["status"] == "selected" || c["disposition"] == "retained_selected" {
                     let s = &c["selection"];
                     af(s["precision"] == a["precision"]
                         && s["verification_precision"] == a["verification"]["precision"])?;
@@ -1421,6 +1978,7 @@ fn g5_native(b: &Value) -> VResult {
         wf(u(&call["invocation_after"]) == current)?;
     }
     af(run_order.iter().copied().eq(0..runs.len() as u64))?;
+    g5_native_combinations(b)?;
     // C5/N11 (C2:143): call-local groups formed at first equality of the full
     // stiffness bytes, in first-seen order; an idle (group-null) Run forms none;
     // a refused group preparation returns before any attempt.
@@ -1434,7 +1992,7 @@ fn g5_native(b: &Value) -> VResult {
         for (ri, si) in list(&call["run_refs"]).iter().zip(list(&call["source_refs"])) {
             let (_, _, run) = runs
                 .get(u(ri) as usize)
-                .copied()
+                .cloned()
                 .ok_or_else(|| error("G5", "ATTEMPT_MISMATCH"))?;
             if run["origin"]["group"].is_null() {
                 continue;
@@ -1467,6 +2025,110 @@ fn g5_native(b: &Value) -> VResult {
     }
     wf(u(&b["work"]["charged"]) == current && builds_seen.len() == list(&b["builds"]).len())?;
     need(work_ok.get(), "G5", "WORK_MISMATCH")
+}
+/// The source an operand term names (B2-C §2.5): a `selected` or `unavailable`
+/// case's own CaseSource, or a `not_required` case's operand-preparation source.
+fn operand_source<'a>(b: &'a Value, case: &'a Value, ci: usize) -> &'a Value {
+    if case["status"] == "not_required" {
+        list(&b["operand_preparations"])
+            .iter()
+            .find(|p| u(&p["owner_ref"]["index"]) == ci as u64)
+            .map_or(&Value::Null, |p| &p["source_ref"])
+    } else {
+        &case["source_ref"]
+    }
+}
+/// B2-C §10.1 G5 native class, ATTEMPT (after today's checks): `calls[0]` is the
+/// case batch, then one mechanics Call per entry with a `call_ref`, in authored
+/// order, naming its entry; `requested_operands` are the expression's terms
+/// with their sources (§2.5); `runs` has one source and one Run, which are the
+/// entry's, `pre_source_refusal` neither (REVISION_01 §4.1 row 8: the Call's
+/// arrays; a refused entry's null members are G5 products' reason table); the
+/// CombinationSource's operands, representative, stiffness and ledger; the
+/// Group's imports from `selected` operands only, the first occupied slot in
+/// authored order, from each operand's selected Run (`cache_after`). At z = 0
+/// nothing is added.
+fn g5_native_combinations(b: &Value) -> VResult {
+    let af = |ok| need(ok, "G5", "ATTEMPT_MISMATCH");
+    let calls = list(&b["calls"]);
+    let cs = list(&b["cases"]);
+    let combos = list(&b["combinations"]);
+    if combos.is_empty() {
+        return Ok(());
+    }
+    let with_calls: Vec<(usize, &Value)> =
+        combos.iter().enumerate().filter(|(_, e)| !e["call_ref"].is_null()).collect();
+    af(calls.first().is_some_and(|c| c["kind"] == "case_batch")
+        && calls.len() == with_calls.len() + 1
+        && calls[1..].iter().all(|c| c["kind"] == "mechanics_combination"))?;
+    for (k, (j, e)) in with_calls.into_iter().enumerate() {
+        let call = &calls[k + 1];
+        af(u(&e["call_ref"]) == (k + 1) as u64
+            && call["owner_refs"] == json!([{"kind":"combination","index":j}]))?;
+        let terms = list(&e["expression"]["terms"]);
+        let requested = list(&call["requested_operands"]);
+        af(e["expression"]["kind"] == "mechanics" && requested.len() == terms.len())?;
+        let mut term_cases = Vec::new();
+        for (t, o) in terms.iter().zip(requested) {
+            let ci = cs
+                .iter()
+                .position(|c| c["basis_ref"]["ref_id"] == t["case_id"])
+                .ok_or_else(|| error("G5", "ATTEMPT_MISMATCH"))?;
+            af(o["factor"] == t["factor"] && o["source_ref"] == *operand_source(b, &cs[ci], ci))?;
+            term_cases.push(ci);
+        }
+        let runs = call["result"]["kind"] == "runs";
+        af(runs == (list(&call["run_refs"]).len() == 1 && list(&call["source_refs"]).len() == 1)
+            && (call["result"]["kind"] == "pre_source_refusal") == list(&call["run_refs"]).is_empty()
+            && (call["result"]["kind"] == "pre_source_refusal") == list(&call["source_refs"]).is_empty())?;
+        if !runs {
+            continue;
+        }
+        af(e["run"]["id"] == call["run_refs"][0] && e["source_ref"] == call["source_refs"][0])?;
+        let s = at(&b["sources"], &e["source_ref"], "G5", "ATTEMPT_MISMATCH")?;
+        let operands = list(&s["operands"]);
+        af(s["owner"]["kind"] == "combination"
+            && operands.len() == terms.len()
+            && s["representative_source_ref"] == operands[0]["source_ref"])?;
+        // C2 §3: each operand's case and factor are its term's (as PY and TS
+        // check them), and its factor and source are its requested operand's.
+        for (((o, r), ci), t) in operands.iter().zip(requested).zip(&term_cases).zip(terms) {
+            let case_source = at(&b["sources"], &o["source_ref"], "G5", "ATTEMPT_MISMATCH")?;
+            af(u(&o["case_index"]) == *ci as u64
+                && o["factor"] == t["factor"]
+                && o["factor"] == r["factor"]
+                && o["source_ref"] == r["source_ref"]
+                && case_source["owner"]["kind"] == "case"
+                && u(&case_source["owner"]["case_index"]) == *ci as u64
+                && case_source["stiffness_sha256"] == s["stiffness_sha256"])?;
+        }
+        if e["disposition"] == "retained_selected" {
+            af(s["ledger_sha256"] == e["selection"]["ledger_sha256"])?;
+        }
+        // The Group's imports: per slot, in fixed slot order, the first operand
+        // in authored order whose case is `selected` and whose selected Run's
+        // `cache_after` holds the slot.
+        let g = at(&b["groups"], &e["run"]["origin"]["group"], "G5", "ATTEMPT_MISMATCH")?;
+        let mut expected = Vec::new();
+        for slot in SLOTS {
+            for (oi, ci) in term_cases.iter().enumerate() {
+                let case = &cs[*ci];
+                if case["status"] != "selected" {
+                    continue;
+                }
+                if let Some(x) = list(&case["run"]["cache_after"]).iter().find(|x| x["slot"] == slot) {
+                    expected.push(json!({"operand_index":oi,"selected_run":case["run"]["id"],"slot":slot,"build":x["build"]}));
+                    break;
+                }
+            }
+        }
+        af(g["imports"] == json!(expected))?;
+        for x in &expected {
+            let build = at(&b["builds"], &x["build"], "G5", "ATTEMPT_MISMATCH")?;
+            af(u(&build["origin"]["run"]) < u(&e["run"]["id"]))?;
+        }
+    }
+    Ok(())
 }
 /// A G7 base failure: the leading `[A-Z][A-Z0-9_]*` token is the bare code;
 /// the full base text, when it says more, is carried as detail.
@@ -1711,6 +2373,19 @@ pub mod reader_logic {
     /// The G7 bare-code/detail split of a base failure text.
     pub fn g7_error(text: &str) -> ValidationError {
         base_error(text.to_string())
+    }
+    /// B2-C §4's reason table for one `retained_unavailable` combination entry
+    /// and its CombinationAttempt.
+    pub fn combination_reason_table(entry: &Value, attempt: &Value) -> Result<(), ValidationError> {
+        super::combination_reason_table(entry, attempt, &|ok| need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH"))
+    }
+    /// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause, on a body.
+    pub fn combination_causes(body: &Value) -> Result<(), ValidationError> {
+        super::combination_causes(body, &|ok| need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH"))
+    }
+    /// R-COMB-1 (R): the classes appended after G5c, on a statement.
+    pub fn r_comb_1(source: &Value) -> Vec<RowClassification> {
+        super::r_comb_1(source)
     }
 }
 /// Every JSON object inside `v`, `v` first (depth-first, document order).
@@ -2058,6 +2733,401 @@ fn d38_capture_before_run(c: &Value, a: &Value, ai: usize) -> bool {
         && !a["source_ref"].is_null()
         && a["source_ref"] == c["source_ref"]
 }
+/// C3's preparation-member checks for a product attempt or an operand
+/// preparation (C3a-7's G5 rows): member conversions in property order, a
+/// successful prefix then at most one refused member, and new operational
+/// members only for prepared ones; conversion counts are WORK.
+fn member_checks(a: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(bool) -> VResult) -> VResult {
+    let pm = list(&a["preparation"]["members"]);
+    let new = list(&a["operational"]["new"]);
+    let props = [
+        ("area", "lo"),
+        ("area", "hi"),
+        ("second_moment", "lo"),
+        ("second_moment", "hi"),
+        ("polar_moment", "lo"),
+        ("polar_moment", "hi"),
+        ("section_modulus", "lo"),
+        ("section_modulus", "hi"),
+        ("radius", "exact"),
+    ];
+    for (j, m) in pm.iter().enumerate() {
+        let prepared = m["result"]["kind"] == "prepared";
+        if !prepared {
+            pf(j + 1 == pm.len() && j >= new.len())?;
+        }
+        let cv = list(&m["conversions"]);
+        pf(cv.len() <= 9)?;
+        for (k, v) in cv.iter().enumerate() {
+            pf(v["property"] == props[k].0
+                && v["endpoint"] == props[k].1
+                && conversion_kind_ok(&v["outcome"]))?;
+            if prepared {
+                let idx = if k < 8 { k / 2 } else { 4 };
+                pf(v["outcome"]["kind"] == "normal"
+                    && v["outcome"]["value"] == m["result"]["section"][idx]
+                    && f(&v["outcome"]["value"]) >= f64::MIN_POSITIVE)?;
+            }
+        }
+        if prepared {
+            pf(cv.len() == 9)?;
+        }
+        if let Some(n) = exact_count(&m["work"]["conversions"]) {
+            wf(n == cv.len() as u64)?;
+        }
+    }
+    for (j, op) in new.iter().enumerate() {
+        pf(pm.get(j).is_some_and(|m| m["result"]["kind"] == "prepared" && op["member"] == m["member"]))?;
+    }
+    Ok(())
+}
+/// C3's proof-stage checks for one product attempt and its owner (a case, or
+/// a combination entry: B2-C §10.1 G5 products, "as C3 without a preparation
+/// stage"): stage progression, lane and check records, projection outcomes over
+/// the owner's rows and, for a Ready attempt, the frozen row values.
+fn proof_checks(
+    source: &Value,
+    a: &Value,
+    c: &Value,
+    pf: &dyn Fn(bool) -> VResult,
+    wf: &mut dyn FnMut(bool) -> VResult,
+) -> VResult {
+    let st = &a["stages"];
+    let proof = &a["proof"];
+    if proof.is_null() {
+        pf(st["proof_start"] == "not_entered"
+            && [
+                "projection",
+                "maxima",
+                "values",
+                "aliases",
+                "certificate",
+                "observables",
+                "g5a",
+            ]
+            .iter()
+            .all(|k| st[k] == "not_entered"))?;
+    } else {
+        pf(!a["run_ref"].is_null()
+            && c["run"]["kernel_terminal"]["kind"] == "selected"
+            && st["proof_start"] != "not_entered")?;
+        let lanes = list(&proof["lanes"]);
+        pf(lanes.len() <= 2)?;
+        for (i, lane) in lanes.iter().enumerate() {
+            pf(lane["law"] == ["admitted_k", "annular_source"][i]
+                && (lane["state"] == "completed") == lane["error"].is_null())?;
+            if lane["state"] == "failed" {
+                pf(i + 1 == lanes.len())?;
+            }
+            if let Some(n) = exact_count(&lane["work"]["correction"]["calls"]) {
+                wf(n <= 1)?;
+            }
+            wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])?;
+        }
+        if st["proof_start"] == "completed" {
+            pf(lanes.len() == 2 && lanes.iter().all(|l| l["state"] == "completed"))?;
+        }
+        if st["projection"] != "not_entered" {
+            pf(lanes.len() == 2
+                && lanes.iter().all(|l| l["state"] == "completed")
+                && st["proof_start"] == "completed")?;
+        }
+        for (k, prior) in [
+            ("maxima", "projection"),
+            ("values", "maxima"),
+            ("aliases", "values"),
+            ("certificate", "aliases"),
+        ] {
+            if st[k] != "not_entered" {
+                pf(st[prior] == "completed")?;
+            }
+        }
+        for k in ["certificate", "observables", "g5a"] {
+            let check = &proof["checks"][k];
+            pf(match text(&st[k]) {
+                "not_entered" => check["kind"] == "not_entered",
+                "completed" => check["kind"] == "passed",
+                "failed" => check["kind"] == "failed",
+                _ => false,
+            })?;
+            if check["kind"] == "failed" {
+                pf(check["error"]["kind"]
+                    == if k == "certificate" {
+                        "proof"
+                    } else if k == "observables" {
+                        "observable"
+                    } else {
+                        "g5a"
+                    })?;
+            }
+        }
+        let outcomes = list(&proof["projection_outcomes"]);
+        if let Some(n) = exact_count(&proof["projection_conversions"]) {
+            wf(n == outcomes.len() as u64)?;
+        }
+        if st["projection"] == "not_entered" {
+            pf(outcomes.is_empty())?;
+        }
+        if proof["completion"]["kind"] == "merged" {
+            // A failed maxima calculation abandons its already created
+            // builder and merges its work before complete_maxima is entered.
+            pf(st["projection"] == "completed")?;
+        }
+        if proof["completion"]["kind"] == "separate_failure" {
+            pf(a["result"]["kind"] == "unavailable"
+                && a["result"]["error"]["kind"] == "values"
+                && st["values"] == "failed")?;
+        }
+        if st["aliases"] != "not_entered" || st["certificate"] != "not_entered" {
+            pf(proof["completion"]["kind"] == "merged")?;
+        }
+        if st["observables"] != "not_entered" || st["g5a"] != "not_entered" {
+            pf(st["certificate"] != "not_entered")?;
+        }
+        let rows = rows_for(source, c);
+        let projected: Vec<_> = rows
+            .iter()
+            .enumerate()
+            .filter(|(_, r)| owner_projected(c, r))
+            .map(|(i, _)| i as u64)
+            .collect();
+        pf(outcomes.len() <= projected.len()
+            && outcomes
+                .iter()
+                .map(|v| u(&v["row_index"]))
+                .eq(projected.iter().take(outcomes.len()).copied()))?;
+        if st["projection"] == "completed" {
+            pf(outcomes.len() == projected.len())?;
+        }
+        for v in outcomes {
+            pf(conversion_kind_ok(&v["outcome"]))?;
+        }
+        if a["result"]["kind"] == "ready" {
+            let rows = rows_for(source, c);
+            let expected: Vec<_> = rows
+                .iter()
+                .enumerate()
+                .filter(|(_, r)| owner_projected(c, r))
+                .map(|(i, _)| i as u64)
+                .collect();
+            pf(outcomes.iter().map(|v| u(&v["row_index"])).eq(expected))?;
+            for v in outcomes {
+                let row = rows[u(&v["row_index"]) as usize];
+                let o = &v["outcome"];
+                pf(o["kind"] != "overflow")?;
+                let value = if o["kind"] == "underflow" {
+                    0.0
+                } else {
+                    f(&o["value"])
+                };
+                pf(row["value"].as_f64().is_some_and(|v| {
+                    v.to_bits() == (if value == 0.0 { 0.0 } else { value }).to_bits()
+                }))?;
+            }
+        }
+    }
+    Ok(())
+}
+/// B2-C §10.1 G5 products for one CombinationAttempt (CONTRACT §4; REVISION_01
+/// N-3 branch point 11 and N-9): owned by its entry, on its Run and its
+/// CombinationSource; the proof stages as C3 without a preparation stage;
+/// native completed iff the Run is selected; Ready iff `retained_selected`;
+/// an unavailable attempt is its entry's cause and takes §4's reason table.
+fn combination_attempt(
+    source: &Value,
+    b: &Value,
+    ai: usize,
+    a: &Value,
+    pf: &dyn Fn(bool) -> VResult,
+    wf: &mut dyn FnMut(bool) -> VResult,
+) -> VResult {
+    let e = at(&b["combinations"], &a["owner_ref"]["index"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+    let st = &a["stages"];
+    let run = &e["run"];
+    pf(e["product_attempt_ref"] == a["id"]
+        && !run.is_null()
+        && run["id"] == a["run_ref"]
+        && a["source_ref"] == e["source_ref"])?;
+    let s = at(&b["sources"], &a["source_ref"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+    pf(s["owner"]["kind"] == "combination"
+        && s["owner"]["combination_index"] == a["owner_ref"]["index"]
+        && st.get("preparation").is_none())?;
+    proof_checks(source, a, e, pf, wf)?;
+    let selected = run["kernel_terminal"]["kind"] == "selected";
+    pf(st["native"] != "not_entered" && (st["native"] == "completed") == selected)?;
+    let proof = &a["proof"];
+    if a["result"]["kind"] == "ready" {
+        pf(!proof.is_null()
+            && st
+                .as_object()
+                .is_some_and(|o| o.values().all(|v| v == "completed")))?;
+        wf(exact_work(proof)
+            && a["adapter"]["fault"].is_null()
+            && exact_work(&a["overlay_work"])
+            && exact_work(&a["g5a_work"]))?;
+    }
+    pf((a["result"]["kind"] == "ready") == (e["disposition"] == "retained_selected"))?;
+    if a["result"]["kind"] == "unavailable" {
+        pf(e["disposition"] == "retained_unavailable"
+            && e["reason"]["cause"]["kind"] == "prepared_product_failure"
+            && u(&e["reason"]["cause"]["product_attempt_ref"]) == ai as u64)?;
+    }
+    g5_coverage(a, e, Some(s))?;
+    g5_stages_in(a, pf, &STAGE8[1..], false)?;
+    for ok in accounting_rules(a) {
+        wf(ok)?;
+    }
+    // N-5 (REVISION_01 §3.3): a combination's origin refusal is never a
+    // capture error.
+    pf(!matches!(text(&a["result"]["error"]["kind"]), "capture" | "observable" | "abandoned")
+        || a["result"]["error"]["cause"]["kind"] != "origin")?;
+    if a["result"]["kind"] == "unavailable" {
+        combination_reason_table(e, a, pf)?;
+    }
+    Ok(())
+}
+/// CONTRACT §4's reason table, by the combination attempt's own error: native,
+/// or capture with a non-selected Run, gives (`combination_unresolved`,
+/// `kernel`); any other error (`facade_certificate`, `facade`) with the Run
+/// selected; a preparation error is refused.
+fn combination_reason_table(e: &Value, a: &Value, pf: &dyn Fn(bool) -> VResult) -> VResult {
+    let run = &e["run"];
+    let err = &a["result"]["error"];
+    let selected = run["kernel_terminal"]["kind"] == "selected";
+    let expected = match text(&err["kind"]) {
+        "preparation" => return pf(false),
+        "native" => {
+            pf(!selected && err["run_ref"] == run["id"])?;
+            ("combination_unresolved", "kernel")
+        }
+        "capture" if !selected => ("combination_unresolved", "kernel"),
+        _ => {
+            pf(selected)?;
+            ("facade_certificate", "facade")
+        }
+    };
+    pf(e["reason"]["code"] == expected.0 && e["reason"]["phase"] == expected.1)?;
+    if matches!(text(&err["kind"]), "observable" | "g5a") {
+        let key = if err["kind"] == "observable" { "observables" } else { "g5a" };
+        pf(a["proof"]["checks"][key]["kind"] == "failed" && a["proof"]["checks"][key]["error"] == *err)?;
+    }
+    Ok(())
+}
+/// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause. The
+/// no-Call causes have no Call, Run, source or attempt (C3a rule 4 as amended
+/// by C-4); `operand_source_unavailable` names the first term whose case is
+/// `unavailable` with no CaseSource, or with a Run refused `ledger_unavailable`;
+/// `operand_preparation_failure` names the refused record of the first
+/// `not_required` term with a refused record, no term qualifying for the
+/// former; a `CombinationReason` is its Call's pre-source refusal; with a Run,
+/// a `prepared_product_failure` naming its attempt (§4's table, above).
+fn combination_causes(b: &Value, pf: &dyn Fn(bool) -> VResult) -> VResult {
+    let cs = list(&b["cases"]);
+    let ops = list(&b["operand_preparations"]);
+    for e in list(&b["combinations"]) {
+        if e["disposition"] == "retained_selected" {
+            pf(!e["product_attempt_ref"].is_null())?;
+        }
+        if e["disposition"] != "retained_unavailable" {
+            continue;
+        }
+        let cause = &e["reason"]["cause"];
+        let none = ["call_ref", "run", "source_ref", "product_attempt_ref"]
+            .iter()
+            .all(|k| e[*k].is_null());
+        let cases: Vec<Option<(usize, &Value)>> = mechanics_terms(e)
+            .into_iter()
+            .map(|t| cs.iter().enumerate().find(|(_, c)| c["basis_ref"]["ref_id"] == *t))
+            .collect();
+        let unsourced = cases.iter().position(|c| {
+            c.is_some_and(|(_, c)| {
+                c["status"] == "unavailable"
+                    && (c["source_ref"].is_null()
+                        || (c["run"]["kernel_terminal"]["kind"] == "refused"
+                            && c["run"]["kernel_terminal"]["reason"]["tag"] == "ledger_unavailable"))
+            })
+        });
+        let preparation_cause = e["reason"]["code"] == "combination_unresolved"
+            && e["reason"]["phase"] == "preparation";
+        match (text(&cause["kind"]), text(&cause["space"])) {
+            ("operand_source_unavailable", _) => {
+                pf(none && preparation_cause && unsourced == uint(&cause["operand_index"]).map(|i| i as usize))?;
+            }
+            ("operand_preparation_failure", _) => {
+                let refused = |ci: usize| {
+                    ops.iter().position(|p| {
+                        u(&p["owner_ref"]["index"]) == ci as u64 && p["result"]["kind"] == "refused"
+                    })
+                };
+                let first = cases.iter().find_map(|c| {
+                    c.filter(|(_, c)| c["status"] == "not_required")
+                        .and_then(|(ci, _)| refused(ci))
+                });
+                pf(none
+                    && preparation_cause
+                    && unsourced.is_none()
+                    && first.is_some_and(|r| uint(&cause["operand_preparation_ref"]) == Some(r as u64)))?;
+            }
+            (_, "combination") => {
+                let call = uint(&e["call_ref"]).and_then(|i| list(&b["calls"]).get(i as usize));
+                pf(preparation_cause
+                    && ["run", "source_ref", "product_attempt_ref"].iter().all(|k| e[*k].is_null())
+                    && call.is_some_and(|c| {
+                        c["result"]["kind"] == "pre_source_refusal" && c["result"]["reason"] == *cause
+                    }))?;
+            }
+            ("prepared_product_failure", _) => {
+                pf(!e["run"].is_null() && e["product_attempt_ref"] == cause["product_attempt_ref"])?;
+            }
+            _ => pf(false)?,
+        }
+    }
+    Ok(())
+}
+/// C3a-7's G5 rows for each operand preparation: its ordinary attempt and
+/// material basis are its owner case's (PR-B2 ruling 3, as a case attempt's
+/// D4b); `stage == completed` iff `prepared` iff a source; a refused record's
+/// error is the preparation branch, never an origin capture error (N-5); C3's
+/// member-prefix rules, a prepared record complete as a case attempt whose
+/// preparation completed (complete old coverage, every new member ready, its
+/// CaseSource on its material basis); then the work equations (WORK).
+fn operand_preparations(b: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(bool) -> VResult) -> VResult {
+    for p in list(&b["operand_preparations"]) {
+        let owner = at(&b["cases"], &p["owner_ref"]["index"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+        let ordinary = at(&b["ordinary_attempts"], &p["ordinary_attempt_ref"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+        pf(p["ordinary_attempt_ref"] == owner["ordinary"]["attempt_ref"]
+            && p["material_basis_ref"] == ordinary["material_basis_ref"])?;
+        let prepared = p["result"]["kind"] == "prepared";
+        pf((p["stage"] == "completed") == prepared && prepared == !p["source_ref"].is_null())?;
+        if !prepared {
+            pf(p["result"]["error"]["kind"] == "preparation"
+                && p["result"]["error"]["capture"]["kind"] != "origin")?;
+        }
+        let pm = list(&p["preparation"]["members"]);
+        let old = list(&p["operational"]["old"]);
+        let new = list(&p["operational"]["new"]);
+        pf(new.len() <= pm.len()
+            && pm.len() <= old.len()
+            && pm.iter().map(|m| u(&m["member"])).eq(0..pm.len() as u64))?;
+        member_checks(p, pf, wf)?;
+        if prepared {
+            let s = at(&b["sources"], &p["source_ref"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+            pf(pm.len() == old.len()
+                && new.len() == old.len()
+                && pm.iter().all(|m| m["result"]["kind"] == "prepared")
+                && p["operational"]["old_coverage"] == "complete"
+                && new.iter().all(|o| o["result"]["kind"] == "ready")
+                && s["material_basis_ref"] == p["material_basis_ref"])?;
+            wf(pm.iter().all(|m| exact_work(&m["work"]))
+                && old.iter().chain(new).all(|o| exact_work(&o["work"]))
+                && p["adapter"]["fault"].is_null())?;
+        }
+        for ok in accounting_rules(p) {
+            wf(ok)?;
+        }
+    }
+    Ok(())
+}
 fn g5_products(source: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
     let pf = |ok| need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH");
@@ -2081,6 +3151,12 @@ fn g5_products(source: &Value) -> VResult {
         }
     }
     for (ai, a) in list(&b["product_attempts"]).iter().enumerate() {
+        // N-3 branch point 11: a combination attempt has no preparation stage
+        // and takes CONTRACT §4's reason table.
+        if a["owner_ref"]["kind"] == "combination" {
+            combination_attempt(source, b, ai, a, &pf, &mut wf)?;
+            continue;
+        }
         let c = at(
             &b["cases"],
             &a["owner_ref"]["index"],
@@ -2126,178 +3202,9 @@ fn g5_products(source: &Value) -> VResult {
         let old = list(&a["operational"]["old"]);
         let new = list(&a["operational"]["new"]);
         let st = &a["stages"];
-        let props = [
-            ("area", "lo"),
-            ("area", "hi"),
-            ("second_moment", "lo"),
-            ("second_moment", "hi"),
-            ("polar_moment", "lo"),
-            ("polar_moment", "hi"),
-            ("section_modulus", "lo"),
-            ("section_modulus", "hi"),
-            ("radius", "exact"),
-        ];
-        for (j, m) in pm.iter().enumerate() {
-            let prepared = m["result"]["kind"] == "prepared";
-            if !prepared {
-                pf(j + 1 == pm.len() && j >= new.len())?;
-            }
-            let cv = list(&m["conversions"]);
-            pf(cv.len() <= 9)?;
-            for (k, v) in cv.iter().enumerate() {
-                pf(v["property"] == props[k].0
-                    && v["endpoint"] == props[k].1
-                    && conversion_kind_ok(&v["outcome"]))?;
-                if prepared {
-                    let idx = if k < 8 { k / 2 } else { 4 };
-                    pf(v["outcome"]["kind"] == "normal"
-                        && v["outcome"]["value"] == m["result"]["section"][idx]
-                        && f(&v["outcome"]["value"]) >= f64::MIN_POSITIVE)?;
-                }
-            }
-            if prepared {
-                pf(cv.len() == 9)?;
-            }
-            if let Some(n) = exact_count(&m["work"]["conversions"]) {
-                wf(n == cv.len() as u64)?;
-            }
-        }
-        for (j, op) in new.iter().enumerate() {
-            pf(pm[j]["result"]["kind"] == "prepared" && op["member"] == pm[j]["member"])?;
-        }
+        member_checks(a, &pf, &mut wf)?;
+        proof_checks(source, a, c, &pf, &mut wf)?;
         let proof = &a["proof"];
-        if proof.is_null() {
-            pf(st["proof_start"] == "not_entered"
-                && [
-                    "projection",
-                    "maxima",
-                    "values",
-                    "aliases",
-                    "certificate",
-                    "observables",
-                    "g5a",
-                ]
-                .iter()
-                .all(|k| st[k] == "not_entered"))?;
-        } else {
-            pf(!a["run_ref"].is_null()
-                && c["run"]["kernel_terminal"]["kind"] == "selected"
-                && st["proof_start"] != "not_entered")?;
-            let lanes = list(&proof["lanes"]);
-            pf(lanes.len() <= 2)?;
-            for (i, lane) in lanes.iter().enumerate() {
-                pf(lane["law"] == ["admitted_k", "annular_source"][i]
-                    && (lane["state"] == "completed") == lane["error"].is_null())?;
-                if lane["state"] == "failed" {
-                    pf(i + 1 == lanes.len())?;
-                }
-                if let Some(n) = exact_count(&lane["work"]["correction"]["calls"]) {
-                    wf(n <= 1)?;
-                }
-                wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])?;
-            }
-            if st["proof_start"] == "completed" {
-                pf(lanes.len() == 2 && lanes.iter().all(|l| l["state"] == "completed"))?;
-            }
-            if st["projection"] != "not_entered" {
-                pf(lanes.len() == 2
-                    && lanes.iter().all(|l| l["state"] == "completed")
-                    && st["proof_start"] == "completed")?;
-            }
-            for (k, prior) in [
-                ("maxima", "projection"),
-                ("values", "maxima"),
-                ("aliases", "values"),
-                ("certificate", "aliases"),
-            ] {
-                if st[k] != "not_entered" {
-                    pf(st[prior] == "completed")?;
-                }
-            }
-            for k in ["certificate", "observables", "g5a"] {
-                let check = &proof["checks"][k];
-                pf(match text(&st[k]) {
-                    "not_entered" => check["kind"] == "not_entered",
-                    "completed" => check["kind"] == "passed",
-                    "failed" => check["kind"] == "failed",
-                    _ => false,
-                })?;
-                if check["kind"] == "failed" {
-                    pf(check["error"]["kind"]
-                        == if k == "certificate" {
-                            "proof"
-                        } else if k == "observables" {
-                            "observable"
-                        } else {
-                            "g5a"
-                        })?;
-                }
-            }
-            let outcomes = list(&proof["projection_outcomes"]);
-            if let Some(n) = exact_count(&proof["projection_conversions"]) {
-                wf(n == outcomes.len() as u64)?;
-            }
-            if st["projection"] == "not_entered" {
-                pf(outcomes.is_empty())?;
-            }
-            if proof["completion"]["kind"] == "merged" {
-                // A failed maxima calculation abandons its already created
-                // builder and merges its work before complete_maxima is entered.
-                pf(st["projection"] == "completed")?;
-            }
-            if proof["completion"]["kind"] == "separate_failure" {
-                pf(a["result"]["kind"] == "unavailable"
-                    && a["result"]["error"]["kind"] == "values"
-                    && st["values"] == "failed")?;
-            }
-            if st["aliases"] != "not_entered" || st["certificate"] != "not_entered" {
-                pf(proof["completion"]["kind"] == "merged")?;
-            }
-            if st["observables"] != "not_entered" || st["g5a"] != "not_entered" {
-                pf(st["certificate"] != "not_entered")?;
-            }
-            let rows = rows_for(source, c);
-            let projected: Vec<_> = rows
-                .iter()
-                .enumerate()
-                .filter(|(_, r)| hull_projected(r))
-                .map(|(i, _)| i as u64)
-                .collect();
-            pf(outcomes.len() <= projected.len()
-                && outcomes
-                    .iter()
-                    .map(|v| u(&v["row_index"]))
-                    .eq(projected.iter().take(outcomes.len()).copied()))?;
-            if st["projection"] == "completed" {
-                pf(outcomes.len() == projected.len())?;
-            }
-            for v in outcomes {
-                pf(conversion_kind_ok(&v["outcome"]))?;
-            }
-            if a["result"]["kind"] == "ready" {
-                let rows = rows_for(source, c);
-                let expected: Vec<_> = rows
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, r)| hull_projected(r))
-                    .map(|(i, _)| i as u64)
-                    .collect();
-                pf(outcomes.iter().map(|v| u(&v["row_index"])).eq(expected))?;
-                for v in outcomes {
-                    let row = rows[u(&v["row_index"]) as usize];
-                    let o = &v["outcome"];
-                    pf(o["kind"] != "overflow")?;
-                    let value = if o["kind"] == "underflow" {
-                        0.0
-                    } else {
-                        f(&o["value"])
-                    };
-                    pf(row["value"].as_f64().is_some_and(|v| {
-                        v.to_bits() == (if value == 0.0 { 0.0 } else { value }).to_bits()
-                    }))?;
-                }
-            }
-        }
         if st["native"] == "completed" {
             pf(c["run"]["kernel_terminal"]["kind"] == "selected")?;
         }
@@ -2371,6 +3278,8 @@ fn g5_products(source: &Value) -> VResult {
             reason_table(c, a)?;
         }
     }
+    combination_causes(b, &pf)?;
+    operand_preparations(b, &pf, &mut wf)?;
     // P9 (C3:279-287) and D37 (D35 widened): an unavailable result's error
     // agrees with its stage record in both directions; runs after every
     // attempt's association checks (class 3, typed checks).
@@ -2456,17 +3365,24 @@ const STAGE8: [&str; 8] = [
 /// entered together; a source exists iff preparation completed; and the
 /// completion kind follows the stages that entered it.
 fn g5_stages(a: &Value, pf: &dyn Fn(bool) -> VResult) -> VResult {
+    g5_stages_in(a, pf, &STAGE8, true)
+}
+/// `g5_stages` over a stage list: a case attempt's eight pipeline stages, or a
+/// combination attempt's seven (no preparation stage, so no source rule).
+fn g5_stages_in(a: &Value, pf: &dyn Fn(bool) -> VResult, stages: &[&str], preparation: bool) -> VResult {
     let st = &a["stages"];
     let mut seen_end = false;
-    for k in STAGE8 {
+    for k in stages {
         if seen_end {
-            pf(st[k] == "not_entered")?;
-        } else if st[k] != "completed" {
+            pf(st[*k] == "not_entered")?;
+        } else if st[*k] != "completed" {
             seen_end = true;
         }
     }
     pf((st["observables"] == "not_entered") == (st["g5a"] == "not_entered"))?;
-    pf((st["preparation"] == "completed") == !a["source_ref"].is_null())?;
+    if preparation {
+        pf((st["preparation"] == "completed") == !a["source_ref"].is_null())?;
+    }
     let proof = &a["proof"];
     if !proof.is_null() {
         let completion = text(&proof["completion"]["kind"]);
@@ -2558,6 +3474,13 @@ fn row_kind(r: &Value) -> &'static str {
         _ => "not_covered",
     }
 }
+/// The rows an owner's projection hull-projects: a combination's
+/// `displacement_magnitude` rows are formed in the projection's second pass
+/// (DEF-C r2 `rows.displacement_magnitude`; REVISION_02 §2.2), not hull-projected.
+fn owner_projected(owner: &Value, r: &Value) -> bool {
+    hull_projected(r)
+        && !(owner["basis_ref"]["ref_type"] == "combination" && r["kind"] == "displacement_magnitude")
+}
 fn hull_projected(r: &Value) -> bool {
     row_kind(r) != "non_quantity"
         && !matches!(
@@ -2610,8 +3533,14 @@ fn row_body<'a>(r: &Value, s: &'a Value) -> (Option<usize>, Option<&'a Value>) {
     (body, member)
 }
 struct NumericCase<'a> {
+    /// A selected case, or a `retained_selected` combination entry.
     case: &'a Value,
+    /// The case's CaseSource, or the combination's representative (operand 0's)
+    /// CaseSource (REVISION_01 N-9).
     source: &'a Value,
+    /// The CaseSources whose nodal terms are the owner's own contributions: the
+    /// case's, or each operand's with a nonzero factor.
+    data_sources: Vec<&'a Value>,
     /// The proof-owned summary coverage of this selected case's product attempt.
     coverage: &'a Value,
     rows: Vec<&'a Value>,
@@ -2665,6 +3594,53 @@ fn numeric_cases(source: &Value) -> VResult<Vec<NumericCase<'_>>> {
             "G5a",
             "SCALE_MISMATCH",
         )?["proof"]["summary_coverage"];
+        out.push(numeric_owner(source, c, s, vec![s], coverage)?);
+    }
+    // B2-C §10.1 G5a-G5c: a `retained_selected` combination is one more numeric
+    // owner, on its own rows and Selection, with the representative source's
+    // maps and sections and its prescribed DOFs (REVISION_01 N-9).
+    for e in list(&b["combinations"])
+        .iter()
+        .filter(|e| e["disposition"] == "retained_selected")
+    {
+        let (s, data) = combination_sources(b, e, "G5a", "SCALE_MISMATCH")?;
+        let coverage = &at(
+            &b["product_attempts"],
+            &e["product_attempt_ref"],
+            "G5a",
+            "SCALE_MISMATCH",
+        )?["proof"]["summary_coverage"];
+        out.push(numeric_owner(source, e, s, data, coverage)?);
+    }
+    Ok(out)
+}
+/// A combination entry's representative CaseSource (operand 0's) and the
+/// CaseSources of its operands with a nonzero factor.
+fn combination_sources<'a>(
+    b: &'a Value,
+    e: &Value,
+    gate: &'static str,
+    code: &str,
+) -> VResult<(&'a Value, Vec<&'a Value>)> {
+    let cs = at(&b["sources"], &e["source_ref"], gate, code)?;
+    let operands = list(&cs["operands"]);
+    let rep = at(&b["sources"], &cs["representative_source_ref"], gate, code)?;
+    let mut data = Vec::new();
+    for o in operands {
+        if f(&o["factor"]) != 0.0 {
+            data.push(at(&b["sources"], &o["source_ref"], gate, code)?);
+        }
+    }
+    Ok((rep, data))
+}
+fn numeric_owner<'a>(
+    source: &'a Value,
+    c: &'a Value,
+    s: &'a Value,
+    data_sources: Vec<&'a Value>,
+    coverage: &'a Value,
+) -> VResult<NumericCase<'a>> {
+    {
         let rows = rows_for(source, c);
         let mut extents = Vec::new();
         let mut raw = Vec::new();
@@ -2706,18 +3682,18 @@ fn numeric_cases(source: &Value) -> VResult<Vec<NumericCase<'_>>> {
             };
             raw.push(coupled);
         }
-        out.push(NumericCase {
+        Ok(NumericCase {
             case: c,
             source: s,
+            data_sources,
             coverage,
             rows,
             extents,
             final_scales: raw.clone(),
             raw,
             prescribed,
-        });
+        })
     }
-    Ok(out)
 }
 /// I57 s2/s4 canonical layout rebuilt from the bound source maps in the native
 /// recover::layout order. Only a constrained displacement/rotation row is
@@ -2838,6 +3814,7 @@ fn canonical_layout(s: &Value) -> VResult<Value> {
 fn coverage_g5a(
     case: &Value,
     source: &Value,
+    data_sources: &[&Value],
     coverage: &Value,
     sel: Option<&Value>,
     extents: &[f64],
@@ -3014,7 +3991,7 @@ fn coverage_g5a(
         if !nodes.iter().any(|n| DOFS.iter().any(|d| free(*n, *d))) {
             fail(!has_data[bi])?;
         }
-        if list(&source["nodal_terms"]).iter().any(|t| {
+        if data_sources.iter().flat_map(|s| list(&s["nodal_terms"])).any(|t| {
             free(u(&t["dof"]["node"]), text(&t["dof"]["component"])) && f(&t["value"]) != 0.0
         }) {
             fail(has_data[bi])?;
@@ -3050,7 +4027,34 @@ fn g5a(body: &Value, cases: &[NumericCase<'_>]) -> VResult {
             for (bi, b) in list(&s["body_membership"]).iter().enumerate() {
                 extents.push(body_extent(s, bi, b)?);
             }
-            coverage_g5a(c, s, coverage, None, &extents)?;
+            coverage_g5a(c, s, &[s], coverage, None, &extents)?;
+        }
+    }
+    // The combination entries, in authored order, as the cases.
+    for e in list(&body["combinations"]) {
+        if e["disposition"] == "retained_selected" {
+            g5a_selected(
+                selected
+                    .next()
+                    .ok_or_else(|| error("G5a", "SCALE_MISMATCH"))?,
+            )?;
+        } else if e["disposition"] == "retained_unavailable" && !e["product_attempt_ref"].is_null() {
+            let a = at(
+                &body["product_attempts"],
+                &e["product_attempt_ref"],
+                "G5a",
+                "SCALE_MISMATCH",
+            )?;
+            let coverage = &a["proof"]["summary_coverage"];
+            if coverage.is_null() {
+                continue;
+            }
+            let (s, data) = combination_sources(body, e, "G5a", "SCALE_MISMATCH")?;
+            let mut extents = Vec::new();
+            for (bi, b) in list(&s["body_membership"]).iter().enumerate() {
+                extents.push(body_extent(s, bi, b)?);
+            }
+            coverage_g5a(e, s, &data, coverage, None, &extents)?;
         }
     }
     Ok(())
@@ -3115,7 +4119,7 @@ fn g5a_selected(c: &NumericCase<'_>) -> VResult {
                     .eq(0..nb as u64),
             )?;
         }
-        coverage_g5a(c.case, c.source, c.coverage, Some(sel), &c.extents)?;
+        coverage_g5a(c.case, c.source, &c.data_sources, c.coverage, Some(sel), &c.extents)?;
         // Item 3: resolution and theta cover every body once (above); resolution
         // keeps its original zero/sanity/lower checks.
         for bi in 0..nb {
@@ -3249,6 +4253,52 @@ fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
         for row in &c.rows {
             if row_kind(row) == "stress" {
                 row_scale(row, c)?;
+            }
+        }
+    }
+    Ok(())
+}
+/// G5b on the exact route (D2 §4.9.3 G5b; B3-D §6.2 and §1.4), after the
+/// shared checks: for each selected case, its one `contract_evidence.exact_cases`
+/// entry (matched by the case's `load_case_id`) states the receipt's section
+/// bit for bit: for each member, its one `pipe_sections` entry (matched by
+/// `pipe_id`) has `As_m2` = `area`, `Z_m3` = `section_modulus`, and the
+/// source's geometry: `outside_diameter_m` = `normalized_od`,
+/// `effective_wall_thickness_m` = `effective_wall`, `ro_m` = `actual_radius`,
+/// `I_m4` = `actual_second_moment`, `J_m4` = `actual_polar_moment`. A missing
+/// or repeated entry, or a value that is not a JSON number, is a mismatch.
+fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
+    let section = |ok| need(ok, "G5b", "SECTION_MISMATCH");
+    let number_bits = |v: &Value| v.as_f64().map(bits);
+    let evidence = list(&source["contract_evidence"]["exact_cases"]);
+    for c in cases {
+        let entries: Vec<_> = evidence
+            .iter()
+            .filter(|e| e["load_case_id"] == c.case["basis_ref"]["ref_id"])
+            .collect();
+        section(entries.len() == 1)?;
+        let sections = list(&entries[0]["pipe_sections"]);
+        for st in list(&c.source["section_terms"]) {
+            let member = list(&c.source["id_maps"]["members"])
+                .iter()
+                .find(|m| m["kernel_member"] == st["member"])
+                .ok_or_else(|| error("G5b", "SECTION_MISMATCH"))?;
+            let matched: Vec<_> = sections
+                .iter()
+                .filter(|p| p["pipe_id"] == member["id"])
+                .collect();
+            section(matched.len() == 1)?;
+            let (p, g) = (matched[0], &st["geometry"]);
+            for (evidence_key, receipt) in [
+                ("As_m2", &st["area"]),
+                ("Z_m3", &st["section_modulus"]),
+                ("outside_diameter_m", &g["normalized_od"]),
+                ("effective_wall_thickness_m", &g["effective_wall"]),
+                ("ro_m", &g["actual_radius"]),
+                ("I_m4", &g["actual_second_moment"]),
+                ("J_m4", &g["actual_polar_moment"]),
+            ] {
+                section(number_bits(&p[evidence_key]).is_some_and(|b| b == *receipt))?;
             }
         }
     }
@@ -3446,6 +4496,43 @@ fn selected_material(raw: &Value, case: &Value) -> VResult<([f64; 2], Value)> {
         json!({"kind":"interpolated","lower_point_id":lo.1["id"],"upper_point_id":hi.1["id"],"target_kelvin":bits(t)}),
     ))
 }
+/// G8 step 4 on the exact route (B3D-7; REVISION_01 §4.2): the base common
+/// E/nu only. Every authored quantity is unit-checked first, as on the preview
+/// route; E is the normalized base modulus and nu the authored `poisson_ratio`
+/// (unit "1", -1 < nu < 1/2); G-hat = RN64(E / (2 RN64(1 + nu))), a positive
+/// normal. Returns (E, G-hat, nu).
+fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
+    let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
+    for p in std::iter::once(raw).chain(list(&raw["temperature_points"]).iter()) {
+        for (k, d) in [
+            ("elastic_modulus", Dimension::Stress),
+            ("shear_modulus", Dimension::Stress),
+            ("temperature", Dimension::Temperature),
+            (
+                "thermal_expansion_coefficient",
+                Dimension::ThermalExpansionCoefficient,
+            ),
+        ] {
+            if !p[k].is_null() {
+                unit_value(&p[k], d)?;
+            }
+        }
+    }
+    let e = unit_value(&raw["elastic_modulus"], Dimension::Stress)?;
+    let poisson = &raw["poisson_ratio"];
+    fail(poisson["unit"] == "1")?;
+    let nu = poisson["value"].as_f64().unwrap_or(f64::NAN);
+    fail(e > 0.0 && nu.is_finite() && -1.0 < nu && nu < 0.5)?;
+    let g = e / (2.0 * (1.0 + nu));
+    fail(g.is_normal() && g > 0.0)?;
+    Ok((e, g, nu))
+}
+/// D1.3 on the exact route (B3b): schema 0.3.0 with exactly
+/// `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`, type-strict.
+fn exact_namespace(model: &Value) -> bool {
+    model["schema_version"].as_str() == Some("0.3.0")
+        && pressure_contract_is(&model["pressure_contract"], "2.0.0", "exact_straight_pressure_v2")
+}
 fn normalized_nodes(model: &Value) -> VResult<Vec<Value>> {
     let mut out = Vec::new();
     for (i, n) in list(&model["nodes"]).iter().enumerate() {
@@ -3485,7 +4572,26 @@ fn dof_index(v: &Value) -> VResult<usize> {
         .position(|d| v == *d)
         .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
 }
-fn g8(source: &Value, inv: &Value) -> VResult {
+/// A pressure contract exactly `{"version": version, "mode": mode}`: a JSON
+/// object with those two keys only, each valued with exactly that string.
+fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
+    v.as_object().is_some_and(|o| {
+        o.len() == 2
+            && o.get("version").and_then(Value::as_str) == Some(version)
+            && o.get("mode").and_then(Value::as_str) == Some(mode)
+    })
+}
+/// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
+/// L, schema 0.1.0 or 0.2.0 with `pressure_contract` absent or JSON null.
+/// Anything else (any 0.3.0 model, the retired `legacy_pressure_v1` contract
+/// included; `{}`, `false`, any contract on 0.1.0 or 0.2.0; 0.4.0) is outside
+/// the namespace. B3a's branch L3 is dropped (the owner retired that contract
+/// product-wide); B3D-10's tightenings stay.
+fn legacy_namespace(model: &Value) -> bool {
+    matches!(model["schema_version"].as_str(), Some("0.1.0" | "0.2.0"))
+        && model["pressure_contract"].is_null()
+}
+fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
     need(
@@ -3512,17 +4618,30 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     need(
         // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
-        matches!(text(&model["schema_version"]), "0.1.0" | "0.2.0" | "0.3.0")
+        // D1.3's namespace, type-strict (B3-D REVISION_01 §3, N-4; B3a's L3
+        // dropped); B3b: the exact route's own branch.
+        if route.exact { exact_namespace(model) } else { legacy_namespace(model) }
             // B1's alignment set, item 2 (g), PP's acceptance: no
-            // `reference_configurations` member (null included); `pressure_contract`
-            // absent or null; `combinations` and `components` absent or [].
-            && model["pressure_contract"].is_null()
-            && ["combinations", "components"]
-                .iter()
-                .all(|k| model.get(*k).is_none_or(|v| v.as_array().is_some_and(Vec::is_empty)))
+            // `reference_configurations` member (null included); `components`
+            // absent or []; `combinations` absent or an array (N-3 branch point
+            // 12: B2-C admits model combinations, bound below).
+            && model.get("components").is_none_or(|v| v.as_array().is_some_and(Vec::is_empty))
+            && model.get("combinations").is_none_or(Value::is_array)
             && !model
                 .as_object()
                 .is_some_and(|m| m.contains_key("reference_configurations")),
+        "G8",
+        "INVOCATION_MISMATCH",
+    )?;
+    // B2-C §10.1 G8 invocation: the entries are the model's combinations, in
+    // order and id, each expression equal to its model combination.
+    let authored = list(&model["combinations"]);
+    need(
+        list(&b["combinations"]).len() == authored.len()
+            && list(&b["combinations"])
+                .iter()
+                .zip(authored)
+                .all(|(e, m)| expression_matches(e, m)),
         "G8",
         "INVOCATION_MISMATCH",
     )?;
@@ -3565,6 +4684,8 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     let mut case_bases = Vec::new();
     for (i, case) in cases.iter().enumerate() {
         let value = selector(case)?;
+        // Exact route, G8 step 3: the base common E/nu only (D1.5).
+        fail(!route.exact || value == json!({"kind":"base"}))?;
         let index = expected_selectors
             .iter()
             .position(|s| *s == value)
@@ -3639,6 +4760,20 @@ fn g8(source: &Value, inv: &Value) -> VResult {
             let raw = materials
                 .get(u(&m["input_index"]) as usize)
                 .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
+            if route.exact {
+                // Exact route, G8 step 4: E, G-hat and the derived shear origin.
+                let (e, g, nu) = exact_material(raw)?;
+                fail(
+                    m["id"] == raw["id"]
+                        && m["selection"] == json!({"kind":"base"})
+                        && m["shear_origin"]
+                            == json!({"kind":"derived_e_nu","poisson_ratio":bits(nu),
+                                "constitutive_basis":"homogeneous_isotropic_E_nu_v1"})
+                        && m["elastic_modulus"] == bits(e)
+                        && m["shear_modulus"] == bits(g),
+                )?;
+                continue;
+            }
             let (eg, selection) = selected_material(raw, &cases[ci])?;
             fail(
                 m["id"] == raw["id"]
@@ -3647,6 +4782,39 @@ fn g8(source: &Value, inv: &Value) -> VResult {
                     && m["elastic_modulus"] == bits(eg[0])
                     && m["shear_modulus"] == bits(eg[1]),
             )?;
+        }
+    }
+    if route.exact {
+        let evidence = list(&source["contract_evidence"]["exact_cases"]);
+        let case_of = |entry: &Value| {
+            cases
+                .iter()
+                .position(|c| c["id"] == entry["load_case_id"])
+                .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
+        };
+        // G8 step 5, S-C (B3D-12): physics-source-1's actual-material binding over
+        // every `exact_cases` entry; its own code is detail only (B3D-13).
+        for entry in evidence {
+            let ci = case_of(entry)?;
+            crate::physics_source::actual_materials(inv, &cases[ci], entry).map_err(|detail| {
+                ValidationError {
+                    gate: "G8",
+                    code: "RETAINED_PRECISION_PREPARATION_MISMATCH".into(),
+                    detail: Some(detail),
+                }
+            })?;
+        }
+        // G8 step 6, N-6 (REVISION_01 §5): each entry's published `G_pa` is the
+        // receipt's G-hat for that material, bit for bit.
+        for entry in evidence {
+            let mb = &b["material_bases"][case_bases[case_of(entry)?]];
+            for pm in list(&entry["pipe_materials"]) {
+                let mat = list(&mb["materials"])
+                    .iter()
+                    .find(|m| m["id"] == pm["material_id"])
+                    .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
+                fail(pm["G_pa"].as_f64().map(bits).as_ref() == Some(&mat["shear_modulus"]))?;
+            }
         }
     }
     // Rebuild common topology and the rigid/global-scalar-spring boundary.
@@ -3729,7 +4897,10 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     }
     let constraints:Vec<_>=fixed.iter().map(|((n,d),ids)|json!({"dof":{"node":n,"component":DOFS[*d]},"value":"0000000000000000","support_indices":ids})).collect();
     let stations:Vec<_>=pipes.iter().enumerate().flat_map(|(i,_)|[("quarter_1",0.25),("midspan",0.5),("quarter_3",0.75)].into_iter().enumerate().map(move |(j,(location,fraction))|json!({"id":3*i+j,"member":i,"location":location,"fraction":bits(fraction)}))).collect();
-    for s in list(&b["sources"]) {
+    for s in list(&b["sources"])
+        .iter()
+        .filter(|s| s["owner"]["kind"] != "combination")
+    {
         let ci = u(&s["owner"]["case_index"]) as usize;
         let case = cases
             .get(ci)
@@ -3740,9 +4911,19 @@ fn g8(source: &Value, inv: &Value) -> VResult {
             s["owner"]["case_id"] == case["id"]
                 && u(&s["material_basis_ref"]) == case_bases[ci] as u64,
         )?;
+        // G8's sourced-case check, both routes (ROOT's ruling on I100's B3 addendum 01; D1.5
+        // read through C1's "no 0.4 extension"): `pressure_regions` present and [] on the
+        // exact route (step 8, D1.5-exact), absent, null or [] on the preview route (B3D-11's
+        // leniency), type-strict; `equivalent_static` absent or null; no `analysis_state`
+        // member, null included. A key PP's typed load case lacks, such as a case-level
+        // `pressure`, is not read.
         fail(
-            list(&case["pressure_regions"]).is_empty()
-                && case["equivalent_static"].is_null()
+            if route.exact {
+                case.get("pressure_regions").is_some_and(|r| r.as_array().is_some_and(Vec::is_empty))
+            } else {
+                case.get("pressure_regions")
+                    .is_none_or(|r| r.is_null() || r.as_array().is_some_and(Vec::is_empty))
+            } && case["equivalent_static"].is_null()
                 && !case
                     .as_object()
                     .is_some_and(|o| o.contains_key("analysis_state")),
@@ -3806,7 +4987,7 @@ fn g8(source: &Value, inv: &Value) -> VResult {
                 d > 0.0
                     && t > 0.0
                     && t < d * 0.5
-                    && geo["route"] == "preview"
+                    && geo["route"] == route.geometry
                     && geo["normalized_od"] == bits(d)
                     && geo["effective_wall"] == bits(t)
                     && geo["actual_radius"] == bits(d * 0.5)
@@ -3953,7 +5134,12 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     }
     // Failed prefixes have no new source; their old/helper/new overlap still binds
     // to the independently normalized request, never to invented source entries.
-    for a in list(&b["product_attempts"]) {
+    // C3a-7's G8 row: each operand preparation binds as a case attempt does.
+    for a in list(&b["product_attempts"])
+        .iter()
+        .filter(|a| a["owner_ref"]["kind"] != "combination")
+        .chain(list(&b["operand_preparations"]))
+    {
         let ci = u(&a["owner_ref"]["index"]) as usize;
         let case = cases
             .get(ci)
@@ -4063,6 +5249,118 @@ fn g8(source: &Value, inv: &Value) -> VResult {
         }
         let _ = case;
     }
+    g8_combinations(b, &case_bases)
+}
+/// B2-C §10.1 G8 invocation: one entry's expression against its model
+/// combination (§2.7): basis to kind; mechanics terms' `load_case` and factor
+/// bits (the JSON number parsed to binary64) in authored order, repeats kept;
+/// subtraction minuend and subtrahend; range ids sorted in UTF-8 byte order;
+/// mode.
+fn expression_matches(e: &Value, m: &Value) -> bool {
+    let x = &e["expression"];
+    e["basis_ref"]["ref_id"] == m["id"]
+        && match m["basis"].as_str() {
+            Some("mechanics") => {
+                x["kind"] == "mechanics"
+                    && list(&x["terms"]).len() == list(&m["terms"]).len()
+                    && list(&x["terms"]).iter().zip(list(&m["terms"])).all(|(t, a)| {
+                        a["load_case"].is_string()
+                            && t["case_id"] == a["load_case"]
+                            && a["factor"].as_f64().is_some_and(|v| t["factor"] == bits(v))
+                    })
+            }
+            Some("result_state_subtraction") => {
+                x["kind"] == "result_state_subtraction"
+                    && m["minuend_id"].is_string()
+                    && m["subtrahend_id"].is_string()
+                    && x["minuend_id"] == m["minuend_id"]
+                    && x["subtrahend_id"] == m["subtrahend_id"]
+            }
+            Some("range_envelope") => {
+                let mut ids: Vec<&str> = list(&m["operand_ids"]).iter().filter_map(Value::as_str).collect();
+                ids.sort_unstable();
+                x["kind"] == "range_envelope"
+                    && ids.len() == list(&m["operand_ids"]).len()
+                    && list(&x["operand_ids"]).iter().map(text).eq(ids)
+                    && m["mode"].is_string()
+                    && x["mode"] == m["mode"]
+            }
+            _ => false,
+        }
+}
+/// B2-C §10.1 G8 preparation, after the case and operand-preparation bindings:
+/// each CombinationSource's K4CMB recomputed from its operands' recomputed
+/// K4SRC bytes and factor bits (`kernel_source_sha256`; K4LED is attested,
+/// C-12); R-8's operand equality: every operand CaseSource has the
+/// representative's material basis and `section_terms`, and the combination
+/// attempt's material basis is every operand case's.
+fn g8_combinations(b: &Value, case_bases: &[usize]) -> VResult {
+    use sha2::{Digest, Sha256};
+    let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
+    for s in list(&b["sources"])
+        .iter()
+        .filter(|s| s["owner"]["kind"] == "combination")
+    {
+        let operands = list(&s["operands"]);
+        let rep = at(&b["sources"], &s["representative_source_ref"], "G8", "PREPARATION_MISMATCH")?;
+        let mut k4cmb = b"K4CMB\x01".to_vec();
+        k4cmb.extend(
+            u32::try_from(operands.len())
+                .map_err(|_| error("G8", "PREPARATION_MISMATCH"))?
+                .to_le_bytes(),
+        );
+        for o in operands {
+            let case_source = at(&b["sources"], &o["source_ref"], "G8", "PREPARATION_MISMATCH")?;
+            let k4src = native_bytes(case_source, true)?;
+            k4cmb.extend(
+                raw_bits(&o["factor"])
+                    .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?
+                    .to_le_bytes(),
+            );
+            k4cmb.extend(
+                u32::try_from(k4src.len())
+                    .map_err(|_| error("G8", "PREPARATION_MISMATCH"))?
+                    .to_le_bytes(),
+            );
+            k4cmb.extend(k4src);
+            let ci = usize::try_from(u(&case_source["owner"]["case_index"])).ok();
+            fail(
+                case_source["owner"]["kind"] == "case"
+                    && case_source["material_basis_ref"] == rep["material_basis_ref"]
+                    && case_source["section_terms"] == rep["section_terms"]
+                    && ci.and_then(|ci| case_bases.get(ci)).is_some_and(|mb| u(&case_source["material_basis_ref"]) == *mb as u64),
+            )?;
+        }
+        fail(s["kernel_source_sha256"] == format!("{:x}", Sha256::digest(&k4cmb)))?;
+    }
+    for a in list(&b["product_attempts"])
+        .iter()
+        .filter(|a| a["owner_ref"]["kind"] == "combination")
+    {
+        let s = at(&b["sources"], &a["source_ref"], "G8", "PREPARATION_MISMATCH")?;
+        for o in list(&s["operands"]) {
+            let ci = usize::try_from(u(&o["case_index"])).ok();
+            fail(ci.and_then(|ci| case_bases.get(ci)).is_some_and(|mb| u(&a["material_basis_ref"]) == *mb as u64))?;
+        }
+    }
+    // The combination's Selection section terms are the representative's,
+    // projected to the Selection members.
+    for e in list(&b["combinations"])
+        .iter()
+        .filter(|e| e["disposition"] == "retained_selected")
+    {
+        let cs = at(&b["sources"], &e["source_ref"], "G8", "PREPARATION_MISMATCH")?;
+        let rep = at(&b["sources"], &cs["representative_source_ref"], "G8", "PREPARATION_MISMATCH")?;
+        let terms = list(&rep["section_terms"]);
+        fail(
+            list(&e["selection"]["section_terms"]).len() == terms.len()
+                && list(&e["selection"]["section_terms"]).iter().zip(terms).all(|(l, r)| {
+                    ["area", "section_modulus", "length", "axial_stiffness", "torsional_stiffness"]
+                        .iter()
+                        .all(|k| l[*k] == r[*k])
+                }),
+        )?;
+    }
     Ok(())
 }
 fn verify_new_operational(op: &Value) -> VResult {
@@ -4095,6 +5393,17 @@ fn verify_new_operational(op: &Value) -> VResult {
 }
 fn verify_native_source_hashes(s: &Value) -> VResult {
     use sha2::{Digest, Sha256};
+    for (source, expected) in [(true, "kernel_source_sha256"), (false, "stiffness_sha256")] {
+        need(
+            s[expected] == format!("{:x}", Sha256::digest(native_bytes(s, source)?)),
+            "G8",
+            "PREPARATION_MISMATCH",
+        )?;
+    }
+    Ok(())
+}
+/// A CaseSource's native K4SRC (`source`) or K4STF bytes, rebuilt from its maps.
+fn native_bytes(s: &Value, source: bool) -> VResult<Vec<u8>> {
     fn put(out: &mut Vec<u8>, n: u64) -> VResult {
         let n = u32::try_from(n).map_err(|_| error("G8", "PREPARATION_MISMATCH"))?;
         out.extend(n.to_le_bytes());
@@ -4114,7 +5423,7 @@ fn verify_native_source_hashes(s: &Value) -> VResult {
         Ok(())
     }
     let maps = &s["id_maps"];
-    for (source, expected) in [(true, "kernel_source_sha256"), (false, "stiffness_sha256")] {
+    {
         let mut out = if source {
             b"K4SRC\x01".to_vec()
         } else {
@@ -4184,13 +5493,8 @@ fn verify_native_source_hashes(s: &Value) -> VResult {
                 put(&mut out, 0)?;
             }
         }
-        need(
-            s[expected] == format!("{:x}", Sha256::digest(&out)),
-            "G8",
-            "PREPARATION_MISMATCH",
-        )?;
+        Ok(out)
     }
-    Ok(())
 }
 fn g5_ordinary(source: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
@@ -4390,21 +5694,117 @@ fn g5_ordinary(source: &Value) -> VResult {
         }
     }
     fail(work_refs.len() == list(&b["legacy_source_work"]).len())?;
+    // B2-C §10.1 G5 ordinary class: the disposition rule (decision 5, C-1) and
+    // D6a's diagnostic rule for each combination entry. D6b stays case-only
+    // (REVISION_01 §4.5).
+    let gates = list(&source["contract_evidence"]["combination_gates"]);
+    let status = |id: &Value| {
+        list(&b["cases"])
+            .iter()
+            .find(|c| c["basis_ref"]["ref_id"] == *id)
+            .map(|c| &c["status"])
+    };
+    for (j, e) in list(&b["combinations"]).iter().enumerate() {
+        let id = &e["basis_ref"]["ref_id"];
+        let gate = gates.get(j).unwrap_or(&Value::Null);
+        let terms = mechanics_terms(e);
+        let distinct = terms.iter().enumerate().all(|(i, t)| !terms[..i].contains(t));
+        let retained = e["expression"]["kind"] == "mechanics"
+            && distinct
+            && terms
+                .iter()
+                .any(|t| status(t).is_some_and(|s| s == "selected"));
+        fail(match text(&e["disposition"]) {
+            "base_withheld" => {
+                gate["withheld"] == true
+                    && e["reason"] == gate["reason"]
+                    && e["expression"]["kind"] == "mechanics"
+            }
+            "retained_selected" | "retained_unavailable" => gate["withheld"] != true && retained,
+            "ordinary" => gate["withheld"] != true && !retained,
+            _ => false,
+        })?;
+        let exact: Vec<&Value> = ds
+            .iter()
+            .filter(|d| {
+                list(&d["affected_refs"]).contains(id)
+                    && !text(&d["code"]).starts_with("RETAINED_PRECISION_")
+            })
+            .map(|d| &d["id"])
+            .collect();
+        fail(list(&e["diagnostic_refs"]).iter().collect::<Vec<_>>() == exact)?;
+    }
     Ok(())
 }
-fn project(source: &Value, raw: bool) -> VResult<Value> {
+/// R-COMB-1 (R) (B2-C §5 with REVISION_01 §2 and REVISION_02 §4.1): a
+/// derivation, not a check. After the G5c classes, for each combination in
+/// authored order that is `retained_unavailable`, or `ordinary` with an
+/// expression naming a case that is not `not_required`, one class per row in
+/// publication order: `not_covered` for a quantity row, `non_quantity` for a
+/// record row; `normalized_bits` from the row's value, `scale_bits` null.
+fn r_comb_1(source: &Value) -> Vec<RowClassification> {
+    let b = &source["retained_precision"]["body"];
+    let status = |id: &Value| {
+        list(&b["cases"])
+            .iter()
+            .find(|c| c["basis_ref"]["ref_id"] == *id)
+            .map(|c| text(&c["status"]))
+    };
+    let mut out = Vec::new();
+    for e in list(&b["combinations"]) {
+        let x = &e["expression"];
+        let named: Vec<&Value> = match text(&x["kind"]) {
+            "mechanics" => mechanics_terms(e),
+            "result_state_subtraction" => vec![&x["minuend_id"], &x["subtrahend_id"]],
+            "range_envelope" => list(&x["operand_ids"]).iter().collect(),
+            _ => Vec::new(),
+        };
+        let withheld = match text(&e["disposition"]) {
+            "retained_unavailable" => true,
+            "ordinary" => named.iter().any(|id| status(id) != Some("not_required")),
+            _ => false,
+        };
+        if !withheld {
+            continue;
+        }
+        for row in rows_for(source, e) {
+            out.push(RowClassification {
+                result_id: text(&row["id"]).into(),
+                basis_ref: row["basis_ref"].clone(),
+                normalized_bits: normalized(row).to_bits(),
+                scale_bits: None,
+                class: if row_kind(row) == "non_quantity" {
+                    AccuracyClass::NonQuantity
+                } else {
+                    AccuracyClass::NotCovered
+                },
+            });
+        }
+    }
+    out
+}
+/// G7's projection onto the route's base: remove the receipt and the row
+/// tokens; set the base identity and profile (preview-physics-1 and
+/// `product_preview_mechanics_v1`; physics-1 and `exact_straight_pressure_v2`).
+fn project(source: &Value, raw: bool, route: &Route) -> VResult<Value> {
     let mut projected = source.clone();
     projected
         .as_object_mut()
         .ok_or_else(|| error("G7", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"))?
         .remove("retained_precision");
-    projected["producer"]["semantic_contract_id"] =
-        json!("openpipestress.result_semantics/0.3.0/preview-physics-1");
-    projected["formulation_basis"]["profile_id"] = json!("product_preview_mechanics_v1");
+    projected["producer"]["semantic_contract_id"] = json!(route.base_id);
+    projected["formulation_basis"]["profile_id"] = json!(route.base_profile);
     if raw {
-        for r in projected["results"]
-            .as_array_mut()
-            .ok_or_else(|| error("G7", "SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID"))?
+        for r in projected["results"].as_array_mut().ok_or_else(|| {
+            error(
+                "G7",
+                if route.exact {
+                    "SOURCE_PHYSICS_ARRAY_INVALID"
+                } else {
+                    "SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID"
+                },
+            )
+        })?
         {
             if let Some(o) = r.as_object_mut() {
                 o.remove("recovery_method");
@@ -4419,8 +5819,13 @@ const IMPLEMENTATION_COMPLETE: bool = true;
 /// Validate a raw successor statement against the original request/mode.
 /// Hashes bind the supplied statements; they do not establish producer origin.
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Validation> {
-    g0(source)?;
-    g1(source, true)?;
+    let route = route(source);
+    if route.exact {
+        g0_exact(source)?;
+    } else {
+        g0(source)?;
+    }
+    g1(source, true, route)?;
     g2(source)?;
     let normalized = integral_receipt(source);
     let source: &Value = &normalized;
@@ -4433,7 +5838,11 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
     let mut cases = numeric_cases(source)?;
     g5a(body, &cases)?;
     g5b(&mut cases)?;
-    let classifications = g5c(&cases)?;
+    if route.exact {
+        g5b_exact_evidence(source, &cases)?;
+    }
+    let mut classifications = g5c(&cases)?;
+    classifications.extend(r_comb_1(source));
     for c in list(&body["cases"]) {
         for row in rows_for(source, c) {
             need(
@@ -4447,13 +5856,30 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
             )?;
         }
     }
-    let projected = project(source, true)?;
+    // B2-C §10.1 G6: `recovery_method` exactly on a `retained_selected`
+    // combination's rows.
+    for e in list(&body["combinations"]) {
+        for row in rows_for(source, e) {
+            need(
+                if e["disposition"] == "retained_selected" {
+                    row["recovery_method"] == METHOD
+                } else {
+                    row.get("recovery_method").is_none()
+                },
+                "G6",
+                "ROW_METHOD_MISMATCH",
+            )?;
+        }
+    }
+    let projected = project(source, true, route)?;
     // C1 G7 "existing base failure codes" (06b settlement): each language
     // reports its own unchanged base code, here the Rust base's
-    // SOURCE_PREVIEW_PHYSICS_<CODE>; any text after the code is detail.
+    // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
+    // (exact: physics-1's unchanged `validate_physics_evidence`); any text
+    // after the code is detail.
     crate::semantic_contract::for_source(&projected).map_err(base_error)?;
     if let Some(inv) = actual_invocation {
-        g8(source, inv)?;
+        g8(source, inv, route)?;
     }
     let eligible = IMPLEMENTATION_COMPLETE
         && actual_invocation.is_some()
@@ -4656,10 +6082,11 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
             // PY's place and with PY's detail; the other four numbers are typed below.
+            // PR-B2 N-1: the same demand refuses a negative value (-0 and +0 pass).
             demand(
                 ["global_upper_bound_pa", "certified_gap_pa"]
                     .iter()
-                    .all(|k| number(&x[*k]).is_some()),
+                    .all(|k| number(&x[*k]).is_some_and(|n| n >= 0.0)),
                 "extrema numbers",
             )?;
             demand(
@@ -4763,21 +6190,31 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
 /// Metadata-only transport checks cannot reconstitute or verify omitted raw rows.
 /// The publication digest is retained as a statement, never authenticated here.
 pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
-    g0(source)?;
-    g1(source, false)?;
+    let route = route(source);
+    if route.exact {
+        g0_exact(source)?;
+    } else {
+        g0(source)?;
+    }
+    g1(source, false, route)?;
     g2(source)?;
     let normalized = integral_receipt(source);
     let source: &Value = &normalized;
-    let projected = project(source, false)?;
+    let projected = project(source, false, route)?;
     crate::semantic_contract::for_source_metadata(&projected)
         .map_err(|code| ValidationError {
             gate: "G2",
             code,
             detail: None,
         })?;
-    // B1's alignment set, item 4: the header check stays at G2; the preview-physics
-    // transport metadata check runs at G7, as PY and TS run it.
-    preview_physics_transport_metadata(&projected).map_err(base_error)?;
+    // B1's alignment set, item 4: the header check stays at G2; the base's
+    // transport metadata check runs at G7, as PY and TS run it: preview-physics-1's
+    // on the preview route, physics-1's unchanged one on the exact route (B3-D §6.2).
+    if route.exact {
+        crate::physics_evidence::validate_transport_metadata(&projected).map_err(base_error)?;
+    } else {
+        preview_physics_transport_metadata(&projected).map_err(base_error)?;
+    }
     Ok(Validation {
         invocation_bound: false,
         numerical_eligible: false,
@@ -4785,6 +6222,43 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
             .into(),
         classifications: Vec::new(),
     })
+}
+
+/// B3b (B3-D §2.4 step 6; REV §2): the table/constant cross-check on a
+/// test-only table. The packaged XTABLE binds; a table whose `receipt_bindings`,
+/// `receipt_policy` or `accuracy_classification.policy` drifts from the reader's
+/// constants does not, and neither does a constant-only change (the bindings
+/// compared whole).
+#[cfg(test)]
+mod b3b_table_binding_tests {
+    use super::*;
+    #[test]
+    fn step_6_table_against_reader_constants() {
+        let packaged = exact_table();
+        assert!(table_binds_reader_constants(packaged));
+        // B3D-8: PTABLE spells the member identically (read by B2's preview G0, not here).
+        assert!(table_binds_reader_constants(table()));
+        let mut drifted = Vec::new();
+        for (path, value) in [
+            ("/receipt_bindings/canonicalization", json!("openpipestress_jcs_ijson_v2")),
+            ("/receipt_bindings/method", json!("contribution_preserving_multiprecision_v2")),
+            ("/receipt_bindings/projection_policy", json!("RP-LOGICAL-ATTEMPTS-v2")),
+            ("/receipt_bindings/work/case_limit", json!(19_999_999_999u64)),
+            ("/receipt_bindings/work/invocation_limit", json!(60_000_000_001u64)),
+            ("/receipt_bindings/work_policy", json!("W1-LME-20B-60B-v2")),
+            ("/receipt_bindings/extra", json!(1)),
+            ("/receipt_policy", json!("M03-INTEGRITY-MP-v3")),
+            ("/accuracy_classification/policy", json!("RP-FACADE-SI-v3")),
+        ] {
+            let mut t = packaged.clone();
+            let (parent, key) = path.rsplit_once('/').unwrap();
+            t.pointer_mut(if parent.is_empty() { "" } else { parent }).unwrap()[key] = value;
+            if table_binds_reader_constants(&t) {
+                drifted.push(path);
+            }
+        }
+        assert!(drifted.is_empty(), "{drifted:?}");
+    }
 }
 
 /// I61 U6e (snapshot 07g): reader-local pins for RV79-N1 (D37's expected table is
@@ -4842,5 +6316,105 @@ mod u6e_reader_round_tests {
             }
         }
         assert!(normalized["results"][1]["value"].is_f64(), "a row's 17.0 stays 17.0");
+    }
+}
+
+/// B2-C §8's reader-local G0 tests (REVISION_01 §4.4): G0's table-dependent
+/// checks on a test-only copy of PTABLE, the receipt unchanged (the shared
+/// ordinary base). Eight drifts of a bound member (each `receipt_bindings`
+/// member, `receipt_policy`, `accuracy_classification.policy`) fail row 6
+/// SOURCE_PRODUCER_CONTRACT_UNSUPPORTED; a reordered definition list and a
+/// changed DEF-C H fail row 4 RETAINED_PRECISION_FORMATION_MISMATCH; the
+/// packaged table passes.
+#[cfg(test)]
+mod b2_g0_table_tests {
+    use super::*;
+    fn receipt() -> Value {
+        let corpus: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/results/retained_precision_cases.json"
+        ))
+        .unwrap();
+        corpus["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == "ordinary_prepared_synthetic")
+            .unwrap()["source"]
+            .clone()
+    }
+    fn with(pointer: &str, value: Value) -> Result<(), ValidationError> {
+        let mut t = table().clone();
+        *t.pointer_mut(pointer).unwrap() = value;
+        g0_with(&receipt(), &t)
+    }
+    fn unsupported(r: Result<(), ValidationError>) {
+        assert_eq!(r.map_err(|e| (e.gate, e.code)), Err(("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into())));
+    }
+    fn formation(r: Result<(), ValidationError>) {
+        assert_eq!(r.map_err(|e| (e.gate, e.code)), Err(("G0", "RETAINED_PRECISION_FORMATION_MISMATCH".into())));
+    }
+    #[test]
+    fn packaged_table_passes() {
+        assert_eq!(g0_with(&receipt(), table()), Ok(()));
+        assert_eq!(g0(&receipt()), Ok(()));
+    }
+    #[test]
+    fn bindings_canonicalization_drift() {
+        unsupported(with("/receipt_bindings/canonicalization", json!("openpipestress_jcs_ijson_v2")));
+    }
+    #[test]
+    fn bindings_method_drift() {
+        unsupported(with("/receipt_bindings/method", json!("contribution_preserving_multiprecision_v2")));
+    }
+    #[test]
+    fn bindings_projection_policy_drift() {
+        unsupported(with("/receipt_bindings/projection_policy", json!("RP-LOGICAL-ATTEMPTS-v2")));
+    }
+    #[test]
+    fn bindings_case_limit_drift() {
+        unsupported(with("/receipt_bindings/work/case_limit", json!(19_999_999_999u64)));
+    }
+    #[test]
+    fn bindings_invocation_limit_drift() {
+        unsupported(with("/receipt_bindings/work/invocation_limit", json!(60_000_000_001u64)));
+    }
+    #[test]
+    fn bindings_work_policy_drift() {
+        unsupported(with("/receipt_bindings/work_policy", json!("W1-LME-20B-60B-v2")));
+    }
+    #[test]
+    fn receipt_policy_drift() {
+        unsupported(with("/receipt_policy", json!("M03-INTEGRITY-MP-v3")));
+    }
+    #[test]
+    fn facade_policy_drift() {
+        unsupported(with("/accuracy_classification/policy", json!("RP-FACADE-SI-v3")));
+    }
+    #[test]
+    fn definitions_reordered() {
+        let mut list = table()["product_formation_definitions"].clone();
+        list.as_array_mut().unwrap().reverse();
+        formation(with("/product_formation_definitions", list));
+    }
+    #[test]
+    fn combination_definition_hash_changed() {
+        formation(with(
+            "/product_formation_definitions/1/sha256",
+            json!("0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f"),
+        ));
+    }
+    /// Row 9 reads the given table's ids: a table naming only DEF-O refuses at
+    /// row 4 first; DEF-C's id on a case attempt passes row 9 (G1's `const`
+    /// refuses it, B2-C §10.3 m8).
+    #[test]
+    fn row_9_reads_the_table_ids() {
+        let mut source = receipt();
+        source["retained_precision"]["body"]["product_attempts"][0]["definition_id"] = json!(COMBINATION_DEFINITION_ID);
+        assert_eq!(g0_with(&source, table()), Ok(()));
+        source["retained_precision"]["body"]["product_attempts"][0]["definition_id"] = json!(EXACT_DEFINITION_ID);
+        unsupported(g0_with(&source, table()));
+        source["retained_precision"]["body"]["product_attempts"][0]["definition_id"] = json!(DEFINITION_ID);
+        source["retained_precision"]["body"]["operand_preparations"] = json!([{"definition_id": "RP-UNKNOWN"}]);
+        unsupported(g0_with(&source, table()));
     }
 }

@@ -175,7 +175,9 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         for extremum in case["pipe_stress_extrema"]:
             _shape(extremum, EXTREMA_KEYS, "extrema shape")
             _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items()), "extrema identity or basis")
-            _require(all(_number(extremum[key]) for key in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numbers")
+            # N-1 (B2 readers): the bound and the gap are numbers and not negative (-0 and +0 pass), in the same demand.
+            _require(all(_number(extremum[key]) for key in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa"))
+                     and extremum["global_upper_bound_pa"] >= 0 and extremum["certified_gap_pa"] >= 0, "extrema numbers")
             _require(_integer(extremum["span_index"]) and extremum["span_index"] >= 0 and _integer(extremum["subdivisions"]) and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1, "extrema fractions")
             _require(0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"], "extrema bounds")

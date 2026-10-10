@@ -1,6 +1,6 @@
 import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
 import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
-import { sourceContract, numericalResultStanding } from "../features/results/numericalResultQuality";
+import { sourceContract, numericalResultStanding, isRetainedRoute } from "../features/results/numericalResultQuality";
 import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, retainedRowClassLabel, N_P1, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invoke } from "@tauri-apps/api/core";
@@ -125,14 +125,14 @@ export async function runRuleChecks(args: {
   if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   // U6d: a preview successor requires eligible standing, as the receipt routes do;
   // standing comes only from its registered reader validation (never numerical_quality).
-  if (sourceContract(source) === "retained_preview_physics") {
+  if (isRetainedRoute(sourceContract(source))) {
     const standing = numericalResultStanding(source, args.model);
     if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
   }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
   if (sourceContract(source) === "source_blocks") invokeArgs.sourceBlockInvocation = retainedSourceBlockInvocation(source, args.model);
   if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedPhysicsSourceInvocation(source, args.model);
-  if (sourceContract(source) === "retained_preview_physics") invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
+  if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
   if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;

@@ -5,7 +5,7 @@ import { validatePhysicsTransportMetadata } from "../results/physicsResultEviden
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
-import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, type SourceContract } from "../results/numericalResultQuality";
+import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
 import { validateRetainedPrecisionTransport, type RowClassification } from "../results/retainedPrecision";
@@ -407,7 +407,7 @@ function buildStressNeutralExportPacketV01({
 const STRICT_MEMBER_NAMES = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"] as const;
 
 function usesUtf8Csv(source: MechanicsResult): boolean {
-  return ["source_blocks", "physics", "physics_source", "preview_physics", "retained_preview_physics"].includes(sourceContract(source));
+  return ["source_blocks", "physics", "physics_source", "preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(source));
 }
 function validUtf8Text(text: string): boolean {
   // TextEncoder alone replaces unpaired surrogates. A strict round trip refuses
@@ -539,7 +539,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   // only at numerically eligible standing with the live native capture.
   refuseSurfaceOutput(args.result, args.model, "stress-neutral");
   const precision = route !== "legacy";
-  const retained = route === "retained_preview_physics";
+  const retained = isRetainedRoute(route);
   const semantics = precision ? currentSemanticContract(args.result) : null;
   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;
@@ -686,8 +686,8 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (["source_blocks", "physics_source"].includes(sourceContract(source))) {
       if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-RECOVERY-MISMATCH");
     } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
-    const sourceRetained = sourceContract(source) === "retained_preview_physics";
-    if (["physics", "physics_source", "preview_physics", "retained_preview_physics"].includes(sourceContract(source))) {
+    const sourceRetained = isRetainedRoute(sourceContract(source));
+    if (["physics", "physics_source", "preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(source))) {
       if (!await same(packet.contract_evidence, source.contract_evidence)) throw new Error("SN-PHYSICAL-EVIDENCE-MISMATCH");
     } else if (Object.hasOwn(packet, "contract_evidence")) throw new Error("SN-PHYSICAL-EVIDENCE-CONTRADICTION");
     // T6S-5 (D2 4.9.7): the copied receipt equals the source's, whole; no other identity's package carries one.
@@ -1137,6 +1137,7 @@ const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported
   legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json",
   source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json",
   preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
+  retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
   load_reference: null, load_reference_source: null,
 });
 function semanticTablePath(source: MechanicsResult): string {
@@ -1158,7 +1159,7 @@ async function validateNeutralTransportEvidence(header: MechanicsResult): Promis
   }
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.
-  else if (route === "retained_preview_physics") await validateRetainedPrecisionTransport(header);
+  else if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(header);
   else if (route !== "precision") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
 }
 async function retainedSourceAnnotations(source: MechanicsResult) {

@@ -2436,6 +2436,34 @@ fn i51_c0_envelope(mut mode:ResultItem)->MechanicsEnvelope {
             max_displacement:None,max_open_formula_stress:None},results:vec![mode],diagnostics:Vec::new(),
         professional_boundary:professional_boundary(),accepted_model_state_mutated:false}
 }
+/// B2-P (T-2′): the early hook (`case_source`) refuses a combination D1.4 does not admit by
+/// itself (here h = 4), on a capture whose normalization saw none, so the late hook is not the
+/// only guard.
+#[test]
+fn b2p_early_hook_refuses_combinations_outside_d14() {
+    let raw=i50_named_request();
+    let (mut request,inv)=source_receipt::CapturedInvocation::parse(raw,PreviewSolverMode::SparseInteractive).unwrap();
+    let mut diagnostics=Vec::new();
+    let built=build_model(&request.model,&request.model.materials,&mut diagnostics).unwrap();
+    let boundary=prepare_boundary(built.nodes.len(),&built.supports);
+    let application=LoadApplication{nodal_loads:request.model.load_cases[0].primitive_loads.iter().enumerate().map(|(i,l)|
+        open_pipe_stress_primitive_loads::NodalLoadContribution{load_id:l.id.clone(),node_index:1,global_dof:9+i,value:l.magnitude.value}).collect(),
+        element_uniform_loads:Vec::new(),imposed_displacements:Vec::new(),findings:Vec::new()};
+    for terms in [3,4] {
+        let mut o=ProductCapture::prepared_probe();
+        o.invocation(Some(&inv),PreviewSolverMode::SparseInteractive);
+        o.normalized(&request.model,&request.model.materials,false);
+        assert!(o.error.is_none(),"{:?}",o.error);
+        let case=request.model.load_cases[0].id.clone();
+        request.model.combinations=vec![serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics",
+            "terms":vec![serde_json::json!({"load_case":case,"factor":1.0});terms]})).unwrap()];
+        o.case_source(&request.model,&built,&request.model.materials,&request.model.load_cases[0],
+            &boundary.restrained_dofs,&boundary.springs,&application,&[]);
+        let expected=(terms==4).then_some("prepared case/no-combination source scope");
+        assert_eq!(o.error.as_ref().map(|e|e.to_string()).as_deref(),expected,"h = {terms}");
+        request.model.combinations.clear();
+    }
+}
 #[test]
 fn i51_c0_isolated_late_hook_custody_and_prefixes() {
     use super::retained_product::{AdapterEvent as E,CaptureError};
@@ -2476,7 +2504,11 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             "wrong parity presence"=>o.observations.as_mut().unwrap().parity_produced=true,
             "wrong mode bits"=>o.observations.as_mut().unwrap().mode_row.value_bits=2f64.to_bits(),
             "multiple cases"=>request.model.load_cases.push(request.model.load_cases[0].clone()),
-            "combination"=>request.model.combinations.push(serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics"})).unwrap()),
+            // B2-P (T-2′): the hooks refuse a combination D1.4 does not admit (here h = 4; one
+            // it admits is captured, as B2-A's D1.4 and T-4's re-check read it).
+            "combination"=>{let case=request.model.load_cases[0].id.clone();
+                request.model.combinations.push(serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics",
+                    "terms":vec![serde_json::json!({"load_case":case,"factor":1.0});4]})).unwrap())},
             "inner capture failure"=>request.model.load_cases[0].primitive_loads[0].magnitude.value=1.,
             "key accounting"|"identity accounting"|"marker accounting"|"inner accounting"=>{
                 let mut counts=o.adapter.counts.get();
@@ -3203,4 +3235,42 @@ fn rv77_stage_rules_null_and_non_null_prerequisites() {
     assert!(matches!(r,Err(T::StageConsistency)),"missing capture.source: {:?}",r.as_ref().err());
     println!("RV77_PP_STAGE_RULES ok");
 }
+}
+
+/// B3b-P (B3-D P-3; §1.2): the exact route's material check of one used material, each refusal on
+/// its own: the constitutive basis absent or another; ν absent; the represented Ĝ absent, one ulp
+/// off RN64(E/(2·RN64(1+ν))), or subnormal (equal to that expression). An admitted material
+/// returns its ν; the check counts its adapter events, and the preview route never runs it.
+#[test]
+fn b3b_exact_material_check_refuses_each_defect() {
+    use super::retained_product::W1Route;
+    let capture = ProductCapture::prepared_probe_on(W1Route::Exact);
+    let material = |e: f64, nu: Option<f64>, g: Option<f64>, basis: Option<&str>| -> MaterialInput {
+        let mut m = serde_json::json!({"id":"mat","elastic_modulus":{"value":e,"unit":"Pa"}});
+        if let Some(nu) = nu { m["poisson_ratio"] = serde_json::json!({"value":nu,"unit":"1"}); }
+        if let Some(g) = g { m["shear_modulus"] = serde_json::json!({"value":g,"unit":"Pa"}); }
+        if let Some(b) = basis { m["constitutive_basis"] = serde_json::json!(b); }
+        serde_json::from_value(m).unwrap()
+    };
+    const B: Option<&str> = Some("homogeneous_isotropic_E_nu_v1");
+    let g = |e: f64, nu: f64| e / (2.0 * (1.0 + nu));
+    assert_eq!(capture.exact_material_nu(&material(2e11, Some(0.25), Some(8e10), B)).unwrap(), 0.25);
+    // ν = 0.3: Ĝ is not E/2.6 exactly, and only its RN64 value is admitted.
+    assert_eq!(capture.exact_material_nu(&material(2e11, Some(0.3), Some(g(2e11, 0.3)), B)).unwrap(), 0.3);
+    let err = |m: MaterialInput| capture.exact_material_nu(&m).unwrap_err().to_string();
+    assert_eq!(err(material(2e11, Some(0.25), Some(8e10), None)), "exact material constitutive basis");
+    assert_eq!(err(material(2e11, Some(0.25), Some(8e10), Some("homogeneous_isotropic_E_G_v1"))), "exact material constitutive basis");
+    assert_eq!(err(material(2e11, None, Some(8e10), B)), "exact material Poisson ratio");
+    assert_eq!(err(material(2e11, Some(0.25), None, B)), "exact material derived shear modulus");
+    assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() + 1)), B)), "exact material derived shear modulus");
+    assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() - 1)), B)), "exact material derived shear modulus");
+    assert_eq!(err(material(-2e11, Some(0.25), Some(g(-2e11, 0.25)), B)), "exact material derived shear modulus", "a negative normal G-hat");
+    let tiny = 1e-310;
+    assert!(g(tiny, 0.25).is_subnormal());
+    assert_eq!(err(material(tiny, Some(0.25), Some(g(tiny, 0.25)), B)), "exact material derived shear modulus");
+    // Each check is counted: the admitted call's ValidationEntry, KeyProbe and identity bytes.
+    let counted = ProductCapture::prepared_probe_on(W1Route::Exact);
+    counted.exact_material_nu(&material(2e11, Some(0.25), Some(8e10), B)).unwrap();
+    let counts = counted.adapter.counts.get();
+    assert_eq!((counts[3], counts[5], counts[4]), (2, 1, 2 * "homogeneous_isotropic_E_nu_v1".len() as u64), "{counts:?}");
 }

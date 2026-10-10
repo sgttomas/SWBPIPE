@@ -314,3 +314,35 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
     await expect(buildCurrentResultExport({ model, result: source, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow(refusal);
   });
 });
+
+/** B3b-T (I101; I93 PLAN decision 21): byte parity with the exact successor's Rust goldens
+ * (`retained_precision_derivative_golden.rs`, `B3B_EXACT`), derived from lane P's pinned m3x
+ * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
+ * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
+const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; path: string; sha256: string; rows: number }> = {
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "79d9930541303b003f215aee6503aa1cec73b45eeb351998a77856257c171ff8", rows: 98 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "32b4182c8d524dc0f03c2237a80fc41ca2e72e1a895e46d6f38ddc66eba1a891", rows: 99 },
+};
+describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
+  it("derives the golden's exact canonical bytes; it validates and carries the receipt and physics-1's evidence", async () => {
+    const golden = EXACT_GOLDEN[mode];
+    const bytes = readFileSync(resolve(root, golden.successor));
+    expect(sha256(bytes)).toBe(golden.successorSha256);
+    const pinned = JSON.parse(bytes.toString("utf8"));
+    const source = pinned.source as MechanicsResult, model = pinned.invocation.request.model as PreviewModel;
+    expect(source.results).toHaveLength(golden.rows);
+    const goldenText = readFileSync(resolve(root, golden.path), "utf8");
+    expect(sha256(goldenText)).toBe(golden.sha256);
+    const { base, origin } = await goldenInputs(source, model);
+    const doc = await deriveResultDocument(base, model, source, origin);
+    expect(await canonicalJsonString(doc)).toBe(goldenText);
+    await expect(validateResultDocument(JSON.parse(goldenText), source)).resolves.toBeUndefined();
+    const e = doc.result_envelope;
+    expect(e.semantic_contract_ref).toStrictEqual({ ref_type: "semantic_contract", ref_id: "openpipestress.result_semantics/0.3.0/physics-retained-1" });
+    expect(checkedJsonText(e.retained_precision)).toBe(checkedJsonText(source.retained_precision));
+    expect(checkedJsonText(e.contract_evidence)).toBe(checkedJsonText(source.contract_evidence));
+    // Without its receipt the golden is refused against the exact successor.
+    const stripped = JSON.parse(goldenText); delete stripped.result_envelope.retained_precision;
+    await expect(validateResultDocument(stripped, source)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH");
+  });
+});

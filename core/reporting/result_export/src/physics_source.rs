@@ -893,7 +893,8 @@ fn selected_material(authored: &Value, actual: &Value) -> Result<MaterialSelecti
     };
     Ok(MaterialSelection { e, nu, alpha })
 }
-fn actual_materials(invocation: &Value, actual: &Value, exact: &Value) -> Result<(), String> {
+/// S-C (B3D-12): also the exact retained reader's G8 step 5, unchanged.
+pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value) -> Result<(), String> {
     let model = &invocation["request"]["model"];
     let materials = invocation["request"]
         .get("materials")

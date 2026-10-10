@@ -13,6 +13,9 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 const M: u64 = 11_274_289_152;
 /// The 0.9 M margin rule's limit, ⌊0.9 M⌋ (`profile_laws_hold_in_this_build` pins its value).
 const MARGIN: u64 = 9 * M / 10;
+/// B2-A: the combination facts of a request with no combination.
+const NO_COMBINATIONS: CombinationFacts =
+    CombinationFacts { terms: CapacityFact { length: 0, capacity: 0 }, range_operands: CapacityFact { length: 0, capacity: 0 } };
 
 fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -298,13 +301,17 @@ fn sha256_matches_the_sha2_dependency() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc.
-    const REVIEWED: [&str; 14] = [
+    // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc, with
+    // SCHEMA and PTABLE as B2-C selected them (`abf3225c…`, `b2b4a54d…`), then DEF-C, DEF-E and
+    // XTABLE appended (B3D-18; I93 REVISION_01 §1.4). SQ2's registration (B2/B3) re-derived all
+    // 17 from the statics at 2243be380b, the code the profile was priced on: equal to J1's
+    // interim registration, so no hash moved.
+    const REVIEWED: [&str; 17] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
-        "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+        "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
         "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
-        "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+        "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
         "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
         "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
         "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
@@ -314,9 +321,12 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
         "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
         "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
+        "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
+        "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
+        "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 14] = [
+    let files: [&[u8]; 17] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
@@ -331,12 +341,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json"),
         include_bytes!("../../../schemas/source_block_recovery.schema.json"),
+        include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
+        include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(14).enumerate() {
+    for (i, token) in tokens.by_ref().take(17).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -344,7 +357,8 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     }
     assert_eq!(tokens.next(), None);
     println!("I65_G5_REVIEWED_INPUTS {compiled}");
-    // Each reviewed static is the reader's own input: result_export names it.
+    // Each reviewed static is the reader's own input: result_export names it, J1's three
+    // appended statics included (RV122 N-2: RS packages DEF-C, DEF-E and XTABLE as DEF-O).
     let reader = [
         include_str!("../../reporting/result_export/src/retained_precision.rs"),
         include_str!("../../reporting/result_export/src/physics_source.rs"),
@@ -503,7 +517,10 @@ fn every_family_clause_refuses_with_its_fact() {
         change(&mut raw);
         domain(raw)
     };
-    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::SchemaVersion));
+    // B3-D §4.1: 0.3.0 is a namespace (branch E, B3b) whose contract is required, so 0.3.0
+    // without one refuses with `PressureContract`; a schema in no branch with `SchemaVersion`.
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::PressureContract));
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.4.0")), family(C::Namespace, F::SchemaVersion));
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), None, "0.2.0 is in the namespace");
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({})), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["reference_configurations"] = Value::Null), family(C::Namespace, F::ReferenceConfigurations));
@@ -516,8 +533,11 @@ fn every_family_clause_refuses_with_its_fact() {
     // D1.4 (B1 SA, PLAN_v2 §2.3 and RV107 SF-2): C + 1 cases and 0 cases refuse.
     assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES + 1)), family(C::Invocation, F::LoadCases), "C + 1 cases");
     assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases), "0 cases");
+    // B2-A (B2-C §9): a combination is inside D1.4; one whose id is a load case's is not (C-9).
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "c", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
-        family(C::Invocation, F::Combinations));
+        None);
+    assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
+        family(C::Invocation, F::CombinationIds));
     assert_eq!(with(&|r| r["model"]["components"] = json!([{"id": "k", "kind": "elbow", "node": "N0"}])), family(C::Invocation, F::Components));
     let case = |field: &'static str, value: Value| move |r: &mut Value| r["model"]["load_cases"][0][field] = value.clone();
     assert_eq!(with(&case("pressure_regions", json!([]))), family(C::Case, F::PressureRegions));
@@ -585,6 +605,7 @@ fn every_cap_row_admits_its_cap_and_refuses_cap_plus_one() {
         nested: &law.nested,
         headless: None,
         digest: &report.captured_digest,
+        combinations: &NO_COMBINATIONS,
     };
     let rows = cap_rows(&facts);
     assert_eq!(first_cap_violation(&rows), Ok(()));
@@ -615,7 +636,7 @@ fn every_cap_row_admits_its_cap_and_refuses_cap_plus_one() {
     let report = admitted(cap_maximal_cases(caps::LOAD_CASES));
     assert_eq!(report.law().domain, None, "the cap-maximal C-case input is inside D1");
     let law = report.law();
-    let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &law.nested, headless: None, digest: &report.captured_digest };
+    let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &law.nested, headless: None, digest: &report.captured_digest, combinations: &NO_COMBINATIONS };
     let rows = cap_rows(&facts);
     let at = |fact| rows.iter().find(|r| r.fact == fact).map(|r| (r.observed, r.cap)).unwrap();
     for (fact, cap) in [(CapFact::LoadCasesCapacity, 3), (CapFact::Loads, 128), (CapFact::LoadsCapacity, 128), (CapFact::TotalLoads, 384)] {
@@ -734,7 +755,8 @@ fn typed_capacity_and_units_rows_read_the_actual_owners() {
         (CapFact::LoadCasesCapacity, Box::new(|r| r.model.load_cases.reserve_exact(caps::LOAD_CASES))),
         (CapFact::SectionsCapacity, Box::new(|r| r.model.sections.reserve_exact(1))),
         (CapFact::ComponentsCapacity, Box::new(|r| r.model.components.reserve_exact(1))),
-        (CapFact::CombinationsCapacity, Box::new(|r| r.model.combinations.reserve_exact(1))),
+        // B2-A: the typed capacity is capped by z's cap, so room for one more refuses.
+        (CapFact::CombinationsCapacity, Box::new(|r| r.model.combinations.reserve_exact(caps::COMBINATIONS + 1))),
         (CapFact::RequestExpansionLawsCapacity, Box::new(|r| r.model.request_material_expansion_laws.reserve_exact(1))),
         (CapFact::MaterialExpansionLawsCapacity, Box::new(|r| r.model.material_expansion_laws.reserve_exact(1))),
         (CapFact::TypedTextCapacity, Box::new(|r| r.model.nodes[0].id.reserve_exact(200))),
@@ -792,7 +814,7 @@ fn unknown_stale_overflow_and_partial_refusals_keep_every_fact() {
     let with_text = |raw: BorrowedValueFacts, text: RawTextFacts, typed: BorrowedRequestFacts, nested: NestedTypedFacts, headless: Option<HeadlessRootFacts>| {
         let request: LinearStaticPreviewRequest = serde_json::from_value(milestone()).unwrap();
         domain_clauses(
-            &DomainFacts { raw: &raw, raw_text: &text, typed: &typed, nested: &nested, headless: headless.as_ref(), digest: &report.captured_digest },
+            &DomainFacts { raw: &raw, raw_text: &text, typed: &typed, nested: &nested, headless: headless.as_ref(), digest: &report.captured_digest, combinations: &NO_COMBINATIONS },
             &request,
         )
     };
@@ -961,16 +983,21 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 175_409_684, "the text closure at C = 3 (B1 SQ G5: D 41,769, D_env 22,911)");
+    // SQ2 G5 (B2/B3): the registered profile is the maximum over routes L and E; the text closure's
+    // diagnostics are route E's (the exact route at c = 3: D 51,938, D_env 23,877; route L keeps
+    // B1 SQ's D_env 22,911, with D 41,773).
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_021_551, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,938, D_env 23,877)");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
-    // The atoms' values in the profile regenerated at C = 3 (B1 SQ G5; I89's value pins).
+    // The atoms' values in the profile regenerated at C_eq = 3 (SQ2 G5; I89's value pins): L_PUB is
+    // U3's (2,599,962 -> 2,599,357: U3's removed legacy pressure text, as RV132's regenerated tree
+    // has it), and D_env route E's (22,911 -> 23,877: the exact route's diagnostics).
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_599_962, 2_330, 16_384, 22_911, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C = 3");
+        (2_599_357, 2_330, 16_384, 23_877, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1200,9 +1227,24 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// U3 (piping T3, I110 round 3): regenerated after the legacy pressure fields left
 /// `StressComponents` (two `Option<f64>`) and `DerivedSection` (`membrane_radius`): every
 /// phase is 800 bytes lower in both modes (9 x 32 + 64 x 8); no binding, form or phase changed.
+/// SQ2 G5/G6 (B2 combinations and B3b's exact route): regenerated at 2243be380b as the
+/// coefficient-wise maximum of route L (D1.3's legacy/preview branch with combinations, worst
+/// shape c = 3, z = 0; the typed forms at C_eq = 3) and route E (the 0.3.0 exact route at c = 3).
+/// Against U3's record, each phase (both modes) moves by three named changes:
+/// - U3's own TEXT (RV132's regenerated tree on U3's code; the earlier re-pin moved only layouts):
+///   W1 −293,576,124, W2 −293,576,124, W3 −308,249,794, W4 −308,249,794, W5 −294,623,984,
+///   X1 −299,676,144, X2 −286,050,334;
+/// - route L's B2/B3 TEXT at z = 0 (the combination-qualified result ids in
+///   `validate_final_metadata`, `append_combination_modulus_basis_records`, the combination row
+///   binders and RS's combination gates): +73,662,990 in W1–W5, +10,665,812 in X1–X2;
+/// - route E's exact route and the maximum over routes (exact materials, sections and physics
+///   evidence in the staged copy, the successor and source recovery): the remainder, W1 +4,187,280,
+///   W2 +4,187,280, W3 +189,558,050, W4 +184,354,254, W5 +25,597,019, X1 +965,976,686,
+///   X2 +814,006,448.
+/// W3 stays the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_069_320_590, 5_392_752_552, 9_733_566_502, 9_518_380_925, 5_964_774_512, 8_846_486_986, 5_023_851_024],
-    [5_128_451_934, 5_451_883_896, 9_792_697_846, 9_577_512_269, 6_023_905_856, 8_905_618_330, 5_082_982_368],
+    [4_853_594_736, 5_177_026_698, 9_688_537_748, 9_468_148_375, 5_769_410_537, 9_523_453_340, 5_562_472_950],
+    [4_912_726_080, 5_236_158_042, 9_747_669_092, 9_527_279_719, 5_828_541_881, 9_582_584_684, 5_621_604_294],
 ];
 
 #[test]
@@ -1291,7 +1333,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 22_911, "D_env at C = 3");
+    assert_eq!(caps.complete[3], 23_877, "D_env at C_eq = 3: route E's (SQ2 G5)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
@@ -1412,17 +1454,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 14]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 17]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..14 {
-        let mut digests = [Some([7u8; 32]); 14];
+    for i in 0..17 {
+        let mut digests = [Some([7u8; 32]); 17];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 14]);
+    let none = build_identity::encode_reviewed_inputs(&[None; 17]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");
@@ -1622,31 +1664,46 @@ fn b1_sa_d1_4_admits_one_to_c_load_cases() {
     }
 }
 
-/// PLAN_v2 §2.3 and RV107 SF-2: the runner's out-of-domain oracle
-/// (`core/runner/headless/tests/retained_precision_admission.rs`,
+/// The runner's out-of-domain oracle (`core/runner/headless/tests/retained_precision_admission.rs`,
 /// `explicit_headless_refusal_preserves_output_and_completion_fields_both_modes`) cannot read
-/// `pub(crate)` `caps::LOAD_CASES`, and no D1 item's visibility changes for a test, so it builds
-/// a literal 4 load cases. This test ties that literal to the producer: 4 is `LOAD_CASES + 1`,
-/// and `admit` refuses `LOAD_CASES + 1` cases at D1.4 with `(Invocation, LoadCases)`. If C
-/// changes, this test fails first and names the runner test to re-base.
+/// `pub(crate)` `caps`, and no D1 item's visibility changes for a test, so it builds a literal
+/// C_eq + 1 = 4 case-equivalents: the milestone's case three times (C) and one mechanics
+/// combination. B2-A re-bases it from B1's C + 1 load cases (PLAN_v2 SF-2) to C_eq + 1 (I93
+/// PLAN §1.2.4; B2-C §9). This test builds the same input and ties the literal to the producer:
+/// 4 is `CASE_EQUIVALENTS + 1`, and `admit` refuses it at D1.9's `CaseEquivalents` row. If C_eq
+/// or C changes, this test fails first and names the runner test to re-base.
+fn runner_oracle() -> Value {
+    let mut raw = milestone();
+    let case = raw["model"]["load_cases"][0].clone();
+    for _ in 1..caps::LOAD_CASES {
+        raw["model"]["load_cases"].as_array_mut().unwrap().push(case.clone());
+    }
+    raw["model"]["combinations"] = json!([{"id": "combination:c-eq", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);
+    raw
+}
 #[test]
-fn b1_sa_runner_oracle_literal_is_load_cases_plus_one() {
+fn b2_a_runner_oracle_literal_is_case_equivalents_plus_one() {
     const RUNNER_LITERAL: usize = 4;
-    assert_eq!(caps::LOAD_CASES + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
+    assert_eq!(caps::CASE_EQUIVALENTS + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
+    assert_eq!((caps::LOAD_CASES, RUNNER_LITERAL - caps::LOAD_CASES), (3, 1), "the runner builds C cases and one combination");
     // B1 SQ (RV112 N-1): the tie runs both ways. The runner's workspace is Stale, so its own test
     // passes with any literal; this test reads the runner's source and holds its one literal
-    // line to C + 1, so a change of C or of the runner's literal alone fails here.
+    // line to the literal here, so a change of C_eq or of the runner's literal alone fails here.
+    // B2-A re-based the runner's C + 1 load cases to C_eq + 1 case-equivalents (C cases and one
+    // combination: `C_EQ_PLUS_ONE`, `COMBINATIONS`); J0a carries B1's tie over to those lines.
     let runner = include_str!("../../runner/headless/tests/retained_precision_admission.rs");
-    let lines: Vec<&str> = runner.lines().filter(|l| l.contains("const C_PLUS_ONE")).collect();
-    assert_eq!(lines.len(), 1, "the runner holds one C_PLUS_ONE literal");
-    assert_eq!(lines[0].trim(), format!("const C_PLUS_ONE: usize = {};", caps::LOAD_CASES + 1), "the runner's literal is C + 1");
+    let lines: Vec<&str> = runner.lines().filter(|l| l.contains("const C_EQ_PLUS_ONE")).collect();
+    assert_eq!(lines.len(), 1, "the runner holds one C_EQ_PLUS_ONE literal");
+    assert_eq!(lines[0].trim(), format!("const C_EQ_PLUS_ONE: usize = {};", caps::CASE_EQUIVALENTS + 1), "the runner's literal is C_eq + 1");
+    assert!(runner.lines().any(|l| l.trim() == format!("const COMBINATIONS: usize = {};", RUNNER_LITERAL - caps::LOAD_CASES)), "the runner's one combination");
     assert!(runner.contains("fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()"));
+    let expected = Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: RUNNER_LITERAL, cap: caps::CASE_EQUIVALENTS });
     for mode in MODES {
-        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
-        let report = admit(&capture, &request, Entry::Direct).err().expect("C + 1 cases are refused in every build");
-        assert_eq!(report.typed.load_cases.length, RUNNER_LITERAL);
-        assert_eq!(report.law().domain, family(D1Clause::Invocation, FamilyFact::LoadCases), "{mode:?}");
-        assert_eq!(report.law().refusal, d1_1_refusal().or(family(D1Clause::Invocation, FamilyFact::LoadCases)), "{mode:?}");
+        let (request, capture) = CapturedInvocation::parse(runner_oracle(), mode).unwrap();
+        let report = admit(&capture, &request, Entry::Direct).err().expect("C_eq + 1 is refused in every build");
+        assert_eq!(report.typed.load_cases.length + report.typed.combinations.length, RUNNER_LITERAL);
+        assert_eq!(report.law().domain, expected, "{mode:?}");
+        assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "{mode:?}");
     }
 }
 
@@ -1666,7 +1723,7 @@ fn b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one() {
         (caps::TOTAL_LOADS + 1, Err(AdmissionRefusal::Cap { fact: CapFact::TotalLoads, observed: 385, cap: 384 })),
     ] {
         nested.total_loads = total as u32;
-        let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &nested, headless: None, digest: &report.captured_digest };
+        let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &nested, headless: None, digest: &report.captured_digest, combinations: &NO_COMBINATIONS };
         assert_eq!(domain_clauses(&facts, &request), expected, "Σ l_i = {total}");
     }
 }
@@ -1917,6 +1974,493 @@ fn b1_sa_retained_error_text_reads_every_case_slot() {
         let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 2 });
         assert_eq!(o.iter().find(|x| x.fact == PhaseFact::RetainedErrorTextBytes).unwrap().observed, 40 + 9 + 7 + 3, "{mode:?}: both slots");
     }
+}
+
+// ---- B3a dropped: D1.3 refuses 0.3.0 `legacy_pressure_v1` (RR "Owner decisions: the legacy ----
+// ---- pressure contract is retired product-wide; …"; formerly B3a-A, I93 PLAN §1.3; B3-D §4.1) ----
+
+/// `raw` authored as 0.3.0 `legacy_pressure_v1` with zero pressure: I99's `legacy3` (B3-W's
+/// `m3l` when `raw` is the milestone): the schema and the contract change, nothing else. B3a is
+/// dropped, so this is a refusal witness.
+fn legacy3(mut raw: Value) -> Value {
+    raw["model"]["schema_version"] = json!("0.3.0");
+    raw["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    raw
+}
+
+/// B3a's drop: 0.3.0 with exactly `{1.0.0, legacy_pressure_v1}` is on no D1.3 branch, so it
+/// refuses with `PressureContract`, alone and with C cases, in both modes, and no build grants
+/// it a permit. Every contract that does not match its schema's branch refuses with
+/// `PressureContract`; a schema in no branch with `SchemaVersion` (B3-D §4.1's refusal map, L
+/// and E). D1.3 refuses the label before D1.5's and D1.7's clauses are read.
+#[test]
+fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract_on_0_3_0() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    for raw in [legacy3(milestone()), legacy3(milestone_cases(caps::LOAD_CASES)), legacy3(cap_maximal_cases(caps::LOAD_CASES))] {
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            assert_eq!(namespace_branch(&request.model), Err(F::PressureContract));
+            let admitted = admit(&capture, &request, Entry::Direct);
+            let report = match &admitted {
+                Ok((_, report)) | Err(report) => *report,
+            };
+            assert_eq!(report.law().domain, family(C::Namespace, F::PressureContract), "{mode:?}: the label is outside D1");
+            assert!(admitted.is_err(), "{mode:?}: no permit in any build");
+        }
+    }
+    let contract = |schema: &str, contract: Value| {
+        let mut raw = milestone();
+        raw["model"]["schema_version"] = json!(schema);
+        raw["model"]["pressure_contract"] = contract;
+        domain(raw)
+    };
+    let legacy = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    assert_eq!(contract("0.3.0", legacy.clone()), family(C::Namespace, F::PressureContract), "0.3.0 with the legacy contract");
+    // B3b: the exact contract is branch E, whose D1.5 needs explicitly empty regions.
+    assert_eq!(contract("0.3.0", json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})), family(C::Case, F::PressureRegions));
+    for (label, schema, value, fact) in [
+        ("0.3.0 with no contract", "0.3.0", Value::Null, F::PressureContract),
+        ("0.3.0, version 1.0.1", "0.3.0", json!({"version": "1.0.1", "mode": "legacy_pressure_v1"}), F::PressureContract),
+        ("0.3.0, version absent", "0.3.0", json!({"mode": "legacy_pressure_v1"}), F::PressureContract),
+        ("0.3.0, mode absent", "0.3.0", json!({"version": "1.0.0"}), F::PressureContract),
+        ("0.3.0, empty contract", "0.3.0", json!({}), F::PressureContract),
+        ("0.3.0, another mode", "0.3.0", json!({"version": "1.0.0", "mode": "exact_straight_pressure_v2"}), F::PressureContract),
+        ("0.3.0, the mode's case", "0.3.0", json!({"version": "1.0.0", "mode": "Legacy_pressure_v1"}), F::PressureContract),
+        ("0.2.0 with the legacy contract", "0.2.0", legacy.clone(), F::PressureContract),
+        ("0.1.0 with the legacy contract", "0.1.0", legacy.clone(), F::PressureContract),
+        ("0.4.0 with the legacy contract", "0.4.0", legacy.clone(), F::SchemaVersion),
+        ("0.3 with the legacy contract", "0.3", legacy.clone(), F::SchemaVersion),
+    ] {
+        assert_eq!(contract(schema, value), family(C::Namespace, fact), "{label}");
+    }
+    // D1.3 first: the label with an empty region list (D1.5), a zero-magnitude element pressure
+    // load (D1.7, formerly N-11's reading on L3) or a nodal force whose free-text category is
+    // `pressure` refuses at D1.3.
+    let mut regions = legacy3(milestone());
+    regions["model"]["load_cases"][0]["pressure_regions"] = json!([]);
+    assert_eq!(domain(regions), family(C::Namespace, F::PressureContract), "regions");
+    let mut element = legacy3(milestone());
+    element["model"]["load_cases"][0]["primitive_loads"][2] = json!({"id": "load:p", "category": "pressure",
+        "target": {"type": "element", "pipe": "M1"}, "direction": "internal", "magnitude": {"value": 0.0, "unit": "Pa"}, "dimension": "pressure"});
+    assert_eq!(domain(element), family(C::Namespace, F::PressureContract), "element pressure load");
+    let mut nodal = legacy3(milestone());
+    nodal["model"]["load_cases"][0]["primitive_loads"][2]["category"] = json!("pressure");
+    assert_eq!(domain(nodal), family(C::Namespace, F::PressureContract), "nodal pressure category");
+    // The census reads a contract's two typed strings whatever its branch (D1.9's typed text
+    // rows). Their capacity is priced on branch E, the one branch that admits a contract.
+    let base = nested_typed_census(&serde_json::from_value(milestone()).unwrap());
+    let l3 = nested_typed_census(&serde_json::from_value(legacy3(milestone())).unwrap());
+    assert_eq!(l3.strings, base.strings + 2, "version and mode");
+    for field in ["version", "mode"] {
+        let report = admitted_typed(exact3(milestone()), |r| {
+            let c = r.model.pressure_contract.as_mut().unwrap();
+            let s = if field == "version" { c.version.as_mut() } else { c.mode.as_mut() };
+            s.unwrap().reserve_exact(200);
+        });
+        assert!(cap(CapFact::TypedTextCapacity)(report.law().domain), "{field}: {:?}", report.law().domain);
+    }
+}
+
+/// B3a's drop on the Direct entry: `m3l`, and a 0.3.0 contract with another version, are
+/// refused at G-A with `PressureContract` and publish the exact ordinary bytes, with no W1 and
+/// no successor, in every build and both modes.
+#[test]
+fn b3a_dropped_direct_entry_refuses_m3l() {
+    for mode in MODES {
+        let mut outside = legacy3(milestone());
+        outside["model"]["pressure_contract"]["version"] = json!("1.0.1");
+        for (label, raw) in [("version 1.0.1", outside), ("m3l", legacy3(milestone()))] {
+            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            assert_eq!(direct.admission().unwrap().law().domain, family(D1Clause::Namespace, FamilyFact::PressureContract), "{label} {mode:?}");
+            assert!(direct.admission().unwrap().law().refusal.is_some(), "{label} {mode:?}: refused");
+            assert!(direct.retained().is_none() && direct.successor().is_none(), "{label} {mode:?}: no permit, no W1");
+            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+        }
+    }
+}
+
+// ---- B2-A: D1.4 with combinations, C_eq and terms (B2-C §9; I93 PLAN §1.2.4) -------------
+
+/// `raw` with `z` mechanics combinations `combination:k` (k = 1, …, z), each 1·(the first case),
+/// with the provenance the ordinary validation requires.
+fn with_combinations(mut raw: Value, z: usize) -> Value {
+    let case = raw["model"]["load_cases"][0]["id"].clone();
+    raw["model"]["combinations"] = Value::Array((1..=z)
+        .map(|k| json!({"id": format!("combination:{k}"), "basis": "mechanics", "terms": [{"load_case": case.clone(), "factor": 1.0}],
+            "provenance": "invented_i103_b2_a_combination"}))
+        .collect());
+    raw
+}
+
+/// D1.4 and D1.9 (B2-C §9): 1 ≤ c ≤ C, z ≤ 2 and C_eq = c + z ≤ 3. Over c = 1..C and z = 0..3,
+/// a request is inside D1 exactly when z ≤ 2 and c + z ≤ 3; otherwise `Combinations` refuses
+/// first (z = 3), then `CaseEquivalents`. Every basis counts toward z and C_eq.
+#[test]
+fn b2_a_d1_admits_case_equivalents_up_to_three() {
+    assert_eq!((caps::COMBINATIONS, caps::CASE_EQUIVALENTS, caps::COMBINATION_TERMS, caps::RANGE_OPERANDS), (2, 3, 3, 3));
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    for c in 1..=caps::LOAD_CASES {
+        for z in 0..=caps::CASE_EQUIVALENTS {
+            let expected = if z > caps::COMBINATIONS {
+                Some(AdmissionRefusal::Cap { fact: CapFact::Combinations, observed: z, cap: caps::COMBINATIONS })
+            } else if c + z > caps::CASE_EQUIVALENTS {
+                Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: c + z, cap: caps::CASE_EQUIVALENTS })
+            } else {
+                None
+            };
+            for mode in MODES {
+                let (request, capture) = CapturedInvocation::parse(with_combinations(milestone_cases(c), z), mode).unwrap();
+                let admitted = admit(&capture, &request, Entry::Direct);
+                let report = match &admitted {
+                    Ok((_, report)) | Err(report) => *report,
+                };
+                assert_eq!((report.typed.combinations.length, report.typed.combinations.capacity), (z, z), "c = {c}, z = {z}");
+                assert_eq!(report.law().domain, expected, "c = {c}, z = {z} {mode:?}");
+                assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "c = {c}, z = {z} {mode:?}");
+                assert_eq!(admitted.is_ok(), registered && expected.is_none(), "c = {c}, z = {z} {mode:?}: a permit only inside D1");
+            }
+        }
+    }
+    // Subtraction and range combinations are case-equivalents too.
+    let mut two = milestone_cases(2);
+    two["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max"}]);
+    assert_eq!(domain(two.clone()), None, "c = 2 with one range: C_eq = 3");
+    two["model"]["combinations"].as_array_mut().unwrap().push(json!({"id": "difference", "basis": "result_state_subtraction",
+        "minuend_id": "case-1", "subtrahend_id": "case-2"}));
+    assert_eq!(domain(two), Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: 4, cap: 3 }), "and a subtraction: C_eq = 4");
+    let mut one = milestone();
+    one["model"]["combinations"] = json!([{"id": "difference", "basis": "result_state_subtraction", "minuend_id": "case", "subtrahend_id": "case"},
+        {"id": "range", "basis": "range_envelope", "operand_ids": ["case"], "mode": "min_abs"},
+        {"id": "twice", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}]}]);
+    assert_eq!(domain(one), Some(AdmissionRefusal::Cap { fact: CapFact::Combinations, observed: 3, cap: 2 }), "three combinations of three bases");
+    // B1's D1.4 is unchanged: no load case, and C + 1 load cases, refuse at D1.4 whatever z is.
+    assert_eq!(domain(with_combinations(milestone_cases(caps::LOAD_CASES + 1), 1)), family(D1Clause::Invocation, FamilyFact::LoadCases));
+    let mut none = with_combinations(milestone(), 1);
+    none["model"]["load_cases"] = json!([]);
+    assert_eq!(domain(none), family(D1Clause::Invocation, FamilyFact::LoadCases));
+}
+
+/// D1.4 (C-9): no combination id equals a load-case id, whichever combination and case carry
+/// it. It is a family fact, so it refuses before D1.9's rows.
+#[test]
+fn b2_a_combination_ids_are_disjoint_from_load_case_ids() {
+    let refused = family(D1Clause::Invocation, FamilyFact::CombinationIds);
+    let renamed = |c: usize, z: usize, combination: usize, id: &str| {
+        let mut raw = with_combinations(milestone_cases(c), z);
+        raw["model"]["combinations"][combination]["id"] = json!(id);
+        domain(raw)
+    };
+    assert_eq!(renamed(1, 1, 0, "case-1"), refused, "the first case's id");
+    assert_eq!(renamed(2, 1, 0, "case-2"), refused, "a later case's id");
+    assert_eq!(renamed(1, 2, 1, "case-1"), refused, "the second combination");
+    assert_eq!(renamed(1, 2, 1, "case-2"), None, "an id no case has");
+    assert_eq!(renamed(1, 2, 1, "combination:1"), None, "combination ids repeated among themselves are not D1's (validation's)");
+    assert_eq!(renamed(1, 3, 2, "case-1"), refused, "before D1.9's Combinations row");
+    assert_eq!(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::CombinationIds).precondition().as_str(), "source_family");
+}
+
+/// D1.9 (B2-C §9): each combination's terms (repeats counted) and operand ids, ≤ 3, and their
+/// typed capacities, over every combination of any basis.
+#[test]
+fn b2_a_terms_and_range_operands_are_at_most_three() {
+    let terms = |h: usize| Value::Array((0..h).map(|_| json!({"load_case": "case", "factor": 1.0})).collect());
+    let ids = |k: usize| Value::Array((0..k).map(|_| json!("case")).collect());
+    let with = |second: bool, field: &str, value: Value, basis: &str| {
+        let mut raw = with_combinations(milestone(), 2);
+        let z = &mut raw["model"]["combinations"][usize::from(second)];
+        z["basis"] = json!(basis);
+        z[field] = value;
+        if basis == "range_envelope" {
+            z["mode"] = json!("max");
+        }
+        domain(raw)
+    };
+    for second in [false, true] {
+        assert_eq!(with(second, "terms", terms(3), "mechanics"), None, "three terms (repeats counted)");
+        assert_eq!(with(second, "terms", terms(4), "mechanics"), Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTerms, observed: 4, cap: 3 }), "second: {second}");
+        assert_eq!(with(second, "operand_ids", ids(3), "range_envelope"), None, "three operands");
+        assert_eq!(with(second, "operand_ids", ids(4), "range_envelope"), Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperands, observed: 4, cap: 3 }), "second: {second}");
+    }
+    // Before validation, a basis that does not use an array still owns it, and it is bounded.
+    assert_eq!(with(true, "terms", terms(4), "range_envelope"), Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTerms, observed: 4, cap: 3 }));
+    assert_eq!(with(true, "operand_ids", ids(4), "mechanics"), Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperands, observed: 4, cap: 3 }));
+    // The typed capacities, read from the actual owners (the second combination's).
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| r.model.combinations[1].terms.reserve_exact(3));
+    assert!(matches!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTermsCapacity, observed, cap: 3 }) if observed >= 4),
+        "{:?}", report.law().domain);
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| r.model.combinations[1].terms.reserve_exact(2));
+    assert_eq!(report.law().domain, None, "capacity 3");
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| {
+        let mut ids = Vec::with_capacity(4);
+        ids.push(String::from("case"));
+        r.model.combinations[1].operand_ids = Some(ids);
+    });
+    assert_eq!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperandsCapacity, observed: 4, cap: 3 }));
+    let census = combination_census(&serde_json::from_value(with_combinations(milestone(), 2)).unwrap());
+    assert_eq!(census, CombinationFacts { terms: CapacityFact { length: 1, capacity: 1 }, range_operands: CapacityFact { length: 0, capacity: 0 } });
+}
+
+/// B2-C REVISION_01 N-10: the typed census reads every combination string as a case's, so
+/// D1.9's typed text rows bound them; each string's spare capacity refuses on its own.
+#[test]
+fn b2_a_typed_census_reads_every_combination_string() {
+    let full = || {
+        let mut raw = milestone();
+        raw["model"]["combinations"] = json!([{"id": "combination:all", "label": "every string", "basis": "mechanics",
+            "terms": [{"load_case": "case", "factor": 1.0}], "minuend_id": "case", "subtrahend_id": "case", "operand_ids": ["case"],
+            "mode": "max", "provenance": "invented"}]);
+        raw
+    };
+    assert_eq!(domain(full()), None);
+    let base = nested_typed_census(&serde_json::from_value(milestone()).unwrap());
+    let with = nested_typed_census(&serde_json::from_value(full()).unwrap());
+    assert_eq!(with.strings, base.strings + 9, "id, label, basis, the term's case, minuend, subtrahend, the operand, mode, provenance");
+    type Pick = fn(&mut crate::PreviewCombination) -> &mut String;
+    let picks: [(&str, Pick); 9] = [
+        ("id", |z| &mut z.id),
+        ("label", |z| z.label.as_mut().unwrap()),
+        ("basis", |z| &mut z.basis),
+        ("term case", |z| &mut z.terms[0].load_case),
+        ("minuend", |z| z.minuend_id.as_mut().unwrap()),
+        ("subtrahend", |z| z.subtrahend_id.as_mut().unwrap()),
+        ("operand", |z| &mut z.operand_ids.as_mut().unwrap()[0]),
+        ("mode", |z| z.mode.as_mut().unwrap()),
+        ("provenance", |z| z.provenance.as_mut().unwrap()),
+    ];
+    for (label, pick) in picks {
+        let report = admitted_typed(full(), |r| pick(&mut r.model.combinations[0]).reserve_exact(200));
+        assert!(cap(CapFact::TypedTextCapacity)(report.law().domain), "{label}: {:?}", report.law().domain);
+    }
+    let mut long = full();
+    long["model"]["combinations"][0]["provenance"] = json!(text("p", 129));
+    assert_eq!(domain(long), Some(AdmissionRefusal::Cap { fact: CapFact::TypedTextBytes, observed: 129, cap: 128 }), "the typed row first");
+}
+
+/// G-C (I93 PLAN §1.2.4): `EnvelopeResults ≤ C_eq·P_final` (with its capacity and text) and
+/// `RetainedErrorTextBytes ≤ C_eq·(3m + 1)·Text(err)`, numerically B1's because C_eq's cap
+/// equals C's; the contract-evidence facts stay per case. An actual c = 1, z = 2 run of the
+/// solvable cap-maximal model publishes more rows than one case's P_final, within C_eq·P_final.
+/// G-B and T-3 (e) are unchanged: the attempt fact counts the requested cases, not z.
+#[test]
+fn b2_a_g_c_bounds_are_per_case_equivalent() {
+    let p = phase_caps();
+    let (m, g, ceq, c) = (32u64, 32u64, caps::CASE_EQUIVALENTS as u64, caps::LOAD_CASES as u64);
+    assert_eq!(caps::CASE_EQUIVALENTS, caps::LOAD_CASES, "C_eq's cap equals C's: G-C's values are B1's");
+    assert_eq!((p.complete[0], p.complete[1], p.complete[2]), (ceq * P_FINAL, push_capacity(ceq * P_FINAL), 2 * ceq * P_FINAL * text_atoms::ROW));
+    assert_eq!(p.complete[COMPLETE_FACTS - 2], ceq * (3 * m + 1) * text_atoms::ERR);
+    assert_eq!(p.complete[9], c * (3 * m + 2 * g), "contract evidence per case");
+    assert_eq!(p.late[4..6], [caps::LOADS as u64, caps::TOTAL_LOADS as u64], "G-B unchanged");
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(with_combinations(solvable_cap_maximal_cases(1), 2), mode).unwrap();
+        assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{mode:?}: c = 1, z = 2 is inside D1");
+        let mut observer = crate::retained_product::ProductCapture::prepared_probe();
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+        assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+        let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 1 });
+        let get = |fact| o.iter().find(|x| x.fact == fact).unwrap().observed;
+        let (rows, capacity, text) = (get(PhaseFact::EnvelopeResults), get(PhaseFact::EnvelopeResultCapacity), get(PhaseFact::EnvelopeResultTextBytes));
+        println!("I103_B2_A_ENVELOPE_RESULTS mode={} rows={rows} capacity={capacity} text={text} p_final={P_FINAL}", mode.as_str());
+        assert!(rows > P_FINAL, "{mode:?}: one case and two combinations exceed one case's P_final ({rows} rows)");
+        assert!(rows <= p.complete[0] && capacity <= p.complete[1] && text <= p.complete[2], "{mode:?}: within C_eq·P_final");
+        assert_eq!(get(PhaseFact::OrdinarySolveNotAttempted), 0, "{mode:?}: T-3 (e) counts the one requested case");
+        assert!(ordinary_solve_attempted(&observer, 1) && !ordinary_solve_attempted(&observer, 3), "{mode:?}: combinations are not requested cases");
+    }
+}
+
+/// B2-A's admitted combinations on the Direct entry, after B2-P (lane P, I105) and B2's RS
+/// reader: W1 runs on a combination-bearing invocation inside D1.4. In the registered build, in
+/// both modes, precommit validates the successor, so W1's result is that successor and the
+/// ordinary owner is untouched:
+/// - c = 1, z = 2 (two mechanics combinations of the one case, each retained by T-10a, so each
+///   has a combination attempt);
+/// - c = 2, z = 1 (a range combination, `ordinary`).
+///
+/// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
+#[test]
+fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let mut mixed = milestone_cases(2);
+    mixed["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max_abs",
+        "provenance": "invented_i103_b2_a_range"}]);
+    for (label, raw) in [("c = 1, z = 2", with_combinations(milestone(), 2)), ("c = 2, z = 1 (range)", mixed)] {
+        for mode in MODES {
+            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let report = direct.admission().unwrap();
+            assert_eq!(report.law().domain, None, "{label} {mode:?}: inside D1");
+            let published = serde_json::to_vec(direct.envelope()).unwrap();
+            if !registered {
+                assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
+            }
+            assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
+            match direct.retained() {
+                Some(Ok(_)) => {
+                    assert!(direct.successor().is_some(), "{label} {mode:?}: the validated successor (B2's RS reader)");
+                    assert_eq!(published, plain, "{label} {mode:?}: the ordinary owner is untouched");
+                }
+                other => panic!("{label} {mode:?}: B2's RS reader validates the successor: {other:?}"),
+            }
+        }
+    }
+}
+
+// ---- B3b-A: D1.3, D1.4 and D1.5 for the exact route (B3-D §4.2; provisional on B1's M) ---
+
+/// `raw` authored as 0.3.0 exact: I99's `exact` (B3-W's `m3x` when `raw` is the milestone):
+/// the exact contract, the common E/ν basis with E = 2e11 Pa and ν = 0.25 and no shear
+/// modulus, and explicitly empty pressure regions on every case.
+fn exact3(mut raw: Value) -> Value {
+    let m = &mut raw["model"];
+    m["schema_version"] = json!("0.3.0");
+    m["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    for material in m["materials"].as_array_mut().unwrap() {
+        material.as_object_mut().unwrap().remove("shear_modulus");
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    for case in m["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    raw
+}
+/// The committed physics-source requests n05 and n06 (B3b's coexistence pins).
+const N05: &str = include_str!("../../../fixtures/product_preview/physics_source/n05.request.json");
+const N06: &str = include_str!("../../../fixtures/product_preview/physics_source/n06.request.json");
+
+/// B3-D §4.2's law tests: 0.3.0 exact with `[]` on every case is inside D1 (alone, with C cases,
+/// and as B3-W's mixed base `m3x_mix_anchor`), with a permit in the registered build; refused:
+/// regions absent or with one region (`PressureRegions`), on any case; one combination
+/// (`Combinations`); 0.4.0 exact (`SchemaVersion`); 0.3.0 without a contract
+/// (`PressureContract`); a point basis (`ModulusBasisRef`).
+#[test]
+fn b3b_d1_admits_the_exact_route_with_empty_regions() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let mut mix = milestone();
+    mix["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "case:b", "label": "I99 B3-W second case (anchor)",
+        "kind": "primitive_user_load", "primitive_loads": [{"id": "load:b:0", "category": "concentrated_force", "target": {"type": "node", "node": "N0"},
+        "direction": "global_x", "magnitude": {"value": 1.0, "unit": "N"}, "dimension": "force"}]}));
+    for (label, raw) in [("m3x", exact3(milestone())), ("C cases", exact3(milestone_cases(caps::LOAD_CASES))), ("m3x_mix_anchor", exact3(mix))] {
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::Exact), "{label}");
+            let admitted = admit(&capture, &request, Entry::Direct);
+            let report = match &admitted {
+                Ok((_, report)) | Err(report) => *report,
+            };
+            assert_eq!(report.law().domain, None, "{label} {mode:?}: branch E is inside D1");
+            assert_eq!(admitted.is_ok(), registered, "{label} {mode:?}");
+        }
+    }
+    let with = |change: &dyn Fn(&mut Value)| {
+        let mut raw = exact3(milestone_cases(caps::LOAD_CASES));
+        change(&mut raw);
+        domain(raw)
+    };
+    let last = caps::LOAD_CASES - 1;
+    for case in [0, last] {
+        assert_eq!(with(&|r| { r["model"]["load_cases"][case].as_object_mut().unwrap().remove("pressure_regions"); }),
+            family(C::Case, F::PressureRegions), "case {case}: regions absent");
+        assert_eq!(with(&|r| r["model"]["load_cases"][case]["pressure_regions"] = json!([{"id": "region", "member_pipe_ids": ["M1"],
+            "pressure_basis": "gauge", "pressure": {"value": 0.0, "unit": "Pa"}}])), family(C::Case, F::PressureRegions), "case {case}: one region");
+        assert_eq!(with(&|r| r["model"]["load_cases"][case]["pressure_regions"] = Value::Null), family(C::Case, F::PressureRegions), "case {case}: null");
+        assert_eq!(with(&|r| r["model"]["load_cases"][case]["modulus_basis_ref"] = json!("T0")), family(C::Case, F::ModulusBasisRef), "case {case}: a point basis");
+    }
+    assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "combination", "basis": "mechanics", "terms": [{"load_case": "case-1", "factor": 1.0}]}])),
+        family(C::Invocation, F::Combinations), "ruling 4: no combination on the exact route");
+    assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "case-1", "basis": "mechanics", "terms": [{"load_case": "case-1", "factor": 1.0}]}])),
+        family(C::Invocation, F::Combinations), "the exact clause first");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.4.0")), family(C::Namespace, F::SchemaVersion), "0.4.0 stays out");
+    assert_eq!(with(&|r| r["model"]["pressure_contract"] = Value::Null), family(C::Namespace, F::PressureContract));
+    assert_eq!(with(&|r| r["model"]["pressure_contract"]["version"] = json!("2.0.1")), family(C::Namespace, F::PressureContract));
+    assert_eq!(with(&|r| r["model"]["pressure_contract"]["mode"] = json!("legacy_pressure_v1")), family(C::Namespace, F::PressureContract),
+        "2.0.0 with the legacy mode");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::PressureContract));
+    // A combination on L is still inside D1 (B2-C's clauses apply there only; B3a's L3 is dropped).
+    let mut l = milestone();
+    l["model"]["combinations"] = json!([{"id": "combination", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);
+    assert_eq!(domain(l), None);
+    // The committed physics-source requests n05 and n06 (B3b's coexistence pins) are on branch E.
+    for (name, text) in [("n05", N05), ("n06", N06)] {
+        assert_eq!(domain(serde_json::from_str(text).unwrap()), None, "{name}");
+    }
+}
+
+/// B3b-A's Direct-entry oracle, after B3b-P (lane P, I105; ROOT's one-off edit on b2, refined
+/// by RV123's interim review). `permitted_run` sends a permitted exact model to W1's exact route
+/// (B3-D P-1, P-2). In the registered build, in both modes:
+/// - the coexistence pins n05 and n06 fall back with `Coexistence` (T-3 (c), under the route's
+///   8,000,000 budget) and publish exactly the ordinary value route's bytes;
+/// - m3x runs W1, and RS's precommit (B3's reader) validates its `physics-retained-1`
+///   successor, so W1's result is that successor and the ordinary owner is untouched.
+///
+/// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
+#[test]
+fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_publishes_the_successor() {
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let read = |text: &str| -> Value { serde_json::from_str(text).unwrap() };
+    for (label, raw) in [("m3x", exact3(milestone())), ("n05", read(N05)), ("n06", read(N06))] {
+        for mode in MODES {
+            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let report = direct.admission().unwrap();
+            assert_eq!(report.law().domain, None, "{label} {mode:?}");
+            let published = serde_json::to_vec(direct.envelope()).unwrap();
+            if !registered {
+                assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
+            }
+            assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
+            if label != "m3x" {
+                assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Coexistence))), "{label} {mode:?}: {:?}", direct.retained());
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
+            }
+            match direct.retained() {
+                Some(Ok(_)) => {
+                    assert!(direct.successor().is_some(), "{label} {mode:?}: the validated successor (B3's readers)");
+                    assert_eq!(published, plain, "{label} {mode:?}: the ordinary owner is untouched");
+                }
+                other => panic!("{label} {mode:?}: {other:?}"),
+            }
+        }
+    }
+}
+
+/// RV122 SF-2 (its probe B as the witness): on branch E the explicitly empty `pressure_regions`
+/// list is a typed owner, and its capacity must be 0, on any case. With spare capacity it
+/// refuses with `PressureRegionsCapacity` (resource admission), as the control, an empty
+/// `sections` owner with spare capacity, refuses with `SectionsCapacity` at D1.9. Length 0 with
+/// capacity 0, which every parsed request has, is admitted.
+#[test]
+fn b3b_exact_regions_capacity_is_read() {
+    let spare = |case: usize, capacity: usize| {
+        admitted_typed(exact3(milestone_cases(caps::LOAD_CASES)), |r| r.model.load_cases[case].pressure_regions = Some(Vec::with_capacity(capacity)))
+            .law()
+            .domain
+    };
+    for case in [0, caps::LOAD_CASES - 1] {
+        assert_eq!(spare(case, 65_536), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 65_536, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 1), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 0), None, "case {case}: length 0, capacity 0");
+    }
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(exact3(milestone_cases(caps::LOAD_CASES))).unwrap();
+    assert!(parsed.model.load_cases.iter().all(|case| case.pressure_regions.as_ref().is_some_and(|r| r.is_empty() && r.capacity() == 0)),
+        "a parsed request's empty list has capacity 0");
+    assert_eq!(domain(exact3(milestone())), None);
+    let refusal = AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 };
+    assert_eq!(refusal.precondition().as_str(), "resource_admission");
+    let control = admitted_typed(exact3(milestone()), |r| r.model.sections.reserve_exact(1));
+    assert!(matches!(control.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SectionsCapacity, cap: 0, .. })), "{:?}", control.law().domain);
 }
 
 /// B1 SQ (RV112 N-2): at C = 3 there are two parked slots, so "every parked slot" differs from

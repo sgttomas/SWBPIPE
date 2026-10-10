@@ -84,10 +84,16 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-SUCC_SHA = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+SUCC_SHA = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 PREVIEW_SHA = "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
+# B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
+# the preview successor's. Both successors, and only they, carry a receipt.
+EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
+EXACT_SHA = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+EXACT_PROFILE = "exact_straight_retained_w1a_v2"
+SUCCESSORS = (SUCC, EXACT)
 MILESTONES = {
     "sparse_interactive": "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
     "dense_scrutiny": "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5",
@@ -231,11 +237,12 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     branches = schema["$defs"]["ResultEnvelope"]["oneOf"]
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
-        if sid == SUCC:
+        if sid in SUCCESSORS:
             assert "allOf" not in branch
         else:
             assert branch["allOf"] == [{"not": {"required": ["retained_precision"]}}, clause], sid
-    assert sum(1 for b in branches if b["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] == SUCC) == 1
+    for sid in SUCCESSORS:
+        assert sum(1 for b in branches if b["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] == sid) == 1
     source = milestone("sparse_interactive")
     for code in CODES + ["diagnostic_evidence_not_physical_quantity"]:
         document = results_document(source)
@@ -306,9 +313,9 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         sid = branch["properties"]["reproducibility"]["properties"]["semantic_contract"]["properties"]["id"]["const"]
         ids.append(sid)
         refused = {"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])
-        assert refused is (sid != SUCC), sid
-        assert ("retained_precision" in branch.get("required", [])) is (sid == SUCC), sid
-    assert ids.count(SUCC) == 1 and len(ids) == 8
+        assert refused is (sid not in SUCCESSORS), sid
+        assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 9
     contract = schema["$defs"]["SemanticContract"]
     assert {"properties": {"id": {"const": SUCC}, "sha256": {"const": SUCC_SHA}}} in contract["oneOf"]
     # Two receipt-carrying identities without a former `not` now refuse a receipt.
@@ -377,12 +384,109 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
     for enum in (props["producer"]["properties"]["semantic_contract_id"]["enum"],
                  props["semantic_contract_ref"]["properties"]["ref_id"]["enum"],
                  props["semantic_contract"]["properties"]["id"]["enum"]):
-        assert enum[-1] == SUCC
-    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-1] == PROFILE
+        assert enum[-2:] == list(SUCCESSORS)
+    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-2:] == [PROFILE, EXACT_PROFILE]
     ids = []
     for branch in schema["oneOf"]:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         ids.append(sid)
-        assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid != SUCC), sid
-        assert ("retained_precision" in branch.get("required", [])) is (sid == SUCC), sid
-    assert ids.count(SUCC) == 1 and len(ids) == 8
+        assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
+        assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 9
+
+
+# ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).
+# Shape checks only, on a physics-1 fixture re-stated under the exact identity with a
+# shape-valid receipt: schema validity creates no standing.
+
+def exact_source():
+    """A physics-1 statement under the exact successor's identity, profile and limitations,
+    carrying the shared corpus's first receipt (shape only; no reader runs here)."""
+    source = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/physics-1"
+    source = deepcopy(source)
+    source["producer"]["semantic_contract_id"] = EXACT
+    source["formulation_basis"]["profile_id"] = EXACT_PROFILE
+    source["formulation_basis"]["limitations"] = json.loads(
+        (ROOT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())["formulation_basis"]["limitations"]
+    source["retained_precision"] = deepcopy(CORPUS["cases"][0]["source"]["retained_precision"])
+    return source
+
+
+def test_exact_successor_results_branch():
+    schema = carrier_schema("results.v0.3.schema.yaml")
+    branch = schema["$defs"]["ResultEnvelope"]["oneOf"][-1]
+    assert branch["properties"]["producer"]["properties"]["semantic_contract_id"] == {"const": EXACT}
+    assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": EXACT_PROFILE}
+    assert branch["properties"]["contract_evidence"] == {"$ref": "#/$defs/PhysicsContractEvidence"}
+    assert branch["properties"]["result_sets"] == {"items": {"$ref": "#/$defs/ResultSet"}}
+    assert branch["properties"]["retained_precision"] == {"$ref": "retained_precision_mp_v2.schema.json"}
+    assert branch["required"] == ["contract_evidence", "retained_precision"]
+    source = exact_source()
+    check("results.v0.3.schema.yaml", results_document(source), True, "exact successor")
+    for code in CODES:
+        document = results_document(source)
+        document["result_envelope"]["row_disclosures"] = [disclosure(code)]
+        check("results.v0.3.schema.yaml", document, True, f"exact successor {code}")
+    refused = {
+        "no_receipt": lambda s: s.pop("retained_precision"),
+        "preview_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", PROFILE),
+        "physics_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", "exact_straight_pressure_v2"),
+        "other_limitations": lambda s: s["formulation_basis"].__setitem__("limitations", ["Straight circular members and linear restraints or springs only."]),
+        "preview_evidence": lambda s: s.__setitem__("contract_evidence", deepcopy(CORPUS["cases"][0]["source"]["contract_evidence"])),
+        "source_block_recovery": lambda s: s.__setitem__("source_block_recovery", foreign_source_block_recovery()),
+    }
+    for name, edit in refused.items():
+        document = results_document(source)
+        edit(document["result_envelope"])
+        check("results.v0.3.schema.yaml", document, False, name)
+
+
+def test_exact_successor_analysis_run_branch():
+    plain = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    base = analysis_record(plain)
+    check("analysis_run.schema.json", base, True, "base physics-1 record")
+    record = deepcopy(base)
+    run = record["analysis_run"]
+    run["reproducibility"]["semantic_contract"] = {"id": EXACT, "sha256": EXACT_SHA}
+    for ref in run["result_refs"]:
+        ref["semantic_contract"]["id"], ref["semantic_contract"]["sha256"] = EXACT, EXACT_SHA
+    run["retained_precision"] = deepcopy(CORPUS["cases"][0]["source"]["retained_precision"])
+    check("analysis_run.v0.3.schema.json", record, True, "exact successor record")
+    refused = {
+        "no_receipt": lambda r: r["analysis_run"].pop("retained_precision"),
+        "preview_successor_sha": lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].__setitem__("sha256", SUCC_SHA),
+        "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign("physics_source/n05-sparse_interactive.raw.json", "contract_evidence")),
+        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("source_blocks/n05-sparse_interactive.raw.json", "source_block_recovery")),
+        "row_identity_mixed": lambda r: r["analysis_run"]["result_refs"][0]["semantic_contract"].update(id=SUCC, sha256=SUCC_SHA),
+    }
+    for name, edit in refused.items():
+        changed = deepcopy(record)
+        edit(changed)
+        check("analysis_run.v0.3.schema.json", changed, False, name)
+    assert {"properties": {"id": {"const": EXACT}, "sha256": {"const": EXACT_SHA}}} == carrier_schema("analysis_run.v0.3.schema.json")["$defs"]["SemanticContract"]["oneOf"][-1]
+
+
+def test_exact_successor_stress_neutral_branch():
+    plain = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    base = stress_neutral_package(plain)
+    check("stress_neutral_export.v0.3.schema.json", base, True, "base physics-1 package")
+    packet = deepcopy(base)
+    packet["producer"]["semantic_contract_id"] = EXACT
+    packet["semantic_contract_ref"]["ref_id"] = EXACT
+    packet["semantic_contract"] = {"id": EXACT, "sha256": EXACT_SHA}
+    packet["formulation_basis"]["profile_id"] = EXACT_PROFILE
+    packet["retained_precision"] = deepcopy(CORPUS["cases"][0]["source"]["retained_precision"])
+    check("stress_neutral_export.v0.3.schema.json", packet, True, "exact successor package shape")
+    refused = {
+        "no_receipt": lambda p: p.pop("retained_precision"),
+        "preview_profile": lambda p: p["formulation_basis"].__setitem__("profile_id", PROFILE),
+        "preview_successor_sha": lambda p: p["semantic_contract"].__setitem__("sha256", SUCC_SHA),
+        "preview_evidence": lambda p: p.__setitem__("contract_evidence", deepcopy(CORPUS["cases"][0]["source"]["contract_evidence"])),
+        "source_block_recovery": lambda p: p.__setitem__("source_block_recovery", foreign_source_block_recovery()),
+        "no_source_annotations": lambda p: p.pop("source_annotations"),
+    }
+    for name, edit in refused.items():
+        changed = deepcopy(packet)
+        edit(changed)
+        check("stress_neutral_export.v0.3.schema.json", changed, False, name)
