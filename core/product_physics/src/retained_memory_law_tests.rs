@@ -302,8 +302,10 @@ fn sha256_matches_the_sha2_dependency() {
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
     // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc, with
-    // J1's interim registration (I93 REVISION_01 §1.4): SCHEMA and PTABLE as B2-C selected
-    // them (`abf3225c…`, `b2b4a54d…`), then DEF-C, DEF-E and XTABLE appended (B3D-18).
+    // SCHEMA and PTABLE as B2-C selected them (`abf3225c…`, `b2b4a54d…`), then DEF-C, DEF-E and
+    // XTABLE appended (B3D-18; I93 REVISION_01 §1.4). SQ2's registration (B2/B3) re-derived all
+    // 17 from the statics at 2243be380b, the code the profile was priced on: equal to J1's
+    // interim registration, so no hash moved.
     const REVIEWED: [&str; 17] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
@@ -981,16 +983,21 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 175_409_684, "the text closure at C = 3 (B1 SQ G5: D 41,769, D_env 22,911)");
+    // SQ2 G5 (B2/B3): the registered profile is the maximum over routes L and E; the text closure's
+    // diagnostics are route E's (the exact route at c = 3: D 51,938, D_env 23,877; route L keeps
+    // B1 SQ's D_env 22,911, with D 41,773).
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_021_551, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,938, D_env 23,877)");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
-    // The atoms' values in the profile regenerated at C = 3 (B1 SQ G5; I89's value pins).
+    // The atoms' values in the profile regenerated at C_eq = 3 (SQ2 G5; I89's value pins): L_PUB is
+    // U3's (2,599,962 -> 2,599,357: U3's removed legacy pressure text, as RV132's regenerated tree
+    // has it), and D_env route E's (22,911 -> 23,877: the exact route's diagnostics).
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_599_962, 2_330, 16_384, 22_911, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C = 3");
+        (2_599_357, 2_330, 16_384, 23_877, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1220,9 +1227,24 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// U3 (piping T3, I110 round 3): regenerated after the legacy pressure fields left
 /// `StressComponents` (two `Option<f64>`) and `DerivedSection` (`membrane_radius`): every
 /// phase is 800 bytes lower in both modes (9 x 32 + 64 x 8); no binding, form or phase changed.
+/// SQ2 G5/G6 (B2 combinations and B3b's exact route): regenerated at 2243be380b as the
+/// coefficient-wise maximum of route L (D1.3's legacy/preview branch with combinations, worst
+/// shape c = 3, z = 0; the typed forms at C_eq = 3) and route E (the 0.3.0 exact route at c = 3).
+/// Against U3's record, each phase (both modes) moves by three named changes:
+/// - U3's own TEXT (RV132's regenerated tree on U3's code; the earlier re-pin moved only layouts):
+///   W1 −293,576,124, W2 −293,576,124, W3 −308,249,794, W4 −308,249,794, W5 −294,623,984,
+///   X1 −299,676,144, X2 −286,050,334;
+/// - route L's B2/B3 TEXT at z = 0 (the combination-qualified result ids in
+///   `validate_final_metadata`, `append_combination_modulus_basis_records`, the combination row
+///   binders and RS's combination gates): +73,662,990 in W1–W5, +10,665,812 in X1–X2;
+/// - route E's exact route and the maximum over routes (exact materials, sections and physics
+///   evidence in the staged copy, the successor and source recovery): the remainder, W1 +4,187,280,
+///   W2 +4,187,280, W3 +189,558,050, W4 +184,354,254, W5 +25,597,019, X1 +965,976,686,
+///   X2 +814,006,448.
+/// W3 stays the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_069_320_590, 5_392_752_552, 9_733_566_502, 9_518_380_925, 5_964_774_512, 8_846_486_986, 5_023_851_024],
-    [5_128_451_934, 5_451_883_896, 9_792_697_846, 9_577_512_269, 6_023_905_856, 8_905_618_330, 5_082_982_368],
+    [4_853_594_736, 5_177_026_698, 9_688_537_748, 9_468_148_375, 5_769_410_537, 9_523_453_340, 5_562_472_950],
+    [4_912_726_080, 5_236_158_042, 9_747_669_092, 9_527_279_719, 5_828_541_881, 9_582_584_684, 5_621_604_294],
 ];
 
 #[test]
@@ -1311,7 +1333,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 22_911, "D_env at C = 3");
+    assert_eq!(caps.complete[3], 23_877, "D_env at C_eq = 3: route E's (SQ2 G5)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
