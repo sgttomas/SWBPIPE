@@ -63,6 +63,28 @@ class NumericalTests(unittest.TestCase):
             self.assertTrue(all(c[:2] == ['cargo', 'fetch'] and '--locked' in c for c in commands[:len(manifests)]))
             self.assertTrue(all(c[:2] == ['cargo', 'test'] and '--locked' in c and '--offline' in c for c in commands[len(manifests):]))
 
+    def test_frame_kernel_preserves_all_test_classes_and_integration_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            source = self.fixture(project)
+            destination = project / 'core/solver/frame_kernel'
+            destination.parent.mkdir(parents=True)
+            source.rename(destination)
+            manifests, commands = ci.cargo_plan(project)
+            tests = commands[len(manifests):]
+            self.assertEqual(len(tests), 3)
+            self.assertIn('--lib', tests[0])
+            self.assertIn('profile.test.opt-level=2', tests[0])
+            self.assertIn('profile.test.debug-assertions=true', tests[0])
+            self.assertIn('profile.test.overflow-checks=true', tests[0])
+            self.assertIn('--test', tests[1])
+            self.assertEqual(tests[1][tests[1].index('--test')+1], '*')
+            self.assertNotIn('--config', tests[1])
+            self.assertIn('--bins', tests[1])
+            self.assertIn('--examples', tests[1])
+            self.assertIn('--doc', tests[2])
+            self.assertNotIn('--config', tests[2])
+
     def test_subprocess_failure_is_recorded_and_stops(self):
         with tempfile.TemporaryDirectory() as tmp:
             evidence = {'commands': []}

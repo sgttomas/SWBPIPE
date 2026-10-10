@@ -52,7 +52,18 @@ def cargo_plan(project):
             raise ValueError('Unsupported release cargo command: ' + repr(argv))
         if '--locked' not in argv:
             argv.append('--locked')
-        tests.append(argv)
+        if manifest.as_posix() == 'core/solver/frame_kernel/Cargo.toml':
+            # Exact-arithmetic unit vectors dominate debug runtime. Their full
+            # unchanged oracle set passes optimized with safety checks retained.
+            # Historical floating-point integration pins remain on the original
+            # profile: powi-derived inputs are profile-sensitive.
+            tests.append(argv + ['--lib', '--config', 'profile.test.opt-level=2',
+                '--config', 'profile.test.debug-assertions=true',
+                '--config', 'profile.test.overflow-checks=true'])
+            tests.append(argv + ['--test', '*', '--bins', '--examples'])
+            tests.append(argv + ['--doc'])
+        else:
+            tests.append(argv)
     fetches = [['cargo', 'fetch', '--locked', '--manifest-path', p.as_posix()] for p in manifests]
     return manifests, fetches + tests
 
