@@ -2,8 +2,8 @@
 //! document with a family the seam does not admit (a valve; a geometry-only
 //! bend, D-2) is blocked by name with no export, in both solver modes; a
 //! straight v3 document, and since T4-U2 phase 1 one whose region member is a
-//! realized bend, solves under `pressure-1`, and its export is refused by name
-//! (`PRESSURE_1_EXPORT_NOT_AVAILABLE`) until T4-U2's export chain (phase 2).
+//! realized bend, solves under `pressure-1`; since T4-U2 phase 2 both produce
+//! a pressure-1 export document that the exporter's own check admits.
 //! The input is PP's committed invented X0 fixture with only the contract
 //! identity changed.
 use open_pipe_stress_headless_runner::{
@@ -74,17 +74,22 @@ fn bend(consumption: &str) -> Value {
     document
 }
 
-const EXPORT_REFUSAL: &str = "result-envelope production failed structurally: PRESSURE_1_EXPORT_NOT_AVAILABLE: \
-     pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it \
-     arrives with T4-U2";
+/// The runner's pressure-1 export document: produced, bound to pressure-1 and
+/// admitted by the exporter's independent accounting check.
+fn assert_pressure_1_document(output: &open_pipe_stress_headless_runner::PreviewRunnerOutput, raw: &Value, label: &str) {
+    assert!(output.canonical_export_unavailability.is_none(), "{label}: {:?}", output.canonical_export_unavailability);
+    let document = output.result_envelope_document.as_ref().expect("an export document");
+    assert_eq!(document["result_envelope"]["semantic_contract_ref"]["ref_id"], PRESSURE_ID, "{label}");
+    assert_eq!(document["result_envelope"]["contract_evidence"], raw["contract_evidence"], "{label}");
+    open_pipe_stress_result_export::derivative::validate_document(document, raw)
+        .unwrap_or_else(|e| panic!("{label}: {e}"));
+}
 
-/// T4-U2 phase 1: a realized bend on the region member is admitted and solves
-/// through the runner in both modes, published Passed with its arc pressure
-/// rows. No export is produced: the pressure-1 readers and export chain admit
-/// arc rows only in phase 2 (today the reader stops the export before the
-/// pressure-1 refusal is reached).
+/// T4-U2: a realized bend on the region member is admitted and solves through
+/// the runner in both modes, published Passed with its arc pressure rows, and
+/// exported under pressure-1 (phase 2).
 #[test]
-fn a_v3_document_with_a_realized_bend_solves_and_its_export_waits_for_phase_2() {
+fn a_v3_document_with_a_realized_bend_solves_and_exports_under_pressure_1() {
     let payload = bend("curved_bend_macro_element");
     for mode in MODES {
         let output =
@@ -96,8 +101,7 @@ fn a_v3_document_with_a_realized_bend_solves_and_its_export_waits_for_phase_2() 
         assert!(raw["results"].as_array().unwrap().iter().any(|row| row["entity_ref"] == "pipe:fixture-span"
             && row["kind"] == "pipe_wall_axial_force_v2"));
         assert!(raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_CHECKS_PASSED"));
-        assert!(output.result_envelope_document.is_none(), "{mode:?}");
-        assert!(output.canonical_export_unavailability.is_some(), "{mode:?}");
+        assert_pressure_1_document(&output, &raw, &format!("{mode:?}"));
     }
 }
 
@@ -153,10 +157,7 @@ fn a_straight_v3_document_solves_under_pressure_1_in_both_modes() {
         assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_ID, "{mode:?}");
         open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&raw)
             .unwrap();
-        // The results 0.3 export schema has no pressure-1 branch yet (its
-        // digests are pinned by the readers and generation manifests; T4-U2
-        // owns the export chain), so export is refused by name.
-        assert!(output.result_envelope_document.is_none(), "{mode:?}");
-        assert_eq!(output.canonical_export_unavailability.as_deref(), Some(EXPORT_REFUSAL), "{mode:?}");
+        // T4-U2 phase 2: the results 0.3 export schema has its pressure-1 branch.
+        assert_pressure_1_document(&output, &raw, &format!("{mode:?}"));
     }
 }

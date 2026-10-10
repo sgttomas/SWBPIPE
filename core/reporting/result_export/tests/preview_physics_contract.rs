@@ -506,11 +506,13 @@ fn precision_1_is_readable_but_never_fresh() {
         s::LOAD_REFERENCE_ID,
         s::LOAD_REFERENCE_SOURCE_ID,
         s::PREVIEW_PHYSICS_RETAINED_ID,
+        // T4-U2: pressure-1, with its export chain.
+        s::PRESSURE_ID,
     ];
     expected.sort_unstable();
     assert_eq!(
         fresh, expected,
-        "T1 and U6a extend the set only with their activated identities"
+        "T1, U6a and T4-U2 extend the set only with their activated identities"
     );
     assert!(s::is_fresh_identity(
         "openpipestress.result_semantics/0.3.0/source-blocks-1"

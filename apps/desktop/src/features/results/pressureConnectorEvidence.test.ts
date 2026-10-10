@@ -60,6 +60,9 @@ describe.each(cases)("%s", (_label, source) => {
   it("is refused by every other contract", () => {
     const asV2 = structuredClone(source);
     for (const c of asV2.contract_evidence.exact_cases) c.profile_mode = "exact_straight_pressure_v2";
+    // The hanger's model-scoped input review rows are pressure-1's (v2 keeps its
+    // case-scoped rule); they are not what this test refuses.
+    asV2.results = asV2.results.filter((r: Probe) => Object.hasOwn(r, "basis_ref"));
     const reader = loadState(source) ? validateLoadReferenceEvidence : validatePhysicsEvidence;
     expect(() => reader(copy(asV2))).toThrow(/CONNECTOR_UNSUPPORTED$|UNSUPPORTED_COMPOSITION$/);
     asV2.contract_evidence.connector = [];

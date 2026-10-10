@@ -159,8 +159,10 @@ def test_table_identity_and_registry():
     assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
     # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
+    # T4-U2: plus pressure-1, with its export chain.
     assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
-                                  LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
+                                  LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
+                                  "openpipestress.result_semantics/0.3.0/pressure-1"}
     assert not is_fresh_contract_id(PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
 
 

@@ -4,10 +4,9 @@
 //! joint temperature law is provided, and is admitted by the pressure-1 reader;
 //! the shared reader corpus (RE, Python, TypeScript) is generated here.
 //!
-//! The inputs are the frozen T4-I12 system documents (0.3.0 and 0.4.0) with
-//! the variable spring hanger SH-140 removed: every exact-route reader refuses
-//! the hanger's `spring_hanger_user_input_review` rows, which carry no load
-//! case basis (a pre-existing reader gap, independent of the connector).
+//! The inputs are the frozen T4-I12 system documents (0.3.0 and 0.4.0), bytes
+//! unchanged. Under pressure-1 the variable spring hanger's input review rows
+//! are model scoped (no load case), so the readers admit them (T4-U2).
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use open_pipe_stress_result_export::semantic_contract;
 use serde_json::{json, Value};
@@ -17,29 +16,16 @@ const REFERENCES: &str =
 const CORPUS: &str =
     include_str!("../../../fixtures/results/pressure_v3_connector_reader_corpus.json");
 const CORPUS_PATH: &str = "../../fixtures/results/pressure_v3_connector_reader_corpus.json";
-const HANGER: &str = "support:SH-140";
 const TEMPERATURE_LAW: &str = "CONNECTOR_TEMPERATURE_LAW_NOT_PROVIDED";
 const INPUTS: [(&str, &str, PreviewSolverMode, &str); 2] = [
     ("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0", PreviewSolverMode::SparseInteractive, "sparse_interactive"),
     ("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
 ];
 
-/// A frozen system document without the variable spring hanger (and, on
-/// 0.4.0, without its support state).
+/// A frozen system document, bytes unchanged.
 fn document(case: &str, key: &str) -> Value {
     let references: Value = serde_json::from_str(REFERENCES).unwrap();
-    let mut document = references["cases"][case]["inputs"][key].clone();
-    document["model"]["supports"].as_array_mut().unwrap().retain(|s| s["id"] != HANGER);
-    for load_case in document["model"]["load_cases"].as_array_mut().unwrap() {
-        if let Some(states) = load_case
-            .get_mut("analysis_state")
-            .and_then(|state| state.get_mut("support_states"))
-            .and_then(Value::as_array_mut)
-        {
-            states.retain(|s| s["support_ref"] != HANGER);
-        }
-    }
-    document
+    references["cases"][case]["inputs"][key].clone()
 }
 
 fn run(document: &Value, mode: PreviewSolverMode) -> Value {
@@ -108,7 +94,7 @@ fn shared_connector_reader_corpus_is_current() {
     let corpus = json!({
         "corpus": "T4-U3 pressure-1 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, with support:SH-140 (and its 0.4.0 support states) removed"],
+        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

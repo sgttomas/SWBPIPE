@@ -28,6 +28,11 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";
 export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
 export const LOAD_REFERENCE_OUTPUT_REFUSAL = `${LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE}: ${N_LOAD_REFERENCE_OUTPUT}`;
+/** T4-U2: pressure-1 desktop outputs are a later slot (the headless export,
+ * the Python AnalysisRun and the readers admit pressure-1; the desktop panels do not yet). */
+export const PRESSURE_OUTPUT_NOT_YET_AVAILABLE = "PRESSURE-OUTPUT-NOT-YET-AVAILABLE";
+export const N_PRESSURE_OUTPUT = "Output of pressure-1 results (3.0.0/exact_pressure_v3) is not yet available on the desktop; the headless export admits it. The result remains readable here; this is not a finding about the result.";
+export const PRESSURE_OUTPUT_REFUSAL = `${PRESSURE_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_OUTPUT}`;
 export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
 export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.";
@@ -77,6 +82,8 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
   // T1 section 12: every desktop output of load/reference-state results is T6's later slot.
   load_reference: Object.freeze({ gate: "per_surface", reason: LOAD_REFERENCE_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
   load_reference_source: Object.freeze({ gate: "per_surface", reason: LOAD_REFERENCE_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
+  // T4-U2: every desktop output of pressure-1 results is a later slot.
+  pressure: Object.freeze({ gate: "per_surface", reason: PRESSURE_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
   // T6S (RR decisions 2 and 12): only the two T6 panels admit the preview successor.
   // Checklist item 1 opens the Rule-check panel by its own entry, under its own review.
   retained_preview_physics: Object.freeze({

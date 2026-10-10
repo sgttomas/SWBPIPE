@@ -4108,7 +4108,9 @@ fn append_connector_results(
                         component: component.to_string(),
                         coordinate_system: if location == "connector_local" { "connector_axes_q" } else { "global" }.to_string(),
                         location: location.to_string(),
-                        basis: format!("objective_connector_v1;replaces_span={};symmetric_midpoint_small_rotation_v1", record.span_id),
+                        // T4-U2: one stable basis string (the export vocabulary);
+                        // the replaced span is bound through the connector record.
+                        basis: "objective_connector_v1;symmetric_midpoint_small_rotation_v1".to_string(),
                         sign_convention: if location == "connector_local" {
                             "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
                         } else {

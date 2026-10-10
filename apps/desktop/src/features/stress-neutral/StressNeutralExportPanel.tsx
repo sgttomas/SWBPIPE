@@ -1138,7 +1138,7 @@ const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported
   source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json",
   preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
-  load_reference: null, load_reference_source: null,
+  load_reference: null, load_reference_source: null, pressure: null,
 });
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);

@@ -22611,7 +22611,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_x",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22629,7 +22629,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_y",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22647,7 +22647,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_z",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22665,7 +22665,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_x",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22683,7 +22683,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_y",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22701,7 +22701,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_z",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22719,7 +22719,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_x",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22737,7 +22737,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_y",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22755,7 +22755,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_z",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22773,7 +22773,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_x",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22791,7 +22791,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_y",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22809,7 +22809,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_z",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -22827,7 +22827,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fx",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22845,7 +22845,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fy",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22863,7 +22863,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fz",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22881,7 +22881,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:mx",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22899,7 +22899,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:my",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22917,7 +22917,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:mz",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
@@ -22935,7 +22935,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fx",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
@@ -22953,7 +22953,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fy",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
@@ -22971,7 +22971,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fz",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
@@ -22989,7 +22989,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:mx",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
@@ -23007,7 +23007,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:my",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
@@ -23025,7 +23025,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:mz",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S3;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24091,7 +24091,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_x",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24109,7 +24109,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_y",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24127,7 +24127,7 @@
             "id": "result:connector:component-C-1:connector-generalized-translation:connector_local:qt_z",
             "kind": "connector_generalized_translation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qt_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24145,7 +24145,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_x",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24163,7 +24163,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_y",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24181,7 +24181,7 @@
             "id": "result:connector:component-C-1:connector-generalized-rotation:connector_local:qr_z",
             "kind": "connector_generalized_rotation_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "qr_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24199,7 +24199,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_x",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24217,7 +24217,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_y",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24235,7 +24235,7 @@
             "id": "result:connector:component-C-1:connector-generalized-force:connector_local:gt_z",
             "kind": "connector_generalized_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gt_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24253,7 +24253,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_x",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_x",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24271,7 +24271,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_y",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_y",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24289,7 +24289,7 @@
             "id": "result:connector:component-C-1:connector-generalized-moment:connector_local:gr_z",
             "kind": "connector_generalized_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "gr_z",
               "coordinate_system": "connector_axes_q",
               "location": "connector_local",
@@ -24307,7 +24307,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fx",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24325,7 +24325,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fy",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24343,7 +24343,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_i:fz",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24361,7 +24361,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:mx",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24379,7 +24379,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:my",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "My",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24397,7 +24397,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_i:mz",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_i",
@@ -24415,7 +24415,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fx",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fx",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24433,7 +24433,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fy",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fy",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24451,7 +24451,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-force:end_j:fz",
             "kind": "connector_endpoint_force_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Fz",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24469,7 +24469,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:mx",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mx",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24487,7 +24487,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:my",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "My",
               "coordinate_system": "global",
               "location": "end_j",
@@ -24505,7 +24505,7 @@
             "id": "result:connector:component-C-1:connector-endpoint-moment:end_j:mz",
             "kind": "connector_endpoint_moment_v1",
             "metadata": {
-              "basis": "objective_connector_v1;replaces_span=pipe:S1;symmetric_midpoint_small_rotation_v1",
+              "basis": "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
               "component": "Mz",
               "coordinate_system": "global",
               "location": "end_j",

@@ -94,6 +94,9 @@ def test_every_other_contract_refuses_connector_evidence(label, envelope):
     as_v2 = deepcopy(envelope)
     for case in as_v2["contract_evidence"]["exact_cases"]:
         case["profile_mode"] = "exact_straight_pressure_v2"
+    # The hanger's model-scoped input review rows are pressure-1's (v2 keeps its
+    # case-scoped rule); they are not what this test refuses.
+    as_v2["results"] = [r for r in as_v2["results"] if "basis_ref" in r]
     reader = validate_load_reference_evidence if load_state(envelope) else validate_physics_evidence
     with pytest.raises(ValueError) as refused:
         reader(deepcopy(as_v2))

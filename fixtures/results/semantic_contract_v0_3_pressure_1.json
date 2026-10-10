@@ -52,7 +52,19 @@
         "lame_inner_radial_stress",
         "lame_outer_radial_stress",
         "lame_inner_hoop_stress",
-        "lame_outer_hoop_stress"
+        "lame_outer_hoop_stress",
+        "qt_x",
+        "qt_y",
+        "qt_z",
+        "qr_x",
+        "qr_y",
+        "qr_z",
+        "gt_x",
+        "gt_y",
+        "gt_z",
+        "gr_x",
+        "gr_y",
+        "gr_z"
       ]
     },
     "coordinate_system": {
@@ -61,7 +73,8 @@
         "global",
         "element_local",
         "pipe_section",
-        "TBD"
+        "TBD",
+        "connector_axes_q"
       ]
     },
     "location": {
@@ -75,7 +88,8 @@
         "quarter_3",
         "summary",
         "TBD",
-        "governing_station"
+        "governing_station",
+        "connector_local"
       ]
     },
     "basis": {
@@ -93,7 +107,8 @@
         "stress_recovery_summary",
         "rule_pack_evaluation",
         "TBD",
-        "recovered_from_assembled_support_law"
+        "recovered_from_assembled_support_law",
+        "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
       ]
     },
     "sign_convention": {
@@ -1490,9 +1505,10 @@
   "formulation_profile_id": "exact_pressure_v3",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_with_load_reference_state_binding_on_0_4_0_v1",
   "supported_profile_limitations": [
-    "Skeleton (T4-U2a): the row vocabulary is physics-1's, unchanged, plus the objective connector rows (T4-U3); pressure-1 kinds for later families are added by the units that admit them.",
-    "Admitted families under 3.0.0/exact_pressure_v3: straight circular members, linear restraints or springs, and unpressurized untied objective connectors replacing one straight span (T4-U3); every other family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED).",
-    "Objective connector rows (connector_*_v1) are bound to contract_evidence.connector records (topology and replaced span, frame, installed reference temperature and q_ref, work matrix scale and provenance); they are a declared coverage limit outside the straight-member recovery bound, and no joint temperature law, finite rotation, pressure thrust or tie is represented.",
+    "Rows (T4-U2a skeleton, T4-U3, T4-U2): physics-1's row vocabulary, unchanged, plus the objective connector rows; the canonical metadata vocabulary is physics-1's plus the connector rows' components, frame (connector_axes_q), location (connector_local) and one stable basis. Realized-arc members publish physics-1's pressure kinds in their own sign conventions; pressure-1 kinds for later families are added by the units that admit them.",
+    "Admitted families under 3.0.0/exact_pressure_v3: straight circular members, realized curved bends (curved_bend_macro_element with the user's radius and flexibility factor) inside tangent-continuous pressure regions, linear restraints or springs, and unpressurized untied objective connectors replacing one straight span (T4-U3); every other family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED).",
+    "Realized arcs (T4-U2): each owns the term K_b*u_free(eps_p) - c_b with eps_p = (1-2nu)pAi/(E As); N_w = N_el + pAi and S = N_el; end rows act along the arc end tangents; bend-adjacent direction changes up to alpha_tan = 1e-3 rad are carried by the remainder pAi(t_in - t_out); the straight Lame hoop and radial rows and the governing normal-stress maximum are withheld on arcs with the named reason. Input review rows (a bend's flexibility, a hanger's inputs) are model scoped and carry no load case.",
+    "Objective connector rows (connector_*_v1) are bound through their entity_ref to contract_evidence.connector records (one stable row basis; the replaced span is the record's) (topology and replaced span, frame, installed reference temperature and q_ref, work matrix scale and provenance); they are a declared coverage limit outside the straight-member recovery bound, and no joint temperature law, finite rotation, pressure thrust or tie is represented.",
     "Signed internal differential pressure; external-pressure stability and collapse are not assessed.",
     "Steady-flow momentum and transient loads, Bourdon opening, pressure stiffening of flexibility and stress intensification, and ovalization are not modelled.",
     "Direct load cases only; derived combinations and state differences are unsupported.",

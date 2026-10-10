@@ -2,8 +2,8 @@
 //! T4-I12 system documents (`validation/references/t4_i12/`, bytes
 //! unchanged): an admitted unpressurized v3 objective connector solves under
 //! `pressure-1` with its connector record, rows and temperature-law
-//! disclosure, and produces no export document (refused by name until
-//! T4-U2 once the numerical standing gate admits it); a legacy joint
+//! disclosure, and is exported under pressure-1 (T4-U2 phase 2: the connector
+//! rows are exported quantities with a stable basis); a legacy joint
 //! on the same document is refused with `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`;
 //! a case with a pressure region is refused with `JOINT_PRESSURE_INTERFACE_UNRESOLVED`.
 use open_pipe_stress_headless_runner::{
@@ -21,8 +21,6 @@ const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::DenseScrutiny,
 ];
 const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
-const EXPORT_REFUSED: &str = "result-envelope production failed structurally: PRESSURE_1_EXPORT_NOT_AVAILABLE: \
-     pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it arrives with T4-U2";
 
 fn references() -> Value {
     serde_json::from_str(REFERENCES).unwrap()
@@ -63,17 +61,14 @@ fn request(model: &Value) -> RunnerRequest {
     }
 }
 
-/// The runner's raw mechanics envelope and its export unavailability.
-fn run(payload: &Value, mode: PreviewSolverMode) -> (Value, Option<String>, bool) {
+/// The runner's raw mechanics envelope, its export unavailability and its
+/// export document.
+fn run(payload: &Value, mode: PreviewSolverMode) -> (Value, Option<String>, Option<Value>) {
     let output =
         run_preview_model_value_with_mode(request(&payload["model"]), payload.clone(), mode)
             .unwrap();
     let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
-    (
-        raw,
-        output.canonical_export_unavailability.clone(),
-        output.result_envelope_document.is_some(),
-    )
+    (raw, output.canonical_export_unavailability.clone(), output.result_envelope_document.clone())
 }
 
 fn blocking_codes(raw: &Value) -> BTreeSet<String> {
@@ -103,7 +98,7 @@ fn patched(base: &Value, operations: &Value) -> Value {
 }
 
 #[test]
-fn an_admitted_v3_connector_solves_without_an_export_document_in_both_modes() {
+fn an_admitted_v3_connector_solves_and_exports_under_pressure_1_in_both_modes() {
     let references = references();
     for (case, key) in [
         ("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0"),
@@ -112,7 +107,7 @@ fn an_admitted_v3_connector_solves_without_an_export_document_in_both_modes() {
         let payload = references["cases"][case]["inputs"][key].clone();
         let cases = payload["model"]["load_cases"].as_array().unwrap().len();
         for mode in MODES {
-            let (raw, unavailability, exported) = run(&payload, mode);
+            let (raw, unavailability, document) = run(&payload, mode);
             assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED", "{case} {mode:?}: {}", raw["diagnostics"]);
             assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_ID, "{case} {mode:?}");
             let records = raw["contract_evidence"]["connector"].as_array().unwrap();
@@ -132,36 +127,28 @@ fn an_admitted_v3_connector_solves_without_an_export_document_in_both_modes() {
                 && d["severity"] == "info"
                 && d["affected_refs"] == json!(["component:C-150", "pipe:P-130"])));
             assert!(blocking_codes(&raw).is_empty(), "{case} {mode:?}");
-            // No export document. The frozen documents stop at the numerical
-            // standing gate before the named refusal (pre-existing, outside
-            // the connector): 0.4.0 is never numerically eligible there, and
-            // the 0.3.0 document's spring hanger review rows carry no case
-            // basis, so the pressure-1 reader refuses them.
-            assert!(!exported, "{case} {mode:?}");
-            assert_eq!(
-                unavailability.as_deref(),
-                Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"),
-                "{case} {mode:?}"
-            );
+            // T4-U2: exported under pressure-1, on 0.3.0 and 0.4.0 alike. The
+            // spring hanger's input review rows are model scoped (pressure-1),
+            // so the reader admits them; the numerical standing gate was never
+            // the cause (it read the reader's refusal as "unsupported").
+            assert!(unavailability.is_none(), "{case} {mode:?}: {unavailability:?}");
+            let document = document.expect("an export document");
+            open_pipe_stress_result_export::derivative::validate_document(&document, &raw)
+                .unwrap_or_else(|e| panic!("{case} {mode:?}: {e}"));
+            let envelope = &document["result_envelope"];
+            assert_eq!(envelope["semantic_contract_ref"]["ref_id"], PRESSURE_ID, "{case} {mode:?}");
+            // Every connector row is an exported quantity with canonical
+            // metadata (components, frame, location, the stable basis).
+            let exported: Vec<&Value> = envelope["result_sets"][0]["values"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|v| v["source_kind"].as_str().unwrap().starts_with("connector_"))
+                .collect();
+            assert_eq!(exported.len(), 24 * cases, "{case} {mode:?}");
+            assert!(exported.iter().all(|v| v["metadata"]["basis"]
+                == open_pipe_stress_result_export::semantic_contract::CONNECTOR_ROW_BASIS));
         }
-    }
-}
-
-/// The 0.3.0 system document without its spring hanger reaches the export
-/// chain, which refuses pressure-1 by name until T4-U2.
-#[test]
-fn a_numerically_eligible_v3_connector_envelope_is_refused_export_by_name_in_both_modes() {
-    let references = references();
-    let mut payload = references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone();
-    payload["model"]["supports"].as_array_mut().unwrap().retain(|s| s["id"] != "support:SH-140");
-    for mode in MODES {
-        let (raw, unavailability, exported) = run(&payload, mode);
-        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
-        open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&raw)
-            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
-        assert_eq!(raw["contract_evidence"]["connector"].as_array().unwrap().len(), 1);
-        assert!(!exported, "{mode:?}");
-        assert_eq!(unavailability.as_deref(), Some(EXPORT_REFUSED), "{mode:?}");
     }
 }
 
@@ -183,7 +170,8 @@ fn a_legacy_joint_on_a_v3_document_is_refused_without_export_in_both_modes() {
         "provenance": "invented legacy four-rate joint (T4-U3 control)"
     }]);
     for mode in MODES {
-        let (raw, unavailability, exported) = run(&payload, mode);
+        let (raw, unavailability, document) = run(&payload, mode);
+        let exported = document.is_some();
         assert_eq!(raw["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
         assert_eq!(raw["results"], json!([]), "{mode:?}");
         assert_eq!(
@@ -210,7 +198,8 @@ fn a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes() {
         &variant["document_patch_round_02"]["operations"],
     );
     for mode in MODES {
-        let (raw, unavailability, exported) = run(&payload, mode);
+        let (raw, unavailability, document) = run(&payload, mode);
+        let exported = document.is_some();
         assert_eq!(raw["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
         assert_eq!(raw["results"], json!([]), "{mode:?}");
         let expected: BTreeSet<String> = variant["expected_round_02"]["blocking_codes_exactly"]

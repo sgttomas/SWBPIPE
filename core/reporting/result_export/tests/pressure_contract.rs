@@ -132,8 +132,22 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
         "rows",
         "source_signature_count",
         "source_kind_count",
+        "canonical_metadata_vocabulary",
     ];
     let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
+    // T4-U2: the vocabulary is physics-1's, each enum extended by exactly the
+    // connector entries the exporter holds as code (components, frame,
+    // location, the stable basis).
+    let mut vocabulary = q["canonical_metadata_vocabulary"].clone();
+    let extend = |v: &mut Value, key: &str, extra: &[&str]| {
+        let list = v[key]["enum"].as_array_mut().unwrap();
+        list.extend(extra.iter().map(|x| json!(x)));
+    };
+    extend(&mut vocabulary, "component", &s::CONNECTOR_VOCABULARY_COMPONENTS);
+    extend(&mut vocabulary, "coordinate_system", &s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS);
+    extend(&mut vocabulary, "location", &s::CONNECTOR_VOCABULARY_LOCATIONS);
+    extend(&mut vocabulary, "basis", &[s::CONNECTOR_ROW_BASIS]);
+    assert_eq!(p["canonical_metadata_vocabulary"], vocabulary);
     assert_eq!(p.keys().collect::<Vec<_>>(), q.keys().collect::<Vec<_>>());
     for (key, value) in p {
         if !own.contains(&key.as_str()) {

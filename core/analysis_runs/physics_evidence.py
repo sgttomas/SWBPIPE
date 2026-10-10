@@ -56,6 +56,8 @@ CONNECTOR_KINDS = {
     "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
 }
 CONNECTOR_ROWS_PER_CASE = 24
+# T4-U2: one stable basis string; the replaced span is bound through the record.
+CONNECTOR_ROW_BASIS = "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
 CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
 CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
 CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
@@ -510,7 +512,7 @@ def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str
         local = metadata["location"] == "connector_local"
         _require(row.get("unit") == unit and metadata["component"] in components and metadata["location"] in locations
                  and metadata["coordinate_system"] == ("connector_axes_q" if local else "global")
-                 and metadata["basis"] == f"objective_connector_v1;replaces_span={spans[row['entity_ref']]};symmetric_midpoint_small_rotation_v1"
+                 and metadata["basis"] == CONNECTOR_ROW_BASIS
                  and metadata["sign_convention"] == (CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
         case = row["basis_ref"]["ref_id"]
         _require(case in cases, "connector row case")
@@ -603,3 +605,55 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         for pid in gm:
             _require({k:v for k,v in gm[pid].items() if k != "traversal_forward"} == sections[pid] and {k:v for k,v in mm[pid].items() if k != "temperature_basis"} == materials[pid], "transport region member facts")
             _temperature_basis(mm[pid]["temperature_basis"], case["material_basis"], mm[pid]["material_id"])
+
+
+def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
+    """pressure-1 statements without raw rows (T4-U2): closed shape against the
+    results 0.3 ``PressureContractEvidence`` (0.4.0 records against the frozen
+    load/reference-state schema) and internal joins only; never raw row evidence."""
+    try:
+        _validate_pressure_transport_metadata(source)
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed transport evidence") from error
+
+
+def _validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
+    from .source_blocks import _shape as schema_shape
+    schemas = Path(__file__).resolve().parents[2] / "schemas"
+    results = json.loads((schemas / "results.v0.3.schema.yaml").read_text())
+    evidence = source.get("contract_evidence")
+    _require(isinstance(evidence, Mapping), "transport evidence shape")
+    records = evidence.get("load_reference_states")
+    body = {key: value for key, value in evidence.items() if key != "load_reference_states"}
+    _require(schema_shape(body, results["$defs"]["PressureContractEvidence"], results), "transport evidence shape")
+    if records is not None:
+        frozen = json.loads((schemas / "load_reference_state.schema.json").read_text())
+        _require(isinstance(records, list) and all(schema_shape(r, frozen["$defs"]["LoadReferenceStateRecord"], frozen) for r in records), "transport evidence shape")
+    _finite_tree(evidence)
+    cases = _indexed(evidence["exact_cases"], "load_case_id", "transport cases")
+    has_connector = bool(evidence["connector"])
+    resolved = {"material_selection_kind", "resolved_eigenstrain"}
+    for case in cases.values():
+        materials = _indexed(case["pipe_materials"], "pipe_id", "transport materials")
+        sections = _indexed(case["pipe_sections"], "pipe_id", "transport sections")
+        _require((bool(materials) or has_connector) and set(materials) == set(sections), "transport member coverage")
+        missing = set(case["stress_maximum_coverage"]["unavailable_pipe_ids"])
+        _require(missing <= set(sections) and case["stress_maximum_coverage"]["complete"] == (not missing), "transport maximum coverage")
+        _require({ex["pipe_id"] for ex in case["pipe_stress_extrema"]} == set(sections) - missing, "transport maximum members")
+    regions: set[tuple[str, str]] = set()
+    for region in evidence["pressure"]:
+        cid, rid = region["load_case_id"], region["region_id"]
+        _require(cid in cases and (cid, rid) not in regions, "transport pressure region")
+        regions.add((cid, rid))
+        arcs = arc_members(region, True)
+        _require(arcs <= set(cases[cid]["stress_maximum_coverage"]["unavailable_pipe_ids"]), "arc withheld")
+        sections = _indexed(cases[cid]["pipe_sections"], "pipe_id", "transport sections")
+        materials = _indexed(cases[cid]["pipe_materials"], "pipe_id", "transport materials")
+        gm = _indexed(region["geometry"], "pipe_id", "transport region geometry")
+        mm = _indexed(region["materials"], "pipe_id", "transport region materials")
+        _require(_strings(region["member_pipe_ids"], True) and set(gm) == set(mm) == set(region["member_pipe_ids"]) and set(gm) <= set(sections), "transport region members")
+        for pid in gm:
+            _require({k: v for k, v in gm[pid].items() if k not in {"traversal_forward"} | ARC_GEOMETRY_KEYS} == sections[pid]
+                     and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == {k: v for k, v in materials[pid].items() if k not in resolved}, "transport region member facts")
+        if arcs:
+            _arc_region(region, arcs, region["p_pa"])
