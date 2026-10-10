@@ -2847,9 +2847,49 @@ pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps
 /// retained error text are per result set, so they are bounded by C_eq = `CASE_EQUIVALENTS`
 /// (numerically today's 3, since C_eq's cap equals C's); the contract-evidence facts and
 /// G-B stay per case (a combination has no loads or contract evidence of its own).
+/// These are route L's (D1.3's preview branch) bounds; `phase_caps_on` gives each W1 route's.
 pub(super) const fn phase_caps() -> PhaseCaps {
+    phase_caps_on(crate::retained_product::W1Route::Preview)
+}
+/// One case's contract-evidence bounds on a W1 route: array elements, objects, entries,
+/// string bytes and key bytes, at (n, m, g).
+/// - Preview (route L): the preview tree, ordinary_caps.py's PREVIEW facts (unchanged).
+/// - Exact (route E; T3 F1, after SQ2's G-C finding): the componentwise maximum of the preview
+///   tree and the exact route's physics evidence, I95's B3-S census at (n, m, g) (rest + per pipe
+///   + per unavailable pipe + 6 per DOF and 1 per node: arrays 12 + 40m + 19n, objects 3 + 13m,
+///   entries 25 + 64m, string bytes 5400 + 6600m + 300n, key bytes 441 + 660m). These are the
+///   facts route E's chain prices for the evidence owner (`_exmax` in ordinary_caps.py, g4_caps.py
+///   and t25_g4.py, scaled by C), so the registered profile, the maximum over routes, prices them.
+const fn evidence_caps(route: crate::retained_product::W1Route, n: u64, m: u64, g: u64) -> [u64; 5] {
+    const fn max(a: u64, b: u64) -> u64 {
+        if a > b { a } else { b }
+    }
+    let preview = [3 * m + 2 * g, 3 + m + g, 9 + 15 * m + 2 * g,
+        m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64), (9 + 15 * m + 2 * g) * 40];
+    match route {
+        crate::retained_product::W1Route::Preview => preview,
+        crate::retained_product::W1Route::Exact => [
+            max(preview[0], 12 + 40 * m + 19 * n),
+            max(preview[1], 3 + 13 * m),
+            max(preview[2], 25 + 64 * m),
+            max(preview[3], 5400 + 6600 * m + 300 * n),
+            max(preview[4], 441 + 660 * m),
+        ],
+    }
+}
+/// The gate bounds on a W1 route: route L's (`phase_caps`) on Preview; on Exact the same but
+/// for the contract-evidence rows, C times route E's per-case facts (`evidence_caps`). Route E's
+/// entries bound is cut so that objects + ⌊entries / 5⌋, the BTree node count the profile prices
+/// (`value_tree`: one node per object and per 5 entries), stays within C·(objects + ⌊entries / 5⌋)
+/// at the per-case facts.
+pub(super) const fn phase_caps_on(route: crate::retained_product::W1Route) -> PhaseCaps {
     use caps::*;
     let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
+    let ev = evidence_caps(route, n, m, g);
+    let entries = match route {
+        crate::retained_product::W1Route::Preview => c * ev[2],
+        crate::retained_product::W1Route::Exact => 5 * (c * (ev[1] + ev[2] / 5) - c * ev[1]) + 4,
+    };
     let ceq = CASE_EQUIVALENTS as u64;
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {
@@ -2865,11 +2905,11 @@ pub(super) const fn phase_caps() -> PhaseCaps {
             text_atoms::L_PUB,
             text_atoms::L_DIAGID,
             0,
-            c * (3 * m + 2 * g),
-            c * (3 + m + g),
-            c * (9 + 15 * m + 2 * g),
-            c * (m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64)),
-            c * ((9 + 15 * m + 2 * g) * 40),
+            c * ev[0],
+            c * ev[1],
+            entries,
+            c * ev[3],
+            c * ev[4],
             0,
             profile_bytes(profile::F_T11),
             profile_bytes(profile::F_T11_ORDINARY_SEED),
@@ -3049,9 +3089,10 @@ impl CapturePermit {
     pub(super) fn check_late(&self, facts: &LateFacts<'_>) -> Result<(), PhaseRefusal> {
         check_phase(PhaseGate::Late, &late_observations(facts), &phase_caps().late)
     }
-    /// G-C, after the complete ordinary owner returns.
+    /// G-C, after the complete ordinary owner returns, on the bounds of the invocation's W1
+    /// route (the observer's, which `permitted_run` sets from the admitted model's branch).
     pub(super) fn check_complete(&self, facts: &CompleteFacts<'_>) -> Result<(), PhaseRefusal> {
-        check_phase(PhaseGate::Complete, &complete_observations(facts), &phase_caps().complete)
+        check_phase(PhaseGate::Complete, &complete_observations(facts), &phase_caps_on(facts.capture.route()).complete)
     }
     /// The budgets U3 meets (TRANSFER_COMPLETION.md §3).
     #[allow(dead_code)]
