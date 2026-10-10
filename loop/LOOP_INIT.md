@@ -1,21 +1,39 @@
-# Piping development entry
+# SWBPIPE development entry
 
-Work in `projects/chirality-piping` relative to the repository root. Read Root
-`AGENTS.md`, the assigned role, `docs/PRD.md` and the affected deliverables under
-`execution/PKG-*/DEL-*/`. ScopeOfWork and Design hold commitments;
-`deliverable.yaml` holds needs and relevant code/check pointers. Query the local
-neighbourhood from Root with `python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-xx-xx`. Code and checks are located through
-`software-workflow.json`; use `coordinated-knowledge-work` for coordination.
-The current objective comes from the init prompt and subsequent owner steering.
-Edit current source documents when decisions or dependency conditions change;
-the PR is the change record. No routine progress or lifecycle files are updated.
-The required `harness` result covers the exact PR head: selected desktop build
-and core browser persistence journey, changed Rust crates and their consumers,
-and focused Python security/input checks. Broad suites run only on request or
-for release preparation. Once this replacement is demonstrated, it supersedes
-DEC-025's blanket local merge sweep. Do not repeat a passing hosted suite locally
-without a new change or unresolved concern. `tools/release/run_evidence_sweep.py` remains
-optional preparation for macOS release candidates; release is an owner act.
+SWBPIPE is an analysis-grade piping design engine and stress-model authoring
+environment. Work in `projects/chirality-piping`. Start from the affected
+`execution/PKG-nn/DEL-nn-nn/`; ScopeOfWork holds commitments, Design holds the
+current technical rulings, and `deliverable.yaml` states dependency conditions.
+Consult `docs/PRD.md` and its technical companions for the requirements involved.
+
+From the repository root:
+
+```sh
+python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-nn-nn
+```
+
+Use `impact <DEL>` for consumers and `touches <rev|PR:n>` for relevant code
+changes. Update current conditions when their meaning changes, not on every run.
+
+## Build and verification
+
+Registered checks are in `software-workflow.json`. From the repository root,
+select by project-relative changed paths:
+
+```sh
+python3 tools/software_workflow/select_affected_checks.py projects/chirality-piping/software-workflow.json <paths>
+```
+
+`docs/CI_STRATEGY.md` describes numerical, persistence, browser and Python
+selection. The hosted `harness` result on the exact PR head is the merge check;
+DEC-025's blanket local sweep is no longer required. Broad suites run for an
+identified need or release preparation. `tools/release/run_evidence_sweep.py`
+is optional preparation for macOS release candidates, not a merge gate.
+
+Frozen numerical references are in `validation/references/t3_r1/`. Use the
+existing generators and preserve the independent reference basis; do not alter
+an oracle to make an implementation pass. Numerical changes require the targeted
+checks and independent scrutiny specified in Root `AGENTS.md`.
 
 ## Hard boundaries
 
