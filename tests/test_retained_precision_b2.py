@@ -174,9 +174,16 @@ def resealed_outer(source):
      lambda b: b["sources"][1]["preparation"].update(sha256=rp._hash("retained_precision_preparation_v1", rp._preparation_payload(b["operand_preparations"][0], rp.DEFINITION_HASH)))),
 ])
 def test_b2_g1_inner_hashes(label, change):
+    """Each inner hash edited; the hashes that depend on it (S-6's later steps) and the outer ones resealed, so only
+    the edited conjunct can refuse."""
     source, invocation = base()
     assert verdict(source, invocation) == ("pass", "eligible")
     change(body(source))
+    b = body(source)
+    if "operand-prepared" in label:  # step 4 then step 5 over the edited CaseSource
+        b["sources"][2]["operands"][1]["source_identity_sha256"] = rp._source_hash(b["sources"][1])
+    if "combination's" not in label:  # step 5 over the (edited) CombinationSource
+        b["combinations"][0]["source_identity_sha256"] = rp._source_hash(b["sources"][2])
     resealed_outer(source)
     assert verdict(source, invocation) == RECEIPT, label
     assert verdict(source, None) == RECEIPT, label
@@ -239,7 +246,8 @@ def move_operand_source(source):
     ("(i) the operand-prepared CaseSource after the CombinationSource", [], move_operand_source),
     ("the combination attempt's owner index", [_set(B + ["product_attempts", 1, "owner_ref", "index"], 1)], None),
     ("a CombinationSource naming another id", [_set(B + ["sources", 2, "owner", "combination_id"], "combination:other")], None),
-    ("a combination row's basis naming no entry", [_set(["results", 226, "basis_ref", "ref_id"], "combination:other")], None),
+    ("a combination row's basis naming no entry", [_set(["results", 226, "basis_ref", "ref_id"], "combination:other")], lambda s: body(s)["combinations"][0]["result_ids"].remove(s["results"][226]["id"])),
+    ("(g) a CombinationSource no entry names", [], lambda s: body(s)["sources"].append(dict(deepcopy(body(s)["sources"][2]), index=3))),
     ("the combination attempt's id", [_set(B + ["product_attempts", 1, "id"], 5)], None),
     ("a projection outcome on a displacement magnitude row", [_set(B + ["product_attempts", 1, "proof", "projection_outcomes", 0, "row_index"], 0)], None),
     ("the combination attempt's summary roster reversed", [], lambda s: body(s)["product_attempts"][1]["proof"]["summary_coverage"].reverse()),
@@ -346,6 +354,7 @@ def test_b2_g4_combination_diagnostics():
     ("a case group with imports", [_set(B + ["groups", 0, "imports"], [])], None, ATTEMPT),
     ("the mechanics Call's owner index", [_set(B + ["calls", 1, "owner_refs", 0, "index"], 1)], None, ATTEMPT),
     ("the combination Call run_refs emptied", [_set(B + ["calls", 1, "run_refs"], [])], None, ATTEMPT),
+    ("one more requested operand", [], lambda s: body(s)["calls"][1]["requested_operands"].append(deepcopy(body(s)["calls"][1]["requested_operands"][0])), ATTEMPT),
     ("a requested operand's factor only", [_set(B + ["calls", 1, "requested_operands", 1, "factor"], "4000000000000000")], None, ATTEMPT),
     ("a second mechanics Call for the entry", [], lambda s: body(s)["calls"].append(dict(deepcopy(body(s)["calls"][1]), id=2, run_refs=[], source_refs=[],
         invocation_before=body(s)["calls"][1]["invocation_after"], result={"kind": "pre_source_refusal", "stage": "operand_validation", "reason": {"space": "combination", "tag": "operands_differ"}})), ATTEMPT),
@@ -743,4 +752,42 @@ def test_b2_g5_products_more_reader_logic():
     with pytest.raises(rp.RetainedPrecisionError) as error:
         rp._g5_operand_preparations(body(s3), fail, lambda ok: None)
     assert (error.value.gate, error.value.code) == PRODUCT
+
+
+def test_b2_g5_native_no_other_group_build_reused_reader_logic():
+    """A combination Run reuses only its own group's builds and its imports (CONTRACT §10.1 G5 native)."""
+    source, _ = base()
+    b = body(source)
+    run = b["combinations"][0]["run"]
+    b["builds"].append(dict(deepcopy(b["builds"][1]), id=len(b["builds"]), slot="s512"))
+    assert native(b) == "pass"
+    run["records"][0]["shared_build_ref"] = len(b["builds"]) - 1
+    assert native(b) == ATTEMPT
+
+
+def test_b2_g5_combination_attempt_more_reader_logic():
+    """The attempt's own Run reference, a Ready attempt with a failed check, and a refused record's material basis."""
+    fail = lambda ok: rp._need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH")
+    source, _ = base()
+    failed_native(source)
+    b = body(source)
+    rows = {c["basis_ref"]["ref_id"]: [r for r in source["results"] if r["basis_ref"] == c["basis_ref"]] for c in b["combinations"]}
+    b["product_attempts"][1]["run_ref"] = 0
+    with pytest.raises(rp.RetainedPrecisionError):
+        rp._g5_combination_attempt(b, b["product_attempts"][1], 1, rows, fail, lambda ok: None)
+    s2, _ = base()
+    b2 = body(s2)
+    a = b2["product_attempts"][1]
+    rp._g5_combination_attempt(b2, a, 1, rows, fail, lambda ok: None)
+    a["stages"]["g5a"] = "failed"
+    a["proof"]["checks"]["g5a"] = {"kind": "failed", "error": {"kind": "g5a", "cause": {}}}
+    with pytest.raises(rp.RetainedPrecisionError):
+        rp._g5_combination_attempt(b2, a, 1, rows, fail, lambda ok: None)
+    s3, _ = base()
+    record = body(s3)["operand_preparations"][0]
+    record.update(result={"kind": "refused", "error": {"kind": "preparation", "capture": {"kind": "storage", "detail": "x"}, "section": None}}, stage="failed", source_ref=None, material_basis_ref=1)
+    record["preparation"]["members"] = []
+    record["operational"]["new"] = []
+    with pytest.raises(rp.RetainedPrecisionError):
+        rp._g5_operand_preparations(body(s3), fail, lambda ok: None)
 
