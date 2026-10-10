@@ -567,6 +567,43 @@ fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
     assert_eq!(check_phase(PhaseGate::Complete, &facts, &phase_caps().complete), Ok(()));
 }
 
+/// T3 F1 (PR #1235 review R1): the permit's own G-C, `CapturePermit::check_complete`, selects the
+/// bounds of the observer's W1 route. One admitted cap-maximal exact invocation, one ordinary owner:
+/// with the Exact-route observer that `permitted_run` would build, G-C passes; with a Preview-route
+/// observer over the same owner, G-C refuses at the contract evidence's array elements against
+/// route L's 480. Ordinary runs only (no W1). In a Stale build there is no permit and nothing to drive.
+#[test]
+fn f1_check_complete_reads_the_observer_route() {
+    use crate::retained_product::{ProductCapture, W1Route};
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let raw = inputs::exact_cap_maximal();
+        let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let permit = match super::admit(&capture, &request, super::Entry::Direct) {
+            Ok((permit, report)) => {
+                assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
+                permit
+            }
+            Err(report) => {
+                assert_ne!(COMPILED_IDENTITY, Some(REGISTERED_PROFILES[0].identity), "{mode:?}: the registered build admits it: {:?}", report.law());
+                println!("F1_ROUTE_GATE_SKIP {mode:?}: Stale build, no permit");
+                return;
+            }
+        };
+        let route = crate::w1_route(&request.model).unwrap();
+        assert_eq!(route, W1Route::Exact);
+        let requested_cases = request.model.load_cases.len();
+        let mut exact = ProductCapture::prepared_probe_on(route);
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut exact));
+        assert_eq!(permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &exact, requested_cases }), Ok(()), "{mode:?}: route E's bounds");
+        let (request, capture) = CapturedInvocation::parse(raw, mode).unwrap();
+        let mut preview = ProductCapture::prepared_probe_on(W1Route::Preview);
+        let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(W1Route::Preview), Some(&mut preview));
+        let refusal = permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &preview, requested_cases }).unwrap_err();
+        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's bounds");
+        assert!(refusal.observed > 480 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[9], "{mode:?}: {}", refusal.observed);
+    }
+}
+
 per_mode! {
     /// T3 F1 (a): the cap-maximal exact input through the public Direct entry in the registered
     /// build: admitted (branch E), through G-C on route E's bounds, W1 on the exact route, and the
