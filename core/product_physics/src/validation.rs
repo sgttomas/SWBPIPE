@@ -1169,7 +1169,7 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     ),
                     "BEND_GEOMETRY_INPUT_MISSING",
                     "warning",
-                    "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review",
+                    "bend/elbow component requires explicit radius, angle (unless realized as a curved bend), and invented or cleared geometry source to support component provenance review",
                     vec![component.id.clone()],
                 ));
             }
@@ -1557,17 +1557,15 @@ fn is_expansion_joint_component(component: &crate::PreviewComponent) -> bool {
     component.kind == "expansion_joint"
 }
 
+// T4-U1 (T4-I11 D-B): `bend_plane_orientation` is no longer required; the
+// span's y_reference fixes the plane and the bow side. A realized bend's angle
+// follows from R and its nodes, so only geometry-only bends need `bend_angle`.
 fn bend_geometry_missing(component: &crate::PreviewComponent) -> bool {
     let Some(geometry) = &component.geometry else {
         return true;
     };
     geometry.bend_radius.is_none()
-        || geometry.bend_angle.is_none()
-        || geometry
-            .bend_plane_orientation
-            .as_deref()
-            .map(|value| value.trim().is_empty())
-            .unwrap_or(true)
+        || (geometry.bend_angle.is_none() && !crate::is_curved_bend_macro_component(component))
         || geometry
             .bend_geometry_source_reference
             .as_deref()

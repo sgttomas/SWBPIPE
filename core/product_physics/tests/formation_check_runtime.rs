@@ -376,6 +376,7 @@ fn kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted()
 }
 
 #[test]
+#[ignore = "T4-U1 phase B: with the objective element PP_UTM_5E6 publishes Passed (actual 0.0027 in both modes and on both entries), so the precondition actual > 1 fails by design; it becomes the C2 control at X = 5e6 and M31b's role moves to the K1 PP test (annex A item 1; T4-I6 B5.2)"]
 fn kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries() {
     // ROOT's product-level demotion test (RV5-B1): at X = 5e6 m PP's own
     // binary64 centre makes the product's chord differ from the actual chord,

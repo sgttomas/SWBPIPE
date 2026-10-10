@@ -560,7 +560,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "one source's consistent equivalent (section 2.2)"),
     ("CB/lib.rs", "cross_quad", 1, "flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "formed rotation"),
-    ("CB/lib.rs", "quad", 1, "flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "multiply6", 1, "stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "stiffness formation"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11"),
