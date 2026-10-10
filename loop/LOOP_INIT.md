@@ -37,9 +37,9 @@ checks and independent scrutiny specified in Root `AGENTS.md`.
 
 ## Hard boundaries
 
-The following fence text is preserved verbatim from the accepted workplan.
-The reset retires administrative lifecycle tracking; owner acceptance, issuance
-and release gates and protected baselines remain reserved.
+F-PIP-1 and F-PIP-2 are preserved verbatim from the accepted workplan. The owner
+amended F-PIP-3 and F-PIP-4 on 2026-10-10 ("Adopt both F-PIP drafts as written"),
+replacing references to the retired register gates and lifecycle states.
 
 - **F-PIP-1 (boundary prohibitions):** local-only operation — no cloud, daemon,
   network, or telemetry features; no repository-default private-data writes;
@@ -52,13 +52,16 @@ and release gates and protected baselines remain reserved.
   is never edited. New artifacts do not restate it as an ad-hoc litany — write
   "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)." and use
   `docs/claims_registry.md` for any surface-facing boundary statement.
-- **F-PIP-3 (lifecycle):** deliverable lifecycle transitions follow the register's
-  ruled gates; no `CHECKING -> ISSUED` issuance without the owner's gate; the
-  currently `ISSUED` baseline is opened only through a human-approved change path.
-- **F-PIP-4 (scope-gated integrations):** live external SDK/harness promotion,
-  domain-engine bindings, and version-scope promotions stay behind their named
-  register rows; tier-0/domain-engine surfaces (`_DomainEngines/**`) belong to their
-  own loops — this loop never writes them.
+- **F-PIP-3 (acceptance and issuance):** acceptance, issuance and release of any
+  deliverable, package or product baseline are the owner's acts. Agents do not
+  record, imply or derive acceptance, issuance or lifecycle standing from completed
+  work, checks, reviews or merges. A baseline the owner has issued or protected
+  changes only through a change the owner approves.
+- **F-PIP-4 (scope-gated integrations):** promoting a live external SDK or harness,
+  binding a domain engine, and promoting a version scope each require the owner's
+  explicit steer for that scope; ruled decisions that bear on them (for example
+  D-22, D-24 and D-30) continue to apply. Tier-0 and domain-engine surfaces
+  (`_DomainEngines/**`) belong to their own projects; SWBPIPE work never writes them.
 
 ## Knowledge-source constraint (DEC-043)
 
