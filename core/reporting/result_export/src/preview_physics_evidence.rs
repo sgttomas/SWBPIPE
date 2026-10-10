@@ -460,8 +460,13 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             )?;
             let lower = number(&extrema["value_lower_pa"])?;
             let upper = number(&extrema["value_upper_pa"])?;
-            number(&extrema["global_upper_bound_pa"])?;
-            number(&extrema["certified_gap_pa"])?;
+            // PR-B2 N-1: the extrema-number demand refuses a negative value, with
+            // the demand's own code (-0 and +0 pass).
+            for k in ["global_upper_bound_pa", "certified_gap_pa"] {
+                if number(&extrema[k])? < 0.0 {
+                    return Err("SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID".into());
+                }
+            }
             let value = number(&row["value"])?;
             require(
                 lower >= 0.0

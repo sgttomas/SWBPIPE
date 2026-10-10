@@ -59,11 +59,17 @@ fn index(v: &Value) -> Option<usize> {
     (n.is_finite() && n >= 0.0 && n.fract() == 0.0 && !(n == 0.0 && n.is_sign_negative()))
         .then_some(n as usize)
 }
-/// The 07e format rule (SHARED_SNAPSHOT_07E `format_rule`): 1 preparation
-/// hashes, for each `sources[*].preparation.attempt_ref` that resolves and
-/// whose members are all prepared; 2 source identities, for each selected
-/// case whose `source_ref` resolves; 3 publication hash; 4 receipt hash. A
-/// reference that is not an index, or does not resolve, is skipped.
+/// The 07e format rule (SHARED_SNAPSHOT_07E `format_rule`) with 07o's steps
+/// (B2-C REVISION_01 §5.2, S-6), in dependency order: 1 preparation hashes, for
+/// each `sources[*].preparation.attempt_ref` that resolves and whose members are
+/// all prepared; 2 operand-preparation hashes, for each
+/// `sources[*].preparation.operand_preparation_ref` that resolves to a prepared
+/// record whose members are all prepared (DEF-O's H); 3 source identities, for
+/// each selected case whose `source_ref` resolves; 4 each CombinationSource
+/// operand's identity, for each operand `source_ref` that resolves; 5 each
+/// `retained_selected` combination's identity, when its `source_ref` resolves;
+/// 6 publication hash; 7 receipt hash. A reference that is not an index, or
+/// does not resolve, is skipped.
 fn rehash(source: &mut Value) {
     // S-1 (REVISION_01 §2): every preparation hash carries the route's
     // definition H: DEF-E's on the exact identity, DEF-O's otherwise.
@@ -110,6 +116,29 @@ fn rehash_with(source: &mut Value, definition_hash: &str) {
             }
         }
     }
+    // S-6 step 2: operand-preparation hashes (C3a-5), with DEF-O's H.
+    let records = b["operand_preparations"].clone();
+    for s in b["sources"].as_array_mut().unwrap() {
+        if let Some(pi) = index(&s["preparation"]["operand_preparation_ref"]) {
+            let p = &records[pi];
+            if !p.is_object() || p["result"]["kind"] != "prepared" {
+                continue;
+            }
+            if p["preparation"]["members"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|m| m["result"]["kind"] == "prepared")
+            {
+                let members: Vec<_> = p["preparation"]["members"].as_array().unwrap().iter().map(|m| serde_json::json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect();
+                let payload = serde_json::json!({"definition_id":p["definition_id"],"definition_sha256":rp::DEFINITION_HASH,"owner_ref":p["owner_ref"],"ordinary_attempt_ref":p["ordinary_attempt_ref"],"material_basis_ref":p["material_basis_ref"],"purpose":p["purpose"],"members":members});
+                s["preparation"]["sha256"] =
+                    domain_hash("retained_precision_operand_preparation_v1", &payload)
+                        .unwrap()
+                        .into();
+            }
+        }
+    }
     let sources = b["sources"].clone();
     for c in b["cases"].as_array_mut().unwrap() {
         if c["status"] == "selected" {
@@ -125,6 +154,32 @@ fn rehash_with(source: &mut Value, definition_hash: &str) {
             c["source_identity_sha256"] = domain_hash("retained_precision_source_mp_v2", &s)
                 .unwrap()
                 .into();
+        }
+    }
+    // S-6 step 4: each CombinationSource operand's identity of the CaseSource it names.
+    let identity = |s: &Value| {
+        let mut s = s.clone();
+        s.as_object_mut().unwrap().remove("index");
+        Value::from(domain_hash("retained_precision_source_mp_v2", &s).unwrap())
+    };
+    for s in b["sources"].as_array_mut().unwrap() {
+        if s["owner"]["kind"] != "combination" {
+            continue;
+        }
+        for o in s["operands"].as_array_mut().into_iter().flatten() {
+            if let Some(named) = index(&o["source_ref"]).and_then(|i| sources.get(i)).filter(|x| x.is_object()) {
+                o["source_identity_sha256"] = identity(named);
+            }
+        }
+    }
+    // S-6 step 5: each retained_selected combination's identity of its CombinationSource.
+    let sources = b["sources"].clone();
+    for c in b["combinations"].as_array_mut().into_iter().flatten() {
+        if c["disposition"] != "retained_selected" {
+            continue;
+        }
+        if let Some(s) = index(&c["source_ref"]).and_then(|i| sources.get(i)).filter(|x| x.is_object()) {
+            c["source_identity_sha256"] = identity(s);
         }
     }
     let mut public = source.clone();
@@ -3922,6 +3977,24 @@ fn rehash_index_rule_07e() {
         rehash(&mut source);
         assert_eq!(source["retained_precision"]["body"]["cases"][0]["source_identity_sha256"], before, "{r}");
     }
+    // 07o (S-6 steps 2, 4 and 5): the same rule for an operand-prepared source's
+    // `operand_preparation_ref`, a CombinationSource operand's `source_ref` and a
+    // combination entry's `source_ref`, each on W-CB3.
+    let (fresh, _) = b2_w_cb3("sparse_interactive");
+    for r in [json!(true), json!(0.5), json!(-0.0), json!(9)] {
+        for (reference, digest) in [
+            (json!(["sources", 1, "preparation", "operand_preparation_ref"]), json!(["sources", 1, "preparation", "sha256"])),
+            (json!(["sources", 2, "operands", 1, "source_ref"]), json!(["sources", 2, "operands", 1, "source_identity_sha256"])),
+            (json!(["combinations", 0, "source_ref"]), json!(["combinations", 0, "source_identity_sha256"])),
+        ] {
+            let mut source = fresh.clone();
+            let pointer = |v: &Value| format!("/retained_precision/body/{}", v.as_array().unwrap().iter().map(|x| x.to_string().trim_matches('"').to_owned()).collect::<Vec<_>>().join("/"));
+            let before = source.pointer(&pointer(&digest)).unwrap().clone();
+            edit(&mut source, &set(rb(reference.clone()), r.clone()));
+            rehash(&mut source);
+            assert_eq!(source.pointer(&pointer(&digest)).unwrap(), &before, "{reference} {r}");
+        }
+    }
 }
 
 /// D37 (D35 widened; RV78-S1/S2, RV79-X1): every product-attempt error kind
@@ -4691,8 +4764,9 @@ fn b1_r2_ordinary_basis_reference_at_g5_attempt() {
 }
 
 /// Item 2, (g), at G8 INVOCATION, PP's acceptance: no `reference_configurations` member
-/// (null included); `pressure_contract` absent or null; `combinations` and `components`
-/// absent or []. Unbound reads do not see the invocation.
+/// (null included); `pressure_contract` absent or null; `components` absent or [];
+/// `combinations` absent or an array whose entries the receipt's equal (B2-C §10.1 G8).
+/// Unbound reads do not see the invocation.
 #[test]
 fn b1_r2_g_model_scope_at_g8_invocation() {
     use serde_json::json;
@@ -6252,6 +6326,7 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
         ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2", "extra": null}))], vec![], inv.clone()),
         ("21c invocation contract version 2.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.1", "mode": "exact_straight_pressure_v2"}))], vec![], inv.clone()),
         ("21d invocation contract removed (0.3.0, absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
+        // Entry 22: B2-C admits model combinations; G8's entry and expression equality refuses this one (no receipt entry names it).
         ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
         ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
         ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
@@ -6772,4 +6847,376 @@ fn snapshot_07n_unbound_and_transport_reads() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+// ---- B2 (B2-C CONTRACT with REVISION_01 and REVISION_02): combinations ----
+
+/// The committed W-CB3 combination successor documents (B2-P's live successors):
+/// `(source, invocation)` for a mode.
+fn b2_w_cb3(mode: &str) -> (Value, Value) {
+    let text = match mode {
+        "sparse_interactive" => include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
+        _ => include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
+    };
+    let doc: Value = serde_json::from_str(text).unwrap();
+    (doc["source"].clone(), doc["invocation"].clone())
+}
+const B2_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
+/// S-6 steps 6 and 7 only: the publication and receipt hashes, leaving every
+/// inner hash as written (REVISION_01 §5.2's inner-hash tests).
+fn b2_reseal(source: &mut Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let mut public = source.clone();
+    public.as_object_mut().unwrap().remove("retained_precision");
+    source["retained_precision"]["body"]["publication_sha256"] =
+        domain_hash("retained_precision_publication_mp_v2", &public).unwrap().into();
+    source["retained_precision"]["receipt_sha256"] =
+        domain_hash("retained_precision_receipt_mp_v2", &source["retained_precision"]["body"]).unwrap().into();
+}
+/// One W-CB3 shape: `edits` on the source, `invocation_edits` on the invocation
+/// (its digest rebound), the full rehash, then `inner` edits resealed by steps 6
+/// and 7 only; the bound first failure, or null when the statement validates.
+fn b2_shape(mode: &str, edits: &[Value], invocation_edits: &[Value], inner: &[Value]) -> Value {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let (mut source, mut invocation) = b2_w_cb3(mode);
+    for e in edits {
+        edit(&mut source, e);
+    }
+    for e in invocation_edits {
+        edit(&mut invocation, e);
+    }
+    if !invocation_edits.is_empty() {
+        source["retained_precision"]["body"]["invocation"]["value"] =
+            domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    }
+    rehash(&mut source);
+    if !inner.is_empty() {
+        for e in inner {
+            edit(&mut source, e);
+        }
+        b2_reseal(&mut source);
+    }
+    observe_validation(rp::validate(&source, Some(&invocation)))
+}
+
+/// B2-P's committed W-CB3 successors (`retained_selected` with one operand
+/// preparation), both modes, are read whole: bound, eligible, with the selected
+/// case's classes then the combination's own G5c classes; unbound and on
+/// transport never eligible; and the 07o rehash (S-6, steps 1-7) is a fixed
+/// point of each.
+#[test]
+fn b2_w_cb3_successors_validate() {
+    for mode in B2_MODES {
+        let (source, invocation) = b2_w_cb3(mode);
+        let got = rp::validate(&source, Some(&invocation)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+        assert!(got.invocation_bound && got.numerical_eligible, "{mode}");
+        let rows = source["results"].as_array().unwrap();
+        let expected: Vec<&Value> = rows
+            .iter()
+            .filter(|r| r["basis_ref"]["ref_id"] == "case:a")
+            .chain(rows.iter().filter(|r| r["basis_ref"]["ref_type"] == "combination"))
+            .map(|r| &r["id"])
+            .collect();
+        assert_eq!(got.classifications.iter().map(|c| Value::from(c.result_id.clone())).collect::<Vec<_>>().iter().collect::<Vec<_>>(), expected, "{mode}");
+        assert!(got.classifications.iter().any(|c| c.basis_ref["ref_type"] == "combination" && c.scale_bits.is_some()), "{mode}: G5c classes the combination's rows");
+        assert!(matches!(rp::validate(&source, None), Ok(v) if !v.numerical_eligible), "{mode}");
+        assert!(matches!(rp::validate_transport_metadata(&source), Ok(v) if !v.numerical_eligible), "{mode}");
+        let mut resealed = source.clone();
+        rehash(&mut resealed);
+        assert_eq!(resealed, source, "{mode}: the 07o rehash reseals the producer's receipt to itself");
+    }
+}
+
+/// B2-C §10.1, every new check by gate, on W-CB3 (both modes): each edit reaches
+/// its gate and code. Rows name CONTRACT §10.3's mutation where one is the
+/// same edit. The `inner` rows are REVISION_01 §5.2's three inner-hash tests:
+/// each inner hash edited and only the publication and receipt hashes resealed.
+#[test]
+fn b2_w_cb3_new_checks_first_failures() {
+    let mut misses = Vec::new();
+    for mode in B2_MODES {
+        b2_w_cb3_rows(mode, &mut misses);
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
+    use serde_json::json;
+    let (source, _) = b2_w_cb3(mode);
+    let body = &source["retained_precision"]["body"];
+    let result_ids = body["combinations"][0]["result_ids"].as_array().unwrap().clone();
+    let diagnostics = source["diagnostics"].as_array().unwrap();
+    let selected_diagnostic = diagnostics.iter().position(|d| d["id"] == "diagnostic:retained-precision:combination:ab:selected").unwrap();
+    let combination_row = source["results"].as_array().unwrap().iter().position(|r| r["basis_ref"]["ref_type"] == "combination").unwrap();
+    let mut swapped_attempts = body["product_attempts"].clone();
+    swapped_attempts.as_array_mut().unwrap().swap(0, 1);
+    swapped_attempts[0]["id"] = json!(0);
+    swapped_attempts[1]["id"] = json!(1);
+    let mut duplicated = body["operand_preparations"].as_array().unwrap().clone();
+    let mut copy = duplicated[0].clone();
+    copy["id"] = json!(1);
+    duplicated.push(copy);
+    // m68: the operand-prepared CaseSource moved after the CombinationSource.
+    let mut moved = body["sources"].as_array().unwrap().clone();
+    let combination_source = moved.remove(2);
+    moved.insert(1, combination_source);
+    moved[1]["index"] = json!(1);
+    moved[2]["index"] = json!(2);
+    moved[1]["operands"][1]["source_ref"] = json!(2);
+    // m20: the combination renamed to case A's id throughout (entry, evidence, rows,
+    // diagnostics, its CombinationSource's owner).
+    let mut renamed = vec![
+        set(rb(json!(["combinations", 0, "basis_ref", "ref_id"])), json!("case:a")),
+        set(json!(["contract_evidence", "combination_gates", 0, "combination_id"]), json!("case:a")),
+        set(rb(json!(["sources", 2, "owner", "combination_id"])), json!("case:a")),
+    ];
+    for (i, r) in source["results"].as_array().unwrap().iter().enumerate() {
+        if r["basis_ref"]["ref_type"] == "combination" {
+            renamed.push(set(json!(["results", i, "basis_ref", "ref_id"]), json!("case:a")));
+        }
+    }
+    for (i, d) in diagnostics.iter().enumerate() {
+        if d["affected_refs"] == json!(["combination:ab"]) {
+            renamed.push(set(json!(["diagnostics", i, "affected_refs"]), json!(["case:a"])));
+        }
+    }
+    let swapped_operands = json!([body["calls"][1]["requested_operands"][1], body["calls"][1]["requested_operands"][0]]);
+    let factor = |v: &str| json!(v);
+    let wf = gate("G5", "RETAINED_PRECISION_WORK_MISMATCH");
+    let rows: Vec<(&str, Vec<Value>, Vec<Value>, Vec<Value>, Value)> = vec![
+        ("control", vec![], vec![], vec![], Value::Null),
+        // G1: the three inner hashes (S-6 steps 2, 4, 5).
+        ("inner: the operand-prepared CaseSource's preparation hash", vec![], vec![], vec![set(rb(json!(["sources", 1, "preparation", "sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("inner: a CombinationSource operand's identity", vec![], vec![], vec![set(rb(json!(["sources", 2, "operands", 1, "source_identity_sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("inner: the combination's identity", vec![], vec![], vec![set(rb(json!(["combinations", 0, "source_identity_sha256"])), json!("0".repeat(64)))], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m8 a case attempt carries DEF-C's id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::COMBINATION_DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m9 the combination attempt carries DEF-O's id", vec![set(rb(json!(["product_attempts", 1, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m65 the operand preparation carries DEF-C's id", vec![set(rb(json!(["operand_preparations", 0, "definition_id"])), json!(rp::COMBINATION_DEFINITION_ID))], vec![], vec![], gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")),
+        ("m1 the combination attempt's id unknown", vec![set(rb(json!(["product_attempts", 1, "definition_id"])), json!("RP-UNKNOWN"))], vec![], vec![], gate("G0", UNSUPPORTED)),
+        ("m2 the operand preparation's id unknown", vec![set(rb(json!(["operand_preparations", 0, "definition_id"])), json!("RP-UNKNOWN"))], vec![], vec![], gate("G0", UNSUPPORTED)),
+        // G2.
+        ("m16 a term's factor in uppercase hex", vec![set(rb(json!(["combinations", 0, "expression", "terms", 0, "factor"])), factor("3FF0000000000000"))], vec![], vec![], gate("G2", "RETAINED_PRECISION_ENCODING_MISMATCH")),
+        ("m17 a requested operand's factor NaN", vec![set(rb(json!(["calls", 1, "requested_operands", 0, "factor"])), factor("7ff8000000000000"))], vec![], vec![], gate("G2", "RETAINED_PRECISION_ENCODING_MISMATCH")),
+        // G3.
+        ("(a) the gate entry names another combination", vec![set(json!(["contract_evidence", "combination_gates", 0, "combination_id"]), json!("combination:other"))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(b) m20 the combination renamed to a case id throughout", renamed, vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m21 result_ids loses a row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids[..result_ids.len() - 1]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m22 result_ids gains a case row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!([result_ids.clone(), vec![source["results"][0]["id"].clone()]].concat()))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) m23 two result_ids swapped", vec![set(rb(json!(["combinations", 0, "result_ids", 0])), result_ids[1].clone()), set(rb(json!(["combinations", 0, "result_ids", 1])), result_ids[0].clone())], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) a combination row naming no entry", vec![set(json!(["results", combination_row, "basis_ref", "ref_id"]), json!("combination:other"))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(e) m26 the combination attempt before the case attempt", vec![set(rb(json!(["product_attempts"])), swapped_attempts), set(rb(json!(["cases", 0, "product_attempt_ref"])), json!(1)), set(rb(json!(["combinations", 0, "product_attempt_ref"])), json!(0)), set(rb(json!(["sources", 0, "preparation", "attempt_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(f) m24 execution_order loses the combination Run", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(f) m25 the combination's execution index changed", vec![set(rb(json!(["work", "execution_order", 1, "index"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d) m27 the operand preparation's owner is the selected case", vec![set(rb(json!(["operand_preparations", 0, "owner_ref", "index"])), json!(0))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d) requested_by names no combination", vec![set(rb(json!(["operand_preparations", 0, "requested_by"])), json!([1]))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(d, h) m30 the operand preparation duplicated", vec![set(rb(json!(["operand_preparations"])), json!(duplicated))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(g) the combination names the operand-prepared CaseSource", vec![set(rb(json!(["combinations", 0, "source_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(i) m68 the operand-prepared CaseSource after the CombinationSource", vec![
+            set(rb(json!(["sources"])), json!(moved)),
+            set(rb(json!(["operand_preparations", 0, "source_ref"])), json!(2)),
+            set(rb(json!(["combinations", 0, "source_ref"])), json!(1)),
+            set(rb(json!(["combinations", 0, "run", "origin", "source_ref"])), json!(1)),
+            set(rb(json!(["product_attempts", 1, "source_ref"])), json!(1)),
+            set(rb(json!(["calls", 1, "source_refs"])), json!([1])),
+            set(rb(json!(["calls", 1, "requested_operands", 1, "source_ref"])), json!(2)),
+            set(rb(json!(["groups", 1, "first_source_ref"])), json!(1)),
+            set(rb(json!(["groups", 1, "source_refs"])), json!([1])),
+        ], vec![], vec![], gate("G3", COVERAGE)),
+        // G4.
+        ("m31 the combination's selected diagnostic removed", vec![remove(json!(["diagnostics", selected_diagnostic]))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        ("m34 its affected_refs name the combination and a case", vec![set(json!(["diagnostics", selected_diagnostic, "affected_refs"]), json!(["combination:ab", "case:a"]))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        ("an unavailable diagnostic for the selected combination", vec![set(json!(["diagnostics", selected_diagnostic, "code"]), json!("RETAINED_PRECISION_UNAVAILABLE"))], vec![], vec![], gate("G4", "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH")),
+        // G5, ordinary class.
+        ("disposition: the gate entry withheld", vec![set(json!(["contract_evidence", "combination_gates", 0, "withheld"]), json!(true)), set(json!(["contract_evidence", "combination_gates", 0, "reason"]), json!("NONLINEAR_COMBINATION_REQUIRES_SOLVE"))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("D6a: the combination's diagnostic_refs emptied", vec![set(rb(json!(["combinations", 0, "diagnostic_refs"])), json!([]))], vec![], vec![], gate("G5", ATTEMPT)),
+        // G5, native class.
+        ("m38 requested_operands swapped", vec![set(rb(json!(["calls", 1, "requested_operands"])), swapped_operands)], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m39 representative_source_ref -> operand 1's", vec![set(rb(json!(["sources", 2, "representative_source_ref"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m40 operands[0].case_index -> the other case", vec![set(rb(json!(["sources", 2, "operands", 0, "case_index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m45 an import from the prepared operand", vec![set(rb(json!(["groups", 1, "imports", 0, "operand_index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m42 the combination group's imports removed", vec![remove(rb(json!(["groups", 1, "imports"])))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the mechanics Call names another combination", vec![set(rb(json!(["calls", 1, "owner_refs", 0, "index"])), json!(1))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("the ledger hash differs from the Selection's", vec![set(rb(json!(["sources", 2, "ledger_sha256"])), json!("0".repeat(64)))], vec![], vec![], gate("G5", ATTEMPT)),
+        ("m43 the combination Call's before is not the batch's after", vec![set(rb(json!(["calls", 1, "invocation_before"])), json!(body["calls"][1]["invocation_before"].as_u64().unwrap() + 1))], vec![], vec![], wf.clone()),
+        ("m44 charged is the batch Call's after", vec![set(rb(json!(["work", "charged"])), body["calls"][0]["invocation_after"].clone())], vec![], vec![], wf.clone()),
+        // G5, products.
+        ("the combination attempt's native failed beside a selected Run", vec![set(rb(json!(["product_attempts", 1, "stages", "native"])), json!("failed"))], vec![], vec![], gate("G5", PRODUCT)),
+        ("m51 the operand preparation failed while prepared", vec![set(rb(json!(["operand_preparations", 0, "stage"])), json!("failed"))], vec![], vec![], gate("G5", PRODUCT)),
+        // G5a-G5c on the combination owner.
+        ("G5a: the combination's floor ratio", vec![set(rb(json!(["combinations", 0, "selection", "floor_ratio"])), json!("3dd0000000000001"))], vec![], vec![], gate("G5a", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("m55 a combination row listed not_covered", vec![set(rb(json!(["combinations", 0, "selection", "not_covered"])), json!([result_ids[1].clone()]))], vec![], vec![], gate("G5c", "RETAINED_PRECISION_CLASSIFICATION_MISMATCH")),
+        // G6.
+        ("m57 recovery_method removed from a combination row", vec![remove(json!(["results", combination_row, "recovery_method"]))], vec![], vec![], gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH")),
+        // G8, invocation.
+        ("a model combination's factor 2", vec![], vec![set(json!(["request", "model", "combinations", 0, "terms", 1, "factor"]), json!(2.0))], vec![], gate("G8", INVOCATION)),
+        ("the model's combination renamed", vec![], vec![set(json!(["request", "model", "combinations", 0, "id"]), json!("combination:other"))], vec![], gate("G8", INVOCATION)),
+        ("the model's combinations removed", vec![], vec![remove(json!(["request", "model", "combinations"]))], vec![], gate("G8", INVOCATION)),
+        ("the model's combination a subtraction", vec![], vec![set(json!(["request", "model", "combinations", 0]), json!({"id": "combination:ab", "basis": "result_state_subtraction", "minuend_id": "case:a", "subtrahend_id": "case:b"}))], vec![], gate("G8", INVOCATION)),
+        // G8, preparation.
+        ("m62 kernel_source_sha256 replaced", vec![set(rb(json!(["sources", 2, "kernel_source_sha256"])), json!("0".repeat(64)))], vec![], vec![], gate("G8", PREP)),
+        ("m63 the operand CaseSource's effective wall", vec![set(rb(json!(["sources", 1, "section_terms", 0, "geometry", "effective_wall"])), json!("3f847ae147ae147c"))], vec![], vec![], gate("G8", PREP)),
+        ("m64 the operand preparation's old D", vec![set(rb(json!(["operand_preparations", 0, "preparation", "members", 0, "old_facts", 0])), json!("3fc999999999999b"))], vec![], vec![], gate("G8", PREP)),
+        ("the combination attempt's material basis", vec![set(rb(json!(["product_attempts", 1, "material_basis_ref"])), json!(1))], vec![], vec![], gate("G8", PREP)),
+    ];
+    for (name, edits, invocation_edits, inner, want) in &rows {
+        let got = b2_shape(mode, edits, invocation_edits, inner);
+        println!("B2_RS_SHAPE {mode} {name}: {got}");
+        if got != *want {
+            misses.push(format!("{mode} {name}: got {got}, want {want}"));
+        }
+    }
+}
+
+/// B2-C §4's reason table for a `retained_unavailable` combination with an
+/// attempt, by the attempt's own error (reader logic).
+#[test]
+fn b2_combination_reason_table_rows() {
+    use serde_json::json;
+    let entry = |code: &str, phase: &str, terminal: &str| json!({"reason": {"code": code, "phase": phase}, "run": {"id": 1, "kernel_terminal": {"kind": terminal}}});
+    let attempt = |error: Value| json!({"result": {"kind": "unavailable", "error": error}, "proof": {"checks": {"observables": {"kind": "failed", "error": {"kind": "observable", "cause": {"kind": "x"}}}}}});
+    let ok = |e: Value, a: Value| rp::reader_logic::combination_reason_table(&e, &a).is_ok();
+    assert!(ok(entry("combination_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 1}))));
+    assert!(!ok(entry("combination_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 0}))), "native names its Run");
+    assert!(!ok(entry("combination_unresolved", "kernel", "selected"), attempt(json!({"kind": "native", "run_ref": 1}))), "native with a selected Run");
+    assert!(!ok(entry("kernel_unresolved", "kernel", "unresolved"), attempt(json!({"kind": "native", "run_ref": 1}))), "m53: a case code");
+    assert!(ok(entry("combination_unresolved", "kernel", "refused"), attempt(json!({"kind": "capture", "cause": {"kind": "x"}}))));
+    assert!(ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "capture", "cause": {"kind": "x"}}))));
+    assert!(ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "observable", "cause": {"kind": "x"}}))));
+    assert!(!ok(entry("facade_certificate", "facade", "selected"), attempt(json!({"kind": "observable", "cause": {"kind": "y"}}))), "the observables check's error");
+    assert!(!ok(entry("facade_certificate", "facade", "unresolved"), attempt(json!({"kind": "proof", "cause": {}}))), "a facade error needs a selected Run");
+    assert!(!ok(entry("facade_certificate", "kernel", "selected"), attempt(json!({"kind": "proof", "cause": {}}))));
+    assert!(!ok(entry("combination_unresolved", "preparation", "unresolved"), attempt(json!({"kind": "preparation"}))), "a preparation error is refused");
+}
+
+/// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause (reader
+/// logic, on a two-case body: A selected, B as the row states).
+#[test]
+fn b2_combination_cause_rows() {
+    use serde_json::json;
+    let body = |b: Value, cause: Value, refs: Value, ops: Value, call: Value| {
+        let mut body = json!({
+            "cases": [{"basis_ref": {"ref_id": "case:a"}, "status": "selected", "source_ref": 0},
+                      {"basis_ref": {"ref_id": "case:b"}, "status": b["status"], "source_ref": b["source_ref"], "run": b["run"]}],
+            "combinations": [{"disposition": "retained_unavailable", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}, {"case_id": "case:b"}]},
+                "reason": {"code": "combination_unresolved", "phase": "preparation", "cause": cause}}],
+            "calls": [{}, call]});
+        for (k, v) in refs.as_object().unwrap() {
+            body["combinations"][0][k] = v.clone();
+        }
+        if !ops.is_null() {
+            body["operand_preparations"] = ops;
+        }
+        body
+    };
+    let none = json!({"call_ref": null, "run": null, "source_ref": null, "product_attempt_ref": null});
+    let unsourced = json!({"status": "unavailable", "source_ref": null, "run": null});
+    let ledger = json!({"status": "unavailable", "source_ref": 1, "run": {"kernel_terminal": {"kind": "refused", "reason": {"tag": "ledger_unavailable"}}}});
+    let rebuilt = json!({"status": "unavailable", "source_ref": 1, "run": {"kernel_terminal": {"kind": "unresolved", "reason": {"tag": "ceiling"}}}});
+    let not_required = json!({"status": "not_required", "source_ref": null, "run": null});
+    let refused = json!([{"owner_ref": {"index": 1}, "result": {"kind": "refused"}}]);
+    let prepared = json!([{"owner_ref": {"index": 1}, "result": {"kind": "prepared"}}]);
+    let osu = |i: u64| json!({"kind": "operand_source_unavailable", "operand_index": i});
+    let opf = json!({"kind": "operand_preparation_failure", "operand_preparation_ref": 0});
+    let reason = json!({"space": "combination", "tag": "operands_differ"});
+    let pre = json!({"result": {"kind": "pre_source_refusal", "reason": reason}});
+    let with_call = json!({"call_ref": 1, "run": null, "source_ref": null, "product_attempt_ref": null});
+    let rows: Vec<(&str, Value, bool)> = vec![
+        ("OSU at the unsourced term", body(unsourced.clone(), osu(1), none.clone(), Value::Null, json!({})), true),
+        ("OSU at the ledger-refused term", body(ledger.clone(), osu(1), none.clone(), Value::Null, json!({})), true),
+        ("m49 OSU naming the selected term", body(unsourced.clone(), osu(0), none.clone(), Value::Null, json!({})), false),
+        ("OSU at a rebuilt (unavailable, sourced) term", body(rebuilt, osu(1), none.clone(), Value::Null, json!({})), false),
+        ("OSU with a Call", body(unsourced.clone(), osu(1), with_call.clone(), Value::Null, json!({})), false),
+        ("OPF at the refused record", body(not_required.clone(), opf.clone(), none.clone(), refused.clone(), json!({})), true),
+        ("OPF at a prepared record", body(not_required.clone(), opf.clone(), none.clone(), prepared, json!({})), false),
+        ("OPF where a term is unsourced", body(unsourced.clone(), opf.clone(), none.clone(), refused.clone(), json!({})), false),
+        ("m48 a CombinationReason with no Call", body(not_required.clone(), reason.clone(), none.clone(), refused.clone(), json!({})), false),
+        ("a CombinationReason with its pre-source Call", body(not_required.clone(), reason.clone(), with_call.clone(), Value::Null, pre.clone()), true),
+        ("a CombinationReason not the Call's", body(not_required.clone(), json!({"space": "combination", "tag": "no_operands"}), with_call.clone(), Value::Null, pre.clone()), false),
+        ("a no-Call cause in phase kernel", {
+            let mut b = body(unsourced.clone(), osu(1), none.clone(), Value::Null, json!({}));
+            b["combinations"][0]["reason"]["phase"] = json!("kernel");
+            b
+        }, false),
+    ];
+    for (name, b, want) in rows {
+        assert_eq!(rp::reader_logic::combination_causes(&b).is_ok(), want, "{name}");
+    }
+}
+
+/// R-COMB-1 (R) (B2-C §5; REVISION_01 §2, S-3; REVISION_02 §4.1): after the G5c
+/// classes, every row of a `retained_unavailable` combination, and of an
+/// `ordinary` one naming a case that is not `not_required`, in authored and then
+/// publication order: quantity rows `not_covered`, record rows `non_quantity`,
+/// `normalized_bits` from the value, `scale_bits` null. An `ordinary` combination
+/// over `not_required` cases only, and a `retained_selected` or `base_withheld`
+/// one, append nothing (reader logic).
+#[test]
+fn b2_r_comb_1_appended_classes() {
+    use serde_json::json;
+    let row = |id: &str, combination: &str, kind: &str, unit: &str, value: f64| json!({"id": id, "basis_ref": {"ref_type": "combination", "ref_id": combination}, "kind": kind, "unit": unit, "value": value});
+    let source = json!({
+        "results": [
+            row("r:sub:1", "combination:sub", "global_nodal_displacement_x", "mm", 2.0),
+            row("r:2b:1", "combination:2b", "global_nodal_displacement_x", "mm", 3.0),
+            row("r:unavailable:1", "combination:unavailable", "element_local_axial_force", "kN", -1.5),
+            row("r:sub:record", "combination:sub", "combination_modulus_basis_record", "1", 1.0),
+            row("r:selected:1", "combination:selected", "global_nodal_displacement_x", "mm", 1.0),
+        ],
+        "retained_precision": {"body": {
+            "cases": [{"basis_ref": {"ref_id": "case:a"}, "status": "selected"}, {"basis_ref": {"ref_id": "case:b"}, "status": "not_required"}],
+            "combinations": [
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:sub"}, "disposition": "ordinary", "expression": {"kind": "result_state_subtraction", "minuend_id": "case:a", "subtrahend_id": "case:b"}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:2b"}, "disposition": "ordinary", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:b"}]}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:unavailable"}, "disposition": "retained_unavailable", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}, {"case_id": "case:b"}]}},
+                {"basis_ref": {"ref_type": "combination", "ref_id": "combination:selected"}, "disposition": "retained_selected", "expression": {"kind": "mechanics", "terms": [{"case_id": "case:a"}]}},
+            ]}}});
+    let got: Vec<(String, u64, Option<u64>, rp::AccuracyClass)> = rp::reader_logic::r_comb_1(&source)
+        .into_iter()
+        .map(|c| (c.result_id, c.normalized_bits, c.scale_bits, c.class))
+        .collect();
+    assert_eq!(got, vec![
+        ("r:sub:1".to_owned(), 0.002f64.to_bits(), None, rp::AccuracyClass::NotCovered),
+        ("r:sub:record".to_owned(), 1.0f64.to_bits(), None, rp::AccuracyClass::NonQuantity),
+        ("r:unavailable:1".to_owned(), (-1500.0f64).to_bits(), None, rp::AccuracyClass::NotCovered),
+    ]);
+}
+
+/// PR-B2 N-1 (the shared negative-value refusal): an extremum's
+/// `global_upper_bound_pa` or `certified_gap_pa` below zero fails exactly where
+/// a non-number fails today: on transport at G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID
+/// ("extrema numbers"), and bound or unbound in the base reader at G7
+/// SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID. +0 and -0 are accepted; no zero refusal.
+#[test]
+fn n1_negative_extrema_numbers_refused_zero_accepted() {
+    use serde_json::json;
+    let shared = corpus();
+    let path = |k: &str| json!(["contract_evidence", "preview_cases", 0, "pipe_stress_extrema", 0, k]);
+    let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == ORD).unwrap();
+    for k in ["global_upper_bound_pa", "certified_gap_pa"] {
+        for (value, want) in [
+            (json!(-1.0), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!(-5e-324), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!("1"), Some(("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"))),
+            (json!(0.0), None),
+            (json!(-0.0), None),
+        ] {
+            let mut source = case["source"].clone();
+            edit(&mut source, &set(path(k), value.clone()));
+            rehash(&mut source);
+            let transport = rp::validate_transport_metadata(&source);
+            let bound = rp::validate(&source, Some(&case["invocation"]));
+            let unbound = rp::validate(&source, None);
+            match want {
+                Some((metadata, base)) => {
+                    let t = transport.unwrap_err();
+                    assert_eq!((t.gate, t.code.as_str(), t.detail.as_deref()), ("G7", metadata, Some(format!("{metadata}: extrema numbers").as_str())), "{k} {value}");
+                    for e in [bound.unwrap_err(), unbound.unwrap_err()] {
+                        assert_eq!((e.gate, e.code.as_str()), ("G7", base), "{k} {value}");
+                    }
+                }
+                None => {
+                    assert!(transport.is_ok() && bound.is_ok() && unbound.is_ok(), "{k} {value}: zero is accepted");
+                }
+            }
+        }
+    }
 }
