@@ -15,7 +15,8 @@ FAMILIES = {
     'canonical': ['tests/test_*canonical_json_adapter.py'],
 }
 BROAD = BASE + ['tests/product_preview', 'tests/test_operation_validation_preview.py',
-                'tests/test_analytical_solver_boundary_adapter.py'] + sum(FAMILIES.values(), [])
+                'tests/test_analytical_solver_boundary_adapter.py',
+                'tests/test_physical_to_analytical_transform.py'] + sum(FAMILIES.values(), [])
 
 
 def select(project, plan):
@@ -29,6 +30,11 @@ def select(project, plan):
                 patterns.extend(BROAD)
                 break
             local = path[len(PREFIX):]
+            if local.startswith('core/model_transform/'):
+                patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',
+                                 'tests/test_physical_to_analytical_transform.py'])
+            if local.startswith('core/model_operations/validation_preview/'):
+                patterns.append('tests/test_operation_validation_preview.py')
             # Run an edited test itself, in addition to its affected family.
             if local.startswith('tests/') and Path(local).name.startswith('test_') and local.endswith('.py') and (project / local).is_file():
                 patterns.append(local)

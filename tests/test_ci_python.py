@@ -28,3 +28,16 @@ def test_unrelated_security_change_does_not_expand_to_full_suite():
 def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
     assert 'tests/product_preview' in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert 'tests/product_preview' in selected('tools/ci/python_ci.py')
+
+
+def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
+    base = set(ci.BASE)
+    assert set(selected('core/model_transform/physical_to_analytical/_solver_boundary_adapter.py')) == base | {
+        'tests/test_analytical_solver_boundary_adapter.py',
+        'tests/test_physical_to_analytical_transform.py',
+    }
+    assert set(selected('core/model_operations/validation_preview/engine.py')) == base | {
+        'tests/test_operation_validation_preview.py',
+    }
+    assert selected('core/gui/pkg02_boundary.py') == sorted(base)
+    assert selected('core/units/schema_vocabulary.py') == sorted(base)
