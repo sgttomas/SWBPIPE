@@ -1654,7 +1654,8 @@ fn formation_source(
                 node_j: m.node_j.index,
                 coordinates_i: m.node_i.coordinates,
                 coordinates_j: m.node_j.coordinates,
-                center: m.center,
+                radius: m.radius,
+                y_reference: m.y_reference,
                 elastic_modulus: m.elastic_modulus,
                 shear_modulus: m.shear_modulus,
                 area: m.area,
@@ -1803,7 +1804,8 @@ fn force_scaled_formation_source(
                 node_j: m.node_j.index,
                 coordinates_i: m.node_i.coordinates,
                 coordinates_j: m.node_j.coordinates,
-                center: m.center,
+                radius: m.radius,
+                y_reference: m.y_reference,
                 elastic_modulus,
                 shear_modulus,
                 area: m.area,
@@ -2109,12 +2111,9 @@ pub fn curved_formation(
         .orientation()
         .map_err(invalid)?
         .transformation_matrix();
-    let geometry = element.geometry().map_err(invalid)?;
-    let chord = [
-        geometry.radius * (geometry.included_angle.cos() - 1.0),
-        geometry.radius * geometry.included_angle.sin(),
-        0.0,
-    ];
+    // H over the element's actual chord in its local frame, (−sL, cL, 0)
+    // (T4-U1): the same chord `local_stiffness` assembles with.
+    let chord = element.geometry().map_err(invalid)?.chord_local;
     let mut h = [[0.0; 6]; 6];
     for i in 0..6 {
         h[i][i] = 1.0;

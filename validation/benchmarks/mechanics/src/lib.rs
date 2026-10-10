@@ -3345,7 +3345,9 @@ fn expansion_loop_global_stiffness(
     let bend = CurvedBendMacroElement::new(
         nodes[1],
         nodes[2],
-        [EXPANSION_LOOP_BEND_RADIUS, EXPANSION_LOOP_LEG1_LENGTH, 0.0],
+        // Quarter arc about (R, leg 1, 0), bowing toward (-1, 1, 0).
+        EXPANSION_LOOP_BEND_RADIUS,
+        [-1.0, 1.0, 0.0],
         EXPANSION_LOOP_ELASTIC_MODULUS,
         EXPANSION_LOOP_SHEAR_MODULUS,
         boosted_area,
@@ -3650,7 +3652,9 @@ fn cbdfe_element(flexibility_factor: f64) -> Result<CurvedBendMacroElement, Stri
     CurvedBendMacroElement::new(
         node_a,
         node_b,
-        [0.0, 0.0, 0.0],
+        // Quarter arc about the origin, bowing toward (1, 1, 0).
+        radius,
+        [1.0, 1.0, 0.0],
         CBDFE_ELASTIC_MODULUS,
         CBDFE_SHEAR_MODULUS,
         area,

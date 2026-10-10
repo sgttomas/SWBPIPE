@@ -87,6 +87,13 @@ const SOURCES: &[Source] = &[
         name: "CB/lib.rs",
         text: include_str!("../../curved_bend/src/lib.rs"),
     },
+    // T4-U1 (T4-RV12 N-1, a declared extension): CB's stable small-angle
+    // series (stiffness formation). Its Horner and power updates are not a
+    // counted shape today; a later fold there changes a count here.
+    Source {
+        name: "CB/arc_integrals.rs",
+        text: include_str!("../../curved_bend/src/arc_integrals.rs"),
+    },
     Source {
         name: "load_case_algebra/lib.rs",
         text: include_str!("../../../loads/load_case_algebra/src/lib.rs"),
@@ -95,6 +102,12 @@ const SOURCES: &[Source] = &[
     Source {
         name: "FK/structural/formation_check.rs",
         text: include_str!("../src/structural/formation_check.rs"),
+    },
+    // T4-U1b (declared additive extension; DESIGN_R01 §4.5, O-11): the arc
+    // load certificate.
+    Source {
+        name: "FK/structural/arc_certificate.rs",
+        text: include_str!("../src/structural/arc_certificate.rs"),
     },
     Source {
         name: "FK/structural/retained/work.rs",
@@ -279,15 +292,33 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "exempt: one source's consistent equivalent (section 2.2 declared formation)"),
     ("CB/lib.rs", "cross_quad", 1, "exempt: flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "exempt: formed rotation"),
-    ("CB/lib.rs", "quad", 1, "exempt: flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "multiply6", 1, "exempt: stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "exempt: stiffness formation"),
+    ("CB/lib.rs", "flexibility_scale", 1, "exempt: max fold of the flexibility diagonal (one exact power-of-two scale; T4-U1)"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11 terms API: exact sum of single-input section values"),
     // ---- load_case_algebra
     ("load_case_algebra/lib.rs", "evaluate_linear_combination", 1, "E13: the binary64 fold is kept only as today's non-finite value; the published value is the exact sum of exact products"),
     // ---- FK/structural/formation_check.rs (K-D5; its residual rho is one
     // ExactAccumulator sum per free row, so the check has no load fold)
     ("FK/structural/formation_check.rs", "pow2", 1, "integer: exponent step"),
+    // ---- T4-U1b (declared additive extension, O-11): the arc load certificate
+    ("FK/structural/arc_certificate.rs", "certify_curved_uniform_load", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "invert_verified", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "gauss_jordan", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "finish_component", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "quad", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "dot", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "energy", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "operand_bound", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "add_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "add_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "sub_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "mul_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "mul_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "div_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "abs_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "abs_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "u_term", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
     // ---- K2b (ROOT's K2b ruling 5: declared, additive; no row above changes).
     // The force-scaled load and publication sites sum through ExactAccumulator.
     ("FK/load_ledger.rs", "force_scaled", 0, "K2b: the ledger's terms times 2^b, exactly; each DOF's net one exact sum, rounded once (as finish)"),

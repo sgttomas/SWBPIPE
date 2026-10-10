@@ -144,7 +144,9 @@ pub(crate) enum ExactFamily {
 }
 
 impl ExactFamily {
-    /// The family as named in diagnostics.
+    /// The family as named in diagnostics (the head of its v3 refusal,
+    /// [`ExactFamily::v3_refusal`]; pinned by this module's tests).
+    #[cfg(test)]
     pub(crate) const fn name(self) -> &'static str {
         match self {
             ExactFamily::RealizedBend => "realized curved bend (curved_bend_macro_element)",
@@ -168,6 +170,7 @@ impl ExactFamily {
     }
 
     /// A family-specific clause appended to the v3 refusal, where one helps.
+    #[cfg(test)]
     const fn note(self) -> &'static str {
         match self {
             ExactFamily::GeometryOnlyBend => {
@@ -179,15 +182,70 @@ impl ExactFamily {
             _ => "",
         }
     }
+
+    /// The v3 refusal, `"{name} is not yet admitted under 3.0.0/exact_pressure_v3;
+    /// the exact route refuses it rather than analyse it as straight pipe{note}"`,
+    /// held whole as one static text per family: the seam composes no text at
+    /// run time (T3 O-10), and the tests pin each text to its name and note.
+    const fn v3_refusal(self) -> &'static str {
+        match self {
+            ExactFamily::RealizedBend => {
+                "realized curved bend (curved_bend_macro_element) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::GeometryOnlyBend => {
+                "geometry-only bend (a straight chord with no flexibility) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe; geometry-only bends never carry pressure on the exact route (D-2) and remain on the pressure-free route"
+            }
+            ExactFamily::Valve => {
+                "valve is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::Flange => {
+                "flange is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::Reducer => {
+                "reducer is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::Branch => {
+                "branch connection (tee) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::RigidComponent => {
+                "rigid or specialty component is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::ObjectiveConnector => {
+                "objective connector is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::ExpansionJointAnnotation => {
+                "expansion joint (annotation only, not_solver_consumed) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe; annotation-only joints are analysed as pipe on the pressure-free route only"
+            }
+            ExactFamily::ExpansionJointLegacy => {
+                "legacy expansion joint is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::OtherComponent => {
+                "component is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::NonlinearSupport => {
+                "nonlinear support is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::ConstantEffortSupport => {
+                "constant-effort support is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::Combination => {
+                "load combination is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+            ExactFamily::EquivalentStatic => {
+                "equivalent-static generation is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+            }
+        }
+    }
 }
 
 /// The table's verdict for one family under one contract.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
     /// realized bend.
     Admitted,
-    Refused { code: &'static str, message: String },
+    /// A refusal's code and text, both static (no text is composed here).
+    Refused { code: &'static str, message: &'static str },
 }
 
 /// The admission table. Under v2 it reproduces v2's existing codes and texts
@@ -199,15 +257,11 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         (ExactContract::PressureV3, ExactFamily::ObjectiveConnector) => Admission::Admitted,
         (ExactContract::StraightV2, _) => {
             let (code, message) = straight_v2_refusal(family);
-            Admission::Refused { code, message: message.to_string() }
+            Admission::Refused { code, message }
         }
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
-            message: format!(
-                "{} is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe{}",
-                family.name(),
-                family.note()
-            ),
+            message: family.v3_refusal(),
         },
     }
 }
@@ -309,6 +363,16 @@ mod tests {
                     assert_eq!(code, FAMILY_NOT_ADMITTED);
                     assert!(message.starts_with(family.name()), "{message}");
                     assert!(message.contains("not yet admitted under 3.0.0/exact_pressure_v3"));
+                    // The static text is exactly the composed one (T4-U2a's
+                    // original `format!`), so the bytes are unchanged.
+                    assert_eq!(
+                        message,
+                        format!(
+                            "{} is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe{}",
+                            family.name(),
+                            family.note()
+                        )
+                    );
                 }
                 Admission::Admitted => panic!("{family:?} admitted before its unit"),
             }

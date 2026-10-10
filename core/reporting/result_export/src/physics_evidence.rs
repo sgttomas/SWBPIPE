@@ -385,10 +385,7 @@ fn physical_row(
 /// Strict direct-case admission. Combination operands and source-block recovery
 /// require their own semantic contract; no name or accuracy label enables them.
 pub fn validate_physics_evidence(source: &Value) -> Check {
-    validate_physics_evidence_in(source, false)
-}
-pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> Check {
-    validate_physics_evidence_for(source, composite, PressureContract::StraightV2)
+    validate_physics_evidence_in(source, false, PressureContract::StraightV2)
 }
 /// T4-U2a: the `pressure-1` raw reader (`3.0.0/exact_pressure_v3`). A 0.4.0
 /// envelope carries `load_reference_states` and takes the load/reference
@@ -401,10 +398,12 @@ pub fn validate_pressure_evidence(source: &Value) -> Check {
     {
         crate::load_reference::validate_pressure_load_reference_evidence(source)
     } else {
-        validate_physics_evidence_for(source, false, PressureContract::PressureV3)
+        validate_physics_evidence_in(source, false, PressureContract::PressureV3)
     }
 }
-pub(crate) fn validate_physics_evidence_for(
+/// The physics checks under one exact pressure contract (composite readers:
+/// v2 only).
+pub(crate) fn validate_physics_evidence_in(
     source: &Value,
     composite: bool,
     contract: PressureContract,

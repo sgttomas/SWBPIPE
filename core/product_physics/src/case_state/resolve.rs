@@ -603,6 +603,35 @@ fn node_position(model: &PreviewModel, id: &str) -> Option<[f64; 3]> {
         .map(|node| [node.position.x, node.position.y, node.position.z])
 }
 
+/// The natural length a fit refers to (T4-U1; T4-I1 §5.3 #12): the chord
+/// length for a straight member, and the arc length R·φ for the span of a
+/// realized curved bend, with φ from the shared arc definition
+/// (`arc_geometry`, the element's own). A bend whose arc is not admissible
+/// keeps the chord length here; the model build blocks it.
+pub(crate) fn fit_reference_length(
+    model: &PreviewModel,
+    pipe_id: &str,
+    y_reference: Option<crate::Vec3>,
+    from: [f64; 3],
+    to: [f64; 3],
+) -> f64 {
+    let chord = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+    let chord_length = norm3(chord[0], chord[1], chord[2]);
+    let radius = model
+        .components
+        .iter()
+        .filter(|component| crate::is_curved_bend_macro_component(component))
+        .filter_map(|component| component.geometry.as_ref())
+        .find(|geometry| geometry.bend_pipe_ref.as_deref() == Some(pipe_id))
+        .and_then(|geometry| geometry.bend_radius.as_ref().map(|quantity| quantity.value));
+    match (radius, y_reference) {
+        (Some(radius), Some(y)) => crate::arc_geometry(chord, radius, [y.x, y.y, y.z])
+            .map(|arc| radius * arc.included_angle)
+            .unwrap_or(chord_length),
+        _ => chord_length,
+    }
+}
+
 /// Hash of the normalized geometry projection the reference configuration binds.
 pub(crate) fn reference_geometry_sha256(model: &PreviewModel) -> String {
     let projection = json!({
@@ -896,7 +925,7 @@ pub(crate) fn resolve_case(
         ) else {
             continue;
         };
-        let length = norm3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
+        let length = fit_reference_length(model, &pipe.id, pipe.y_reference, from, to);
         let (fit_input, fit_kind, fit_value) = match &reference.fit {
             FitReferenceInput::NoFit {} => (FitInput::None, "none", Value::Null),
             FitReferenceInput::NaturalLengthChange { length_change } => {

@@ -5411,11 +5411,21 @@ mod tests {
     fn invented_curved_bend_macro_element() -> CurvedBendMacroElement {
         let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
         let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
-        let radius = 0.75_f64;
-        let sagitta_offset = (radius * radius - 0.25).sqrt();
-        let center = [0.5, -sagitta_offset, 0.0];
-        CurvedBendMacroElement::new(node_i, node_j, center, 100.0, 40.0, 1.0, 1.0, 1.0, 1.5, 1.5)
-            .unwrap()
+        // The arc bows toward +y (its centre on the −y side of the chord).
+        CurvedBendMacroElement::new(
+            node_i,
+            node_j,
+            0.75,
+            [0.0, 1.0, 0.0],
+            100.0,
+            40.0,
+            1.0,
+            1.0,
+            1.0,
+            1.5,
+            1.5,
+        )
+        .unwrap()
     }
 
     #[test]

@@ -17,7 +17,7 @@ use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub(crate) use super::exact_admission::ExactContract;
-use super::exact_admission::{admission, component_family, support_family, Admission, ExactFamily};
+use super::exact_admission::{self, component_family, support_family, Admission, ExactFamily};
 /// The retired legacy contract: recognized only so that it is refused by name.
 const RETIRED_MODE: &str = "legacy_pressure_v1";
 const RETIRED_VERSION: &str = "1.0.0";
@@ -77,6 +77,18 @@ pub(crate) struct ExactPressurePipeState {
     pub eigenload_pair: [f64; 2],
 }
 
+/// SP-1 (T4-U1): whether the document declares the v2 contract
+/// (`2.0.0/exact_straight_pressure_v2`), whatever its schema version. Such a
+/// document keeps its pre-T4-U1 component diagnostics byte for byte. The
+/// classification is the admission seam's (`ExactContract::from_declared`),
+/// without `ExactContract::of`'s schema-version filter.
+pub(crate) fn declares_exact_straight_v2(model: &PreviewModel) -> bool {
+    model.pressure_contract.as_ref().is_some_and(|contract| {
+        ExactContract::from_declared(contract.version.as_deref(), contract.mode.as_deref())
+            == Some(ExactContract::StraightV2)
+    })
+}
+
 /// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
 /// Both exact contracts (v2 and its v3 successor) take the exact route; the
 /// admission seam (`exact_admission`) decides which families each admits.
@@ -89,20 +101,12 @@ pub(crate) fn exact_contract(model: &PreviewModel) -> Option<ExactContract> {
     ExactContract::of(model)
 }
 
-/// T4-U2a: one exact-route object through the admission seam. Under v2 the
-/// table returns v2's existing code and text; under v3 it names the family.
-fn admit(
+fn problem(
     diagnostics: &mut Vec<Diagnostic>,
-    contract: ExactContract,
-    family: ExactFamily,
+    code: &str,
     refs: &[&str],
+    message: impl Into<String>,
 ) {
-    if let Admission::Refused { code, message } = admission(contract, family) {
-        problem(diagnostics, code, refs, message);
-    }
-}
-
-fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic {
     let mut finding = diag(
         &format!(
             "diagnostic:pressure-runtime:{}:{code}",
@@ -114,39 +118,33 @@ fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic 
         refs.iter().map(|value| value.to_string()).collect(),
     );
     finding.source = Some("core/product_physics/src/pressure_runtime.rs".to_string());
-    finding
+    diagnostics.push(finding);
 }
 
-fn problem(
+/// T4-U0 (A3): the exact route's pressure recovery decision for one member of
+/// an exact pressure region. A region member recovers from its straight
+/// mechanical/thermal end actions (returned). A region member without them (a
+/// realized curved bend) is refused by name through `problem` and `None` is
+/// returned: it is never recovered on its chord. Called only from `lib.rs`'s
+/// `append_exact_pressure_results`, that is, only for a member of an exact
+/// pressure region. Unreachable through the public entry until T4-U2a lifts
+/// the component refusal; the end-to-end wiring test lands with T4-U2a.
+pub(crate) fn exact_member_recovery<'m>(
     diagnostics: &mut Vec<Diagnostic>,
-    code: &str,
-    refs: &[&str],
-    message: impl Into<String>,
-) {
-    diagnostics.push(finding(code, refs, message));
-}
-
-/// T4-U0 (A3): the exact route's pressure recovery decision for one member.
-/// A member outside every region has nothing to recover (`Ok(None)`). A region
-/// member recovers from its straight mechanical/thermal end actions; a region
-/// member without them (a realized curved bend) is refused by name, never
-/// recovered on its chord. Unreachable through the public entry until T4-U2a
-/// lifts the component refusal; the end-to-end wiring test lands with T4-U2a.
-pub(crate) fn exact_member_recovery<'s, 'm>(
     case_id: &str,
     pipe_id: &str,
-    pressure_state: Option<&'s ExactPressurePipeState>,
+    state: &ExactPressurePipeState,
     mechanical: Option<&'m [f64]>,
-) -> Result<Option<(&'s ExactPressurePipeState, &'m [f64])>, Diagnostic> {
-    match (pressure_state, mechanical) {
-        (None, _) => Ok(None),
-        (Some(state), Some(mechanical)) => Ok(Some((state, mechanical))),
-        (Some(state), None) => Err(finding(
+) -> Option<&'m [f64]> {
+    if mechanical.is_none() {
+        problem(
+            diagnostics,
             "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT",
             &[case_id, &state.region_id, pipe_id],
             "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery under 2.0.0/exact_straight_pressure_v2; it is refused, not recovered on its chord",
-        )),
+        );
     }
+    mechanical
 }
 
 /// T4-U0 (A3): whether the exact route computes a member's straight-statics
@@ -244,7 +242,9 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     let exact = contract.is_some();
     if let Some(contract) = contract {
         // T4-U2a: every non-base family goes through the admission seam, in
-        // v2's emission order. Metadata-only fitting records are also
+        // v2's emission order; under v2 the table returns v2's existing code
+        // and text, under v3 it names the family. Each refusal is pushed here
+        // through `problem`, as v2 did. Metadata-only fitting records are also
         // excluded: accepting one as a straight span would misrepresent the
         // explicit composition.
         for component in &model.components {
@@ -252,11 +252,19 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             if super::joint::is_legacy_joint(component) {
                 continue;
             }
-            admit(diagnostics, contract, component_family(component), &[&component.id]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, component_family(component))
+            {
+                problem(diagnostics, code, &[&component.id], message);
+            }
         }
         for support in &model.supports {
             if let Some(family) = support_family(support) {
-                admit(diagnostics, contract, family, &[&support.id]);
+                if let Admission::Refused { code, message } =
+                    exact_admission::admission(contract, family)
+                {
+                    problem(diagnostics, code, &[&support.id], message);
+                }
             }
         }
         check_suffixes(
@@ -280,7 +288,11 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
         );
         for combination in &model.combinations {
-            admit(diagnostics, contract, ExactFamily::Combination, &[&combination.id]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, ExactFamily::Combination)
+            {
+                problem(diagnostics, code, &[&combination.id], message);
+            }
         }
         if v3 {
             super::joint::classify_connectors(model, diagnostics);
@@ -305,7 +317,11 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         }
         let contract = contract.expect("exact cases have a contract");
         if case.equivalent_static.is_some() {
-            admit(diagnostics, contract, ExactFamily::EquivalentStatic, &[&case.id, "equivalent_static"]);
+            if let Admission::Refused { code, message } =
+                exact_admission::admission(contract, ExactFamily::EquivalentStatic)
+            {
+                problem(diagnostics, code, &[&case.id, "equivalent_static"], message);
+            }
         }
         for load in &case.primitive_loads {
             if load.category == "pressure" || load.dimension == "pressure" {
@@ -1444,17 +1460,23 @@ mod tests {
         }
     }
 
-    /// T4-U0 A3 (Option 1): pins the recovery decision only. The call site in
-    /// `lib.rs` is unreachable through the public entry until T4-U2a lifts the
-    /// component refusal; the end-to-end wiring test (no panic, named refusal,
-    /// no maximum row) lands with T4-U2a.
+    /// T4-U0 A3 (Option 1): pins the recovery decision only. Its call site
+    /// (`lib.rs`'s `append_exact_pressure_results`, reached only for a member
+    /// of an exact pressure region) is unreachable through the public entry
+    /// until T4-U2a lifts the component refusal; the end-to-end wiring test (no
+    /// panic, named refusal, no maximum row) lands with T4-U2a.
     #[test]
     fn region_member_without_straight_recovery_is_refused_by_name() {
         let state = pipe_state("region:A");
         let mechanical = [0.0; 12];
         // A curved (realized) bend in a region: no straight mechanical recovery.
-        let refusal = exact_member_recovery("case:A", "pipe:bend", Some(&state), None)
-            .expect_err("a region member without straight recovery is refused");
+        let mut diagnostics = Vec::new();
+        assert!(
+            exact_member_recovery(&mut diagnostics, "case:A", "pipe:bend", &state, None).is_none(),
+            "a region member without straight recovery is not recovered"
+        );
+        assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
+        let refusal = &diagnostics[0];
         assert_eq!(refusal.code, "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT");
         assert_eq!(refusal.severity, "blocking");
         assert_eq!(refusal.affected_refs, ["case:A", "region:A", "pipe:bend"]);
@@ -1467,19 +1489,19 @@ mod tests {
             Some("core/product_physics/src/pressure_runtime.rs")
         );
         assert!(refusal.message.ends_with("it is refused, not recovered on its chord"));
-        // A straight region member recovers from its own mechanical actions.
-        let (recovered, actions) =
-            exact_member_recovery("case:A", "pipe:A", Some(&state), Some(&mechanical))
-                .unwrap()
-                .expect("a straight region member recovers");
-        assert!(std::ptr::eq(recovered, &state));
+        // A straight region member recovers from its own mechanical actions,
+        // with no finding.
+        let mut diagnostics = Vec::new();
+        let actions = exact_member_recovery(
+            &mut diagnostics,
+            "case:A",
+            "pipe:A",
+            &state,
+            Some(&mechanical),
+        )
+        .expect("a straight region member recovers");
         assert!(std::ptr::eq(actions, &mechanical[..]));
-        // A member outside every region has nothing to recover.
-        for mechanical in [None, Some(&mechanical[..])] {
-            assert!(exact_member_recovery("case:A", "pipe:B", None, mechanical)
-                .unwrap()
-                .is_none());
-        }
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
     }
 
     /// T4-U0 A3 (Option 1): pins the maximum decision only; the end-to-end

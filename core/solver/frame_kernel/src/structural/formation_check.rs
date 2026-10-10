@@ -6,12 +6,14 @@
 //! ρ = f − K_int·u is the residual of the *intended* system:
 //! - K_int is re-formed in `Wide<2>` at p = 128 from the binary64 primitives:
 //!   straight frames (frame, length, local coefficients and TᵀKT, nothing
-//!   shared with binary64 `local_stiffness`), realized curved bends as an
-//!   objective element (radial vectors, square roots, the K3a included angle,
-//!   the closed-form end flexibility, its inverse, and the equilibrium
-//!   transfer from the actual chord), and objective connectors (T4-U3: BᵀKB from the
-//!   binary64 decode, r from the node and offset differences); ground springs
-//!   are their exact binary64 values.
+//!   shared with binary64 `local_stiffness`), realized curved bends as the
+//!   objective element of T4-U1 formed from (d = x_j − x_i, R, y_reference)
+//!   only (half-angle sine and cosine by square roots, the K3a included
+//!   angle, the closed-form end flexibility with 1 − cos φ = 2s², its
+//!   inverse, and the equilibrium transfer from the actual chord), and
+//!   objective connectors (T4-U3: BᵀKB from the binary64 decode, r from the
+//!   node and offset differences); ground springs are their exact binary64
+//!   values.
 //! - Each free row's ρ_i is one `ExactAccumulator` sum (the same exact-sum
 //!   machinery as the kernel's intended-action audit): the load terms (the
 //!   ledger's terms where the caller supplied them, otherwise the folded
@@ -45,14 +47,18 @@ pub const FORMATION_CRITERION: f64 = 1e-9;
 pub const FORMATION_FACTOR: f64 = 2.0;
 
 /// Binary64 inputs of one realized curved bend (DEC-070 macro-element), as
-/// the product's `CurvedBendMacroElement` holds them.
+/// the product's `CurvedBendMacroElement` holds them: the nodes, the user
+/// radius R and the plane reference y (T4-U1). No binary64 centre, derived
+/// radius or included angle enters; K-D5 forms φ and the chord at p from
+/// (x_j − x_i, R, y_reference).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CurvedFormation {
     pub node_i: usize,
     pub node_j: usize,
     pub coordinates_i: [f64; 3],
     pub coordinates_j: [f64; 3],
-    pub center: [f64; 3],
+    pub radius: f64,
+    pub y_reference: [f64; 3],
     pub elastic_modulus: f64,
     pub shear_modulus: f64,
     pub area: f64,
@@ -725,33 +731,38 @@ fn connector_matrix(a: &mut WideArith, c: &ObjectiveConnector) -> Result<Element
     Ok(out)
 }
 
-/// A realized curved bend re-formed as an objective element
-/// (`R5_4_CURVED.md` §2 steps 1–6).
+/// A realized curved bend re-formed as the objective element of T4-U1
+/// (T4-I6 U1_REFERENCE B1) from (d = x_j − x_i, R, y_reference), at p.
 fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, WideError> {
     let xi = lift3(e.coordinates_i)?;
     let xj = lift3(e.coordinates_j)?;
-    let c = lift3(e.center)?;
-    // 1. Radial vectors, their lengths and R.
-    let ri = sub3(a, &xi, &c)?;
-    let rj = sub3(a, &xj, &c)?;
-    let ni = norm3(a, &ri)?;
-    let nj = norm3(a, &rj)?;
-    let sum = a.add(&ni, &nj)?;
-    let radius = sum.mul_pow2(-1)?;
-    // 2. cos φ and sin φ with square roots only.
-    let normal = cross3(a, &ri, &rj)?;
-    let nn = norm3(a, &normal)?;
-    let nij = a.mul(&ni, &nj)?;
-    let rr = dot3(a, &ri, &rj)?;
-    let cos = a.div(&rr, &nij)?;
-    let sin = a.div(&nn, &nij)?;
+    let radius = lift(e.radius)?;
+    // 1. d, L, s = sin(φ/2) = L/2R and c = cos(φ/2) = √(4R² − L²)/2R.
+    let d = sub3(a, &xj, &xi)?;
+    let length_squared = dot3(a, &d, &d)?;
+    let length = a.sqrt(&length_squared)?;
+    let diameter = radius.mul_pow2(1)?;
+    let r2 = a.mul(&radius, &radius)?;
+    let four_r2 = r2.mul_pow2(2)?;
+    let span = a.sub(&four_r2, &length_squared)?;
+    if span.is_zero() || span.is_sign_negative() {
+        return Err(WideError::AngleDomain);
+    }
+    let half_sin = a.div(&length, &diameter)?;
+    let span_root = a.sqrt(&span)?;
+    let half_cos = a.div(&span_root, &diameter)?;
+    // 2. sin φ = 2sc, cos φ = 1 − 2s² and the stable 1 − cos φ = 2s².
+    let one = Wide2::ONE;
+    let sc_half = a.mul(&half_sin, &half_cos)?;
+    let sin = sc_half.mul_pow2(1)?;
+    let ss_half = a.mul(&half_sin, &half_sin)?;
+    let one_minus_cos = ss_half.mul_pow2(1)?;
+    let cos = a.sub(&one, &one_minus_cos)?;
     // 3. φ by the K3a included-angle arctangent.
     let phi = a.included_angle(&sin, &cos)?;
-    // 4. The product's closed-form end flexibility at p, and its inverse.
-    let one = Wide2::ONE;
+    // 4. The closed-form end flexibility at p, and its inverse.
     let sc = a.mul(&sin, &cos)?;
     let sin2 = sc.mul_pow2(1)?; // sin 2φ = 2 sin φ cos φ
-    let one_minus_cos = a.sub(&one, &cos)?;
     let ss = a.mul(&sin, &sin)?;
     let half_ss = ss.mul_pow2(-1)?;
     let half_phi = phi.mul_pow2(-1)?;
@@ -790,13 +801,32 @@ fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, Wide
         }
     }
     let tip = invert6(a, &flexibility)?;
-    // 5. Local axes: x radial at node i, z the bend-plane normal, y = z × x.
-    let ex = scale3(a, &ri, &ni)?;
-    let ez = scale3(a, &normal, &nn)?;
-    let ey = cross3(a, &ez, &ex)?;
+    // 5. Local axes: d̂ = d/L, n̂ the unit component of y normal to d̂ (the
+    //    bow side); x = −s·d̂ + c·n̂ (radial at node i), y = c·d̂ + s·n̂,
+    //    z = n̂ × d̂.
+    let dh = scale3(a, &d, &length)?;
+    let yr = lift3(e.y_reference)?;
+    let projection = dot3(a, &yr, &dh)?;
+    let mut normal = [Wide2::ZERO; 3];
+    for k in 0..3 {
+        let t = a.mul(&projection, &dh[k])?;
+        normal[k] = a.sub(&yr[k], &t)?;
+    }
+    let normal_length = norm3(a, &normal)?;
+    let nh = scale3(a, &normal, &normal_length)?;
+    let mut ex = [Wide2::ZERO; 3];
+    let mut ey = [Wide2::ZERO; 3];
+    for k in 0..3 {
+        let sd = a.mul(&half_sin, &dh[k])?;
+        let cn = a.mul(&half_cos, &nh[k])?;
+        ex[k] = a.sub(&cn, &sd)?;
+        let cd = a.mul(&half_cos, &dh[k])?;
+        let sn = a.mul(&half_sin, &nh[k])?;
+        ey[k] = a.add(&cd, &sn)?;
+    }
+    let ez = cross3(a, &nh, &dh)?;
     let axes = [ex, ey, ez];
     // 6. H from the actual chord x_j − x_i in the local axes.
-    let d = sub3(a, &xj, &xi)?;
     let chord = [
         dot3(a, &axes[0], &d)?,
         dot3(a, &axes[1], &d)?,

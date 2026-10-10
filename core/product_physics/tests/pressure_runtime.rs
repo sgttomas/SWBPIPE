@@ -646,7 +646,7 @@ fn distributed_axial_load_is_subtracted_separately_from_pressure_eigenload() {
 }
 
 #[test]
-fn signed_pressure_zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
+fn zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
     for mode in MODES {
         for (pressure, nu, fixed, thermal) in [
             (0.0, 0.3, false, 0.0),

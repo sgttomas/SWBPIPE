@@ -1127,7 +1127,11 @@ fn validate_stress(
 }
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
     validate_transport_metadata(source)?;
-    crate::physics_evidence::validate_physics_evidence_in(source, true)?;
+    crate::physics_evidence::validate_physics_evidence_in(
+        source,
+        true,
+        crate::physics_evidence::PressureContract::StraightV2,
+    )?;
     let eligible = crate::source_blocks::validate_in(source, actual_invocation, true)?;
     if let Some(invocation) = actual_invocation {
         for exact in array(&source["contract_evidence"]["exact_cases"])? {
