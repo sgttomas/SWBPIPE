@@ -43,7 +43,8 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, reduce_assembled_sparse_system, ForceScaleReason, ForceScaledError,
+    assemble_sparse_stiffness, certify_curved_uniform_load, reduce_assembled_sparse_system,
+    CurvedFormation, ForceScaleReason, ForceScaledError,
     ForceScalingRefusal, FormationCheck, FormationCheckReason, LoadFidelityReport, PublishedValue,
     RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
@@ -10518,6 +10519,11 @@ fn add_uniform_element_loads(
         ) {
             continue;
         }
+        // S11-G section 3.2: an equivalent-static generated intensity carries
+        // gamma_4 of operand formation (a same-sign product chain).
+        let generated = load
+            .load_id
+            .starts_with(&format!("{load_case_id}:generated:"));
         // Curved-bend macro spans consume arc-consistent equivalent nodal
         // loads: fixed-end forces and moments from exact closed-form
         // integration of the uniform intensity along the arc, consistent with
@@ -10552,8 +10558,8 @@ fn add_uniform_element_loads(
                 continue;
             }
             let dof = load.direction.dof_index();
+            let mut intensity = [0.0; 3];
             let equivalent = if dof < 3 {
-                let mut intensity = [0.0; 3];
                 intensity[dof] = load.magnitude.value;
                 bend.macro_element
                     .consistent_uniform_nodal_loads(intensity)
@@ -10565,18 +10571,38 @@ fn add_uniform_element_loads(
                 Ok(equivalent) => {
                     // S11 section 4.2: one term per (load, DOF) from this load's
                     // own consistent equivalent.
-                    // S11-G SF-2: a curved consistent vector has no conservative
-                    // formation bound (CannotBound demotes the case).
+                    // T4-U1b (R-1): certified arc terms; any failed precondition
+                    // keeps CannotBound (S11-G SF-2), which demotes the case.
                     let dof_map = element_dof_map(bend.node_i, bend.node_j);
-                    for (local_dof, &global_dof) in dof_map.iter().enumerate() {
-                        ledger.push_formed(
-                            &load.load_id,
-                            global_dof,
-                            equivalent[local_dof],
-                            Formation::CannotBound,
-                            0.0,
-                            false,
-                        );
+                    match certify_curved_uniform_load(&curved_formation_of(bend), intensity) {
+                        Ok(certified) => {
+                            for (local_dof, &global_dof) in dof_map.iter().enumerate() {
+                                let term = &certified.terms[local_dof];
+                                ledger.push_formed(
+                                    &load.load_id,
+                                    global_dof,
+                                    equivalent[local_dof],
+                                    Formation::Exact {
+                                        scale: 1.0,
+                                        scaled_intended: term.intended.clone(),
+                                    },
+                                    term.operand_bound(generated),
+                                    false,
+                                );
+                            }
+                        }
+                        Err(_) => {
+                            for (local_dof, &global_dof) in dof_map.iter().enumerate() {
+                                ledger.push_formed(
+                                    &load.load_id,
+                                    global_dof,
+                                    equivalent[local_dof],
+                                    Formation::CannotBound,
+                                    0.0,
+                                    false,
+                                );
+                            }
+                        }
                     }
                 }
                 Err(message) => {
@@ -10608,11 +10634,6 @@ fn add_uniform_element_loads(
         let pipe = &pipes[load.element_index];
         let equivalent = straight_global_uniform_load(load)
             .and_then(|global| pipe.equivalent_global_nodal_loads_with_spans_formed(&[global]));
-        // S11-G section 3.2: an equivalent-static generated intensity carries
-        // gamma_4 of operand formation (a same-sign product chain).
-        let generated = load
-            .load_id
-            .starts_with(&format!("{load_case_id}:generated:"));
         match equivalent {
             Ok((equivalent, formations)) => {
                 // One load per call: the SP formula of one load is formation
@@ -10650,6 +10671,28 @@ fn add_uniform_element_loads(
                 vec![load.load_id.clone(), load_case_id.to_string()],
             )),
         }
+    }
+}
+
+/// T4-U1b: the held operands of a realized arc for its load certificate
+/// (`certify_curved_uniform_load`), copied from the validated macro-element
+/// as SA's formation source copies them (no force scaling).
+fn curved_formation_of(bend: &CurvedBendMacroBuild) -> CurvedFormation {
+    let m = &bend.macro_element;
+    CurvedFormation {
+        node_i: m.node_i.index,
+        node_j: m.node_j.index,
+        coordinates_i: m.node_i.coordinates,
+        coordinates_j: m.node_j.coordinates,
+        radius: m.radius,
+        y_reference: m.y_reference,
+        elastic_modulus: m.elastic_modulus,
+        shear_modulus: m.shear_modulus,
+        area: m.area,
+        second_moment: m.second_moment,
+        torsion_constant: m.torsion_constant,
+        in_plane_flexibility_factor: m.in_plane_flexibility_factor,
+        out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
     }
 }
 
