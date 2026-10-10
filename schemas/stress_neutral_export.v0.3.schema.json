@@ -359,9 +359,9 @@
             "exact_straight_pressure_v2",
             "resolved_straight_load_state_v1",
             "resolved_straight_load_state_source_v1",
+            "exact_pressure_v3",
             "product_preview_retained_w1a_v2",
-            "exact_straight_retained_w1a_v2",
-            "exact_pressure_v3"
+            "exact_straight_retained_w1a_v2"
           ]
         },
         "limitations": {
@@ -3773,6 +3773,107 @@
         "producer": {
           "properties": {
             "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+            },
+            "sha256": {
+              "const": "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "exact_pressure_v3"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/PressureContractEvidence"
+        },
+        "export_profile": {
+          "required": [
+            "csv_encoding",
+            "csv_row_order"
+          ],
+          "properties": {
+            "csv_encoding": {
+              "const": "utf-8"
+            },
+            "csv_row_order": {
+              "const": "unicode_scalar_value_result_id"
+            }
+          }
+        },
+        "manifest": {
+          "properties": {
+            "package_members": {
+              "prefixItems": [
+                {},
+                {
+                  "properties": {
+                    "checksum": {
+                      "properties": {
+                        "canonicalization": {
+                          "const": "utf8_csv_record_lf_v1"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "checksums": {
+              "prefixItems": [
+                {
+                  "properties": {
+                    "canonicalization": {
+                      "const": "utf8_csv_record_lf_v1"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_annotations"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          },
+          {
+            "required": [
+              "retained_precision"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             }
           }
@@ -3957,107 +4058,6 @@
           {
             "required": [
               "source_block_recovery"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "properties": {
-        "producer": {
-          "properties": {
-            "semantic_contract_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
-            }
-          }
-        },
-        "semantic_contract_ref": {
-          "properties": {
-            "ref_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
-            }
-          }
-        },
-        "semantic_contract": {
-          "properties": {
-            "id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
-            },
-            "sha256": {
-              "const": "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
-            }
-          }
-        },
-        "formulation_basis": {
-          "properties": {
-            "profile_id": {
-              "const": "exact_pressure_v3"
-            }
-          }
-        },
-        "contract_evidence": {
-          "$ref": "results.v0.3.schema.yaml#/$defs/PressureContractEvidence"
-        },
-        "export_profile": {
-          "required": [
-            "csv_encoding",
-            "csv_row_order"
-          ],
-          "properties": {
-            "csv_encoding": {
-              "const": "utf-8"
-            },
-            "csv_row_order": {
-              "const": "unicode_scalar_value_result_id"
-            }
-          }
-        },
-        "manifest": {
-          "properties": {
-            "package_members": {
-              "prefixItems": [
-                {},
-                {
-                  "properties": {
-                    "checksum": {
-                      "properties": {
-                        "canonicalization": {
-                          "const": "utf8_csv_record_lf_v1"
-                        }
-                      }
-                    }
-                  }
-                }
-              ]
-            },
-            "checksums": {
-              "prefixItems": [
-                {
-                  "properties": {
-                    "canonicalization": {
-                      "const": "utf8_csv_record_lf_v1"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "required": [
-        "contract_evidence",
-        "source_annotations"
-      ],
-      "not": {
-        "anyOf": [
-          {
-            "required": [
-              "source_block_recovery"
-            ]
-          },
-          {
-            "required": [
-              "retained_precision"
             ]
           }
         ]

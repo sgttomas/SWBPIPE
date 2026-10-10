@@ -607,6 +607,8 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
                    "openpipestress.result_semantics/0.3.0/physics-source-1",
                    "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
                    "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                   # T4-U2's pressure-1 follows T1's branches and precedes the successors.
+                   "openpipestress.result_semantics/0.3.0/pressure-1",
                    # T3's F2a preview successor follows T1's branches (C1:162; U6c).
                    "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                    # B3b's exact successor follows the preview successor (B3-D §7).

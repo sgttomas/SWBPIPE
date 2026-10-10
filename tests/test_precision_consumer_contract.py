@@ -39,7 +39,8 @@ def test_precision_dispatch_and_schema_binding_preserve_source_hash_and_rule_rev
     revised=build_analysis_run_v0_3(raw,input_manifest_ref={"object_type":"InputManifest","ref":"manifest:transport"},input_manifest_hash="1"*64,rule_check_status="USER_RULE_CHECKED")
     assert next(x for x in revised['analysis_run']['hashes'] if x['payload_scope']=='received_result')==received
     assert verify_analysis_run_record(revised)=="match"
-    for name in ['reactions','pressure','stress','future']:
+    # pressure-1 is a current identity since T4-U2; the others stay future.
+    for name in ['reactions','stress','future']:
         bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}-1'
         with pytest.raises(ValueError,match='CONTRACT_UNSUPPORTED'):build(bad)
 
