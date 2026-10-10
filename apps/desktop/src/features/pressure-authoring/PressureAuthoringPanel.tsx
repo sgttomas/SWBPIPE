@@ -66,11 +66,13 @@ function CreateExactMaterial(props: RichFormProps) {
  * pressure contract: it belongs to the pressure-free namespace, where a pressure primitive
  * is refused; a model that still carries such primitives is told so. A declared
  * 1.0.0/legacy_pressure_v1 contract is retired, and any other non-exact contract is
- * unsupported; both are refused until the model is re-authored to exact. */
+ * unsupported; both are refused until the model is re-authored to exact. T4-U2a: a declared
+ * 3.0.0/exact_pressure_v3 contract solves its admitted (straight) families. */
 export function pressureModeText(model: RichFormProps["model"]): string {
   const contract = model.pressure_contract;
   if (contract) {
     if (contract.version === "2.0.0" && contract.mode === "exact_straight_pressure_v2") return contract.mode;
+    if (contract.version === "3.0.0" && contract.mode === "exact_pressure_v3") return `${contract.mode} (straight members and linear restraints or springs only; other families are refused by name; result export is not yet available)`;
     const declared = `${contract.version}/${contract.mode}`;
     if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is re-authored to exact_straight_pressure_v2)`;
     return `${declared} (unsupported; solves are refused until the model is re-authored to exact_straight_pressure_v2)`;

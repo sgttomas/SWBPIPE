@@ -261,6 +261,23 @@ def validate_load_reference_transport_metadata(source: Mapping[str, Any]) -> Non
     _guarded(source, raw=False)
 
 
+def validate_pressure_load_reference_evidence(source: Mapping[str, Any]) -> None:
+    """T4-U2a: a 0.4.0 pressure-1 envelope (3.0.0/exact_pressure_v3): the same
+    pre-pass, then the inherited physics checks under the v3 contract."""
+    try:
+        _prepass(source, True, LOAD_REFERENCE)
+        projected = _project(source)
+        from .physics_evidence import PRESSURE_V3, _validate_physics_evidence
+        try:
+            _validate_physics_evidence(projected, contract=PRESSURE_V3)
+        except ValueError as error:
+            raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: {error}") from error
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise LoadReferenceError("SOURCE_LOAD_REFERENCE_MALFORMED") from error
+
+
 def _guarded(source: Mapping[str, Any], *, raw: bool) -> None:
     try:
         _validate(source, raw)

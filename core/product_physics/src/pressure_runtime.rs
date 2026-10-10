@@ -6,7 +6,7 @@
 
 use super::pressure_exact::{InternalDifferentialPressure, IsotropicENu, SourceAnnulus};
 use super::{
-    diag, has_blocking, is_constant_effort_support, is_temperature_change_dimension,
+    diag, has_blocking, is_temperature_change_dimension,
     normalize_quantity, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
     PreviewLoadCase, PreviewModel, Quantity, DOF_PER_NODE,
 };
@@ -16,8 +16,8 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-const EXACT_MODE: &str = "exact_straight_pressure_v2";
-const EXACT_VERSION: &str = "2.0.0";
+pub(crate) use super::exact_admission::ExactContract;
+use super::exact_admission::{admission, component_family, support_family, Admission, ExactFamily};
 /// The retired legacy contract: recognized only so that it is refused by name.
 const RETIRED_MODE: &str = "legacy_pressure_v1";
 const RETIRED_VERSION: &str = "1.0.0";
@@ -79,21 +79,39 @@ pub(crate) struct ExactPressurePipeState {
 
 /// SP-1 (T4-U1): whether the document declares the v2 contract
 /// (`2.0.0/exact_straight_pressure_v2`), whatever its schema version. Such a
-/// document keeps its pre-T4-U1 component diagnostics byte for byte.
+/// document keeps its pre-T4-U1 component diagnostics byte for byte. The
+/// classification is the admission seam's (`ExactContract::from_declared`),
+/// without `ExactContract::of`'s schema-version filter.
 pub(crate) fn declares_exact_straight_v2(model: &PreviewModel) -> bool {
     model.pressure_contract.as_ref().is_some_and(|contract| {
-        contract.version.as_deref() == Some(EXACT_VERSION)
-            && contract.mode.as_deref() == Some(EXACT_MODE)
+        ExactContract::from_declared(contract.version.as_deref(), contract.mode.as_deref())
+            == Some(ExactContract::StraightV2)
     })
 }
 
 /// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
+/// Both exact contracts (v2 and its v3 successor) take the exact route; the
+/// admission seam (`exact_admission`) decides which families each admits.
 pub(crate) fn is_exact(model: &PreviewModel) -> bool {
-    matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0")
-        && model.pressure_contract.as_ref().is_some_and(|contract| {
-            contract.version.as_deref() == Some(EXACT_VERSION)
-                && contract.mode.as_deref() == Some(EXACT_MODE)
-        })
+    ExactContract::of(model).is_some()
+}
+
+/// The exact contract a model declares, if it is on the exact route.
+pub(crate) fn exact_contract(model: &PreviewModel) -> Option<ExactContract> {
+    ExactContract::of(model)
+}
+
+/// T4-U2a: one exact-route object through the admission seam. Under v2 the
+/// table returns v2's existing code and text; under v3 it names the family.
+fn admit(
+    diagnostics: &mut Vec<Diagnostic>,
+    contract: ExactContract,
+    family: ExactFamily,
+    refs: &[&str],
+) {
+    if let Admission::Refused { code, message } = admission(contract, family) {
+        problem(diagnostics, code, refs, message);
+    }
 }
 
 fn problem(
@@ -175,16 +193,13 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         "0.1.0" | "0.2.0" => {
             if model.pressure_contract.is_some() {
                 problem(diagnostics, "PREVIEW_CONTRACT_VERSION_MISMATCH", &["pressure_contract"],
-                    "pressure contracts require model document 0.3.0 or 0.4.0, and the supported contract is 2.0.0/exact_straight_pressure_v2 (1.0.0/legacy_pressure_v1 is retired); old inputs are not reinterpreted");
+                    "pressure contracts require model document 0.3.0 or 0.4.0, and the supported contracts are 2.0.0/exact_straight_pressure_v2 and 3.0.0/exact_pressure_v3 (1.0.0/legacy_pressure_v1 is retired); old inputs are not reinterpreted");
             }
         }
         "0.4.0" => {
-            if !model.pressure_contract.as_ref().is_some_and(|contract| {
-                contract.version.as_deref() == Some(EXACT_VERSION)
-                    && contract.mode.as_deref() == Some(EXACT_MODE)
-            }) {
+            if ExactContract::of(model).is_none() {
                 problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
-                    "model document 0.4.0 requires the 2.0.0/exact_straight_pressure_v2 pressure contract; no legacy fallback is used");
+                    "model document 0.4.0 requires the 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 pressure contract; no legacy fallback is used");
             }
         }
         "0.3.0" => match &model.pressure_contract {
@@ -192,16 +207,16 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 diagnostics,
                 "PRESSURE_CONTRACT_REQUIRED",
                 &["pressure_contract"],
-                "model document 0.3.0 requires the explicit 2.0.0/exact_straight_pressure_v2 pressure contract version and mode",
+                "model document 0.3.0 requires the explicit 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 pressure contract version and mode",
             ),
             Some(contract) => {
                 let declared = (contract.version.as_deref(), contract.mode.as_deref());
                 if declared == (Some(RETIRED_VERSION), Some(RETIRED_MODE)) {
                     problem(diagnostics, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"],
                         "the 1.0.0/legacy_pressure_v1 pressure contract is retired; re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
-                } else if declared != (Some(EXACT_VERSION), Some(EXACT_MODE)) {
+                } else if ExactContract::from_declared(declared.0, declared.1).is_none() {
                     problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
-                        "the supported pressure contract is 2.0.0/exact_straight_pressure_v2; incomplete or unknown contracts never fall back");
+                        "the supported pressure contracts are 2.0.0/exact_straight_pressure_v2 and 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back");
                 }
             }
         },
@@ -226,18 +241,19 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 "an explicitly requested objective connector is not implemented in this pressure integration and is never ignored");
         }
     }
-    let exact = is_exact(model);
-    if exact {
-        // Metadata-only fitting records are also excluded: accepting one as a
-        // straight span would misrepresent the explicit first composition.
+    let contract = exact_contract(model);
+    let exact = contract.is_some();
+    if let Some(contract) = contract {
+        // T4-U2a: every non-base family goes through the admission seam, in
+        // v2's emission order. Metadata-only fitting records are also
+        // excluded: accepting one as a straight span would misrepresent the
+        // explicit composition.
         for component in &model.components {
-            problem(diagnostics, "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED", &[&component.id],
-                "the first exact pressure profile supports straight circular pipes only; fitting/component records require their own integrated mechanics proof");
+            admit(diagnostics, contract, component_family(component), &[&component.id]);
         }
         for support in &model.supports {
-            if support.nonlinear.is_some() || is_constant_effort_support(support) {
-                problem(diagnostics, "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED", &[&support.id],
-                    "the first exact pressure profile supports linear restraints and springs, not nonlinear or constant-effort support composition");
+            if let Some(family) = support_family(support) {
+                admit(diagnostics, contract, family, &[&support.id]);
             }
         }
         check_suffixes(
@@ -261,8 +277,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
         );
         for combination in &model.combinations {
-            problem(diagnostics, "EXACT_PRESSURE_COMBINATION_UNSUPPORTED", &[&combination.id],
-                "exact pressure combinations require signed physical-state combination and pressure-region evidence; scalar row algebra is not a valid fallback");
+            admit(diagnostics, contract, ExactFamily::Combination, &[&combination.id]);
         }
     }
 
@@ -282,13 +297,9 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             }
             continue;
         }
+        let contract = contract.expect("exact cases have a contract");
         if case.equivalent_static.is_some() {
-            problem(
-                diagnostics,
-                "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED",
-                &[&case.id, "equivalent_static"],
-                "equivalent-static generation is outside the first exact pressure composition",
-            );
+            admit(diagnostics, contract, ExactFamily::EquivalentStatic, &[&case.id, "equivalent_static"]);
         }
         for load in &case.primitive_loads {
             if load.category == "pressure" || load.dimension == "pressure" {
@@ -345,10 +356,13 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             // by name. Every pressure unit converts by a positive factor, so a
             // negative authored value is a negative published value. The strict
             // IEEE test admits -0.0 and +0.0, as the readers' `>= 0` tests do.
-            if region
-                .pressure
-                .as_ref()
-                .is_some_and(|pressure| pressure.value.is_finite() && pressure.value < 0.0)
+            // T4-U2a: v3 admits a finite signed pressure (plan section 4.3
+            // item 2); its limitations state that collapse is not assessed.
+            if !contract.admits_negative_pressure()
+                && region
+                    .pressure
+                    .as_ref()
+                    .is_some_and(|pressure| pressure.value.is_finite() && pressure.value < 0.0)
             {
                 problem(
                     diagnostics,
@@ -811,8 +825,9 @@ pub(crate) fn build_pressure_case_with_members(
                 );
             }
         }
-        output.evidence.push(json!({"region_id":id,"load_case_id":case.id,"profile_version":EXACT_VERSION,
-            "profile_mode":EXACT_MODE,"member_pipe_ids":traversal.iter().map(|step| built.pipes[step.pipe_index].element_id.as_str()).collect::<Vec<_>>(),
+        let contract = exact_contract(model).expect("exact pressure cases have a contract");
+        output.evidence.push(json!({"region_id":id,"load_case_id":case.id,"profile_version":contract.version(),
+            "profile_mode":contract.mode(),"member_pipe_ids":traversal.iter().map(|step| built.pipes[step.pipe_index].element_id.as_str()).collect::<Vec<_>>(),
             "terminals":terminal_evidence,"pressure_basis":PRESSURE_BASIS,"p_pa":pressure.pressure_pa(),"geometry":geometry,
             "materials":material_evidence,"applied_loads":load_evidence,"provenance":region.provenance,
             "approximation":"long_straight_annulus_small_strain_v2","external_pressure_increment_pa":0.0,

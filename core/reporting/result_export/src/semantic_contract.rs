@@ -91,6 +91,10 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 /// Dispatch is source-bound; reserved successor IDs never select the precision table.
 pub const PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
+/// T4-U2a (H-1): `3.0.0/exact_pressure_v3` publishes under the reserved
+/// `pressure-1` semantics on 0.3.0 and 0.4.0 documents, with one profile.
+pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
 /// Resolved load/reference-state method; bound to exactly one formulation profile.
 pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
@@ -209,6 +213,17 @@ pub fn physics_contract() -> &'static Value {
         .expect("pinned physics semantic contract")
     })
 }
+/// T4-U2a: `pressure-1`'s row table. Its skeleton
+/// (`fixtures/results/semantic_contract_v0_3_pressure_1.json`) keeps physics-1's
+/// rows unchanged under its own identity and profile, so this reader resolves
+/// pressure-1 rows against physics-1's resident table and holds no table of its
+/// own: no static is added to the reader's reach (T4-RV14 F1). The identity and
+/// profile are checked from the envelope header, never inferred from the table.
+/// A unit that gives pressure-1 rows of its own must first settle how that
+/// table is priced (T3 O-10).
+pub fn pressure_rows_contract() -> &'static Value {
+    physics_contract()
+}
 /// Pinned table bytes: identity, profile and sha256 are checked, never inferred.
 pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
@@ -306,6 +321,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                     Some(
                         PRECISION_ID
                             | PHYSICS_ID
+                            | PRESSURE_ID
                             | PHYSICS_SOURCE_ID
                             | LOAD_REFERENCE_ID
                             | LOAD_REFERENCE_SOURCE_ID
@@ -401,6 +417,8 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             let f = &source["formulation_basis"];
             let profile = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID | PHYSICS_SOURCE_ID) => "exact_straight_pressure_v2",
+                // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
+                Some(PRESSURE_ID) => PRESSURE_PROFILE,
                 // The only profile for load-reference-1; no other contract accepts it.
                 Some(LOAD_REFERENCE_ID) => LOAD_REFERENCE_PROFILE,
                 // The only profile for load-reference-source-1, likewise exclusive.
@@ -419,6 +437,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             // raw evidence and source-block invocation checks are separate APIs.
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
+                Some(PRESSURE_ID) => pressure_rows_contract(),
                 Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
@@ -450,6 +469,7 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
             validate_physics_evidence(source)?
         }
         Some(PREVIEW_PHYSICS_ID) => validate_preview_physics_evidence(source)?,
+        Some(PRESSURE_ID) => validate_pressure_evidence(source)?,
         Some(PHYSICS_SOURCE_ID) => {
             forbid_load_reference_evidence(source)?;
             crate::physics_source::validate(source, None)?;
@@ -483,7 +503,9 @@ pub use crate::load_reference_source::{
     validate_load_reference_source_evidence, validate_load_reference_source_transport_metadata,
 };
 pub use crate::physics_evidence::{
-    validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata,
+    validate_physics_evidence, validate_pressure_evidence,
+    validate_transport_metadata as validate_physics_transport_metadata, PressureContract,
+    V2_READ_AS_V3, V3_READ_AS_V2,
 };
 /// These inputs were already refused by the closed physics namespaces; the
 /// shared code only names the load-reference downgrade in both readers.

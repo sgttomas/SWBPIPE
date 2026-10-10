@@ -112,6 +112,7 @@ mod membrane_publication_range;
 #[allow(dead_code)]
 mod pressure_exact;
 mod pressure_material;
+mod exact_admission;
 mod pressure_runtime;
 mod preview_physics;
 mod retained_product;
@@ -992,7 +993,9 @@ pub fn mechanics_producer() -> MechanicsProducer {
 
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
     let mut producer = mechanics_producer();
-    if case_state::is_load_state(model) {
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        producer.semantic_contract_id = exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID.to_string();
+    } else if case_state::is_load_state(model) {
         producer.semantic_contract_id = LOAD_REFERENCE_SEMANTIC_CONTRACT_ID.to_string();
     } else if pressure_runtime::is_exact(model) {
         producer.semantic_contract_id = PHYSICS_SEMANTIC_CONTRACT_ID.to_string();
@@ -1001,6 +1004,9 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        return exact_admission::pressure_v3_formulation_basis(case_state::is_load_state(model));
+    }
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
     // blocked envelope stays on the load/reference-state identity and profile.
@@ -2354,6 +2360,8 @@ fn run_linear_static_preview_observed(
     source_budget: &mut SourceRecoveryBudget,
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
+    // T4-U2a: a v3 invocation is not joined to retained-source recovery.
+    let capture = capture.filter(|_| exact_admission::joins_retained_source(&request.model));
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
@@ -5376,9 +5384,14 @@ fn solve_load_case_observed(
             }
         }
         let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
-            let maximum = source_receipt::composite_member_maximum(
-                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-            );
+            // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
+            // unloaded circular straight span only; the arc policy gates it.
+            let maximum = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(source_receipt::ReceiptError(reason.to_string(), None)),
+                pressure_runtime::ExactMemberMaximumPolicy::Compute => source_receipt::composite_member_maximum(
+                    &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
+                ),
+            };
             match maximum {
                 Ok(maximum) => {
                     let value = maximum.value_pa();
@@ -5571,7 +5584,7 @@ fn solve_load_case_observed(
     }
     let exact_case_evidence = pressure_runtime::is_exact(model).then(|| {
         let mut evidence = serde_json::json!({
-        "load_case_id":load_case.id,"profile_mode":"exact_straight_pressure_v2",
+        "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
         "material_basis":modulus_basis_record.unwrap_or("base_material_common_E_nu"),
         "pressure_rhs_assembly":pressure_assembly_evidence,
         "pipe_sections":built.pipes.iter().map(|pipe| exact_section_evidence(&pipe.element_id,*built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry"))).collect::<Vec<_>>(),
