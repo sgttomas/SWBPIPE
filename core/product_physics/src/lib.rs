@@ -111,6 +111,7 @@ mod membrane_publication_range;
 mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
+use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
 mod preview_physics;
 mod retained_product;
@@ -992,7 +993,7 @@ pub fn mechanics_producer() -> MechanicsProducer {
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
     let mut producer = mechanics_producer();
     if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        producer.semantic_contract_id = exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID.to_string();
+        producer.semantic_contract_id = PRESSURE_SEMANTIC_CONTRACT_ID.to_string();
     } else if case_state::is_load_state(model) {
         producer.semantic_contract_id = LOAD_REFERENCE_SEMANTIC_CONTRACT_ID.to_string();
     } else if pressure_runtime::is_exact(model) {
@@ -5384,11 +5385,13 @@ fn solve_load_case_observed(
         let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
             // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
             // unloaded circular straight span only; the arc policy gates it.
+            // The withheld reason is a static text borrowed, not formatted, inside
+            // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it.
             let maximum = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
-                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(source_receipt::ReceiptError(reason.to_string(), None)),
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(std::borrow::Cow::Borrowed(reason)),
                 pressure_runtime::ExactMemberMaximumPolicy::Compute => source_receipt::composite_member_maximum(
                     &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-                ),
+                ).map_err(|error| std::borrow::Cow::Owned(error.0)),
             };
             match maximum {
                 Ok(maximum) => {
@@ -5405,7 +5408,7 @@ fn solve_load_case_observed(
                 }
                 Err(error) => {
                     unavailable_stress_maximum_members.push(pipe.element_id.clone());
-                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.0, vec![load_case.id.clone(),pipe.element_id.clone()]));
+                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error, vec![load_case.id.clone(),pipe.element_id.clone()]));
                 }
             }
             None
