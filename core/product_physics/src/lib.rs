@@ -5400,7 +5400,11 @@ fn solve_load_case_observed(
             None
         } else if pressure_runtime::is_exact(model) {
             let extrema = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
-                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(reason.to_string()),
+                // T4-U0 (O-10): the withheld reason is a static text borrowed, not
+                // formatted, inside the per-pipe loop; the warning below formats it.
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => {
+                    Err(std::borrow::Cow::Borrowed(reason))
+                }
                 pressure_runtime::ExactMemberMaximumPolicy::Compute => exact_straight_summary_extrema(
                     pipe,
                     exact_mechanical_local_forces
@@ -5412,7 +5416,8 @@ fn solve_load_case_observed(
                     exact_pressure
                         .as_ref()
                         .and_then(|case| case.pipe_states.get(&pipe_index)),
-                ),
+                )
+                .map_err(std::borrow::Cow::Owned),
             };
             match extrema {
                 Ok(maximum) => {
@@ -5484,27 +5489,21 @@ fn solve_load_case_observed(
                 metadata: None,
             });
         }
-        match pressure_runtime::exact_member_recovery(
-            &load_case.id,
-            &pipe.element_id,
-            exact_pressure
-                .as_ref()
-                .and_then(|case| case.pipe_states.get(&pipe_index)),
-            exact_mechanical_local_forces.as_deref(),
-        ) {
-            Ok(None) => {}
-            Ok(Some((state, mechanical))) => append_exact_pressure_results(
+        if let Some(state) = exact_pressure
+            .as_ref()
+            .and_then(|case| case.pipe_states.get(&pipe_index))
+        {
+            append_exact_pressure_results(
                 &mut results,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
                 state,
                 &corrected_local_forces,
-                mechanical,
+                exact_mechanical_local_forces.as_deref(),
                 pipe,
                 &straight_loads,
-            ),
-            Err(refusal) => diagnostics.push(refusal),
+            );
         }
         component_stress_modifier_count += append_component_stress_multiplier_results(
             &mut results,
@@ -11478,10 +11477,22 @@ fn append_exact_pressure_results(
     pipe_id: &str,
     state: &pressure_runtime::ExactPressurePipeState,
     actions: &[f64],
-    mechanical_actions: &[f64],
+    mechanical_actions: Option<&[f64]>,
     pipe: &StraightPipeElement,
     loads: &[SpannedUniformLocalLoad],
 ) {
+    // T4-U0 (A3): a region member without straight mechanical/thermal
+    // recovery (a realized curved bend) is refused by name, never recovered
+    // on its chord.
+    let Some(mechanical_actions) = pressure_runtime::exact_member_recovery(
+        diagnostics,
+        &case.id,
+        pipe_id,
+        state,
+        mechanical_actions,
+    ) else {
+        return;
+    };
     let (Ok([inner, outer]), Ok(_caps)) = (
         state.annulus.surface_stresses(state.pressure),
         state.annulus.cap_pair(state.pressure),
