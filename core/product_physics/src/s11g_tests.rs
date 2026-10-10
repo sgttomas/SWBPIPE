@@ -1857,6 +1857,54 @@ fn t15_curved_uniform_load_is_certified() {
     }
 }
 
+/// T15g (T4-RV15 F-1; DESIGN_R01's MU9 row): a generated (`<case>:generated:`)
+/// uniform load on T15's arc carries the γ₅ formation term. Each loaded arc
+/// row's bound equals the exact sum of its certified terms'
+/// `operand_bound(true)` and exceeds the sum of their `operand_bound(false)`,
+/// so PP passes `generated` through to the certificate's operand bound.
+#[test]
+fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
+    let source = "case:generated:t15g";
+    let intensity = [0.0, 0.0, 0.3];
+    let mut model = preview_model("curved-generated");
+    model["materials"] = json!([material()]);
+    curved_body(
+        &mut model,
+        "c",
+        0.0,
+        vec![uniform(source, "cbend", "global_z", 0.3)],
+    );
+    let request = request_of(model);
+    let (formation, _) = arc_formation(&request);
+    let certified = certify_curved_uniform_load(&formation, intensity).unwrap();
+    let dof_map = element_dof_map(formation.node_i, formation.node_j);
+    let view = guard_view(&request, 0);
+    let rows = arc_rows(&view, source);
+    assert_eq!(rows.len(), ELEMENT_DOF, "every arc DOF carries the load");
+    for row in rows {
+        assert_eq!(row.formed_sources, [source], "row {} carries only this load", row.dof);
+        assert!(row.cannot_bound_sources.is_empty(), "{row:?}");
+        // Σ over the row's certified terms, exactly (one term per arc DOF).
+        let mut generated = ExactAccumulator::new();
+        let mut ordinary = ExactAccumulator::new();
+        for (local, &global) in dof_map.iter().enumerate() {
+            if global == row.dof {
+                generated.add(certified.terms[local].operand_bound(true)).unwrap();
+                ordinary.add(certified.terms[local].operand_bound(false)).unwrap();
+            }
+        }
+        let generated = generated.round().unwrap();
+        let ordinary = ordinary.round().unwrap();
+        assert!(
+            generated.is_finite() && generated > ordinary,
+            "row {}: {generated} vs {ordinary}",
+            row.dof
+        );
+        assert_eq!(row.bound, generated, "row {}: the generated operand bound", row.dof);
+        assert!(row.bound > ordinary, "row {}", row.dof);
+    }
+}
+
 /// T15b (DESIGN_R01 §5 with T4-RV8 C-1): certified arcs publish Passed at
 /// ordinary and UTM origins, from 90° to 5°, at k = 1 and 2, under an
 /// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad
