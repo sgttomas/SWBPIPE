@@ -34,7 +34,9 @@ export const NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
 export const EXACT_METHOD = "retained_source_blocks_exact_v1";
 export const SELECTED = "SOURCE_BLOCK_RECOVERY_SELECTED";
 export const UNAVAILABLE = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
-export type LoadReferenceMethod = "load_reference" | "joined";
+/** `pressure` (T4-U3): the pressure-1 0.4.0 pre-pass; as `load_reference`,
+ * except that connector records are left to the inherited physics pass (v3). */
+export type LoadReferenceMethod = "load_reference" | "joined" | "pressure";
 const REGION_TEMPERATURE_BASIS = "resolved_member_state";
 const G_BASIS = "E/[2(1+nu)] from the selected pair";
 const COMPOSITION = "lambda_fit*lambda_thermal-1";
@@ -249,7 +251,7 @@ export function validateLoadReferenceTransportMetadata(source: Partial<Mechanics
  * pre-pass, then the inherited physics checks under the v3 contract. */
 export function validatePressureLoadReferenceEvidence(source: MechanicsResult, model?: PhysicsModel): void {
   guarded(() => {
-    prepass(source, true, "load_reference");
+    prepass(source, true, "pressure");
     const projected = project(source);
     try { validatePhysicsEvidenceFor(projected, PRESSURE_V3, model); }
     catch (error) {
@@ -294,7 +296,7 @@ export function prepass(source: Json, raw: boolean, method: LoadReferenceMethod)
   if (!raw && !joined) require_(schemaShape(evidence, transportSchema.$defs.LoadReferenceContractEvidence, transportSchema), "TRANSPORT_SHAPE");
   // S3-S5 namespace.
   require_(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE");
-  require_(!array(at(evidence, "connector")).length, "CONNECTOR_UNSUPPORTED");
+  require_(method === "pressure" || !array(at(evidence, "connector")).length, "CONNECTOR_UNSUPPORTED");
   const pressure = array(at(evidence, "pressure"));
   const exact = array(at(evidence, "exact_cases"));
   const records = array(at(evidence, "load_reference_states"));

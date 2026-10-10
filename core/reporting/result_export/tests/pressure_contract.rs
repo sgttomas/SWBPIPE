@@ -117,10 +117,11 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     assert_eq!(pressure["semantic_contract_id"], s::PRESSURE_ID);
     assert_eq!(pressure["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(!pressure["reserved_inactive_successors"].as_array().unwrap().contains(&json!(s::PRESSURE_ID)));
-    // Every member the reader consults (rows, vocabulary, counts, hash
-    // vectors) is physics-1's; only identity, profile, lineage, policy text
-    // and limitations differ. This is what lets the reader resolve pressure-1
-    // rows against physics-1's table.
+    // Every member the reader consults (vocabulary, hash vectors, and the
+    // rows of physics-1's kinds) is physics-1's; only identity, profile,
+    // lineage, policy text, limitations and T4-U3's connector rows (with the
+    // counts) differ. This is what lets the reader resolve pressure-1 rows
+    // against physics-1's table and the connector rows against code constants.
     let own = [
         "semantic_contract_id",
         "formulation_profile_id",
@@ -128,6 +129,9 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
         "reserved_inactive_successors",
         "contract_evidence_policy",
         "supported_profile_limitations",
+        "rows",
+        "source_signature_count",
+        "source_kind_count",
     ];
     let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
     assert_eq!(p.keys().collect::<Vec<_>>(), q.keys().collect::<Vec<_>>());
@@ -135,5 +139,29 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
         if !own.contains(&key.as_str()) {
             assert_eq!(value, &q[key], "{key}");
         }
+    }
+    // T4-U3: the rows are physics-1's, in order, then exactly one signature
+    // per connector (kind, unit, component) of the reader's code constants.
+    let (rows, inherited) = (p["rows"].as_array().unwrap(), q["rows"].as_array().unwrap());
+    assert_eq!(&rows[..inherited.len()], &inherited[..]);
+    let connector: Vec<(String, String, String)> = rows[inherited.len()..]
+        .iter()
+        .map(|r| {
+            assert!(r["kind"].as_str().unwrap().starts_with("connector_"));
+            assert_eq!(r["category"], "physical_quantity");
+            (r["kind"].as_str().unwrap().into(), r["unit"].as_str().unwrap().into(), r["component"].as_str().unwrap().into())
+        })
+        .collect();
+    let expected: Vec<(String, String, String)> = s::CONNECTOR_ROW_KINDS
+        .iter()
+        .flat_map(|(kind, unit, components, _)| {
+            components.iter().map(move |c| (kind.to_string(), unit.to_string(), c.to_string()))
+        })
+        .collect();
+    assert_eq!(connector, expected);
+    assert_eq!(p["source_signature_count"], rows.len());
+    assert_eq!(p["source_kind_count"], q["source_kind_count"].as_u64().unwrap() + 6);
+    for (i, r) in rows.iter().enumerate() {
+        assert_eq!(r["signature_id"], format!("supported-source-{i:03}"));
     }
 }

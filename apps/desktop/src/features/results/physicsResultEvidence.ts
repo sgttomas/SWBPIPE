@@ -126,7 +126,8 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
   const evidence = source.contract_evidence;
   shape(evidence, ["pressure", "connector", "exact_cases"], "SHAPE");
   demand(finiteTree(evidence) && source.results.every(row => finite(row.value)), "NONFINITE");
-  demand(Array.isArray(evidence.pressure) && Array.isArray(evidence.exact_cases) && Array.isArray(evidence.connector) && evidence.connector.length === 0, "UNSUPPORTED_COMPOSITION");
+  demand(Array.isArray(evidence.pressure) && Array.isArray(evidence.exact_cases) && Array.isArray(evidence.connector) && (contract.mode === PRESSURE_V3.mode || evidence.connector.length === 0), "UNSUPPORTED_COMPOSITION");
+  const replacedSpans = (evidence.connector as RecordValue[]).map(r => r?.replaced_pipe_id);
   const cases = evidence.exact_cases as RecordValue[], regions = evidence.pressure as RecordValue[];
   for (const c of cases) {
     shape(c, composite ? [...caseFields, "recovery_method"] : caseFields, "CASE_SHAPE");
@@ -204,7 +205,8 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     const members = c.pipe_materials.map((m: RecordValue) => m.pipe_id);
     demand(unique(members) && members.length > 0 && unique(c.pipe_sections.map((s: RecordValue) => s.pipe_id)) && sameSet(members, c.pipe_sections.map((s: RecordValue) => s.pipe_id)), "CASE_MEMBER_SCOPE");
     demand(sameSet(members, cases[0].pipe_materials.map((m: RecordValue) => m.pipe_id)), "CASE_MEMBER_COVERAGE");
-    if (model?.pipe_segments) demand(sameSet(members, model.pipe_segments.map(p => p.id)), "MODEL_MEMBER_COVERAGE");
+    // T4-U3 (S21): a pipe replaced by an objective connector is in no case.
+    if (model?.pipe_segments) demand(sameSet(members, model.pipe_segments.map(p => p.id).filter(id => !replacedSpans.includes(id))), "MODEL_MEMBER_COVERAGE");
     shape(c.stress_maximum_coverage, ["complete", "unavailable_pipe_ids"], "EXTREMA_COVERAGE");
     const unavailable = c.stress_maximum_coverage.unavailable_pipe_ids;
     demand(unique(unavailable) && unavailable.every(id => members.includes(id)) && c.stress_maximum_coverage.complete === (unavailable.length === 0)
@@ -265,6 +267,7 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
         demand(physicalSignatures.has(JSON.stringify([row.basis_ref!.ref_id, row.entity_ref, kind, component, location])), "SUPPORT_ROW_COVERAGE");
     }
   }
+  validateConnectors(evidence.connector as RecordValue[], source.results, new Set(cases.flatMap(c => c.pipe_sections.map((s: RecordValue) => s.pipe_id))), caseIds, source.status.mechanics === "MECHANICS_SOLVED", contract.mode === PRESSURE_V3.mode);
   const headline = source.summary.max_open_formula_stress;
   if (cases.some(c => !c.stress_maximum_coverage.complete)) demand(!headline, "INCOMPLETE_MAXIMUM_HEADLINE");
   if (headline) {
@@ -272,6 +275,71 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     demand(row && row.kind === "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref === headline.location_ref && row.value === headline.value && row.unit === headline.unit
       && source.results.filter(r => r.kind === row.kind).every(r => r.value <= row.value), "MAXIMUM_HEADLINE_BINDING");
   }
+}
+
+/** T4-U3 (S14): objective connector rows and records, pressure-1 only (the
+ * `connector_*` rows of `semantic_contract_v0_3_pressure_1.json`; Rust
+ * `connector_evidence`). kind -> [unit, components, locations]. */
+export const CONNECTOR_KINDS: Record<string, [string, string[], string[]]> = {
+  connector_generalized_translation_v1: ["m", ["qt_x", "qt_y", "qt_z"], ["connector_local"]],
+  connector_generalized_rotation_v1: ["rad", ["qr_x", "qr_y", "qr_z"], ["connector_local"]],
+  connector_generalized_force_v1: ["N", ["gt_x", "gt_y", "gt_z"], ["connector_local"]],
+  connector_generalized_moment_v1: ["N*m", ["gr_x", "gr_y", "gr_z"], ["connector_local"]],
+  connector_endpoint_force_v1: ["N", ["Fx", "Fy", "Fz"], ["end_i", "end_j"]],
+  connector_endpoint_moment_v1: ["N*m", ["Mx", "My", "Mz"], ["end_i", "end_j"]],
+};
+const CONNECTOR_ROWS_PER_CASE = 24;
+const CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes";
+const CONNECTOR_END_SIGN = "global end action of the connector on its node (node on element), f = B^T g";
+const connectorRecordFields = ["component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"];
+const connectorMatrixFields = ["representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"];
+const matrix3 = (v: unknown) => Array.isArray(v) && v.length === 3 && v.every(row => vector(row, 3));
+function validateConnectors(records: RecordValue[], results: MechanicsResult["results"], members: Set<string>, caseIds: string[], solved: boolean, admitted: boolean): void {
+  demand(admitted || records.length === 0, "CONNECTOR_UNSUPPORTED");
+  const spans = new Map<string, string>();
+  for (const r of records) {
+    shape(r, connectorRecordFields, "CONNECTOR_RECORD_SHAPE");
+    demand(["component_id", "replaced_pipe_id", "node_i", "node_j", "provenance"].every(k => text(r[k])) && r.node_i !== r.node_j, "CONNECTOR_RECORD_IDENTITY");
+    demand(r.topology === "replaces_span" && r.motion_basis === "symmetric_midpoint_small_rotation_v1" && r.calibration === "constant_structural_elasticity_v1"
+      && r.hardware === "untied" && r.pressure_model === "unpressurized" && r.temperature_applicability === "fixed_installed_parameters_v1"
+      && ["stress_free", "prestressed"].includes(r.reference_state), "CONNECTOR_RECORD_LAW");
+    demand(matrix3(r.connector_axes_global) && matrix3(r.end_i_node_axes_global) && matrix3(r.end_j_node_axes_global)
+      && vector(r.end_i_offset_local_m, 3) && vector(r.end_j_offset_local_m, 3) && vector(r.q_ref, 6)
+      && finite(r.installed_reference_temperature_k) && r.installed_reference_temperature_k > 0, "CONNECTOR_RECORD_FRAME");
+    const m = r.work_matrix;
+    shape(m, connectorMatrixFields, "CONNECTOR_WORK_MATRIX");
+    demand(m.representation === "scaled_work_coefficients_v1" && JSON.stringify(m.coordinate_order) === JSON.stringify(["tx", "ty", "tz", "rx", "ry", "rz"])
+      && finite(m.translation_scale_m) && m.translation_scale_m > 0 && m.rotation_scale_rad === 1 && m.coefficient_unit === "N*m"
+      && vector(m.upper_triangle, 21) && text(m.source_reference), "CONNECTOR_WORK_MATRIX");
+    demand(!spans.has(r.component_id), "CONNECTOR_RECORD_DUPLICATE");
+    demand(![...spans.values()].includes(r.replaced_pipe_id), "CONNECTOR_SPAN_DUPLICATE");
+    demand(!members.has(r.replaced_pipe_id), "CONNECTOR_REPLACED_SPAN_PUBLISHED");
+    spans.set(r.component_id, r.replaced_pipe_id);
+  }
+  const replaced = new Set(spans.values()), slots = new Set<string>(), counts = new Map<string, number>();
+  for (const row of results) {
+    demand(!replaced.has(row.entity_ref), "CONNECTOR_REPLACED_SPAN_PUBLISHED");
+    if (!row.kind.startsWith("connector_")) continue;
+    demand(admitted, "CONNECTOR_UNSUPPORTED");
+    demand(Object.hasOwn(CONNECTOR_KINDS, row.kind), "CONNECTOR_ROW_KIND");
+    const span = spans.get(row.entity_ref);
+    demand(span !== undefined, "CONNECTOR_ROW_UNBOUND");
+    const [unit, components, locations] = CONNECTOR_KINDS[row.kind];
+    const md = row.metadata as RecordValue | undefined;
+    shape(md, ["component", "coordinate_system", "location", "basis", "sign_convention"], "CONNECTOR_ROW_METADATA_SHAPE");
+    const local = md.location === "connector_local";
+    demand(row.unit === unit && components.includes(md.component) && locations.includes(md.location)
+      && md.coordinate_system === (local ? "connector_axes_q" : "global")
+      && md.basis === `objective_connector_v1;replaces_span=${span};symmetric_midpoint_small_rotation_v1`
+      && md.sign_convention === (local ? CONNECTOR_LOCAL_SIGN : CONNECTOR_END_SIGN), "CONNECTOR_ROW_SEMANTICS");
+    const caseId = row.basis_ref!.ref_id;
+    demand(caseIds.includes(caseId), "CONNECTOR_ROW_CASE");
+    const slot = JSON.stringify([caseId, row.entity_ref, row.kind, md.component, md.location]);
+    demand(!slots.has(slot), "CONNECTOR_ROW_DUPLICATE"); slots.add(slot);
+    const key = JSON.stringify([caseId, row.entity_ref]); counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  if (solved) for (const caseId of caseIds) for (const component of spans.keys())
+    demand(counts.get(JSON.stringify([caseId, component])) === CONNECTOR_ROWS_PER_CASE, "CONNECTOR_ROW_COVERAGE");
 }
 
 function validateRhs(rhs: unknown, caseId: string, regions: RecordValue[]): void {

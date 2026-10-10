@@ -30,6 +30,10 @@ type Check = Result<(), String>;
 pub(crate) enum Method {
     LoadReference,
     Joined,
+    /// T4-U2a/T4-U3: the `pressure-1` 0.4.0 pre-pass. Identical to
+    /// `LoadReference` except that connector records are left to the
+    /// inherited physics pass under the v3 contract.
+    Pressure,
 }
 
 pub const RECORD_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
@@ -372,7 +376,7 @@ fn validate(source: &Value, raw: bool) -> Check {
 /// T4-U2a: a 0.4.0 `pressure-1` envelope (`3.0.0/exact_pressure_v3`): the same
 /// pre-pass S1-S13, then the inherited physics checks under the v3 contract.
 pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check {
-    prepass(source, true, Method::LoadReference)?;
+    prepass(source, true, Method::Pressure)?;
     crate::physics_evidence::validate_physics_evidence_for(
         &project(source),
         false,
@@ -420,8 +424,10 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     }
     // S3-S5 namespace.
     require(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")?;
+    // T4-U3: pressure-1's connector records are checked by the inherited
+    // physics pass under the v3 contract; every other method refuses them.
     require(
-        array(&evidence["connector"])?.is_empty(),
+        method == Method::Pressure || array(&evidence["connector"])?.is_empty(),
         "CONNECTOR_UNSUPPORTED",
     )?;
     let pressure = array(&evidence["pressure"])?;

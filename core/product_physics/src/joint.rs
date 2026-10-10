@@ -658,3 +658,103 @@ pub(crate) fn connector_rows(
         ("connector_endpoint_moment_v1", ["Mx", "My", "Mz"], "N*m", [e[9], e[10], e[11]], "end_j"),
     ]
 }
+
+/// The disclosure that no joint temperature law is provided (JR §6 J3: the
+/// replaced pipe's thermal expansion cannot supply one).
+pub(crate) const TEMPERATURE_LAW_CODE: &str = "CONNECTOR_TEMPERATURE_LAW_NOT_PROVIDED";
+
+fn is_pressure_v3(model: &PreviewModel) -> bool {
+    super::exact_admission::ExactContract::of(model)
+        == Some(super::exact_admission::ExactContract::PressureV3)
+}
+
+/// The installed reference temperature of a connector Value in kelvin.
+fn installed_reference_temperature_k(connector: &Value) -> Option<f64> {
+    let t = connector.get("installed_reference_temperature")?;
+    si(t.get("value")?.as_f64()?, text(t, "unit")?, Dimension::Temperature).ok()
+}
+
+/// The authored connector Value of a decoded spec.
+fn connector_value<'m>(model: &'m PreviewModel, spec: &ConnectorSpec) -> Option<&'m Value> {
+    model
+        .components
+        .iter()
+        .find(|c| c.id == spec.component_id)
+        .and_then(|c| c.objective_connector.as_ref())
+}
+
+/// On a v3 model, one info disclosure per decoded objective connector, on
+/// every result (emitted once per invocation by the input validation): the
+/// connector's parameters are the authored ones at its installed reference
+/// temperature, no joint temperature law acts, and the replaced pipe's thermal
+/// expansion is not assigned to the joint.
+pub(crate) fn disclose_connector_temperature_law(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    if !is_pressure_v3(model) {
+        return;
+    }
+    for spec in connector_specs(model) {
+        let temperature = connector_value(model, &spec)
+            .and_then(|c| c.get("installed_reference_temperature"))
+            .map(|t| format!(" ({} {})", t.get("value").map(Value::to_string).unwrap_or_default(), text(t, "unit").unwrap_or_default()))
+            .unwrap_or_default();
+        diagnostics.push(diag(
+            &format!("diagnostic:joint:{}:temperature-law", stable_suffix(&spec.component_id)),
+            TEMPERATURE_LAW_CODE,
+            "info",
+            format!(
+                "objective connector {} has no joint temperature law: its work matrix, frame, offsets and q_ref are the authored parameters at its installed reference temperature{temperature} and do not vary with any case temperature or thermal load, and the replaced pipe {}'s thermal expansion is not assigned to the joint",
+                spec.component_id, spec.span_id
+            ),
+            vec![spec.component_id.clone(), spec.span_id.clone()],
+        ));
+    }
+}
+
+/// `contract_evidence.connector` on a v3 envelope: one record per admitted
+/// objective connector, in model order (JR §7: topology and replaced span,
+/// frame, reference temperature and q_ref, matrix scale and provenance), in
+/// SI. The readers bind every connector row to its record. Empty on any
+/// other contract.
+pub(crate) fn connector_evidence(model: &PreviewModel) -> Value {
+    if !is_pressure_v3(model) {
+        return Value::Array(Vec::new());
+    }
+    let records = connector_specs(model)
+        .into_iter()
+        .map(|spec| {
+            let authored = connector_value(model, &spec);
+            let source = |value: Option<&Value>| value.and_then(|v| text(v, "source_reference")).unwrap_or_default().to_string();
+            serde_json::json!({
+                "component_id": spec.component_id,
+                "topology": "replaces_span",
+                "replaced_pipe_id": spec.span_id,
+                "node_i": spec.node_i,
+                "node_j": spec.node_j,
+                "motion_basis": "symmetric_midpoint_small_rotation_v1",
+                "connector_axes_global": spec.axes,
+                "end_i_node_axes_global": spec.end_i.node_axes,
+                "end_j_node_axes_global": spec.end_j.node_axes,
+                "end_i_offset_local_m": spec.end_i.offset_local,
+                "end_j_offset_local_m": spec.end_j.offset_local,
+                "q_ref": spec.q_ref,
+                "reference_state": if spec.stress_free { "stress_free" } else { "prestressed" },
+                "work_matrix": {
+                    "representation": "scaled_work_coefficients_v1",
+                    "coordinate_order": COORDINATE_ORDER,
+                    "translation_scale_m": spec.stiffness.translation_scale,
+                    "rotation_scale_rad": 1.0,
+                    "coefficient_unit": "N*m",
+                    "upper_triangle": spec.stiffness.upper_triangle.to_vec(),
+                    "source_reference": source(authored.and_then(|c| c.get("stiffness")).and_then(|k| k.get("provenance"))),
+                },
+                "calibration": "constant_structural_elasticity_v1",
+                "hardware": "untied",
+                "pressure_model": "unpressurized",
+                "temperature_applicability": "fixed_installed_parameters_v1",
+                "installed_reference_temperature_k": authored.and_then(installed_reference_temperature_k),
+                "provenance": source(authored.and_then(|c| c.get("provenance"))),
+            })
+        })
+        .collect();
+    Value::Array(records)
+}

@@ -1301,6 +1301,8 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
     // T4-U3 (D-4): the annotation disclosure, pressure-free route only. The
     // legacy joint's refusal is the profile gate's; no joint row is produced.
     crate::joint::disclose_annotation_joints(model, diagnostics);
+    // T4-U3: v3 objective connectors carry no joint temperature law.
+    crate::joint::disclose_connector_temperature_law(model, diagnostics);
 }
 
 fn detect_empty_ids<'a>(

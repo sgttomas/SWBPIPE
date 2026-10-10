@@ -153,8 +153,11 @@ fn assert_case_values(envelope: &Value, expected: &Value, label: &str) {
         // S20/S21: the replaced span has no member row and no per-pipe evidence.
         assert!(!rows(envelope, case).iter().any(|r| r["entity_ref"] == "pipe:P-130"), "{label} {case}");
     }
-    let evidence = envelope["contract_evidence"].to_string();
-    assert!(!evidence.contains("\"pipe:P-130\""), "{label}: P-130 in published evidence");
+    // The connector's own record names its replaced span; no per-pipe list does.
+    let mut evidence = envelope["contract_evidence"].clone();
+    let records = evidence.as_object_mut().unwrap().remove("connector").unwrap();
+    assert_eq!(records[0]["replaced_pipe_id"], "pipe:P-130", "{label}");
+    assert!(!evidence.to_string().contains("\"pipe:P-130\""), "{label}: P-130 in published evidence");
 }
 
 /// The published displacement, reaction and connector rows of an envelope,

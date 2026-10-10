@@ -425,8 +425,10 @@ pub(crate) fn validate_physics_evidence_for(
         keys(evidence, &["pressure", "connector", "exact_cases"]),
         "EVIDENCE_SHAPE",
     )?;
+    // T4-U3: connector records are admitted under pressure-1 only (checked,
+    // with their rows, by `connector_evidence` once the cases are read).
     require(
-        array(&evidence["connector"])?.is_empty(),
+        contract == PressureContract::PressureV3 || array(&evidence["connector"])?.is_empty(),
         "CONNECTOR_UNSUPPORTED",
     )?;
     let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
@@ -656,6 +658,14 @@ pub(crate) fn validate_physics_evidence_for(
             }
         }
     }
+    crate::connector_evidence::validate(
+        &evidence["connector"],
+        &rows,
+        all_members.as_ref().unwrap_or(&HashSet::new()),
+        &cases.keys().copied().collect(),
+        source["status"]["mechanics"] == "MECHANICS_SOLVED",
+        contract == PressureContract::PressureV3,
+    )?;
     for components in support_components.values() {
         require(
             *components

@@ -2846,7 +2846,7 @@ fn run_linear_static_preview_observed(
     let joined_load_state = composite && case_state::is_load_state(&model);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
-            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": [], "exact_cases": exact_cases});
+            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model), "exact_cases": exact_cases});
             if case_state::is_load_state(&model) {
                 evidence["load_reference_states"] = serde_json::json!(load_reference_states);
             }

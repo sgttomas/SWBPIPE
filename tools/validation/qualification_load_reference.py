@@ -57,7 +57,7 @@ MODULE = 'core/analysis_runs/load_reference_evidence.py'
 # Reader bytes as integrated with T4-U2a's pressure-contract dispatch at eeb16c35ba (re-pinned at
 # integration; earlier pins 1ccca8b87 after REVIEW_A, bfef71b19 and the WP5 start commit d8f0dc4f7);
 # re-pin deliberately whenever the reader changes.
-MODULE_SHA256 = '5b9615aaa9e5f846eea83f522cc653e039fceac9748474e60f76ecd11de540e3'
+MODULE_SHA256 = '4974b30ecfa1ec2678afd5b09f7ce2bce34f35aae989405cd14d4d96d9099cbc'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
