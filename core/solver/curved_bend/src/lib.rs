@@ -9,6 +9,7 @@
 //! project data.
 
 use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_dot, ExactAccumulator};
+use open_pipe_stress_frame_kernel::structural::twice_atan2_nonnegative;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::fmt;
@@ -88,6 +89,12 @@ impl From<FrameKernelError> for CurvedBendError {
 /// (tangent at node i toward j), z = n̂ × d̂ (bend-plane normal). Node `i`
 /// sits at arc angle 0 and node `j` at `included_angle`, measured about
 /// local z, and the chord in the local frame is (−sL, cL, 0).
+///
+/// No libm call forms any of these (T4-I29): φ = 2·atan2(s, c) is FK's
+/// `twice_atan2_nonnegative` (K3a's p = 128 arctangent, rounded once to
+/// binary64, integer arithmetic only), and sin φ, cos φ, 1 − cos φ are
+/// 2sc, 1 − 2s², 2s² (`arc_integrals`), so the element's stiffness and load
+/// vector are bitwise identical on every platform.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ArcGeometry {
     /// The user bend radius R.
@@ -157,7 +164,8 @@ pub fn arc_geometry(
 
 /// The direction change θ ∈ [0, π] between two directions `a` and `t`
 /// (for example a straight member's direction and an arc end tangent):
-/// θ = 2·atan2(|â − t̂|, |â + t̂|), accurate for small and near-π angles.
+/// θ = 2·atan2(|â − t̂|, |â + t̂|), accurate for small and near-π angles
+/// (FK's libm-free `twice_atan2_nonnegative`).
 pub fn kink(a: [f64; 3], t: [f64; 3]) -> Result<f64, CurvedBendError> {
     validate_finite_vector("kink_direction", a)?;
     validate_finite_vector("kink_direction", t)?;
@@ -165,7 +173,9 @@ pub fn kink(a: [f64; 3], t: [f64; 3]) -> Result<f64, CurvedBendError> {
     let t = normalize(t, "kink direction has zero length")?;
     let difference = norm(subtract(a, t));
     let sum = norm([a[0] + t[0], a[1] + t[1], a[2] + t[2]]);
-    Ok(2.0 * difference.atan2(sum))
+    twice_atan2_nonnegative(difference, sum).ok_or(CurvedBendError::DegenerateArc {
+        detail: "kink directions do not define an angle",
+    })
 }
 
 fn objective_arc(
@@ -209,7 +219,11 @@ fn objective_arc(
     let diameter = 2.0 * radius;
     let s = chord_length / diameter;
     let c = span.sqrt() / diameter;
-    let included_angle = 2.0 * s.atan2(c);
+    // s > 0 and c > 0 here (a positive chord and span); an underflowed s or
+    // c gives 0 or π, which the window below refuses, as atan2 did.
+    let included_angle = twice_atan2_nonnegative(s, c).ok_or(CurvedBendError::DegenerateArc {
+        detail: "arc half-angle sine and cosine do not define an angle",
+    })?;
     if !(MIN_INCLUDED_ANGLE..=PI - MIN_INCLUDED_ANGLE).contains(&included_angle) {
         return Err(CurvedBendError::IncludedAngleOutOfRange { included_angle });
     }
@@ -1183,6 +1197,9 @@ fn cross(left: [f64; 3], right: [f64; 3]) -> [f64; 3] {
         left[0] * right[1] - left[1] * right[0],
     ]
 }
+
+#[cfg(test)]
+mod platform_bits_tests;
 
 #[cfg(test)]
 mod s11k_tests;
