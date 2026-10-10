@@ -373,7 +373,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));
@@ -763,4 +763,40 @@ fn u1g2_safe_range_boundary() {
     let beyond = rp::LegacyWork { charged: max_safe + 1, ..at };
     assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: beyond, diagnostic_ref: "d".into() }), 0, &mut Vec::new()).err().map(|f| f.check),
         Some(wire::ReceiptCheck::WorkCounterRange));
+}
+
+/// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the
+/// in-tree statics J1 landed: DEF-E's H is `EXACT_DEFINITION_SHA256` and the physics-retained-1
+/// table binds it, its identity, profile, policies and `receipt_bindings` (B3D-8, the serializer's
+/// own values); its inherited hash is physics-1's table bytes. The preview route's descriptor is
+/// the unchanged module constants.
+#[test]
+fn b3b_exact_constants_bound_to_in_tree_fixtures() {
+    const EXACT_DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_exact_v1.json");
+    const EXACT_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json");
+    const PHYSICS_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
+    let definition: Value = serde_json::from_str(EXACT_DEFINITION).unwrap();
+    let table: Value = serde_json::from_str(EXACT_TABLE).unwrap();
+    assert_eq!(definition["id"], json!(wire::EXACT_DEFINITION_ID));
+    assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::EXACT_DEFINITION_SHA256));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::EXACT_DEFINITION_ID,"sha256":wire::EXACT_DEFINITION_SHA256}]));
+    assert_eq!(table["formation_warrant"]["definition_id"], json!(wire::EXACT_DEFINITION_ID));
+    assert_eq!(table["semantic_contract_id"], json!(wire::EXACT_SEMANTIC_ID));
+    assert_eq!(table["formulation_profile_id"], json!(wire::EXACT_PROFILE_ID));
+    assert_eq!(table["receipt_policy"], json!(wire::POLICY));
+    assert_eq!(table["accuracy_classification"]["policy"], json!(wire::FACADE_POLICY));
+    assert_eq!(table["receipt_bindings"], json!({"canonicalization":wire::CANONICALIZATION,"method":wire::METHOD,"projection_policy":wire::PROJECTION_POLICY,
+        "work":{"case_limit":wire::CASE_LIMIT,"invocation_limit":wire::INVOCATION_LIMIT},"work_policy":wire::WORK_POLICY}));
+    assert_eq!(table["inherited_semantic_contract_sha256"], json!(format!("{:x}", Sha256::digest(PHYSICS_1_TABLE.as_bytes()))));
+    assert_eq!(serde_json::from_str::<Value>(PHYSICS_1_TABLE).unwrap()["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID));
+    // The two descriptors.
+    let preview = wire::route_wire(rp::W1Route::Preview);
+    assert_eq!((preview.semantic_id, preview.profile_id, preview.definition_id, preview.definition_sha256, preview.geometry_route),
+        (wire::RETAINED_SEMANTIC_ID, wire::RETAINED_PROFILE_ID, wire::DEFINITION_ID, wire::DEFINITION_SHA256, "preview"));
+    let exact = wire::route_wire(rp::W1Route::Exact);
+    assert_eq!((exact.semantic_id, exact.profile_id, exact.definition_id, exact.definition_sha256, exact.geometry_route),
+        (wire::EXACT_SEMANTIC_ID, wire::EXACT_PROFILE_ID, wire::EXACT_DEFINITION_ID, wire::EXACT_DEFINITION_SHA256, "exact"));
+    // SCHEMA admits the exact id for a product attempt (J1's enum).
+    let schema: Value = serde_json::from_str(include_str!("../../../schemas/retained_precision_mp_v2.schema.json")).unwrap();
+    assert!(schema["$defs"]["ProductAttempt"]["properties"]["definition_id"]["enum"].as_array().unwrap().contains(&json!(wire::EXACT_DEFINITION_ID)));
 }

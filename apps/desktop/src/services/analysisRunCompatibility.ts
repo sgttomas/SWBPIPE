@@ -5,7 +5,7 @@ import { validateLoadReferenceEvidence } from "../features/results/loadReference
 import { validateLoadReferenceSourceEvidence } from "../features/results/loadReferenceSourceEvidence";
 import { validateRetainedPrecision } from "../features/results/retainedPrecision";
 import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
-import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract, retainedPrecisionDowngrade } from "../features/results/numericalResultQuality";
+import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract, retainedPrecisionDowngrade, isRetainedRoute } from "../features/results/numericalResultQuality";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 
@@ -88,7 +88,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics";
+type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
 /** T1: the load/reference-state readers run before a record is built or
  * validated, as Python `_source_contract` runs them (raw evidence). */
 async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
@@ -101,7 +101,7 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
   if (sourceContract(result) === "preview_physics") validatePreviewPhysicsEvidence(result);
   // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
-  if (route === "retained_preview_physics") await validateRetainedPrecision(result);
+  if (isRetainedRoute(route)) await validateRetainedPrecision(result);
   if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(result);
   if (route !== "legacy") { validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs); }
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
@@ -153,7 +153,7 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   if (route === "physics_source" || route === "load_reference_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
   if (route === "source_blocks" || route === "physics_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
   // U6d (C1:162; D2 4.9.6): the complete receipt is copied whole, never recomputed or repaired.
-  if (route === "retained_preview_physics") record.analysis_run.retained_precision = structuredClone(result.retained_precision);
+  if (isRetainedRoute(route)) record.analysis_run.retained_precision = structuredClone(result.retained_precision);
   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
   if (route !== "legacy") await validateAnalysisRunV03(record, result, loadBasisRefs);
   return record;
@@ -194,7 +194,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
   // U6d: the successor's record carries its complete receipt, equal to the source's
   // (which the accepted reader verifies); no other record carries one.
-  if (sourceContract(source) === "retained_preview_physics") {
+  if (isRetainedRoute(sourceContract(source))) {
     await validateRetainedPrecision(source);
     if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   } else if (Object.hasOwn(run, "retained_precision")) throw new Error(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);

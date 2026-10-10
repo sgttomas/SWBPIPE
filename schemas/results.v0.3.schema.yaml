@@ -964,7 +964,8 @@
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+                "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
             }
           }
@@ -989,7 +990,8 @@
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+                "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+                "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
             }
           }
@@ -1008,7 +1010,8 @@
                 "exact_straight_pressure_v2",
                 "resolved_straight_load_state_v1",
                 "resolved_straight_load_state_source_v1",
-                "product_preview_retained_w1a_v2"
+                "product_preview_retained_w1a_v2",
+                "exact_straight_retained_w1a_v2"
               ]
             },
             "limitations": {
@@ -1692,6 +1695,66 @@
             "result_sets": {
               "items": {
                 "$ref": "#/$defs/PreviewPhysicsResultSet"
+              }
+            },
+            "retained_precision": {
+              "$ref": "retained_precision_mp_v2.schema.json"
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "contract_evidence",
+            "retained_precision"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "exact_straight_retained_w1a_v2"
+                },
+                "limitations": {
+                  "const": [
+                    "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section.",
+                    "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented.",
+                    "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+                    "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+                    "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+                    "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
+                    "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+                  ]
+                }
+              }
+            },
+            "contract_evidence": {
+              "$ref": "#/$defs/PhysicsContractEvidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/ResultSet"
               }
             },
             "retained_precision": {

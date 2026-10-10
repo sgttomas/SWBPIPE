@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import corpusText from '../../../../../fixtures/results/retained_precision_cases.json?raw';
+import { readFileSync as readCorpus } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
 import { absoluteBound, upwardProduct, upwardSmallSum, binary64Bits, decodeBinary64 } from './retainedPrecision';
-const corpus = JSON.parse(corpusText);
+// Read from disk, not as a `?raw` module import: since 07o (B2's producer-solved bases) the corpus is about 70 MB, and
+// the module transform of that text exhausts the default heap.
+const corpus = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_cases.json'), 'utf8'));
 type Rational = readonly [bigint, bigint];
 // Independent test oracle: exact fractions plus a binary search over ordered
 // positive binary64 words. It shares neither the reader's quantum rounding nor
@@ -100,30 +103,68 @@ describe('synthetic prepared receipt arithmetic controls, not execution evidence
   });
 });
 
-import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts, errorStageRecordAgrees } from './retainedPrecision';
+import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts, errorStageRecordAgrees, EXACT_RETAINED_ID, EXACT_RETAINED_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, PREPARED_DEFINITION_ID, tableBindsReaderConstants } from './retainedPrecision';
+import n05Text from '../../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json?raw';
+import exactTableForTests from '../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json';
+import { readFileSync, writeFileSync } from 'node:fs';
+import physicsTableForTests from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json';
+import { PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_SHA256, PHYSICS_RETAINED_PROFILE, numericalResultStanding, retainedPrecisionDowngrade, sourceContract, sourceContractTransport, sourceSemanticBinding } from './numericalResultQuality';
+import { RETAINED_PRECISION_VALIDATION_REQUIRED } from './retainedPrecisionStanding';
+import { semanticContractForSource } from './resultSemantics';
+import { knownSemanticNotices, resultRowLabel, ruleBindingRefusal, RULE_QUANTITY_NOT_COVERED } from './knownSemanticLimitations';
 import milestoneSparseText from '../../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json?raw';
 import milestoneDenseText from '../../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json?raw';
-import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
+import { canonicalSha256HexCheckedV1, canonicalSha256Hex } from '../../services/hashService';
+import { createHash } from 'node:crypto';
+import m3xSparseText from '../../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json?raw';
+import m3xDenseText from '../../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json?raw';
 /** Snapshot 07e format rule (RV78-N1): a rehash index is a strict integral value, a JSON number that is never a
  * boolean, finite, integral, >= 0 and not -0 (0.0 is index 0; 0.5, true and -0 are not). A reference that is not
  * an index, or does not resolve, is skipped and left for the reader to report. */
 function rehashRef(items: any[], ref: unknown): any {
   return typeof ref === 'number' && Number.isInteger(ref) && ref >= 0 && !Object.is(ref, -0) && ref < items.length ? items[ref] : undefined;
 }
-async function rehash(source: any) {
+/** S-1 (REVISION_01 §2): every preparation hash carries the route's definition H: DEF-E's on the exact identity, DEF-O's
+ * otherwise. */
+const routeDefinitionHash = (source: any) => source?.producer?.semantic_contract_id === EXACT_RETAINED_ID ? EXACT_DEFINITION_HASH : 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349';
+/** 07o's rehash rule (B2-C REVISION_01 §5.2, S-6), in dependency order; each step reads only what earlier steps wrote,
+ * and a reference that is not a strict index (07e's rule), or does not resolve, is skipped and left to the reader. */
+async function rehash(source: any, definitionHash = routeDefinitionHash(source)) {
   // Snapshot 07 format: an entry that removes retained_precision or its body (a G0 pin) has nothing to rehash.
   const body = source.retained_precision?.body;
   if (!body || typeof body !== 'object') return;
+  const members = (x: any) => x.preparation.members.map((m: any) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section }));
+  const identity = (s: any) => { const { index: _, ...rest } = s; return canonicalSha256HexCheckedV1({ domain: 'retained_precision_source_mp_v2', payload: rest }); };
+  // Step 1 (07e): a CaseSource's preparation hash through its case attempt.
   for (const s of body.sources) if (s.preparation) {
     const a = rehashRef(body.product_attempts, s.preparation.attempt_ref);
     if (!a || !a.preparation.members.every((m: any) => m.result.kind === 'prepared')) continue;
     s.preparation.sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_preparation_v1', payload: {
-      definition_id: a.definition_id, definition_sha256: 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349', owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
-      members: a.preparation.members.map((m: any) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) } });
+      definition_id: a.definition_id, definition_sha256: definitionHash, owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
+      members: members(a) } });
   }
+  // Step 2 (07o): a CaseSource's preparation hash through its prepared operand preparation (C3a-5; DEF-O's H as step 1's).
+  for (const s of body.sources) if (s.preparation) {
+    const op = rehashRef(body.operand_preparations ?? [], s.preparation.operand_preparation_ref);
+    if (!op || op.result?.kind !== 'prepared' || !op.preparation.members.every((m: any) => m.result.kind === 'prepared')) continue;
+    s.preparation.sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_operand_preparation_v1', payload: {
+      definition_id: op.definition_id, definition_sha256: definitionHash, owner_ref: op.owner_ref, ordinary_attempt_ref: op.ordinary_attempt_ref, material_basis_ref: op.material_basis_ref,
+      purpose: op.purpose, members: members(op) } });
+  }
+  // Step 3 (07e): each selected case's source identity.
   for (const c of body.cases) {
     const source = c.status === 'selected' ? rehashRef(body.sources, c.source_ref) : undefined;
-    if (source) { const { index: _, ...s } = source; c.source_identity_sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_source_mp_v2', payload: s }); }
+    if (source) c.source_identity_sha256 = await identity(source);
+  }
+  // Step 4 (07o): each CombinationSource operand's identity, from the source at its source_ref.
+  for (const s of body.sources) if (s.owner?.kind === 'combination') for (const o of s.operands ?? []) {
+    const target = rehashRef(body.sources, o.source_ref);
+    if (target) o.source_identity_sha256 = await identity(target);
+  }
+  // Step 5 (07o): each retained_selected combination's identity, from its CombinationSource.
+  for (const e of body.combinations ?? []) {
+    const target = e.disposition === 'retained_selected' ? rehashRef(body.sources, e.source_ref) : undefined;
+    if (target) e.source_identity_sha256 = await identity(target);
   }
   const { retained_precision: _, ...publication } = source;
   body.publication_sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_publication_mp_v2', payload: publication });
@@ -155,8 +196,24 @@ async function applyEntry(m: any): Promise<{ base: any; source: any; invocation:
   applyEdits(source, m.after_rehash);
   return { base, source, invocation };
 }
+/** PR-B2 ruling 5: 07o states its two hook-produced bases refused bound at G8 PREPARATION_MISMATCH (each hook writes the
+ * refused member's old facts with D = +0 where the invocation's outside diameter is 0.2 m, and G8's preparation binding
+ * refuses that: C3's old tuple against the invocation, B1's P7 settlement; C3a-7 G8 for an operand preparation): the base's
+ * `expected` and its must-pass entry's are that gate and code, the entry's `expected_unbound` and `expected_transport` pass. */
+const statedRefusal = (expected: any) => typeof expected === 'object' && expected !== null && Object.hasOwn(expected, 'gate');
+async function boundReading(source: any, invocation: any): Promise<unknown> {
+  try { await validateRetainedPrecision(source, invocation); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; }
+}
 describe('shared synthetic prepared receipt controls, never solver execution evidence', () => {
   for (const c of corpus.cases) {
+    if (statedRefusal(c.expected)) {
+      it(c.id + ' (bound: the corpus\'s stated refusal)', async () => {
+        expect(await boundReading(structuredClone(c.source), structuredClone(c.invocation))).toEqual(c.expected);
+        const unbound = await validateRetainedPrecision(structuredClone(c.source)), transport = structuredClone(c.source); delete transport.results;
+        expect([unbound.numerical_eligible, (await validateRetainedPrecisionTransport(transport)).numerical_eligible]).toEqual([false, false]);
+      });
+      continue;
+    }
     it(c.id, async () => {
       const source = structuredClone(c.source), invocation = structuredClone(c.invocation);
       const before = structuredClone({ source, invocation });
@@ -189,8 +246,15 @@ describe('shared synthetic prepared receipt controls, never solver execution evi
   });
   // Snapshot 05a: publicly consistent or permitted failure-path rewrites the reader must accept.
   for (const m of corpus.must_pass ?? []) it('must pass: ' + m.id, async () => {
-    expect(m.expected).toBe('pass');
     const { base, source, invocation } = await applyEntry(m);
+    if (m.expected !== 'pass') {
+      // PR-B2 ruling 5: the entry states its base's bound refusal, and passes unbound and on transport.
+      expect(statedRefusal(m.expected) && statedRefusal(base.expected)).toBe(true);
+      expect(await boundReading(source, invocation), 'the stated refusal').toEqual(m.expected);
+      expect([m.expected_unbound, m.expected_transport]).toEqual(['pass', 'pass']);
+      expect([(await validateRetainedPrecision(structuredClone(source))).numerical_eligible, (await validateRetainedPrecisionTransport(structuredClone(source))).numerical_eligible]).toEqual([false, false]);
+      return;
+    }
     const result = await validateRetainedPrecision(source, invocation);
     // U7 (07i): each entry's own eligibility per C1:160.
     expect({ invocation_bound: result.invocation_bound, numerical_eligible: result.numerical_eligible, standing: result.standing }).toEqual(m.expected_eligibility);
@@ -501,7 +565,7 @@ describe('review repair 07: decisions without a probe (reader-local)', () => {
   });
   it('D14: no non-test module imports the @internal reader exports', async () => {
     const fs = await import('node:fs'), path = await import('node:path');
-    const root = path.resolve(__dirname, '../..'), internal = ['nativeSchedule', 'nativeRuns', 'ordinaryAttempts', 'accountingRules', 'stopFeasible', 'phi512', 'eHat'];
+    const root = path.resolve(__dirname, '../..'), internal = ['nativeSchedule', 'nativeRuns', 'ordinaryAttempts', 'accountingRules', 'stopFeasible', 'phi512', 'eHat', 'previewHeaderForTests', 'utf8Sorted'];
     const offenders: string[] = [];
     for (const rel of fs.readdirSync(root, { recursive: true }) as string[]) {
       if (!/\.(ts|tsx)$/.test(rel) || /\.test\.(ts|tsx)$/.test(rel) || rel.endsWith(path.join('results', 'retainedPrecision.ts'))) continue;
@@ -601,9 +665,12 @@ describe('confirmation repair round (D19-D30, RV81-N1/N2): reader-local relation
 });
 
 describe('07d round (D31-D33): reader-local relations', () => {
-  it('D31: G8 admits model schema_version 0.1.0, 0.2.0 and 0.3.0, and refuses 0.4.0', async () => {
+  // B3a (B3-D §6.3, decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot emit it,
+  // PRESSURE_CONTRACT_REQUIRED), so it is G8 INVOCATION_MISMATCH; 0.3.0 with the legacy contract is B3a's block below.
+  it('D31: G8 admits model schema_version 0.1.0 and 0.2.0 without a contract, and refuses 0.3.0 without one and 0.4.0', async () => {
     const run = async (version: string) => { const { source, invocation } = await applyEntry({ id: 'i64_d31_' + version, base: 'ordinary_prepared_synthetic', edits: [], invocation_edits: [{ path: ['request', 'model', 'schema_version'], op: 'set', value: version }], rehash: 'all' }); return firstFailure(source, invocation); };
-    for (const version of ['0.1.0', '0.2.0', '0.3.0']) expect(await run(version), version).toBe('pass');
+    for (const version of ['0.1.0', '0.2.0']) expect(await run(version), version).toBe('pass');
+    expect(await run('0.3.0')).toEqual(G('G8', 'INVOCATION_MISMATCH'));
     expect(await run('0.4.0')).toEqual(G('G8', 'INVOCATION_MISMATCH'));
   });
   it('D32: integers and references written as integral floats are the same values (parse boundary)', async () => {
@@ -1306,7 +1373,8 @@ describe('B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precond
     ];
     await table([
       // A non-empty list (or any value with a non-zero length) is G8's too: TS's G3 combination conjunct moved here
-      // (ROOT on REPAIR_01 §6), as in RS and PY.
+      // (ROOT on REPAIR_01 §6), as in RS and PY. Since B2-C §10.1 G8, a list is admitted and bound to the receipt's
+      // entries: this receipt has none, so a non-empty list is refused there.
       ['bound: combinations [{}]', bound(entry(ORD, [], [set(model('combinations'), [{}])])), INVOCATION],
       ['bound: combinations "x"', bound(entry(ORD, [], [set(model('combinations'), 'x')])), INVOCATION],
       ['unbound: combinations [{}]', unbound(entry(ORD, [], [set(model('combinations'), [{}])])), { admitted: false }],
@@ -1433,6 +1501,508 @@ describe('B1 I4\' (I101): the extrema-number demand at G7, bound, unbound and on
     for (const [name, edits, want] of rows) { const got = await verdicts(edits); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
     expect(misses).toEqual([]);
   });
+  it('N-1 (RV125; PR-B2 ruling 2): a negative member is refused by the same demand, code and detail; zero and -0 are admitted', async () => {
+    const refused = { bound: g7('extrema numbers'), unbound: g7('extrema numbers'), transport: g7('extrema numbers') }, admitted = { bound: { admitted: true }, unbound: { admitted: false }, transport: { admitted: false } };
+    const rows: [string, any[], unknown][] = [];
+    for (const member of ['global_upper_bound_pa', 'certified_gap_pa']) rows.push(
+      [`${member} -1`, [{ path: x(member), op: 'set', value: -1 }], refused],
+      [`${member} the negative least subnormal`, [{ path: x(member), op: 'set', value: -5e-324 }], refused],
+      [`${member} 0`, [{ path: x(member), op: 'set', value: 0 }], admitted],
+      [`${member} -0`, [{ path: x(member), op: 'set', value: -0 }], admitted]);
+    const misses: string[] = [];
+    for (const [name, edits, want] of rows) { const got = await verdicts(edits); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
+    expect(misses).toEqual([]);
+  });
+});
+
+describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4; REVISION_01 §3, N-4; reader-local synthetic receipts)', () => {
+  // B3a dropped (RR "Owner decisions: the legacy pressure contract is retired product-wide; …"): only branch L (0.1.0 or
+  // 0.2.0, pressure_contract absent or JSON null) is admitted; any other value is G8 INVOCATION_MISMATCH. "L3" in the
+  // entry names is B3a's retired contract {"version":"1.0.0","mode":"legacy_pressure_v1"} on 0.3.0, now refused on every
+  // base, and before any load is read (the former N-11 entries). The shapes and expectations are the Rust reader's
+  // `b3a_legacy_pressure_contract_namespace_at_g8` and PY's `B3A_DROPPED_TABLE`, entry for entry.
+  const l3 = { version: '1.0.0', mode: 'legacy_pressure_v1' };
+  const schema = (v: string) => ({ path: ['request', 'model', 'schema_version'], op: 'set', value: v });
+  const contract = (v: unknown) => ({ path: ['request', 'model', 'pressure_contract'], op: 'set', value: v });
+  const noContract = () => ({ path: ['request', 'model', 'pressure_contract'], op: 'remove' });
+  const INV = G('G8', 'INVOCATION_MISMATCH');
+  const zeroPressure = (id: string) => {
+    const loads = structuredClone(corpus.cases.find((c: any) => c.id === id).invocation.request.model.load_cases[0].primitive_loads);
+    loads.push({ id: 'load:b3a-zero-pressure', category: 'pressure', target: { type: 'element', pipe: 'pipe:fixture-span' },
+      magnitude: { value: 0, unit: 'Pa' }, dimension: 'pressure', provenance: 'synthetic_integration_input_not_library_data' });
+    return { path: ['request', 'model', 'load_cases', 0, 'primitive_loads'], op: 'set', value: loads };
+  };
+  const ORD = 'ordinary_prepared_synthetic', DENSE = 'ordinary_prepared_dense_synthetic';
+  const entries: [string, string, any[], any][] = [
+    ...[ORD, DENSE, 'two_case_synthetic', 'u8_l0_isolated_node_sparse_interactive', 'u8_l0_isolated_node_dense_scrutiny']
+      .map((base): [string, string, any[], any] => [`L3 on ${base}`, base, [schema('0.3.0'), contract(l3)], INV]),
+    ['L: 0.2.0, contract null', ORD, [contract(null)], 'pass'],
+    ['L: 0.1.0, contract absent', ORD, [schema('0.1.0'), noContract()], 'pass'],
+    ['L3: mode exact_straight_pressure_v2, version 1.0.0', ORD, [schema('0.3.0'), contract({ ...l3, mode: 'exact_straight_pressure_v2' })], INV],
+    ['L3: version 1.0.1', ORD, [schema('0.3.0'), contract({ ...l3, version: '1.0.1' })], INV],
+    ['L3: the exact contract 2.0.0', ORD, [schema('0.3.0'), contract({ version: '2.0.0', mode: 'exact_straight_pressure_v2' })], INV],
+    ['0.3.0, contract null', ORD, [schema('0.3.0'), contract(null)], INV],
+    ['0.3.0, contract absent', ORD, [schema('0.3.0'), noContract()], INV],
+    ['L3: an extra key', ORD, [schema('0.3.0'), contract({ ...l3, extra: 'x' })], INV],
+    ['L3: an extra key valued null', ORD, [schema('0.3.0'), contract({ ...l3, extra: null })], INV],
+    ['L3: version only', ORD, [schema('0.3.0'), contract({ version: '1.0.0' })], INV],
+    ['L3: mode only', ORD, [schema('0.3.0'), contract({ mode: 'legacy_pressure_v1' })], INV],
+    ['L3: version a number', ORD, [schema('0.3.0'), contract({ ...l3, version: 1.0 })], INV],
+    ['L3: mode null', ORD, [schema('0.3.0'), contract({ ...l3, mode: null })], INV],
+    ['0.3.0, contract {}', ORD, [schema('0.3.0'), contract({})], INV],
+    ['0.2.0 keeping the L3 contract', ORD, [contract(l3)], INV],
+    ['0.1.0 keeping the L3 contract', ORD, [schema('0.1.0'), contract(l3)], INV],
+    ['0.4.0 with the L3 contract', ORD, [schema('0.4.0'), contract(l3)], INV],
+    ['N-4: 0.2.0, contract {}', ORD, [contract({})], INV],
+    ['N-4: 0.2.0, contract false', ORD, [contract(false)], INV],
+    ['N-4: 0.2.0, contract []', ORD, [contract([])], INV],
+    ['N-4: 0.2.0, contract ""', ORD, [contract('')], INV],
+    ['N-4: 0.2.0, contract 0', ORD, [contract(0)], INV],
+    ['N-11: L3 with a zero-magnitude element pressure load', ORD, [schema('0.3.0'), contract(l3), zeroPressure(ORD)], INV],
+    ['N-11: L3 dense with a zero-magnitude element pressure load', DENSE, [schema('0.3.0'), contract(l3), zeroPressure(DENSE)], INV],
+  ];
+  it('has the Rust test\'s 29 entries', () => { expect(entries.length).toBe(29); });
+  for (const [name, base, edits, want] of entries) it(name, async () => {
+    const { source, invocation } = await applyEntry({ id: 'i101_b3a', base, edits: [], invocation_edits: edits, rehash: 'all' });
+    expect(await firstFailure(source, invocation)).toEqual(want);
+  });
+});
+
+describe('B3b (I101): the exact successor <physics-retained> on reader-local synthetic receipts and lane P\'s m3x successors (B3-D §6; REVISION_01 §4.3)', () => {
+  // RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the synthetic exact successor keeps every receipt
+  // number of its preview base. The transform, the shapes and the expected first failures are the Rust reader's
+  // `exact_successor` and `b3b_shapes`, entry for entry; only G7's base codes are TS's own (C1 G7 settlement).
+  const NU = 0.2987012987012987;
+  const ORD = 'ordinary_prepared_synthetic', BASES = [ORD, 'ordinary_prepared_dense_synthetic', 'two_case_synthetic'];
+  const decode = (bits: string) => decodeBinary64(bits);
+  const ulps = (v: number, n: number) => { const view = new DataView(new ArrayBuffer(8)); view.setFloat64(0, v); view.setBigUint64(0, view.getBigUint64(0) + BigInt(n)); return view.getFloat64(0); };
+  async function exactSuccessor(baseId: string): Promise<{ source: any; invocation: any }> {
+    const base = corpus.cases.find((c: any) => c.id === baseId), source = structuredClone(base.source), invocation = structuredClone(base.invocation);
+    const model = invocation.request.model;
+    model.schema_version = '0.3.0'; model.pressure_contract = { version: '2.0.0', mode: 'exact_straight_pressure_v2' };
+    for (const c of model.load_cases) c.pressure_regions = [];
+    for (const m of model.materials) { m.poisson_ratio = { value: NU, unit: '1' }; m.constitutive_basis = 'homogeneous_isotropic_E_nu_v1'; }
+    const body = source.retained_precision.body, nodes = model.nodes.map((n: any) => n.id), exactCases: any[] = [];
+    for (const rc of body.cases) {
+      expect(rc.status).toBe('selected');
+      const id = rc.basis_ref.ref_id, s = body.sources[rc.source_ref], mb = body.material_bases[body.product_attempts[rc.product_attempt_ref].material_basis_ref];
+      const sections: any[] = [], materials: any[] = [];
+      model.pipe_segments.forEach((p: any, i: number) => {
+        const st = s.section_terms[i], g = st.geometry; expect(s.id_maps.members[i].id).toBe(p.id);
+        const od = decode(g.normalized_od), wall = decode(g.effective_wall), ri = od * 0.5 - wall;
+        sections.push({ pipe_id: p.id, geometry_basis: 'authored_normalized_od_wall_v1', outside_diameter_m: od, effective_wall_thickness_m: wall, ri_m: ri,
+          ro_m: decode(g.actual_radius), Ai_m2: Math.PI * ri * ri, As_m2: decode(st.area), I_m4: decode(g.actual_second_moment), J_m4: decode(g.actual_polar_moment), Z_m3: decode(st.section_modulus) });
+        const m = mb.materials.find((x: any) => x.id === p.material), e = decode(m.elastic_modulus), gHat = e / (2 * (1 + NU));
+        expect(binary64Bits(gHat)).toBe(m.shear_modulus);
+        const authored = model.materials.find((x: any) => x.id === p.material);
+        materials.push({ pipe_id: p.id, material_id: p.material, E_pa: e, nu: NU, G_pa: gHat, constitutive_basis: 'homogeneous_isotropic_E_nu_v1', thermal_consumed: false, alpha_per_kelvin: null, provenance: authored.provenance });
+      });
+      const preview = source.contract_evidence.preview_cases.find((c: any) => c.load_case_id === id), zeros = Array(nodes.length * 6).fill(0);
+      exactCases.push({ load_case_id: id, profile_mode: 'exact_straight_pressure_v2', material_basis: 'base_material_common_E_nu', pipe_materials: materials, pipe_sections: sections,
+        pipe_stress_extrema: structuredClone(preview.pipe_stress_extrema),
+        stress_maximum_coverage: { complete: preview.stress_maximum_coverage.complete, unavailable_pipe_ids: structuredClone(preview.stress_maximum_coverage.unavailable_pipe_ids) },
+        pressure_rhs_assembly: { method: 'source_factor_grouped_pressure_rhs_v1', load_case_id: id, node_order: nodes, dof_order: ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'],
+          dof_units: ['N', 'N', 'N', 'N*m', 'N*m', 'N*m'], assembled_pressure_rhs_global: zeros, groups: [], rounded_cap_rhs_global: zeros, rounded_poisson_rhs_global: zeros,
+          rounded_cap_and_eigen_ledgers_are_observational: true, cancellation_screen: 0, screen_limit: 1e-9, screen_roundoff_multiplier: 32, screen_is_not_numerical_qualification: true } });
+    }
+    source.producer.semantic_contract_id = EXACT_RETAINED_ID;
+    source.formulation_basis = { profile_id: EXACT_RETAINED_PROFILE, limitations: JSON.parse(n05Text).formulation_basis.limitations };
+    source.contract_evidence = structuredClone({ pressure: [], connector: [], exact_cases: exactCases });
+    for (const mb of body.material_bases) for (const m of mb.materials) m.shear_origin = { kind: 'derived_e_nu', poisson_ratio: binary64Bits(NU), constitutive_basis: 'homogeneous_isotropic_E_nu_v1' };
+    for (const s of body.sources) for (const st of s.section_terms) st.geometry.route = 'exact';
+    for (const a of body.product_attempts) a.definition_id = EXACT_DEFINITION_ID;
+    body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: invocation });
+    await rehash(source);
+    return { source, invocation };
+  }
+  type Shape = { name: string; base: string; edits?: any[]; invocation_edits?: any[] };
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value }), remove = (path: (string | number)[]) => ({ path, op: 'remove' });
+  const rb = (...tail: (string | number)[]) => ['retained_precision', 'body', ...tail], ce = (...tail: (string | number)[]) => ['contract_evidence', 'exact_cases', 0, ...tail];
+  const md = (...tail: (string | number)[]) => ['request', 'model', ...tail];
+  const G0 = { gate: 'G0', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' }, INV = G('G8', 'INVOCATION_MISMATCH'), PREP = G('G8', 'PREPARATION_MISMATCH'), SEC = G('G5b', 'SECTION_MISMATCH');
+  /** REVISION_01 §4.3's entries and the added shapes on one exact base, every edited value taken from that base. */
+  const rows = (base: string, x: { source: any; invocation: any }): [Shape, any][] => {
+    const entry = x.source.contract_evidence.exact_cases[0], sec = (k: string) => entry.pipe_sections[0][k] as number;
+    const pm = entry.pipe_materials[0], receiptG = decode(x.source.retained_precision.body.material_bases[0].materials[0].shear_modulus);
+    const receiptE = decode(x.source.retained_precision.body.material_bases[0].materials[0].elastic_modulus);
+    const model = x.invocation.request.model, authoredNu = model.materials[0].poisson_ratio.value, caseId = model.load_cases[0].id, pipeId = model.pipe_segments[0].id;
+    return [
+      [{ name: '01 identity -> the preview id', base, edits: [set(['producer', 'semantic_contract_id'], RETAINED_PRECISION_ID)] }, G0],
+      [{ name: '02 profile -> the preview profile', base, edits: [set(['formulation_basis', 'profile_id'], RETAINED_PRECISION_PROFILE)] }, G0],
+      [{ name: '02b producer component_version 0.2.1', base, edits: [set(['producer', 'component_version'], '0.2.1')] }, G0],
+      [{ name: "03 an attempt's definition_id -> the ordinary id", base, edits: [set(rb('product_attempts', 0, 'definition_id'), PREPARED_DEFINITION_ID)] }, G0],
+      [{ name: '04 projection_policy changed', base, edits: [set(rb('projection_policy'), 'RP-LOGICAL-ATTEMPTS-v2')] }, G0],
+      [{ name: '04b policy changed', base, edits: [set(rb('policy'), 'M03-INTEGRITY-MP-v3')] }, G0],
+      [{ name: '04c facade_policy changed', base, edits: [set(rb('facade_policy'), 'RP-FACADE-SI-v3')] }, G0],
+      [{ name: '05 work_policy changed', base, edits: [set(rb('work_policy'), 'W1-LME-20B-60B-v2')] }, G0],
+      [{ name: '06 canonicalization changed', base, edits: [set(rb('canonicalization'), 'openpipestress_jcs_ijson_v2')] }, G0],
+      [{ name: '07 work.case_limit changed', base, edits: [set(rb('work', 'case_limit'), 19_999_999_999)] }, G0],
+      [{ name: '08 work.invocation_limit changed', base, edits: [set(rb('work', 'invocation_limit'), 60_000_000_001)] }, G0],
+      [{ name: '08b receipt_version 2', base, edits: [set(rb('receipt_version'), 2)] }, G0],
+      [{ name: '10 the exact successor relabelled preview (identity and profile)', base, edits: [set(['producer', 'semantic_contract_id'], RETAINED_PRECISION_ID), set(['formulation_basis', 'profile_id'], RETAINED_PRECISION_PROFILE)] }, G0],
+      [{ name: "12 owner entry's As_m2 one ulp", base, edits: [set(ce('pipe_sections', 0, 'As_m2'), ulps(sec('As_m2'), 1))] }, SEC],
+      [{ name: "13 owner entry's Z_m3 one ulp", base, edits: [set(ce('pipe_sections', 0, 'Z_m3'), ulps(sec('Z_m3'), 1))] }, SEC],
+      [{ name: "14 owner entry's I_m4 one ulp", base, edits: [set(ce('pipe_sections', 0, 'I_m4'), ulps(sec('I_m4'), 1))] }, SEC],
+      [{ name: "15 owner entry's ro_m one ulp", base, edits: [set(ce('pipe_sections', 0, 'ro_m'), ulps(sec('ro_m'), 1))] }, SEC],
+      [{ name: "15b owner entry's J_m4 one ulp", base, edits: [set(ce('pipe_sections', 0, 'J_m4'), ulps(sec('J_m4'), 1))] }, SEC],
+      [{ name: "15c owner entry's outside_diameter_m one ulp", base, edits: [set(ce('pipe_sections', 0, 'outside_diameter_m'), ulps(sec('outside_diameter_m'), 1))] }, SEC],
+      [{ name: "15d owner entry's effective_wall_thickness_m one ulp", base, edits: [set(ce('pipe_sections', 0, 'effective_wall_thickness_m'), ulps(sec('effective_wall_thickness_m'), 1))] }, SEC],
+      [{ name: "15e the owner entry's load_case_id renamed (no entry for the selected case)", base, edits: [set(ce('load_case_id'), 'case:other')] }, SEC],
+      [{ name: "15f the owner entry's pipe section listed twice", base, edits: [set(ce('pipe_sections'), [entry.pipe_sections[0], entry.pipe_sections[0]])] }, SEC],
+      [{ name: "15g the owner entry's As_m2 a string", base, edits: [set(ce('pipe_sections', 0, 'As_m2'), String(sec('As_m2')))] }, SEC],
+      [{ name: "15h the owner entry listed twice", base, edits: [set(['contract_evidence', 'exact_cases'], [entry, entry])] }, SEC],
+      [{ name: '16b contract_evidence removed', base, edits: [remove(['contract_evidence'])] }, SEC],
+      [{ name: '16 connector non-empty', base, edits: [set(['contract_evidence', 'connector'], [{ id: 'connector:x' }])] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_UNSUPPORTED_COMPOSITION' }],
+      [{ name: "17 an entry's G_pa three ulps", base, edits: [set(ce('pipe_materials', 0, 'G_pa'), ulps(pm.G_pa, 3))] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_MATERIAL_INVALID' }],
+      [{ name: '18 recovery_method added to an exact_cases entry', base, edits: [set(ce('recovery_method'), 'retained_source_blocks_exact_v1')] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_SHAPE' }],
+      [{ name: '19 invocation contract -> legacy 1.0.0', base, invocation_edits: [set(md('pressure_contract'), { version: '1.0.0', mode: 'legacy_pressure_v1' })] }, INV],
+      [{ name: '20 invocation schema -> 0.4.0', base, invocation_edits: [set(md('schema_version'), '0.4.0')] }, INV],
+      [{ name: '21 invocation pressure_contract false', base, invocation_edits: [set(md('pressure_contract'), false)] }, INV],
+      [{ name: '21b invocation contract with an extra key', base, invocation_edits: [set(md('pressure_contract'), { version: '2.0.0', mode: 'exact_straight_pressure_v2', extra: null })] }, INV],
+      [{ name: '21c invocation contract version 2.0.1', base, invocation_edits: [set(md('pressure_contract'), { version: '2.0.1', mode: 'exact_straight_pressure_v2' })] }, INV],
+      [{ name: '21d invocation contract removed (0.3.0, absent)', base, invocation_edits: [remove(md('pressure_contract'))] }, INV],
+      // Entry 22 (PR-B2 ruling 3): B2-C §10.1 G8 admits model combinations and binds the receipt's entries to them; this
+      // receipt has none for the model's one, so the expression equality refuses it at G8 INVOCATION.
+      [{ name: '22 a combination added to the invocation', base, invocation_edits: [set(md('combinations'), [{ id: 'combination:x', kind: 'algebraic', terms: [{ load_case: caseId, factor: 1.0 }] }])] }, INV],
+      [{ name: '22b a component added to the invocation', base, invocation_edits: [set(md('components'), [{ id: 'component:x' }])] }, INV],
+      [{ name: '23 a case naming modulus_basis_ref', base, invocation_edits: [set(md('load_cases', 0, 'modulus_basis_ref'), 'point:x')] }, PREP],
+      // D1.5: only the base common E/nu, even a named point equal to the base, with the receipt's selector naming it alike.
+      [{ name: "23b a case naming a point equal to the base, the receipt's selector alike", base, edits: [set(rb('material_bases', 0, 'selector'), { kind: 'named', id: 'point:base' })],
+        invocation_edits: [set(md('materials', 0, 'temperature_points'), [{ id: 'point:base', elastic_modulus: structuredClone(model.materials[0].elastic_modulus), poisson_ratio: structuredClone(model.materials[0].poisson_ratio) }]),
+          set(md('load_cases', 0, 'modulus_basis_ref'), 'point:base')] }, PREP],
+      [{ name: "24 a material's shear_origin -> explicit_g", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin'), { kind: 'explicit_g' })] }, PREP],
+      [{ name: "24b a material's selection -> named_point", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'selection'), { kind: 'named_point', point_id: 'point:x' })] }, PREP],
+      [{ name: "25b a material's elastic_modulus one ulp", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'elastic_modulus'), binary64Bits(ulps(receiptE, 1)))] }, PREP],
+      [{ name: "25 a material's shear_modulus one ulp", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_modulus'), binary64Bits(ulps(receiptG, 1)))] }, PREP],
+      [{ name: '26 shear_origin.poisson_ratio bits changed', base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin', 'poisson_ratio'), binary64Bits(ulps(pm.nu, 1)))] }, PREP],
+      [{ name: '27 authored nu changed in the invocation', base, invocation_edits: [set(md('materials', 0, 'poisson_ratio', 'value'), ulps(authoredNu, 1))] }, PREP],
+      [{ name: "28 S-C only: an entry's pipe_materials nu one ulp", base, edits: [set(ce('pipe_materials', 0, 'nu'), ulps(pm.nu, 1))] }, PREP],
+      [{ name: "29 N-6: an entry's G_pa one ulp", base, edits: [set(ce('pipe_materials', 0, 'G_pa'), ulps(pm.G_pa, 1))] }, PREP],
+      [{ name: "30 a case's pressure_regions -> null", base, invocation_edits: [set(md('load_cases', 0, 'pressure_regions'), null)] }, PREP],
+      [{ name: "30b a case's pressure_regions absent", base, invocation_edits: [remove(md('load_cases', 0, 'pressure_regions'))] }, PREP],
+      [{ name: "31 a case's pressure_regions -> one region", base, invocation_edits: [set(md('load_cases', 0, 'pressure_regions'), [{ id: 'region:x', member_pipe_ids: [pipeId], pressure: { value: 0, unit: 'Pa' } }])] }, PREP],
+      [{ name: "32 a member's geometry.route -> preview", base, edits: [set(rb('sources', 0, 'section_terms', 0, 'geometry', 'route'), 'preview')] }, PREP],
+      [{ name: '32b the authored poisson_ratio unit -> ""', base, invocation_edits: [set(md('materials', 0, 'poisson_ratio', 'unit'), '')] }, PREP],
+      [{ name: '32c the authored constitutive_basis removed (S-C)', base, invocation_edits: [remove(md('materials', 0, 'constitutive_basis'))] }, PREP],
+    ];
+  };
+  /** The optional file base: B3B_EXACT_BASE names a `{source, invocation}` file (for example lane P's `m3x` exact
+   * successor); every shape is then also read on it. */
+  const FILE_BASE = '<file>';
+  /** Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base name, document text,
+   * document sha256 and receipt sha256. Every shape is also read on each. */
+  const M3X: [string, string, string, string][] = [
+    ['m3x_sparse_interactive', m3xSparseText, '02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6', 'b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f'],
+    ['m3x_dense_scrutiny', m3xDenseText, '31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc', 'eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d'],
+  ];
+  const m3x = (name: string): { source: any; invocation: any } => {
+    const [, text, documentSha, receiptSha] = M3X.find(m => m[0] === name)!;
+    expect(createHash('sha256').update(text).digest('hex'), `${name}: lane P's pinned document`).toBe(documentSha);
+    const doc = JSON.parse(text);
+    expect(doc.source.retained_precision.receipt_sha256, name).toBe(receiptSha);
+    return { source: doc.source, invocation: doc.invocation };
+  };
+  const exactBase = async (base: string) => base === FILE_BASE ? JSON.parse(readFileSync(process.env.B3B_EXACT_BASE!, 'utf8'))
+    : M3X.some(m => m[0] === base) ? m3x(base) : exactSuccessor(base);
+  /** RV120's F2 forgeries (REVIEW_RV120 b3_readers_01: forge_eg.py, forge_eg_inputs.jsonl), as the Rust reader's
+   * `rv120_forgeries`: E or G-hat one ulp in all five receipt copies, the derived operational stiffness with it, the
+   * evidence G_pa for G-hat, and the native hashes resealed; the 07e rehash recomputes the rest. Only G8 step 4's E and
+   * G-hat bits refuse them (mutants B28, B29). */
+  const RV120_FORGERIES: [string, string, any[]][] = [
+    ["RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", 'ordinary_prepared_synthetic', [
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'elastic_modulus'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 0], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'E'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], '57dc66560ce90fb976a633b07f55c736b11f2b78265d791a3a4123c0751be478'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2'),
+    ]],
+    ["RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", 'ordinary_prepared_synthetic', [
+      set(['contract_evidence', 'exact_cases', 0, 'pipe_materials', 0, 'G_pa'], decodeBinary64('4231ed8ec2000001')),
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'shear_modulus'], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 7], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 7], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'torsional_stiffness'], '4128c47ead23fa82'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 1], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'G'], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], 'd098e88140c2f23621802f449f296928412138208b2adf72553b0a4790fe8f58'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980'),
+    ]],
+    ["RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", 'm3x_sparse_interactive', [
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'elastic_modulus'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 0], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'E'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], 'ab4596d0b1a50b195b0368d573dbf26ed4c2cb6c1e76da6490052217b12b8bb2'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e'),
+    ]],
+    ["RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", 'm3x_sparse_interactive', [
+      set(['contract_evidence', 'exact_cases', 0, 'pipe_materials', 0, 'G_pa'], decodeBinary64('4232a05f20000001')),
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], 'd7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'shear_modulus'], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 7], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 7], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'torsional_stiffness'], '4135fb0cf390a831'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 1], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'G'], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], '7f965da3aaa6d9720c549022c8947fa602a2065c26415d5663f5dc398e8f7b84'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], 'd7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194'),
+    ]],
+  ];
+  /** RV120's probes for repair 02, as the Rust reader's `rv120_probes`: N2, an exact_cases entry for a case not in the
+   * invocation (entry 0 copied, renamed), on the synthetic exact base and the sparse m3x; F1's four G5b probes on the exact
+   * two_case_synthetic. TS's own G7 codes for N2 (C1 G7 settlement). */
+  const N2_BOUND = { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_COVERAGE' }, N2_TRANSPORT = { gate: 'G7', code: 'PHYSICS_EVIDENCE_TRANSPORT_MAXIMUM_ID' };
+  const RV120_N2_INPUTS = ['b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0', 'a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe'];
+  const rv120Probes = async (): Promise<[Shape, any][]> => {
+    const out: [Shape, any][] = [];
+    for (const base of [ORD, 'm3x_sparse_interactive']) {
+      const { source } = await exactBase(base);
+      const entry = structuredClone(source.contract_evidence.exact_cases[0]), other = structuredClone(entry);
+      other.load_case_id = 'case:rv120-other';
+      out.push([{ name: 'RV120 N2: an exact_cases entry for a case not in the invocation', base, edits: [set(['contract_evidence', 'exact_cases'], [entry, other])] }, N2_BOUND]);
+    }
+    const base = 'two_case_synthetic', { source } = await exactBase(base);
+    const evidence = set(['contract_evidence', 'exact_cases', 0, 'pipe_sections', 0, 'As_m2'], ulps(source.contract_evidence.exact_cases[0].pipe_sections[0].As_m2, 1));
+    const force = set(rb('cases', 1, 'selection', 'body_scales', 0, 'force'), '0000000000000001');
+    const area = set(rb('cases', 1, 'selection', 'section_terms', 0, 'area'), '3f00000000000000');
+    const SCALE = G('G5b', 'SCALE_MISMATCH');
+    out.push([{ name: "RV120 F1 control: case 0's evidence As_m2 one ulp", base, edits: [evidence] }, SEC]);
+    out.push([{ name: "RV120 F1 control: case 1's body_scales force one ulp", base, edits: [force] }, SCALE]);
+    out.push([{ name: "RV120 F1 order: case 0's evidence As_m2 and case 1's body_scales force", base, edits: [evidence, force] }, SCALE]);
+    out.push([{ name: "RV120 F1 order: case 0's evidence As_m2 and case 1's section term area", base, edits: [evidence, area] }, SEC]);
+    return out;
+  };
+  /** Repair 03 (N2b, WORKING_ITEMS' ruling on RV120's N2), as the Rust reader's `repair03_probes`: two faults in the two
+   * exact_cases entries of the exact two_case_synthetic (one entry's profile_mode "x", the other's material_basis not a
+   * string), and the same faults swapped. TS reads its cases in array order; both faults fail TS's one case check, so
+   * its own G7 code is the same for both (C1 G7 settlement). */
+  const N2B = { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_INVALID' }, N2B_TRANSPORT = { gate: 'G7', code: 'PHYSICS_EVIDENCE_TRANSPORT_SHAPE' };
+  const REPAIR03_N2B_INPUTS = ['ab2807e39c79015c5929dac4c4a4a86f82e9e6187c66511686c93f57de60759d', '9451b8272ac84a10984b6848fe44d5fcd3585903ce7ab1f3d8fd59f4a3675da6'];
+  const n2bProbes = (): [Shape, any][] => {
+    const profile = (i: number) => set(['contract_evidence', 'exact_cases', i, 'profile_mode'], 'x');
+    const basis = (i: number) => set(['contract_evidence', 'exact_cases', i, 'material_basis'], 0);
+    const base = 'two_case_synthetic';
+    return [
+      [{ name: "N2b: entry 0's profile_mode and entry 1's material_basis", base, edits: [profile(0), basis(1)] }, N2B],
+      [{ name: "N2b: entry 0's material_basis and entry 1's profile_mode", base, edits: [basis(0), profile(1)] }, N2B],
+    ];
+  };
+  /** sha256 of the canonical JSON of each forgery's `[source, invocation]`: RV120's input bytes (the Rust test's pins). */
+  const RV120_FORGERY_DIGESTS = ['97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a', '6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13', '3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff', 'c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6'];
+  const shapes = async (): Promise<[Shape, any][]> => [
+    ...BASES.map((base): [Shape, any] => [{ name: 'base', base }, 'pass']),
+    ...rows(ORD, await exactSuccessor(ORD)),
+    [{ name: '09 the preview successor relabelled physics-retained-1', base: '<preview:ordinary_prepared_synthetic>' }, G0],
+    [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:ordinary_prepared_synthetic>' }, G('G1', 'RECEIPT_MISMATCH')],
+    ...M3X.flatMap(([name]): [Shape, any][] => [
+      [{ name: 'base', base: name }, 'pass'], ...rows(name, m3x(name)),
+      [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: `<s1:${name}>` }, G('G1', 'RECEIPT_MISMATCH')],
+    ]),
+    ...RV120_FORGERIES.map(([name, base, edits]): [Shape, any] => [{ name, base, edits }, PREP]),
+    ...await rv120Probes(),
+    ...n2bProbes(),
+    ...(process.env.B3B_EXACT_BASE ? [
+      [{ name: 'base', base: FILE_BASE }, 'pass'] as [Shape, any], ...rows(FILE_BASE, await exactBase(FILE_BASE)),
+      [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:file>' }, G('G1', 'RECEIPT_MISMATCH')] as [Shape, any],
+    ] : []),
+  ];
+  async function input(shape: Shape): Promise<{ source: any; invocation: any }> {
+    if (shape.base === '<preview:ordinary_prepared_synthetic>') {
+      const base = corpus.cases.find((c: any) => c.id === ORD), source = structuredClone(base.source);
+      source.producer.semantic_contract_id = EXACT_RETAINED_ID; source.formulation_basis.profile_id = EXACT_RETAINED_PROFILE; await rehash(source);
+      return { source, invocation: structuredClone(base.invocation) };
+    }
+    if (shape.base.startsWith('<s1:')) {
+      const name = shape.base.slice(4, -1), x = await exactBase(name === 'file' ? FILE_BASE : name); await rehash(x.source, 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349'); return x;
+    }
+    const x = await exactBase(shape.base);
+    applyEdits(x.source, shape.edits); applyEdits(x.invocation, shape.invocation_edits);
+    if (shape.invocation_edits?.length) x.source.retained_precision.body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: x.invocation });
+    await rehash(x.source);
+    return x;
+  }
+  const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
+  it('pins the Rust test\'s 177 shapes (57 synthetic, 54 on each m3x successor, RV120\'s 4 forgeries and 6 probes, repair 03\'s 2 N2b probes), their first failures, and their three readings', async () => {
+    const list = await shapes(), misses: string[] = [], lines: any[] = [];
+    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4 + 2);
+    for (const [shape, want] of list) {
+      const { source, invocation } = await input(shape);
+      const got = await firstFailure(source, invocation);
+      if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${shape.name} [${shape.base}]: got ${JSON.stringify(got)}, want ${JSON.stringify(want)}`);
+      lines.push({ name: shape.name, base: shape.base, bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) });
+    }
+    const out = process.env.B3B_SHAPES_OUT; if (out) writeFileSync(out, lines.map(l => JSON.stringify(l)).join('\n') + '\n');
+    // B3B_INPUTS_OUT: every shape's materialized statement and invocation, to compare with the Rust reader's bytes.
+    const inputsOut = process.env.B3B_INPUTS_OUT;
+    if (inputsOut) { const rows: string[] = []; for (const [shape, want] of list) { const { source, invocation } = await input(shape); rows.push(JSON.stringify({ name: shape.name, base: shape.base, expected_bound: want, source, invocation })); } writeFileSync(inputsOut, rows.join('\n') + '\n'); }
+    expect(misses).toEqual([]);
+  }, 120_000);
+  it('reads the synthetic and m3x exact successors bound (eligible), unbound and on transport (never eligible)', async () => {
+    for (const base of [...BASES, ...M3X.map(m => m[0])]) {
+      const { source, invocation } = await exactBase(base);
+      expect(await reading(() => validateRetainedPrecision(source, invocation)), base).toEqual({ ok: { eligible: true } });
+      expect(await reading(() => validateRetainedPrecision(source)), base).toEqual({ ok: { eligible: false } });
+      expect(await reading(() => validateRetainedPrecisionTransport(source)), base).toEqual({ ok: { eligible: false } });
+    }
+  });
+  it('reads three shapes unbound and on transport as the Rust reader does (G7 with TS\'s own base code)', async () => {
+    const list = await shapes();
+    for (const [prefix, want] of [
+      ['29 ', { bound: PREP, unbound: { ok: { eligible: false } }, transport: { ok: { eligible: false } } }],
+      ['16b ', { bound: SEC, unbound: SEC, transport: { gate: 'G7', code: 'PHYSICS_EVIDENCE_TRANSPORT_SHAPE' } }],
+      ['01 ', { bound: G0, unbound: G0, transport: G0 }],
+    ] as [string, any][]) {
+      const [shape] = list.find(([x]) => x.name.startsWith(prefix))!;
+      const { source, invocation } = await input(shape);
+      expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, shape.name).toEqual(want);
+    }
+  });
+  it("carries S-C's own code as the G8 failure's detail (B3D-13)", async () => {
+    const [shape] = (await shapes()).find(([x]) => x.name.startsWith('28 '))!;
+    const { source, invocation } = await input(shape);
+    const error = await validateRetainedPrecision(source, invocation).then(() => null, e => e);
+    expect([error?.gate, error?.code]).toEqual(['G8', 'RETAINED_PRECISION_PREPARATION_MISMATCH']);
+    expect(String(error?.detail)).toContain('ACTUAL_SELECTED_MATERIAL');
+  });
+  it('B3b integration: the exact route `retained_physics` (header dispatch, binding, downgrade guard, transport, standing, table, notices)', async () => {
+    const { source, invocation } = await exactSuccessor(ORD);
+    // The route's literals equal the reader's constants.
+    expect([PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_PROFILE]).toEqual([EXACT_RETAINED_ID, EXACT_RETAINED_PROFILE]);
+    expect(sourceContract(source)).toBe('retained_physics');
+    expect(sourceSemanticBinding(source)).toEqual({ id: PHYSICS_RETAINED_CONTRACT_ID, sha256: PHYSICS_RETAINED_CONTRACT_SHA256 });
+    expect(retainedPrecisionDowngrade(source)).toBe(false);
+    expect(await sourceContractTransport(source)).toBe('retained_physics');
+    // A tampered receipt is refused on transport with the reader's code.
+    const tampered = structuredClone(source); tampered.retained_precision.body.work_policy = 'W1-LME-20B-60B-v2';
+    await expect(sourceContractTransport(tampered)).rejects.toMatchObject({ gate: 'G0', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+    // The downgrade guard: physics-1 carrying a receipt is unsupported.
+    const downgraded = structuredClone(source); downgraded.producer.semantic_contract_id = 'openpipestress.result_semantics/0.3.0/physics-1'; downgraded.formulation_basis.profile_id = 'exact_straight_pressure_v2';
+    expect(sourceContract(downgraded)).toBe('unsupported');
+    // The exact identity without its receipt is not the successor's route.
+    const bare = structuredClone(source); delete bare.retained_precision;
+    expect(sourceContract(bare)).toBe('unsupported');
+    // Standing comes only from a registered validation: unregistered bytes need recompute.
+    expect(numericalResultStanding(source, invocation.request.model)).toMatchObject({ contract: 'retained_physics', eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
+    // XTABLE's rows are physics-1's; the row semantics read XTABLE.
+    expect(semanticContractForSource(source)).toEqual(exactTableForTests);
+    expect(exactTableForTests.rows).toEqual(physicsTableForTests.rows);
+    // Notices: no preview notice (physics-1's rows); the unvalidated successor notice; no kind label.
+    expect(knownSemanticNotices(source).map(n => n.id)).toEqual(['retained-precision-unvalidated']);
+    expect(resultRowLabel(source.results.find((r: any) => r.kind === 'pipe_elastic_normal_stress_maximum_v2'), source)).toBeNull();
+    // Rule binding fails closed without a registered validation.
+    expect(ruleBindingRefusal(source, source.results[0])).toBe(RULE_QUANTITY_NOT_COVERED);
+  });
+  it('step 6: the table against the reader\'s constants, on test-only tables (B3-D §2.4)', () => {
+    expect(tableBindsReaderConstants(exactTableForTests)).toBe(true);
+    const drifted: string[] = [];
+    for (const [path, value] of [[['receipt_bindings', 'canonicalization'], 'openpipestress_jcs_ijson_v2'], [['receipt_bindings', 'method'], 'contribution_preserving_multiprecision_v2'],
+      [['receipt_bindings', 'projection_policy'], 'RP-LOGICAL-ATTEMPTS-v2'], [['receipt_bindings', 'work', 'case_limit'], 19_999_999_999], [['receipt_bindings', 'work', 'invocation_limit'], 60_000_000_001],
+      [['receipt_bindings', 'work_policy'], 'W1-LME-20B-60B-v2'], [['receipt_bindings', 'extra'], 1], [['receipt_policy'], 'M03-INTEGRITY-MP-v3'], [['accuracy_classification', 'policy'], 'RP-FACADE-SI-v3']] as [string[], unknown][]) {
+      const t = structuredClone(exactTableForTests) as any; let at = t; for (const k of path.slice(0, -1)) at = at[k]; at[path.at(-1)!] = value;
+      if (tableBindsReaderConstants(t)) drifted.push(path.join('.'));
+    }
+    expect(drifted).toEqual([]);
+  });
+  it("RV120 F2: the four forgeries are RV120's inputs, refused at G8 step 4 bound, never eligible unbound or on transport", async () => {
+    const list = (await shapes()).filter(([x]) => x.name.startsWith('RV120 F2: '));
+    expect(list.length).toBe(4);
+    const digests: string[] = [];
+    for (const [shape, want] of list) {
+      expect(want).toEqual(PREP);
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}]`)
+        .toEqual({ bound: PREP, unbound: { ok: { eligible: false } }, transport: { ok: { eligible: false } } });
+    }
+    expect(digests).toEqual(RV120_FORGERY_DIGESTS);
+  });
+  it("RV120 N2: an extra exact_cases entry reads one transport code, run after run (array order), on RV120's inputs", async () => {
+    const probes = (await rv120Probes()).filter(([x]) => x.name.startsWith('RV120 N2: '));
+    expect(probes.length).toBe(2);
+    const digests: string[] = [];
+    for (const [shape] of probes) {
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      for (let run = 0; run < 8; run++) {
+        expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}] run ${run}`)
+          .toEqual({ bound: N2_BOUND, unbound: N2_BOUND, transport: N2_TRANSPORT });
+      }
+    }
+    expect(digests).toEqual(RV120_N2_INPUTS);
+  }, 60_000);
+  it("repair 03 N2b: two faults in two exact_cases entries read one code, run after run (array order), on the Rust test's inputs", async () => {
+    const probes = n2bProbes();
+    expect(probes.length).toBe(2);
+    const digests: string[] = [];
+    for (const [shape] of probes) {
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      for (let run = 0; run < 8; run++) {
+        expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}] run ${run}`)
+          .toEqual({ bound: N2B, unbound: N2B, transport: N2B_TRANSPORT });
+      }
+    }
+    expect(digests).toEqual(REPAIR03_N2B_INPUTS);
+  }, 60_000);
+  it("ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check on the preview and exact routes", async () => {
+    // A sourced case passes only with pressure_regions absent, null or [] (type-strict; [] only on the exact route),
+    // equivalent_static absent or null, and no analysis_state member (null included); a case-level `pressure`, a key PP's
+    // typed case lacks, is not read. I100's 22 values on PP's milestone successors, both modes (an invocation edit,
+    // resealed with DEF-O's H), and its x08 and p02 on the synthetic and m3x exact successors (DEF-E's H).
+    const preview: [string, unknown, boolean][] = [
+      ['analysis_state', { kind: 'load_reference_state' }, false], ['analysis_state', null, false], ['analysis_state', {}, false],
+      ['pressure', { value: 1000.0, unit: 'Pa' }, true], ['pressure', null, true], ['pressure', 0, true],
+      ['pressure_regions', 'x', false], ['pressure_regions', {}, false], ['pressure_regions', { id: 'region:x' }, false], ['pressure_regions', 0, false],
+      ['pressure_regions', 1, false], ['pressure_regions', true, false], ['pressure_regions', false, false], ['pressure_regions', '', false],
+      ['pressure_regions', [], true], ['pressure_regions', null, true], ['pressure_regions', [{ id: 'region:x', member_pipe_ids: ['M1'] }], false],
+      ['equivalent_static', {}, false], ['equivalent_static', false, false], ['equivalent_static', 0, false], ['equivalent_static', null, true],
+      ['notes', 'free text', true],
+    ];
+    const exact: [string, unknown, boolean][] = [['analysis_state', { kind: 'load_reference' }, false], ['pressure', { value: 1000.0, unit: 'Pa' }, true]];
+    const want = (passes: boolean) => ({ bound: passes ? { ok: { eligible: true } } : PREP, unbound: { ok: { eligible: false } }, transport: { ok: { eligible: false } } });
+    const readAll = async (source: any, invocation: any) => ({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) });
+    const misses: string[] = [];
+    let checked = 0;
+    const read = async (label: string, base: { source: any; invocation: any }, rows: [string, unknown, boolean][]) => {
+      expect(await readAll(base.source, base.invocation), `${label}: the base`).toEqual(want(true));
+      for (const [key, value, passes] of rows) {
+        const source = structuredClone(base.source), invocation = structuredClone(base.invocation);
+        invocation.request.model.load_cases[0][key] = structuredClone(value);
+        source.retained_precision.body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: invocation });
+        await rehash(source);
+        const got = await readAll(source, invocation);
+        if (JSON.stringify(got) !== JSON.stringify(want(passes))) misses.push(`${label}: ${key} = ${JSON.stringify(value)}: got ${JSON.stringify(got)}`);
+        checked += 1;
+      }
+    };
+    for (const [mode, text] of [['sparse_interactive', milestoneSparseText], ['dense_scrutiny', milestoneDenseText]] as const) {
+      const doc = JSON.parse(text);
+      await read(`milestone ${mode}`, { source: doc.source, invocation: doc.invocation }, preview);
+    }
+    for (const base of [...BASES, ...M3X.map(m => m[0])]) await read(base, await exactBase(base), exact);
+    expect(misses).toEqual([]);
+    expect(checked).toBe(2 * 22 + 5 * 2);
+  }, 60_000);
 });
 
 // Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two producer-solved bases, d38_beside_selected, the
@@ -1446,10 +2016,12 @@ describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport r
     'cause_milestone_reversed_dense_scrutiny', 'sf2_c_b_a_sparse_interactive', 'sf2_c_b_a_dense_scrutiny', 'sf2_a_a2_sparse_interactive', 'sf2_a_a2_dense_scrutiny'];
   const NEW_KEYS = ['expected_unbound', 'expected_unbound_by_reader', 'expected_transport', 'expected_classifications'];
   const KEYS = ['id', 'base', 'edits', 'invocation_edits', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility', ...NEW_KEYS];
-  const n07 = [...corpus.mutations.slice(294), ...corpus.must_pass.slice(28)];
+  // 07o (B2) appends after 07n, so 07n's slices (26 cases, 534 mutations, 78 must-pass) are read as 07n's; 07o's counts
+  // are pinned in its own block below.
+  const n07 = [...corpus.mutations.slice(294, 534), ...corpus.must_pass.slice(28, 78)];
   it('07n: 26 cases, 534 mutations and 78 must-pass entries, appended; the new keys on new entries only; 45 entries in the declared per-reader class', () => {
-    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([26, 534, 78]);
-    expect(corpus.cases.slice(17).map((c: any) => c.id)).toEqual(N07_BASES);
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length].map((n, i) => Math.min(n, [26, 534, 78][i]))).toEqual([26, 534, 78]);
+    expect(corpus.cases.slice(17, 26).map((c: any) => c.id)).toEqual(N07_BASES);
     const old = [...corpus.mutations.slice(0, 294), ...corpus.must_pass.slice(0, 28)];
     expect(old.filter((e: any) => NEW_KEYS.some(k => Object.hasOwn(e, k))).map((e: any) => e.id)).toEqual([]);
     expect(n07.length).toBe(290);
@@ -1465,9 +2037,9 @@ describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport r
         && JSON.stringify(r.rust) !== JSON.stringify(e.expected) && e.expected.gate === 'G7' && r.rust.gate === 'G7'
         && JSON.stringify(e.expected_unbound_by_reader) === JSON.stringify(r), e.id).toBe(true);
     }
-    expect(corpus.must_pass.slice(28).filter((e: any) => e.expected_classifications).length).toBe(16);
-    expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([19, 46]);
-    const ids = [...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id);
+    expect(corpus.must_pass.slice(28, 78).filter((e: any) => e.expected_classifications).length).toBe(16);
+    expect([corpus.cases.slice(0, 26).filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.slice(0, 78).filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([19, 46]);
+    const ids = [...corpus.mutations.slice(0, 534), ...corpus.must_pass.slice(0, 78)].map((e: any) => e.id);
     expect(new Set(ids).size).toBe(612);
   });
   const read = async (run: () => Promise<any>): Promise<unknown> => {
@@ -1478,5 +2050,309 @@ describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport r
     const { source } = await applyEntry(e);
     expect(await read(() => validateRetainedPrecision(structuredClone(source))), 'unbound').toEqual(e.expected_unbound ?? e.expected_unbound_by_reader.typescript);
     expect(await read(() => validateRetainedPrecisionTransport(structuredClone(source))), 'transport').toEqual(e.expected_transport);
+  });
+});
+
+// B2 (B2-C, final for J1: CONTRACT with REVISION_01 and REVISION_02; lane TS of PR-B2): the reader on B2-P's committed
+// W-CB3 successors (`retained_precision_combination_successor_<mode>.json`: case A selected, case B not_required with one
+// operand preparation, A + B retained_selected), with reader-local shapes and their designed first failures (CONTRACT
+// §10.3 as REVISION_01 §5.3 amends it, where the row applies to W-CB3; TS's own shapes beside them), §8's G0 table tests,
+// REVISION_01 §5.2's inner-hash tests and 07o's rehash index rule. Reader-local evidence, not corpus entries.
+import combinationSparseText from '../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json?raw';
+import combinationDenseText from '../../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json?raw';
+import previewTableForTests from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
+import { previewHeaderForTests, utf8Sorted, COMBINATION_DEFINITION_ID, COMBINATION_DEFINITION_HASH, PREPARED_DEFINITION_HASH } from './retainedPrecision';
+
+describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C §8, §10; reader-local)', () => {
+  const W_CB3: [string, string][] = [['w_cb3_sparse_interactive', combinationSparseText], ['w_cb3_dense_scrutiny', combinationDenseText]];
+  const doc = (text: string) => { const d = JSON.parse(text); return { source: d.source, invocation: d.invocation }; };
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value }), remove = (path: (string | number)[]) => ({ path, op: 'remove' });
+  const rb = (...tail: (string | number)[]) => ['retained_precision', 'body', ...tail], md = (...tail: (string | number)[]) => ['request', 'model', ...tail];
+  const G0U = { gate: 'G0', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' }, FORMATION = { gate: 'G0', code: 'RETAINED_PRECISION_FORMATION_MISMATCH' };
+  const RECEIPT = G('G1', 'RECEIPT_MISMATCH'), ENC = G('G2', 'ENCODING_MISMATCH'), COV = G('G3', 'COVERAGE_MISMATCH'), DIAG = G('G4', 'DIAGNOSTIC_MISMATCH');
+  const ATT = G('G5', 'ATTEMPT_MISMATCH'), WORK = G('G5', 'WORK_MISMATCH'), PA = G('G5', 'PRODUCT_ATTEMPT_MISMATCH'), SCALE_B = G('G5b', 'SCALE_MISMATCH');
+  const CLASS = G('G5c', 'CLASSIFICATION_MISMATCH'), METHOD = G('G6', 'ROW_METHOD_MISMATCH'), INV = G('G8', 'INVOCATION_MISMATCH'), PREP = G('G8', 'PREPARATION_MISMATCH');
+  const ulp = (bits: string, n = 1) => (BigInt('0x' + bits) + BigInt(n)).toString(16).padStart(16, '0');
+  const ZEROS = '0'.repeat(64);
+  type Shape = { name: string; edits?: any[]; invocation_edits?: any[]; after_rehash?: any[]; transform?: (source: any, invocation: any) => void };
+  /** The 07o materialization on a W-CB3 document: a transform, source edits and invocation edits, the invocation digest
+   * rebound when the invocation changed, the 07o rehash, then any after_rehash edits. */
+  async function shaped(text: string, shape: Shape) {
+    const { source, invocation } = doc(text), before = JSON.stringify(invocation);
+    shape.transform?.(source, invocation);
+    applyEdits(source, shape.edits); applyEdits(invocation, shape.invocation_edits);
+    if (JSON.stringify(invocation) !== before) source.retained_precision.body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: invocation });
+    await rehash(source);
+    applyEdits(source, shape.after_rehash);
+    return { source, invocation };
+  }
+  const diagnosticIndex = (source: any, id: string) => source.diagnostics.findIndex((d: any) => d.id === id);
+  const SELECTED_DIAGNOSTIC = 'diagnostic:retained-precision:combination:ab:selected';
+  /** Renumbers sources 1 and 2 (the operand-prepared CaseSource after the CombinationSource) with every reference. */
+  const sourcesSwapped = (source: any) => {
+    const b = source.retained_precision.body, [s0, s1, s2] = b.sources;
+    s1.index = 2; s2.index = 1; b.sources = [s0, s2, s1];
+    b.combinations[0].source_ref = 1; b.combinations[0].run.origin.source_ref = 1; b.calls[1].source_refs = [1];
+    b.groups[1].first_source_ref = 1; b.groups[1].source_refs = [1]; b.product_attempts[1].source_ref = 1;
+    s2.operands[1].source_ref = 2; s2.representative_source_ref = 0; b.calls[1].requested_operands[1].source_ref = 2; b.operand_preparations[0].source_ref = 2;
+  };
+  /** The combination attempt moved before the case attempt, ids and references renumbered. */
+  const attemptsSwapped = (source: any) => {
+    const b = source.retained_precision.body, [a0, a1] = b.product_attempts;
+    a0.id = 1; a1.id = 0; b.product_attempts = [a1, a0];
+    b.cases[0].product_attempt_ref = 1; b.combinations[0].product_attempt_ref = 0; b.sources[0].preparation.attempt_ref = 1;
+  };
+  /** The combination renamed to case A's id throughout (rows, gate evidence, diagnostics, the entry, its source and the model). */
+  const renamedToCase = (source: any, invocation: any) => {
+    const from = 'combination:ab', to = 'case:a', b = source.retained_precision.body;
+    for (const r of source.results) if (r.basis_ref?.ref_id === from) r.basis_ref.ref_id = to;
+    source.contract_evidence.combination_gates[0].combination_id = to;
+    for (const d of source.diagnostics) if (Array.isArray(d.affected_refs)) d.affected_refs = d.affected_refs.map((x: string) => x === from ? to : x);
+    b.combinations[0].basis_ref.ref_id = to; b.sources[2].owner.combination_id = to; invocation.request.model.combinations[0].id = to;
+  };
+  const SHAPES: [Shape, unknown][] = [
+    // G0 (§8 row 9): an id outside the table's definitions.
+    [{ name: 'm1 the combination attempt\'s definition_id unknown', edits: [set(rb('product_attempts', 1, 'definition_id'), 'RP-PREPARED-UNKNOWN-v1')] }, G0U],
+    [{ name: 'm2 the operand preparation\'s definition_id unknown', edits: [set(rb('operand_preparations', 0, 'definition_id'), 'RP-PREPARED-UNKNOWN-v1')] }, G0U],
+    // G1: which owner carries which definition is SCHEMA's const (N-12); the inner hashes; m10-m12 after rehash.
+    [{ name: 'm8 the case attempt carries DEF-C\'s id', edits: [set(rb('product_attempts', 0, 'definition_id'), COMBINATION_DEFINITION_ID)] }, RECEIPT],
+    [{ name: 'm9 the combination attempt carries DEF-O\'s id', edits: [set(rb('product_attempts', 1, 'definition_id'), PREPARED_DEFINITION_ID)] }, RECEIPT],
+    [{ name: 'm65 the operand preparation carries DEF-C\'s id', edits: [set(rb('operand_preparations', 0, 'definition_id'), COMBINATION_DEFINITION_ID)] }, RECEIPT],
+    [{ name: 'm10 the combination\'s source identity (after rehash)', after_rehash: [set(rb('combinations', 0, 'source_identity_sha256'), ZEROS)] }, RECEIPT],
+    [{ name: 'm11 operands[1]\'s source identity (after rehash)', after_rehash: [set(rb('sources', 2, 'operands', 1, 'source_identity_sha256'), ZEROS)] }, RECEIPT],
+    [{ name: 'm12 the operand-prepared source\'s preparation hash (after rehash)', after_rehash: [set(rb('sources', 1, 'preparation', 'sha256'), ZEROS)] }, RECEIPT],
+    [{ name: 'the operand_preparations member empty', edits: [set(rb('operand_preparations'), [])] }, RECEIPT],
+    // G2.
+    [{ name: 'm16 a term\'s factor in uppercase hex', edits: [set(rb('combinations', 0, 'expression', 'terms', 0, 'factor'), '3FF0000000000000')] }, ENC],
+    [{ name: 'm17 a requested operand\'s factor a NaN', edits: [set(rb('calls', 1, 'requested_operands', 0, 'factor'), '7ff8000000000000')] }, ENC],
+    // G3.
+    [{ name: 'G3 (a) the gate evidence entry removed', edits: [set(['contract_evidence', 'combination_gates'], [])] }, COV],
+    [{ name: 'G3 (b) the combination named as a case', transform: renamedToCase }, COV],
+    [{ name: 'm21 result_ids loses a row', transform: s => { s.retained_precision.body.combinations[0].result_ids.pop(); } }, COV],
+    [{ name: 'm22 result_ids gains a case row', transform: s => { s.retained_precision.body.combinations[0].result_ids.push(s.results[0].id); } }, COV],
+    [{ name: 'm23 two result_ids swapped', transform: s => { const ids = s.retained_precision.body.combinations[0].result_ids; [ids[0], ids[1]] = [ids[1], ids[0]]; } }, COV],
+    [{ name: 'G3 (c) a combination row\'s basis names no entry', transform: s => { s.results.find((r: any) => r.basis_ref.ref_type === 'combination').basis_ref.ref_id = 'combination:none'; } }, COV],
+    [{ name: 'm24 execution_order loses the combination Run', transform: s => { s.retained_precision.body.work.execution_order.pop(); } }, COV],
+    [{ name: 'm25 the execution_order combination index changed', edits: [set(rb('work', 'execution_order', 1, 'index'), 1)] }, COV],
+    [{ name: 'm26 the combination attempt before the case attempt (renumbered)', transform: attemptsSwapped }, COV],
+    [{ name: 'G3 (e) the combination attempt owned by another entry', edits: [set(rb('product_attempts', 1, 'owner_ref', 'index'), 1)] }, COV],
+    [{ name: 'm27 the operand preparation owned by the selected case', edits: [set(rb('operand_preparations', 0, 'owner_ref', 'index'), 0)] }, COV],
+    [{ name: 'm29 the operand preparation removed', edits: [remove(rb('operand_preparations'))] }, COV],
+    [{ name: 'm30 the operand preparation duplicated', transform: s => { const ops = s.retained_precision.body.operand_preparations; ops.push({ ...structuredClone(ops[0]), id: 1 }); } }, COV],
+    [{ name: 'G3 (d) requested_by also names a combination that does not exist', edits: [set(rb('operand_preparations', 0, 'requested_by'), [0, 1])] }, COV],
+    [{ name: 'G3 (d) the operand preparation\'s id not its position', edits: [set(rb('operand_preparations', 0, 'id'), 1), set(rb('sources', 1, 'preparation', 'operand_preparation_ref'), 1)] }, COV],
+    [{ name: 'G3 the CombinationSource\'s owner id names no entry', edits: [set(rb('sources', 2, 'owner', 'combination_id'), 'combination:other')] }, COV],
+    [{ name: 'G3 (f) execution_order and the Run\'s origin name another entry', edits: [set(rb('work', 'execution_order', 1, 'index'), 1), set(rb('combinations', 0, 'run', 'origin', 'owner_ref', 'index'), 1)] }, COV],
+    [{ name: 'G3 (e) a combination attempt\'s projection names its displacement magnitude', transform: s => { const b = s.retained_precision.body, rows = s.results.filter((r: any) => r.basis_ref.ref_type === 'combination');
+      const i = rows.findIndex((r: any) => r.kind === 'displacement_magnitude'), outcomes = b.product_attempts[1].proof.projection_outcomes, j = outcomes.findIndex((x: any) => x.row_index > i);
+      outcomes.splice(j, 0, { ...structuredClone(outcomes[j]), row_index: i }); } }, COV],
+    [{ name: 'G3 (e) a combination attempt\'s roster short of the representative\'s bodies', transform: s => { s.retained_precision.body.product_attempts[1].proof.summary_coverage.pop(); } }, COV],
+    [{ name: 'G3 (d) the operand-prepared CaseSource owned by the selected case', edits: [set(rb('sources', 1, 'owner'), { kind: 'case', case_index: 0, case_id: 'case:a' })] }, COV],
+    [{ name: 'G3 (g) the operand-prepared CaseSource also named by a case', edits: [set(rb('cases', 0, 'source_ref'), 1)] }, COV],
+    [{ name: 'G3 (g) the CombinationSource named by no entry', transform: s => { const b = s.retained_precision.body; b.sources.push({ ...structuredClone(b.sources[2]), index: 3 }); } }, COV],
+    [{ name: 'm68 the operand-prepared CaseSource after the CombinationSource (renumbered)', transform: sourcesSwapped }, COV],
+    // G4.
+    [{ name: 'm31 the combination\'s selected diagnostic removed', transform: s => { s.diagnostics.splice(diagnosticIndex(s, SELECTED_DIAGNOSTIC), 1); } }, DIAG],
+    [{ name: 'm34 its affected_refs [combination, case]', transform: s => { s.diagnostics[diagnosticIndex(s, SELECTED_DIAGNOSTIC)].affected_refs = ['combination:ab', 'case:a']; } }, DIAG],
+    [{ name: 'G4 a RETAINED_PRECISION_UNAVAILABLE naming the selected combination', transform: s => { s.diagnostics.push({ ...structuredClone(s.diagnostics[diagnosticIndex(s, SELECTED_DIAGNOSTIC)]), id: 'diagnostic:retained-precision:combination:ab:unavailable', code: 'RETAINED_PRECISION_UNAVAILABLE' }); } }, DIAG],
+    // G5, ordinary class: the disposition rule and D6a.
+    [{ name: 'G5 the gate entry withheld beside a retained entry', edits: [set(['contract_evidence', 'combination_gates', 0], { combination_id: 'combination:ab', withheld: true, reason: 'NONLINEAR_COMBINATION_REQUIRES_SOLVE' })] }, ATT],
+    [{ name: 'G5 D6a a combination diagnostic_ref dropped', transform: s => { s.retained_precision.body.combinations[0].diagnostic_refs.pop(); } }, ATT],
+    // G5, native class.
+    [{ name: 'm38 requested_operands swapped', transform: s => { const ops = s.retained_precision.body.calls[1].requested_operands; ops.reverse(); } }, ATT],
+    [{ name: 'G5 a requested operand\'s factor not its term\'s', edits: [set(rb('calls', 1, 'requested_operands', 1, 'factor'), '4000000000000000')] }, ATT],
+    [{ name: 'G5 the batch Call\'s group carries imports', edits: [set(rb('groups', 0, 'imports'), [])] }, ATT],
+    [{ name: 'm39 representative_source_ref -> operand 1\'s', edits: [set(rb('sources', 2, 'representative_source_ref'), 1)] }, ATT],
+    [{ name: 'm40 operands[0].case_index -> the other case', edits: [set(rb('sources', 2, 'operands', 0, 'case_index'), 1)] }, ATT],
+    [{ name: 'm42 the combination group\'s imports removed', edits: [remove(rb('groups', 1, 'imports'))] }, ATT],
+    [{ name: 'm45 an import from the prepared operand', edits: [set(rb('groups', 1, 'imports', 0, 'operand_index'), 1)] }, ATT],
+    [{ name: 'G5 the combination Run\'s cache_before without an import', transform: s => { s.retained_precision.body.combinations[0].run.cache_before.pop(); } }, ATT],
+    [{ name: 'G5 the CombinationSource\'s ledger differs from the selection\'s', edits: [set(rb('sources', 2, 'ledger_sha256'), ZEROS)] }, ATT],
+    [{ name: 'G5 the mechanics Call names no entry', edits: [set(rb('combinations', 0, 'call_ref'), 2)] }, ATT],
+    [{ name: 'G5 the combination Run\'s origin position 1', edits: [set(rb('combinations', 0, 'run', 'origin', 'position'), 1)] }, ATT],
+    [{ name: 'm43 the combination Call\'s invocation_before off by one', transform: s => { s.retained_precision.body.calls[1].invocation_before += 1; } }, WORK],
+    [{ name: 'm44 work.charged = the batch Call\'s after', transform: s => { const b = s.retained_precision.body; b.work.charged = b.calls[0].invocation_after; } }, WORK],
+    // G5, products.
+    [{ name: 'G5 the operand preparation\'s first two conversions out of order', transform: s => { const c = s.retained_precision.body.operand_preparations[0].preparation.members[0].conversions; [c[0], c[1]] = [c[1], c[0]]; } }, PA],
+    [{ name: 'm51 the operand preparation\'s stage failed while prepared', edits: [set(rb('operand_preparations', 0, 'stage'), 'failed')] }, PA],
+    [{ name: 'G5 the combination attempt\'s native stage failed beside a selected Run', edits: [set(rb('product_attempts', 1, 'stages', 'native'), 'failed')] }, PA],
+    [{ name: 'G5 the operand preparation\'s ordinary attempt the selected case\'s', edits: [set(rb('operand_preparations', 0, 'ordinary_attempt_ref'), 0)] }, PA],
+    // G5b, G5c and G6 on the combination owner.
+    [{ name: 'm54 the combination\'s body-scale translation bits one ulp up', transform: s => { const v = s.retained_precision.body.combinations[0].selection.body_scales[0]; v.translation = ulp(v.translation); } }, SCALE_B],
+    [{ name: 'm55 a combination row id added to selection.not_covered', transform: s => { const e = s.retained_precision.body.combinations[0]; e.selection.not_covered.push(e.result_ids[0]); } }, CLASS],
+    [{ name: 'm57 recovery_method removed from a combination row', transform: s => { delete s.results.find((r: any) => r.basis_ref.ref_type === 'combination').recovery_method; } }, METHOD],
+    // G8, invocation: the expression against its model combination.
+    [{ name: 'G8 the model combination\'s factor', invocation_edits: [set(md('combinations', 0, 'terms', 1, 'factor'), 2.0)] }, INV],
+    [{ name: 'G8 the model combination\'s terms reversed', transform: (_s, i) => { i.request.model.combinations[0].terms.reverse(); } }, INV],
+    [{ name: 'G8 the model combination\'s basis', invocation_edits: [set(md('combinations', 0, 'basis'), 'range_envelope')] }, INV],
+    [{ name: 'G8 the model combination renamed', invocation_edits: [set(md('combinations', 0, 'id'), 'combination:other')] }, INV],
+    [{ name: 'G8 the model combinations absent', invocation_edits: [remove(md('combinations'))] }, INV],
+    // G8, preparation: K4CMB, R-8 and C3a's binding.
+    [{ name: 'm62 kernel_source_sha256 replaced (identities resealed)', edits: [set(rb('sources', 2, 'kernel_source_sha256'), '1'.repeat(64))] }, PREP],
+    [{ name: 'm63 operand B\'s effective wall one ulp (identities resealed)', transform: s => { const g = s.retained_precision.body.sources[1].section_terms[0].geometry; g.effective_wall = ulp(g.effective_wall); } }, PREP],
+    [{ name: 'G8 the combination attempt\'s material basis', edits: [set(rb('product_attempts', 1, 'material_basis_ref'), 1)] }, PREP],
+    [{ name: 'm64 the operand preparation\'s old_facts D', transform: s => { const f = s.retained_precision.body.operand_preparations[0].preparation.members[0].old_facts; f[0] = ulp(f[0]); } }, PREP],
+    [{ name: 'G8 a factor\'s bits in the CombinationSource and Call (K4CMB stale)', transform: s => { const b = s.retained_precision.body; for (const x of [b.sources[2].operands[1], b.calls[1].requested_operands[1], b.combinations[0].expression.terms[1]]) x.factor = '4000000000000000'; }, invocation_edits: [set(md('combinations', 0, 'terms', 1, 'factor'), 2.0)] }, PREP],
+  ];
+  it('reads both W-CB3 successors bound (eligible), unbound and on transport, with the combination owner\'s classes after the case\'s', async () => {
+    for (const [name, text] of W_CB3) {
+      const { source, invocation } = doc(text);
+      const bound = await validateRetainedPrecision(source, invocation);
+      expect([bound.invocation_bound, bound.numerical_eligible, bound.standing], name).toEqual([true, true, 'eligible']);
+      const kinds = bound.classifications.map(c => c.basis_ref.ref_type), cut = kinds.indexOf('combination');
+      expect(cut > 0 && kinds.slice(cut).every(k => k === 'combination') && kinds.slice(0, cut).every(k => k === 'load_case'), name).toBe(true);
+      const e = source.retained_precision.body.combinations[0];
+      expect(bound.classifications.slice(cut).map(c => c.result_id), name).toEqual(e.result_ids);
+      expect(bound.classifications.slice(cut).filter(c => c.class === 'absolute_verified').map(c => ({ result_id: c.result_id, bound: c.bound_bits })), name).toEqual(e.selection.absolute_verified);
+      const unbound = await validateRetainedPrecision(source), transport = structuredClone(source); delete transport.results;
+      expect([unbound.numerical_eligible, (await validateRetainedPrecisionTransport(transport)).numerical_eligible], name).toEqual([false, false]);
+    }
+  });
+  it('pins each shape\'s first failure on both W-CB3 successors', async () => {
+    const misses: string[] = [];
+    for (const [base, text] of W_CB3) for (const [shape, want] of SHAPES) {
+      const { source, invocation } = await shaped(text, shape);
+      const got = await firstFailure(source, invocation);
+      if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${shape.name} [${base}]: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`);
+    }
+    expect(misses).toEqual([]);
+  }, 120_000);
+  it('G8 (CONTRACT §2.7): range operand ids compare in UTF-8 byte (code point) order, never UTF-16 order', async () => {
+    // U+FFFF and U+10000 sort one way by code point (UTF-8 bytes, as the producer sorts) and the other by UTF-16 units.
+    expect(utf8Sorted(['case:\u{10000}', 'case:\uffff'])).toEqual(['case:\uffff', 'case:\u{10000}']);
+    expect(['case:\u{10000}', 'case:\uffff'].sort()).toEqual(['case:\u{10000}', 'case:\uffff']);
+    expect(utf8Sorted(['b', 'a', '\u00e9', 'Z'])).toEqual(['Z', 'a', 'b', '\u00e9']);
+    // On 07o's W-CB4b, the model's operand order is free: the reader sorts it before comparing.
+    const entry = (invocationEdits: any[]) => ({ id: 'lane_ts_range_order', base: 'w_cb4b_sparse_interactive', edits: [], invocation_edits: invocationEdits, rehash: 'all' });
+    const ids = corpus.cases.find((c: any) => c.id === 'w_cb4b_sparse_interactive').invocation.request.model.combinations[0].operand_ids;
+    for (const order of [ids, [...ids].reverse()]) { const { source, invocation } = await applyEntry(entry([set(md('combinations', 0, 'operand_ids'), order)])); expect(await firstFailure(source, invocation), JSON.stringify(order)).toBe('pass'); }
+  }, 60_000);
+  it('G5 products, the reason table on 07o\'s b2_operand_preparation_failure: the cause names the first not_required term\'s refused record', async () => {
+    const entry = (edits: any[]) => ({ id: 'lane_ts_reason_table', base: 'b2_operand_preparation_failure', edits, rehash: 'all' });
+    const { source, invocation } = await applyEntry(entry([set(rb('combinations', 0, 'reason', 'cause', 'operand_preparation_ref'), 1)]));
+    expect(await firstFailure(source, invocation)).toEqual(PA);
+    // Recast as operand_source_unavailable, the combination requests no preparation, so the record's requested_by is G3's.
+    const recast = await applyEntry(entry([set(rb('combinations', 0, 'reason', 'cause'), { kind: 'operand_source_unavailable', operand_index: 1 })]));
+    expect(await firstFailure(recast.source, recast.invocation)).toEqual(COV);
+    const code = await applyEntry(entry([set(rb('combinations', 0, 'reason', 'phase'), 'kernel')]));
+    expect(await firstFailure(code.source, code.invocation)).toEqual(PA);
+  });
+  it('§8: G0\'s table-dependent checks against test-only tables (11 tests)', async () => {
+    const { source } = doc(combinationSparseText);
+    const read = async (t: unknown) => { try { await previewHeaderForTests(source, t); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
+    const changed = (path: string[], value: unknown) => { const t = structuredClone(previewTableForTests) as any; let at = t; for (const k of path.slice(0, -1)) at = at[k]; at[path.at(-1)!] = value; return t; };
+    const rows: [string, unknown, unknown][] = [
+      ['the packaged table (positive control)', previewTableForTests, 'pass'],
+      ['receipt_bindings.canonicalization', changed(['receipt_bindings', 'canonicalization'], 'openpipestress_jcs_ijson_v2'), G0U],
+      ['receipt_bindings.method', changed(['receipt_bindings', 'method'], 'contribution_preserving_multiprecision_v2'), G0U],
+      ['receipt_bindings.projection_policy', changed(['receipt_bindings', 'projection_policy'], 'RP-LOGICAL-ATTEMPTS-v2'), G0U],
+      ['receipt_bindings.work.case_limit', changed(['receipt_bindings', 'work', 'case_limit'], 19_999_999_999), G0U],
+      ['receipt_bindings.work.invocation_limit', changed(['receipt_bindings', 'work', 'invocation_limit'], 60_000_000_001), G0U],
+      ['receipt_bindings.work_policy', changed(['receipt_bindings', 'work_policy'], 'W1-LME-20B-60B-v2'), G0U],
+      ['receipt_policy', changed(['receipt_policy'], 'M03-INTEGRITY-MP-v3'), G0U],
+      ['accuracy_classification.policy', changed(['accuracy_classification', 'policy'], 'RP-FACADE-SI-v3'), G0U],
+      ['product_formation_definitions reordered', changed(['product_formation_definitions'], [...(previewTableForTests as any).product_formation_definitions].reverse()), FORMATION],
+      ['DEF-C\'s H changed', changed(['product_formation_definitions', '1'], { id: COMBINATION_DEFINITION_ID, sha256: COMBINATION_DEFINITION_HASH.slice(0, 63) + (COMBINATION_DEFINITION_HASH.endsWith('0') ? '1' : '0') }), FORMATION],
+    ];
+    expect(rows.length).toBe(11);
+    const got: unknown[] = [];
+    for (const [, t] of rows) got.push(await read(t));
+    expect(got).toEqual(rows.map(r => r[2]));
+    expect(tableBindsReaderConstants(previewTableForTests)).toBe(true);
+    // Row 4's second half: the packaged DEF-C's own H, with the packaged table.
+    const defC = JSON.parse(readFileSync(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_prepared_combination_v1.json'), 'utf8'));
+    const readDefC = async (d: unknown) => { try { await previewHeaderForTests(source, previewTableForTests, d); return 'pass'; } catch (e) { return { gate: (e as any).gate, code: (e as any).code }; } };
+    expect(await readDefC(defC)).toBe('pass');
+    expect(await readDefC({ ...defC, version: 2 })).toEqual(FORMATION);
+  });
+  const identityOf = (s: any) => { const { index: _, ...rest } = s; return canonicalSha256HexCheckedV1({ domain: 'retained_precision_source_mp_v2', payload: rest }); };
+  /** S-6 steps 4 and 5 on W-CB3's body: the CombinationSource's operand identities, then the combination's identity. */
+  const resealDependents = async (body: any) => {
+    const cs = body.sources[2], edited = cs.operands[1].source_identity_sha256 === ZEROS;
+    if (!edited) for (const o of cs.operands) o.source_identity_sha256 = await identityOf(body.sources[o.source_ref]);
+    body.combinations[0].source_identity_sha256 = body.combinations[0].source_identity_sha256 === ZEROS ? ZEROS : await identityOf(cs);
+  };
+  it('REVISION_01 §5.2: each inner hash edited, the publication and receipt hashes resealed, is refused at G1', async () => {
+    for (const [name, text] of W_CB3) {
+      const { source, invocation } = doc(text), b = source.retained_precision.body, op = b.operand_preparations[0];
+      const wrongDomain = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_preparation_v1', payload: { definition_id: op.definition_id, definition_sha256: PREPARED_DEFINITION_HASH, owner_ref: op.owner_ref,
+        ordinary_attempt_ref: op.ordinary_attempt_ref, material_basis_ref: op.material_basis_ref, purpose: op.purpose, members: op.preparation.members.map((m: any) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) } });
+      for (const [what, edit] of [['the combination\'s source identity', (x: any) => { x.combinations[0].source_identity_sha256 = ZEROS; }],
+        ['an operand\'s source identity', (x: any) => { x.sources[2].operands[1].source_identity_sha256 = ZEROS; }],
+        ['the operand preparation hash under retained_precision_preparation_v1', (x: any) => { x.sources[1].preparation.sha256 = wrongDomain; }]] as [string, (x: any) => void][]) {
+        // Each hash that contains the edited one (S-6 steps 4 and 5) is recomputed too, so only the edited relation is false.
+        const s = structuredClone(source), body = s.retained_precision.body; edit(body); await resealDependents(body); await rehashOuter(s);
+        expect(await firstFailure(s, invocation), `${what} [${name}]`).toEqual(RECEIPT);
+      }
+      // The resealed control passes.
+      const control = structuredClone(source); await rehashOuter(control);
+      expect(await firstFailure(control, invocation), name).toBe('pass');
+    }
+  });
+  it('07o rehash (S-6): steps 2, 4 and 5 index only strict integral references (operand_preparation_ref, an operand\'s and an entry\'s source_ref)', async () => {
+    const base = doc(combinationSparseText).source.retained_precision.body;
+    const probes: [string, (string | number)[], (b: any) => string][] = [
+      ['operand_preparation_ref', rb('sources', 1, 'preparation', 'operand_preparation_ref'), b => b.sources[1].preparation.sha256],
+      ['an operand\'s source_ref', rb('sources', 2, 'operands', 1, 'source_ref'), b => b.sources[2].operands[1].source_identity_sha256],
+      ['a combination entry\'s source_ref', rb('combinations', 0, 'source_ref'), b => b.combinations[0].source_identity_sha256],
+    ];
+    for (const [what, path, hashOf] of probes) {
+      for (const ref of [true, 0.5, '1', -1, 9]) {
+        const { source, invocation } = await shaped(combinationSparseText, { name: what, edits: [set(path, ref)] });
+        expect(hashOf(source.retained_precision.body), `${what} = ${JSON.stringify(ref)}`).toBe(hashOf(base));
+        expect(await firstFailure(source, invocation), `${what} = ${JSON.stringify(ref)}`).not.toBe('pass');
+      }
+      // A strict index (1.0 is 1) is followed: the recomputed hash is the recorded one.
+      const strictIndex = { name: what, edits: [set(path, (path.at(-1) === 'operand_preparation_ref' ? 0 : path.includes('combinations') ? 2 : 1) * 1.0)] };
+      expect(hashOf((await shaped(combinationSparseText, strictIndex)).source.retained_precision.body), what).toBe(hashOf(base));
+    }
+  });
+});
+
+// Snapshot 07o (B2, lane C of PR-B2), appended to 07n: B2-C REVISION_01 §5.1's 19 bases (15 producer-solved, 2 hook-produced,
+// 2 synthetic), its 69 mutations with their designed first failures (CONTRACT §10.3 as REVISION_01 §5.3 and REVISION_02 §4.3
+// amend it) and 19 must-pass entries, materialized under S-6's rehash (`rehash` above). The generic loops above pin each entry;
+// this block pins the slices and the format.
+describe('07o (B2): counts, format and slices', () => {
+  const O7_BASES = ['w_cb1_sparse_interactive', 'w_cb1_dense_scrutiny', 'w_cb1z_sparse_interactive', 'w_cb2_sparse_interactive', 'w_cb2_dense_scrutiny',
+    'w_cb3_sparse_interactive', 'w_cb3_dense_scrutiny', 'w_cb4a_sparse_interactive', 'w_cb4a_dense_scrutiny', 'w_cb4b_sparse_interactive', 'w_cb4b_dense_scrutiny',
+    'w_cb5_sparse_interactive', 'w_cb5_dense_scrutiny', 'b2_c1_range_mechanics_sparse_interactive', 'b2_c1_range_mechanics_dense_scrutiny',
+    'b2_operand_preparation_failure', 'b2_operand_source_unavailable', 'b2_pre_source_refusal', 'b2_base_withheld'];
+  it('07o: 45 cases, 603 mutations and 97 must-pass entries; 19 bases, 69 mutations and 19 must-pass entries appended', () => {
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([45, 603, 97]);
+    expect(corpus.cases.slice(26).map((c: any) => c.id)).toEqual(O7_BASES);
+    const mutations = corpus.mutations.slice(534), mustPass = corpus.must_pass.slice(78);
+    expect([mutations.length, mustPass.length]).toEqual([69, 19]);
+    for (const e of [...mutations, ...mustPass]) {
+      expect(Object.keys(e).filter(k => !['id', 'base', 'edits', 'after_rehash', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility', 'expected_unbound', 'expected_transport'].includes(k)), e.id).toEqual([]);
+      expect([e.rehash, O7_BASES.includes(e.base) || corpus.cases.slice(0, 26).some((c: any) => c.id === e.base)], e.id).toEqual(['all', true]);
+    }
+    expect(mutations.map((m: any) => m.id.slice(0, 7))).toEqual(Array.from({ length: 69 }, (_, i) => `b2o_m${String(i + 1).padStart(2, '0')}`));
+    expect(mustPass.map((m: any) => m.base)).toEqual(O7_BASES);
+    // The format rule gains S-6's steps 2, 4 and 5.
+    expect(corpus.format_rule.order).toContain('2 each CaseSource\'s preparation.sha256 through operand_preparation_ref');
+    expect(new Set([...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id)).size).toBe(700);
+  });
+  it('07o: exactly the two hook-produced bases and their must-pass entries state a bound refusal, G8 PREPARATION_MISMATCH (PR-B2 ruling 5)', () => {
+    const refused = { gate: 'G8', code: 'RETAINED_PRECISION_PREPARATION_MISMATCH' }, hooks = ['b2_operand_preparation_failure', 'b2_operand_source_unavailable'];
+    expect(corpus.cases.filter((c: any) => statedRefusal(c.expected)).map((c: any) => c.id)).toEqual(hooks);
+    for (const id of hooks) expect([corpus.cases.find((c: any) => c.id === id).provenance.kind, corpus.cases.find((c: any) => c.id === id).expected]).toEqual(['hook_produced', refused]);
+    const stated = corpus.must_pass.filter((m: any) => m.expected !== 'pass');
+    expect(stated.map((m: any) => [m.base, m.expected, m.expected_unbound, m.expected_transport, Object.hasOwn(m, 'expected_eligibility')])).toEqual(hooks.map(h => [h, refused, 'pass', 'pass', false]));
+    expect([...corpus.mutations.slice(534), ...corpus.must_pass.slice(78)].filter((e: any) => !stated.includes(e) && (Object.hasOwn(e, 'expected_unbound') || Object.hasOwn(e, 'expected_transport')))).toEqual([]);
+  });
+});
+
+// PR-B2 lane X: the shared B2 parity probes, pinned alike in the RS, PY and TS readers. Each shape is a forgery on a corpus
+// base in the corpus entry grammar (S-6 rehash), with the bound and unbound reading every reader gives: a gate and code, or
+// 'pass' (rulings 1-3, a prepared operand preparation's completeness, a refused Call's members, UTF-8 range order).
+describe('B2 parity probes, shared with the RS and PY readers', () => {
+  const parity = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_b2_parity_probes.json'), 'utf8'));
+  const read = async (run: () => Promise<unknown>) => { try { await run(); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
+  it('20 shapes', () => expect(parity.shapes.length).toBe(20));
+  for (const shape of parity.shapes) it(shape.name, async () => {
+    const { source, invocation } = await applyEntry(shape);
+    expect([await read(() => validateRetainedPrecision(structuredClone(source), structuredClone(invocation))), await read(() => validateRetainedPrecision(structuredClone(source)))])
+      .toEqual([shape.expected, shape.expected_unbound]);
   });
 });

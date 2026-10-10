@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult } from "../types";
-import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection } from "./analysisRunCompatibility";
+import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference } from "./analysisRunCompatibility";
+import combinationSuccessor from "../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
 import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
 import { sourceContract, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
 import expectedRecord from "../../../../fixtures/analysis_runs/invented/analysis_run_v0_2.json";
@@ -193,4 +194,23 @@ it("rejects invalid source rule statuses independently of a valid record overrid
     await expect(validateAnalysisRunV03(revised, absent)).resolves.toBeUndefined();
     expect((await buildAnalysisRunV03(absent, input)).analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
   }
+});
+
+/** T6S, tests only (B2-C §10.4, N-8): B2-P's committed W-CB3 combination successor. Its combination rows' basis is the
+ * combination entry's (`Combination`), the record's load basis covers the model's combination beside its cases, and an
+ * explicit basis without the combination is refused, as for an uncovered case. */
+it("binds a combination successor's Combination basis references (T6S, B2-C §10.4)", async () => {
+  const doc = structuredClone(combinationSuccessor) as any, source = doc.source as MechanicsResult, model = doc.invocation.request.model;
+  const own = { ...manifest, manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "build:test" } } };
+  const rows = source.results.filter(r => r.basis_ref?.ref_type === "combination");
+  expect(rows.length).toBe(111);
+  expect(new Set(rows.map(r => JSON.stringify(sourceBasisReference(r.basis_ref))))).toEqual(new Set([JSON.stringify({ object_type: "Combination", ref: "combination:ab" })]));
+  for (const bad of [{ ref_type: "combination", ref_id: "" }, { ref_type: "combination" }, { ref_type: "combination", ref_id: "combination:ab", extra: 1 }]) expect(() => sourceBasisReference(bad)).toThrow("ANALYSIS_SOURCE_REFERENCE_INVALID");
+  const refs = modelLoadBasisRefs(model);
+  expect(refs).toEqual([{ object_type: "LoadCase", ref: "case:a" }, { object_type: "LoadCase", ref: "case:b" }, { object_type: "Combination", ref: "combination:ab" }]);
+  const record = await buildAnalysisRunV03(source, own, undefined, refs);
+  expect(record.analysis_run.load_basis_refs).toEqual(refs);
+  await expect(validateAnalysisRunV03(record, source, refs)).resolves.toBeUndefined();
+  expect((await buildAnalysisRunV03(source, own)).analysis_run.load_basis_refs).toContainEqual({ object_type: "Combination", ref: "combination:ab" });
+  await expect(buildAnalysisRunV03(source, own, undefined, refs.filter(r => r.object_type !== "Combination"))).rejects.toThrow("ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH");
 });

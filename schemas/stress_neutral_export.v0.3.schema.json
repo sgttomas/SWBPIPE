@@ -233,7 +233,8 @@
             "openpipestress.result_semantics/0.3.0/preview-physics-1",
             "openpipestress.result_semantics/0.3.0/load-reference-1",
             "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+            "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
         }
       }
@@ -357,7 +358,8 @@
             "exact_straight_pressure_v2",
             "resolved_straight_load_state_v1",
             "resolved_straight_load_state_source_v1",
-            "product_preview_retained_w1a_v2"
+            "product_preview_retained_w1a_v2",
+            "exact_straight_retained_w1a_v2"
           ]
         },
         "limitations": {
@@ -390,7 +392,8 @@
             "openpipestress.result_semantics/0.3.0/preview-physics-1",
             "openpipestress.result_semantics/0.3.0/load-reference-1",
             "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+            "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
         }
       }
@@ -412,7 +415,8 @@
             "openpipestress.result_semantics/0.3.0/preview-physics-1",
             "openpipestress.result_semantics/0.3.0/load-reference-1",
             "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
+            "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+            "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
         },
         "sha256": {
@@ -3782,7 +3786,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+              "const": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
             }
           }
         },
@@ -3795,6 +3799,103 @@
         },
         "contract_evidence": {
           "$ref": "#/$defs/PreviewPhysicsContractEvidence"
+        },
+        "export_profile": {
+          "required": [
+            "csv_encoding",
+            "csv_row_order"
+          ],
+          "properties": {
+            "csv_encoding": {
+              "const": "utf-8"
+            },
+            "csv_row_order": {
+              "const": "unicode_scalar_value_result_id"
+            }
+          }
+        },
+        "manifest": {
+          "properties": {
+            "package_members": {
+              "prefixItems": [
+                {},
+                {
+                  "properties": {
+                    "checksum": {
+                      "properties": {
+                        "canonicalization": {
+                          "const": "utf8_csv_record_lf_v1"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "checksums": {
+              "prefixItems": [
+                {
+                  "properties": {
+                    "canonicalization": {
+                      "const": "utf8_csv_record_lf_v1"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_annotations",
+        "retained_precision"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+            },
+            "sha256": {
+              "const": "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "exact_straight_retained_w1a_v2"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "#/$defs/PhysicsContractEvidence"
         },
         "export_profile": {
           "required": [

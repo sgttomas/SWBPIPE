@@ -25,7 +25,8 @@ pub mod retained_api {
         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
         AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,
         CaseLimit, CaseOutcome, CertificateIssue, ExecutionOutcome, GateTest, InvocationMeter,
-        Publication, PublicationPredicate, PublishedRow, Refusal, RetainedEvidence, RetainedSolve,
+        PreparedCaseSource, Publication, PublicationPredicate, PublishedRow, Refusal,
+        RetainedEvidence, RetainedSolve,
         RowClass, RunWork, StageWork, StorageCounts, UnresolvedReason, VerificationSummary,
         FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN, POLICY, PRECISIONS,
         RCOND_LABEL,
@@ -34,7 +35,8 @@ pub mod retained_api {
         BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
     };
     pub use super::retained::combine::{
-        CombinationOutcome, CombinationReason, RecordedCombination, RetainedCombination,
+        CombinationOperand, CombinationOutcome, CombinationReason, RecordedCombination,
+        RetainedCombination,
     };
     pub use super::retained::factor::{reverse_cuthill_mckee, BodyGeometry};
     pub use super::retained::ledger::LedgerRefusal;
@@ -42,7 +44,7 @@ pub mod retained_api {
         BuildOrigin, BuildPhase, BuildState, CacheImport, CallKind, CallOrigin, CallResult,
         CombinationStage, GroupOrigin, GroupPreparation, NativeOwner, OriginCapacity, OriginError,
         OriginSlot, RecordBuildLinks, RecordedCase, RecordedInvocation, RecordedKernelCombination,
-        RequestedOperand, RunOrigins, RunPhase, SlotSnapshot, SourceOrigin,
+        RecordedOperand, RequestedOperand, RunOrigins, RunPhase, SlotSnapshot, SourceOrigin,
     };
     pub use super::retained::recover::{layout, End, Kind, QuantityId, QuantityMeta};
     pub use super::retained::source::{

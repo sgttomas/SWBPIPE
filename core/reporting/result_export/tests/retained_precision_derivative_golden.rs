@@ -1,5 +1,8 @@
 //! T6S-2 (I76): Rust goldens of the successor's result-export derivative, the
 //! reference bytes for the desktop's TypeScript derivative (T6S-4, byte parity).
+//! B3b-T (I101; I93 PLAN decision 21): the same goldens for the exact successor
+//! (`physics-retained-1`), derived from lane P's pinned m3x successors with the
+//! same base and origin builders (`retained_precision_exact_successor_derivative_{mode}.json`).
 //!
 //! Each golden is Rust `derivative::derive_document` applied to one of PP's
 //! pinned milestone successors, with one fixed desktop-shaped base and origin:
@@ -19,11 +22,12 @@
 //! `projects/chirality-piping`): run this test with `I76_T6S2_OUT` naming the
 //! output folder, e.g.
 //! `I76_T6S2_OUT=<P>/fixtures/results cargo test --locked --offline --test retained_precision_derivative_golden`,
-//! which writes both goldens and prints their sha256; then set `GOLDEN_SHA256`
-//! to the printed values and rerun without the variable. Without the variable
-//! the test compares the live derivative with the committed files by sha256.
+//! which writes the goldens and prints their sha256; then set `GOLDEN_SHA256`
+//! and `EXACT_GOLDEN_SHA256` to the printed values and rerun without the variable.
+//! Without the variable the test compares the live derivative with the committed
+//! files by sha256.
 //! `I76_T6S2_INPUTS_OUT=<folder>` also writes each mode's exact base and
-//! origin (canonical JSON) there.
+//! origin (canonical JSON) there (`exact_`-prefixed for the exact successor's).
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_result_export::{
     derivative as d, retained_precision as rp, semantic_contract as s, source_blocks,
@@ -66,6 +70,60 @@ const CLASSES: [(&str, [usize; 4]); 2] = [
     ("sparse_interactive", [25, 69, 3, 1]),
     ("dense_scrutiny", [25, 69, 3, 2]),
 ];
+/// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
+/// mode, file text, file sha256 (the fixture document's), receipt sha256.
+const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
+    (
+        "sparse_interactive",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
+        "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6",
+        "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f",
+    ),
+    (
+        "dense_scrutiny",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
+        "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc",
+        "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d",
+    ),
+];
+/// The committed exact goldens' file sha256.
+const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
+    ("sparse_interactive", "79d9930541303b003f215aee6503aa1cec73b45eeb351998a77856257c171ff8"),
+    ("dense_scrutiny", "32b4182c8d524dc0f03c2237a80fc41ca2e72e1a895e46d6f38ddc66eba1a891"),
+];
+/// The m3x successors' validated class counts (relative, absolute, input-derived,
+/// non-quantity); no `not_covered` row.
+const EXACT_CLASSES: [(&str, [usize; 4]); 2] = [
+    ("sparse_interactive", [25, 69, 3, 1]),
+    ("dense_scrutiny", [25, 69, 3, 2]),
+];
+/// One set of goldens: the pinned successors, their identity, the goldens' file
+/// prefix and sha256, and the class counts; `label` prefixes the mode in messages
+/// and in `I76_T6S2_INPUTS_OUT`'s file names.
+struct GoldenSet {
+    label: &'static str,
+    identity: &'static str,
+    pinned: [(&'static str, &'static str, &'static str, &'static str); 2],
+    prefix: &'static str,
+    golden_sha256: [(&'static str, &'static str); 2],
+    classes: [(&'static str, [usize; 4]); 2],
+}
+const T6S2: GoldenSet = GoldenSet {
+    label: "",
+    identity: s::PREVIEW_PHYSICS_RETAINED_ID,
+    pinned: PINNED,
+    prefix: "retained_precision_successor_derivative",
+    golden_sha256: GOLDEN_SHA256,
+    classes: CLASSES,
+};
+const B3B_EXACT: GoldenSet = GoldenSet {
+    label: "exact_",
+    identity: s::PHYSICS_RETAINED_ID,
+    pinned: EXACT_PINNED,
+    prefix: "retained_precision_exact_successor_derivative",
+    golden_sha256: EXACT_GOLDEN_SHA256,
+    classes: EXACT_CLASSES,
+};
 const OUT: &str = "I76_T6S2_OUT";
 /// Optional: a folder for the exact base and origin of each mode (canonical JSON).
 const INPUTS_OUT: &str = "I76_T6S2_INPUTS_OUT";
@@ -184,28 +242,34 @@ fn desktop_origin(source: &Value, model: &Value) -> Value {
 
 // ---- Inputs and derivation ---------------------------------------------------------
 struct Milestone {
-    mode: &'static str,
+    /// The set's label and the mode, for messages and file names.
+    mode: String,
+    set: &'static GoldenSet,
+    pinned_mode: &'static str,
     source: Value,
     model: Value,
 }
 fn sha(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
-fn milestones() -> Vec<Milestone> {
-    PINNED
+fn milestones(set: &'static GoldenSet) -> Vec<Milestone> {
+    set.pinned
         .iter()
-        .map(|(mode, text, file_sha, receipt_sha)| {
+        .map(|(pinned_mode, text, file_sha, receipt_sha)| {
+            let mode = format!("{}{pinned_mode}", set.label);
             assert_eq!(sha(text.as_bytes()), *file_sha, "{mode}: PP's pinned successor bytes");
             let doc: Value = serde_json::from_str(text).unwrap();
             assert_eq!(doc["source"]["retained_precision"]["receipt_sha256"], *receipt_sha);
-            assert_eq!(doc["invocation"]["solver_mode"], *mode);
-            assert_eq!(doc["source"]["producer"]["semantic_contract_id"], s::PREVIEW_PHYSICS_RETAINED_ID);
+            assert_eq!(doc["invocation"]["solver_mode"], *pinned_mode);
+            assert_eq!(doc["source"]["producer"]["semantic_contract_id"], set.identity);
             assert!(
                 doc["source"]["results"].as_array().unwrap().iter().all(|r| r.get("dimension").is_none()),
                 "{mode}: a dimension-absent carrier"
             );
             Milestone {
                 mode,
+                set,
+                pinned_mode,
                 source: doc["source"].clone(),
                 model: doc["invocation"]["request"]["model"].clone(),
             }
@@ -215,16 +279,16 @@ fn milestones() -> Vec<Milestone> {
 fn derive(source: &Value, model: &Value) -> Result<Value, String> {
     d::derive_document(desktop_base(source, model), model, source, desktop_origin(source, model), None)
 }
-fn golden_name(mode: &str) -> String {
-    format!("retained_precision_successor_derivative_{mode}.json")
+fn golden_name(m: &Milestone) -> String {
+    format!("{}_{}.json", m.set.prefix, m.pinned_mode)
 }
-fn committed(mode: &str) -> PathBuf {
+fn committed(m: &Milestone) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../../fixtures/results")
-        .join(golden_name(mode))
+        .join(golden_name(m))
 }
-fn pinned_golden(mode: &str) -> &'static str {
-    GOLDEN_SHA256.iter().find(|(m, _)| *m == mode).unwrap().1
+fn pinned_golden(m: &Milestone) -> &'static str {
+    m.set.golden_sha256.iter().find(|(mode, _)| *mode == m.pinned_mode).unwrap().1
 }
 /// Recompute the publication and receipt hashes after an edit, so the edited
 /// statement is hash-consistent (as retained_precision_carriers.rs `rehash`).
@@ -255,9 +319,17 @@ fn no_invocation(v: &Value) -> bool {
 /// `I76_T6S2_OUT`, is written there).
 #[test]
 fn t6s2_goldens_are_the_live_successor_derivative() {
+    goldens_are_the_live_derivative(&T6S2);
+}
+/// B3b-T: the exact successor's goldens, as T6S-2's.
+#[test]
+fn b3b_exact_goldens_are_the_live_successor_derivative() {
+    goldens_are_the_live_derivative(&B3B_EXACT);
+}
+fn goldens_are_the_live_derivative(set: &'static GoldenSet) {
     let out = std::env::var(OUT).ok().map(PathBuf::from);
     let inputs = std::env::var(INPUTS_OUT).ok().map(PathBuf::from);
-    for m in milestones() {
+    for m in milestones(set) {
         if let Some(dir) = &inputs {
             // The exact base and origin, for reproduction in TypeScript.
             for (name, value) in [("base", desktop_base(&m.source, &m.model)), ("origin", desktop_origin(&m.source, &m.model))] {
@@ -272,14 +344,14 @@ fn t6s2_goldens_are_the_live_successor_derivative() {
         // The derivation is deterministic.
         assert_eq!(canonical_json(&derive(&m.source, &m.model).unwrap()), text, "{}", m.mode);
         if let Some(dir) = &out {
-            std::fs::write(dir.join(golden_name(m.mode)), &text).unwrap();
-            eprintln!("{OUT}: wrote {} sha256 {live}", golden_name(m.mode));
+            std::fs::write(dir.join(golden_name(&m)), &text).unwrap();
+            eprintln!("{OUT}: wrote {} sha256 {live}", golden_name(&m));
             continue;
         }
-        let file = std::fs::read(committed(m.mode))
-            .unwrap_or_else(|e| panic!("{}: the committed golden {}: {e}", m.mode, golden_name(m.mode)));
-        assert_eq!(sha(&file), pinned_golden(m.mode), "{}: the committed golden is the pinned one", m.mode);
-        assert_eq!(live, pinned_golden(m.mode), "{}: the live derivative is the committed golden", m.mode);
+        let file = std::fs::read(committed(&m))
+            .unwrap_or_else(|e| panic!("{}: the committed golden {}: {e}", m.mode, golden_name(&m)));
+        assert_eq!(sha(&file), pinned_golden(&m), "{}: the committed golden is the pinned one", m.mode);
+        assert_eq!(live, pinned_golden(&m), "{}: the live derivative is the committed golden", m.mode);
     }
 }
 
@@ -288,7 +360,16 @@ fn t6s2_goldens_are_the_live_successor_derivative() {
 /// or `not_covered` row, with its code and message.
 #[test]
 fn t6s2_golden_carries_the_receipt_evidence_and_class_disclosures() {
-    for m in milestones() {
+    golden_carries_the_receipt_evidence_and_class_disclosures(&T6S2);
+}
+/// B3b-T: the same controls on the exact successor's goldens (physics-1's evidence
+/// and XTABLE's identity).
+#[test]
+fn b3b_exact_golden_carries_the_receipt_evidence_and_class_disclosures() {
+    golden_carries_the_receipt_evidence_and_class_disclosures(&B3B_EXACT);
+}
+fn golden_carries_the_receipt_evidence_and_class_disclosures(set: &'static GoldenSet) {
+    for m in milestones(set) {
         let doc = derive(&m.source, &m.model).unwrap();
         let e = &doc["result_envelope"];
         assert_eq!((doc["schema_version"].as_str(), e["schema_version"].as_str()), (Some("0.3.0"), Some("0.3.0")));
@@ -299,7 +380,7 @@ fn t6s2_golden_carries_the_receipt_evidence_and_class_disclosures() {
         for key in ["producer", "numerical_quality", "formulation_basis"] {
             assert_eq!(e[key], m.source[key], "{} {key}", m.mode);
         }
-        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", s::PREVIEW_PHYSICS_RETAINED_ID));
+        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", m.set.identity));
         assert!(e.get("source_block_recovery").is_none());
         // The desktop origin: no producer attestation, no request, no invocation (D-U7-6, CQ-5).
         let origins = e["reproducibility"]["source_origin_bindings"].as_array().unwrap();
@@ -325,7 +406,7 @@ fn t6s2_golden_carries_the_receipt_evidence_and_class_disclosures() {
                 rp::AccuracyClass::NotCovered => 4,
             }] += 1;
         }
-        let expected = CLASSES.iter().find(|(mode, _)| *mode == m.mode).unwrap().1;
+        let expected = m.set.classes.iter().find(|(mode, _)| *mode == m.pinned_mode).unwrap().1;
         assert_eq!(counts, [expected[0], expected[1], expected[2], expected[3], 0], "{}", m.mode);
         let rows = m.source["results"].as_array().unwrap();
         let disclosures = e["row_disclosures"].as_array().unwrap();
@@ -385,7 +466,15 @@ fn t6s2_golden_carries_the_receipt_evidence_and_class_disclosures() {
 /// to a document with another sha256; an unresealed edit is refused.
 #[test]
 fn t6s2_a_mutated_pinned_successor_changes_the_golden() {
-    for m in milestones() {
+    a_mutated_pinned_successor_changes_the_golden(&T6S2);
+}
+/// B3b-T: the same controls on the exact successor's pin.
+#[test]
+fn b3b_a_mutated_pinned_exact_successor_changes_the_golden() {
+    a_mutated_pinned_successor_changes_the_golden(&B3B_EXACT);
+}
+fn a_mutated_pinned_successor_changes_the_golden(set: &'static GoldenSet) {
+    for m in milestones(set) {
         let golden = sha(canonical_json(&derive(&m.source, &m.model).unwrap()).as_bytes());
         let mut edited = m.source.clone();
         let index = edited["diagnostics"]

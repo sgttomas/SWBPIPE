@@ -2174,7 +2174,8 @@ impl RetainedSuccessor {
 /// U3: why a permitted invocation published the untouched ordinary bytes.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum W1Fallback {
-    /// Load-state or exact-pressure model: outside D1 (D1.3), the ordinary route.
+    /// No W1 work: a model on no W1 route (a load state or 0.4.0; B3b-P's `w1_route`), or a
+    /// request outside W1's case domain (`w1_case_ids`); the ordinary route.
     Domain,
     /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
     StackReservation,
@@ -2203,6 +2204,11 @@ pub(crate) enum W1Fallback {
     /// Fail-closed guard: the permitted observer no longer held its permit at G-C
     /// (unreachable: `permitted_probe` moves the permit in and nothing takes it).
     PermitUnbound,
+    /// B2-P (B2-C §2.6; REVISION_01 N-1, N-5): T-10b abandoned the whole successor: an
+    /// `OriginError` or `OriginRefusal` from a combination's custody, a `PreparedCaseSource`
+    /// refusal after a completed operand preparation, or a rebuild refusal. Never a capture
+    /// error; the notices of the cases in A are published, plain.
+    CombinationCustody,
 }
 impl RetainedPreviewOutput {
     /// The ordinary base: the publication unless `successor()` is present.
@@ -2959,18 +2965,20 @@ fn permitted_run(
     capture: &source_receipt::CapturedInvocation,
     solver_mode: PreviewSolverMode,
 ) -> Result<RetainedPreviewOutput, String> {
-    // D1.3: load-state and exact-pressure models never reach W1; defensively, a
-    // permit for one takes the unchanged ordinary route (with its SF-1 logic).
-    if case_state::is_load_state(&request.model) || pressure_runtime::is_exact(&request.model) {
+    // B3b-P (B3-D P-1): the route, decided once from the admitted model's namespace branch.
+    // Defensively, a permit for a model on no W1 route (load states, 0.4.0) takes the unchanged
+    // ordinary route (with its SF-1 logic).
+    let Some(route) = w1_route(&request.model) else {
         return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
-    }
-    let mut budget = SourceRecoveryBudget::default();
+    };
+    // B3b-P (P-2): the route's exact-block budget, as the ordinary route's.
+    let mut budget = w1_budget(route);
     // B1 seam (PLAN_v2 §2.1; RV107 SF-4): T-3 (e)'s requested count, read before the
     // request moves into the observed run. G-C carries it, and its attempt fact counts the
     // requested cases (B1 SA, T-3 (e)).
     let requested_cases = request.model.load_cases.len();
     // The permit moves into the observer, which checks G-B with it.
-    let mut observer = retained_product::ProductCapture::permitted_probe(permit);
+    let mut observer = retained_product::ProductCapture::permitted_probe_on(permit, route);
     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
     if source_finalization_failed(&ordinary) {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
@@ -2991,6 +2999,35 @@ fn permitted_run(
         }
     };
     Ok(RetainedPreviewOutput { envelope, admission: Some(report), retained: Some(retained) })
+}
+
+/// B3b-P (B3-D P-1; I95's ruling 1): an admitted model's W1 route, decided once, from its D1.3
+/// namespace branch: L takes the preview route (preview-physics-1 base), E the exact route
+/// (physics-1 base, `physics-retained-1`). `None` (no W1: `Domain`) for a load-state model and
+/// any model on no branch (0.4.0 included).
+fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
+    use retained_memory::NamespaceBranch as B;
+    if case_state::is_load_state(model) {
+        return None;
+    }
+    match retained_memory::namespace_branch(model) {
+        Ok(B::Legacy) => Some(retained_product::W1Route::Preview),
+        Ok(B::Exact) => Some(retained_product::W1Route::Exact),
+        Err(_) => None,
+    }
+}
+
+/// B3b-P (B3-D P-2; RR "I99's B3-W verified; …", ruling 2): W1's exact-block budget is the
+/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case on the exact
+/// route, the default elsewhere. physics-source-1 then selects on the Direct entry exactly as on
+/// the ordinary route, so T-3 (c) publishes the exact ordinary bytes, and the receipt's
+/// `legacy_source_work[].limit` is that budget.
+fn w1_budget(route: retained_product::W1Route) -> SourceRecoveryBudget {
+    let mut budget = SourceRecoveryBudget::default();
+    if route == retained_product::W1Route::Exact {
+        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
+    }
+    budget
 }
 
 /// R-2 (ROOT, NUM efde9ca2d1, N1): the fixed product text of the base publication's
@@ -3124,20 +3161,68 @@ impl<'a> CaseSet<'a> {
     }
 }
 
-/// B1 SP (PLAN_v2 §2.2; RV107 SF-2): the request's cases, in request order, when W1 may
-/// run: 1 ≤ c ≤ `caps::LOAD_CASES` (D1.4) and no combination. `None` otherwise, where W1
-/// never starts (`Domain`).
+/// B1 SP (PLAN_v2 §2.2; RV107 SF-2), widened by B2-P (B2-C §2.1 T-4, §9): the request's
+/// cases, in request order, when W1 may run: 1 ≤ c ≤ `caps::LOAD_CASES` (D1.4) and the
+/// combinations D1.4 admits (`w1_combinations_admitted`). `None` otherwise, where W1 never
+/// starts (`Domain`). With no combination this is B1's re-check, unchanged.
 fn w1_case_ids(capture: &source_receipt::CapturedInvocation) -> Option<CaseSet<'_>> {
     let model = &capture.borrowed_raw()["model"];
-    let (cases, combinations) = (model["load_cases"].as_array()?, model["combinations"].as_array().map_or(0, Vec::len));
-    if cases.is_empty() || cases.len() > retained_memory::caps::LOAD_CASES || combinations != 0 {
+    let cases = model["load_cases"].as_array()?;
+    let combinations = model["combinations"].as_array().map_or(&[][..], Vec::as_slice);
+    if cases.is_empty() || cases.len() > retained_memory::caps::LOAD_CASES {
         return None;
     }
     let mut set = CaseSet::new();
     for (request, case) in cases.iter().enumerate() {
         set.push(request, case["id"].as_str()?)?;
     }
-    Some(set)
+    if combinations.iter().any(|combination| combination["id"].as_str().is_none()) {
+        return None;
+    }
+    let shapes = combinations.iter().map(|combination| (
+        combination["id"].as_str().unwrap_or_default(),
+        combination["terms"].as_array().map_or(0, Vec::len),
+        combination["operand_ids"].as_array().map_or(0, Vec::len),
+    ));
+    w1_combinations_admitted(set.ids().iter().copied(), shapes).then_some(set)
+}
+
+/// B2-P (B2-C §9; REVISION_01 S-1): D1.4's combination clauses as W1 reads them, the one
+/// predicate shared by T-4's domain re-check (`w1_case_ids`) and T-2's capture hooks. With
+/// z ≥ 1 combinations: z ≤ `caps::COMBINATIONS`; C_eq = c + z ≤ `caps::CASE_EQUIVALENTS`; each
+/// combination's terms (repeats counted) ≤ `caps::COMBINATION_TERMS` and range operand ids ≤
+/// `caps::RANGE_OPERANDS`; and no combination id equal to a load-case id (C-9). Each
+/// combination is `(id, terms, range operand ids)`. With no combination it holds: z = 0 is
+/// B1's domain, decided by the case clauses alone.
+pub(crate) fn w1_combinations_admitted<'a>(
+    case_ids: impl Iterator<Item = &'a str> + Clone,
+    combinations: impl ExactSizeIterator<Item = (&'a str, usize, usize)>,
+) -> bool {
+    use retained_memory::caps;
+    let z = combinations.len();
+    if z == 0 {
+        return true;
+    }
+    let c = case_ids.clone().count();
+    if z > caps::COMBINATIONS || c.checked_add(z).is_none_or(|equivalents| equivalents > caps::CASE_EQUIVALENTS) {
+        return false;
+    }
+    let mut combinations = combinations;
+    combinations.all(|(id, terms, operands)| {
+        terms <= caps::COMBINATION_TERMS && operands <= caps::RANGE_OPERANDS && !case_ids.clone().any(|case| case == id)
+    })
+}
+
+/// `w1_combinations_admitted` over a typed model (T-2's capture hooks).
+pub(crate) fn w1_model_combinations_admitted(model: &PreviewModel) -> bool {
+    w1_combinations_admitted(
+        model.load_cases.iter().map(|case| case.id.as_str()),
+        model.combinations.iter().map(|combination| (
+            combination.id.as_str(),
+            combination.terms.len(),
+            combination.operand_ids.as_ref().map_or(0, Vec::len),
+        )),
+    )
 }
 
 /// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): one requested case's W1 trigger class.
@@ -3213,7 +3298,8 @@ fn retained_w1(
         let refusal = refusal.clone();
         return (ordinary, Err(W1Fallback::LateGate(refusal)));
     }
-    // B1 SP: the request's cases; outside D1.4 (c = 0, c > C, a combination) W1 never starts.
+    // B1 SP, B2-P: the request's cases; outside D1.4 (c = 0, c > C, or a combination D1.4
+    // does not admit: z > 2, C_eq > 3, h > 3, a range over > 3 ids, a shared id) W1 never starts.
     let Some(cases) = w1_case_ids(capture) else {
         return (ordinary, Err(W1Fallback::Domain));
     };
@@ -3280,6 +3366,13 @@ fn w1_transaction(
         return (prepared.into_ordinary(), Err((cause, 0)));
     }
     let selected = prepared.selected_attempts();
+    // B2-P T-10a and T-10b (B2-C §2.3, §2.4): each combination's disposition, then for the
+    // retained ones their operand sources, operand preparations, Calls, Runs and freezes. Each
+    // combination's outcome is its own; a custody failure abandons the successor (§2.6).
+    prepared.dispositions();
+    if prepared.combine().is_err() {
+        return (prepared.into_ordinary(), Err((W1Fallback::CombinationCustody, selected)));
+    }
     // T-11. Staging: the overlays apply to one copy; the ordinary owner stays intact. A
     // broken overlay invariant falls back typed (RV85 N6).
     #[cfg(test)]
@@ -3329,6 +3422,24 @@ pub(crate) mod retained_tests_hooks {
         staging: bool, late_gate: bool, complete_gate: bool, preparation: bool, candidate: Option<super::retained_receipt::TraceFault>,
         /// B1 SP (decision 23; RV107 A1-N-6): the request index of the case whose preparation fails.
         preparation_of_case: Option<usize>,
+        /// B3b-P (P-12): the exact route's material capture refuses (its Ĝ check sees Ĝ + 1 ulp).
+        exact_capture: bool,
+        /// B3b-P (P-12): the next frozen exact case's first section patch names an index past
+        /// its `pipe_sections`.
+        section_staging: bool,
+        /// B2-P hooks: the request index of the `not_required` case whose operand preparation
+        /// fails; the authored index of the combination whose Call refuses before any source; and
+        /// a fault in the next combination freeze (its observables stage).
+        operand_preparation_of_case: Option<usize>,
+        combination_call: Option<usize>,
+        combination_freeze: bool,
+        /// RV123 S-2: the request index of the case whose freeze refuses (its maxima stage).
+        freeze_of_case: Option<usize>,
+        /// B2-P: the serializer's meter-chain check reads the next pair of Calls as unchained.
+        meter_chain: bool,
+        /// RV123 (B2-P round 2) S-1: the request index of the case whose batch Run reads as
+        /// refused `ledger_unavailable`.
+        ledger_of_case: Option<usize>,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }
@@ -3422,6 +3533,9 @@ pub(crate) mod retained_tests_hooks {
     pub(crate) fn before_staging(prepared: &mut super::retained_product::PreparedCases) {
         if consume(|a| std::mem::take(&mut a.staging)) {
             prepared.test_break_overlay();
+        }
+        if consume(|a| std::mem::take(&mut a.section_staging)) {
+            prepared.test_break_section_overlay();
         }
     }
     /// Reached before the call; it fires only when a case was prepared (as before T-8, where
