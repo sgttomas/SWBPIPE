@@ -14,6 +14,12 @@ For CSKEW_8_5, agree the rule with T3 before running: no Passed breach in either
 
 Use the stable form **1 − cos φ = 2s² at p = 128**, rather than raising precision, in K-D5. Include a kernel check at L = 30 m: long nearly straight bends (φ ≤ 2e-9) otherwise produce false demotions. The product element uses stable binary64 series/half-angle evaluation, retains the existing 1e-9 rad floor and introduces no minimum-angle refusal. Its switch must be continuous and bitwise deterministic. Keep Sensitive demotion as the fallback.
 
+Acceptance also requires guard and K-D5 margin from φ = 1e-4 rad to π − ε at both ordinary and UTM coordinates, and I9's probe rerun on the product. K1's φ = 1e-8 requirement above extends this acceptance floor; it does not replace the full-range check.
+
+If the stable form needs more than about two days, or a T3 re-agreement beyond T4-U1's own, land T4-U1 as planned with (c) disclosed and follow with T4-U1c before T4-U2 merges. The conditioning-driven true-positive demotion requirement remains in force.
+
+O-3 accepts Lemma 3 with no `CRITERION` change. O-4 makes this `atan_positive`'s first product caller, with N-2's test and A-6's near-π treatment. These are the RV129 O-3/O-4 dispositions, distinct from the M31b0 N-1/N-2 conditions above.
+
 ## Certified arc loads
 
 R-1 replaces CannotBound for certified curved consistent-load terms with the proven midpoint–radius enclosure; the guard still demotes when the certified defect including radius exceeds the criterion. After RV129, R-1 remains in force **conditional on revision 01 incorporating A-1–A-6 and RV129 confirming it**. Failure to close the directed-rounding omission makes R-1 lapse.
