@@ -11,6 +11,7 @@
 //!   caller's thread, carried across the hop, and consumed once by its own seam.
 //!   Coexistence needs no seam: the source-block fixtures n05/n06 select exact blocks.
 use super::{arm, consume, Armed};
+use crate::retained_receipt::TraceFault;
 use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
 use std::sync::Arc;
 
@@ -67,7 +68,7 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.operand_preparation_of_case = a.operand_preparation_of_case.or(faults.operand_preparation_of_case);
     a.combination_call = a.combination_call.or(faults.combination_call);
     a.combination_freeze |= faults.combination_freeze;
-    a.freeze_of_case = a.freeze_of_case.or(faults.freeze_of_case);
+    a.trace_fault_of_case = a.trace_fault_of_case.or(faults.trace_fault_of_case);
     a.meter_chain |= faults.meter_chain;
     a.ledger_of_case = a.ledger_of_case.or(faults.ledger_of_case);
 }
@@ -76,16 +77,24 @@ pub(super) fn names(a: &Armed) -> [(bool, &'static str); 13] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
         (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging"),
         (a.operand_preparation_of_case.is_some(), "operand_preparation_of_case"), (a.combination_call.is_some(), "combination_call"),
-        (a.combination_freeze, "combination_freeze"), (a.freeze_of_case.is_some(), "freeze_of_case"), (a.meter_chain, "meter_chain"),
+        (a.combination_freeze, "combination_freeze"), (a.trace_fault_of_case.is_some(), "trace_fault_of_case"), (a.meter_chain, "meter_chain"),
         (a.ledger_of_case.is_some(), "ledger_of_case")]
 }
 /// RV123 S-2: the freeze of case `index` (request index) refuses at its maxima stage (the
 /// existing `TraceFault::Maxima`, for that case only), after its selected Run: the case is
 /// `unavailable` (`facade_certificate`) with its prepared source, and the other cases go on.
-pub(crate) fn fail_freeze_of_case(index: usize) { arm(|a| a.freeze_of_case = Some(index)); }
-/// At each case freeze (`PreparedCases::freeze`): whether the armed fault fires for it (consumed).
-pub(crate) fn freeze_fault_of_case(request: usize) -> bool {
-    consume(|a| if a.freeze_of_case == Some(request) { a.freeze_of_case.take() } else { None }).is_some()
+pub(crate) fn fail_freeze_of_case(index: usize) { fault_case(index, TraceFault::Maxima); }
+/// The private driver's trace `fault` for case `index` (request index) only, at the stage the
+/// fault names: its preparation (`SourceConstruction`: the source constructor refuses) or its
+/// freeze (`Maxima`, `ValuesCompletion`: refused after its selected Run). The other cases go on.
+pub(crate) fn fault_case(index: usize, fault: TraceFault) { arm(|a| a.trace_fault_of_case = Some((index, fault))); }
+fn is_freeze_fault(fault: TraceFault) -> bool { matches!(fault, TraceFault::Maxima | TraceFault::ValuesCompletion) }
+/// At each case freeze (`PreparedCases::freeze`): the armed freeze fault for it, if any (consumed).
+pub(crate) fn freeze_fault_of_case(request: usize) -> Option<TraceFault> {
+    consume(|a| match a.trace_fault_of_case {
+        Some((index, fault)) if index == request && is_freeze_fault(fault) => a.trace_fault_of_case.take().map(|(_, fault)| fault),
+        _ => None,
+    })
 }
 /// B2-P hook (PLAN §1.2.4; B2-C §2.6): the operand preparation of `not_required` case `index`
 /// (request index) refuses, through the real section preparation (its first member's diameter
@@ -169,11 +178,18 @@ pub(crate) fn fault_next_candidate(fault: crate::retained_receipt::TraceFault) {
 /// would fail the last requested case instead, the one in the capture's own fields at G-C.
 pub(crate) fn fail_preparation_of_case(index: usize) { arm(|a| a.preparation_of_case = Some(index)); }
 /// At each product attempt, before its preparation (retained_product.rs, `prepare_attempt`), on the
-/// case in the capture's own fields.
-pub(crate) fn before_case_preparation(capture: &mut crate::retained_product::ProductCapture, request: usize) {
+/// case in the capture's own fields. Returns whether it set the capture's trace fault for this
+/// case's preparation (`fault_case`), which `prepare_attempt` clears after it.
+pub(crate) fn before_case_preparation(capture: &mut crate::retained_product::ProductCapture, request: usize) -> bool {
     if consume(|a| if a.preparation_of_case == Some(request) { a.preparation_of_case.take() } else { None }).is_some() {
         capture.facts[0].diameter = 0.0;
     }
+    let fault = consume(|a| match a.trace_fault_of_case {
+        Some((index, fault)) if index == request && !is_freeze_fault(fault) => a.trace_fault_of_case.take().map(|(_, fault)| fault),
+        _ => None,
+    });
+    capture.trace_fault = fault.or(capture.trace_fault);
+    fault.is_some()
 }
 fn exceed_every_bound(capture: &crate::retained_product::ProductCapture) {
     use crate::retained_product::AdapterEvent;

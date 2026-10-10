@@ -565,7 +565,7 @@ pub(super) mod caps {
 }
 
 /// The clause that refused, by DOMAIN.md §1's numbering. Read by U3's facade
-/// (grant 2, the public notice mapping) and the tests.
+/// (the public notice mapping) and the tests.
 #[cfg_attr(not(test), allow(dead_code))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum D1Clause {
@@ -2947,7 +2947,7 @@ pub(super) struct PhaseBudgets {
     /// B-10: new allocations by a `W1Fallback` value.
     pub(super) fallback_new_allocations: u32,
 }
-/// B-6 for grant 1b's exact reservation (`ReservedNotice::reserve`): one
+/// B-6 for the notice's exact reservation (`ReservedNotice::reserve`): one
 /// diagnostic slot; the id (`format!`, at most twice its 30 + id + 12 bytes);
 /// the code, severity and source; the 196-byte message reservation; one case-id
 /// reference (its Vec slot and its String).
@@ -3073,7 +3073,7 @@ impl RetainedAdmissionReport {
     }
 }
 
-/// Linear (U3 grant 1b): neither `Clone` nor `Copy`. The facade moves it onto the
+/// Linear: neither `Clone` nor `Copy`. The facade moves it onto the
 /// reserved-stack thread and into the observer, which uses it for G-B and G-C.
 pub(super) struct CapturePermit {
     _profile: &'static RegisteredProfile,

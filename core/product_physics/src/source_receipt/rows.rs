@@ -52,6 +52,7 @@ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
     }
     Ok(value)
 }
+#[cfg(test)]
 pub(super) fn expected_primary(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
@@ -326,6 +327,7 @@ pub(super) struct Derived {
     pub(super) recipe: &'static str,
     pub(super) inputs: Vec<String>,
 }
+#[cfg(test)]
 pub(super) fn derived(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
