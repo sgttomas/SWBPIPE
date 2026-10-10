@@ -12,7 +12,9 @@ refs:
 
 # CONTRACT — OpenPipeStress Invariant Catalog
 
-This document defines binding invariants for agentic development of OpenPipeStress. Invariants are intended to become enforceable through schemas, tests, linters, review gates, and human governance.
+This document defines SWBPIPE product invariants. Root `AGENTS.md` and the project
+`LOOP_INIT.md` govern development; product safety, data and professional boundaries
+below remain effective.
 
 ## 1. Invariant index
 
@@ -46,8 +48,8 @@ This document defines binding invariants for agentic development of OpenPipeStre
 |OPS-K-GOV-4|Maintainers must apply IP, provenance, privacy, and protected-content review before accepting public repository contributions.|Contribution review; protected-content gate|
 |OPS-K-AGENT-1|Agents must not invent engineering values, scope, source citations, or legal conclusions; unknowns become `TBD`.|Agent instructions; review|
 |OPS-K-AGENT-2|Agents must surface conflicts and gaps rather than silently resolving them.|Review; conflict/open issue registers|
-|OPS-K-AGENT-3|Type 2 execution requires sealed context and explicit deliverable scope.|Agentic workflow; orchestration|
-|OPS-K-AGENT-4|Agent outputs are drafts/proposals until accepted by a human gate.|Review; lifecycle state|
+|OPS-K-AGENT-3|Development work stays within authorized scope; use current deliverable sources.|Root AGENTS.md|
+|OPS-K-AGENT-4|Owner-reserved commitments, risk acceptance and releases require owner direction; ordinary development follows the standing Git grant.|Root AGENTS.md|
 
 ## 2. Enforcement map
 

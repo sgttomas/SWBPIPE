@@ -26,17 +26,11 @@ This guide is not a live CI workflow or a release publication authorization.
 
 ## 2. Current Authority Boundary
 
-The current implementation lane is provider-neutral:
+Development uses the selected hosted checks aggregated by the required Root
+`harness` job. The blanket DEC-025 pre-push/fan-in sweep is retired. Do not
+repeat a full local suite already covered by hosted checks. Broad checks run
+on demand or for release-candidate assurance.
 
-- the `DEC-025` five-surface evidence sweep (§5.1) remains the commit-bound
-  merge gate for parallel agent development branches. DEC-059 conditionally
-  selects GitHub Actions for the public sanitized-export repository after its
-  named prerequisites; it does not activate that repository or replace the
-  local gate. DEC-093 permits bound CI evidence for surface 4 when its
-  implementation requirements are met. GitHub Actions on the private
-  monorepo remains prohibited absent an explicitly recorded §7
-  private-data-handling authorization;
-- no `.github/` or other live workflow file is created by this deliverable;
 - the v0.1 release matrix, installer format, and signing posture are ruled
   (`DEC-057`, 2026-07-04, recorded in
   `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; packet
@@ -125,56 +119,16 @@ The local readiness script defines these provider-neutral profiles:
 | `cargo` | `cargo test` for discovered crate manifests. | Local Rust crate gate without a root workspace assumption. |
 | `all` | Union of available local profiles. | Maintainer pre-release dry run or local full run. |
 
-The final CI job names, matrix, required thresholds, and failure policy remain
-`TBD`. Future provider-specific workflows should call the same local script or
-an equivalent command plan so local and hosted evidence stay comparable.
+These profiles are available for focused local diagnosis or release verification;
+they are not a requirement to run every profile on every development change.
 
-### 5.1 Five-Surface Evidence Sweep (DEC-025 Merge Gate)
+### 5.1 Release-candidate sweep
 
-The deterministic local evidence entrypoint is:
-
-```bash
-python3 tools/release/run_evidence_sweep.py            # dry-run: print the plan
-python3 tools/release/run_evidence_sweep.py --execute  # run the sweep
-```
-
-It runs the five evidence surfaces sequentially, in this fixed F-4-safe
-order, failing fast and recording later surfaces as `not_run`:
-
-| # | Surface | Command basis |
-|---|---|---|
-| 1 | Rust crate sweep | `python3 tools/release/check_release_readiness.py --profile cargo --execute` |
-| 2 | Python tests | `python3 -m pytest -q tests` |
-| 3 | Desktop Vitest (wasm engine built first) | `npm run build:wasm:desktop` then `npm run test:desktop` |
-| 4 | Playwright e2e | `npm run test:e2e:desktop` |
-| 5 | Desktop production build | `npm run build:desktop` |
-
-Each execute run writes a machine-readable summary artifact to
-`validation/evidence/sweeps/SWEEP_<utc>_<commit12>[-dirty].json` containing
-the bound commit hash, branch, working-tree deltas, runtime versions,
-per-command exit codes and durations, and the overall pass/fail status. The
-exit code is `0` only when all five surfaces pass.
-
-Merge-gate role (`DEC-025`): the sweep is the required pre-push/fan-in
-evidence for every parallel agent development branch. The recommended gate
-pattern is:
-
-1. commit the completed tranche;
-2. run `python3 tools/release/run_evidence_sweep.py --execute` at the clean
-   committed HEAD, so the summary binds to that commit hash;
-3. commit the summary artifact as an evidence-only closeout commit and push.
-
-A dirty-tree sweep is recorded as working-tree evidence (the summary lists
-the deltas and the filename carries a `-dirty` suffix); per §4 it may support
-review, but the merge gate binds to a clean committed revision.
-
-The surfaces must not run concurrently with each other or with a second
-sweep on the same checkout: surfaces 3 and 4 rebuild the shared wasm engine
-artifact, and the cargo sweep saturates the same cores. The atomic wasm-build
-swap (§3) removes the half-written-artifact hazard, not the contention.
-
-A green sweep is development evidence, not a release claim or a release
-publication authorization.
+`python3 tools/release/run_evidence_sweep.py --execute` remains available for
+macOS release candidates whose packaging authenticity chain uses its artifact
+(§8). It is not a development merge gate. Do not commit routine sweep logs or
+run an evidence-only closeout PR. Keep release artifacts where their consumers
+need them. Avoid concurrent commands that rebuild the same wasm artifacts.
 
 ## 6. Packaging Skeleton
 
@@ -231,25 +185,18 @@ Producing a package under this path is packaging mechanics, not a release:
 an actual release additionally requires the `D-20` scan record, gate
 records, and the human release authority's acceptance.
 
-## 7. Conditional CI Mapping
+## 7. Hosted verification
 
-DEC-059 conditionally selects GitHub Actions for the public sanitized-export
-repository after its named prerequisites. This is a provider-neutral command
-map for that future activation, not an activated workflow. The commit-bound
-five-surface sweep (§5.1) remains the merge gate and must retain its
-sequential, F-4-safe ordering; DEC-093 supplies only its bounded surface-4
-CI-evidence alternative.
+The Root `.github/workflows/governance-harness.yml` calls selected product
+workflows and produces the single required `harness` result. Piping selection
+is defined by `tools/hosted-ci-routing.json` and the numerical/Python selectors.
+Changed numerical crates and consumers get focused oracles; selected Python
+contracts, desktop checks and a core browser journey cover their changed inputs.
+Broad matrices are manual. Exact successful-result reuse is permitted only when
+inputs and environment match; a reused pass identifies its original run.
 
-| Sequence | Provider-neutral phase | Command basis and ordering constraint |
-|---:|---|---|
-| Preflight | Repository sanity | `python3 tools/release/check_release_readiness.py --profile skeleton --execute` before the evidence surfaces. |
-| 1 | All discovered Rust crates | `python3 tools/release/check_release_readiness.py --profile cargo --execute`; surface 1 of the §5.1 order. |
-| 2 | Python/schema contracts and security/privacy | `python3 tools/release/check_release_readiness.py --profile python --execute` and `python3 tools/release/check_release_readiness.py --profile security --execute`; complete before desktop wasm/Vitest work. |
-| 3 | Desktop wasm build and Vitest | `npm run build:wasm:desktop` then `npm run test:desktop`; surface 3 of the §5.1 order. |
-| 4 | Playwright source-mode lane | `npm run test:e2e:desktop`; surface 4, using the dev-server configuration. |
-| 4a | Playwright production-dist lane | `npm run test:e2e:dist:desktop`; supplemental browser lane after source mode. Its existing script rebuilds wasm and the production bundle before serving `dist/`. It must not replace or silently omit the source-mode lane. |
-| 5 | Desktop production build confirmation | `npm run build:desktop`; final §5.1 surface. The earlier dist lane's internal build does not remove this explicit final confirmation. |
-| Review | Release-candidate review | Release notes, gate record, scan record, known limitations, and human acceptance record; this is not inferred from green jobs. |
+See [CI_STRATEGY.md](CI_STRATEGY.md). Release publication and actual product
+acceptance remain separate owner decisions.
 
 ### 7.1 Playwright Browser Provisioning Policy
 
@@ -336,9 +283,8 @@ Release labels describe software maturity and validation evidence.
 
 ## 9. Open Decisions
 
-- Decided 2026-06-11 (`DEC-025`): the five-surface sweep (§5.1) is the
-  commit-bound merge gate. DEC-059 conditionally selects public-export CI;
-  DEC-093 provides a bounded surface-4 CI-evidence alternative.
+- Development assurance uses selected hosted checks under Root `AGENTS.md`;
+  the old DEC-025 blanket merge sweep is superseded.
 - Decided 2026-07-04 (`DEC-057`, D-06 Option O-A): v0.1 release matrix is
   macOS Apple Silicon (`aarch64-apple-darwin`) only; installer format is the
   Tauri `.app` bundle zipped with a published SHA-256 checksum (§6.1);

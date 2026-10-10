@@ -3,7 +3,7 @@
 # Harness configuration authority only — governed, committed, human-reviewed; never lifecycle or project truth (plan v3 §Authority Classes).
 schema: practitioner-harness-adapter/v1
 project: chirality-piping
-plan: docs/PLAN.md
+plan: docs/PRD.md
 coordination: execution/_Coordination/_COORDINATION.md
 decision_register: execution/_Coordination/_DECISIONS/_REGISTER.md
 dag_pointer: execution/_DAG/_LATEST.md

@@ -1,129 +1,14 @@
----
-doc_id: OPS-CONTRIBUTOR-GUIDE
-doc_kind: guide.contributor_onboarding
-status: draft
-created: 2026-05-09
-deliverable_id: DEL-11-05
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: governed_by
-    to: OPS-CONTRIBUTING
-  - rel: explains
-    to: OPS-AGENTIC-DEVELOPMENT-WORKFLOW
-  - rel: explains
-    to: OPS-COORDINATION
----
+# SWBPIPE Contributor Guide
 
-# Contributor Onboarding Guide
+External contribution intake remains closed until the owner activates it with
+the required contributor/legal arrangements. The project license is MIT;
+maintainer acceptance is not professional engineering approval.
 
-This guide is a tutorial path through the existing SWBPIPE governance
-and deliverable workflow. It does not replace `CONTRIBUTING.md`,
-`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/CONTRACT.md`,
-`docs/IP_AND_DATA_BOUNDARY.md`, or `execution/_Coordination/_COORDINATION.md`.
-If this guide conflicts with an assigned sealed brief, a governing document,
-approved DAG authority, deliverable-local lifecycle state, review disposition,
-or a human project-authority instruction, stop and surface the conflict
-instead of guessing.
-
-This guide is project workflow documentation, not legal advice.
-
-## First-Hour Path
-
-Use this sequence before changing files.
-
-| Step | Read | Why |
-|---|---|---|
-| 1 | [`AGENTS.md`](../../AGENTS.md) and the selected role instructions | Establish the applicable project boundaries and role before following the assigned brief. |
-| 2 | [`AGENTS.md`](../../AGENTS.md) | Understand Type 1 routing roles, Type 2 execution roles, and the dispatch rule. |
-| 3 | [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md) | Map the authority surfaces, Type 1/Type 2 loop, evidence expectations, and stop routes. |
-| 4 | [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Review founding intent, product boundaries, and stop rules. |
-| 5 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
-| 6 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
-| 7 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
-| 8 | [`loop/LOOP_INIT.md`](../../loop/LOOP_INIT.md), the work graph the human's steering selects, and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm the current owner-steered work, execution boundaries, evidence expectations and recorded stage; these sources do not expand scope or lift holds. |
-| 9 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
-| 10 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
-
-Do not begin implementation from memory. Work from the current files in the
-repository and the current assignment.
-
-## Repository Map
-
-SWBPIPE uses a flat package and deliverable decomposition:
-
-```text
-execution/_Decomposition/SOFTWARE_DECOMP.md
-docs/_Registers/*.csv
-execution/PKG-XX_.../1_Working/DEL-XX-YY_.../
-```
-
-Common surfaces:
-
-| Path | Use |
-|---|---|
-| `docs/` | Governed project docs, architecture notes, validation strategy, and guide surfaces. |
-| `docs/_Registers/` | Machine-readable scope, deliverable, and context-budget rows. |
-| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Current package/deliverable working surface. |
-| `execution/PKG-*/1_Working/DEL-*/` | Deliverable working folders and local document kits. |
-| `schemas/`, `core/`, `api/`, `validation/`, `examples/` | Product artifacts owned by specific deliverables. |
-| `governance/` | Contribution review, maintainer, and source-rights workflow records. |
-| `tools/validation/` and package-local test commands | Deterministic evidence helpers. |
-
-The package ID owns the first two digits of the deliverable ID. For example,
-`DEL-11-05` belongs to `PKG-11`. IDs persist across name changes; do not
-renumber, reuse, or reinterpret them in contributor work.
-
-## Package And Deliverable Work
-
-Before editing, record the work identity:
-
-| Field | Source |
-|---|---|
-| `DeliverableID` | Sealed brief and deliverable `_CONTEXT.md`. |
-| `PackageID` | Sealed brief, `_CONTEXT.md`, and `docs/_Registers/Deliverables.csv`. |
-| Scope items and objectives | `docs/_Registers/Deliverables.csv` and `docs/_Registers/ScopeLedger.csv`. |
-| Applicable invariants | `docs/CONTRACT.md` and the sealed brief. |
-| Acceptance criteria | Sealed brief or deliverable `_CONTEXT.md`. |
-| Allowed write scope | Sealed brief or human assignment. |
-| Verification commands | Sealed brief, local `Procedure.md`, or changed-surface test docs. |
-
-If a local context file names an older decomposition revision and the sealed
-brief names a newer accepted basis, follow the active assignment and record the
-mismatch in the handoff. Do not update lifecycle, dependency, DAG, blocker,
-candidate, evidence, release, or authority records unless they are explicitly
-inside the write scope.
-
-## Sealed Type 2 Execution
-
-A Type 2 contributor or agent executes one bounded deliverable. The normal
-sequence is:
-
-1. Confirm `DeliverableID`, `PackageID`, scope items, objectives, invariants,
-   acceptance criteria, and write scope.
-2. Inspect the current worktree. Treat unrelated changes as other-worker or
-   user work; do not revert or rewrite them.
-3. Read the deliverable packet: `_CONTEXT.md`, `_REFERENCES.md`,
-   `_DEPENDENCIES.md`, `_STATUS.md`, `Specification.md`, `Guidance.md`, and
-   `Procedure.md` where present.
-4. Make only the requested changes in the allowed paths.
-5. Run tests, validators, scans, or documentation checks appropriate to the
-   changed surface.
-6. Record evidence: changed files, commands, results, warnings, unresolved
-   `TBD`s, and anything intentionally deferred.
-7. Hand off for review. Type 2 output remains draft work until the appropriate
-   human or review gate accepts it.
-
-The workflow map in
-[`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md)
-summarizes this loop. The controlling details remain in the assigned sealed
-brief, the deliverable-local packet, `execution/_Coordination/_COORDINATION.md`,
-approved DAG records, and human project-authority decisions.
-
-Do not silently expand a Type 2 task across package boundaries. If the work
-requires a protected source, a private project file, a legal mechanism decision,
-a release decision, a maintainer-authority decision, or a change to stable
-scope, stop and route the issue through the assigned review or CHANGE path.
+For authorized development, start with Root `AGENTS.md` and
+[LOOP_INIT](../../loop/LOOP_INIT.md). Read the relevant deliverable’s
+ScopeOfWork, Design and dependency conditions; use the Root deliverable CLI
+to find connected work. No sealed brief, lifecycle transition or handoff packet
+is required. The PR states what changed, why, checks and open decisions.
 
 ## Data And Provenance Boundary
 
@@ -159,81 +44,17 @@ and
 The final project-wide legal mechanism remains `TBD` until the human project
 authority records it.
 
-## Tests And Evidence
+## Verification and decisions
 
-Run the smallest useful checks for the files you changed. Typical evidence:
+Run focused checks for the consequential behaviour being changed. The required
+Root `harness` result aggregates selected hosted checks; do not repeat full
+local suites just to produce another record. Release candidates receive their
+actual product checks and separate owner acceptance.
 
-| Changed surface | Useful checks |
-|---|---|
-| Markdown docs | Link/path check, spelling or terminology review where available, `git diff --check`. |
-| Schemas or JSON fixtures | Schema validators and provenance checks named by the owning deliverable. |
-| Rust core | Package-specific `cargo test` commands and any validation fixtures listed by the deliverable. |
-| TypeScript or GUI | Package scripts, Vitest, Playwright, screenshot checks, or documented deferrals. |
-| Examples or report templates | Protected-content, private-data, provenance, and product-claim review. |
-| Release-impacting changes | Release quality gates where a human-governed release path applies. |
+Keep source, unit, diagnostic, privacy and professional boundaries intact.
+Missing engineering data is explicit, never silently defaulted. Changes to
+commitments or acceptance criteria, releases and risk acceptance remain owner
+reserved. Report unavailable or failed verification honestly in the PR.
 
-If a check is impractical, unavailable, or out of scope, record that fact. Do
-not replace a failed or skipped check with unsupported assurance language.
-
-## Review And CHANGE Gates
-
-Review checks whether a contribution stayed in scope, preserved the data
-boundary, produced adequate evidence, and avoided claims beyond the available
-evidence. Maintainer or reviewer acceptance of a repository contribution is
-project governance only.
-
-Route these issues instead of resolving them inside a bounded contribution:
-
-| Issue | Route |
-|---|---|
-| Scope, package boundary, stable ID, or deliverable split change | CHANGE or SOFTWARE_DECOMP path. |
-| Protected-content or unclear redistribution status | Contribution review and human/legal escalation path. |
-| Private project, owner, client, library, rule-pack, or secret exposure | Security/privacy and contribution review path. |
-| License, contributor mechanism, release authority, maintainer quorum, CI provider, or release-label decision | Human project-authority path. |
-| Professional reliance, code interpretation, or project-specific engineering acceptance wording | Professional-boundary review path. |
-
-The project license has been selected as `MIT` by D-74 (2026-09-22).
-DEC-027 records the sole human project authority as sole maintainer and release
-authority with quorum one; external intake stays closed. DEC-079 adopts the
-review/screening skeleton with the contributor legal instrument deliberately
-`TBD` until a future owner activation decision with legal advice. CI and
-coverage follow DEC-025/059/060/093; implementation-level dependency choices
-follow DEC-012. Preserve actual unresolved professional/legal decisions and
-implementation or verification gaps, rather than reopening already ruled facts.
-
-## Contribution Expectations
-
-- Work from current files, not cached assumptions.
-- Keep edits inside the assigned write scope.
-- Prefer small, reviewable changes with explicit evidence.
-- Keep public examples invented or otherwise cleared for redistribution.
-- Preserve unit, provenance, diagnostic, privacy, and professional-boundary
-  controls when touching APIs, adapters, schemas, reports, or rule packs.
-- Surface conflicts, missing inputs, stale assumptions, and unclear rights.
-- Use `TBD` for unknowns rather than inventing values, sources, legal
-  conclusions, or release decisions.
-
-## Handoff Template
-
-Use this structure for the final handoff when no project-specific template is
-provided:
-
-```text
-Deliverable: DEL-XX-YY / PKG-XX
-Changed files:
-- path
-
-Commands run:
-- command -> result
-
-Data/provenance boundary:
-- no protected standards, proprietary source material, private project data,
-  or real secrets introduced
-- unresolved items: TBD or none
-
-Review notes:
-- warnings, assumptions, deferrals, or open issues
-```
-
-The handoff is evidence for review. It does not by itself change lifecycle
-state, release status, project policy, or engineering reliance status.
+See the [developer guide](../developer_guide/index.md), [product requirements](../PRD.md),
+[contract](../CONTRACT.md) and [build/release guide](../BUILD_AND_RELEASE.md).

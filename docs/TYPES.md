@@ -1,4 +1,10 @@
 ---
+
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Design/pressure-contract.md).
+`legacy_pressure_v1` is retired, including zero-pressure documents. References
+to pressure quantities or validation coverage below are subject to that current
+boundary and do not establish implemented T4 capability.
+
 doc_id: OPS-TYPES
 doc_kind: governance.types
 status: draft
@@ -82,21 +88,11 @@ human acceptance is an external hash-bound project record only.
 | `PROPOSAL` | Suggested design/development move requiring decision. |
 | `TBD` | Unknown or unwarranted; must be resolved before reliance. |
 
-## 5.1 Dependency-register vocabulary
+## 5.1 Development dependencies
 
-Current dependency registers use the canonical v3.1 core enum values defined by
-the shared Chirality dependency schema. For write-form rows, `DependencyType`
-is limited to `PREREQUISITE`, `INTERFACE`, `HANDOVER`, `CONSTRAINT`,
-`ENABLES`, and `OTHER`; `Status` is limited to `ACTIVE` and `RETIRED`.
-Candidate or non-gating graph questions are recorded in a candidate worklist or
-review packet, not as `Status=CANDIDATE`.
-
-Legacy values from `DAG-001` through `DAG-006`, including project-specific
-labels such as `ARCHITECTURE_BASIS`, `DOMAIN_MODEL`, `GUI_PREDECESSOR`,
-`RUNNER_CONTRACT`, `INFERRED_DIRECT`, `UNKNOWN`, and `AnchorType=DELIVERABLE`,
-are historical read-compatibility inputs only. New or refreshed dependency
-artifacts must emit canonical enum values and preserve any legacy label in
-notes or a non-core extension field.
+The deliverable YAML records current needs and conditions; reverse links and
+graph views are derived by the CLI. A path, merge or passing test alone does
+not establish engineering suitability.
 
 ## 6. Piping/software vocabulary
 
@@ -169,13 +165,13 @@ claims remain out of scope for this vocabulary.
 | `PrimitiveLoadCase` | Rust mechanics module for weight, pressure, thermal, imposed-displacement, hydrotest, wind, seismic, and occasional primitive load categories. | It prepares explicit nodal, element-uniform, and imposed-displacement solver-boundary contributions; code-specific combinations, wind/seismic procedures, stress recovery, rule checks, and compliance claims are out of scope. |
 | `LoadCaseAlgebra` | Rust mechanics-boundary module for user-defined linear combinations, result-state subtraction, and range envelopes over compatible load/result quantities. | It preserves unit/dimension intent and analysis statuses; code-specific public combination defaults, rule expression parsing, stress recovery, and compliance claims are out of scope. |
 | `UserLoadApplication` | Rust mechanics-boundary module for concentrated forces, concentrated moments, and uniform distributed user loads. | It prepares explicit solver-boundary contributions and result-recovery hooks; code-specific load combinations, default factors, wind/seismic procedures, protected standards content, rule checks, GUI/report/API/CLI behavior, and compliance claims are out of scope. |
-| `StressRecovery` | Rust mechanics module that recovers axial, bending, torsional, and pressure membrane stress components from explicit resultants and section/pressure inputs. | It does not provide design-code equations, allowables, stress indices, SIF/flexibility factors, protected standards content, public pipe tables, rule checks, or compliance claims. |
+| `StressRecovery` | Rust mechanics module that recovers axial, bending, and torsional stress components from explicit resultants and section inputs. It has no pressure components: its legacy thin-wall pressure membrane was removed when the owner retired the legacy pressure contract product-wide (#1168; current DEL-04-07 pressure contract). Pressure is solved only through the exact straight-pressure contract `2.0.0/exact_straight_pressure_v2`, within that contract's own qualifications. | It does not provide design-code equations, allowables, stress indices, SIF/flexibility factors, protected standards content, public pipe tables, rule checks, or compliance claims. |
 | `RulePack` | User-owned schema-governed artifact defining required inputs, declarative formula slots, user-supplied value slots, user-rule check definitions, provenance, redistribution status, diagnostics, checksums, and professional-boundary flags. | The schema defines structure only; expression grammar, evaluator execution, private storage, public examples, and final result-envelope integration remain downstream work. |
 | `ExpressionEvaluator` | Rust rule-pack module that evaluates explicit declarative expression trees with variable bindings, dimension metadata, comparisons, and deterministic findings. | It does not parse arbitrary text, execute host-language code, access files/network/processes, select a final expression grammar/library, implement private rule-pack lifecycle, or make code-compliance/professional claims. |
 | `RulePackLifecycle` | Rust rule-pack module that records lifecycle metadata, privacy/redistribution status, protected-content review state, checksum records, and audit-manifest references for user-owned rule packs. | It hashes caller-supplied canonical payload bytes and emits lifecycle findings; it does not store private rule packs, canonicalize JSON, implement encryption/access control, expose private formulas, or make code-compliance/professional claims. |
 | `RulePackCompletenessCheck` | Rust rule-pack module that compares required-input declarations with supplied input evidence for values, units, dimensions, provenance, redistribution status, and review state. | It emits deterministic rule-check-blocking findings and `RULE_INPUTS_INCOMPLETE` readiness without evaluating formulas, storing private data, supplying code-specific values, or making code-compliance/professional claims. |
 | `MechanicsBenchmark` | Rust validation fixture and hand-calculation record for open mechanics behavior such as cantilever response, frame assembly, thermal growth, imposed displacement, and stiffness transforms. | Fixtures must be original/public/permissive with provenance; tolerance policy, release gates, CI thresholds, code-specific acceptance, and professional reliance remain separate human-governed decisions. |
-| `StressRecoveryBenchmark` | Rust validation fixture and hand-calculation record for code-neutral stress recovery behavior such as axial normal stress, bending normal stress, torsional shear stress, pressure membrane stress, and mechanics-only stress range. | Fixtures must be original/public/permissive with provenance; stress range is not a fatigue check, allowable comparison, code compliance decision, or professional approval (PRD §21.2). |
+| `StressRecoveryBenchmark` | Rust validation fixture and hand-calculation record for code-neutral stress recovery behavior such as axial normal stress, bending normal stress, torsional shear stress, and mechanics-only stress range. Its pressure membrane fixture was an oracle of the retired legacy pressure computation and was removed with it (#1168; current DEL-04-07 pressure contract). | Fixtures must be original/public/permissive with provenance; stress range is not a fatigue check, allowable comparison, code compliance decision, or professional approval (PRD §21.2). |
 | `Component` | Piping-specific object such as bend, elbow, branch, reducer, valve, flange, expansion joint, rigid, specialty, or other user-defined component. | User modifiers and code/manufacturer values require provenance and may be private. |
 | `Material` | User/private or permissively sourced material record with unit-bearing properties, allowable slots, completeness findings, and provenance. | Public schema does not provide protected material allowables, code tables, or proprietary catalog values. |
 | `Section` | Pipe/section record with unit-bearing properties and provenance. | Protected dimensional tables and proprietary catalog data are not public defaults. |
@@ -234,49 +230,3 @@ Companion boundary schemas:
 | `schemas/viewport_editor.schema.yaml` | Defines schema-first viewport/editor status, camera/transient state, view primitives, selection, diagnostics, provenance, professional-boundary controls, and command intents for centerline editing. | It does not create a frontend app shell, render Three.js scenes, mutate durable model state directly, choose GUI dependency versions, or implement adjacent GUI slices. |
 | `schemas/headless_runner.schema.yaml` | Defines the schema-first headless runner request/result envelope for operation identity, project/model/unit/load/input-manifest references, requested outputs, job progress/cancellation, diagnostics, result-export refs, audit-manifest refs, privacy, provenance, professional-boundary controls, and the `DEC-065` local CLI/process policy tokens. | It does not choose CI provider, release matrix, public transport, external adapter formats, local FEA package format, operating-system storage roots, portable project export/copy behavior, hosted/runtime service behavior, or release packaging. |
 | `schemas/adapter_framework.schema.yaml` | Defines schema-first format-neutral adapter framework envelopes for adapter capability declarations, validation plans, operation results, diagnostics, provenance, privacy, checksum/audit refs, result-envelope compatibility, and no-bypass controls. | It does not choose concrete external formats, public transport, endpoint syntax, adapter execution/loading model, plugin runtime, package scripts, CI provider, release matrix, storage roots, portable project export/copy behavior, local FEA package format, redaction workflow, or real external file parsing; it does not authorize direct SQL access. |
-
-## 9. Lifecycle states for development deliverables
-
-```text
-OPEN → INITIALIZED → IN_PROGRESS → CHECKING → ISSUED
-```
-
-Lifecycle states are governed production and change-control regimes with
-maturity/readiness entry conditions, not percentage-complete scores. Advancing
-carries maturity meaning; the states themselves define which changes are
-lawful to a deliverable and under what control.
-
-| State | Change-control regime |
-|---|---|
-| `IN_PROGRESS` | Ordinary authorized edits. The honest holding state whenever warranted open scope exists, however advanced the implementation. |
-| `CHECKING` | A frozen candidate under review against a declared basis. Review evidence appends to run/review records, never to the frozen claim surfaces. Reversal to `IN_PROGRESS` is the only edit path. |
-| `ISSUED` | Accepted baseline. Changes only through the governed scope-change process. |
-
-`ISSUED` means accepted as a development artifact by the human project authority. It does not mean professional engineering authentication of any piping calculation.
-
-Entry to `CHECKING` is layered, not a single trigger:
-
-1. Universal minimums. Current candidate-bound evidence accounts for the
-   applicable production obligations and supports that none remains unfulfilled
-   in the proposed checking scope. Read the Scope of Work, actual outputs,
-   dependencies and required production examination; neither graph closure nor
-   an empty list establishes completeness by itself.
-2. A candidate-specific declared checking basis appropriate to the
-   deliverable's claims and risk — for this project including its engineering
-   validation and provenance disciplines. These criteria are emergent and
-   harden into ruled profiles.
-3. Human declaration of the checking basis and freeze of the candidate.
-
-An unfulfilled production obligation keeps the deliverable IN_PROGRESS; scope
-adjustments precede freeze through the owning decision. A failed formal check
-returns through the prescribed reversal and its correction enters authorized
-graph work. The local-graph arrangement requires no separate Remaining list.
-Frozen earlier program inputs and criteria retain their pins until migrated.
-
-Rebaseline asymmetry: demotion to `IN_PROGRESS` requires no criteria beyond
-the absence of a current accepted basis for the asserted state; promotion
-requires a contemporary declared basis. Lifecycle corrections are
-human-authorized administrative acts recorded through the decision register.
-
-Reference formulation: repo-root `docs/DELIVERABLE_CONCORDANCE_METHOD.md` §4
-(ratified 2026-07-11). Amended per `D-39` (2026-07-11).
