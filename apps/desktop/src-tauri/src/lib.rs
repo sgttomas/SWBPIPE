@@ -1981,10 +1981,11 @@ fn sample_agent_proposal(
     mechanics_result: Option<Value>,
     selected_target: Option<SelectedReviewTarget>,
 ) -> Result<Value, String> {
-    let result = match mechanics_result {
-        Some(value) => value,
-        None => solve_preview_mechanics(load_preview_model()?)?,
-    };
+    // The sample proposal reviews a result the session already has; it never
+    // solves an implicit model.
+    let result = mechanics_result.ok_or_else(|| {
+        "PREVIEW-SOLVE-MODEL-REQUIRED: the sample proposal needs the session's mechanics result.".to_string()
+    })?;
     Ok(build_sample_agent_proposal(result, selected_target))
 }
 

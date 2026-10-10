@@ -37,6 +37,7 @@ import {
   saveLocalProject
 } from "../../services/projectService";
 import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type {
@@ -78,7 +79,7 @@ import { useChromeSessionState } from "./chromeSessionState";
 import type { R3JourneyEvent } from "./chromeSessionState";
 import { isMenuCommandId } from "./menuCommands";
 import type { MenuCommandId } from "./menuCommands";
-import { modelIndexFor } from "./modelIndex";
+import { buildModelIndex, modelIndexFor } from "./modelIndex";
 import { useModelSessionState } from "./modelSessionState";
 import { useOperationsSessionState } from "./operationsSessionState";
 import {
@@ -1934,6 +1935,17 @@ export function useWorkspaceSession() {
         return;
       }
       const document = opened.document;
+      // Last guard behind the shape check: a document the desktop cannot index
+      // is refused here rather than unmounting the workspace after adoption.
+      try {
+        buildModelIndex(document, 0, 0);
+      } catch (error) {
+        setProjectMessage(modelFileRefusalMessage(opened.file_name, [{
+          code: MODEL_FILE_SHAPE, path: "", message: `The desktop could not index the document: ${String(error)}.`
+        }]));
+        setProjectOperation("open_model_refused");
+        return;
+      }
       ruleRevisionGate.current.invalidate();
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);

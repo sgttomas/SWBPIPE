@@ -32,22 +32,28 @@ const binary = path.join(tauriDir, "target", "debug", "openpipestress-desktop");
 const args = new Set(process.argv.slice(2));
 const expected = JSON.parse(readFileSync(path.join(here, "expected.json"), "utf8"));
 const PHASE_TIMEOUT_MS = 15 * 60 * 1000;
-const IDENTIFIER = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8")).identifier;
+const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
+const IDENTIFIER = TAURI_CONF.identifier;
+// macOS suspends the timers of a webview that is not on screen (display asleep,
+// screen locked, window occluded), which would stall the driver. The smoke build
+// alone turns that throttling off, through Tauri's TAURI_CONFIG build-time merge;
+// tauri.conf.json and product builds are unchanged.
+const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
 
 if (process.platform !== "darwin") {
   console.error("native smoke: macOS only");
   process.exit(2);
 }
 
-function run(command, commandArgs, cwd) {
+function run(command, commandArgs, cwd, env = {}) {
   console.log(`$ (${path.relative(project, cwd) || "."}) ${command} ${commandArgs.join(" ")}`);
-  execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true" } });
+  execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
 }
 
 if (!args.has("--skip-build")) {
   if (!existsSync(path.join(desktop, "public", "wasm-engine"))) run("npm", ["run", "build:wasm"], desktop);
   run("npm", ["run", "build"], desktop);
-  run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir);
+  run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
 }
 if (!existsSync(binary)) {
   console.error(`native smoke: ${binary} is missing; run without --skip-build`);
@@ -93,7 +99,8 @@ function launch(phase) {
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
   return new Promise((resolve) => {
-    const child = spawn(binary, [], {
+    // caffeinate keeps the display and system awake for the app's lifetime.
+    const child = spawn("/usr/bin/caffeinate", ["-di", binary], {
       cwd: root,
       env: {
         ...process.env,
@@ -102,9 +109,11 @@ function launch(phase) {
         SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
         SWBPIPE_NATIVE_SMOKE_REPORT: report
       },
-      stdio: ["ignore", "inherit", "inherit"]
+      stdio: ["ignore", "inherit", "inherit"],
+      detached: true
     });
-    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); child.kill("SIGKILL"); }, PHASE_TIMEOUT_MS);
+    // On timeout, kill the whole group: caffeinate and the app under it.
+    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); process.kill(-child.pid, "SIGKILL"); }, PHASE_TIMEOUT_MS);
     child.on("exit", (code, signal) => {
       clearTimeout(timer);
       const parsed = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${code ?? signal})` };
@@ -167,6 +176,14 @@ for (const item of first.exports ?? []) {
   if (!item.available) { console.log(`INFO  ${item.case ?? item.label}: result export not offered: ${item.reason}`); continue; }
   const name = item.status.match(/^Saved (.+) \(\d+ bytes\)\.$/)?.[1];
   check(`${item.label}: exported result JSON in Downloads`, name && exported.includes(name), item.status);
+  if (!name || !exported.includes(name)) continue;
+  // The file is the solved run's: its model ref is the case's project, and its
+  // row count is the one the export panel showed for the current result.
+  const packet = JSON.parse(readFileSync(path.join(downloads, name), "utf8"));
+  const doc = documents.find((entry) => entry.case === item.label);
+  const rows = packet.result_envelope?.result_sets?.[0]?.values?.length;
+  check(`${item.label}: exported file is bound to the solved model`, packet.result_envelope?.model_ref?.ref_id === doc?.project_id, packet.result_envelope?.model_ref?.ref_id);
+  check(`${item.label}: exported rows match the export panel`, rows !== undefined && item.summary?.includes(`rows=${rows};`), `${rows}; ${item.summary}`);
 }
 check("at least one result export written", exported.length > 0, exported);
 

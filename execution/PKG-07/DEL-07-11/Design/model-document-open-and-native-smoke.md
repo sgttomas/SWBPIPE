@@ -31,14 +31,21 @@ export use their existing routes unchanged.
   through that same evaluation. This path adds no migration or compatibility
   code.
 - **Shape check (webview).** `MODEL-FILE-SHAPE` with the JSON path of each
-  missing or mistyped member that the desktop's `PreviewModel` requires and that
-  the desktop always writes:
+  missing or mistyped member that the desktop's `PreviewModel` requires, the
+  desktop dereferences, and the desktop always writes:
   - `data_boundary`, `project.name`, `project.description`, `analysis_status.*`;
   - entity `id`/`label`/`provenance` and the other required strings;
-  - `components`, `diagnostics`, load-case `status`.
+  - `components`, `diagnostics`, load-case `status`;
+  - node positions;
+  - material `elastic_modulus`, section `properties` and pipe `section`
+    quantities (`{value: number, unit: string}`);
+  - support `restraints[]` strings;
+  - combination `terms[]` (`load_case`, `factor`).
 
   It lives in `src/features/model-file/modelDocumentShape.ts`, beside the type
-  it mirrors.
+  it mirrors. As a last guard, the session builds the model index for the
+  candidate before adopting it. A document the index cannot build is also
+  refused with `MODEL-FILE-SHAPE`, rather than unmounting the workspace.
 - **Adoption.** The session adopts the document exactly as read. No default is
   filled in, no in-memory migration is applied, and nothing is normalized. The
   solve proof's `model_sha256` is therefore the RFC 8785 JCS SHA-256 of the
@@ -46,6 +53,11 @@ export use their existing routes unchanged.
   Local Project saves it, and the existing persistence normalization still
   applies on save (for example 0.1.0 → 0.2.0 with its ledger record). A refusal,
   a cancelled chooser or a superseded request leaves the session as it was.
+- **Project identity.** Local projects are keyed by `project.id`, as before. If
+  an opened file carries the id of a stored project, New Local Project replaces
+  that project's snapshot and keeps its migration ledger, exactly as saving the
+  bundled demo always has. Nothing prompts first. Whether the product should
+  ask is an open product choice.
 - **Display fields are part of the desktop document contract.** A document
   without them is refused by name rather than given defaults (label = id,
   empty lists). Defaults would make the session's document, and its hash,
@@ -56,7 +68,8 @@ export use their existing routes unchanged.
 - **No implicit model.** The working-directory fixture lookup is gone. The
   bundled invented demo and its design knowledge are compiled into the binary
   (`include_str!`), so a packaged app starts the same from any directory. A
-  solve without a model is refused (`PREVIEW-SOLVE-MODEL-REQUIRED`).
+  solve without a model is refused (`PREVIEW-SOLVE-MODEL-REQUIRED`), and so is
+  a sample proposal without the session's mechanics result.
 - **Browser preview.** The browser preview cannot open files and refuses with
   `MODEL-FILE-NATIVE-ONLY`.
 - **Scope fence.** This is the ordinary route only. The retained/Direct entry,
@@ -75,7 +88,11 @@ Downloads are isolated. The harness (`src-tauri/src/native_smoke.rs`,
 - it names the file the open chooser returns;
 - it sends native menu commands through the same dispatch a menu click uses.
 
-Everything else is product code.
+Everything else is product code. The smoke build also turns off the webview's
+background throttling, through Tauri's build-time `TAURI_CONFIG` merge, and
+runs the app under `caffeinate`. macOS otherwise suspends a webview that is not
+on screen, for example when the display sleeps, and the driver stalls. Product
+builds and `tauri.conf.json` are unchanged.
 
 **Phase 1** first checks three refusals by name:
 
@@ -101,7 +118,8 @@ It also checks:
 
 - the proof hash against its own JCS hash of each file;
 - each saved model against the opened document;
-- the exported file in Downloads.
+- that the exported file in Downloads is bound to the solved model's project,
+  with the row count the export panel showed.
 
 Run it on a Mac with a GUI session:
 

@@ -40,6 +40,7 @@
   const treeRow = (projectId) => byTestId(`tree-row-project-${encodeURIComponent(projectId)}`);
   const message = () => text("local-project-message") ?? "";
   async function showSection(section) {
+    await log(`show section ${section}`);
     await menu(`view.section.${section}`);
     await waitFor(`section ${section}`, () => byTestId(`workspace-section-${section}`)?.offsetParent !== null);
   }
@@ -96,6 +97,7 @@
     click(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse");
     await waitFor(`${mode} selected`, () => byTestId(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
     const priorProof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+    await log(`${label}: run`);
     await menu("analyze.run");
     await waitFor(`${label} solve completed`, () => {
       const summary = text("solve-job-summary") ?? "";
@@ -148,13 +150,18 @@
   // The open's status line repeats from one project open to the next, so the
   // model tree is the witness: the reopened project replaces `previousId`.
   async function openProjectById(projectId, previousId) {
-    await menu("file.list-local");
+    // List once. Listing is a project operation, and a click that lands while
+    // a list is in flight is dropped, so a project already listed is opened
+    // from the existing list.
+    if (!byTestId(`project-index-open-${projectId}`)) await menu("file.list-local");
     await waitFor(`listed ${projectId}`, () => byTestId(`project-index-open-${projectId}`) && !byTestId(`project-index-open-${projectId}`).disabled);
     click(`project-index-open-${projectId}`);
     const shown = await waitFor(`reopen ${projectId}`, () => {
       const now = message();
       if (now.startsWith("Open failed")) throw new Error(now);
       return now.includes("Opened local SQLite project snapshot") && treeRow(projectId) && !treeRow(previousId) ? now : null;
+    }).catch((error) => {
+      throw new Error(`${error.message}; message="${message()}"; shown=${Boolean(treeRow(projectId))}; previous=${Boolean(treeRow(previousId))}`);
     });
     await log(`reopened ${projectId}: ${shown}`);
     return shown;

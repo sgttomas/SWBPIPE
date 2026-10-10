@@ -3,6 +3,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+// The session's last guard builds the model index for the candidate. One invented
+// project id makes it throw, standing in for any unindexable document.
+vi.mock("../workspace/modelIndex", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../workspace/modelIndex")>();
+  return {
+    ...actual,
+    buildModelIndex: (...args: Parameters<typeof actual.buildModelIndex>) => {
+      if (args[0].project.id === "project:invented-unindexable") throw new TypeError("invented index failure");
+      return actual.buildModelIndex(...args);
+    }
+  };
+});
 
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import milestoneRequest from "../../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json";
@@ -51,6 +63,25 @@ describe("desktop model document shape", () => {
       expect(paths).toContain(path);
     }
     expect(modelDocumentShapeDiagnostics(sensitiveTorsionModel).length).toBeGreaterThan(0);
+  });
+
+  it("checks the nested members the desktop dereferences", () => {
+    const document = clone(demoModel) as unknown as Record<string, unknown>;
+    document.sections = [{ id: "sec:a", name: "a", section_type: "pipe", provenance: { source: "invented" } }];
+    const materials = document.materials as Array<Record<string, unknown>>;
+    delete materials[0].elastic_modulus;
+    (document.combinations as Array<Record<string, unknown>>)[0].terms = [null, { load_case: "load:L-100", factor: "1" }];
+    (document.supports as Array<Record<string, unknown>>)[0].restraints = ["UX", 3];
+    const section = (document.pipe_segments as Array<Record<string, unknown>>)[0].section as Record<string, unknown>;
+    section.wall_thickness = { value: 0.007 };
+    expect(modelDocumentShapeDiagnostics(document).map((item) => item.path)).toEqual([
+      "materials[0].elastic_modulus",
+      "sections[0].properties",
+      "pipe_segments[0].section.wall_thickness.unit",
+      "supports[0].restraints[1]",
+      "combinations[0].terms[0]",
+      "combinations[0].terms[1].factor"
+    ]);
   });
 
   it("names wrong kinds and non-objects", () => {
@@ -111,6 +142,25 @@ describe("File > Open Model Document…", () => {
     act(() => nativeMenuCommand("analyze.run"));
     await waitFor(() => expect(solved).not.toBeNull());
     expect(solved).toEqual(document);
+  });
+
+  it("refuses a document the desktop cannot index instead of adopting it", async () => {
+    const document = openedDocument();
+    document.project.id = "project:invented-unindexable";
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_model_document_file") {
+        return Promise.resolve({ outcome: "opened", file_name: "unindexable.json", byte_count: 1, schema_status: "current", document });
+      }
+      if (command === "sync_native_shell_state") return Promise.resolve(null);
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    await renderApp();
+    act(() => nativeMenuCommand("file.open-model"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+      "Open model document refused (unindexable.json): MODEL-FILE-SHAPE: The desktop could not index the document: TypeError: invented index failure."
+    ));
+    expect(screen.getByTestId("desktop-preview-shell")).toBeInTheDocument();
+    expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`)).toBeInTheDocument();
   });
 
   it("leaves the session as it was on a named refusal and on a cancelled chooser", async () => {
