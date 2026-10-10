@@ -184,11 +184,11 @@ fn kd5_nonlinear_support_invocation_is_never_selected() {
 }
 
 /// A PP-route elbow at large coordinates (RV5-B1): N0 at `x0`, N1 at `x1`
-/// (z = 0), one realized bend of radius 0.3 m on M1 with y reference +y,
-/// whose centre PP computes itself (no designed mismatch); OD 0.2 m, wall
+/// (z = 0), one realized bend of radius `radius` m on M1 with y reference +y
+/// (no designed mismatch); OD 0.2 m, wall
 /// 0.01 m, E 2e11 Pa, G 8e10 Pa; N0 translations rigid, rotational springs
 /// 1e6 N·m/rad; a tip moment (1, 1, 1) N·m. Invented inputs.
-fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2]) -> Value {
+fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2], radius: f64) -> Value {
     let p = "invented_k_d5_rv5_b1_pp_route_large_coordinate_elbow_no_library_data";
     let spring = |dof: &str| {
         json!({"id": format!("spring:N0:{dof}"), "node": "N0", "family": "spring", "restraints": [dof],
@@ -217,7 +217,7 @@ fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2]) -> Value {
         "materials": [{"id": "mat:N", "elastic_modulus": {"value": 2.0e11, "unit": "Pa"},
                        "shear_modulus": {"value": 8.0e10, "unit": "Pa"}, "provenance": p}],
         "components": [{"id": "component:bend", "label": "K-D5 PP-route elbow", "kind": "bend", "node": "N1",
-                        "geometry": {"bend_pipe_ref": "M1", "bend_radius": {"value": 0.3, "unit": "m"},
+                        "geometry": {"bend_pipe_ref": "M1", "bend_radius": {"value": radius, "unit": "m"},
                                      "bend_plane_orientation": "global_xy_preview",
                                      "bend_geometry_source_reference": "invented"},
                         "modifiers": {"flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
@@ -242,6 +242,7 @@ struct PpRouteElbow {
     id: &'static str,
     x0: [f64; 2],
     x1: [f64; 2],
+    radius: f64,
     u_int: [(usize, f64); 9],
 }
 
@@ -251,6 +252,7 @@ const PP_UTM_5E5: PpRouteElbow = PpRouteElbow {
     id: "PP-UTM-5E5-PHI2",
     x0: [500000.0, 350000.0],
     x1: [500000.010469849, 350000.0001827519],
+    radius: 0.3,
     u_int: [
         (3, 1e-06),
         (4, 1e-06),
@@ -272,6 +274,7 @@ const PP_UTM_5E6: PpRouteElbow = PpRouteElbow {
     id: "PP-UTM-5E6-PHI5",
     x0: [5000000.0, 3500000.0],
     x1: [5000000.026146723, 3500000.0011415905],
+    radius: 0.3,
     u_int: [
         (3, 1e-06),
         (4, 1e-06),
@@ -285,9 +288,52 @@ const PP_UTM_5E6: PpRouteElbow = PpRouteElbow {
     ],
 };
 
+/// The same elbow as PP_UTM_5E6 with T4-U1's objective element: u_int is
+/// T4-I6's exact reference for the element formed from (x_i, x_j, R, y)
+/// (round 00 `t3_models[16]`, `u_int_new`, rounded once).
+const PP_UTM_5E6_OBJECTIVE: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-5E6-PHI5",
+    x0: [5000000.0, 3500000.0],
+    x1: [5000000.026146723, 3500000.0011415905],
+    radius: 0.3,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -1.1434351902152318e-09),
+        (7, 2.6210121544673118e-08),
+        (8, -2.506717662237247e-08),
+        (9, 1.0061076233284874e-06),
+        (10, 1.0049021726459545e-06),
+        (11, 1.0048463700931473e-06),
+    ],
+};
+
+/// K1-IP at X = 5e6 m, Y = 3.5e6 m (T4-I6 round 01 item 4; RV2 N-5): the
+/// 0.3 m chord bent by φ = 1e-8 rad (R ≈ 3e7 m). x1 − x0 equals K1's d
+/// exactly in binary64, so u_int is K1's (round 00 `m31b_kill_and_mutant`
+/// 'K1-IP-1E-8-X5e6', equal to X = 0's).
+const K1_IP_UTM: PpRouteElbow = PpRouteElbow {
+    id: "K1-IP-1E-8-X5E6",
+    x0: [5000000.0, 3500000.0],
+    x1: [5000000.259807621, 3500000.1500000004],
+    radius: 30000000.018065747,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -1.5416514863688512e-07),
+        (7, 2.670218695534503e-07),
+        (8, -1.1285672092604801e-07),
+        (9, 1.0719600545549025e-06),
+        (10, 1.0650181408042967e-06),
+        (11, 1.0555353102138075e-06),
+    ],
+};
+
 impl PpRouteElbow {
     fn request(&self) -> Value {
-        pp_route_elbow_request(self.id, self.x0, self.x1)
+        pp_route_elbow_request(self.id, self.x0, self.x1, self.radius)
     }
 
     /// max over the free rows of |u − u_int| / (1e-9·max(|u_int|, S*_kind)),
@@ -375,8 +421,42 @@ fn kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted()
     }
 }
 
+fn assert_published_accurately_and_not_demoted(elbow: &PpRouteElbow) {
+    for (ctx, envelope, actual) in run_pp_route_elbow(elbow) {
+        assert!(actual < 0.5, "{ctx}: actual {actual}");
+        assert_eq!(
+            integrity_codes(&envelope),
+            vec!["NUMERICAL_INTEGRITY_CHECKS_PASSED"],
+            "{ctx}"
+        );
+        assert_eq!(
+            case_qualities(&envelope),
+            vec![NumericalQualityStatus::ChecksPassed],
+            "{ctx}"
+        );
+    }
+}
+
 #[test]
-#[ignore = "T4-U1 phase B: with the objective element PP_UTM_5E6 publishes Passed (actual 0.0027 in both modes and on both entries), so the precondition actual > 1 fails by design; it becomes the C2 control at X = 5e6 and M31b's role moves to the K1 PP test (annex A item 1; T4-I6 B5.2)"]
+fn kd5_very_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted() {
+    // C2's UTM control at X = 5e6 m (T4-U1; the elbow of the ignored test
+    // below): with T4-U1's objective element no binary64 centre enters, the
+    // published u is within half the criterion of the exact intended
+    // solution, and K-D5 leaves it Passed on both entries in both modes.
+    assert_published_accurately_and_not_demoted(&PP_UTM_5E6_OBJECTIVE);
+}
+
+#[test]
+fn kd5_k1_stable_form_on_the_pp_route_at_utm_coordinates_is_not_demoted() {
+    // K1 (T4-I6 round 01 item 4) through PP: the stable small-angle form at
+    // φ = 1e-8 rad realized by PP at X = 5e6 m publishes u within half the
+    // criterion and is not demoted, on both entries in both modes. K-D5 with
+    // the binary64 formula chord (M31b) demotes it.
+    assert_published_accurately_and_not_demoted(&K1_IP_UTM);
+}
+
+#[test]
+#[ignore = "M31b0 equivalence pending ROOT ruling (DEL-04-01 Design); see K1/K2 for M31b"]
 fn kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries() {
     // ROOT's product-level demotion test (RV5-B1): at X = 5e6 m PP's own
     // binary64 centre makes the product's chord differ from the actual chord,

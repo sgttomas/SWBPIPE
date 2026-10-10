@@ -19,6 +19,9 @@ use serde_json::Value;
 const REFERENCES: &str =
     include_str!("../../../validation/references/t4_i6/u1_reference_cases.json");
 
+const ROUND_01: &str =
+    include_str!("../../../validation/references/t4_i6/round_01/u1_reference_cases_r01.json");
+
 const P4_CRITERION: f64 = 1e-9;
 const P1_CRITERION: f64 = 1e-11;
 const P2_CRITERION: f64 = 1e-12;
@@ -221,9 +224,72 @@ fn t4_u1_frozen_cases_meet_p1_p3_p4_and_the_diagonal_scaled_criterion_at_every_x
         }
     }
     for (band, p4, diagonal, p1) in &bands {
-        eprintln!("T4-U1 band {band}: worst P4 {p4:.2e}, diagonal-scaled {diagonal:.2e}, P1 {p1:.2e}");
+        eprintln!(
+            "T4-U1 band {band}: worst P4 {p4:.2e}, diagonal-scaled {diagonal:.2e}, P1 {p1:.2e}"
+        );
     }
     assert_eq!(count, 48 * 5 + 2);
+}
+
+#[test]
+fn t4_u1_acceptance_range_samples_meet_p1_p3_p4_and_the_diagonal_scaled_criterion() {
+    // DEL-04-01 Design (acceptance range, guard part; T4-I6 round 01 item 8):
+    // the ten frozen sample points from φ = 1e-3 to π − 1e-7 rad, in-plane
+    // and skew, at X = 0 and X = 7.3e6 m (d bit-identical). The 1e-4 and
+    // 1e-8 rad points are B2's bands above (every X); K-D5's margin on all of
+    // them is NI's `kd5_acceptance_range_from_1e_8_rad_to_pi_at_ordinary_and_utm_coordinates`.
+    let data: Value = serde_json::from_str(ROUND_01).expect("round 01 JSON");
+    let samples = data["acceptance_range_samples"].as_array().unwrap();
+    assert_eq!(samples.len(), 20);
+    let (mut worst_p4, mut worst_diagonal, mut worst_p1) = (0.0_f64, 0.0_f64, 0.0_f64);
+    for sample in samples {
+        let id = sample["id"].as_str().unwrap();
+        let inputs = &sample["inputs"];
+        let p = Inputs {
+            radius: f(&inputs["R"]),
+            y: v3(&inputs["y_reference"]),
+            e: f(&inputs["E"]),
+            g: f(&inputs["G"]),
+            a: f(&inputs["A"]),
+            i: f(&inputs["I"]),
+            j: f(&inputs["J"]),
+            k_in: f(&inputs["k_in"]),
+            k_out: f(&inputs["k_out"]),
+        };
+        let reference = matrix(&sample["K_global"]);
+        let mut first: Option<Matrix12> = None;
+        let nodes = sample["nodes_by_X"].as_object().unwrap();
+        assert_eq!(nodes.len(), 2, "{id}");
+        for (x, pair) in nodes {
+            let pair = pair.as_array().unwrap();
+            let (xi, xj) = (v3(&pair[0]), v3(&pair[1]));
+            let d = subtract(xj, xi);
+            assert_eq!(d, v3(&inputs["d"]), "{id} X {x}: d");
+            let k = element(xi, xj, &p).global_stiffness().unwrap();
+            match &first {
+                None => first = Some(k),
+                Some(k0) => {
+                    for r in 0..12 {
+                        for c in 0..12 {
+                            assert_eq!(k[r][c].to_bits(), k0[r][c].to_bits(), "{id} X {x}: P3");
+                        }
+                    }
+                }
+            }
+            let (p4, diagonal) = agreement(&k, &reference);
+            assert!(p4 <= P4_CRITERION, "{id} X {x}: P4 {p4:e}");
+            assert!(diagonal <= P4_CRITERION, "{id} X {x}: P4d {diagonal:e}");
+            let p1 = null_residual(&k, d).unwrap_or(f64::INFINITY);
+            assert!(p1 <= P1_CRITERION, "{id} X {x}: P1 {p1:e}");
+            eprintln!("T4-U1 range {id} X {x}: P4 {p4:.2e}, P4d {diagonal:.2e}, P1 {p1:.2e}");
+            worst_p4 = worst_p4.max(p4);
+            worst_diagonal = worst_diagonal.max(diagonal);
+            worst_p1 = worst_p1.max(p1);
+        }
+    }
+    eprintln!(
+        "T4-U1 acceptance range: worst P4 {worst_p4:.2e}, P4d {worst_diagonal:.2e}, P1 {worst_p1:.2e}"
+    );
 }
 
 #[test]
@@ -235,7 +301,12 @@ fn t4_u1_exact_rotation_gives_the_permuted_matrix() {
         let id = case["id"].as_str().unwrap();
         let mut inputs = case_inputs(case);
         let reference = matrix(&case["K_global"]);
-        let pair = case["nodes_by_X"].as_object().unwrap().values().next().unwrap();
+        let pair = case["nodes_by_X"]
+            .as_object()
+            .unwrap()
+            .values()
+            .next()
+            .unwrap();
         let (xi, xj) = (v3(&pair["x_i"]), v3(&pair["x_j"]));
         let base = element(xi, xj, &inputs).global_stiffness().unwrap();
         inputs.y = permute(inputs.y);
@@ -260,7 +331,9 @@ fn t4_u1_large_coordinate_controls_are_formed_and_meet_p1_and_p4() {
     // B5.4: eight elbows at X ≈ 5e6 and 7.3e6 that the centre-based element
     // refused (radius mismatch); each carries its own frozen K.
     let data = references();
-    let controls = data["utm_controls_refused_today"]["cases"].as_array().unwrap();
+    let controls = data["utm_controls_refused_today"]["cases"]
+        .as_array()
+        .unwrap();
     assert_eq!(controls.len(), 8);
     for control in controls {
         let section = &control["section"];
