@@ -358,15 +358,13 @@
         "status": {
           "type": "string",
           "enum": [
-            "accepted",
-            "legacy_TBD"
+            "accepted"
           ]
         },
         "profile": {
           "type": "string",
           "enum": [
-            "sqlite_local_project_store",
-            "legacy_TBD"
+            "sqlite_local_project_store"
           ]
         },
         "decision_ref": {
