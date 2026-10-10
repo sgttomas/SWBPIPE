@@ -66,7 +66,7 @@ const MATRIX_KEYS: &[&str] = &[
     "source_reference",
 ];
 
-fn require(ok: bool, code: &str) -> Check {
+fn require_connector(ok: bool, code: &str) -> Check {
     if ok {
         Ok(())
     } else {
@@ -99,15 +99,15 @@ pub(crate) fn row_basis(span: &str) -> String {
     format!("objective_connector_v1;replaces_span={span};{MOTION_BASIS}")
 }
 
-fn record(r: &Value) -> Result<(&str, &str), String> {
-    require(keys(r, RECORD_KEYS), "RECORD_SHAPE")?;
+fn connector_record(r: &Value) -> Result<(&str, &str), String> {
+    require_connector(keys(r, RECORD_KEYS), "RECORD_SHAPE")?;
     let (component, span, node_i, node_j) = (
         text(&r["component_id"]),
         text(&r["replaced_pipe_id"]),
         text(&r["node_i"]),
         text(&r["node_j"]),
     );
-    require(
+    require_connector(
         component.is_some()
             && span.is_some()
             && node_i.is_some()
@@ -116,7 +116,7 @@ fn record(r: &Value) -> Result<(&str, &str), String> {
             && text(&r["provenance"]).is_some(),
         "RECORD_IDENTITY",
     )?;
-    require(
+    require_connector(
         r["topology"] == "replaces_span"
             && r["motion_basis"] == MOTION_BASIS
             && r["calibration"] == "constant_structural_elasticity_v1"
@@ -126,7 +126,7 @@ fn record(r: &Value) -> Result<(&str, &str), String> {
             && matches!(r["reference_state"].as_str(), Some("stress_free" | "prestressed")),
         "RECORD_LAW",
     )?;
-    require(
+    require_connector(
         matrix3(&r["connector_axes_global"])
             && matrix3(&r["end_i_node_axes_global"])
             && matrix3(&r["end_j_node_axes_global"])
@@ -139,7 +139,7 @@ fn record(r: &Value) -> Result<(&str, &str), String> {
         "RECORD_FRAME",
     )?;
     let m = &r["work_matrix"];
-    require(
+    require_connector(
         keys(m, MATRIX_KEYS)
             && m["representation"] == "scaled_work_coefficients_v1"
             && m["coordinate_order"] == serde_json::json!(["tx", "ty", "tz", "rx", "ry", "rz"])
@@ -167,26 +167,26 @@ pub(crate) fn validate(
     admitted: bool,
 ) -> Check {
     let records = evidence.as_array().ok_or("SOURCE_PHYSICS_ARRAY_INVALID")?;
-    require(admitted || records.is_empty(), "UNSUPPORTED")?;
+    require_connector(admitted || records.is_empty(), "UNSUPPORTED")?;
     let mut spans: HashMap<&str, &str> = HashMap::new();
     let mut replaced = HashSet::new();
     for r in records {
-        let (component, span) = record(r)?;
-        require(spans.insert(component, span).is_none(), "RECORD_DUPLICATE")?;
-        require(replaced.insert(span), "SPAN_DUPLICATE")?;
+        let (component, span) = connector_record(r)?;
+        require_connector(spans.insert(component, span).is_none(), "RECORD_DUPLICATE")?;
+        require_connector(replaced.insert(span), "SPAN_DUPLICATE")?;
         // S21: a replaced span is in no published per-pipe list.
-        require(!members.contains(span), "REPLACED_SPAN_PUBLISHED")?;
+        require_connector(!members.contains(span), "REPLACED_SPAN_PUBLISHED")?;
     }
     let mut slots = HashSet::new();
     let mut counts: HashMap<(&str, &str), usize> = HashMap::new();
     for row in rows.values() {
         let entity = row["entity_ref"].as_str().unwrap_or_default();
-        require(!replaced.contains(entity), "REPLACED_SPAN_PUBLISHED")?;
+        require_connector(!replaced.contains(entity), "REPLACED_SPAN_PUBLISHED")?;
         let kind = row["kind"].as_str().unwrap_or_default();
         if !is_connector_kind(kind) {
             continue;
         }
-        require(admitted, "UNSUPPORTED")?;
+        require_connector(admitted, "UNSUPPORTED")?;
         let (_, unit, components, locations) = KINDS
             .iter()
             .find(|(k, ..)| *k == kind)
@@ -195,14 +195,14 @@ pub(crate) fn validate(
             .get(entity)
             .ok_or("SOURCE_PHYSICS_CONNECTOR_ROW_UNBOUND")?;
         let md = &row["metadata"];
-        require(
+        require_connector(
             keys(md, &["component", "coordinate_system", "location", "basis", "sign_convention"]),
             "ROW_METADATA_SHAPE",
         )?;
         let component = md["component"].as_str().unwrap_or_default();
         let location = md["location"].as_str().unwrap_or_default();
         let local = location == LOCAL;
-        require(
+        require_connector(
             row["unit"] == *unit
                 && components.contains(&component)
                 && locations.contains(&location)
@@ -212,14 +212,14 @@ pub(crate) fn validate(
             "ROW_SEMANTICS",
         )?;
         let case = row["basis_ref"]["ref_id"].as_str().unwrap_or_default();
-        require(cases.contains(case), "ROW_CASE")?;
-        require(slots.insert((case, entity, kind, component, location)), "ROW_DUPLICATE")?;
+        require_connector(cases.contains(case), "ROW_CASE")?;
+        require_connector(slots.insert((case, entity, kind, component, location)), "ROW_DUPLICATE")?;
         *counts.entry((case, entity)).or_default() += 1;
     }
     if solved {
         for case in cases {
             for component in spans.keys() {
-                require(
+                require_connector(
                     counts.get(&(*case, *component)) == Some(&ROWS_PER_CASE),
                     "ROW_COVERAGE",
                 )?;
