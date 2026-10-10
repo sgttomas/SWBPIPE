@@ -5399,18 +5399,22 @@ fn solve_load_case_observed(
             }
             None
         } else if pressure_runtime::is_exact(model) {
-            match exact_straight_summary_extrema(
-                pipe,
-                exact_mechanical_local_forces
-                    .as_ref()
-                    .map(Vec::as_slice)
-                    .unwrap_or(&corrected_local_forces),
-                &straight_loads,
-                section,
-                exact_pressure
-                    .as_ref()
-                    .and_then(|case| case.pipe_states.get(&pipe_index)),
-            ) {
+            let extrema = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(reason.to_string()),
+                pressure_runtime::ExactMemberMaximumPolicy::Compute => exact_straight_summary_extrema(
+                    pipe,
+                    exact_mechanical_local_forces
+                        .as_ref()
+                        .map(Vec::as_slice)
+                        .unwrap_or(&corrected_local_forces),
+                    &straight_loads,
+                    section,
+                    exact_pressure
+                        .as_ref()
+                        .and_then(|case| case.pipe_states.get(&pipe_index)),
+                ),
+            };
+            match extrema {
                 Ok(maximum) => {
                     let value =
                         maximum.value_lower + 0.5 * (maximum.value_upper - maximum.value_lower);
@@ -5480,23 +5484,27 @@ fn solve_load_case_observed(
                 metadata: None,
             });
         }
-        if let Some(state) = exact_pressure
-            .as_ref()
-            .and_then(|case| case.pipe_states.get(&pipe_index))
-        {
-            append_exact_pressure_results(
+        match pressure_runtime::exact_member_recovery(
+            &load_case.id,
+            &pipe.element_id,
+            exact_pressure
+                .as_ref()
+                .and_then(|case| case.pipe_states.get(&pipe_index)),
+            exact_mechanical_local_forces.as_deref(),
+        ) {
+            Ok(None) => {}
+            Ok(Some((state, mechanical))) => append_exact_pressure_results(
                 &mut results,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
                 state,
                 &corrected_local_forces,
-                exact_mechanical_local_forces
-                    .as_ref()
-                    .expect("exact region member retains mechanical/thermal recovery"),
+                mechanical,
                 pipe,
                 &straight_loads,
-            );
+            ),
+            Err(refusal) => diagnostics.push(refusal),
         }
         component_stress_modifier_count += append_component_stress_multiplier_results(
             &mut results,
@@ -7214,8 +7222,9 @@ fn build_model_for_members(
     let mut pipes = Vec::new();
     let mut frame_elements = Vec::new();
     let mut sections = HashMap::new();
-    // Each pipe's resolved (E, G): the material's, or the 0.4.0 member pair.
-    let mut member_moduli: HashMap<String, (f64, f64)> = HashMap::new();
+    // Each realized-bend pipe's resolved (E, G): the material's, or the 0.4.0
+    // member pair. Straight pipes insert nothing (RV12 S-3).
+    let mut member_moduli: HashMap<&str, (f64, f64)> = HashMap::new();
     let mut exact_sections = HashMap::new();
     for pipe in &model.pipe_segments {
         let Some(&from) = node_map.get(pipe.from.as_str()) else {
@@ -7327,7 +7336,9 @@ fn build_model_for_members(
                     continue;
                 }
             };
-        if !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+        if curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+            member_moduli.insert(pipe.id.as_str(), (elastic_modulus, shear_modulus));
+        } else {
             frame_elements.push(
                 element
                     .frame_element()
@@ -7335,7 +7346,6 @@ fn build_model_for_members(
             );
         }
         sections.insert(pipe.id.clone(), derived);
-        member_moduli.insert(pipe.id.clone(), (elastic_modulus, shear_modulus));
         pipes.push(element);
     }
 
@@ -7637,7 +7647,7 @@ fn build_curved_bend_macro_elements(
     nodes: &[FrameNode],
     node_map: &HashMap<&str, usize>,
     sections: &HashMap<String, DerivedSection>,
-    member_moduli: &HashMap<String, (f64, f64)>,
+    member_moduli: &HashMap<&str, (f64, f64)>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<CurvedBendMacroBuild> {
     let pipe_map = model
@@ -10895,18 +10905,16 @@ fn exact_straight_end_forces(
 }
 
 // Macro-span recovery: end forces are K_macro * (d - u_free) minus the
-// arc-consistent distributed equivalent loads and minus the consistent
-// radial pressure wall-load vector, in global coordinates — the exact
-// free-expansion correction mirrors
+// arc-consistent distributed equivalent loads, in global coordinates — the
+// exact free-expansion correction mirrors
 // `corrected_local_forces_for_axial_effects` so recovered forces exclude the
 // self-equilibrated thermal part, and the equivalent-load subtractions turn
 // the nodal solve response into the true node-on-element end forces of the
 // continuously loaded arc — then rotated to the chord frame of the replaced
-// straight span so the existing result rows keep their convention. Pressure
-// thrust is the complete arc system (cap pair + consistent wall vector), so
-// the closed-end wall tension pA emerges along the local tangent through
-// equilibrium with no ad-hoc chord correction; the former straight-element
-// chord-UX correction is retired for macro spans.
+// straight span so the existing result rows keep their convention. No
+// pressure load reaches a macro span: the radial pressure treatment was
+// retired, legacy pressure is refused on every route, and the exact pressure
+// profile refuses bend components.
 fn recover_curved_bend_local_forces(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
@@ -10932,9 +10940,8 @@ fn recover_curved_bend_local_forces(
     // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
     // products K_rc * d_c, minus K_rc * fl(eps_l * chord_c) for each thermal
     // load l (the force side's exact products), minus each uniform load's own
-    // consistent equivalent and each thrust load's radial-pressure
-    // equivalent, rounded once. The chord rotation below stays a formed
-    // transform.
+    // consistent equivalent, rounded once. The chord rotation below stays a
+    // formed transform.
     let free_expansions = thermal_loads
         .iter()
         .filter(|load| load.element_index == bend.pipe_index)
@@ -11036,10 +11043,8 @@ fn curved_bend_uniform_intensities_by_pipe(
 // Arc sections from the assembled macro-element: rotate the
 // recovered chord-frame end-j force back to global and evaluate section
 // resultants along the arc by segment equilibrium (closed form in the
-// curved-bend crate), treating the radial pressure wall load like the other
-// distributed loads: its far-segment actions enter the station equilibrium
-// directly, so the completely pressure-loaded arc reports wall tension +pA
-// along the local tangent with zero shear and zero moment at every station.
+// curved-bend crate). No pressure load reaches a macro span (see
+// `recover_curved_bend_local_forces`).
 // The recovered end forces already exclude the self-equilibrated thermal
 // free-expansion part and the distributed equivalent loads; the station
 // grid mirrors the straight-span fractions.
@@ -11077,7 +11082,7 @@ fn curved_bend_section_resultants(
     }
     // E11 (S11 section 4.4): by linearity the section value is the exact sum
     // of the section function applied to the end-j force alone, to each
-    // load's intensity alone and to each thrust alone, rounded once.
+    // load's intensity alone, rounded once.
     bend.macro_element
         .arc_section_resultant_terms(
             fraction,
@@ -22563,6 +22568,62 @@ mod tests {
         assert_eq!(element.elastic_modulus, pair.elastic_modulus_pa());
         assert_eq!(element.shear_modulus, pair.shear_modulus_pa());
         assert_ne!(element.elastic_modulus, material.elastic_modulus.value);
+    }
+
+    // SP-1 (T4-RV12 B-1): D-B's relaxed bend-geometry warning applies on every
+    // route except documents declaring 2.0.0/exact_straight_pressure_v2, which
+    // keep the pre-T4-U1 condition and text whatever their schema version.
+    #[test]
+    fn t4_u1_bend_geometry_warning_keeps_its_v2_condition_and_text() {
+        const V2_TEXT: &str = "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review";
+        const D_B_TEXT: &str = "bend/elbow component requires explicit radius, angle (unless realized as a curved bend), and invented or cleared geometry source to support component provenance review";
+        let warnings = |model: &PreviewModel| {
+            let mut diagnostics = Vec::new();
+            validation::validate_model_inputs(model, &[], &mut diagnostics);
+            diagnostics
+                .into_iter()
+                .filter(|d| d.code == "BEND_GEOMETRY_INPUT_MISSING")
+                .map(|d| d.message)
+                .collect::<Vec<_>>()
+        };
+        let v2 = |model: &mut PreviewModel, schema: &str| {
+            model.schema_version = schema.to_string();
+            model.pressure_contract = Some(PressureContractInput {
+                version: Some("2.0.0".to_string()),
+                mode: Some("exact_straight_pressure_v2".to_string()),
+            });
+        };
+        let complete = curved_bend_span_request().model;
+        assert!(complete.components[0].geometry.as_ref().unwrap().bend_plane_orientation.is_some());
+        // A realized bend without angle and plane orientation, and the same
+        // component as a geometry-only bend without plane orientation.
+        let mut realized = complete.clone();
+        let geometry = realized.components[0].geometry.as_mut().unwrap();
+        geometry.bend_angle = None;
+        geometry.bend_plane_orientation = None;
+        let mut geometry_only = complete.clone();
+        geometry_only.components[0].geometry.as_mut().unwrap().bend_plane_orientation = None;
+        geometry_only.components[0]
+            .mechanics_interface
+            .as_mut()
+            .unwrap()
+            .solver_consumption = Some("mechanics_geometry_only".to_string());
+        for model in [&realized, &geometry_only] {
+            assert_eq!(warnings(model), Vec::<String>::new(), "D-B off v2");
+            for schema in ["0.3.0", "0.4.0", "0.1.0"] {
+                let mut declared = model.clone();
+                v2(&mut declared, schema);
+                assert_eq!(warnings(&declared), vec![V2_TEXT.to_string()], "v2 at {schema}");
+            }
+        }
+        let mut no_radius = realized.clone();
+        no_radius.components[0].geometry.as_mut().unwrap().bend_radius = None;
+        assert_eq!(warnings(&no_radius), vec![D_B_TEXT.to_string()]);
+        v2(&mut no_radius, "0.3.0");
+        assert_eq!(warnings(&no_radius), vec![V2_TEXT.to_string()]);
+        let mut complete_v2 = complete.clone();
+        v2(&mut complete_v2, "0.4.0");
+        assert_eq!(warnings(&complete_v2), Vec::<String>::new());
     }
 
     // T4-U1 (I1 §5.3 #12): a fit on a realized bend's span refers to its arc

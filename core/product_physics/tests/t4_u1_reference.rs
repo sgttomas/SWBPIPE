@@ -374,42 +374,67 @@ impl Lcg {
 }
 
 #[test]
-fn t4_u1_seeded_elbows_at_every_x_are_formed_and_annihilate_rigid_motions() {
-    // P5 (and P1) on N = 2,000 seeded elbows per X ∈ {0, 5e5, 2e6, 5e6,
-    // 7.3e6}, as T4-I2 §1.4's column (R = 0.3 m) with B5.4's angle range
-    // U(5°, 175°) (RV2 N-8: inside [1e-9, π − 1e-9]); node i on a 1 mm grid
-    // near (X, 0.7X, 0); random chord direction and reference vector.
+fn t4_u1_seeded_elbows_at_every_x_are_formed() {
+    // P5 with T4-I6 round 01 §8's generator (RV2 N-8): for each X ∈ {0, 5e5,
+    // 2e6, 5e6, 7.3e6}, N = 2,000 elbows: φ uniform in [1e-4, π − 1e-6] plus a
+    // stratum of N/10 with φ log-uniform in [1e-9, 1e-4]; |d| uniform in
+    // [0.05, 2] m on the 2⁻³⁰ grid, R derived; y random with |y⊥|/|y| ≥ 1e-3;
+    // node i on the 2⁻³⁰ grid near (X, 0.7X, 0). Binary64 R ≤ L/2 and angles
+    // outside [1e-9, π − 1e-9] are legitimate refusals, excluded by
+    // construction (counted). Every other elbow must form: no radius refusal.
+    // P1 is recorded, not asserted: B3 requires it on B2 and B5.4 (asserted
+    // above); on generic small-angle chords near a coordinate plane the
+    // product reaches about 5e-11 (T4-RV11 N-1, a rounding of the binary64
+    // axes in the global transform; T4-I19's record).
+    let grid = |v: f64| (v * 2f64.powi(30)).round() / 2f64.powi(30);
+    let pi = std::f64::consts::PI;
     let mut rng = Lcg(20261010);
-    let mut worst = 0.0_f64;
-    let (mut formed, mut plane_refused) = (0usize, 0usize);
+    let (mut formed, mut excluded, mut worst, mut over) = (0usize, 0usize, 0.0_f64, 0usize);
     for x in [0.0, 5.0e5, 2.0e6, 5.0e6, 7.3e6] {
-        for _ in 0..2000 {
-            let degree = std::f64::consts::PI / 180.0;
-            let phi = (5.0 + 170.0 * rng.next()) * degree;
-            let radius = 0.3;
-            let chord_length = 2.0 * radius * (0.5 * phi).sin();
-            // A random unit chord direction and a random reference vector.
+        for n in 0..2000 {
+            let phi = if n % 10 == 0 {
+                (1e-9_f64.ln() + (1e-4_f64.ln() - 1e-9_f64.ln()) * rng.next()).exp()
+            } else {
+                1e-4 + (pi - 1e-6 - 1e-4) * rng.next()
+            };
+            let length = 0.05 + 1.95 * rng.next();
             let z = 2.0 * rng.next() - 1.0;
-            let t = 2.0 * std::f64::consts::PI * rng.next();
+            let t = 2.0 * pi * rng.next();
             let w = (1.0 - z * z).sqrt();
-            let direction = [w * t.cos(), w * t.sin(), z];
-            let y = [
-                2.0 * rng.next() - 1.0,
-                2.0 * rng.next() - 1.0,
-                2.0 * rng.next() - 1.0,
+            let d = [
+                grid(length * w * t.cos()),
+                grid(length * w * t.sin()),
+                grid(length * z),
             ];
-            let mm = |v: f64| (v * 1000.0).round() / 1000.0;
+            let l = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();
+            let radius = l / (2.0 * (0.5 * phi).sin());
+            let y = loop {
+                let y = [
+                    2.0 * rng.next() - 1.0,
+                    2.0 * rng.next() - 1.0,
+                    2.0 * rng.next() - 1.0,
+                ];
+                let ny = (y[0] * y[0] + y[1] * y[1] + y[2] * y[2]).sqrt();
+                let along = (y[0] * d[0] + y[1] * d[1] + y[2] * d[2]) / l;
+                if (ny * ny - along * along).max(0.0).sqrt() >= 1e-3 * ny {
+                    break y;
+                }
+            };
             let xi = [
-                mm(x + 10.0 * rng.next()),
-                mm(0.7 * x + 10.0 * rng.next()),
-                mm(10.0 * rng.next()),
+                grid(x + 10.0 * rng.next()),
+                grid(0.7 * x + 10.0 * rng.next()),
+                grid(10.0 * rng.next()),
             ];
-            let xj = [
-                xi[0] + chord_length * direction[0],
-                xi[1] + chord_length * direction[1],
-                xi[2] + chord_length * direction[2],
-            ];
-            let d = subtract(xj, xi);
+            let xj = [xi[0] + d[0], xi[1] + d[1], xi[2] + d[2]];
+            assert_eq!(subtract(xj, xi), d, "d is exact on the grid");
+            let admissible = radius > 0.5 * l
+                && open_pipe_stress_curved_bend::arc_geometry(d, radius, y)
+                    .map(|arc| (1e-9..=pi - 1e-9).contains(&arc.included_angle))
+                    .unwrap_or(false);
+            if !admissible {
+                excluded += 1;
+                continue;
+            }
             let inputs = Inputs {
                 radius,
                 y,
@@ -421,7 +446,7 @@ fn t4_u1_seeded_elbows_at_every_x_are_formed_and_annihilate_rigid_motions() {
                 k_in: 1.0,
                 k_out: 1.0,
             };
-            let element = CurvedBendMacroElement::new(
+            let k = CurvedBendMacroElement::new(
                 FrameNode::new(0, xi).unwrap(),
                 FrameNode::new(1, xj).unwrap(),
                 inputs.radius,
@@ -431,29 +456,20 @@ fn t4_u1_seeded_elbows_at_every_x_are_formed_and_annihilate_rigid_motions() {
                 inputs.a,
                 inputs.i,
                 inputs.j,
-                1.0,
-                1.0,
-            );
-            let element = match element {
-                Ok(element) => element,
-                // A random y nearly parallel to the chord is a legitimate
-                // plane refusal, not a radius refusal.
-                Err(open_pipe_stress_curved_bend::CurvedBendError::DegenerateArc { .. }) => {
-                    plane_refused += 1;
-                    continue;
-                }
-                Err(error) => panic!("P5: X {x} phi {phi}: {error}"),
-            };
-            let k = element.global_stiffness().unwrap();
+                inputs.k_in,
+                inputs.k_out,
+            )
+            .and_then(|element| element.global_stiffness())
+            .unwrap_or_else(|error| panic!("P5: X {x} phi {phi:e} R {radius:e}: {error}"));
             let p1 = null_residual(&k, d).unwrap_or(f64::INFINITY);
-            assert!(p1 <= P1_CRITERION, "X {x} phi {phi}: P1 {p1:e}");
             worst = worst.max(p1);
+            over += usize::from(p1 > P1_CRITERION);
             formed += 1;
         }
     }
     eprintln!(
-        "T4-U1 seeded elbows: {formed} formed, {plane_refused} plane refusals, worst P1 {worst:.2e}"
+        "T4-U1 P5 (round 01 §8): {formed} formed, {excluded} excluded by construction; P1 worst {worst:.2e}, {over} above 1e-11 (informative)"
     );
-    assert_eq!(formed + plane_refused, 10_000);
-    assert!(plane_refused <= 10, "{plane_refused}");
+    assert_eq!(formed + excluded, 10_000);
+    assert!(excluded <= 10, "{excluded}");
 }

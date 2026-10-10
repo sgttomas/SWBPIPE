@@ -603,7 +603,6 @@ fn node_position(model: &PreviewModel, id: &str) -> Option<[f64; 3]> {
         .map(|node| [node.position.x, node.position.y, node.position.z])
 }
 
-/// Hash of the normalized geometry projection the reference configuration binds.
 /// The natural length a fit refers to (T4-U1; T4-I1 §5.3 #12): the chord
 /// length for a straight member, and the arc length R·φ for the span of a
 /// realized curved bend, with φ from the shared arc definition
@@ -633,6 +632,7 @@ pub(crate) fn fit_reference_length(
     }
 }
 
+/// Hash of the normalized geometry projection the reference configuration binds.
 pub(crate) fn reference_geometry_sha256(model: &PreviewModel) -> String {
     let projection = json!({
         "projection": "authored_model_geometry_v1",

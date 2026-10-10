@@ -104,7 +104,16 @@ fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
     let mut second = input["model"]["load_cases"][0]["pressure_regions"][0].clone();
     second["id"] = json!("region:other-source");
     second["member_pipe_ids"] = json!(["pipe:parallel"]);
-    second["pressure"]["value"] = json!(-2e6 * 25.0 / 36.0 * (1.0 + 1e-13));
+    // T4-U0: v2 refuses p < 0 by name, so the cancellation no longer comes
+    // from a negative second pressure. Region 2 is separately supported at
+    // both terminals, so its only group at each node is Poisson, -2*nu*p2*Ai2;
+    // region 1's groups are cap +p1*Ai1 and Poisson -2*nu*p1*Ai1. With
+    // Ai1/Ai2 = 25/36 and p2 = p1*(25/36)*((1-2nu)/(2nu))*(1+1e-13), the node
+    // sum is about -1e-13*p1*Ai1*(1-2nu), so the guard's ratio is about 1e13.
+    second["terminals"] = json!([terminal(ROOT, false), terminal(TIP, false)]);
+    let nu = 0.3;
+    second["pressure"]["value"] =
+        json!(2e6 * 25.0 / 36.0 * ((1.0 - 2.0 * nu) / (2.0 * nu)) * (1.0 + 1e-13));
     input["model"]["load_cases"][0]["pressure_regions"]
         .as_array_mut()
         .unwrap()

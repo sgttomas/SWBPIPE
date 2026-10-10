@@ -77,6 +77,16 @@ pub(crate) struct ExactPressurePipeState {
     pub eigenload_pair: [f64; 2],
 }
 
+/// SP-1 (T4-U1): whether the document declares the v2 contract
+/// (`2.0.0/exact_straight_pressure_v2`), whatever its schema version. Such a
+/// document keeps its pre-T4-U1 component diagnostics byte for byte.
+pub(crate) fn declares_exact_straight_v2(model: &PreviewModel) -> bool {
+    model.pressure_contract.as_ref().is_some_and(|contract| {
+        contract.version.as_deref() == Some(EXACT_VERSION)
+            && contract.mode.as_deref() == Some(EXACT_MODE)
+    })
+}
+
 /// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
 pub(crate) fn is_exact(model: &PreviewModel) -> bool {
     matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0")
@@ -86,12 +96,7 @@ pub(crate) fn is_exact(model: &PreviewModel) -> bool {
         })
 }
 
-fn problem(
-    diagnostics: &mut Vec<Diagnostic>,
-    code: &str,
-    refs: &[&str],
-    message: impl Into<String>,
-) {
+fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic {
     let mut finding = diag(
         &format!(
             "diagnostic:pressure-runtime:{}:{code}",
@@ -103,7 +108,61 @@ fn problem(
         refs.iter().map(|value| value.to_string()).collect(),
     );
     finding.source = Some("core/product_physics/src/pressure_runtime.rs".to_string());
-    diagnostics.push(finding);
+    finding
+}
+
+fn problem(
+    diagnostics: &mut Vec<Diagnostic>,
+    code: &str,
+    refs: &[&str],
+    message: impl Into<String>,
+) {
+    diagnostics.push(finding(code, refs, message));
+}
+
+/// T4-U0 (A3): the exact route's pressure recovery decision for one member.
+/// A member outside every region has nothing to recover (`Ok(None)`). A region
+/// member recovers from its straight mechanical/thermal end actions; a region
+/// member without them (a realized curved bend) is refused by name, never
+/// recovered on its chord. Unreachable through the public entry until T4-U2a
+/// lifts the component refusal; the end-to-end wiring test lands with T4-U2a.
+pub(crate) fn exact_member_recovery<'s, 'm>(
+    case_id: &str,
+    pipe_id: &str,
+    pressure_state: Option<&'s ExactPressurePipeState>,
+    mechanical: Option<&'m [f64]>,
+) -> Result<Option<(&'s ExactPressurePipeState, &'m [f64])>, Diagnostic> {
+    match (pressure_state, mechanical) {
+        (None, _) => Ok(None),
+        (Some(state), Some(mechanical)) => Ok(Some((state, mechanical))),
+        (Some(state), None) => Err(finding(
+            "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT",
+            &[case_id, &state.region_id, pipe_id],
+            "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery under 2.0.0/exact_straight_pressure_v2; it is refused, not recovered on its chord",
+        )),
+    }
+}
+
+/// T4-U0 (A3): whether the exact route computes a member's straight-statics
+/// governing maximum or withholds it with a reason.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ExactMemberMaximumPolicy {
+    Compute,
+    Withhold(&'static str),
+}
+
+/// The straight-statics bound holds for straight members only. An arc member's
+/// maximum is withheld (with the case headline) until T4-U4 publishes one.
+/// Unreachable through the public entry until T4-U2a; the end-to-end wiring
+/// test lands with T4-U2a.
+pub(crate) fn exact_member_maximum_policy(is_arc: bool) -> ExactMemberMaximumPolicy {
+    if is_arc {
+        ExactMemberMaximumPolicy::Withhold(
+            "the straight-statics bound does not apply to a curved (arc) member",
+        )
+    } else {
+        ExactMemberMaximumPolicy::Compute
+    }
 }
 
 fn present(value: &Option<String>) -> Option<&str> {
@@ -281,6 +340,22 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                     "PRESSURE_REGION_INPUT_MISSING",
                     &[&case.id, id, "pressure"],
                     "pressure region requires an explicit finite signed pressure quantity",
+                );
+            }
+            // T4-U0: the v2 readers refuse p_pa < 0, so the producer refuses it
+            // by name. Every pressure unit converts by a positive factor, so a
+            // negative authored value is a negative published value. The strict
+            // IEEE test admits -0.0 and +0.0, as the readers' `>= 0` tests do.
+            if region
+                .pressure
+                .as_ref()
+                .is_some_and(|pressure| pressure.value.is_finite() && pressure.value < 0.0)
+            {
+                problem(
+                    diagnostics,
+                    "PRESSURE_REGION_PRESSURE_NEGATIVE",
+                    &[&case.id, id, "pressure"],
+                    "the 2.0.0/exact_straight_pressure_v2 profile admits internal differential pressure p >= 0 only, and its result readers refuse p_pa < 0; a negative differential (external pressure exceeding internal) is refused, not published; external-pressure stability and collapse are not assessed by this profile",
                 );
             }
             if present(&region.provenance).is_none() {
@@ -1286,9 +1361,11 @@ mod tests {
     }
 
     #[test]
-    fn signed_pressure_and_zero_poisson_limit_do_not_include_thermal_load() {
+    fn zero_poisson_limit_does_not_include_thermal_load() {
+        // T4-U0: the input's p = +3 replaces the former p = -3, which is now
+        // refused by name (`negative_pressure_is_refused_by_name_before_assembly`);
+        // the cap load at node A is -p*Ai = -3*pi with Ai = pi.
         let mut value = input();
-        value["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(-3.0);
         value["materials"][0]["poisson_ratio"]["value"] = json!(0.0);
         value["materials"][0]["shear_modulus"]["value"] = json!(60.0);
         value["materials"][0]["thermal_expansion_coefficient"] =
@@ -1299,7 +1376,107 @@ mod tests {
         assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
         let result = result.unwrap();
         assert!(result.eigenloads.iter().all(|value| *value == 0.0));
-        assert_close(result.cap_loads[0], 3.0 * PI, 3.0 * PI);
+        assert_close(result.cap_loads[0], -3.0 * PI, 3.0 * PI);
+    }
+
+    /// T4-U0 A2.6: p < 0 is refused by name before any load is assembled; the
+    /// strict IEEE test admits both signed zeros.
+    #[test]
+    fn negative_pressure_is_refused_by_name_before_assembly() {
+        for (pressure, refused) in [(-3.0, true), (-5e-324, true), (-0.0, false), (0.0, false)] {
+            let mut value = input();
+            value["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(pressure);
+            let (result, diagnostics) = assemble(value);
+            let negative = diagnostics
+                .iter()
+                .filter(|d| d.code == "PRESSURE_REGION_PRESSURE_NEGATIVE")
+                .collect::<Vec<_>>();
+            if refused {
+                assert!(result.is_none(), "{pressure:e}: assembled a refused case");
+                assert_eq!(negative.len(), 1, "{pressure:e}: {diagnostics:?}");
+                let finding = negative[0];
+                assert_eq!(finding.severity, "blocking");
+                assert_eq!(finding.affected_refs, ["case:A", "region:A", "pressure"]);
+                assert_eq!(
+                    finding.id,
+                    "diagnostic:pressure-runtime:case-A-region-A-pressure:PRESSURE_REGION_PRESSURE_NEGATIVE"
+                );
+                assert_eq!(
+                    finding.source.as_deref(),
+                    Some("core/product_physics/src/pressure_runtime.rs")
+                );
+            } else {
+                assert!(negative.is_empty(), "{pressure:e}: {diagnostics:?}");
+                assert!(!has_blocking(&diagnostics), "{pressure:e}: {diagnostics:?}");
+                let result = result.expect("a signed-zero pressure assembles");
+                assert!(result.cap_loads.iter().all(|value| *value == 0.0));
+            }
+        }
+    }
+
+    fn pipe_state(region_id: &str) -> ExactPressurePipeState {
+        ExactPressurePipeState {
+            region_id: region_id.to_string(),
+            annulus: SourceAnnulus::from_od_wall(4.0, 1.0).unwrap(),
+            pressure: InternalDifferentialPressure::new(3.0).unwrap(),
+            material: IsotropicENu::new(120.0, 0.25).unwrap(),
+            eigenload_pair: [0.0, 0.0],
+        }
+    }
+
+    /// T4-U0 A3 (Option 1): pins the recovery decision only. The call site in
+    /// `lib.rs` is unreachable through the public entry until T4-U2a lifts the
+    /// component refusal; the end-to-end wiring test (no panic, named refusal,
+    /// no maximum row) lands with T4-U2a.
+    #[test]
+    fn region_member_without_straight_recovery_is_refused_by_name() {
+        let state = pipe_state("region:A");
+        let mechanical = [0.0; 12];
+        // A curved (realized) bend in a region: no straight mechanical recovery.
+        let refusal = exact_member_recovery("case:A", "pipe:bend", Some(&state), None)
+            .expect_err("a region member without straight recovery is refused");
+        assert_eq!(refusal.code, "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT");
+        assert_eq!(refusal.severity, "blocking");
+        assert_eq!(refusal.affected_refs, ["case:A", "region:A", "pipe:bend"]);
+        assert_eq!(
+            refusal.id,
+            "diagnostic:pressure-runtime:case-A-region-A-pipe-bend:EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT"
+        );
+        assert_eq!(
+            refusal.source.as_deref(),
+            Some("core/product_physics/src/pressure_runtime.rs")
+        );
+        assert!(refusal.message.ends_with("it is refused, not recovered on its chord"));
+        // A straight region member recovers from its own mechanical actions.
+        let (recovered, actions) =
+            exact_member_recovery("case:A", "pipe:A", Some(&state), Some(&mechanical))
+                .unwrap()
+                .expect("a straight region member recovers");
+        assert!(std::ptr::eq(recovered, &state));
+        assert!(std::ptr::eq(actions, &mechanical[..]));
+        // A member outside every region has nothing to recover.
+        for mechanical in [None, Some(&mechanical[..])] {
+            assert!(exact_member_recovery("case:A", "pipe:B", None, mechanical)
+                .unwrap()
+                .is_none());
+        }
+    }
+
+    /// T4-U0 A3 (Option 1): pins the maximum decision only; the end-to-end
+    /// wiring test (no `pipe_elastic_normal_stress_maximum_v2` row, incomplete
+    /// coverage, withheld headline) lands with T4-U2a.
+    #[test]
+    fn straight_statics_maximum_is_withheld_for_arc_members() {
+        assert_eq!(exact_member_maximum_policy(false), ExactMemberMaximumPolicy::Compute);
+        let ExactMemberMaximumPolicy::Withhold(reason) = exact_member_maximum_policy(true) else {
+            panic!("an arc member's straight-statics maximum must be withheld");
+        };
+        let message = format!(
+            "signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {reason}"
+        );
+        assert!(message.ends_with(
+            ": the straight-statics bound does not apply to a curved (arc) member"
+        ));
     }
 
     #[test]

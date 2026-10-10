@@ -11,7 +11,7 @@ Pressure on the current exact route is limited to straight pipe and linear suppo
 - **D-1:** the L-line (T4-U2) is the first usable path; the corrected joint (T4-U3) proceeds in parallel.
 - **D-2:** only realized bends carrying the user's k carry pressure. Geometry-only chord bends are refused on the exact route with a realization message and remain pressure-free.
 - **D-3:** steady-flow/transient loads, Bourdon opening, pressure stiffening of k/SIF and ovalization are excluded and disclosed on bend results and the v3 approximation. T4-U9 requires a later owner choice.
-- **H-1:** new authoring uses `3.0.0/exact_pressure_v3` and reserved `pressure-1` semantics. Correct v2 `2.0.0/exact_straight_pressure_v2` remains accepted and byte-identical except the declared p < 0 refusal. **SP-1:** a straight-only v3 case is bit-equal to its v2 twin.
+- **H-1:** new authoring uses `3.0.0/exact_pressure_v3` and reserved `pressure-1` semantics. Correct v2 `2.0.0/exact_straight_pressure_v2` remains accepted and byte-identical except the declared p < 0 refusal. **SP-1:** a straight-only v3 case is bit-equal to its v2 twin; after D-5 and D-6 this applies to v3 cases with zero mill tolerance, zero corrosion allowance and the Euler–Bernoulli selection (DEL-05-03 Design).
 - **H-2:** retain the pre-cancelled ledger and add member-owned bend `K_b·u_free(ε_p) − c_b` and joint `p(Ae−Ai)` terms. One implementation owns the assembly. T4-U5 must independently compare representation (A), including JR's tie-force double-count control.
 
 ## T3 coexistence and B7

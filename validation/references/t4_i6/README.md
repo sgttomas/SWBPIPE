@@ -34,7 +34,9 @@ SHA-256: script `bee26d7d8bed2fa19464bf61a8dd292517ced462dd3e70e54bb07388449af11
 
 T4-I6 repair round 01, produced 2026-10-10 in scratch; SHA256SUMS digest
 `4a53e72144eba25ff56736f3a155890b680eb292e9050213e284c28b159a9919`;
-independent confirmation by T4-RV10 pending. `u1_reference_cases_r01.json`
+independently confirmed by T4-RV10 (values: PASS WITH FINDINGS; the M31b0
+derivation: HOLDS WITH CORRECTIONS; that review's record is outside the
+repository). `u1_reference_cases_r01.json`
 and the scripts that wrote it (`_run_records/r01_lib.py`, `i1_curved122.py`
 … `i8_acceptance.py`, `freeze_r01.py`) are copied byte for byte;
 `round_01/SHA256SUMS` holds their lines verbatim from round 01's
@@ -43,8 +45,9 @@ scripts import round 00's `curved_ref.py` from a sibling `rerun00/`
 directory; it is `_run_records/curved_ref.py` here (same SHA-256,
 `1f524bcc…`). Consumed by: the curved true-positive candidates, CSKEW_9/10,
 K1/K1F and the acceptance-range samples (through `kd5_models/`), FK's K2
-test (`k2_kernel_kill`, embedded literals) and PP's acceptance-range guard
-test (`acceptance_range_samples`).
+test (`k2_kernel_kill`, embedded literals), PP's acceptance-range guard
+test (`acceptance_range_samples`) and PP's P5 test, whose seeded generator is
+round 01 §8's (RV2 N-8).
 
 ## `kd5_models/` (added by T4-I15, T4-U1 phase B)
 

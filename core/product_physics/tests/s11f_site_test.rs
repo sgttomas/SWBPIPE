@@ -140,6 +140,12 @@ const RECOVERY: &[Source] = &[
         name: "CB/lib.rs",
         text: include_str!("../../solver/curved_bend/src/lib.rs"),
     },
+    // T4-U1 (T4-RV12 N-1): CB's stable small-angle series, called by
+    // CB/lib.rs's formation and load functions.
+    Source {
+        name: "CB/arc_integrals.rs",
+        text: include_str!("../../solver/curved_bend/src/arc_integrals.rs"),
+    },
     Source {
         name: "load_case_algebra/lib.rs",
         text: include_str!("../../loads/load_case_algebra/src/lib.rs"),
