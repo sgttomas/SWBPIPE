@@ -96,7 +96,12 @@ pub(crate) fn is_exact(model: &PreviewModel) -> bool {
         })
 }
 
-fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic {
+fn problem(
+    diagnostics: &mut Vec<Diagnostic>,
+    code: &str,
+    refs: &[&str],
+    message: impl Into<String>,
+) {
     let mut finding = diag(
         &format!(
             "diagnostic:pressure-runtime:{}:{code}",
@@ -108,39 +113,33 @@ fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic 
         refs.iter().map(|value| value.to_string()).collect(),
     );
     finding.source = Some("core/product_physics/src/pressure_runtime.rs".to_string());
-    finding
+    diagnostics.push(finding);
 }
 
-fn problem(
+/// T4-U0 (A3): the exact route's pressure recovery decision for one member of
+/// an exact pressure region. A region member recovers from its straight
+/// mechanical/thermal end actions (returned). A region member without them (a
+/// realized curved bend) is refused by name through `problem` and `None` is
+/// returned: it is never recovered on its chord. Called only from `lib.rs`'s
+/// `append_exact_pressure_results`, that is, only for a member of an exact
+/// pressure region. Unreachable through the public entry until T4-U2a lifts
+/// the component refusal; the end-to-end wiring test lands with T4-U2a.
+pub(crate) fn exact_member_recovery<'m>(
     diagnostics: &mut Vec<Diagnostic>,
-    code: &str,
-    refs: &[&str],
-    message: impl Into<String>,
-) {
-    diagnostics.push(finding(code, refs, message));
-}
-
-/// T4-U0 (A3): the exact route's pressure recovery decision for one member.
-/// A member outside every region has nothing to recover (`Ok(None)`). A region
-/// member recovers from its straight mechanical/thermal end actions; a region
-/// member without them (a realized curved bend) is refused by name, never
-/// recovered on its chord. Unreachable through the public entry until T4-U2a
-/// lifts the component refusal; the end-to-end wiring test lands with T4-U2a.
-pub(crate) fn exact_member_recovery<'s, 'm>(
     case_id: &str,
     pipe_id: &str,
-    pressure_state: Option<&'s ExactPressurePipeState>,
+    state: &ExactPressurePipeState,
     mechanical: Option<&'m [f64]>,
-) -> Result<Option<(&'s ExactPressurePipeState, &'m [f64])>, Diagnostic> {
-    match (pressure_state, mechanical) {
-        (None, _) => Ok(None),
-        (Some(state), Some(mechanical)) => Ok(Some((state, mechanical))),
-        (Some(state), None) => Err(finding(
+) -> Option<&'m [f64]> {
+    if mechanical.is_none() {
+        problem(
+            diagnostics,
             "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT",
             &[case_id, &state.region_id, pipe_id],
             "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery under 2.0.0/exact_straight_pressure_v2; it is refused, not recovered on its chord",
-        )),
+        );
     }
+    mechanical
 }
 
 /// T4-U0 (A3): whether the exact route computes a member's straight-statics
@@ -1424,17 +1423,23 @@ mod tests {
         }
     }
 
-    /// T4-U0 A3 (Option 1): pins the recovery decision only. The call site in
-    /// `lib.rs` is unreachable through the public entry until T4-U2a lifts the
-    /// component refusal; the end-to-end wiring test (no panic, named refusal,
-    /// no maximum row) lands with T4-U2a.
+    /// T4-U0 A3 (Option 1): pins the recovery decision only. Its call site
+    /// (`lib.rs`'s `append_exact_pressure_results`, reached only for a member
+    /// of an exact pressure region) is unreachable through the public entry
+    /// until T4-U2a lifts the component refusal; the end-to-end wiring test (no
+    /// panic, named refusal, no maximum row) lands with T4-U2a.
     #[test]
     fn region_member_without_straight_recovery_is_refused_by_name() {
         let state = pipe_state("region:A");
         let mechanical = [0.0; 12];
         // A curved (realized) bend in a region: no straight mechanical recovery.
-        let refusal = exact_member_recovery("case:A", "pipe:bend", Some(&state), None)
-            .expect_err("a region member without straight recovery is refused");
+        let mut diagnostics = Vec::new();
+        assert!(
+            exact_member_recovery(&mut diagnostics, "case:A", "pipe:bend", &state, None).is_none(),
+            "a region member without straight recovery is not recovered"
+        );
+        assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
+        let refusal = &diagnostics[0];
         assert_eq!(refusal.code, "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT");
         assert_eq!(refusal.severity, "blocking");
         assert_eq!(refusal.affected_refs, ["case:A", "region:A", "pipe:bend"]);
@@ -1447,19 +1452,19 @@ mod tests {
             Some("core/product_physics/src/pressure_runtime.rs")
         );
         assert!(refusal.message.ends_with("it is refused, not recovered on its chord"));
-        // A straight region member recovers from its own mechanical actions.
-        let (recovered, actions) =
-            exact_member_recovery("case:A", "pipe:A", Some(&state), Some(&mechanical))
-                .unwrap()
-                .expect("a straight region member recovers");
-        assert!(std::ptr::eq(recovered, &state));
+        // A straight region member recovers from its own mechanical actions,
+        // with no finding.
+        let mut diagnostics = Vec::new();
+        let actions = exact_member_recovery(
+            &mut diagnostics,
+            "case:A",
+            "pipe:A",
+            &state,
+            Some(&mechanical),
+        )
+        .expect("a straight region member recovers");
         assert!(std::ptr::eq(actions, &mechanical[..]));
-        // A member outside every region has nothing to recover.
-        for mechanical in [None, Some(&mechanical[..])] {
-            assert!(exact_member_recovery("case:A", "pipe:B", None, mechanical)
-                .unwrap()
-                .is_none());
-        }
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
     }
 
     /// T4-U0 A3 (Option 1): pins the maximum decision only; the end-to-end
