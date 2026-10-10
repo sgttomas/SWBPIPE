@@ -764,23 +764,29 @@ pub fn certify_curved_uniform_load(
     // (9) Split each component; a truncated split adds 2⁻¹⁰⁷⁴.
     let mut terms: Vec<CertifiedLoadTerm> = Vec::with_capacity(12);
     for ball in &global {
-        let split = ball.m.split_binary64()?;
-        let radius = if split.truncated_below_min_subnormal() {
-            add_up(ball.r, TINY)
-        } else {
-            ball.r
-        };
-        terms.push(CertifiedLoadTerm {
-            intended: split.terms().to_vec(),
-            radius: finite(radius, "output")?,
-            magnitude_up: abs_up(&ball.m)?,
-            single_component,
-        });
+        terms.push(finish_component(ball, single_component)?);
     }
     let terms: [CertifiedLoadTerm; 12] = terms
         .try_into()
         .map_err(|_| Failure::Wide(WideError::CountRange("arc certificate terms")))?;
     Ok(CertifiedLoadVector { terms, rho })
+}
+
+/// The output rule (DESIGN_R01 §3.2): the exact split of the midpoint, and
+/// r̂ plus 2⁻¹⁰⁷⁴ when the split dropped bits below 2⁻¹⁰⁷⁴.
+fn finish_component(ball: &Ball, single_component: bool) -> Result<CertifiedLoadTerm, Failure> {
+    let split = ball.m.split_binary64()?;
+    let radius = if split.truncated_below_min_subnormal() {
+        add_up(ball.r, TINY)
+    } else {
+        ball.r
+    };
+    Ok(CertifiedLoadTerm {
+        intended: split.terms().to_vec(),
+        radius: finite(radius, "output")?,
+        magnitude_up: abs_up(&ball.m)?,
+        single_component,
+    })
 }
 
 /// The strain-energy weights of B1's flexibility.

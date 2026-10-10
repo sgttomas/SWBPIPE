@@ -91,6 +91,12 @@ const SOURCES: &[Source] = &[
         name: "FK/structural/formation_check.rs",
         text: include_str!("../src/structural/formation_check.rs"),
     },
+    // T4-U1b (declared additive extension; DESIGN_R01 §4.5, O-11): the arc
+    // load certificate.
+    Source {
+        name: "FK/structural/arc_certificate.rs",
+        text: include_str!("../src/structural/arc_certificate.rs"),
+    },
     Source {
         name: "FK/structural/retained/work.rs",
         text: include_str!("../src/structural/retained/work.rs"),
@@ -284,6 +290,24 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // ---- FK/structural/formation_check.rs (K-D5; its residual rho is one
     // ExactAccumulator sum per free row, so the check has no load fold)
     ("FK/structural/formation_check.rs", "pow2", 1, "integer: exponent step"),
+    // ---- T4-U1b (declared additive extension, O-11): the arc load certificate
+    ("FK/structural/arc_certificate.rs", "certify_curved_uniform_load", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "invert_verified", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "gauss_jordan", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "finish_component", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "quad", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "dot", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "energy", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "operand_bound", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "add_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "add_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "sub_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "mul_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "mul_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "div_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "abs_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "abs_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "u_term", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
     // ---- K2b (ROOT's K2b ruling 5: declared, additive; no row above changes).
     // The force-scaled load and publication sites sum through ExactAccumulator.
     ("FK/load_ledger.rs", "force_scaled", 0, "K2b: the ledger's terms times 2^b, exactly; each DOF's net one exact sum, rounded once (as finish)"),

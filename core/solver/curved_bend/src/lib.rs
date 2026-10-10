@@ -20,6 +20,8 @@ use open_pipe_stress_frame_kernel::{
 
 mod arc_integrals;
 use arc_integrals::HalfAngle;
+#[cfg(test)]
+use arc_integrals::SERIES_SWITCH_HALF_SINE;
 
 /// Node-level 6x6 matrix in the frame-kernel DOF order [ux, uy, uz, rx, ry, rz].
 pub type Matrix6 = [[f64; DOF_PER_NODE]; DOF_PER_NODE];
@@ -703,8 +705,24 @@ impl CurvedBendMacroElement {
 
     // Free-tip (node i clamped) deflection at node j under the uniform load,
     // local frame, by the unit-load theorem with the same strain-energy
-    // weights as `end_flexibility`.
+    // weights as `end_flexibility`. Below the series switch (s < 1/2) the
+    // integrals come from `arc_integrals`' load series (T4-U1b, T4-RV8 C-1:
+    // the Gram combination below cancels like 1/φ^k at small angles); above
+    // it, the Gram closed forms in half-angle quantities.
     fn tip_deflection_under_uniform_load(
+        &self,
+        geometry: &ArcGeometry,
+        intensity_local: [f64; 3],
+    ) -> [f64; DOF_PER_NODE] {
+        if geometry.half_angle().use_series() {
+            self.tip_deflection_by_series(geometry, intensity_local)
+        } else {
+            self.tip_deflection_by_gram(geometry, intensity_local)
+        }
+    }
+
+    // The deflection from the Gram closed forms (used for s ≥ 1/2).
+    fn tip_deflection_by_gram(
         &self,
         geometry: &ArcGeometry,
         intensity_local: [f64; 3],
@@ -728,6 +746,55 @@ impl CurvedBendMacroElement {
                         / bending_rigidity
                     + cross_quad(&gram, case.torsion, load.torsion) / torsion_rigidity
                     + cross_quad(&gram, case.axial, load.axial) / axial_rigidity);
+        }
+        deflection
+    }
+
+    // The same deflection from the load integrals' series (φ < π/3). With
+    // the unit-load actions of `unit_load_actions` and the load actions of
+    // `distributed_load_actions` (in-plane moment R²(w_y a_x − w_x a_y),
+    // out-of-plane moment R² w_z (1 − cos ψ), torsion R² w_z (ψ − sin ψ),
+    // axial force R ψ (w_y cos θ − w_x sin θ)), each family's integral is a
+    // fixed multiple of one `LoadIntegrals` entry; nothing cancels.
+    fn tip_deflection_by_series(
+        &self,
+        geometry: &ArcGeometry,
+        intensity_local: [f64; 3],
+    ) -> [f64; DOF_PER_NODE] {
+        let n = geometry.half_angle().load_integrals_series();
+        let r = geometry.radius;
+        let r2 = r * r;
+        let r3 = r2 * r;
+        let [w_x, w_y, w_z] = intensity_local;
+        // Per row: (in-plane, out-of-plane, torsion, axial) integrals.
+        let families: [[f64; 4]; DOF_PER_NODE] = [
+            [
+                r3 * (w_y * n.p0x - w_x * n.p0y),
+                0.0,
+                0.0,
+                r * (w_x * n.ass - w_y * n.asc),
+            ],
+            [
+                r3 * (w_y * n.p1x - w_x * n.p1y),
+                0.0,
+                0.0,
+                r * (w_y * n.acc - w_x * n.asc),
+            ],
+            [0.0, r3 * w_z * n.q2, r3 * w_z * n.t2, 0.0],
+            [0.0, r2 * w_z * n.q3, -(r2 * w_z * n.t3), 0.0],
+            [0.0, r2 * w_z * n.q4, r2 * w_z * n.t4, 0.0],
+            [r2 * (w_y * n.p5x - w_x * n.p5y), 0.0, 0.0, 0.0],
+        ];
+        let bending_rigidity = self.elastic_modulus * self.second_moment;
+        let torsion_rigidity = self.shear_modulus * self.torsion_constant;
+        let axial_rigidity = self.elastic_modulus * self.area;
+        let mut deflection = [0.0; DOF_PER_NODE];
+        for (row, [q_in, q_out, q_torsion, q_axial]) in families.into_iter().enumerate() {
+            deflection[row] = r
+                * (self.in_plane_flexibility_factor * q_in / bending_rigidity
+                    + self.out_of_plane_flexibility_factor * q_out / bending_rigidity
+                    + q_torsion / torsion_rigidity
+                    + q_axial / axial_rigidity);
         }
         deflection
     }
@@ -881,8 +948,10 @@ fn distributed_load_actions(
 // (rows) with the extended basis {1, cos, sin, theta, theta cos, theta sin}
 // (columns).
 // sin, cos, 1 - cos, sin 2phi = 2SC and cos 2phi - 1 = -2S^2 come from the
-// half-angle quantities; the theta-weighted entries keep their closed forms
-// (they still cancel at small angles; a certified arc load is T4-U1b's).
+// half-angle quantities; the theta-weighted entries keep their closed forms.
+// They are used only above the series switch (s ≥ 1/2), where the
+// combination does not cancel materially; below it the deflection comes from
+// `arc_integrals`' load series (T4-U1b).
 fn trig_extended_gram(half: &HalfAngle) -> [[f64; 6]; 3] {
     let phi = half.phi;
     let sin_end = half.sin();
@@ -1119,6 +1188,9 @@ mod s11k_tests;
 
 #[cfg(test)]
 mod short_arc_tests;
+
+#[cfg(test)]
+mod load_vector_tests;
 
 #[cfg(test)]
 mod tests {
