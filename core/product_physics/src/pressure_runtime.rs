@@ -77,6 +77,16 @@ pub(crate) struct ExactPressurePipeState {
     pub eigenload_pair: [f64; 2],
 }
 
+/// SP-1 (T4-U1): whether the document declares the v2 contract
+/// (`2.0.0/exact_straight_pressure_v2`), whatever its schema version. Such a
+/// document keeps its pre-T4-U1 component diagnostics byte for byte.
+pub(crate) fn declares_exact_straight_v2(model: &PreviewModel) -> bool {
+    model.pressure_contract.as_ref().is_some_and(|contract| {
+        contract.version.as_deref() == Some(EXACT_VERSION)
+            && contract.mode.as_deref() == Some(EXACT_MODE)
+    })
+}
+
 /// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
 pub(crate) fn is_exact(model: &PreviewModel) -> bool {
     matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0")

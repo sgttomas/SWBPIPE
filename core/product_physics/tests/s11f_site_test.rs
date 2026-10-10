@@ -140,6 +140,12 @@ const RECOVERY: &[Source] = &[
         name: "CB/lib.rs",
         text: include_str!("../../solver/curved_bend/src/lib.rs"),
     },
+    // T4-U1 (T4-RV12 N-1): CB's stable small-angle series, called by
+    // CB/lib.rs's formation and load functions.
+    Source {
+        name: "CB/arc_integrals.rs",
+        text: include_str!("../../solver/curved_bend/src/arc_integrals.rs"),
+    },
     Source {
         name: "load_case_algebra/lib.rs",
         text: include_str!("../../loads/load_case_algebra/src/lib.rs"),
@@ -560,9 +566,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "one source's consistent equivalent (section 2.2)"),
     ("CB/lib.rs", "cross_quad", 1, "flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "formed rotation"),
-    ("CB/lib.rs", "quad", 1, "flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "multiply6", 1, "stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "stiffness formation"),
+    ("CB/lib.rs", "flexibility_scale", 1, "max fold of the flexibility diagonal (one exact power-of-two scale)"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11"),
     ("load_case_algebra/lib.rs", "evaluate_linear_combination", 1, "E13: the fold is kept only as today's non-finite value"),
 ];

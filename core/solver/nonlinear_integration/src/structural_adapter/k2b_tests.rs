@@ -36,7 +36,7 @@ use kd5_models::*;
 mod k2b_models;
 use k2b_models::*;
 
-const KD5: [&ModelData; 13] = [
+const KD5: [&ModelData; 10] = [
     &F122,
     &F345,
     &PROBE_C,
@@ -45,10 +45,7 @@ const KD5: [&ModelData; 13] = [
     &E1,
     &E6,
     &CSKEW_8_5,
-    &CSKEW_30_RADIUS_MISMATCH,
     &M11,
-    &CPLANAR_60,
-    &CSKEW_30_N122,
     &PP_UTM_2,
 ];
 
@@ -123,11 +120,12 @@ impl Model {
                     FrameElement::new(node(member.i), node(member.j), section, member.y_reference)
                         .unwrap(),
                 ),
-                Some((center, factor)) => {
+                Some((radius, y_reference, factor)) => {
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
-                        center,
+                        radius,
+                        y_reference,
                         s.e,
                         s.g,
                         s.a,
