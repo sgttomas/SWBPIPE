@@ -2021,9 +2021,14 @@ fn solve_prepared(
     structural::finish_structural(&factor)
 }
 
-/// Trace the curved source's *symmetry* formation: the explicitly symmetrized
-/// represented tip inverse, H*K and (H*K)*H^T six-term dots, then T^T*K*T.
-/// This does not bound inverse accuracy or qualify the curved physical nullspace.
+/// Trace the curved source's *symmetry* formation as CB forms it (T4-I33,
+/// global-frame assembly): the explicitly symmetrized represented tip inverse
+/// K_t, then P = K_t·A and Q = Aᵀ·P (A = blockdiag(axes, axes), six-term dots),
+/// the symmetrized K_g = (Q + Qᵀ)/2, then C = H·K_g and C·Hᵀ (six-term dots)
+/// with H over the global chord d = x_j − x_i; the 12×12 is
+/// [[C·Hᵀ, −C], [−Cᵀ, K_g]]. K_t is taken as the represented operand (bound
+/// 0). This does not bound inverse accuracy or qualify the curved physical
+/// nullspace.
 pub fn curved_formation(
     element: &open_pipe_stress_curved_bend::CurvedBendMacroElement,
 ) -> Result<(Matrix12, [[usize; 12]; 12]), crate::NonlinearIntegrationError> {
@@ -2032,17 +2037,21 @@ pub fn curved_formation(
             detail: format!("curved symmetry formation: {error}"),
         }
     };
-    let local = element.local_stiffness().map_err(invalid)?;
-    let t = element
-        .orientation()
-        .map_err(invalid)?
-        .transformation_matrix();
-    // H over the element's actual chord in its local frame, (−sL, cL, 0)
-    // (T4-U1): the same chord `local_stiffness` assembles with.
-    let chord = element.geometry().map_err(invalid)?.chord_local;
+    let global = element.global_stiffness().map_err(invalid)?;
+    let axes = element.geometry().map_err(invalid)?.local_axes;
+    let tip = element.tip_stiffness().map_err(invalid)?;
+    let chord = element.chord();
+    let mut rotation = [[0.0; 6]; 6];
+    for block in [0, 3] {
+        for row in 0..3 {
+            for col in 0..3 {
+                rotation[block + row][block + col] = axes[row][col];
+            }
+        }
+    }
     let mut h = [[0.0; 6]; 6];
-    for i in 0..6 {
-        h[i][i] = 1.0;
+    for (i, row) in h.iter_mut().enumerate() {
+        row[i] = 1.0;
     }
     h[3][1] = -chord[2];
     h[3][2] = chord[1];
@@ -2050,85 +2059,95 @@ pub fn curved_formation(
     h[4][2] = -chord[0];
     h[5][0] = -chord[1];
     h[5][1] = chord[0];
-    let mut coupled = [[0.0; 6]; 6];
-    let mut magnitude = [[0.0; 6]; 6];
-    for i in 0..6 {
-        for j in 0..6 {
-            for k in 0..6 {
-                let term = structural::checked_product(h[i][k], local[k + 6][j + 6])?;
-                coupled[i][j] = structural::checked_value(coupled[i][j] + term)?;
-                magnitude[i][j] = structural::checked_value(magnitude[i][j] + term.abs())?;
-            }
-        }
-    }
-    let g = structural::gamma(12);
-    let mut local_bounds = [[0.0; 12]; 12];
-    for i in 0..6 {
-        for j in 0..6 {
-            let first = structural::checked_quotient(
-                structural::checked_product(g, magnitude[i][j])?,
-                1.0 - g,
-            )?;
-            local_bounds[i][j + 6] = first;
-            local_bounds[j + 6][i] = first;
-            let mut inherited = 0.0;
-            let mut second = 0.0;
-            for k in 0..6 {
-                let first_bound = structural::checked_quotient(
-                    structural::checked_product(g, magnitude[i][k])?,
-                    1.0 - g,
-                )?;
-                inherited = structural::checked_value(
-                    inherited + structural::checked_product(h[j][k].abs(), first_bound)?,
-                )?;
-                second = structural::checked_value(
-                    second + structural::checked_product(coupled[i][k], h[j][k])?.abs(),
-                )?;
-            }
-            local_bounds[i][j] = structural::checked_product(
-                structural::checked_value(inherited + structural::checked_product(g, second)?)?,
-                1.0 + 64.0 * f64::EPSILON,
-            )?;
-        }
-    }
-    let mut bounds = structural::transform_roundoff(&local, &t)?.absolute_roundoff;
-    for i in 0..12 {
-        for j in 0..12 {
-            let mut inherited = 0.0;
-            for a in 0..12 {
-                for b in 0..12 {
-                    let term = structural::checked_product(
-                        structural::checked_product(t[a][i].abs(), local_bounds[a][b])?,
-                        t[b][j].abs(),
+    type Block = [[f64; 6]; 6];
+    let zero: Block = [[0.0; 6]; 6];
+    // One stage fl(Σ_k left(i,k)·right(k,j)) over six terms, with its bound
+    // γ6·Σ|left||right| plus the operands' inherited bounds carried through.
+    let g = structural::gamma(6);
+    let reserve = 1.0 + 64.0 * f64::EPSILON;
+    let stage = |left: &Block,
+                 left_bound: &Block,
+                 right: &Block,
+                 right_bound: &Block|
+     -> Result<(Block, Block), StructuralError> {
+        let mut value = [[0.0; 6]; 6];
+        let mut bound = [[0.0; 6]; 6];
+        for i in 0..6 {
+            for j in 0..6 {
+                let mut magnitude = 0.0;
+                let mut inherited = 0.0;
+                for k in 0..6 {
+                    let term = structural::checked_product(left[i][k], right[k][j])?;
+                    value[i][j] = structural::checked_value(value[i][j] + term)?;
+                    magnitude = structural::checked_value(magnitude + term.abs())?;
+                    inherited = structural::checked_value(
+                        inherited
+                            + structural::checked_product(left_bound[i][k], right[k][j].abs())?
+                            + structural::checked_product(left[i][k].abs(), right_bound[k][j])?
+                            + structural::checked_product(left_bound[i][k], right_bound[k][j])?,
                     )?;
-                    inherited = structural::checked_value(inherited + term)?;
                 }
+                bound[i][j] = structural::checked_product(
+                    structural::checked_value(
+                        inherited + structural::checked_product(g, magnitude)?,
+                    )?,
+                    reserve,
+                )?;
             }
-            bounds[i][j] = structural::checked_value(
-                bounds[i][j] + inherited / (1.0 - structural::gamma(432)),
+        }
+        Ok((value, bound))
+    };
+    let transpose =
+        |m: &Block| -> Block { std::array::from_fn(|i| std::array::from_fn(|j| m[j][i])) };
+    let (p, p_bound) = stage(&tip, &zero, &rotation, &zero)?;
+    let (q, q_bound) = stage(&transpose(&rotation), &zero, &p, &p_bound)?;
+    // K_g: the symmetrized pair fl(0.5·fl(q_rc + q_cr)) off the diagonal.
+    let mut tip_global = q;
+    let mut tip_global_bound = q_bound;
+    for r in 0..6 {
+        for c in (r + 1)..6 {
+            let average = 0.5 * structural::checked_value(q[r][c] + q[c][r])?;
+            let bound = structural::checked_product(
+                structural::checked_value(
+                    0.5 * structural::checked_value(q_bound[r][c] + q_bound[c][r])?
+                        + structural::checked_product(structural::gamma(1), average.abs())?,
+                )?,
+                reserve,
             )?;
+            tip_global[r][c] = average;
+            tip_global[c][r] = average;
+            tip_global_bound[r][c] = bound;
+            tip_global_bound[c][r] = bound;
         }
     }
-    // Longest formation-error path contributing to each global entry:
-    // local anchor block 24, cross block 12, tip block 0; global stages 48.
-    let counts = std::array::from_fn(|i| {
-        std::array::from_fn(|j| {
-            let mut longest = 48;
-            for a in 0..12 {
-                for b in 0..12 {
-                    if t[a][i] != 0.0 && t[b][j] != 0.0 {
-                        let local_count = if a < 6 && b < 6 {
-                            24
-                        } else if a < 6 || b < 6 {
-                            12
-                        } else {
-                            0
-                        };
-                        longest = longest.max(48 + local_count);
-                    }
-                }
+    let (coupled, coupled_bound) = stage(&h, &zero, &tip_global, &tip_global_bound)?;
+    let (anchored, anchored_bound) = stage(&coupled, &coupled_bound, &transpose(&h), &zero)?;
+    let mut bounds = [[0.0; 12]; 12];
+    for r in 0..6 {
+        for c in 0..6 {
+            // The trace re-forms CB's products in CB's order.
+            if anchored[r][c].to_bits() != global[r][c].to_bits()
+                || (-coupled[r][c]).to_bits() != global[r][c + 6].to_bits()
+                || tip_global[r][c].to_bits() != global[r + 6][c + 6].to_bits()
+            {
+                return Err(crate::NonlinearIntegrationError::InvalidInput {
+                    detail: "curved symmetry formation: the trace does not re-form the element's stiffness".to_string(),
+                });
             }
-            longest
+            bounds[r][c] = anchored_bound[r][c];
+            bounds[r][c + 6] = coupled_bound[r][c];
+            bounds[r + 6][c] = coupled_bound[c][r];
+            bounds[r + 6][c + 6] = tip_global_bound[r][c];
+        }
+    }
+    // Longest formation path per entry: two rotation dots (24) and the
+    // symmetrizing add and halving (2) for K_g; one more six-term dot (12) for
+    // the coupling blocks, two (24) for the anchor block.
+    let counts = std::array::from_fn(|i| {
+        std::array::from_fn(|j| match (i < 6, j < 6) {
+            (true, true) => 50,
+            (false, false) => 26,
+            _ => 38,
         })
     });
     Ok((bounds, counts))

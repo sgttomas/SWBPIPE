@@ -6,7 +6,8 @@
 //! - P4: |ΔK_ij| ≤ 1e-9·max|K_ref| on every case at every X, and RV2 S-4's
 //!   diagonal-scaled |ΔK_ij| ≤ 1e-9·√(K_ii K_jj) (normative here).
 //! - P1: for each rigid motion of the actual nodes and each row,
-//!   |(K r)_r| ≤ 1e-11·Σ_c |K_rc r_c|, both sides formed exactly.
+//!   |(K r)_r| ≤ 1e-11·Σ_c |K_rc r_c|, both sides formed exactly; on the
+//!   frozen cases, P5's seeded elbows and T4-RV11 N-1's four elbows.
 //! - P2: the exact rotation (x, y, z) → (z, x, y) gives P K Pᵀ to 1e-12 of
 //!   max|K_ref|; each generic-rotation copy meets P4 against its own K.
 //! - P3: K is bit-identical at every X.
@@ -382,10 +383,11 @@ fn t4_u1_seeded_elbows_at_every_x_are_formed() {
     // node i on the 2⁻³⁰ grid near (X, 0.7X, 0). Binary64 R ≤ L/2 and angles
     // outside [1e-9, π − 1e-9] are legitimate refusals, excluded by
     // construction (counted). Every other elbow must form: no radius refusal.
-    // P1 is recorded, not asserted: B3 requires it on B2 and B5.4 (asserted
-    // above); on generic small-angle chords near a coordinate plane the
-    // product reaches about 5e-11 (T4-RV11 N-1, a rounding of the binary64
-    // axes in the global transform; T4-I19's record).
+    // P1 ≤ 1e-11 is asserted on every formed elbow: with the global-frame
+    // assembly (T4-I33; Aᵀ K_t A and H over the global chord) the rigid
+    // motions of the actual nodes are annihilated to rounding of the formed
+    // products. Under the former Tᵀ K T transform, generic small-angle chords
+    // near a coordinate plane reached about 5e-11 (T4-RV11 N-1).
     let grid = |v: f64| (v * 2f64.powi(30)).round() / 2f64.powi(30);
     let pi = std::f64::consts::PI;
     let mut rng = Lcg(20261010);
@@ -468,8 +470,59 @@ fn t4_u1_seeded_elbows_at_every_x_are_formed() {
         }
     }
     eprintln!(
-        "T4-U1 P5 (round 01 §8): {formed} formed, {excluded} excluded by construction; P1 worst {worst:.2e}, {over} above 1e-11 (informative)"
+        "T4-U1 P5 (round 01 §8): {formed} formed, {excluded} excluded by construction; P1 worst {worst:.2e}, {over} above 1e-11"
     );
     assert_eq!(formed + excluded, 10_000);
     assert!(excluded <= 10, "{excluded}");
+    assert_eq!(over, 0, "P1 worst {worst:e}");
+}
+
+#[test]
+fn t4_u1_rv11_n1_elbows_meet_p1() {
+    // T4-RV11 N-1's four elbows (log-uniform φ draws in [1e-9, 1e-4] whose
+    // chords lie near a coordinate plane), on which the former Tᵀ K T
+    // transform left P1 at 1.0e-11 to 4.5e-11 (T4-I19's diagnosis): (d, y, R),
+    // node i at the origin (K depends on the nodes only through d).
+    let elbows: [([f64; 3], [f64; 3], f64); 4] = [
+        (
+            [0.024672691710293293, -4.021357744932175e-5, 0.6464859284460545],
+            [-0.31430255397381157, -0.07981513896770398, 0.06774713974206059],
+            4.2370895004487495e4,
+        ),
+        (
+            [1.3433524016290903, 0.13798359408974648, -5.218293517827988e-5],
+            [0.5904316982015319, -0.7736233599549613, 0.7067083267827372],
+            9.27420310689147e4,
+        ),
+        (
+            [-1.0250879535451531, -2.7502886950969696e-5, 0.0750848576426506],
+            [-0.13612592591141626, -0.19489057165189028, 0.356589971170838],
+            8.564584211705972e8,
+        ),
+        (
+            [0.1278043258935213, -0.0023355260491371155, -1.4794990420341492e-5],
+            [0.6476096088456043, 0.854360256689352, 0.578022375130403],
+            1.757330817536396e5,
+        ),
+    ];
+    for (d, y, radius) in elbows {
+        let k = CurvedBendMacroElement::new(
+            FrameNode::new(0, [0.0; 3]).unwrap(),
+            FrameNode::new(1, d).unwrap(),
+            radius,
+            y,
+            2.0e11,
+            8.0e10,
+            0.005969026041820614,
+            2.700984283923829e-05,
+            5.401968567847658e-05,
+            1.0,
+            1.0,
+        )
+        .and_then(|element| element.global_stiffness())
+        .unwrap();
+        let p1 = null_residual(&k, d).unwrap_or(f64::INFINITY);
+        eprintln!("T4-RV11 N-1 elbow d {d:?}: P1 {p1:.2e}");
+        assert!(p1 <= P1_CRITERION, "d {d:?}: P1 {p1:e}");
+    }
 }
