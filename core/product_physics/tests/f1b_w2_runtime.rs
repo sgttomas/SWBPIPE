@@ -747,21 +747,15 @@ fn f1b_w2_admission_refuses_each_reachable_family_by_name() {
             evaluation,
             536,
         ),
+        // Re-derived (one row, both modes) after T4-U1 formed the arc angle without libm: the
+        // old sparse row (2^-900, b 454) depended on the platform atan2's last bit (T4-RV24).
         (
             "curved_bend_macro_element",
-            curved_bend(pow2(-950)),
-            &[PreviewSolverMode::DenseScrutiny],
+            curved_bend(pow2(-940)),
+            &MODES,
             "case:f",
             overflow,
-            478,
-        ),
-        (
-            "curved_bend_macro_element",
-            curved_bend(pow2(-900)),
-            &[PreviewSolverMode::SparseInteractive],
-            "case:f",
-            overflow,
-            454,
+            474,
         ),
         (
             "zero_nodal_load_term",
