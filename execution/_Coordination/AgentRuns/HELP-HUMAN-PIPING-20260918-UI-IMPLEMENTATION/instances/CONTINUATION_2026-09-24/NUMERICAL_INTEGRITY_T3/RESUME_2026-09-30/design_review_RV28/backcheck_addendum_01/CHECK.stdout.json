@@ -1,1 +1,0 @@
-{"status": "PASS", "checks": 72, "sealed_packets_preserved": 3, "source_files": 6, "relative_rounding_directions_found": ["binary64_smaller", "exact_smaller"]}

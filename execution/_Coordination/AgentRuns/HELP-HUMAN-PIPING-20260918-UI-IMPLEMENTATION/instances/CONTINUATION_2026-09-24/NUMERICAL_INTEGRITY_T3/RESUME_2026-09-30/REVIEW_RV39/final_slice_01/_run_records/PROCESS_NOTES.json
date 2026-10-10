@@ -1,4 +1,0 @@
-{
-  "graph_review": "Changed current prefix and additive state records read; historical progression suffix byte-equal. No semantic historical rewrite.",
-  "bookkeeping": "A whole-file character SequenceMatcher metadata read was interrupted through its own exec session after exceeding the bounded display wait; replaced by linear exact-prefix/suffix comparison. No source/evidence mutation or host process tool."
-}

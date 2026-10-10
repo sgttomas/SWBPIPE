@@ -1,2 +1,0 @@
-1105	true	codex/piping-t3-records-20261007	piping(T3): records after #1104 (records only)
-885	true	codex/piping-live-control-20260924	Connect a private live-control CLI to reviewed Piping operations

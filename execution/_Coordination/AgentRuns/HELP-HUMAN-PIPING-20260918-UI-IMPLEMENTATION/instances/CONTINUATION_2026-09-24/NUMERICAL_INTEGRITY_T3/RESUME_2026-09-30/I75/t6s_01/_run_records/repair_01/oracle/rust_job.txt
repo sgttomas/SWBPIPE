@@ -1,7 +1,0 @@
-2026-10-06T15:47:21Z WAIT pid=13112 cwd=WT/scratch/i75_t6s/rust_exp args: run --locked --offline --release -- WT/scratch/i75_t6s/ties/random.txt WT/scratch/i75_t6s/ties/ties.txt WT/scratch/i75_t6s/ties/rv101_differences.txt
-2026-10-06T16:25:56Z START pid=83533 cwd=WT/scratch/i75_t6s/rust_exp args: run --locked --offline --release -- WT/scratch/i75_t6s/ties/random.txt WT/scratch/i75_t6s/ties/ties.txt WT/scratch/i75_t6s/ties/rv101_differences.txt
-2026-10-06T16:25:58Z END rc=0 pid=83533 cwd=WT/scratch/i75_t6s/rust_exp
-rustc: 1.97.1 (8bab26f4f 2026-07-14) (target WT/targets/i75-t6s, .rustc_info.json)
-binary WT/targets/i75-t6s/release/i75_rust_exp sha256 dc841850f7863aeb56b0601b1d32d3ed433fdbaff38aaa9dce329c1ddc77c9d7
-built and first run through WT/tools/t3_cargo.sh (lines above): random.txt, ties.txt, rv101_differences.txt
-edges.txt, ties16.txt and pow2.txt: the same built binary run directly (no cargo, no compile), 2026-10-06, between 16:26Z and 16:45Z

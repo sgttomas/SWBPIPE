@@ -1,6 +1,0 @@
-
-running 1 test
-test structural::retained::adaptive::kf3_tests::kf3_in_verify_state_a_refusal_stop_outranks_uc ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 8.84s
-

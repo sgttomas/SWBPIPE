@@ -1,8 +1,0 @@
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
-     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-frame-kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
-
-running 1 test
-test structural::retained::adaptive::publication_tests::clone_counter_delta_never_bills_inherited_work ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 405 filtered out; finished in 0.00s
-

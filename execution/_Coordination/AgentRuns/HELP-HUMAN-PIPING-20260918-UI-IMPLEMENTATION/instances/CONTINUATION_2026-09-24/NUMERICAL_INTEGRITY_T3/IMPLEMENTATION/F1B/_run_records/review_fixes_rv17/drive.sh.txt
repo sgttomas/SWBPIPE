@@ -1,9 +1,0 @@
-#!/bin/bash
-# F1b review fixes (ROOT's rulings on RV17's review): NONE first and alone, then F1B-M2 (W2 before
-# exact-block), RV17-M1 (`let linear = true;`) and RV17-M2 (every spring action the first spring's), one at
-# a time, each on a clean git archive of f183e1fa9 with the new tests' file overlaid from <wt>/f1b.
-# run_mutant.sh is the lane-guard run's, unchanged (-j 4, RUST_TEST_THREADS=4, --no-fail-fast).
-C=$(cd "$(dirname "$0")" && pwd); W=$(cd "$C/../../.." && pwd); REV=f183e1fa9
-: > $C/MUTANTS.txt
-for m in NONE F1B-M2 RV17-M1 RV17-M2; do $C/run_mutant.sh $W $C $REV $m $C/overlay.txt; done
-echo DRIVE-DONE >> $C/MUTANTS.txt

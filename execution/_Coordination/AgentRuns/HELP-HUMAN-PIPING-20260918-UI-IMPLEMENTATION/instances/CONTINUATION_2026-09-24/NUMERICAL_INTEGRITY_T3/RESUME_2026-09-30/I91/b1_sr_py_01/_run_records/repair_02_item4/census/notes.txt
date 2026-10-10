@@ -1,8 +1,0 @@
-The new head's census and probe outputs against the patched-tree run of REPAIR_02 (item4/, the held patch on 70d4a68bd7), file by file (cmp):
-  census_rv113.jsonl: byte-identical
-  census_i91.json: byte-identical
-  probes_v5.jsonl: byte-identical
-  probes_fg.jsonl: byte-identical
-  probes_rp.jsonl: byte-identical
-Inputs for the nine-entry check: R01 = R/REVIEW_RV113/rvr_sr_py_01/evidence/census/py_head.jsonl (sha256 5c3d391a943aef078683c6c1e83653e79faee4660eab4f89d01e7d23bf4011ea); RS at 6e3e4fe219 = R/I90/b1_sr_rs_01/_run_records/repair_02/out/census_head.jsonl (sha256 e33aed6b85fcb96ea4774dd1a8404837fed3c1a4a8334cfa94dbfd482847d4d3, as in I90's SHA256SUMS.repair_02).
-Input hashes: PY's equal R01's on 339 of 339 (no input change). RS's harness hashes the mutated inputs differently from RV113's Python harness (equal on the 17 bases only), so the nine are matched by corpus entry (set, index, id), not by input hash.

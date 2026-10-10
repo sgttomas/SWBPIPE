@@ -1,2 +1,0 @@
-cases 252 authorable 222 not_authorable 30
-gen_out vs PLATFORM_CALIBRATION_MAC/gate/gen_out_sha256.txt: 223/223 OK (shasum -a 256 -c)

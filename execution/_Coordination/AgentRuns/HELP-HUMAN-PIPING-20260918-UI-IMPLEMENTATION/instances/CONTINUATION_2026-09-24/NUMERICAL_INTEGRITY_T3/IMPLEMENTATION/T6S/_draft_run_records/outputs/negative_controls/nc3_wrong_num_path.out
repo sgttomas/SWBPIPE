@@ -1,4 +1,0 @@
-FAILED review_path 'REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt': missing at NUM: REVIEW_RV101/t6s_01/evidence/oracle/exp_difference.txt
-COUNTS resolved 2; ambiguous 0; unresolved 0
-  records/RR: occurrences 2, distinct 2, unresolved 0; documents: 0 citations (0 resolved, 0 ambiguous, 0 unresolved); verification failures 1; unused index entries 0; code lines: 0 (0 pinned in code_anchors, 0 unresolved)
-RESULT FAIL

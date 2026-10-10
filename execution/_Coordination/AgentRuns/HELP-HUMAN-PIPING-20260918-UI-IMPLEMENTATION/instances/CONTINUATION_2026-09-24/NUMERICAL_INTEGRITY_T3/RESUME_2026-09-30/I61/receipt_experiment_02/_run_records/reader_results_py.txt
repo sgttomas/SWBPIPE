@@ -1,7 +1,0 @@
-== milestone_dense_scrutiny: schema violations 0
-   PY RESULT standing=needs_recompute eligible=False invocation_bound=True classes=99
-== milestone_sparse_interactive: schema violations 0
-   PY RESULT standing=needs_recompute eligible=False invocation_bound=True classes=98
-== refusal_preparation_sparse_interactive: schema violations 0
-   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
-   PY AT harness_py.py:23 <- retained_precision.py:1606 <- retained_precision.py:128

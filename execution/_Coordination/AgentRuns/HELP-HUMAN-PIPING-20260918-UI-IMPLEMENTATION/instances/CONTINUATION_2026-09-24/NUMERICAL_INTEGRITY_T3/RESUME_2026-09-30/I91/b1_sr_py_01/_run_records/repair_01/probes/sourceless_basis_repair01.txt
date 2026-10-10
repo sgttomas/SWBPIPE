@@ -1,5 +1,0 @@
-the not_required case on its own named basis, correct: admitted standing=eligible
-  its basis's elastic modulus wrong: G8 RETAINED_PRECISION_PREPARATION_MISMATCH
-  its basis's material selection wrong: G8 RETAINED_PRECISION_PREPARATION_MISMATCH
-  its basis lists no material: G8 RETAINED_PRECISION_PREPARATION_MISMATCH
-  its basis names another material: G8 RETAINED_PRECISION_PREPARATION_MISMATCH

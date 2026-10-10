@@ -1,2 +1,0 @@
-fixtures, core, tests, schemas: no change (git diff --quiet)
-TS reader retainedPrecision.ts (the flag): no change

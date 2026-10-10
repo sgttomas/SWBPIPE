@@ -1,8 +1,0 @@
-ORACLE RF-LARGE-CHAIN-n00100-AX sel 128 rows 2513 worst 9.034e-01 at u.23.2; worst rel vs 1e-9 1.063e-07 at u.1.0
-ORACLE RF-LARGE-CHAIN-n00100-ROT sel 128 rows 2513 worst 9.171e-01 at u.60.0; worst rel vs 1e-9 1.028e-07 at u.16.5
-ORACLE RF-LARGE-TREE-n00100-AX sel 128 rows 2513 worst 8.850e-01 at mag.85; worst rel vs 1e-9 1.032e-07 at u.40.1
-ORACLE RF-LARGE-TREE-n00100-ROT sel 128 rows 2513 worst 9.596e-01 at u.79.4; worst rel vs 1e-9 1.067e-07 at u.79.4
-ORACLE RF-LARGE-CONT-n00100-AX sel 128 rows 2663 worst 9.608e-01 at end.97.i.2; worst rel vs 1e-9 1.068e-07 at end.97.i.2
-ORACLE RF-LARGE-CONT-n00100-ROT sel 128 rows 2663 worst 9.717e-01 at R.1.1; worst rel vs 1e-9 1.085e-07 at st.45.5
-ORACLE worst five: [(0.9717418013021961, 'RF-LARGE-CONT-n00100-ROT', 'R.1.1'), (0.9608219377060521, 'RF-LARGE-CONT-n00100-AX', 'end.97.i.2'), (0.9595975279816881, 'RF-LARGE-TREE-n00100-ROT', 'u.79.4'), (0.9171014992108312, 'RF-LARGE-CHAIN-n00100-ROT', 'u.60.0'), (0.9033788907889969, 'RF-LARGE-CHAIN-n00100-AX', 'u.23.2')]
-python3 rv19_oracle.py ../logs/probe_large.log $K4T/models5a3.txt $L  27.24s user 0.08s system 98% cpu 27.611 total

@@ -1,9 +1,0 @@
-== rep3_rpd start 2026-10-06T12:52:58Z dir=<WT>/s-i1/projects/chirality-piping/core/rules/rule_pack_document
-     Running unittests src/lib.rs (<WT>/targets/i73-s-i1/worktree-fresh/debug/deps/open_pipe_stress_rule_pack_document)
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-     Running tests/corpus_parity.rs (<WT>/targets/i73-s-i1/worktree-fresh/debug/deps/corpus_parity)
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-     Running tests/invented_demo_document.rs (<WT>/targets/i73-s-i1/worktree-fresh/debug/deps/invented_demo_document)
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-== rep3_rpd exit=0 2026-10-06T12:52:59Z

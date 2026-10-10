@@ -1,4 +1,0 @@
-PASS G23 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "e1ba8ba732e4d36e92b2dfcfc2c01d7473805123f99d023c49d57389dcec6d4c"}
-filter structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal
-aliases [('A2_ORIGINAL', 'M6'), ('RV23', 'I19-M6-budget-as-refusal')]

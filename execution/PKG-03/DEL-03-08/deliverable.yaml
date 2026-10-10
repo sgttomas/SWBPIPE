@@ -1,0 +1,132 @@
+id: DEL-03-08
+name: Pipe section property and mass-property calculator
+needs:
+- from: DEL-00-01
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; no new target inferred under conservative
+    strictness.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; module-boundary relevance also
+    appears in Specification requirement DEL-03-08-RQ-007.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; provenance-preserving schema hooks
+    remain relevant to SOW-018.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Procedure requires diagnostic
+    handling for invalid geometry missing provenance and unit mismatch with exact codes TBD.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Guidance keeps calculator outputs
+    code-neutral and provenance-aware for downstream review.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-03-08 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Specification verification requires
+    unit missing-input provenance IP-boundary and solver-boundary tests.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-03-01
+  condition: 'DEL-03-08 needs DEL-03-01 as a predecessor because mass properties use material density
+    and library-sourced material provenance.
+
+
+    Notes: TP-DAG-004 refresh preserved active DAG-002 domain-model edge; target satisfaction remains
+    UNKNOWN because target artifact maturity was not revalidated in this bounded row.; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
+    legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-08/Specification.md
+- from: DEL-03-02
+  condition: 'DEL-03-08 needs DEL-03-02 as a predecessor because section-property calculation uses pipe
+    section and component schema hooks.
+
+
+    Notes: TP-DAG-004 refresh preserved active DAG-002 domain-model edge; exact schema hook names remain
+    a reconciliation-visible TBD.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-08/Procedure.md
+- from: DEL-02-02
+  condition: 'DEL-03-08 needs DEL-02-02 as a predecessor because section and mass-property calculations
+    require unit checks.
+
+
+    Notes: TP-DAG-004 refresh preserved active DAG-002 unit-contract edge; exact dimensions tolerances
+    and unit API remain TBD.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-08/Specification.md
+code_paths:
+- core/section_properties
+- core/section_properties/README.md
+- core/section_properties/calculator.py
+checks:
+- tests/test_calculation_witness.py
+- tests/test_section_properties.py

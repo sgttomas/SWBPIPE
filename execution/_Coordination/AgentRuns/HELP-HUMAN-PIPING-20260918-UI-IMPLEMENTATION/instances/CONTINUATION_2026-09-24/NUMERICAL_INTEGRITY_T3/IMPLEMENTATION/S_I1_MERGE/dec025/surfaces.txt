@@ -1,8 +1,0 @@
-== python_pytest: WT/../../projects/chirality-piping/.venv/bin/python -m pytest -q tests (14:36:34Z)
-   exit 0 (14:56:35Z)
-== desktop_vitest_build_wasm: npm run build:wasm:desktop (14:56:35Z)
-   exit 0 (14:57:14Z)
-== desktop_vitest: npm run test:desktop (14:57:14Z)
-   exit 0 (14:58:36Z)
-== desktop_production_build: npm run build:desktop (14:58:36Z)
-   exit 0 (14:58:43Z)

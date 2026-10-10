@@ -1,9 +1,0 @@
-# Exact39-process remainder03 release
-
-Manager releases only P14, P16, then P17–P53 in the frozen order at 2026-10-01 19:56:14 UTC. I22 actual start19:55:30 UTC2026-10-01; hard end20:30:30. Governing NUM5353ad760eb8abd12f45f75598b143536a7e6536 and verified final RV29 qualification are bound in CONDITIONAL_GRANT.md/DISPATCH.md.
-
-P14 remains the actual rf_chain NONE returned control for original debugP13. P16 is explicitly a fresh rf_skew NONE BASELINE, not a return for unrunP15. ROOT supersedes P15's never-executed fault call with qualified separate two-family release coverage; P15 stays UNRUN/SUPERSEDED. Preserve original COMMANDS_AND_PROJECTIONS.json bytes (SHA2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289). Apart from this exact omission/label disposition, P17–P53 argv/environment/logs/criteria unchanged; no other skip/repeat.
-
-All four preserved artifacts independently refreshed: adapterdfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f, lane8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18, parity646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65, normal-release vk_records7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e. Exact paths/raw fingerprints remain in sealed runtime01 build evidence.
-
-Conditional on immediate per-process binary/argv/fault/guard integrity, preceding required controls/semantics and remaining time. Exact fresh faults/one process at a time, no build. Value-only/CLASS (three InputDerived exceptions), F08K/F10canonical/UNKNOWN and F05roles/F06THIN/F07allbodies/R02verdict/R28nonnullshift requirements unchanged. Any ambiguity/survivor/unrelated failure stops without automatic diagnostic. Five-minute inspect/stop and35-minute end; no extension or per-process cap claim. Preserve raw bytes and exact Python integer JSON. No source/helper/driver/collector/tool/Git/index/delegation/cleanup.

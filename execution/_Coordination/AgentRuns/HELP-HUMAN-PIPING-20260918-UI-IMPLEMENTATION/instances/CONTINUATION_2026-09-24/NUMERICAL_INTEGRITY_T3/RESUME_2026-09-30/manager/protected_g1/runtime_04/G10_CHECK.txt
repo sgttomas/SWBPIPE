@@ -1,4 +1,0 @@
-PASS G10 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs": "66adc19a177f028468ad07f32f40cdc70de348e8b32837cf33e73ccb62236768"}
-filter structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit
-aliases [('R7_K4', 'D1')]

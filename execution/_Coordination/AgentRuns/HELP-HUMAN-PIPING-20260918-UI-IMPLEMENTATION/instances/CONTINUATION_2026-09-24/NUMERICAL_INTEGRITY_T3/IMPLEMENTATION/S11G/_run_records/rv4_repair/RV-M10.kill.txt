@@ -1,2 +1,0 @@
-thread 's11g_tests::restrained_rows_take_the_all_rows_scale' (3775) panicked at src/s11g_tests.rs:2595:5:
-root RZ is silent under the all-rows scale: RowDecision { fires: true, t0: 3.9999999999999986e-10, tf: 3.9999999999999986e-10, net_ratio: 34.14849440256756, self_equilibrated_ratio: 0.0, reason: Some("net formation defect 1.3659397761027018e-8, self-equilibrated defect 0e0, bound 0e0, intended net at least 2.0000000049670535e-1, body scale 3.9999999999999997e-1, threshold 3.9999999999999986e-10 (s

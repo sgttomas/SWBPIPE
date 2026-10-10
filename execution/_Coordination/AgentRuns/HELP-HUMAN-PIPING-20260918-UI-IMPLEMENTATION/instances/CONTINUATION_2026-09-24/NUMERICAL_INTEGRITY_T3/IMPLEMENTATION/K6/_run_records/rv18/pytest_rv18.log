@@ -1,6 +1,0 @@
-=== pytest (N15 invocation) on ae3320b5a + the RV18 fixes
-    Finished `release` profile [optimized] target(s) in 0.03s
-    Finished `release` profile [optimized] target(s) in 0.02s
-.........................................                                [100%]
-41 passed in 6.53s
-=== exit 0 elapsed 7 s

@@ -1,4 +1,0 @@
-Addendum 01 to gen8.txt (RV110 N-3: E-4 asks a GEN-8 record to name the head and the command; gen8.txt carries the result only).
-head: 1199726f695f92ddeccc36f7b47079dedf5b9854
-command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: B6-PR checkout root, WT/b6-pr; PYTHONDONTWRITEBYTECODE=1; VENV's python)
-result: 1 passed, 10 deselected in 32.85s (gen8.txt)

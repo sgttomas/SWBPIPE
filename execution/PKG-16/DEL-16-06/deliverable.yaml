@@ -1,0 +1,136 @@
+id: DEL-16-06
+name: Controlled model operation application
+needs:
+- from: DEL-16-01
+  condition: 'DEL-16-06 consumes Structured model operation schema from DEL-16-01: application requires
+    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
+    and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E046; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-16-02
+  condition: 'DEL-16-06 consumes Operation validation and diff preview from DEL-16-02: application requires
+    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
+    and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E047; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-16-03
+  condition: 'DEL-16-06 consumes User acceptance and operation audit trail from DEL-16-03: application
+    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
+    persistence and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E048; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-02-01
+  condition: 'DEL-16-06 consumes Canonical domain model schema from DEL-02-01: application requires schema-valid
+    preview, current-model basis and the pre-application acceptance decision, with persistence and service
+    constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E049; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-02-02
+  condition: 'DEL-16-06 consumes Unit system and dimensional-analysis core contract from DEL-02-02: application
+    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
+    persistence and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E050; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-02-05
+  condition: 'DEL-16-06 consumes Project persistence and round-trip serialization from DEL-02-05: application
+    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
+    persistence and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E051; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-00-03
+  condition: 'DEL-16-06 consumes Application service command-query-job model from DEL-00-03: application
+    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
+    persistence and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E052; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-00-07
+  condition: 'DEL-16-06 consumes API boundary and adapter contract map from DEL-00-07: application requires
+    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
+    and service constraints; post-application receipt is a separate stage.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E053; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+code_paths:
+- apps/desktop/src/services/operationService.ts
+- core/model_operations/operation_applier/src/lib.rs

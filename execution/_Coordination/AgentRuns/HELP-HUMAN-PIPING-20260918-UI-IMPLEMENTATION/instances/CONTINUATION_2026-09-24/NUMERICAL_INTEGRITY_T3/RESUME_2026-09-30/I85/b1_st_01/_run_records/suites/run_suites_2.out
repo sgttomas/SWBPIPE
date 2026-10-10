@@ -1,8 +1,0 @@
-== cand_reg_pp start 2026-10-07T03:58:33Z
-== cand_reg_pp exit=101 2026-10-07T04:00:08Z
-cand_reg_pp: 711 ok, 1 failed, 11 ignored
-src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
-== cand_stale_pp start 2026-10-07T04:00:08Z
-== cand_stale_pp exit=101 2026-10-07T04:02:22Z
-cand_stale_pp: 711 ok, 1 failed, 11 ignored
-src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED

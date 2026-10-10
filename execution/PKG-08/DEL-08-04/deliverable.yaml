@@ -1,0 +1,194 @@
+id: DEL-08-04
+name: Result export format
+needs:
+- from: DEL-00-01
+  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-01.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-02.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-08-04 must apply the schema-first command/query/job result-envelope architecture basis
+    from AB-00-03.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: DEL-00-04
+  condition: 'DEL-08-04 must preserve canonical JSON and reproducibility metadata compatibility from AB-00-04
+    where JSON payloads are hashed.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-08-04 must carry structured diagnostics using the PKG-00 baseline fields from AB-00-06.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Specification.md
+- from: DEL-00-07
+  condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Specification.md
+- from: DEL-00-08
+  condition: 'DEL-08-04 implementation must preserve applicable validation, protected-content, and regression
+    gates from AB-00-08.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-08-04 needs canonical domain model and result object semantics for stable model/result
+    references and object vocabulary.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: DEL-02-02
+  condition: 'DEL-08-04 requires the unit system and dimensional-analysis core contract because result
+    exports need unit-aware values and dimensional checks.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md
+  condition: 'The general exporter maps the common comparison schema owned by DEL-14-05; that comparison
+    schema first consumes the existing DEL-08-04 base result-envelope contract.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Contract owner=DEL-14-05; consumer_stage=DEL-08-04::comparison-export-mapping;
+    producer_stage=DEL-14-05::comparison-contract. DAG-002-E0790 retained; DEL-08-04 base envelope precedes
+    comparison schema, which precedes comparison export mapping. OPEN: Name and review a versioned comparison
+    schema and identify the base-envelope version it imports; fixture payloads are not authoritative.
+    DERIVED CANDIDATE JUDGMENT: stage interpretation is proposed and must be reviewed; the candidate artifact
+    exists but is not adopted normative schema or satisfied evidence.; SCA011OriginalDependencyID=SCA011-E083;
+    original_evidence_file=execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md;
+    original_source_ref=Contract stages and readiness / negative witnesses; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: SCA011-IF-COMPARISON-EXPORT; TargetRefID: SCA011-IF-COMPARISON-EXPORT;
+    TargetLocation: execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md'
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-08-02
+  condition: 'DEL-08-04 should carry or reference run/model manifest and hash metadata from DEL-08-02
+    for reproducible exports.
+
+
+    Notes: New explicit upstream handover extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: DEL-06-04
+  condition: 'DEL-08-04 needs rule-pack identity, version, and checksum handling without copying private
+    or protected payloads.
+
+
+    Notes: New explicit upstream interface extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: package:PKG-04
+  condition: 'DEL-08-04 must consume solver result producers from PKG-04 without redefining solver behavior.
+
+
+    Notes: Package-level edge retained because source explicitly names PKG-04 but not a specific deliverable.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=PACKAGE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Solver Core and Numerical Methods; TargetRefID: PKG-04'
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+- from: package:PKG-05
+  condition: 'DEL-08-04 must consume load and stress result producers from PKG-05 without redefining their
+    behavior.
+
+
+    Notes: Package-level edge retained because source explicitly names PKG-05 but not a specific active
+    deliverable.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=PACKAGE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Loads, Load Cases, and Stress Recovery; TargetRefID: PKG-05'
+  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+code_paths:
+- schemas/results.schema.yaml

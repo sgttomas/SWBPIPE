@@ -1,0 +1,156 @@
+id: DEL-10-05
+name: Headless CLI and structured I/O analysis runner
+needs:
+- from: DEL-00-03
+  condition: 'The runner must execute through schema-first command query job and result-envelope boundaries
+    rather than bypassing the solver.
+
+
+    Notes: FACT: Architecture-basis interface dependency; concrete interface language remains TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-00-06
+  condition: 'The runner must preserve diagnostics and result envelopes with warning error provenance
+    and no compliance claim.
+
+
+    Notes: FACT: Architecture-basis diagnostics dependency.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-08-04
+  condition: 'The runner output must align with schema-first result exports for regression comparison
+    and report/result export workflows.
+
+
+    Notes: FACT: Result-export dependency explicitly stated by requirements.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; FACT: R15 edge-grain
+    readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED for this dependency only; no provider
+    lifecycle closure; no DAG activation; no R12 deferral generalization; no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-10-04
+  condition: 'The future runner must support build and CI automation without deciding provider package
+    manifests or release matrix in this setup pass.
+
+
+    Notes: FACT: Build and automation dependency; CI provider and release matrix remain TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; FACT: R15 edge-grain
+    readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED for this dependency only; no provider
+    lifecycle closure; no DAG activation; no R12 deferral generalization; no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-02-02
+  condition: 'Structured input and output must remain unit-aware across input solve and output.
+
+
+    Notes: FACT: Unit-system constraint explicitly stated by requirements.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; FACT: R15 edge-grain
+    readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED for this dependency only; no provider
+    lifecycle closure; no DAG activation; no R12 deferral generalization; no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-02-05
+  condition: 'The runner depends on deterministic reproducible structured model data flow and persistence/hash
+    strategy.
+
+
+    Notes: FACT: Persistence relationship is stated as adjacent dependency and constraint; physical package/container
+    remains TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE; FACT: R15 edge-grain readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED
+    for this dependency only; no provider lifecycle closure; no DAG activation; no R12 deferral generalization;
+    no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Guidance.md
+- from: DEL-08-02
+  condition: 'The runner needs reproducibility metadata such as deterministic serialization canonical
+    JSON and hashes where payload hashes are used.
+
+
+    Notes: FACT: Audit/hash dependency explicitly tied to reproducibility basis.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; FACT: R15 edge-grain
+    readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED for this dependency only; no provider
+    lifecycle closure; no DAG activation; no R12 deferral generalization; no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Datasheet.md
+- from: DEL-04-06
+  condition: 'The runner must surface missing required inputs and solver diagnostic states as blocking
+    diagnostics rather than silent defaults.
+
+
+    Notes: FACT: Solver diagnostics are explicitly required for future runner behavior.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; FACT: R15 edge-grain
+    readiness audit (2026-07-21) supports SEMANTIC_READY/SATISFIED for this dependency only; no provider
+    lifecycle closure; no DAG activation; no R12 deferral generalization; no report/export seam authorization.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/Specification.md
+- from: DEL-02-01
+  condition: 'DEL-10-05 depends on DEL-02-01 because headless runner requests carry canonical model references
+    and unit-system references at the schema-first I/O boundary.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
+    in accepted PKG-02 canonical model contract; local evidence only, not aggregate DAG authority or lifecycle
+    approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/schemas/headless_runner.schema.yaml
+- from: DEL-02-03
+  condition: 'DEL-10-05 depends on DEL-02-03 because runner results preserve analysis_status, diagnostics,
+    human-review requirements, and professional-boundary controls.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
+    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/schemas/headless_runner.schema.yaml
+code_paths:
+- core/runner/headless/
+- core/runner/headless/src/benchmark_binding.rs
+- core/runner/headless/src/bin/openpipestress-runner.rs
+- core/runner/headless/src/lib.rs
+- schemas/headless_runner.schema.yaml
+- tools/validation/validate_dependencies_schema.py
+- validation/evidence/sweeps/SWEEP_20260719T220236Z_96563e8e09b8-dirty.json

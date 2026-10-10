@@ -1,2 +1,0 @@
-B's binary: git archive 1f354c20bc74876d86ec6f329081868a58e3b5ad (tree be7c0dddffe3bffcdd628bf2cf3be00850d5aedb), cargo build --release --offline --locked -j 8 --bin k6_observe, RUSTUP_TOOLCHAIN=1.97.1, CARGO_INCREMENTAL=0
-sha256 1bbdfb2a0bec003a9e216d726a78cfc322a901214252c91939ec64d70cfd72e2  k6_observe

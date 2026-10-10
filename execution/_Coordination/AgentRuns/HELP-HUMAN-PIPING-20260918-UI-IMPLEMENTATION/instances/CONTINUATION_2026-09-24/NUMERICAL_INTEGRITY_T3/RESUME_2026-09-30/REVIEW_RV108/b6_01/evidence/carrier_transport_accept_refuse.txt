@@ -1,9 +1,0 @@
-carrier transport (Python _source_contract(check_receipt=False), TS sourceContractTransport, Rust for_source_metadata), probes: 1032
-Python vs TS accept/refuse differences: 6
-   ('ordinary_prepared_synthetic|T.results[0]=null', 'python', True, 'ts', False)
-   ('ordinary_prepared_synthetic|T.results+=null', 'python', True, 'ts', False)
-   ('milestone_sparse_interactive|T.results[0]=null', 'python', True, 'ts', False)
-   ('milestone_sparse_interactive|T.results+=null', 'python', True, 'ts', False)
-   ('milestone_dense_scrutiny|T.results[0]=null', 'python', True, 'ts', False)
-   ('milestone_dense_scrutiny|T.results+=null', 'python', True, 'ts', False)
-Rust admits where Python refuses: 70 Counter({'formulation.limitations=other_nonempty': 7, 'carrier_evidence=dict': 7, 'carrier_evidence=null': 7, 'carrier_evidence=list': 7, 'carrier_evidence=zero': 7, 'contract_evidence.extra': 7, 'contract_evidence.combination_gates=str': 7, 'T.contract_evidence_extra': 7, 'T.carrier_evidence': 7, 'T.limitations_other': 7})

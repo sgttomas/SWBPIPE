@@ -1,7 +1,0 @@
-
-running 2 tests
-test publication_failure_reasons_are_typed_at_the_public_boundary ... ok
-test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
-

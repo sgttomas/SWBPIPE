@@ -1,3 +1,0 @@
-# Batch PKG-12 (manager, W3)
-PASS batch of 5 ledgers: 0 consistency findings
-exit=0

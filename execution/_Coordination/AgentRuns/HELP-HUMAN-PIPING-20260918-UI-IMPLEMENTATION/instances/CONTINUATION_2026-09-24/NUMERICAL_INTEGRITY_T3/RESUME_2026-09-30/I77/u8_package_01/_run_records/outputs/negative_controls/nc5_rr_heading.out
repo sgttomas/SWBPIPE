@@ -1,4 +1,0 @@
-FAILED rr_title "I61's U8 plan ruled": heading at RR:11966 differs
-COUNTS resolved 10; ambiguous 0; unresolved 0
-  records/RR: occurrences 5, distinct 3, unresolved 0; documents: 4 citations (4 resolved, 0 ambiguous, 0 unresolved); verification failures 1; unused index entries 0; code lines: 1 (1 pinned in code_anchors, 0 unresolved)
-RESULT FAIL

@@ -1,6 +1,0 @@
-{"id": "control_capture_storage (base)", "python": "PASS"}
-{"id": "g5a_error_but_g5a_not_entered", "python": "PASS"}
-{"id": "observable_error_but_observables_not_entered", "python": "PASS"}
-{"id": "proof_error_but_certificate_passed", "python": "PASS"}
-{"id": "values_error_but_values_completed", "python": "PASS"}
-{"id": "numeric_error_null_cause", "python": "PASS"}

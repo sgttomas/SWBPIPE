@@ -1,0 +1,141 @@
+id: DEL-04-03
+name: Linear support and restraint models
+needs:
+- from: DEL-00-01
+  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
+    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
+    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0110 into DAG-002 revision 0.5 proposal;
+    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
+    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
+    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
+    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0111 into DAG-002 revision 0.5 proposal;
+    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
+    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
+    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
+    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0112 into DAG-002 revision 0.5 proposal;
+    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
+    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
+    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
+    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0113 into DAG-002 revision 0.5 proposal;
+    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
+    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
+    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
+    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0114 into DAG-002 revision 0.5 proposal;
+    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
+    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
+    normalized to CONSTRAINT from PREREQUISITE.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-01
+  condition: 'DEL-04-03 needs DEL-04-01 as a predecessor: support/restraint models modify frame boundary
+    conditions
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType SOLVER_PREDECESSOR Explicitness
+    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
+    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
+    mapping and package dependency shape.; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-03/Guidance.md
+- from: DEL-02-01
+  condition: 'DEL-04-03 needs DEL-02-01 as a predecessor: support/restraint data must be model entities
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType DOMAIN_MODEL Explicitness
+    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
+    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
+    mapping and package dependency shape.; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-03/Datasheet.md
+- from: DEL-02-02
+  condition: 'DEL-04-03 needs DEL-02-02 as a predecessor: support stiffnesses and imposed displacements
+    are unit-aware
+
+
+    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType UNIT_CONTRACT Explicitness
+    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
+    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
+    mapping and package dependency shape.; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-03/Specification.md
+code_paths:
+- core/solver/linear_supports
+- core/solver/linear_supports/Cargo.toml
+- core/solver/linear_supports/README.md
+- core/solver/linear_supports/src/lib.rs
+- tools/validation/validate_dependencies_schema.py

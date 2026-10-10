@@ -1,9 +1,0 @@
-core/solver/frame_kernel exit=0 3 ok-lines 0 failed-lines
-/dev/vda        252G   26G   12G  70% /
-core/solver/straight_pipe exit=0 2 ok-lines 0 failed-lines
-/dev/vda        252G   26G   12G  70% /
-core/product_physics exit=0 16 ok-lines 0 failed-lines
-/dev/vda        252G   28G  9.9G  74% /
-core/runner/headless exit=0 8 ok-lines 0 failed-lines
-/dev/vda        252G   29G  8.9G  77% /
-DONE

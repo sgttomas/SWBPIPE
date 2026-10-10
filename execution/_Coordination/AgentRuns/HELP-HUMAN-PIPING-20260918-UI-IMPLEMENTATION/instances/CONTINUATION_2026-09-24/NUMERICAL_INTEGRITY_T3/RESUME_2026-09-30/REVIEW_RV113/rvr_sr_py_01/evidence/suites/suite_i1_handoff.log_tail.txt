@@ -1,7 +1,0 @@
-# rv113 py job suite_i1_handoff
-# queued 2026-10-07T20:06:28Z dir=rv113/py-i1/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_i1_handoff/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_i1_handoff.xml tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py
-# start 2026-10-07T20:09:13Z
-...
-- generated xml file: WT/scratch/rv113_rvr_01/py/logs/suite_i1_handoff.xml -
-============================== 20 passed in 0.35s ==============================
-# end 2026-10-07T20:09:14Z rc=0

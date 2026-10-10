@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/independent_blocked_boundary.py", line 52, in <module>
-    assert r['calls']==[1,0,1]
-AssertionError

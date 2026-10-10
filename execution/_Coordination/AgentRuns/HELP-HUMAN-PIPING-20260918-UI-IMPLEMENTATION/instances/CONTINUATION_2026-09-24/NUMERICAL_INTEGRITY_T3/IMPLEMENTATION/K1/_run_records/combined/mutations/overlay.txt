@@ -1,1 +1,0 @@
-projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs

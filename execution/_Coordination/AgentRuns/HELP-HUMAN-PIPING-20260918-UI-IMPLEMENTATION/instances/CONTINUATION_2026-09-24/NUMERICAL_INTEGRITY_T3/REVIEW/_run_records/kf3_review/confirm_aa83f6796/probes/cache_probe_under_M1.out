@@ -1,2 +1,0 @@
-RV23C CACHE forced case 0 unresolved Arithmetic(NonFinite) p256 outcome Failed(Stop(Arithmetic(NonFinite))) vshared_built_here true vshared 82535552 refusals [0:Uc:refused:span:backward:72] stages_ok true
-RV23C CACHE forced case 1 unresolved Arithmetic(NonFinite) p256 outcome Failed(Stop(Arithmetic(NonFinite))) vshared_built_here false vshared 82535552 refusals [] stages_ok true

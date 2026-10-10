@@ -1,3 +1,0 @@
-structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does: test
-
-1 test, 0 benchmarks

@@ -1,2 +1,0 @@
-# rustfmt --edition 2021 --check, after formatting the three new files
-fmt-clean

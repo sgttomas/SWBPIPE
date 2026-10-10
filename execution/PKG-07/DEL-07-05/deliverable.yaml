@@ -1,0 +1,195 @@
+id: DEL-07-05
+name: Results viewer
+needs:
+- from: DEL-00-01
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-05
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
+    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-03
+  condition: 'DEL-07-05 needs DEL-05-03 as a predecessor because the results viewer displays recovered
+    stresses and result values.
+
+
+    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
+    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=LOAD_STRESS_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-05-04
+  condition: 'DEL-07-05 needs DEL-05-04 as a predecessor because the results viewer must expose mechanics
+    rule-check and human-review status distinctions without claiming compliance.
+
+
+    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
+    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-04-06
+  condition: 'DEL-07-05 needs DEL-04-06 as a predecessor because the results viewer displays solver warning
+    and diagnostic state that qualifies result review.
+
+
+    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
+    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-02-02
+  condition: 'DEL-07-05 directly depends on DEL-02-02 because displayed result values must retain explicit
+    unit and canonical dimension metadata.
+
+
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+- from: DEL-02-03
+  condition: 'DEL-07-05 directly depends on DEL-02-03 because result views display canonical software
+    statuses and external human-acceptance references without emitting human approval status.
+
+
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+- from: DEL-02-05
+  condition: 'DEL-07-05 directly depends on DEL-02-05 because result review handoff requires hash and
+    provenance evidence for available result records.
+
+
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+- from: DEL-08-04
+  condition: 'DEL-08-04 enables GUI results review to consume governed result envelopes without losing
+    status and diagnostic distinctions.
+
+
+    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/Specification.md
+code_paths:
+- apps/desktop/package.json
+- apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/results/ResultsPanel.test.tsx
+- apps/desktop/src/features/results/ResultsPanel.tsx
+- schemas/results.schema.yaml
+- tools/validation/validate_dependencies_schema.py

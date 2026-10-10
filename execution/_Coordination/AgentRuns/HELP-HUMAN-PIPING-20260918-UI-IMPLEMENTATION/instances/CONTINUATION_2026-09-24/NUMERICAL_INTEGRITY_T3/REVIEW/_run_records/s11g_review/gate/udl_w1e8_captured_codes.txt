@@ -1,2 +1,0 @@
-dense_scrutiny codes added {'SOURCE_BLOCK_RECOVERY_UNAVAILABLE': 1, 'NUMERICAL_INTEGRITY_SENSITIVE': 1} removed {'NUMERICAL_INTEGRITY_CHECKS_PASSED': 1} results equal True receipt False
-sparse_interactive codes added {'SOURCE_BLOCK_RECOVERY_UNAVAILABLE': 1, 'NUMERICAL_INTEGRITY_SENSITIVE': 1} removed {'NUMERICAL_INTEGRITY_CHECKS_PASSED': 1} results equal True receipt False

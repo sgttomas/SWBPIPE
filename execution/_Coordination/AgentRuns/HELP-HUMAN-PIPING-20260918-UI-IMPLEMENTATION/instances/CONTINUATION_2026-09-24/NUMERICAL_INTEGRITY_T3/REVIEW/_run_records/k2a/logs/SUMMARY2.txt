@@ -1,6 +1,0 @@
-disk before fk_base: 11697128 kB
-fk_base exit 101
-disk before pp: 11686692 kB
-pp exit 0
-562M	<wt>/rv7-target
-disk before pp_main: 11686628 kB

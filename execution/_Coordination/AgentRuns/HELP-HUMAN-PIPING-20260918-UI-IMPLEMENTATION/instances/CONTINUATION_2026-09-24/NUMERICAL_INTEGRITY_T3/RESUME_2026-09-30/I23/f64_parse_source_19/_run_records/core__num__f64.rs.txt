@@ -1,8 +1,0 @@
-1265:     #[must_use]
-1266:     #[inline]
-1267:     #[allow(unnecessary_transmutes)]
-1268:     pub const fn from_bits(v: u64) -> Self {
-1269:         // It turns out the safety issues with sNaN were overblown! Hooray!
-1270:         // SAFETY: `u64` is a plain old datatype so we can always transmute from it.
-1271:         unsafe { mem::transmute(v) }
-1272:     }

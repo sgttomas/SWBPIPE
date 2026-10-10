@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-03T00:52:07.297700+00:00",
-  "all_six_final_run_hashes_match": true,
-  "guard_5387_alive": true,
-  "all_owned_cargo_commands_exited": true,
-  "oracle_debug_optimized_match": true,
-  "oracle_replay_matches": true
-}

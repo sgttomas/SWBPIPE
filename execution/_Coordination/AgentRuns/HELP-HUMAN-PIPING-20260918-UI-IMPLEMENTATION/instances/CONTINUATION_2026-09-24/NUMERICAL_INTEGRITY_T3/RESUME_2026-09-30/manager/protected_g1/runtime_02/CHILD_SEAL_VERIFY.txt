@@ -1,4 +1,0 @@
-COMMANDS.json: OK
-RECHECK.json: OK
-RETURN.md: OK
-VERDICTS.json: OK

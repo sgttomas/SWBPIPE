@@ -1,4 +1,0 @@
-merge commit 0b6c5d7362ff21104e078d8168f62e3f38928cf9 (#1112), merged 2026-10-07T23:27:14Z
-parent 1: 54f1ba1f6d079cfa5b1b3a66439c135066596267 (main: #1111's squash, records only, after the cut from e33f3e2f1b)
-parent 2: 13d02273f48f22b97d7e4bace87b4189d7f03594 (the PR head)
-main's diff (parent 1 → merge): the 5 slice files and the 4 package files under IMPLEMENTATION/SI1C/

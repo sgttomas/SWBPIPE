@@ -1,5 +1,0 @@
-PASS K4-M11 full116files preparedoverlay+exactfault; protectedtest/lock/patch/basebinary/source-target-log/linkcontainment/emptytarget/guard verified.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "7641875d7236cff9f7f47562e70830de04909f39cf2a0b77c4d3b287ec461864"}
-filter structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis
-semantic {'path': 'projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs', 'line': 404, 'expected': '[(128,192,1),(256,320,1)] for (precision,residual_basis,corrections)', 'must_reach': True}
-PASS:M11directcontrol immutableE1cwd all116originalsource/test/lockfiles andreviewedoldbinary/fingerprint exact; no newinitialbaseline. ROOTcwdaddendum applies.

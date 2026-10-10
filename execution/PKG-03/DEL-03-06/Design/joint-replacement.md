@@ -1,0 +1,11 @@
+# Corrected joint and legacy refusal
+
+**D-4:** refuse both legacy joint populations with `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`: flexibility joints and app-authored joints previously solved as pipe. No automatic conversion. Explicit `not_solver_consumed` annotation remains disclosed on every pressure-free result. Annotation-only joints are refused on the exact route (v2 composition refusal; v3 named seam refusal), since treating pressurized bellows as pipe loses thrust.
+
+**H-3 / M07 option A:** delete the flawed user-stiffness element and plumbing in the change that lands the live mechanical connector, T4-U3 (J-A plus J-B). Keep no historical copy. Until replacement, no model may silently skip an incomplete or unmapped joint; the residual shape with no connector, pipe reference, rates or annotation also takes the legacy refusal.
+
+The declared SP-1 exception covers only joint-containing models' refused diagnostic codes/text, 0.1.0/0.2.0 app joints becoming refused, and annotation warnings becoming disclosures. No admitted v2/v3 result changes. Anything beyond that requires an explicit decision. B7 removes the old result-row kind and changes the summary key (DEL-04-07 Design).
+
+The replacement uses `replaces_span`, not parallel/series ambiguity. A nonzero resolved eigenstrain or self-weight on the replaced span refuses with `JOINT_REPLACED_SPAN_LOAD_UNOWNED` until its producer is implemented. Applied-set presence matters: an explicit zero eigenstrain and a stored load not applied by a case remain admitted, consistent with the frozen references. Slot-table revision 01 still needs RV130 confirmation before code; its S20 wording must preserve this distinction.
+
+Sources: [T4 frozen rulings: D-4, H-3 and SP-1 exception](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md); [T4 frozen log: slot table revision 01 and applied-load clarification](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/WORKING_ITEMS_LOG.md).

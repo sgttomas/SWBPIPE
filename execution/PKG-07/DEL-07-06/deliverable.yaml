@@ -1,0 +1,94 @@
+id: DEL-07-06
+name: Accessibility and usability baseline
+needs:
+- from: DEL-00-01
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-05
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution
+
+
+    Notes: Normalized from DAG mirror: dependency type ARCHITECTURE_BASIS mapped to PREREQUISITE and original
+    basis meaning preserved in statement; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true

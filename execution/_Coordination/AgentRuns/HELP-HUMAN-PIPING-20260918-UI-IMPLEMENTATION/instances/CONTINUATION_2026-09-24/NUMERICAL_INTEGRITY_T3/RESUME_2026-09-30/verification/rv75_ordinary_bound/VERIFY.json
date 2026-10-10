@@ -1,9 +1,0 @@
-{
-  "utc": "2026-10-03T19:16:49.756087+00:00",
-  "manifest_sha256": "72e11130bd22bbfe571a385c4512854bfea215c3c0ec0bf63469e90e86bc6f2a",
-  "payloads": 4,
-  "bulk_files": 4,
-  "root_read": "complete original02, correction03 and full RV75 REVIEW/RETURN",
-  "disposition": "accept combined partial source derivation only; all whole-profile qualifications retained",
-  "fresh_review": "RV75 full combined scope, not same-reviewer RV73 backcheck"
-}

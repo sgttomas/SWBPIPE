@@ -1,3 +1,0 @@
-# F17 RF-CANCEL existing-record diagnostic plan
-
-ROOT derived this exact RF-CANCEL-only/all38-show triplet from the reviewed existing-release plan and immutable original case/observation/test sources. Only family, selectors, case/control bindings and unused output paths differ; source, binary, environment and guard are unchanged. The owner-adopted F17 rule requires actual cause, controls and independent review. No runtime is granted by this preparation. P31 remains unqualified, P32 is separately observed. No private draft/H or protected-row class is exposed by this example. Source target mappings are retained for honest comparison to actual rejection sites.

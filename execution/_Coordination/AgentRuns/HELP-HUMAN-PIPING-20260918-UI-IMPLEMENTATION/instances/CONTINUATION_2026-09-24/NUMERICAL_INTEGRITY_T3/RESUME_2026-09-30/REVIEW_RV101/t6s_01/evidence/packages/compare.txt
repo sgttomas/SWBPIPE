@@ -1,5 +1,0 @@
-# RV101: every committed stress-neutral package in the candidate tree (git grep export_profile over 2033260c57, read with git show), validated header-only by base and candidate validateStressNeutralExportPacket
-packages 64 by version {'0.1.0': 8, '0.2.0': 40, '0.3.0': 16}
-carrying retained_precision: 0 (scanned at any depth)
-verdict differences 0 of 64
-candidate verdicts {('0.1.0', 'SN-STRICT-INVENTORY-MISMATCH'): 8, ('0.2.0', 'OK'): 37, ('0.2.0', 'SN-SEMANTIC-CONTRACT-BINDING-MISSING'): 1, ('0.2.0', 'SN-PROFILE-IDENTITY-MISMATCH'): 1, ('0.3.0', 'OK'): 2, ('0.3.0', 'LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE: Output '): 14, ('0.2.0', 'SN-UNIT-WITNESS-BINDING-MISMATCH'): 1}

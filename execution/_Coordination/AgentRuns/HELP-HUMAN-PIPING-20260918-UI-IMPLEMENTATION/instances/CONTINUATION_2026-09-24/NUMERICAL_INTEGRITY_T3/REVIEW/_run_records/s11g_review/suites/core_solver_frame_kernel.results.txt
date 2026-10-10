@@ -1,5 +1,0 @@
-     Running unittests src/lib.rs (<scratch>/target/debug/deps/open_pipe_stress_frame_kernel-5419e89323af1daa)
-test result: ok. 135 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.12s
-     Running tests/s11_site_table.rs (<scratch>/target/debug/deps/s11_site_table-626c599ae07c1ad7)
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s

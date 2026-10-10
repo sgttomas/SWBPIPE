@@ -1,6 +1,0 @@
-Negative controls of the generalized check 3 (source_equality.py at F), all with --main 5fdc5ab601 --package <PKG>:
-N1 --pr 6d8f8a82b2 --int bb3d766379 (a stale PR head): check 2 FAIL (the six S-1 files and test_ci_e2e_plan.py differ), check 5 FAIL; RESULT FAIL.
-N2 --pr 20dd3d929d --int bb3d766379 with MERGE_RULES keyed to a non-existent path (neg_control_se_norule.diff): check 3 FAIL, compatibility.py "1 conflict(s) with no recorded rule: needs a ruling"; RESULT FAIL.
-N3 the same with main_side_contains set to absent text (neg_control_se_badrule.diff): check 3 FAIL; RESULT FAIL.
-N4 --pr 6b9bb19a5f (the cut, without the source_blocks.rs merge) --int bb3d766379: checks 1, 2, 3, 5 FAIL; RESULT FAIL.
-Positive: --pr 20dd3d929d --int bb3d766379: 5/5 PASS (source_equality_F_vs_bb3d766379.txt).

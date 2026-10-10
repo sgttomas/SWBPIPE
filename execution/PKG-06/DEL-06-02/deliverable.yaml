@@ -1,0 +1,124 @@
+id: DEL-06-02
+name: Sandboxed unit-aware expression evaluator
+needs:
+- from: DEL-00-01
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-01 from DEL-00-01 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-02 from DEL-00-02 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-03 from DEL-00-03 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-04 from DEL-00-04 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-06 from DEL-00-06 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-07 from DEL-00-07 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-06-02 requires applicable architecture basis AB-00-08 from DEL-00-08 as a sealed-context
+    implementation constraint.
+
+
+    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
+    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-06-01
+  condition: 'DEL-06-02 has an upstream interface dependency on the rule-pack schema because evaluator
+    variable binding and formula structures must follow the sealed schema contract.
+
+
+    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-06/DEL-06-02/Procedure.md
+- from: DEL-02-02
+  condition: 'DEL-06-02 has an upstream interface dependency on the unit-system contract because expression
+    operands comparisons and outputs must be dimensionally checked.
+
+
+    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-06/DEL-06-02/Procedure.md
+code_paths:
+- core/rules/expression_evaluator/
+- core/rules/rule_check_runner/
+- tools/validation/validate_dependencies_schema.py

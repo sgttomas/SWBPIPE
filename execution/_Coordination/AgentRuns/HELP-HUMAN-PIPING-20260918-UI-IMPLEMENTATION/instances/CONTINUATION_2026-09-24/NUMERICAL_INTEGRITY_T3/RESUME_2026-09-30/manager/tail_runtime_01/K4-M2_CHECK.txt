@@ -1,5 +1,0 @@
-PASS K4-M2 full116files/exactfault+overlay/protectedtests-corpus-lock/paths-links-emptytarget-logs/frozenpatch/unchanged116baselinefiles+binary+rawfingerprint/guard5387
-postimage {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "e671336b0dc5dc2eb71825f667bb4fe1926cf93c2f9c4d3f3e5f1518c051752e"}
-filter structural::retained::wide_sum::tests::i23_r09_far_tail_targeted_line6_rounds_up
-eligibility {"path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs", "line": 102, "expected_token": "+80000000000000000000000000000001p0", "corrected_predicted_actual_token": "+8p0"}
-terms ["w:+8p0", "w:+8p-128", "w:+8p-428"]

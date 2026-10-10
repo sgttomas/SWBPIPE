@@ -1,2 +1,0 @@
-{"kind":"start","schema":"k6-observe-v1","pid":63080,"noop":true,"heap_cap_bytes":8053063680}
-{"kind":"summary","repeats_completed":0,"stop_reason":null,"heap_peak":1828,"heap_peak_move":1892}

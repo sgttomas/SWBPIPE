@@ -1,2 +1,0 @@
-a8e719f5b4452fffec62ea29305e9a3bec8b067f piping(T3 B1 ST): the classifier test checks request order before uniqueness
-4a51783e655610c4e2a4b808993c76d8e77768c0 piping(T3 B1 ST): T-4 at c = 1, decision 21 and NoTriggeredCase; the SA-SP seam; re-basings

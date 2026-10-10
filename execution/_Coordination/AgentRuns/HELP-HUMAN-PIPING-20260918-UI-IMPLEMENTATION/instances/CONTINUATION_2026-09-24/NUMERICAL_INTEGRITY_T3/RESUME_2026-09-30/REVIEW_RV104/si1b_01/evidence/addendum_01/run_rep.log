@@ -1,9 +1,0 @@
-   Compiling open_pipe_stress_rule_check_runner v0.1.0 (WT/rv104/rep/projects/chirality-piping/core/rules/rule_check_runner)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
-     Running tests/rv104_run_diff.rs (WT/targets/rv104-rep/debug/deps/rv104_run_diff-ab1d1cebdf10ea4a)
-
-running 1 test
-test rv104_runner_dump ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.89s
-

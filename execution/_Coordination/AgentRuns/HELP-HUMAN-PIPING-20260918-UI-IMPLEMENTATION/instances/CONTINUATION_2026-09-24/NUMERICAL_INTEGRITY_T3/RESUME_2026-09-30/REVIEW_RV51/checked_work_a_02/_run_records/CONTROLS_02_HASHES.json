@@ -1,7 +1,0 @@
-{
-  "controls/Cargo.toml": "89f78812fd8b0c3becea618909425d93fa5b34cdbdc2d3ee9e925de702fcb266",
-  "controls/Cargo.lock": "726a0f1908b4738346c1e2c406b620ea84707e4fe0ae26551868367ae728d964",
-  "controls/controls.rs": "e40a0bbd78771f98f3fada6773c8636a04af7ae6eb9582a218f55936556867e9",
-  "controls/imports/exact_sum.rs": "eb52374c052101dfe108bf2a71195e49c5d42f687647482cf77f5a21e61c0b0c",
-  "controls/imports/wide.rs": "1544aa5e97131f923b8ca2867458f7bcfaa64ef348be97ca8cd4737ad5809862"
-}

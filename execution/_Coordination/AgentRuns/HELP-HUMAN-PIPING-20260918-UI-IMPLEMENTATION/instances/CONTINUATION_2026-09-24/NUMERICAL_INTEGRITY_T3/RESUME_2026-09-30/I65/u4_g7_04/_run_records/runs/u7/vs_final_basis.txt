@@ -1,4 +1,0 @@
-# PP and runner outcomes on the U7 head against the final basis 7f07a2f7b4 (u4_g7_02/03 runs):
-PP: identical
-runner: identical
-witness outcomes: identical

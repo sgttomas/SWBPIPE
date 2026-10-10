@@ -1,4 +1,0 @@
-base_sweep: 1785 passed, 30 skipped in 998.04s (0:16:38)
-cand_sweep: 1 failed, 1805 passed, 30 skipped in 1032.33s (0:17:12)
-base_extra: 428 passed, 2 skipped, 26 subtests passed in 113.83s (0:01:53)
-cand_extra: 428 passed, 2 skipped, 26 subtests passed in 113.19s (0:01:53)

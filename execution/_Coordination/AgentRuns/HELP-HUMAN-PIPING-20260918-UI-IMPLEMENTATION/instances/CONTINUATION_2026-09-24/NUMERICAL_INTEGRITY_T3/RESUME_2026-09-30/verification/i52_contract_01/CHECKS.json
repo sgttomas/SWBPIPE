@@ -1,9 +1,0 @@
-{
-  "checked_utc": "2026-10-03T12:50:32.789881+00:00",
-  "actor": "ROOT /root",
-  "seal_sha256": "989dcb84824fc43aeca4d267553a8daec2a28b69025d86fbdbf5b24df896d6bf",
-  "payloads_verified": 6,
-  "bulk_verified": 3,
-  "reading": "Full RETURN read; source/contract claims sent for fresh independent review; no acceptance.",
-  "payload_bytes": 57050
-}

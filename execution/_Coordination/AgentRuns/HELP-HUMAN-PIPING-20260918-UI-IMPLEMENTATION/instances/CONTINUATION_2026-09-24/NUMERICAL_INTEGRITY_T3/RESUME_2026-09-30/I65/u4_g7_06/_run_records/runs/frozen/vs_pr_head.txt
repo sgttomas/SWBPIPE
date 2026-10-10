@@ -1,4 +1,0 @@
-# F against the PR-head run (u4_g7_05 runs/pr):
-PP: identical
-runner: identical
-witness outcomes: identical

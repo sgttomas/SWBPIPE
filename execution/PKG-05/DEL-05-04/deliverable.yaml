@@ -1,0 +1,98 @@
+id: DEL-05-04
+name: Analysis status semantics
+needs:
+- from: DEL-00-01
+  condition: 'DEL-05-04 must apply architecture basis AB-00-01 from DEL-00-01 when future product-development
+    execution proceeds.
+
+
+    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
+    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-05-04 must apply architecture basis AB-00-02 from DEL-00-02 when future product-development
+    execution proceeds.
+
+
+    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
+    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-05-04 must apply architecture basis AB-00-03 from DEL-00-03 when future product-development
+    execution proceeds.
+
+
+    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
+    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-05-04 must apply architecture basis AB-00-06 from DEL-00-06 for diagnostics and result-envelope
+    semantics.
+
+
+    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
+    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-05-04 must apply architecture basis AB-00-08 for future status-boundary tests and acceptance
+    gates.
+
+
+    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
+    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-03
+  condition: 'DEL-05-04 depends on the code-neutral analysis boundary that separates mechanics solve,
+    user-rule checks, and human professional approval.
+
+
+    Notes: STAGE2: local metadata alignment only; relationship is explicit in DEL-05-04 status/schema
+    evidence and technically satisfied for PKG-05. Result-envelope and non-JSON hash details remain documented
+    TBDs. No aggregate DAG or lifecycle action taken.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-05/DEL-05-04/Specification.md; schemas/analysis_status.schema.yaml; docs/architecture/analysis_status_semantics.md
+code_paths:
+- core/rules/completeness_checker/src/lib.rs
+- core/solver/diagnostics/src/lib.rs
+- schemas/analysis_boundary.schema.yaml
+- schemas/analysis_run.schema.json
+- schemas/analysis_status.schema.yaml
+- schemas/headless_runner.schema.yaml
+- schemas/results.schema.yaml
+checks:
+- tests/test_analysis_boundary_schema.py
+- tests/test_analysis_status_schema.py
+- tests/test_api_boundary_contract.py
+- tests/test_report_generator_contract.py
+- tests/test_report_sections_contract.py
+- tests/test_results_schema.py

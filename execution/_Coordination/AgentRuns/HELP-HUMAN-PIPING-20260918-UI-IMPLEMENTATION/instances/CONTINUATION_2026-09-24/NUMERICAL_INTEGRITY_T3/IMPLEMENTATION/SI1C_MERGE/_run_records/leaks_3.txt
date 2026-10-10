@@ -1,1 +1,0 @@
-PASS: 4 changed run-record file(s) scanned; 0 possible credential(s); 0 machine-local symlink(s).

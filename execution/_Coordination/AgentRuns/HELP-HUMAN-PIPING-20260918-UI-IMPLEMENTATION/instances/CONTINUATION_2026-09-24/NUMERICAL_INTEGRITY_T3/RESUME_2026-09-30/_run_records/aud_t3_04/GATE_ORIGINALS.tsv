@@ -1,3 +1,0 @@
-source_path	bytes	sha256	local_archive
-<wt>/scratch/i20/b/gate/part1_base/runs.jsonl	605711611	c42981e541650578a60efe48cbf346360fedbb4507b3d02365b5f5abb78e9f68	<LOCAL>/raw/gate/part1_base.runs.jsonl.gz
-<wt>/scratch/i20/b/gate/part1_cand/runs.jsonl	605711700	11dfe8296681280e0fd4163ee3195cc16ff0f78f3ce81dff82516a520bf2ef3f	<LOCAL>/raw/gate/part1_cand.runs.jsonl.gz

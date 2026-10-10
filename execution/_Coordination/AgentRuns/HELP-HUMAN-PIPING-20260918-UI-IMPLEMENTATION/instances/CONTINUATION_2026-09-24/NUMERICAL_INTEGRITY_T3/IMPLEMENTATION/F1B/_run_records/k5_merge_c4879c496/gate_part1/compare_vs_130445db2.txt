@@ -1,6 +1,0 @@
-Gate part 1, c4879c496 (F1b after K5's merge) against 130445db2 (F1b's accepted gate), per (case, mode, entry):
-exit code, ok, run.envelope_sha256 (full envelope), summary-envelope sha256, error text, timed_out
-runs: 884; identical: 884; different: 0
-C1 table (outcome, exit, blocking, standing, full sha, detail) identical to 130445db2: True
-C2 table (same fields) identical to 130445db2: True
-c1_changed identical: True

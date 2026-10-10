@@ -1,3 +1,0 @@
-K4 on main 8cca91701 (git archive, own target), a temporary probe test: per attempt (p, stop_rule_work, refinement, bounded_gate, shared condition).
-KF1-BASE RF-LARGE-CHAIN-n00100-AX [(128, 8625285, 1182130, 0, 8435467), (256, 0, 1573254, 0, 8472419)]
-KF1-BASE RF-LARGE-CONT-n00100-AX [(128, 13830960, 851913, 0, 4776664), (256, 0, 988343, 0, 4804814)]

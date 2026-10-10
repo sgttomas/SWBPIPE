@@ -1,7 +1,0 @@
-RV17 toolchain and host (2026-09-29)
-host: Darwin 25.6.0 arm64; 18 CPUs; 128 GiB; macOS 26.6.2
-RUSTUP_TOOLCHAIN=1.97.1: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
-target triple: host: aarch64-apple-darwin
-python3: Python 3.13.14 (standard library only)
-cargo settings: RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 --offline --locked, -j 4 to -j 8 per job, at most two jobs of mine at once, RUST_TEST_THREADS=4 (probes 1), default dev profile
-recorded gate probes used unchanged (hashes checked): main e7d930d49 577b10d498e599c6ef8763d4697dfbdd85a83ccfa8f151c906b9fe046569be6a; candidate 130445db2 f4535939c705d36dae33e62395d7b1dfe044d47b104c299f9a01d023b23b6a17

@@ -1,3 +1,0 @@
-RF-SKEW: rows 1080: passes 982, absolute-range passes 0, not covered 2 | structural zeros 96, expected unresolved 0, failures 0
-RF-SKEW: outcomes {"selected Some(128)": 36}
-RF-SKEW: controls discriminated 105, non-discriminating 33, undiscriminated [], unexpectedly failing []

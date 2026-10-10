@@ -1,9 +1,0 @@
-# Exact V-K remainder release
-
-Manager explicitly releases the unchanged P10–P53 schedule in order at 2026-10-01 18:49:23 UTC. Existing I22 actual restart18:48:13 UTC2026-10-01; fresh hard end19:23:13. Full grant ac8610bf6cc966f194e8a486269b718f5787623f applies. Original runtime01, P09 and expired18:38:50 window remain unchanged; separate release triplet does not substitute for debugP10.
-
-Frozen COMMANDS_AND_PROJECTIONS SHA2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289 supplies exact P10–P53 argv/fault/cwd/streams/criteria. The four actual binaries retain the original manager runtime01 SCHEDULE_RELEASE bindings, independently refreshed here: adapterdfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f; lane8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18; parity646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65; normal-release vk_records7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e.
-
-P10 original debug NONE must select one test and PASS. Then exact order and all returned controls; every process fresh with explicit fault and immediate bound binary/argv/fault/guard checks. Conditional on preceding required results, no ambiguity/survivor/operational failure and time remaining. F02/F03 receive no automatic diagnostic; value-only/CLASS/field-specific limits and three InputDerived exceptions remain. F05 roles, F06 exact THIN StopRule, F07 each body, R02 attributable verdict and R28 non-null shift count retained. Integer JSON and raw fingerprints stay exact.
-
-No build/earlier repeat/new helper/collector/driver/source/corpus/oracle/observation/criterion/Git/index/delegation/cleanup. Five-minute inspect/stop; hard35-minute boundary, no automatic extension. Full189-file/binary/profile/fingerprint/argv/log/guard checks recorded in PRELAUNCH_CHECK.txt; child readiness independently agrees.

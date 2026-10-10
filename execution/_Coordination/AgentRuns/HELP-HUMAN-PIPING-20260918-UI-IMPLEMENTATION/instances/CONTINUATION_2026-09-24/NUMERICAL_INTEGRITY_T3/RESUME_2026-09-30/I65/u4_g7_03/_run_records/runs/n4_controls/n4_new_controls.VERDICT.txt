@@ -1,1 +1,0 @@
-VERDICT DELTAS TO READ exit=6 basis=7f07a2f7b413b37ecaa879f81b3d759a9cde7f13 tag=n4_new_controls overlay=none gates=tree:0 entry:0 law:0 statics:0 linemap:0 premise:0 text_run:0 delta:0 text:0 forms:0 noncand_run:0 noncand:0 controls_run:6 controls:1 

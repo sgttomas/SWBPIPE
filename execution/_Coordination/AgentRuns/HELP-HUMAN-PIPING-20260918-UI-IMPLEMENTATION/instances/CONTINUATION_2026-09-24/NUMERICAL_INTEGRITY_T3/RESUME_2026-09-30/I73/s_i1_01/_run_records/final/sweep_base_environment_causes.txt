@@ -1,5 +1,0 @@
-  20 E                   FileNotFoundError: [Errno 2] No such file or directory: 'cargo'
-  45 E               subprocess.CalledProcessError: Command '['<VENV>/bin/python', '<WT>/scratch/i73_s_i1/sweep/base/projects/chirality-piping/tools/serialization/build_checked_json.py', '--profile', 'open
-   1 E               subprocess.CalledProcessError: Command '['git', 'show', '1ccca8b87:./core/analysis_runs/load_reference_evidence.py']' returned non-zero exit status 128.
-   1 E             throw new Error(`cargo metadata failed: ${metadata.stderr}`);
-   1 E         Error: cargo metadata failed: Error: spawnSync cargo ENOENT

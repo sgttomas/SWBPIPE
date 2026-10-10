@@ -1,4 +1,0 @@
-== u1_milestone_sparse_interactive: schema violations 0
-   PY RESULT standing=needs_recompute eligible=False invocation_bound=True classes=98
-== u1_milestone_dense_scrutiny: schema violations 0
-   PY RESULT standing=needs_recompute eligible=False invocation_bound=True classes=99

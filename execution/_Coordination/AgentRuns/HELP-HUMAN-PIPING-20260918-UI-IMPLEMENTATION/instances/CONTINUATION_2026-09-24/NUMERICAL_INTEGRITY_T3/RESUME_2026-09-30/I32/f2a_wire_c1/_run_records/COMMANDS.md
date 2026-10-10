@@ -1,8 +1,0 @@
-# I32 bounded command account
-
-- Read instructions and brief with cat from NUM; repository anchor from `env GIT_OPTIONAL_LOCKS=0 git rev-parse --show-toplevel`.
-- Read only scoped design/review/source files listed in READ_ORIGINS.json using cat, sed and rg; path discovery used rg --files. Some guessed paths (retained/wide/work.rs, retained/exact_sum.rs, result_export/preview_physics.rs) did not exist; actual files were then located. No code was imported or executed.
-- Read-only `env GIT_OPTIONAL_LOCKS=0 git rev-parse HEAD` and maintained `git diff --stat 49034a940f3f8cd3f3da4d4cbc839943b808063d -- projects/chirality-piping/core projects/chirality-piping/apps projects/chirality-piping/schemas projects/chirality-piping/fixtures projects/chirality-piping/tests projects/chirality-piping/validation`: HEAD6a964324, empty maintained diff.
-- Standard-library Python inspected two named VR records and one named immutable H archive member, then the saved arithmetic.py recomputed exact charge partitions and integer-boundary examples. Raw input hashes are ARITHMETIC_ORIGINS.json. No solver/model tool was run.
-- Authored only this return directory through apply_patch and standard-library JSON/text writes. Origin/inventory hashing reads full bytes but does not claim every file was read in full.
-- Arithmetic replay: from NUM, `python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/arithmetic.py`. It overwrites only its two derived arithmetic JSON files and prints totals.

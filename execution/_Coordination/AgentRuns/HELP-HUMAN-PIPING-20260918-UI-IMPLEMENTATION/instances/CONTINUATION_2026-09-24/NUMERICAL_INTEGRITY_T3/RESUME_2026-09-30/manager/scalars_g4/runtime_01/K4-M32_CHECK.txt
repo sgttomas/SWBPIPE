@@ -1,4 +1,0 @@
-PASS K4-M32 full116files preparedoverlay+exactfault; protectedtest/lock/patch/basebinary/source-target-log/linkcontainment/emptytarget/guard verified.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"}
-filter structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm
-semantic I23:K4M32_EQUILIBRATED_RCOND: condition(...) == Ok(Wide::<4>::ONE); fault yields exact Ok(1/16).

@@ -1,7 +1,0 @@
-PASS15childpayloads/19priorseals249payloads/16frozenblobs/public10+review8payloads; explicit GIT_OPTIONAL_LOCKS=0.
-PASS4224metric/activeold/phase maxima anddominants,66launchmaxmappings,33conditionalnumeric/9DEC32 rows,exactbinary/rho fractions+6defaultfootprintfailures,66unchangedlaunches andsame-metric historical comparisons.
-Manager full RETURN/SUMMARY/FORMULAS read. No childscript executed. Initial whitespace syntaxerror ran no calculation; a later zero-vs-null check correctly failed for33 nonprefix historical fields. Source expression explicitly uses null for unobserved prefix; branch-aware check above passes, no product/data correction.
-This is binding/table/aggregation consistency, not independent full allocation-owner proof or admission acceptance; finalsource/build/checkedimplementation/recalibration/W1-T4 remain.
-RETURN f8c59b9225b92793df216a682379a4fa64a0bc45f39b1783dcd496dbda8dec3a
-PHASES d1cd9a1f755fac28ebd8194501daa69c06ac463daa6c456309db8a9f8df9b956
-FORMULAS 51fc5a84991d1e31eeed4ab67e4680b218b37db5b1ce6b3b90225dccb865410d

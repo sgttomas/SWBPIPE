@@ -1,0 +1,179 @@
+id: DEL-01-03
+name: Contributor certification workflow
+needs:
+- from: DEL-00-01
+  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0009 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; v3.1 refresh
+    normalized original AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0010 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; v3.1 refresh
+    normalized original AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0011 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; v3.1 refresh
+    normalized original AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0012 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; v3.1 refresh
+    normalized original AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-01
+  condition: 'DEL-01-03 needs DEL-01-01 as a predecessor: contributor certification is part of the governance/release
+    policy surface
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and preserved by historical
+    ID.; Current-basis local evidence from DEL-01-01 satisfies the SEMANTIC_READY governance predecessor
+    for DEL-01-03; this does not edit aggregate DAG-006 or imply DEL-01-01 lifecycle closure.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-02
+  condition: 'DEL-01-03 needs DEL-01-02 as a predecessor: certification workflow must enforce the protected-data
+    boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and preserved by historical
+    ID.; Current-basis DEL-01-02 protected-data policy and checklist evidence satisfies the SEMANTIC_READY
+    predecessor for DEL-01-03; this does not edit aggregate DAG-006 or imply DEL-01-02 lifecycle closure.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: doc:docs/CONTRACT.md
+  condition: 'The workflow requires the current invariant catalog for IP governance authority and agent
+    behavior constraints.
+
+
+    Notes: FACT; document prerequisite extracted from procedure prerequisites.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation:
+    docs/CONTRACT.md'
+  evidence: execution/PKG-01/DEL-01-03/Procedure.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'The workflow requires the IP and data boundary policy for provenance protected-content quarantine
+    and review rules.
+
+
+    Notes: FACT; document prerequisite extracted from specification requirements.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: OPS-IP-DATA-BOUNDARY; TargetLocation:
+    docs/IP_AND_DATA_BOUNDARY.md'
+  evidence: execution/PKG-01/DEL-01-03/Specification.md
+- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
+  condition: 'The workflow requires the current decomposition for deliverable context scope objectives
+    and open issues.
+
+
+    Notes: FACT; current-basis refresh cleared the stale revision 0.4/0.5 warning by aligning the active
+    local source to execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7; no lifecycle or release
+    gate changed.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Software decomposition current basis; TargetRefID: OPS-SOFTWARE-DECOMP;
+    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
+  evidence: execution/PKG-01/DEL-01-03/Procedure.md
+- from: doc:CONTRIBUTING.md
+  condition: 'Draft repo-level CONTRIBUTING.md contributor workflow exists as a downstream handoff artifact;
+    final legal mechanism and acceptance remain TBD.
+
+
+    Notes: FACT; draft repo-level governance artifact exists; final DCO/CLA/other legal mechanism and
+    human acceptance remain TBD and no release or professional claim is made.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Draft CONTRIBUTING.md section; TargetRefID: CONTRIBUTING.md; TargetLocation:
+    CONTRIBUTING.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-01/DEL-01-03/CONTRIBUTING.md
+- from: doc:governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
+  condition: 'The draft repo-level contributor certification template exists as a handoff artifact for
+    public contribution review.
+
+
+    Notes: FACT; draft repo-level governance artifact exists; final DCO/CLA/other legal mechanism remains
+    TBD and no acceptance or release claim is made.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Contributor certification template; TargetRefID: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE;
+    TargetLocation: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md'
+  direction: downstream
+  gating: false
+  evidence: execution/PKG-01/DEL-01-03/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md

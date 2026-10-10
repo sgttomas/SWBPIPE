@@ -1,3 +1,0 @@
-NONE rc=0 passed=47 failed=[] warnings=0 real 57.06
-RV21-H4 rc=101 passed=46 failed=[an_overflowed_published_row_fails ] warnings=0 real 52.06
-RV21-H6 rc=101 passed=46 failed=[a_wrong_value_on_a_sub_range_row_fails ] warnings=0 real 52.38

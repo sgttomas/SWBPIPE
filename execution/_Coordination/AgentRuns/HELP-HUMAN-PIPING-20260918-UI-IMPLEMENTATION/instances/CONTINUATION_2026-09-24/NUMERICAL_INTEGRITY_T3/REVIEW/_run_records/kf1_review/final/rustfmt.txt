@@ -1,2 +1,0 @@
-rustfmt 1.97.1 (stable) --edition 2021 --check on kf1_tracker_tests.rs at 66adfede4 (with its models.rs), from git show copies: exit 0, 0 diffs
-rustfmt 1.9.0-stable (8bab26f4f6 2026-07-14)

@@ -1,2 +1,0 @@
-PERMIT caller=Direct profile=Registered exe=Some("rv93_direct") thread=Some("main")
-PERMIT caller=Direct profile=Registered exe=Some("rv93_direct") thread=Some("main")

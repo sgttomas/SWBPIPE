@@ -1,7 +1,0 @@
-checked twoprod L=16 30
-checked twoprod L=4 30
-checked twoprod L=8 30
-checked twosum L=16 30
-checked twosum L=4 30
-checked twosum L=8 30
-total 180 mismatches 0

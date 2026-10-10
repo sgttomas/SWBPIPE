@@ -1,3 +1,0 @@
-structural::retained::adaptive::method_tests::i23_r7_g_scope: test
-
-1 test, 0 benchmarks

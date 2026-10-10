@@ -1,1 +1,0 @@
-6e3e4fe219733652e38c3878f6c63de8acbd9a40 piping(T3 B1 SR-RS): repair 2, the three-reader alignment set in the Rust reader

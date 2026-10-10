@@ -177,10 +177,10 @@ certification, code-compliance, or professional-reliance claims (PRD §21.2).
   nonexistent (not `TBD`-numbered) until a later human ruling promotes
   observed baselines — at least five clean-head telemetry artifacts spanning
   at least two distinct commits per lane — tighten-only thereafter.
-- Ruled 2026-06-11: evidence-execution location (`DEC-025` — hosted CI
-  deferred; the five-surface local sweep `tools/release/run_evidence_sweep.py`
-  is the commit-bound merge gate; hosted CI re-decided at `D-05b` with D-06)
-  and maintainer quorum (`DEC-027` — sole maintainer and release authority).
+- Development changes use the selected hosted checks aggregated by Root
+  `harness`; the DEC-025 blanket merge sweep is superseded. The local sweep
+  remains available for macOS release candidates whose authenticity record
+  consumes it. DEC-027 retains the sole maintainer and release authority.
 - Ruled 2026-07-04: release matrix, installer format, signing, and
   attestation posture (`DEC-057`, basis
   `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`

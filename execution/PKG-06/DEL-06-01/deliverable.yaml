@@ -1,0 +1,176 @@
+id: DEL-06-01
+name: Rule-pack schema
+needs:
+- from: DEL-00-01
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-06-01 needs DEL-02-01 as a predecessor: rule-pack schema references model/result entities
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-02-02
+  condition: 'DEL-06-01 needs DEL-02-02 as a predecessor: rule-pack values and expressions are unit-aware
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-02-03
+  condition: 'DEL-06-01 needs DEL-02-03 as a predecessor: rule-pack schema must preserve code-neutral
+    analysis boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-01-02
+  condition: 'DEL-06-01 needs DEL-01-02 as a predecessor: rule packs must separate public/private/protected
+    data
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-01-04
+  condition: 'DEL-06-01 needs DEL-01-04 as a predecessor: rule-pack results must not claim professional
+    approval
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+code_paths:
+- schemas/rule_pack.schema.yaml

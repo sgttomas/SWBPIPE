@@ -1,5 +1,0 @@
-#!/bin/bash
-source <scratch>/env.sh
-for c in frame_kernel sparse_direct nonlinear_integration; do
-  (cd <scratch>/d2/cand/projects/chirality-piping/core/solver/$c && CARGO_TARGET_DIR=<wt>/rv7-target/d2_cand cargo test --offline --locked -j 8 --no-fail-fast > <scratch>/logs2/cand_$c.log 2>&1; echo "exit $c $?" >> <scratch>/logs2/cand_$c.log)
-done

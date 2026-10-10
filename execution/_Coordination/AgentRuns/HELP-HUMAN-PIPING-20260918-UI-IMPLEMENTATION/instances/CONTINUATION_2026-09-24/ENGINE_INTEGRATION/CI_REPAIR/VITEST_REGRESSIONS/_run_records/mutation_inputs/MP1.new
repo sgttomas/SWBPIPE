@@ -1,2 +1,0 @@
-  if (!hasCurrentSourceContract(result)) return (await import("./analysisRunCompatibility")).buildAnalysisRunV02(result, inputManifest, effective);
-  return buildAnalysisRunV03(

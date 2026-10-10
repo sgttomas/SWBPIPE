@@ -1,9 +1,0 @@
-{
-  "start_utc": "2026-10-02T03:13:33+00:00",
-  "new_checks_cutoff_utc": "2026-10-02T03:48:33+00:00",
-  "hard_return_deadline_utc": "2026-10-02T03:53:33+00:00",
-  "final_numeric_check_utc": "2026-10-02T03:22:57.534520+00:00",
-  "genuine_review_completion_utc": "2026-10-02T03:25:00.786353+00:00",
-  "elapsed_seconds": 687.786353,
-  "no_automatic_follow_on": true
-}

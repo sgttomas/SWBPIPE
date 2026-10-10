@@ -1,5 +1,0 @@
-PASS R10 K4-M3 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "e76bcc7baf9395e588b7b6f2af42b02f45438ee86c03283637126ef09581e7d2"}
-filters ["structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle"]
-target --lib
-semantic sum_targeted line2: 1+2^-128+2^-133 at p128 rounds up rather than truncating to1.

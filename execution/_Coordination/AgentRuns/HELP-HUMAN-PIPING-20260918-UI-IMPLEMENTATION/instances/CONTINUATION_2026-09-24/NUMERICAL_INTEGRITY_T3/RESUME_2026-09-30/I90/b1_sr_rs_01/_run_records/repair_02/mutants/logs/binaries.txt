@@ -1,2 +1,0 @@
-WT/targets/i90-b1-sr-rs/mut-r2/debug/deps/open_pipe_stress_result_export-ff58a22bd1bc1fe0
-WT/targets/i90-b1-sr-rs/mut-r2/debug/deps/retained_precision_contract-de45ed31f91f2c8b

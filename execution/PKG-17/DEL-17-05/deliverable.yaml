@@ -1,0 +1,126 @@
+id: DEL-17-05
+name: CAEPIPE external run harness and CSV parser
+needs:
+- from: DEL-00-01
+  condition: 'DEL-17-05 must apply AB-00-01 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Decision baseline for architecture choices and unresolved rulings.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-17-05 must apply AB-00-02 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Repository/module boundaries and inward dependency direction.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-17-05 must apply AB-00-03 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Schema-first command/query/job result envelope constraints.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-17-05 must apply AB-00-04 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-17-05 must apply AB-00-06 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Diagnostics, warnings, blockers, and result-envelope obligations.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-17-05 must apply AB-00-07 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    No-bypass API/plugin/adapter validation and boundary controls.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-17-05 must apply AB-00-08 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Layered architecture/schema/service/adapter acceptance strategy.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-17-04
+  condition: 'DEL-17-05 depends on the accepted DEL-17-04 MBF profile and writer output for live external-run
+    inputs.
+
+
+    Notes: FACT: Preserved declared upstream edge; source documents corroborate that the accepted DEL-17-04
+    profile/writer tranche remains a gate.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=DECLARED; legacy_status=ACTIVE'
+  gating: true
+- from: DEL-17-01
+  condition: 'DEL-17-05 uses DEL-17-01 as the CAEPIPE source authority for questions TBDs and boundary
+    facts.
+
+
+    Notes: FACT: Explicit source-authority interface; unresolved CAEPIPE target behavior remains TBD.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+  gating: true
+  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
+- from: DEL-17-02
+  condition: 'DEL-17-05 uses DEL-17-02 manifest stable-ID map loss-report profile and external-execution
+    policy contracts.
+
+
+    Notes: FACT: Explicit contract interface for manifest ID-map loss-report and external-execution policy.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+  gating: true
+  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
+- from: external:CAEPIPE-EXECUTABLE
+  condition: 'Future live harness execution requires a user-provided licensed CAEPIPE executable and user-owned
+    execution environment.
+
+
+    Notes: FACT: External constraint is explicit; no executable path or license mechanism is supplied
+    by this deliverable.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Target description — TargetName: user-provided licensed CAEPIPE executable; TargetRefID: CAEPIPE-EXECUTABLE;
+    TargetLocation: user-controlled local path or environment'
+  evidence: execution/PKG-17/DEL-17-05/Specification.md
+code_paths:
+- core/handoff/caepipe_external/run.py

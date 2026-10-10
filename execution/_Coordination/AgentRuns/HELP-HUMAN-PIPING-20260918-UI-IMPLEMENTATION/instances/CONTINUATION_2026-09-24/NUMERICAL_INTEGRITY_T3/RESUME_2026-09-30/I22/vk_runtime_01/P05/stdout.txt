@@ -1,9 +1,0 @@
-
-running 1 test
-RF-INVARIANCE: rows 7096: passes 7056, absolute-range passes 0, not covered 0 | structural zeros 40, expected unresolved 0, failures 0
-RF-INVARIANCE: outcomes {"selected": 25}
-RF-INVARIANCE: controls discriminated 47, non-discriminating 7
-test rf_invariance ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 11.70s
-

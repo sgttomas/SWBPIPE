@@ -1,8 +1,0 @@
---- a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
-+++ b/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
-@@ -17,4 +17,4 @@
- [profile.test]
- opt-level = 1
- debug-assertions = true
--overflow-checks = true
-+overflow-checks = false

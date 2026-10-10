@@ -119,12 +119,11 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 FK = HERE.parent.parent
 P_ROOT = FK.parent.parent.parent
-T3 = (P_ROOT / "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION"
-      / "instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3")
+T3 = P_ROOT / "validation/references/t3_r1"
 K3_GEN = FK / "tests/retained_wide_k3/gen_wide_k3_vectors.py"
 R1_PY = T3 / "REFERENCES/references.py"
 R1_JSON = T3 / "REFERENCES/references.json"
-FLOOR_JSON = T3 / "DESIGN_NUMERICS/_run_records/floor_kinds.json"
+FLOOR_JSON = T3 / "floor_kinds.json"
 KD5_MODELS = P_ROOT / "core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs"
 K2B_MODELS = P_ROOT / "core/solver/nonlinear_integration/src/structural_adapter/k2b_models.rs"
 NI_FIXTURES = P_ROOT / "validation/benchmarks/numerical_integrity/fixtures.json"

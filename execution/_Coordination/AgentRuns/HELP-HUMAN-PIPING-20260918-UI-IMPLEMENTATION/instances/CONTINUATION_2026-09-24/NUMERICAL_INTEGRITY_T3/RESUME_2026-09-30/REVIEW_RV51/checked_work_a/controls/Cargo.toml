@@ -1,7 +1,0 @@
-[package]
-name="rv51-checked-work-controls"
-version="0.0.0"
-edition="2021"
-[workspace]
-[lib]
-path="controls.rs"

@@ -1,4 +1,0 @@
-test the_floor_check_reproduces_the_committed_not_covered_list ... FAILED
-thread 'the_floor_check_reproduces_the_committed_not_covered_list' (15952108) panicked at tests/files.rs:220:5:
-assertion `left == right` failed: a duplicate in not_covered.json
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.32s

@@ -1,70 +1,17 @@
----
-doc_id: OPS-README
-doc_kind: governance.index
-status: current_index
-created: 2026-04-30
----
+# SWBPIPE documentation
 
-# SWBPIPE Agentic Development Docs
+SWBPIPE computes open, auditable piping mechanics. The responsible engineer
+supplies the governing data and accepts engineering reliance.
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
+- [PRD](PRD.md): product commitments and scope.
+- [Contract](CONTRACT.md), [specification](SPEC.md), [types](TYPES.md): product invariants and interfaces.
+- [User guide](user_guide/index.md), [developer guide](developer_guide/index.md), [contributor guide](contributor_guide/index.md).
+- [Build and release](BUILD_AND_RELEASE.md), [CI](CI_STRATEGY.md), [release quality](RELEASE_QUALITY_GATES.md).
+- [Validation strategy](VALIDATION_STRATEGY.md), [validation manual](validation_manual/index.md), [theory](theory/centerline_analysis.md).
+- [IP and data boundary](IP_AND_DATA_BOUNDARY.md), [professional boundary](PROFESSIONAL_BOUNDARY.md), [claims](claims_registry.md), [security](security/threat_model.md).
 
-The central project stance is:
-
-> **Open the mechanics; protect the standards; empower the engineer.**
-
-This package is written from the perspective of `SOFTWARE_DECOMP`: it converts the product intent and PRD into a structured, flat package/deliverable decomposition suitable for downstream agent execution.
-
-## Document map
-
-| File | Role | Use |
-|---|---|---|
-| `../INIT.md` | Bootstrap | Required reading order and agent startup constraints; maintained only at the repository root. |
-| `../AGENTS.md` | Agent index | Project-specific use of Chirality agent roles. |
-| `INTENT.md` | Directional intent | Why this product exists and what must remain true. |
-| `PRD.md` | Product requirements | Product capabilities, users, non-goals, and release strategy. |
-| `PLAN.md` | Strategic roadmap (non-governing) | Definition of "complete per the PRD", current milestone position, layer-relation map, roadmap posture and risks; routes to the authorities and to the active `plans/PLAN_*.md` for tranche selection. |
-| `DIRECTIVE.md` | Founding directive | Design philosophy, professional boundary, stop rules, and scope constraints. |
-| `TYPES.md` | Vocabulary and identity | Canonical terms, IDs, statuses, and software/piping domain types. |
-| `CONTRACT.md` | Invariant catalog | Binding project invariants for legal/data boundary, solver, rule packs, reports, and agents. |
-| `SPEC.md` | Technical specification | Architecture, schemas, solver mechanics, GUI, reports, V&V, and agentic execution mechanics. |
-| `IP_AND_DATA_BOUNDARY.md` | Data/IP policy | Public/private data rules, contributor certification, provenance, and quarantine policy. |
-| `VALIDATION_STRATEGY.md` | Verification and validation | Benchmark and release-quality strategy. |
-| `AGENTIC_DEVELOPMENT_WORKFLOW.md` | Agentic workflow | Authority surfaces, phase-aware coordination loops, `TASK` discipline, and handoff expectations. |
-| `user_guide/index.md` | User guide | Draft user-facing workflow skeleton, limitations, data boundaries, and current `TBD`s. |
-| `../execution/_Decomposition/SOFTWARE_DECOMP.md` | Working surface | SSOW, objectives, packages, deliverables, scope ledger summary, telemetry, open issues. |
-| `_Registers/ScopeLedger.csv` | Authoritative companion register | Machine-readable scope-to-package/deliverable mapping. |
-| `_Registers/Deliverables.csv` | Authoritative companion register | Machine-readable deliverable catalog. |
-| `_Registers/ContextBudgetQA.csv` | Authoritative companion register | Context-envelope and sizing audit. |
-| `../governance/MAINTAINERS.md` | Maintainer policy skeleton | Draft public-governance surface for maintainer, contribution, release, and open governance questions. |
-
-## Status
-
-The current decomposition authority is
-`execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions and
-amendments. Resolve approved graph coordination and its approval record through
-`execution/_DAG/_LATEST.md`. Earlier graph artifacts retain their immutable
-historical reach. Current coordination does not advance deliverable lifecycle,
-select implementation work, or establish engineering or release acceptance.
-
-The project license selected by human governance decision is `MIT`
-(`D-74`, 2026-09-22); see `../LICENSE.md`.
-
-This docs package remains a governance and coordination index for
-SWBPIPE, which computes open, auditable piping mechanics.
-
-## How agents should use this package
-
-1. Start from `init/dev-loop-init-prompt.md` → `loop/LOOP_INIT.md`, which binds the development loop to the shared workflows and manuals; `AGENTS.md` holds the project constraints and fences. `execution/_Coordination/_COORDINATION.md` remains the ruled-record surface (current target stage).
-2. Use `execution/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
-3. Use `_Registers/*.csv` for machine-checkable mappings.
-4. Treat every deliverable as bounded: no agent may expand scope silently.
-5. Unknown values become `TBD`; suspected protected data is quarantined and escalated.
-6. Generated outputs remain drafts until a human accepts them at the appropriate gate.
-
-## Foundational references used to create this package
-
-- Conversation intent captured in `INTENT.md`.
-- Product requirements captured in `PRD.md`.
-- Chirality bootstrap and agent framework examples supplied by the user.
-- M. W. Kellogg, *Design of Piping Systems* (1956), as a historical technical reference for classical piping flexibility analysis.
+Development starts at [LOOP_INIT](../loop/LOOP_INIT.md) and Root `AGENTS.md`.
+Current commitments, Design and dependency conditions live in the deliverable
+folders. From the repository root, use `python3 -m tools.deliverables --help`
+for neighbourhood, impact, changed-path and dependency queries. Historical
+plans, registers and source editions remain recoverable through Git/archive tags.

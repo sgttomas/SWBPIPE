@@ -25,15 +25,7 @@ from core.handoff.target_mapping import build_target_mapping_contract  # noqa: E
 from core.security.redaction.route_control import control_route_export  # noqa: E402
 
 
-FIXTURE_PATH = (
-    ROOT
-    / "execution"
-    / "PKG-15_Handoff and External Prover Workflow"
-    / "1_Working"
-    / "DEL-15-03_Downstream modeling export workflow"
-    / "fixtures"
-    / "invented_target_fixture.json"
-)
+FIXTURE_PATH = ROOT / "fixtures" / "handoff" / "invented_target_fixture.json"
 HANDOFF_SCHEMA_PATH = ROOT / "schemas" / "handoff_package.schema.json"
 TARGET_MAPPING_SCHEMA_PATH = ROOT / "schemas" / "target_mapping.schema.json"
 
@@ -68,7 +60,7 @@ def validate_with_schema(payload: dict[str, object], path: Path) -> None:
 def provenance(source_name: str = "Invented DEL-15-03 fixture") -> dict[str, str]:
     return {
         "source_name": source_name,
-        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/fixtures/invented_target_fixture.json",
+        "source_location": "fixtures/handoff/invented_target_fixture.json",
         "source_license": "project-invented-test-data",
         "contributor": "OpenPipeStress",
         "contributor_attestation": "invented non-engineering fixture",

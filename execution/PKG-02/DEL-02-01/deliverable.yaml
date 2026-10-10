@@ -1,0 +1,117 @@
+id: DEL-02-01
+name: Canonical domain model schema
+needs:
+- from: DEL-00-01
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0017
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0018
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0019
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0020
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0021
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0022
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
+    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
+    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0023
+    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- schemas/model.schema.yaml

@@ -1,0 +1,192 @@
+id: DEL-07-02
+name: Model tree and property inspector
+needs:
+- from: DEL-00-01
+  condition: 'DEL-07-02 requires the accepted ADR and runtime/UI baseline before implementation execution
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-07-02 requires repository and module boundary constraints for GUI and service ownership
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-07-02 inspector edits require application-service command/query boundaries
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-05
+  condition: 'DEL-07-02 requires the durable/transient GUI state and selection architecture
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-07-02 requires diagnostic and result-envelope concepts for missing-data and provenance
+    findings
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-07-02 reads and mutations require governed internal API boundaries
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-07-02 requires layered GUI/service/protected-content test gates
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
+    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-07-02 requires accepted domain/model schema contracts for model entity identity and
+    inspector field groups
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Datasheet.md
+- from: DEL-02-05
+  condition: 'DEL-07-02 requires persistence contracts so inspector edits and view state do not corrupt
+    durable project state
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Guidance.md
+- from: DEL-03-02
+  condition: 'DEL-07-02 requires component and section library schema fields for inspector display
+
+
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Specification.md
+- from: DEL-02-02
+  condition: 'DEL-07-02 requires unit-system contracts for unit-bearing inspector display and edit validation
+
+
+    Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
+    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Specification.md
+- from: DEL-03-01
+  condition: 'DEL-07-02 requires material library provenance and private/public status fields for inspector
+    display
+
+
+    Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
+    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Specification.md
+- from: DEL-06-01
+  condition: 'DEL-07-02 requires rule-pack reference fields for inspector display and missing rule-check
+    data visibility
+
+
+    Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
+    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Specification.md
+- from: DEL-06-04
+  condition: 'DEL-07-02 requires rule-pack checksum source and private/public status concepts where inspector
+    fields expose rule-pack references
+
+
+    Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
+    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-02/Procedure.md
+code_paths:
+- apps/desktop/e2e/ui-foundation.spec.ts
+- apps/desktop/package.json
+- apps/desktop/src/features/model-tree/
+- apps/desktop/src/features/model-tree/ModelTree.test.tsx
+- apps/desktop/src/features/model-tree/ModelTree.tsx
+- apps/desktop/src/features/model-tree/PropertyInspector.tsx
+- apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
+- apps/desktop/src/services/operationService.ts
+- schemas/model.schema.yaml
+- schemas/results.schema.yaml

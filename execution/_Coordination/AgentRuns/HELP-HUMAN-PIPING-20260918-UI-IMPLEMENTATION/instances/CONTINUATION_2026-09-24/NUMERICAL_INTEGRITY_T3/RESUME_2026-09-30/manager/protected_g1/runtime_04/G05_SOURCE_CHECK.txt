@@ -1,4 +1,0 @@
-PASS G05_r1:116-file copy is exactly baseline plus frozen intended postimage; tests/lock/basebinary match; distinct regular nlink1 source files, resolved exact source/emptytarget, no symlinked ancestors.
-Expected affected postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "a7a6f4060a1d1f8d06fe91cc002a5a26e8c20038b0f3612d359c77b2f8cb092a"}
-Filter structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path
-Log readiness/guard and explicit release still required.

@@ -1,5 +1,0 @@
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
-      Tests  4 failed | 3568 passed (3572)
-rc=1
-      Tests  3552 passed (3552)
-rc=0

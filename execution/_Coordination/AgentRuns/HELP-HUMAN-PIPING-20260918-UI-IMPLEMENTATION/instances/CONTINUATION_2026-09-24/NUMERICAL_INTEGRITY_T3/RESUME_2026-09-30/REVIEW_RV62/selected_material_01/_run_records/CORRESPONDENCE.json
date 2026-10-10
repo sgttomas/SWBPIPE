@@ -1,8 +1,0 @@
-{
-  "actual_to_author_lines": 36,
-  "all_i47_debug_release_author_equal": 133,
-  "original_base_equal_json_lines": 14,
-  "base_frozen_oracle_equal": true,
-  "independent_debug_release_equal": true,
-  "blocker_equal_actual_capture_lines": 36
-}

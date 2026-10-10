@@ -1,7 +1,0 @@
-L=4 vectors 32
-L=8 vectors 32
-L=16 vectors 32
-taildecides vectors 96 oracle mismatches 0 where RV5 (tail dropped) gives a different result 24
-L=4: at p = 64L, result equals big in 16 of 16 vectors
-L=8: at p = 64L, result equals big in 16 of 16 vectors
-L=16: at p = 64L, result equals big in 16 of 16 vectors

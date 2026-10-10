@@ -1,9 +1,0 @@
-base:      1785 passed, 30 skipped in 998.04s (0:16:38)
-candidate: 1 failed, 1805 passed, 30 skipped in 1032.33s (0:17:12)
-passing at base, not passing in candidate: 1 ['tests/test_preview_physics_consumer_contract.py::test_table_identity_and_registry']
-failing in candidate, passing at base: 1 ['tests/test_preview_physics_consumer_contract.py::test_table_identity_and_registry']
-failing at base, passing in candidate: 0 []
-tests added in candidate: 21 (files: ['tests/test_retained_precision_carriers.py'])
-tests removed: 0 []
-candidate non-passing: ['tests/test_preview_physics_consumer_contract.py::test_table_identity_and_registry']
-base non-passing: []

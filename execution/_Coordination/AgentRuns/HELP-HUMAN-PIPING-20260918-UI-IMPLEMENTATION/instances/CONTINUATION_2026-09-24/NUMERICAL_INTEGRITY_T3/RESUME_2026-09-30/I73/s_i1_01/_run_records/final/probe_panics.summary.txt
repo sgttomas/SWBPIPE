@@ -1,9 +1,0 @@
-thread 'i73_panic_probe' (73697726) panicked at <WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:1457:45:
-PROBE overflowing_same_dimension_quotient: point_path=PANIC interval_points_only=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Dimensionless, unit_ref: "ratio" })) notes=["non_finite_enclosure"] interval_with_bounds=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Dimensionless, unit_ref: "ratio" }))
-thread 'i73_panic_probe' (73697726) panicked at <WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:983:22:
-PROBE nan_interpolate_argument: point_path=PANIC interval_points_only=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Stress, unit_ref: "u" })) notes=["non_finite_enclosure", "non_finite_enclosure", "table_argument_range"] interval_with_bounds=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Stress, unit_ref: "u" }))
-thread 'i73_panic_probe' (73697726) panicked at <WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:968:18:
-PROBE nan_step_lookup_argument: point_path=PANIC interval_points_only=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Stress, unit_ref: "u" })) notes=["non_finite_enclosure", "non_finite_enclosure", "table_argument_range"] interval_with_bounds=Some(Quantity(IntervalQuantity { enclosure: None, dimension: Stress, unit_ref: "u" }))
-thread 'i73_panic_probe' (73697726) panicked at <WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:1457:45:
-PROBE runner: run_rule_checks=PANIC run_rule_checks_with_bounds status=RuleInputsIncomplete codes=["RULE_RESULT_INDETERMINATE"]
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

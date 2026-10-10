@@ -1,6 +1,0 @@
-platform: aarch64-apple-darwin (macOS 26.6.2, 18 logical CPUs, 128 GB, no swap)
-rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
-RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0; --offline --locked
-rustfmt 1.9.0-stable (the host's stable toolchain; applied to K3's new and changed files only)
-Python 3.13.14 (<VENV>), standard library only
-caps: cargo -j 8 at most (mutants -j 4, at most three at once); RUST_TEST_THREADS=4; at most two cargo jobs

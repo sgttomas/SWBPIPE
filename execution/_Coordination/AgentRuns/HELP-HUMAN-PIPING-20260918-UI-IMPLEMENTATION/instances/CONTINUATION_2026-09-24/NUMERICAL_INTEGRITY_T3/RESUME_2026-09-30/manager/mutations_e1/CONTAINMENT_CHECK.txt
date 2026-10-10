@@ -1,6 +1,0 @@
-PASS:36 exact owned source roots and36 initially empty exact target roots; source/target paths resolved without symlinked ancestors.
-PASS:116 original files per copy match read-only40129 Git archive;4176 unique regular-file inode identities, link-count1 and no maintained inode alias.
-PASS:baseline files/directories are read-only; frozen source/test/lock included in whole-source byte check; no source mutation or Rust performed by manager.
-child_inventory_sha256 59c255f734c6e900b6c9f665c52500cec4c3c5f31bc2cd9f42c87bca48782720
-resolved_roots_scratch_sha256 7124308e44f8ae55da4a966adb1bca706d48654357c925a05e64cfb1d287dbe2
-archive_sha256 25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95

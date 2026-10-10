@@ -1,5 +1,0 @@
-PASS R14 K4-M8 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs": "50c5805cd19a000d21c3c134a56654a54433e8cf393d5f9dc3d725023d6e4559"}
-filters ["structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"]
-target --lib
-semantic Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail.

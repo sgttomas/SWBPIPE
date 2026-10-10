@@ -1,6 +1,0 @@
-RV11 second delta check: I10's b = 0 Debug probe (checkpoint_b/probe/main.rs.txt, unchanged), rebuilt at opt-level 0
-against the git-archive tree of 112c1729d. All 439 outputs, not a sample.
-  112c1729d: 439 outputs
-  112c1729d == eb52114e9 (list in ../../delta_f385a8bc8/b0probe/): yes, 439 of 439
-  112c1729d == 98b1723b1 (list in ../../delta_f385a8bc8/b0probe/): yes, 439 of 439
-  112c1729d == f385a8bc8 (list in ../../delta_f385a8bc8/b0probe/): yes, 439 of 439

@@ -1,6 +1,0 @@
-  "mode": "full",
-  "event": "workflow_dispatch",
-  "base": "e916ad17892d24fc0d577fc62edd1be22d8d73b4",
-  "target_base": "e916ad17892d24fc0d577fc62edd1be22d8d73b4",
-  "head": "dfa5e2dc445984cefbdc3bdd9ca33bea0c7415c9",
-  "numerical_required": true,

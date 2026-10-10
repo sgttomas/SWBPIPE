@@ -1,5 +1,0 @@
-== waiting for a quiet host 2026-10-04T23:09:04Z
-== quiet since 2026-10-04T23:12:50Z
-== part2 exit=0 2026-10-04T23:18:59Z
-foreign-job samples during the run: 0 of 73
-PART2-DONE 2026-10-04T23:18:59Z

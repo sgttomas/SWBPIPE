@@ -1,5 +1,0 @@
-#!/bin/bash
-# Batch 3, second run: K2B-THIRD-ATTEMPT-B (the NONE control of batch 3 ran first, alone, in drive3.sh).
-W=<wt>; C=$W/scratch/i10/c3; REV=8e6698282
-$C/run_mutant.sh $W $C $REV K2B-THIRD-ATTEMPT-B $C/overlay3.txt
-echo DRIVE3B-DONE >> $C/MUTANTS.txt

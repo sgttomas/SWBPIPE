@@ -1,9 +1,0 @@
-#!/bin/bash
-# K6b b3: the release k6_observe from git archive 4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b (tree b2c955d56fb4e0d8f963cfa6a44ff9983527434c). Run only after ROOT's word that V-K's B slot has ended.
-# One cargo job at -j 4, the b3 target of its own.
-cd <scratch>/i16/b3/src/projects/chirality-piping/core/solver/performance_harness || exit 1
-export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<wt>/k6b-target/b3
-time cargo build --release --offline --locked -j 4 --bin k6_observe > <scratch>/i16/b3/release_build.log 2>&1
-rc=$?; echo "rc=$rc" >> <scratch>/i16/b3/release_build.log
-[ $rc -eq 0 ] && shasum -a 256 <wt>/k6b-target/b3/release/k6_observe | cut -d' ' -f1 > <scratch>/i16/b3/binary_sha256.txt
-exit $rc

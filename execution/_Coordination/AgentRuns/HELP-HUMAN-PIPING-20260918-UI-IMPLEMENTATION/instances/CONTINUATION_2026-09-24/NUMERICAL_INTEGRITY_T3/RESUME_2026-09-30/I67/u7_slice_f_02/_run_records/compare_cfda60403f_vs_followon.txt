@@ -1,5 +1,0 @@
-base: 3537 tests, 3537 passed, 0 failed; files 138
-cand: 3541 tests, 3541 passed, 0 failed; files 138
-existing tests with a different outcome or absent: 0
-tests only in candidate: 4
-  features/results/retainedPrecisionIntegration.test.tsx: 4 (passed=4)

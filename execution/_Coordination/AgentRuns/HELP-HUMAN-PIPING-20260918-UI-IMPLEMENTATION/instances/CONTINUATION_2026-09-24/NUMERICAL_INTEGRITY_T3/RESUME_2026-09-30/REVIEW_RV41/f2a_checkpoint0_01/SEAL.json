@@ -1,8 +1,0 @@
-{
-  "status": "SEALED FINITE RETURN",
-  "payload_count": 3,
-  "manifest": "SHA256SUMS",
-  "manifest_sha256": "c9d05631d7ffaa951fd69f3f6a6831e3c24bcd2be34483f8a49a5330df54ee44",
-  "acceptance": "No design, implementation, policy or engineering acceptance implied",
-  "stop": "No automatic follow-on"
-}

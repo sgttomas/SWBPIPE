@@ -1,9 +1,0 @@
-
- RUN  v4.1.10 WT/t6-outputs/projects/chirality-piping/apps/desktop
-
-
- Test Files  10 passed (10)
-      Tests  430 passed (430)
-   Start at  10:47:02
-   Duration  38.38s (transform 2.68s, setup 660ms, import 3.73s, tests 68.21s, environment 1.87s)
-

@@ -1,5 +1,0 @@
-PR head 6b9bb19a5f66143101b6364757ecdfa12da455ef: git ls-tree -r over P/core, P/fixtures, P/schemas =     1034 blobs.
-git hash-object (no -w) of the extracted archive copy: every blob equal except P/core/product_physics/src/lib.rs (outputs/lib_rs_delta.diff: 5 appended lines, the two cfg(test) harness modules).
-Files in the copy and not in the PR head: zz_i61_u3g2_sweep.rs (sha256 6b181a61640003f0e70c5f7390b58b531a602bca734c5657f3d7e886156de91b, byte-identical to R/I61/u3_grant2_01/_run_records/zz_i61_u3g2_sweep.rs) and zz_i61_u9g8_pressure.rs (_run_records/).
-Published successor dumps (registered): sparse 1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9, dense 7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595; each equals, as a JSON value, the PR head's fixtures/results/retained_precision_milestone_successor_<mode>.json "source".
-First run (before the successor dump was added): sweeps 9a74ff16d42c2b5a… / 0e2db8b89745fdf1…, byte-identical to the second run.

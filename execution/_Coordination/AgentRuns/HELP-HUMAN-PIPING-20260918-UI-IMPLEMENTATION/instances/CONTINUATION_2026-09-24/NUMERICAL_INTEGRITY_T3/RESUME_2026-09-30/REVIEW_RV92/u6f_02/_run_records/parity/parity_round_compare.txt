@@ -1,6 +1,0 @@
-[rust] common probes 184; fields changed: {}
-[python] common probes 184; fields changed: {}
-[typescript] common probes 184; fields changed: {'header_route': 184, 'transport': 84}
-    e.g. header_route ('shared:sparse_interactive:invocation', 'None', 'ok:retained_preview_physics')
-    e.g. transport ('shared:sparse_interactive:invocation', 'ok:openpipestress.result_semantics/0.3.0/preview-physics-retained-1', 'ok:retained_preview_physics')
-[typescript] transport changes (header route at 76477534f6 -> transport route at b10ee5cf08): {('ok', 'RETAINED_PRECISION_RECEIPT_MISMATCH'): 8, ('ok', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'): 2, ('ok', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED'): 2}

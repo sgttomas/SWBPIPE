@@ -1,0 +1,173 @@
+id: DEL-08-03
+name: Warnings, assumptions, and provenance report section
+needs:
+- from: DEL-00-01
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0253 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0254 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0255 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0256 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0257 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0258 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-08-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0259 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-06
+  condition: 'DEL-08-03 needs DEL-04-06 as a predecessor: report warning section consumes solver diagnostics
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0518 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-03/docs/_Registers/Deliverables.csv
+- from: DEL-05-04
+  condition: 'DEL-08-03 needs DEL-05-04 as a predecessor: report warning section exposes analysis status
+    distinctions
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0519 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-03/docs/_Registers/Deliverables.csv
+- from: DEL-03-07
+  condition: 'DEL-08-03 needs DEL-03-07 as a predecessor: report provenance section uses import provenance
+    findings
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0520 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-03/docs/_Registers/Deliverables.csv
+- from: DEL-01-04
+  condition: 'DEL-08-03 needs DEL-01-04 as a predecessor: report assumptions/limitations must respect
+    professional boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0521 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-03/docs/_Registers/Deliverables.csv
+code_paths:
+- core/reporting/audit_manifest/src/lib.rs
+- core/reporting/protected_content_linter/src/lib.rs
+- core/reporting/report_generator/
+- core/reporting/report_sections/
+- core/reporting/report_sections/src/lib.rs
+- schemas/report_sections.schema.yaml
+- tools/validation/validate_dependencies_schema.py

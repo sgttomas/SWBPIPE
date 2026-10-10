@@ -1,6 +1,0 @@
-runs compared with a same-entry P1 record: 540
-changes (P1 main -> K-D5 candidate):
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'sparse_interactive', 'captured', ('solved', 'checks_passed'), ('solved', 'sensitive'))
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'sparse_interactive', 'typed', ('solved', 'checks_passed'), ('solved', 'sensitive'))
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'dense_scrutiny', 'captured', ('solved', 'checks_passed'), ('solved', 'sensitive'))
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'dense_scrutiny', 'typed', ('solved', 'checks_passed'), ('solved', 'sensitive'))

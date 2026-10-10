@@ -1,4 +1,0 @@
-python {'passed': 1934, 'skipped': 30} -> {'passed': 1937, 'skipped': 30} added 3 {'passed': 3} removed 0 changed 0
-  + tests.test_retained_precision_contract::test_b1_repair01_g8_every_material_basis_has_its_materials_checked
-  + tests.test_retained_precision_contract::test_b1_repair01_g8_invocation_members_and_solver_mode
-  + tests.test_retained_precision_contract::test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices

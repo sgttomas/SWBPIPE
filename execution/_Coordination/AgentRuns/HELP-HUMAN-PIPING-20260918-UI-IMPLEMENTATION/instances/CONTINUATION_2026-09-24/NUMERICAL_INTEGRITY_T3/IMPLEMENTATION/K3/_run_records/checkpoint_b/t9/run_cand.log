@@ -1,7 +1,0 @@
-runs: 10
-core rc=0
-runs: 72
-fixtures rc=0
-runs: 30
-validation rc=0
-T9-DONE

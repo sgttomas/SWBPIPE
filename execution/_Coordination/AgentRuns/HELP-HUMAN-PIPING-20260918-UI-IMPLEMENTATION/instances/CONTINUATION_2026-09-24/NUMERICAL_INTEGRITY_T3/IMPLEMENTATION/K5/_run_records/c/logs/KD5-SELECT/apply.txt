@@ -1,2 +1,0 @@
-applied KD5-SELECT
-apply exit=0

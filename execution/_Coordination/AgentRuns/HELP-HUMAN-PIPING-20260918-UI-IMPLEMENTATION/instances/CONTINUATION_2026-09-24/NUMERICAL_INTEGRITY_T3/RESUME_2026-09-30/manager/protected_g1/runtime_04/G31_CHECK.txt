@@ -1,4 +1,0 @@
-PASS G31 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "03c97d3b15d313733fdaacc6f08ce0f052cd952cc9a83a64dba79d602049274f"}
-filter structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification
-aliases [('R7_K4', 'R7-M18')]

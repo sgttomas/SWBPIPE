@@ -1,8 +1,0 @@
-{
-  "start_utc": "2026-10-02T02:26:47+00:00",
-  "end_utc": "2026-10-02T02:36:09.655810+00:00",
-  "deadline_utc": "2026-10-02T02:46:47+00:00",
-  "elapsed_seconds": 562.65581,
-  "within_bound": true,
-  "owner_graceful_halt_honored": true
-}

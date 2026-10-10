@@ -1,4 +1,0 @@
-PASS G09 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b9c9f64eb996fbffdeceb7033d95e5aa904125728a181c81aebe35447ce55318", "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs": "24f7fcd8f24969856ae5db9a04b6561ccf8a8f954c8f61984f9b62f1d278d747"}
-filter structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands
-aliases [('R7_K4', 'K4-M30i')]

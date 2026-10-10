@@ -9,7 +9,7 @@ import base from "./playwright.config";
 //
 // A separate config keeps `playwright.config.ts` unchanged: the DEC-025 sweep
 // runs that file's projects without a --project filter, DEC-093 binds its
-// viewport projects exactly, and tools/ci/e2e_plan.py collects them. Adding a
+// viewport projects exactly for the broad browser matrix. Adding a
 // project there would change those gates. After `npm run build:wasm` and
 // `npx playwright install webkit`, run
 // `npx playwright test --config playwright.webkit.config.ts` from this folder.

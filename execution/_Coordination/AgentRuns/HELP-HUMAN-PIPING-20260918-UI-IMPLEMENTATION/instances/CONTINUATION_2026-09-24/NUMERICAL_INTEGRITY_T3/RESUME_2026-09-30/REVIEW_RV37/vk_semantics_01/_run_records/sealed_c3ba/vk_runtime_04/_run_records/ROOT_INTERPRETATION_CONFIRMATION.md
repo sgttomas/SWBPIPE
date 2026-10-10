@@ -1,3 +1,0 @@
-ROOT independently confirmed the quotation after I27 had completed the final normal control under the original A_FIRST grant. This later confirmation is not retroactive runtime authority. Native message received:
-
-> ROOT independently read seeded.rs:81 panic!("FK_SEEDED_FAULT: unknown fault id {id:?}") and historical P37/stderr.txt:3, which contains quoted "VK-UNKNOWN". Your unquoted inline matcher was a transcription error, not the protected criterion. Preserve that failed evidence check; correct only the output interpretation to the exact source/historical spelling and finish the already-granted final UNKNOWN NONE control within original cutoff/deadline. No runtime replay, source/test change or criterion weakening is authorized/needed.

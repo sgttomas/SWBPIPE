@@ -1,5 +1,0 @@
-# G3 additive control cwd
-
-ROOT NUM21bbce26844fd100dd12329b83fe3eea0ccd9707 R/BRIEFS/A1_G3_CONTROL_CWD.md SHA22118c3db60af81eca81f263430281f5314fffb0c4d500bd4468faea9abcbe66 fullyread/relayed. Bothoriginal libcd5967... andS11ffed9c... controls usepreservedimmutableE1FKcwd. ROOTselectedpathsearch andcompiledS11include_str/table tracefindnoruntimerelativefiledependency; optionalotherintegrationexternalreads unselected.
-
-Manager verified116E1source/test/lockfiles andtwooriginalbinaries; all23S11compiledinputhashes match40129andreviewedbaselinehead. E1isCWDonLy, notfullcoreclaim. R50stillbuildsactualmutatedfullcoresources. Noinitialbaseline/newbuild/criteria/deadlinechange. Initialprep omittedcwd preservedhistorically.

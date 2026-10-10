@@ -1,5 +1,0 @@
-GEN-8 on the delta head (RV12)
-checkout: <wt>/k3 at 2511f5a3c73fd95f1c27e28140224bd708058d84, git status --short lines before 0, after 0
-command (repository root of that checkout):
-  PYTHONDONTWRITEBYTECODE=1 <VENV>/bin/python -m pytest -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 -q
-result: 1 passed, 10 deselected in 30.73s

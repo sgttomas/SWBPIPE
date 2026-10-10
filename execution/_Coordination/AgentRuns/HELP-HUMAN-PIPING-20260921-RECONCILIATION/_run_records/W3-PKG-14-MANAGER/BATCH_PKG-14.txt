@@ -1,3 +1,0 @@
-$ validate_ledger_v2.py --batch (5 forward ledgers)
-PASS batch of 5 ledgers: 0 consistency findings
-exit=0

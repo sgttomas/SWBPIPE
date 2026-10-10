@@ -1,6 +1,0 @@
-PASS24 unique payloads/final child seal.
-PASS3 exactfreshargv/env/cwd/zero exits and raw/portable hashes;90 complete ordinary-JSON records/roster/IDs; bothNONE whole records equal frozen data/report pins. u64MAX exact Python integer and child RECORDS roundtrip verified.
-Observed complete-sequence counts {'Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })': 15, 'Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })': 2, 'Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Ux }), body: 0, kind: Translation })': 13}
-PASS189 untouched source/inputs/locks,originalnormalreleasebinary/rawfingerprints; P10 absent. Source-linked attribution is submitted to ROOT, no retroactive debug reasons or automatic kill.
-RETURN 70ae82dd03fb2cb6844ac7b0a0814ccc10f4ff48e0650e6ad5c509f74881a330
-Additional source binding PASS: all30 case/source IDs, exact root springs, original reference rows and root-incident members match frozen rf_chain.jsonl. Manager read assemble738–744, typed rejection mapping3746–3776 and R7-false escalation4137–4164; attribution uses these identities/control restoration, not enum spelling alone.

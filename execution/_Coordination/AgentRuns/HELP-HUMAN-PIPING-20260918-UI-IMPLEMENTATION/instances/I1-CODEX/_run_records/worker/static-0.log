@@ -1,3 +1,0 @@
-$ node --check e2e/ui-foundation/verify-winner-cue-plan.mjs
-
-exit=0

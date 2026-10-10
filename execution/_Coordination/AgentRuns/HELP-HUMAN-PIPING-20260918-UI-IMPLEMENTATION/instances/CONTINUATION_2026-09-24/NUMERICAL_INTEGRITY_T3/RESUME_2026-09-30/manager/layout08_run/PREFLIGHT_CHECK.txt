@@ -1,3 +1,0 @@
-PASS:all228 exact archive file hashes/set, unchanged sealed configuration/allocator/manifests/locks; contained source/empty siblingtarget/writable outside logs; no Cargo config in inspected origins.
-PASS:installed1.97.1/full8bab26f4f68e0e26f0bb7960be334d5b520ea452 docs/component and cargo/rustc binary hashes match; guard5387 live. Static installed binding, no rustc version process invoked.
-One exact command with ROOT-approved log destination only; effective build path/cfg/features must be confirmed from verbose actual run. No measurement yet.

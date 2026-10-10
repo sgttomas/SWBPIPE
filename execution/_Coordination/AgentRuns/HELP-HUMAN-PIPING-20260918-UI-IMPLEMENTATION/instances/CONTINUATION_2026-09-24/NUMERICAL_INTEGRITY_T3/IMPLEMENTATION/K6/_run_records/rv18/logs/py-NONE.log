@@ -1,9 +1,0 @@
-=== py NONE: git archive ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c (performance_harness, the wrapper) + overlay (I15's RV18 fixes)
-overlay ./projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py aaa56b5f35d80eee
-overlay ./projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py 020c547c64a1b01e
-overlay ./projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs 85715e1f29094680
-overlay ./projects/chirality-piping/core/solver/performance_harness/tests/k6_bin.rs f6e3800a0b9108e6
-=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
-.......................................                                  [100%]
-39 passed in 6.74s
-=== exit 0 elapsed 7 s

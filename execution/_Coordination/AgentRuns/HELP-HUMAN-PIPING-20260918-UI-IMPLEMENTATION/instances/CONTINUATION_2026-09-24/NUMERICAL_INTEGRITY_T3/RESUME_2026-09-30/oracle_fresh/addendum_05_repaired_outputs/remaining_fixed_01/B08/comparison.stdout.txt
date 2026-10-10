@@ -1,1 +1,0 @@
-{"case": "B08", "status": "Selected", "numeric_accuracy_pass": true, "rows": 37, "failures": [], "exit_code": 0}

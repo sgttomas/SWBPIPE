@@ -1,3 +1,0 @@
-head: 2881cb1969f0aa7b670b9185c453699b5f5b80d7
-command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: PR checkout root, WT/si1c-pr; PYTHONDONTWRITEBYTECODE=1; VENV's python)
-1 passed, 10 deselected in 32.12s

@@ -1,0 +1,154 @@
+id: DEL-14-04
+name: Analysis-run comparison engine
+needs:
+- from: DEL-00-01
+  condition: 'DEL-14-04 requires AB-00-01 architecture decision record baseline constraints before sealed
+    execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-14-04 requires AB-00-02 repository and module boundary architecture constraints before
+    sealed execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-14-04 requires AB-00-03 application service command-query-job model constraints before
+    sealed execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-14-04 requires AB-00-04 persistence and schema versioning architecture constraints before
+    sealed execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-14-04 requires AB-00-06 diagnostics warning and result-envelope constraints before sealed
+    execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-14-04 requires AB-00-07 API boundary and adapter contract constraints before sealed
+    execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-14-04 requires AB-00-08 layered software test and acceptance strategy constraints before
+    sealed execution.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-14-02
+  condition: 'DEL-14-04 requires DEL-14-02 analysis run records as the source record interface for comparing
+    exact runs.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from PERSISTENCE_CONTRACT
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-14/DEL-14-04/Procedure.md
+- from: DEL-14-05
+  condition: 'DEL-14-04 requires DEL-14-05 mapping tolerance and export contracts before implementing
+    dependent comparison behavior.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from PERSISTENCE_CONTRACT
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED; OI-014 remains TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-14/DEL-14-04/Procedure.md
+- from: DEL-08-04
+  condition: 'DEL-14-04 requires DEL-08-04 structured result export envelopes for compatible comparison
+    result surfaces.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from REPORTING_PREDECESSOR
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-14/DEL-14-04/Procedure.md
+- from: DEL-02-02
+  condition: 'DEL-14-04 requires DEL-02-02 unit system and dimensional-analysis constraints for unit-normalized
+    run deltas.
+
+
+    Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from UNIT_CONTRACT to CONSTRAINT
+    and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-14/DEL-14-04/Procedure.md
+code_paths:
+- core/comparison/analysis_run/engine.py
+checks:
+- tests/test_analysis_run_comparison.py

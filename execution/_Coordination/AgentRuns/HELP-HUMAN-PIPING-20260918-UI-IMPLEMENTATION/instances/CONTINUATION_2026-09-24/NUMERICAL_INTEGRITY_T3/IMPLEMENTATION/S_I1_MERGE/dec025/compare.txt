@@ -1,7 +1,0 @@
-manifests 40; identical 38; differing 2
-
-== core/rules/expression_evaluator/Cargo.toml: baseline rc/passed/failed/ignored (0, 32, 0, 0)  candidate (0, 50, 0, 0)
-   added ok: 18
-
-== core/rules/rule_check_runner/Cargo.toml: baseline rc/passed/failed/ignored (0, 21, 0, 0)  candidate (0, 33, 0, 0)
-   added ok: 12

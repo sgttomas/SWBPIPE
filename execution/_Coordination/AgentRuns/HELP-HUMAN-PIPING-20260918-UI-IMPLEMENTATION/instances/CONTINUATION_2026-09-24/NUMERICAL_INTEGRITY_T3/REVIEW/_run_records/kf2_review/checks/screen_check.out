@@ -1,7 +1,0 @@
-EA/L_e = 3.9794e+08  12EI/L_e^3 = 2.4009e+06
-CHAIN-n01000-ROT N1000.UY: ordered i=5995 dense count=11992 64g=8.5208e-11 | first f_i=5988 profile count=16 64g=1.1369e-13
-TREE-n01000-AX B500.UZ: ordered i=5996 dense count=11994 64g=8.5222e-11 | first f_i=5990 profile count=14 64g=9.9476e-14
-CHAIN-ROT: guided-tip k_t=2.4009e-03 N/m, Schur pivot=1.2004e-02 (=5.000 k_t), a_ii=1.7819e+08, pivot/(2 a_ii)=3.368e-11
-TREE-AX: spine guided 12EI/L^3=1.9207e-02, with branch axial in series=1.9207e-02, a_ii=3.9794e+08, pivot/(2 a_ii)=2.413e-11; rotational restraint ratio (EI/L_e)/(EI/L_spine)=500
-CHAIN-ROT: dense screen 64g(count)=8.521e-11 -> refuses; profile screen -> passes (margin x296)
-TREE-AX: dense screen 64g(count)=8.521e-11 -> refuses; profile screen -> passes (margin x243)

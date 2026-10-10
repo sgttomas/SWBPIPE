@@ -1,4 +1,0 @@
-# rv113 ts job tsc_head
-# queued 2026-10-07T18:03:00Z dir=rv113/ts-head/projects/chirality-piping/apps/desktop tool=tsc args: --noEmit -p tsconfig.json
-# start 2026-10-07T18:07:40Z
-# end 2026-10-07T18:07:45Z rc=0

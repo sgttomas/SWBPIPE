@@ -1,9 +1,0 @@
-# V-K runtime04 stopped manager return
-
-Actual restart20:11:54 UTC2026-10-01; SAME20:30:30 hardend retained. Eight fresh calls, no build/repeat: P20invarianceNONE restores25cases/originalrecords; P21F08actualparity.rs21K mismatch/P22PASS; P23F10adapter.rs73canonicalbytes/P24PASS; P25F13all58G1e80valuepredicates/P26PASS; P27F17mixedscopehold. P20 supplies actual restoration for acceptedP19valuewitnesses; its19arithmeticextras remainZEROvaluecredit.
-
-P27 actual20:17:48.335Z/PTy19864,exit101/1.63s:13explicitCLASS lines on selectedW-3D rows plus6W-AX/W-LCeilings, FLOOR difference/notcovered46→10. Manager read all13CLASS/sixunavailablecase lines and preserves fullreach. The aggregate assertion precedes later prescribedInputDerived exception-list/stored-record checks. No withheld row/unavailability creditedCLASS, no new all-case-same-mode requirement; exact witness/scope/exception attribution remains ROOT/RV29 disposition. P28–P53unrun/no automaticdiagnostic.
-
-Manager independently verified8exactargv/env/cwd/one-test/exits/raw/portable bindings,4originalartifacts/rawfingerprints and189sourcefiles; P28–P53streams absent. All58P25unique case/row/reference strings match frozenG1e80inputs, and exactF08/F10sites inspected. STOP_VERIFICATION.txt records checks. Manager20:18:33ps finds no ownedRust/test/example job; child20:19:19finalcheck agrees/liveguard5387/prior138payloads unchanged. Slotreleased; I22idle.
-
-Child seal7d9fe7f809d523da323d8bea2b52acda9d4deb33221be8b29986b914b3cb06c3 (31unique payloads) independently verified; RETURNefeba3f2eb08513b231e5ba6ac7757797038bc715c5fc4f1edb500f9202f0d09 fully read. Allpreviousstops/P15supersession/P16baseline labels preserved. No source/corpus/oracle/criterion/helper/tool/Git/indexchange, cleanup or acceptance. I21Hnumeric task continues independently.

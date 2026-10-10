@@ -1,9 +1,0 @@
-envelopes=86 existing=69 successor=17; fields per envelope=26 (incl. identity, has_rp, probe_member)
-9555b6ffc2 vs 968adb44fe, existing-identity differences: NONE
-successor differences: {'panel': 17}
-   fixtures/results/retained_precision_cases.json#/cases/0/source 
-     before: Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness. 
-     after:  Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.
-   fixtures/results/retained_precision_cases.json#/cases/1/source 
-     before: Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness. 
-     after:  Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.

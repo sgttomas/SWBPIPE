@@ -1,7 +1,0 @@
-RV3 delta check, PR1002 (43b8f83aa..796548201, one commit), static checks:
-- files in range: range_files.txt (12 paths: core/product_physics/src/s11f_tests.rs and 11 IMPLEMENTATION/S11F records; no product code, fixture, schema or other test file)
-- git diff --check 43b8f83aa..796548201: clean
-- added lines: no home, temp, root or tool-install paths
-- rustfmt 1.8.0-stable (stdin, edition 2021) on s11f_tests.rs at 796548201: clean
-- IMPLEMENTATION/S11F/_run_records/SHA256SUMS at 796548201: 131 entries, all OK (127 files under _run_records plus 4 outside)
-- callers.json at 796548201 agrees with RV3's independent list for load_state_eigen_loads (2 non-test), build_thermal_element_loads (1 non-test, 1 test), exact_straight_summary_extrema (membrane_publication_range.rs:187 now test) and prepare_sources (test lines 1617...)

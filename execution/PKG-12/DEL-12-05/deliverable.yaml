@@ -1,0 +1,262 @@
+id: DEL-12-05
+name: Security threat model
+needs:
+- from: DEL-00-01
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0382 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0383 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0384 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0385 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0386 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0387 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when
+    executing the sealed PKG-12 security/privacy scope.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0388 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
+    semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00 not treated
+    as issuance authority
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-01-02
+  condition: 'DEL-12-05 needs DEL-01-02 as a predecessor: threat model must include protected/private
+    data boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0598 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SECURITY_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/docs/_Registers/Deliverables.csv
+- from: DEL-02-04
+  condition: 'DEL-12-05 needs DEL-02-04 as a predecessor: threat model must cover plugins/adapters/extensions
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0599 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SECURITY_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/docs/_Registers/Deliverables.csv
+- from: DEL-01-04
+  condition: 'DEL-12-05 needs DEL-01-04 as a predecessor: threat model must preserve non-certification/product-claims
+    boundary
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0600 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
+    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SECURITY_PREDECESSOR;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
+    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-05/docs/_Registers/Deliverables.csv
+- from: doc:docs/CONTRACT.md
+  condition: 'DEL-12-05 depends on CONTRACT privacy, rule-pack, report, authority, and agent invariants
+    to constrain threat-model content.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: docs/CONTRACT.md; TargetLocation:
+    docs/CONTRACT.md'
+  evidence: execution/PKG-12/DEL-12-05/Specification.md
+- from: doc:docs/IP_AND_DATA_BOUNDARY.md
+  condition: 'DEL-12-05 depends on the IP/data boundary policy for provenance, quarantine, private data,
+    and report-boundary controls.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
+    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
+  evidence: execution/PKG-12/DEL-12-05/Specification.md
+- from: doc:docs/SPEC.md
+  condition: 'DEL-12-05 depends on SPEC layer, rule-pack evaluator, diagnostics, reporting, and acceptance
+    semantics.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: OpenPipeStress technical specification; TargetRefID: docs/SPEC.md;
+    TargetLocation: docs/SPEC.md'
+  evidence: execution/PKG-12/DEL-12-05/Specification.md
+- from: doc:docs/PRD.md
+  condition: 'DEL-12-05 depends on PRD security/privacy, telemetry, report-sharing, and risk requirements
+    for threat coverage.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: OpenPipeStress product requirements; TargetRefID: docs/PRD.md; TargetLocation:
+    docs/PRD.md'
+  evidence: execution/PKG-12/DEL-12-05/Specification.md
+- from: doc:docs/DIRECTIVE.md
+  condition: 'DEL-12-05 depends on directive stop rules, public/private data boundary, and professional-responsibility
+    limits.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: OpenPipeStress directive and stop rules; TargetRefID: docs/DIRECTIVE.md;
+    TargetLocation: docs/DIRECTIVE.md'
+  evidence: execution/PKG-12/DEL-12-05/Guidance.md
+- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
+  condition: 'DEL-12-05 depends on the decomposition for PKG-12, SOW-040, OBJ-010, and applicable AB-00
+    architecture-basis constraints.
+
+
+    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Software decomposition revision 0.7; TargetRefID: execution/_Decomposition/SOFTWARE_DECOMP.md;
+    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
+  evidence: execution/PKG-12/DEL-12-05/Datasheet.md
+code_paths:
+- apps/desktop/src/services/telemetryPolicyService.ts
+- tools/validation/validate_dependencies_schema.py

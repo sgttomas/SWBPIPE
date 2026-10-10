@@ -1,6 +1,0 @@
-# sha256 of the fixture sweeps (71 inputs x 2 modes x 5 routes)
-0690bc647cb91b1c3f7fd0f1e654910baa06b48a83d821c582c10825db5541e1  sweep_g6r.tsv
-3b22de9766e13a63c980202cccfb75bab0e40f35550d3111ffbfa43cfaec0f60  sweep_reg_g6r.tsv
-3b22de9766e13a63c980202cccfb75bab0e40f35550d3111ffbfa43cfaec0f60  sweep_reg2.tsv
-0690bc647cb91b1c3f7fd0f1e654910baa06b48a83d821c582c10825db5541e1  i65_u4_g5_01/sweep_base.tsv
-# sweep_g6r = base (unregistered); sweep_reg_g6r = sweep_reg2 (G6's registered sweep)

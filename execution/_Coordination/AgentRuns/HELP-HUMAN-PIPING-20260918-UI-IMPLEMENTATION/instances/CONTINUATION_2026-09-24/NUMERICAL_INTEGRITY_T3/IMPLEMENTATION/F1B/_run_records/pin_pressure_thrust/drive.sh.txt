@@ -1,9 +1,0 @@
-#!/bin/bash
-# F1b pin (ROOT's approval): NONE first and alone, then F1B-M22-PRESSURE-THRUST, each on a clean git
-# archive of the F1b head (9aeed9c22; its product tree equals 130445db2's) with the new pin test's file
-# overlaid from <wt>/f1b; run_mutant.sh is the lane-guard run's, unchanged.
-C=$(cd "$(dirname "$0")" && pwd); W=$(cd "$C/../../.." && pwd); REV=9aeed9c22
-: > $C/MUTANTS.txt
-$C/run_mutant.sh $W $C $REV NONE $C/overlay.txt
-$C/run_mutant.sh $W $C $REV F1B-M22-PRESSURE-THRUST $C/overlay.txt
-echo DRIVE-DONE >> $C/MUTANTS.txt

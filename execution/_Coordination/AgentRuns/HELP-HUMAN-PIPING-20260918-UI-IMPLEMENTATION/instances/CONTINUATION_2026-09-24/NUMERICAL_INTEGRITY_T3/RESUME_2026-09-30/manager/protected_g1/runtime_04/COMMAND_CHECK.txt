@@ -1,3 +1,0 @@
-PASS:100 sequential toolcompletions,50 intended101+50controls0; everymutant independentlyreleased beforelaunch; allobservedcommandintervals<5min and before14:40:19.
-Last command completion timestamp 2026-10-01T14:39:47.672Z ; later aggregate completion capture14:39:52.204. Manager initial equality check incorrectly equated these distinct timestamps; corrected boundary/order check passes.
-Cleared fault/flags/installedtoolchain/offline4/2/guard identities present. Rendered COMMANDS fingerprint numericIDs show JS large-integer rounding; rely on exact original fingerprint-file SHA/on-disk bytes, not those rendered large numericIDs.

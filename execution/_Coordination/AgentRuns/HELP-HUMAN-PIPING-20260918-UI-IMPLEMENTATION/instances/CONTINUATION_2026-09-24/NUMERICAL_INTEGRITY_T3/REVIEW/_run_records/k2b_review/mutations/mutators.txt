@@ -1,4 +1,0 @@
-RV11: the K2B-* and K1/KD5 mutant patches are I10's recorded generators, copied unchanged into <wt>/scratch/rv11/mut/:
-- mutate_k2b.py = IMPLEMENTATION/K2B/_run_records/mutations/batch3/mutate_k2b.py.txt, sha256 8656ee2fc596b352e16552fa20c0ce0e3ff43f2c158e7adc5c8542855d6d1b7b (record: 8656ee2fc596b352e16552fa20c0ce0e3ff43f2c158e7adc5c8542855d6d1b7b)
-- mutate_k1.py = IMPLEMENTATION/K2B/_run_records/mutations/mutate_k1.py.txt, sha256 c2b54737dfb3dd261643ac16f52230ab8ba97828d86807c4987e4db13978a71a (record: c2b54737dfb3dd261643ac16f52230ab8ba97828d86807c4987e4db13978a71a)
-My own mutants are in mutate_rv11.py.txt. Every patch was dry-run against the head 087b3a088 first: each matched its stated count.

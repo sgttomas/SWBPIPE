@@ -1,9 +1,0 @@
-envelopes: cand 86, base 86; existing identity 69 ({'openpipestress.result_semantics/0.3.0/load-reference-1': 6, 'openpipestress.result_semantics/0.3.0/source-blocks-1': 15, '(legacy)': 7, 'openpipestress.result_semantics/0.3.0/precision-1': 4, 'openpipestress.result_semantics/0.3.0/preview-physics-1': 7, 'openpipestress.result_semantics/0.3.0/load-reference-source-1': 10, 'openpipestress.result_semantics/0.3.0/physics-source-1': 14, 'openpipestress.result_semantics/0.3.0/physics-1': 6}); successor 17
-existing-identity envelopes differing from base: 0
-form !receipt: {'n': 69, 'raw_DG': 69, 'raw_admitted': 0, 'standing_unsupported': 69, 'ar_refused': 69, 'wrapper_refused': 69, 'base_raw_admitted': 0}
-form !null: {'n': 69, 'raw_DG': 69, 'raw_admitted': 0, 'standing_unsupported': 69, 'ar_refused': 69, 'wrapper_refused': 69, 'base_raw_admitted': 0}
-form !token0: {'n': 69, 'raw_DG': 67, 'raw_admitted': 2, 'standing_unsupported': 67, 'ar_refused': 67, 'wrapper_refused': 67, 'base_raw_admitted': 9, 'ADMITTED_ids:openpipestress.result_semantics/0.3.0/preview-physics-1': 2}
-form !tokenlast: {'n': 69, 'raw_DG': 67, 'raw_admitted': 2, 'standing_unsupported': 67, 'ar_refused': 67, 'wrapper_refused': 67, 'base_raw_admitted': 9, 'ADMITTED_ids:openpipestress.result_semantics/0.3.0/preview-physics-1': 2}
-form !othertoken: {'n': 69, 'identical_to_base': 69}
-form !r2notice: {'n': 69, 'identical_to_base': 69}
-successor envelopes (base raw, cand raw, cand standing, AR): {('ok:["openpipestress.result_semantics/0.3.0/preview-physics-r', 'ok:["openpipestress.result_semantics/0.3.0/preview-physics-r', 'ok:"needs_recompute"', 'ok:["0'): 17}

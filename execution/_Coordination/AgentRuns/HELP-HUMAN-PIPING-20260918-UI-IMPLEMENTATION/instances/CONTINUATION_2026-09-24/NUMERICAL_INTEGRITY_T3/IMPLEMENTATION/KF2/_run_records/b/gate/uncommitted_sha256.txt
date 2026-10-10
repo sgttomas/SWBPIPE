@@ -1,7 +1,0 @@
-Uncommitted gate part-1 files, kept in <wt>/scratch/i20/b/gate/ (too large to commit; indexed by part1/index_*.tsv):
-part1_base/runs.jsonl  c42981e541650578a60efe48cbf346360fedbb4507b3d02365b5f5abb78e9f68  605711611 bytes, 884 records
-part1_base/full/  818 files; sha256 of the sorted per-file sha256 list: a8fb70b932978b729d5897d41ef64e8d5c2b15eba2d2dbedfb5a65fed8dceb5b
-part1_base/envelopes/  818 files; list sha256: 32005949474219ce93cedae5020d4953bbfeba483ef33461fac15d9a44b6874f
-part1_cand/runs.jsonl  11dfe8296681280e0fd4163ee3195cc16ff0f78f3ce81dff82516a520bf2ef3f  605711700 bytes, 884 records
-part1_cand/full/  818 files; sha256 of the sorted per-file sha256 list: a8fb70b932978b729d5897d41ef64e8d5c2b15eba2d2dbedfb5a65fed8dceb5b
-part1_cand/envelopes/  818 files; list sha256: 32005949474219ce93cedae5020d4953bbfeba483ef33461fac15d9a44b6874f

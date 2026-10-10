@@ -1,5 +1,0 @@
-# RV22: the runner schedule at main 0f5d8c7b4 against the PR head
-rows: main 138, head 270
-K6's 138 rows differing on any main field: 0; keys added at head: ['pass']
-W1 rows 132; tiers ['W1-T1', 'W1-T2', 'W1-T3', 'W1-T4']; pass-1 rows 66; W1-T4 rows conditional (deferred by name): True
-first two models of W1-T1 (ABAB then BABA): ['w1a', 'sparse', 'w1a', 'sparse', 'sparse', 'w1a', 'sparse', 'w1a']

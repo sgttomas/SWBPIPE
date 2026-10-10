@@ -1,3 +1,0 @@
-classification	file	bytes	policy	disposition
-WARN	gate/part1_base.runs.jsonl.gz	26557740	D-GOV-45_large_evidence_over_5000000_bytes	ROOT_accepted_for_records_PR_below_100000000_bytes
-WARN	gate/part1_cand.runs.jsonl.gz	26553914	D-GOV-45_large_evidence_over_5000000_bytes	ROOT_accepted_for_records_PR_below_100000000_bytes

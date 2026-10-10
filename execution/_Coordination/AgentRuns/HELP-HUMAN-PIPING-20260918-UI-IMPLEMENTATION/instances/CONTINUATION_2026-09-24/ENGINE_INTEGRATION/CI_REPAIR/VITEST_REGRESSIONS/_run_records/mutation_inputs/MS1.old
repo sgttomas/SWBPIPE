@@ -1,2 +1,0 @@
-    && numericallyEligible
-    && (sourceContract(result) !== "physics_source"

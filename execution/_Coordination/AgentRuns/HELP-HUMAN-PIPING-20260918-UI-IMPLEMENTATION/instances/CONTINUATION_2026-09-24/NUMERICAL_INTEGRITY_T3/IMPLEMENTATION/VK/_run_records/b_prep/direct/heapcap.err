@@ -1,5 +1,0 @@
-vk_scale: heap cap refused 986182 bytes (current 1292, cap 300000)
-
-thread 'main' (15454921) panicked at src/cases.rs:286:29:
-<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl: out of memory
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

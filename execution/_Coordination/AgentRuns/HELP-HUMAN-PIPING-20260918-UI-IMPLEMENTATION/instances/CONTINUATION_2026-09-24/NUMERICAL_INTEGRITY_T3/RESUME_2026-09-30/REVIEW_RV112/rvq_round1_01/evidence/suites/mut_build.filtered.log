@@ -1,2 +1,0 @@
-RV112_JOB name=mut_build dir=WT/rv112/mut/projects/chirality-piping/core/product_physics target=rv112-mut stale=0 args=test --locked --offline --no-fail-fast --lib --no-run start=2026-10-07T15:44:35Z
-RV112_JOB_END name=mut_build rc=0 end=2026-10-07T15:46:40Z

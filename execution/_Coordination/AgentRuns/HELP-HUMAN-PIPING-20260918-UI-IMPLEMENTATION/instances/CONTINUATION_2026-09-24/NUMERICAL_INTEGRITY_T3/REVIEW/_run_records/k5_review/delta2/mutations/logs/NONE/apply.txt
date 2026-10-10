@@ -1,2 +1,0 @@
-applied NONE
-apply exit=0 (script rv14)

@@ -1,3 +1,0 @@
-Parent ROOT in-turn message; provisional, not a sealed review return:
-
-RV30 sparse review provisional finding for your closure assessment (no repair yet until final): standalone HFactor first arm n omits live order/first_columns16f during validationbool[n] (DS82–83→FK1748→validate1087). Proposed minrepair max(n+16f, existing factor arm); reviewer thinks fullHSolver's separateP+Fct+PivotCopy+FinishExtra may alreadydominate, distinguishing localfalsebound from demonstratedfinalundercount. Preserve sealedsource04; reviewstillactive. Include as pendingrepair/reviewfact, no newsourceproofprogramme.

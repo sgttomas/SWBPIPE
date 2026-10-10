@@ -1,3 +1,0 @@
-cc81e78801d187fdba136803c6e0244466d9207b piping(T3 B1 SR-RS): RV95 N-5's direct test of source_blocks::integer's 2^53-1 bound
-a4eab1dd0142c34ef031dd7d003931cf93da559e piping(T3 B1 SR-RS): reader-local tests on synthetic n-case receipts; reword the contract test's module doc
-d7c76de43febd49f11fe9f3a2c5af739b05c011e piping(T3 B1 SR-RS): align the Rust retained reader: R-D38 (4b), F-1 text B per case, G5 not_required

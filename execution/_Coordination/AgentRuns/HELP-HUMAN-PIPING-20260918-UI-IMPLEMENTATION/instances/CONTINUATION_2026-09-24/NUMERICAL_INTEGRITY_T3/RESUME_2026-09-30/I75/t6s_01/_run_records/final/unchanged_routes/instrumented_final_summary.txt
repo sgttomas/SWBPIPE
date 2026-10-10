@@ -1,2 +1,0 @@
-      Tests  3590 passed (3590)
-rc=0

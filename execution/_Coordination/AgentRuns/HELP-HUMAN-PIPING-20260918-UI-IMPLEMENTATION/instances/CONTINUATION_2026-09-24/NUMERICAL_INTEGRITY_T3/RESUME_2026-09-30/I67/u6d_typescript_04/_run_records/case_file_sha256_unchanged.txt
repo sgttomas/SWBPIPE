@@ -1,2 +1,0 @@
-ef9f3e6399ef18a3ce75c9dc561536893ef6b400a07a852858b16feb7501fb07  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
-fixtures: no change (git diff --quiet)

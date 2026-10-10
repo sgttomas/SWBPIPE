@@ -1,2 +1,0 @@
-PASS: both portable logs exactly reproduce raw logs by declared physical-prefix replacement only.
-PASS: no absolute user-host paths in sealed child packet.

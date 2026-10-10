@@ -1,8 +1,0 @@
-#[allow(dead_code)]
-#[derive(Clone, Copy)]
-struct Wide<const L: usize> { negative: bool, exponent: i64, significand: [u64; L] }
-fn main() {
-    println!("Wide<4> {} Option {}", std::mem::size_of::<Wide<4>>(), std::mem::size_of::<Option<Wide<4>>>());
-    println!("Wide<8> {} Option {}", std::mem::size_of::<Wide<8>>(), std::mem::size_of::<Option<Wide<8>>>());
-    println!("Wide<16> {} Option {}", std::mem::size_of::<Wide<16>>(), std::mem::size_of::<Option<Wide<16>>>());
-}

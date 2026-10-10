@@ -1,4 +1,0 @@
-PASS:9 exactpreparedcopies/1044unique nlink1 files matchcomplete prepared40129+ab271c7d six-testoverlay manifest, no symlink/maintained alias;9 exacttargets empty. Siblinglogs writable/contained, guard5387live.
-PASS:I23prepared+RV29runtime07+uniterratum seals verify; source/test/lock/corpora/fullfilebindings intact. Exactfixtureunits100members/101nodes preserved.
-BASELINEonly build may bereleased separately; no fault application/Rust bymanager.
-READINESS 093df85d17603737473072166ba6258ea405828f5450aecf36b851b867590b9e

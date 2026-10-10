@@ -1,8 +1,0 @@
-# Merge check (RV6): git diff --stat 559ecb64a b91201ee5 -- projects/chirality-piping tools .github ':!projects/chirality-piping/execution'
-# run in <wt>/f1a; empty output below means no piping product, tools/ or .github change
-# end (lines after the header: 0)
-# F1a diff: git diff --stat 5ae22926e 559ecb64a -- projects/chirality-piping/core
- .../core/product_physics/src/f1a_tests.rs          | 663 +++++++++++++++++++++
- .../core/product_physics/src/lib.rs                |  70 ++-
- .../tests/formation_check_runtime.rs               |   3 +
- 3 files changed, 728 insertions(+), 8 deletions(-)

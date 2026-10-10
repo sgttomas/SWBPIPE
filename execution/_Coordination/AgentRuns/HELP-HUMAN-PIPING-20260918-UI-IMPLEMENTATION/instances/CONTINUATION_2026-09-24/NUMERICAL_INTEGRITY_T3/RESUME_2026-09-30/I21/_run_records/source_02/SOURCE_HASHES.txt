@@ -1,9 +1,0 @@
-# Maintained source/input identities rechecked
-0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0  projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs
-abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511  projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs
-fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05  projects/chirality-piping/core/solver/performance_harness/observations/k6b/counts.jsonl
-# Grant identity
-d1e606d362253ee3c9eced28b2769b02d21e45e992253660587846e92335a104  30fd4848b4f61c4fd9405e382b82462048fff8a3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_LOCAL_LIBRARY_SOURCE.md
-# Installed original HTML hashes and decoded bytes: DOC_BINDING.json, DOC_BINDING_EXTRA.json
-# Installed version/channel/component identities: VERSION_BINDING.json
-

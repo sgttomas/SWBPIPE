@@ -1,5 +1,0 @@
-diff -r NONE/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs RV21-H4/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
-85c85
-<         Some(Binary64Outcome::Overflow { .. }) => Err(format!("{id:?} overflowed")),
----
->         Some(Binary64Outcome::Overflow { .. }) => Ok(0.0),

@@ -1,3 +1,0 @@
-     Running unittests src/lib.rs (<scratch>/target/debug/deps/open_pipe_stress_straight_pipe-410d775e65751424)
-test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

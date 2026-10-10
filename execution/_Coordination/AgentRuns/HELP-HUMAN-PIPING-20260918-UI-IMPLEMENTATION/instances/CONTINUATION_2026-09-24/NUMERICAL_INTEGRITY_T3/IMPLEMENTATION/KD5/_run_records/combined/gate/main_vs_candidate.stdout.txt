@@ -1,7 +1,0 @@
-main runs 836 candidate runs 888 compared 836
-standing/outcome differences: 4
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'dense_scrutiny', 'captured') ('solved', 'checks_passed', 'numerically_eligible') -> ('solved', 'sensitive', 'needs_recompute')
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'dense_scrutiny', 'typed') ('solved', 'checks_passed', 'numerically_eligible') -> ('solved', 'sensitive', 'needs_recompute')
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'sparse_interactive', 'captured') ('solved', 'checks_passed', 'numerically_eligible') -> ('solved', 'sensitive', 'needs_recompute')
-  ('RF-SKEW-T-CANT-OFF-122-r1e-04', 'sparse_interactive', 'typed') ('solved', 'checks_passed', 'numerically_eligible') -> ('solved', 'sensitive', 'needs_recompute')
-published-displacement differences: 0 []

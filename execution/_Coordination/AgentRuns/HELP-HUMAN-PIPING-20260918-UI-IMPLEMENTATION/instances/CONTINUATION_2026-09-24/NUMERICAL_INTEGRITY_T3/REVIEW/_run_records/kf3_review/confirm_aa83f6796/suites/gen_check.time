@@ -1,1 +1,0 @@
-python3 gen_k4_vectors.py --check > $SP/c/gen_check.log 2>&1  929.09s user 1.66s system 99% cpu 15:34.65 total

@@ -1,5 +1,0 @@
-node_modules: symlink WT/rv88/d_{cand,base,mut}/projects/chirality-piping/node_modules -> REPO_ROOT/projects/chirality-piping/node_modules (no install)
-WASM: copied from WT/f2a-readers/projects/chirality-piping/apps/desktop/public/{wasm-engine,self-weight-engine} (never built); hashes in wasm_hashes.txt equal I67 runtime.txt
-v24.18.0
-vitest/4.1.10 darwin-arm64 node-v24.18.0
-TMPDIR=WT/scratch/rv88_u6/u6d/tmp

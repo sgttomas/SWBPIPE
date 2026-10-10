@@ -1,0 +1,119 @@
+id: DEL-01-01
+name: Project governance baseline
+needs:
+- from: DEL-00-01
+  condition: 'DEL-01-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-01-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-01-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-01-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: doc:docs/CONTRACT.md
+  condition: 'DEL-01-01 requires the contract invariant catalog for hierarchy IDs IP boundary professional
+    authority governance and agent execution.
+
+
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation:
+    docs/CONTRACT.md'
+  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+- from: doc:docs/DIRECTIVE.md
+  condition: 'DEL-01-01 requires the founding directive for product boundaries stop rules and governance
+    intent.
+
+
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Founding directive; TargetRefID: OPS-DIRECTIVE; TargetLocation: docs/DIRECTIVE.md'
+  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+- from: doc:docs/TYPES.md
+  condition: 'DEL-01-01 requires the type and vocabulary definitions for stable IDs lifecycle and project
+    vocabulary.
+
+
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Identifier lifecycle and vocabulary definitions; TargetRefID: OPS-TYPES;
+    TargetLocation: docs/TYPES.md'
+  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+- from: doc:docs/AGENTIC_DEVELOPMENT_WORKFLOW.md
+  condition: 'DEL-01-01 requires the agentic workflow boundary so agent-produced governance content remains
+    draft until human gate acceptance.
+
+
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references and Datasheet
+    authority-boundary attribute.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Agentic development workflow; TargetRefID: OPS-AGENTIC-WORKFLOW;
+    TargetLocation: docs/AGENTIC_DEVELOPMENT_WORKFLOW.md'
+  evidence: execution/PKG-01/DEL-01-01/Datasheet.md

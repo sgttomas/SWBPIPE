@@ -1,1 +1,0 @@
-tsc --noEmit -p . (desktop, worktree): rc=0, no output

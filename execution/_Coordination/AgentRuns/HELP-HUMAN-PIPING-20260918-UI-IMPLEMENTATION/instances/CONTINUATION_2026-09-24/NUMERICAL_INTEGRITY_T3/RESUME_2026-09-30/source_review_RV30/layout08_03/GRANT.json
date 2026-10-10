@@ -1,7 +1,0 @@
-{
-  "origin": "Native followup_task from /root HELP_HUMAN Agent0",
-  "task": "/root/rv30_k6c_kernel TASK Type2 RV30",
-  "text": "Concrete layout08 source review, 15 minutes, no Rust/probe/Git/index/delegation. Packet K6C R/I21/layout08_prep now sealed d52b1f699836434850b696690f0bc8ba4ac6638e98f57f74784438bd729e0716. Full217-line OVERLAY.diff hash0d6c1ff750241f76ffb15a590ae76b70b23581013e32fb78fb10899214d0d13a; ROOT read entire diff/ISOLATION/RETURN and verifiedseal. Check all exact threefiles against reviewed source07 proposal, actualtypes/no targetdefinition changes, stack-only samples, no concurrent allocator users/source sideeffects, operand extraction/observable lifetimes/content/afterdrop counts, actualsource/dependency/lock/allocator binding, cfg/profile and printinterpretation. Prepared archive WT/scratch/i21/layout08/archive (nineHdependencyclosure,227originals+1example), targetWT/k6c-layout08-target empty, logs outsidearchive. Return readiness for one bounded standalone release run or concrete findings, no runtime grant. Write additive K6C R/source_review_RV30/layout08_03. FullEmax/caller/privatealignment gaps stayexplicit.",
-  "text_sha256": "fe18f08f1b57ce54814da3cad070b7b838c666c7f66029e7f8a460e15368c7e1",
-  "instruction_binding": "../kernel_01/INSTRUCTION_BINDING.json; same origins/hashes, no new skill"
-}

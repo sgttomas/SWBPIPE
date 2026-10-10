@@ -1,3 +1,0 @@
-   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel)
-    Finished `release` profile [optimized] target(s) in 26.33s
-     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/i41-target/frame_kernel/release/deps/open_pipe_stress_frame_kernel-6c73ea1aa0136d52)

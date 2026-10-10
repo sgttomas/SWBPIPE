@@ -1,7 +1,0 @@
-{
-  "baseline": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
-  "maintained_fence": [
-    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
-    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs"
-  ]
-}

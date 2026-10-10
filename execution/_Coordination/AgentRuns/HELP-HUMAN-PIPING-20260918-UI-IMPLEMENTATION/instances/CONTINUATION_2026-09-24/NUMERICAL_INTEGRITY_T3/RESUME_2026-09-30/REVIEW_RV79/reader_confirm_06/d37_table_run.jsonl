@@ -1,2 +1,0 @@
-{"records": 25, "pairs": 250, "mismatches": 0, "accepted_per_kind": {"preparation": 1, "native": 1, "capture": 4, "proof": 7, "values": 1, "abandoned": 3, "numeric": 1, "observable": 2, "g5a": 1, "unknown_kind": 0}}
-{"set_equal_per_kind": {"preparation": true, "native": true, "capture": true, "proof": true, "values": true, "abandoned": true, "numeric": true, "observable": true, "g5a": true, "unknown_kind": true}, "reader_records_outside_class2_space": {}}

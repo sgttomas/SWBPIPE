@@ -1,9 +1,0 @@
-{
-  "actual_start_utc": "2026-10-01T22:52:30Z",
-  "hard_end_utc": "2026-10-01T23:22:30Z",
-  "role": "HELPS_HUMANS Type1",
-  "parent": "/root",
-  "scope": "CALLER-FAMILY10/CALLER-193 exact integer/interval metadata integration only",
-  "source_calculator_basis_sha256": "72caaa70da1782f49c5d44e17a6f446f81ea330711fa21a9807ff2bef1902f10",
-  "method": "reuses reviewed integer/interval equations as one-off evidence, not a host tool or product/source algorithm"
-}

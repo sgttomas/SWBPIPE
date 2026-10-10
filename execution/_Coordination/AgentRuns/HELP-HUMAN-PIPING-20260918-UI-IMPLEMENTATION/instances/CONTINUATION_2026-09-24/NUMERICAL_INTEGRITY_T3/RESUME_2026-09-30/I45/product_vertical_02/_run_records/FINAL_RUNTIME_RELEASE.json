@@ -1,7 +1,0 @@
-{
-  "utc": "2026-10-03T03:46:53.481768+00:00",
-  "cargo_or_rustc_processes": [],
-  "memguard_5387": "5387     1 SN   Sun Sep 27 19:36:19 2026     /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh",
-  "compiler_lane_released": true,
-  "repair_first_utc": "2026-10-03T03:41:29Z"
-}

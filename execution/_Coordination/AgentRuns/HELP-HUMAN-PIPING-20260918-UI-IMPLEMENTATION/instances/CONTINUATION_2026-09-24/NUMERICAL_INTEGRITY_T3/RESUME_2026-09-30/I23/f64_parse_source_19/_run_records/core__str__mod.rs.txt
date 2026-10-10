@@ -1,5 +1,0 @@
-2763:     #[inline]
-2764:     #[stable(feature = "rust1", since = "1.0.0")]
-2765:     pub fn parse<F: FromStr>(&self) -> Result<F, F::Err> {
-2766:         FromStr::from_str(self)
-2767:     }

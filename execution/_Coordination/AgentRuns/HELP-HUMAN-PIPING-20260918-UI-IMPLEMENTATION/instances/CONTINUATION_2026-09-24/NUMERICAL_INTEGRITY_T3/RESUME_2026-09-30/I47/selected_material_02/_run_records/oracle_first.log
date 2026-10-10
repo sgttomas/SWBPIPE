@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/independent_oracle.py", line 308, in <module>
-    results=[check(r['label'],r['input'],r['rows'],r['verdicts']) for r in records]
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/independent_oracle.py", line 308, in <listcomp>
-    results=[check(r['label'],r['input'],r['rows'],r['verdicts']) for r in records]
-  File "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/independent_oracle.py", line 140, in check
-    if hi<=bound:assert v["predicates"][index] is True,(i,name,"unexpected conservative predicate")
-AssertionError: (10, 'SharperExact', 'unexpected conservative predicate')

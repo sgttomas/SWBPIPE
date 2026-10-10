@@ -1,6 +1,0 @@
-OK   targeted.txt
-OK   split.txt
-OK   atan.txt
-OK   differential_sample.txt
-OK   differential.txt
-OK   SHA256SUMS

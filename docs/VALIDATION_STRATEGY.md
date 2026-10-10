@@ -1,4 +1,10 @@
 ---
+
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Design/pressure-contract.md).
+`legacy_pressure_v1` is retired, including zero-pressure documents. References
+to pressure quantities or validation coverage below are subject to that current
+boundary and do not establish implemented T4 capability.
+
 doc_id: OPS-VALIDATION-STRATEGY
 doc_kind: governance.validation_strategy
 status: draft
@@ -18,17 +24,9 @@ refs:
 
 Verification proves that the software solves the stated mechanics problem correctly within declared tolerances. Validation evaluates whether the software workflow is fit for its intended engineering support role. Neither replaces project-specific professional judgment.
 
-This draft's last full content-alignment baseline remains
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`. Current
-decomposition authority is revision `0.11`, and current approved graph
-coordination authority is `execution/_DAG/DAG-009/`. Revisions `0.8` through
-`0.11` add PRD/decomposition currency, including the revision-`0.10`
-actor-neutral clean-checkout reproduction criterion and principal
-external-prover validation posture; those changes have not received a full
-strategy-content alignment review here, so this paragraph does not claim full
-revision-`0.11` alignment. `DAG-009` preserves dependency coordination and does not itself
-authorize lifecycle changes, release labels, professional approval, legal
-clearance, certification, sealing, authentication, or code-compliance claims (PRD §21.2).
+Current commitments and acceptance conditions are in the PRD and deliverable
+ScopeOfWork/Design files. Dependency graphs provide coordination facts, not
+engineering validation, release acceptance or professional approval.
 
 This strategy keeps five evidence surfaces separate:
 
@@ -72,7 +70,13 @@ The initial stress recovery benchmark suite for `DEL-09-02` lives under
 `validation/benchmarks/stress/` with hand-calculation notes under
 `validation/hand_calcs/stress/`. Its required fixture families are axial
 normal stress, bending normal stress, torsional shear stress, pressure membrane
-stress, and mechanics-only stress range. The fixtures use original invented
+stress, and mechanics-only stress range. The pressure membrane family has no
+fixture since the owner retired the legacy pressure contract product-wide:
+`STRESS-PRESSURE-MEMBRANE-ORIGINAL` was an oracle of the retired legacy
+pressure computation and was removed with it (#1168; current DEL-04-07 pressure contract).
+Pressure is solved only through the exact straight-pressure contract
+`2.0.0/exact_straight_pressure_v2`, within that contract's own qualifications.
+The fixtures use original invented
 values and keep final release tolerances, CI gates, fatigue/allowable
 criteria, and professional reliance policy as `TBD` until human approval.
 

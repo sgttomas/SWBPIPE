@@ -1,6 +1,0 @@
-#!/bin/bash
-# I13 F1b checkpoint D: the sparse path's peak attribution (scratch test appended to f1b_tests.rs in a
-# git archive of 130445db2; never committed). Debug build, as C-SPARSE runs.
-X=$(cd "$(dirname "$0")" && pwd)
-export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=1 F1B_ATTR_OUT=$X/attr.txt
-cd $X/tree/projects/chirality-piping/core/product_physics && CARGO_TARGET_DIR=$X/target cargo test --offline --locked -j 8 --lib scratch_attr_sparse_peak -- --nocapture > $X/attr.log 2>&1; echo "rc=$?" >> $X/attr.log

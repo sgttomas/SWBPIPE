@@ -1,8 +1,0 @@
-{
-  "sealed_utc": "2026-10-02T23:13:49.195917+00:00",
-  "candidate": "fdae294643b798c1849da8b2e643085562593686",
-  "status": "PARTIAL_NOT_A_CLEARANCE",
-  "inventory_sha256": "78c918162ba3e2892df2508fa41a6fb10e4ed53c592d56ae13169cb544d54bd9",
-  "return_sha256": "e1041df785bb2d021cf1d1ba14bc0fc739e2ede357095b794181e4ebfd567f2a",
-  "payload_count": 15
-}

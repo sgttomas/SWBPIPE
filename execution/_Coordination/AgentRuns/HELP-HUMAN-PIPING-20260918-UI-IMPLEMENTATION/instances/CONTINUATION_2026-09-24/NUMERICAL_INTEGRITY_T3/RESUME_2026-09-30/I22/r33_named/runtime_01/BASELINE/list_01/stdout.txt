@@ -1,3 +1,0 @@
-structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale: test
-
-1 test, 0 benchmarks

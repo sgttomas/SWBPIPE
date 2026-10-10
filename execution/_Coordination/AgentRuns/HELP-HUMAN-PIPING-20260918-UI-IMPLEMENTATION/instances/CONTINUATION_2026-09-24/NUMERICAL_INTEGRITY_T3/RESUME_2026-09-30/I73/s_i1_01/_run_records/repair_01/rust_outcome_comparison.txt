@@ -1,4 +1,0 @@
-base_ee vs rep3_ee: base       32 cand       50 removed/changed        0 added       18
-base_rcr vs rep3_rcr: base       21 cand       33 removed/changed        0 added       12
-base_rpd vs rep3_rpd: base       10 cand       10 removed/changed        0 added        0
-tauri_base vs tauri_cand_rep2: base      116 cand      116 removed/changed        0 added        0

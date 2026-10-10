@@ -1,9 +1,0 @@
-{
-  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
-  "reference": "I22/mutations_e1/CONTAINMENT_INVENTORY.json base entry; baseline/00/EVIDENCE.json",
-  "all116_original_file_hashes_match": true,
-  "baseline_source_read_only": true,
-  "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
-  "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
-  "Rust_jobs": 0
-}

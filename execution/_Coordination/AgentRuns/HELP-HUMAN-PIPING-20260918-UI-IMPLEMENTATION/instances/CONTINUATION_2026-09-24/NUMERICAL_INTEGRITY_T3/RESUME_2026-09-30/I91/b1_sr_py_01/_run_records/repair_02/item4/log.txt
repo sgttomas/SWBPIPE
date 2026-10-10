@@ -1,5 +1,0 @@
-339 lines -> WT/scratch/i91_b1_sr_py/r02/r02b/census_rv113.jsonl
-103 lines -> WT/scratch/i91_b1_sr_py/r02/r02b/probes_v5.jsonl
-15 lines -> WT/scratch/i91_b1_sr_py/r02/r02b/probes_fg.jsonl
-17 lines -> WT/scratch/i91_b1_sr_py/r02/r02b/probes_rp.jsonl
-{'bases': 17, 'mutations': 294, 'must_pass': 28} 339

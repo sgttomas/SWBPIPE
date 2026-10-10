@@ -1,8 +1,0 @@
-{
-  "checked_utc": "2026-10-02T00:08:29.372057+00:00",
-  "VR189_FK116_sources_unchanged": true,
-  "VR_and_scalar_artifacts_rawfingerprints_dependencies_unchanged": true,
-  "no_owned_runtime": true,
-  "I21_authorized_compile_not_supervised_or_treated_as_conflict": true,
-  "guard": "5387     1 03-22:32:10 /bin/bash <wt>/guard/memguard.sh"
-}

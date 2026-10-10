@@ -1,6 +1,0 @@
-28 Counter({'String::new()': 19, 'serde_json::to_string(': 6, '.to_ascii_uppercase(': 2, 'collect::<String>': 1})
-None resolve.rs:1055 .to_ascii_uppercase( | support_evidence.push(json!({"support_id": support.id, "node_id": support.node, "dof": motion.dof.to_ascii_upp
-2 lib.rs:1758 collect::<String> | .collect::<String>();
-None source_recovery.rs:259 serde_json::to_string( | let text=serde_json::to_string(&serde_json::json!({"domain":"physics_source_retained_identity_v1","payload":se
-None source_recovery.rs:497 serde_json::to_string( | serde_json::to_string(&(self.names, self.bits))
-4 source_recovery.rs:1392 serde_json::to_string( | let evidence = serde_json::to_string(&state.evidence)

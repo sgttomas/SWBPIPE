@@ -1,3 +1,0 @@
-structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988: test
-
-1 test, 0 benchmarks

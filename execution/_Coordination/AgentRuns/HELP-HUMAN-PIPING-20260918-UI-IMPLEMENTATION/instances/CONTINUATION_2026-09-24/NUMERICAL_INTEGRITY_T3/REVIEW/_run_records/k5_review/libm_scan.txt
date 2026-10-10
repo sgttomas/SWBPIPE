@@ -1,4 +1,0 @@
-RV14 libm scan of rigid_body.rs lines 250-1179 (K5's non-test block), comments and strings removed
-forbidden-call hits: []
-method calls: abs, add, add_product, all, any, canonical, chain, clamp, clone, contains, copied, enumerate, exact_motions, exact_scalar, extend, filter, find, flatten, fold, into_iter, is_empty, is_err, is_finite, is_none, is_ok, is_some, is_zero, iter, iter_mut, leading_zeros, len, map, map_err, max, min, min_by, null_translations, ok_or, orientation, position, publish, push, round, signum, sort_unstable, sort_unstable_by_key, sqrt, to_bits, total_cmp, try_candidate, unwrap_or
-transitive: Expansion::add_product -> exact_radix (FK structural.rs, pre-existing) uses 2.0_f64.powi(step), |step| <= 512, with a round-trip self-check; disclosed in RETURN 2.6

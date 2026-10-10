@@ -1,5 +1,0 @@
-=== py NONE: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-NONE
-=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
-.................................                                        [100%]
-33 passed in 3.63s
-=== exit 0 elapsed 4 s

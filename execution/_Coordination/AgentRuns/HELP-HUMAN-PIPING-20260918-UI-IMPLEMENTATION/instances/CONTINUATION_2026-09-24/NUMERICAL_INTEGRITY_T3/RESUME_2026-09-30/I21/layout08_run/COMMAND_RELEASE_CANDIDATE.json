@@ -1,9 +1,0 @@
-{
-  "command": "set -o pipefail\n/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER -u RUSTC_BOOTSTRAP RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_TARGET_DIR='<T3_HOST_ROOT>/k6c-layout08-target' cargo run --release --offline --locked -j 4 --verbose --target aarch64-apple-darwin --manifest-path '<I21_LAYOUT08_SCRATCH>/archive/projects/chirality-piping/core/solver/performance_harness/Cargo.toml' --example i21_kernel_layout 2>&1 | tee '<I21_LAYOUT08_SCRATCH>/logs/BUILD_LAYOUT08.log'",
-  "workdir": "<I21_LAYOUT08_SCRATCH>/archive",
-  "tty": true,
-  "yield_time_ms": 1000,
-  "max_output_tokens": 4500,
-  "status": "Prepared only, explicit release still pending",
-  "log_path_authority": "Native ROOT clarification through manager changes only tee output path from frozen command"
-}

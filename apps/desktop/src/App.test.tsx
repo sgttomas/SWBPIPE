@@ -2780,7 +2780,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       validationEvidencePacket.release_readiness_tool
         .latest_dag_dependency_edges,
-    ).toBe("execution/_DAG/DAG-006/DependencyEdges.csv");
+    ).toBe("execution/_DAG/DAG-011/DependencyEdges.csv");
     expect(
       validationEvidencePacket.release_quality_gates
         .release_publication_authorized,

@@ -1,0 +1,331 @@
+id: DEL-08-06
+name: State, comparison, and handoff report sections
+needs:
+- from: DEL-00-01
+  condition: 'DEL-08-06 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-08-06 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-08-06 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-04
+  condition: 'DEL-08-06 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-08-06 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-08-06 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-08-06 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-01-04
+  condition: 'DEL-08-06 needs DEL-01-04 as a predecessor: Report sections must preserve professional-boundary
+    notices and limits.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-01
+  condition: 'DEL-08-06 needs DEL-08-01 as a predecessor: State/comparison/handoff sections integrate
+    with report generator.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-02
+  condition: 'DEL-08-06 needs DEL-08-02 as a predecessor: State/comparison/handoff sections consume audit
+    manifest conventions.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-03
+  condition: 'DEL-08-06 needs DEL-08-03 as a predecessor: State/comparison/handoff sections extend assumptions/provenance
+    sections.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-04
+  condition: 'DEL-08-06 needs DEL-08-04 as a predecessor: State/comparison/handoff sections consume result
+    export envelopes.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-05
+  condition: 'DEL-08-06 needs DEL-08-05 as a predecessor: State/comparison/handoff sections need protected-content
+    linter controls.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-12-02
+  condition: 'DEL-08-06 needs DEL-12-02 as a predecessor: State/comparison/handoff sections need redaction/export
+    controls.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=SECURITY_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-01
+  condition: 'DEL-08-06 needs DEL-14-01 as a predecessor: State/comparison/handoff sections consume immutable
+    model states.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-02
+  condition: 'DEL-08-06 needs DEL-14-02 as a predecessor: State/comparison/handoff sections consume analysis
+    runs.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-03
+  condition: 'DEL-08-06 needs DEL-14-03 as a predecessor: State/comparison/handoff sections consume state
+    comparison.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-04
+  condition: 'DEL-08-06 needs DEL-14-04 as a predecessor: State/comparison/handoff sections consume run
+    comparison.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-05
+  condition: 'DEL-08-06 needs DEL-14-05 as a predecessor: State/comparison/handoff sections consume comparison
+    export contracts.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-15-01
+  condition: 'DEL-08-06 needs DEL-15-01 as a predecessor: State/comparison/handoff sections consume handoff
+    package manifest.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTEROP_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-15-03
+  condition: 'DEL-08-06 needs DEL-15-03 as a predecessor: State/comparison/handoff sections consume export
+    workflow records.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTEROP_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-15-04
+  condition: 'DEL-08-06 needs DEL-15-04 as a predecessor: State/comparison/handoff sections consume external-prover
+    metadata boundaries.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTEROP_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+code_paths:
+- apps/desktop/src/features/report/reportPackageRequest.ts
+- core/reporting/report_package/
+- core/reporting/report_package/src/lib.rs
+- core/reporting/report_package/tests/container.rs

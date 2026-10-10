@@ -1,7 +1,0 @@
-# I45 checkpoint 20
-Receipt 2026-10-03 02:26:30 UTC. Early checkpoint recorded at 2026-10-03 02:44:46 UTC, before checkpoint20 (02:46:30 UTC).
-Actual PP admission, normalized builder/material/term/map capture and recorded native association completed before 02:34 UTC. pp02 established 74 actual final rows (73 mechanical plus solver mode), with ordinary observed/no-observer envelope equality. pp05 passes four focused controls including identity/coverage/observable/headline mutations, real point/interpolation capture and cancelling individual terms.
-
-Independent exact Fraction/pi/closed cantilever oracle04 checks all 73 mechanical rows: zero73 pass; loaded45 pass/28 actual source-output misses; no false pass and no enclosure-only refusal. First loaded refusal: row2 result:disp:node-N-DEC092-TIP, SharperExact, independently also SharperBinary64. Final output bits/normalization/scales/classes/bounds agree. These remain recipe-level results; full-case status is not claimed.
-
-ROOT authorized tenth source path PP/tests/s11f_site_test.rs for exact scope/body retargeting and new module registration, with protections unchanged. G5a operational k_a/k_t derivation is held for independent operation-order review. Remaining work: close that prerequisite or return explicit G5a refusal, complete summary gates/coverage, preserve independent full-case outcomes, focused compatibility/S11 checks and final scope/hash audit. No source outside ten-file fence, Git/index/API write, delegation, heavy/UI/sweep or tooling install.

@@ -1,6 +1,0 @@
-
-running 1 test
-test structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.31s
-

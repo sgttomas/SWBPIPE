@@ -1,3 +1,0 @@
-    && (sourceContract(result) !== "physics_source" || (!!inputManifest && physicsSourceModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
-    && (sourceContract(result) !== "source_blocks" || (!!inputManifest && sourceBlockModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
-    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;

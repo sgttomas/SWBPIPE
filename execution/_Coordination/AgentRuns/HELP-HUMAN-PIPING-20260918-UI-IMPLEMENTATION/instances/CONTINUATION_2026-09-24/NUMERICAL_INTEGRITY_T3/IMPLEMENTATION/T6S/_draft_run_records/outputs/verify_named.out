@@ -1,7 +1,0 @@
-  D2 4.9.4, 4.9.7 and 4.9.9: line 596 blob at rev 52c51711b9e9, at main 52c51711b9e9
-  D2 4.9.4, 4.9.7 and 4.9.9: line 622 blob at rev 52c51711b9e9, at main 52c51711b9e9
-  D2 4.9.4, 4.9.7 and 4.9.9: line 639 blob at rev 52c51711b9e9, at main 52c51711b9e9
-  055ee0c0bc: remote branches ['origin/codex/piping-numerical-integrity-20260926', 'origin/codex/piping-t6-successor-outputs-20261005']; ancestor of NUM True; of main False
-named_references: 18 entries, 135 sites, 179 checks, 0 failed
-RESULT PASS
-rc=0

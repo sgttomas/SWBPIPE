@@ -1,4 +1,0 @@
-PASS G29 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs": "f3bfe198df45c9da21a82c3cb27f21d9a52ccc3d973c76ce259428cae9166020"}
-filter structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above
-aliases [('R7_K4', 'R7-M10')]

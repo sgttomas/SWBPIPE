@@ -1,5 +1,0 @@
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
- M projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
- M projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
-?? projects/chirality-piping/node_modules

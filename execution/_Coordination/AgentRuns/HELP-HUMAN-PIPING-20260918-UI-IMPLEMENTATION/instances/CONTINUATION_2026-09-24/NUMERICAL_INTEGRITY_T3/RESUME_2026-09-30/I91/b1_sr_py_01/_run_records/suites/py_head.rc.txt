@@ -1,2 +1,0 @@
-py rc=0
-done

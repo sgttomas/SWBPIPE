@@ -1,5 +1,0 @@
-source_13 seal and 12 unique payload hashes PASS
-source_12 seal and 47 unique payload hashes PASS
-Six original installed HTML and preserved decoded-source hashes PASS; manager read BRIDGES.md/RETURN.md fully. Independent backend review remains RV30.
-RETURN f32c79240a7749846398d070c25bc4694c8423d7e298e1a9bb2994715af0510f
-BRIDGES f2aa77ebcced3c4e257011617209d29d0e5b2cb78aaa4719bc97e901c416f0ff

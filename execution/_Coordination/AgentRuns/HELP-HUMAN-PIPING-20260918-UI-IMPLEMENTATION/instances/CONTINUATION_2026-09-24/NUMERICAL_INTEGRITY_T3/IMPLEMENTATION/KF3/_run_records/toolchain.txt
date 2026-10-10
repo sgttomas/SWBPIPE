@@ -1,7 +1,0 @@
-rustc 1.97.1 (8bab26f4f 2026-07-14)
-cargo 1.97.1 (c980f4866 2026-06-30)
-Python 3.13.14
-rustfmt 1.9.0-stable (8bab26f4f6 2026-07-14)
-Apple M5 Max
-memory 128 GiB
-26.6.2

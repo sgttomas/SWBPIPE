@@ -1,149 +1,33 @@
-# Desktop CI selection and integration cadence
+# Piping CI
 
-Repository-wide selection and full-run commands are documented in
-[`docs/CI_SELECTION.md`](../../../docs/CI_SELECTION.md). Root directories other
-than the Piping workflow and setup action (agent/workflow packages, execution
-records, root tools, exports) and project AGENTS prose are not desktop runtime
-inputs; changes limited to those surfaces receive an explicit not-applicable
-source result. Piping `validation/`, Python `tests/` and non-CI `tools/` feed
-only the independent numerical suite, except `validation/portability_policy.json`,
-which only the root governance harness reads. Mixed changes still select the
-coverage required by their product paths. A pull request that changes no Piping
-input runs no Piping test, so it need not be integrated with the latest base;
-any Piping input, and every manual target, keeps that requirement.
+`harness` is the single required result. It calls the product workflows and
+fails if any selected verification fails, is cancelled or never runs. Unselected
+product jobs are explicitly skipped. Selection uses the complete PR diff;
+missing diff information conservatively selects coverage.
 
-The Piping desktop workflow runs a cheap selector when a pull request opens,
-receives a new head, or reopens. Its
-stable check remains **Desktop E2E (source mode)**. An unrelated App/Runtime PR or
-Piping evidence-only change receives an explicit validated **not-applicable**
-result; no Piping browser setup or tests run, and no test-pass claim is made.
-Runtime is not a Piping dependency before its owning adoption decision.
+On a relevant PR, desktop coverage is a production build and one Chromium
+project running the R2 smoke and save/reopen journey. The full desktop Vitest
+suite and browser matrix run only by explicit workflow dispatch.
 
-The owner authorized reduced routine execution frequency and exact scenario
-deduplication on 2026-09-20. Selected coverage is not equivalent to running the
-full suite. Omitted identities and reasons are retained in the collection
-artifact, and partial CI is not DEC093 full surface4 evidence.
+Rust changes select their crate and transitive consumers through Cargo path
+dependencies and cross-crate Rust source/fixture path literals. Their existing numerical
+oracles remain unchanged. Shared or unknown numerical inputs select all crates;
+Python-test-only edits do not run Cargo. Python PR coverage keeps security and constraint/source-block validation, then
+adds qualification, schema and canonical-JSON families when their inputs change.
+Edited tests are run directly; shared CI/input changes expand the selection. Full preview, schema and qualification
+suites remain available on dispatch, alongside the full Cargo suite.
 
-| Complete PR diff | Source coverage |
-|---|---|
-| Reviewed reason-tooltip component only | Lean ordinary journeys |
-| Shell/layout/appearance CSS and named layout helpers | Lean plus all distinct layout cases, twelve appearance combinations, Escape ownership and overlay interactions, plus complete C3 viewport-visibility, B4 table-editing and Sections coverage |
-| Viewport, model-tree/properties, geometry/rich authoring and selection state | Lean plus full UI-foundation, linear authoring, C3 viewport-visibility, B4 table-editing and Sections coverage |
-| Results/report/export/storage display, redaction and persistence-integrity helpers | Lean plus complete result compatibility, GUI, session-status, R2 and B3B project-persistence files |
-| Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
-| Only added/modified source specs | Complete changed files plus accessibility |
-| Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
-| Validation, Python tests or non-CI project tools only | Not applicable (numerical suite still selected) |
-| No relevant Piping/shared inputs | Not applicable |
+No automatic nightly or post-merge duplicate suite is required. Reuse passing
+hosted results rather than repeating the same suite locally without a change or
+unresolved concern. Failure diagnostics stay in CI artifacts. The optional
+macOS release sweep remains available for release preparation.
 
-The maintained router enumerates actual ownership paths. Unknown instrument
-helpers, dynamic resource inputs, fixtures and configurations fall back to full;
-no directory-wide hermetic or instrument-only classification exists. Source
-selection does not replace applicable dist, native or protected benchmark checks.
-The closed PR825 exception has been removed; its authorization and results remain
-historical records.
-
-The lean set includes the entire B3 accessibility file and the existing canonical
-save/history/reopen, first workspace editing, straight authoring, R2
-solve/results/report/overlay, strict Current export, both shared drawer/menu Close,
-and typed selection/keyboard measurement journeys. Their original project
-assignments remain intact. No assertion, geometry/oracle tolerance, default test
-timeout or permanent skip was changed to obtain a reduced run.
-
-## Exact coverage and duration assignment
-
-Pull-request runs use the compact (1280x800) profile only where the window size
-is the subject: B3 accessibility, workspace layout, C3 viewport visibility, B4 table
-editing and Sections, compact linear authoring, the R2 journey both lanes must
-complete, and the named UI-foundation layout cases. Other compact identities
-repeat their desktop counterpart's code path at a second window size; they are
-omitted from pull-request selection with an explicit reason in the collection
-artifact, and every desktop-profile identity still runs. Pull-request full
-coverage is therefore not a DEC093 surface-4 CI binding. Manual full dispatch,
-the Playwright configuration and local DEC-025 evidence sweeps keep both
-profiles in full, so the dual-viewport CI binding path is unchanged.
-
-The explicit appearance matrix sets its viewport before navigation and retains
-all twelve theme/density/window combinations once. Explicit-start workspace cases
-also run once. They carry `@explicit-viewport`; the compact project excludes that
-tag. The desktop project, first workspace journey's two distinct starts, and
-selection-cardinality test's two initial states are preserved. CLI `--grep` and
-exact lists retain the project filter; `--grep-invert` overrides are rejected to
-prevent reintroducing repetitions. Collection also rejects a compact tagged test
-or an incomplete appearance matrix. Removed repetitions map to their retained
-same-title desktop counterparts in the implementation evidence.
-
-Full CI starts four isolated runners at once, each executing an exact
-Playwright 1.60 `--test-list` partition with one worker. Accessibility is
-balanced into those partitions as an ordinary atomic file group; a separate
-barrier runner repeating the whole browser setup and delaying every shard is
-used only by partial modes. A failing shard cancels the others (fail-fast
-matrix). Duration hints are checked into `tools/ci/e2e_duration_hints.json`;
-their `basis` records the source run, log and collection hashes, with earlier
-provenance retained. Refresh them from any successful full run with
-`python3 tools/ci/refresh_duration_hints.py --run <id> --apply`, which
-launches no browser or test. Reporter tags are resolved through the canonical
-collected identities. Skips and passes rounded to zero milliseconds use positive
-scheduling floors, not measured execution times. New or untimed tests use a
-conservative 30-second scheduling weight. These values
-are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
-deterministic, using the lightest estimated bin first. Files/projects remain
-atomic except the independently set-up UI-foundation and workspace-layout cases;
-named describe groups and explicitly serial files remain together. No global
-`fullyParallel` change is made.
-
-Every runner collects the actual source inventory and checks each exact list before
-browser execution. The selected union must contain every intended identity exactly
-once, with no empty, missing, duplicate or unexpected matches. Required lean titles
-must exist exactly once per original profile. Collection records source/head/target
-base, config/source/policy hashes, browser configuration identity, commands, IDs,
-selection reasons and scheduling estimates. Collection is not a browser-test pass.
-Cancellation, collection failure, selector failure or a missing required job fails
-the stable aggregate; only explicitly unneeded jobs may skip.
-
-## Full checkpoints and integration
-
-Manual `workflow_dispatch` in **Piping Desktop E2E** is the deliberate full integration-milestone mechanism
-and always selects full source coverage. Broad-risk and CI-policy changes also
-select full automatically. There is no label-triggered or unconditional nightly run.
-
-Body edits, readiness changes and label changes launch no workflow, participate in
-no concurrency group and emit no competing successful/skipped stable check. They
-cannot cancel or replace a meaningful pending validation. Base retargeting is also
-an ignored metadata edit: it does **not** automatically invalidate or rerun GitHub
-checks. A retarget without a new head therefore requires deliberate full dispatch
-on the current candidate with the **target_base** input set to the current target
-commit SHA. Alternatively, updating/reopening the PR validates its current event
-base. The supplied manual target must be an ancestor of the exact dispatched head;
-unresolved or unintegrated targets fail. Manual head, target and merge-base evidence
-remain distinct, and ROOT revalidates the live target before relying on the proof.
-
-Execution checks the exact PR head and records the event target base separately
-from its Git merge base. The target must be integrated into head; stale or
-unavailable target data blocks the check with an update-base diagnostic. Hosted
-event identity and PR number must match the plan; a manual dispatch also binds its
-requested target and exact head. ROOT rechecks
-live main before merge. Workflow and collection artifacts are bound to the actual
-candidate rather than reused across changed inputs.
-
-Develop with focused checks, then combine related independently reviewed work into
-one coherent integration candidate and one clean local DEC-025 sweep before product
-integration. Full local source/dist, native witness and governed qualification
-requirements remain distinct from this hosted source check. Fewer internal-worker
-PRs do not weaken review or merge checks, and an early owner merge is not a waiver.
-Branch protections, other project workflows and repository permissions are unchanged.
-
-## Dependency cache preparation
-
-**Piping E2E dependency cache** reuses the existing pinned setup action on trusted
-`main` when dependency/bootstrap inputs change, or by manual dispatch on `main`.
-It is restricted to `sgttomas/chirality`; the public projection omits Piping.
-Its separate concurrency group cannot cancel source validation. It prepares
-dependencies and WASM without running another browser suite or emitting the
-**Desktop E2E (source mode)** check. It does not replace any validation gate.
-
-This addresses observed PR-scoped cache misses; actual main cache creation and
-later consumer hits must be observed before claiming a timing improvement.
-Cross-host browser tests use the host's native text-editing shortcut, such as
-Playwright `ControlOrMeta+z` for text Undo; native macOS accelerator witnesses
-remain distinct.
+Successful numerical and core-browser results can be reused on PRs. The key
+covers every tracked file available in the sparse product checkout, the runner
+image/architecture, language runtime and selected numerical command set. This
+is intentionally conservative: source, fixture, test or workflow changes rerun;
+changes confined to excluded execution records can reuse a pass. Cache restore
+uses an exact key only, and records are saved only after successful execution.
+A hit reports the original run and commit, explicitly saying tests were not
+executed again. Manual runs bypass result reuse. Missing caches run normally;
+this is separate from dependency/build-output caching.

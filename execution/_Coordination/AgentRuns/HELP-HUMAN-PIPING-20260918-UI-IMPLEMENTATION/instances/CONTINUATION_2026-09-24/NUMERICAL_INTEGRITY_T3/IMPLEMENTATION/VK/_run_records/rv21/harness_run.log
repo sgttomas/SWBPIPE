@@ -1,4 +1,0 @@
-NONE      pass            build   6.2s tests   47.0s  failing []
-RV21-H4   killed          build   6.5s tests   47.1s  failing ['an_overflowed_published_row_fails']
-RV21-H6   killed          build   6.0s tests   46.4s  failing ['a_wrong_value_on_a_sub_range_row_fails']
-rc=0 total=162s

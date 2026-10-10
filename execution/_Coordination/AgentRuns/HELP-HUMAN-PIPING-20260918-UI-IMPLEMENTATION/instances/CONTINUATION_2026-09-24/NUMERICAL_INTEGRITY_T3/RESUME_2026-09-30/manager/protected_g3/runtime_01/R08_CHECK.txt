@@ -1,5 +1,0 @@
-PASS R08 K4-M1 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "a3b10b4f50d1bc6d0ee8aa2860f5049ddeb77b89d25987b549fb5ae7ee7795fc"}
-filters ["structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it"]
-target --lib
-semantic Exact 1+2^-127+2^-128-2^-400 rounds to 1+2^-127, not separately rounded positive/negative fold.

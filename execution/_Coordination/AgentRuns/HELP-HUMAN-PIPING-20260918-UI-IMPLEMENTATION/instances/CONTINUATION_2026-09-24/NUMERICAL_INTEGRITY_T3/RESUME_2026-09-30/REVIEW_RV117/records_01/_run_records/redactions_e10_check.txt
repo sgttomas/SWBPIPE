@@ -1,7 +1,0 @@
-rows in REDACTION_01 tables: 50
-  not committed at pre-redaction rev: FOLLOWUP_01.md
-  not committed at pre-redaction rev: _run_records/followup_01/sanitize.py
-  not committed at pre-redaction rev: SHA256SUMS.followup_01
-committed at bc37d43a0a: 47; old sha256 matches there: 47; new sha256 matches H: 50/50
-pre-redaction blob ids in H's tree: 0  in M's tree: 0
-changed files (of 1045) hashing to an old sha256: 0

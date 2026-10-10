@@ -1,7 +1,0 @@
-247 RF-LARGE-CHAIN-n10000-AX E_adm 3009837834 (was 2856520478) rho 0.385 E/(heap cap/2) 0.748 projected RSS 1321453051 <= 6871947673 admitted
-252 RF-LARGE-CHAIN-n10000-ROT E_adm 3009837834 (was 2856520478) rho 0.385 E/(heap cap/2) 0.748 projected RSS 1321453051 <= 6871947673 admitted
-255 RF-LARGE-TREE-n10000-AX E_adm 3010765802 (was 2857448446) rho 0.432 E/(heap cap/2) 0.748 projected RSS 1482999822 <= 6871947673 admitted
-260 RF-LARGE-TREE-n10000-ROT E_adm 3012624342 (was 2859306986) rho 0.432 E/(heap cap/2) 0.748 projected RSS 1483915276 <= 6871947673 admitted
-263 RF-LARGE-CONT-n10000-AX E_adm 2839853737 (was 2777832333) rho 0.434 E/(heap cap/2) 0.705 projected RSS 1377714709 <= 6871947673 admitted
-268 RF-LARGE-CONT-n10000-ROT E_adm 2841011432 (was 2778990028) rho 0.434 E/(heap cap/2) 0.706 projected RSS 1378276349 <= 6871947673 admitted
-rows 132, decisions changed 0; largest w1a E/(heap cap/2) 0.748; largest w1a E*rho/(C/2) 0.303

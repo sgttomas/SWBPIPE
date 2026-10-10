@@ -1,5 +1,0 @@
-overlay projects/chirality-piping/core/solver/frame_kernel/src/lib.rs 0e3cc73a00648823
-overlay projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs a2b1a1e3f5ebe767
-overlay projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs 69b86bbbc5aa12db
-overlay projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs 15d6fdff5ef5b2a8
-overlay projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs 3162cfe5e16dec57

@@ -1,5 +1,0 @@
--  it("admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1", () => {
-+  it("admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1, T1's load-reference-1 and load-reference-source-1, and U6's preview-physics-retained-1 (D-U6-6)", () => {
--      "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/source-blocks-1"]);
-+      "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
-+      "openpipestress.result_semantics/0.3.0/source-blocks-1"]);

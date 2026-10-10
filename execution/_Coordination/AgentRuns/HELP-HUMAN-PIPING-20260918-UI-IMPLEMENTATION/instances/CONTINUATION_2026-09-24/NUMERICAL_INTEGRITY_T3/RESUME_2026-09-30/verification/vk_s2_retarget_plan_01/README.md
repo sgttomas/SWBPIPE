@@ -1,3 +1,0 @@
-# S2 mapping correction proposal
-
-The original reaction/value criterion remains. RF-CHAIN has zero reaction references, whose numerical predicate is sign-invariant. Existing RF-FINITE has nonzero constrained-root reaction references. ROOT proposes original P36 normal restoration followed by unchanged RF-FINITE NONE/S2/NONE on the existing debug artifact. No new fixture/source/oracle or predicted kill. Prior P36 preparation expired without execution; this new proposal needs independent review and fresh ROOT release. Its fifteen-minute ceiling includes preparation and all four calls, not an extension of an expired window.

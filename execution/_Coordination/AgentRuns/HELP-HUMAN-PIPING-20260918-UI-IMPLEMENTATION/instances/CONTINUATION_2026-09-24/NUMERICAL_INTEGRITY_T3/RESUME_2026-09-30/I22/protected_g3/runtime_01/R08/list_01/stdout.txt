@@ -1,3 +1,0 @@
-structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it: test
-
-1 test, 0 benchmarks

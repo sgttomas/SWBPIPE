@@ -1,4 +1,0 @@
-k6_observe: heap cap refused 4848 bytes (current 8384747, cap 8388608)
-memory allocation of 4848 bytes failed
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-time: command terminated abnormally

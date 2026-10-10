@@ -1,5 +1,0 @@
-RV97 probe determinism (run 1 against run 2, the second with the plain status field added to each DIRECT record):
-- RV97 records: 41 and 41, identical once the added status field is removed
-- I51_FROZEN_REFUSAL lines: 4 and 4, identical
-- the 10 saved documents: byte-identical (probe_documents.sha256 lists both runs)
-- tabulate.py tables: identical

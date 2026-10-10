@@ -1,1 +1,0 @@
-seam guard: 208 files, 196751 of 250392 lines scanned as product text

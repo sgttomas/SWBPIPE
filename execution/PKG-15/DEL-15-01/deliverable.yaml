@@ -1,0 +1,204 @@
+id: DEL-15-01
+name: Canonical handoff package schema and manifest
+needs:
+- from: DEL-00-01
+  condition: 'DEL-15-01 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-15-01 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-15-01 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-04
+  condition: 'DEL-15-01 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-15-01 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-15-01 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-15-01 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
+    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    not Type 2 dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-10-03
+  condition: 'DEL-15-01 needs DEL-10-03 as a predecessor: Canonical handoff packages align with local
+    FEA handoff contracts.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR explicitness
+    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
+    not independent DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-04
+  condition: 'DEL-15-01 needs DEL-08-04 as a predecessor: Canonical handoff packages consume result export
+    envelopes.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type REPORTING_PREDECESSOR explicitness
+    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
+    not independent DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-08-02
+  condition: 'DEL-15-01 needs DEL-08-02 as a predecessor: Canonical handoff packages need audit manifest/hash
+    conventions.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type REPORTING_PREDECESSOR explicitness
+    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
+    not independent DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-01
+  condition: 'DEL-15-01 needs DEL-14-01 as a predecessor: Canonical handoff packages reference immutable
+    model states.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type PERSISTENCE_CONTRACT explicitness
+    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
+    not independent DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-14-02
+  condition: 'DEL-15-01 needs DEL-14-02 as a predecessor: Canonical handoff packages reference analysis
+    runs.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type PERSISTENCE_CONTRACT explicitness
+    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
+    not independent DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-02-01
+  condition: 'DEL-15-01 needs DEL-02-01 as a predecessor: Canonical handoff packages reference the canonical
+    model.
+
+
+    Notes: Preserved from approved DAG-002 mirror; original DAG type DOMAIN_MODEL explicitness INFERRED_DIRECT
+    origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums; not independent
+    DAG-003 approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+code_paths:
+- schemas/handoff_package.schema.json
+- schemas/target_mapping.schema.json
+- tools/validation/validate_dependencies_schema.py
+checks:
+- tests/test_handoff_package_schema.py

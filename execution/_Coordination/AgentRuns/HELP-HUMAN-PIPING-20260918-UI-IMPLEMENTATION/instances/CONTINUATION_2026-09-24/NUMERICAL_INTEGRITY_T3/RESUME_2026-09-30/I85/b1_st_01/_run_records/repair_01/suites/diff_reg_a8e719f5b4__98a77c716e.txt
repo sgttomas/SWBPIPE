@@ -1,2 +1,0 @@
-188a189
-> src/lib.rs :: test retained_memory::witness_tests::b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins ... ok

@@ -188,7 +188,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       profiles: RELEASE_PROFILES,
       required_paths: REQUIRED_RELEASE_PATHS,
       skeleton_check_count: 2,
-      latest_dag_dependency_edges: "execution/_DAG/DAG-006/DependencyEdges.csv",
+      latest_dag_dependency_edges: "execution/_DAG/DAG-011/DependencyEdges.csv",
       browser_panel_runs_tool: false,
       dry_run_default: true,
       external_services_required: false

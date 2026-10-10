@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-03T04:57:05.127240+00:00",
-  "payloads": 58,
-  "inventory_sha256": "a474acd4e0e425e2823c5b1c745dc58ca2b114acea3791ef6530ba5558ad9737",
-  "return_sha256": "330b8c7826c5716ff02590ba278c6c88a486e8d8a973adca151f320d9d94765e",
-  "source_inventory_sha256": "90ea14122fe4a9ceceb98e17067b8fc720f7cf011a954935f057e6e32c50cb90",
-  "status": "source completion sealed; fresh RV62 review pending; runtime released"
-}

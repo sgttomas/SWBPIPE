@@ -1,0 +1,169 @@
+id: DEL-03-06
+name: Expansion joint component model
+needs:
+- from: DEL-00-01
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0082 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0083 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0084 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0085 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0086 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0087 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
+    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
+    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
+    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-03-02
+  condition: 'DEL-03-06 needs DEL-03-02 as a predecessor: expansion joint fields extend component library
+    schema
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0418 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
+    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
+    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-06/docs/_Registers/Deliverables.csv
+- from: DEL-02-02
+  condition: 'DEL-03-06 needs DEL-02-02 as a predecessor: manufacturer stiffness/effective-area/movement
+    fields are unit-aware
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0419 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
+    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
+    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    DependencyType=UNIT_CONTRACT, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-06/docs/_Registers/Deliverables.csv
+- from: DEL-01-02
+  condition: 'DEL-03-06 needs DEL-01-02 as a predecessor: expansion-joint data is user/manufacturer supplied
+    with provenance
+
+
+    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
+    mapping, and package dependency shape.; Carried forward from DAG-001-E0420 into DAG-002 revision 0.5
+    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
+    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
+    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
+    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    DependencyType=GOVERNANCE_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-06/docs/_Registers/Deliverables.csv
+code_paths:
+- core/model_operations/operation_applier/src/lib.rs
+- core/product_physics/
+- core/product_physics/src/lib.rs
+- schemas/component.schema.yaml
+checks:
+- tests/test_component_section_schema.py

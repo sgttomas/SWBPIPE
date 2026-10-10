@@ -1,9 +1,0 @@
-{
- "note": "sha256 before host paths were replaced by placeholders",
- "originals": {
-  "dec025/SWEEP_20261005T031803Z_5758e1c3df70.json": "31907501ada4a3f742a0fdea93e3245428a75f6f8ab81a6b5324ade806100d70",
-  "dec025/sweep.log": "66b50954129e19e15bca49d7277d763223a19804866d2f575b152634cec34e88",
-  "dec025/desktop_vitest.log": "463fc8d04161a801ffa8ff1f3547c1a90f5e565638888aab8bc8c191c0255dc0",
-  "dec025/surfaces.txt": "e0198d1f91514998ca097ae843a19607a0030433559fe7ba40c63717ba4fad53"
- }
-}

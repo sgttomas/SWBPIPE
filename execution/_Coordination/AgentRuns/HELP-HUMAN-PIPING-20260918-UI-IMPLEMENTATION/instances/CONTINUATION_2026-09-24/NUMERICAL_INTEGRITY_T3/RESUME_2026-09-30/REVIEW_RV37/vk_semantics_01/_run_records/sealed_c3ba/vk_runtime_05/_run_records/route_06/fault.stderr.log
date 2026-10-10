@@ -1,4 +1,0 @@
-
-thread 'rf_weak' (28972462) panicked at tests/lane.rs:75:5:
-RF-WEAK: 20 failures
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

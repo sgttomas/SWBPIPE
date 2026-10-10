@@ -1,5 +1,0 @@
-head de01e43bc417b72161b964db8f5208dda91c99d4
-branch codex/piping-f2a-u8-20261005
-status:
- M projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
-end status

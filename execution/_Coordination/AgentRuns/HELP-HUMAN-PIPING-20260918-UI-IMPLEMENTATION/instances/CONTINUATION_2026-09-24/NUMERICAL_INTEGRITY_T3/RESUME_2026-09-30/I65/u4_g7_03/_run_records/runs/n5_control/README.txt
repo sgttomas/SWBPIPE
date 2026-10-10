@@ -1,2 +1,0 @@
-# N-5 control: delta_inventory2.py between 2bb81ec1ea and b43378d90a (the G6 repair, which edited retained_memory_law_tests.rs and tests/retained_memory_challenge.rs), tree of b43378d90a (git archive), reachability from the final basis's graph (approximate: only the qualification-test class is under test).
-empty table -> 5 (a non-test hunk is unreviewed); table covering every non-qualification hunk -> 6 (only qualification-test hunks unreviewed); table covering all -> 0; u4_g7_02's tool with the non-qualification table -> 0 (before N-5, test files never stopped).

@@ -1,3 +1,0 @@
-structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves: test
-
-1 test, 0 benchmarks

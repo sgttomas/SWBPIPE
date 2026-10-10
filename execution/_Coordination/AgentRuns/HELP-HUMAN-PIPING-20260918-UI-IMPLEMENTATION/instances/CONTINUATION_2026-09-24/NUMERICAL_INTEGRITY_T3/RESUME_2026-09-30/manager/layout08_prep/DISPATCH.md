@@ -1,7 +1,0 @@
-# layout08 preparation actual dispatch
-
-Existing I21 resumed through collaboration.followup_task; manager /root/t3_recovery_manager reports to /root. No new child. Actual source-only start13:15:00 UTC, fixed end13:35:00. ROOT grant NUMb0b6ee4d90813abbab17b9c18b7d43ba998a57ba, R/BRIEFS/I21_LAYOUT08_PREP.md, SHA d5dd89e0732c0004399627a102d185b7376857bf405af0f39401707600635e8e was read fully. RV30 source07_02 seal0bae52b3c5d15a339a09cf07a36fc20fb2a72d9affb5423a916178f8cfd693d8 is required input.
-
-Concrete preparation only: immutable40129 H dependency archive, exactly adaptive.rs hook/structural.rs export/H example; unchanged K6Alloc, three actual kernel tree specializations and five actual sizeof/alignof types. Fixed stack reports/no thread setup/no concurrent allocator users/no formatting until sampling ends, extracted operands, observable container/content/drop/calls checks, no inferred alignment. Freeze source/map/overlay/locks/allocator/commands; manager containment/fence check and ROOT/RV30 exact review precede any future run.
-
-Writes <K6C_WT>/<R>/I21/layout08_prep, scratch/i21/layout08 and empty k6c-layout08-target only. Logs outside immutable roots. No Rust/probe/model/network/install/maintained edit/new tool/allocator/observer/framework/Git-index/delegation; tool blocker stops rather than workaround. G1 remains runtime priority. Native followup retains exact supplied message.

@@ -1,2 +1,0 @@
-thread 's11g_tests::d21_1_second_test_adds_the_bound_exactly' (3562) panicked at src/s11g_tests.rs:700:5:
-|A_net| + 12B > 12 T0 fires by the second test: RowDecision { fires: false, t0: 1.4999999999999998e-9, tf: 1.4999999999999998e-9, net_ratio: 1.15, self_equilibrated_ratio: 0.0, reason: None }

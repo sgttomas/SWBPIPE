@@ -1,0 +1,332 @@
+id: DEL-07-12
+name: Interoperability and evidence-review workspace
+needs:
+- from: DEL-15-01
+  condition: 'DEL-07-12 consumes Canonical handoff package schema and manifest from DEL-15-01: handoff
+    panel: canonical package and manifest; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E054; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-15-02
+  condition: 'DEL-07-12 consumes Target mapping and unsupported-behavior contract from DEL-15-02: handoff/local-FEA/external-prover
+    panels: target mapping and unsupported behavior; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E055; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-15-03
+  condition: 'DEL-07-12 consumes Downstream modeling export workflow from DEL-15-03: handoff panel: explicit
+    downstream export workflow; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E056; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-15-04
+  condition: 'DEL-07-12 consumes External prover boundary metadata from DEL-15-04: external-prover boundary
+    panel: boundary metadata; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E057; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-01
+  condition: 'DEL-07-12 consumes CAEPIPE and export-format source basis from DEL-17-01: CAEPIPE/export
+    panels: source-basis constraints only, never extracted equations as engineering authority; a prerequisite
+    for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E058; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-02
+  condition: 'DEL-07-12 consumes Export package, profile, and stable ID map contracts from DEL-17-02:
+    export panels: common package/profile/stable-ID/unit contract; a prerequisite for this family only,
+    not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E059; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-03
+  condition: 'DEL-07-12 consumes Native open JSON export package from DEL-17-03: native-package panel:
+    native open JSON package; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E060; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-04
+  condition: 'DEL-07-12 consumes CAEPIPE MBF export profile and deterministic writer from DEL-17-04: caepipe-mbf
+    panel: deterministic MBF writer records; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E061; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-05
+  condition: 'DEL-07-12 consumes CAEPIPE external run harness and CSV parser from DEL-17-05: caepipe-external
+    panel: licensed run evidence and CSV records, no activation authority; a prerequisite for this family
+    only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E062; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-06
+  condition: 'DEL-07-12 consumes Stress-neutral CSV/JSON package from DEL-17-06: stress-neutral panel:
+    CSV/JSON package; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E063; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-07
+  condition: 'DEL-07-12 consumes Conservative PCF subset exporter from DEL-17-07: pcf-export panel: conservative
+    PCF records; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E064; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-08
+  condition: 'DEL-07-12 consumes GLB/glTF review geometry export from DEL-17-08: review-geometry panel:
+    GLB/glTF review geometry records; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E065; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-17-09
+  condition: 'DEL-07-12 consumes Export adapter SDK and additional targets from DEL-17-09: export-adapter-sdk
+    panel: SDK and already-scoped target records; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E066; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-10-02
+  condition: 'DEL-07-12 consumes Import/export adapter framework from DEL-10-02: adapter-framework panel:
+    framework validation and privacy contract; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E067; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-10-03
+  condition: 'DEL-07-12 consumes Local FEA handoff data contract from DEL-10-03: local-fea-handoff panel:
+    local FEA data contract; held formats/invocation remain held; a prerequisite for this family only,
+    not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E068; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-10-05
+  condition: 'DEL-07-12 consumes Headless CLI and structured I/O analysis runner from DEL-10-05: headless-runner
+    panel: structured I/O runner records without GUI ownership of the runner; a prerequisite for this
+    family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E069; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-09-04
+  condition: 'DEL-07-12 consumes Validation manual skeleton from DEL-09-04: validation-evidence panel:
+    validation manual evidence; display does not confer engineering acceptance; a prerequisite for this
+    family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E070; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-12-02
+  condition: 'DEL-07-12 consumes Private data redaction and export controls from DEL-12-02: all explicit
+    export paths: private data redaction and export controls; a prerequisite for this family only, not
+    every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E071; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-00-05
+  condition: 'DEL-07-12 consumes GUI state and interaction architecture from DEL-00-05: panel GUI-state
+    separation; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E072; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-00-06
+  condition: 'DEL-07-12 consumes Diagnostics, warning, and result-envelope contract from DEL-00-06: diagnostic
+    and result-envelope transport constraints; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E073; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+- from: DEL-00-07
+  condition: 'DEL-07-12 consumes API boundary and adapter contract map from DEL-00-07: adapter/result
+    no-bypass boundary constraints; a prerequisite for this family only, not every panel.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
+    SCA011OriginalDependencyID=SCA011-E074; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
+    original_source_ref=P-OWN-05; dependency table DEL-07-12; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
+code_paths:
+- apps/desktop/src/features/native-package/
+- apps/desktop/src/features/stress-neutral/
+- apps/desktop/src/features/validation-evidence/

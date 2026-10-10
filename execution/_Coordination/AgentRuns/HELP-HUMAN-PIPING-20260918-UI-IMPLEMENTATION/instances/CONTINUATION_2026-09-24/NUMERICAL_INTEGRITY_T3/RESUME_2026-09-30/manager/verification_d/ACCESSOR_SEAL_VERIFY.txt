@@ -1,6 +1,0 @@
-ACCESSOR.diff: OK
-COMMANDS.json: OK
-HASHES.json: OK
-RETURN.md: OK
-TEST.stderr.portable: OK
-TEST.stdout: OK

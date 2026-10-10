@@ -1,9 +1,0 @@
-{
-  "end_utc": "2026-10-01T23:20:00Z",
-  "current_seed_site_direct_test_found": true,
-  "TREE100_additional_candidate_found": true,
-  "TREE100_input_identity_not_inferred": true,
-  "source_binary_fingerprint_unchanged": true,
-  "P49_run": false,
-  "any_new_test_build_run": false
-}

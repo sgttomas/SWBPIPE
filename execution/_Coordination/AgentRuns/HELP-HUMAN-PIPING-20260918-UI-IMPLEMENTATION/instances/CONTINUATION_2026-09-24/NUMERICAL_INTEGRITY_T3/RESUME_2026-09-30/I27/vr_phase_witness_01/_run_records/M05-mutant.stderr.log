@@ -1,6 +1,0 @@
-
-thread 'envelope::tests::refused_format_argument_survives_outer_format_phase' (28593150) panicked at src/envelope.rs:1630:13:
-assertion `left == right` failed
-  left: 388
- right: 566
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

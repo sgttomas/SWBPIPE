@@ -1,1 +1,0 @@
-python3 -m unittest discover -s runner -p 'test_*.py': Ran 47 tests, OK

@@ -1,5 +1,0 @@
-existing envelopes: 63; identical to base run 1: 62; differing: 1; every line equals some base run: True
-lines that vary between the three base runs themselves: 2: ['fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#', 'fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json#']
-successor-identity envelopes: 17 (base: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED, unsupported; candidate: dispatched to the accepted reader)
-envelopes in base but not candidate: []
-envelopes new in candidate: ['fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#/source', 'fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#/source']

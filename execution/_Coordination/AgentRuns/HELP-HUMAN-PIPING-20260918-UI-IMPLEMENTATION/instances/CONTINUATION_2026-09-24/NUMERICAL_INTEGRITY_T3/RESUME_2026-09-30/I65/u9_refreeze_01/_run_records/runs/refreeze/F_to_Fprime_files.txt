@@ -1,4 +1,0 @@
-projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs
-projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1/CHANGE_RECORD.md
-projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1/PR_BODY.md
-projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F2A_D1/SHA256SUMS

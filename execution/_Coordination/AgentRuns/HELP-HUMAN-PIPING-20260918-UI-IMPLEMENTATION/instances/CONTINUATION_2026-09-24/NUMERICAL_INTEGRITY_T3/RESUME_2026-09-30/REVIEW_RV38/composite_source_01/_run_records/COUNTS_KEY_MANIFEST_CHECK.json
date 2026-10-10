@@ -1,8 +1,0 @@
-{
-  "rows": 33,
-  "identical_ordered_keys": true,
-  "changed_estimate_fields_per_row": 22,
-  "nonestimate_fields_equal": true,
-  "manifest_changed_rows": 1,
-  "new_counts_sha256": "29e4aba283a4edeb3287d72598d7f37d29ed65799959f89005cf58bcf1d4a9f4"
-}

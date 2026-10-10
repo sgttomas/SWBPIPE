@@ -1,5 +1,0 @@
-# K4 records at a5fa0eaf7 (clean archive)
-_run_records/SHA256SUMS: 237 OK, 0 not OK; entries 237; own sha256 8c8423b967a91768357a767b95b4e30623ed186137ba4ef3559c6054240048b4; files besides it 237
-retained_k4/SHA256SUMS: 22 OK, 0 not OK
-_run_records/rv19/changed_files.txt: 27 of 27 sha256 match the files at a5fa0eaf7 (and git diff lists 27 non-record files)
-scan of IMPLEMENTATION/K4, retained/ and retained_k4/ for home, temp and tool paths, user and host names and model identifiers: 0 matches

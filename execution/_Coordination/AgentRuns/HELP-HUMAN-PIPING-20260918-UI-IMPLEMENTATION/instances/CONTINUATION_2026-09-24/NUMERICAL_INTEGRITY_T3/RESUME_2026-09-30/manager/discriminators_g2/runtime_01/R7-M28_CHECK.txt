@@ -1,4 +1,0 @@
-PASS R7-M28 complete116files=frozenpreparedoverlay+exactfault; protectedtests/lock/corpora, patchhash/basebinary, containedsource/emptytarget/writablesiblinglogs, nlink1/no symlinks andguard5387.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "8b3f7924d028722ef51768a3b3e3ca536d70a4aa9c119b18a23430ccab74d818"}
-filters ["structural::retained::adaptive::method_tests::i23_r7_required_shift"]
-semantic_bindings [{"filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift", "assertion_messages": ["I23:REQUIRED_SHIFT", "I23:FORMED_SHIFT_BOUND"], "expected": "One scheduled shift at 256; block 0 S equals the fixed BOUNDS first-try S token, also equal to fixed CHARGE B.", "nonkill_shape_checks": []}]

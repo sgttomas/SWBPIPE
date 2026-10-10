@@ -1,9 +1,0 @@
-75a76
-> _TMF = {}
-76a78,80
->     if rel not in _TMF: _TMF[rel] = _test_module_file(rel)   # RV98 DIAGNOSTIC ONLY: memoised
->     return _TMF[rel]
-> def _test_module_file(rel):
-123a128,129
->                     _rel = os.path.relpath(os.path.join(d, ff), W)   # RV98 DIAGNOSTIC ONLY: skip test files and cfg(test) module files as embedders
->                     if _rel.endswith("_tests.rs") or _rel.endswith("/tests.rs") or test_module_file(_rel): continue

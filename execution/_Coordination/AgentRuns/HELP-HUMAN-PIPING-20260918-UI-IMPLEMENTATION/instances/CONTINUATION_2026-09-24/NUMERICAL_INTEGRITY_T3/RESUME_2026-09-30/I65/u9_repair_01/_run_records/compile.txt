@@ -1,6 +1,0 @@
-# isolated copy: git archive d069ab3ccf (projects/chirality-piping without execution/) + the six edited files
-# cargo build --lib:     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.56s
-# cargo test --lib retained_memory:
-test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 502 filtered out; finished in 3.27s
-# cargo test --test retained_memory_challenge:
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s

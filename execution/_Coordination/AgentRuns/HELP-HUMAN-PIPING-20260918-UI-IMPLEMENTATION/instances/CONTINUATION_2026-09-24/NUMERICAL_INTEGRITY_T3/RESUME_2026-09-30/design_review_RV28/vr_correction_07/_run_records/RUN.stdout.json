@@ -1,1 +1,0 @@
-{"status": "PASS", "checks": 475, "cases": 24, "metric_rows": 48, "replacement_values": 96, "common_outcome_maxima_unchanged": 48, "overlay_idempotence": "authenticated exact-new only", "full_Emax_accepted": false}

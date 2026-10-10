@@ -1,2 +1,0 @@
-round2_run1.log vs round2_run2.log section=None ignore_assembly=False: run1 lines=270 run2 lines=270 identical=True
-round1_controls.log vs round1_controls_run2.log section=zz_i86_builtin_controls ignore_assembly=True: run1 lines=77 run2 lines=77 identical=True

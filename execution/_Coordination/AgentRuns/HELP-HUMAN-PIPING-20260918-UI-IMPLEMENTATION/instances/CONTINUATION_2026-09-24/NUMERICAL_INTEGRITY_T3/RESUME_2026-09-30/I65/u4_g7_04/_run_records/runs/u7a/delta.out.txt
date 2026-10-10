@@ -1,4 +1,0 @@
-{"files": 26, "hunks_and_files": 38, "classes": {"not-d1": 18, "item": 3, "cfg-test-stmt": 3, "no-code": 2, "test": 11, "generated": 1}, "verdict": "STOP: 3 hunk(s) need a reviewed entry"}
-UNREVIEWED core/product_physics/src/lib.rs 2235-2235 item 09a2779c35c4b96f
-UNREVIEWED core/product_physics/src/lib.rs 2254-2254 item 38a7b43fd37f6845
-UNREVIEWED core/reporting/result_export/src/retained_precision.rs 4267-4269 item 1ea4bbe3d178aa2d

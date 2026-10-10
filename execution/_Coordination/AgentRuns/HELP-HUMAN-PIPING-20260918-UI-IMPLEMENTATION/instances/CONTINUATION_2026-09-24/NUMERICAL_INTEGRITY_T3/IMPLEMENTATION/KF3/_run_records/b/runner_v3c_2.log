@@ -1,7 +1,0 @@
-baseline (no-op) peak RSS 1818624 bytes, footprint 1147192 bytes; memory-guard kills so far 0
-13_RF-LARGE-CHAIN-n10000-AX_w1a: already recorded; not repeated
-14_RF-LARGE-CHAIN-n10000-ROT_w1a: already recorded; not repeated
-15_RF-LARGE-TREE-n10000-AX_w1a: already recorded; not repeated
-16_RF-LARGE-TREE-n10000-ROT_w1a: already recorded; not repeated
-17_RF-LARGE-CONT-n10000-AX_w1a: already recorded; not repeated
-18_RF-LARGE-CONT-n10000-ROT_w1a: already recorded; not repeated

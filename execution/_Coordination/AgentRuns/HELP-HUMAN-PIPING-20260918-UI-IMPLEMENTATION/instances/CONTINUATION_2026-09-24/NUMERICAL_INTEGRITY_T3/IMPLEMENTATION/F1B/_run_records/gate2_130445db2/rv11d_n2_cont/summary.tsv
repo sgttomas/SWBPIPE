@@ -1,4 +1,0 @@
-RV11D-N2 on RF-LARGE-CONT-n10000-AX and -ROT, typed, sparse, observation build of 130445db2 (the same obs_patch.py + obs_block.rs); its full envelopes equal the gate candidate's.
-case	mode	entry	exit_code	outcome	full_envelope_sha256	rv11d_n2 rows by (kind, status)	other probe rows
-RF-LARGE-CONT-n10000-AX	sparse_interactive	typed	0	solved	59b138456a76426f1b57932d94a20c929fe049355bff175b4e503b46e6fd656d	{"end_actions:equal": 10000, "reaction:equal": 15006}	{}
-RF-LARGE-CONT-n10000-ROT	sparse_interactive	typed	0	solved	890d14e289c123f40bff1a5745c06d89b1da353b34835a2339ccbc14dca000bf	{"end_actions:equal": 10000, "reaction:equal": 15006}	{}

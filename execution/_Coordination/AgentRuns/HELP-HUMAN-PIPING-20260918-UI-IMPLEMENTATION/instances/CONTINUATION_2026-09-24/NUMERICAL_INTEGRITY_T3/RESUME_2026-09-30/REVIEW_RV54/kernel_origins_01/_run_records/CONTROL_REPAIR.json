@@ -1,8 +1,0 @@
-{
-  "utc": "2026-10-03T00:19:20.766159+00:00",
-  "old_sha256": "5e7dfaf72c1262c02e023982b7cc2bf7778996321c7e2108eef398259346110c",
-  "new_sha256": "fd5fb675b841f96258ea3651295d8408df878363b9ecf48af678b9a21a6edf70",
-  "change": "remove erroneous borrow from public solve_case value argument",
-  "product_source_changed": false,
-  "control_assertions_changed": false
-}

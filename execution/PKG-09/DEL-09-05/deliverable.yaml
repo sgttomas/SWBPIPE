@@ -1,0 +1,162 @@
+id: DEL-09-05
+name: Release quality gate checklist
+needs:
+- from: DEL-00-01
+  condition: 'DEL-09-05 is constrained by architecture basis AB-00-01 from DEL-00-01.
+
+
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-09-05 is constrained by architecture basis AB-00-02 from DEL-00-02.
+
+
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-09-05 is constrained by architecture basis AB-00-06 from DEL-00-06.
+
+
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-09-05 is constrained by architecture basis AB-00-08 from DEL-00-08.
+
+
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-01
+  condition: 'Solver-change release gates require mechanics benchmark evidence from DEL-09-01.
+
+
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+- from: DEL-09-02
+  condition: 'Solver-change release gates require stress recovery benchmark evidence from DEL-09-02 when
+    stresses or result-facing values are affected.
+
+
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+- from: DEL-09-03
+  condition: 'Solver-change release gates require nonlinear support regression evidence from DEL-09-03
+    when nonlinear behavior is affected.
+
+
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+- from: DEL-08-05
+  condition: 'Report-template release gates require protected-content lint evidence from DEL-08-05 where
+    public templates or examples are affected.
+
+
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+- from: DEL-01-04
+  condition: 'Release gates are constrained by the professional responsibility and product-claims boundary
+    defined by DEL-01-04.
+
+
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-09/DEL-09-05/Guidance.md
+- from: DEL-09-04
+  condition: 'DEL-09-04 informs release-gate checklist language by separating software maturity and validation
+    evidence from engineering approval.
+
+
+    Notes: Current DAG-006 active row DAG-004-R0527 carries this downstream handoff from source_dependency_id=DEL-09-04-E001.
+    Target _STATUS.md reports CHECKING on 2026-06-07 after formal REVIEW recommendation. Target MEMORY.md
+    records release quality gate checklist evidence and 2026-06-07 validation fan-in without a release
+    record or professional claim. RequiredMaturity SEMANTIC_READY is met by current CHECKING status for
+    the handoff target. Satisfaction is handoff maturity only; release-label vocabulary, final thresholds,
+    CI provider, release matrix, signing/attestation, owners, waiver roles, known-limitations release-note
+    format, GUI validation evidence, and evidence-bundle-storage policy remain TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- core/reporting/protected_content_linter/
+- core/reporting/protected_content_linter/Cargo.toml
+- core/reporting/result_export/Cargo.toml
+- core/runner/headless/Cargo.toml
+- core/solver/diagnostics/Cargo.toml
+- core/solver/diagnostics/src/lib.rs
+- schemas/headless_runner.schema.yaml
+- schemas/report_protected_content_linter.schema.yaml
+- schemas/results.schema.yaml
+- tools/coordination
+- tools/release/check_release_readiness.py
+- tools/release/run_release_candidate_scan.py
+- tools/validation/validate_dependencies_schema.py
+- validation/benchmarks/mechanics/Cargo.toml
+- validation/benchmarks/mechanics/src/lib.rs
+- validation/benchmarks/stress/Cargo.toml
+- validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md
+- validation/witness/README.md
+- validation/witness/tools/
+- validation/witness/tools/__init__.py
+- validation/witness/tools/witness_validator.py
+checks:
+- tests/security
+- tests/security/test_secret_private_library_handling.py
+- tests/test_analysis_run_records.py
+- tests/test_analysis_status_schema.py
+- tests/test_calculation_witness.py
+- tests/test_headless_runner_contract.py
+- tests/test_invented_example_models.py
+- tests/test_release_readiness_script.py
+- tests/test_report_protected_content_linter.py
+- tests/test_results_schema.py

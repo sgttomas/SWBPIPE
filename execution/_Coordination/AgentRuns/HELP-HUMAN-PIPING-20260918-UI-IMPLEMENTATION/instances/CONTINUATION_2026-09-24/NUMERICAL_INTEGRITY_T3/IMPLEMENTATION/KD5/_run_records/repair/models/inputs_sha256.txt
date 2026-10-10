@@ -1,9 +1,0 @@
-Inputs and outputs of the repair's generator run (I3R re-run; byte-identical to I3's drafts):
-d13cf7c8d4bd85a36e8cffcdfe29c3711c710705c3cdbcd46577476aa0ea07e7  probe_d5_check.py
-1c862ceab9ae5e0fd73f0ac2cab2690e5f38de43182fc37817277093fb9cdeb6  curved_ef.py
-f445b579d292152a009b30a47f5f971416dfd12431040ddf0ad3f17049f481ab  kd5_models.py
-17a4680c83ff3e940a7dcfd908ef334c8b5a53427b6ff388dafb5888477dca23  out.rs
-7c4a0914fb6550dc32b5ae86f1b66dd9acf1b7daf8307a942e5517e53d7d44de  out.json
-f68fd1e3484e76ab90750edcb7123c384416a56fbba7ae2eee205033fb953075  out.stdout.txt
-out.rs is byte-identical to core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs in the repair tree.
-python3 3.11.15, standard library only.

@@ -1,7 +1,0 @@
-{
-  "kind": "source_boolean_enumeration_not_solver_runtime",
-  "cases": 648,
-  "force_moment_input_derived": false,
-  "result": "p512 charge equals stop force/moment for all enumerated public presence/nonzero/coupling/floor patterns",
-  "limitations": "private nonzero flags are hypothetical truth-table inputs, not inferred execution facts; no numerical or runtime qualification"
-}

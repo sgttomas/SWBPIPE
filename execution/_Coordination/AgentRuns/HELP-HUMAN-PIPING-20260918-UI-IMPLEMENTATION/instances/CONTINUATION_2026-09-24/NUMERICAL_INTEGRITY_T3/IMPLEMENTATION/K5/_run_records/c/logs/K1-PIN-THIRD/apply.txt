@@ -1,2 +1,0 @@
-applied K1-PIN-THIRD
-apply exit=0

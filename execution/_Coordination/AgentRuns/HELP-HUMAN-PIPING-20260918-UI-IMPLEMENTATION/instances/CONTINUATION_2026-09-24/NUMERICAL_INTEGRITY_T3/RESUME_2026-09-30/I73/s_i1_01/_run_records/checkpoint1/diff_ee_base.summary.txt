@@ -1,3 +1,0 @@
-     Running tests/i73_point_diff.rs (<WT>/targets/i73-s-i1-base/debug/deps/i73_point_diff)
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
-== diff_ee_base exit=0 2026-10-06T01:36:00Z

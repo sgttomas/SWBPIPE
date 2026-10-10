@@ -1,6 +1,0 @@
-tests/test_rule_interval.py, base f8ed4f0551 vs candidate 966113396e
-AST equal including docstrings: False
-AST equal with docstrings masked: True
-non-comment tokens: 4201 4201
-differs: '"""The point path blocks (or panics) at this point: neither pass nor fail."""' -> '"""The point path blocks at this point: neither pass nor fail."""'
-occurrences of __doc__ in the file: 0

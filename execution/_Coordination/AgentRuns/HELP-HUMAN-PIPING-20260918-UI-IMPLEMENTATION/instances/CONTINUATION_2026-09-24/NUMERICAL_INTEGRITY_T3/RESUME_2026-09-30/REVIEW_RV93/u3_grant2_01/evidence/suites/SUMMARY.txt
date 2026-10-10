@@ -1,8 +1,0 @@
-RV93 suites summary
-PP registered, all targets, --no-fail-fast: ok 704 failed 1 ignored 10; failed: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED 
-PP Stale (RUSTFLAGS=--cfg=rv93_stale), all targets: ok 704 failed 1 ignored 10; outcome lists identical: yes
-u3g2 tests (registered): 5 ok; (Stale, stale_u3g2 job): test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 548 filtered out; finished in 0.31s
-runner/headless candidate: 85 ok, 2 failed; base: 85 ok, 2 failed; candidate == base outcomes: yes; probe (instrumented PP) == candidate: yes
-runner/headless permits granted (RV93_PERMIT_LOG, unconditional instrumentation): 0 (the log file was never created)
-positive controls: PP test build       42 permits; non-test example        2 permits
-production --lib build warnings base vs candidate identical: yes (13 warning lines)

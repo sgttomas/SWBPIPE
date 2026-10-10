@@ -1,4 +1,0 @@
-PASS G36 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs": "4de2f80ab26d4cb1bb30d668231f52aa4052dc495b830e169e0726c9d9c28036"}
-filter structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero
-aliases [('R7_K4', 'K4-M6')]

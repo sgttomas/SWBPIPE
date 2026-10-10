@@ -1,0 +1,175 @@
+id: DEL-17-08
+name: GLB/glTF review geometry export
+needs:
+- from: DEL-00-01
+  condition: 'DEL-17-08 must apply AB-00-01 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Decision baseline for architecture choices and unresolved rulings.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-17-08 must apply AB-00-02 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Repository/module boundaries and inward dependency direction.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-17-08 must apply AB-00-03 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Schema-first command/query/job result envelope constraints.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-17-08 must apply AB-00-04 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-17-08 must apply AB-00-06 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Diagnostics, warnings, blockers, and result-envelope obligations.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-17-08 must apply AB-00-07 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    No-bypass API/plugin/adapter validation and boundary controls.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-17-08 must apply AB-00-08 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Layered architecture/schema/service/adapter acceptance strategy.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-17-02
+  condition: 'DEL-17-08 depends on DEL-17-02 for export package, profile, stable-ID map, manifest, and
+    loss-report behavior.
+
+
+    Notes: FACT: declared edge preserved; reinforced by Specification.md:16 and Procedure.md:12.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-17-08 depends on canonical model/schema contracts for source model identity, unit policy,
+    coordinate policy, and canonical ID families.
+
+
+    Notes: FACT: declared edge preserved; supported by Datasheet.md:35 and Procedure.md:14.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-07-01
+  condition: 'DEL-17-08 preserves the declared upstream dependency on DEL-07-01; no additional execution
+    semantics are inferred.
+
+
+    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-13-04
+  condition: 'DEL-17-08 preserves the declared upstream dependency on DEL-13-04; no additional execution
+    semantics are inferred.
+
+
+    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-15-01
+  condition: 'DEL-17-08 depends on canonical handoff package and manifest context for export package member
+    behavior.
+
+
+    Notes: FACT: declared edge preserved; supported by Specification.md:46-49.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-17-01
+  condition: 'DEL-17-08 consumes DEL-17-01 as the source-basis authority for GLB/glTF boundary claims.
+
+
+    Notes: FACT: explicit prerequisite extracted from requirements; target exists in SOFTWARE_DECOMP.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-17/DEL-17-08/Specification.md
+- from: doc:https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
+  condition: 'DEL-17-08 depends on GLTF-2.0 as the public target-format basis for asset structure, units,
+    coordinates, GLB behavior, nodes, meshes, primitives, extensions, and extras metadata.
+
+
+    Notes: FACT: explicit external document dependency resolved through _REFERENCES.md:16.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Khronos glTF 2.0 specification; TargetRefID: GLTF-2.0; TargetLocation:
+    https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html'
+  evidence: execution/PKG-17/DEL-17-08/Specification.md
+code_paths:
+- core/handoff/review_geometry/
+- core/handoff/review_geometry/package.py
+- schemas/model.schema.yaml
+- schemas/review_geometry_export.schema.json
+checks:
+- tests/test_review_geometry_export_package.py

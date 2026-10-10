@@ -1,3 +1,0 @@
-ROOT executed after immediate unchanged-main/head/clean/check assertions:
-gh pr merge 1071 --repo sgttomas/chirality --merge --match-head-commit 9994462204231fb92073e17eb09775756bec22f3
-Tool completion exit0; subsequent gh metadata and Git parents independently checked by ROOT.

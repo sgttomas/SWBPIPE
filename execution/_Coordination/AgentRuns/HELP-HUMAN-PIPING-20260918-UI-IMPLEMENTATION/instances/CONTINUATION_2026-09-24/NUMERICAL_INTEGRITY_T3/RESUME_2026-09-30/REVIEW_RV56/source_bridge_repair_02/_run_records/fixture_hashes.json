@@ -1,7 +1,0 @@
-{
-  "candidate_adaptive_exact": true,
-  "candidate_tests_prefix_exact": true,
-  "reviewer_controls_unchanged_sha256": "9a42802f31ea844eedd0bfa205ab163059b6c58c64adb8897843bd99b270ec8d",
-  "imported_adaptive_sha256": "575d267a8b5dd9016af53836c0e33360ede3151fb327d033b3dd938d6b954941",
-  "imported_tests_sha256": "844d7800064f9dbebb38d212b9b7706cabf80c277b06d75e7d98b09988035b7c"
-}

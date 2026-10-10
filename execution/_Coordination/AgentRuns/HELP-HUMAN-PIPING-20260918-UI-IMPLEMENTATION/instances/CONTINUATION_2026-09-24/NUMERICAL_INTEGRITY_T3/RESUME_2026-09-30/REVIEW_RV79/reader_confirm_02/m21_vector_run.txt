@@ -1,5 +1,0 @@
-original E 426d1a94a2000000 1000000000000.0 1000000000000.0
-L 1.0 S [0.0015180203215918477, 0.0015180203215918477, 3741.6573867739417, 3741.6573867739417] E [3741.657386768837, 3741.657386768837] passes 2^-40: [False, False] passes 2^-39: [True, True]
-reviewed reader: G5a RETAINED_PRECISION_SCALE_MISMATCH lines=[1622, 1272, 1231, 128]
-M21 reader: G8 RETAINED_PRECISION_PREPARATION_MISMATCH lines=[1636, 1497, 1347, 128]
-{"id": "g5a_sanity_margin_between_2m40_and_2m39", "base": "ordinary_prepared_synthetic", "edits": [{"path": ["retained_precision", "body", "cases", 0, "selection", "resolution_scale"], "op": "set", "value": [{"body": 0, "force": "40ad3b5094ffa1f5", "moment": "40ad3b5094ffa1f5"}]}, {"path": ["retaine

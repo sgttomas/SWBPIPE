@@ -1,4 +1,0 @@
-PASS G14 complete116 source files exactly frozen postimage(s)+baseline; unchanged protected tests/lock/basebinary, resolved independent source/emptytarget/writable siblinglogs; guard5387 live.
-postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "e5045501977620f15cd7c30ba6f71cd188f2b7f1764e16f2d22574d81da336f3"}
-filter structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star
-aliases [('RV19', 'RV19-D4u')]

@@ -1,0 +1,122 @@
+id: DEL-04-06
+name: Solver diagnostics and singularity detection
+needs:
+- from: DEL-00-01
+  condition: 'DEL-04-06 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
+    0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
+    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-04-06 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
+    0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
+    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-04-06 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
+    0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
+    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-04-06 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
+    0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
+    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-04-06 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
+    0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
+    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-04-01
+  condition: 'DEL-04-06 depends on the frame stiffness kernel because diagnostics evaluate singularity
+    and conditioning of solver-ready frame systems.
+
+
+    Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
+    revision 0.5 still identifies DEL-04-01 as the central 3D frame stiffness kernel; diagnostics remain
+    separate from but dependent on solver mechanics output.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-06/Specification.md
+- from: DEL-02-03
+  condition: 'DEL-04-06 depends on the code-neutral analysis boundary because solver diagnostics must
+    report mechanics status without claiming certification approval or code compliance.
+
+
+    Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
+    revision 0.5 preserves code-neutral analysis boundary scope and professional-boundary separation.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-06/Specification.md
+- from: DEL-02-02
+  condition: 'DEL-04-06 depends on the unit system because unit-bearing diagnostic context must preserve
+    unit awareness and dimensional checks.
+
+
+    Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
+    revision 0.5 preserves unit-aware deterministic data-flow scope.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-04/DEL-04-06/Specification.md
+code_paths:
+- core/solver/diagnostics
+- core/solver/diagnostics/Cargo.toml
+- core/solver/diagnostics/README.md
+- core/solver/diagnostics/src/lib.rs
+- tools/validation/validate_dependencies_schema.py

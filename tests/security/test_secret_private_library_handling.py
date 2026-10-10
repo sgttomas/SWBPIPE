@@ -19,14 +19,6 @@ from core.security.secret_private_library import (  # noqa: E402
 
 
 DOC_PATH = ROOT / "docs" / "security" / "secret_private_library_handling.md"
-MEMORY_PATH = (
-    ROOT
-    / "execution"
-    / "PKG-12_Security, Privacy, and Private Data Handling"
-    / "1_Working"
-    / "DEL-12-04_Secret and private-library handling"
-    / "MEMORY.md"
-)
 
 FORBIDDEN_CHANGED_FILE_TERMS = {
     "AS" + "ME",
@@ -313,9 +305,8 @@ def test_credential_placeholder_uses_fake_key_id_and_descriptor_only():
     assert classification.metadata["secret_material_present"] is False
 
 
-def test_documentation_and_memory_record_scope_boundaries():
+def test_documentation_records_scope_boundaries():
     doc = DOC_PATH.read_text(encoding="utf-8")
-    memory = MEMORY_PATH.read_text(encoding="utf-8")
     for required in {
         "deliverable_id: DEL-12-04",
         "package_id: PKG-12",
@@ -327,14 +318,11 @@ def test_documentation_and_memory_record_scope_boundaries():
         "invented fixtures only",
     }:
         assert required in doc
-    assert "DEL-12-04" in memory
-    assert "invented fixtures only" in memory
 
 
 def test_changed_files_do_not_embed_disallowed_example_content():
     changed_files = [
         DOC_PATH,
-        MEMORY_PATH,
         ROOT / "core" / "security" / "secret_private_library" / "__init__.py",
         ROOT / "core" / "security" / "secret_private_library" / "controls.py",
         Path(__file__),
@@ -352,5 +340,5 @@ if __name__ == "__main__":
     test_concrete_private_path_helper_withholds_path_detail()
     test_local_private_intent_required_and_payloads_remain_blocked()
     test_credential_placeholder_uses_fake_key_id_and_descriptor_only()
-    test_documentation_and_memory_record_scope_boundaries()
+    test_documentation_records_scope_boundaries()
     test_changed_files_do_not_embed_disallowed_example_content()

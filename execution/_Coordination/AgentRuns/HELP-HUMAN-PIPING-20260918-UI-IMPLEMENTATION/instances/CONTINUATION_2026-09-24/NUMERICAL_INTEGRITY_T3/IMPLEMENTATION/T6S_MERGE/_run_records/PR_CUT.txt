@@ -1,7 +1,0 @@
-PR #1104 (draft), branch codex/piping-t3-t6s-pr-20261006, head d953e121872576dfa998c676f51ac803d48426be
-cut from main d8c88774d0a73bc99fe9c6e906db6296162f8953 (worktree WT/t6s-pr), one commit:
-  the 19 slice files checked out from fdcdb5e024 (git diff --name-only c1bfc460fc fdcdb5e024)
-  the 4 package files checked out from NUM 0416b3b2ce (IMPLEMENTATION/T6S/{CHANGE_RECORD.md,PR_BODY.md,citations.json,SHA256SUMS})
-  13 added, 10 modified, 0 deleted; +3,177 / -1,903
-full-SHA dispatch: gh workflow run piping-desktop-e2e.yml --ref codex/piping-t3-t6s-pr-20261006 -f target_base=d8c88774d0 -> run 37546714187
-DEC-025: label T6S_d953e12187, candidate WT/sweep-skewpin at d953e12187, baseline WT/main-baseline at d8c88774d0, fresh targets

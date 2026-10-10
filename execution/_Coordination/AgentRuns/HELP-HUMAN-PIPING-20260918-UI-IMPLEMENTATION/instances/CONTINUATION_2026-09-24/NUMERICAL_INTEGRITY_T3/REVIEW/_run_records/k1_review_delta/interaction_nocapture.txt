@@ -1,4 +1,0 @@
-k1 x k2a reach_zero: NumericalRange { name: "12EIy/L^3: (12*E)*Iy" }
-k1 x k2a reach_lef: NumericalRange { name: "12EIy/L^3: (12*E)*Iy" }
-k1 x k2a RF-RANGE: refused 16, formed 98, degenerate 48
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
