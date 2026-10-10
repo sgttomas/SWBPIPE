@@ -2144,6 +2144,7 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
       const i = rows.findIndex((r: any) => r.kind === 'displacement_magnitude'), outcomes = b.product_attempts[1].proof.projection_outcomes, j = outcomes.findIndex((x: any) => x.row_index > i);
       outcomes.splice(j, 0, { ...structuredClone(outcomes[j]), row_index: i }); } }, COV],
     [{ name: 'G3 (e) a combination attempt\'s roster short of the representative\'s bodies', transform: s => { s.retained_precision.body.product_attempts[1].proof.summary_coverage.pop(); } }, COV],
+    [{ name: 'G3 (d) the operand-prepared CaseSource owned by the selected case', edits: [set(rb('sources', 1, 'owner'), { kind: 'case', case_index: 0, case_id: 'case:a' })] }, COV],
     [{ name: 'G3 (g) the operand-prepared CaseSource also named by a case', edits: [set(rb('cases', 0, 'source_ref'), 1)] }, COV],
     [{ name: 'G3 (g) the CombinationSource named by no entry', transform: s => { const b = s.retained_precision.body; b.sources.push({ ...structuredClone(b.sources[2]), index: 3 }); } }, COV],
     [{ name: 'm68 the operand-prepared CaseSource after the CombinationSource (renumbered)', transform: sourcesSwapped }, COV],
@@ -2156,6 +2157,8 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
     [{ name: 'G5 D6a a combination diagnostic_ref dropped', transform: s => { s.retained_precision.body.combinations[0].diagnostic_refs.pop(); } }, ATT],
     // G5, native class.
     [{ name: 'm38 requested_operands swapped', transform: s => { const ops = s.retained_precision.body.calls[1].requested_operands; ops.reverse(); } }, ATT],
+    [{ name: 'G5 a requested operand\'s factor not its term\'s', edits: [set(rb('calls', 1, 'requested_operands', 1, 'factor'), '4000000000000000')] }, ATT],
+    [{ name: 'G5 the batch Call\'s group carries imports', edits: [set(rb('groups', 0, 'imports'), [])] }, ATT],
     [{ name: 'm39 representative_source_ref -> operand 1\'s', edits: [set(rb('sources', 2, 'representative_source_ref'), 1)] }, ATT],
     [{ name: 'm40 operands[0].case_index -> the other case', edits: [set(rb('sources', 2, 'operands', 0, 'case_index'), 1)] }, ATT],
     [{ name: 'm42 the combination group\'s imports removed', edits: [remove(rb('groups', 1, 'imports'))] }, ATT],
@@ -2167,6 +2170,7 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
     [{ name: 'm43 the combination Call\'s invocation_before off by one', transform: s => { s.retained_precision.body.calls[1].invocation_before += 1; } }, WORK],
     [{ name: 'm44 work.charged = the batch Call\'s after', transform: s => { const b = s.retained_precision.body; b.work.charged = b.calls[0].invocation_after; } }, WORK],
     // G5, products.
+    [{ name: 'G5 the operand preparation\'s first two conversions out of order', transform: s => { const c = s.retained_precision.body.operand_preparations[0].preparation.members[0].conversions; [c[0], c[1]] = [c[1], c[0]]; } }, PA],
     [{ name: 'm51 the operand preparation\'s stage failed while prepared', edits: [set(rb('operand_preparations', 0, 'stage'), 'failed')] }, PA],
     [{ name: 'G5 the combination attempt\'s native stage failed beside a selected Run', edits: [set(rb('product_attempts', 1, 'stages', 'native'), 'failed')] }, PA],
     [{ name: 'G5 the operand preparation\'s ordinary attempt the selected case\'s', edits: [set(rb('operand_preparations', 0, 'ordinary_attempt_ref'), 0)] }, PA],
@@ -2258,6 +2262,13 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
     expect(await readDefC(defC)).toBe('pass');
     expect(await readDefC({ ...defC, version: 2 })).toEqual(FORMATION);
   });
+  const identityOf = (s: any) => { const { index: _, ...rest } = s; return canonicalSha256HexCheckedV1({ domain: 'retained_precision_source_mp_v2', payload: rest }); };
+  /** S-6 steps 4 and 5 on W-CB3's body: the CombinationSource's operand identities, then the combination's identity. */
+  const resealDependents = async (body: any) => {
+    const cs = body.sources[2], edited = cs.operands[1].source_identity_sha256 === ZEROS;
+    if (!edited) for (const o of cs.operands) o.source_identity_sha256 = await identityOf(body.sources[o.source_ref]);
+    body.combinations[0].source_identity_sha256 = body.combinations[0].source_identity_sha256 === ZEROS ? ZEROS : await identityOf(cs);
+  };
   it('REVISION_01 §5.2: each inner hash edited, the publication and receipt hashes resealed, is refused at G1', async () => {
     for (const [name, text] of W_CB3) {
       const { source, invocation } = doc(text), b = source.retained_precision.body, op = b.operand_preparations[0];
@@ -2266,7 +2277,8 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
       for (const [what, edit] of [['the combination\'s source identity', (x: any) => { x.combinations[0].source_identity_sha256 = ZEROS; }],
         ['an operand\'s source identity', (x: any) => { x.sources[2].operands[1].source_identity_sha256 = ZEROS; }],
         ['the operand preparation hash under retained_precision_preparation_v1', (x: any) => { x.sources[1].preparation.sha256 = wrongDomain; }]] as [string, (x: any) => void][]) {
-        const s = structuredClone(source); edit(s.retained_precision.body); await rehashOuter(s);
+        // Each hash that contains the edited one (S-6 steps 4 and 5) is recomputed too, so only the edited relation is false.
+        const s = structuredClone(source), body = s.retained_precision.body; edit(body); await resealDependents(body); await rehashOuter(s);
         expect(await firstFailure(s, invocation), `${what} [${name}]`).toEqual(RECEIPT);
       }
       // The resealed control passes.
