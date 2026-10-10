@@ -13,6 +13,7 @@
 //! stated where it is authored.
 use super::*;
 use crate::formation_guard::{self, decide_row, row_scales, RowDecision};
+use open_pipe_stress_frame_kernel::structural::ArcCertificateFailure;
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{Formation, FormationRow, LoadLedger};
 use serde_json::{json, Value};
@@ -1702,12 +1703,38 @@ fn u1_already_sensitive_finding_is_captured_undisclosed() {
 
 /// The invented bend of S11-F's F8 on a 2 m chord (OD 0.168 m, wall 0.007 m).
 fn curved_body(model: &mut Value, prefix: &str, origin: f64, loads: Vec<Value>) {
+    curved_arc(
+        model,
+        prefix,
+        [origin, 0.0],
+        2.0,
+        std::f64::consts::SQRT_2,
+        std::f64::consts::PI / 2.0,
+        2.0,
+        loads,
+    );
+}
+
+/// T4-U1b: `curved_body` generalised (T15b): a chord of length `chord` along
+/// global x from (x, y, 0), user radius `radius`, user angle `angle` (the
+/// included angle the chord and radius imply), flexibility factor `k`.
+#[allow(clippy::too_many_arguments)]
+fn curved_arc(
+    model: &mut Value,
+    prefix: &str,
+    origin: [f64; 2],
+    chord: f64,
+    radius: f64,
+    angle: f64,
+    k: f64,
+    loads: Vec<Value>,
+) {
     let n0 = format!("{prefix}0");
     let n1 = format!("{prefix}1");
     let bend = format!("{prefix}bend");
     model["nodes"].as_array_mut().unwrap().extend([
-        node(&n0, origin, 0.0, 0.0),
-        node(&n1, origin + 2.0, 0.0, 0.0),
+        node(&n0, origin[0], origin[1], 0.0),
+        node(&n1, origin[0] + chord, origin[1], 0.0),
     ]);
     let mut segment = pipe(&bend, &n0, &n1, [0.0, 1.0, 0.0]);
     segment["section"] = json!({"outside_diameter": {"value": 0.168, "unit": "m"}, "wall_thickness": {"value": 0.007, "unit": "m"}});
@@ -1722,12 +1749,12 @@ fn curved_body(model: &mut Value, prefix: &str, origin: f64, loads: Vec<Value>) 
     }
     model["components"].as_array_mut().unwrap().push(json!({
         "id": format!("component:{bend}"), "label": "Invented bend", "kind": "bend", "node": n1,
-        "geometry": {"bend_pipe_ref": bend, "bend_radius": {"value": std::f64::consts::SQRT_2, "unit": "m"},
-            "bend_angle": {"value": std::f64::consts::PI / 2.0, "unit": "rad"},
+        "geometry": {"bend_pipe_ref": bend, "bend_radius": {"value": radius, "unit": "m"},
+            "bend_angle": {"value": angle, "unit": "rad"},
             "bend_plane_orientation": "global_xy_preview",
             "bend_geometry_source_reference": "invented_user_entered_preview_geometry"},
         "modifiers": {"sif_user_value": {"value": 1.15, "unit": "none"},
-            "flexibility_factor_user_value": {"value": 2.0, "unit": "none"},
+            "flexibility_factor_user_value": {"value": k, "unit": "none"},
             "source_reference": "invented_user_entered_preview_no_code_table"},
         "mechanics_interface": {"solver_consumption": "curved_bend_macro_element",
             "rule_check_consumption": "user_rule_pack_inputs_only"},
@@ -1740,11 +1767,74 @@ fn curved_body(model: &mut Value, prefix: &str, origin: f64, loads: Vec<Value>) 
         .extend(loads);
 }
 
-/// T15 (SF-2): a realized curved span carrying a uniform load. Its
-/// consistent vector is CannotBound, which demotes: Sensitive with the
-/// CannotBound reason. Kills treating CannotBound as a zero defect (M16).
+/// The realized arc of a one-bend request, as the certificate sees it.
+fn arc_formation(request: &Value) -> (CurvedFormation, CurvedBendMacroElement) {
+    let built = prepared(request).built;
+    assert_eq!(built.curved_bend_elements.len(), 1);
+    let bend = &built.curved_bend_elements[0];
+    (curved_formation_of(bend), bend.macro_element)
+}
+
+/// The loaded rows of the arc's load `source`.
+fn arc_rows<'a>(view: &'a GuardView, source: &str) -> Vec<&'a FormationRow> {
+    view.rows
+        .iter()
+        .filter(|r| r.formed_sources.iter().any(|s| s == source))
+        .collect()
+}
+
+/// T15's preconditions (T4-I9 DESIGN_R01 §5): the certificate is Ok; every
+/// loaded arc row carries `source` as a formed (not CannotBound) term with a
+/// positive bound; no loaded row fires and each exact statistic is below 1;
+/// and the paths differ: the same row with the term CannotBound fires with
+/// the CannotBound reason. Returns whether some arc row has A_net ≠ 0.
+fn assert_certified_rows(request: &Value, intensity: [f64; 3], source: &str, label: &str) -> bool {
+    let (formation, _) = arc_formation(request);
+    let certified = certify_curved_uniform_load(&formation, intensity);
+    assert!(certified.is_ok(), "{label}: certificate {certified:?}");
+    let view = guard_view(request, 0);
+    let rows = arc_rows(&view, source);
+    assert!(!rows.is_empty(), "{label}: no arc row");
+    let mut defect = false;
+    for row in &rows {
+        assert!(row.cannot_bound_sources.is_empty(), "{label}: {row:?}");
+        assert!(row.bound > 0.0, "{label}: MU1, bound {}", row.bound);
+        defect |= !row.net_defect.is_zero();
+        let mut cannot = (*row).clone();
+        cannot.cannot_bound_sources.push(source.to_string());
+        let fired = decide_row(&cannot, view.scales[&row.dof]);
+        assert!(
+            fired.fires && fired.reason.as_deref().unwrap().contains("CannotBound"),
+            "{label}: paths differ"
+        );
+    }
+    for row in &view.rows {
+        let decision = decide_row(row, view.scales[&row.dof]);
+        assert!(!decision.fires, "{label}: {:?}", decision.reason);
+        assert!(decision.net_ratio < 1.0, "{label}: {}", decision.net_ratio);
+    }
+    defect
+}
+
+/// The Passed pin on every view, with the ordinary report Passed first.
+fn assert_checks_passed(envelope: &MechanicsEnvelope, label: &str) {
+    assert_ordinary_passed(envelope, "case", label);
+    let d = integrity(envelope, "case");
+    assert_eq!(d.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}: {}", d.message);
+    assert!(!d.message.contains(LOAD_ROW), "{label}");
+    assert_eq!(
+        case_quality(envelope, "case"),
+        NumericalQualityStatus::ChecksPassed,
+        "{label}"
+    );
+}
+
+/// T15 (T4-U1b, R-1; DESIGN_R01 §5): a realized arc carrying a uniform load
+/// is certified, and the case publishes `CHECKS_PASSED` on both entries and
+/// in both modes. Before T4-U1b its consistent vector was CannotBound and the
+/// case was demoted (S11-G SF-2).
 #[test]
-fn t15_curved_uniform_load_is_cannot_bound() {
+fn t15_curved_uniform_load_is_certified() {
     let mut model = preview_model("curved");
     model["materials"] = json!([material()]);
     curved_body(
@@ -1754,40 +1844,277 @@ fn t15_curved_uniform_load_is_cannot_bound() {
         vec![uniform("w:c", "cbend", "global_z", 0.3)],
     );
     let request = request_of(model);
-    let view = guard_view(&request, 0);
+    // MU2: with intended := v every arc A_net would be 0.
     assert!(
-        view.rows.iter().any(|r| !r.cannot_bound_sources.is_empty()),
-        "precondition: CannotBound terms"
+        assert_certified_rows(&request, [0.0, 0.0, 0.3], "w:c", "T15"),
+        "precondition: some arc row has A_net != 0"
     );
     for entry in [Entry::Captured, Entry::Typed] {
         for mode in MODES {
             let label = format!("T15 {entry:?} {mode:?}");
+            assert_checks_passed(&solved(entry, &request, mode), &label);
+        }
+    }
+}
+
+/// T15b (DESIGN_R01 §5 with T4-RV8 C-1): certified arcs publish Passed at
+/// ordinary and UTM origins, from 90° to 5°, at k = 1 and 2, under an
+/// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad
+/// (the acceptance floor; Passed now that the load vector is stable).
+#[test]
+fn t15b_certified_arcs_pass_at_utm_and_small_angles() {
+    let mut cases = Vec::new();
+    for origin in [[0.0, 0.0], [5e6, 3.5e6], [7.3e6, 0.0]] {
+        for degrees in [90.0_f64, 45.0, 15.0, 5.0] {
+            let phi = degrees.to_radians();
+            cases.push((origin, 2.0, phi, format!("{origin:?} {degrees} deg")));
+        }
+    }
+    cases.push(([0.0, 0.0], 0.3, 1e-4, "0.3 m chord 1e-4 rad".to_string()));
+    cases.push(([7.3e6, 0.0], 0.3, 1e-4, "UTM 0.3 m chord 1e-4 rad".to_string()));
+    let mut defects = 0;
+    let mut checked = 0;
+    for (origin, chord, phi, name) in cases {
+        let radius = 0.5 * chord / (0.5 * phi).sin();
+        let angle = 2.0 * (0.5 * chord / radius).asin();
+        for k in [1.0, 2.0] {
+            for (direction, intensity) in [("global_z", [0.0, 0.0, 0.3]), ("global_y", [0.0, -0.3, 0.0])] {
+                let mut model = preview_model("curved");
+                model["materials"] = json!([material()]);
+                let value = intensity[1] + intensity[2];
+                curved_arc(
+                    &mut model,
+                    "c",
+                    origin,
+                    chord,
+                    radius,
+                    angle,
+                    k,
+                    vec![uniform("w:c", "cbend", direction, value)],
+                );
+                let request = request_of(model);
+                let label = format!("T15b {name} k={k} {direction}");
+                if assert_certified_rows(&request, intensity, "w:c", &label) {
+                    defects += 1;
+                }
+                for entry in [Entry::Captured, Entry::Typed] {
+                    for mode in MODES {
+                        let label = format!("{label} {entry:?} {mode:?}");
+                        assert_checks_passed(&solved(entry, &request, mode), &label);
+                    }
+                }
+                checked += 1;
+            }
+        }
+    }
+    assert_eq!(checked, 56);
+    assert!(defects > 0, "non-vacuity: some arc row has A_net != 0");
+}
+
+/// T15c (DESIGN_R01 §7.2; R-2: a natural refusal, no seam): T15's model at
+/// k = 1e36, 1e37 and 1e38, where ρ̂ ≥ 1/2 refuses the certificate. At guard
+/// level every loaded arc row is CannotBound and fires with that reason
+/// (M16, MU3, MU8). End to end these k never publish: the captured entry
+/// refuses the request (k ≥ 2⁵³ is an unsafe integral JSON number) and the
+/// typed entry refuses the solve (a nonpositive or cancellation-unresolved
+/// structural pivot), so the CannotBound sentence is not asserted in an
+/// envelope (R-2's narrowing, T4-I17's return).
+#[test]
+fn t15c_curved_uniform_load_without_certificate_is_cannot_bound() {
+    for k in [1e36, 1e37, 1e38] {
+        let mut model = preview_model("curved");
+        model["materials"] = json!([material()]);
+        let w = vec![uniform("w:c", "cbend", "global_z", 0.3)];
+        curved_arc(&mut model, "c", [0.0, 0.0], 2.0, std::f64::consts::SQRT_2, std::f64::consts::PI / 2.0, k, w);
+        let request = request_of(model);
+        let label = format!("T15c k={k:e}");
+        let (formation, _) = arc_formation(&request);
+        match certify_curved_uniform_load(&formation, [0.0, 0.0, 0.3]) {
+            Err(ArcCertificateFailure::ResidualNotContracting { rho }) => {
+                if k == 1e36 {
+                    assert!((0.5..1.0).contains(&rho), "{label}: MU4, rho {rho}");
+                } else {
+                    assert!(rho >= 1.0, "{label}: rho {rho}");
+                }
+            }
+            other => panic!("{label}: {other:?}"),
+        }
+        let view = guard_view(&request, 0);
+        let rows = arc_rows(&view, "w:c");
+        assert_eq!(rows.len(), 12, "{label}");
+        for row in rows {
+            assert_eq!(row.cannot_bound_sources, ["w:c"], "{label}");
+            let decision = decide_row(row, view.scales[&row.dof]);
+            assert!(decision.fires, "{label}: M16");
+            assert!(decision.reason.unwrap().contains("CannotBound"), "{label}");
+        }
+        for entry in [Entry::Captured, Entry::Typed] {
+            for mode in MODES {
+                let published_passed = run(entry, &request, mode).is_ok_and(|envelope| {
+                    blocking(&envelope).is_empty()
+                        && envelope.numerical_quality.status == NumericalQualityStatus::ChecksPassed
+                });
+                assert!(!published_passed, "{label} {entry:?} {mode:?}");
+            }
+        }
+    }
+}
+
+/// T15d (DESIGN_R01 §8, A-5): at k = 1e10 the binary64 inverse of F loses
+/// digits like cond(F)·u while the certificate's radius stays small: the
+/// row fires by the exact formation defect, not by the radius, and the case
+/// is not published as `CHECKS_PASSED`. Kills MU2 (intended := v).
+#[test]
+fn t15d_large_flexibility_arc_formation_defect_is_caught() {
+    let mut model = preview_model("curved");
+    model["materials"] = json!([material()]);
+    let w = vec![uniform("w:c", "cbend", "global_z", 0.3)];
+    curved_arc(&mut model, "c", [0.0, 0.0], 2.0, std::f64::consts::SQRT_2, std::f64::consts::PI / 2.0, 1e10, w);
+    let request = request_of(model);
+    let (formation, _) = arc_formation(&request);
+    assert!(certify_curved_uniform_load(&formation, [0.0, 0.0, 0.3]).is_ok());
+    let view = guard_view(&request, 0);
+    let mut caught = 0;
+    for row in arc_rows(&view, "w:c") {
+        assert!(row.cannot_bound_sources.is_empty());
+        let decision = decide_row(row, view.scales[&row.dof]);
+        if !decision.fires {
+            continue;
+        }
+        // The catch comes from the defect: B < T0/1000 and |A_net|/12 > T0,
+        // both decided exactly.
+        assert!(row.bound < decision.t0 / 1000.0, "{row:?}");
+        let mut excess = row.net_defect.clone();
+        let positive = excess.signum() >= 0;
+        excess.add_product(if positive { -12.0 } else { 12.0 }, decision.t0).unwrap();
+        assert_eq!(excess.signum(), if positive { 1 } else { -1 }, "|A_net|/12 > T0");
+        assert!(decision.reason.unwrap().starts_with("net formation defect"));
+        caught += 1;
+    }
+    assert!(caught > 0, "the formation defect is caught");
+    for entry in [Entry::Captured, Entry::Typed] {
+        for mode in MODES {
+            let label = format!("T15d {entry:?} {mode:?}");
             let envelope = solved(entry, &request, mode);
-            assert_ordinary_passed(&envelope, "case", &label);
-            assert_demoted(&envelope, "case", LOAD_ROW, &label);
-            assert!(
-                integrity(&envelope, "case").message.contains("CannotBound"),
+            assert_ne!(
+                envelope.numerical_quality.status,
+                NumericalQualityStatus::ChecksPassed,
                 "{label}"
+            );
+            let d = integrity(&envelope, "case");
+            println!(
+                "{label}: {} (ordinary report Passed: {}; S11-G load-row sentence: {})",
+                d.code,
+                d.message.contains("quality: Passed"),
+                d.message.contains(LOAD_ROW)
             );
         }
     }
 }
 
+/// V3 (DESIGN_R01 §6.1): perturbation controls on T15's certified arc. The
+/// largest arc component pushed as v + 2·T0 with its certified record fires;
+/// v + T0/2 stays silent when the base statistic is below 1/2.
+#[test]
+fn certified_term_perturbation_controls() {
+    let mut model = preview_model("curved");
+    model["materials"] = json!([material()]);
+    curved_body(&mut model, "c", 0.0, vec![uniform("w:c", "cbend", "global_z", 0.3)]);
+    let request = request_of(model);
+    let (formation, element) = arc_formation(&request);
+    let certified = certify_curved_uniform_load(&formation, [0.0, 0.0, 0.3]).unwrap();
+    let values = element.consistent_uniform_nodal_loads([0.0, 0.0, 0.3]).unwrap();
+    let largest = (0..ELEMENT_DOF)
+        .max_by(|&a, &b| values[a].abs().total_cmp(&values[b].abs()))
+        .unwrap();
+    let view = guard_view(&request, 0);
+    let dof = element_dof_map(formation.node_i, formation.node_j)[largest];
+    let row = view.rows.iter().find(|r| r.dof == dof).unwrap();
+    let base = decide_row(row, view.scales[&dof]);
+    let term = &certified.terms[largest];
+    let single = |value: f64| {
+        let mut ledger = LoadLedger::new();
+        ledger.push_formed(
+            "w:c",
+            0,
+            value,
+            Formation::Exact {
+                scale: 1.0,
+                scaled_intended: term.intended.clone(),
+            },
+            term.operand_bound(false),
+            false,
+        );
+        decide_row(&one_row(ledger), view.scales[&dof])
+    };
+    // The single-term row is T15's row (it carries only this term).
+    assert_eq!(row.formed_sources, ["w:c"]);
+    assert_eq!(single(values[largest]).net_ratio, base.net_ratio);
+    let fired = single(values[largest] + 2.0 * base.t0);
+    assert!(fired.fires && fired.reason.unwrap().starts_with("net formation defect"));
+    assert!(base.net_ratio < 0.5, "{}", base.net_ratio);
+    assert!(!single(values[largest] + 0.5 * base.t0).fires);
+}
+
+/// M16: a CannotBound term is never a zero defect: its row fires with the
+/// CannotBound reason.
+#[test]
+fn m16_cannot_bound_row_fires() {
+    let mut ledger = LoadLedger::new();
+    ledger.push_formed("w:c", 0, 1.0, Formation::CannotBound, 0.0, false);
+    let row = one_row(ledger);
+    assert!(row.net_defect.is_zero() && row.bound == 0.0);
+    let decision = decide_row(&row, 1.0);
+    assert!(decision.fires);
+    assert!(decision.reason.unwrap().contains("CannotBound"));
+}
+
+/// A straight body built like RF-CANCEL-UDL-W1e8's members and loads,
+/// translated to x = `origin`: its S1 RZ row fires the load-row guard (T1).
+fn udl_body(model: &mut Value, prefix: &str, origin: f64) {
+    let id = |s: &str| format!("{prefix}{s}");
+    model["nodes"].as_array_mut().unwrap().extend([
+        node(&id("S0"), origin, 0.0, 0.0),
+        node(&id("S1"), origin + 2.0, 0.0, 0.0),
+        node(&id("S2"), origin + 4.0, 0.0, 0.0),
+    ]);
+    let material = model["materials"][0]["id"].clone();
+    for (name, from, to) in [("A", "S0", "S1"), ("B", "S1", "S2")] {
+        let mut segment = pipe(&id(name), &id(from), &id(to), [0.0, 1.0, 0.0]);
+        segment["material"] = material.clone();
+        model["pipe_segments"].as_array_mut().unwrap().push(segment);
+    }
+    model["supports"].as_array_mut().unwrap().extend([
+        support(&id("a0"), &id("S0"), &ALL),
+        json!({"id": id("p1"), "node": id("S1"), "restraints": ["UX", "UY", "UZ"], "provenance": INVENTED}),
+        support(&id("a2"), &id("S2"), &ALL),
+    ]);
+    model["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .extend([
+            nodal(&id("load:0"), &id("S1"), "RZ", 0.2),
+            uniform(&id("udl:1"), &id("A"), "global_y", 100000000.0),
+            uniform(&id("udl:2"), &id("B"), "global_y", 100000000.875),
+        ]);
+}
+
 /// Ruling 1: both guards fire. The F-INPLANE model (R-b' fires on its
-/// members) plus a separate body carrying a curved uniform load (the
-/// load-row guard fires with CannotBound). The load-row demotion comes
+/// members) plus a separate straight body built like RF-CANCEL-UDL-W1e8
+/// (its own RZ row fires the load-row guard). The load-row demotion comes
 /// first; R-b''s later amendment is a no-op: its sentence does not appear.
+/// (T4-U1b, O-8: the earlier trigger, a curved uniform load, is now
+/// certified and no longer fires.)
 #[test]
 fn ruling1_both_guards_fire_and_the_load_row_sentence_stands() {
     let mut request = rf_request("RF-CANCEL-F-G1e80-GnG-INPLANE");
-    curved_body(
-        &mut request["model"],
-        "c",
-        100.0,
-        vec![uniform("w:c", "cbend", "global_z", 0.3)],
-    );
+    udl_body(&mut request["model"], "u", 100.0);
     let view = guard_view(&request, 0);
-    assert!(view.any_fires(), "precondition: the load-row guard fires");
+    assert!(
+        view.decision("uS1:RZ").fires,
+        "precondition: the load-row guard fires on uS1:RZ"
+    );
+    assert!(view.any_fires());
     for mode in MODES {
         let label = format!("both guards {mode:?}");
         let envelope = solved(Entry::Typed, &request, mode);
