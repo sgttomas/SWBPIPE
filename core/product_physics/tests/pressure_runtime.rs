@@ -646,12 +646,14 @@ fn distributed_axial_load_is_subtracted_separately_from_pressure_eigenload() {
 }
 
 #[test]
-fn signed_pressure_zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
+fn zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
     for mode in MODES {
         for (pressure, nu, fixed, thermal) in [
             (0.0, 0.3, false, 0.0),
-            (-2e6, 0.3, false, 0.0),
-            (-2e6, 0.3, true, 0.0),
+            // T4-U0: v2 refuses p < 0 by name, so the former -2e6 rows are
+            // +2e6; they keep pressure-with-Poisson coverage, free and fixed.
+            (2e6, 0.3, false, 0.0),
+            (2e6, 0.3, true, 0.0),
             (2e6, 0.0, false, 0.0),
             (2e6, 0.0, true, 0.0),
             (2e6, 0.3, true, -0.0012),
@@ -1050,11 +1052,16 @@ fn same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_max
             for reverse in [false, true] {
                 let mut input = model(false, true, 0.0);
                 let mut first = input["model"]["load_cases"][0].clone();
-                first["id"] = json!("case:z-positive");
+                // T4-U0: v2 refuses p < 0 by name, so the second case's
+                // former -2e6/-4e6 are +2e6/+4e6. The tied variant therefore
+                // no longer discriminates a signed-value maximum from a
+                // magnitude maximum (equal p gives equal signed displacements);
+                // it still pins the case-ID tie-break and order independence.
+                first["id"] = json!("case:z-first");
                 let mut second = first.clone();
-                second["id"] = json!("case:a-negative");
+                second["id"] = json!("case:a-second");
                 second["pressure_regions"][0]["pressure"]["value"] =
-                    json!(if tied { -2e6 } else { -4e6 });
+                    json!(if tied { 2e6 } else { 4e6 });
                 input["model"]["load_cases"] = if reverse {
                     json!([second, first])
                 } else {
@@ -1062,10 +1069,10 @@ fn same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_max
                 };
                 let result = solve(input, mode);
                 solved(&result);
-                let negative_factor = if tied { -1.0 } else { -2.0 };
+                let second_factor = if tied { 1.0 } else { 2.0 };
                 for (case_id, factor) in [
-                    ("case:z-positive", 1.0),
-                    ("case:a-negative", negative_factor),
+                    ("case:z-first", 1.0),
+                    ("case:a-second", second_factor),
                 ] {
                     let r = case_row(
                         &result,
@@ -1147,7 +1154,7 @@ fn same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_max
                 assert_eq!(maximum.location_ref, TIP);
                 close(
                     maximum.value,
-                    (-negative_factor) * 3.0 / 55000.0 * 1000.0,
+                    second_factor * 3.0 / 55000.0 * 1000.0,
                     0.0,
                     "all-case displacement maximum",
                 );
@@ -1157,7 +1164,7 @@ fn same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_max
                     .find(|r| r.id == maximum.result_ref)
                     .expect("maximum refers to an actual returned source row");
                 assert_eq!(source.entity_ref, TIP);
-                assert_eq!(source.basis_ref.as_ref().unwrap().ref_id, "case:a-negative");
+                assert_eq!(source.basis_ref.as_ref().unwrap().ref_id, "case:a-second");
                 assert_eq!(source.unit, maximum.unit);
                 assert_eq!(source.value, maximum.value);
             }

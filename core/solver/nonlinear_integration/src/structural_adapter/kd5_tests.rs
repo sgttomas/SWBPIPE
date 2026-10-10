@@ -29,8 +29,9 @@ pub(super) struct MemberData {
     pub(super) i: usize,
     pub(super) j: usize,
     pub(super) y_reference: [f64; 3],
-    /// (the product's binary64 arc centre, flexibility factor) for a realized bend.
-    pub(super) bend: Option<([f64; 3], f64)>,
+    /// (R, y_reference of the arc's plane on its bow side, flexibility
+    /// factor) for a realized bend: T4-U1's element inputs.
+    pub(super) bend: Option<(f64, [f64; 3], f64)>,
 }
 pub(super) struct ModelData {
     pub(super) name: &'static str,
@@ -94,11 +95,12 @@ impl Built {
                     built.frames.push(e);
                     e.global_stiffness().unwrap()
                 }
-                Some((center, factor)) => {
+                Some((radius, y_reference, factor)) => {
                     let e = CurvedBendMacroElement::new(
                         node(member.i),
                         node(member.j),
-                        center,
+                        radius,
+                        y_reference,
                         s.e,
                         s.g,
                         s.a,
@@ -396,16 +398,54 @@ fn kd5_realistic_elbows_e1_and_e6_do_not_demote() {
     }
 }
 
+/// The D5C-1 rule on one solve: demoted exactly when the published error
+/// exceeds half the criterion (a Passed breach, actual > 1, is therefore
+/// never published), with EF tracking the actual error when demoted.
+fn assert_d5c1(
+    name: &str,
+    mode: LinearSolveMode,
+    actual: f64,
+    plain: &StructuralSolution,
+    checked: &StructuralSolution,
+) {
+    assert_eq!(
+        plain.report.quality,
+        SolveQuality::Passed,
+        "{name} {mode:?}"
+    );
+    if actual > 0.5 {
+        assert_demoted_only_in_quality(plain, checked);
+        let ef = estimate(checked) / 2.0;
+        assert!(
+            (ef / actual - 1.0).abs() < 1e-3,
+            "{name} {mode:?}: EF {ef} actual {actual}"
+        );
+    } else {
+        assert_unchanged(plain, checked);
+    }
+}
+
 #[test]
-fn kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes() {
-    let built = Built::from_model(&CSKEW_8_5);
+fn kd5_conditioning_driven_curved_true_positive_demotes_in_both_modes() {
+    // RV131 B-1 / T4-I6 round 01 item 1: F122 with its member realized as
+    // one bend, R = 10 m in the plane of y = (1, 0, 0) (φ = 0.301 rad, cond₁
+    // 3.9e7 < 1/√ε). The breach is conditioning-driven: an accurate element
+    // (crK 0.77) and the solve's own error, not a small-angle or chord
+    // defect. Selection (WI ruling): the first of round 01's frozen
+    // candidates, in its rank order, that publishes Passed and is demoted in
+    // both modes with actual > 0.55 and EF/actual within 1e-3. The first,
+    // C122K120-R100-Y100, publishes DenseScrutiny actual 0.518 (demoted, but
+    // not above 0.55), so this second candidate is the true positive.
+    let model = &C122_R10_Y100;
+    let built = Built::from_model(model);
+    assert_eq!(built.macros.len(), 1);
     for mode in MODES {
         let plain = built.plain(mode);
-        let actual = actual_ratio(&CSKEW_8_5, &plain.displacements);
+        let actual = actual_ratio(model, &plain.displacements);
         assert_eq!(plain.report.quality, SolveQuality::Passed, "{mode:?}");
-        assert!(actual > 1.0, "{mode:?}: actual {actual}");
+        assert!(actual > 0.55, "{mode:?}: actual {actual}");
         let checked = built.checked(mode);
-        record("CSKEW_8_5", mode, Some(actual), &checked);
+        record(model.name, mode, Some(actual), &checked);
         assert_demoted_only_in_quality(&plain, &checked);
         let ef = estimate(&checked) / 2.0;
         assert!(
@@ -416,74 +456,186 @@ fn kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes() {
 }
 
 #[test]
-fn kd5_curved_intended_element_uses_the_actual_chord() {
-    // The k_X = 30 skew elbow with its binary64 centre moved 6.5e-10 R along
-    // the chord: admissible to the product (radius mismatch 9.2e-10, tolerance
-    // 1e-9), but the product's trigonometric chord R(cos φ − 1, R sin φ) is no
-    // longer x_j − x_i, which adds about 0.4 of the criterion in both modes.
-    // The check's H uses the actual chord, so EF tracks the actual error
-    // (mutation 31b builds H from the product's chord and misses it). The
-    // stiffness defect here is ~1e-9 relative, so EF's first-order agreement
-    // is to a few per cent rather than 1e-3.
-    let model = &CSKEW_30_RADIUS_MISMATCH;
-    let built = Built::from_model(model);
-    for mode in MODES {
-        let plain = built.plain(mode);
-        let actual = actual_ratio(model, &plain.displacements);
-        assert_eq!(plain.report.quality, SolveQuality::Passed, "{mode:?}");
-        assert!(actual > 0.7, "{mode:?}: actual {actual}");
-        let checked = built.checked(mode);
-        record(model.name, mode, Some(actual), &checked);
-        assert_demoted_only_in_quality(&plain, &checked);
-        let ef = estimate(&checked) / 2.0;
-        assert!(
-            (ef / actual - 1.0).abs() < 0.05,
-            "{mode:?}: EF {ef} actual {actual}"
-        );
-    }
-}
-
-#[test]
-fn kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error() {
-    // RV5-B1 (the M31b counterexample, RV5's admissible inputs): one realized
-    // bend on a cantilever with stiff root springs and a tip moment (1, 1, 1),
-    // its binary64 centre moved along the chord to the edge of the product's
-    // radius-match tolerance (1e-9). Planar 60° and skew 30°. The chord error
-    // gives a first-order translation error at node 1 above the criterion,
-    // which the check sees because its H uses the actual chord x_j − x_i.
-    // Mutation 31b (H from the product's chord R(cos φ − 1), R sin φ) sees
-    // none of it and fails the demotion assertion below.
-    for model in [&CPLANAR_60, &CSKEW_30_N122] {
+fn kd5_curved_candidates_demote_exactly_where_the_actual_error_exceeds_half_the_criterion() {
+    // Round 01's other frozen candidates as D5C-1 controls (round 01 §1).
+    // C122K120-R100-Y100 is left out: its DenseScrutiny actual (0.518) lies
+    // in the ±0.05 guard band around the boundary.
+    let mut demoted = Vec::new();
+    for model in [
+        &C122_R10_YM100,
+        &C122_R100_Y011,
+        &C122_R100_Y01M1,
+        &C122_R100_Y100,
+        &C122_R10_Y01M1,
+    ] {
         let built = Built::from_model(model);
         for mode in MODES {
             let plain = built.plain(mode);
             let actual = actual_ratio(model, &plain.displacements);
-            // Preconditions: main publishes Passed, and its published error
-            // against the exact intended solution is above the criterion.
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert!(
+                (actual - 0.5).abs() > 0.05,
+                "{} {mode:?}: control too close to the boundary ({actual})",
+                model.name
+            );
+            assert_d5c1(model.name, mode, actual, &plain, &checked);
+            if checked.formation_check.is_some() {
+                demoted.push((model.name, mode));
+            }
+        }
+    }
+    assert!(!demoted.is_empty());
+}
+
+#[test]
+fn kd5_skew_plane_elbow_cantilever_publishes_no_breach_and_demotes_exactly_above_half() {
+    // The CSKEW rule (DEL-04-01 Design; T4-I6 round 01 item 2): with the
+    // objective element CSKEW_8_5 no longer has to demote. In each mode there
+    // is no Passed breach (actual > 1 is demoted), it is demoted exactly when
+    // actual > 0.5 (EF/actual within 1e-3), otherwise unchanged, and actual
+    // keeps 0.05 from the boundary. If a mode lands within the guard band,
+    // CSKEW_9 and then CSKEW_10 substitute for it (u_int frozen by T4-I6,
+    // round 00 t3_models[14] and [13]); the condition is not relaxed.
+    for mode in MODES {
+        let mut chosen = None;
+        for model in [&CSKEW_8_5, &CSKEW_9, &CSKEW_10] {
+            let built = Built::from_model(model);
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
             assert_eq!(
                 plain.report.quality,
                 SolveQuality::Passed,
                 "{} {mode:?}",
                 model.name
             );
-            assert!(actual > 1.0, "{} {mode:?}: actual {actual}", model.name);
-            let checked = built.checked(mode);
-            record(model.name, mode, Some(actual), &checked);
-            assert_demoted_only_in_quality(&plain, &checked);
-            let ef = estimate(&checked) / 2.0;
-            assert!(
-                (ef / actual - 1.0).abs() < 0.05,
-                "{} {mode:?}: EF {ef} actual {actual}",
+            // No Passed breach for any of the three.
+            if actual > 1.0 {
+                assert_demoted_only_in_quality(&plain, &checked);
+            }
+            if chosen.is_none() && (actual - 0.5).abs() > 0.05 {
+                chosen = Some((model.name, actual, plain, checked));
+            }
+        }
+        let (name, actual, plain, checked) = chosen.expect(
+            "CSKEW_8_5, CSKEW_9 and CSKEW_10 all within 0.05 of the boundary: report to T3",
+        );
+        assert_d5c1(name, mode, actual, &plain, &checked);
+    }
+}
+
+#[test]
+fn kd5_skew_plane_elbow_at_kx_30_is_an_ordinary_control() {
+    // Formerly CSKEW_30_RADIUS_MISMATCH (a binary64 centre moved 6.5e-10 R
+    // along the chord, the M31a/M31b kill). A centre mismatch cannot be
+    // expressed in T4-U1's (R, y) inputs, so the model is regenerated as the
+    // ordinary k_X = 30 elbow (u_int frozen by T4-I6, round 00 t3_models[3])
+    // and is a D5C-1 control; M31a's kill is K2's (FK
+    // `kd5_k2_formula_chord_system_demotes_against_the_actual_chord`).
+    let model = &CSKEW_30;
+    let built = Built::from_model(model);
+    for mode in MODES {
+        let plain = built.plain(mode);
+        let actual = actual_ratio(model, &plain.displacements);
+        let checked = built.checked(mode);
+        record(model.name, mode, Some(actual), &checked);
+        assert!((actual - 0.5).abs() > 0.05, "{mode:?}: actual {actual}");
+        assert_d5c1(model.name, mode, actual, &plain, &checked);
+    }
+}
+
+#[test]
+fn kd5_regenerated_cplanar_60_and_cskew_30_n122_are_ordinary_controls() {
+    // T4-I6 B5.2: the M31b counterexample models, regenerated on their bow
+    // vectors from (R, y) (no centre mismatch is expressible), run as
+    // no-demotion controls in both modes (T4-RV11 S-2 measured 2.1e-5 /
+    // 1.5e-5 and 8.0e-5 / 1.4e-4 of the criterion). The M31b0 kill test
+    // below keeps the same models under its pre-T4-U1 preconditions.
+    for model in [&CPLANAR_60, &CSKEW_30_N122] {
+        let built = Built::from_model(model);
+        for mode in MODES {
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "{} {mode:?}",
                 model.name
             );
+            assert!(actual < 0.45, "{} {mode:?}: actual {actual}", model.name);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert_d5c1(model.name, mode, actual, &plain, &checked);
         }
     }
 }
 
 #[test]
+fn kd5_k1_stable_form_at_1e_8_rad_is_published_accurately_and_not_demoted() {
+    // K1 and K1F (T4-I6 round 01 item 4; RV131 S-1): the cantilever bend at
+    // φ = 1e-8 rad (R ≈ 3e7 m, chord 0.3 m), in-plane and skew, with a tip
+    // moment (K1) and a tip force plus moment (K1F, which reaches every
+    // column of the end flexibility). The stable small-angle form publishes
+    // an accurate u (a cancelling form misses K1 by about 0.5 and K1F by
+    // 1e6 criteria) and a correct K-D5 leaves it unchanged; K-D5 with the
+    // binary64 formula chord (M31b) demotes it (trigger ≈ 12).
+    for model in [&K1_IP, &K1_SK, &K1F_IP, &K1F_SK] {
+        let built = Built::from_model(model);
+        for mode in MODES {
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "{} {mode:?}",
+                model.name
+            );
+            assert!(actual < 0.5, "{} {mode:?}: actual {actual}", model.name);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert_unchanged(&plain, &checked);
+        }
+    }
+}
+
+#[test]
+fn kd5_acceptance_range_from_1e_8_rad_to_pi_at_ordinary_and_utm_coordinates() {
+    // DEL-04-01 Design (acceptance range; T4-I6 round 01 item 8): K-D5's
+    // margin from φ = 1e-8 to π − 1e-7 rad. Round 01's ten frozen sample
+    // points (1e-3, 1e-2, 0.1, 1, 2, 3, π − 1e-3, π − 1e-4, π − 1e-5,
+    // π − 1e-7; ACC model: tip force and moment) in the in-plane and skew
+    // planes at X = 0 and X = 7.3e6 m, and round 00's K1 cantilevers at
+    // 1e-4 and 1e-8 rad at X = 0 and X = 5e6 m: Passed, the published u
+    // within half the criterion, not demoted, in both modes.
+    let mut worst: f64 = 0.0;
+    for model in ACC_SAMPLES.iter().chain(K1_RANGE_SAMPLES) {
+        let built = Built::from_model(model);
+        for mode in MODES {
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "{} {mode:?}",
+                model.name
+            );
+            assert!(actual < 0.5, "{} {mode:?}: actual {actual}", model.name);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert_unchanged(&plain, &checked);
+            worst = worst.max(actual);
+        }
+    }
+    eprintln!("kd5 acceptance range: worst actual {worst:e}");
+    assert_eq!(ACC_SAMPLES.len() + K1_RANGE_SAMPLES.len(), 48);
+}
+
+#[test]
 fn kd5_large_coordinate_pp_route_elbow_does_not_demote() {
-    // RV5-B1's PP-route elbow at X = 5e5 m (R = 0.3 m, φ = 2°), its centre
-    // computed as PP computes it: no designed mismatch. Against the exact
+    // RV5-B1's PP-route elbow at X = 5e5 m (R = 0.3 m, φ = 2°, y = +y as PP
+    // states it): no designed mismatch. Against the exact
     // intended solution (exact binary64 inputs) the product's published error
     // is about 0.04 of the criterion, so a correct check leaves it Passed and
     // unchanged (ordinary large-coordinate elbows are not falsely demoted).

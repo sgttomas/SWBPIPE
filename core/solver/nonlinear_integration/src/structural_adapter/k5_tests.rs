@@ -72,12 +72,20 @@ impl Model {
         self.frames
             .push(FrameElement::new(node(i.0, i.1), node(j.0, j.1), section(), y).unwrap());
     }
-    fn bend(&mut self, i: (usize, [f64; 3]), j: (usize, [f64; 3]), center: [f64; 3]) {
+    /// A realized bend i-j of radius R bowing towards y (T4-U1's inputs).
+    fn bend(
+        &mut self,
+        i: (usize, [f64; 3]),
+        j: (usize, [f64; 3]),
+        radius: f64,
+        y_reference: [f64; 3],
+    ) {
         let s = &E1.section;
         let e = CurvedBendMacroElement::new(
             node(i.0, i.1),
             node(j.0, j.1),
-            center,
+            radius,
+            y_reference,
             s.e,
             s.g,
             s.a,
@@ -180,8 +188,8 @@ impl Model {
     }
 }
 
-/// A frame a-b, a realized 90° bend b-c (R = 0.25 m, centre (o+1, o+0.25, 0);
-/// dyadic, so arc-consistent in binary64) and a frame c-d; translation pins at
+/// A frame a-b, a realized 90° bend b-c (R = 0.25 m, bowing towards
+/// (1, −1, 0): centre (o+1, o+0.25, 0); dyadic) and a frame c-d; translation pins at
 /// a and d only. The rotation about the line a-d is a physical mechanism:
 /// W4's canonical witness is θ = (1, 1, 0) with u = θ × (x − a), exactly
 /// u(a) = u(d) = 0 and u(b) = u(c) = (0, 0, −1). `rx` adds RX at a (its
@@ -195,7 +203,7 @@ fn curved_mechanism(o: f64, rx: bool) -> Model {
     );
     let mut m = Model::empty(4);
     m.frame((0, a), (1, b), [0.0, 1.0, 0.0]);
-    m.bend((1, b), (2, c), [o + 1.0, o + 0.25, 0.0]);
+    m.bend((1, b), (2, c), 0.25, [1.0, -1.0, 0.0]);
     m.frame((2, c), (3, d), [1.0, 0.0, 0.0]);
     let mut pins = vec![0, 1, 2, 18, 19, 20];
     if rx {
@@ -218,7 +226,12 @@ const CURVED_MECHANISM: [[f64; 6]; 4] = [
 /// θ = (1, 1, 0), u = 0 at both nodes.
 fn curved_only() -> Model {
     let mut m = Model::empty(2);
-    m.bend((0, [0.0; 3]), (1, [0.25, 0.25, 0.0]), [0.0, 0.25, 0.0]);
+    m.bend(
+        (0, [0.0; 3]),
+        (1, [0.25, 0.25, 0.0]),
+        0.25,
+        [1.0, -1.0, 0.0],
+    );
     m.pin(&[0, 1, 2, 6, 7, 8]);
     m.loads = vec![(9, 1.0)];
     m
@@ -272,9 +285,19 @@ fn from_kd5(m: &ModelData) -> Model {
             None => model
                 .frames
                 .push(FrameElement::new(i, j, section, member.y_reference).unwrap()),
-            Some((center, factor)) => {
+            Some((radius, y_reference, factor)) => {
                 let e = CurvedBendMacroElement::new(
-                    i, j, center, s.e, s.g, s.a, s.i, s.j, factor, factor,
+                    i,
+                    j,
+                    radius,
+                    y_reference,
+                    s.e,
+                    s.g,
+                    s.a,
+                    s.i,
+                    s.j,
+                    factor,
+                    factor,
                 )
                 .unwrap();
                 model.slots.push(
@@ -293,18 +316,10 @@ fn from_kd5(m: &ModelData) -> Model {
 
 /// K-D5's models with realized bends (E1, E6 and the curved controls).
 fn kd5_curved() -> Vec<(&'static str, Model)> {
-    [
-        &E1,
-        &E6,
-        &CSKEW_8_5,
-        &CSKEW_30_RADIUS_MISMATCH,
-        &CPLANAR_60,
-        &CSKEW_30_N122,
-        &PP_UTM_2,
-    ]
-    .into_iter()
-    .map(|m| (m.name, from_kd5(m)))
-    .collect()
+    [&E1, &E6, &CSKEW_8_5, &PP_UTM_2]
+        .into_iter()
+        .map(|m| (m.name, from_kd5(m)))
+        .collect()
 }
 
 fn flat(motion: &[[f64; 6]]) -> Vec<f64> {
@@ -671,7 +686,7 @@ fn k5_first_failing_body_in_seed_order_decides() {
         [1.25, 1.25, 0.0],
     );
     shifted.frame((2, a), (3, b), [0.0, 1.0, 0.0]);
-    shifted.bend((3, b), (4, c), [1.0, 0.25, 0.0]);
+    shifted.bend((3, b), (4, c), 0.25, [1.0, -1.0, 0.0]);
     shifted.frame((4, c), (5, d), [1.0, 0.0, 0.0]);
     let frame_first = join(
         &line(0),
@@ -1012,7 +1027,7 @@ fn k5_curved_slots_qualify_by_their_matched_source() {
     );
     let c_off = [f64::from_bits(1.25_f64.to_bits() + 1), 0.25, 0.0];
     moved.frame((0, a), (1, b), [0.0, 1.0, 0.0]);
-    moved.bend((1, b), (2, c_off), [1.0, 0.25, 0.0]);
+    moved.bend((1, b), (2, c_off), 0.25, [1.0, -1.0, 0.0]);
     moved.frame((2, c), (3, d), [1.0, 0.0, 0.0]);
     moved.pin(&[0, 1, 2, 18, 19, 20]);
     moved.loads = m.loads.clone();
@@ -1292,12 +1307,14 @@ fn k5_curved_sources_agree_at_a_curved_only_node() {
     m.bend(
         (0, [0.0, 0.0, 0.0]),
         (1, [0.25, 0.25, 0.0]),
-        [0.0, 0.25, 0.0],
+        0.25,
+        [1.0, -1.0, 0.0],
     );
     m.bend(
         (1, [0.5, 0.25, 0.0]),
         (2, [0.75, 0.5, 0.0]),
-        [0.5, 0.5, 0.0],
+        0.25,
+        [1.0, -1.0, 0.0],
     );
     m.pin(&[0, 1, 2, 12, 13, 14]);
     m.loads = vec![(8, 1.0)];

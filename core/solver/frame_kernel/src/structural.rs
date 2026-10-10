@@ -76,6 +76,9 @@ pub use sparse::{
     SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
     StiffnessBlock,
 };
+// T4-I29: the curved element's included angle without libm (K3a's arctangent).
+mod arc_angle;
+pub use arc_angle::twice_atan2_nonnegative;
 
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{AssembledForce, ForceTerm, ForceTermKind};

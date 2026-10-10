@@ -184,11 +184,11 @@ fn kd5_nonlinear_support_invocation_is_never_selected() {
 }
 
 /// A PP-route elbow at large coordinates (RV5-B1): N0 at `x0`, N1 at `x1`
-/// (z = 0), one realized bend of radius 0.3 m on M1 with y reference +y,
-/// whose centre PP computes itself (no designed mismatch); OD 0.2 m, wall
+/// (z = 0), one realized bend of radius `radius` m on M1 with y reference +y
+/// (no designed mismatch); OD 0.2 m, wall
 /// 0.01 m, E 2e11 Pa, G 8e10 Pa; N0 translations rigid, rotational springs
 /// 1e6 N·m/rad; a tip moment (1, 1, 1) N·m. Invented inputs.
-fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2]) -> Value {
+fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2], radius: f64) -> Value {
     let p = "invented_k_d5_rv5_b1_pp_route_large_coordinate_elbow_no_library_data";
     let spring = |dof: &str| {
         json!({"id": format!("spring:N0:{dof}"), "node": "N0", "family": "spring", "restraints": [dof],
@@ -217,7 +217,7 @@ fn pp_route_elbow_request(id: &str, x0: [f64; 2], x1: [f64; 2]) -> Value {
         "materials": [{"id": "mat:N", "elastic_modulus": {"value": 2.0e11, "unit": "Pa"},
                        "shear_modulus": {"value": 8.0e10, "unit": "Pa"}, "provenance": p}],
         "components": [{"id": "component:bend", "label": "K-D5 PP-route elbow", "kind": "bend", "node": "N1",
-                        "geometry": {"bend_pipe_ref": "M1", "bend_radius": {"value": 0.3, "unit": "m"},
+                        "geometry": {"bend_pipe_ref": "M1", "bend_radius": {"value": radius, "unit": "m"},
                                      "bend_plane_orientation": "global_xy_preview",
                                      "bend_geometry_source_reference": "invented"},
                         "modifiers": {"flexibility_factor_user_value": {"value": 1.0, "unit": "none"},
@@ -242,52 +242,117 @@ struct PpRouteElbow {
     id: &'static str,
     x0: [f64; 2],
     x1: [f64; 2],
+    radius: f64,
     u_int: [(usize, f64); 9],
 }
 
-/// X ≈ 5e5 m, φ = 2°: PP's binary64 centre is equidistant to 1.5e-12 R, and the
-/// product's element is objective here (model PP_UTM_2_PRODUCT_SECTION).
+/// X ≈ 5e5 m, φ = 2° (model PP_UTM_2_PRODUCT_SECTION). u_int is T4-I6's
+/// exact reference for T4-U1's objective element formed from (x_i, x_j, R, y)
+/// (round 00 `t3_models[15]`, `u_int_new`, rounded once; T4-I6 B5.2). The
+/// pre-T4-U1 centre-based value differed by 4.1e-5 of the criterion.
 const PP_UTM_5E5: PpRouteElbow = PpRouteElbow {
     id: "PP-UTM-5E5-PHI2",
     x0: [500000.0, 350000.0],
     x1: [500000.010469849, 350000.0001827519],
+    radius: 0.3,
     u_int: [
         (3, 1e-06),
         (4, 1e-06),
         (5, 1e-06),
-        (6, -1.8287001134315171e-10),
-        (7, 1.0479998171669618e-08),
-        (8, -1.0297158446337196e-08),
-        (9, 1.0024314433163164e-06),
-        (10, 1.0019471998915866e-06),
+        (6, -1.828700113427223e-10),
+        (7, 1.0479998171669623e-08),
+        (8, -1.0297158446337628e-08),
+        (9, 1.0024314433162965e-06),
+        (10, 1.0019471998915654e-06),
         (11, 1.0019385480234911e-06),
     ],
 };
 
-/// X = 5e6 m, Y = 3.5e6 m, φ = 5°: PP's binary64 centre (rounded at ulp(5e6))
-/// is admissible but not equidistant, so the product's chord R(cos φ − 1),
-/// R sin φ is not the actual chord and the published error exceeds the
-/// criterion (model PP_UTM_5E6_PHI5_PRODUCT_SECTION; RV5-B1, ROOT's ruling).
-const PP_UTM_5E6: PpRouteElbow = PpRouteElbow {
-    id: "PP-UTM-5E6-PHI5",
+/// T4-I6 B5.2's controls at X = 5e6 m, φ = 2° and at X = 7.3e6 m, φ = 10°
+/// (R = 0.3 m): u_int from round 00 `t3_models[17]` and `[18]`, `u_int_new`,
+/// rounded once.
+const PP_UTM_5E6_PHI2: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-5E6-PHI2",
     x0: [5000000.0, 3500000.0],
-    x1: [5000000.026146723, 3500000.0011415905],
+    x1: [5000000.010469849, 3500000.000182752],
+    radius: 0.3,
     u_int: [
         (3, 1e-06),
         (4, 1e-06),
         (5, 1e-06),
-        (6, -1.1434351901457734e-09),
-        (7, 2.6210121544675173e-08),
-        (8, -2.5067176622443854e-08),
-        (9, 1.0061076233272944e-06),
-        (10, 1.004902172644534e-06),
-        (11, 1.0048463700931492e-06),
+        (6, -1.8287012787089394e-10),
+        (7, 1.0479998404954246e-08),
+        (8, -1.0297158563096431e-08),
+        (9, 1.0024314433758393e-06),
+        (10, 1.001947199940615e-06),
+        (11, 1.0019385480669685e-06),
+    ],
+};
+
+const PP_UTM_7E3_PHI10: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-7.3E6-PHI10",
+    x0: [7300000.0, 5110000.0],
+    x1: [7300000.052094453, 5110000.004557674],
+    radius: 0.3,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -4.572414236612032e-09),
+        (7, 5.234756485614931e-08),
+        (8, -4.777928278565204e-08),
+        (9, 1.0123007940576355e-06),
+        (10, 1.0099265197240842e-06),
+        (11, 1.009692740080273e-06),
+    ],
+};
+
+/// X = 5e6 m, Y = 3.5e6 m, φ = 5° (RV5-B1's elbow) with T4-U1's objective element: u_int is
+/// T4-I6's exact reference for the element formed from (x_i, x_j, R, y)
+/// (round 00 `t3_models[16]`, `u_int_new`, rounded once).
+const PP_UTM_5E6_OBJECTIVE: PpRouteElbow = PpRouteElbow {
+    id: "PP-UTM-5E6-PHI5",
+    x0: [5000000.0, 3500000.0],
+    x1: [5000000.026146723, 3500000.0011415905],
+    radius: 0.3,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -1.1434351902152318e-09),
+        (7, 2.6210121544673118e-08),
+        (8, -2.506717662237247e-08),
+        (9, 1.0061076233284874e-06),
+        (10, 1.0049021726459545e-06),
+        (11, 1.0048463700931473e-06),
+    ],
+};
+
+/// K1-IP at X = 5e6 m, Y = 3.5e6 m (T4-I6 round 01 item 4; RV2 N-5): the
+/// 0.3 m chord bent by φ = 1e-8 rad (R ≈ 3e7 m). x1 − x0 equals K1's d
+/// exactly in binary64, so u_int is K1's (round 00 `m31b_kill_and_mutant`
+/// 'K1-IP-1E-8-X5e6', equal to X = 0's).
+const K1_IP_UTM: PpRouteElbow = PpRouteElbow {
+    id: "K1-IP-1E-8-X5E6",
+    x0: [5000000.0, 3500000.0],
+    x1: [5000000.259807621, 3500000.1500000004],
+    radius: 30000000.018065747,
+    u_int: [
+        (3, 1e-06),
+        (4, 1e-06),
+        (5, 1e-06),
+        (6, -1.5416514863688512e-07),
+        (7, 2.670218695534503e-07),
+        (8, -1.1285672092604801e-07),
+        (9, 1.0719600545549025e-06),
+        (10, 1.0650181408042967e-06),
+        (11, 1.0555353102138075e-06),
     ],
 };
 
 impl PpRouteElbow {
     fn request(&self) -> Value {
-        pp_route_elbow_request(self.id, self.x0, self.x1)
+        pp_route_elbow_request(self.id, self.x0, self.x1, self.radius)
     }
 
     /// max over the free rows of |u − u_int| / (1e-9·max(|u_int|, S*_kind)),
@@ -375,26 +440,46 @@ fn kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted()
     }
 }
 
-#[test]
-fn kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries() {
-    // ROOT's product-level demotion test (RV5-B1): at X = 5e6 m PP's own
-    // binary64 centre makes the product's chord differ from the actual chord,
-    // and the published error exceeds the criterion. The check's H uses the
-    // actual chord, so the case publishes SENSITIVE on both entries in both
-    // modes; mutation 31b (H from the product's chord) publishes
-    // CHECKS_PASSED and fails the integrity assertion below.
-    for (ctx, envelope, actual) in run_pp_route_elbow(&PP_UTM_5E6) {
-        // Precondition: the published error is above the criterion.
-        assert!(actual > 1.0, "{ctx}: actual {actual}");
+fn assert_published_accurately_and_not_demoted(elbow: &PpRouteElbow) {
+    for (ctx, envelope, actual) in run_pp_route_elbow(elbow) {
+        assert!(actual < 0.5, "{ctx}: actual {actual}");
         assert_eq!(
             integrity_codes(&envelope),
-            vec!["NUMERICAL_INTEGRITY_SENSITIVE"],
+            vec!["NUMERICAL_INTEGRITY_CHECKS_PASSED"],
             "{ctx}"
         );
         assert_eq!(
             case_qualities(&envelope),
-            vec![NumericalQualityStatus::Sensitive],
+            vec![NumericalQualityStatus::ChecksPassed],
             "{ctx}"
         );
     }
 }
+
+#[test]
+fn kd5_very_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted() {
+    // C2's UTM control at X = 5e6 m (T4-U1; the elbow of the ignored test
+    // below): with T4-U1's objective element no binary64 centre enters, the
+    // published u is within half the criterion of the exact intended
+    // solution, and K-D5 leaves it Passed on both entries in both modes.
+    assert_published_accurately_and_not_demoted(&PP_UTM_5E6_OBJECTIVE);
+}
+
+#[test]
+fn kd5_utm_controls_at_5e6_and_7_3e6_are_published_accurately_and_not_demoted() {
+    // T4-I6 B5.2: PP-UTM-7.3e6-φ10 is the 7.3e6 control, with the 5e6 φ = 2°
+    // elbow beside it (T4-RV11 S-2 measured 8.6e-5 / 6.8e-5 and 2.0e-3 /
+    // 7.0e-4 of the criterion, dense / sparse).
+    assert_published_accurately_and_not_demoted(&PP_UTM_7E3_PHI10);
+    assert_published_accurately_and_not_demoted(&PP_UTM_5E6_PHI2);
+}
+
+#[test]
+fn kd5_k1_stable_form_on_the_pp_route_at_utm_coordinates_is_not_demoted() {
+    // K1 (T4-I6 round 01 item 4) through PP: the stable small-angle form at
+    // φ = 1e-8 rad realized by PP at X = 5e6 m publishes u within half the
+    // criterion and is not demoted, on both entries in both modes. K-D5 with
+    // the binary64 formula chord (M31b) demotes it.
+    assert_published_accurately_and_not_demoted(&K1_IP_UTM);
+}
+
