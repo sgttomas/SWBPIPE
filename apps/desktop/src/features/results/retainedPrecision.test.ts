@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import corpusText from '../../../../../fixtures/results/retained_precision_cases.json?raw';
+import { readFileSync as readCorpus } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
 import { absoluteBound, upwardProduct, upwardSmallSum, binary64Bits, decodeBinary64 } from './retainedPrecision';
-const corpus = JSON.parse(corpusText);
+// Read from disk, not as a `?raw` module import: since 07o (B2's producer-solved bases) the corpus is about 70 MB, and
+// the module transform of that text exhausts the default heap.
+const corpus = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_cases.json'), 'utf8'));
 type Rational = readonly [bigint, bigint];
 // Independent test oracle: exact fractions plus a binary search over ordered
 // positive binary64 words. It shares neither the reader's quantum rounding nor
@@ -193,8 +196,27 @@ async function applyEntry(m: any): Promise<{ base: any; source: any; invocation:
   applyEdits(source, m.after_rehash);
   return { base, source, invocation };
 }
+/** Lane TS's bound reading of 07o's two hook-produced bases and their must-pass entries, returned to the PR-B2 manager as
+ * a corpus defect, not a declared difference: their hooks (B2-P `fail_operand_preparation`; B1 `fail_preparation_of_case`)
+ * write the refused member's old facts with D = +0, where the invocation's outside diameter is 0.2 m, so G8's preparation
+ * binding refuses them (C3's old tuple against the invocation for every attempt's members, B1's P7 settlement; C3a-7 G8 for
+ * an operand preparation), as RS's and PY's B1 binding does. The corpus designs them as passing; unbound and on transport
+ * they pass. This pin keeps the reading visible until the corpus decides. */
+const TS_07O_BOUND_READINGS: Record<string, { gate: string; code: string }> = Object.fromEntries(['b2_operand_preparation_failure', 'b2_operand_source_unavailable',
+  'b2o_must_pass_b2_operand_preparation_failure', 'b2o_must_pass_b2_operand_source_unavailable'].map(id => [id, { gate: 'G8', code: 'RETAINED_PRECISION_PREPARATION_MISMATCH' }]));
+async function boundReading(source: any, invocation: any): Promise<unknown> {
+  try { await validateRetainedPrecision(source, invocation); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; }
+}
 describe('shared synthetic prepared receipt controls, never solver execution evidence', () => {
   for (const c of corpus.cases) {
+    if (Object.hasOwn(TS_07O_BOUND_READINGS, c.id)) {
+      it(c.id + ' (bound: lane TS\'s returned reading)', async () => {
+        expect(await boundReading(structuredClone(c.source), structuredClone(c.invocation))).toEqual(TS_07O_BOUND_READINGS[c.id]);
+        const unbound = await validateRetainedPrecision(structuredClone(c.source)), transport = structuredClone(c.source); delete transport.results;
+        expect([unbound.numerical_eligible, (await validateRetainedPrecisionTransport(transport)).numerical_eligible]).toEqual([false, false]);
+      });
+      continue;
+    }
     it(c.id, async () => {
       const source = structuredClone(c.source), invocation = structuredClone(c.invocation);
       const before = structuredClone({ source, invocation });
@@ -229,6 +251,7 @@ describe('shared synthetic prepared receipt controls, never solver execution evi
   for (const m of corpus.must_pass ?? []) it('must pass: ' + m.id, async () => {
     expect(m.expected).toBe('pass');
     const { base, source, invocation } = await applyEntry(m);
+    if (Object.hasOwn(TS_07O_BOUND_READINGS, m.id)) { expect(await boundReading(source, invocation), 'lane TS\'s returned reading').toEqual(TS_07O_BOUND_READINGS[m.id]); return; }
     const result = await validateRetainedPrecision(source, invocation);
     // U7 (07i): each entry's own eligibility per C1:160.
     expect({ invocation_bound: result.invocation_bound, numerical_eligible: result.numerical_eligible, standing: result.standing }).toEqual(m.expected_eligibility);
@@ -1990,10 +2013,12 @@ describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport r
     'cause_milestone_reversed_dense_scrutiny', 'sf2_c_b_a_sparse_interactive', 'sf2_c_b_a_dense_scrutiny', 'sf2_a_a2_sparse_interactive', 'sf2_a_a2_dense_scrutiny'];
   const NEW_KEYS = ['expected_unbound', 'expected_unbound_by_reader', 'expected_transport', 'expected_classifications'];
   const KEYS = ['id', 'base', 'edits', 'invocation_edits', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility', ...NEW_KEYS];
-  const n07 = [...corpus.mutations.slice(294), ...corpus.must_pass.slice(28)];
+  // 07o (B2) appends after 07n, so 07n's slices (26 cases, 534 mutations, 78 must-pass) are read as 07n's; 07o's counts
+  // are pinned in its own block below.
+  const n07 = [...corpus.mutations.slice(294, 534), ...corpus.must_pass.slice(28, 78)];
   it('07n: 26 cases, 534 mutations and 78 must-pass entries, appended; the new keys on new entries only; 45 entries in the declared per-reader class', () => {
-    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([26, 534, 78]);
-    expect(corpus.cases.slice(17).map((c: any) => c.id)).toEqual(N07_BASES);
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length].map((n, i) => Math.min(n, [26, 534, 78][i]))).toEqual([26, 534, 78]);
+    expect(corpus.cases.slice(17, 26).map((c: any) => c.id)).toEqual(N07_BASES);
     const old = [...corpus.mutations.slice(0, 294), ...corpus.must_pass.slice(0, 28)];
     expect(old.filter((e: any) => NEW_KEYS.some(k => Object.hasOwn(e, k))).map((e: any) => e.id)).toEqual([]);
     expect(n07.length).toBe(290);
@@ -2009,9 +2034,9 @@ describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport r
         && JSON.stringify(r.rust) !== JSON.stringify(e.expected) && e.expected.gate === 'G7' && r.rust.gate === 'G7'
         && JSON.stringify(e.expected_unbound_by_reader) === JSON.stringify(r), e.id).toBe(true);
     }
-    expect(corpus.must_pass.slice(28).filter((e: any) => e.expected_classifications).length).toBe(16);
-    expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([19, 46]);
-    const ids = [...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id);
+    expect(corpus.must_pass.slice(28, 78).filter((e: any) => e.expected_classifications).length).toBe(16);
+    expect([corpus.cases.slice(0, 26).filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.slice(0, 78).filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([19, 46]);
+    const ids = [...corpus.mutations.slice(0, 534), ...corpus.must_pass.slice(0, 78)].map((e: any) => e.id);
     expect(new Set(ids).size).toBe(612);
   });
   const read = async (run: () => Promise<any>): Promise<unknown> => {
@@ -2233,5 +2258,35 @@ describe('B2 (lane TS): retained combinations on B2-P\'s W-CB3 successors (B2-C 
       const strictIndex = { name: what, edits: [set(path, (path.at(-1) === 'operand_preparation_ref' ? 0 : path.includes('combinations') ? 2 : 1) * 1.0)] };
       expect(hashOf((await shaped(combinationSparseText, strictIndex)).source.retained_precision.body), what).toBe(hashOf(base));
     }
+  });
+});
+
+// Snapshot 07o (B2, lane C of PR-B2), appended to 07n: B2-C REVISION_01 §5.1's 19 bases (15 producer-solved, 2 hook-produced,
+// 2 synthetic), its 69 mutations with their designed first failures (CONTRACT §10.3 as REVISION_01 §5.3 and REVISION_02 §4.3
+// amend it) and 19 must-pass entries, materialized under S-6's rehash (`rehash` above). The generic loops above pin each entry;
+// this block pins the slices and the format.
+describe('07o (B2): counts, format and slices', () => {
+  const O7_BASES = ['w_cb1_sparse_interactive', 'w_cb1_dense_scrutiny', 'w_cb1z_sparse_interactive', 'w_cb2_sparse_interactive', 'w_cb2_dense_scrutiny',
+    'w_cb3_sparse_interactive', 'w_cb3_dense_scrutiny', 'w_cb4a_sparse_interactive', 'w_cb4a_dense_scrutiny', 'w_cb4b_sparse_interactive', 'w_cb4b_dense_scrutiny',
+    'w_cb5_sparse_interactive', 'w_cb5_dense_scrutiny', 'b2_c1_range_mechanics_sparse_interactive', 'b2_c1_range_mechanics_dense_scrutiny',
+    'b2_operand_preparation_failure', 'b2_operand_source_unavailable', 'b2_pre_source_refusal', 'b2_base_withheld'];
+  it('07o: 45 cases, 603 mutations and 97 must-pass entries; 19 bases, 69 mutations and 19 must-pass entries appended', () => {
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([45, 603, 97]);
+    expect(corpus.cases.slice(26).map((c: any) => c.id)).toEqual(O7_BASES);
+    const mutations = corpus.mutations.slice(534), mustPass = corpus.must_pass.slice(78);
+    expect([mutations.length, mustPass.length]).toEqual([69, 19]);
+    for (const e of [...mutations, ...mustPass]) {
+      expect(Object.keys(e).filter(k => !['id', 'base', 'edits', 'after_rehash', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility'].includes(k)), e.id).toEqual([]);
+      expect([e.rehash, O7_BASES.includes(e.base) || corpus.cases.slice(0, 26).some((c: any) => c.id === e.base)], e.id).toEqual(['all', true]);
+    }
+    expect(mutations.map((m: any) => m.id.slice(0, 7))).toEqual(Array.from({ length: 69 }, (_, i) => `b2o_m${String(i + 1).padStart(2, '0')}`));
+    expect(mustPass.map((m: any) => m.base)).toEqual(O7_BASES);
+    // The format rule gains S-6's steps 2, 4 and 5.
+    expect(corpus.format_rule.order).toContain('2 each CaseSource\'s preparation.sha256 through operand_preparation_ref');
+    expect(new Set([...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id)).size).toBe(700);
+  });
+  it('07o: lane TS\'s returned readings name exactly the two hook-produced bases and their must-pass entries', () => {
+    expect(Object.keys(TS_07O_BOUND_READINGS).sort()).toEqual(['b2_operand_preparation_failure', 'b2_operand_source_unavailable', 'b2o_must_pass_b2_operand_preparation_failure', 'b2o_must_pass_b2_operand_source_unavailable']);
+    for (const id of ['b2_operand_preparation_failure', 'b2_operand_source_unavailable']) expect(corpus.cases.find((c: any) => c.id === id).provenance.kind).toBe('hook_produced');
   });
 });

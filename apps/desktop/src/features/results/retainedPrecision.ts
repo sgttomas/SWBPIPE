@@ -304,11 +304,12 @@ async function integrity(source: Obj, transport: boolean, route: Route): Promise
     if (a.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_preparation_v1', prepPayload(a, route.definitionHash)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');
   }
   // B2-C §10.1 G1, after the existing hashes: a retained_selected combination's source identity; each CombinationSource
-  // operand's identity, recomputed from the source at its source_ref; each operand-prepared CaseSource's preparation hash
-  // (C3a-5), when its record resolves and every member is prepared. A reference that does not resolve is left to G3/G5.
+  // operand's identity, recomputed from the CaseSource at its source_ref (§2.7); each operand-prepared CaseSource's
+  // preparation hash (C3a-5), when its record resolves and every member is prepared. A reference that does not resolve,
+  // or resolves to no CaseSource, is left to G3/G5.
   const identity = async (s: Obj) => { const { index: _omit, ...rest } = s; return hash('retained_precision_source_mp_v2', rest); };
   for (const c of b.combinations) if (c.disposition === 'retained_selected' && b.sources[c.source_ref]) need(await identity(b.sources[c.source_ref]) === c.source_identity_sha256, 'G1', 'RECEIPT_MISMATCH');
-  for (const s of b.sources) if (s.owner.kind === 'combination') for (const o of s.operands) if (b.sources[o.source_ref]) need(await identity(b.sources[o.source_ref]) === o.source_identity_sha256, 'G1', 'RECEIPT_MISMATCH');
+  for (const s of b.sources) if (s.owner.kind === 'combination') for (const o of s.operands) if (isCaseSource(b.sources[o.source_ref])) need(await identity(b.sources[o.source_ref]) === o.source_identity_sha256, 'G1', 'RECEIPT_MISMATCH');
   for (const s of b.sources) if (s.preparation && Object.hasOwn(s.preparation, 'operand_preparation_ref') && b.operand_preparations?.[s.preparation.operand_preparation_ref]) {
     const op = b.operand_preparations[s.preparation.operand_preparation_ref];
     if (op.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_operand_preparation_v1', operandPrepPayload(op, route.definitionHash)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');

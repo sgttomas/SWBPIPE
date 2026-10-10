@@ -415,3 +415,30 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
  await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
 });
+// The same, on 07o's R-COMB-1 bases read from the shared corpus by id (lane C of PR-B2): W-CB4a (A - B, ordinary over the
+// selected A: quantity rows not_covered, its two records non_quantity) and W-CB2 (A + B retained_unavailable: every row
+// not_covered). Their quantity rows' witnesses are withheld with D-U6-2's existing not-covered code and message.
+it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 rows are disclosed not_covered and withheld; records keep no class finding',async(id)=>{
+ const corpus=JSON.parse(readFileSync(path.resolve(__dirname,'../../../../../fixtures/results/retained_precision_cases.json'),'utf8'));
+ const entry=corpus.cases.find((c:any)=>c.id===id);expect(entry?.id).toBe(id);
+ const source=structuredClone(entry.source) as MechanicsResult,invocation=structuredClone(entry.invocation),model=structuredClone(invocation.request.model) as PreviewModel;
+ const captured=checkedJsonText(model);
+ await registerRetainedPrecision(source,invocation,(m)=>{try{return checkedJsonText(m)===captured;}catch{return false;}});
+ expect(successorStanding(source,model)).toMatchObject({eligible:true,findings:[]});
+ const manifest={manifest_ref:{object_type:'InputManifest',ref:'manifest:invented-b2-t6s'},manifest_sha256:'1'.repeat(64),manifest:{model_basis:{model_ref:source.model_ref,model_payload:model},solver_basis:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:'unit-transport-replay-not-native-witness',solver_mode:invocation.solver_mode}}};
+ const loadBasis=modelLoadBasisRefs(model),analysisRun=await buildAnalysisRunV03(source,manifest as any,undefined,loadBasis);
+ const packet=await buildStressNeutralExportPacket({model,result:source,analysisRun});
+ const combinationId=(source as any).retained_precision.body.combinations[0].basis_ref.ref_id,combinationRows=source.results.filter(r=>r.basis_ref?.ref_type==='combination');
+ expect(combinationRows.length).toBeGreaterThan(0);
+ for(const row of combinationRows)expect(packet.result_rows.find((x:any)=>x.result_id===row.id).load_case_ref).toEqual({object_type:'Combination',ref:combinationId});
+ const classes=(await validateRetainedPrecision(source)).classifications.filter(c=>c.basis_ref.ref_type==='combination');
+ expect(classes.map(c=>c.result_id)).toEqual(combinationRows.map(r=>r.id));
+ expect(classes.every(c=>c.class==='not_covered'||c.class==='non_quantity')).toBe(true);
+ const uncovered=classes.filter(c=>c.class==='not_covered');
+ expect(uncovered.length).toBeGreaterThan(0);
+ const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED');
+ expect(findings.map((d:any)=>d.source.ref).sort()).toEqual(uncovered.map(c=>c.result_id).sort());
+ for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,uncovered.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
+ for(const c of classes.filter(c=>c.class==='non_quantity'))expect(packet.diagnostics.some((d:any)=>d.source?.ref===c.result_id&&String(d.code).includes('RETAINED-PRECISION'))).toBe(false);
+ await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
+},60_000);
