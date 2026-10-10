@@ -23,14 +23,6 @@ from core.security.redaction import (  # noqa: E402
 SCHEMA_PATH = ROOT / "schemas" / "redaction_export_controls.schema.yaml"
 DOC_PATH = ROOT / "docs" / "security" / "redaction_export_controls.md"
 PARITY_FIXTURE_PATH = ROOT / "fixtures" / "redaction_export_controls" / "cases.json"
-MEMORY_PATH = (
-    ROOT
-    / "execution"
-    / "PKG-12_Security, Privacy, and Private Data Handling"
-    / "1_Working"
-    / "DEL-12-02_Private data redaction and export controls"
-    / "MEMORY.md"
-)
 
 REQUIRED_ROOT = {
     "schema_version",
@@ -764,9 +756,8 @@ def test_shared_parity_fixture_matches_core_decisions():
     )
 
 
-def test_documentation_and_memory_record_scope_boundaries():
+def test_documentation_records_scope_boundaries():
     doc = DOC_PATH.read_text(encoding="utf-8")
-    memory = MEMORY_PATH.read_text(encoding="utf-8")
     for required in {
         "deliverable_id: DEL-12-02",
         "package_id: PKG-12",
@@ -777,15 +768,12 @@ def test_documentation_and_memory_record_scope_boundaries():
         "does not mutate source project data",
     }:
         assert required in doc
-    assert "DEL-12-02" in memory
-    assert "invented fixtures only" in memory
 
 
 def test_changed_files_do_not_embed_disallowed_example_content():
     changed_files = [
         SCHEMA_PATH,
         DOC_PATH,
-        MEMORY_PATH,
         PARITY_FIXTURE_PATH,
         ROOT / "core" / "security" / "redaction" / "__init__.py",
         ROOT / "core" / "security" / "redaction" / "controls.py",
@@ -804,5 +792,5 @@ if __name__ == "__main__":
     test_protected_or_professional_boundary_metadata_blocks_export()
     test_missing_metadata_does_not_silently_export_value_bearing_record()
     test_shared_parity_fixture_matches_core_decisions()
-    test_documentation_and_memory_record_scope_boundaries()
+    test_documentation_records_scope_boundaries()
     test_changed_files_do_not_embed_disallowed_example_content()

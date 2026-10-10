@@ -21,15 +21,7 @@ from schema_validation import (  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "handoff_package.schema.json"
-FIXTURE_PATH = (
-    ROOT
-    / "execution"
-    / "PKG-15_Handoff and External Prover Workflow"
-    / "1_Working"
-    / "DEL-15-01_Canonical handoff package schema and manifest"
-    / "fixtures"
-    / "invented_handoff_package.json"
-)
+FIXTURE_PATH = ROOT / "fixtures" / "handoff" / "invented_handoff_package.json"
 
 REQUIRED_ROOT = {
     "schema_version",
