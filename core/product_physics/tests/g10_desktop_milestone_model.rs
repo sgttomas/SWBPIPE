@@ -46,6 +46,11 @@ fn desktop_request_publishes_the_milestone_ordinary_bytes() {
         let envelope = run_linear_static_preview_value_with_mode(request, mode).unwrap();
         let bytes = serde_json::to_vec(&envelope).unwrap();
         assert_eq!((bytes.len(), sha(&bytes).as_str()), (len, digest), "{name}: milestone ordinary bytes");
+        // The desktop command returns `serde_json::to_value` of this envelope. Without
+        // serde_json's preserve_order its object keys are re-encoded sorted, so the IPC
+        // bytes are not these bytes, but the value is the pinned bytes' value.
+        let pinned: Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(serde_json::to_value(&envelope).unwrap(), pinned, "{name}: the desktop's re-encoded value");
     }
 }
 
