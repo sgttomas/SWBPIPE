@@ -269,6 +269,9 @@ fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
 fn complete_synthetic_controls_carry_their_shared_eligibility() {
     let shared = corpus();
     for case in shared["cases"].as_array().unwrap() {
+        if o07_refused_hook_base(&case["id"]) {
+            continue;
+        }
         let got = rp::validate(&case["source"], Some(&case["invocation"]))
             .unwrap_or_else(|e| panic!("{}: {e:?}", case["id"]));
         assert!(got.invocation_bound);
@@ -341,11 +344,11 @@ fn shared_rehashed_first_failure_mutations() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
-/// Every shared mutation's id, in corpus order (07m's 294, then 07n's 240), pinned here
+/// Every shared mutation's id, in corpus order (07m's 294, 07n's 240, then 07o's 69), pinned here
 /// so that `slice_outcomes` checks each slice's entries by id and position (I83 §7
 /// item 8; B1 SC item 12): a reorder of same-code entries inside a slice, which the
 /// code tally cannot see, fails. Generated from 07n (sha256 `ea113e7b…e283`).
-const MUTATION_IDS: [&str; 534] = [
+const MUTATION_IDS: [&str; 603] = [
     "method_null",
     "method_number",
     "method_alternate_metadata",
@@ -880,6 +883,76 @@ const MUTATION_IDS: [&str; 534] = [
     "t_gate_withheld_string",
     "t_measure_extra_member",
     "t_gate_extra_member",
+    // 07o (B2-C REVISION_01 §5.1-§5.3; lane C's corpus): 69 more.
+    "b2o_m01_combination_attempt_definition_unknown",
+    "b2o_m02_operand_preparation_definition_unknown",
+    "b2o_m03_projection_policy_changed",
+    "b2o_m04_work_policy_changed",
+    "b2o_m05_canonicalization_changed",
+    "b2o_m06_work_case_limit_changed",
+    "b2o_m07_work_invocation_limit_changed",
+    "b2o_m08_case_attempt_definition_def_c",
+    "b2o_m09_combination_attempt_definition_def_o",
+    "b2o_m10_combination_identity_changed",
+    "b2o_m11_operand_identity_changed",
+    "b2o_m12_operand_prepared_hash_case_domain",
+    "b2o_m13_operand_preparations_empty",
+    "b2o_m14_ordinary_entry_run_null",
+    "b2o_m15_withheld_result_ids_gain_row",
+    "b2o_m16_term_factor_uppercase",
+    "b2o_m17_requested_operand_factor_nan",
+    "b2o_m18_entries_swapped",
+    "b2o_m19_entry_removed",
+    "b2o_m20_combination_renamed_to_case_id",
+    "b2o_m21_result_ids_lose_row",
+    "b2o_m22_result_ids_gain_case_row",
+    "b2o_m23_result_ids_swapped",
+    "b2o_m24_execution_order_loses_combination",
+    "b2o_m25_execution_order_combination_index",
+    "b2o_m26_combination_attempt_first",
+    "b2o_m27_operand_preparation_owner_selected",
+    "b2o_m28_operand_preparation_for_ordinary",
+    "b2o_m29_operand_preparation_removed",
+    "b2o_m30_operand_preparation_duplicated",
+    "b2o_m31_combination_selected_diagnostic_removed",
+    "b2o_m32_unavailable_diagnostic_ref_other",
+    "b2o_m33_selected_diagnostic_on_ordinary",
+    "b2o_m34_combination_diagnostic_two_refs",
+    "b2o_m35_ordinary_term_selected_case",
+    "b2o_m36_subtraction_recast_unavailable",
+    "b2o_m37_withheld_reason_other_code",
+    "b2o_m38_requested_operands_swapped",
+    "b2o_m39_representative_operand_1",
+    "b2o_m40_operand_case_index_other",
+    "b2o_m41_import_from_operand_1",
+    "b2o_m42_combination_group_imports_removed",
+    "b2o_m43_combination_call_before_off",
+    "b2o_m44_charged_batch_after",
+    "b2o_m45_import_from_prepared_operand",
+    "b2o_m46_pre_source_run_refs_gain_run",
+    "b2o_m47_pre_source_after_ne_before",
+    "b2o_m48_combination_reason_without_call",
+    "b2o_m49_operand_index_selected_term",
+    "b2o_m50_refused_record_source_ref",
+    "b2o_m51_prepared_record_stage_failed",
+    "b2o_m52_unresolved_attempt_native_completed",
+    "b2o_m53_reason_code_kernel_unresolved",
+    "b2o_m54_combination_translation_scale_ulp",
+    "b2o_m55_combination_row_not_covered",
+    "b2o_m56_method_on_unavailable_row",
+    "b2o_m57_method_removed_from_selected_row",
+    "b2o_m58_method_on_ordinary_row",
+    "b2o_m59_range_mode_changed",
+    "b2o_m60_subtraction_operands_swapped",
+    "b2o_m61_range_operand_ids_reversed",
+    "b2o_m62_kernel_source_replaced",
+    "b2o_m63_operand_effective_wall_changed",
+    "b2o_m64_operand_old_facts_d_changed",
+    "b2o_m65_operand_preparation_definition_def_c",
+    "b2o_m66_refused_record_origin_capture",
+    "b2o_m67_combination_attempt_origin_capture",
+    "b2o_m68_operand_prepared_source_after_combination",
+    "b2o_m69_combination_magnitude_off",
 ];
 /// Observe one slice of the shared mutations against this reader's own
 /// expectation, print one outcome per mutation (visible with --nocapture) and
@@ -1521,8 +1594,8 @@ fn shared_must_pass_entries_validate() {
     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
     // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
     // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28;
-    // 07n (B1 SC) appends 50, 28 to 78.
-    assert_eq!(entries.len(), 78);
+    // 07n (B1 SC) appends 50, 28 to 78; 07o (B2-C REVISION_01 §5.1) appends 19, to 97.
+    assert_eq!(entries.len(), 97);
     let mut failures = Vec::new();
     for entry in entries {
         assert_eq!(entry["expected"], "pass");
@@ -1534,6 +1607,14 @@ fn shared_must_pass_entries_validate() {
             .find(|c| c["id"] == entry["base"])
             .unwrap();
         let (source, invocation) = apply_entry(&shared, entry);
+        if o07_refused_hook_base(&entry["base"]) {
+            let got = observe_validation(rp::validate(&source, Some(&invocation)));
+            println!("I63_MUST_PASS {} declared {got}", entry["id"]);
+            if got != gate("G8", PREP) {
+                failures.push(format!("{} (declared) got {got}", entry["id"]));
+            }
+            continue;
+        }
         let got = match rp::validate(&source, Some(&invocation)) {
             Ok(got) => got,
             Err(e) => {
@@ -3712,6 +3793,9 @@ fn d32_integers_by_value() {
     assert!(misses.is_empty(), "{}", misses.join("\n"));
     // Every receipt integer at once, on every complete base.
     for case in shared["cases"].as_array().unwrap() {
+        if o07_refused_hook_base(&case["id"]) {
+            continue;
+        }
         let mut source = case["source"].clone();
         as_integral_floats(&mut source["retained_precision"]["body"]);
         rehash(&mut source);
@@ -6641,9 +6725,9 @@ const N07_BASES: [&str; 9] = [
 ];
 /// 07n's entries: the mutations after 07m's 294 and the must-pass entries after 07m's 28.
 fn n07_entries(shared: &Value) -> Vec<Value> {
-    let mut entries = shared["mutations"].as_array().unwrap()[294..].to_vec();
+    let mut entries = shared["mutations"].as_array().unwrap()[294..534].to_vec();
     entries.extend(
-        shared["must_pass"].as_array().unwrap()[28..]
+        shared["must_pass"].as_array().unwrap()[28..78]
             .iter()
             .cloned(),
     );
@@ -6666,14 +6750,12 @@ fn snapshot_07n_counts_and_format() {
             .map(|e| e["id"].as_str().unwrap().to_owned())
             .collect()
     };
+    // 07o appends after 07n (`snapshot_07o_counts_and_format`); 07n is the prefix.
     let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
-    assert_eq!(
-        (cases.len(), mutations.len(), must_pass.len()),
-        (26, 534, 78)
-    );
+    let (cases, mutations, must_pass) = (&cases[..26], &mutations[..534], &must_pass[..78]);
     assert_eq!(cases[17..], N07_BASES);
-    assert_eq!(mutations, MUTATION_IDS);
-    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(mutations, &MUTATION_IDS[..534]);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(must_pass).collect();
     assert_eq!(all.len(), 612, "entry ids are unique");
     let new_keys = [
         "expected_unbound",
@@ -6738,23 +6820,21 @@ fn snapshot_07n_counts_and_format() {
             e["id"]
         );
     }
-    let classes = shared["must_pass"].as_array().unwrap()[28..]
+    let classes = shared["must_pass"].as_array().unwrap()[28..78]
         .iter()
         .filter(|e| e.get("expected_classifications").is_some())
         .count();
     assert_eq!(classes, 16);
-    let eligible = |key: &str, field: &str| {
-        shared[key]
-            .as_array()
-            .unwrap()
+    let eligible = |key: &str, field: &str, n: usize| {
+        shared[key].as_array().unwrap()[..n]
             .iter()
             .filter(|e| e[field]["numerical_eligible"] == true)
             .count()
     };
     assert_eq!(
         (
-            eligible("cases", "expected"),
-            eligible("must_pass", "expected_eligibility")
+            eligible("cases", "expected", 26),
+            eligible("must_pass", "expected_eligibility", 78)
         ),
         (19, 46)
     );
@@ -6862,10 +6942,33 @@ fn b2_w_cb3(mode: &str) -> (Value, Value) {
     (doc["source"].clone(), doc["invocation"].clone())
 }
 const B2_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
-/// S-6 steps 6 and 7 only: the publication and receipt hashes, leaving every
-/// inner hash as written (REVISION_01 §5.2's inner-hash tests).
-fn b2_reseal(source: &mut Value) {
+/// S-6 from step `from` (4, 5 or 6) on: the hashes that depend on an edited
+/// inner hash, leaving that inner hash as written (REVISION_01 §5.2's inner-hash
+/// tests: each inner conjunct is then the only one a test can reach).
+fn b2_reseal(source: &mut Value, from: u8) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let identity = |s: &Value| {
+        let mut s = s.clone();
+        s.as_object_mut().unwrap().remove("index");
+        Value::from(domain_hash("retained_precision_source_mp_v2", &s).unwrap())
+    };
+    let body = &mut source["retained_precision"]["body"];
+    if from <= 4 {
+        let sources = body["sources"].clone();
+        for s in body["sources"].as_array_mut().unwrap() {
+            for o in s["operands"].as_array_mut().into_iter().flatten() {
+                o["source_identity_sha256"] = identity(&sources[o["source_ref"].as_u64().unwrap() as usize]);
+            }
+        }
+    }
+    if from <= 5 {
+        let sources = body["sources"].clone();
+        for c in body["combinations"].as_array_mut().unwrap() {
+            if c["disposition"] == "retained_selected" {
+                c["source_identity_sha256"] = identity(&sources[c["source_ref"].as_u64().unwrap() as usize]);
+            }
+        }
+    }
     let mut public = source.clone();
     public.as_object_mut().unwrap().remove("retained_precision");
     source["retained_precision"]["body"]["publication_sha256"] =
@@ -6874,8 +6977,9 @@ fn b2_reseal(source: &mut Value) {
         domain_hash("retained_precision_receipt_mp_v2", &source["retained_precision"]["body"]).unwrap().into();
 }
 /// One W-CB3 shape: `edits` on the source, `invocation_edits` on the invocation
-/// (its digest rebound), the full rehash, then `inner` edits resealed by steps 6
-/// and 7 only; the bound first failure, or null when the statement validates.
+/// (its digest rebound), the full rehash, then `inner` edits resealed by the S-6
+/// steps after the edited hash's own (`b2_reseal`); the bound first failure, or
+/// null when the statement validates.
 fn b2_shape(mode: &str, edits: &[Value], invocation_edits: &[Value], inner: &[Value]) -> Value {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
     let (mut source, mut invocation) = b2_w_cb3(mode);
@@ -6894,7 +6998,11 @@ fn b2_shape(mode: &str, edits: &[Value], invocation_edits: &[Value], inner: &[Va
         for e in inner {
             edit(&mut source, e);
         }
-        b2_reseal(&mut source);
+        // The edited hash's S-6 step: 2 (a preparation hash), 4 (an operand
+        // identity) or 5 (the combination identity); reseal the steps after it.
+        let path = inner[0]["path"].to_string();
+        let from = if path.contains("preparation") { 4 } else if path.contains("operands") { 5 } else { 6 };
+        b2_reseal(&mut source, from);
     }
     observe_validation(rp::validate(&source, Some(&invocation)))
 }
@@ -7002,7 +7110,10 @@ fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
         ("(c) m21 result_ids loses a row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids[..result_ids.len() - 1]))], vec![], vec![], gate("G3", COVERAGE)),
         ("(c) m22 result_ids gains a case row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!([result_ids.clone(), vec![source["results"][0]["id"].clone()]].concat()))], vec![], vec![], gate("G3", COVERAGE)),
         ("(c) m23 two result_ids swapped", vec![set(rb(json!(["combinations", 0, "result_ids", 0])), result_ids[1].clone()), set(rb(json!(["combinations", 0, "result_ids", 1])), result_ids[0].clone())], vec![], vec![], gate("G3", COVERAGE)),
-        ("(c) a combination row naming no entry", vec![set(json!(["results", combination_row, "basis_ref", "ref_id"]), json!("combination:other"))], vec![], vec![], gate("G3", COVERAGE)),
+        ("(c) a combination row naming no entry (and in no result_ids)", vec![
+            set(json!(["results", combination_row, "basis_ref", "ref_id"]), json!("combination:other")),
+            set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids.iter().filter(|r| **r != source["results"][combination_row]["id"]).collect::<Vec<_>>())),
+        ], vec![], vec![], gate("G3", COVERAGE)),
         ("(e) m26 the combination attempt before the case attempt", vec![set(rb(json!(["product_attempts"])), swapped_attempts), set(rb(json!(["cases", 0, "product_attempt_ref"])), json!(1)), set(rb(json!(["combinations", 0, "product_attempt_ref"])), json!(0)), set(rb(json!(["sources", 0, "preparation", "attempt_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
         ("(f) m24 execution_order loses the combination Run", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}]))], vec![], vec![], gate("G3", COVERAGE)),
         ("(f) m25 the combination's execution index changed", vec![set(rb(json!(["work", "execution_order", 1, "index"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
@@ -7238,4 +7349,93 @@ fn n1_negative_extrema_numbers_refused_zero_accepted() {
             }
         }
     }
+}
+
+/// 07o (B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4; lane C's
+/// corpus, appended after 07n): 19 bases (45), 69 mutations (603) and 19 must-pass
+/// entries (97), ids unique; the format rule states S-6's seven steps; each 07o
+/// must-pass entry's standing (`expected_eligibility.standing`) is this reader's.
+#[test]
+fn snapshot_07o_counts_and_format() {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    let shared = corpus();
+    let ids = |key: &str| -> Vec<String> {
+        shared[key].as_array().unwrap().iter().map(|e| e["id"].as_str().unwrap().to_owned()).collect()
+    };
+    let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
+    assert_eq!((cases.len(), mutations.len(), must_pass.len()), (45, 603, 97));
+    assert_eq!(mutations, MUTATION_IDS);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(all.len(), 700, "entry ids are unique");
+    let rule = shared["format_rule"]["order"].as_str().unwrap();
+    for step in ["operand_preparation_ref", "retained_precision_operand_preparation_v1", "operands[*].source_identity_sha256", "retained_selected combination"] {
+        assert!(rule.contains(step), "{step}");
+    }
+    for entry in &shared["must_pass"].as_array().unwrap()[78..] {
+        let (source, invocation) = apply_entry(&shared, entry);
+        let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        let standing = sc::numerical_use_standing_with_context(&source, &order, Some(&invocation));
+        println!("B2_RS_07O_STANDING {} {standing}", entry["id"]);
+        if o07_refused_hook_base(&entry["base"]) {
+            assert_eq!(standing, "unsupported", "{} (declared)", entry["id"]);
+            continue;
+        }
+        // The corpus's `eligible` is this reader's `numerically_eligible`.
+        let want = match entry["expected_eligibility"]["standing"].as_str().unwrap() {
+            "eligible" => "numerically_eligible",
+            other => other,
+        };
+        assert_eq!(standing, want, "{}", entry["id"]);
+    }
+}
+
+/// 07o's 69 mutations as one slice, observed by this reader against its own
+/// expectation (the designed first failure; m69 at Rust's own G7 base code) and
+/// tallied against a literal.
+#[test]
+fn snapshot_07o_mutation_outcomes() {
+    slice_outcomes(
+        "B2_RS_OUTCOME_07O",
+        534..603,
+        &[
+            ("G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", 7),
+            ("G1 RETAINED_PRECISION_RECEIPT_MISMATCH", 9),
+            ("G2 RETAINED_PRECISION_ENCODING_MISMATCH", 2),
+            ("G3 RETAINED_PRECISION_COVERAGE_MISMATCH", 14),
+            ("G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH", 4),
+            ("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 10),
+            ("G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH", 8),
+            ("G5 RETAINED_PRECISION_WORK_MISMATCH", 3),
+            ("G5b RETAINED_PRECISION_SCALE_MISMATCH", 1),
+            ("G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH", 1),
+            ("G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_COMBINATION_MAGNITUDE", 1),
+            ("G8 RETAINED_PRECISION_INVOCATION_MISMATCH", 3),
+            ("G8 RETAINED_PRECISION_PREPARATION_MISMATCH", 3),
+        ],
+    );
+}
+
+/// Declared disagreement with 07o (reported to the manager; lane C owns the corpus):
+/// the two hook-produced bases record their preparation hook's fault truthfully (the
+/// hooks zero a recorded old fact to force the refusal), so this reader refuses them,
+/// bound, at G8 PREPARATION_MISMATCH by B1's existing old-fact binding, exactly as B1's
+/// W-C2 T-7 hook successor (PP `b1_sp_w_c2_transaction_faults_and_abandonment`). Their
+/// must-pass entries expect a pass. Every other check pins them as the corpus states.
+fn o07_refused_hook_base(id: &Value) -> bool {
+    matches!(id.as_str(), Some("b2_operand_preparation_failure" | "b2_operand_source_unavailable"))
+}
+/// The declared disagreement, pinned: each refused base, bound, at G8 PREPARATION;
+/// unbound and on transport it passes, not eligible.
+#[test]
+fn o07_hook_bases_refused_at_g8_preparation() {
+    let shared = corpus();
+    let mut seen = 0;
+    for case in shared["cases"].as_array().unwrap().iter().filter(|c| o07_refused_hook_base(&c["id"])) {
+        seen += 1;
+        assert_eq!(observe_validation(rp::validate(&case["source"], Some(&case["invocation"]))), gate("G8", PREP), "{}", case["id"]);
+        assert!(matches!(rp::validate(&case["source"], None), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+        assert!(matches!(rp::validate_transport_metadata(&case["source"]), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+    }
+    assert_eq!(seen, 2);
 }

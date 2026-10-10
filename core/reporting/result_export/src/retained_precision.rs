@@ -842,7 +842,8 @@ fn g1(source: &Value, raw: bool, route: &Route) -> VResult {
 /// operand-prepared CaseSource's preparation hash over its prepared record;
 /// each CombinationSource operand's identity of the CaseSource it names; each
 /// `retained_selected` combination's identity of its CombinationSource. A
-/// reference that does not resolve is left to G3/G5.
+/// reference that does not resolve (or an operand naming no CaseSource) is left
+/// to G3/G5.
 fn g1_combinations(body: &Value) -> VResult {
     let sources = list(&body["sources"]);
     let resolve = |v: &Value| uint(v).and_then(|i| sources.get(i as usize));
@@ -870,7 +871,11 @@ fn g1_combinations(body: &Value) -> VResult {
     }
     for s in sources.iter().filter(|s| s["owner"]["kind"] == "combination") {
         for o in list(&s["operands"]) {
-            if let Some(case_source) = resolve(&o["source_ref"]) {
+            // The identity is a CaseSource's (§2.7); an operand naming any other
+            // source is an association defect, left to G3/G5.
+            if let Some(case_source) =
+                resolve(&o["source_ref"]).filter(|x| x["owner"]["kind"] != "combination")
+            {
                 need(
                     source_hash(case_source)? == o["source_identity_sha256"],
                     "G1",
