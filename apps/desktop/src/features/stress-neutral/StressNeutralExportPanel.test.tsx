@@ -18,6 +18,14 @@ import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
 import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/nativeResultSave';
+import {buildAnalysisRunV03,sourceBasisReference} from '../../services/analysisRunCompatibility';
+import {checkedJsonText} from '../../services/hashService';
+import {registerRetainedPrecision} from '../results/retainedPrecisionStanding';
+import {numericalResultStanding as successorStanding} from '../results/numericalResultQuality';
+import {validateRetainedPrecision} from '../results/retainedPrecision';
+import {retainedClassDisclosure} from '../results/retainedPrecisionDisclosure';
+import combinationSuccessorSparse from '../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json';
+import combinationSuccessorDense from '../../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json';
 vi.mock('../result-export/nativeResultSave',()=>({isNativeResultSaveRuntime:vi.fn(()=>false),saveNativeResultJson:vi.fn()}));
 afterEach(()=>{vi.restoreAllMocks();delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
 it('retains every native-shaped source row and hash while deriving 511 semantic witnesses and two diagnostic-work withholdings',async()=>{
@@ -372,4 +380,38 @@ it('packages a registered preview-physics-1 result with its closed evidence and 
  expect(packet.export_profile.csv_encoding).toBe('utf-8');
  expect(JSON.stringify(packet.manifest)).not.toMatch(/maximum elastic normal stress; nominal|Rule checks cannot bind|Historical precision-1/);
  await expect(validateStressNeutralExportPacket(packet,props.result,props.analysisRun)).resolves.toBeUndefined();
+});
+
+// T6S on a B2 combination successor, tests only (B2-C §10.4, N-8): B2-P's committed W-CB3 successors (case A selected, case B
+// not_required, A + B retained_selected), registered with their own invocation as the T6S suite registers corpus bases (a
+// TEST STAND-IN for the live native capture, D-U7-4). Combination rows carry `Combination` basis references, and their
+// absolute_verified classes from the reader withhold their witnesses with D-U6-2's existing codes and messages; no
+// disclosure text or code changes. Unit tests over the committed bytes only, not a native witness.
+it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',combinationSuccessorDense]] as const)('%s: a combination successor package carries Combination basis references and withholds its combination rows\' class witnesses',async(mode,document)=>{
+ const source=structuredClone((document as any).source) as MechanicsResult,invocation=structuredClone((document as any).invocation),model=structuredClone(invocation.request.model) as PreviewModel;
+ const captured=checkedJsonText(model);
+ await registerRetainedPrecision(source,invocation,(m)=>{try{return checkedJsonText(m)===captured;}catch{return false;}});
+ expect(successorStanding(source,model)).toMatchObject({eligible:true,findings:[]});
+ const manifest={manifest_ref:{object_type:'InputManifest',ref:'manifest:invented-b2-t6s'},manifest_sha256:'1'.repeat(64),manifest:{model_basis:{model_ref:source.model_ref,model_payload:model},solver_basis:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:'unit-transport-replay-not-native-witness',solver_mode:mode}}};
+ const loadBasis=modelLoadBasisRefs(model);
+ expect(loadBasis).toContainEqual({object_type:'Combination',ref:'combination:ab'});
+ const analysisRun=await buildAnalysisRunV03(source,manifest as any,undefined,loadBasis);
+ const before=checkedJsonText(source),packet=await buildStressNeutralExportPacket({model,result:source,analysisRun});
+ expect(checkedJsonText(source)).toBe(before);
+ const combinationRows=source.results.filter(r=>r.basis_ref?.ref_type==='combination');
+ expect(combinationRows.length).toBe(111);
+ for(const row of combinationRows){const packed=packet.result_rows.find((x:any)=>x.result_id===row.id);expect(packed.load_case_ref).toEqual({object_type:'Combination',ref:'combination:ab'});expect(packed.value).toBe(row.value);}
+ expect(sourceBasisReference(combinationRows[0].basis_ref)).toEqual({object_type:'Combination',ref:'combination:ab'});
+ const classes=(await validateRetainedPrecision(source)).classifications,combinationClasses=classes.filter(c=>c.basis_ref.ref_type==='combination');
+ expect(combinationClasses.map(c=>c.result_id)).toEqual(combinationRows.map(r=>r.id));
+ const absolute=combinationClasses.filter(c=>c.class==='absolute_verified');
+ expect(absolute).toHaveLength(75);
+ const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-ABSOLUTE-VERIFIED'&&combinationRows.some(r=>r.id===d.source.ref));
+ expect(findings.map((d:any)=>d.source.ref).sort()).toEqual(absolute.map(c=>c.result_id).sort());
+ for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,absolute.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
+ // Relative-verified and input-derived combination rows keep their witnesses.
+ for(const c of combinationClasses.filter(c=>c.class==='relative_verified'||c.class==='input_derived'))expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===c.result_id)).toBe(true);
+ expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED')).toBe(false);
+ await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
+ await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
 });

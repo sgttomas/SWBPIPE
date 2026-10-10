@@ -1,5 +1,6 @@
 import receiptSchema from '../../../../../schemas/retained_precision_mp_v2.schema.json';
 import definition from '../../../../../fixtures/results/retained_precision_prepared_ordinary_v1.json';
+import combinationDefinition from '../../../../../fixtures/results/retained_precision_prepared_combination_v1.json';
 import table from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
 import tableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json?raw';
 import inheritedTableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json?raw';
@@ -21,6 +22,9 @@ export const RETAINED_PRECISION_ID = 'openpipestress.result_semantics/0.3.0/prev
 export const RETAINED_PRECISION_PROFILE = 'product_preview_retained_w1a_v2';
 export const PREPARED_DEFINITION_ID = 'RP-PREPARED-ORDINARY-DUAL-v1';
 export const PREPARED_DEFINITION_HASH = 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349';
+/** B2-C §3 (REVISION_02 §5): DEF-C, the prepared combination formation, and H(`retained_precision_formation_v1`, DEF-C). */
+export const COMBINATION_DEFINITION_ID = 'RP-PREPARED-COMBINATION-DUAL-v1';
+export const COMBINATION_DEFINITION_HASH = 'd3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957';
 export const RETAINED_METHOD = 'contribution_preserving_multiprecision_v1';
 /** B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`, read on its own route (`EXACT_ROUTE`), whose
  * base is physics-1. */
@@ -205,6 +209,12 @@ function prepPayload(a: Obj, definitionHash: string): Obj {
   return { definition_id: a.definition_id, definition_sha256: definitionHash, owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
     members: a.preparation.members.map((m: Obj) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) };
 }
+/** C3a-5: an OperandPreparation's payload under `retained_precision_operand_preparation_v1`; `definition_sha256` is DEF-O's
+ * table-bound H, and no source_ref, work or hash field enters it. */
+function operandPrepPayload(op: Obj, definitionHash: string): Obj {
+  return { definition_id: op.definition_id, definition_sha256: definitionHash, owner_ref: op.owner_ref, ordinary_attempt_ref: op.ordinary_attempt_ref, material_basis_ref: op.material_basis_ref, purpose: op.purpose,
+    members: op.preparation.members.map((m: Obj) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) };
+}
 const sha256Text = async (text: string): Promise<string> => {
   const value = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text).buffer as ArrayBuffer);
   return [...new Uint8Array(value)].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -214,23 +224,37 @@ const isObj = (v: unknown): v is Obj => v !== null && typeof v === 'object' && !
  * schema versions), the definition and inherited-table hashes over the bound bytes, receipt_version,
  * the policy ids, the canonicalization profile and the 20B/60B thresholds. A G0 field that is absent
  * or mistyped fails G0; every other shape defect waits for G1, so the body is never walked here. */
-async function header(source: Obj): Promise<void> {
+async function header(source: Obj, t: Obj = table): Promise<void> {
   const fail = (ok: unknown, code = 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED') => need(ok, 'G0', code);
   const producer = isObj(source) ? source.producer : undefined;
+  // B2-C §8 rows 1-3: the producer identity, the schema and component versions, and the table's identity.
   fail(isObj(producer) && producer.semantic_contract_id === RETAINED_PRECISION_ID && source.formulation_basis?.profile_id === RETAINED_PRECISION_PROFILE);
   fail(source.schema_version === '0.2.0' && producer.component_name === 'open_pipe_stress_product_physics' && producer.component_version === '0.2.0');
-  fail(table.semantic_contract_id === RETAINED_PRECISION_ID && table.formulation_profile_id === RETAINED_PRECISION_PROFILE && table.inherited_semantic_contract_sha256 === BASE_HASH && same(table.product_formation_definitions, [{ id: PREPARED_DEFINITION_ID, sha256: PREPARED_DEFINITION_HASH }, { id: 'RP-PREPARED-COMBINATION-DUAL-v1', sha256: 'd3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957' }]), 'FORMATION_MISMATCH');
-  fail(await hash('retained_precision_formation_v1', definition) === PREPARED_DEFINITION_HASH, 'FORMATION_MISMATCH');
-  fail(await sha256Text(tableBytes) === TABLE_HASH && await sha256Text(inheritedTableBytes) === table.inherited_semantic_contract_sha256);
-  // Settled reading (D2): with the retained-precision contract named, an absent or mistyped
+  fail(t.semantic_contract_id === RETAINED_PRECISION_ID && t.formulation_profile_id === RETAINED_PRECISION_PROFILE && t.inherited_semantic_contract_sha256 === BASE_HASH);
+  // Row 4: the table's definitions are exactly [DEF-O, DEF-C] in that order, and each packaged definition's H is its constant.
+  fail(same(t.product_formation_definitions, [{ id: PREPARED_DEFINITION_ID, sha256: PREPARED_DEFINITION_HASH }, { id: COMBINATION_DEFINITION_ID, sha256: COMBINATION_DEFINITION_HASH }]), 'FORMATION_MISMATCH');
+  fail(await hash('retained_precision_formation_v1', definition) === PREPARED_DEFINITION_HASH && await hash('retained_precision_formation_v1', combinationDefinition) === COMBINATION_DEFINITION_HASH, 'FORMATION_MISMATCH');
+  // Row 5: the packaged table's bytes and its inherited hash.
+  fail(await sha256Text(tableBytes) === TABLE_HASH && await sha256Text(inheritedTableBytes) === t.inherited_semantic_contract_sha256);
+  // Row 6 (N-12): the table's receipt_bindings, receipt_policy and accuracy_classification.policy equal the reader's constants.
+  fail(tableBindsReaderConstants(t));
+  // Row 7. Settled reading (D2): with the retained-precision contract named, an absent or mistyped
   // retained_precision or body is an absent G0 field and fails G0.
   const b = isObj(source.retained_precision) ? source.retained_precision.body : undefined;
   fail(isObj(b));
-  {
-    for (const [k, v] of Object.entries({ receipt_version: 1, policy: 'M03-INTEGRITY-MP-v2', projection_policy: 'RP-LOGICAL-ATTEMPTS-v1', work_policy: 'W1-LME-20B-60B-v1', facade_policy: 'RP-FACADE-SI-v2', canonicalization: 'openpipestress_jcs_ijson_v1' })) fail(b[k] === v);
-    fail(isObj(b.work) && b.work.case_limit === 20_000_000_000 && b.work.invocation_limit === 60_000_000_000);
-    if (Array.isArray(b.product_attempts)) for (const a of b.product_attempts) if (isObj(a)) fail(a.definition_id === PREPARED_DEFINITION_ID);
-  }
+  // Row 8: the bound receipt members against the table.
+  const rb = t.receipt_bindings;
+  fail(b.receipt_version === 1);
+  for (const [k, want] of [['policy', t.receipt_policy], ['facade_policy', t.accuracy_classification?.policy], ['projection_policy', rb.projection_policy], ['work_policy', rb.work_policy], ['canonicalization', rb.canonicalization]]) fail(typeof want === 'string' && b[k] === want);
+  fail(isObj(b.work) && ['case_limit', 'invocation_limit'].every(k => Number.isSafeInteger(rb.work[k]) && b.work[k] === rb.work[k]));
+  // Row 9: every product attempt's and operand preparation's definition_id is one of the table's definitions. Which owner
+  // carries which definition is G1's (SCHEMA const).
+  const ids = t.product_formation_definitions.map((d: Obj) => d.id);
+  for (const key of ['product_attempts', 'operand_preparations']) if (Array.isArray(b[key])) for (const a of b[key]) if (isObj(a)) fail(ids.includes(a.definition_id));
+}
+/** @internal Exported only for B2-C §8's G0 table tests: the preview route's G0 read against a test-only table. */
+export async function previewHeaderForTests(source: unknown, t: unknown): Promise<void> {
+  try { await header(snapshot(source), t as Obj); } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError('G0', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED'); }
 }
 /** G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3 entries 1-10): every step is
  * SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except step 4, RETAINED_PRECISION_FORMATION_MISMATCH. */
@@ -279,19 +303,55 @@ async function integrity(source: Obj, transport: boolean, route: Route): Promise
     const a = b.product_attempts[s.preparation.attempt_ref];
     if (a.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_preparation_v1', prepPayload(a, route.definitionHash)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');
   }
+  // B2-C §10.1 G1, after the existing hashes: a retained_selected combination's source identity; each CombinationSource
+  // operand's identity, recomputed from the source at its source_ref; each operand-prepared CaseSource's preparation hash
+  // (C3a-5), when its record resolves and every member is prepared. A reference that does not resolve is left to G3/G5.
+  const identity = async (s: Obj) => { const { index: _omit, ...rest } = s; return hash('retained_precision_source_mp_v2', rest); };
+  for (const c of b.combinations) if (c.disposition === 'retained_selected' && b.sources[c.source_ref]) need(await identity(b.sources[c.source_ref]) === c.source_identity_sha256, 'G1', 'RECEIPT_MISMATCH');
+  for (const s of b.sources) if (s.owner.kind === 'combination') for (const o of s.operands) if (b.sources[o.source_ref]) need(await identity(b.sources[o.source_ref]) === o.source_identity_sha256, 'G1', 'RECEIPT_MISMATCH');
+  for (const s of b.sources) if (s.preparation && Object.hasOwn(s.preparation, 'operand_preparation_ref') && b.operand_preparations?.[s.preparation.operand_preparation_ref]) {
+    const op = b.operand_preparations[s.preparation.operand_preparation_ref];
+    if (op.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_operand_preparation_v1', operandPrepPayload(op, route.definitionHash)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');
+  }
   negativeZeroFree(r); encoding(r, SCHEMA); return b;
 }
+/** B2-C (C-9, §10.1): load-case and combination ids are one id space. */
+const isCaseSource = (s: unknown): s is Obj => isObj(s) && isObj(s.owner) && s.owner.kind === 'case';
+/** A strict index into a list (a safe U below its length), else undefined. */
+const strict = (a: unknown, i: unknown): Obj | undefined => Array.isArray(a) && Number.isSafeInteger(i) && (i as number) >= 0 && (i as number) < a.length ? a[i as number] : undefined;
+const retainedEntry = (e: Obj) => e.disposition === 'retained_selected' || e.disposition === 'retained_unavailable';
+/** C3a-1 (REVISION_01 §3.3, C-4): the combinations that request operand preparations: retained mechanics combinations
+ * not decided at T-10b(i) (`operand_source_unavailable`). */
+const requestsPreparation = (e: Obj) => retainedEntry(e) && e.expression?.kind === 'mechanics' && !(e.disposition === 'retained_unavailable' && e.reason?.cause?.kind === 'operand_source_unavailable');
+/** The case ids a combination's expression references: mechanics terms, subtraction minuend then subtrahend, range operands. */
+function expressionCaseIds(e: Obj): string[] {
+  const x = e.expression;
+  return x.kind === 'mechanics' ? x.terms.map((t: Obj) => t.case_id) : x.kind === 'result_state_subtraction' ? [x.minuend_id, x.subtrahend_id] : [...x.operand_ids];
+}
+/** A combination owner's hull-projected rows exclude case-only kinds and, under DEF-C r2, its displacement magnitudes,
+ * which the projection forms as RN64 of the exact 3-norm (REVISION_02 §2.2). */
+const COMBINATION_HULL_EXCLUDED = new Set([...HULL_EXCLUDED, 'displacement_magnitude']);
+/** The class of a source in `sources[]` order (B2-C §2.7; REVISION_01 §4.2 (i)): 0 a batch CaseSource, 1 an
+ * operand-prepared CaseSource, 2 a CombinationSource. */
+const sourceClass = (s: Obj) => s.owner.kind === 'combination' ? 2 : isObj(s.preparation) && Object.hasOwn(s.preparation, 'operand_preparation_ref') ? 1 : 0;
 function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
   const fail = (ok: unknown) => need(ok, 'G3', 'COVERAGE_MISMATCH');
   const ids = b.cases.map((c: Obj) => c.basis_ref.ref_id);
+  const combos: Obj[] = b.combinations, comboIds: string[] = combos.map(e => e.basis_ref.ref_id);
   fail(unique(ids) && same(b.cases.map((c: Obj) => c.basis_ref), source.numerical_quality?.cases?.map((c: Obj) => c.basis_ref)) && b.cases.some((c: Obj) => c.status === 'selected'));
-  // A combination in the invocation is G8's model-scope rule (B1's alignment set item 2; ROOT on I92's REPAIR_01 §6):
-  // B1 has no combination coverage, and B2's contract brings it to G3 in its own scope.
+  // The invocation's model combinations are G8's (B2-C §10.1 G8 invocation); its load cases are bound here.
   if (invocation) fail(same(ids, invocation.request?.model?.load_cases?.map((c: Obj) => c.id)));
-  const rows = new Map<string, Obj[]>(ids.map((id: string) => [id, []])); const seen = new Set();
-  for (const row of source.results) { fail(!seen.has(row.id) && row.basis_ref?.ref_type === 'load_case' && rows.has(row.basis_ref.ref_id)); seen.add(row.id); rows.get(row.basis_ref.ref_id)!.push(row); }
+  // B2-C §10.1 G3 (c), branched (REVISION_01 §4.1 row 5): every row's basis names a case (`load_case`) or a combination
+  // entry (`combination`). At z = 0 no combination entry exists, so this is today's load-case predicate.
+  const rows = new Map<string, Obj[]>(ids.map((id: string) => [id, []])), comboRows = new Map<string, Obj[]>(comboIds.map(id => [id, []])); const seen = new Set();
+  for (const row of source.results) {
+    const owner = row.basis_ref?.ref_type === 'load_case' ? rows : row.basis_ref?.ref_type === 'combination' ? comboRows : null;
+    fail(!seen.has(row.id) && owner && owner.has(row.basis_ref.ref_id)); seen.add(row.id); owner!.get(row.basis_ref.ref_id)!.push(row);
+  }
   fail(b.ordinary_attempts.length === b.cases.length);
-  const refs = b.cases.flatMap((c: Obj) => c.product_attempt_ref === null ? [] : [c.product_attempt_ref]);
+  // Branch (REVISION_01 §4.1 row 1; G3 (e)): the attempt bijection covers the cases' and the combination entries' refs.
+  const refs = [...b.cases.flatMap((c: Obj) => c.product_attempt_ref === null ? [] : [c.product_attempt_ref]),
+    ...combos.flatMap(e => e.product_attempt_ref === null || e.product_attempt_ref === undefined ? [] : [e.product_attempt_ref])];
   fail(same([...refs].sort((a, z) => a - z), sequence(b.product_attempts.length)));
   b.cases.forEach((c: Obj, i: number) => {
     const o = b.ordinary_attempts[i]; fail(c.ordinary.attempt_ref === i && same(c.ordinary.quality_binding, { kind: 'present', index: i }) && o.case_index === i && o.case_id === ids[i]);
@@ -310,8 +370,8 @@ function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
       if (a.source_ref !== null) { if (sourced) fail(same(old.map((m: Obj) => m.member), sourced.id_maps.members.map((m: Obj) => m.kernel_member))); }
       // D1 (checkpoint A correction): unsourced complete old coverage matches every CaseSource's member
       // count (one model). No emptiness rule: no native rejection of an empty inventory is cited. With no
-      // CaseSource, G8 compares the list with the invocation's members.
-      else if (a.operational.old_coverage === 'complete') fail(b.sources.every((s: Obj) => s.id_maps.members.length === old.length));
+      // CaseSource, G8 compares the list with the invocation's members. A CombinationSource has no maps (B2 branch).
+      else if (a.operational.old_coverage === 'complete') fail(b.sources.filter(isCaseSource).every((s: Obj) => s.id_maps.members.length === old.length));
       // C3 G3 row-index coverage (ruling): every index names a hull-projected row of this case,
       // strictly ascending. A valid sorted subset on Ready is the later G5 exact-set check.
       if (a.proof) { const indices = a.proof.projection_outcomes.map((x: Obj) => x.row_index), caseRows = rows.get(ids[i])!; fail(indices.every((x: number, j: number) => x < caseRows.length && !HULL_EXCLUDED.has(caseRows[x].kind) && (!j || x > indices[j - 1]))); }
@@ -322,11 +382,72 @@ function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
     }
   });
   // D29: a CaseSource with an empty body inventory cannot be emitted (source.rs `PrimitiveSource::new` NoNodes; I57 §1).
-  b.sources.forEach((s: Obj, i: number) => fail(s.body_membership.length >= 1 && s.index === i && s.owner.kind === 'case' && ids[s.owner.case_index] === s.owner.case_id));
+  // Branch (REVISION_01 §4.1 row 4): a CombinationSource names its own entry by index and id.
+  b.sources.forEach((s: Obj, i: number) => fail(s.owner.kind === 'combination' ? s.index === i && comboIds[s.owner.combination_index] === s.owner.combination_id
+    : s.body_membership.length >= 1 && s.index === i && s.owner.kind === 'case' && ids[s.owner.case_index] === s.owner.case_id));
   b.material_bases.forEach((m: Obj, i: number) => fail(m.index === i && unique(m.case_indices) && m.case_indices.every((c: number) => c < ids.length)));
-  const runs = b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run).sort((a: Obj, z: Obj) => a.id - z.id);
+  // Branch (REVISION_01 §4.1 row 2; G3 (f)): the cases' Runs, then the combination entries' Runs in Call (authored) order.
+  const runs = [...b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run).sort((a: Obj, z: Obj) => a.id - z.id), ...combos.filter(e => e.run).map(e => e.run)];
   fail(same(runs.map((r: Obj) => r.id), sequence(runs.length)) && same(b.work.execution_order, runs.map((r: Obj) => r.origin.owner_ref)));
-  return rows;
+  combos.forEach((e, k) => { if (e.run) fail(same(b.work.execution_order[e.run.id], { kind: 'combination', index: k })); });
+  // B2-C §10.1 G3 (a): one entry per gate-evidence entry, in order and by id. Applied when the receipt has a combination
+  // entry; at z = 0 no B2 predicate reads the gate evidence (07n's `t_gate_ok` and `t_gate_withheld_reason_null`).
+  if (combos.length) { const gates = source.contract_evidence?.combination_gates; fail(Array.isArray(gates) && same(comboIds, gates.map((g: Obj) => g?.combination_id))); }
+  // (b) One id set: case and combination ids pairwise distinct.
+  fail(unique([...ids, ...comboIds]));
+  // (c) A combination's result_ids are exactly its rows, in publication order (the rows loop binds each row to one owner).
+  for (const e of combos) fail(same(e.result_ids, comboRows.get(e.basis_ref.ref_id)!.map(r => r.id)));
+  // (d) and (h) C3a's coverage (C3a-7 G3 row; REVISION_01 §4.2, §4.3).
+  const ops: Obj[] | undefined = b.operand_preparations, opList = ops ?? [];
+  if (ops !== undefined) fail(ops.length >= 1);
+  const needed: number[] = [], requested = new Map<number, number[]>();
+  combos.forEach((e, k) => {
+    if (!requestsPreparation(e)) return;
+    for (const term of e.expression.terms) {
+      const ci = ids.indexOf(term.case_id); if (ci < 0 || b.cases[ci].status !== 'not_required') continue;
+      if (!needed.includes(ci)) needed.push(ci);
+      const list = requested.get(ci) ?? []; if (!list.includes(k)) list.push(k); requested.set(ci, list);
+    }
+  });
+  opList.forEach((op, i) => {
+    const owner = op.owner_ref.index, ci = b.cases[owner];
+    fail(op.id === i && ci?.status === 'not_required');
+    fail(op.requested_by.every((k: number, j: number) => (!j || k > op.requested_by[j - 1]) && combos[k] && requestsPreparation(combos[k]) && combos[k].expression.terms.some((x: Obj) => x.case_id === ci.basis_ref.ref_id)));
+    // REVISION_01 §4.3: a record's source_ref is read here only when the record is prepared; a refused one's is G5's.
+    if (op.result.kind === 'prepared' && op.source_ref !== null) { const s = strict(b.sources, op.source_ref); fail(isCaseSource(s) && s.owner.case_index === owner && s.preparation?.operand_preparation_ref === op.id); }
+  });
+  fail(unique(opList.map(op => op.owner_ref.index)));
+  for (const [ci, ks] of requested) for (const k of ks) fail(opList.filter(op => op.owner_ref.index === ci && op.requested_by.includes(k)).length === 1);
+  fail(same(opList.map(op => op.owner_ref.index), needed));
+  // (e) Case attempts first, then combination attempts; a retained entry's attempt exists exactly with its Run, and names
+  // the entry as its owner (with the bijection above, each ref names a distinct attempt). Its own rows and operand 0's
+  // CaseSource bound its projection indices and its roster (REVISION_01 §4.1 row 3).
+  const kinds = b.product_attempts.map((a: Obj) => a.owner_ref.kind);
+  fail(kinds.every((k: string, i: number) => !i || !(kinds[i - 1] === 'combination' && k === 'case')));
+  combos.forEach((e, k) => {
+    if (!retainedEntry(e)) return;
+    fail((e.product_attempt_ref === null) === (e.run === null));
+    if (e.product_attempt_ref === null) return;
+    const a = b.product_attempts[e.product_attempt_ref]; fail(a.id === e.product_attempt_ref && same(a.owner_ref, { kind: 'combination', index: k }));
+    if (!a.proof) return;
+    const own = comboRows.get(e.basis_ref.ref_id)!, indices = a.proof.projection_outcomes.map((x: Obj) => x.row_index);
+    fail(indices.every((x: number, j: number) => x < own.length && !COMBINATION_HULL_EXCLUDED.has(own[x].kind) && (!j || x > indices[j - 1])));
+    const cs = strict(b.sources, a.source_ref), rep = cs?.owner?.kind === 'combination' ? strict(b.sources, cs.operands[0]?.source_ref) : undefined, cov = a.proof.summary_coverage;
+    if (Array.isArray(cov) && isCaseSource(rep)) fail(cov.length >= 1 && cov.length === rep.body_membership.length && same(cov.map((x: Obj) => x.body), sequence(cov.length)));
+  });
+  // (g) Each CombinationSource is named by exactly one combination entry, and each operand-prepared CaseSource by exactly
+  // one prepared operand preparation and no case. A batch CaseSource's naming stays B1's (G5's association and G8's
+  // binding): at z = 0 G3 adds no source predicate (07n's `d38_m8_case_source_other` and `orphan_source_beside_t7`).
+  b.sources.forEach((s: Obj, i: number) => {
+    if (s.owner.kind === 'combination') fail(combos.filter(e => e.source_ref === i).length === 1);
+    else if (sourceClass(s) === 1) fail(!b.cases.some((c: Obj) => c.source_ref === i) && opList.filter(op => op.result.kind === 'prepared' && op.source_ref === i).length === 1);
+    else fail(!opList.some(op => op.result.kind === 'prepared' && op.source_ref === i));
+  });
+  // (i) Sources in registration order: the batch's CaseSources, the operand-prepared CaseSources in record order, then the
+  // CombinationSources.
+  const classes = b.sources.map(sourceClass), prepared = b.sources.filter((s: Obj) => sourceClass(s) === 1).map((s: Obj) => s.preparation.operand_preparation_ref);
+  fail(classes.every((c: number, i: number) => !i || c >= classes[i - 1]) && prepared.every((r: number, i: number) => !i || r > prepared[i - 1]));
+  return new Map([...rows, ...comboRows]);
 }
 function diagnostics(b: Obj, source: Obj): void {
   const fail = (ok: unknown) => need(ok, 'G4', 'DIAGNOSTIC_MISMATCH'); const ds: Obj[] = source.diagnostics;
@@ -337,7 +458,15 @@ function diagnostics(b: Obj, source: Obj): void {
     if (c.status === 'unavailable') fail(unavailable[0].id === c.diagnostic_ref);
     if (c.status === 'selected') fail(!ds.some(d => d.code === 'SOURCE_BLOCK_RECOVERY_UNAVAILABLE' && d.affected_refs?.includes(cid)));
   }
-  for (const d of ds.filter(d => ['RETAINED_PRECISION_SELECTED', 'RETAINED_PRECISION_UNAVAILABLE'].includes(d.code))) fail(d.affected_refs?.length === 1 && b.cases.some((c: Obj) => c.basis_ref.ref_id === d.affected_refs[0]));
+  // Branch (REVISION_01 §4.1 row 6): a RETAINED_PRECISION_* diagnostic names exactly one case or one combination entry.
+  for (const d of ds.filter(d => ['RETAINED_PRECISION_SELECTED', 'RETAINED_PRECISION_UNAVAILABLE'].includes(d.code))) fail(d.affected_refs?.length === 1 && [...b.cases, ...b.combinations].some((c: Obj) => c.basis_ref.ref_id === d.affected_refs[0]));
+  // B2-C §10.1 G4: one SELECTED per retained_selected and one UNAVAILABLE per retained_unavailable combination, each naming
+  // exactly that entry; none for an ordinary or base_withheld one; an unavailable entry's diagnostic_ref is its diagnostic.
+  for (const e of b.combinations) {
+    const id = e.basis_ref.ref_id, selected = ds.filter(d => d.code === 'RETAINED_PRECISION_SELECTED' && d.affected_refs?.includes(id)), unavailable = ds.filter(d => d.code === 'RETAINED_PRECISION_UNAVAILABLE' && d.affected_refs?.includes(id));
+    fail(selected.length === Number(e.disposition === 'retained_selected') && unavailable.length === Number(e.disposition === 'retained_unavailable') && [...selected, ...unavailable].every(d => same(d.affected_refs, [id])));
+    if (e.disposition === 'retained_unavailable') fail(unavailable[0].id === e.diagnostic_ref);
+  }
 }
 
 /** The native AttemptStop carried by a failed physical/logical outcome, or null (C1:114). */
@@ -450,21 +579,199 @@ export function nativeRuns(b: Obj): void {
   }
   need(deferred.every(Boolean), 'G5', 'WORK_MISMATCH');
 }
+/** B2-C §2.5: the source a mechanics Call requests for a term's case: a selected or unavailable case's own CaseSource,
+ * or a not_required case's prepared operand preparation's source; null when there is none. */
+function operandSourceRef(b: Obj, ci: number): number | null {
+  const c = b.cases[ci];
+  if (!c) return null;
+  if (c.status !== 'not_required') return c.source_ref ?? null;
+  const op = (b.operand_preparations ?? []).find((x: Obj) => x.owner_ref.index === ci && x.result.kind === 'prepared');
+  return op ? op.source_ref : null;
+}
+/** B2-C §2.5 (`GroupCache::merged`): a combination group's imports, in fixed slot order, each from the first selected
+ * operand in authored order whose selected Run holds the slot. Prepared operands import nothing (R-11). */
+function expectedImports(b: Obj, terms: Obj[]): Obj[] {
+  const imports: Obj[] = [];
+  for (const slot of SLOTS) for (let i = 0; i < terms.length; i++) {
+    const c = b.cases.find((x: Obj) => x.basis_ref.ref_id === terms[i].case_id);
+    const hit = c?.status === 'selected' && c.run ? c.run.cache_after.find((x: Obj) => x.slot === slot) : undefined;
+    if (hit) { imports.push({ operand_index: i, selected_run: c.run.id, slot, build: hit.build }); break; }
+  }
+  return imports;
+}
 function nativeClass(b: Obj, work: (ok: unknown) => void): void {
   const fail = (ok: unknown, code = 'ATTEMPT_MISMATCH') => need(ok, 'G5', code);
   const checked = (n: bigint): bigint => { work(n >= 0n && n <= SAFE); return n; };
+  const combos: Obj[] = b.combinations;
   // D8 kernel scope (checkpoint A; C1:66-68; adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`): a work_accounting stop or
   // reason anywhere in a Run, a build or a group preparation is outside the emitted domain (class 1, ATTEMPT).
-  const kernelRuns = b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run);
+  // Branch (REVISION_01 §4.1 row 7): the Runs are the cases' and the combination entries'.
+  const kernelRuns = [...b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run), ...combos.filter(e => e.run).map(e => e.run)];
   fail(!locate([kernelRuns, b.builds, b.groups.map((g: Obj) => g.preparation)]).some(([, o]) => o.tag === 'work_accounting'));
   // A build reference is followed by WORK checks (slot, group, work, stages), so a dangling one fails WORK.
   const buildOf = (bi: unknown): Obj | null => Number.isSafeInteger(bi) && (bi as number) >= 0 && (bi as number) < b.builds.length ? b.builds[bi as number] : null;
-  const runs: Obj[] = b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run).sort((a: Obj, z: Obj) => a.id - z.id);
+  const runs: Obj[] = [...kernelRuns].sort((a: Obj, z: Obj) => a.id - z.id);
   fail(same(b.calls.flatMap((c: Obj) => c.run_refs), sequence(runs.length)));
+  // B2-C §10.1 G5 native class: calls[0] is the case batch, then one mechanics Call per entry with a non-null call_ref,
+  // in authored order (each Call names its entry below).
+  if (combos.length) {
+    const called = combos.flatMap((e, k) => e.call_ref === null || e.call_ref === undefined ? [] : [k]);
+    fail(b.calls.length === 1 + called.length && called.every((k, j) => combos[k].call_ref === j + 1));
+  }
   const live = new Map<number, Map<string, number>>(); const seenBuilds = new Set<number>();
   let current = 0n;
+  /** One Run's native schedule, caches, builds, charges and terminal (C1/C2), for a case Run or a combination Run (B2-C
+   * §2.5: "as a case Run's"). `layout` is the CaseSource whose layout names the Run's rows (a combination's
+   * representative); `imported` holds a combination Run's imported builds. */
+  const runBody = (ci: number, ri: number, si: number, run: Obj, s: Obj, layout: Obj, ownerSelected: boolean, selection: Obj | undefined, imported: Set<number> | null) => {
+    work(uint(run.invocation_before) === current);
+    // N10 (adaptive.rs `solve_cases_projected`): an invocation-entry return is idle with group null. Its only
+    // emitted form is Budget(invocation) once invocation_before >= Li (a meter fault is never emitted).
+    // D27: an ATTEMPT check reads the Run's recorded invocation_before, never the WORK-derived running sum
+    // (a broken meter chain is reported by the deferred WORK predicate above).
+    const exhausted = uint(run.invocation_before) >= uint(b.work.invocation_limit);
+    if (exhausted) fail(run.origin.group === null);
+    if (run.origin.group === null) {
+      fail(exhausted && !run.records.length && !run.attempts.length && !run.cache_before.length && !run.cache_after.length && run.kernel_terminal.kind === 'unresolved'
+        && same(run.kernel_terminal.reason, INVOCATION_BUDGET));
+    } else {
+      const group = at(b.groups, run.origin.group, 'G5', 'ATTEMPT_MISMATCH');
+      fail(group.call === ci && group.source_refs.includes(si) && group.stiffness_sha256 === s.stiffness_sha256);
+      if (group.preparation.kind === 'refused') fail(!run.records.length && !run.attempts.length && run.kernel_terminal.kind === 'refused' && same(run.kernel_terminal.reason, group.preparation.reason));
+      // N10 (adaptive.rs `solve_cases_projected`): a run with no attempt in a ready group is the CasePrep refusal.
+      else if (!run.attempts.length) fail(run.kernel_terminal.kind === 'refused' && run.kernel_terminal.reason?.tag === 'ledger_unavailable');
+    }
+    const cache = imported ? new Map<string, number>(run.cache_before.map((x: Obj) => [x.slot, x.build])) : live.get(run.origin.group) ?? new Map<string, number>();
+    const inventory = () => SLOTS.filter(slot => cache.has(slot)).map(slot => ({ slot, build: cache.get(slot) }));
+    work(same(run.cache_before, inventory()));
+    const records: Obj[] = run.records, attempts: Obj[] = run.attempts;
+    fail(records.length <= 4 && same(records.map(r => r.index), sequence(records.length)) && records.every((r, i) => !i || r.precision > records[i - 1].precision));
+    nativeSchedule(run, layout);
+    const amounts: [bigint, bigint][] = [];
+    for (const r of records) {
+      const w = r.work, own = checked(uint(w.wide_lme) + uint(w.exact_sum_lme));
+      work(own === uint(w.own_lme) && own === sum(Object.values(w.own_stages)) && uint(w.stop_rule_lme) + uint(w.verification_lme) <= own);
+      work(w.own_stages.stop_rule === w.stop_rule_lme);
+      work(sum(['scale', 'estimate', 'charge', 'bound', 'shift'].map(stage => w.own_stages[stage])) === uint(w.verification_lme));
+      work(sum(Object.values(w.shared_stages)) === uint(w.shared_lme) + uint(w.verification_shared_lme));
+      fail(r.residual_basis === (r.precision === 1024 ? 1024 : r.precision + 64));
+      fail(r.storage.limbs_per_entry === (r.precision <= 256 ? 4 : r.precision === 512 ? 8 : 16));
+      if (r.role === 'verification') work(w.stop_rule_lme === 0);
+      amounts.push([checked(own + uint(w.shared_lme) + uint(w.verification_shared_lme)), checked(own + (w.shared_built_here ? uint(w.shared_lme) : 0n) + (w.verification_shared_built_here ? uint(w.verification_shared_lme) : 0n))]);
+      fail(r.precision !== 1024 || r.role === 'verification');
+      for (const [field, phase, flag, cost, prefix] of [['shared_build_ref', 'shared', 'shared_built_here', 'shared_lme', 's'], ['verification_shared_build_ref', 'verification_shared', 'verification_shared_built_here', 'verification_shared_lme', 'v']]) {
+        const bi = r[field]; if (bi === null) { work(!w[flag] && w[cost] === 0); continue; }
+        const build = buildOf(bi);
+        if (!build) { work(false); continue; }
+        const slot = prefix + r.precision;
+        // B2-C §2.5: a combination Run reuses only its imports and its own group's builds (no other cross-group reuse).
+        const importedHere = imported !== null && !w[flag] && imported.has(bi);
+        if (imported) fail(build.group === run.origin.group || importedHere);
+        work((build.group === run.origin.group || importedHere) && build.slot === slot && build.work === w[cost]);
+        // C1 (adaptive.rs obtain 3984-4026): state/reason agree, and a failed build fails the
+        // requesting record with the same stop, whether built here or reused from the cache.
+        work((build.state === 'success') === (build.reason === null) && (build.state === 'budget_failure') === (build.reason?.tag === 'budget'));
+        if (build.state !== 'success') fail(same(outcomeStop(r.outcome), build.reason));
+        if (w[flag]) {
+          work(!seenBuilds.has(bi) && same(build.origin, { call: ci, run: ri, physical_record: r.index, phase })); seenBuilds.add(bi);
+          work(!cache.has(slot)); if (build.state !== 'budget_failure') cache.set(slot, bi);
+        } else work(cache.get(slot) === bi && build.state !== 'budget_failure');
+      }
+      for (const stage of Object.keys(w.shared_stages)) {
+        const sharedBuild = buildOf(r.shared_build_ref), verificationBuild = buildOf(r.verification_shared_build_ref);
+        const shared = sharedBuild ? uint(sharedBuild.stages[stage]) : 0n, verification = verificationBuild ? uint(verificationBuild.stages[stage]) : 0n;
+        work(uint(w.shared_stages[stage]) === shared + verification);
+      }
+    }
+    work(same(run.cache_after, inventory())); if (run.origin.group !== null) live.set(run.origin.group, cache);
+    const fragments = new Set<string>();
+    for (let ai = 0; ai < attempts.length; ai++) {
+      const a = attempts[ai], cr = at(records, a.candidate_record, 'G5', 'ATTEMPT_MISMATCH');
+      fail(a.precision === cr.precision && [128, 256, 512].includes(a.precision) && ['candidate', 'verification_then_candidate'].includes(cr.role) && same(a.outcome, cr.outcome));
+      fail(!ai || a.precision > attempts[ai - 1].precision);
+      if (a.origin.kind === 'reused_verification') { const prior = at(attempts.slice(0, ai), a.origin.attempt, 'G5', 'ATTEMPT_MISMATCH'); fail(prior.verification?.record === cr.index && cr.role === 'verification_then_candidate'); }
+      else fail(cr.role === 'candidate');
+      const v = a.verification;
+      if (v !== null) {
+        const vr = at(records, v.record, 'G5', 'ATTEMPT_MISMATCH'); fail(vr.index > cr.index && vr.precision === v.precision && v.precision === 2 * a.precision && ['verification', 'verification_then_candidate'].includes(vr.role));
+        if (vr.role === 'verification_then_candidate') fail(v.phase === 'completed' && v.reason === null);
+        else if (vr.outcome.kind === 'failed') fail(v.phase === 'failed' && same(v.reason, vr.outcome.reason));
+        else fail(v.phase === 'completed' && v.reason === null);
+      } else fail(a.outcome.kind === 'failed');
+      let charge = 0n, debit = 0n;
+      for (const f of a.charges) {
+        const key = f.record + ':' + f.part; fail(!fragments.has(key)); fragments.add(key);
+        const fr = at(records, f.record, 'G5', 'ATTEMPT_MISMATCH');
+        if (f.part === 'candidate_stop') { fail(f.record === cr.index); charge += uint(fr.work.stop_rule_lme); debit += uint(fr.work.stop_rule_lme); }
+        else { fail((f.record === cr.index && cr.role === 'candidate') || v?.record === f.record); charge += amounts[f.record][0] - uint(fr.work.stop_rule_lme); debit += amounts[f.record][1] - uint(fr.work.stop_rule_lme); }
+      }
+      work(checked(charge) === uint(a.case_charge) && checked(debit) === uint(a.invocation_increment));
+      if (a.outcome.kind === 'accepted') fail(ai === attempts.length - 1 && run.kernel_terminal.kind === 'selected');
+    }
+    const required = records.flatMap(r => [r.index + ':solve_and_verification', ...(r.role !== 'verification' ? [r.index + ':candidate_stop'] : [])]);
+    fail(fragments.size === required.length && required.every(x => fragments.has(x)));
+    const charge = checked(amounts.reduce((v, x) => v + x[0], 0n)), debit = checked(amounts.reduce((v, x) => v + x[1], 0n));
+    work(charge === uint(run.case_charge) && charge === sum(attempts.map(a => a.case_charge)) && debit === uint(run.invocation_increment) && debit === sum(attempts.map(a => a.invocation_increment)));
+    current = checked(current + debit); work(current === uint(run.invocation_after));
+    const terminal = run.kernel_terminal;
+    fail((terminal.kind === 'selected') === (terminal.reason === null));
+    if (terminal.kind === 'selected') {
+      const last = at(attempts, attempts.length - 1, 'G5', 'ATTEMPT_MISMATCH'); fail(last.outcome.kind === 'accepted' && last.verification !== null);
+      const cr = at(records, last.candidate_record, 'G5', 'ATTEMPT_MISMATCH'), vr = at(records, last.verification.record, 'G5', 'ATTEMPT_MISMATCH');
+      fail(vr.outcome.kind === 'verified' && last.verification.phase === 'completed' && last.verification.reason === null && vr.verification !== null);
+      work(charge <= uint(b.work.case_limit) && current <= uint(b.work.invocation_limit));
+      if (ownerSelected) {
+        fail(selection!.precision === last.precision && selection!.verification_precision === last.verification.precision);
+        fail(['pivot_margin_min', 'rcond', 'residual_worst', 'corrections'].every(k => same(selection![k], cr[k])) && selection!.rcond_label === 'sensitivity to matrix-entry perturbation, not to authored parameters');
+        fail(same(selection!.resolution_scale, vr.verification.resolution) && same(selection!.theta, vr.verification.theta) && same(selection!.certified_bound, vr.verification.bound.filter((v: Obj) => v.value !== null)));
+      }
+    } else {
+      fail(!ownerSelected);
+      if (terminal.reason?.tag === 'budget') {
+        const caseOver = charge > uint(b.work.case_limit), invOver = current > uint(b.work.invocation_limit);
+        work(terminal.reason.scope === 'case' ? caseOver : (!caseOver && (invOver || uint(run.invocation_before) >= uint(b.work.invocation_limit))));
+      }
+    }
+  };
   for (let ci = 0; ci < b.calls.length; ci++) {
-    const call = b.calls[ci]; fail(call.id === ci && call.kind === 'case_batch' && call.result.kind === 'runs');
+    const call = b.calls[ci];
+    if (call.kind === 'mechanics_combination') {
+      // B2-C §10.1 G5 native class, a mechanics Call (C2 §4; §2.5; REVISION_01 §4.1 rows 8-10).
+      fail(call.id === ci && ci >= 1);
+      work(uint(call.invocation_before) === current);
+      const k = call.owner_refs[0].index, e = at(combos, k, 'G5', 'ATTEMPT_MISMATCH');
+      fail(e.call_ref === ci && e.expression.kind === 'mechanics');
+      const terms: Obj[] = e.expression.terms, caseIndex = (id: string) => b.cases.findIndex((c: Obj) => c.basis_ref.ref_id === id);
+      fail(call.requested_operands.length === terms.length && terms.every((term, i) => { const ro = call.requested_operands[i]; return ro.factor === term.factor && ro.source_ref === operandSourceRef(b, caseIndex(term.case_id)); }));
+      const runsResult = call.result.kind === 'runs';
+      fail(runsResult ? call.source_refs.length === 1 && call.run_refs.length === 1 : !call.source_refs.length && !call.run_refs.length);
+      if (runsResult) {
+        const ri = call.run_refs[0], si = call.source_refs[0], run = at(runs, ri, 'G5', 'ATTEMPT_MISMATCH'), s = at(b.sources, si, 'G5', 'ATTEMPT_MISMATCH');
+        fail(same(run.origin, { call: ci, position: 0, group: run.origin.group, source_ref: si, owner_ref: { kind: 'combination', index: k } }) && same(e.run, run) && e.source_ref === si);
+        // The CombinationSource (C2 §3): its owner, one operand per term (case, factor and source), operand 0 the
+        // representative, one common stiffness, and the selected combination's ledger.
+        fail(s.owner.kind === 'combination' && s.owner.combination_index === k && s.owner.combination_id === e.basis_ref.ref_id && s.operands.length === terms.length);
+        const operands: Obj[] = s.operands.map((o: Obj) => strict(b.sources, o.source_ref));
+        fail(s.operands.every((o: Obj, i: number) => o.case_index === caseIndex(terms[i].case_id) && o.factor === terms[i].factor && o.source_ref === call.requested_operands[i].source_ref
+          && isCaseSource(operands[i]) && operands[i].owner.case_index === o.case_index && operands[i].stiffness_sha256 === s.stiffness_sha256));
+        fail(s.representative_source_ref === s.operands[0].source_ref && (e.disposition !== 'retained_selected' || s.ledger_sha256 === e.selection.ledger_sha256));
+        // A combination Run's group imports from the selected operands only, in slot order; each build exists and is
+        // backward; its cache_before is exactly the imports.
+        let imported = new Set<number>();
+        if (run.origin.group !== null) {
+          const group = at(b.groups, run.origin.group, 'G5', 'ATTEMPT_MISMATCH');
+          fail(Object.hasOwn(group, 'imports') && same(group.imports, expectedImports(b, terms)));
+          fail(group.imports.every((x: Obj) => { const build = buildOf(x.build); return build && build.slot === x.slot && build.origin.run < run.id; }));
+          fail(same(run.cache_before, group.imports.map((x: Obj) => ({ slot: x.slot, build: x.build }))));
+          imported = new Set(group.imports.map((x: Obj) => x.build));
+        }
+        runBody(ci, ri, si, run, s, at(operands, 0, 'G5', 'ATTEMPT_MISMATCH'), e.disposition === 'retained_selected', e.selection, imported);
+      }
+      // A pre-source refusal makes no Run: invocation_after equals invocation_before.
+      work(current === uint(call.invocation_after));
+      continue;
+    }
+    fail(call.id === ci && call.kind === 'case_batch' && call.result.kind === 'runs');
     work(uint(call.invocation_before) === current); fail(call.owner_refs.length === call.source_refs.length && call.run_refs.length === call.source_refs.length && unique(call.source_refs));
     let previousCase = -1;
     for (let pos = 0; pos < call.run_refs.length; pos++) {
@@ -472,111 +779,7 @@ function nativeClass(b: Obj, work: (ok: unknown) => void): void {
       const run = at(runs, ri, 'G5', 'ATTEMPT_MISMATCH'), c = at(b.cases, oi.index, 'G5', 'ATTEMPT_MISMATCH'), s = at(b.sources, si, 'G5', 'ATTEMPT_MISMATCH');
       fail(oi.kind === 'case' && oi.index > previousCase); previousCase = oi.index;
       fail(same(run.origin, { call: ci, position: pos, group: run.origin.group, source_ref: si, owner_ref: oi }) && same(c.run, run) && c.source_ref === si && s.owner.case_index === oi.index);
-      work(uint(run.invocation_before) === current);
-      // N10 (adaptive.rs `solve_cases_projected`): an invocation-entry return is idle with group null. Its only
-      // emitted form is Budget(invocation) once invocation_before >= Li (a meter fault is never emitted).
-      // D27: an ATTEMPT check reads the Run's recorded invocation_before, never the WORK-derived running sum
-      // (a broken meter chain is reported by the deferred WORK predicate above).
-      const exhausted = uint(run.invocation_before) >= uint(b.work.invocation_limit);
-      if (exhausted) fail(run.origin.group === null);
-      if (run.origin.group === null) {
-        fail(exhausted && !run.records.length && !run.attempts.length && !run.cache_before.length && !run.cache_after.length && run.kernel_terminal.kind === 'unresolved'
-          && same(run.kernel_terminal.reason, INVOCATION_BUDGET));
-      } else {
-        const group = at(b.groups, run.origin.group, 'G5', 'ATTEMPT_MISMATCH');
-        fail(group.call === ci && group.source_refs.includes(si) && group.stiffness_sha256 === s.stiffness_sha256);
-        if (group.preparation.kind === 'refused') fail(!run.records.length && !run.attempts.length && run.kernel_terminal.kind === 'refused' && same(run.kernel_terminal.reason, group.preparation.reason));
-        // N10 (adaptive.rs `solve_cases_projected`): a run with no attempt in a ready group is the CasePrep refusal.
-        else if (!run.attempts.length) fail(run.kernel_terminal.kind === 'refused' && run.kernel_terminal.reason?.tag === 'ledger_unavailable');
-      }
-      const cache = live.get(run.origin.group) ?? new Map<string, number>();
-      const inventory = () => SLOTS.filter(slot => cache.has(slot)).map(slot => ({ slot, build: cache.get(slot) }));
-      work(same(run.cache_before, inventory()));
-      const records: Obj[] = run.records, attempts: Obj[] = run.attempts;
-      fail(records.length <= 4 && same(records.map(r => r.index), sequence(records.length)) && records.every((r, i) => !i || r.precision > records[i - 1].precision));
-      nativeSchedule(run, s);
-      const amounts: [bigint, bigint][] = [];
-      for (const r of records) {
-        const w = r.work, own = checked(uint(w.wide_lme) + uint(w.exact_sum_lme));
-        work(own === uint(w.own_lme) && own === sum(Object.values(w.own_stages)) && uint(w.stop_rule_lme) + uint(w.verification_lme) <= own);
-        work(w.own_stages.stop_rule === w.stop_rule_lme);
-        work(sum(['scale', 'estimate', 'charge', 'bound', 'shift'].map(stage => w.own_stages[stage])) === uint(w.verification_lme));
-        work(sum(Object.values(w.shared_stages)) === uint(w.shared_lme) + uint(w.verification_shared_lme));
-        fail(r.residual_basis === (r.precision === 1024 ? 1024 : r.precision + 64));
-        fail(r.storage.limbs_per_entry === (r.precision <= 256 ? 4 : r.precision === 512 ? 8 : 16));
-        if (r.role === 'verification') work(w.stop_rule_lme === 0);
-        amounts.push([checked(own + uint(w.shared_lme) + uint(w.verification_shared_lme)), checked(own + (w.shared_built_here ? uint(w.shared_lme) : 0n) + (w.verification_shared_built_here ? uint(w.verification_shared_lme) : 0n))]);
-        fail(r.precision !== 1024 || r.role === 'verification');
-        for (const [field, phase, flag, cost, prefix] of [['shared_build_ref', 'shared', 'shared_built_here', 'shared_lme', 's'], ['verification_shared_build_ref', 'verification_shared', 'verification_shared_built_here', 'verification_shared_lme', 'v']]) {
-          const bi = r[field]; if (bi === null) { work(!w[flag] && w[cost] === 0); continue; }
-          const build = buildOf(bi);
-          if (!build) { work(false); continue; }
-          const slot = prefix + r.precision;
-          work(build.group === run.origin.group && build.slot === slot && build.work === w[cost]);
-          // C1 (adaptive.rs obtain 3984-4026): state/reason agree, and a failed build fails the
-          // requesting record with the same stop, whether built here or reused from the cache.
-          work((build.state === 'success') === (build.reason === null) && (build.state === 'budget_failure') === (build.reason?.tag === 'budget'));
-          if (build.state !== 'success') fail(same(outcomeStop(r.outcome), build.reason));
-          if (w[flag]) {
-            work(!seenBuilds.has(bi) && same(build.origin, { call: ci, run: ri, physical_record: r.index, phase })); seenBuilds.add(bi);
-            work(!cache.has(slot)); if (build.state !== 'budget_failure') cache.set(slot, bi);
-          } else work(cache.get(slot) === bi && build.state !== 'budget_failure');
-        }
-        for (const stage of Object.keys(w.shared_stages)) {
-          const sharedBuild = buildOf(r.shared_build_ref), verificationBuild = buildOf(r.verification_shared_build_ref);
-          const shared = sharedBuild ? uint(sharedBuild.stages[stage]) : 0n, verification = verificationBuild ? uint(verificationBuild.stages[stage]) : 0n;
-          work(uint(w.shared_stages[stage]) === shared + verification);
-        }
-      }
-      work(same(run.cache_after, inventory())); if (run.origin.group !== null) live.set(run.origin.group, cache);
-      const fragments = new Set<string>();
-      for (let ai = 0; ai < attempts.length; ai++) {
-        const a = attempts[ai], cr = at(records, a.candidate_record, 'G5', 'ATTEMPT_MISMATCH');
-        fail(a.precision === cr.precision && [128, 256, 512].includes(a.precision) && ['candidate', 'verification_then_candidate'].includes(cr.role) && same(a.outcome, cr.outcome));
-        fail(!ai || a.precision > attempts[ai - 1].precision);
-        if (a.origin.kind === 'reused_verification') { const prior = at(attempts.slice(0, ai), a.origin.attempt, 'G5', 'ATTEMPT_MISMATCH'); fail(prior.verification?.record === cr.index && cr.role === 'verification_then_candidate'); }
-        else fail(cr.role === 'candidate');
-        const v = a.verification;
-        if (v !== null) {
-          const vr = at(records, v.record, 'G5', 'ATTEMPT_MISMATCH'); fail(vr.index > cr.index && vr.precision === v.precision && v.precision === 2 * a.precision && ['verification', 'verification_then_candidate'].includes(vr.role));
-          if (vr.role === 'verification_then_candidate') fail(v.phase === 'completed' && v.reason === null);
-          else if (vr.outcome.kind === 'failed') fail(v.phase === 'failed' && same(v.reason, vr.outcome.reason));
-          else fail(v.phase === 'completed' && v.reason === null);
-        } else fail(a.outcome.kind === 'failed');
-        let charge = 0n, debit = 0n;
-        for (const f of a.charges) {
-          const key = f.record + ':' + f.part; fail(!fragments.has(key)); fragments.add(key);
-          const fr = at(records, f.record, 'G5', 'ATTEMPT_MISMATCH');
-          if (f.part === 'candidate_stop') { fail(f.record === cr.index); charge += uint(fr.work.stop_rule_lme); debit += uint(fr.work.stop_rule_lme); }
-          else { fail((f.record === cr.index && cr.role === 'candidate') || v?.record === f.record); charge += amounts[f.record][0] - uint(fr.work.stop_rule_lme); debit += amounts[f.record][1] - uint(fr.work.stop_rule_lme); }
-        }
-        work(checked(charge) === uint(a.case_charge) && checked(debit) === uint(a.invocation_increment));
-        if (a.outcome.kind === 'accepted') fail(ai === attempts.length - 1 && run.kernel_terminal.kind === 'selected');
-      }
-      const required = records.flatMap(r => [r.index + ':solve_and_verification', ...(r.role !== 'verification' ? [r.index + ':candidate_stop'] : [])]);
-      fail(fragments.size === required.length && required.every(x => fragments.has(x)));
-      const charge = checked(amounts.reduce((v, x) => v + x[0], 0n)), debit = checked(amounts.reduce((v, x) => v + x[1], 0n));
-      work(charge === uint(run.case_charge) && charge === sum(attempts.map(a => a.case_charge)) && debit === uint(run.invocation_increment) && debit === sum(attempts.map(a => a.invocation_increment)));
-      current = checked(current + debit); work(current === uint(run.invocation_after));
-      const terminal = run.kernel_terminal;
-      fail((terminal.kind === 'selected') === (terminal.reason === null));
-      if (terminal.kind === 'selected') {
-        const last = at(attempts, attempts.length - 1, 'G5', 'ATTEMPT_MISMATCH'); fail(last.outcome.kind === 'accepted' && last.verification !== null);
-        const cr = at(records, last.candidate_record, 'G5', 'ATTEMPT_MISMATCH'), vr = at(records, last.verification.record, 'G5', 'ATTEMPT_MISMATCH');
-        fail(vr.outcome.kind === 'verified' && last.verification.phase === 'completed' && last.verification.reason === null && vr.verification !== null);
-        work(charge <= uint(b.work.case_limit) && current <= uint(b.work.invocation_limit));
-        if (c.status === 'selected') {
-          const selection = c.selection; fail(selection.precision === last.precision && selection.verification_precision === last.verification.precision);
-          fail(['pivot_margin_min', 'rcond', 'residual_worst', 'corrections'].every(k => same(selection[k], cr[k])) && selection.rcond_label === 'sensitivity to matrix-entry perturbation, not to authored parameters');
-          fail(same(selection.resolution_scale, vr.verification.resolution) && same(selection.theta, vr.verification.theta) && same(selection.certified_bound, vr.verification.bound.filter((v: Obj) => v.value !== null)));
-        }
-      } else {
-        fail(c.status !== 'selected');
-        if (terminal.reason?.tag === 'budget') {
-          const caseOver = charge > uint(b.work.case_limit), invOver = current > uint(b.work.invocation_limit);
-          work(terminal.reason.scope === 'case' ? caseOver : (!caseOver && (invOver || uint(run.invocation_before) >= uint(b.work.invocation_limit))));
-        }
-      }
+      runBody(ci, ri, si, run, s, s, c.status === 'selected', c.selection, null);
     }
     work(current === uint(call.invocation_after));
   }
@@ -584,6 +787,8 @@ function nativeClass(b: Obj, work: (ok: unknown) => void): void {
   b.groups.forEach((g: Obj, i: number) => {
     fail(g.id === i && g.source_refs.length && g.first_source_ref === g.source_refs[0] && unique(g.source_refs));
     const call = at(b.calls, g.call, 'G5', 'ATTEMPT_MISMATCH');
+    // B2-C §10.1: a mechanics Call's group is a CombinationGroup, a batch's a Group (at z = 0 no group carries imports).
+    fail(Object.hasOwn(g, 'imports') === (call.kind === 'mechanics_combination'));
     fail(g.source_refs.every((si: number) => call.source_refs.includes(si) && b.sources[si]?.stiffness_sha256 === g.stiffness_sha256));
     fail(same(g.source_refs, runs.filter(r => r.origin.group === i).map(r => r.origin.source_ref)));
   });
@@ -629,7 +834,8 @@ export function accountingRules(a: Obj): boolean[] {
   // R2': lost, or an OperationalError accounting located as a MemberOperational error, a CaptureError
   // prepared_arithmetic cause or a G5aError operational/arithmetic cause (retained_product.rs `ScalarWork::check` through `ScalarWork::operation`).
   const error = a.result.kind === 'unavailable' ? a.result.error : null;
-  const operational: unknown[] = ['old', 'new'].flatMap(side => a.operational[side].filter((m: Obj) => m.result.kind !== 'ready').map((m: Obj) => m.result.error));
+  // A CombinationAttempt has no operational or preparation member (B2-C §4); its rules read the rest unchanged.
+  const operational: unknown[] = ['old', 'new'].flatMap(side => (a.operational?.[side] ?? []).filter((m: Obj) => m.result.kind !== 'ready').map((m: Obj) => m.result.error));
   const g5aCauses = (cause: unknown) => locate(cause).filter(([, x]) => ['operational', 'arithmetic'].includes(x.kind) && isObj(x.cause)).map(([, x]) => x.cause);
   for (const [, o] of locate(error)) {
     if (o.kind === 'prepared_arithmetic') operational.push(o.cause);
@@ -646,8 +852,9 @@ export function accountingRules(a: Obj): boolean[] {
   }
   // R4: a SectionError accounting needs a non-exact status in that member's PreparationWork (FK product_certificate.rs `SectionPreparationWork::check`).
   let r4 = true;
-  for (const m of a.preparation.members) if (m.result.kind !== 'prepared' && m.result.error?.kind === 'accounting') r4 &&= statuses(m.work).size > 0;
-  if (error?.kind === 'preparation' && error.section?.kind === 'accounting') { const members = a.preparation.members; r4 &&= members.length > 0 && statuses(members.at(-1).work).size > 0; }
+  const members: Obj[] = a.preparation?.members ?? [];
+  for (const m of members) if (m.result.kind !== 'prepared' && m.result.error?.kind === 'accounting') r4 &&= statuses(m.work).size > 0;
+  if (error?.kind === 'preparation' && error.section?.kind === 'accounting') r4 &&= members.length > 0 && statuses(members.at(-1)!.work).size > 0;
   return [r1, r2, r3, r4];
 }
 /** Objects in a value with their key paths. */
@@ -668,8 +875,8 @@ function statuses(v: unknown): Set<string> {
 /** R3' owner scopes (checkpoint A, D8): a member's PreparationWork; a lane's work; the values completion; else the ProofTrace. */
 function faultOwner(a: Obj, path: (string | number)[]): unknown {
   const proof = a.proof;
-  if (path[0] === 'preparation' && path[1] === 'members') return a.preparation.members[path[2] as number]?.work;
-  if (path[0] === 'result' && path[1] === 'error' && path[2] === 'section') return a.preparation.members.at(-1)?.work ?? null;
+  if (path[0] === 'preparation' && path[1] === 'members') return a.preparation?.members[path[2] as number]?.work;
+  if (path[0] === 'result' && path[1] === 'error' && path[2] === 'section') return a.preparation?.members.at(-1)?.work ?? null;
   if (path[0] === 'proof' && path[1] === 'lanes') return proof?.lanes?.[path[2] as number]?.work;
   if (path[0] === 'result' && path[1] === 'error' && path[2] === 'cause' && a.result.error?.kind === 'values') return proof ? proof.completion : null;
   return proof;
@@ -754,7 +961,76 @@ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
     // D19: a Ready attempt belongs to a selected case, or to an unavailable case with a receipt_failure cause.
     if (own.result.kind === 'ready') fail(c.status === 'selected' || (c.status === 'unavailable' && c.reason?.cause?.kind === 'receipt_failure'));
   }
+  /** C3's member rules for a preparation's members (P5, the conversion prefix and its count, a successful prefix then at
+   * most one refused member), for a case attempt or an OperandPreparation (C3a-7 G5). */
+  const memberRules = (pm: Obj[], fresh: Obj[], failed: boolean) => {
+    for (let j = 0; j < pm.length; j++) {
+      const m = pm[j], prepared = m.result.kind === 'prepared';
+      if (!prepared) fail(j === pm.length - 1 && j >= fresh.length && failed);
+      fail(same(m.conversions.map((x: Obj) => [x.property, x.endpoint]), props.slice(0, m.conversions.length)) && m.conversions.every((x: Obj) => conversionKind(x.outcome)));
+      if (count(m.work.conversions) !== null) work(count(m.work.conversions) === BigInt(m.conversions.length));
+      if (prepared) { fail(m.conversions.length === 9); m.conversions.forEach((x: Obj, k: number) => fail(x.outcome.kind === 'normal' && x.outcome.value === m.result.section[k < 8 ? Math.floor(k / 2) : 4] && decodeBinary64(x.outcome.value) >= MIN_NORMAL)); }
+      if (j < fresh.length) fail(prepared);
+    }
+  };
+  /** C3's proof rules (lanes, stage order, checks, projection outcomes over the owner's own rows, completion, and the
+   * I57 §3 custody table, whose association conjunct `custody` is the owner's). */
+  const proofRules = (stage: Obj, p: Obj, ready: boolean, ownRows: Obj[], excluded: Set<string>, custody: () => unknown) => {
+    const lanes: Obj[] = p.lanes; fail(lanes.length <= 2 && same(lanes.map(l => l.law), ['admitted_k', 'annular_source'].slice(0, lanes.length)));
+    lanes.forEach((l, i) => { fail((l.error === null) === (l.state === 'completed') && (l.state !== 'failed' || i === lanes.length - 1)); const calls = count(l.work.correction.calls); work(calls === null || calls <= 1n); work(l.work.data_capacity === l.work.view.data_capacity); });
+    if (stage.proof_start === 'completed') fail(lanes.length === 2 && lanes.every(l => l.state === 'completed'));
+    if (stage.projection !== 'not_entered') fail(stage.proof_start === 'completed');
+    for (const [later, earlier] of [['maxima', 'projection'], ['values', 'maxima'], ['aliases', 'values'], ['certificate', 'aliases']]) if (stage[later] !== 'not_entered') fail(stage[earlier] === 'completed');
+    for (const key of ['certificate', 'observables', 'g5a']) {
+      const check = p.checks[key]; fail((stage[key] === 'not_entered') === (check.kind === 'not_entered'));
+      if (check.kind !== 'not_entered') fail(stage[key] === (check.kind === 'passed' ? 'completed' : 'failed'));
+    }
+    if (stage.observables !== 'not_entered' || stage.g5a !== 'not_entered') fail(stage.aliases === 'completed');
+    const outcomes: Obj[] = p.projection_outcomes; work(count(p.projection_conversions) === null || count(p.projection_conversions) === BigInt(outcomes.length));
+    fail(outcomes.every(x => conversionKind(x.outcome)));
+    for (const x of outcomes) if (ready) { const v = x.outcome; fail(v.kind !== 'overflow'); const n = v.kind === 'underflow' ? 0 : decodeBinary64(v.value); fail(binary64Bits(ownRows[x.row_index].value) === binary64Bits(n === 0 ? 0 : n)); }
+    // abandon_values also merges a builder abandoned by failed maxima.
+    if (p.completion.kind === 'merged') fail(stage.projection === 'completed');
+    if (p.completion.kind === 'separate_failure') fail(stage.values === 'failed');
+    if (stage.values === 'completed') fail(p.completion.kind === 'merged');
+    // P6 (C3:253-257; retained_product.rs `PreparedCase::project_candidate`): a values failure keeps its own completion; abandonment after
+    // maxima/aliases/bind-rows or any certificate entry merges; nothing before projection completes.
+    if (stage.values === 'failed') fail(p.completion.kind === 'separate_failure');
+    else if (stage.certificate !== 'not_entered' || stage.maxima === 'failed' || stage.aliases !== 'not_entered') fail(p.completion.kind === 'merged');
+    else if (stage.projection !== 'completed') fail(p.completion.kind === 'not_entered');
+    if (ready) { const expected = ownRows.flatMap((r, i) => excluded.has(r.kind) ? [] : [i]); fail(same(outcomes.map(x => x.row_index), expected)); }
+    // I57 §3 custody/stage table. Non-null coverage needs this attempt's own source,
+    // its selected native Run, both lanes in order, every pre-certificate stage
+    // completed and the certificate entered. A completed certificate, a passed
+    // G5a or Ready needs non-null coverage. Coverage never implies certificate success.
+    const cov = p.summary_coverage;
+    if (cov !== null) {
+      fail(custody());
+      fail(lanes.length === 2 && same(lanes.map(l => l.law), ['admitted_k', 'annular_source']) && lanes.every(l => l.state === 'completed'));
+      fail(['proof_start', 'projection', 'maxima', 'values', 'aliases'].every(k => stage[k] === 'completed') && stage.certificate !== 'not_entered');
+    }
+    if (stage.certificate === 'completed' || p.checks.certificate.kind === 'passed' || stage.g5a === 'completed' || p.checks.g5a.kind === 'passed' || ready) fail(cov !== null);
+  };
+  /** The unavailable error's own check pairing and its g5a cause's references (into the owner's source `s` and rows). */
+  const errorRules = (error: Obj, stage: Obj, p: Obj | null, s: Obj | null | undefined, ownRows: Obj[]) => {
+    if (error.kind === 'values') fail(stage.values === 'failed');
+    if (error.kind === 'observable') fail(p?.checks.observables.kind === 'failed' && same(p.checks.observables.error, error));
+    if (error.kind === 'g5a') fail(p?.checks.g5a.kind === 'failed' && same(p.checks.g5a.error, error));
+    if (error.kind === 'proof') fail(stage.proof_start === 'failed' || (p?.checks.certificate.kind === 'failed' && same(p.checks.certificate.error, error)));
+    if (error.kind === 'proof' && stage.proof_start === 'failed' && error.cause.kind === 'native_source') {
+      fail(p?.lanes.at(-1)?.state === 'failed' && same(p.lanes.at(-1).error, error.cause.cause));
+    }
+    if (error.kind === 'g5a' && s) {
+      const cause = error.cause;
+      if (cause.kind === 'sanity') fail(s.body_membership.some((body: Obj) => body.body === cause.body));
+      if (cause.kind === 'lower') fail(s.id_maps.members.some((m: Obj) => m.kernel_member === cause.member));
+      if (cause.kind === 'operational') fail(cause.member_index < s.id_maps.members.length);
+      if (cause.kind === 'zero') fail(cause.row < ownRows.length);
+    }
+  };
   for (const a of b.product_attempts) {
+    // Branch (REVISION_01 §4.1 row 11): a CombinationAttempt has its own rules, below.
+    if (a.owner_ref.kind === 'combination') continue;
     const c = at(b.cases, a.owner_ref.index), s = a.source_ref === null ? null : at(b.sources, a.source_ref), pm: Obj[] = a.preparation.members, old: Obj[] = a.operational.old, fresh: Obj[] = a.operational.new;
     const stage = a.stages, p = a.proof, ready = a.result.kind === 'ready';
     // D16: the ordinary reference resolves explicitly; a dangling one fails its C3 association check.
@@ -778,51 +1054,9 @@ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
     fail((stage.preparation === 'completed') === (a.source_ref !== null));
     fail((stage.observables === 'not_entered') === (stage.g5a === 'not_entered'));
     if (stage.observables !== 'not_entered') fail(['completed', 'failed'].includes(stage.certificate));
-    for (let j = 0; j < pm.length; j++) {
-      const m = pm[j], prepared = m.result.kind === 'prepared';
-      if (!prepared) fail(j === pm.length - 1 && j >= fresh.length && stage.preparation === 'failed');
-      fail(same(m.conversions.map((x: Obj) => [x.property, x.endpoint]), props.slice(0, m.conversions.length)) && m.conversions.every((x: Obj) => conversionKind(x.outcome)));
-      if (count(m.work.conversions) !== null) work(count(m.work.conversions) === BigInt(m.conversions.length));
-      if (prepared) { fail(m.conversions.length === 9); m.conversions.forEach((x: Obj, k: number) => fail(x.outcome.kind === 'normal' && x.outcome.value === m.result.section[k < 8 ? Math.floor(k / 2) : 4] && decodeBinary64(x.outcome.value) >= MIN_NORMAL)); }
-      if (j < fresh.length) fail(prepared);
-    }
-    if (p) {
-      const lanes: Obj[] = p.lanes; fail(lanes.length <= 2 && same(lanes.map(l => l.law), ['admitted_k', 'annular_source'].slice(0, lanes.length)));
-      lanes.forEach((l, i) => { fail((l.error === null) === (l.state === 'completed') && (l.state !== 'failed' || i === lanes.length - 1)); const calls = count(l.work.correction.calls); work(calls === null || calls <= 1n); work(l.work.data_capacity === l.work.view.data_capacity); });
-      if (stage.proof_start === 'completed') fail(lanes.length === 2 && lanes.every(l => l.state === 'completed'));
-      if (stage.projection !== 'not_entered') fail(stage.proof_start === 'completed');
-      for (const [later, earlier] of [['maxima', 'projection'], ['values', 'maxima'], ['aliases', 'values'], ['certificate', 'aliases']]) if (stage[later] !== 'not_entered') fail(stage[earlier] === 'completed');
-      for (const key of ['certificate', 'observables', 'g5a']) {
-        const check = p.checks[key]; fail((stage[key] === 'not_entered') === (check.kind === 'not_entered'));
-        if (check.kind !== 'not_entered') fail(stage[key] === (check.kind === 'passed' ? 'completed' : 'failed'));
-      }
-      if (stage.observables !== 'not_entered' || stage.g5a !== 'not_entered') fail(stage.aliases === 'completed');
-      const outcomes: Obj[] = p.projection_outcomes; work(count(p.projection_conversions) === null || count(p.projection_conversions) === BigInt(outcomes.length));
-      fail(outcomes.every(x => conversionKind(x.outcome)));
-      const caseRows = rows.get(c.basis_ref.ref_id)!;
-      for (const x of outcomes) if (ready) { const v = x.outcome; fail(v.kind !== 'overflow'); const n = v.kind === 'underflow' ? 0 : decodeBinary64(v.value); fail(binary64Bits(caseRows[x.row_index].value) === binary64Bits(n === 0 ? 0 : n)); }
-      // abandon_values also merges a builder abandoned by failed maxima.
-      if (p.completion.kind === 'merged') fail(stage.projection === 'completed');
-      if (p.completion.kind === 'separate_failure') fail(stage.values === 'failed');
-      if (stage.values === 'completed') fail(p.completion.kind === 'merged');
-      // P6 (C3:253-257; retained_product.rs `PreparedCase::project_candidate`): a values failure keeps its own completion; abandonment after
-      // maxima/aliases/bind-rows or any certificate entry merges; nothing before projection completes.
-      if (stage.values === 'failed') fail(p.completion.kind === 'separate_failure');
-      else if (stage.certificate !== 'not_entered' || stage.maxima === 'failed' || stage.aliases !== 'not_entered') fail(p.completion.kind === 'merged');
-      else if (stage.projection !== 'completed') fail(p.completion.kind === 'not_entered');
-      if (ready) { const expected = caseRows.flatMap((r, i) => HULL_EXCLUDED.has(r.kind) ? [] : [i]); fail(same(outcomes.map(x => x.row_index), expected)); }
-      // I57 §3 custody/stage table. Non-null coverage needs this attempt's own source,
-      // its selected native Run, both lanes in order, every pre-certificate stage
-      // completed and the certificate entered. A completed certificate, a passed
-      // G5a or Ready needs non-null coverage. Coverage never implies certificate success.
-      const cov = p.summary_coverage;
-      if (cov !== null) {
-        fail(s && a.source_ref !== null && a.run_ref !== null && c.run?.kernel_terminal.kind === 'selected' && c.run.id === a.run_ref && c.run.origin.source_ref === a.source_ref && c.source_ref === a.source_ref && same(c.run.origin.owner_ref, a.owner_ref));
-        fail(lanes.length === 2 && same(lanes.map(l => l.law), ['admitted_k', 'annular_source']) && lanes.every(l => l.state === 'completed'));
-        fail(['proof_start', 'projection', 'maxima', 'values', 'aliases'].every(k => stage[k] === 'completed') && stage.certificate !== 'not_entered');
-      }
-      if (stage.certificate === 'completed' || p.checks.certificate.kind === 'passed' || stage.g5a === 'completed' || p.checks.g5a.kind === 'passed' || ready) fail(cov !== null);
-    }
+    memberRules(pm, fresh, stage.preparation === 'failed');
+    const caseRows = rows.get(c.basis_ref.ref_id)!;
+    if (p) proofRules(stage, p, ready, caseRows, HULL_EXCLUDED, () => s && a.source_ref !== null && a.run_ref !== null && c.run?.kernel_terminal.kind === 'selected' && c.run.id === a.run_ref && c.run.origin.source_ref === a.source_ref && c.source_ref === a.source_ref && same(c.run.origin.owner_ref, a.owner_ref));
     // R1-R3 (ruling 06d) join the deferred C3 work equations, after association and typed checks.
     for (const ok of accountingRules(a)) work(ok);
     if (ready) {
@@ -840,35 +1074,114 @@ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
       else if (error.kind === 'capture' && run.kernel_terminal.kind !== 'selected') expected = ['kernel_' + run.kernel_terminal.kind, 'kernel'];
       else { fail(run?.kernel_terminal.kind === 'selected'); expected = ['facade_certificate', 'facade']; }
       fail(same([c.reason.code, c.reason.phase], expected));
-      if (error.kind === 'values') fail(stage.values === 'failed');
-      if (error.kind === 'observable') fail(p?.checks.observables.kind === 'failed' && same(p.checks.observables.error, error));
-      if (error.kind === 'g5a') fail(p?.checks.g5a.kind === 'failed' && same(p.checks.g5a.error, error));
-      if (error.kind === 'proof') fail(stage.proof_start === 'failed' || (p?.checks.certificate.kind === 'failed' && same(p.checks.certificate.error, error)));
-      if (error.kind === 'proof' && stage.proof_start === 'failed' && error.cause.kind === 'native_source') {
-        fail(p?.lanes.at(-1)?.state === 'failed' && same(p.lanes.at(-1).error, error.cause.cause));
-      }
-      if (error.kind === 'g5a' && s) {
-        const cause = error.cause;
-        if (cause.kind === 'sanity') fail(s.body_membership.some((body: Obj) => body.body === cause.body));
-        if (cause.kind === 'lower') fail(s.id_maps.members.some((m: Obj) => m.kernel_member === cause.member));
-        if (cause.kind === 'operational') fail(cause.member_index < s.id_maps.members.length);
-        if (cause.kind === 'zero') fail(cause.row < rows.get(c.basis_ref.ref_id)!.length);
-      }
+      errorRules(error, stage, p, s, caseRows);
     }
   }
-  // C3:304: typed check/result pairing (P9) follows every attempt's association.
+  // C3:304: typed check/result pairing (P9) follows every attempt's association. A CombinationAttempt has no preparation
+  // stage (B2-C §4): it reads as one whose preparation completed, and an error of kind preparation is refused.
   const pipeline = ['preparation', 'native', 'proof_start', 'projection', 'maxima', 'values', 'aliases', 'certificate'];
   const allowed: Record<string, string[]> = { preparation: ['preparation', 'capture'], native: ['native', 'capture'], proof_start: ['proof'], projection: ['proof'], maxima: ['abandoned'], values: ['values'], aliases: ['abandoned'], certificate: ['proof'] };
   for (const a of b.product_attempts) {
     if (a.proof) for (const [key, kind] of [['certificate', 'proof'], ['observables', 'observable'], ['g5a', 'g5a']]) if (a.proof.checks[key].kind === 'failed') fail(a.proof.checks[key].error.kind === kind);
     if (a.result.kind !== 'unavailable') continue;
-    const first = pipeline.find(k => a.stages[k] === 'failed');
+    const combination = a.owner_ref.kind === 'combination', stages = combination ? { preparation: 'completed', ...a.stages } : a.stages;
+    if (combination) fail(a.result.error.kind !== 'preparation');
+    const first = pipeline.find(k => stages[k] === 'failed');
     if (first) fail(allowed[first].includes(a.result.error.kind));
     // D37 (D35 widened; RV79-X1): the error kind and the stage record agree in both directions.
-    fail(errorStageRecordAgrees(a.result.error.kind, a.stages));
+    fail(errorStageRecordAgrees(a.result.error.kind, stages));
   }
+  combinationProducts(b, rows, { fail, work, memberRules, proofRules, errorRules });
   // C3 work equations, deferred until every attempt's association and typed checks.
   for (const ok of workChecks) need(ok, 'G5', 'WORK_MISMATCH');
+}
+type ProductRules = { fail: (ok: unknown) => void; work: (ok: unknown) => void; memberRules: (pm: Obj[], fresh: Obj[], failed: boolean) => void;
+  proofRules: (stage: Obj, p: Obj, ready: boolean, ownRows: Obj[], excluded: Set<string>, custody: () => unknown) => void;
+  errorRules: (error: Obj, stage: Obj, p: Obj | null, s: Obj | null | undefined, ownRows: Obj[]) => void };
+/** B2-C §10.1 G5 products, for combinations (PRODUCT_ATTEMPT; work equations deferred as WORK): each CombinationAttempt
+ * (§4, C3 without a preparation stage; Ready iff retained_selected; §4's reason table), each retained_unavailable entry's
+ * reason table, each OperandPreparation (C3a-7), and N-5 (REVISION_01 §3.3): no combination origin refusal is ever a
+ * capture error. */
+function combinationProducts(b: Obj, rows: Map<string, Obj[]>, r: ProductRules): void {
+  const { fail, work } = r, combos: Obj[] = b.combinations, ops: Obj[] = b.operand_preparations ?? [];
+  const caseIndex = (id: string) => b.cases.findIndex((c: Obj) => c.basis_ref.ref_id === id);
+  for (const a of b.product_attempts) {
+    if (a.owner_ref.kind !== 'combination') continue;
+    const e = at(combos, a.owner_ref.index), run = e.run, s = at(b.sources, a.source_ref), stage = a.stages, p = a.proof, ready = a.result.kind === 'ready';
+    const ownRows = rows.get(e.basis_ref.ref_id) ?? [], rep = isObj(s.owner) && s.owner.kind === 'combination' ? strict(b.sources, s.operands[0]?.source_ref) : undefined;
+    // Its entry, Run and CombinationSource: the attempt exists exactly with the entry's Run (C-3).
+    fail(e.product_attempt_ref === a.id && run && run.id === a.run_ref && run.origin.source_ref === a.source_ref && same(run.origin.owner_ref, a.owner_ref) && e.source_ref === a.source_ref
+      && s.owner.kind === 'combination' && s.owner.combination_index === a.owner_ref.index);
+    // Native completed iff the Run is selected; the proof stages as C3's, entered in order.
+    fail(stage.native === (run.kernel_terminal.kind === 'selected' ? 'completed' : 'failed'));
+    fail((p === null) === (stage.proof_start === 'not_entered'));
+    if (stage.proof_start !== 'not_entered') fail(stage.native === 'completed' && p !== null);
+    if (p === null) fail(['projection', 'maxima', 'values', 'aliases', 'certificate', 'observables', 'g5a'].every(k => stage[k] === 'not_entered'));
+    fail((stage.observables === 'not_entered') === (stage.g5a === 'not_entered'));
+    if (stage.observables !== 'not_entered') fail(['completed', 'failed'].includes(stage.certificate));
+    if (p) r.proofRules(stage, p, ready, ownRows, COMBINATION_HULL_EXCLUDED, () => isCaseSource(rep) && run.kernel_terminal.kind === 'selected');
+    for (const ok of accountingRules(a)) work(ok);
+    if (ready) {
+      fail(run.kernel_terminal.kind === 'selected' && Object.values(stage).every(v => v === 'completed') && p && Object.values(p.checks).every((v: any) => v.kind === 'passed'));
+      work(exactWork(p) && a.adapter.fault === null && !a.overlay_work.lost && !a.g5a_work.lost);
+    }
+    fail(ready === (e.disposition === 'retained_selected'));
+    if (a.result.kind === 'unavailable') {
+      const error = a.result.error; let expected: string[];
+      // N-5: a combination's origin refusal never becomes a capture error.
+      if (['capture', 'observable', 'abandoned'].includes(error.kind)) fail(error.cause?.kind !== 'origin');
+      fail(e.disposition === 'retained_unavailable' && e.reason.cause.kind === 'prepared_product_failure' && e.reason.cause.product_attempt_ref === a.id);
+      // §4's reason table, by the attempt's own error (error preparation is refused above).
+      if (error.kind === 'native') { fail(run.kernel_terminal.kind !== 'selected' && error.run_ref === run.id); expected = ['combination_unresolved', 'kernel']; }
+      else if (error.kind === 'capture' && run.kernel_terminal.kind !== 'selected') expected = ['combination_unresolved', 'kernel'];
+      else { fail(run.kernel_terminal.kind === 'selected'); expected = ['facade_certificate', 'facade']; }
+      fail(same([e.reason.code, e.reason.phase], expected));
+      r.errorRules(error, stage, p, rep, ownRows);
+    }
+  }
+  // The retained_unavailable reason table (§2.6; C-4 as REVISION_01 §3.3 records it).
+  for (const e of combos) {
+    if (e.disposition !== 'retained_unavailable') continue;
+    const cause = e.reason.cause, terms: Obj[] = e.expression.kind === 'mechanics' ? e.expression.terms : [];
+    const noCall = cause.kind === 'operand_source_unavailable' || cause.kind === 'operand_preparation_failure', reasonCause = cause.space === 'combination';
+    fail(noCall || reasonCause || cause.kind === 'prepared_product_failure');
+    fail(noCall === (e.call_ref === null && e.run === null && e.source_ref === null && e.product_attempt_ref === null));
+    if (noCall || reasonCause) fail(e.reason.code === 'combination_unresolved' && e.reason.phase === 'preparation');
+    if (cause.kind === 'prepared_product_failure') fail(e.product_attempt_ref !== null && e.product_attempt_ref === cause.product_attempt_ref);
+    // A CombinationReason cause iff the entry's Call refused before its source.
+    const call = e.call_ref === null ? undefined : strict(b.calls, e.call_ref);
+    fail(reasonCause === (call?.kind === 'mechanics_combination' && call.result.kind === 'pre_source_refusal'));
+    if (reasonCause) fail(e.run === null && e.source_ref === null && e.product_attempt_ref === null && same(cause, call!.result.reason));
+    // operand_source_unavailable names the first term whose case is unavailable with no CaseSource or with a Run refused
+    // ledger_unavailable; operand_preparation_failure names the refused record of the first not_required term with one.
+    const unusable = terms.findIndex(term => { const c = b.cases[caseIndex(term.case_id)]; return c?.status === 'unavailable' && (c.source_ref === null || (c.run?.kernel_terminal.kind === 'refused' && c.run.kernel_terminal.reason?.tag === 'ledger_unavailable')); });
+    if (cause.kind === 'operand_source_unavailable') fail(unusable >= 0 && cause.operand_index === unusable);
+    if (cause.kind === 'operand_preparation_failure') {
+      const refusedOf = (ci: number) => ops.find(op => op.owner_ref.index === ci && op.result.kind === 'refused');
+      const first = terms.findIndex(term => { const ci = caseIndex(term.case_id); return b.cases[ci]?.status === 'not_required' && refusedOf(ci); });
+      const op = strict(ops, cause.operand_preparation_ref);
+      fail(unusable < 0 && first >= 0 && op && op.result.kind === 'refused' && op.owner_ref.index === caseIndex(terms[first].case_id));
+    }
+  }
+  // Operand preparations (C3a-7 G5): stage, result and source agree; C3's member rules; the owner's ordinary attempt and
+  // material basis; a prepared record is complete and names its own CaseSource; N-5 on a refused record.
+  for (const op of ops) {
+    const prepared = op.result.kind === 'prepared', c = at(b.cases, op.owner_ref.index), pm: Obj[] = op.preparation.members, old: Obj[] = op.operational.old, fresh: Obj[] = op.operational.new;
+    fail((op.stage === 'completed') === prepared && prepared === (op.source_ref !== null));
+    if (!prepared) fail(op.result.error.kind === 'preparation' && op.result.error.capture?.kind !== 'origin');
+    const ordinary = at(b.ordinary_attempts, op.ordinary_attempt_ref);
+    fail(op.ordinary_attempt_ref === c.ordinary.attempt_ref && op.material_basis_ref === ordinary.material_basis_ref);
+    fail(fresh.length <= pm.length && pm.length <= old.length && [old, pm, fresh].every(list => same(list.map((m: Obj) => m.member), sequence(list.length))));
+    if (op.operational.old_coverage === 'captured_prefix') fail(!pm.length && !fresh.length && !prepared);
+    r.memberRules(pm, fresh, op.stage === 'failed');
+    if (prepared) {
+      const s = at(b.sources, op.source_ref);
+      fail(isCaseSource(s) && s.owner.case_index === op.owner_ref.index && s.material_basis_ref === op.material_basis_ref && s.preparation?.operand_preparation_ref === op.id && pm.length === s.id_maps.members.length);
+      fail(pm.length === old.length && fresh.length === pm.length && pm.every(m => m.result.kind === 'prepared') && fresh.every(m => m.result.kind === 'ready') && op.operational.old_coverage === 'complete');
+    }
+    const shim = { ...op, proof: null, result: prepared ? { kind: 'ready' } : { kind: 'unavailable', error: op.result.error } };
+    for (const ok of accountingRules(shim)) work(ok);
+  }
 }
 
 function normalized(r: Obj): number { return r.unit === 'mm' ? r.value / 1000 : ['kN', 'kN*m'].includes(r.unit) ? r.value * 1000 : r.unit === 'MPa' ? r.value * 1_000_000 : r.value; }
@@ -905,15 +1218,24 @@ export function phi512(hat: number): number {
   if (!(nearest * back < hat)) return nearest;
   return nearest === 0 ? numberFromWord(1n) : numberFromWord(BigInt('0x' + binary64Bits(nearest)) + 1n);
 }
-type NumericCase = { c: Obj; s: Obj; rows: Obj[]; values: { kind: string; body: number | null; member: Obj | null; n: number; input: boolean }[]; lengths: number[]; original: number[][]; scales: number[][]; hats: number[][] };
+type NumericCase = { c: Obj; s: Obj; loads: Obj[]; rows: Obj[]; values: { kind: string; body: number | null; member: Obj | null; n: number; input: boolean }[]; lengths: number[]; original: number[][]; scales: number[][]; hats: number[][] };
+/** B2-C §10.1 G5a-G5c and REVISION_01 §3.3 (N-9): a combination owner reads the representative's (operand 0's) maps,
+ * sections and prescribed DOFs; its data flags come from each operand term with a nonzero factor (DEF-C `lanes.loads`). */
+function combinationSlot(b: Obj, e: Obj): { s: Obj; loads: Obj[] } {
+  const cs = at(b.sources, e.source_ref), operands: Obj[] = cs.operands.map((o: Obj) => at(b.sources, o.source_ref));
+  return { s: operands[0], loads: operands.filter((_, i) => decodeBinary64(cs.operands[i].factor) !== 0) };
+}
+/** The numeric owners: each selected case, then each retained_selected combination in authored order. */
 function numericalCases(b: Obj, rows: Map<string, Obj[]>): NumericCase[] {
-  return b.cases.filter((c: Obj) => c.status === 'selected').map((c: Obj) => {
-    const s = at(b.sources, c.source_ref), rs = rows.get(c.basis_ref.ref_id)!, prescribed = s.constraints.map((x: Obj) => ({ node_id: s.id_maps.nodes[x.dof.node]?.id, component: x.dof.component }));
+  const owners: [Obj, Obj, Obj[]][] = [...b.cases.filter((c: Obj) => c.status === 'selected').map((c: Obj) => { const s = at(b.sources, c.source_ref); return [c, s, [s]] as [Obj, Obj, Obj[]]; }),
+    ...b.combinations.filter((e: Obj) => e.disposition === 'retained_selected').map((e: Obj) => { const { s, loads } = combinationSlot(b, e); return [e, s, loads] as [Obj, Obj, Obj[]]; })];
+  return owners.map(([c, s, loads]) => {
+    const rs = rows.get(c.basis_ref.ref_id)!, prescribed = s.constraints.map((x: Obj) => ({ node_id: s.id_maps.nodes[x.dof.node]?.id, component: x.dof.component }));
     const values = rs.map(r => ({ kind: rowKind(r), ...rowOwner(r, s), n: normalized(r), input: component(r) !== null && prescribed.some((x: Obj) => x.node_id === r.entity_ref && x.component === component(r)) }));
     const lengths = s.body_membership.map((body: Obj) => extent(body.nodes.map((i: number) => s.id_maps.nodes[i].coordinates.map(decodeBinary64))));
     const original = s.body_membership.map((body: Obj, i: number) => { const max = [0, 0, 0, 0]; values.forEach(v => { const k = KINDS.indexOf(v.kind); if (v.body === body.body && k >= 0 && !v.input) max[k] = Math.max(max[k], Math.abs(v.n)); }); return couple(max, lengths[i]); });
     const hats = c.selection.resolution_scale.map((e: Obj, i: number) => eHat(decodeBinary64(e.force), decodeBinary64(e.moment), lengths[i]));
-    return { c, s, rows: rs, values, lengths, original, scales: original.map((x: number[]) => [...x]), hats };
+    return { c, s, loads, rows: rs, values, lengths, original, scales: original.map((x: number[]) => [...x]), hats };
   });
 }
 /** source.rs/recover::layout order. Only constrained displacement/rotation rows are input-derived. */
@@ -933,7 +1255,7 @@ type CoverageFacts = { present: boolean[][]; nonInput: boolean[][]; lengths: num
 /** I57 §2/§4 public source facts per body, from the bound source maps only (never final rows):
  * canonical layout presence, non-input presence, native extent L, free DOFs and
  * individually nonzero original nodal terms at free DOFs (cancellation preserved). */
-function coverageFacts(s: Obj): CoverageFacts {
+function coverageFacts(s: Obj, loads: Obj[] = [s]): CoverageFacts {
   const fail = (ok: unknown) => need(ok, 'G5a', 'SCALE_MISMATCH');
   const bodies: Obj[] = s.body_membership, maps = s.id_maps;
   fail(bodies.length >= 1 && same(bodies.map(x => x.body), sequence(bodies.length)));
@@ -948,7 +1270,7 @@ function coverageFacts(s: Obj): CoverageFacts {
   fail(lengths.every(L => Number.isFinite(L) && L >= 0));
   const free = bodies.map(body => body.nodes.some((n: number) => COMPONENTS.some(c => !fixed.has(n + ':' + c))));
   const loaded = bodies.map(() => false);
-  for (const t of s.nodal_terms) if (!fixed.has(t.dof.node + ':' + t.dof.component) && decodeBinary64(t.value) !== 0) loaded[bodyOf(t.dof.node)] = true;
+  for (const t of loads.flatMap((x: Obj) => x.nodal_terms)) if (!fixed.has(t.dof.node + ':' + t.dof.component) && decodeBinary64(t.value) !== 0) loaded[bodyOf(t.dof.node)] = true;
   return { present, nonInput, lengths, free, loaded };
 }
 /** I57 §4 Boolean feasibility: some private A over non-input-present kinds (D = false)
@@ -989,7 +1311,7 @@ function dataCoverage(e: Obj, facts: CoverageFacts, bi: number): void {
 function selectedCoverage(x: NumericCase, b: Obj): void {
   const fail = (ok: unknown) => need(ok, 'G5a', 'SCALE_MISMATCH');
   const sel = x.c.selection, cov: Obj[] = at(b.product_attempts, x.c.product_attempt_ref, 'G5a', 'SCALE_MISMATCH').proof?.summary_coverage;
-  const facts = coverageFacts(x.s); fail(Array.isArray(cov) && cov.length === facts.lengths.length);
+  const facts = coverageFacts(x.s, x.loads); fail(Array.isArray(cov) && cov.length === facts.lengths.length);
   const stops: [number, string][] = [], estimates: [number, string][] = [], charges: [number, string][] = [];
   for (let bi = 0; bi < cov.length; bi++) {
     const e = cov[bi], coupled = facts.lengths[bi] !== 0;
@@ -1017,9 +1339,11 @@ function selectedCoverage(x: NumericCase, b: Obj): void {
  * At native p512 floor positivity comes from the Run's verification record: Φ > 0 iff ê(E, L) > 0. */
 function unselectedCoverage(b: Obj): void {
   for (const a of b.product_attempts) {
-    const c = b.cases[a.owner_ref.index], cov = a.proof?.summary_coverage;
-    if (c.status === 'selected' || !Array.isArray(cov)) continue;
-    const facts = coverageFacts(b.sources[a.source_ref]), last = c.run.attempts.at(-1);
+    // A combination attempt (B2-C §10.1 G5a): its entry, the representative's facts and its operands' data flags.
+    const combination = a.owner_ref.kind === 'combination', c = combination ? b.combinations[a.owner_ref.index] : b.cases[a.owner_ref.index], cov = a.proof?.summary_coverage;
+    if ((combination ? c.disposition === 'retained_selected' : c.status === 'selected') || !Array.isArray(cov)) continue;
+    const slot = combination ? combinationSlot(b, c) : null;
+    const facts = slot ? coverageFacts(slot.s, slot.loads) : coverageFacts(b.sources[a.source_ref]), last = c.run.attempts.at(-1);
     need(cov.length === facts.lengths.length, 'G5a', 'SCALE_MISMATCH');
     const record = at(c.run.records, last.verification.record, 'G5a', 'SCALE_MISMATCH').verification;
     cov.forEach((e: Obj, bi: number) => {
@@ -1152,10 +1476,20 @@ function classifications(cases: NumericCase[], source: Obj): RowClassification[]
   }
   return result;
 }
+/** R-COMB-1 (R) (B2-C §5; REVISION_01 §2, S-3; REVISION_02 §4.1, A-2): a derivation, not a check. After the numeric
+ * owners' classes, every row of a retained_unavailable combination, and of an ordinary combination whose expression names
+ * a case that is not not_required, in authored order and publication order: not_covered for a quantity row, non_quantity
+ * for a record row; scale_bits null and normalized_bits from the row's value. Values are unchanged. */
+function rComb1(b: Obj, rows: Map<string, Obj[]>): RowClassification[] {
+  const status = (id: string) => b.cases.find((c: Obj) => c.basis_ref.ref_id === id)?.status;
+  return b.combinations.filter((e: Obj) => e.disposition === 'retained_unavailable' || (e.disposition === 'ordinary' && expressionCaseIds(e).some(id => status(id) !== 'not_required')))
+    .flatMap((e: Obj) => rows.get(e.basis_ref.ref_id)!.map(r => ({ result_id: r.id, basis_ref: r.basis_ref, normalized_bits: binary64Bits(normalized(r)), scale_bits: null, bound_bits: null,
+      class: (rowKind(r) === 'non_quantity' ? 'non_quantity' : 'not_covered') as AccuracyClass })));
+}
 
 /** source.rs PrimitiveSource::{encoding,stiffness_encoding}: deterministic bytes,
  * not a solve, ledger replay, or authentication of the producing process. */
-async function nativeSourceHashes(s: Obj): Promise<{ source: string; stiffness: string }> {
+async function nativeSourceHashes(s: Obj): Promise<{ source: string; stiffness: string; bytes: Uint8Array }> {
   const maps = s.id_maps;
   const encode = (withValues: boolean): Uint8Array => {
     const bytes: number[] = [...new TextEncoder().encode(withValues ? 'K4SRC\x01' : 'K4STF\x01')];
@@ -1207,7 +1541,29 @@ async function nativeSourceHashes(s: Obj): Promise<{ source: string; stiffness: 
     const value = await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes).buffer);
     return [...new Uint8Array(value)].map(b => b.toString(16).padStart(2, '0')).join('');
   };
-  return { source: await digest(encode(true)), stiffness: await digest(encode(false)) };
+  const bytes = encode(true);
+  return { source: await digest(bytes), stiffness: await digest(encode(false)), bytes };
+}
+/** B2-C §2.5 (FK `CasePrep::combination`): K4CMB = "K4CMB\x01", u32le(h), then per operand in order u64le(factor bits),
+ * u32le(length of its K4SRC) and its K4SRC bytes; the result is its sha256. */
+async function combinationKernelSha256(factors: string[], operandBytes: Uint8Array[]): Promise<string> {
+  const bytes: number[] = [...new TextEncoder().encode('K4CMB\x01')];
+  const u32 = (v: number) => { need(Number.isSafeInteger(v) && v >= 0 && v <= 0xffffffff, 'G8', 'PREPARATION_MISMATCH'); for (let j = 0; j < 4; j++) bytes.push(Math.floor(v / (2 ** (8 * j))) % 256); };
+  u32(factors.length);
+  factors.forEach((f, i) => { const word = BigInt('0x' + f); for (let j = 0n; j < 8n; j++) bytes.push(Number((word >> (8n * j)) & 255n)); u32(operandBytes[i].length); bytes.push(...operandBytes[i]); });
+  const value = await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes).buffer);
+  return [...new Uint8Array(value)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+/** B2-C §10.1 G8 invocation: an entry's expression equals its model combination's: basis to kind; mechanics terms'
+ * load_case and factor bits (the JSON number as binary64), in authored order with repeats; subtraction minuend then
+ * subtrahend; range operand ids sorted in UTF-8 byte (code point) order, never UTF-16 order (§2.7); the mode. */
+function expressionMatches(e: Obj, m: unknown): boolean {
+  if (!isObj(m) || m.id !== e.basis_ref.ref_id || m.basis !== e.expression.kind) return false;
+  const x = e.expression;
+  if (x.kind === 'mechanics') return Array.isArray(m.terms) && m.terms.length === x.terms.length
+    && x.terms.every((term: Obj, i: number) => isObj(m.terms[i]) && m.terms[i].load_case === term.case_id && typeof m.terms[i].factor === 'number' && binary64Bits(m.terms[i].factor) === term.factor);
+  if (x.kind === 'result_state_subtraction') return m.minuend_id === x.minuend_id && m.subtrahend_id === x.subtrahend_id;
+  return Array.isArray(m.operand_ids) && m.operand_ids.every((id: unknown) => typeof id === 'string') && same([...m.operand_ids].sort(compareCodePoints), x.operand_ids) && m.mode === x.mode;
 }
 
 /** A pressure contract exactly `{"version": version, "mode": mode}`: a JSON object with those two keys only, each valued
@@ -1238,8 +1594,12 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
   fail(model?.project?.id === source.model_ref && (route.exact ? exactNamespace(model) : legacyNamespace(model)), 'INVOCATION_MISMATCH');
   // (g), B1's three-reader alignment set (RR "RV113's three returns verified; …", item 2): PP's acceptance, before any
   // PREPARATION check. No reference_configurations member (null included); combinations and components absent or [].
+  // B2-C §10.1 G8 invocation (REVISION_01 §4.1 row 12): model combinations are admitted, absent or a list; the receipt's
+  // entries equal them in order and id, each expression its model combination's (at z = 0, absent or [] as before).
   const absentOrEmpty = (key: string) => !Object.hasOwn(model, key) || (Array.isArray(model[key]) && model[key].length === 0);
-  fail(!Object.hasOwn(model, 'reference_configurations') && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
+  fail(!Object.hasOwn(model, 'reference_configurations') && (!Object.hasOwn(model, 'combinations') || Array.isArray(model.combinations)) && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
+  const modelCombinations: unknown[] = model.combinations ?? [];
+  fail(modelCombinations.length === b.combinations.length && b.combinations.every((e: Obj, k: number) => expressionMatches(e, modelCombinations[k])), 'INVOCATION_MISMATCH');
   const nodes: Obj[] = model.nodes, pipes: Obj[] = model.pipe_segments, supports: Obj[] = model.supports, cases: Obj[] = model.load_cases;
   fail([nodes, pipes, supports, cases].every(xs => Array.isArray(xs) && unique(xs.map(x => x.id))));
   const materials: Obj[] = request.materials?.length ? request.materials : model.materials; fail(Array.isArray(materials) && unique(materials.map(m => m.id)));
@@ -1350,7 +1710,10 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
     fail(Number.isFinite(axial) && Number.isFinite(torsion) && Math.abs(axial) >= MIN_NORMAL && Math.abs(torsion) >= MIN_NORMAL);
     return { kind: 'ready', length: binary64Bits(length), axial_stiffness: binary64Bits(axial), torsional_stiffness: binary64Bits(torsion), normalization: d.map(v => binary64Bits(v * inverse)) };
   }
-  for (const s of b.sources) {
+  const k4src = new Map<number, Uint8Array>();
+  for (const [si, s] of b.sources.entries() as IterableIterator<[number, Obj]>) {
+    // Branch: a CombinationSource is bound below, from its operands' rederived CaseSources (B2-C §10.1 G8 preparation).
+    if (s.owner.kind === 'combination') continue;
     const ci = s.owner.case_index, c = cases[ci], maps = s.id_maps, mb = b.material_bases[s.material_basis_ref];
     // Exact route, G8 step 8: `pressure_regions` present and [] (D1.5-exact). Preview route: absent, null or [] (B3D-11's
     // leniency), type-strict. Both routes: equivalent_static absent or null, and no analysis_state member, null included
@@ -1400,9 +1763,14 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
     fail(same(s.layout, sourceLayout(nodes.length, maps.members, stations, springs, constraints, supportRows, key => fixed.has(key), bodyOf)));
     const identities = await nativeSourceHashes(s);
     fail(identities.source === s.kernel_source_sha256 && identities.stiffness === s.stiffness_sha256);
+    k4src.set(si, identities.bytes);
   }
-  // Failed helper/new-evaluator prefixes are also bound without inventing a source.
-  for (const a of b.product_attempts) {
+  // Failed helper/new-evaluator prefixes are also bound without inventing a source. A CombinationAttempt has no
+  // preparation (B2-C §4); an OperandPreparation is bound as a case attempt is (C3a-7 G8), to its own CaseSource.
+  const records: [Obj, (s: Obj) => boolean, boolean][] = [
+    ...b.product_attempts.filter((a: Obj) => a.owner_ref.kind === 'case').map((a: Obj) => [a, (s: Obj) => s.preparation?.attempt_ref === a.id, a.source_ref !== null] as [Obj, (s: Obj) => boolean, boolean]),
+    ...(b.operand_preparations ?? []).map((op: Obj) => [op, (s: Obj) => s.preparation?.operand_preparation_ref === op.id, op.result.kind === 'prepared' && op.source_ref !== null] as [Obj, (s: Obj) => boolean, boolean])];
+  for (const [a, binds, sourced] of records) {
     const mb = b.material_bases[a.material_basis_ref]; fail(mb && mb.case_indices.includes(a.owner_ref.index));
     if (a.operational.old_coverage === 'complete') fail(same(a.operational.old.map((m: Obj) => m.member), sequence(pipes.length)));
     else fail(same(a.operational.old.map((m: Obj) => m.member), sequence(a.operational.old.length)));
@@ -1418,12 +1786,27 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
         fail(same(fresh.inputs, [...positions, old[0], old[1], section[0], section[2]]));
         if (fresh.result.kind === 'ready') fail(same(fresh.result, operational(fresh.inputs)));
       }
-      if (a.source_ref !== null) {
+      if (sourced) {
         const s = b.sources[a.source_ref], section = s.section_terms[j], fresh = a.operational.new[j];
-        fail(s.preparation?.attempt_ref === a.id && same(m.result.section, [section.area, section.geometry.actual_second_moment, section.geometry.actual_polar_moment, section.section_modulus, section.geometry.actual_radius]));
+        fail(binds(s) && same(m.result.section, [section.area, section.geometry.actual_second_moment, section.geometry.actual_polar_moment, section.section_modulus, section.geometry.actual_radius]));
         if (fresh.result.kind === 'ready') fail(['length', 'axial_stiffness', 'torsional_stiffness'].every(k => fresh.result[k] === section[k]));
       }
     }
+  }
+  // B2-C §10.1 G8 preparation, per CombinationSource: K4CMB from its operands' rederived K4SRC bytes and factor bits;
+  // R-8's operand equality (§2.5): every operand's material basis and section terms (geometry included) are the
+  // representative's, and a selected combination's Selection terms are the representative's projected; the combination
+  // attempt's material basis is every operand case's.
+  for (const s of b.sources) {
+    if (s.owner.kind !== 'combination') continue;
+    const e = b.combinations[s.owner.combination_index], operands: Obj[] = s.operands.map((o: Obj) => b.sources[o.source_ref]), rep = operands[0];
+    fail(s.operands.every((o: Obj) => k4src.has(o.source_ref)));
+    fail(await combinationKernelSha256(s.operands.map((o: Obj) => o.factor), s.operands.map((o: Obj) => k4src.get(o.source_ref)!)) === s.kernel_source_sha256);
+    fail(operands.every(os => os.material_basis_ref === rep.material_basis_ref && same(os.section_terms, rep.section_terms)));
+    if (e.disposition === 'retained_selected') fail(same(e.selection.section_terms, rep.section_terms.map((x: Obj) => ({ member_id: rep.id_maps.members.find((m: Obj) => m.kernel_member === x.member)?.id,
+      area: x.area, section_modulus: x.section_modulus, length: x.length, axial_stiffness: x.axial_stiffness, torsional_stiffness: x.torsional_stiffness }))));
+    const a = e.product_attempt_ref == null ? null : b.product_attempts[e.product_attempt_ref];
+    if (a) fail(s.operands.every((o: Obj, i: number) => operands[i].material_basis_ref === a.material_basis_ref && b.material_bases[a.material_basis_ref]?.case_indices.includes(o.case_index)));
   }
 }
 
@@ -1480,13 +1863,28 @@ export function ordinaryAttempts(b: Obj, source: Obj): void {
     // O5 (C2:115-119; S06:51): a source decline belongs to an unavailable case with no source or run.
     if (c.source_decline) fail(c.status === 'unavailable' && !c.run && c.source_ref == null && same(c.source_decline.input_owner, { case_index: ci, case_id: cid, material_basis_ref: a.material_basis_ref }));
   });
+  // B2-C §10.1 G5 ordinary class: the disposition rule (decisions 5 and 20; C-1) and D6a's rule for each combination's
+  // diagnostic_refs. D6b is case-only (REVISION_01 §4.5).
+  const gates: Obj[] = Array.isArray(source.contract_evidence?.combination_gates) ? source.contract_evidence.combination_gates : [];
+  for (const e of b.combinations) {
+    const id = e.basis_ref.ref_id, x = e.expression, gate = gates.find(g => g?.combination_id === id), withheld = gate?.withheld === true;
+    const terms: string[] = x.kind === 'mechanics' ? x.terms.map((term: Obj) => term.case_id) : [];
+    const retains = !withheld && x.kind === 'mechanics' && unique(terms) && terms.some(cid => b.cases.find((c: Obj) => c.basis_ref.ref_id === cid)?.status === 'selected');
+    if (e.disposition === 'base_withheld') fail(withheld && e.reason === gate.reason && x.kind === 'mechanics');
+    else if (retainedEntry(e)) fail(retains);
+    else fail(!withheld && !retains);
+    const exact = ds.filter(d => Array.isArray(d.affected_refs) && d.affected_refs.includes(id) && !String(d.code).startsWith('RETAINED_PRECISION_')).map(d => d.id);
+    fail(same(e.diagnostic_refs, exact));
+  }
 }
 function conversionEncoding(b: Obj): void {
+  // A CombinationAttempt has no preparation stage (B2-C §4); an OperandPreparation's members are C3's (C3a-7 G2).
   for (const a of b.product_attempts) {
-    for (const m of a.preparation.members) for (const c of m.conversions) conversions(c.outcome);
+    for (const m of a.preparation?.members ?? []) for (const c of m.conversions) conversions(c.outcome);
     for (const c of a.proof?.projection_outcomes ?? []) conversions(c.outcome);
     for (const e of a.proof?.summary_coverage ?? []) uint(e.body); // I57 §4 G2: body is a safe U.
   }
+  for (const op of b.operand_preparations ?? []) for (const m of op.preparation.members) for (const c of m.conversions) conversions(c.outcome);
 }
 /** The base (preview-physics-1) view of a successor. RV108 N4 (B1 SR-TS): only object rows lose `recovery_method`; any
  * other `results` entry (null, a number, a string, an array) is left as it is. The full reader has already refused such
@@ -1566,8 +1964,10 @@ export async function validateRetainedPrecision(source: unknown, invocation?: un
     gate = 'G5'; nativeRuns(b); ordinaryAttempts(b, s); productAttempts(b, rows);
     gate = 'G5a'; const numeric = numericalCases(b, rows); numericSummaries(numeric, b); unselectedCoverage(b);
     gate = 'G5b'; numericalScales(numeric, s); if (route.exact) exactSectionEvidence(numeric, s);
-    gate = 'G5c'; const classes = classifications(numeric, s);
+    gate = 'G5c'; const classes = [...classifications(numeric, s), ...rComb1(b, rows)];
     gate = 'G6'; for (const c of b.cases) for (const row of rows.get(c.basis_ref.ref_id)!) need(c.status === 'selected' ? row.recovery_method === RETAINED_METHOD : !Object.hasOwn(row, 'recovery_method'), gate, 'ROW_METHOD_MISMATCH');
+    // B2-C §10.1 G6: recovery_method exactly on the rows of retained_selected combinations.
+    for (const e of b.combinations) for (const row of rows.get(e.basis_ref.ref_id)!) need(e.disposition === 'retained_selected' ? row.recovery_method === RETAINED_METHOD : !Object.hasOwn(row, 'recovery_method'), gate, 'ROW_METHOD_MISMATCH');
     // G7: the projection onto the route's base, then its unchanged base validator (preview-physics-1, or physics-1 on the
     // exact route), with that base's own codes.
     gate = 'G7'; const base = projection(s, route); if (sourceContract(base as MechanicsResult) !== (route.exact ? 'physics' : 'preview_physics')) throw new RetainedPrecisionError(gate, baseHeaderCode(base, route));
