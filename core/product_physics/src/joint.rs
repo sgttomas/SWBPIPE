@@ -207,7 +207,7 @@ fn si(value: f64, unit: &str, dimension: Dimension) -> Result<f64, String> {
 }
 
 /// `{x, y, z, unit}` in SI.
-fn vector(value: Option<&Value>, dimension: Dimension) -> Result<[f64; 3], String> {
+fn si_vector(value: Option<&Value>, dimension: Dimension) -> Result<[f64; 3], String> {
     let value = value.ok_or("missing")?;
     let unit = text(value, "unit").ok_or("missing unit")?;
     let mut out = [0.0; 3];
@@ -236,7 +236,7 @@ fn attachment(value: Option<&Value>) -> Result<(String, ConnectorAttachment), St
     let node = text(value, "node_ref").ok_or("missing node_ref")?.to_string();
     let node_axes = matrix3(value.get("initial_node_axes_global"))
         .map_err(|e| format!("initial_node_axes_global {e}"))?;
-    let offset_local = vector(value.get("offset_local"), Dimension::Length)
+    let offset_local = si_vector(value.get("offset_local"), Dimension::Length)
         .map_err(|e| format!("offset_local {e}"))?;
     Ok((node, ConnectorAttachment { node_axes, offset_local }))
 }
@@ -289,8 +289,8 @@ fn decode_fields(component: &PreviewComponent, connector: &Value) -> Result<Conn
         }
     };
     let q_ref = connector.get("q_ref").ok_or_else(|| "q_ref missing".to_string()).and_then(|q| {
-        let t = vector(q.get("translation"), Dimension::Length).map_err(|e| format!("q_ref translation {e}"))?;
-        let r = vector(q.get("rotation"), Dimension::Angle).map_err(|e| format!("q_ref rotation {e}"))?;
+        let t = si_vector(q.get("translation"), Dimension::Length).map_err(|e| format!("q_ref translation {e}"))?;
+        let r = si_vector(q.get("rotation"), Dimension::Angle).map_err(|e| format!("q_ref rotation {e}"))?;
         Ok([t[0], t[1], t[2], r[0], r[1], r[2]])
     });
     let stiffness = connector.get("stiffness").ok_or_else(|| "stiffness missing".to_string()).and_then(|k| {
