@@ -802,8 +802,8 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
 /// `PressureContract`, as any other contract outside L and E.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum NamespaceBranch {
-    /// L: schema 0.1.0 or 0.2.0, no pressure contract.
-    Legacy,
+    /// L, the pressure-free preview route: schema 0.1.0 or 0.2.0, no pressure contract.
+    Preview,
     /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
     /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
@@ -816,7 +816,7 @@ fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &st
 /// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
 pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
     match (m.schema_version.as_str(), &m.pressure_contract) {
-        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Legacy),
+        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Preview),
         ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
         ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),

@@ -403,7 +403,7 @@ fn inside_d1(label: &str, raw: &Value, mode: PreviewSolverMode, cases: usize, co
     let report = super::assess(&capture, &request, super::Entry::Direct);
     assert_eq!(report.law().domain, None, "{label}: inside D1");
     assert_eq!((request.model.load_cases.len(), request.model.combinations.len()), (cases, combinations), "{label}: c and z");
-    let branch = if exact { NamespaceBranch::Exact } else { NamespaceBranch::Legacy };
+    let branch = if exact { NamespaceBranch::Exact } else { NamespaceBranch::Preview };
     assert_eq!(namespace_branch(&request.model), Ok(branch), "{label}: the W1 route");
 }
 

@@ -3011,7 +3011,7 @@ fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
         return None;
     }
     match retained_memory::namespace_branch(model) {
-        Ok(B::Legacy) => Some(retained_product::W1Route::Preview),
+        Ok(B::Preview) => Some(retained_product::W1Route::Preview),
         Ok(B::Exact) => Some(retained_product::W1Route::Exact),
         Err(_) => None,
     }
