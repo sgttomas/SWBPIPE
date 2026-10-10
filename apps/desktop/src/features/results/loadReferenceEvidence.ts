@@ -20,7 +20,7 @@
  * `1.0` there. The shared corpus never depends on that distinction.
  */
 import transportSchemaJson from "../../../../../schemas/load_reference_state.schema.json";
-import { validatePhysicsEvidence, validatePhysicsTransportMetadata } from "./physicsResultEvidence";
+import { validatePhysicsEvidence, validatePhysicsEvidenceFor, validatePhysicsTransportMetadata, PRESSURE_V3 } from "./physicsResultEvidence";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1";
@@ -244,6 +244,18 @@ export function validateLoadReferenceEvidence(source: MechanicsResult, model?: P
 /** Retained statements without raw rows: frozen schema shape and internal joins only. */
 export function validateLoadReferenceTransportMetadata(source: Partial<MechanicsResult>): void {
   guarded(() => validate(source as MechanicsResult, false));
+}
+/** T4-U2a: a 0.4.0 pressure-1 envelope (3.0.0/exact_pressure_v3): the same
+ * pre-pass, then the inherited physics checks under the v3 contract. */
+export function validatePressureLoadReferenceEvidence(source: MechanicsResult, model?: PhysicsModel): void {
+  guarded(() => {
+    prepass(source, true, "load_reference");
+    const projected = project(source);
+    try { validatePhysicsEvidenceFor(projected, PRESSURE_V3, model); }
+    catch (error) {
+      throw new LoadReferenceError(`${code("PHYSICS_EVIDENCE")}: ${error instanceof Error && error.message ? error.message : "SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence"}`);
+    }
+  });
 }
 export function guarded<T>(action: () => T): T {
   try { return action(); }

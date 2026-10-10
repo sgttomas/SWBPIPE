@@ -4,7 +4,70 @@ use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
 type Check = Result<(), String>;
-const PROFILE: &str = "exact_straight_pressure_v2";
+
+/// T4-U2a: the exact pressure contract a reader admits. Readers dispatch on
+/// the contract identity and never infer one contract's evidence as the other.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PressureContract {
+    /// `2.0.0/exact_straight_pressure_v2` (physics-1, load-reference-1): p_pa >= 0.
+    StraightV2,
+    /// `3.0.0/exact_pressure_v3` (pressure-1): straight families only, signed p_pa.
+    PressureV3,
+}
+impl PressureContract {
+    pub const fn version(self) -> &'static str {
+        match self {
+            PressureContract::StraightV2 => "2.0.0",
+            PressureContract::PressureV3 => "3.0.0",
+        }
+    }
+    pub const fn mode(self) -> &'static str {
+        match self {
+            PressureContract::StraightV2 => "exact_straight_pressure_v2",
+            PressureContract::PressureV3 => "exact_pressure_v3",
+        }
+    }
+    const fn other(self) -> Self {
+        match self {
+            PressureContract::StraightV2 => PressureContract::PressureV3,
+            PressureContract::PressureV3 => PressureContract::StraightV2,
+        }
+    }
+    const fn signed_pressure(self) -> bool {
+        matches!(self, PressureContract::PressureV3)
+    }
+    fn table(self) -> &'static Value {
+        match self {
+            PressureContract::StraightV2 => crate::semantic_contract::physics_contract(),
+            PressureContract::PressureV3 => crate::semantic_contract::pressure_contract(),
+        }
+    }
+}
+/// A v3 result offered to a v2 reader (or the reverse) is refused by name.
+pub const V3_READ_AS_V2: &str = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2";
+pub const V2_READ_AS_V3: &str = "SOURCE_PHYSICS_EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3";
+
+/// Names the other contract's evidence before any shape check, so that the
+/// refusal says which identity was offered to which reader.
+fn contract_identity(evidence: &Value, contract: PressureContract) -> Check {
+    let other = contract.other();
+    let names_other = evidence["exact_cases"]
+        .as_array()
+        .is_some_and(|cases| cases.iter().any(|case| case["profile_mode"] == other.mode()))
+        || evidence["pressure"].as_array().is_some_and(|regions| {
+            regions.iter().any(|region| {
+                region["profile_mode"] == other.mode() || region["profile_version"] == other.version()
+            })
+        });
+    if names_other {
+        return Err(match contract {
+            PressureContract::StraightV2 => V3_READ_AS_V2,
+            PressureContract::PressureV3 => V2_READ_AS_V3,
+        }
+        .into());
+    }
+    Ok(())
+}
 const MATERIAL_KEYS: &[&str] = &[
     "pipe_id",
     "material_id",
@@ -216,13 +279,18 @@ fn pipe_kind(kind: &str) -> bool {
     pressure_kind(kind) || kind == "pipe_elastic_normal_stress_maximum_v2"
 }
 
-fn physical_row(row: &Value, source_selected: bool, composite: bool) -> Check {
+fn physical_row(
+    row: &Value,
+    source_selected: bool,
+    composite: bool,
+    contract: PressureContract,
+) -> Check {
     let kind = text(&row["kind"])?;
     let signature = crate::semantic_contract::signature_in(
         if composite {
             crate::semantic_contract::physics_source_contract()
         } else {
-            crate::semantic_contract::physics_contract()
+            contract.table()
         },
         row,
     )?;
@@ -320,6 +388,32 @@ pub fn validate_physics_evidence(source: &Value) -> Check {
     validate_physics_evidence_in(source, false)
 }
 pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> Check {
+    validate_physics_evidence_for(source, composite, PressureContract::StraightV2)
+}
+/// T4-U2a: the `pressure-1` raw reader (`3.0.0/exact_pressure_v3`). A 0.4.0
+/// envelope carries `load_reference_states` and takes the load/reference
+/// pre-pass first; a 0.3.0 envelope takes the physics checks directly. Only
+/// the straight families are admitted, and p_pa may be negative.
+pub fn validate_pressure_evidence(source: &Value) -> Check {
+    if source["contract_evidence"]
+        .get("load_reference_states")
+        .is_some()
+    {
+        crate::load_reference::validate_pressure_load_reference_evidence(source)
+    } else {
+        validate_physics_evidence_for(source, false, PressureContract::PressureV3)
+    }
+}
+pub(crate) fn validate_physics_evidence_for(
+    source: &Value,
+    composite: bool,
+    contract: PressureContract,
+) -> Check {
+    require(
+        !composite || contract == PressureContract::StraightV2,
+        "CONTRACT_COMPOSITE_UNSUPPORTED",
+    )?;
+    contract_identity(&source["contract_evidence"], contract)?;
     finite_tree(source)?;
     require(
         (composite || source.get("source_block_recovery").is_none())
@@ -404,7 +498,7 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             ),
             "CASE_SHAPE",
         )?;
-        require(case["profile_mode"] == PROFILE, "CASE_PROFILE")?;
+        require(case["profile_mode"] == contract.mode(), "CASE_PROFILE")?;
         text(&case["material_basis"])?;
         let materials = indexed(&case["pipe_materials"], "pipe_id")?;
         let sections = indexed(&case["pipe_sections"], "pipe_id")?;
@@ -527,6 +621,7 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             row,
             composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
             composite,
+            contract,
         )?;
         if pipe_kind(kind) {
             require(
@@ -617,14 +712,15 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             "REGION_SHAPE",
         )?;
         require(
-            region["profile_version"] == "2.0.0"
-                && region["profile_mode"] == PROFILE
+            region["profile_version"] == contract.version()
+                && region["profile_mode"] == contract.mode()
                 && region["pressure_basis"] == "internal_differential_zero_external_v1"
                 && region["external_pressure_increment_pa"] == 0.0
                 && region["approximation"] == "long_straight_annulus_small_strain_v2",
             "REGION_PROFILE",
         )?;
-        require(number(&region["p_pa"])? >= 0.0, "PRESSURE_RANGE")?;
+        let p = number(&region["p_pa"])?;
+        require(contract.signed_pressure() || p >= 0.0, "PRESSURE_RANGE")?;
         text(&region["provenance"])?;
         require(
             region["geometry_representation_guard"]

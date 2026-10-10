@@ -14,6 +14,19 @@ from collections.abc import Mapping
 from typing import Any
 
 PROFILE = "exact_straight_pressure_v2"
+# T4-U2a: the exact pressure contracts a reader dispatches on. v2 (physics-1,
+# load-reference-1) refuses p_pa < 0; v3 (pressure-1, 0.3.0 and 0.4.0 shapes)
+# admits straight families only, with signed p_pa. Neither reads the other.
+STRAIGHT_V2 = ("2.0.0", "exact_straight_pressure_v2")
+PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
+PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PRESSURE_PROFILE = "exact_pressure_v3"
+V3_READ_AS_V2 = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2"
+V2_READ_AS_V3 = "SOURCE_PHYSICS_EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3"
+CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
+_TABLES = {STRAIGHT_V2: "semantic_contract_v0_3_physics_1.json", PRESSURE_V3: "semantic_contract_v0_3_pressure_1.json"}
 PIPE_KINDS = {
     "pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2",
     "pipe_effective_axial_force_v2", "pipe_axial_membrane_stress_v2",
@@ -86,7 +99,51 @@ def validate_physics_evidence(source: Mapping[str, Any]) -> None:
         raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
 
-def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None) -> None:
+def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
+    """Raw pressure-1 publication (3.0.0/exact_pressure_v3), Rust ``validate_pressure_evidence``.
+
+    A 0.4.0 envelope carries ``load_reference_states`` and takes the
+    load/reference pre-pass first; a 0.3.0 envelope takes the physics checks."""
+    evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
+    if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
+        from .load_reference_evidence import validate_pressure_load_reference_evidence
+        validate_pressure_load_reference_evidence(source)
+        return
+    try:
+        _validate_physics_evidence(source, contract=PRESSURE_V3)
+    except (TypeError, KeyError, AttributeError, OverflowError) as error:
+        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+
+
+def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
+    """Dispatch on the producer's contract identity; an unknown identity is refused."""
+    from .load_reference_evidence import validate_load_reference_evidence
+    identity = source.get("producer", {}).get("semantic_contract_id") if isinstance(source, Mapping) else None
+    if identity == PHYSICS_ID:
+        validate_physics_evidence(source)
+    elif identity == LOAD_REFERENCE_ID:
+        validate_load_reference_evidence(source)
+    elif identity == PRESSURE_ID:
+        _require(source.get("formulation_basis", {}).get("profile_id") == PRESSURE_PROFILE, "pressure-1 formulation profile")
+        validate_pressure_evidence(source)
+    else:
+        raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
+
+
+def _contract_identity(evidence: Any, contract: tuple[str, str]) -> None:
+    other = PRESSURE_V3 if contract == STRAIGHT_V2 else STRAIGHT_V2
+    if not isinstance(evidence, Mapping):
+        return
+    cases = evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []
+    regions = evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []
+    if any(isinstance(c, Mapping) and c.get("profile_mode") == other[1] for c in cases) or any(
+            isinstance(r, Mapping) and (r.get("profile_mode") == other[1] or r.get("profile_version") == other[0]) for r in regions):
+        raise ValueError(V3_READ_AS_V2 if contract == STRAIGHT_V2 else V2_READ_AS_V3)
+
+
+def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None, contract: tuple[str, str] = STRAIGHT_V2) -> None:
+    _require(context is None or contract == STRAIGHT_V2, "composite contract")
+    _contract_identity(source.get("contract_evidence"), contract)
     _require(not any(key in source for key in (("source_block_recovery", "carrier_evidence") if context is None else ("carrier_evidence",))), "unsupported source namespace")
     evidence = source.get("contract_evidence")
     _shape(evidence, {"pressure", "connector", "exact_cases"}, "namespace")
@@ -104,7 +161,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
         _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()), "case shape")
-        _require(case["profile_mode"] == PROFILE and _text(case["material_basis"]), "case profile/material basis")
+        _require(case["profile_mode"] == contract[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
         _require(bool(geometries[cid]) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
@@ -155,7 +212,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
         regions.add((cid, rid))
         region_pressures[cid, rid] = region["p_pa"]
-        _require(region["profile_mode"] == PROFILE and region["profile_version"] == "2.0.0" and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]) and region["p_pa"] >= 0, "region pressure basis")
+        _require(region["profile_mode"] == contract[1] and region["profile_version"] == contract[0] and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]) and (contract == PRESSURE_V3 or region["p_pa"] >= 0), "region pressure basis")
         _require(_text(region["provenance"]) and region["approximation"] == "long_straight_annulus_small_strain_v2" and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
         members = region["member_pipe_ids"]
         _require(_strings(members, True) and set(members) <= set(geometries[cid]), "region members")
@@ -194,7 +251,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
         _require(_strings(ids, True) and set(ids) == expected and not bindings.intersection(ids), "region result binding")
         bindings.update(ids)
-    table = json.loads((Path(__file__).resolve().parents[2] / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_text()) if context is None else context.TABLE
+    table = json.loads((Path(__file__).resolve().parents[2] / "fixtures/results" / _TABLES[contract]).read_text()) if context is None else context.TABLE
     support_components: dict[tuple[str, str], list[str]] = {}
     physical_slots: set[tuple[str, str, str, str, str]] = set()
     for row in rows.values():

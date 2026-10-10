@@ -369,6 +369,18 @@ fn validate(source: &Value, raw: bool) -> Check {
     inherited.map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
 }
 
+/// T4-U2a: a 0.4.0 `pressure-1` envelope (`3.0.0/exact_pressure_v3`): the same
+/// pre-pass S1-S13, then the inherited physics checks under the v3 contract.
+pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check {
+    prepass(source, true, Method::LoadReference)?;
+    crate::physics_evidence::validate_physics_evidence_for(
+        &project(source),
+        false,
+        crate::physics_evidence::PressureContract::PressureV3,
+    )
+    .map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
+}
+
 /// Steps S1-S13, shared with the joined reader. The joined method differs only
 /// in S1 (the receipt is required), the transport schema (not applied: the
 /// frozen schema admits only not-joined records), S7 (`recovery_method`), S10
