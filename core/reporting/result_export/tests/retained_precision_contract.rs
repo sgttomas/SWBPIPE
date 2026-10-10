@@ -6956,7 +6956,10 @@ fn b2_reseal(source: &mut Value, from: u8) {
     if from <= 4 {
         let sources = body["sources"].clone();
         for s in body["sources"].as_array_mut().unwrap() {
-            for o in s["operands"].as_array_mut().into_iter().flatten() {
+            if s["owner"]["kind"] != "combination" {
+                continue;
+            }
+            for o in s["operands"].as_array_mut().unwrap() {
                 o["source_identity_sha256"] = identity(&sources[o["source_ref"].as_u64().unwrap() as usize]);
             }
         }
@@ -7055,6 +7058,9 @@ fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
     let diagnostics = source["diagnostics"].as_array().unwrap();
     let selected_diagnostic = diagnostics.iter().position(|d| d["id"] == "diagnostic:retained-precision:combination:ab:selected").unwrap();
     let combination_row = source["results"].as_array().unwrap().iter().position(|r| r["basis_ref"]["ref_type"] == "combination").unwrap();
+    // The combination's last row (a support moment magnitude, not hull-projected).
+    let last_row = source["results"].as_array().unwrap().iter().rposition(|r| r["basis_ref"]["ref_type"] == "combination").unwrap();
+    assert_eq!(source["results"][last_row]["kind"], "support_reaction_moment_magnitude_v2");
     let mut swapped_attempts = body["product_attempts"].clone();
     swapped_attempts.as_array_mut().unwrap().swap(0, 1);
     swapped_attempts[0]["id"] = json!(0);
@@ -7111,8 +7117,8 @@ fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
         ("(c) m22 result_ids gains a case row", vec![set(rb(json!(["combinations", 0, "result_ids"])), json!([result_ids.clone(), vec![source["results"][0]["id"].clone()]].concat()))], vec![], vec![], gate("G3", COVERAGE)),
         ("(c) m23 two result_ids swapped", vec![set(rb(json!(["combinations", 0, "result_ids", 0])), result_ids[1].clone()), set(rb(json!(["combinations", 0, "result_ids", 1])), result_ids[0].clone())], vec![], vec![], gate("G3", COVERAGE)),
         ("(c) a combination row naming no entry (and in no result_ids)", vec![
-            set(json!(["results", combination_row, "basis_ref", "ref_id"]), json!("combination:other")),
-            set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids.iter().filter(|r| **r != source["results"][combination_row]["id"]).collect::<Vec<_>>())),
+            set(json!(["results", last_row, "basis_ref", "ref_id"]), json!("combination:other")),
+            set(rb(json!(["combinations", 0, "result_ids"])), json!(result_ids[..result_ids.len() - 1])),
         ], vec![], vec![], gate("G3", COVERAGE)),
         ("(e) m26 the combination attempt before the case attempt", vec![set(rb(json!(["product_attempts"])), swapped_attempts), set(rb(json!(["cases", 0, "product_attempt_ref"])), json!(1)), set(rb(json!(["combinations", 0, "product_attempt_ref"])), json!(0)), set(rb(json!(["sources", 0, "preparation", "attempt_ref"])), json!(1))], vec![], vec![], gate("G3", COVERAGE)),
         ("(f) m24 execution_order loses the combination Run", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}]))], vec![], vec![], gate("G3", COVERAGE)),
