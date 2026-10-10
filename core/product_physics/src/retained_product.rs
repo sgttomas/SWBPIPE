@@ -1555,7 +1555,7 @@ impl ProductCapture {
             return;
         }
         if !built.nonlinear_supports.is_empty()
-            || !built.user_stiffness_elements.is_empty()
+            || !built.connectors.is_empty()
             || !built.curved_bend_elements.is_empty()
             || !thermal.is_empty()
             || !application.element_uniform_loads.is_empty()

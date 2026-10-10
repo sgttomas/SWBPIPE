@@ -196,7 +196,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/lib.rs", "reduced_right_hand_side", 1, "KS2: legacy row with no nonzero prescribed product; b - (+-0) is exact (keeps today's zero sign); coupled and ledger rows use the exact accumulator"),
     ("FK/lib.rs", "solve_dense", 3, "exempt: generic linear-algebra kernel (S11 section 4.3 limit 1), elimination and back substitution, no case force"),
     ("FK/lib.rs", "add_terms", 1, "exempt: stiffness formation"),
-    ("FK/lib.rs", "add_relative_dof_stiffness", 4, "exempt: stiffness formation"),
     ("FK/lib.rs", "assemble_element_contribution", 1, "exempt: stiffness assembly (audited exactly by M03 contribution expansions)"),
     ("FK/lib.rs", "multiply_transpose_left", 2, "exempt: stiffness transform T^T K T"),
     // ---- FK/structural.rs
@@ -226,7 +225,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/sparse.rs", "from_pattern_and_contributions", 1, "exempt: stiffness assembly, one coalesced value per pattern entry summed in contribution order (audited exactly by M03 contribution expansions)"),
     ("FK/structural/sparse.rs", "scatter_block", 1, "exempt: stiffness assembly, one addition per element entry (the dense assemble_element_contribution; audited exactly by M03 contribution expansions)"),
     // T4-U3 (S2): `assemble_sparse_stiffness`'s body moved, unchanged, into
-    // `assemble_sparse_formed` (the shared body of the connector entry).
+    // `assemble_sparse_formed` (the shared body of `assemble_sparse_stiffness`).
     ("FK/structural/sparse.rs", "assemble_sparse_formed", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
     ("FK/structural/sparse.rs", "lower_entry_count", 1, "integer: storage count"),
     ("FK/structural/sparse.rs", "multiply", 1, "exempt: formed elastic action K*u (bit-identical to the product's multiply_matrix_vector, E12's formed term)"),

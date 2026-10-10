@@ -20,7 +20,7 @@ use open_pipe_stress_frame_kernel::structural::{
     StiffnessBlock,
 };
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, FrameDof, FrameNode, FrameSection,
+    assemble_global_stiffness_with_connectors, FrameDof, FrameNode, FrameSection,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
@@ -37,7 +37,7 @@ use kd5_models::*;
 struct Case {
     node_count: usize,
     frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
+    connectors: Vec<open_pipe_stress_frame_kernel::connector::ObjectiveConnector>,
     macros: Vec<CurvedBendMacroElement>,
     slots: Vec<CurvedBendStiffnessElement>,
     springs: Vec<(usize, f64)>,
@@ -61,20 +61,20 @@ impl Case {
         assemble_sparse_stiffness(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.blocks(),
             &self.springs,
             &SparseAssemblyOptions::new(),
         )
         .unwrap()
     }
-    /// The product's dense assembly order (`PP`: frames and users, then
+    /// The product's dense assembly order (`PP`: frames and connectors, then
     /// `add_curved_bend_stiffness_contributions`, then the springs).
     fn product_dense(&self) -> Vec<Vec<f64>> {
-        let mut k = assemble_global_stiffness_with_user_elements(
+        let mut k = assemble_global_stiffness_with_connectors(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
         )
         .unwrap();
         for s in &self.slots {
@@ -94,7 +94,7 @@ impl Case {
         AssemblyEvidence::new(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
         )
@@ -105,7 +105,7 @@ impl Case {
             k.pattern(),
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
         )
@@ -139,7 +139,7 @@ impl Case {
         let mut case = Case {
             node_count: m.nodes.len(),
             frames: Vec::new(),
-            users: Vec::new(),
+            connectors: Vec::new(),
             macros: Vec::new(),
             slots: Vec::new(),
             springs: m.springs.to_vec(),
@@ -484,7 +484,7 @@ fn simple_case(
     let mut case = Case {
         node_count,
         frames,
-        users: Vec::new(),
+        connectors: Vec::new(),
         macros: Vec::new(),
         slots: Vec::new(),
         springs,
@@ -814,7 +814,7 @@ fn k1_t0r_reactions_from_sparse_rows_match_the_references() {
 
 #[test]
 fn k1_relabelled_model_gives_the_same_answers() {
-    // §4.8 item 6 / mutation 10: a skew chain with a user element and springs,
+    // §4.8 item 6 / mutation 10: a skew chain with a connector and springs,
     // numbered forwards and backwards (every member reversed). The pattern
     // path is byte-identical to the dense-derived path in both numberings, and
     // the two numberings agree within the protected criterion.
@@ -827,16 +827,11 @@ fn k1_relabelled_model_gives_the_same_answers() {
             let (a, b) = if reverse { (k + 1, k) } else { (k, k + 1) };
             frames.push(frame(label(a), p(a), label(b), p(b), s, [0.0, 0.0, 1.0]));
         }
-        let users = vec![UserStiffnessElement::new(
+        let connectors = vec![chord_connector(
             FrameNode::new(label(3), p(3)).unwrap(),
             FrameNode::new(label(4), p(4)).unwrap(),
-            [0.0, 0.0, 1.0],
-            4.0e7,
-            3.0e6,
-            2.0e5,
-            1.0e5,
-        )
-        .unwrap()];
+            [4.0e7, 3.0e6, 2.0e5, 1.0e5],
+        )];
         let mut case = simple_case(
             5,
             frames,
@@ -848,7 +843,7 @@ fn k1_relabelled_model_gives_the_same_answers() {
                 (6 * label(2), 250.0),
             ],
         );
-        case.users = users;
+        case.connectors = connectors;
         case
     };
     for mode in MODES {
@@ -942,7 +937,6 @@ fn loop_input(case: &Case) -> NonlinearFrameSolveInput {
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: case.frames.clone(),
-        user_stiffness_elements: vec![],
         connectors: Vec::new(),
         curved_bend_elements: vec![],
         force: case.force(),
@@ -1026,13 +1020,13 @@ fn k1_nonlinear_loop_reaches_neither_formation_entry() {
 // review found. Each case is RV8's (invented), and each first asserts, on the
 // dense side only, that it discriminates the alternative its mutant takes.
 
-/// The product's dense assembly in a chosen order: frames and users
-/// (`assemble_global_stiffness_with_user_elements`), then the curved blocks
+/// The product's dense assembly in a chosen order: frames and connectors
+/// (`assemble_global_stiffness_with_connectors`), then the curved blocks
 /// in order (or reversed), then the springs (or the springs before the
 /// blocks). `(false, false)` is the product's order, `Case::product_dense`.
 fn dense_in_order(case: &Case, blocks_reversed: bool, springs_first: bool) -> Vec<Vec<f64>> {
     let mut k =
-        assemble_global_stiffness_with_user_elements(case.node_count, &case.frames, &case.users)
+        assemble_global_stiffness_with_connectors(case.node_count, &case.frames, &case.connectors)
             .unwrap();
     let add_springs = |k: &mut Vec<Vec<f64>>| {
         for &(dof, value) in &case.springs {
@@ -1194,7 +1188,7 @@ fn rv8_case(
     let mut case = Case {
         node_count,
         frames,
-        users: Vec::new(),
+        connectors: Vec::new(),
         macros: bends,
         slots,
         springs,
@@ -1527,7 +1521,7 @@ fn i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes(
             let mut case = Case {
                 node_count: 2,
                 frames: Vec::new(),
-                users: Vec::new(),
+                connectors: Vec::new(),
                 macros: Vec::new(),
                 slots: vec![CurvedBendStiffnessElement {
                     element_id: "i9-pre-k2a-element".to_string(),
@@ -1557,4 +1551,54 @@ fn i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes(
         }
     }
     assert_eq!(runs, 16);
+}
+
+/// T4-U3: an invented objective connector between two nodes, standing in for
+/// the deleted user element: Q.x along the chord (offsets zero), an uncoupled
+/// K = diag(axial, lateral, lateral, torsional, angular, angular) at Ls = 1 m.
+fn chord_connector(
+    i: FrameNode,
+    j: FrameNode,
+    [axial, lateral, angular, torsional]: [f64; 4],
+) -> open_pipe_stress_frame_kernel::connector::ObjectiveConnector {
+    use open_pipe_stress_frame_kernel::connector::{
+        ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix,
+    };
+    let d = [
+        j.coordinates[0] - i.coordinates[0],
+        j.coordinates[1] - i.coordinates[1],
+        j.coordinates[2] - i.coordinates[2],
+    ];
+    let unit = |v: [f64; 3]| {
+        let n = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+        [v[0] / n, v[1] / n, v[2] / n]
+    };
+    let cross = |a: [f64; 3], b: [f64; 3]| {
+        [
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        ]
+    };
+    let x = unit(d);
+    let helper = if x[2].abs() < 0.9 { [0.0, 0.0, 1.0] } else { [1.0, 0.0, 0.0] };
+    let y = unit(cross(helper, x));
+    let z = cross(x, y);
+    let mut h = [0.0; 21];
+    for (index, value) in [(0, axial), (6, lateral), (11, lateral), (15, torsional), (18, angular), (20, angular)] {
+        h[index] = value;
+    }
+    ObjectiveConnector::new(
+        i,
+        j,
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        [[x[0], y[0], z[0]], [x[1], y[1], z[1]], [x[2], y[2], z[2]]],
+        ScaledWorkMatrix {
+            upper_triangle: h,
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
+    )
+    .unwrap()
 }

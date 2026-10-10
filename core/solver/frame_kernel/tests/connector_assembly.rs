@@ -1,6 +1,6 @@
 //! T4-U3 slots S1, S2 and S8 for the objective connector: the dense and
-//! sparse assemblies agree bit for bit in the dense order (frames, user
-//! elements, connectors, blocks, springs), K2b forms the connector's Ke at
+//! sparse assemblies agree bit for bit in the dense order (frames,
+//! connectors, blocks, springs), K2b forms the connector's Ke at
 //! 2^b by `force_scaled_matrix` (N-5) so the sparse matrix at 2^b is 2^b
 //! times the unscaled one bit for bit, and the census takes K and Ke.
 //! Invented inputs only.
@@ -8,7 +8,7 @@ use open_pipe_stress_frame_kernel::connector::{
     ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, assemble_sparse_stiffness_with_connectors, SparseAssemblyOptions,
+    assemble_sparse_stiffness, SparseAssemblyOptions,
     StiffnessBlock,
 };
 use open_pipe_stress_frame_kernel::{
@@ -79,10 +79,9 @@ fn bits(m: &[Vec<f64>]) -> Vec<u64> {
 fn dense_and_sparse_agree_bit_for_bit_with_connectors() {
     let (frames, connectors) = model();
     let dense = assemble_global_stiffness_with_connectors(4, &frames, &connectors).unwrap();
-    let sparse = assemble_sparse_stiffness_with_connectors(
+    let sparse = assemble_sparse_stiffness(
         4,
         &frames,
-        &[],
         &connectors,
         &[],
         &[],
@@ -98,21 +97,15 @@ fn dense_and_sparse_agree_bit_for_bit_with_connectors() {
         bits(&assemble_global_stiffness(4, &frames).unwrap())
     );
     let options = SparseAssemblyOptions::new();
-    assert_eq!(
-        assemble_sparse_stiffness_with_connectors(4, &frames, &[], &[], &[], &[], &options)
-            .unwrap(),
-        assemble_sparse_stiffness(4, &frames, &[], &[], &[], &options).unwrap()
-    );
     // Blocks and springs come after the connectors, as in the product.
     let block = StiffnessBlock {
         node_i: 0,
         node_j: 3,
         stiffness: connectors[0].global_stiffness().unwrap(),
     };
-    let with_tail = assemble_sparse_stiffness_with_connectors(
+    let with_tail = assemble_sparse_stiffness(
         4,
         &frames,
-        &[],
         &connectors,
         &[block],
         &[(0, 1.0e7)],
@@ -134,10 +127,9 @@ fn dense_and_sparse_agree_bit_for_bit_with_connectors() {
 #[test]
 fn k2b_scales_the_formed_connector_exactly() {
     let (frames, connectors) = model();
-    let unscaled = assemble_sparse_stiffness_with_connectors(
+    let unscaled = assemble_sparse_stiffness(
         4,
         &frames,
-        &[],
         &connectors,
         &[],
         &[(0, 1.0e7)],
@@ -146,10 +138,9 @@ fn k2b_scales_the_formed_connector_exactly() {
     .unwrap();
     for b in [-40, 20, 64] {
         let scale = ForceScale::new(b).unwrap();
-        let scaled = assemble_sparse_stiffness_with_connectors(
+        let scaled = assemble_sparse_stiffness(
             4,
             &frames,
-            &[],
             &connectors,
             &[],
             &[(0, 1.0e7)],

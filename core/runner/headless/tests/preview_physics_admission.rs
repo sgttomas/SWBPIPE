@@ -273,9 +273,9 @@ fn realized_joint_is_refused_as_a_sanitized_blocked_envelope() {
             .as_array()
             .unwrap()
             .iter()
-            .any(|d| d["code"] == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
+            .any(|d| d["code"] == "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED"
                 && d["severity"] == "blocking"
-                && d["affected_refs"][0] == "component:C-150"));
+                && d["affected_refs"] == json!(["component:C-150", "pipe:P-130"])));
         let text = serde_json::to_string(&raw["diagnostics"]).unwrap();
         assert!(
             !text.contains("\"result:"),

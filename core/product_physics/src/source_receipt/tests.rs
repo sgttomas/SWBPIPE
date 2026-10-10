@@ -21,7 +21,7 @@ impl Fixture {
         normalize_model_units(&mut model, &mut materials, &mut diagnostics);
         let built = build_model(&model, &materials, &mut diagnostics).unwrap();
         let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-        let mut k = assemble_global_stiffness_with_user_elements(
+        let mut k = assemble_global_stiffness_with_connectors(
             built.nodes.len(),
             &built.frame_elements,
             &[],

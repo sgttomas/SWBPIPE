@@ -67,18 +67,32 @@ fn kd5_frame_reformation_agrees_with_the_binary64_formation_to_roundoff() {
 
 #[test]
 fn kd5_reformed_elements_have_the_rigid_body_null_space() {
-    // Frame, joint and curved bend: rigid translation (1,−2,0.5) and rotation ω = (0.25,0.5,−0.125) (dyadic, so u is exact) about the
-    // origin: K_e·u_rigid is zero to p for the re-formed frame and joint.
+    // Frame, objective connector and curved bend: rigid translation (1,−2,0.5) and rotation ω = (0.25,0.5,−0.125) (dyadic, so u is exact) about the
+    // origin: K_e·u_rigid is zero to p for the re-formed frame and connector.
+    // T4-U3: the connector carries offsets, a skew Q (Q.x along r) and a
+    // coupled K (case 22's H), on the frame's nodes.
     let e = skew_frame();
-    let user = UserStiffnessElement {
-        node_i: e.node_i,
-        node_j: e.node_j,
-        y_reference: [1.0, 0.0, 0.0],
-        axial_stiffness: 2.0e6,
-        lateral_stiffness: 0.0,
-        angular_stiffness: 3.0e4,
-        torsional_stiffness: 5.0e4,
-    };
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    let connector = ObjectiveConnector::new(
+        e.node_i,
+        e.node_j,
+        crate::connector::ConnectorAttachment::global([0.125, -0.25, 0.375]),
+        crate::connector::ConnectorAttachment::global([0.375, 0.25, 0.875]),
+        [
+            [third, two_thirds, -two_thirds],
+            [two_thirds, third, two_thirds],
+            [two_thirds, -two_thirds, -third],
+        ],
+        crate::connector::ScaledWorkMatrix {
+            upper_triangle: [
+                12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0,
+                250.0, 0.0, 0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+            ],
+            translation_scale: 0.25,
+        },
+        [0.0; 6],
+    )
+    .unwrap();
     let mut arith = WideArith::new(FORMATION_PRECISION).unwrap();
     let omega = [0.25, 0.5, -0.125];
     let t = [1.0, -2.0, 0.5];
@@ -125,7 +139,7 @@ fn kd5_reformed_elements_have_the_rigid_body_null_space() {
     assert!(cost < 5000, "{cost}");
     for k in [
         frame_matrix(&mut arith, &e).unwrap(),
-        user_matrix(&mut arith, &user).unwrap(),
+        connector_matrix(&mut arith, &connector).unwrap(),
         curved,
     ] {
         let scale = k

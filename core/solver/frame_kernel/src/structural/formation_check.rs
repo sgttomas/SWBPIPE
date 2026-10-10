@@ -36,7 +36,7 @@ use super::{binary_exponent, StructuralError, StructuralSystem};
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::ForceTerm;
-use crate::{element_dof_map, FrameElement, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF};
+use crate::{element_dof_map, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
 
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
@@ -70,7 +70,6 @@ pub struct CurvedFormation {
 pub struct FormationSource {
     pub node_count: usize,
     pub frames: Vec<FrameElement>,
-    pub users: Vec<UserStiffnessElement>,
     /// T4-U3 (S10): objective connectors, re-formed by `connector_matrix`
     /// (at 2^b, K-D5's scaled source holds `ObjectiveConnector::force_scaled`).
     pub connectors: Vec<ObjectiveConnector>,
@@ -172,13 +171,6 @@ where
     if let Some(family) = source.unavailable.first() {
         return Some(FormationCheck::unavailable(family.clone()));
     }
-    if let Some(user) = source.users.iter().find(|e| e.lateral_stiffness != 0.0) {
-        // A joint with lateral stiffness is not objective (ROOT: demote).
-        return Some(FormationCheck::unavailable(format!(
-            "user_stiffness_lateral_nonzero:{}-{}",
-            user.node_i.index, user.node_j.index
-        )));
-    }
     match evaluate(system, source, force_terms, scale_exponents, u, solve) {
         Ok(result) => result,
         Err(failure) => Some(FormationCheck::unavailable(failure.detail())),
@@ -256,10 +248,6 @@ where
     };
     for e in &source.frames {
         let k = frame_matrix(&mut arith, e)?;
-        apply(e.node_i.index, e.node_j.index, &k)?;
-    }
-    for e in &source.users {
-        let k = user_matrix(&mut arith, e)?;
         apply(e.node_i.index, e.node_j.index, &k)?;
     }
     for c in &source.connectors {
@@ -392,14 +380,6 @@ fn body_scales(source: &FormationSource, free: &[usize], u: &[f64]) -> Vec<(f64,
     let mut coordinates: Vec<Option<[f64; 3]>> = vec![None; count];
     let mut edges: Vec<(usize, [f64; 3], usize, [f64; 3])> = Vec::new();
     for e in &source.frames {
-        edges.push((
-            e.node_i.index,
-            e.node_i.coordinates,
-            e.node_j.index,
-            e.node_j.coordinates,
-        ));
-    }
-    for e in &source.users {
         edges.push((
             e.node_i.index,
             e.node_i.coordinates,
@@ -644,32 +624,6 @@ fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideErro
                 k[idx[r]][idx[c]] = t[r][c];
             }
         }
-    }
-    rotate(a, &k, &axes)
-}
-
-/// A user-stiffness element (expansion joint) re-formed in the exact local
-/// frame of its actual chord: relative axial, torsional and angular springs.
-/// Only lateral stiffness zero reaches here (`check` demotes the rest).
-fn user_matrix(a: &mut WideArith, e: &UserStiffnessElement) -> Result<Element, WideError> {
-    let (axes, _) = chord_axes(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference)?;
-    let mut k = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
-    for (dof, value) in [
-        (0, e.axial_stiffness),
-        (1, e.lateral_stiffness),
-        (2, e.lateral_stiffness),
-        (3, e.torsional_stiffness),
-        (4, e.angular_stiffness),
-        (5, e.angular_stiffness),
-    ] {
-        let v = lift(value)?;
-        if v.is_zero() {
-            continue;
-        }
-        k[dof][dof] = v;
-        k[dof + 6][dof + 6] = v;
-        k[dof][dof + 6] = v.neg();
-        k[dof + 6][dof] = v.neg();
     }
     rotate(a, &k, &axes)
 }

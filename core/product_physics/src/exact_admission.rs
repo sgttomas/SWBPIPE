@@ -184,21 +184,24 @@ impl ExactFamily {
 /// The table's verdict for one family under one contract.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Admission {
-    /// The extension point: T4-U2 and T4-U3 add the first admitted entries.
-    #[allow(dead_code)]
+    /// The extension point: T4-U3 admits the objective connector; T4-U2 the
+    /// realized bend.
     Admitted,
     Refused { code: &'static str, message: String },
 }
 
 /// The admission table. Under v2 it reproduces v2's existing codes and texts
-/// (SP-1). Under v3 no family is admitted yet.
+/// (SP-1). Under v3 the objective connector is admitted (T4-U3).
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
-    match contract {
-        ExactContract::StraightV2 => {
+    match (contract, family) {
+        // T4-U3: an explicit objective connector on v3, with its own
+        // classifier (`joint::classify_connectors`), mechanics and evidence.
+        (ExactContract::PressureV3, ExactFamily::ObjectiveConnector) => Admission::Admitted,
+        (ExactContract::StraightV2, _) => {
             let (code, message) = straight_v2_refusal(family);
             Admission::Refused { code, message: message.to_string() }
         }
-        ExactContract::PressureV3 => Admission::Refused {
+        (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: format!(
                 "{} is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe{}",
@@ -253,27 +256,14 @@ pub(crate) fn component_family(component: &PreviewComponent) -> ExactFamily {
         "reducer" => ExactFamily::Reducer,
         "branch" | "tee" | "branch_connection" => ExactFamily::Branch,
         "rigid" | "specialty" => ExactFamily::RigidComponent,
-        "expansion_joint" if consumption == Some("not_solver_consumed") && !has_legacy_joint_fields(component) => {
+        // D-4 (T4-U3): an explicit annotation is exempt from the legacy
+        // recognition, whatever other fields it carries.
+        "expansion_joint" if consumption == Some("not_solver_consumed") => {
             ExactFamily::ExpansionJointAnnotation
         }
         "expansion_joint" => ExactFamily::ExpansionJointLegacy,
         _ => ExactFamily::OtherComponent,
     }
-}
-
-/// T4-I10 section 4.2: a joint with a pipe reference or any of the four
-/// user rates is a legacy flexibility joint whatever its consumption mode.
-fn has_legacy_joint_fields(component: &PreviewComponent) -> bool {
-    component
-        .geometry
-        .as_ref()
-        .is_some_and(|geometry| geometry.expansion_joint_pipe_ref.is_some())
-        || component.modifiers.as_ref().is_some_and(|modifiers| {
-            modifiers.axial_stiffness_user_value.is_some()
-                || modifiers.lateral_stiffness_user_value.is_some()
-                || modifiers.angular_stiffness_user_value.is_some()
-                || modifiers.torsional_stiffness_user_value.is_some()
-        })
 }
 
 /// The family of a support outside the straight base, or `None` for a linear
@@ -311,9 +301,10 @@ mod tests {
     ];
 
     #[test]
-    fn no_family_is_admitted_yet_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_is_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
+                Admission::Admitted if family == ExactFamily::ObjectiveConnector => {}
                 Admission::Refused { code, message } => {
                     assert_eq!(code, FAMILY_NOT_ADMITTED);
                     assert!(message.starts_with(family.name()), "{message}");

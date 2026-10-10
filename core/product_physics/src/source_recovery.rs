@@ -576,7 +576,7 @@ fn prepare_sources(
     {
         return Err(unsupported("nonlinear/contact source family"));
     }
-    if !input.built.user_stiffness_elements.is_empty()
+    if !input.built.connectors.is_empty()
         || !input.built.curved_bend_elements.is_empty()
         || !input.model.components.is_empty()
     {
@@ -1632,10 +1632,10 @@ mod tests {
                 super::super::build_model(&model, &model.materials, &mut diagnostics).unwrap();
             let boundary = super::super::prepare_boundary(built.nodes.len(), &built.supports);
             let springs = boundary.springs;
-            let mut stiffness = super::super::assemble_global_stiffness_with_user_elements(
+            let mut stiffness = super::super::assemble_global_stiffness_with_connectors(
                 built.nodes.len(),
                 &built.frame_elements,
-                &built.user_stiffness_elements,
+                &built.connectors,
             )
             .unwrap();
             for spring in &springs {

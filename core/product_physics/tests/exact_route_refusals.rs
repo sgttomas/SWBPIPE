@@ -337,9 +337,9 @@ fn a1_objective_connector_codes_precede_the_composition_code() {
             );
             let composition = position(&envelope, COMPOSITION, &["component:connector"]);
             assert!(connector_code < composition, "{version}: connector code first");
-            assert!(envelope["diagnostics"].as_array().unwrap().iter().any(|d| {
-                d["code"] == "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED"
-                    && d["severity"] == "warning"
+            // T4-U3: the joint's validation rows are deleted (S19).
+            assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| {
+                d["code"].as_str().is_some_and(|code| code.starts_with("EXPANSION_JOINT_"))
             }));
         }
     }

@@ -5,11 +5,11 @@ use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::connector::{ConnectorDefiniteness, ObjectiveConnector};
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
 use open_pipe_stress_frame_kernel::rigid_body::{
-    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, user_element_tie,
-    ConstrainedAssessment, ConstrainedGround, ObjectiveFamily, RigidBodyStatus, TieRefusal,
+    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, ConstrainedAssessment,
+    ConstrainedGround, ObjectiveFamily, RigidBodyStatus,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    self, assemble_sparse_stiffness_with_connectors, CurvedFormation, ForceScaleReason,
+    self, assemble_sparse_stiffness, CurvedFormation, ForceScaleReason,
     ForceScaledError, ForceScaledSolution, ForceScalingRefusal, FormationSource, RangeTrigger,
     SparseAssemblyOptions, SparsePattern, SparseStiffness, SparseStructuralSystem,
     SparseSymmetryEvidence, StiffnessBlock, StiffnessContribution, StructuralError,
@@ -17,7 +17,7 @@ use open_pipe_stress_frame_kernel::structural::{
 };
 use open_pipe_stress_frame_kernel::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus,
-    FrameElement, FrameKernelError, Matrix12, UserStiffnessElement,
+    FrameElement, FrameKernelError, Matrix12,
 };
 use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
 
@@ -39,14 +39,13 @@ pub struct AssemblyEvidence {
 }
 
 /// The formation source recorded by `AssemblyEvidence::new` (K-D5): the
-/// frame, user and spring primitives as supplied, and for each curved slot
+/// frame, connector and spring primitives as supplied, and for each curved slot
 /// what `solve_assembled_with_formation_check` needs to match it to its macro
 /// element.
 #[derive(Debug, Clone, Default)]
 struct FormationPrimitives {
     node_count: usize,
     frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
     /// T4-U3: the objective connectors, at the evidence's 2^b (K times 2^b,
     /// `ObjectiveConnector::force_scaled`) for K-D5's re-formation.
     connectors: Vec<ObjectiveConnector>,
@@ -65,23 +64,12 @@ struct CurvedSlot {
     explicit: bool,
 }
 impl AssemblyEvidence {
+    /// The evidence of frames, objective connectors (T4-U3, S4: each an edge
+    /// with `qualified = false` carrying its formed Ke and formation allowance,
+    /// `ObjectiveConnector::formation_roundoff`), curved slots and springs.
     pub fn new(
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
-        curved: &[CurvedBendStiffnessElement],
-        springs: &[(usize, f64)],
-    ) -> Result<Self, StructuralError> {
-        Self::new_with_connectors(node_count, frames, users, &[], curved, springs)
-    }
-
-    /// T4-U3 (S4): `new` with objective connectors, each an edge with
-    /// `qualified = false` carrying its formed Ke and formation allowance
-    /// (`ObjectiveConnector::formation_roundoff`), after the user elements.
-    pub fn new_with_connectors(
-        node_count: usize,
-        frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
@@ -89,7 +77,6 @@ impl AssemblyEvidence {
         Self::build(
             node_count,
             frames,
-            users,
             connectors,
             curved,
             springs,
@@ -100,7 +87,6 @@ impl AssemblyEvidence {
     fn build(
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
@@ -110,7 +96,6 @@ impl AssemblyEvidence {
         let parts = EvidenceParts::new(
             node_count,
             frames,
-            users,
             connectors,
             curved,
             springs,
@@ -136,57 +121,32 @@ impl AssemblyEvidence {
     }
 
     /// K2b (D1 §4.7, formation-time scaling): `new` on the primitives formed
-    /// at 2^b: frames with E and G times 2^b, user and spring stiffnesses
-    /// times 2^b, and each curved slot's global matrix and formation
-    /// allowances times 2^b, all exactly. The formation allowances, the
-    /// contributions and K-D5's formation primitives are then those of the
-    /// scaled system. A value that cannot stay normal is
+    /// at 2^b: frames with E and G times 2^b, spring stiffnesses times 2^b,
+    /// and each curved slot's global matrix and formation allowances times
+    /// 2^b, all exactly. T4-U3 (S8, N-5): connectors are given unscaled; each
+    /// one's Ke and allowance enter as formed at b = 0 times 2^b
+    /// (`force_scaled_matrix`), bit-equal to the assembly's, and K-D5's
+    /// source holds the connector with K times 2^b. The formation allowances,
+    /// the contributions and K-D5's formation primitives are then those of
+    /// the scaled system. A value that cannot stay normal is
     /// `Range("force-scaled formation outside the normal range")`. With
     /// `UNSCALED` it is `new`.
     pub fn new_force_scaled(
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
-        curved: &[CurvedBendStiffnessElement],
-        springs: &[(usize, f64)],
-        force_scale: ForceScale,
-    ) -> Result<Self, StructuralError> {
-        Self::new_force_scaled_with_connectors(
-            node_count,
-            frames,
-            users,
-            &[],
-            curved,
-            springs,
-            force_scale,
-        )
-    }
-
-    /// T4-U3 (S8, N-5): `new_force_scaled` with objective connectors, given
-    /// unscaled: each connector's Ke and allowance enter as formed at b = 0
-    /// times 2^b (`force_scaled_matrix`), bit-equal to the assembly's, and
-    /// K-D5's source holds the connector with K times 2^b.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new_force_scaled_with_connectors(
-        node_count: usize,
-        frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
         force_scale: ForceScale,
     ) -> Result<Self, StructuralError> {
         if force_scale.is_unscaled() {
-            return Self::new_with_connectors(
-                node_count, frames, users, connectors, curved, springs,
-            );
+            return Self::new(node_count, frames, connectors, curved, springs);
         }
-        let (frames, users, curved, springs) =
-            force_scaled_primitives(frames, users, curved, springs, force_scale)?;
+        let (frames, curved, springs) =
+            force_scaled_primitives(frames, curved, springs, force_scale)?;
         Self::build(
             node_count,
             &frames,
-            &users,
             connectors,
             &curved,
             &springs,
@@ -477,7 +437,7 @@ impl AssemblyEvidence {
     /// K2b (D1 §4.7): the force-scaled sibling of K-D5's linear entry
     /// `solve_assembled_with_formation_check`, with the same selection rule.
     /// `k`, `f` and the result are as in `solve_force_scaled`. The formation
-    /// source holds the primitives at 2^b (the frames, users and springs this
+    /// source holds the primitives at 2^b (the frames, connectors and springs this
     /// evidence was formed from; each curved slot matched to its macro element
     /// by the bits of the macro element's global matrix times 2^b, with E and
     /// G times 2^b), so K-D5's re-formation, its ρ and its record (in
@@ -567,19 +527,6 @@ impl SparseAssemblyEvidence {
         pattern: &SparsePattern,
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
-        curved: &[CurvedBendStiffnessElement],
-        springs: &[(usize, f64)],
-    ) -> Result<Self, StructuralError> {
-        Self::new_with_connectors(pattern, node_count, frames, users, &[], curved, springs)
-    }
-
-    /// T4-U3 (S4): `AssemblyEvidence::new_with_connectors` on the pattern.
-    pub fn new_with_connectors(
-        pattern: &SparsePattern,
-        node_count: usize,
-        frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
@@ -588,7 +535,6 @@ impl SparseAssemblyEvidence {
             pattern,
             node_count,
             frames,
-            users,
             connectors,
             curved,
             springs,
@@ -601,7 +547,6 @@ impl SparseAssemblyEvidence {
         pattern: &SparsePattern,
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
@@ -614,7 +559,6 @@ impl SparseAssemblyEvidence {
         let parts = EvidenceParts::new(
             node_count,
             frames,
-            users,
             connectors,
             curved,
             springs,
@@ -647,47 +591,20 @@ impl SparseAssemblyEvidence {
         pattern: &SparsePattern,
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
-        curved: &[CurvedBendStiffnessElement],
-        springs: &[(usize, f64)],
-        force_scale: ForceScale,
-    ) -> Result<Self, StructuralError> {
-        Self::new_force_scaled_with_connectors(
-            pattern,
-            node_count,
-            frames,
-            users,
-            &[],
-            curved,
-            springs,
-            force_scale,
-        )
-    }
-    /// T4-U3: `AssemblyEvidence::new_force_scaled_with_connectors` on the
-    /// pattern.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new_force_scaled_with_connectors(
-        pattern: &SparsePattern,
-        node_count: usize,
-        frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
         force_scale: ForceScale,
     ) -> Result<Self, StructuralError> {
         if force_scale.is_unscaled() {
-            return Self::new_with_connectors(
-                pattern, node_count, frames, users, connectors, curved, springs,
-            );
+            return Self::new(pattern, node_count, frames, connectors, curved, springs);
         }
-        let (frames, users, curved, springs) =
-            force_scaled_primitives(frames, users, curved, springs, force_scale)?;
+        let (frames, curved, springs) =
+            force_scaled_primitives(frames, curved, springs, force_scale)?;
         Self::build(
             pattern,
             node_count,
             &frames,
-            &users,
             connectors,
             &curved,
             &springs,
@@ -1224,13 +1141,12 @@ struct EvidenceParts<S> {
 }
 
 impl<S: EvidenceStore> EvidenceParts<S> {
-    /// `frames`, `users`, `curved` and `springs` are already at 2^b;
+    /// `frames`, `curved` and `springs` are already at 2^b;
     /// `connectors` are given unscaled and formed here at `force_scale`.
     #[allow(clippy::too_many_arguments)]
     fn new(
         node_count: usize,
         frames: &[FrameElement],
-        users: &[UserStiffnessElement],
         connectors: &[ObjectiveConnector],
         curved: &[CurvedBendStiffnessElement],
         springs: &[(usize, f64)],
@@ -1253,7 +1169,6 @@ impl<S: EvidenceStore> EvidenceParts<S> {
             formation: FormationPrimitives {
                 node_count,
                 frames: frames.to_vec(),
-                users: users.to_vec(),
                 connectors: scaled_connectors,
                 curved: curved
                     .iter()
@@ -1289,27 +1204,6 @@ impl<S: EvidenceStore> EvidenceParts<S> {
                 &evidence.absolute_roundoff,
                 &evidence.operation_counts,
                 true,
-            )?;
-        }
-        for element in users {
-            let local = element.local_stiffness();
-            let t = element
-                .orientation()
-                .map_err(|_| StructuralError::InvalidInput("user orientation"))?
-                .transformation_matrix();
-            let evidence = structural::transform_roundoff(&local, &t)?;
-            result.node(element.node_i.index, element.node_i.coordinates)?;
-            result.node(element.node_j.index, element.node_j.coordinates)?;
-            // Relative translation/rotation springs are not objective frame energy.
-            result.element(
-                element.node_i.index,
-                element.node_j.index,
-                &element
-                    .global_stiffness()
-                    .map_err(|_| StructuralError::InvalidInput("user stiffness"))?,
-                &evidence.absolute_roundoff,
-                &evidence.operation_counts,
-                false,
             )?;
         }
         for connector in connectors {
@@ -1462,9 +1356,9 @@ impl BodyEvidence<'_> {
                 .iter()
                 .filter(|(a, _, _)| body.contains(a))
                 .all(|(_, _, q)| *q);
-            // K5 (W4, the four selected branches only): a mixed body whose user
-            // elements are ties and whose curved elements match their macro
-            // source is assessed by `assess_constrained_bodies`; any other mixed
+            // K5 (W4, the four selected branches only): a mixed body whose
+            // connectors are positive definite and whose curved elements match
+            // their macro source is assessed by `assess_constrained_bodies`; any other mixed
             // body is left to the matrix gate, as today.
             if !qualified {
                 if let Some(w4) = &self.w4 {
@@ -1515,7 +1409,7 @@ impl BodyEvidence<'_> {
 // ------------------------------------------------------------------ K5 (W4)
 
 /// K5 (D1 §4.9, W4): what the selected branches pass to `BodyEvidence`: the
-/// formation primitives (edge order: frames, users, connectors, curved), the macro
+/// formation primitives (edge order: frames, connectors, curved), the macro
 /// elements the curved slots were formed from, and the evidence's 2^b.
 struct W4Context<'e> {
     formation: &'e FormationPrimitives,
@@ -1539,8 +1433,6 @@ pub(crate) enum W4Body {
 #[allow(dead_code)] // F2a API: the reason carrier; read by tests today.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum W4Unqualified {
-    /// A user element that is no tie (Q5(a)): `element` indexes the users.
-    UserTie { element: usize, refusal: TieRefusal },
     /// T4-U3 (S11): a connector whose stiffness is not positive definite
     /// (exact decision); `element` indexes the connectors.
     ConnectorSemidefinite { element: usize },
@@ -1549,7 +1441,7 @@ pub(crate) enum W4Unqualified {
     /// A curved slot matched to no macro element (Q2(b)).
     CurvedUnmatched { element_id: String },
     /// A matched macro element whose node coordinates differ from those
-    /// recorded for the same node (a frame, a user or another curved slot).
+    /// recorded for the same node (a frame, a connector or another curved slot).
     CurvedCoordinates { element_id: String, node: usize },
     /// `assess_constrained_bodies` refused the input. Unreachable from built
     /// evidence (I14's RETURN derives it); the body is left to the matrix gate.
@@ -1587,7 +1479,7 @@ impl W4Context<'_> {
     }
 
     /// The per-body record: every edge of the body qualified (frames link,
-    /// user elements tie under `user_element_tie`, curved slots link when
+    /// positive definite connectors link (T4-U3, S11), curved slots link when
     /// matched to their macro source with consistent coordinates), then
     /// `assess_constrained_bodies` over the body's nodes in ascending order,
     /// with the prescribed and positive-spring grounds as today.
@@ -1601,31 +1493,24 @@ impl W4Context<'_> {
         nodes.sort_unstable();
         let local = |global: usize| nodes.binary_search(&global).ok();
         let frames = self.formation.frames.len();
-        let users = frames + self.formation.users.len();
-        let connectors = users + self.formation.connectors.len();
+        let connectors = frames + self.formation.connectors.len();
         let mut curved_points: Vec<Option<[f64; 3]>> = vec![None; nodes.len()];
         let mut links = Vec::new();
-        let mut ties = Vec::new();
+        // T4-U3 (W4): the tie reduction stays; no element produces a tie now
+        // (the user element and its tie rule are deleted).
+        let ties: Vec<[usize; 2]> = Vec::new();
         for (index, &(a, b, _)) in evidence.edges.iter().enumerate() {
             let (Some(la), Some(lb)) = (local(a), local(b)) else {
                 continue;
             };
             if index < frames {
                 links.push([la, lb]);
-            } else if index < users {
-                let element = index - frames;
-                match user_element_tie(&self.formation.users[element]) {
-                    Ok(_) => ties.push([la, lb]),
-                    Err(refusal) => {
-                        return W4Body::Unqualified(W4Unqualified::UserTie { element, refusal })
-                    }
-                }
             } else if index < connectors {
                 // T4-U3 (S11): a positive definite connector links its ends
                 // (its only zero-energy motions are the rigid ones); a
                 // semidefinite one may be a mechanism and goes to the matrix
                 // gate.
-                let element = index - users;
+                let element = index - frames;
                 match self.formation.connectors[element].definiteness() {
                     ConnectorDefiniteness::PositiveDefinite => links.push([la, lb]),
                     _ => {
@@ -1741,7 +1626,6 @@ fn formation_source(
     let mut source = FormationSource {
         node_count: primitives.node_count,
         frames: primitives.frames.clone(),
-        users: primitives.users.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
         springs: primitives.springs.clone(),
@@ -1804,17 +1688,15 @@ fn unscaled_evidence(force_scale: ForceScale) -> Result<(), StructuralError> {
 
 type ForceScaledPrimitives = (
     Vec<FrameElement>,
-    Vec<UserStiffnessElement>,
     Vec<CurvedBendStiffnessElement>,
     Vec<(usize, f64)>,
 );
 
 /// K2b: the evidence primitives times 2^b, exactly (E and G of each frame;
-/// each user stiffness; each curved slot's global matrix and formation
-/// allowances; each spring), in their given order.
+/// each curved slot's global matrix and formation allowances; each spring),
+/// in their given order. Connectors are scaled where they are formed.
 fn force_scaled_primitives(
     frames: &[FrameElement],
-    users: &[UserStiffnessElement],
     curved: &[CurvedBendStiffnessElement],
     springs: &[(usize, f64)],
     force_scale: ForceScale,
@@ -1823,10 +1705,6 @@ fn force_scaled_primitives(
         StructuralError::Range("force-scaled formation outside the normal range")
     };
     let frames = frames
-        .iter()
-        .map(|element| element.force_scaled(force_scale).map_err(range))
-        .collect::<Result<Vec<_>, _>>()?;
-    let users = users
         .iter()
         .map(|element| element.force_scaled(force_scale).map_err(range))
         .collect::<Result<Vec<_>, _>>()?;
@@ -1863,11 +1741,11 @@ fn force_scaled_primitives(
                 .map_err(range)
         })
         .collect::<Result<Vec<_>, _>>()?;
-    Ok((frames, users, curved, springs))
+    Ok((frames, curved, springs))
 }
 
-/// K2b: the formation source of an evidence formed at 2^b. Its frames, users
-/// and springs are already the scaled primitives. Each curved slot (formed at
+/// K2b: the formation source of an evidence formed at 2^b. Its frames,
+/// connectors and springs are already the scaled primitives. Each curved slot (formed at
 /// 2^b) is matched to the macro element whose global matrix, times 2^b, has
 /// its bits, and is re-formed with E and G times 2^b (K-D5's Wide<2>
 /// re-formation then scales exactly: its exponent is 64-bit). A slot with no
@@ -1885,7 +1763,6 @@ fn force_scaled_formation_source(
     let mut source = FormationSource {
         node_count: primitives.node_count,
         frames: primitives.frames.clone(),
-        users: primitives.users.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
         springs: primitives.springs.clone(),
@@ -1977,11 +1854,10 @@ pub enum EvidenceRepresentation {
 pub struct ForceScalingCase<'a> {
     pub node_count: usize,
     pub frames: &'a [FrameElement],
-    pub users: &'a [UserStiffnessElement],
-    /// T4-U3: objective connectors, unscaled (after the users).
+    /// T4-U3: objective connectors, unscaled (after the frames).
     pub connectors: &'a [ObjectiveConnector],
     /// Realized curved bends formed at b = 0, added to the stiffness as
-    /// blocks in this order (after frames, users and connectors, before
+    /// blocks in this order (after frames and connectors, before
     /// springs).
     pub curved: &'a [CurvedBendStiffnessElement],
     /// The macro elements of the curved slots, for K-D5's re-formation.
@@ -2018,15 +1894,12 @@ enum Evaluation {
     Failed(ForceScaledError),
 }
 
-/// The census of a case (steps 2–3's inputs): every frame, user element,
+/// The census of a case (steps 2–3's inputs): every frame, connector,
 /// curved slot, spring and load term.
 fn force_scale_census(case: &ForceScalingCase<'_>) -> Result<ForceScaleCensus, FrameKernelError> {
     let mut census = ForceScaleCensus::new();
     for element in case.frames {
         census.frame(element)?;
-    }
-    for element in case.users {
-        census.user(element);
     }
     for connector in case.connectors {
         census.connector(connector)?;
@@ -2059,10 +1932,9 @@ fn evaluate_force_scaled(
             stiffness: slot.global_stiffness,
         })
         .collect();
-    let stiffness = assemble_sparse_stiffness_with_connectors(
+    let stiffness = assemble_sparse_stiffness(
         case.node_count,
         case.frames,
-        case.users,
         case.connectors,
         &blocks,
         case.springs,
@@ -2082,10 +1954,9 @@ fn evaluate_force_scaled(
     }
     let free: Vec<usize> = (0..boundary.len()).filter(|&dof| !boundary[dof]).collect();
     let solved = match case.representation {
-        EvidenceRepresentation::Dense => AssemblyEvidence::new_force_scaled_with_connectors(
+        EvidenceRepresentation::Dense => AssemblyEvidence::new_force_scaled(
             case.node_count,
             case.frames,
-            case.users,
             case.connectors,
             case.curved,
             case.springs,
@@ -2104,11 +1975,10 @@ fn evaluate_force_scaled(
             )
         }),
         EvidenceRepresentation::Pattern => {
-            SparseAssemblyEvidence::new_force_scaled_with_connectors(
+            SparseAssemblyEvidence::new_force_scaled(
                 stiffness.pattern(),
                 case.node_count,
                 case.frames,
-                case.users,
                 case.connectors,
                 case.curved,
                 case.springs,
@@ -2771,7 +2641,7 @@ pub(crate) fn scrutinize_gaps(
         .nonlinear_supports
         .iter()
         .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
-        || !input.user_stiffness_elements.is_empty()
+        || !input.connectors.is_empty()
         || !input.connectors.is_empty()
         || !input.curved_bend_elements.is_empty()
         || !assembly.qualified_passive_family()
@@ -3180,7 +3050,6 @@ mod retention_tests {
         NonlinearFrameSolveInput {
             node_count: 3,
             elements,
-            user_stiffness_elements: vec![],
             connectors: Vec::new(),
             curved_bend_elements: vec![],
             force,
@@ -3233,7 +3102,7 @@ mod retention_tests {
                 StrictGapEvidence::Qualified(r) => r,
                 other => panic!("{other:?}"),
             };
-            let stiffness = crate::assemble_global_stiffness_with_user_elements(
+            let stiffness = crate::assemble_global_stiffness_with_connectors(
                 input.node_count,
                 &input.elements,
                 &[],
@@ -3369,7 +3238,7 @@ mod retention_tests {
                 report.ordinary_equilibrium_report(),
                 report.selected_equilibrium_report()
             ));
-            let stiffness = crate::assemble_global_stiffness_with_user_elements(
+            let stiffness = crate::assemble_global_stiffness_with_connectors(
                 input.node_count,
                 &input.elements,
                 &[],

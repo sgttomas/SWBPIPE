@@ -48,9 +48,9 @@ use open_pipe_stress_frame_kernel::structural::{
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
 };
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, element_dof_map, force_scaled_spring_action,
+    assemble_global_stiffness_with_connectors, element_dof_map, force_scaled_spring_action,
     reduce_assembled_system, reduce_assembled_system_with_prescribed_displacements, solve_dense,
-    ForceScale, FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement,
+    ForceScale, FrameElement, FrameKernelError, FrameNode, Matrix12,
     DOF_PER_NODE, ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
@@ -111,6 +111,7 @@ mod membrane_publication_range;
 mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
+mod joint;
 mod pressure_runtime;
 mod preview_physics;
 mod retained_product;
@@ -1003,7 +1004,14 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
     if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        return exact_admission::pressure_v3_formulation_basis(case_state::is_load_state(model));
+        let mut basis =
+            exact_admission::pressure_v3_formulation_basis(case_state::is_load_state(model));
+        // T4-U3: a model with an objective connector states its law; a model
+        // without one keeps v3's text unchanged.
+        if model.components.iter().any(|c| c.objective_connector.is_some()) {
+            basis.limitations.push(joint::CONNECTOR_LIMITATION.to_string());
+        }
+        return basis;
     }
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
@@ -1210,7 +1218,12 @@ fn formation_entity_bodies(
     bodies: &formation_guard::Bodies,
 ) -> HashMap<String, usize> {
     let mut map = HashMap::new();
+    let replaced = replaced_span_ids_of(built);
     for pipe in &built.pipes {
+        // T4-U3 (S21): a replaced span publishes no row and has no body.
+        if replaced.contains(&pipe.element_id) {
+            continue;
+        }
         if let Some(body) = bodies.body_of_node(pipe.node_i.index) {
             map.insert(pipe.element_id.clone(), body);
         }
@@ -1229,16 +1242,19 @@ fn formation_entity_bodies(
 }
 
 /// S11-G: the case's bodies for the guards' scales (DESIGN section 4.1.6.1
-/// item 1: straight members, curved spans and user stiffness elements).
+/// item 1: straight members, curved spans and objective connectors).
 fn formation_bodies(built: &BuiltModel) -> formation_guard::Bodies {
     let coordinates = built
         .nodes
         .iter()
         .map(|n| n.coordinates)
         .collect::<Vec<_>>();
+    // T4-U3 (S12): the connector's edge replaces its span's.
+    let replaced = replaced_span_ids_of(built);
     let edges = built
         .pipes
         .iter()
+        .filter(|p| !replaced.contains(&p.element_id))
         .map(|p| (p.node_i.index, p.node_j.index))
         .chain(
             built
@@ -1248,9 +1264,9 @@ fn formation_bodies(built: &BuiltModel) -> formation_guard::Bodies {
         )
         .chain(
             built
-                .user_stiffness_elements
+                .connectors
                 .iter()
-                .map(|e| (e.node_i.index, e.node_j.index)),
+                .map(|c| (c.node_i().index, c.node_j().index)),
         )
         .collect::<Vec<_>>();
     formation_guard::Bodies::new(&coordinates, &edges)
@@ -1460,8 +1476,7 @@ fn force_scaling_attempt(
     let case = ForceScalingCase {
         node_count: built.nodes.len(),
         frames: &built.frame_elements,
-        users: &built.user_stiffness_elements,
-        connectors: &[],
+        connectors: &built.connectors,
         curved: &curved,
         curved_sources: &curved_sources,
         springs: &springs,
@@ -1562,8 +1577,9 @@ fn force_scaling_admission(
             open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(_)
         ) && authored_nodal.contains(term.source.as_str())
     };
-    let family = if !built.user_stiffness_elements.is_empty() {
-        Some("user_stiffness_element")
+    // T4-U3 (S9): a connector model is outside the declared F1b subset.
+    let family = if !built.connectors.is_empty() {
+        Some("objective_connector")
     } else if !built.curved_bend_elements.is_empty() {
         Some("curved_bend_macro_element")
     } else if !thermal_loads.is_empty() {
@@ -2054,7 +2070,11 @@ struct BuiltModel {
     nodes: Vec<FrameNode>,
     pipes: Vec<StraightPipeElement>,
     frame_elements: Vec<FrameElement>,
-    user_stiffness_elements: Vec<UserStiffnessElement>,
+    /// T4-U3: the objective connectors, in model order (by reference in the
+    /// retained census; unpriced).
+    connectors: Vec<open_pipe_stress_frame_kernel::connector::ObjectiveConnector>,
+    /// T4-U3: each connector's component and replaced span, in the same order.
+    connector_records: Vec<joint::ConnectorRecord>,
     curved_bend_elements: Vec<CurvedBendMacroBuild>,
     supports: Vec<LinearSupport>,
     nonlinear_supports: Vec<NonlinearSupport>,
@@ -2418,9 +2438,6 @@ fn run_linear_static_preview_observed(
     if !load_state {
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
-    // T0R (M07 routed to T4): the unqualified joint-coupling refusal applies
-    // to every route, the resolved load/reference-state route included.
-    preview_physics::refuse_unqualified_joint_elements(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -2436,6 +2453,10 @@ fn run_linear_static_preview_observed(
             })
             .collect::<Vec<_>>();
         if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
+            return blocked_envelope(model, diagnostics);
+        }
+        joint::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
+        if has_blocking(&diagnostics) {
             return blocked_envelope(model, diagnostics);
         }
         Some(resolved)
@@ -2785,9 +2806,10 @@ fn run_linear_static_preview_observed(
         }
     };
     append_combination_modulus_basis_records(&model, &mut results);
+    // H-4: the key is kept; since T4-U3 it counts the curved macro-element rows
+    // only (the joint review rows are no longer produced).
     let component_user_stiffness_macro_element_count =
-        append_expansion_joint_user_stiffness_results(&model, &mut results)
-            + append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
+        append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
     let spring_hanger_user_input_count =
         append_spring_hanger_user_input_results(&model, &mut results);
 
@@ -3547,7 +3569,7 @@ fn assemble_basis_stiffness(
     assemble_sparse_stiffness(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &blocks,
         &springs,
         &SparseAssemblyOptions::new(),
@@ -3769,10 +3791,10 @@ fn assemble_case_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
 ) -> Result<Vec<Vec<f64>>, FrameKernelError> {
-    let mut stiffness = assemble_global_stiffness_with_user_elements(
+    let mut stiffness = assemble_global_stiffness_with_connectors(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
     )?;
     add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
     for spring in springs {
@@ -3880,6 +3902,7 @@ fn case_force_ledger(
     if let Some(exact) = exact_pressure {
         push_exact_pressure_operands(&mut ledger, exact);
     }
+    add_connector_reference_loads(&mut ledger, built, load_case_id, diagnostics);
     // DEC-049 constant-effort consumption enters here — the one assembled
     // force-vector seam shared by the dense, sparse, and nonlinear
     // active-set solve paths.
@@ -3903,6 +3926,123 @@ pub(crate) fn nodal_and_eigen_case_force(
 
 /// S11 section 4.2: each exact-pressure source group's operand, never the
 /// group's pre-summed per-DOF total.
+/// The replaced spans of a built model (S20/S21 lookup set), by pipe ID.
+fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<String> {
+    built.connector_records.iter().map(|r| r.span_id.clone()).collect()
+}
+
+/// T4-U3 (S14): each connector's recovered rows for one case, from the solved
+/// displacements: q − q_ref, g and the global end actions (node on element),
+/// each component one exact sum rounded once. A declared coverage limit:
+/// these rows are outside R-b′ and the straight-member recovery bound.
+fn append_connector_results(
+    built: &BuiltModel,
+    displacements: &[f64],
+    load_case_id: &str,
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    for (connector, record) in built.connectors.iter().zip(&built.connector_records) {
+        let recovered = connector
+            .element_displacements(displacements)
+            .ok_or(FrameKernelError::NonFiniteInput { name: "connector displacements", value: f64::NAN })
+            .and_then(|d| connector.recover(&d));
+        let recovery = match recovered {
+            Ok(recovery) => recovery,
+            Err(error) => {
+                diagnostics.push(diag(
+                    &format!("diagnostic:joint:{}:{}:recovery", stable_suffix(load_case_id), stable_suffix(&record.component_id)),
+                    "ELEMENT_FORCE_RECOVERY_FAILED",
+                    "blocking",
+                    format!("objective connector {} cannot be recovered: {error}", record.component_id),
+                    vec![record.component_id.clone(), load_case_id.to_string()],
+                ));
+                continue;
+            }
+        };
+        for (kind, components, unit, values, location) in joint::connector_rows(&recovery) {
+            for (component, value) in components.iter().zip(values) {
+                results.push(ResultItem {
+                    id: format!(
+                        "result:connector:{}:{}:{location}:{}",
+                        stable_suffix(&record.component_id),
+                        kind.trim_end_matches("_v1").replace('_', "-"),
+                        component.to_ascii_lowercase()
+                    ),
+                    kind: kind.to_string(),
+                    value,
+                    unit: unit.to_string(),
+                    entity_ref: record.component_id.clone(),
+                    basis_ref: None,
+                    source_result_refs: Vec::new(),
+                    metadata: Some(ResultMetadata {
+                        component: component.to_string(),
+                        coordinate_system: if location == "connector_local" { "connector_axes_q" } else { "global" }.to_string(),
+                        location: location.to_string(),
+                        basis: format!("objective_connector_v1;replaces_span={};symmetric_midpoint_small_rotation_v1", record.span_id),
+                        sign_convention: if location == "connector_local" {
+                            "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
+                        } else {
+                            "global end action of the connector on its node (node on element), f = B^T g"
+                        }
+                        .to_string(),
+                    }),
+                });
+            }
+        }
+    }
+}
+
+/// T4-U3 (S13): each connector's installed-state assembly load +BᵀK q_ref,
+/// one formed term per nonzero DOF, bounded by `connector_reference_load_bound`
+/// from the held operands, and self-equilibrated (it is the action of a
+/// stress-free-referenced internal element on its own two nodes). A
+/// connector with K q_ref = 0 exactly has no term (N-7).
+fn add_connector_reference_loads(
+    ledger: &mut LoadLedger,
+    built: &BuiltModel,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    use open_pipe_stress_frame_kernel::connector::connector_reference_load_bound;
+    for (connector, record) in built.connectors.iter().zip(&built.connector_records) {
+        let formed = connector.reference_load().and_then(|load| {
+            Ok(match load {
+                Some(load) => Some((load.values, connector_reference_load_bound(connector)?)),
+                None => None,
+            })
+        });
+        let (values, bounds) = match formed {
+            Ok(Some(formed)) => formed,
+            Ok(None) => continue,
+            Err(error) => {
+                diagnostics.push(diag(
+                    &format!("diagnostic:joint:{}:{}:reference-load", stable_suffix(load_case_id), stable_suffix(&record.component_id)),
+                    "OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE",
+                    "blocking",
+                    format!("objective connector {}'s reference load cannot be formed: {error}", record.component_id),
+                    vec![record.component_id.clone(), load_case_id.to_string()],
+                ));
+                continue;
+            }
+        };
+        let dofs = element_dof_map(connector.node_i().index, connector.node_j().index);
+        for ((&dof, &value), &bound) in dofs.iter().zip(&values).zip(&bounds) {
+            if value == 0.0 {
+                continue;
+            }
+            ledger.push_formed(
+                format!("connector_reference:{}", record.component_id),
+                dof,
+                value,
+                Formation::Bounded { bound },
+                0.0,
+                true,
+            );
+        }
+    }
+}
+
 fn push_exact_pressure_operands(
     ledger: &mut LoadLedger,
     exact: &pressure_runtime::ExactPressureCase,
@@ -4441,7 +4581,7 @@ fn solve_load_case_observed(
             None
         }
         Err(OrdinaryFailure::Structural(error))
-            if open_pipe_stress_nonlinear_integration::structural_adapter::permits_contact_seed_trial(&error, built.user_stiffness_elements.is_empty() && built.curved_bend_elements.is_empty()) && eligible_contact_dofs(
+            if open_pipe_stress_nonlinear_integration::structural_adapter::permits_contact_seed_trial(&error, built.connectors.is_empty() && built.curved_bend_elements.is_empty()) && eligible_contact_dofs(
                 built.nodes.len(),
                 restrained_dofs,
                 &built.nonlinear_supports,
@@ -4934,6 +5074,11 @@ fn solve_load_case_observed(
     let mut unavailable_stress_maximum_members = Vec::new();
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
+        // T4-U3 (S20): a replaced span has no member rows, maxima or
+        // recovery record; its connector's rows follow the loop.
+        if built.connector_records.iter().any(|r| r.span_index == pipe_index) {
+            continue;
+        }
         let macro_bend = curved_bends_by_pipe.get(&pipe_index).copied();
         let uniform_intensities = curved_bend_uniform_intensities
             .get(&pipe_index)
@@ -5582,6 +5727,7 @@ fn solve_load_case_observed(
     if pressure_runtime::is_exact(model) && !unavailable_stress_maximum_members.is_empty() {
         max_stress = None;
     }
+    append_connector_results(built, &displacements, &load_case.id, &mut results, diagnostics);
     let exact_case_evidence = pressure_runtime::is_exact(model).then(|| {
         let mut evidence = serde_json::json!({
         "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
@@ -5606,11 +5752,18 @@ fn solve_load_case_observed(
             evidence["material_basis"] = serde_json::json!("resolved_per_member_load_reference_state_v1");
             evidence["pipe_materials"] = load_state_pipe_materials(state);
         }
+        // T4-U3 (S21): no replaced span in any per-pipe evidence list.
+        joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
         evidence
     });
     let source_selected = selected_source.is_some();
-    let load_state_evidence =
-        load_state.map(|state| load_state_case_record(state, solver_mode, source_selected));
+    let load_state_evidence = load_state.map(|state| {
+        let mut record = load_state_case_record(state, solver_mode, source_selected);
+        // T4-U3 (S21, RV6 C-2): the replaced span's resolved member record and
+        // eigenstrain contribution are not published (it is still resolved).
+        joint::exclude_replaced_spans(&mut record, &replaced_span_ids_of(built));
+        record
+    });
     // Retained-source custody/finalization re-derives each case through the
     // same pipeline that produced it: the resolver for 0.4.0, the case-wide
     // material methods otherwise.
@@ -5777,8 +5930,7 @@ fn append_nonlinear_support_loop_results(
     let input = NonlinearFrameSolveInput {
         node_count: built.nodes.len(),
         elements: built.frame_elements.clone(),
-        user_stiffness_elements: built.user_stiffness_elements.clone(),
-        connectors: Vec::new(),
+        connectors: built.connectors.clone(),
         curved_bend_elements: curved_bend_stiffness_elements,
         // The loop's base force is the ledger's net (S11 section 8.2); the
         // typed entry below checks this copy against it bit for bit.
@@ -6124,7 +6276,7 @@ fn solve_preview_reduced_system(
         stiffness.pattern(),
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &curved,
         &springs,
     )?;
@@ -6158,7 +6310,7 @@ fn solve_preview_reduced_system(
     let direct = assemble_reduced_sparse_entry_system(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &built.curved_bend_elements,
         spring_entries,
         observation_force,
@@ -6279,7 +6431,7 @@ fn append_sparse_live_path_evidence(
     let direct_system = match assemble_reduced_sparse_entry_system(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &built.curved_bend_elements,
         spring_entries,
         force,
@@ -6405,7 +6557,7 @@ struct ReducedSparseEntrySystem {
 fn assemble_reduced_sparse_entry_system(
     node_count: usize,
     frame_elements: &[FrameElement],
-    user_stiffness_elements: &[UserStiffnessElement],
+    connectors: &[open_pipe_stress_frame_kernel::connector::ObjectiveConnector],
     curved_bend_elements: &[CurvedBendMacroBuild],
     spring_entries: &[SpringEntry],
     force: &[f64],
@@ -6460,14 +6612,16 @@ fn assemble_reduced_sparse_entry_system(
             &element_stiffness,
         )?;
     }
-    for element in user_stiffness_elements {
-        validate_element_nodes(element.node_i.index, element.node_j.index, node_count)?;
-        let element_stiffness = element.global_stiffness()?;
+    // T4-U3 (S3): each connector's Ke after the frames (observation only).
+    for connector in connectors {
+        let (node_i, node_j) = (connector.node_i().index, connector.node_j().index);
+        validate_element_nodes(node_i, node_j, node_count)?;
+        let element_stiffness = connector.global_stiffness()?;
         append_reduced_element_entries(
             &mut entries,
             &global_to_reduced,
-            element.node_i.index,
-            element.node_j.index,
+            node_i,
+            node_j,
             &element_stiffness,
         )?;
     }
@@ -7232,6 +7386,10 @@ fn build_model_for_members(
     // build below emits blocking diagnostics for every insufficiency, so an
     // excluded span never silently loses stiffness.
     let curved_bend_pipe_ids = curved_bend_realized_pipe_ids(model);
+    // T4-U3 (S18, replaces_span): a span replaced by an objective connector
+    // is excluded from the frame assembly, as a curved span is; the
+    // connector carries the stiffness between its end nodes.
+    let replaced_span_ids = joint::replaced_span_ids(model);
     let mut pipes = Vec::new();
     let mut frame_elements = Vec::new();
     let mut sections = HashMap::new();
@@ -7346,7 +7504,9 @@ fn build_model_for_members(
                     continue;
                 }
             };
-        if !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+        if !curved_bend_pipe_ids.contains(pipe.id.as_str())
+            && !replaced_span_ids.contains(pipe.id.as_str())
+        {
             frame_elements.push(
                 element
                     .frame_element()
@@ -7357,8 +7517,30 @@ fn build_model_for_members(
         pipes.push(element);
     }
 
-    let user_stiffness_elements =
-        build_expansion_joint_user_stiffness_elements(model, &nodes, &node_map, diagnostics);
+    // T4-U3 (S1, S18): every admitted v3 connector is formed here or refused
+    // by code; none is skipped.
+    let mut connectors = Vec::new();
+    let mut connector_records = Vec::new();
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        for spec in joint::connector_specs(model) {
+            let span_index = pipes
+                .iter()
+                .position(|pipe: &StraightPipeElement| pipe.element_id == spec.span_id);
+            match (joint::build_connector(&spec, &nodes, &node_map), span_index) {
+                (Ok(connector), Some(span_index)) => {
+                    connectors.push(connector);
+                    connector_records.push(joint::ConnectorRecord {
+                        component_id: spec.component_id.clone(),
+                        span_id: spec.span_id.clone(),
+                        span_index,
+                    });
+                }
+                (Err(refusal), _) => diagnostics.push(refusal),
+                // The span's own pipe diagnostic is already blocking.
+                (Ok(_), None) => {}
+            }
+        }
+    }
     let curved_bend_elements = build_curved_bend_macro_elements(
         model,
         materials,
@@ -7437,7 +7619,8 @@ fn build_model_for_members(
         nodes,
         pipes,
         frame_elements,
-        user_stiffness_elements,
+        connectors,
+        connector_records,
         curved_bend_elements,
         supports,
         nonlinear_supports: nonlinear.supports,
@@ -7502,118 +7685,6 @@ fn rigid_linear_support_from_preview(
     }
 }
 
-fn build_expansion_joint_user_stiffness_elements(
-    model: &PreviewModel,
-    nodes: &[FrameNode],
-    node_map: &HashMap<&str, usize>,
-    diagnostics: &mut Vec<Diagnostic>,
-) -> Vec<UserStiffnessElement> {
-    let pipe_map = model
-        .pipe_segments
-        .iter()
-        .map(|pipe| (pipe.id.as_str(), pipe))
-        .collect::<HashMap<_, _>>();
-    let mut elements = Vec::new();
-
-    for component in model
-        .components
-        .iter()
-        .filter(|component| is_expansion_joint_component(component))
-    {
-        let solver_consumption = component
-            .mechanics_interface
-            .as_ref()
-            .and_then(|interface| interface.solver_consumption.as_deref())
-            .unwrap_or("not_provided");
-        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
-            continue;
-        }
-
-        let Some(geometry) = component.geometry.as_ref() else {
-            continue;
-        };
-        let Some(modifiers) = component.modifiers.as_ref() else {
-            continue;
-        };
-        let Some(pipe_ref) = geometry
-            .expansion_joint_pipe_ref
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-        else {
-            continue;
-        };
-        let Some(pipe) = pipe_map.get(pipe_ref) else {
-            continue;
-        };
-        let Some(&component_node_index) = node_map.get(component.node.as_str()) else {
-            continue;
-        };
-        let Some(&from_index) = node_map.get(pipe.from.as_str()) else {
-            continue;
-        };
-        let Some(&to_index) = node_map.get(pipe.to.as_str()) else {
-            continue;
-        };
-        let other_node_index = if component_node_index == from_index {
-            to_index
-        } else if component_node_index == to_index {
-            from_index
-        } else {
-            continue;
-        };
-        let Some(y_reference) = pipe.y_reference else {
-            continue;
-        };
-        let Some(axial) = modifiers.axial_stiffness_user_value.as_ref() else {
-            continue;
-        };
-        let Some(lateral) = modifiers.lateral_stiffness_user_value.as_ref() else {
-            continue;
-        };
-        let Some(angular) = modifiers.angular_stiffness_user_value.as_ref() else {
-            continue;
-        };
-        let Some(torsional) = modifiers.torsional_stiffness_user_value.as_ref() else {
-            continue;
-        };
-
-        match UserStiffnessElement::new(
-            nodes[other_node_index],
-            nodes[component_node_index],
-            [y_reference.x, y_reference.y, y_reference.z],
-            axial.value,
-            lateral.value,
-            angular.value,
-            torsional.value,
-        ) {
-            Ok(element) => elements.push(element),
-            Err(error) => diagnostics.push(expansion_joint_macro_element_diag(
-                component,
-                pipe_ref,
-                &error.to_string(),
-            )),
-        }
-    }
-
-    elements
-}
-
-fn expansion_joint_macro_element_diag(
-    component: &PreviewComponent,
-    pipe_ref: &str,
-    message: &str,
-) -> Diagnostic {
-    diag(
-        &format!(
-            "diagnostic:component:{}:macro-element",
-            stable_suffix(&component.id)
-        ),
-        "EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID",
-        "blocking",
-        message,
-        vec![component.id.clone(), pipe_ref.to_string()],
-    )
-}
 
 fn component_solver_consumption(component: &PreviewComponent, default: &'static str) -> String {
     component
@@ -11921,107 +11992,6 @@ fn append_component_stress_multiplier_result(
     ));
 }
 
-fn append_expansion_joint_user_stiffness_results(
-    model: &PreviewModel,
-    results: &mut Vec<ResultItem>,
-) -> usize {
-    let mut appended = 0;
-    for component in model
-        .components
-        .iter()
-        .filter(|component| is_expansion_joint_component(component))
-    {
-        let solver_consumption = component
-            .mechanics_interface
-            .as_ref()
-            .and_then(|interface| interface.solver_consumption.as_deref())
-            .unwrap_or("not_provided");
-        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
-            continue;
-        }
-        let Some(geometry) = component.geometry.as_ref() else {
-            continue;
-        };
-        let Some(modifiers) = component.modifiers.as_ref() else {
-            continue;
-        };
-        let Some(pipe_ref) = geometry
-            .expansion_joint_pipe_ref
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-        else {
-            continue;
-        };
-        let source_reference = modifiers
-            .source_reference
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or("source_reference_missing");
-        let entries = [
-            (
-                "axial",
-                "axial_user_stiffness",
-                "N/m",
-                modifiers.axial_stiffness_user_value.as_ref(),
-            ),
-            (
-                "lateral",
-                "lateral_user_stiffness",
-                "N/m",
-                modifiers.lateral_stiffness_user_value.as_ref(),
-            ),
-            (
-                "angular",
-                "angular_user_stiffness",
-                "N*m/rad",
-                modifiers.angular_stiffness_user_value.as_ref(),
-            ),
-            (
-                "torsional",
-                "torsional_user_stiffness",
-                "N*m/rad",
-                modifiers.torsional_stiffness_user_value.as_ref(),
-            ),
-        ];
-        for (axis, metadata_component, unit, quantity) in entries {
-            let Some(quantity) = quantity else {
-                continue;
-            };
-            if !positive_finite(quantity.value) {
-                continue;
-            }
-            let component_suffix = stable_suffix(&component.id);
-            let result_id = format!("result:component-stiffness:{component_suffix}:{axis}");
-            results.push(ResultItem {
-                id: result_id,
-                kind: "component_user_stiffness_macro_element_review".to_string(),
-                value: quantity.value,
-                unit: unit.to_string(),
-                entity_ref: component.id.clone(),
-                basis_ref: None,
-                source_result_refs: Vec::new(),
-                metadata: Some(ResultMetadata {
-                    component: metadata_component.to_string(),
-                    coordinate_system: "component_local_preview".to_string(),
-                    location: pipe_ref.to_string(),
-                    basis: format!(
-                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=none_pressure_refused_outside_the_exact_straight_contract;user_pressure_thrust_reference={}",
-                        geometry
-                            .pressure_thrust_reference
-                            .as_deref()
-                            .unwrap_or("load_side_pressure_thrust_reference_missing")
-                    ),
-                    sign_convention:
-                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; no joint pressure thrust is generated and no compliance claim is made"
-                            .to_string(),
-                }),
-            });
-            appended += 1;
-        }
-    }
-    appended
-}
-
 // DEC-070 review rows: state that the user-entered bend flexibility factor is
 // consumed by the assembled curved-bend macro-element (EJ precedent wording
 // style), and record the arc-geometry conventions and load/recovery decisions.
@@ -12259,10 +12229,6 @@ fn is_branch_component(component: &PreviewComponent) -> bool {
         component.kind.as_str(),
         "branch" | "tee" | "branch_connection"
     )
-}
-
-fn is_expansion_joint_component(component: &PreviewComponent) -> bool {
-    component.kind == "expansion_joint"
 }
 
 pub(crate) fn support_hanger_type(support: &PreviewSupport) -> Option<&str> {
@@ -14336,8 +14302,8 @@ mod tests {
             changed > 0 && changed <= 4,
             "expected named inherited fixture pressures for {purpose}"
         );
-        // T0R (M07 containment): omit the demo's realized joint C-150, which
-        // the ordinary route refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED).
+        // Omit the demo's legacy joint C-150, which every route refuses
+        // (LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED, D-4).
         input.model.components.retain(|component| component.id != "component:C-150");
         input
     }
@@ -15238,11 +15204,10 @@ mod tests {
             "../../../fixtures/product_preview/invented_preview_model.json"
         ))
         .map(|mut model: PreviewModel| {
-            // T0R (M07 containment): the ordinary route refuses a realized
-            // user-stiffness joint (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED): its
-            // lateral springs act over a length without the moment coupling.
-            // This shared test basis omits the demo's joint C-150; the refusal and
-            // the joint-specific assertions use `request_with_refused_joint()`.
+            // Every route refuses the demo's legacy joint C-150
+            // (LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED, D-4). This shared test
+            // basis omits it; the refusal assertions use
+            // `request_with_refused_joint()`.
             model.components.retain(|component| component.id != "component:C-150");
             LinearStaticPreviewRequest {
                 model,
@@ -17409,30 +17374,34 @@ mod tests {
 
     #[test]
     fn realized_user_stiffness_joint_is_refused_on_the_ordinary_route() {
-        // T0R (M07 containment; owner decision, option A): the ordinary route refuses
-        // the realized joint until T4 lands the corrected element.
+        // T4-U3 (D-4): the legacy four-rate joint is refused by name on every
+        // route, neither solved nor converted.
         let mut refused_input = request_with_refused_joint();
         for case in &mut refused_input.model.load_cases {
-            // The demo's legacy nonzero pressure is refused first; remove it here.
+            // The demo's legacy nonzero pressure is refused too; remove it here.
             case.primitive_loads.retain(|load| load.category != "pressure");
         }
         let refused = run_linear_static_preview(refused_input);
         assert_eq!(refused.status.mechanics, "MODEL_INCOMPLETE");
         assert!(refused.results.is_empty());
-        assert!(refused.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
-            && d.affected_refs == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]));
+        let blocking = refused
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == "blocking")
+            .collect::<Vec<_>>();
+        assert_eq!(blocking.len(), 1, "{blocking:?}");
+        assert_eq!(blocking[0].code, "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED");
+        assert_eq!(blocking[0].affected_refs, vec!["component:C-150".to_string(), "pipe:P-130".to_string()]);
+        for text in ["component:C-150", "pipe:P-130", "neither solved nor converted", "6x6 scaled work matrix", "replaces_span", "hardware", "pressure model"] {
+            assert!(blocking[0].message.contains(text), "{text}: {}", blocking[0].message);
+        }
     }
 
     #[test]
     fn flexibility_joint_missing_a_user_stiffness_is_refused_not_dropped() {
-        // G11 (I111): a joint declaring mechanics_geometry_and_user_flexibility
-        // without its lateral value passed the M07 refusal, the element builder
-        // skipped it silently, and the model solved without the joint while the
-        // joint's review rows said its stiffness was consumed by the assembled
-        // element. The builder needs all four values, so a missing one refuses.
-        // When another value is missing, the lateral value is set to zero so that
-        // M07 (which keys on a nonzero lateral value) cannot mask the defect
-        // (RV127 A1-N-4); a zero value is itself refused once an element forms.
+        // G11 (I111), T4-U3 (D-4): a legacy joint with any subset of its four
+        // rates is refused by the legacy code, never skipped or solved as pipe,
+        // and no joint review row is produced.
         let consumed = |output: &MechanicsEnvelope| {
             output
                 .results
@@ -17465,9 +17434,8 @@ mod tests {
             }
             let output = run_linear_static_preview(input);
             let refused = output.diagnostics.iter().any(|d| {
-                d.code == "JOINT_ELEMENT_STIFFNESS_INCOMPLETE"
+                d.code == "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED"
                     && d.severity == "blocking"
-                    && d.message.contains(&format!("no user-entered {missing} stiffness"))
                     && d.affected_refs
                         == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]
             });
@@ -17487,13 +17455,9 @@ mod tests {
 
     #[test]
     fn flexibility_joint_with_an_unresolved_mapping_is_refused_not_dropped() {
-        // G11, extended by ROOT: the element builder also skips a joint whose pipe
-        // or node does not resolve, so the model solved without the joint while
-        // its review rows said its stiffness was consumed. The lateral value is
-        // set to zero so that M07 (which keys on a nonzero lateral value over a
-        // resolved pipe) cannot mask the defect (RV127 A1-N-4); a zero value is
-        // itself refused once an element forms. Every case is now refused by
-        // name, before M07.
+        // G11, T4-U3 (D-4): a legacy joint whose pipe or node does not resolve
+        // is refused by the legacy code, refs [component, pipe] (or [component]
+        // when it names no pipe), never skipped.
         let consumed = |output: &MechanicsEnvelope| {
             output
                 .results
@@ -17533,7 +17497,7 @@ mod tests {
             let refusal = output
                 .diagnostics
                 .iter()
-                .find(|d| d.code == "JOINT_ELEMENT_MAPPING_UNRESOLVED" && d.severity == "blocking")
+                .find(|d| d.code == "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED" && d.severity == "blocking")
                 .map(|d| d.affected_refs.clone());
             observed.push((
                 case,
@@ -17559,14 +17523,12 @@ mod tests {
 
     #[test]
     fn flexibility_joint_pipe_without_orientation_or_a_known_end_is_refused_by_the_pipe() {
-        // G11, extended by ROOT: the builder's other two skips, a joint pipe
-        // without y_reference and a joint pipe whose end node is unknown, cannot
-        // drop the joint silently: the pipe itself is refused, by name. A zero
-        // lateral value keeps the M07 refusal, which runs first, out of the way
-        // (the zero value is itself refused when an element is assembled).
+        // G11, T4-U3 (D-4): a legacy joint whose pipe has no y_reference or an
+        // unknown end node cannot drop the joint silently: the legacy refusal
+        // runs first, refs [component, pipe].
         for (case, code) in [
-            ("no y_reference", "PIPE_ORIENTATION_INPUT_MISSING"),
-            ("unknown end node", "PIPE_ENDPOINT_UNKNOWN"),
+            ("no y_reference", "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED"),
+            ("unknown end node", "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED"),
         ] {
             let mut input = request_with_refused_joint();
             for load_case in &mut input.model.load_cases {
@@ -17597,7 +17559,7 @@ mod tests {
             assert!(
                 output.diagnostics.iter().any(|d| d.code == code
                     && d.severity == "blocking"
-                    && d.affected_refs.first().map(String::as_str) == Some("pipe:P-130")),
+                    && d.affected_refs == ["component:C-150", "pipe:P-130"]),
                 "{case}: {:?}",
                 output.diagnostics.iter().map(|d| &d.code).collect::<Vec<_>>()
             );

@@ -357,8 +357,6 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
             (simple(base, "component:specialty", "specialty"), "rigid or specialty"),
             (simple(base, "component:other", "other"), "component"),
             (annotation_joint(base), "expansion joint (annotation only"),
-            (legacy_joint(base), "legacy expansion joint"),
-            (connector(base), "objective connector"),
         ];
         let mut cases = components
             .into_iter()
@@ -392,6 +390,83 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                 assert!(message.contains(name), "{name}: {message}");
                 assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
             }
+        }
+    }
+}
+
+/// T4-U3 (D-4): a legacy joint takes `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`
+/// (refs [component, pipe]) on v2 and v3 alike, first and alone: the seam skips
+/// it, so neither the v2 composition code nor the v3 family code names it. An
+/// explicit annotation is exempt from the legacy code even when it carries a
+/// pipe reference: v2 gives the composition refusal, v3 the seam's.
+#[test]
+fn legacy_joints_take_the_legacy_code_and_annotations_the_route_refusal() {
+    const LEGACY: &str = "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED";
+    for base in [Base::X0, Base::Y0] {
+        for document in [base.v2(), base.v3()] {
+            let mut document = document;
+            push(&mut document, "components", legacy_joint(base));
+            for envelope in run_all(&document) {
+                assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE");
+                let blocking = diagnostics(&envelope)
+                    .iter()
+                    .filter(|d| d["severity"] == "blocking")
+                    .collect::<Vec<_>>();
+                assert_eq!(blocking.len(), 1, "{blocking:#?}");
+                assert_eq!(blocking[0]["code"], LEGACY);
+                assert_eq!(blocking[0]["affected_refs"], json!(["component:joint-legacy", base.region_pipe()]));
+            }
+        }
+        let mut annotation_with_pipe = annotation_joint(base);
+        annotation_with_pipe["geometry"] = json!({"expansion_joint_pipe_ref": base.region_pipe()});
+        for annotation in [annotation_joint(base), annotation_with_pipe] {
+            let mut v2 = base.v2();
+            push(&mut v2, "components", annotation.clone());
+            for envelope in run_all(&v2) {
+                assert!(has_code(&envelope, COMPOSITION));
+                assert!(!has_code(&envelope, LEGACY) && !has_code(&envelope, "EXPANSION_JOINT_ANNOTATION_ONLY"));
+            }
+            let mut v3 = base.v3();
+            push(&mut v3, "components", annotation);
+            for envelope in run_all(&v3) {
+                assert_v3_blocked(&envelope, base);
+                let message = finding(&envelope, FAMILY, &["component:joint-annotation"])["message"].to_string();
+                assert!(message.contains("annotation-only joints are analysed as pipe on the pressure-free route only"), "{message}");
+                assert!(!has_code(&envelope, LEGACY) && !has_code(&envelope, "EXPANSION_JOINT_ANNOTATION_ONLY"));
+            }
+        }
+    }
+}
+
+/// T4-U3: on v3 the objective connector is admitted at the seam and goes to
+/// its own classifier: an incomplete record, or one with a contradictory
+/// `solver_consumption` (N-6), is `OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE`,
+/// never the seam's family refusal. v2 keeps its connector codes.
+#[test]
+fn v3_connectors_reach_their_classifier_not_the_family_refusal() {
+    const INCOMPLETE: &str = "OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE";
+    for base in [Base::X0, Base::Y0] {
+        let mut annotated = connector(base);
+        annotated["mechanics_interface"] = json!({"solver_consumption": "not_solver_consumed"});
+        for component in [connector(base), annotated] {
+            let mut v3 = base.v3();
+            push(&mut v3, "components", component);
+            for envelope in run_all(&v3) {
+                assert_v3_blocked(&envelope, base);
+                assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+                let found = diagnostics(&envelope)
+                    .iter()
+                    .filter(|d| d["code"] == INCOMPLETE)
+                    .collect::<Vec<_>>();
+                assert_eq!(found.len(), 1, "{:#?}", envelope["diagnostics"]);
+                assert_eq!(found[0]["affected_refs"], json!(["component:connector", "objective_connector"]));
+            }
+        }
+        let mut v2 = base.v2();
+        push(&mut v2, "components", connector(base));
+        for envelope in run_all(&v2) {
+            assert!(has_code(&envelope, "OBJECTIVE_CONNECTOR_NOT_IMPLEMENTED") && has_code(&envelope, COMPOSITION));
+            assert!(!has_code(&envelope, INCOMPLETE));
         }
     }
 }

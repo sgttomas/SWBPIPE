@@ -1791,7 +1791,6 @@ fn assembled_axial_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -1832,7 +1831,6 @@ fn assembled_xy_tip_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -1874,7 +1872,6 @@ fn assembled_two_span_xy_input(
     NonlinearFrameSolveInput {
         node_count: 3,
         elements: vec![element_i_mid, element_mid_j],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -1919,7 +1916,6 @@ fn assembled_xyz_tip_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -1960,7 +1956,6 @@ fn assembled_xyz_rz_tip_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -1998,7 +1993,6 @@ fn assembled_ux_rz_tip_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,
@@ -2037,7 +2031,6 @@ fn assembled_uy_rz_tip_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
-        user_stiffness_elements: Vec::new(),
         connectors: Vec::new(),
         curved_bend_elements: Vec::new(),
         force,

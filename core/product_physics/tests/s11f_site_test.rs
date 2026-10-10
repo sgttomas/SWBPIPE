@@ -219,6 +219,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", "curved thermal: push_formed_product(K_rc, fl(eps*chord_c)) per nonzero column (S11-G: the same exact product term)"),
     ("PP/lib.rs", "push_exact_pressure_operands", "exact pressure: each source group's operand"),
     ("PP/lib.rs", "add_constant_effort_support_loads", "constant effort: one term per application"),
+    ("PP/lib.rs", "add_connector_reference_loads", "T4-U3 (S13): each connector's +B^T K q_ref, one formed term per nonzero DOF"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
     ("PP/source_recovery.rs", "close_load_state", "T1 site (section 4.5): the retained eigen terms, the same terms the product pushes"),
 ];
@@ -508,7 +509,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_curved_bend_stiffness_contributions", 1, "stiffness assembly"),
     ("PP/lib.rs", "append_component_stress_multiplier_results", 1, "integer: appended count"),
     ("PP/lib.rs", "append_curved_bend_macro_element_results", 1, "integer: appended count"),
-    ("PP/lib.rs", "append_expansion_joint_user_stiffness_results", 1, "integer: appended count"),
     ("PP/lib.rs", "append_nonlinear_residual_observation_results", 3, "max folds of residual observations"),
     ("PP/lib.rs", "append_spring_hanger_user_input_results", 3, "integer: appended count"),
     ("PP/lib.rs", "assemble_case_stiffness", 1, "stiffness assembly (spring diagonal)"),
@@ -536,6 +536,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", 0, "producer"),
     ("PP/lib.rs", "push_exact_pressure_operands", 0, "producer"),
     ("PP/lib.rs", "add_constant_effort_support_loads", 0, "producer"),
+    ("PP/lib.rs", "add_connector_reference_loads", 0, "producer"),
     // ---- PP/pressure_runtime.rs
     ("PP/pressure_runtime.rs", "finish_source_groups", 1, "max fold of the pressure-RHS screen magnitude"),
     ("PP/pressure_runtime.rs", "traverse_region", 1, "geometry: chord projection (section 2.5)"),
@@ -1379,6 +1380,12 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
         "formed: exact-pressure group operand, Bounded (gamma_20, counted from the source)",
         &["Formation::Bounded", "exact_pressure_operand_bound("],
         Some(&["false"]),
+    ),
+    (
+        "add_connector_reference_loads",
+        "formed: T4-U3 connector +B^T K q_ref, Bounded from the held operands (S13), self-equilibrated",
+        &["Formation::Bounded", "connector_reference_load_bound("],
+        Some(&["true"]),
     ),
 ];
 

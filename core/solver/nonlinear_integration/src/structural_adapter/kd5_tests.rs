@@ -51,7 +51,6 @@ pub(crate) const MODES: [LinearSolveMode; 2] = [
 
 pub(crate) struct Built {
     pub(crate) frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
     connectors: Vec<ObjectiveConnector>,
     macros: Vec<CurvedBendMacroElement>,
     slots: Vec<CurvedBendStiffnessElement>,
@@ -72,7 +71,6 @@ impl Built {
         let section = FrameSection::new(s.e, s.g, s.a, s.i, s.i, s.j).unwrap();
         let mut built = Built {
             frames: Vec::new(),
-            users: Vec::new(),
             connectors: Vec::new(),
             macros: Vec::new(),
             slots: Vec::new(),
@@ -144,10 +142,9 @@ impl Built {
         self.free = (0..n).filter(|d| !rigid.contains(d)).collect();
     }
     pub(crate) fn assembly(&self) -> AssemblyEvidence {
-        AssemblyEvidence::new_with_connectors(
+        AssemblyEvidence::new(
             self.node_count,
             &self.frames,
-            &self.users,
             &self.connectors,
             &self.slots,
             &self.springs,
@@ -567,86 +564,6 @@ fn kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed() {
     }
 }
 
-/// Two collinear frames joined by an expansion joint (a user-stiffness
-/// element), anchors at both ends, an axial pull and a transverse load.
-fn joint_model(lateral: f64) -> Built {
-    let section = FrameSection::new(
-        F122.section.e,
-        F122.section.g,
-        F122.section.a,
-        F122.section.i,
-        F122.section.i,
-        F122.section.j,
-    )
-    .unwrap();
-    let points = [
-        [0.0, 0.0, 0.0],
-        [3.0, 1.5, 0.0],
-        [3.2, 1.6, 0.0],
-        [6.2, 3.1, 0.0],
-    ];
-    let node = |i: usize| FrameNode::new(i, points[i]).unwrap();
-    let y = [0.0, 0.0, 1.0];
-    let frames = vec![
-        FrameElement::new(node(0), node(1), section, y).unwrap(),
-        FrameElement::new(node(2), node(3), section, y).unwrap(),
-    ];
-    // Struct literal: `UserStiffnessElement::new` refuses lateral = 0, the only
-    // form the ordinary route realizes (lateral ≠ 0 is refused in the product).
-    let joint = UserStiffnessElement {
-        node_i: node(1),
-        node_j: node(2),
-        y_reference: y,
-        axial_stiffness: 2.5e6,
-        lateral_stiffness: lateral,
-        angular_stiffness: 4.0e4,
-        torsional_stiffness: 6.0e4,
-    };
-    let mut built = Built {
-        frames: frames.clone(),
-        users: vec![joint],
-        connectors: Vec::new(),
-        macros: Vec::new(),
-        slots: Vec::new(),
-        springs: Vec::new(),
-        node_count: 4,
-        k: vec![vec![0.0; 24]; 24],
-        f: vec![0.0; 24],
-        free: Vec::new(),
-        prescribed: Vec::new(),
-    };
-    for e in &frames {
-        built.scatter(
-            e.node_i.index,
-            e.node_j.index,
-            &e.global_stiffness().unwrap(),
-        );
-    }
-    built.scatter(1, 2, &joint.global_stiffness().unwrap());
-    built.f[6] = 1000.0;
-    built.f[6 + 2] = -500.0;
-    built.f[12 + 1] = 300.0;
-    built.f[12 + 2] = -500.0;
-    built.set_boundary(&[0, 1, 2, 3, 4, 5, 18, 19, 20, 21, 22, 23]);
-    built
-}
-
-#[test]
-fn kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed() {
-    let zero = joint_model(0.0);
-    let nonzero = joint_model(1.0e5);
-    for mode in MODES {
-        let plain = zero.plain(mode);
-        assert_eq!(plain.report.quality, SolveQuality::Passed, "{mode:?}");
-        assert_unchanged(&plain, &zero.checked(mode));
-        let plain = nonzero.plain(mode);
-        assert_eq!(plain.report.quality, SolveQuality::Passed, "{mode:?}");
-        let checked = nonzero.checked(mode);
-        assert_demoted_only_in_quality(&plain, &checked);
-        assert!(unavailable_detail(&checked).starts_with("user_stiffness_lateral_nonzero:"));
-    }
-}
-
 #[test]
 fn kd5_not_selected_invocation_runs_the_unchanged_solve_assembled() {
     // ROOT: an invocation with a nonlinear support is never selected. The
@@ -710,7 +627,6 @@ fn connector_model(x0: f64, perturbed: bool) -> Built {
     assert_eq!(ke[3][3], max);
     let mut built = Built {
         frames: Vec::new(),
-        users: Vec::new(),
         connectors: vec![connector],
         macros: Vec::new(),
         slots: Vec::new(),

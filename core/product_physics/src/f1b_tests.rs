@@ -160,7 +160,7 @@ fn declared_subset() -> Vec<(&'static str, Value)> {
     vec![
         ("k-d5 curved elbow", curved_elbow_request()),
         (
-            "invented preview model (curved bends, user element, nonlinear supports)",
+            "invented preview model (curved bends, an unbuilt legacy joint, nonlinear supports)",
             parse(include_str!(
                 "../../../fixtures/product_preview/invented_preview_model.json"
             )),
@@ -190,7 +190,18 @@ fn declared_subset() -> Vec<(&'static str, Value)> {
             )),
         ),
         ("skew chain", chain_request(7)),
+        // T4-U3 (S-8): a v3 objective-connector model joins the subset.
+        ("v3 objective connector (T4-I12 U3-SYS-DEMO-CONNECTOR-001)", u3_connector_request()),
     ]
+}
+
+/// T4-I12's frozen U3-SYS-DEMO-CONNECTOR-001 document (3.0.0/exact_pressure_v3).
+fn u3_connector_request() -> Value {
+    let references: Value = serde_json::from_str(include_str!(
+        "../../../validation/references/t4_i12/u3_reference_cases.json"
+    ))
+    .unwrap();
+    as_request(references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone())
 }
 
 /// One basis the product assembles for a request, formed by the product's own
@@ -343,7 +354,7 @@ fn main_dense_attempt(
     let solved = AssemblyEvidence::new(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &curved,
         &springs,
     )
@@ -375,7 +386,7 @@ fn pattern_attempt(
         stiffness.pattern(),
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &curved,
         &springs,
     )
@@ -571,7 +582,7 @@ fn assert_sparse_wiring_parity(name: &str, request: &Value) -> (usize, usize) {
 fn f1b_sparse_wiring_is_bit_identical_to_the_dense_assembly_on_the_declared_subset() {
     let mut total = (0, 0);
     let mut curved = 0;
-    let mut users = 0;
+    let mut connectors = 0;
     let mut prescribed_motion = 0;
     for (name, request) in declared_subset() {
         let bases = product_bases(&request);
@@ -579,9 +590,9 @@ fn f1b_sparse_wiring_is_bit_identical_to_the_dense_assembly_on_the_declared_subs
             .iter()
             .map(|b| b.built.curved_bend_elements.len())
             .sum::<usize>();
-        users += bases
+        connectors += bases
             .iter()
-            .map(|b| b.built.user_stiffness_elements.len())
+            .map(|b| b.built.connectors.len())
             .sum::<usize>();
         prescribed_motion += bases
             .iter()
@@ -594,7 +605,7 @@ fn f1b_sparse_wiring_is_bit_identical_to_the_dense_assembly_on_the_declared_subs
     }
     // The subset covers what B1 declares.
     assert!(curved > 0, "realized curved bends");
-    assert!(users > 0, "user stiffness elements");
+    assert!(connectors > 0, "objective connectors");
     assert!(prescribed_motion > 0, "nonzero 0.4.0 prescribed motion");
     assert!(total.0 >= 9 && total.1 >= total.0, "{total:?}");
 }
@@ -910,7 +921,7 @@ fn observation_lane_system(basis: &Basis) -> Option<ReducedSparseEntrySystem> {
     assemble_reduced_sparse_entry_system(
         basis.built.nodes.len(),
         &basis.built.frame_elements,
-        &basis.built.user_stiffness_elements,
+        &basis.built.connectors,
         &basis.built.curved_bend_elements,
         &basis.springs,
         &vec![0.0; basis.built.nodes.len() * DOF_PER_NODE],
@@ -955,8 +966,9 @@ fn f1b_observation_lane_estimate_equals_the_lanes_profile() {
             compared += 1;
         }
     }
-    // Every basis whose lane assembly succeeds (the range models' do not).
-    assert_eq!(compared, 14);
+    // Every basis whose lane assembly succeeds (the range models' do not);
+    // T4-U3 (S-8) adds the v3 connector model's basis.
+    assert_eq!(compared, 15);
 }
 
 /// F1b (ROOT's ruling): with the provisional ceiling lowered through the test
@@ -1596,7 +1608,7 @@ fn pattern_attempt_result(
         stiffness.pattern(),
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
         &curved,
         &springs,
     )
@@ -2019,8 +2031,7 @@ fn orchestrator_case<'a>(
     ForceScalingCase {
         node_count: basis.built.nodes.len(),
         frames: &basis.built.frame_elements,
-        users: &basis.built.user_stiffness_elements,
-        connectors: &[],
+        connectors: &basis.built.connectors,
         curved: &inputs.0,
         curved_sources: &inputs.3,
         springs: &inputs.1,
@@ -2106,9 +2117,10 @@ fn f1b_range_classification_equals_the_orchestrators() {
         }
     }
     // Not vacuous: both directions are exercised. Range: the seven D range
-    // models (the mechanism is not one) in both modes; not range: the nine
-    // linear cases of the B subset and the mechanism, in both modes.
-    assert_eq!((not_range, range), (18, 14));
+    // models (the mechanism is not one) in both modes; not range: the twelve
+    // linear cases of the B subset (T4-U3 (S-8): the v3 connector model's
+    // three included) and the mechanism, in both modes.
+    assert_eq!((not_range, range), (24, 14));
 }
 
 /// RV11-N4: the product passes the case's unscaled ledger to the orchestrator
@@ -2173,6 +2185,8 @@ fn admission_inputs(request: &Value) -> AdmissionInputs {
     let mut d = Vec::new();
     resolve_shared_sections(&mut model, &mut d);
     normalize_model_units(&mut model, &mut materials, &mut d);
+    // The product's order: an exact model's base pair is resolved (G = E/2(1+nu)).
+    pressure_material::resolve_base(&model, &mut materials, &mut d);
     let built = build_model(&model, &materials, &mut d).unwrap();
     let primitives = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut d);
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &primitives);
@@ -2217,9 +2231,9 @@ fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
 }
 
 /// Admission (ROOT Q3, OQ13 narrowed; the A2 order): each check names its
-/// family, including the two the product cannot reach at b != 0 (a
-/// user-stiffness element: every realizable one is refused by M07 containment
-/// or input validation; a non-nodal ledger term), and a thermal load is named
+/// family, including the two the product cannot reach at b != 0 (an
+/// objective connector, outside the declared F1b subset; a non-nodal ledger
+/// term), and a thermal load is named
 /// as thermal although it is also an element primitive. (The exact-pressure
 /// operand, family 4, is reached at product level, in
 /// `tests/f1b_w2_runtime.rs`; the legacy pressure-thrust family is retired
@@ -2228,25 +2242,12 @@ fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
 fn f1b_admission_names_each_family() {
     let base = admission_inputs(&chain_request(2));
     assert_eq!(family_of(base.admit(None, &[], None)), "admitted");
-    // 1. A user-stiffness joint (M07 refuses its solve; the builder forms it).
-    let mut joint = chain_request(2);
-    joint["model"]["components"] = json!([{"id": "component:joint", "label": "invented joint",
-        "kind": "expansion_joint", "node": "N1",
-        "geometry": {"expansion_joint_pipe_ref": "M2", "effective_area": {"value": 0.01, "unit": "m^2"},
-                     "expansion_joint_source_reference": "invented"},
-        "modifiers": {"axial_stiffness_user_value": {"value": 3.2e6, "unit": "N/m"},
-                      "lateral_stiffness_user_value": {"value": 9.0e5, "unit": "N/m"},
-                      "angular_stiffness_user_value": {"value": 4.8e5, "unit": "N*m/rad"},
-                      "torsional_stiffness_user_value": {"value": 6.2e5, "unit": "N*m/rad"},
-                      "source_reference": "invented"},
-        "mechanics_interface": {"solver_consumption": "mechanics_geometry_and_user_flexibility",
-                                "rule_check_consumption": "user_rule_pack_inputs_only"},
-        "provenance": PROV}]);
-    let joint = admission_inputs(&joint);
-    assert!(!joint.built.user_stiffness_elements.is_empty());
+    // 1. A v3 objective connector (T4-U3; the builder forms it).
+    let joint = admission_inputs(&u3_connector_request());
+    assert!(!joint.built.connectors.is_empty());
     assert_eq!(
         family_of(base.admit(Some(&joint.built), &[], None)),
-        "user_stiffness_element"
+        "objective_connector"
     );
     // 2. A realized curved bend.
     let elbow = admission_inputs(&curved_elbow_request());

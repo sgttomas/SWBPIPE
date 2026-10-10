@@ -64,8 +64,7 @@ pub use formation_check::{
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use sparse::{
-    assemble_sparse_stiffness, assemble_sparse_stiffness_with_connectors,
-    audit_sparse_load_fidelity, factor_sparse_structural_profile,
+    assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
     finish_sparse_structural, prepare_assembled_sparse_structural,
     prepare_formation_checked_sparse_structural, prepare_sparse_structural,
     prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
