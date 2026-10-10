@@ -1221,7 +1221,7 @@ fn formation_entity_bodies(
     let replaced = replaced_span_ids_of(built);
     for pipe in &built.pipes {
         // T4-U3 (S21): a replaced span publishes no row and has no body.
-        if replaced.contains(&pipe.element_id) {
+        if replaced.contains(pipe.element_id.as_str()) {
             continue;
         }
         if let Some(body) = bodies.body_of_node(pipe.node_i.index) {
@@ -1254,7 +1254,7 @@ fn formation_bodies(built: &BuiltModel) -> formation_guard::Bodies {
     let edges = built
         .pipes
         .iter()
-        .filter(|p| !replaced.contains(&p.element_id))
+        .filter(|p| !replaced.contains(p.element_id.as_str()))
         .map(|p| (p.node_i.index, p.node_j.index))
         .chain(
             built
@@ -3925,8 +3925,8 @@ pub(crate) fn nodal_and_eigen_case_force(
 }
 
 /// The replaced spans of a built model (S20/S21 lookup set), by pipe ID.
-fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<String> {
-    built.connector_records.iter().map(|r| r.span_id.clone()).collect()
+fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<&str> {
+    built.connector_records.iter().map(|r| r.span_id.as_str()).collect()
 }
 
 /// T4-U3 (S14): each connector's recovered rows for one case, from the solved

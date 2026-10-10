@@ -519,7 +519,11 @@ pub(crate) fn connector_spec(component: &PreviewComponent) -> Option<ConnectorSp
 
 /// The admitted connectors' specs, in model order.
 pub(crate) fn connector_specs(model: &PreviewModel) -> Vec<ConnectorSpec> {
-    model.components.iter().filter_map(connector_spec).collect()
+    model
+        .components
+        .iter()
+        .filter_map(|component| connector_spec(component))
+        .collect()
 }
 
 /// The pipes replaced by admitted connectors (S20/S21 lookup set), by ID.
@@ -594,7 +598,7 @@ pub(crate) struct ConnectorRecord {
 /// per-pipe evidence list, by pipe ID: `pipe_sections`, `pipe_materials`,
 /// `pipe_stress_extrema`, the coverage's unavailable IDs, and the 0.4.0
 /// `members` record and `member_state:<pipe>` contributions.
-pub(crate) fn exclude_replaced_spans(evidence: &mut Value, replaced: &HashSet<String>) {
+pub(crate) fn exclude_replaced_spans(evidence: &mut Value, replaced: &HashSet<&str>) {
     if replaced.is_empty() {
         return;
     }
@@ -712,7 +716,7 @@ pub(crate) fn connector_evidence(model: &PreviewModel) -> Value {
     let records = model
         .components
         .iter()
-        .filter_map(connector_spec)
+        .filter_map(|component| connector_spec(component))
         .map(|spec| {
             let authored = connector_value(model, &spec);
             let source = |value: Option<&Value>| value.and_then(|v| text(v, "source_reference")).unwrap_or_default().to_string();
