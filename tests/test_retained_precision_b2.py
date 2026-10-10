@@ -246,7 +246,7 @@ def move_operand_source(source):
     ("(i) the operand-prepared CaseSource after the CombinationSource", [], move_operand_source),
     ("the combination attempt's owner index", [_set(B + ["product_attempts", 1, "owner_ref", "index"], 1)], None),
     ("a CombinationSource naming another id", [_set(B + ["sources", 2, "owner", "combination_id"], "combination:other")], None),
-    ("a combination row's basis naming no entry", [_set(["results", 226, "basis_ref", "ref_id"], "combination:other")], lambda s: body(s)["combinations"][0]["result_ids"].remove(s["results"][226]["id"])),
+    ("a combination row's basis naming no entry", [_set(["results", -1, "basis_ref", "ref_id"], "combination:other")], lambda s: body(s)["combinations"][0]["result_ids"].remove(s["results"][-1]["id"])),
     ("(g) a CombinationSource no entry names", [], lambda s: body(s)["sources"].append(dict(deepcopy(body(s)["sources"][2]), index=3))),
     ("the combination attempt's id", [_set(B + ["product_attempts", 1, "id"], 5)], None),
     ("a projection outcome on a displacement magnitude row", [_set(B + ["product_attempts", 1, "proof", "projection_outcomes", 0, "row_index"], 0)], None),
@@ -731,7 +731,7 @@ def test_b2_g5_native_pre_source_call_names_its_entry_reader_logic():
 def test_b2_g5_products_more_reader_logic():
     """The projection list of a Ready combination attempt; a native error's Run; a no-Call cause with a Call; and a
     prepared record that is not complete."""
-    assert verdict(*edited([], change=lambda s: body(s)["product_attempts"][1]["proof"]["projection_outcomes"].pop()))[0] == "G5"
+    assert verdict(*edited([], change=lambda s: body(s)["product_attempts"][1]["proof"]["projection_outcomes"].pop())) == PRODUCT
     source, _ = base()
     failed_native(source)
     b = body(source)
