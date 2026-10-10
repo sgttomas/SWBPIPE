@@ -1124,8 +1124,9 @@ impl UserStiffnessElement {
 ///   factors in [1, 2) above, at most three below), which the margins absorb.
 ///   A, I, J and L do not scale with b; only a subnormal one matters.
 /// - User stiffnesses, ground springs, the entries of realized curved-bend
-///   matrices and load terms contribute their exact exponents; a load
-///   product x·y contributes e(x) + e(y).
+///   matrices, objective connectors' K and formed Ke entries (T4-U3) and
+///   load terms contribute their exact exponents; a load product x·y
+///   contributes e(x) + e(y).
 /// - A zero takes no part. Any subnormal input is refused.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ForceScaleCensus {
@@ -1201,6 +1202,21 @@ impl ForceScaleCensus {
         self.value(element.lateral_stiffness);
         self.value(element.angular_stiffness);
         self.value(element.torsional_stiffness);
+    }
+
+    /// T4-U3 (S8): an objective connector's K entries and its formed Ke
+    /// entries (the values the assembly scales by 2^b).
+    pub fn connector(
+        &mut self,
+        connector: &connector::ObjectiveConnector,
+    ) -> Result<(), FrameKernelError> {
+        for row in connector.stiffness() {
+            for entry in row {
+                self.value(entry);
+            }
+        }
+        self.matrix(&connector.global_stiffness()?);
+        Ok(())
     }
 
     /// The entries of a realized curved bend's global matrix.

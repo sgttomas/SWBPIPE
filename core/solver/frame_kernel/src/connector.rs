@@ -402,8 +402,8 @@ impl ObjectiveConnector {
     }
 
     /// SA's formation allowance of Ke (symmetry provenance): one rounding of
-    /// an exact sum, |fl(s) − s| ≤ u·Σ|B||K||B| + 2^-1074, rounded upward,
-    /// with operation count 1.
+    /// an exact sum, |fl(s) − s| ≤ u·Σ|B||K||B| + 2^-1074, rounded upward
+    /// (0 where every term is zero), with operation count 1.
     pub fn formation_roundoff(&self) -> Result<(Matrix12, [[usize; 12]; 12]), FrameKernelError> {
         let b = self.b();
         let tiny = f64::from_bits(1);
@@ -420,12 +420,16 @@ impl ObjectiveConnector {
                     }
                 }
                 let total = round_upward(&magnitude).map_err(|_| range("connector allowance"))?;
-                let bound = product_upward(gamma(1), total) + tiny;
+                // Every term zero: the entry is an exact zero, with no rounding.
+                if total == 0.0 {
+                    continue;
+                }
+                let bound = (product_upward(gamma(1), total) + tiny).next_up();
                 if !bound.is_finite() {
                     return Err(range("connector allowance"));
                 }
-                bounds[i][j] = bound.next_up();
-                bounds[j][i] = bounds[i][j];
+                bounds[i][j] = bound;
+                bounds[j][i] = bound;
             }
         }
         Ok((bounds, [[1; ELEMENT_DOF]; ELEMENT_DOF]))

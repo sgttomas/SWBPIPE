@@ -52,6 +52,7 @@ pub(crate) const MODES: [LinearSolveMode; 2] = [
 pub(crate) struct Built {
     pub(crate) frames: Vec<FrameElement>,
     users: Vec<UserStiffnessElement>,
+    connectors: Vec<ObjectiveConnector>,
     macros: Vec<CurvedBendMacroElement>,
     slots: Vec<CurvedBendStiffnessElement>,
     pub(crate) springs: Vec<(usize, f64)>,
@@ -72,6 +73,7 @@ impl Built {
         let mut built = Built {
             frames: Vec::new(),
             users: Vec::new(),
+            connectors: Vec::new(),
             macros: Vec::new(),
             slots: Vec::new(),
             springs: m.springs.to_vec(),
@@ -142,10 +144,11 @@ impl Built {
         self.free = (0..n).filter(|d| !rigid.contains(d)).collect();
     }
     pub(crate) fn assembly(&self) -> AssemblyEvidence {
-        AssemblyEvidence::new(
+        AssemblyEvidence::new_with_connectors(
             self.node_count,
             &self.frames,
             &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
         )
@@ -602,6 +605,7 @@ fn joint_model(lateral: f64) -> Built {
     let mut built = Built {
         frames: frames.clone(),
         users: vec![joint],
+        connectors: Vec::new(),
         macros: Vec::new(),
         slots: Vec::new(),
         springs: Vec::new(),
@@ -656,5 +660,107 @@ fn kd5_not_selected_invocation_runs_the_unchanged_solve_assembled() {
         assert_eq!(selected.report.quality, SolveQuality::Sensitive, "{mode:?}");
         let unselected = built.checked_selected(mode, &built.macros, false);
         assert_eq!(unselected, plain);
+    }
+}
+
+// ------------------------------------------------------------------ T4-U3 (S10, S-3)
+
+/// T4-I12 round 02 U3-KD5-UTM-SKEW-OFFSET-COUPLED (case 22) at X0: binary64
+/// offsets with tails below the UTM grid, the binary64 rounding of a
+/// rational skew rotation, U3-GENERIC's coupled PD H at Ls = 1/4 m.
+fn case22(x0: f64) -> ObjectiveConnector {
+    use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ScaledWorkMatrix};
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    ObjectiveConnector::new(
+        FrameNode::new(0, [x0 + 0.5, -1.25, 2.0]).unwrap(),
+        FrameNode::new(1, [x0 + 1.8125, 0.8125, 3.375]).unwrap(),
+        ConnectorAttachment::global([0.2, 0.4, -0.2]),
+        ConnectorAttachment::global([-0.1, 0.3625, 0.44999999999999996]),
+        [
+            [third, two_thirds, -two_thirds],
+            [two_thirds, third, two_thirds],
+            [two_thirds, -two_thirds, -third],
+        ],
+        ScaledWorkMatrix {
+            upper_triangle: [
+                12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0,
+                250.0, 0.0, 0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+            ],
+            translation_scale: 0.25,
+        },
+        [
+            0.0009765625,
+            -0.00048828125,
+            0.000244140625,
+            0.001953125,
+            0.0,
+            -0.0009765625,
+        ],
+    )
+    .unwrap()
+}
+
+/// The connector alone, end j held, loads at end i; with `perturbed`, the
+/// assembled matrix only gets δ = 2^-20·max|Ke| at its largest diagonal
+/// (k = 3), never the evidence or K-D5's re-formation.
+fn connector_model(x0: f64, perturbed: bool) -> Built {
+    let connector = case22(x0);
+    let ke = connector.global_stiffness().unwrap();
+    let max = ke.iter().flatten().fold(0.0_f64, |m, v| m.max(v.abs()));
+    assert_eq!(ke[3][3], max);
+    let mut built = Built {
+        frames: Vec::new(),
+        users: Vec::new(),
+        connectors: vec![connector],
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        node_count: 2,
+        k: vec![vec![0.0; 12]; 12],
+        f: vec![0.0; 12],
+        free: Vec::new(),
+        prescribed: Vec::new(),
+    };
+    built.scatter(0, 1, &ke);
+    if perturbed {
+        built.k[3][3] += max * 2f64.powi(-20);
+    }
+    built.f[..6].copy_from_slice(&[1000.0, -2000.0, 1500.0, 300.0, -200.0, 100.0]);
+    built.set_boundary(&[6, 7, 8, 9, 10, 11]);
+    built
+}
+
+/// S-3 (RV130), case 22: undemoted at X0 = 0 (the ordinary twin), 5e6 and
+/// 7.3e6 m in both modes. Perturbing only the assembled matrix is refused
+/// here before K-D5 runs: the adapter's M03 contribution audit sees the
+/// matrix differ from its own contributions. (K-D5's demotion of the same
+/// perturbation, with no contribution evidence, is pinned in FK
+/// `formation_check_tests` (dense) and SD `k1_tests` (sparse).)
+#[test]
+fn kd5_connector_case_22_is_not_demoted_at_utm_and_its_perturbed_matrix_is_refused() {
+    for x0 in [0.0, 5.0e6, 7.3e6] {
+        let control = connector_model(x0, false);
+        let perturbed = connector_model(x0, true);
+        for mode in MODES {
+            let plain = control.plain(mode);
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "X0 {x0} {mode:?}"
+            );
+            let checked = control.checked(mode);
+            record("connector-22", mode, None, &checked);
+            assert_unchanged(&plain, &checked);
+            let refused = perturbed.assembly().solve_assembled_with_formation_check(
+                &perturbed.k,
+                &perturbed.ledger(),
+                &perturbed.free,
+                &perturbed.prescribed,
+                mode,
+                &[],
+                true,
+            );
+            assert!(refused.is_err(), "X0 {x0} {mode:?}: {refused:?}");
+        }
     }
 }

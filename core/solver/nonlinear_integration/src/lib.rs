@@ -241,6 +241,9 @@ pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
     pub user_stiffness_elements: Vec<UserStiffnessElement>,
+    /// T4-U3 (S5): objective connectors are not assembled by this loop;
+    /// `validate_input` refuses a non-empty list (fail closed until T5).
+    pub connectors: Vec<open_pipe_stress_frame_kernel::connector::ObjectiveConnector>,
     pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
@@ -1165,6 +1168,11 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
     if input.node_count == 0 {
         return Err(NonlinearIntegrationError::InvalidInput {
             detail: "node_count must be positive".to_string(),
+        });
+    }
+    if !input.connectors.is_empty() {
+        return Err(NonlinearIntegrationError::InvalidInput {
+            detail: "objective connectors are not assembled by the nonlinear loop; a model containing one is refused".to_string(),
         });
     }
     let expected_dofs = input.node_count * DOF_PER_NODE;
@@ -3129,6 +3137,7 @@ mod tests {
             node_count: 2,
             elements: vec![element],
             user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: Vec::new(),
             force,
             base_restrained_dofs: vec![
@@ -3203,6 +3212,7 @@ mod tests {
             node_count: 2,
             elements: Vec::new(),
             user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -3673,6 +3683,7 @@ mod tests {
             node_count: 2,
             elements: Vec::new(),
             user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -3725,6 +3736,7 @@ mod tests {
             node_count: 2,
             elements: Vec::new(),
             user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -5439,6 +5451,7 @@ mod tests {
             node_count: 2,
             elements: Vec::new(),
             user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot.clone()],
             force: force.clone(),
             base_restrained_dofs: base_restrained_dofs.clone(),

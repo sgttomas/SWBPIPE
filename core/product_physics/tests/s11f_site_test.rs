@@ -356,8 +356,8 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "SA/structural_adapter.rs",
-        "new",
-        "stores no force; initializes the C3-detect terms to None",
+        "build",
+        "stores no force; initializes the C3-detect terms to None (T4-U3: `new`'s body, moved into the shared `build` of the connector entries)",
     ),
     (
         "SA/structural_adapter.rs",

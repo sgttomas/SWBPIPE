@@ -2020,6 +2020,7 @@ fn orchestrator_case<'a>(
         node_count: basis.built.nodes.len(),
         frames: &basis.built.frame_elements,
         users: &basis.built.user_stiffness_elements,
+        connectors: &[],
         curved: &inputs.0,
         curved_sources: &inputs.3,
         springs: &inputs.1,

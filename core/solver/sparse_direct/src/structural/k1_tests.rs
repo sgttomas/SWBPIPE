@@ -9,9 +9,10 @@ use super::*;
 use crate::{adjacency_from_dense, adjacency_from_symmetric_entries, reverse_cuthill_mckee};
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
-    SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
-    StiffnessContribution, SymmetryEvidence, TransformationRoundoff,
+    assemble_sparse_stiffness, assemble_sparse_stiffness_with_connectors, gamma,
+    negative_pair_witness, transform_roundoff, FormationSource, SparseAssemblyOptions,
+    SparseStiffness, SparseSymmetryEvidence, StiffnessBlock, StiffnessContribution,
+    SymmetryEvidence, TransformationRoundoff,
 };
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, element_dof_map, FrameElement, FrameNode,
@@ -199,6 +200,7 @@ impl Model {
             node_count: self.node_count,
             frames: self.frames.clone(),
             users: self.users.clone(),
+            connectors: Vec::new(),
             curved: Vec::new(),
             springs: self.springs.clone(),
             unavailable: Vec::new(),
@@ -805,6 +807,94 @@ fn k1_storage_counts_of_the_rf_large_chain_and_tree() {
                 // Each member couples two nodes: at most 144 entries per
                 // member plus 36 per node, independent of n² growth.
                 assert!(counts.stored_entries <= 144 * n + 36 * (n + 1));
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------ T4-U3 (S10, S-3)
+
+/// T4-I12 round 02 case 22 (U3-KD5-UTM-SKEW-OFFSET-COUPLED) on the pattern
+/// path, with no contribution evidence: the connector alone, end j held,
+/// loads at end i. At X0 = 0, 5e6 and 7.3e6 m it is not demoted; perturbing
+/// only the assembled matrix by δ = 2^-20·max|Ke| at its largest diagonal
+/// (k = 3) demotes it.
+#[test]
+fn k1_connector_case_22_formation_check_on_the_pattern() {
+    use open_pipe_stress_frame_kernel::connector::{
+        ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix,
+    };
+    use open_pipe_stress_frame_kernel::structural::{FormationCheckReason, SolveQuality};
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    for x0 in [0.0, 5.0e6, 7.3e6] {
+        let connector = ObjectiveConnector::new(
+            node(0, [x0 + 0.5, -1.25, 2.0]),
+            node(1, [x0 + 1.8125, 0.8125, 3.375]),
+            ConnectorAttachment::global([0.2, 0.4, -0.2]),
+            ConnectorAttachment::global([-0.1, 0.3625, 0.44999999999999996]),
+            [
+                [third, two_thirds, -two_thirds],
+                [two_thirds, third, two_thirds],
+                [two_thirds, -two_thirds, -third],
+            ],
+            ScaledWorkMatrix {
+                upper_triangle: [
+                    12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0,
+                    250.0, 0.0, 0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+                ],
+                translation_scale: 0.25,
+            },
+            [0.0; 6],
+        )
+        .unwrap();
+        let assembled = assemble_sparse_stiffness_with_connectors(
+            2,
+            &[],
+            &[],
+            &[connector],
+            &[],
+            &[],
+            &SparseAssemblyOptions::new(),
+        )
+        .unwrap();
+        let source = FormationSource {
+            node_count: 2,
+            connectors: vec![connector],
+            ..FormationSource::default()
+        };
+        let force = [
+            1000.0, -2000.0, 1500.0, 300.0, -200.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        ];
+        let free: Vec<usize> = (0..6).collect();
+        let prescribed: Vec<(usize, f64)> = (6..12).map(|d| (d, 0.0)).collect();
+        let max = assembled
+            .values()
+            .iter()
+            .fold(0.0_f64, |m, v| m.max(v.abs()));
+        for perturbed in [false, true] {
+            let mut dense = assembled.to_dense();
+            assert_eq!(dense[3][3], max);
+            if perturbed {
+                dense[3][3] += max * 2f64.powi(-20);
+            }
+            let k = SparseStiffness::from_dense(&dense).unwrap();
+            let system = SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None);
+            let plain = solve_sparse_structural(&system).unwrap();
+            assert_eq!(plain.report.quality, SolveQuality::Passed, "X0 {x0}");
+            let checked = solve_formation_checked_sparse_structural(
+                &SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None)
+                    .with_formation_source(&source),
+            )
+            .unwrap();
+            if perturbed {
+                assert_eq!(checked.report.quality, SolveQuality::Sensitive, "X0 {x0}");
+                assert_eq!(
+                    checked.formation_check.unwrap().reason,
+                    FormationCheckReason::Estimate
+                );
+            } else {
+                assert_eq!(checked.formation_check, None, "X0 {x0}");
+                assert_eq!(checked.displacements, plain.displacements);
             }
         }
     }

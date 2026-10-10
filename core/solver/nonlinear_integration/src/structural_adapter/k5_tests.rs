@@ -13,10 +13,11 @@ use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
     NonlinearFrameSolveInput, NonlinearIntegrationError,
 };
+use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ScaledWorkMatrix};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, SparseAssemblyOptions, StiffnessBlock,
+    assemble_sparse_stiffness_with_connectors, SparseAssemblyOptions, StiffnessBlock,
 };
 use open_pipe_stress_frame_kernel::{FrameDof, FrameNode, FrameSection};
 use open_pipe_stress_nonlinear_supports::{
@@ -37,6 +38,7 @@ struct Model {
     node_count: usize,
     frames: Vec<FrameElement>,
     users: Vec<UserStiffnessElement>,
+    connectors: Vec<ObjectiveConnector>,
     macros: Vec<CurvedBendMacroElement>,
     slots: Vec<CurvedBendStiffnessElement>,
     springs: Vec<(usize, f64)>,
@@ -60,6 +62,7 @@ impl Model {
             node_count,
             frames: Vec::new(),
             users: Vec::new(),
+            connectors: Vec::new(),
             macros: Vec::new(),
             slots: Vec::new(),
             springs: Vec::new(),
@@ -110,10 +113,11 @@ impl Model {
     }
     /// The kernel's assembly at 2^b (K2b), as the force-scaled entries take it.
     fn sparse_at(&self, scale: ForceScale) -> SparseStiffness {
-        assemble_sparse_stiffness(
+        assemble_sparse_stiffness_with_connectors(
             self.node_count,
             &self.frames,
             &self.users,
+            &self.connectors,
             &self.blocks(),
             &self.springs,
             &SparseAssemblyOptions::new().with_force_scale(scale),
@@ -124,10 +128,11 @@ impl Model {
         self.sparse_at(ForceScale::UNSCALED)
     }
     fn dense_evidence_at(&self, scale: ForceScale) -> AssemblyEvidence {
-        AssemblyEvidence::new_force_scaled(
+        AssemblyEvidence::new_force_scaled_with_connectors(
             self.node_count,
             &self.frames,
             &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
             scale,
@@ -135,11 +140,12 @@ impl Model {
         .unwrap()
     }
     fn sparse_evidence_at(&self, k: &SparseStiffness, scale: ForceScale) -> SparseAssemblyEvidence {
-        SparseAssemblyEvidence::new_force_scaled(
+        SparseAssemblyEvidence::new_force_scaled_with_connectors(
             k.pattern(),
             self.node_count,
             &self.frames,
             &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
             scale,
@@ -573,6 +579,7 @@ fn k5_nonlinear_loop_keeps_todays_geometry() {
             node_count: m.node_count,
             elements: m.frames.clone(),
             user_stiffness_elements: vec![],
+            connectors: Vec::new(),
             curved_bend_elements: m.slots.clone(),
             force: m.force(),
             base_restrained_dofs: m.prescribed.iter().map(|p| p.0).collect(),
@@ -1330,4 +1337,188 @@ fn k5_positive_springs_ground_w4_bodies() {
         other => panic!("spring-held curved line: {other:?}"),
     }
     selected_is_unselected(&m, &m.macros, "spring-held curved line");
+}
+
+// ------------------------------------------------------------------ T4-U3: connectors (S11)
+
+/// A connector between two nodes with no offsets, Q.x along the chord
+/// (`axes`, columns are axes), and the stiffness diag(`k`) at Ls = 1 m, with
+/// `coupling` at (0, 3) for a coupled law.
+fn connector(
+    i: (usize, [f64; 3]),
+    j: (usize, [f64; 3]),
+    axes: [[f64; 3]; 3],
+    k: [f64; 6],
+    coupling: f64,
+) -> ObjectiveConnector {
+    let mut h = [0.0; 21];
+    for (d, index) in [0, 6, 11, 15, 18, 20].into_iter().enumerate() {
+        h[index] = k[d];
+    }
+    h[3] = coupling;
+    ObjectiveConnector::new(
+        node(i.0, i.1),
+        node(j.0, j.1),
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        axes,
+        ScaledWorkMatrix {
+            upper_triangle: h,
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
+    )
+    .unwrap()
+}
+
+const AXES_X: [[f64; 3]; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+/// Columns x = (0, 1, 0), y = (−1, 0, 0), z = (0, 0, 1).
+const AXES_Y: [[f64; 3]; 3] = [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]];
+const PD: [f64; 6] = [2.0e5, 8.0e4, 1.2e5, 600.0, 900.0, 1200.0];
+
+/// Frames a-b and c-d joined by a connector b-c on the x axis; a anchored,
+/// a transverse load at d.
+fn connected_line(k: [f64; 6], coupling: f64) -> Model {
+    let p = [
+        [0.0, 0.0, 0.0],
+        [2.0, 0.0, 0.0],
+        [2.5, 0.0, 0.0],
+        [4.5, 0.0, 0.0],
+    ];
+    let mut m = Model::empty(4);
+    m.frame((0, p[0]), (1, p[1]), [0.0, 0.0, 1.0]);
+    m.frame((2, p[2]), (3, p[3]), [0.0, 0.0, 1.0]);
+    m.connectors
+        .push(connector((1, p[1]), (2, p[2]), AXES_X, k, coupling));
+    m.pin(&[0, 1, 2, 3, 4, 5]);
+    m.loads = vec![(19, 1000.0), (20, -500.0)];
+    m
+}
+
+/// S11: a positive definite connector links its ends: the body is assessed
+/// and restrained, and every selected branch passes.
+#[test]
+fn k5_positive_definite_connector_links() {
+    let m = connected_line(PD, 0.0);
+    let W4Body::Assessed { nodes, assessment } = m.w4_body(&m.macros, ForceScale::UNSCALED) else {
+        panic!("a positive definite connector links");
+    };
+    assert_eq!(nodes, vec![0, 1, 2, 3]);
+    assert_eq!(assessment.status, RigidBodyStatus::Restrained);
+    for mode in MODES {
+        for b in [0, 20] {
+            for result in selected(&m, mode, b, &m.macros) {
+                assert!(result.is_ok(), "{mode:?} b = {b}: {}", render(&result));
+            }
+        }
+    }
+}
+
+/// S11: the frames of `joint_mechanism`, joined by a positive definite
+/// connector instead of the old tie, are restrained: the objective link
+/// carries the rigid-body moment the tie did not (the virtual pins of the
+/// tie reduction are gone).
+#[test]
+fn k5_connector_link_is_objective_where_the_old_tie_was_a_mechanism() {
+    let p = [
+        [0.0, 0.0, 0.0],
+        [2.0, 0.0, 0.0],
+        [2.0, 1.0, 0.0],
+        [4.0, 1.0, 0.0],
+    ];
+    let mut m = Model::empty(4);
+    m.frame((0, p[0]), (1, p[1]), [0.0, 0.0, 1.0]);
+    m.frame((2, p[2]), (3, p[3]), [0.0, 0.0, 1.0]);
+    m.connectors
+        .push(connector((1, p[1]), (2, p[2]), AXES_Y, PD, 0.0));
+    m.pin(&[0, 1, 2, 6, 7, 8, 18, 19, 20]);
+    m.loads = vec![(14, 1000.0)];
+    let W4Body::Assessed { assessment, .. } = m.w4_body(&m.macros, ForceScale::UNSCALED) else {
+        panic!("linked");
+    };
+    assert_eq!(assessment.status, RigidBodyStatus::Restrained);
+    for mode in MODES {
+        for result in selected(&m, mode, 0, &m.macros) {
+            assert!(result.is_ok(), "{mode:?}: {}", render(&result));
+        }
+    }
+}
+
+/// S11 (S-5(c)): a semidefinite connector leaves its body to the matrix gate
+/// (`ConnectorSemidefinite`). The hinge (no stiffness about the local z) is
+/// a real mechanism of an otherwise anchored body: a "semidefinite as link"
+/// rule would assess that body as restrained; here no branch passes it.
+#[test]
+fn k5_semidefinite_connectors_are_unqualified_and_the_hinge_is_not_passed() {
+    let coupled = connected_line([4.0, 0.0, 0.0, 9.0, 0.0, 0.0], 1.0);
+    assert_eq!(
+        coupled.connectors[0].definiteness(),
+        ConnectorDefiniteness::PositiveSemidefinite
+    );
+    assert_eq!(
+        coupled.w4_body(&coupled.macros, ForceScale::UNSCALED),
+        W4Body::Unqualified(W4Unqualified::ConnectorSemidefinite { element: 0 })
+    );
+    let mut hinge = Model::empty(2);
+    hinge.connectors.push(connector(
+        (0, [0.0, 0.0, 0.0]),
+        (1, [0.5, 0.0, 0.0]),
+        AXES_X,
+        [2.0e5, 8.0e4, 1.2e5, 600.0, 900.0, 0.0],
+        0.0,
+    ));
+    hinge.pin(&[0, 1, 2, 3, 4, 5]);
+    hinge.loads = vec![(7, 100.0), (11, 10.0)];
+    assert_eq!(
+        hinge.w4_body(&hinge.macros, ForceScale::UNSCALED),
+        W4Body::Unqualified(W4Unqualified::ConnectorSemidefinite { element: 0 })
+    );
+    // The hinge's mechanism is real: d = (θ_j = e_z, u_j = e_z × r/2) has
+    // q = 0 except q_r,z, on which K is zero.
+    let mut d = [0.0; 12];
+    d[11] = 1.0;
+    d[7] = 0.25;
+    let q = hinge.connectors[0].recover(&d).unwrap();
+    assert_eq!(q.g, [0.0; 6]);
+    assert_eq!(q.q, [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]);
+    for m in [&coupled, &hinge] {
+        for mode in MODES {
+            for result in selected(m, mode, 0, &m.macros) {
+                assert!(result.is_err(), "{mode:?}: {}", render(&result));
+            }
+        }
+    }
+}
+
+/// S5: the nonlinear loop refuses a connector (fail closed until T5).
+#[test]
+fn k5_nonlinear_loop_refuses_connectors() {
+    let m = connected_line(PD, 0.0);
+    let input = NonlinearFrameSolveInput {
+        node_count: m.node_count,
+        elements: m.frames.clone(),
+        user_stiffness_elements: vec![],
+        connectors: m.connectors.clone(),
+        curved_bend_elements: vec![],
+        force: m.force(),
+        base_restrained_dofs: m.prescribed.iter().map(|p| p.0).collect(),
+        nonlinear_supports: vec![],
+        initial_states: vec![],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![],
+        convergence: ConvergenceControl::new(
+            "DEC-046-fixture-active-set-count-tightening",
+            ConvergencePolicyStatus::Accepted,
+            0.0,
+            0.0,
+            4,
+        )
+        .unwrap(),
+    };
+    for mode in MODES {
+        assert!(matches!(
+            solve_active_set_frame_with_mode_and_springs(&input, mode, &m.springs),
+            Err(NonlinearIntegrationError::InvalidInput { .. })
+        ));
+    }
 }

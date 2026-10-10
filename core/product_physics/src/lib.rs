@@ -1461,6 +1461,7 @@ fn force_scaling_attempt(
         node_count: built.nodes.len(),
         frames: &built.frame_elements,
         users: &built.user_stiffness_elements,
+        connectors: &[],
         curved: &curved,
         curved_sources: &curved_sources,
         springs: &springs,
@@ -5777,6 +5778,7 @@ fn append_nonlinear_support_loop_results(
         node_count: built.nodes.len(),
         elements: built.frame_elements.clone(),
         user_stiffness_elements: built.user_stiffness_elements.clone(),
+        connectors: Vec::new(),
         curved_bend_elements: curved_bend_stiffness_elements,
         // The loop's base force is the ledger's net (S11 section 8.2); the
         // typed entry below checks this copy against it bit for bit.

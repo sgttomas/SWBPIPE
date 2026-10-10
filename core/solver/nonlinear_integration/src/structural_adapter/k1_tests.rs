@@ -943,6 +943,7 @@ fn loop_input(case: &Case) -> NonlinearFrameSolveInput {
         node_count: 2,
         elements: case.frames.clone(),
         user_stiffness_elements: vec![],
+        connectors: Vec::new(),
         curved_bend_elements: vec![],
         force: case.force(),
         base_restrained_dofs: F122.rigid.to_vec(),

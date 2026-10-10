@@ -34,6 +34,7 @@
 //! The dense `StructuralSystem` API is unchanged; dense scrutiny materializes
 //! `SparseStiffness::to_dense` and runs today's dense Cholesky.
 use super::*;
+use crate::connector::ObjectiveConnector;
 use crate::load_ledger::ReducedForce;
 use crate::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
@@ -597,15 +598,74 @@ pub fn assemble_sparse_stiffness(
     springs: &[(usize, f64)],
     options: &SparseAssemblyOptions,
 ) -> Result<SparseStiffness, FrameKernelError> {
+    assemble_sparse_stiffness_with_connectors(
+        node_count,
+        frames,
+        users,
+        &[],
+        blocks,
+        springs,
+        options,
+    )
+}
+
+/// T4-U3 (S2): `assemble_sparse_stiffness` with objective connectors, each
+/// added as its formed Ke (`ObjectiveConnector::global_stiffness`) after the
+/// user elements and before the finiteness check, in the dense order
+/// (frames, users, connectors, blocks, springs), so the entries are the
+/// dense `assemble_global_stiffness_with_connectors` entries bit for bit.
+/// K2b (N-5): at 2^b each connector adds its Ke formed at b = 0 times 2^b
+/// (`force_scaled_matrix`), as a realized curved bend does. With no
+/// connector it is `assemble_sparse_stiffness`, bit for bit.
+pub fn assemble_sparse_stiffness_with_connectors(
+    node_count: usize,
+    frames: &[FrameElement],
+    users: &[UserStiffnessElement],
+    connectors: &[ObjectiveConnector],
+    blocks: &[StiffnessBlock],
+    springs: &[(usize, f64)],
+    options: &SparseAssemblyOptions,
+) -> Result<SparseStiffness, FrameKernelError> {
+    let mut connector_matrices = Vec::with_capacity(connectors.len());
+    for connector in connectors {
+        connector_matrices.push((
+            connector.node_i().index,
+            connector.node_j().index,
+            connector.force_scaled_global_stiffness(options.force_scale)?,
+        ));
+    }
+    assemble_sparse_formed(
+        node_count,
+        frames,
+        users,
+        &connector_matrices,
+        blocks,
+        springs,
+        options,
+    )
+}
+
+/// The sparse assembly with the connectors' matrices already formed (at the
+/// options' 2^b).
+fn assemble_sparse_formed(
+    node_count: usize,
+    frames: &[FrameElement],
+    users: &[UserStiffnessElement],
+    connectors: &[(usize, usize, Matrix12)],
+    blocks: &[StiffnessBlock],
+    springs: &[(usize, f64)],
+    options: &SparseAssemblyOptions,
+) -> Result<SparseStiffness, FrameKernelError> {
     let SparseAssemblyOptions { force_scale } = options;
     if !force_scale.is_unscaled() {
         // K2b: the same assembly, of the inputs formed at 2^b.
         let (frames, users, blocks, springs) =
             force_scaled_inputs(frames, users, blocks, springs, *force_scale)?;
-        return assemble_sparse_stiffness(
+        return assemble_sparse_formed(
             node_count,
             &frames,
             &users,
+            connectors,
             &blocks,
             &springs,
             &SparseAssemblyOptions::new(),
@@ -630,6 +690,11 @@ pub fn assemble_sparse_stiffness(
             element.node_j.index,
             element.global_stiffness()?,
         ));
+    }
+    for &(node_i, node_j, matrix) in connectors {
+        check_node(node_i, node_count)?;
+        check_node(node_j, node_count)?;
+        formed.push((node_i, node_j, matrix));
     }
     for block in blocks {
         check_node(block.node_i, node_count)?;

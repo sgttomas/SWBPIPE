@@ -225,7 +225,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // FK/structural.rs's functions above, run on it)
     ("FK/structural/sparse.rs", "from_pattern_and_contributions", 1, "exempt: stiffness assembly, one coalesced value per pattern entry summed in contribution order (audited exactly by M03 contribution expansions)"),
     ("FK/structural/sparse.rs", "scatter_block", 1, "exempt: stiffness assembly, one addition per element entry (the dense assemble_element_contribution; audited exactly by M03 contribution expansions)"),
-    ("FK/structural/sparse.rs", "assemble_sparse_stiffness", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
+    // T4-U3 (S2): `assemble_sparse_stiffness`'s body moved, unchanged, into
+    // `assemble_sparse_formed` (the shared body of the connector entry).
+    ("FK/structural/sparse.rs", "assemble_sparse_formed", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
     ("FK/structural/sparse.rs", "lower_entry_count", 1, "integer: storage count"),
     ("FK/structural/sparse.rs", "multiply", 1, "exempt: formed elastic action K*u (bit-identical to the product's multiply_matrix_vector, E12's formed term)"),
     ("FK/structural/sparse.rs", "sparse_audit_contributions", 7, "exempt, as audit_contributions: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences; the column magnitude/delta norms and the |rhs| magnitude norms (self-assignment) of the perturbation estimate, not load sums"),
