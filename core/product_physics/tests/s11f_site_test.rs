@@ -84,6 +84,12 @@ const PRODUCT: &[Source] = &[
         name: "PP/formation_guard.rs",
         text: include_str!("../src/formation_guard.rs"),
     },
+    // T4-U2: the arc pressure recovery (no ledger term; its producer is in
+    // lib.rs); appended so the indices above are unchanged.
+    Source {
+        name: "PP/bend_pressure.rs",
+        text: include_str!("../src/bend_pressure.rs"),
+    },
 ];
 
 const KERNEL: &[Source] = &[
@@ -223,6 +229,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "add_uniform_element_loads", "straight and curved uniform equivalents: one term per (load, DOF)"),
     ("PP/lib.rs", "add_thermal_equivalent_loads", "straight thermal pairs and T1 eigen pairs: fl(P*x_a) per axis"),
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", "curved thermal: push_formed_product(K_rc, fl(eps*chord_c)) per nonzero column (S11-G: the same exact product term)"),
+    ("PP/lib.rs", "add_curved_bend_pressure_equivalent_load", "T4-U2 (H-2): each arc's K_b*u_free(eps_p), push_formed_product(K_rc, fl(eps_p*chord_c)) per nonzero column"),
     ("PP/lib.rs", "push_exact_pressure_operands", "exact pressure: each source group's operand"),
     ("PP/lib.rs", "add_constant_effort_support_loads", "constant effort: one term per application"),
     ("PP/lib.rs", "add_connector_reference_loads", "T4-U3 (S13): each connector's +B^T K q_ref, one formed term per nonzero DOF"),
@@ -540,11 +547,12 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_uniform_element_loads", 0, "producer"),
     ("PP/lib.rs", "add_thermal_equivalent_loads", 0, "producer"),
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", 0, "producer"),
+    ("PP/lib.rs", "add_curved_bend_pressure_equivalent_load", 0, "producer"),
     ("PP/lib.rs", "push_exact_pressure_operands", 0, "producer"),
     ("PP/lib.rs", "add_constant_effort_support_loads", 0, "producer"),
     // ---- PP/pressure_runtime.rs
     ("PP/pressure_runtime.rs", "finish_source_groups", 1, "max fold of the pressure-RHS screen magnitude"),
-    ("PP/pressure_runtime.rs", "traverse_region", 1, "geometry: chord projection (section 2.5)"),
+    ("PP/pressure_runtime.rs", "collinear_run", 1, "geometry: chord projection (section 2.5; T4-U2 moved it from traverse_region, unchanged)"),
     // ---- PP/retained_product.rs (B1 SQ, RR "RV109 passes SP in RV-P round 2; …", ruling 3: E-12)
     ("PP/retained_product.rs", "check_support_maps", 1, "integer: one support's spring-map count"),
     // B2-P's combination Call (lane P), met by B1 SQ's table at J0a's merge.
@@ -1363,9 +1371,11 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
     ),
     (
         "add_uniform_element_loads",
-        "formed: straight Exact (SP formula), curved CannotBound; not self-equilibrated",
+        "formed: straight Exact (SP formula), curved Exact with T4-U1b's certificate (its operand bound), CannotBound where the certificate is refused; not self-equilibrated",
         &[
             "equivalent_global_nodal_loads_with_spans_formed(",
+            "certify_curved_uniform_load(",
+            "Formation::Exact",
             "Formation::CannotBound",
         ],
         Some(&["false"]),
@@ -1380,6 +1390,12 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
         "add_curved_bend_thermal_equivalent_load",
         "formed: K_rc * fl(eps*chord_c), scaled RoundedProduct, self-equilibrated",
         &["Formation::RoundedProduct"],
+        Some(&["true"]),
+    ),
+    (
+        "add_curved_bend_pressure_equivalent_load",
+        "formed: T4-U2 K_rc * fl(eps_p*chord_c), scaled RoundedProduct with eps_p's formation bound as operand bound, self-equilibrated",
+        &["Formation::RoundedProduct", "bend_pressure::strain_operand_bound("],
         Some(&["true"]),
     ),
     (

@@ -184,4 +184,66 @@ impl SourceAnnulus {
             },
         ])
     }
+    /// T4-U2 (H-2): a realized arc's pressure strain
+    /// ε_p = (1 − 2ν)·pAi/(E·As), the closed bend's free axial strain under
+    /// its wetted-wall load, own caps and the Poisson eigenstrain (the
+    /// straight Lamé mean, RV1 S-5). As is the element's own area (the same
+    /// binary64 value, RV1 N-3). Formed in `Scaled` arithmetic as the straight
+    /// path forms its loads: (1 − 2ν) is split exactly into high + low, so
+    /// counted from the source operands (OD, wall, p, E, ν) the chain has 15
+    /// relative roundings — Ai 5 (r_i twice, PI, two products), p·Ai 1, the
+    /// fused (1 − 2ν) product 2, As 4, E·As 1, the quotient 1 and the output
+    /// 1 — which [`ARC_PRESSURE_STRAIN_ROUNDINGS`] states for S11-G. A
+    /// subnormal nonzero strain is refused (its error is not relative).
+    pub(crate) fn arc_pressure_strain(
+        self,
+        m: IsotropicENu,
+        p: InternalDifferentialPressure,
+    ) -> Result<f64, ExactPressureError> {
+        let fluid = super::fluid_force_scaled(self.kernel, p);
+        let minus_two_nu = -2.0 * m.poisson_ratio();
+        // TwoSum: high + low == 1 − 2ν exactly.
+        let high = 1.0 + minus_two_nu;
+        let virtual_b = high - 1.0;
+        let low = (1.0 - (high - virtual_b)) + (minus_two_nu - virtual_b);
+        let numerator =
+            fluid.fused_mul_add(Scaled::from_f64(low), fluid.mul(Scaled::from_f64(high)));
+        let stiffness = Scaled::from_f64(m.elastic_modulus_pa()).mul(self.kernel.as_scaled);
+        let strain = numerator
+            .div(stiffness)
+            .ok_or(ExactPressureError::NonRepresentableLoad)?;
+        let output = scaled_output(strain, ExactPressureError::NonRepresentableLoad)?;
+        if output != 0.0 && output.abs() < f64::MIN_POSITIVE
+            || output == 0.0 && strain.mantissa != 0.0
+        {
+            return Err(ExactPressureError::NonRepresentableLoad);
+        }
+        Ok(output)
+    }
+    /// T4-U2 (H-2): an arc section's wall force, effective force and axial
+    /// membrane stress from its elastic axial force N_el:
+    /// N_w = N_el + pAi, S = N_el (unchanged) and σ_m = N_w/As, the same
+    /// `Scaled` path as the straight recovery. No Poisson term enters: on an
+    /// arc it is inside N_el through ε_p.
+    pub(crate) fn recover_arc_wall_effective_membrane(
+        self,
+        elastic_force: f64,
+        p: InternalDifferentialPressure,
+    ) -> Result<(f64, f64, f64), ExactPressureError> {
+        if !elastic_force.is_finite() {
+            return Err(ExactPressureError::NonRepresentableLoad);
+        }
+        let wall = super::fluid_force_scaled(self.kernel, p).add(Scaled::from_f64(elastic_force));
+        let membrane = wall
+            .div(self.kernel.as_scaled)
+            .ok_or(ExactPressureError::NonRepresentableStress)?;
+        Ok((
+            scaled_output(wall, ExactPressureError::NonRepresentableLoad)?,
+            elastic_force,
+            scaled_output(membrane, ExactPressureError::NonRepresentableStress)?,
+        ))
+    }
 }
+
+/// S11-G: the relative roundings in [`SourceAnnulus::arc_pressure_strain`].
+pub(crate) const ARC_PRESSURE_STRAIN_ROUNDINGS: u32 = 15;

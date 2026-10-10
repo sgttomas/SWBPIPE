@@ -162,6 +162,14 @@ pub fn arc_geometry(
     })
 }
 
+/// α_tan (T4-I11 D-D; T4-U2): the engineering tangency tolerance at a
+/// realized bend's ends, in radians. A direction change θ = `kink(t_in,
+/// t_out)` ≤ α_tan between a bend end and its neighbour is admitted under
+/// pressure and carried exactly by the remainder pAi(t_in − t_out) (H-2),
+/// never snapped; a larger θ is a mitre, refused until T4-U7. Authoring and
+/// solve share this one value.
+pub const TANGENCY_TOLERANCE_RAD: f64 = 1.0e-3;
+
 /// The direction change θ ∈ [0, π] between two directions `a` and `t`
 /// (for example a straight member's direction and an arc end tangent):
 /// θ = 2·atan2(|â − t̂|, |â + t̂|), accurate for small and near-π angles

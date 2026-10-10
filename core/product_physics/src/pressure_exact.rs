@@ -7,7 +7,7 @@
 use std::f64::consts::PI;
 
 mod source_geometry;
-pub(crate) use source_geometry::SourceAnnulus;
+pub(crate) use source_geometry::{SourceAnnulus, ARC_PRESSURE_STRAIN_ROUNDINGS};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(super) struct Scaled {

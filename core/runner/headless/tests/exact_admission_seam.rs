@@ -1,10 +1,11 @@
 //! T4-U2a through the headless runner: a v3 (`3.0.0/exact_pressure_v3`)
-//! document with a family the seam does not yet admit (a valve; a realized
-//! bend on a region member) is blocked by name with no export, in both solver
-//! modes; a straight v3 document solves under `pressure-1`, and its export is
-//! refused by name (`PRESSURE_1_EXPORT_NOT_AVAILABLE`) until T4-U2. The input
-//! is PP's committed invented X0 fixture with only the contract identity
-//! changed.
+//! document with a family the seam does not admit (a valve; a geometry-only
+//! bend, D-2) is blocked by name with no export, in both solver modes; a
+//! straight v3 document, and since T4-U2 phase 1 one whose region member is a
+//! realized bend, solves under `pressure-1`, and its export is refused by name
+//! (`PRESSURE_1_EXPORT_NOT_AVAILABLE`) until T4-U2's export chain (phase 2).
+//! The input is PP's committed invented X0 fixture with only the contract
+//! identity changed.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -61,21 +62,53 @@ fn v3() -> Value {
     document
 }
 
+/// The v3 X0 document with a bend over its region member.
+fn bend(consumption: &str) -> Value {
+    let mut document = v3();
+    document["model"]["components"] = json!([{"id":"component:bend","kind":"bend","node":"node:fixture-tip",
+        "geometry":{"bend_pipe_ref":"pipe:fixture-span","bend_radius":{"value":1.0,"unit":"m"},
+            "bend_plane_orientation":"invented","bend_geometry_source_reference":"invented"},
+        "modifiers":{"flexibility_factor_user_value":{"value":1.0,"unit":"none"},"source_reference":"invented"},
+        "mechanics_interface":{"solver_consumption":consumption},
+        "provenance":"invented_u2a_control"}]);
+    document
+}
+
+const EXPORT_REFUSAL: &str = "result-envelope production failed structurally: PRESSURE_1_EXPORT_NOT_AVAILABLE: \
+     pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it \
+     arrives with T4-U2";
+
+/// T4-U2 phase 1: a realized bend on the region member is admitted and solves
+/// through the runner in both modes, published Passed with its arc pressure
+/// rows. No export is produced: the pressure-1 readers and export chain admit
+/// arc rows only in phase 2 (today the reader stops the export before the
+/// pressure-1 refusal is reached).
+#[test]
+fn a_v3_document_with_a_realized_bend_solves_and_its_export_waits_for_phase_2() {
+    let payload = bend("curved_bend_macro_element");
+    for mode in MODES {
+        let output =
+            run_preview_model_value_with_mode(request(&payload["model"]), payload.clone(), mode)
+                .unwrap();
+        let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:#?}", raw["diagnostics"]);
+        assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_ID, "{mode:?}");
+        assert!(raw["results"].as_array().unwrap().iter().any(|row| row["entity_ref"] == "pipe:fixture-span"
+            && row["kind"] == "pipe_wall_axial_force_v2"));
+        assert!(raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_CHECKS_PASSED"));
+        assert!(output.result_envelope_document.is_none(), "{mode:?}");
+        assert!(output.canonical_export_unavailability.is_some(), "{mode:?}");
+    }
+}
+
 #[test]
 fn families_not_yet_admitted_are_blocked_by_name_without_export_in_both_modes() {
     let mut valve = v3();
     valve["model"]["components"] = json!([{"id":"component:valve","kind":"valve",
         "node":"node:fixture-tip","provenance":"invented_u2a_control"}]);
-    let mut bend = v3();
-    bend["model"]["components"] = json!([{"id":"component:bend","kind":"bend","node":"node:fixture-tip",
-        "geometry":{"bend_pipe_ref":"pipe:fixture-span","bend_radius":{"value":1.0,"unit":"m"},
-            "bend_plane_orientation":"invented","bend_geometry_source_reference":"invented"},
-        "modifiers":{"flexibility_factor_user_value":{"value":1.0,"unit":"none"},"source_reference":"invented"},
-        "mechanics_interface":{"solver_consumption":"curved_bend_macro_element"},
-        "provenance":"invented_u2a_control"}]);
     for (name, payload, id, family) in [
         ("valve", valve, "component:valve", "valve"),
-        ("realized bend", bend, "component:bend", "realized curved bend"),
+        ("geometry-only bend", bend("mechanics_geometry_only"), "component:bend", "geometry-only bend"),
     ] {
         for mode in MODES {
             let output = run_preview_model_value_with_mode(
@@ -124,14 +157,6 @@ fn a_straight_v3_document_solves_under_pressure_1_in_both_modes() {
         // digests are pinned by the readers and generation manifests; T4-U2
         // owns the export chain), so export is refused by name.
         assert!(output.result_envelope_document.is_none(), "{mode:?}");
-        assert_eq!(
-            output.canonical_export_unavailability.as_deref(),
-            Some(
-                "result-envelope production failed structurally: PRESSURE_1_EXPORT_NOT_AVAILABLE: \
-                 pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it \
-                 arrives with T4-U2"
-            ),
-            "{mode:?}"
-        );
+        assert_eq!(output.canonical_export_unavailability.as_deref(), Some(EXPORT_REFUSAL), "{mode:?}");
     }
 }

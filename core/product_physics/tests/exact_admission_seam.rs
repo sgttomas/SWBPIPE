@@ -403,7 +403,7 @@ fn compare(path: &str, a: &Value, b: &Value, differences: &mut Vec<String>) {
 fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
     for base in [Base::X0, Base::Y0] {
         let components = [
-            (bend(base, true), "realized curved bend"),
+            // T4-U2 admits the realized bend (see the A3 test below).
             (bend(base, false), "geometry-only bend"),
             (simple(base, "component:valve", "valve"), "valve"),
             (simple(base, "component:flange", "flange"), "flange"),
@@ -444,7 +444,13 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                 assert_v3_blocked(&envelope, base);
                 let message = finding(&envelope, FAMILY, &refs)["message"].as_str().unwrap().to_string();
                 assert!(message.contains(name), "{name}: {message}");
-                assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
+                if name == "geometry-only bend" {
+                    // D-2: never admitted; the text asks for the realization.
+                    assert!(message.contains("is not admitted under 3.0.0/exact_pressure_v3"), "{message}");
+                    assert!(message.contains("realize this bend"), "{message}");
+                } else {
+                    assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
+                }
             }
         }
     }
@@ -527,21 +533,51 @@ fn v3_connectors_reach_their_classifier_not_the_family_refusal() {
     }
 }
 
-/// T4-U0's A3 end to end: a realized bend on a member of a v3 exact pressure
-/// region reaches the seam's named refusal (no panic, no maximum row) in both
-/// entries and both modes.
+/// T4-U0's A3 end to end, since T4-U2: a realized bend on the member of a v3
+/// exact pressure region is admitted at the seam and recovered on the arc,
+/// never on its chord: it publishes the pressure family's rows and withholds
+/// the Lamé rows and the straight-statics maximum (no panic), in both entries
+/// and both modes. T4-U2's references (`t4_u2_pressure_references.rs`) check
+/// the values.
 #[test]
-fn a3_realized_bend_in_a_v3_exact_region_reaches_the_seam_refusal() {
+fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() {
     for base in [Base::X0, Base::Y0] {
         let mut document = base.v3();
         let region = &case_mut(&mut document, base.pressurized_case())["pressure_regions"][0];
         assert!(region["member_pipe_ids"].as_array().unwrap().contains(&json!(base.region_pipe())));
         push(&mut document, "components", bend(base, true));
         for envelope in run_all(&document) {
-            assert_v3_blocked(&envelope, base);
-            finding(&envelope, FAMILY, &["component:bend"]);
-            assert!(!envelope.to_string().contains("pipe_elastic_normal_stress_maximum_v2"));
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?}: {:#?}", envelope["diagnostics"]);
+            assert!(!has_code(&envelope, FAMILY));
             assert!(!has_code(&envelope, "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT"));
+            assert_v3_identity(&envelope);
+            let kinds = envelope["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|row| {
+                    row["entity_ref"] == base.region_pipe()
+                        && row["basis_ref"]["ref_id"] == base.pressurized_case()
+                })
+                .map(|row| row["kind"].as_str().unwrap().to_string())
+                .collect::<std::collections::BTreeSet<_>>();
+            for kind in ["pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "pipe_wall_endpoint_action_v2"] {
+                assert!(kinds.contains(kind), "{base:?}: {kind} missing: {kinds:?}");
+            }
+            for kind in [
+                "pipe_lame_hoop_stress_v2",
+                "pipe_lame_radial_stress_v2",
+                "pipe_elastic_normal_stress_maximum_v2",
+                "element_local_axial_force",
+            ] {
+                assert!(!kinds.contains(kind), "{base:?}: {kind} published on an arc");
+            }
+            assert!(has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"));
+            // The arc's withheld maximum recurs per case (X0 has two): every
+            // diagnostic id stays unique.
+            let ids = diagnostics(&envelope).iter().map(|d| d["id"].as_str().unwrap()).collect::<Vec<_>>();
+            let unique = ids.iter().collect::<std::collections::BTreeSet<_>>();
+            assert_eq!(unique.len(), ids.len(), "{base:?}: {ids:#?}");
         }
     }
 }

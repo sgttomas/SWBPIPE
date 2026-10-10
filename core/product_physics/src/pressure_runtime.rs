@@ -1,8 +1,15 @@
-//! Explicit straight pressure regions, normalized evidence and load ownership.
+//! Explicit pressure regions, normalized evidence and load ownership.
 //!
 //! Only the pressure-Poisson eigenload enters `eigenloads`; thermal and
 //! mechanical loads remain owned by the caller. Terminal cap transfer is a
 //! distinct applied-load ledger and must never be subtracted in wall recovery.
+//!
+//! T4-U2 (H-2): under `3.0.0/exact_pressure_v3` a region may change direction
+//! at realized bends. Straight members keep the pre-cancelled ledger and its
+//! collinearity guard per straight run; each arc carries its own state
+//! (`ArcPressure`), its −c_b pair and, at each bend-adjacent junction, the
+//! remainder +pAi(t_in − t_out) in the source groups; its K_b·u_free(ε_p) is
+//! pushed by the case ledger (`lib.rs`), and `bend_pressure` recovers it.
 
 use super::pressure_exact::{InternalDifferentialPressure, IsotropicENu, SourceAnnulus};
 use super::{
@@ -25,6 +32,14 @@ const PRESSURE_BASIS: &str = "internal_differential_zero_external_v1";
 const MATERIAL_BASIS: &str = "homogeneous_isotropic_E_nu_v1";
 /// Representation agreement only, not an engineering geometry tolerance.
 const REPRESENTATION_GUARD: f64 = 64.0 * f64::EPSILON;
+/// T4-U2: the region rule at realized bends, as published in evidence.
+const ARC_TANGENCY_RULE: &str = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)";
+/// T4-U2 (plan section 4.3 item 1; U0's maximum policy): why an arc member
+/// publishes no Lame rows and no straight-statics maximum.
+const ARC_WITHHELD_REASON: &str = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc";
+/// T4-U2 (D-D): the named refusal of a direction change above alpha_tan at a
+/// realized bend's end; static text (T3 O-10).
+const MITRE_UNSUPPORTED: &str = "PRESSURE_REGION_MITRE_UNSUPPORTED";
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -73,8 +88,41 @@ pub(crate) struct ExactPressurePipeState {
     pub annulus: SourceAnnulus,
     pub pressure: InternalDifferentialPressure,
     pub material: IsotropicENu,
-    /// Pressure-only applied RHS pair in this pipe's authored local i/j frame.
+    /// Pressure-only applied RHS pair in this pipe's authored local i/j frame
+    /// (straight members; `[0, 0]` on a realized arc, whose eigenstrain is
+    /// `arc.strain`).
     pub eigenload_pair: [f64; 2],
+    /// T4-U2: a realized curved bend's pressure data (H-2); `None` on a
+    /// straight member.
+    pub arc: Option<ArcPressure>,
+}
+
+/// T4-U2 (H-2): the pressure data of one realized arc in a v3 region. Its
+/// member-owned term is K_b·u_free(ε_p) − c_b, with c_b = [−pAi·t_i,
+/// +pAi·t_j]: the load pushes K_b·u_free(`strain`) (`bend_pressure`) and the
+/// source groups carry −c_b; recovery subtracts u_free(`strain`) with the
+/// thermal free expansion, then adds pAi to the axial force.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ArcPressure {
+    /// The arc's unit end tangents [t_i, t_j], oriented i → j (CB's shared
+    /// `arc_geometry` through the element).
+    pub tangents: [[f64; 3]; 2],
+    /// ε_p = (1 − 2ν)pAi/(E·As) as represented (`arc_pressure_strain`): the
+    /// one value the load and the recovery share.
+    pub strain: f64,
+}
+
+/// T4-U2: a bend-adjacent junction of a region chain, in traversal order.
+#[derive(Debug, Clone, Copy)]
+struct Junction {
+    node: usize,
+    /// Traversal indices of the incoming and outgoing members.
+    before: usize,
+    after: usize,
+    /// Traversal-oriented unit directions at the node.
+    t_in: [f64; 3],
+    t_out: [f64; 3],
+    theta: f64,
 }
 
 /// SP-1 (T4-U1): whether the document declares the v2 contract
@@ -121,14 +169,14 @@ fn problem(
     diagnostics.push(finding);
 }
 
-/// T4-U0 (A3): the exact route's pressure recovery decision for one member of
-/// an exact pressure region. A region member recovers from its straight
-/// mechanical/thermal end actions (returned). A region member without them (a
-/// realized curved bend) is refused by name through `problem` and `None` is
-/// returned: it is never recovered on its chord. Called only from `lib.rs`'s
-/// `append_exact_pressure_results`, that is, only for a member of an exact
-/// pressure region. Unreachable through the public entry until T4-U2a lifts
-/// the component refusal; the end-to-end wiring test lands with T4-U2a.
+/// T4-U0 (A3): the exact route's pressure recovery decision for one straight
+/// member of an exact pressure region. A region member recovers from its
+/// straight mechanical/thermal end actions (returned). A region member without
+/// them is refused by name through `problem` and `None` is returned: it is
+/// never recovered on its chord. Called only from `lib.rs`'s
+/// `append_exact_pressure_results`; since T4-U2 a realized arc takes
+/// `bend_pressure::append_arc_pressure_results` instead, so this refusal is a
+/// guard that no admitted path reaches.
 pub(crate) fn exact_member_recovery<'m>(
     diagnostics: &mut Vec<Diagnostic>,
     case_id: &str,
@@ -582,7 +630,8 @@ pub(crate) fn build_pressure_case_with_members(
 
     for region in regions {
         let id = region.id.as_deref()?;
-        let Some(traversal) = traverse_region(model, built, case, region, diagnostics) else {
+        let Some((traversal, junctions)) = traverse_region(model, built, case, region, diagnostics)
+        else {
             continue;
         };
         let input_pressure = region.pressure.as_ref()?;
@@ -746,15 +795,54 @@ pub(crate) fn build_pressure_case_with_members(
                     continue;
                 }
             };
+            // T4-U2: a realized arc in a v3 region (bends never reach here
+            // under v2: the seam refuses them). Its end directions are the
+            // arc's end tangents; a straight member's are its local x.
+            let arc_build = built
+                .curved_bend_elements
+                .iter()
+                .find(|bend| bend.pipe_index == step.pipe_index);
+            let arc = match arc_build {
+                None => None,
+                Some(bend) => match (
+                    bend.macro_element.end_tangents(),
+                    annulus.arc_pressure_strain(material, pressure),
+                ) {
+                    (Ok(tangents), Ok(strain)) => Some(ArcPressure { tangents, strain }),
+                    (Err(_), _) => {
+                        problem(diagnostics, "PRESSURE_REGION_GEOMETRY_INVALID", &[&case.id, id, &pipe.element_id],
+                            "the realized bend's end tangents cannot be formed from its chord, radius and y_reference");
+                        continue;
+                    }
+                    (_, Err(_)) => {
+                        problem(diagnostics, "EXACT_PRESSURE_OUTPUT_UNREPRESENTABLE", &[&case.id, id, &pipe.element_id],
+                            "the realized bend's pressure strain (1-2nu)pAi/(E As) cannot be represented");
+                        continue;
+                    }
+                },
+            };
+            let end_directions = arc.map_or([direction, direction], |arc| arc.tangents);
             let mut member_geometry = super::exact_section_evidence(&pipe.element_id, annulus);
             member_geometry["traversal_forward"] = json!(step.forward);
+            if let Some(arc) = &arc {
+                member_geometry["member_kind"] = json!("realized_arc");
+                member_geometry["arc_end_tangents_global"] = json!(arc.tangents);
+            }
             geometry.push(member_geometry);
             material_evidence.push(json!({"pipe_id":pipe.element_id,"material_id":material_input.id,
                 "E_pa":material.elastic_modulus_pa(),"nu":material.poisson_ratio(),"G_pa":material.shear_modulus_pa(),
                 "constitutive_basis":MATERIAL_BASIS,"temperature_basis":if member_pairs.is_some() { json!("resolved_member_state") } else { temperature_basis(case) },"provenance":material_input.provenance,
                 "thermal_consumed":thermal_consumed,"alpha_per_kelvin":alpha.map(|quantity|quantity.value)}));
-            load_evidence.push(json!({"pipe_id":pipe.element_id,"eigenload_pair_local_n":eigen,
-                "mathematical_cap_pair_local_n":caps,"local_x_global":direction,"thermal_included":false}));
+            match &arc {
+                None => load_evidence.push(json!({"pipe_id":pipe.element_id,"eigenload_pair_local_n":eigen,
+                    "mathematical_cap_pair_local_n":caps,"local_x_global":direction,"thermal_included":false})),
+                Some(arc) => load_evidence.push(json!({"pipe_id":pipe.element_id,
+                    "bend_term":"K_b*u_free(eps_p)-c_b","arc_pressure_strain":arc.strain,
+                    "arc_pressure_strain_definition":"(1-2nu)pAi/(E As)",
+                    "mathematical_cap_pair_local_n":caps,"arc_end_tangents_global":arc.tangents,
+                    "bend_cap_pair_removed_global_n":[arc.tangents[0].map(|v| -v * caps[0]), arc.tangents[1].map(|v| -v * caps[1])],
+                    "thermal_included":false})),
+            }
             region_states.push((
                 step,
                 ExactPressurePipeState {
@@ -762,10 +850,11 @@ pub(crate) fn build_pressure_case_with_members(
                     annulus,
                     pressure,
                     material,
-                    eigenload_pair: eigen,
+                    eigenload_pair: if arc.is_some() { [0.0, 0.0] } else { eigen },
+                    arc,
                 },
                 caps,
-                direction,
+                end_directions,
             ));
         }
         if region_states.len() != traversal.len() || has_blocking(diagnostics) {
@@ -774,7 +863,7 @@ pub(crate) fn build_pressure_case_with_members(
         let terminals = region.terminals.as_ref()?;
         let mut terminal_evidence = Vec::new();
         for (index, terminal) in terminals.iter().enumerate() {
-            let (step, _, caps, direction) = if index == 0 {
+            let (step, _, caps, directions) = if index == 0 {
                 &region_states[0]
             } else {
                 region_states.last()?
@@ -786,7 +875,7 @@ pub(crate) fn build_pressure_case_with_members(
             };
             let pipe = &built.pipes[step.pipe_index];
             let local_slot = if node == pipe.node_i.index { 0 } else { 1 };
-            let cap_global = direction.map(|value| value * caps[local_slot]);
+            let cap_global = directions[local_slot].map(|value| value * caps[local_slot]);
             let transfers = terminal.closure_transfer.as_deref() == Some("transfers_to_wall");
             let transferred = if transfers { cap_global } else { [0.0; 3] };
             for axis in 0..3 {
@@ -800,26 +889,72 @@ pub(crate) fn build_pressure_case_with_members(
                 "remote_closure_excluded_from_pipe_solve":!transfers}),
             );
         }
-        for (step, state, _, direction) in region_states {
+        // T4-U2 (H-2): at each bend-adjacent junction the remainder
+        // +pAi(t_in - t_out), in traversal order. Each direction's term is
+        // keyed with the state of the member it belongs to, so the arc's own
+        // tangent term cancels its -c_b term exactly (same key, coefficients
+        // +1 and -1): an admitted kink is carried exactly, never snapped.
+        let mut junction_evidence = Vec::new();
+        for junction in &junctions {
+            for (traversal_index, t, coefficient) in
+                [(junction.before, junction.t_in, 1.0), (junction.after, junction.t_out, -1.0)]
+            {
+                let (step, state, _, _) = &region_states[traversal_index];
+                let pipe = &built.pipes[step.pipe_index];
+                for axis in 0..3 {
+                    add_factor_term(
+                        &mut factor_groups,
+                        junction.node * DOF_PER_NODE + axis,
+                        state,
+                        t[axis],
+                        coefficient,
+                        id,
+                        &pipe.element_id,
+                        "kink_remainder",
+                    );
+                }
+            }
+            junction_evidence.push(json!({"node_ref":model.nodes[junction.node].id,
+                "pipe_in":built.pipes[region_states[junction.before].0.pipe_index].element_id,
+                "pipe_out":built.pipes[region_states[junction.after].0.pipe_index].element_id,
+                "t_in_global":junction.t_in,"t_out_global":junction.t_out,"theta_rad":junction.theta}));
+        }
+        let has_arc = region_states.iter().any(|(_, state, _, _)| state.arc.is_some());
+        for (step, state, _, directions) in region_states {
             let pipe = &built.pipes[step.pipe_index];
             for (end, node) in [pipe.node_i.index, pipe.node_j.index]
                 .into_iter()
                 .enumerate()
             {
+                let direction = directions[end];
                 for axis in 0..3 {
-                    eigen_terms[node * DOF_PER_NODE + axis]
-                        .push(direction[axis] * state.eigenload_pair[end]);
                     let sign = if end == 0 { 1.0 } else { -1.0 };
-                    add_factor_term(
-                        &mut factor_groups,
-                        node * DOF_PER_NODE + axis,
-                        &state,
-                        direction[axis],
-                        sign * 2.0 * state.material.poisson_ratio(),
-                        id,
-                        &pipe.element_id,
-                        "poisson_eigen",
-                    );
+                    if state.arc.is_none() {
+                        eigen_terms[node * DOF_PER_NODE + axis]
+                            .push(direction[axis] * state.eigenload_pair[end]);
+                        add_factor_term(
+                            &mut factor_groups,
+                            node * DOF_PER_NODE + axis,
+                            &state,
+                            direction[axis],
+                            sign * 2.0 * state.material.poisson_ratio(),
+                            id,
+                            &pipe.element_id,
+                            "poisson_eigen",
+                        );
+                    } else {
+                        // -c_b: +pAi t_i at node i, -pAi t_j at node j (H-2).
+                        add_factor_term(
+                            &mut factor_groups,
+                            node * DOF_PER_NODE + axis,
+                            &state,
+                            direction[axis],
+                            sign,
+                            id,
+                            &pipe.element_id,
+                            "bend_cap_removed",
+                        );
+                    }
                     let node_ref = &model.nodes[node].id;
                     if terminals.iter().any(|terminal| {
                         terminal.node_ref.as_ref() == Some(node_ref)
@@ -854,6 +989,16 @@ pub(crate) fn build_pressure_case_with_members(
             "materials":material_evidence,"applied_loads":load_evidence,"provenance":region.provenance,
             "approximation":"long_straight_annulus_small_strain_v2","external_pressure_increment_pa":0.0,
             "geometry_representation_guard":{"epsilon_multiplier":64,"meaning":"arithmetic_representation_only"}}));
+        if has_arc {
+            // T4-U2: only a region with a realized arc carries these keys, so
+            // a straight-only region's evidence is unchanged (SP-1).
+            let evidence = output.evidence.last_mut().expect("pushed above");
+            evidence["approximation"] = json!("straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3");
+            evidence["tangency_tolerance_rad"] = json!(super::TANGENCY_TOLERANCE_RAD);
+            evidence["tangency_rule"] = json!(ARC_TANGENCY_RULE);
+            evidence["bend_adjacent_junctions"] = json!(junction_evidence);
+            evidence["withheld_on_arcs"] = json!({"result_kinds":["pipe_lame_radial_stress_v2","pipe_lame_hoop_stress_v2","pipe_elastic_normal_stress_maximum_v2"],"reason":ARC_WITHHELD_REASON});
+        }
     }
     for dof in 0..output.cap_loads.len() {
         match (
@@ -1051,13 +1196,16 @@ fn temperature_basis(case: &PreviewLoadCase) -> Value {
     }
 }
 
+/// The region's chain in traversal order and, where it contains a realized
+/// arc, its bend-adjacent junctions (T4-U2). A region without an arc takes
+/// exactly the pre-T4-U2 path: one collinear chain between its terminals.
 fn traverse_region(
     model: &PreviewModel,
     built: &BuiltModel,
     case: &PreviewLoadCase,
     region: &PressureRegionInput,
     diagnostics: &mut Vec<Diagnostic>,
-) -> Option<Vec<TraversedPipe>> {
+) -> Option<(Vec<TraversedPipe>, Vec<Junction>)> {
     let id = region.id.as_deref()?;
     let refs = [&*case.id, id];
     let members = region.member_pipe_ids.as_ref()?;
@@ -1185,22 +1333,124 @@ fn traverse_region(
         problem(diagnostics,"PRESSURE_REGION_TOPOLOGY_INVALID",&refs,"region is disconnected, cyclic, or does not traverse every member exactly once between its terminals");
         return None;
     }
-    let origin = built.nodes.get(terminal_nodes[0])?.coordinates;
-    let end = built.nodes.get(terminal_nodes[1])?.coordinates;
+    // T4-U2: each arc member's end tangents [t_i, t_j] (i -> j).
+    let mut arc_tangents = HashMap::new();
+    for step in &traversal {
+        if let Some(bend) = built
+            .curved_bend_elements
+            .iter()
+            .find(|bend| bend.pipe_index == step.pipe_index)
+        {
+            let Ok(tangents) = bend.macro_element.end_tangents() else {
+                problem(diagnostics, "PRESSURE_REGION_GEOMETRY_INVALID", &refs,
+                    "a realized bend's end tangents cannot be formed from its chord, radius and y_reference");
+                return None;
+            };
+            arc_tangents.insert(step.pipe_index, tangents);
+        }
+    }
+    if arc_tangents.is_empty() {
+        collinear_run(built, &traversal, terminal_nodes[0], terminal_nodes[1], &refs, diagnostics)?;
+        return Some((traversal, Vec::new()));
+    }
+    // Straight runs between arcs: each keeps the collinearity guard (D-E).
+    let mut run_start = None;
+    for (index, step) in traversal.iter().enumerate() {
+        if arc_tangents.contains_key(&step.pipe_index) {
+            continue;
+        }
+        let start = *run_start.get_or_insert(index);
+        let run_ends = traversal
+            .get(index + 1)
+            .map_or(true, |next| arc_tangents.contains_key(&next.pipe_index));
+        if run_ends {
+            let steps = &traversal[start..=index];
+            collinear_run(built, steps, steps[0].start_node, step.end_node, &refs, diagnostics)?;
+            run_start = None;
+        }
+    }
+    // The traversal-oriented directions of a member at its start and end.
+    let directions = |step: &TraversedPipe| -> Option<[[f64; 3]; 2]> {
+        let [t_i, t_j] = match arc_tangents.get(&step.pipe_index) {
+            Some(&tangents) => tangents,
+            None => {
+                let axis = built.pipes[step.pipe_index]
+                    .frame_element()
+                    .ok()?
+                    .orientation()
+                    .ok()?
+                    .local_axes[0];
+                [axis, axis]
+            }
+        };
+        Some(if step.forward {
+            [t_i, t_j]
+        } else {
+            [t_j.map(|value| -value), t_i.map(|value| -value)]
+        })
+    };
+    let mut junctions = Vec::new();
+    for before in 0..traversal.len().saturating_sub(1) {
+        let after = before + 1;
+        let (incoming, outgoing) = (&traversal[before], &traversal[after]);
+        if !arc_tangents.contains_key(&incoming.pipe_index)
+            && !arc_tangents.contains_key(&outgoing.pipe_index)
+        {
+            continue;
+        }
+        let pipes = [
+            built.pipes[incoming.pipe_index].element_id.as_str(),
+            built.pipes[outgoing.pipe_index].element_id.as_str(),
+        ];
+        let node_id = model.nodes[incoming.end_node].id.as_str();
+        let junction_refs = [&*case.id, id, node_id, pipes[0], pipes[1]];
+        let (Some([_, t_in]), Some([t_out, _])) = (directions(incoming), directions(outgoing)) else {
+            problem(diagnostics, "PRESSURE_REGION_GEOMETRY_INVALID", &junction_refs,
+                "a bend-adjacent member's direction cannot be formed");
+            return None;
+        };
+        let Ok(theta) = super::kink(t_in, t_out) else {
+            problem(diagnostics, "PRESSURE_REGION_GEOMETRY_INVALID", &junction_refs,
+                "the direction change at a bend-adjacent junction is not defined");
+            return None;
+        };
+        if !(theta <= super::TANGENCY_TOLERANCE_RAD) {
+            problem(diagnostics, MITRE_UNSUPPORTED, &junction_refs,
+                "the direction change at a realized bend's end exceeds the tangency tolerance alpha_tan = 1e-3 rad (theta = atan2(|t_in x t_out|, t_in . t_out)); a mitre is not admitted under 3.0.0/exact_pressure_v3, so the region is refused; make the bend tangent to its neighbours");
+            return None;
+        }
+        junctions.push(Junction { node: incoming.end_node, before, after, t_in, t_out, theta });
+    }
+    Some((traversal, junctions))
+}
+
+/// One collinear chain of straight members between two nodes: today's
+/// representation guard (64ε of the span), unchanged; the whole region when
+/// it has no realized arc.
+fn collinear_run(
+    built: &BuiltModel,
+    steps: &[TraversedPipe],
+    origin_node: usize,
+    end_node: usize,
+    refs: &[&str],
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<()> {
+    let origin = built.nodes.get(origin_node)?.coordinates;
+    let end = built.nodes.get(end_node)?.coordinates;
     let chord = std::array::from_fn::<_, 3, _>(|axis| end[axis] - origin[axis]);
     let length = norm3(chord[0], chord[1], chord[2]);
     if !length.is_finite() || length <= 0.0 {
         problem(
             diagnostics,
             "PRESSURE_REGION_GEOMETRY_INVALID",
-            &refs,
+            refs,
             "region terminal span must be finite and nonzero",
         );
         return None;
     }
     let direction = chord.map(|value| value / length);
     let mut previous = 0.0;
-    for step in &traversal {
+    for step in steps {
         let point = built.nodes.get(step.end_node)?.coordinates;
         let delta = std::array::from_fn::<_, 3, _>(|axis| (point[axis] - origin[axis]) / length);
         let projection = delta.iter().zip(direction).map(|(a, b)| a * b).sum::<f64>();
@@ -1213,13 +1463,13 @@ fn traverse_region(
             || projection <= previous
             || projection > 1.0 + REPRESENTATION_GUARD
         {
-            problem(diagnostics,"PRESSURE_REGION_NONCOLLINEAR",&refs,
+            problem(diagnostics,"PRESSURE_REGION_NONCOLLINEAR",refs,
                 format!("region must be a nonoverlapping collinear chain; perpendicular error exceeds 64*epsilon*terminal_span or traversal backtracks (reference_scale={length:e} m, normalized_error={residual:e}); this is a representation guard, not an engineering fit tolerance"));
             return None;
         }
         previous = projection;
     }
-    Some(traversal)
+    Some(())
 }
 
 #[cfg(test)]
@@ -1457,6 +1707,7 @@ mod tests {
             pressure: InternalDifferentialPressure::new(3.0).unwrap(),
             material: IsotropicENu::new(120.0, 0.25).unwrap(),
             eigenload_pair: [0.0, 0.0],
+            arc: None,
         }
     }
 
@@ -1797,6 +2048,7 @@ mod grouping_identity_tests {
             material,
             pressure,
             eigenload_pair: annulus.eigenload_pair(material, pressure, 0.0).unwrap(),
+            arc: None,
         };
         let mut groups = BTreeMap::new();
         for zero in [-0.0, 0.0] {

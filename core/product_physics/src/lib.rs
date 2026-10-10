@@ -35,7 +35,7 @@ mod s11g_tests;
 mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
-pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame};
+pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
 // I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
 use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
@@ -113,6 +113,7 @@ mod membrane_publication_range;
 mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
+mod bend_pressure;
 mod joint;
 use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
@@ -1009,10 +1010,16 @@ fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
     if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
         // T4-U3: a model with an objective connector states its law; a model
         // without one keeps v3's text unchanged.
-        return exact_admission::pressure_v3_formulation_basis(
+        let mut basis = exact_admission::pressure_v3_formulation_basis(
             case_state::is_load_state(model),
             model.components.iter().any(|c| c.objective_connector.is_some()),
         );
+        // T4-U2: a model with a realized bend states the bend's terms; a
+        // straight-only v3 model keeps its text unchanged (SP-1).
+        if model.components.iter().any(is_curved_bend_macro_component) {
+            basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
+        }
+        return basis;
     }
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
@@ -2816,7 +2823,11 @@ fn run_linear_static_preview_observed(
     // H-4: the key is kept; since T4-U3 it counts the curved macro-element rows
     // only (the joint review rows are no longer produced).
     let component_user_stiffness_macro_element_count =
-        append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
+        append_curved_bend_macro_element_results(
+            &built.curved_bend_elements,
+            pressure_runtime::exact_contract(&model) == Some(pressure_runtime::ExactContract::PressureV3),
+            &mut results,
+        );
     let spring_hanger_user_input_count =
         append_spring_hanger_user_input_results(&model, &mut results);
 
@@ -4016,6 +4027,8 @@ fn case_force_ledger(
     );
     if let Some(exact) = exact_pressure {
         push_exact_pressure_operands(&mut ledger, exact);
+        // T4-U2 (H-2): each realized arc's K_b·u_free(ε_p).
+        add_curved_bend_pressure_equivalent_load(&mut ledger, exact, curved_bends_by_pipe);
     }
     add_connector_reference_loads(&mut ledger, built, load_case_id, diagnostics);
     // DEC-049 constant-effort consumption enters here — the one assembled
@@ -5240,6 +5253,7 @@ fn solve_load_case_observed(
                 &displacements,
                 &thermal_loads,
                 uniform_intensities,
+                bend_pressure::recovery_strain(exact_pressure.as_ref(), pipe_index),
             ) {
                 Ok(local_forces) => local_forces,
                 Err(message) => {
@@ -5736,7 +5750,15 @@ fn solve_load_case_observed(
                 }
                 Err(error) => {
                     unavailable_stress_maximum_members.push(pipe.element_id.clone());
-                    diagnostics.push(diag(&format!("diagnostic:exact-stress:{}:extrema",stable_suffix(&pipe.element_id)),"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {error}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
+                    // T4-U2: an arc's withheld maximum recurs in every case, so
+                    // its id is case-qualified; a straight member's id keeps
+                    // its bytes (SP-1).
+                    let id = if macro_bend.is_some() {
+                        format!("diagnostic:exact-stress:{}:{}:extrema", stable_suffix(&load_case.id), stable_suffix(&pipe.element_id))
+                    } else {
+                        format!("diagnostic:exact-stress:{}:extrema", stable_suffix(&pipe.element_id))
+                    };
+                    diagnostics.push(diag(&id,"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {error}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
                 }
             }
             None
@@ -5768,7 +5790,21 @@ fn solve_load_case_observed(
                 metadata: None,
             });
         }
-        if let Some(state) = exact_pressure
+        if let (Some(state), true) = (
+            exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index)),
+            macro_bend.is_some(),
+        ) {
+            // T4-U2 (H-2): a realized arc's pressure rows.
+            bend_pressure::append_arc_pressure_results(
+                &mut results,
+                diagnostics,
+                load_case,
+                &pipe.element_id,
+                state,
+                &endpoint_resultants,
+                &station_resultants,
+            );
+        } else if let Some(state) = exact_pressure
             .as_ref()
             .and_then(|case| case.pipe_states.get(&pipe_index))
         {
@@ -11045,6 +11081,46 @@ fn add_curved_bend_thermal_equivalent_load(
     }
 }
 
+// T4-U2 (H-2): a realized arc's member-owned pressure term K_b·u_free(ε_p)
+// (its −c_b, the caps and the remainders are exact-pressure source groups).
+// The same exact products as the thermal identity above, K_rc·fl(ε_p·d_c)
+// per nonzero column, self-equilibrated; ε_p is the represented
+// `arc_pressure_strain`, whose own formation error is each term's S11-G
+// operand bound (`bend_pressure::strain_operand_bound`).
+fn add_curved_bend_pressure_equivalent_load(
+    ledger: &mut LoadLedger,
+    exact: &pressure_runtime::ExactPressureCase,
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+) {
+    for (pipe_index, state) in &exact.pipe_states {
+        let (Some(arc), Some(bend)) = (state.arc, curved_bends_by_pipe.get(pipe_index)) else {
+            continue;
+        };
+        let free_expansion = curved_bend_free_expansion_displacements(bend, arc.strain);
+        let dof_map = element_dof_map(bend.node_i, bend.node_j);
+        for (local_row, &global_row) in dof_map.iter().enumerate() {
+            for (local_col, &free_value) in free_expansion.iter().enumerate() {
+                if free_value != 0.0 {
+                    let k = bend.global_stiffness[local_row][local_col];
+                    ledger.push_formed_product(
+                        &state.region_id,
+                        global_row,
+                        k,
+                        free_value,
+                        Formation::RoundedProduct {
+                            k,
+                            a: arc.strain,
+                            b: bend.chord[local_col - DOF_PER_NODE],
+                        },
+                        bend_pressure::strain_operand_bound(k, free_value),
+                        true,
+                    );
+                }
+            }
+        }
+    }
+}
+
 // Free thermal expansion of the arc about node i: node i stays put and node j
 // translates by thermal_strain * chord with zero end rotations (uniform
 // scaling is rotation-free; the rigid part of the field is in the stiffness
@@ -11121,6 +11197,7 @@ fn recover_curved_bend_local_forces(
     displacements: &[f64],
     thermal_loads: &[ThermalElementLoad],
     uniform_intensities: &[[f64; 3]],
+    pressure_strain: Option<f64>,
 ) -> Result<Vec<f64>, String> {
     let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
     if displacements.len() < required {
@@ -11142,10 +11219,14 @@ fn recover_curved_bend_local_forces(
     // load l (the force side's exact products), minus each uniform load's own
     // consistent equivalent, rounded once. The chord rotation below stays a
     // formed transform.
+    // T4-U2 (H-2): an arc in a pressure region also subtracts the free
+    // expansion of its represented ε_p, the value its load used.
     let free_expansions = thermal_loads
         .iter()
         .filter(|load| load.element_index == bend.pipe_index)
-        .map(|load| curved_bend_free_expansion_displacements(bend, load.thermal_strain))
+        .map(|load| load.thermal_strain)
+        .chain(pressure_strain)
+        .map(|strain| curved_bend_free_expansion_displacements(bend, strain))
         .collect::<Vec<_>>();
     let mut equivalents = Vec::new();
     for &intensity in uniform_intensities {
@@ -12156,8 +12237,16 @@ fn append_component_stress_multiplier_result(
 // style), and record the arc-geometry conventions and load/recovery decisions.
 fn append_curved_bend_macro_element_results(
     curved_bend_elements: &[CurvedBendMacroBuild],
+    pressure_v3: bool,
     results: &mut Vec<ResultItem>,
 ) -> usize {
+    // T4-U2: under v3 a realized bend carries its member-owned pressure term
+    // (H-2); every other route keeps its text byte for byte.
+    let pressure_treatment = if pressure_v3 {
+        "exact_pressure_v3_member_owned_bend_term_k_u_free_eps_p_minus_end_caps"
+    } else {
+        "none_pressure_refused_outside_the_exact_straight_contract"
+    };
     let mut appended = 0;
     for element in curved_bend_elements {
         let component_suffix = stable_suffix(&element.component_id);
@@ -12174,13 +12263,14 @@ fn append_curved_bend_macro_element_results(
                 coordinate_system: "component_local_preview".to_string(),
                 location: element.pipe_id.clone(),
                 basis: format!(
-                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=none_pressure_refused_outside_the_exact_straight_contract;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment={};recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
                     scalar_string(element.flexibility_factor),
                     scalar_string(element.bend_radius),
                     scalar_string(element.included_angle),
                     scalar_string(element.arc_length),
                     element.source_reference,
-                    DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
+                    DEC_070_CURVED_BEND_SOLVER_CONSUMPTION,
+                    pressure_treatment
                 ),
                 sign_convention:
                     "positive value is the user-entered bend flexibility factor consumed by the assembled curved-bend macro-element stiffness; the stress-review multiplier applies the user-entered SIF only and no protected or default component factor is supplied"
