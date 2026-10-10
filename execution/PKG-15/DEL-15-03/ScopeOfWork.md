@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > |---|---|
 > | Primary input contracts | ACTIVE upstream rows in local `Dependencies.csv`, plus `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
 > | Primary output | Generic handoff exporter at `core/handoff/exporter/workflow.py` capable of producing a schema-compliant handoff package and provider-neutral target mapping record. |
-> | Validation evidence | `tests/test_handoff_export_workflow.py` validates exported handoff/mapping inputs against schema contracts and checks `fixtures/invented_target_fixture.json` provenance. |
+> | Validation evidence | `tests/test_handoff_export_workflow.py` validates exported handoff/mapping inputs against schema contracts and checks `fixtures/handoff/invented_target_fixture.json` (project-relative) provenance. |
 > | Unsupported target behavior | Must surface unsupported-target flags and warnings; taxonomy and target mapping records are provided by upstream contract work. |
 > | Hash handling | Package/model checksum/reference fields preserve the producer-declared byte-basis label. DEL-15-03 does not recompute, relabel, or assert JCS conformance; package container and target-specific hash packaging remain TBD. |
 > | Fixture data | Invented target fixture only; no protected commercial-tool examples or proprietary data. |
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 >
 > - Exporter implementation path: `core/handoff/exporter/workflow.py`.
 > - Export validation test path: `tests/test_handoff_export_workflow.py`.
-> - Invented target fixture path and provenance: `fixtures/invented_target_fixture.json`, validated as invented public metadata.
+> - Invented target fixture path and provenance: `fixtures/handoff/invented_target_fixture.json` (project-relative), validated as invented public metadata.
 > - Handoff schema version or source: `schemas/handoff_package.schema.json`.
 > - Target mapping taxonomy/source: `schemas/target_mapping.schema.json`.
 > - Dependency validation evidence: `Dependencies.csv` schema validation output.
@@ -313,7 +313,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > - The local `Dependencies.csv` records upstream architecture-basis and interop/security/model-contract inputs as ACTIVE DAG-002 mirror evidence. Treat those rows as coordination evidence, not as permission to copy sibling deliverable prose or implementation details into this folder.
 > - Upstream contracts named by the mirror include the canonical handoff package schema, target mapping and unsupported-behavior contract, import/export adapter framework, local FEA handoff data contract, private-data redaction/export controls, physical-to-analytical transformation contract, and comparison export contracts.
 > - The workflow should report unsupported-target behavior rather than silently approximating it. Provider-neutral unsupported behavior and target mapping records are now supplied by `schemas/target_mapping.schema.json`; target-specific extensions remain gated by DEL-17-01 and DEL-17-02.
-> - The current fixture is `fixtures/invented_target_fixture.json`; it is invented public metadata used by `tests/test_handoff_export_workflow.py` to exercise schema shape, warnings, assumptions, provenance, and unsupported-target flags without resembling commercial-tool examples.
+> - The current fixture is `fixtures/handoff/invented_target_fixture.json` (project-relative); it is invented public metadata used by `tests/test_handoff_export_workflow.py` to exercise schema shape, warnings, assumptions, provenance, and unsupported-target flags without resembling commercial-tool examples.
 > - The generic exporter entry point is `core/handoff/exporter/workflow.py`. Package container structure, concrete mappings, target field coverage, and target-specific implementation remain gated.
 >
 
@@ -333,7 +333,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 
 > ##### Examples
 >
-> The current example fixture is `fixtures/invented_target_fixture.json`. It is invented public metadata only and is checked by `tests/test_handoff_export_workflow.py` alongside schema validation for `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
+> The current example fixture is `fixtures/handoff/invented_target_fixture.json` (project-relative). It is invented public metadata only and is checked by `tests/test_handoff_export_workflow.py` alongside schema validation for `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
 >
 > Do not derive future example values from protected standards, commercial software files, proprietary catalogs, owner standards, or private project data.
 >
