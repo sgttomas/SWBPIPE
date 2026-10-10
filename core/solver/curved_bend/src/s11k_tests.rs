@@ -10,7 +10,8 @@ fn bend() -> CurvedBendMacroElement {
     CurvedBendMacroElement::new(
         FrameNode::new(0, [2.0, 0.0, 0.0]).unwrap(),
         FrameNode::new(1, [0.0, 2.0, 0.0]).unwrap(),
-        [0.0, 0.0, 0.0],
+        2.0,
+        [1.0, 1.0, 0.0],
         2.0e11,
         7.7e10,
         0.01,

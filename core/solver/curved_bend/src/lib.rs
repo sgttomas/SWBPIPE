@@ -8,7 +8,7 @@
 //! flexibility-factor or stress-intensification formulas, or private
 //! project data.
 
-use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_dot, ExactAccumulator};
 use std::error::Error;
 use std::f64::consts::PI;
 use std::fmt;
@@ -18,30 +18,42 @@ use open_pipe_stress_frame_kernel::{
     Matrix12, DOF_PER_NODE, ELEMENT_DOF,
 };
 
+mod arc_integrals;
+use arc_integrals::HalfAngle;
+
 /// Node-level 6x6 matrix in the frame-kernel DOF order [ux, uy, uz, rx, ry, rz].
 pub type Matrix6 = [[f64; DOF_PER_NODE]; DOF_PER_NODE];
 
 const AXIS_TOLERANCE: f64 = 1.0e-12;
-// Relative agreement demanded between |node_i - center| and |node_j - center|.
-const RADIUS_MATCH_TOLERANCE: f64 = 1.0e-9;
-// Included-angle admissibility window (radians): the open interval (0, pi).
+// Included-angle admissibility window (radians): [1e-9, pi - 1e-9].
 const MIN_INCLUDED_ANGLE: f64 = 1.0e-9;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CurvedBendError {
     Kernel(FrameKernelError),
-    RadiusMismatch { radius_i: f64, radius_j: f64 },
-    DegenerateArc { detail: &'static str },
-    IncludedAngleOutOfRange { included_angle: f64 },
+    /// The bend radius cannot span the chord: 4R² ≤ |x_j − x_i|².
+    RadiusCannotSpanChord {
+        radius: f64,
+        chord_length: f64,
+    },
+    DegenerateArc {
+        detail: &'static str,
+    },
+    IncludedAngleOutOfRange {
+        included_angle: f64,
+    },
 }
 
 impl fmt::Display for CurvedBendError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Kernel(error) => write!(f, "frame kernel error: {error}"),
-            Self::RadiusMismatch { radius_i, radius_j } => write!(
+            Self::RadiusCannotSpanChord {
+                radius,
+                chord_length,
+            } => write!(
                 f,
-                "arc center must be equidistant from both end nodes, got radii {radius_i} and {radius_j}"
+                "bend radius {radius} cannot span the chord of length {chord_length}; the arc included angle would reach or exceed pi"
             ),
             Self::DegenerateArc { detail } => write!(f, "degenerate arc geometry: {detail}"),
             Self::IncludedAngleOutOfRange { included_angle } => write!(
@@ -60,18 +72,195 @@ impl From<FrameKernelError> for CurvedBendError {
     }
 }
 
-/// Derived circular-arc geometry in the element's local bend-plane frame.
+/// The objective circular arc of T4-U1 (B1 of T4-I6's reference), formed
+/// from the node difference d = x_j − x_i, the user radius R and the plane
+/// reference y only; no absolute centre is formed anywhere.
 ///
-/// Local axes (rows of `local_axes`, expressed in global coordinates):
-/// x is the radial direction from the arc center to node `i`, z is the
-/// bend-plane normal `(i - center) x (j - center)` normalized, and
-/// y = z cross x completes the right-handed basis. Node `i` sits at arc
-/// angle 0 and node `j` at `included_angle`, measured about local z.
+/// With L = |d|, d̂ = d/L and n̂ the unit component of y normal to d̂ (the
+/// arc bows toward +n̂): s = sin(φ/2) = L/(2R), c = cos(φ/2) =
+/// √(4R² − L²)/(2R) with 4R² − L² formed from the exact squares of the
+/// binary64 R and d and rounded once (accurate near π), and
+/// φ = 2·atan2(s, c). Local axes (rows of `local_axes`, global
+/// components): x = −s·d̂ + c·n̂ (radial at node i, outward), y = c·d̂ + s·n̂
+/// (tangent at node i toward j), z = n̂ × d̂ (bend-plane normal). Node `i`
+/// sits at arc angle 0 and node `j` at `included_angle`, measured about
+/// local z, and the chord in the local frame is (−sL, cL, 0).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ArcGeometry {
+    /// The user bend radius R.
     pub radius: f64,
     pub included_angle: f64,
     pub local_axes: [[f64; 3]; 3],
+    /// sin(φ/2) = L/(2R).
+    pub sin_half_angle: f64,
+    /// cos(φ/2) = √(4R² − L²)/(2R).
+    pub cos_half_angle: f64,
+    /// L = |x_j − x_i|.
+    pub chord_length: f64,
+    /// The chord x_j − x_i in the local frame: (−sL, cL, 0).
+    pub chord_local: [f64; 3],
+    /// d̂ = (x_j − x_i)/L.
+    pub chord_unit: [f64; 3],
+    /// n̂: the unit in-plane normal to the chord on the bow side.
+    pub bow_normal: [f64; 3],
+}
+
+impl ArcGeometry {
+    fn half_angle(&self) -> HalfAngle {
+        HalfAngle {
+            phi: self.included_angle,
+            s: self.sin_half_angle,
+            c: self.cos_half_angle,
+        }
+    }
+}
+
+/// The shared arc definition (T4-I11 D-I): the included angle, the unit end
+/// tangents oriented i → j and the in-plane bow normal n̂ of the arc formed
+/// from the chord d = x_j − x_i, the radius R and the plane reference y.
+/// t_i = c·d̂ + s·n̂ and t_j = c·d̂ − s·n̂ with s = sin(φ/2), c = cos(φ/2).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ArcFrame {
+    pub included_angle: f64,
+    pub tangent_i: [f64; 3],
+    pub tangent_j: [f64; 3],
+    pub bow_normal: [f64; 3],
+}
+
+/// The arc of `ArcGeometry` as a pure function of (d, R, y_reference), or
+/// the reason it is not admissible: a non-finite input, R ≤ L/2, a zero
+/// chord, a y_reference (numerically) parallel to the chord, or an included
+/// angle outside [1e-9, π − 1e-9].
+pub fn arc_geometry(
+    chord: [f64; 3],
+    radius: f64,
+    y_reference: [f64; 3],
+) -> Result<ArcFrame, CurvedBendError> {
+    let geometry = objective_arc(chord, radius, y_reference)?;
+    let (s, c) = (geometry.sin_half_angle, geometry.cos_half_angle);
+    let (d, n) = (geometry.chord_unit, geometry.bow_normal);
+    let tangent_j = [
+        c * d[0] - s * n[0],
+        c * d[1] - s * n[1],
+        c * d[2] - s * n[2],
+    ];
+    Ok(ArcFrame {
+        included_angle: geometry.included_angle,
+        tangent_i: geometry.local_axes[1],
+        tangent_j,
+        bow_normal: n,
+    })
+}
+
+/// The direction change θ ∈ [0, π] between two directions `a` and `t`
+/// (for example a straight member's direction and an arc end tangent):
+/// θ = 2·atan2(|â − t̂|, |â + t̂|), accurate for small and near-π angles.
+pub fn kink(a: [f64; 3], t: [f64; 3]) -> Result<f64, CurvedBendError> {
+    validate_finite_vector("kink_direction", a)?;
+    validate_finite_vector("kink_direction", t)?;
+    let a = normalize(a, "kink direction has zero length")?;
+    let t = normalize(t, "kink direction has zero length")?;
+    let difference = norm(subtract(a, t));
+    let sum = norm([a[0] + t[0], a[1] + t[1], a[2] + t[2]]);
+    Ok(2.0 * difference.atan2(sum))
+}
+
+fn objective_arc(
+    chord: [f64; 3],
+    radius: f64,
+    y_reference: [f64; 3],
+) -> Result<ArcGeometry, CurvedBendError> {
+    validate_finite_vector("arc_chord", chord)?;
+    validate_positive_finite("bend_radius", radius)?;
+    validate_finite_vector("y_reference", y_reference)?;
+    let sum_error = |_| CurvedBendError::DegenerateArc {
+        detail: "arc chord or radius is outside the binary64 range",
+    };
+    // |d|² and 4R² − |d|² from exact products, each rounded once.
+    let length_squared = exact_rounded_dot(chord.iter().map(|&v| (v, v))).map_err(sum_error)?;
+    let four_radius = 4.0 * radius;
+    if !four_radius.is_finite() {
+        return Err(CurvedBendError::DegenerateArc {
+            detail: "arc chord or radius is outside the binary64 range",
+        });
+    }
+    let span = exact_rounded_dot([
+        (four_radius, radius),
+        (-chord[0], chord[0]),
+        (-chord[1], chord[1]),
+        (-chord[2], chord[2]),
+    ])
+    .map_err(sum_error)?;
+    let chord_length = length_squared.sqrt();
+    if !(chord_length.is_finite() && chord_length > 0.0) {
+        return Err(CurvedBendError::DegenerateArc {
+            detail: "arc end nodes coincide",
+        });
+    }
+    if span <= 0.0 {
+        return Err(CurvedBendError::RadiusCannotSpanChord {
+            radius,
+            chord_length,
+        });
+    }
+    let diameter = 2.0 * radius;
+    let s = chord_length / diameter;
+    let c = span.sqrt() / diameter;
+    let included_angle = 2.0 * s.atan2(c);
+    if !(MIN_INCLUDED_ANGLE..=PI - MIN_INCLUDED_ANGLE).contains(&included_angle) {
+        return Err(CurvedBendError::IncludedAngleOutOfRange { included_angle });
+    }
+
+    let chord_unit = [
+        chord[0] / chord_length,
+        chord[1] / chord_length,
+        chord[2] / chord_length,
+    ];
+    // n̂: y with its chord component removed (two Gram–Schmidt passes, so n̂
+    // is orthogonal to d̂ to rounding however y is inclined), normalized.
+    let reference_magnitude = norm(y_reference);
+    let mut normal = y_reference;
+    for _ in 0..2 {
+        let projection = dot(normal, chord_unit);
+        normal = [
+            normal[0] - projection * chord_unit[0],
+            normal[1] - projection * chord_unit[1],
+            normal[2] - projection * chord_unit[2],
+        ];
+    }
+    let normal_magnitude = norm(normal);
+    if !(normal_magnitude > AXIS_TOLERANCE * reference_magnitude) {
+        return Err(CurvedBendError::DegenerateArc {
+            detail: "y_reference is parallel to the arc chord, so the bend plane is undefined",
+        });
+    }
+    let normal = [
+        normal[0] / normal_magnitude,
+        normal[1] / normal_magnitude,
+        normal[2] / normal_magnitude,
+    ];
+    let x_axis = [
+        -s * chord_unit[0] + c * normal[0],
+        -s * chord_unit[1] + c * normal[1],
+        -s * chord_unit[2] + c * normal[2],
+    ];
+    let y_axis = [
+        c * chord_unit[0] + s * normal[0],
+        c * chord_unit[1] + s * normal[1],
+        c * chord_unit[2] + s * normal[2],
+    ];
+    let z_axis = cross(normal, chord_unit);
+    Ok(ArcGeometry {
+        radius,
+        included_angle,
+        local_axes: [x_axis, y_axis, z_axis],
+        sin_half_angle: s,
+        cos_half_angle: c,
+        chord_length,
+        chord_local: [-s * chord_length, c * chord_length, 0.0],
+        chord_unit,
+        bow_normal: normal,
+    })
 }
 
 /// Two-node circular-arc bend macro-element.
@@ -80,11 +269,21 @@ pub struct ArcGeometry {
 /// flexibility factors. Factors equal to 1 reproduce the plain
 /// Euler-Bernoulli curved beam (bending, torsion, and axial strain energy;
 /// shear deformation excluded, consistent with the frame kernel).
+///
+/// The element is defined by (x_i, x_j, R, y_reference) and the section
+/// constants (T4-U1): its geometry depends on the nodes only through
+/// d = x_j − x_i, so it is invariant under translation, and its stiffness
+/// annihilates the rigid motions of the actual nodes (H uses the actual
+/// chord (−sL, cL, 0)).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CurvedBendMacroElement {
     pub node_i: FrameNode,
     pub node_j: FrameNode,
-    pub center: [f64; 3],
+    /// User bend radius R.
+    pub radius: f64,
+    /// Plane reference: the arc bows toward +y_reference projected normal
+    /// to the chord.
+    pub y_reference: [f64; 3],
     pub elastic_modulus: f64,
     pub shear_modulus: f64,
     pub area: f64,
@@ -102,7 +301,8 @@ impl CurvedBendMacroElement {
     pub fn new(
         node_i: FrameNode,
         node_j: FrameNode,
-        center: [f64; 3],
+        radius: f64,
+        y_reference: [f64; 3],
         elastic_modulus: f64,
         shear_modulus: f64,
         area: f64,
@@ -117,7 +317,8 @@ impl CurvedBendMacroElement {
             }
             .into());
         }
-        validate_finite_vector("center", center)?;
+        validate_positive_finite("bend_radius", radius)?;
+        validate_finite_vector("y_reference", y_reference)?;
         validate_positive_finite("elastic_modulus", elastic_modulus)?;
         validate_positive_finite("shear_modulus", shear_modulus)?;
         validate_positive_finite("area", area)?;
@@ -132,7 +333,8 @@ impl CurvedBendMacroElement {
         let element = Self {
             node_i,
             node_j,
-            center,
+            radius,
+            y_reference,
             elastic_modulus,
             shear_modulus,
             area,
@@ -146,36 +348,19 @@ impl CurvedBendMacroElement {
         Ok(element)
     }
 
-    /// Validated circular-arc geometry derived from the end nodes and center.
+    /// The node difference d = x_j − x_i (binary64).
+    pub fn chord(&self) -> [f64; 3] {
+        subtract(self.node_j.coordinates, self.node_i.coordinates)
+    }
+
+    /// Validated objective arc geometry (see `ArcGeometry`).
     pub fn geometry(&self) -> Result<ArcGeometry, CurvedBendError> {
-        let radial_i = subtract(self.node_i.coordinates, self.center);
-        let radial_j = subtract(self.node_j.coordinates, self.center);
-        let radius_i = norm(radial_i);
-        let radius_j = norm(radial_j);
-        if radius_i <= AXIS_TOLERANCE || radius_j <= AXIS_TOLERANCE {
-            return Err(CurvedBendError::DegenerateArc {
-                detail: "arc end node coincides with the arc center",
-            });
-        }
-        if (radius_i - radius_j).abs() > RADIUS_MATCH_TOLERANCE * radius_i.max(radius_j) {
-            return Err(CurvedBendError::RadiusMismatch { radius_i, radius_j });
-        }
-        let radius = 0.5 * (radius_i + radius_j);
+        objective_arc(self.chord(), self.radius, self.y_reference)
+    }
 
-        let plane_normal = cross(radial_i, radial_j);
-        let included_angle = norm(plane_normal).atan2(dot(radial_i, radial_j));
-        if !(MIN_INCLUDED_ANGLE..=PI - MIN_INCLUDED_ANGLE).contains(&included_angle) {
-            return Err(CurvedBendError::IncludedAngleOutOfRange { included_angle });
-        }
-
-        let x_axis = normalize(radial_i, "arc radial axis at node i")?;
-        let z_axis = normalize(plane_normal, "arc bend-plane normal")?;
-        let y_axis = cross(z_axis, x_axis);
-        Ok(ArcGeometry {
-            radius,
-            included_angle,
-            local_axes: [x_axis, y_axis, z_axis],
-        })
+    /// The shared arc definition (`arc_geometry`) of this element.
+    pub fn arc_frame(&self) -> Result<ArcFrame, CurvedBendError> {
+        arc_geometry(self.chord(), self.radius, self.y_reference)
     }
 
     pub fn radius(&self) -> Result<f64, CurvedBendError> {
@@ -200,55 +385,77 @@ impl CurvedBendMacroElement {
     /// End-flexibility matrix at node `j` with node `i` fixed, in the local
     /// frame, DOF order [ux, uy, uz, rx, ry, rz].
     ///
-    /// Entries are exact closed-form unit-load integrals over the arc of the
-    /// bending, torsion, and axial strain-energy products. The user factors
-    /// scale only the in-plane and out-of-plane bending-curvature terms.
+    /// Entries are the closed-form unit-load integrals over the arc of the
+    /// bending, torsion, and axial strain-energy products (B1), each written
+    /// as a combination of non-cancelling terms and of the cancelling arc
+    /// integrals of `arc_integrals`, which are evaluated stably (series for
+    /// φ < π/3, half-angle closed forms above). The user factors scale only
+    /// the in-plane and out-of-plane bending-curvature terms.
     pub fn end_flexibility(&self) -> Result<Matrix6, CurvedBendError> {
         let geometry = self.geometry()?;
-        let gram = trig_gram(geometry.included_angle);
-        let cases = unit_load_actions(geometry.radius, geometry.included_angle);
-        let bending_rigidity = self.elastic_modulus * self.second_moment;
-        let torsion_rigidity = self.shear_modulus * self.torsion_constant;
-        let axial_rigidity = self.elastic_modulus * self.area;
-
-        let mut flexibility = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
-        for row in 0..DOF_PER_NODE {
-            for col in row..DOF_PER_NODE {
-                let value = geometry.radius
-                    * (self.in_plane_flexibility_factor
-                        * quad(
-                            &gram,
-                            cases[row].in_plane_moment,
-                            cases[col].in_plane_moment,
-                        )
-                        / bending_rigidity
-                        + self.out_of_plane_flexibility_factor
-                            * quad(
-                                &gram,
-                                cases[row].out_of_plane_moment,
-                                cases[col].out_of_plane_moment,
-                            )
-                            / bending_rigidity
-                        + quad(&gram, cases[row].torsion, cases[col].torsion) / torsion_rigidity
-                        + quad(&gram, cases[row].axial, cases[col].axial) / axial_rigidity);
-                flexibility[row][col] = value;
-                flexibility[col][row] = value;
-            }
-        }
-        Ok(flexibility)
+        Ok(self.flexibility_of(&geometry))
     }
 
-    /// 12x12 stiffness in the local frame, DOF order [node i; node j].
+    fn flexibility_of(&self, geometry: &ArcGeometry) -> Matrix6 {
+        let r = geometry.radius;
+        let half = geometry.half_angle();
+        let phi = half.phi;
+        let sin = half.sin();
+        let cos = half.cos();
+        let k_in = self.in_plane_flexibility_factor;
+        let k_out = self.out_of_plane_flexibility_factor;
+        let bending = self.elastic_modulus * self.second_moment;
+        let torsion = self.shear_modulus * self.torsion_constant;
+        let axial = self.elastic_modulus * self.area;
+
+        // ∫sin²θ = (φ − SC)/2, ∫cos²θ = (φ + SC)/2, ∫sinθ cosθ = S²/2.
+        let sin_sq = 0.5 * half.phi_minus_sin_cos();
+        let cos_sq = 0.5 * (phi + sin * cos);
+        let sin_cos = 0.5 * sin * sin;
+        // ∫(sin φ − sin θ) = φS − (1 − C); ∫(cos φ − cos θ) = −(S − φC).
+        let in_plane_x = phi * sin - half.one_minus_cos();
+        let sin_minus_phi_cos = half.sin_minus_phi_cos();
+        let r2 = r * r;
+
+        let mut f = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
+        // In plane: Fx (0), Fy (1), Mz (5). M_ip = −R(S − sin θ), R(C − cos θ), 1;
+        // N = −sin θ, cos θ, 0.
+        f[0][0] = r * (k_in * r2 * half.in_plane_xx() / bending + sin_sq / axial);
+        f[0][1] = r * (-k_in * r2 * half.in_plane_xy() / bending - sin_cos / axial);
+        f[1][1] = r * (k_in * r2 * half.in_plane_yy() / bending + cos_sq / axial);
+        f[0][5] = r * (-k_in * r * in_plane_x / bending);
+        f[1][5] = r * (-k_in * r * sin_minus_phi_cos / bending);
+        f[5][5] = r * (k_in * phi / bending);
+        // Out of plane: Fz (2), Mx (3), My (4). M_op = R sin(φ − θ), cos θ,
+        // sin θ; T = R(1 − cos(φ − θ)), −sin θ, cos θ.
+        f[2][2] = r * (k_out * r2 * sin_sq / bending + r2 * half.torsion_zz() / torsion);
+        f[2][3] = r
+            * (k_out * r * (0.5 * phi * sin) / bending
+                - r * half.one_minus_cos_minus_half_phi_sin() / torsion);
+        f[2][4] = r
+            * (k_out * r * (0.5 * sin_minus_phi_cos) / bending
+                + r * (0.5 * sin_minus_phi_cos) / torsion);
+        f[3][3] = r * (k_out * cos_sq / bending + sin_sq / torsion);
+        f[3][4] = r * (k_out * sin_cos / bending - sin_cos / torsion);
+        f[4][4] = r * (k_out * sin_sq / bending + cos_sq / torsion);
+        for row in 0..DOF_PER_NODE {
+            for col in 0..row {
+                f[row][col] = f[col][row];
+            }
+        }
+        f
+    }
+
+    /// 12x12 stiffness in the local frame, DOF order [node i; node j]:
+    /// [[H K_t Hᵀ, −H K_t], [−K_t Hᵀ, K_t]] with K_t = F⁻¹ and H the rigid
+    /// transfer over the actual chord (−sL, cL, 0).
     pub fn local_stiffness(&self) -> Result<Matrix12, CurvedBendError> {
         let geometry = self.geometry()?;
-        let flexibility = self.end_flexibility()?;
-        let tip_stiffness = invert_symmetric6(&flexibility)?;
-        let chord = [
-            geometry.radius * (geometry.included_angle.cos() - 1.0),
-            geometry.radius * geometry.included_angle.sin(),
-            0.0,
-        ];
-        Ok(assemble_macro_stiffness(&tip_stiffness, chord))
+        let tip_stiffness = invert_symmetric6(&self.flexibility_of(&geometry))?;
+        Ok(assemble_macro_stiffness(
+            &tip_stiffness,
+            geometry.chord_local,
+        ))
     }
 
     /// 12x12 stiffness in global coordinates.
@@ -282,8 +489,7 @@ impl CurvedBendMacroElement {
         let geometry = self.geometry()?;
         let intensity_local = rotate_to_local(&geometry.local_axes, intensity_global);
         let tip_deflection = self.tip_deflection_under_uniform_load(&geometry, intensity_local);
-        let flexibility = self.end_flexibility()?;
-        let tip_stiffness = invert_symmetric6(&flexibility)?;
+        let tip_stiffness = invert_symmetric6(&self.flexibility_of(&geometry))?;
 
         // Clamped-tip redundant (support-on-element force at node j in the
         // both-ends-clamped state): X = -K_jj * delta0.
@@ -295,12 +501,14 @@ impl CurvedBendMacroElement {
         }
 
         // Distributed-load resultant about node i in the local frame:
-        // total force R*phi*w and moment R^2 * (sin phi - phi, 1 - cos phi, 0) x w.
+        // total force R*phi*w and moment R^2 * (sin phi - phi, 1 - cos phi, 0) x w
+        // (sin phi - phi and 1 - cos phi in their stable forms).
         let radius = geometry.radius;
         let included_angle = geometry.included_angle;
+        let half = geometry.half_angle();
         let moment_arm = [
-            radius * radius * (included_angle.sin() - included_angle),
-            radius * radius * (1.0 - included_angle.cos()),
+            -(radius * radius * half.phi_minus_sin()),
+            radius * radius * half.one_minus_cos(),
             0.0,
         ];
         let load_moment_about_i = cross(moment_arm, intensity_local);
@@ -311,13 +519,8 @@ impl CurvedBendMacroElement {
         }
 
         // Equivalent nodal loads: p_j = -X and p_i = H X + W_i, with H the
-        // rigid transfer of node-j forces to node i over the chord.
-        let chord_local = [
-            radius * (included_angle.cos() - 1.0),
-            radius * included_angle.sin(),
-            0.0,
-        ];
-        let transfer = equilibrium_transfer(chord_local);
+        // rigid transfer of node-j forces to node i over the actual chord.
+        let transfer = equilibrium_transfer(geometry.chord_local);
         let mut local_loads = [0.0; ELEMENT_DOF];
         for row in 0..DOF_PER_NODE {
             let mut transferred = 0.0;
@@ -411,21 +614,19 @@ impl CurvedBendMacroElement {
                 tip_force_local[axis] + radius * remaining_angle * intensity_local[axis];
         }
         // Arm from the section point to node j.
+        let half = geometry.half_angle();
+        let (sin_end, cos_end) = (half.sin(), half.cos());
         let section_to_j = [
-            radius * (included_angle.cos() - theta.cos()),
-            radius * (included_angle.sin() - theta.sin()),
+            radius * (cos_end - theta.cos()),
+            radius * (sin_end - theta.sin()),
             0.0,
         ];
         let tip_force_moment = cross(section_to_j, tip_force_local);
         // Distributed-load moment about the section point:
         // R^2 * a(theta) x w with a from the closed-form segment integral.
         let distributed_arm = [
-            radius
-                * radius
-                * ((included_angle.sin() - theta.sin()) - remaining_angle * theta.cos()),
-            radius
-                * radius
-                * ((theta.cos() - included_angle.cos()) - remaining_angle * theta.sin()),
+            radius * radius * ((sin_end - theta.sin()) - remaining_angle * theta.cos()),
+            radius * radius * ((theta.cos() - cos_end) - remaining_angle * theta.sin()),
             0.0,
         ];
         let distributed_moment = cross(distributed_arm, intensity_local);
@@ -455,17 +656,8 @@ impl CurvedBendMacroElement {
     /// `t(theta) = (-sin theta, cos theta, 0)` with node `i` at arc angle 0
     /// and node `j` at the included angle.
     pub fn end_tangents(&self) -> Result<[[f64; 3]; 2], CurvedBendError> {
-        let geometry = self.geometry()?;
-        let tangent_i = rotate_to_global(&geometry.local_axes, [0.0, 1.0, 0.0]);
-        let tangent_j = rotate_to_global(
-            &geometry.local_axes,
-            [
-                -geometry.included_angle.sin(),
-                geometry.included_angle.cos(),
-                0.0,
-            ],
-        );
-        Ok([tangent_i, tangent_j])
+        let frame = self.arc_frame()?;
+        Ok([frame.tangent_i, frame.tangent_j])
     }
 
     /// E11 terms API (S11-K; dormant until S11-F). By linearity the section
@@ -517,10 +709,10 @@ impl CurvedBendMacroElement {
         geometry: &ArcGeometry,
         intensity_local: [f64; 3],
     ) -> [f64; DOF_PER_NODE] {
-        let gram = trig_extended_gram(geometry.included_angle);
-        let cases = unit_load_actions(geometry.radius, geometry.included_angle);
-        let load =
-            distributed_load_actions(geometry.radius, geometry.included_angle, intensity_local);
+        let half = geometry.half_angle();
+        let gram = trig_extended_gram(&half);
+        let cases = unit_load_actions(geometry.radius, &half);
+        let load = distributed_load_actions(geometry.radius, &half, intensity_local);
         let bending_rigidity = self.elastic_modulus * self.second_moment;
         let torsion_rigidity = self.shear_modulus * self.torsion_constant;
         let axial_rigidity = self.elastic_modulus * self.area;
@@ -560,9 +752,9 @@ struct UnitLoadActions {
 // (p(phi) - p(theta)) x f; for a unit moment it is the moment itself.
 // In-plane bending is the z moment component, out-of-plane bending the r
 // component, torsion the t component, and axial force is f dot t.
-fn unit_load_actions(radius: f64, included_angle: f64) -> [UnitLoadActions; 6] {
-    let sin_end = included_angle.sin();
-    let cos_end = included_angle.cos();
+fn unit_load_actions(radius: f64, half: &HalfAngle) -> [UnitLoadActions; 6] {
+    let sin_end = half.sin();
+    let cos_end = half.cos();
     let zero: TrigSeries = [0.0; 3];
     [
         // Unit force along local x.
@@ -635,11 +827,12 @@ struct DistributedLoadActions {
 // axial force is f . t = R (phi - theta)(w_y cos theta - w_x sin theta).
 fn distributed_load_actions(
     radius: f64,
-    included_angle: f64,
+    half: &HalfAngle,
     intensity_local: [f64; 3],
 ) -> DistributedLoadActions {
-    let sin_end = included_angle.sin();
-    let cos_end = included_angle.cos();
+    let included_angle = half.phi;
+    let sin_end = half.sin();
+    let cos_end = half.cos();
     let [w_x, w_y, w_z] = intensity_local;
     let radius_squared = radius * radius;
 
@@ -687,27 +880,33 @@ fn distributed_load_actions(
 // Exact integrals over [0, phi] of products of the trig basis {1, cos, sin}
 // (rows) with the extended basis {1, cos, sin, theta, theta cos, theta sin}
 // (columns).
-fn trig_extended_gram(included_angle: f64) -> [[f64; 6]; 3] {
-    let phi = included_angle;
-    let sin_end = phi.sin();
-    let cos_end = phi.cos();
-    let sin_double = (2.0 * phi).sin();
-    let cos_double = (2.0 * phi).cos();
+// sin, cos, 1 - cos, sin 2phi = 2SC and cos 2phi - 1 = -2S^2 come from the
+// half-angle quantities; the theta-weighted entries keep their closed forms
+// (they still cancel at small angles; a certified arc load is T4-U1b's).
+fn trig_extended_gram(half: &HalfAngle) -> [[f64; 6]; 3] {
+    let phi = half.phi;
+    let sin_end = half.sin();
+    let cos_end = half.cos();
+    let one_minus_cos = half.one_minus_cos();
+    let sin_double = 2.0 * sin_end * cos_end;
+    let cos_double_minus_one = -2.0 * sin_end * sin_end;
     // Antiderivative identities: int theta cos = phi sin + cos - 1;
     // int theta sin = sin - phi cos; int theta cos^2 = phi^2/4
     // + phi sin(2 phi)/4 + (cos(2 phi) - 1)/8; int theta sin^2 = phi^2/4
     // - phi sin(2 phi)/4 - (cos(2 phi) - 1)/8; int theta sin cos
     // = sin(2 phi)/8 - phi cos(2 phi)/4.
-    let int_theta_cos = phi * sin_end + cos_end - 1.0;
-    let int_theta_sin = sin_end - phi * cos_end;
-    let int_theta_cos_cos = 0.25 * phi * phi + 0.25 * phi * sin_double + 0.125 * (cos_double - 1.0);
-    let int_theta_sin_sin = 0.25 * phi * phi - 0.25 * phi * sin_double - 0.125 * (cos_double - 1.0);
-    let int_theta_sin_cos = 0.125 * sin_double - 0.25 * phi * cos_double;
+    let int_theta_cos = phi * sin_end - one_minus_cos;
+    let int_theta_sin = half.sin_minus_phi_cos();
+    let int_theta_cos_cos =
+        0.25 * phi * phi + 0.25 * phi * sin_double + 0.125 * cos_double_minus_one;
+    let int_theta_sin_sin =
+        0.25 * phi * phi - 0.25 * phi * sin_double - 0.125 * cos_double_minus_one;
+    let int_theta_sin_cos = 0.125 * sin_double - 0.25 * phi * (1.0 + cos_double_minus_one);
     [
         [
             phi,
             sin_end,
-            1.0 - cos_end,
+            one_minus_cos,
             0.5 * phi * phi,
             int_theta_cos,
             int_theta_sin,
@@ -721,9 +920,9 @@ fn trig_extended_gram(included_angle: f64) -> [[f64; 6]; 3] {
             int_theta_sin_cos,
         ],
         [
-            1.0 - cos_end,
+            one_minus_cos,
             0.5 * sin_end * sin_end,
-            0.5 * phi - 0.25 * sin_double,
+            half.phi_minus_sin_cos() * 0.5,
             int_theta_sin,
             int_theta_sin_cos,
             int_theta_sin_sin,
@@ -759,36 +958,6 @@ fn rotate_to_global(local_axes: &[[f64; 3]; 3], local: [f64; 3]) -> [f64; 3] {
         }
     }
     global
-}
-
-// Exact integrals over [0, phi] of pairwise products of {1, cos, sin}.
-fn trig_gram(included_angle: f64) -> [[f64; 3]; 3] {
-    let sin_end = included_angle.sin();
-    let cos_end = included_angle.cos();
-    let sin_double = (2.0 * included_angle).sin();
-    [
-        [included_angle, sin_end, 1.0 - cos_end],
-        [
-            sin_end,
-            0.5 * included_angle + 0.25 * sin_double,
-            0.5 * sin_end * sin_end,
-        ],
-        [
-            1.0 - cos_end,
-            0.5 * sin_end * sin_end,
-            0.5 * included_angle - 0.25 * sin_double,
-        ],
-    ]
-}
-
-fn quad(gram: &[[f64; 3]; 3], left: TrigSeries, right: TrigSeries) -> f64 {
-    let mut sum = 0.0;
-    for row in 0..3 {
-        for col in 0..3 {
-            sum += left[row] * gram[row][col] * right[col];
-        }
-    }
-    sum
 }
 
 // Inverse of a symmetric positive-definite 6x6 via the frame-kernel dense
@@ -953,16 +1122,17 @@ mod tests {
         );
     }
 
-    // Quarter circle in the global x-y plane centered at the origin so the
-    // local frame coincides with the global frame: node i at (R, 0, 0),
-    // node j at (0, R, 0), bend-plane normal +z.
+    // Quarter circle in the global x-y plane about the origin so the local
+    // frame coincides with the global frame: node i at (R, 0, 0), node j at
+    // (0, R, 0), bowing toward +(1, 1, 0), bend-plane normal +z.
     fn quarter_circle_element(k_in: f64, k_out: f64) -> CurvedBendMacroElement {
         let node_i = FrameNode::new(0, [RADIUS, 0.0, 0.0]).unwrap();
         let node_j = FrameNode::new(1, [0.0, RADIUS, 0.0]).unwrap();
         CurvedBendMacroElement::new(
             node_i,
             node_j,
-            [0.0, 0.0, 0.0],
+            RADIUS,
+            [1.0, 1.0, 0.0],
             ELASTIC_MODULUS,
             SHEAR_MODULUS,
             AREA,
@@ -1039,12 +1209,11 @@ mod tests {
 
         let relative_error = |included_angle: f64| -> f64 {
             let radius = chord_length / (2.0 * (included_angle / 2.0).sin());
-            let sagitta_offset = (radius * radius - 0.25 * chord_length * chord_length).sqrt();
-            let center = [0.5 * chord_length, -sagitta_offset, 0.0];
             let curved = CurvedBendMacroElement::new(
                 node_i,
                 node_j,
-                center,
+                radius,
+                [0.0, 1.0, 0.0],
                 ELASTIC_MODULUS,
                 SHEAR_MODULUS,
                 AREA,
@@ -1362,7 +1531,8 @@ mod tests {
         let rotated_element = CurvedBendMacroElement::new(
             FrameNode::new(0, rotate(element.node_i.coordinates)).unwrap(),
             FrameNode::new(1, rotate(element.node_j.coordinates)).unwrap(),
-            rotate(element.center),
+            element.radius,
+            rotate(element.y_reference),
             ELASTIC_MODULUS,
             SHEAR_MODULUS,
             AREA,
@@ -1479,12 +1649,11 @@ mod tests {
 
         let relative_error = |included_angle: f64| -> f64 {
             let radius = chord_length / (2.0 * (included_angle / 2.0).sin());
-            let sagitta_offset = (radius * radius - 0.25 * chord_length * chord_length).sqrt();
-            let center = [0.5 * chord_length, -sagitta_offset, 0.0];
             let loads = CurvedBendMacroElement::new(
                 node_i,
                 node_j,
-                center,
+                radius,
+                [0.0, 1.0, 0.0],
                 ELASTIC_MODULUS,
                 SHEAR_MODULUS,
                 AREA,
@@ -1531,7 +1700,8 @@ mod tests {
         let shifted = CurvedBendMacroElement::new(
             FrameNode::new(0, [RADIUS + 0.4, 0.7, -0.3]).unwrap(),
             FrameNode::new(1, [0.4, 0.7 + RADIUS, -0.3]).unwrap(),
-            [0.4, 0.7, -0.3],
+            RADIUS,
+            [1.0, 1.0, 0.0],
             ELASTIC_MODULUS,
             SHEAR_MODULUS,
             AREA,
@@ -1788,7 +1958,8 @@ mod tests {
         let error = CurvedBendMacroElement::new(
             node_i,
             node_j,
-            [0.0, 0.0, 0.0],
+            RADIUS,
+            [1.0, 1.0, 0.0],
             ELASTIC_MODULUS,
             SHEAR_MODULUS,
             AREA,
@@ -1810,7 +1981,8 @@ mod tests {
             CurvedBendMacroElement::new(
                 FrameNode::new(0, [RADIUS, 0.0, 0.0]).unwrap(),
                 FrameNode::new(1, [0.0, RADIUS, 0.0]).unwrap(),
-                [0.0, 0.0, 0.0],
+                RADIUS,
+                [1.0, 1.0, 0.0],
                 elastic_modulus,
                 SHEAR_MODULUS,
                 AREA,
@@ -1860,11 +2032,12 @@ mod tests {
 
     #[test]
     fn constructor_rejects_degenerate_geometry() {
-        let build = |i: [f64; 3], j: [f64; 3], center: [f64; 3]| {
+        let build = |i: [f64; 3], j: [f64; 3], radius: f64, y: [f64; 3]| {
             CurvedBendMacroElement::new(
                 FrameNode::new(0, i).unwrap(),
                 FrameNode::new(1, j).unwrap(),
-                center,
+                radius,
+                y,
                 ELASTIC_MODULUS,
                 SHEAR_MODULUS,
                 AREA,
@@ -1875,32 +2048,53 @@ mod tests {
             )
         };
 
-        // Center not equidistant from the end nodes.
+        // Radius cannot span the chord (R < L/2) or spans it exactly (phi = pi).
         assert!(matches!(
-            build([1.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 0.0]).unwrap_err(),
-            CurvedBendError::RadiusMismatch { .. }
+            build([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 0.9, [0.0, 1.0, 0.0]).unwrap_err(),
+            CurvedBendError::RadiusCannotSpanChord { .. }
         ));
-        // Center coincident with an end node.
+        assert!(matches!(
+            build([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0, [0.0, 1.0, 0.0]).unwrap_err(),
+            CurvedBendError::RadiusCannotSpanChord { .. }
+        ));
+        // Coincident end coordinates on distinct nodes.
         assert_eq!(
-            build([0.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 0.0]).unwrap_err(),
+            build([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0, [0.0, 1.0, 0.0]).unwrap_err(),
             CurvedBendError::DegenerateArc {
-                detail: "arc end node coincides with the arc center",
+                detail: "arc end nodes coincide",
             }
         );
-        // Diametrically opposite end nodes: included angle pi.
+        // Included angle below the 1e-9 rad floor (phi ~ 2e-10).
         assert!(matches!(
-            build([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 0.0]).unwrap_err(),
+            build([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], 5.0e9, [0.0, 1.0, 0.0]).unwrap_err(),
             CurvedBendError::IncludedAngleOutOfRange { .. }
         ));
-        // Coincident end coordinates on distinct nodes: included angle 0.
+        // y_reference parallel to the chord: the bend plane is undefined.
         assert!(matches!(
-            build([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0]).unwrap_err(),
-            CurvedBendError::IncludedAngleOutOfRange { .. }
+            build([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], 1.0, [2.0, 0.0, 0.0]).unwrap_err(),
+            CurvedBendError::DegenerateArc { .. }
         ));
-        // Non-finite center coordinate.
+        // Non-finite or non-positive radius and non-finite y_reference.
         assert!(matches!(
-            build([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [f64::NAN, 0.0, 0.0]).unwrap_err(),
-            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput { name: "center", .. })
+            build([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], f64::NAN, [1.0, 1.0, 0.0]).unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "bend_radius",
+                ..
+            })
+        ));
+        assert!(matches!(
+            build([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.0, [1.0, 1.0, 0.0]).unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonPositiveInput {
+                name: "bend_radius",
+                ..
+            })
+        ));
+        assert!(matches!(
+            build([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], 1.0, [f64::NAN, 1.0, 0.0]).unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "y_reference",
+                ..
+            })
         ));
     }
 
@@ -1924,7 +2118,8 @@ mod tests {
         let shifted = CurvedBendMacroElement::new(
             FrameNode::new(0, [RADIUS + 0.4, 0.7, -0.3]).unwrap(),
             FrameNode::new(1, [0.4, 0.7 + RADIUS, -0.3]).unwrap(),
-            [0.4, 0.7, -0.3],
+            RADIUS,
+            [1.0, 1.0, 0.0],
             ELASTIC_MODULUS,
             SHEAR_MODULUS,
             AREA,
@@ -1936,8 +2131,9 @@ mod tests {
         .unwrap();
         let geometry = shifted.geometry().unwrap();
         let [tangent_i, tangent_j] = shifted.end_tangents().unwrap();
-        let radial_i = subtract(shifted.node_i.coordinates, shifted.center);
-        let radial_j = subtract(shifted.node_j.coordinates, shifted.center);
+        let center = [0.4, 0.7, -0.3];
+        let radial_i = subtract(shifted.node_i.coordinates, center);
+        let radial_j = subtract(shifted.node_j.coordinates, center);
         for tangent in [tangent_i, tangent_j] {
             assert_close(norm(tangent), 1.0);
             assert_close(dot(tangent, geometry.local_axes[2]), 0.0);
