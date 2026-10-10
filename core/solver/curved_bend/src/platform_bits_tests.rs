@@ -19,8 +19,8 @@ struct Frozen {
     factors: (f64, f64),
     phi_bits: u64,
     k_digest: u64,
-    /// Digest including the load vector; `None` where the load path is not
-    /// frozen here (below the series switch, T4-U1b's path).
+    /// Digest including the load vector (`None`: not frozen). Below the
+    /// series switch it is T4-U1b's series path (`tip_deflection_by_series`).
     load_digest: Option<u64>,
 }
 
@@ -50,7 +50,8 @@ const FROZEN: [Frozen; 4] = [
         k_digest: 0x82e9fae73fe184ea,
         load_digest: Some(0xdd1b375e35908141),
     },
-    // A short arc below the series switch (s < 1/2).
+    // A short arc below the series switch (s < 1/2); its load digest is
+    // T4-U1b's series path.
     Frozen {
         label: "short_series",
         xi: [3.0, -1.0, 2.0],
@@ -60,7 +61,7 @@ const FROZEN: [Frozen; 4] = [
         factors: (1.0, 1.0),
         phi_bits: 0x3fc766ee6f97bf88,
         k_digest: 0xa960942f1d683461,
-        load_digest: None,
+        load_digest: Some(0x1a0c795a12ec77dd),
     },
     // s = 1/2 exactly (L = R): the first closed-form arc.
     Frozen {
