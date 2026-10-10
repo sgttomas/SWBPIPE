@@ -961,16 +961,30 @@ fn rotate_to_global(local_axes: &[[f64; 3]; 3], local: [f64; 3]) -> [f64; 3] {
 }
 
 // Inverse of a symmetric positive-definite 6x6 via the frame-kernel dense
-// solver, one unit column at a time in fixed order, then symmetrized.
+// solver, one unit column at a time in fixed order, then symmetrized. The
+// matrix is first equilibrated exactly by powers of two, D F D with
+// D_ii = 2^-floor(e_i/2) for F_ii = m_i 2^e_i, so the solver's absolute pivot
+// guard sees a scale-free matrix (a short or stiff arc is not refused for
+// the size of its flexibilities), and K = D (D F D)^-1 D with exact scalings.
 fn invert_symmetric6(matrix: &Matrix6) -> Result<Matrix6, CurvedBendError> {
-    let dense: Vec<Vec<f64>> = matrix.iter().map(|row| row.to_vec()).collect();
+    let mut scale = [1.0; DOF_PER_NODE];
+    for (index, factor) in scale.iter_mut().enumerate() {
+        *factor = power_of_two_equilibrator(matrix[index][index]);
+    }
+    let dense: Vec<Vec<f64>> = (0..DOF_PER_NODE)
+        .map(|row| {
+            (0..DOF_PER_NODE)
+                .map(|col| scale[row] * matrix[row][col] * scale[col])
+                .collect()
+        })
+        .collect();
     let mut inverse = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
     for col in 0..DOF_PER_NODE {
         let mut rhs = vec![0.0; DOF_PER_NODE];
         rhs[col] = 1.0;
         let solution = solve_dense(&dense, &rhs)?;
         for (row, value) in solution.iter().enumerate() {
-            inverse[row][col] = *value;
+            inverse[row][col] = scale[row] * *value * scale[col];
         }
     }
     // The symmetric pair update touches both (row, col) and (col, row).
@@ -983,6 +997,17 @@ fn invert_symmetric6(matrix: &Matrix6) -> Result<Matrix6, CurvedBendError> {
         }
     }
     Ok(inverse)
+}
+
+// 2^-floor(e/2) for a positive normal value m 2^e (1 for anything else), so
+// that the equilibrated diagonal lies in [1, 4).
+fn power_of_two_equilibrator(value: f64) -> f64 {
+    if !(value.is_normal() && value > 0.0) {
+        return 1.0;
+    }
+    let exponent = ((value.to_bits() >> 52) & 0x7ff) as i64 - 1023;
+    let shift = -exponent.div_euclid(2);
+    f64::from_bits(((1023 + shift) as u64) << 52)
 }
 
 // Rigid equilibrium transfer H from node j loads to node i reactions:
@@ -2096,6 +2121,40 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    // --- Shared arc definition and kink (T4-I11 D-I) ---
+
+    #[test]
+    fn arc_geometry_and_kink_describe_the_quarter_circle() {
+        let frame = arc_geometry([-RADIUS, RADIUS, 0.0], RADIUS, [1.0, 1.0, 0.0]).unwrap();
+        assert_close(frame.included_angle, PI / 2.0);
+        let half = std::f64::consts::FRAC_1_SQRT_2;
+        for (actual, expected) in frame
+            .tangent_i
+            .iter()
+            .chain(&frame.tangent_j)
+            .chain(&frame.bow_normal)
+            .zip([0.0, 1.0, 0.0, -1.0, 0.0, 0.0, half, half, 0.0])
+        {
+            assert_close(*actual, expected);
+        }
+        // The element's own frame is this definition.
+        let element = quarter_circle_element(1.0, 1.0);
+        assert_eq!(element.arc_frame().unwrap(), frame);
+        assert_eq!(
+            element.end_tangents().unwrap(),
+            [frame.tangent_i, frame.tangent_j]
+        );
+        // kink: exact zero for equal directions, pi/2 for orthogonal ones, and
+        // relative accuracy at tiny and near-pi angles.
+        assert_eq!(kink(frame.tangent_j, [-2.0, 0.0, 0.0]).unwrap(), 0.0);
+        assert_close(kink([1.0, 0.0, 0.0], [0.0, 3.0, 0.0]).unwrap(), PI / 2.0);
+        let tiny = kink([1.0, 0.0, 0.0], [1.0, 1.0e-9, 0.0]).unwrap();
+        assert!((tiny - 1.0e-9).abs() <= 1e-15 * 1.0e-9, "{tiny}");
+        let opposite = kink([1.0, 0.0, 0.0], [-1.0, 1.0e-9, 0.0]).unwrap();
+        assert!((PI - opposite - 1.0e-9).abs() <= 1e-15, "{opposite}");
+        assert!(kink([0.0; 3], [1.0, 0.0, 0.0]).is_err());
     }
 
     // --- Arc end tangents (used by the preview-physics bend checks) ---
