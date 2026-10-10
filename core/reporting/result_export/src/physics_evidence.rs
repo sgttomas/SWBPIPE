@@ -39,7 +39,7 @@ impl PressureContract {
     fn table(self) -> &'static Value {
         match self {
             PressureContract::StraightV2 => crate::semantic_contract::physics_contract(),
-            PressureContract::PressureV3 => crate::semantic_contract::pressure_contract(),
+            PressureContract::PressureV3 => crate::semantic_contract::pressure_rows_contract(),
         }
     }
 }

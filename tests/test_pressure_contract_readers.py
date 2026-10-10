@@ -83,3 +83,18 @@ def test_unknown_identities_are_refused(label, envelope):
     with pytest.raises(ValueError) as refused:
         validate_exact_pressure_evidence(relabelled)
     assert str(refused.value).endswith(V3_READ_AS_V2)
+
+
+@pytest.mark.parametrize("label,envelope", CASES)
+def test_null_or_non_mapping_metadata_is_refused_by_name(label, envelope):
+    # T4-RV13 N-1: a null producer or formulation basis is a named ValueError, never AttributeError.
+    for producer in (None, [], "pressure-1"):
+        broken = deepcopy(envelope)
+        broken["producer"] = producer
+        with pytest.raises(ValueError, match="SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"):
+            validate_exact_pressure_evidence(broken)
+    for basis in (None, [], "exact_pressure_v3"):
+        broken = deepcopy(envelope)
+        broken["formulation_basis"] = basis
+        with pytest.raises(ValueError, match="pressure-1 formulation profile"):
+            validate_exact_pressure_evidence(broken)

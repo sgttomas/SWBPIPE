@@ -213,22 +213,16 @@ pub fn physics_contract() -> &'static Value {
         .expect("pinned physics semantic contract")
     })
 }
-/// T4-U2a: the `pressure-1` table skeleton (physics-1's rows, its own
-/// identity and profile). It is not a reviewed input and not registered.
-pub fn pressure_contract() -> &'static Value {
-    static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| {
-        let table: Value = serde_json::from_str(include_str!(
-            "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
-        ))
-        .expect("pressure-1 semantic contract skeleton");
-        assert!(
-            table["semantic_contract_id"] == PRESSURE_ID
-                && table["formulation_profile_id"] == PRESSURE_PROFILE,
-            "pressure-1 semantic contract identity"
-        );
-        table
-    })
+/// T4-U2a: `pressure-1`'s row table. Its skeleton
+/// (`fixtures/results/semantic_contract_v0_3_pressure_1.json`) keeps physics-1's
+/// rows unchanged under its own identity and profile, so this reader resolves
+/// pressure-1 rows against physics-1's resident table and holds no table of its
+/// own: no static is added to the reader's reach (T4-RV14 F1). The identity and
+/// profile are checked from the envelope header, never inferred from the table.
+/// A unit that gives pressure-1 rows of its own must first settle how that
+/// table is priced (T3 O-10).
+pub fn pressure_rows_contract() -> &'static Value {
+    physics_contract()
 }
 /// Pinned table bytes: identity, profile and sha256 are checked, never inferred.
 pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
@@ -443,7 +437,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             // raw evidence and source-block invocation checks are separate APIs.
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
-                Some(PRESSURE_ID) => pressure_contract(),
+                Some(PRESSURE_ID) => pressure_rows_contract(),
                 Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),

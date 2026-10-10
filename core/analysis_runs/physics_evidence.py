@@ -118,13 +118,15 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
 def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
     """Dispatch on the producer's contract identity; an unknown identity is refused."""
     from .load_reference_evidence import validate_load_reference_evidence
-    identity = source.get("producer", {}).get("semantic_contract_id") if isinstance(source, Mapping) else None
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
     if identity == PHYSICS_ID:
         validate_physics_evidence(source)
     elif identity == LOAD_REFERENCE_ID:
         validate_load_reference_evidence(source)
     elif identity == PRESSURE_ID:
-        _require(source.get("formulation_basis", {}).get("profile_id") == PRESSURE_PROFILE, "pressure-1 formulation profile")
+        basis = source.get("formulation_basis")
+        _require(isinstance(basis, Mapping) and basis.get("profile_id") == PRESSURE_PROFILE, "pressure-1 formulation profile")
         validate_pressure_evidence(source)
     else:
         raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
