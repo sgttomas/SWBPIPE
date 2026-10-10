@@ -5397,18 +5397,22 @@ fn solve_load_case_observed(
             }
             None
         } else if pressure_runtime::is_exact(model) {
-            match exact_straight_summary_extrema(
-                pipe,
-                exact_mechanical_local_forces
-                    .as_ref()
-                    .map(Vec::as_slice)
-                    .unwrap_or(&corrected_local_forces),
-                &straight_loads,
-                section,
-                exact_pressure
-                    .as_ref()
-                    .and_then(|case| case.pipe_states.get(&pipe_index)),
-            ) {
+            let extrema = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err(reason.to_string()),
+                pressure_runtime::ExactMemberMaximumPolicy::Compute => exact_straight_summary_extrema(
+                    pipe,
+                    exact_mechanical_local_forces
+                        .as_ref()
+                        .map(Vec::as_slice)
+                        .unwrap_or(&corrected_local_forces),
+                    &straight_loads,
+                    section,
+                    exact_pressure
+                        .as_ref()
+                        .and_then(|case| case.pipe_states.get(&pipe_index)),
+                ),
+            };
+            match extrema {
                 Ok(maximum) => {
                     let value =
                         maximum.value_lower + 0.5 * (maximum.value_upper - maximum.value_lower);
@@ -5478,23 +5482,27 @@ fn solve_load_case_observed(
                 metadata: None,
             });
         }
-        if let Some(state) = exact_pressure
-            .as_ref()
-            .and_then(|case| case.pipe_states.get(&pipe_index))
-        {
-            append_exact_pressure_results(
+        match pressure_runtime::exact_member_recovery(
+            &load_case.id,
+            &pipe.element_id,
+            exact_pressure
+                .as_ref()
+                .and_then(|case| case.pipe_states.get(&pipe_index)),
+            exact_mechanical_local_forces.as_deref(),
+        ) {
+            Ok(None) => {}
+            Ok(Some((state, mechanical))) => append_exact_pressure_results(
                 &mut results,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
                 state,
                 &corrected_local_forces,
-                exact_mechanical_local_forces
-                    .as_ref()
-                    .expect("exact region member retains mechanical/thermal recovery"),
+                mechanical,
                 pipe,
                 &straight_loads,
-            );
+            ),
+            Err(refusal) => diagnostics.push(refusal),
         }
         component_stress_modifier_count += append_component_stress_multiplier_results(
             &mut results,
@@ -10864,18 +10872,16 @@ fn exact_straight_end_forces(
 }
 
 // Macro-span recovery: end forces are K_macro * (d - u_free) minus the
-// arc-consistent distributed equivalent loads and minus the consistent
-// radial pressure wall-load vector, in global coordinates — the exact
-// free-expansion correction mirrors
+// arc-consistent distributed equivalent loads, in global coordinates — the
+// exact free-expansion correction mirrors
 // `corrected_local_forces_for_axial_effects` so recovered forces exclude the
 // self-equilibrated thermal part, and the equivalent-load subtractions turn
 // the nodal solve response into the true node-on-element end forces of the
 // continuously loaded arc — then rotated to the chord frame of the replaced
-// straight span so the existing result rows keep their convention. Pressure
-// thrust is the complete arc system (cap pair + consistent wall vector), so
-// the closed-end wall tension pA emerges along the local tangent through
-// equilibrium with no ad-hoc chord correction; the former straight-element
-// chord-UX correction is retired for macro spans.
+// straight span so the existing result rows keep their convention. No
+// pressure load reaches a macro span: the radial pressure treatment was
+// retired, legacy pressure is refused on every route, and the exact pressure
+// profile refuses bend components.
 fn recover_curved_bend_local_forces(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
@@ -10901,9 +10907,8 @@ fn recover_curved_bend_local_forces(
     // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
     // products K_rc * d_c, minus K_rc * fl(eps_l * chord_c) for each thermal
     // load l (the force side's exact products), minus each uniform load's own
-    // consistent equivalent and each thrust load's radial-pressure
-    // equivalent, rounded once. The chord rotation below stays a formed
-    // transform.
+    // consistent equivalent, rounded once. The chord rotation below stays a
+    // formed transform.
     let free_expansions = thermal_loads
         .iter()
         .filter(|load| load.element_index == bend.pipe_index)
@@ -11005,10 +11010,8 @@ fn curved_bend_uniform_intensities_by_pipe(
 // Arc sections from the assembled macro-element: rotate the
 // recovered chord-frame end-j force back to global and evaluate section
 // resultants along the arc by segment equilibrium (closed form in the
-// curved-bend crate), treating the radial pressure wall load like the other
-// distributed loads: its far-segment actions enter the station equilibrium
-// directly, so the completely pressure-loaded arc reports wall tension +pA
-// along the local tangent with zero shear and zero moment at every station.
+// curved-bend crate). No pressure load reaches a macro span (see
+// `recover_curved_bend_local_forces`).
 // The recovered end forces already exclude the self-equilibrated thermal
 // free-expansion part and the distributed equivalent loads; the station
 // grid mirrors the straight-span fractions.
@@ -11046,7 +11049,7 @@ fn curved_bend_section_resultants(
     }
     // E11 (S11 section 4.4): by linearity the section value is the exact sum
     // of the section function applied to the end-j force alone, to each
-    // load's intensity alone and to each thrust alone, rounded once.
+    // load's intensity alone, rounded once.
     bend.macro_element
         .arc_section_resultant_terms(
             fraction,

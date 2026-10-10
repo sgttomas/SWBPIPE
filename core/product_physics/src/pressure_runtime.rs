@@ -86,12 +86,7 @@ pub(crate) fn is_exact(model: &PreviewModel) -> bool {
         })
 }
 
-fn problem(
-    diagnostics: &mut Vec<Diagnostic>,
-    code: &str,
-    refs: &[&str],
-    message: impl Into<String>,
-) {
+fn finding(code: &str, refs: &[&str], message: impl Into<String>) -> Diagnostic {
     let mut finding = diag(
         &format!(
             "diagnostic:pressure-runtime:{}:{code}",
@@ -103,7 +98,61 @@ fn problem(
         refs.iter().map(|value| value.to_string()).collect(),
     );
     finding.source = Some("core/product_physics/src/pressure_runtime.rs".to_string());
-    diagnostics.push(finding);
+    finding
+}
+
+fn problem(
+    diagnostics: &mut Vec<Diagnostic>,
+    code: &str,
+    refs: &[&str],
+    message: impl Into<String>,
+) {
+    diagnostics.push(finding(code, refs, message));
+}
+
+/// T4-U0 (A3): the exact route's pressure recovery decision for one member.
+/// A member outside every region has nothing to recover (`Ok(None)`). A region
+/// member recovers from its straight mechanical/thermal end actions; a region
+/// member without them (a realized curved bend) is refused by name, never
+/// recovered on its chord. Unreachable through the public entry until T4-U2a
+/// lifts the component refusal; the end-to-end wiring test lands with T4-U2a.
+pub(crate) fn exact_member_recovery<'s, 'm>(
+    case_id: &str,
+    pipe_id: &str,
+    pressure_state: Option<&'s ExactPressurePipeState>,
+    mechanical: Option<&'m [f64]>,
+) -> Result<Option<(&'s ExactPressurePipeState, &'m [f64])>, Diagnostic> {
+    match (pressure_state, mechanical) {
+        (None, _) => Ok(None),
+        (Some(state), Some(mechanical)) => Ok(Some((state, mechanical))),
+        (Some(state), None) => Err(finding(
+            "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT",
+            &[case_id, &state.region_id, pipe_id],
+            "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery under 2.0.0/exact_straight_pressure_v2; it is refused, not recovered on its chord",
+        )),
+    }
+}
+
+/// T4-U0 (A3): whether the exact route computes a member's straight-statics
+/// governing maximum or withholds it with a reason.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ExactMemberMaximumPolicy {
+    Compute,
+    Withhold(&'static str),
+}
+
+/// The straight-statics bound holds for straight members only. An arc member's
+/// maximum is withheld (with the case headline) until T4-U4 publishes one.
+/// Unreachable through the public entry until T4-U2a; the end-to-end wiring
+/// test lands with T4-U2a.
+pub(crate) fn exact_member_maximum_policy(is_arc: bool) -> ExactMemberMaximumPolicy {
+    if is_arc {
+        ExactMemberMaximumPolicy::Withhold(
+            "the straight-statics bound does not apply to a curved (arc) member",
+        )
+    } else {
+        ExactMemberMaximumPolicy::Compute
+    }
 }
 
 fn present(value: &Option<String>) -> Option<&str> {
@@ -1353,6 +1402,71 @@ mod tests {
                 assert!(result.cap_loads.iter().all(|value| *value == 0.0));
             }
         }
+    }
+
+    fn pipe_state(region_id: &str) -> ExactPressurePipeState {
+        ExactPressurePipeState {
+            region_id: region_id.to_string(),
+            annulus: SourceAnnulus::from_od_wall(4.0, 1.0).unwrap(),
+            pressure: InternalDifferentialPressure::new(3.0).unwrap(),
+            material: IsotropicENu::new(120.0, 0.25).unwrap(),
+            eigenload_pair: [0.0, 0.0],
+        }
+    }
+
+    /// T4-U0 A3 (Option 1): pins the recovery decision only. The call site in
+    /// `lib.rs` is unreachable through the public entry until T4-U2a lifts the
+    /// component refusal; the end-to-end wiring test (no panic, named refusal,
+    /// no maximum row) lands with T4-U2a.
+    #[test]
+    fn region_member_without_straight_recovery_is_refused_by_name() {
+        let state = pipe_state("region:A");
+        let mechanical = [0.0; 12];
+        // A curved (realized) bend in a region: no straight mechanical recovery.
+        let refusal = exact_member_recovery("case:A", "pipe:bend", Some(&state), None)
+            .expect_err("a region member without straight recovery is refused");
+        assert_eq!(refusal.code, "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT");
+        assert_eq!(refusal.severity, "blocking");
+        assert_eq!(refusal.affected_refs, ["case:A", "region:A", "pipe:bend"]);
+        assert_eq!(
+            refusal.id,
+            "diagnostic:pressure-runtime:case-A-region-A-pipe-bend:EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT"
+        );
+        assert_eq!(
+            refusal.source.as_deref(),
+            Some("core/product_physics/src/pressure_runtime.rs")
+        );
+        assert!(refusal.message.ends_with("it is refused, not recovered on its chord"));
+        // A straight region member recovers from its own mechanical actions.
+        let (recovered, actions) =
+            exact_member_recovery("case:A", "pipe:A", Some(&state), Some(&mechanical))
+                .unwrap()
+                .expect("a straight region member recovers");
+        assert!(std::ptr::eq(recovered, &state));
+        assert!(std::ptr::eq(actions, &mechanical[..]));
+        // A member outside every region has nothing to recover.
+        for mechanical in [None, Some(&mechanical[..])] {
+            assert!(exact_member_recovery("case:A", "pipe:B", None, mechanical)
+                .unwrap()
+                .is_none());
+        }
+    }
+
+    /// T4-U0 A3 (Option 1): pins the maximum decision only; the end-to-end
+    /// wiring test (no `pipe_elastic_normal_stress_maximum_v2` row, incomplete
+    /// coverage, withheld headline) lands with T4-U2a.
+    #[test]
+    fn straight_statics_maximum_is_withheld_for_arc_members() {
+        assert_eq!(exact_member_maximum_policy(false), ExactMemberMaximumPolicy::Compute);
+        let ExactMemberMaximumPolicy::Withhold(reason) = exact_member_maximum_policy(true) else {
+            panic!("an arc member's straight-statics maximum must be withheld");
+        };
+        let message = format!(
+            "signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {reason}"
+        );
+        assert!(message.ends_with(
+            ": the straight-statics bound does not apply to a curved (arc) member"
+        ));
     }
 
     #[test]
