@@ -586,6 +586,11 @@ fn prepare_sources(
     }
     // Presence is the producer inventory: a zero-valued pressure region is
     // still unsupported. Exact source cases require an explicitly empty list.
+    if !super::exact_admission::joins_retained_source(input.model) {
+        return Err(unsupported(
+            "3.0.0/exact_pressure_v3 is not joined to retained-source recovery",
+        ));
+    }
     if super::pressure_runtime::is_exact(input.model) {
         if !input
             .load_case
