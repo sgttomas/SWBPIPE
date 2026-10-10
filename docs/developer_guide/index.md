@@ -22,11 +22,9 @@ SWBPIPE keeps three responsibilities separate:
 - professional use remains a human responsibility outside automatic software
   output.
 
-Current authority basis: the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`
-and its decision register, with approved graph coordination selected through
-`execution/_DAG/_LATEST.md`. Graph coordination does not dispatch implementation work, move
-lifecycle states, approve deliverables, or create professional, release, or
-code-compliance claims.
+Current product commitments live in the PRD and deliverable ScopeOfWork/Design.
+Development follows Root `AGENTS.md` and [LOOP_INIT](../../loop/LOOP_INIT.md).
+Dependency views are coordination facts, not engineering or release acceptance.
 
 ## 1. Governing Artifacts
 
@@ -34,7 +32,7 @@ Read these project artifacts before changing solver or rule-pack behavior:
 
 | Artifact | Use |
 |---|---|
-| [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Founding intent, stop rules, scope boundaries, local-first/privacy posture, and human-authority limits. |
+| [`docs/PRD.md`](../PRD.md) | Founding intent, stop rules, scope boundaries, local-first/privacy posture, and human-authority limits. |
 | [`docs/CONTRACT.md`](../CONTRACT.md) | Binding invariants for IP, data, units, solver behavior, rule packs, privacy, reports, and agent work. |
 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Public/private content rules, provenance requirements, and quarantine process. |
 | [`docs/SPEC.md`](../SPEC.md) | Current technical architecture, domain objects, unit model, solver and rule-pack boundaries, reports, and V&V posture. |
@@ -47,10 +45,9 @@ Read these project artifacts before changing solver or rule-pack behavior:
 | [`docs/architecture/extension_domain_contracts.md`](../architecture/extension_domain_contracts.md) | Domain rules for plugins and adapters that touch models, rule packs, diagnostics, reports, or results. |
 | [`docs/security/local_first_storage_policy.md`](../security/local_first_storage_policy.md) | Local-first storage, private path, telemetry-off-by-default, and storage no-bypass policy. |
 
-Implementation-level choices follow DEC-012 and may be resolved by a sealed
-brief or later human ruling; accepted changes and lockfiles record their actual
-realization. The numerical solver policy is settled by DEC-023, canonical rule
-expressions by DEC-022/037, and CI/coverage policy by DEC-025/059/060/093. Their
+Implementation choices within authorized scope are recorded in code, lockfiles
+and the PR. Owner-reserved changes return to the owner. The numerical solver policy is settled by DEC-023, canonical rule
+expressions by DEC-022/037, and current CI selection is described in `CI_STRATEGY.md`. Their
 implementation and candidate-bound verification remain separate obligations.
 SCA-003 and DEC-028 govern the local SQLite project store; SCA-004 and the
 PKG-17 contracts govern admitted export formats. Neither a copied TBD list nor

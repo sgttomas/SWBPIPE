@@ -1,4 +1,10 @@
 ---
+
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Design/pressure-contract.md).
+`legacy_pressure_v1` is retired, including zero-pressure documents. References
+to pressure quantities or validation coverage below are subject to that current
+boundary and do not establish implemented T4 capability.
+
 doc_id: OPS-SPEC
 doc_kind: governance.technical_spec
 status: draft
@@ -83,28 +89,11 @@ Minimum domain objects:
 | `RulePack` | User-defined code/design-basis check | required inputs, formulas, allowables, status, checksum |
 | `Report` | Auditable calculation output | input manifest, warnings, results, rule-pack refs, notices |
 
-### 3.0 Dependency-register type system
+### 3.0 Development dependencies
 
-Dependency registers are governed coordination artifacts. Current write-form
-registers must use the canonical v3.1 enum surface: `DependencyType` is one of
-`PREREQUISITE`, `INTERFACE`, `HANDOVER`, `CONSTRAINT`, `ENABLES`, or `OTHER`,
-and `Status` is one of `ACTIVE` or `RETIRED`. Candidate dependencies are
-non-authoritative worklist items until promoted by a human-gated graph refresh;
-they are not emitted as `Status=CANDIDATE`.
-
-`DAG-001` through `DAG-006` remain immutable historical snapshots with legacy
-read compatibility. Current successors, beginning with the approved `DAG-007`
-rectification package, must validate in canonical mode and may preserve legacy
-labels only as provenance notes or extension metadata.
-
-Revision 0.5 treats the schema-backed physical model as the source of truth for
-editable piping design data. `schemas/model.schema.yaml` therefore exposes
-source-of-truth role metadata, unresolved assumptions, diagnostics/warnings,
-traceability links, and typed references to design knowledge, constraints,
-equipment interfaces, model operations, immutable states, analysis runs,
-comparisons, handoff packages, and external prover metadata. The detailed
-records for those surfaces remain owned by PKG-13 through PKG-16 and their
-specialized schemas or services.
+Current dependency conditions live in each deliverable’s `deliverable.yaml`;
+query them through the Root deliverable CLI. This is development navigation,
+not an engineering dependency or acceptance verdict.
 
 ### 3.1 Design knowledge contract
 
@@ -585,10 +574,14 @@ orientation metadata: their `local_coordinate_system` carries a `y_reference`
 and may carry provenance. The schema does not add a `local_x_axis` field.
 
 The stress recovery slice is `core/loads/stress_recovery`. It recovers
-code-neutral mechanics components from explicit element force resultants,
-section properties, and optional pressure basis inputs: axial normal stress,
-bending normal stress components, torsional shear stress, and thin-wall
-pressure membrane components. Missing resultants, missing section or pressure
+code-neutral mechanics components from explicit element force resultants and
+section properties: axial normal stress, bending normal stress components, and
+torsional shear stress. It has no pressure components: its legacy thin-wall
+pressure membrane was removed when the owner retired the legacy pressure
+contract product-wide (see the current DEL-04-07 pressure contract linked above).
+Pressure is solved only through the exact straight-pressure contract
+`2.0.0/exact_straight_pressure_v2`, within that contract's own qualifications.
+Missing resultants, missing section
 inputs, non-finite values, non-positive properties, incomplete mechanics
 status, and human-approval status are deterministic findings, not silent
 defaults. This slice does not provide design-code stress equations, allowables,
@@ -600,8 +593,10 @@ Stress recovery shall calculate open mechanics quantities such as axial stress, 
 
 The stress recovery benchmark suite is `validation/benchmarks/stress`. It
 contains original invented verification fixtures and hand-calculation notes for
-axial normal stress, bending normal stress, torsional shear stress, pressure
-membrane stress, and mechanics-only stress range behavior. The suite compares
+axial normal stress, bending normal stress, torsional shear stress, and
+mechanics-only stress range behavior. Its pressure membrane fixture,
+`STRESS-PRESSURE-MEMBRANE-ORIGINAL`, was an oracle of the retired legacy
+pressure computation and was removed with it (see the current DEL-04-07 pressure contract). The suite compares
 outputs from the governed stress-recovery API without changing production
 stress-recovery behavior and without introducing code-specific stress
 equations, allowables, protected standards content, or professional/compliance
@@ -907,33 +902,20 @@ for cantilever, frame, thermal-growth, imposed-displacement, and
 stiffness-transform families. Hand-calculation notes for those fixtures live in
 `validation/hand_calcs/mechanics/`.
 
-## 11. Agentic development mechanics
+## 11. Development entry
 
-Downstream implementation should use the decomposition package as the source of work identity:
-
-```text
-PKG-XX_<PackageLabel>/
-└── 1_Working/
-    └── DEL-XX-YY_<DeliverableLabel>/
-        ├── _STATUS.md
-        ├── _CONTEXT.md
-        ├── _REFERENCES.md
-        ├── _DEPENDENCIES.md
-        ├── Datasheet.md
-        ├── Specification.md
-        ├── Guidance.md
-        └── Procedure.md
-```
-
-Each deliverable must be executable by a bounded Type 2 specialist. If a deliverable becomes cross-domain or too large, it must be split or explicitly accepted as a human-approved open issue.
+Use Root `AGENTS.md` and [LOOP_INIT](../loop/LOOP_INIT.md). Current commitments,
+design and dependency conditions live together under `execution/PKG-XX/DEL-XX-YY/`.
+No lifecycle files, phase folders or separate development receipts are required.
 
 ## 12. Acceptance semantics
 
-A software increment may be accepted for development use only when:
+Development verification follows Root `AGENTS.md` in proportion to consequence:
 
-1. scope and deliverable ID match the decomposition;
-2. tests and/or documentation artifacts listed in the deliverable exist;
+
+1. the change stays within its authorized scope;
+2. focused checks exercise the consequential behaviour being changed;
 3. no protected public data has been introduced;
 4. missing data and assumptions are surfaced;
-5. solver/rule/report changes pass required validation gates;
-6. a human accepts the work at the review gate.
+5. solver/rule/report changes preserve numerical and professional boundaries;
+6. owner-reserved decisions and release acceptance remain with the owner.

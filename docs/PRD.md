@@ -13,11 +13,37 @@
 
 ## Forward Authority and Citation Resolution
 
-This file, at `docs/PRD.md`, is the adopted PRD authority. References to `docs/PRD.md` dated before 2026-07-16 refer to the superseded v0.1 text, which is preserved verbatim at `docs/_history/PRD_v0.1.md` and resolves through the D-21 Annex A crosswalk. References to `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` resolve to this file; the v0.2 text is preserved in git history. Ruled history keeps its original tokens and is never rewritten.
+This file, at `docs/PRD.md`, is the adopted PRD authority. References to `docs/PRD.md` dated before 2026-07-16 refer to the superseded v0.1 text, which is recoverable at `docs/_history/PRD_v0.1.md` in Git history and resolves through the D-21 Annex A crosswalk. References to `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` resolve to this file; the v0.2 text is preserved in git history. Ruled history keeps its original tokens and is never rewritten.
 
 No lifecycle advance, release-readiness claim, professional approval, certification, sealing, authentication, or code-compliance claim is created by this amendment.
 
 ---
+
+## Product principles
+
+The public product supplies open mechanics, schemas and lawful/invented examples;
+users supply code-specific and proprietary engineering data. Missing required
+values, conflicting sources and uncertain provenance remain explicit; no silent
+engineering defaults or protected standards content enter public artifacts.
+The technical lineage is classical centerline flexibility analysis, including
+Kellogg's *Design of Piping Systems* (1956), refined through modern open methods;
+it is not a mandate to reproduce that text or limit the solver to historical methods.
+The global model is a unit-aware 3D frame/line-element model with stable identity
+and provenance; specialized shell/solid FEA remains a local handoff.
+
+Mechanically solved results, user-supplied rules and professional acceptance are
+distinct. Software does not certify, seal or approve engineering work. Release
+claims must reflect demonstrated benchmarks, tolerances and limitations; public
+contributions require documented redistribution rights. Private models, rule
+packs and libraries stay user-controlled, with no hidden cloud storage or telemetry.
+Fabrication, inspection, examination and testing-compliance functions are outside
+the analytical scope unless expressly added as product requirements.
+
+The project license is MIT. The sole human maintainer retains release authority;
+external contribution intake remains closed until an owner activation and the
+required contributor/legal arrangements. See [CONTRACT](CONTRACT.md),
+[IP and data boundary](IP_AND_DATA_BOUNDARY.md), [professional boundary](PROFESSIONAL_BOUNDARY.md)
+and [maintainer policy](../governance/MAINTAINERS.md).
 
 ## 1. Executive Summary
 
