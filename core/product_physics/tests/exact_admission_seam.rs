@@ -367,7 +367,7 @@ const PHYSICS_SOURCE_N06: &str =
 const LOAD_REFERENCE_SOURCE_N06: &str =
     include_str!("../../../fixtures/product_preview/load_reference_source/n06.request.json");
 const NOT_JOINED: &str = "EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED";
-const NOT_JOINED_TEXT: &str = "retained-source recovery is not joined for 3.0.0/exact_pressure_v3: this case's ordinary attempt needed recovery, which 2.0.0/exact_straight_pressure_v2 would attempt on this entry, and only the ordinary structural route is published; a straight-only document authored as 2.0.0/exact_straight_pressure_v2 keeps retained-source recovery";
+const NOT_JOINED_TEXT: &str = "retained-source recovery is not joined for 3.0.0/exact_pressure_v3: this case's ordinary attempt needed recovery, which 2.0.0/exact_straight_pressure_v2 would attempt on this entry, and only the ordinary structural route is published";
 
 /// The cases named by the ruling-3 diagnostic, each checked for its shape.
 fn not_joined_cases(envelope: &Value) -> Vec<String> {
