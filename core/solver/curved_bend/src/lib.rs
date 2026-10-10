@@ -1130,6 +1130,9 @@ fn cross(left: [f64; 3], right: [f64; 3]) -> [f64; 3] {
 }
 
 #[cfg(test)]
+mod axis_tolerance_tests;
+
+#[cfg(test)]
 mod platform_bits_tests;
 
 #[cfg(test)]
