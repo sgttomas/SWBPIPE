@@ -167,9 +167,9 @@ def test_complete_synthetic_draft_control_is_not_qualification():
     from copy import deepcopy
     for fixture in corpus()["cases"]:
         source, invocation = deepcopy(fixture["source"]), deepcopy(fixture["invocation"])
-        if fixture["id"] in O07_PY_BOUND_G8:
-            # 07o's two hook bases: PY's bound read is the declared open item below; the unbound read is the corpus's.
-            assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+        if "gate" in fixture["expected"]:
+            # PR-B2 ruling 5: a base stated refused bound is refused there; unbound it passes with its classifications.
+            assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", fixture["expected"]["gate"], fixture["expected"]["code"])
             assert rp._validate_draft(source)["classifications"] == fixture["expected_classifications"]
             continue
         result = rp._validate_draft(source, invocation)
@@ -322,11 +322,12 @@ def test_shared_publicly_consistent_attestations_must_pass(entry):
     rewrites keep every public relation, so readers must accept them; only producer
     custody/replay can catch such attested private flags."""
     fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
-    assert entry["expected"] == "pass"
     source, invocation = apply_entry(fixture, entry)
-    if entry["base"] in O07_PY_BOUND_G8:
-        # 07o's two hook bases: the declared open item (see O07_PY_BOUND_G8).
-        assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+    if entry["expected"] != "pass":
+        # PR-B2 ruling 5: an entry on a base refused bound states that refusal (its unbound and transport reads:
+        # `test_snapshot_07o_must_pass`).
+        assert entry["expected"] == fixture["expected"]
+        assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", entry["expected"]["gate"], entry["expected"]["code"])
         return
     result = rp._validate_draft(source, invocation)
     # 07n (B1 SC): an admitted rewrite that changes the classes (a case no longer selected, a row added or removed)
@@ -1900,15 +1901,17 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
 # Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.
 # ---------------------------------------------------------------------------------------------
-O07_SHA256 = "c2849ad53d1927a15c1a5b8254c649e0597d3230b21fc094bb2a4a7dd56c7a98"
+O07_SHA256 = "78d6d7c50cb220678e599294f9df05c9543c9614d1422772593e055e5a816b11"
 O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
     f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
     "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]
-O07_KEYS = {"id", "base", "edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"}
-# Open item for the manager (lane PY): both hook bases record case B's prepared member with old_facts D = +0 (the hooks'
-# forced refusal), while their invocation's OD is 0.2 m. C3's G8 tuple binding (the existing case-attempt rule, and
-# C3a-7's for an OperandPreparation) refuses that at G8 PREPARATION_MISMATCH; the corpus expects them to pass bound.
-O07_PY_BOUND_G8 = {"b2_operand_preparation_failure", "b2_operand_source_unavailable"}
+O07_KEYS = {"id", "base", "edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility", "expected_unbound",
+            "expected_transport"}
+# PR-B2 ruling 5: both hook bases record the refused member's old_facts D = +0 (the hooks' forced refusal), while their
+# invocation's OD is 0.2 m; C3's G8 tuple binding (the case-attempt rule, and C3a-7's for an OperandPreparation) refuses
+# that at G8 PREPARATION_MISMATCH. 07o states it: each base's `expected` and its must-pass entry's are that refusal, the
+# entry's `expected_unbound` and `expected_transport` pass.
+O07_REFUSED_BOUND = ["b2_operand_preparation_failure", "b2_operand_source_unavailable"]
 
 
 def test_snapshot_07o_appends_only_and_states_its_bases():
@@ -1919,7 +1922,13 @@ def test_snapshot_07o_appends_only_and_states_its_bases():
     new = c["mutations"][534:] + c["must_pass"][78:]
     assert (len(c["mutations"][534:]), len(c["must_pass"][78:])) == (69, 19)
     assert all(set(e) <= O07_KEYS and e["rehash"] == "all" for e in new)
-    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in new)
+    stated = [e for e in c["must_pass"][78:] if e["expected"] != "pass"]
+    assert [e["base"] for e in stated] == O07_REFUSED_BOUND == [x["id"] for x in c["cases"][26:] if "gate" in x["expected"]]
+    assert all(e["expected"] == {"gate": "G8", "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"} and e["expected_unbound"] == e["expected_transport"] == "pass"
+               and "expected_eligibility" not in e for e in stated)
+    rest = [e for e in new if e not in stated]
+    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in rest)
+    assert all("expected_unbound" not in e and "expected_transport" not in e for e in rest)
     assert [e["id"] for e in new if "after_rehash" in e] == ["b2o_m10_combination_identity_changed", "b2o_m11_operand_identity_changed", "b2o_m12_operand_prepared_hash_case_domain"]
     assert [e["id"] for e in new if "expected_by_reader" in e] == ["b2o_m69_combination_magnitude_off"]
     assert [e["base"] for e in c["must_pass"][78:]] == O07_BASES
@@ -1948,12 +1957,13 @@ def test_snapshot_07o_mutation_slice():
 
 @pytest.mark.parametrize("entry", corpus()["must_pass"][78:], ids=lambda x: x["id"])
 def test_snapshot_07o_must_pass(entry):
-    """Each 07o must-pass entry: bound, its stated eligibility and its base's classifications (R-COMB-1's included);
-    unbound and transport, never eligible. The two hook bases' bound reads are the open item above."""
+    """Each 07o must-pass entry: bound, its stated eligibility and its base's classifications (R-COMB-1's included), or
+    its stated refusal (PR-B2 ruling 5); unbound and transport, never eligible."""
     fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
     source, invocation = apply_entry(fixture, entry)
-    if entry["base"] in O07_PY_BOUND_G8:
-        assert _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))[:3] == ("refuse", "G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+    if entry["expected"] != "pass":
+        assert _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))[:3] == ("refuse", entry["expected"]["gate"], entry["expected"]["code"])
+        assert entry["expected_unbound"] == entry["expected_transport"] == "pass"
     else:
         result = rp.validate_retained_precision(deepcopy(source), deepcopy(invocation))
         assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == entry["expected_eligibility"]

@@ -196,22 +196,19 @@ async function applyEntry(m: any): Promise<{ base: any; source: any; invocation:
   applyEdits(source, m.after_rehash);
   return { base, source, invocation };
 }
-/** Lane TS's bound reading of 07o's two hook-produced bases and their must-pass entries, returned to the PR-B2 manager as
- * a corpus defect, not a declared difference: their hooks (B2-P `fail_operand_preparation`; B1 `fail_preparation_of_case`)
- * write the refused member's old facts with D = +0, where the invocation's outside diameter is 0.2 m, so G8's preparation
- * binding refuses them (C3's old tuple against the invocation for every attempt's members, B1's P7 settlement; C3a-7 G8 for
- * an operand preparation), as RS's and PY's B1 binding does. The corpus designs them as passing; unbound and on transport
- * they pass. This pin keeps the reading visible until the corpus decides. */
-const TS_07O_BOUND_READINGS: Record<string, { gate: string; code: string }> = Object.fromEntries(['b2_operand_preparation_failure', 'b2_operand_source_unavailable',
-  'b2o_must_pass_b2_operand_preparation_failure', 'b2o_must_pass_b2_operand_source_unavailable'].map(id => [id, { gate: 'G8', code: 'RETAINED_PRECISION_PREPARATION_MISMATCH' }]));
+/** PR-B2 ruling 5: 07o states its two hook-produced bases refused bound at G8 PREPARATION_MISMATCH (each hook writes the
+ * refused member's old facts with D = +0 where the invocation's outside diameter is 0.2 m, and G8's preparation binding
+ * refuses that: C3's old tuple against the invocation, B1's P7 settlement; C3a-7 G8 for an operand preparation): the base's
+ * `expected` and its must-pass entry's are that gate and code, the entry's `expected_unbound` and `expected_transport` pass. */
+const statedRefusal = (expected: any) => typeof expected === 'object' && expected !== null && Object.hasOwn(expected, 'gate');
 async function boundReading(source: any, invocation: any): Promise<unknown> {
   try { await validateRetainedPrecision(source, invocation); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; }
 }
 describe('shared synthetic prepared receipt controls, never solver execution evidence', () => {
   for (const c of corpus.cases) {
-    if (Object.hasOwn(TS_07O_BOUND_READINGS, c.id)) {
-      it(c.id + ' (bound: lane TS\'s returned reading)', async () => {
-        expect(await boundReading(structuredClone(c.source), structuredClone(c.invocation))).toEqual(TS_07O_BOUND_READINGS[c.id]);
+    if (statedRefusal(c.expected)) {
+      it(c.id + ' (bound: the corpus\'s stated refusal)', async () => {
+        expect(await boundReading(structuredClone(c.source), structuredClone(c.invocation))).toEqual(c.expected);
         const unbound = await validateRetainedPrecision(structuredClone(c.source)), transport = structuredClone(c.source); delete transport.results;
         expect([unbound.numerical_eligible, (await validateRetainedPrecisionTransport(transport)).numerical_eligible]).toEqual([false, false]);
       });
@@ -249,9 +246,15 @@ describe('shared synthetic prepared receipt controls, never solver execution evi
   });
   // Snapshot 05a: publicly consistent or permitted failure-path rewrites the reader must accept.
   for (const m of corpus.must_pass ?? []) it('must pass: ' + m.id, async () => {
-    expect(m.expected).toBe('pass');
     const { base, source, invocation } = await applyEntry(m);
-    if (Object.hasOwn(TS_07O_BOUND_READINGS, m.id)) { expect(await boundReading(source, invocation), 'lane TS\'s returned reading').toEqual(TS_07O_BOUND_READINGS[m.id]); return; }
+    if (m.expected !== 'pass') {
+      // PR-B2 ruling 5: the entry states its base's bound refusal, and passes unbound and on transport.
+      expect(statedRefusal(m.expected) && statedRefusal(base.expected)).toBe(true);
+      expect(await boundReading(source, invocation), 'the stated refusal').toEqual(m.expected);
+      expect([m.expected_unbound, m.expected_transport]).toEqual(['pass', 'pass']);
+      expect([(await validateRetainedPrecision(structuredClone(source))).numerical_eligible, (await validateRetainedPrecisionTransport(structuredClone(source))).numerical_eligible]).toEqual([false, false]);
+      return;
+    }
     const result = await validateRetainedPrecision(source, invocation);
     // U7 (07i): each entry's own eligibility per C1:160.
     expect({ invocation_bound: result.invocation_bound, numerical_eligible: result.numerical_eligible, standing: result.standing }).toEqual(m.expected_eligibility);
@@ -2321,7 +2324,7 @@ describe('07o (B2): counts, format and slices', () => {
     const mutations = corpus.mutations.slice(534), mustPass = corpus.must_pass.slice(78);
     expect([mutations.length, mustPass.length]).toEqual([69, 19]);
     for (const e of [...mutations, ...mustPass]) {
-      expect(Object.keys(e).filter(k => !['id', 'base', 'edits', 'after_rehash', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility'].includes(k)), e.id).toEqual([]);
+      expect(Object.keys(e).filter(k => !['id', 'base', 'edits', 'after_rehash', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility', 'expected_unbound', 'expected_transport'].includes(k)), e.id).toEqual([]);
       expect([e.rehash, O7_BASES.includes(e.base) || corpus.cases.slice(0, 26).some((c: any) => c.id === e.base)], e.id).toEqual(['all', true]);
     }
     expect(mutations.map((m: any) => m.id.slice(0, 7))).toEqual(Array.from({ length: 69 }, (_, i) => `b2o_m${String(i + 1).padStart(2, '0')}`));
@@ -2330,8 +2333,26 @@ describe('07o (B2): counts, format and slices', () => {
     expect(corpus.format_rule.order).toContain('2 each CaseSource\'s preparation.sha256 through operand_preparation_ref');
     expect(new Set([...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id)).size).toBe(700);
   });
-  it('07o: lane TS\'s returned readings name exactly the two hook-produced bases and their must-pass entries', () => {
-    expect(Object.keys(TS_07O_BOUND_READINGS).sort()).toEqual(['b2_operand_preparation_failure', 'b2_operand_source_unavailable', 'b2o_must_pass_b2_operand_preparation_failure', 'b2o_must_pass_b2_operand_source_unavailable']);
-    for (const id of ['b2_operand_preparation_failure', 'b2_operand_source_unavailable']) expect(corpus.cases.find((c: any) => c.id === id).provenance.kind).toBe('hook_produced');
+  it('07o: exactly the two hook-produced bases and their must-pass entries state a bound refusal, G8 PREPARATION_MISMATCH (PR-B2 ruling 5)', () => {
+    const refused = { gate: 'G8', code: 'RETAINED_PRECISION_PREPARATION_MISMATCH' }, hooks = ['b2_operand_preparation_failure', 'b2_operand_source_unavailable'];
+    expect(corpus.cases.filter((c: any) => statedRefusal(c.expected)).map((c: any) => c.id)).toEqual(hooks);
+    for (const id of hooks) expect([corpus.cases.find((c: any) => c.id === id).provenance.kind, corpus.cases.find((c: any) => c.id === id).expected]).toEqual(['hook_produced', refused]);
+    const stated = corpus.must_pass.filter((m: any) => m.expected !== 'pass');
+    expect(stated.map((m: any) => [m.base, m.expected, m.expected_unbound, m.expected_transport, Object.hasOwn(m, 'expected_eligibility')])).toEqual(hooks.map(h => [h, refused, 'pass', 'pass', false]));
+    expect([...corpus.mutations.slice(534), ...corpus.must_pass.slice(78)].filter((e: any) => !stated.includes(e) && (Object.hasOwn(e, 'expected_unbound') || Object.hasOwn(e, 'expected_transport')))).toEqual([]);
+  });
+});
+
+// PR-B2 lane X: the shared B2 parity probes, pinned alike in the RS, PY and TS readers. Each shape is a forgery on a corpus
+// base in the corpus entry grammar (S-6 rehash), with the bound and unbound reading every reader gives: a gate and code, or
+// 'pass' (rulings 1-3, a prepared operand preparation's completeness, a refused Call's members, UTF-8 range order).
+describe('B2 parity probes, shared with the RS and PY readers', () => {
+  const parity = JSON.parse(readCorpus(resolvePath(__dirname, '../../../../../fixtures/results/retained_precision_b2_parity_probes.json'), 'utf8'));
+  const read = async (run: () => Promise<unknown>) => { try { await run(); return 'pass'; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
+  it('16 shapes', () => expect(parity.shapes.length).toBe(16));
+  for (const shape of parity.shapes) it(shape.name, async () => {
+    const { source, invocation } = await applyEntry(shape);
+    expect([await read(() => validateRetainedPrecision(structuredClone(source), structuredClone(invocation))), await read(() => validateRetainedPrecision(structuredClone(source)))])
+      .toEqual([shape.expected, shape.expected_unbound]);
   });
 });

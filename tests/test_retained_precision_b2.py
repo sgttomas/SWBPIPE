@@ -373,17 +373,17 @@ def native(b):
         return (error.gate, error.code)
 
 
-def test_b2_g5_native_no_operands_names_an_empty_operand_list():
-    """A `no_operands` pre-source refusal is read with an empty `requested_operands` (FK `validate_preps` gives it only
-    then); with the terms requested, the Call contradicts its own reason."""
+def test_b2_g5_native_no_operands_keeps_the_authored_terms():
+    """CONTRACT §2.5 (PR-B2 ruling 2): `requested_operands` are the expression's terms whatever the Call's result, a
+    `no_operands` pre-source refusal included; an empty list against a non-empty expression is refused."""
     source, _ = base()
     b = body(source)
     assert native(b) == "pass"
     b["calls"][1].update(result={"kind": "pre_source_refusal", "stage": "operand_validation", "reason": {"space": "combination", "tag": "no_operands"}}, source_refs=[], run_refs=[])
     b["combinations"][0].update(run=None, source_ref=None)
-    assert native(b) == ATTEMPT
-    b["calls"][1]["requested_operands"] = []
     assert native(b) == "pass"
+    b["calls"][1]["requested_operands"] = []
+    assert native(b) == ATTEMPT
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -791,3 +791,27 @@ def test_b2_g5_combination_attempt_more_reader_logic():
     with pytest.raises(rp.RetainedPrecisionError):
         rp._g5_operand_preparations(body(s3), fail, lambda ok: None)
 
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# PR-B2 lane X: the shared B2 parity probes, pinned alike in the RS, PY and TS readers. Each shape is a forgery on a
+# corpus base in the corpus entry grammar (S-6 rehash), with the bound and unbound reading every reader gives: a gate and
+# code, or "pass" (rulings 1-3, a prepared operand preparation's completeness, a refused Call's members, UTF-8 order).
+
+PARITY = json.loads((ROOT / "fixtures/results/retained_precision_b2_parity_probes.json").read_text())
+
+
+@pytest.mark.parametrize("shape", PARITY["shapes"], ids=lambda s: s["name"])
+def test_b2_parity_probes_shared(shape):
+    from test_retained_precision_contract import apply_entry, corpus
+    fixture = next(c for c in corpus()["cases"] if c["id"] == shape["base"])
+    source, invocation = apply_entry(fixture, shape)
+
+    def read(*args):
+        try:
+            rp.validate_retained_precision(deepcopy(source), *map(deepcopy, args))
+            return "pass"
+        except rp.RetainedPrecisionError as error:
+            return {"gate": error.gate, "code": error.code}
+    assert len(PARITY["shapes"]) == 16
+    assert (read(invocation), read()) == (shape["expected"], shape["expected_unbound"])

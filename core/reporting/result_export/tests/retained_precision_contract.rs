@@ -269,7 +269,12 @@ fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
 fn complete_synthetic_controls_carry_their_shared_eligibility() {
     let shared = corpus();
     for case in shared["cases"].as_array().unwrap() {
-        if o07_refused_hook_base(&case["id"]) {
+        // PR-B2 ruling 5: a base the corpus states refused bound (`expected` a gate
+        // and code) is refused there, and passes unbound and on transport.
+        if case["expected"].get("gate").is_some() {
+            assert_eq!(observe_validation(rp::validate(&case["source"], Some(&case["invocation"]))), case["expected"], "{}", case["id"]);
+            assert!(matches!(rp::validate(&case["source"], None), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+            assert!(matches!(rp::validate_transport_metadata(&case["source"]), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
             continue;
         }
         let got = rp::validate(&case["source"], Some(&case["invocation"]))
@@ -1598,7 +1603,6 @@ fn shared_must_pass_entries_validate() {
     assert_eq!(entries.len(), 97);
     let mut failures = Vec::new();
     for entry in entries {
-        assert_eq!(entry["expected"], "pass");
         assert_eq!(entry["rehash"], "all");
         let case = shared["cases"]
             .as_array()
@@ -1607,11 +1611,14 @@ fn shared_must_pass_entries_validate() {
             .find(|c| c["id"] == entry["base"])
             .unwrap();
         let (source, invocation) = apply_entry(&shared, entry);
-        if o07_refused_hook_base(&entry["base"]) {
+        // PR-B2 ruling 5: an entry on a base refused bound states that refusal as its
+        // `expected` (its unbound and transport reads: `snapshot_07o_unbound_and_transport_reads`).
+        if entry["expected"] != "pass" {
+            assert_eq!(entry["expected"], case["expected"], "{}", entry["id"]);
             let got = observe_validation(rp::validate(&source, Some(&invocation)));
-            println!("I63_MUST_PASS {} declared {got}", entry["id"]);
-            if got != gate("G8", PREP) {
-                failures.push(format!("{} (declared) got {got}", entry["id"]));
+            println!("I63_MUST_PASS {} stated {got}", entry["id"]);
+            if got != entry["expected"] {
+                failures.push(format!("{} got {got}", entry["id"]));
             }
             continue;
         }
@@ -3793,12 +3800,14 @@ fn d32_integers_by_value() {
     assert!(misses.is_empty(), "{}", misses.join("\n"));
     // Every receipt integer at once, on every complete base.
     for case in shared["cases"].as_array().unwrap() {
-        if o07_refused_hook_base(&case["id"]) {
-            continue;
-        }
         let mut source = case["source"].clone();
         as_integral_floats(&mut source["retained_precision"]["body"]);
         rehash(&mut source);
+        // A base stated refused bound (PR-B2 ruling 5) keeps its stated refusal.
+        if case["expected"].get("gate").is_some() {
+            assert_eq!(observe_validation(rp::validate(&source, Some(&case["invocation"]))), case["expected"], "{}", case["id"]);
+            continue;
+        }
         assert!(
             rp::validate(&source, Some(&case["invocation"])).is_ok(),
             "{}: {:?}",
@@ -7382,8 +7391,9 @@ fn snapshot_07o_counts_and_format() {
         let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
         let standing = sc::numerical_use_standing_with_context(&source, &order, Some(&invocation));
         println!("B2_RS_07O_STANDING {} {standing}", entry["id"]);
-        if o07_refused_hook_base(&entry["base"]) {
-            assert_eq!(standing, "unsupported", "{} (declared)", entry["id"]);
+        // An entry stated refused bound (PR-B2 ruling 5) has no numerical-use standing.
+        if entry["expected"] != "pass" {
+            assert_eq!(standing, "unsupported", "{}", entry["id"]);
             continue;
         }
         // The corpus's `eligible` is this reader's `numerically_eligible`.
@@ -7422,26 +7432,73 @@ fn snapshot_07o_mutation_outcomes() {
     );
 }
 
-/// Declared disagreement with 07o (reported to the manager; lane C owns the corpus):
-/// the two hook-produced bases record their preparation hook's fault truthfully (the
-/// hooks zero a recorded old fact to force the refusal), so this reader refuses them,
-/// bound, at G8 PREPARATION_MISMATCH by B1's existing old-fact binding, exactly as B1's
-/// W-C2 T-7 hook successor (PP `b1_sp_w_c2_transaction_faults_and_abandonment`). Their
-/// must-pass entries expect a pass. Every other check pins them as the corpus states.
-fn o07_refused_hook_base(id: &Value) -> bool {
-    matches!(id.as_str(), Some("b2_operand_preparation_failure" | "b2_operand_source_unavailable"))
-}
-/// The declared disagreement, pinned: each refused base, bound, at G8 PREPARATION;
-/// unbound and on transport it passes, not eligible.
+/// PR-B2 ruling 5: 07o states the two hook-produced bases refused bound at G8
+/// PREPARATION_MISMATCH (each hook records the refused member's old facts with
+/// D = +0 against the invocation's OD, which B1's and C3a's old-fact binding
+/// refuses), and passing unbound and on transport. Exactly those two bases and
+/// their must-pass entries carry a refused statement; every 07o entry that states
+/// an unbound or transport read is read so by this reader.
 #[test]
-fn o07_hook_bases_refused_at_g8_preparation() {
+fn snapshot_07o_unbound_and_transport_reads() {
     let shared = corpus();
+    let refused: Vec<&Value> = shared["cases"].as_array().unwrap()[26..]
+        .iter()
+        .filter(|c| c["expected"].get("gate").is_some())
+        .map(|c| &c["id"])
+        .collect();
+    assert_eq!(refused, ["b2_operand_preparation_failure", "b2_operand_source_unavailable"]);
+    let stated: Vec<&Value> = shared["must_pass"].as_array().unwrap()[78..]
+        .iter()
+        .filter(|e| e["expected"] != "pass")
+        .map(|e| &e["base"])
+        .collect();
+    assert_eq!(stated, refused);
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(v) => {
+            assert!(!v.invocation_bound && !v.numerical_eligible);
+            Value::from("pass")
+        }
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
     let mut seen = 0;
-    for case in shared["cases"].as_array().unwrap().iter().filter(|c| o07_refused_hook_base(&c["id"])) {
+    for entry in shared["mutations"].as_array().unwrap()[534..].iter().chain(&shared["must_pass"].as_array().unwrap()[78..]) {
+        if entry.get("expected_unbound").is_none() && entry.get("expected_transport").is_none() {
+            continue;
+        }
         seen += 1;
-        assert_eq!(observe_validation(rp::validate(&case["source"], Some(&case["invocation"]))), gate("G8", PREP), "{}", case["id"]);
-        assert!(matches!(rp::validate(&case["source"], None), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
-        assert!(matches!(rp::validate_transport_metadata(&case["source"]), Ok(v) if !v.numerical_eligible), "{}", case["id"]);
+        let (source, _) = apply_entry(&shared, entry);
+        assert_eq!(read(rp::validate(&source, None)), entry["expected_unbound"], "{}", entry["id"]);
+        assert_eq!(read(rp::validate_transport_metadata(&source)), entry["expected_transport"], "{}", entry["id"]);
     }
     assert_eq!(seen, 2);
+}
+
+/// PR-B2 lane X: the shared B2 parity probes, pinned alike in the RS, PY and TS
+/// readers. Each shape is a forgery on a corpus base in the corpus entry grammar
+/// (S-6 rehash), with the bound and unbound reading every reader gives: a gate
+/// and code, or "pass" (rulings 1-3, a prepared operand preparation's
+/// completeness, a refused Call's members, and UTF-8 range order).
+#[test]
+fn b2_parity_probes_shared() {
+    let shared = corpus();
+    let probes: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/retained_precision_b2_parity_probes.json"
+    ))
+    .unwrap();
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(_) => Value::from("pass"),
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
+    let shapes = probes["shapes"].as_array().unwrap();
+    assert_eq!(shapes.len(), 16);
+    let mut misses = Vec::new();
+    for shape in shapes {
+        let (source, invocation) = apply_entry(&shared, shape);
+        let bound = read(rp::validate(&source, Some(&invocation)));
+        let unbound = read(rp::validate(&source, None));
+        if bound != shape["expected"] || unbound != shape["expected_unbound"] {
+            misses.push(format!("{}: bound {bound}, unbound {unbound}", shape["name"]));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
 }

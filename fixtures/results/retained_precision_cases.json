@@ -1493445,11 +1493445,10 @@
         }
       ],
       "expected": {
-        "invocation_bound": true,
-        "numerical_eligible": true,
-        "standing": "eligible"
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
       },
-      "qualification": "HOOK-PRODUCED (B2-P test hook fail_operand_preparation, labelled; B2-C REVISION_01 \u00a75.1): W-CB3 with its operand preparation refused: the record refused (stage failed, no source), A + B retained_unavailable with operand_preparation_failure and no Call. The successor the private driver hands precommit under the armed hook, written by b2p_successor in b2p_hooks_and_failure_set after its assertions held; the invocation is W-CB3's (its digest checked). No case is unavailable. Not producer-emittable without the hook; not native Current evidence."
+      "qualification": "HOOK-PRODUCED (B2-P test hook fail_operand_preparation, labelled; B2-C REVISION_01 \u00a75.1): W-CB3 with its operand preparation refused: the record refused (stage failed, no source), A + B retained_unavailable with operand_preparation_failure and no Call. The successor the private driver hands precommit under the armed hook, written by b2p_successor in b2p_hooks_and_failure_set after its assertions held; the invocation is W-CB3's (its digest checked). No case is unavailable. Not producer-emittable without the hook; not native Current evidence. Bound, it is refused at G8 RETAINED_PRECISION_PREPARATION_MISMATCH: to force the refusal the hook records the refused member's old_facts D as +0, while the invocation's OD is 0.2 m, and B1's (C3) and C3a's old-fact binding refuses that (PR-B2 ruling 5); unbound and on transport it passes, not eligible."
     },
     {
       "id": "b2_operand_source_unavailable",
@@ -1505580,11 +1505579,10 @@
         }
       ],
       "expected": {
-        "invocation_bound": true,
-        "numerical_eligible": false,
-        "standing": "needs_recompute"
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
       },
-      "qualification": "HOOK-PRODUCED (B2-P test hook fail_preparation_of_case, labelled; B2-C REVISION_01 \u00a75.1): two copies of the milestone's case (case:a, case:b; PP b2p_two_cases) and A + B, with case B's T-7 preparation failed: B unavailable with no CaseSource, A + B retained_unavailable with operand_source_unavailable {operand_index: 1}, no operand preparation and no Call. The contract names W-CB1 with B's T-7 failed; B2-P's hook emits this shape on b2p_two_cases, which serves the same role (declared). The invocation is b2p_two_cases' request rebuilt from the milestone fixture (its digest checked). Not native Current evidence; not eligible (case B is unavailable)."
+      "qualification": "HOOK-PRODUCED (B2-P test hook fail_preparation_of_case, labelled; B2-C REVISION_01 \u00a75.1): two copies of the milestone's case (case:a, case:b; PP b2p_two_cases) and A + B, with case B's T-7 preparation failed: B unavailable with no CaseSource, A + B retained_unavailable with operand_source_unavailable {operand_index: 1}, no operand preparation and no Call. The contract names W-CB1 with B's T-7 failed; B2-P's hook emits this shape on b2p_two_cases, which serves the same role (declared). The invocation is b2p_two_cases' request rebuilt from the milestone fixture (its digest checked). Not native Current evidence; not eligible (case B is unavailable). Bound, it is refused at G8 RETAINED_PRECISION_PREPARATION_MISMATCH: to force the refusal the hook records the refused member's old_facts D as +0, while the invocation's OD is 0.2 m, and B1's (C3) and C3a's old-fact binding refuses that (PR-B2 ruling 5); unbound and on transport it passes, not eligible."
     },
     {
       "id": "b2_pre_source_refusal",
@@ -1738992,24 +1738990,24 @@
       "base": "b2_operand_preparation_failure",
       "edits": [],
       "rehash": "all",
-      "expected": "pass",
-      "expected_eligibility": {
-        "invocation_bound": true,
-        "numerical_eligible": true,
-        "standing": "eligible"
-      }
+      "expected": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "expected_unbound": "pass",
+      "expected_transport": "pass"
     },
     {
       "id": "b2o_must_pass_b2_operand_source_unavailable",
       "base": "b2_operand_source_unavailable",
       "edits": [],
       "rehash": "all",
-      "expected": "pass",
-      "expected_eligibility": {
-        "invocation_bound": true,
-        "numerical_eligible": false,
-        "standing": "needs_recompute"
-      }
+      "expected": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "expected_unbound": "pass",
+      "expected_transport": "pass"
     },
     {
       "id": "b2o_must_pass_b2_pre_source_refusal",

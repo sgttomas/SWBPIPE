@@ -2046,9 +2046,11 @@ def _g3_combinations(snapshot, body, ids, crows):
     cases, combos, sources, attempts, records = body["cases"], body["combinations"], body["sources"], body["product_attempts"], _records(body)
     cids = [c["basis_ref"]["ref_id"] for c in combos]
     case_at = {cid: i for i, cid in enumerate(ids)}
-    # (a) One entry per gate-evidence entry, in order and by id. It binds once the receipt has an entry: with none,
-    # the receipt is today's (07n's `t_gate_*` entries carry gate evidence for a combination outside the model).
-    if combos:
+    # (a) One entry per gate-evidence entry, in order and by id. It binds once the receipt has an entry or an
+    # `operand_preparations` member (PR-B2 ruling 1; REVISION_01 §4.1: today's predicate at z = 0): with neither, the
+    # receipt is today's (07n's `t_gate_*` entries carry gate evidence for a combination outside the model).
+    b2 = bool(combos) or "operand_preparations" in body
+    if b2:
         gates = (snapshot.get("contract_evidence") or {}).get("combination_gates")
         need(type(gates) is list and len(gates) == len(combos) and all(type(g) is dict and g.get("combination_id") == cid for g, cid in zip(gates, cids)))
     # (b) Case ids and combination ids are one id set.
@@ -2092,15 +2094,19 @@ def _g3_combinations(snapshot, body, ids, crows):
     need(kinds == sorted(kinds, key=lambda kind: kind == "combination"))
     need([a["owner_ref"]["index"] for a in attempts if a["owner_ref"]["kind"] == "combination"] == [k for k, e in enumerate(combos) if e.get("run") is not None])
     need(all((e.get("product_attempt_ref") is not None) == (e.get("run") is not None) for e in combos))
-    # (g) Each CaseSource is named by exactly one case or one prepared operand preparation; each CombinationSource by
-    # exactly one combination entry. Like (a), it binds once the receipt has an entry or an operand preparation: on a
-    # receipt with neither, today's checks place a source no case names (07n's `d38_m8_case_source_other` at G5,
-    # `orphan_source_beside_t7` at G8), and no 07n first failure moves (R5).
-    for si, source in enumerate(sources if combos or records else []):
+    # (g) Each CombinationSource is named by exactly one combination entry, and each operand-prepared CaseSource by
+    # exactly one prepared operand preparation and no case, always. A batch CaseSource is named by exactly one case or
+    # one prepared operand preparation once, like (a), the receipt has an entry or an `operand_preparations` member
+    # (PR-B2 ruling 1): on a receipt with neither, today's checks place a source no case names (07n's
+    # `d38_m8_case_source_other` at G5, `orphan_source_beside_t7` at G8), and no 07n first failure moves (R5).
+    for si, source in enumerate(sources):
+        by_cases = sum(1 for c in cases if c.get("source_ref") == si)
         if source["owner"]["kind"] == "combination":
             need(sum(1 for e in combos if e.get("source_ref") == si) == 1)
-        else:
-            need(sum(1 for c in cases if c.get("source_ref") == si) + prepared.count(si) == 1)
+        elif operand_prepared(source):
+            need(by_cases == 0 and prepared.count(si) == 1)
+        elif b2:
+            need(by_cases + prepared.count(si) == 1)
     # (h) Operand preparations in first-need order (C3a-1): combinations in authored order, terms in authored order.
     need_order = []
     for entry in combos:
@@ -2168,16 +2174,16 @@ def _g5_combination_native(body, runs, fail):
         fail(entry["expression"]["kind"] == "mechanics")
         terms, requested, result = entry["expression"]["terms"], call["requested_operands"], call["result"]
         refused = result["kind"] == "pre_source_refusal"
-        if refused and result["reason"] == {"space": "combination", "tag": "no_operands"}:
-            # The kernel's NoOperands names an empty operand list (FK `validate_preps`), so its Call requested none.
-            fail(requested == [])
-        else:
-            fail(len(requested) == len(terms))
-            for term, operand in zip(terms, requested):
-                ci = case_at.get(term["case_id"])
-                fail(ci is not None and operand["factor"] == term["factor"] and _operand_source_ref(body, ci) is not None and operand["source_ref"] == _operand_source_ref(body, ci))
+        # CONTRACT §2.5: `requested_operands` keeps the authored terms whatever the Call's result, a `no_operands`
+        # pre-source refusal included (PR-B2 ruling 2).
+        fail(len(requested) == len(terms))
+        for term, operand in zip(terms, requested):
+            ci = case_at.get(term["case_id"])
+            fail(ci is not None and operand["factor"] == term["factor"] and _operand_source_ref(body, ci) is not None and operand["source_ref"] == _operand_source_ref(body, ci))
         if refused:
-            fail(call["source_refs"] == [] and call["run_refs"] == [] and entry.get("run") is None and entry.get("source_ref") is None)
+            # REVISION_01 §4.1 row 8: a refused Call has no source and no Run; the entry's null members are G5 products'
+            # (CONTRACT §10.1: a CombinationReason cause with `call_ref` non-null and the rest null).
+            fail(call["source_refs"] == [] and call["run_refs"] == [])
             continue
         run = entry.get("run")
         fail(run is not None and call["run_refs"] == [run["id"]] and call["source_refs"] == [entry["source_ref"]])

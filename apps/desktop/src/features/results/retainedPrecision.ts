@@ -388,13 +388,18 @@ function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
   b.sources.forEach((s: Obj, i: number) => fail(s.owner.kind === 'combination' ? s.index === i && comboIds[s.owner.combination_index] === s.owner.combination_id
     : s.body_membership.length >= 1 && s.index === i && s.owner.kind === 'case' && ids[s.owner.case_index] === s.owner.case_id));
   b.material_bases.forEach((m: Obj, i: number) => fail(m.index === i && unique(m.case_indices) && m.case_indices.every((c: number) => c < ids.length)));
-  // Branch (REVISION_01 §4.1 row 2; G3 (f)): the cases' Runs, then the combination entries' Runs in Call (authored) order.
-  const runs = [...b.cases.filter((c: Obj) => c.run).map((c: Obj) => c.run).sort((a: Obj, z: Obj) => a.id - z.id), ...combos.filter(e => e.run).map(e => e.run)];
-  fail(same(runs.map((r: Obj) => r.id), sequence(runs.length)) && same(b.work.execution_order, runs.map((r: Obj) => r.origin.owner_ref)));
+  // Branch (REVISION_01 §4.1 row 2; G3 (f)): the cases' Runs, then the combination entries' Runs in Call (authored) order,
+  // each execution_order entry naming the entry (case or combination) whose run.id is its position. A Run's own
+  // origin.owner_ref is G5's native check (REVISION_01 §4.1 row 9), as in RS and PY.
+  const runs = [...b.cases.flatMap((c: Obj, i: number) => c.run ? [{ id: c.run.id, owner: { kind: 'case', index: i } }] : []).sort((a: Obj, z: Obj) => a.id - z.id),
+    ...combos.flatMap((e, k) => e.run ? [{ id: e.run.id, owner: { kind: 'combination', index: k } }] : [])];
+  fail(same(runs.map(r => r.id), sequence(runs.length)) && same(b.work.execution_order, runs.map(r => r.owner)));
   combos.forEach((e, k) => { if (e.run) fail(same(b.work.execution_order[e.run.id], { kind: 'combination', index: k })); });
   // B2-C §10.1 G3 (a): one entry per gate-evidence entry, in order and by id. Applied when the receipt has a combination
-  // entry; at z = 0 no B2 predicate reads the gate evidence (07n's `t_gate_ok` and `t_gate_withheld_reason_null`).
-  if (combos.length) { const gates = source.contract_evidence?.combination_gates; fail(Array.isArray(gates) && same(comboIds, gates.map((g: Obj) => g?.combination_id))); }
+  // entry or an `operand_preparations` member (PR-B2 ruling 1; REVISION_01 §4.1: today's predicate at z = 0); with
+  // neither, no B2 predicate reads the gate evidence (07n's `t_gate_ok` and `t_gate_withheld_reason_null`).
+  const b2 = combos.length > 0 || Object.hasOwn(b, 'operand_preparations');
+  if (b2) { const gates = source.contract_evidence?.combination_gates; fail(Array.isArray(gates) && same(comboIds, gates.map((g: Obj) => g?.combination_id))); }
   // (b) One id set: case and combination ids pairwise distinct.
   fail(unique([...ids, ...comboIds]));
   // (c) A combination's result_ids are exactly its rows, in publication order (the rows loop binds each row to one owner).
@@ -438,12 +443,15 @@ function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
     if (Array.isArray(cov) && isCaseSource(rep)) fail(cov.length >= 1 && cov.length === rep.body_membership.length && same(cov.map((x: Obj) => x.body), sequence(cov.length)));
   });
   // (g) Each CombinationSource is named by exactly one combination entry, and each operand-prepared CaseSource by exactly
-  // one prepared operand preparation and no case. A batch CaseSource's naming stays B1's (G5's association and G8's
-  // binding): at z = 0 G3 adds no source predicate (07n's `d38_m8_case_source_other` and `orphan_source_beside_t7`).
+  // one prepared operand preparation and no case, always. A batch CaseSource is named by exactly one case or one prepared
+  // operand preparation when, as for (a), the receipt has an entry or an `operand_preparations` member (PR-B2 ruling 1);
+  // with neither, its naming stays B1's (G5's association and G8's binding), so no 07n first failure moves (07n's
+  // `d38_m8_case_source_other` and `orphan_source_beside_t7`).
   b.sources.forEach((s: Obj, i: number) => {
+    const byCases = b.cases.filter((c: Obj) => c.source_ref === i).length, byRecords = opList.filter(op => op.result.kind === 'prepared' && op.source_ref === i).length;
     if (s.owner.kind === 'combination') fail(combos.filter(e => e.source_ref === i).length === 1);
-    else if (sourceClass(s) === 1) fail(!b.cases.some((c: Obj) => c.source_ref === i) && opList.filter(op => op.result.kind === 'prepared' && op.source_ref === i).length === 1);
-    else fail(!opList.some(op => op.result.kind === 'prepared' && op.source_ref === i));
+    else if (sourceClass(s) === 1) fail(byCases === 0 && byRecords === 1);
+    else fail(b2 ? byCases + byRecords === 1 : byRecords === 0);
   });
   // (i) Sources in registration order: the batch's CaseSources, the operand-prepared CaseSources in record order, then the
   // CombinationSources.

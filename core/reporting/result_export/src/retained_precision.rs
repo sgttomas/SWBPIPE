@@ -964,12 +964,14 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
     // B2-C §10.1 G3 (a), (b), (e) and (f) (REVISION_01 N-3 branch points 1 and 2):
     // the combination entries follow the gate evidence one for one; one id set
     // for cases and combinations; a combination attempt and Run exactly for an
-    // entry with a Run, each naming its entry. A receipt with no combination
-    // entry adds nothing: (a) then keeps today's predicate, under which gate
-    // evidence naming no entry is the base reader's (07n `t_gate_ok`).
+    // entry with a Run, each naming its entry. (a) binds once the receipt has a
+    // combination entry or an `operand_preparations` member (PR-B2 ruling 1;
+    // REVISION_01 §4.1: today's predicate at z = 0); with neither, gate evidence
+    // naming no entry is the base reader's (07n `t_gate_ok`).
     let combos = list(&b["combinations"]);
     let gates = list(&source["contract_evidence"]["combination_gates"]);
-    fail(combos.is_empty() || combos.len() == gates.len())?;
+    let b2 = !combos.is_empty() || b.get("operand_preparations").is_some();
+    fail(!b2 || combos.len() == gates.len())?;
     let mut combination_ids = BTreeSet::new();
     let mut combination_runs = Vec::new();
     for (j, e) in combos.iter().enumerate() {
@@ -1179,8 +1181,9 @@ fn requests_preparations(e: &Value) -> bool {
 /// requesting combination, in first-need order, each naming exactly its
 /// requesting combinations, and a prepared one its own CaseSource; every
 /// source named once; sources ordered batch, operand-prepared (record order),
-/// then combination. A receipt with no combination entry and no operand
-/// preparation keeps today's predicates.
+/// then combination. On a receipt with no combination entry and no
+/// `operand_preparations` member every predicate here is today's: (d), (h)
+/// and (i) are vacuous, and (g) names no batch CaseSource (PR-B2 ruling 1).
 fn g3_combinations(b: &Value) -> VResult {
     let fail = |ok| need(ok, "G3", "COVERAGE_MISMATCH");
     let cs = list(&b["cases"]);
@@ -1188,9 +1191,7 @@ fn g3_combinations(b: &Value) -> VResult {
     let sources = list(&b["sources"]);
     let ops = list(&b["operand_preparations"]);
     fail(b.get("operand_preparations").is_none() || !ops.is_empty())?;
-    if combos.is_empty() && ops.is_empty() {
-        return Ok(());
-    }
+    let b2 = !combos.is_empty() || b.get("operand_preparations").is_some();
     let case_of = |id: &Value| cs.iter().position(|c| c["basis_ref"]["ref_id"] == *id);
     // (d) and (h): the not_required term cases of requesting combinations, in
     // first-need order (combinations, then terms, in authored order).
@@ -1235,9 +1236,11 @@ fn g3_combinations(b: &Value) -> VResult {
             .map(|p| u(&p["owner_ref"]["index"]))
             .eq(need_order.iter().map(|ci| *ci as u64)),
     )?;
-    // (g) Every source is named exactly once: a CaseSource by one case or one
-    // prepared operand preparation, an operand-prepared one by its record, a
-    // CombinationSource by one combination entry.
+    // (g) A CombinationSource is named by exactly one combination entry, and an
+    // operand-prepared CaseSource by exactly one prepared operand preparation
+    // and no case, always; a batch CaseSource by exactly one case or one
+    // prepared operand preparation once the receipt has a combination entry or
+    // an `operand_preparations` member (PR-B2 ruling 1).
     for (si, s) in sources.iter().enumerate() {
         let names = |v: &Value| uint(v) == Some(si as u64);
         let by_cases = cs.iter().filter(|c| names(&c["source_ref"])).count();
@@ -1247,11 +1250,11 @@ fn g3_combinations(b: &Value) -> VResult {
             .count();
         let by_combinations = combos.iter().filter(|e| names(&e["source_ref"])).count();
         fail(if s["owner"]["kind"] == "combination" {
-            by_combinations == 1 && by_cases + by_records == 0
+            by_combinations == 1
         } else if s["preparation"].get("operand_preparation_ref").is_some() {
-            by_records == 1 && by_cases + by_combinations == 0
+            by_records == 1 && by_cases == 0
         } else {
-            by_cases == 1 && by_records + by_combinations == 0
+            !b2 || by_cases + by_records == 1
         })?;
     }
     // (i) Batch CaseSources, then the operand-prepared ones in record order,
@@ -2038,11 +2041,13 @@ fn operand_source<'a>(b: &'a Value, case: &'a Value, ci: usize) -> &'a Value {
 /// B2-C §10.1 G5 native class, ATTEMPT (after today's checks): `calls[0]` is the
 /// case batch, then one mechanics Call per entry with a `call_ref`, in authored
 /// order, naming its entry; `requested_operands` are the expression's terms
-/// with their sources (§2.5); `runs` gives the entry its Run and source,
-/// `pre_source_refusal` neither; the CombinationSource's operands,
-/// representative, stiffness and ledger; the Group's imports from `selected`
-/// operands only, the first occupied slot in authored order, from each
-/// operand's selected Run (`cache_after`). At z = 0 nothing is added.
+/// with their sources (§2.5); `runs` has one source and one Run, which are the
+/// entry's, `pre_source_refusal` neither (REVISION_01 §4.1 row 8: the Call's
+/// arrays; a refused entry's null members are G5 products' reason table); the
+/// CombinationSource's operands, representative, stiffness and ledger; the
+/// Group's imports from `selected` operands only, the first occupied slot in
+/// authored order, from each operand's selected Run (`cache_after`). At z = 0
+/// nothing is added.
 fn g5_native_combinations(b: &Value) -> VResult {
     let af = |ok| need(ok, "G5", "ATTEMPT_MISMATCH");
     let calls = list(&b["calls"]);
@@ -2075,8 +2080,7 @@ fn g5_native_combinations(b: &Value) -> VResult {
         let runs = call["result"]["kind"] == "runs";
         af(runs == (list(&call["run_refs"]).len() == 1 && list(&call["source_refs"]).len() == 1)
             && (call["result"]["kind"] == "pre_source_refusal") == list(&call["run_refs"]).is_empty()
-            && runs == !e["run"].is_null()
-            && runs == !e["source_ref"].is_null())?;
+            && (call["result"]["kind"] == "pre_source_refusal") == list(&call["source_refs"]).is_empty())?;
         if !runs {
             continue;
         }
@@ -3077,12 +3081,19 @@ fn combination_causes(b: &Value, pf: &dyn Fn(bool) -> VResult) -> VResult {
     }
     Ok(())
 }
-/// C3a-7's G5 rows for each operand preparation: `stage == completed` iff
-/// `prepared` iff a source; a refused record's error is the preparation
-/// branch, never an origin capture error (N-5); C3's member-prefix rules, a
-/// prepared record complete; then the work equations (WORK).
+/// C3a-7's G5 rows for each operand preparation: its ordinary attempt and
+/// material basis are its owner case's (PR-B2 ruling 3, as a case attempt's
+/// D4b); `stage == completed` iff `prepared` iff a source; a refused record's
+/// error is the preparation branch, never an origin capture error (N-5); C3's
+/// member-prefix rules, a prepared record complete as a case attempt whose
+/// preparation completed (complete old coverage, every new member ready, its
+/// CaseSource on its material basis); then the work equations (WORK).
 fn operand_preparations(b: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(bool) -> VResult) -> VResult {
     for p in list(&b["operand_preparations"]) {
+        let owner = at(&b["cases"], &p["owner_ref"]["index"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+        let ordinary = at(&b["ordinary_attempts"], &p["ordinary_attempt_ref"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+        pf(p["ordinary_attempt_ref"] == owner["ordinary"]["attempt_ref"]
+            && p["material_basis_ref"] == ordinary["material_basis_ref"])?;
         let prepared = p["result"]["kind"] == "prepared";
         pf((p["stage"] == "completed") == prepared && prepared == !p["source_ref"].is_null())?;
         if !prepared {
@@ -3097,7 +3108,13 @@ fn operand_preparations(b: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn Fn
             && pm.iter().map(|m| u(&m["member"])).eq(0..pm.len() as u64))?;
         member_checks(p, pf, wf)?;
         if prepared {
-            pf(pm.len() == old.len() && pm.iter().all(|m| m["result"]["kind"] == "prepared"))?;
+            let s = at(&b["sources"], &p["source_ref"], "G5", "PRODUCT_ATTEMPT_MISMATCH")?;
+            pf(pm.len() == old.len()
+                && new.len() == old.len()
+                && pm.iter().all(|m| m["result"]["kind"] == "prepared")
+                && p["operational"]["old_coverage"] == "complete"
+                && new.iter().all(|o| o["result"]["kind"] == "ready")
+                && s["material_basis_ref"] == p["material_basis_ref"])?;
             wf(pm.iter().all(|m| exact_work(&m["work"]))
                 && old.iter().chain(new).all(|o| exact_work(&o["work"]))
                 && p["adapter"]["fault"].is_null())?;
