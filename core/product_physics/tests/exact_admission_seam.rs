@@ -253,7 +253,8 @@ fn assert_v3_identity(envelope: &Value) {
 fn assert_readers_dispatch_v3(envelope: &Value, base: Base) {
     semantic_contract::validate_pressure_evidence(envelope).expect("pressure-1 reader");
     let (table, _) = semantic_contract::for_source(envelope).expect("pressure-1 dispatch");
-    assert_eq!(table["semantic_contract_id"], PRESSURE_ID);
+    // pressure-1 rows resolve against physics-1's resident table (T4-RV14 F1).
+    assert!(std::ptr::eq(table, semantic_contract::pressure_rows_contract()));
     let as_v2 = match base {
         Base::X0 => semantic_contract::validate_physics_evidence(envelope).unwrap_err(),
         Base::Y0 => semantic_contract::validate_load_reference_evidence(envelope).unwrap_err(),
@@ -295,6 +296,61 @@ fn v3_twin_numbers_are_bit_equal_to_v2() {
             let mut differences = Vec::new();
             compare("", original, twin, &mut differences);
             assert!(differences.is_empty(), "{base:?}: {differences:#?}");
+        }
+    }
+}
+
+const PHYSICS_SOURCE_N05: &str =
+    include_str!("../../../fixtures/product_preview/physics_source/n05.request.json");
+const LOAD_REFERENCE_SOURCE_N05: &str =
+    include_str!("../../../fixtures/product_preview/load_reference_source/n05.request.json");
+
+/// T4-RV13 S-1: the current, declared behaviour of a v3 twin of a document
+/// whose v2 run selects retained-source recovery (the scope of SP-1's twin
+/// clause for such documents is pending a ruling). The v3 twin solves on the
+/// ordinary route with no source-block recovery, and its captured envelope
+/// equals v2's typed (ordinary-route) envelope apart from the closed exclusion
+/// list; the v3 typed envelope equals it too.
+#[test]
+fn v3_twins_of_retained_source_documents_publish_the_ordinary_route() {
+    for (name, text, v2_source) in [
+        ("physics_source/n05", PHYSICS_SOURCE_N05, semantic_contract::PHYSICS_SOURCE_ID),
+        ("load_reference_source/n05", LOAD_REFERENCE_SOURCE_N05, semantic_contract::LOAD_REFERENCE_SOURCE_ID),
+    ] {
+        let v2: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(v2["model"]["pressure_contract"]["mode"], "exact_straight_pressure_v2", "{name}");
+        let mut v3 = v2.clone();
+        v3["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
+        for mode in MODES {
+            let captured = |document: &Value| {
+                serde_json::to_value(
+                    run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap(),
+                )
+                .unwrap()
+            };
+            let typed = |document: &Value| {
+                serde_json::to_value(run_linear_static_preview_with_mode(
+                    serde_json::from_value(document.clone()).unwrap(),
+                    mode,
+                ))
+                .unwrap()
+            };
+            // v2 selects retained-source recovery: the fixture exercises the gap.
+            let v2_captured = captured(&v2);
+            assert_eq!(v2_captured["producer"]["semantic_contract_id"], v2_source, "{name} {mode:?}");
+            assert!(v2_captured.get("source_block_recovery").is_some(), "{name} {mode:?}");
+            let (v2_typed, v3_captured, v3_typed) = (typed(&v2), captured(&v3), typed(&v3));
+            assert_eq!(v3_captured["status"]["mechanics"], "MECHANICS_SOLVED", "{name} {mode:?}");
+            assert!(v3_captured.get("source_block_recovery").is_none(), "{name} {mode:?}");
+            assert_eq!(v3_captured["producer"]["semantic_contract_id"], PRESSURE_ID, "{name} {mode:?}");
+            assert_eq!(v3_captured["formulation_basis"]["profile_id"], "exact_pressure_v3", "{name} {mode:?}");
+            semantic_contract::validate_pressure_evidence(&v3_captured)
+                .unwrap_or_else(|e| panic!("{name} {mode:?}: {e}"));
+            for twin in [&v3_captured, &v3_typed] {
+                let mut differences = Vec::new();
+                compare("", &v2_typed, twin, &mut differences);
+                assert!(differences.is_empty(), "{name} {mode:?}: {differences:#?}");
+            }
         }
     }
 }

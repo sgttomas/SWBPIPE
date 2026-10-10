@@ -1,9 +1,10 @@
 //! T4-U2a through the headless runner: a v3 (`3.0.0/exact_pressure_v3`)
 //! document with a family the seam does not yet admit (a valve; a realized
 //! bend on a region member) is blocked by name with no export, in both solver
-//! modes; a straight v3 document solves under `pressure-1` (no export document
-//! yet). The input is PP's committed invented X0 fixture with only the
-//! contract identity changed.
+//! modes; a straight v3 document solves under `pressure-1`, and its export is
+//! refused by name (`PRESSURE_1_EXPORT_NOT_AVAILABLE`) until T4-U2. The input
+//! is PP's committed invented X0 fixture with only the contract identity
+//! changed.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -121,8 +122,16 @@ fn a_straight_v3_document_solves_under_pressure_1_in_both_modes() {
             .unwrap();
         // The results 0.3 export schema has no pressure-1 branch yet (its
         // digests are pinned by the readers and generation manifests; T4-U2
-        // owns the export chain), so no export document is produced.
+        // owns the export chain), so export is refused by name.
         assert!(output.result_envelope_document.is_none(), "{mode:?}");
-        assert!(output.canonical_export_unavailability.is_some(), "{mode:?}");
+        assert_eq!(
+            output.canonical_export_unavailability.as_deref(),
+            Some(
+                "result-envelope production failed structurally: PRESSURE_1_EXPORT_NOT_AVAILABLE: \
+                 pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it \
+                 arrives with T4-U2"
+            ),
+            "{mode:?}"
+        );
     }
 }

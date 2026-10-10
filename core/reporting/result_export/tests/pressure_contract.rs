@@ -53,7 +53,11 @@ fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         s::validate_pressure_evidence(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
         let (table, version) = s::for_source(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
-        assert_eq!((table["semantic_contract_id"].as_str(), version), (Some(s::PRESSURE_ID), "0.3.0"));
+        // pressure-1 rows resolve against physics-1's resident table (no
+        // pressure-1 static in the reader; T4-RV14 F1).
+        assert!(std::ptr::eq(table, s::pressure_rows_contract()) && version == "0.3.0", "{label}");
+        let (meta, meta_version) = s::for_source_metadata(envelope).unwrap();
+        assert!(std::ptr::eq(meta, table) && meta_version == "0.3.0", "{label}");
     }
     // Signed pressure is exercised: the 0.3.0 cases carry p_pa < 0.
     assert!(cases.iter().filter(|(_, e)| !load_state(e)).all(|(_, e)| e["contract_evidence"]["pressure"]
@@ -104,9 +108,32 @@ fn unknown_identities_and_profiles_are_refused() {
 
 #[test]
 fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
-    let (pressure, physics) = (s::pressure_contract(), s::physics_contract());
-    assert_eq!(pressure["rows"], physics["rows"]);
+    let pressure: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+    ))
+    .unwrap();
+    let physics = s::physics_contract();
+    assert!(std::ptr::eq(s::pressure_rows_contract(), physics));
     assert_eq!(pressure["semantic_contract_id"], s::PRESSURE_ID);
     assert_eq!(pressure["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(!pressure["reserved_inactive_successors"].as_array().unwrap().contains(&json!(s::PRESSURE_ID)));
+    // Every member the reader consults (rows, vocabulary, counts, hash
+    // vectors) is physics-1's; only identity, profile, lineage, policy text
+    // and limitations differ. This is what lets the reader resolve pressure-1
+    // rows against physics-1's table.
+    let own = [
+        "semantic_contract_id",
+        "formulation_profile_id",
+        "inherited_semantic_contract_sha256",
+        "reserved_inactive_successors",
+        "contract_evidence_policy",
+        "supported_profile_limitations",
+    ];
+    let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
+    assert_eq!(p.keys().collect::<Vec<_>>(), q.keys().collect::<Vec<_>>());
+    for (key, value) in p {
+        if !own.contains(&key.as_str()) {
+            assert_eq!(value, &q[key], "{key}");
+        }
+    }
 }
