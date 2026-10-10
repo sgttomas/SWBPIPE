@@ -224,7 +224,7 @@ const isObj = (v: unknown): v is Obj => v !== null && typeof v === 'object' && !
  * schema versions), the definition and inherited-table hashes over the bound bytes, receipt_version,
  * the policy ids, the canonicalization profile and the 20B/60B thresholds. A G0 field that is absent
  * or mistyped fails G0; every other shape defect waits for G1, so the body is never walked here. */
-async function header(source: Obj, t: Obj = table): Promise<void> {
+async function header(source: Obj, t: Obj = table, defC: Obj = combinationDefinition): Promise<void> {
   const fail = (ok: unknown, code = 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED') => need(ok, 'G0', code);
   const producer = isObj(source) ? source.producer : undefined;
   // B2-C §8 rows 1-3: the producer identity, the schema and component versions, and the table's identity.
@@ -233,7 +233,7 @@ async function header(source: Obj, t: Obj = table): Promise<void> {
   fail(t.semantic_contract_id === RETAINED_PRECISION_ID && t.formulation_profile_id === RETAINED_PRECISION_PROFILE && t.inherited_semantic_contract_sha256 === BASE_HASH);
   // Row 4: the table's definitions are exactly [DEF-O, DEF-C] in that order, and each packaged definition's H is its constant.
   fail(same(t.product_formation_definitions, [{ id: PREPARED_DEFINITION_ID, sha256: PREPARED_DEFINITION_HASH }, { id: COMBINATION_DEFINITION_ID, sha256: COMBINATION_DEFINITION_HASH }]), 'FORMATION_MISMATCH');
-  fail(await hash('retained_precision_formation_v1', definition) === PREPARED_DEFINITION_HASH && await hash('retained_precision_formation_v1', combinationDefinition) === COMBINATION_DEFINITION_HASH, 'FORMATION_MISMATCH');
+  fail(await hash('retained_precision_formation_v1', definition) === PREPARED_DEFINITION_HASH && await hash('retained_precision_formation_v1', defC) === COMBINATION_DEFINITION_HASH, 'FORMATION_MISMATCH');
   // Row 5: the packaged table's bytes and its inherited hash.
   fail(await sha256Text(tableBytes) === TABLE_HASH && await sha256Text(inheritedTableBytes) === t.inherited_semantic_contract_sha256);
   // Row 6 (N-12): the table's receipt_bindings, receipt_policy and accuracy_classification.policy equal the reader's constants.
@@ -252,9 +252,10 @@ async function header(source: Obj, t: Obj = table): Promise<void> {
   const ids = t.product_formation_definitions.map((d: Obj) => d.id);
   for (const key of ['product_attempts', 'operand_preparations']) if (Array.isArray(b[key])) for (const a of b[key]) if (isObj(a)) fail(ids.includes(a.definition_id));
 }
-/** @internal Exported only for B2-C §8's G0 table tests: the preview route's G0 read against a test-only table. */
-export async function previewHeaderForTests(source: unknown, t: unknown): Promise<void> {
-  try { await header(snapshot(source), t as Obj); } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError('G0', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED'); }
+/** @internal Exported only for B2-C §8's G0 table tests: the preview route's G0 read against a test-only table (and,
+ * optionally, a test-only DEF-C in place of the packaged one). */
+export async function previewHeaderForTests(source: unknown, t: unknown, defC: unknown = combinationDefinition): Promise<void> {
+  try { await header(snapshot(source), t as Obj, defC as Obj); } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError('G0', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED'); }
 }
 /** G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3 entries 1-10): every step is
  * SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except step 4, RETAINED_PRECISION_FORMATION_MISMATCH. */
@@ -1555,6 +1556,10 @@ async function combinationKernelSha256(factors: string[], operandBytes: Uint8Arr
   const value = await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes).buffer);
   return [...new Uint8Array(value)].map(x => x.toString(16).padStart(2, '0')).join('');
 }
+/** CONTRACT §2.7: range operand ids in UTF-8 byte order, the producer's Rust `String` order (code point order), never
+ * JavaScript's UTF-16 default sort.
+ * @internal Exported only for the order's unit test; not a public entry point. */
+export function utf8Sorted(ids: readonly string[]): string[] { return [...ids].sort(compareCodePoints); }
 /** B2-C §10.1 G8 invocation: an entry's expression equals its model combination's: basis to kind; mechanics terms'
  * load_case and factor bits (the JSON number as binary64), in authored order with repeats; subtraction minuend then
  * subtrahend; range operand ids sorted in UTF-8 byte (code point) order, never UTF-16 order (§2.7); the mode. */
@@ -1564,7 +1569,7 @@ function expressionMatches(e: Obj, m: unknown): boolean {
   if (x.kind === 'mechanics') return Array.isArray(m.terms) && m.terms.length === x.terms.length
     && x.terms.every((term: Obj, i: number) => isObj(m.terms[i]) && m.terms[i].load_case === term.case_id && typeof m.terms[i].factor === 'number' && binary64Bits(m.terms[i].factor) === term.factor);
   if (x.kind === 'result_state_subtraction') return m.minuend_id === x.minuend_id && m.subtrahend_id === x.subtrahend_id;
-  return Array.isArray(m.operand_ids) && m.operand_ids.every((id: unknown) => typeof id === 'string') && same([...m.operand_ids].sort(compareCodePoints), x.operand_ids) && m.mode === x.mode;
+  return Array.isArray(m.operand_ids) && m.operand_ids.every((id: unknown) => typeof id === 'string') && same(utf8Sorted(m.operand_ids), x.operand_ids) && m.mode === x.mode;
 }
 
 /** A pressure contract exactly `{"version": version, "mode": mode}`: a JSON object with those two keys only, each valued
