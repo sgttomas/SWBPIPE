@@ -61,7 +61,7 @@ use open_pipe_stress_linear_supports::{
 use open_pipe_stress_load_case_algebra::{
     evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction,
     AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
-    CombinationTerm, FindingCode, RangeMode,
+    CombinationTerm, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
     solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
@@ -2071,7 +2071,6 @@ struct LoadCaseSolve {
     max_stress: Option<LocatedQuantity>,
     component_stress_modifier_count: usize,
     component_pressure_thrust_load_count: usize,
-    support_force_vectors: HashMap<String, [f64; 3]>,
     preview: Option<preview_physics::CaseRecord>,
 }
 
@@ -2709,7 +2708,6 @@ fn run_linear_static_preview_observed(
     let mut exact_cases = Vec::new();
     let mut load_reference_states = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
-    let mut support_vectors_by_case = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
@@ -2725,7 +2723,6 @@ fn run_linear_static_preview_observed(
         }
         let is_default = index == 0;
         let load_case_id = solve.load_case_id.clone();
-        support_vectors_by_case.insert(load_case_id.clone(), solve.support_force_vectors);
         let id_map = solve
             .results
             .iter()
@@ -2761,18 +2758,11 @@ fn run_linear_static_preview_observed(
             results.push(result);
         }
     }
+    // With `preview` None the model is exact (validate_profile refuses its combinations) or a case is
+    // source-selected (source_eligible requires no combinations): there are no combinations to append.
     let preview_gates = match &preview {
         Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),
-        None => {
-            append_combination_results(
-                &model,
-                &rows_by_base_id,
-                &support_vectors_by_case,
-                &mut results,
-                &mut diagnostics,
-            );
-            Vec::new()
-        }
+        None => Vec::new(),
     };
     append_combination_modulus_basis_records(&model, &mut results);
     let component_user_stiffness_macro_element_count =
@@ -4176,7 +4166,6 @@ fn solve_load_case_observed(
             max_stress: None,
             component_stress_modifier_count: 0,
             component_pressure_thrust_load_count: 0,
-            support_force_vectors: HashMap::new(),
             preview: None,
         });
     }
@@ -4212,7 +4201,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
         }
@@ -4319,7 +4307,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
         }
@@ -4605,7 +4592,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
                     }
@@ -4636,7 +4622,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
                 }
@@ -4764,7 +4749,6 @@ fn solve_load_case_observed(
                     max_stress: None,
                     component_stress_modifier_count: 0,
                     component_pressure_thrust_load_count: 0,
-                    support_force_vectors: HashMap::new(),
                     preview: None,
                 });
             }
@@ -4913,7 +4897,6 @@ fn solve_load_case_observed(
     // preview-physics-1 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
         .then(preview_physics::CaseRecord::default);
-    let mut support_force_vectors = HashMap::new();
     for support in &model.supports {
         if let Some(index) = node_index(model, &support.node) {
             let mut vector = [0.0; 6];
@@ -4985,7 +4968,6 @@ fn solve_load_case_observed(
             } else {
                 norm3(force_vector[0], force_vector[1], force_vector[2])
             };
-            support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
             if pressure_runtime::is_exact(model) {
                 if let Some(selected) = selected_source.as_mut() {
                     match source_receipt::composite_support_norms(&recovery_input(), selected, &support.id) {
@@ -5771,7 +5753,6 @@ fn solve_load_case_observed(
         max_stress,
         component_stress_modifier_count,
         component_pressure_thrust_load_count,
-        support_force_vectors,
         preview: preview_record,
     })
 }
@@ -13097,158 +13078,6 @@ fn append_combined_vector_magnitude(
     results.push(combined);
 }
 
-fn append_combination_results(
-    model: &PreviewModel,
-    rows_by_base_id: &HashMap<String, HashMap<String, ResultItem>>,
-    support_vectors_by_case: &HashMap<String, HashMap<String, [f64; 3]>>,
-    results: &mut Vec<ResultItem>,
-    diagnostics: &mut Vec<Diagnostic>,
-) {
-    let mut base_ids = rows_by_base_id.keys().cloned().collect::<Vec<_>>();
-    base_ids.sort();
-
-    for combination in &model.combinations {
-        let Some(expression) = CombinationExpression::resolve(combination) else {
-            continue;
-        };
-        for base_id in &base_ids {
-            let Some(source_rows) = rows_by_base_id.get(base_id) else {
-                continue;
-            };
-            let reference_operand_id = expression.reference_operand_id();
-            let Some(reference_row) = source_rows.get(reference_operand_id) else {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-                    "warning",
-                    format!(
-                        "combination source result {base_id} is not available for load case {reference_operand_id}"
-                    ),
-                    vec![combination.id.clone(), reference_operand_id.to_string()],
-                ));
-                continue;
-            };
-            if reference_row.kind == "open_formula_stress_summary" {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "COMBINATION_STRESS_SUMMARY_SKIPPED",
-                    "warning",
-                    "open-formula stress summary rows are not linearly combined in TP-MAC-08; combine inspectable stress component rows instead",
-                    vec![combination.id.clone(), reference_row.id.clone()],
-                ));
-                continue;
-            }
-            if !matches!(expression, CombinationExpression::RangeEnvelope { .. })
-                && matches!(
-                    reference_row.kind.as_str(),
-                    "displacement_magnitude" | "reaction_resultant"
-                )
-            {
-                append_combined_vector_magnitude(
-                    combination,
-                    &expression,
-                    base_id,
-                    reference_row,
-                    rows_by_base_id,
-                    support_vectors_by_case,
-                    results,
-                    diagnostics,
-                );
-                continue;
-            }
-            if is_combination_excluded_result_kind(&reference_row.kind) {
-                continue;
-            }
-            let Some(dimension) = algebra_dimension(reference_row) else {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
-                    "warning",
-                    "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
-                    vec![combination.id.clone(), reference_row.id.clone()],
-                ));
-                continue;
-            };
-
-            let mut operands = Vec::new();
-            let mut source_result_refs = Vec::new();
-            let mut source_identity_mismatch = false;
-            for operand_id in expression.operand_ids() {
-                let Some(source) = source_rows.get(operand_id) else {
-                    continue;
-                };
-                if !combination_source_identity_matches(reference_row, source) {
-                    source_identity_mismatch = true;
-                    diagnostics.push(combination_diag(
-                        combination,
-                        base_id,
-                        "LOAD_COMBINATION_SOURCE_RESULT_MISMATCH",
-                        "warning",
-                        "combination source rows must match kind, unit, entity, and result metadata",
-                        vec![
-                            combination.id.clone(),
-                            reference_row.id.clone(),
-                            source.id.clone(),
-                        ],
-                    ));
-                    continue;
-                }
-                operands.push(AlgebraOperand::new(
-                    operand_id.to_string(),
-                    operand_id.to_string(),
-                    AlgebraQuantity::new(source.value, dimension)
-                        .expect("result values are finite preview mechanics outputs"),
-                    vec![
-                        AlgebraAnalysisStatus::MechanicsSolved,
-                        AlgebraAnalysisStatus::HumanReviewRequired,
-                    ],
-                ));
-                source_result_refs.push(source.id.clone());
-            }
-            if source_identity_mismatch {
-                continue;
-            }
-            let operand_by_id = operands
-                .iter()
-                .map(|operand| (operand.operand_id.as_str(), operand))
-                .collect::<HashMap<_, _>>();
-            let algebra = expression.evaluate(&operand_by_id);
-            if algebra.is_blocked() {
-                for finding in algebra.findings {
-                    diagnostics.push(combination_diag(
-                        combination,
-                        base_id,
-                        algebra_finding_diagnostic_code(finding.code),
-                        "warning",
-                        finding.message,
-                        vec![combination.id.clone(), finding.subject_id],
-                    ));
-                }
-                continue;
-            }
-            let Some(quantity) = algebra.quantity else {
-                continue;
-            };
-            let mut combined = reference_row.clone();
-            combined.id = qualified_combination_result_id(&combination.id, base_id);
-            combined.value = quantity.value;
-            combined.basis_ref = Some(ResultBasisRef {
-                ref_type: "combination".to_string(),
-                ref_id: combination.id.clone(),
-            });
-            combined.source_result_refs = source_result_refs;
-            if let Some(metadata) = combined.metadata.as_mut() {
-                metadata.basis = expression.result_metadata_basis().to_string();
-                metadata.sign_convention = expression.result_sign_convention();
-            }
-            results.push(combined);
-        }
-    }
-}
-
 fn append_nonlinear_friction_normal_evidence(
     results: &mut Vec<ResultItem>,
     friction_normal_reactions: &[FrictionNormalReaction],
@@ -13301,25 +13130,6 @@ fn append_nonlinear_friction_normal_evidence(
     }
 }
 
-fn is_combination_excluded_result_kind(kind: &str) -> bool {
-    matches!(
-        kind,
-        "nonlinear_support_friction_normal_reaction_input"
-            | "nonlinear_support_friction_normal_reaction_derived"
-            | "nonlinear_support_observed_max_translation_delta"
-            | "nonlinear_support_observed_max_rotation_delta"
-            | "nonlinear_support_observed_max_force_reaction_delta"
-            | "nonlinear_support_observed_max_moment_reaction_delta"
-            | "nonlinear_support_observed_free_dof_force_residual"
-            | "nonlinear_support_observed_free_dof_moment_residual"
-            | "nonlinear_support_free_dof_work_residual"
-            | "linear_solver_mode_basis"
-            | "sparse_live_path_dense_parity_relative_delta"
-            | "modulus_basis_record"
-            | "combination_modulus_basis_record"
-    )
-}
-
 fn combination_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
     reference.kind == candidate.kind
         && reference.unit == candidate.unit
@@ -13335,19 +13145,6 @@ fn algebra_dimension(result: &ResultItem) -> Option<LoadDimension> {
         "N*m" => Some(LoadDimension::Moment),
         "MPa" => Some(LoadDimension::Pressure),
         _ => None,
-    }
-}
-
-fn algebra_finding_diagnostic_code(code: FindingCode) -> &'static str {
-    match code {
-        FindingCode::MissingOperand => "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-        FindingCode::EmptyExpression => "LOAD_COMBINATION_TERMS_EMPTY",
-        FindingCode::NonFiniteFactor => "LOAD_COMBINATION_FACTOR_INVALID",
-        FindingCode::DimensionMismatch => "LOAD_COMBINATION_DIMENSION_MISMATCH",
-        FindingCode::DuplicateOperand => "LOAD_COMBINATION_DUPLICATE_TERM",
-        FindingCode::UnsupportedExpressionShape => "LOAD_COMBINATION_UNSUPPORTED_EXPRESSION",
-        FindingCode::MissingResultState => "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-        FindingCode::StatusBoundaryViolation => "LOAD_COMBINATION_STATUS_BOUNDARY_VIOLATION",
     }
 }
 
@@ -21694,34 +21491,44 @@ mod tests {
         }
     }
 
+    /// The live engine's combined displacement magnitude (`preview_physics::append_combination_results` calls
+    /// `append_combined_vector_magnitude`, with an empty support map, for a mechanics or subtraction combination's
+    /// `displacement_magnitude` row):
+    /// published from complete signed components, withheld with LOAD_COMBINATION_VECTOR_COMPONENT_MISSING when one
+    /// component row is unavailable in an operand case.
     #[test]
     fn p5_combined_magnitude_withholds_incomplete_vector() {
-        let input = p5_beam_request();
-        let output = run_linear_static_preview(input);
+        let output = run_linear_static_preview(p5_beam_request());
         let case = "load:L-100".to_string();
         let mut rows = HashMap::new();
         for row in output.results {
             rows.insert(row.id.clone(), HashMap::from([(case.clone(), row)]));
         }
-        rows.remove("result:disp:node-N-110:uy");
         let mut model = request().model;
         model.combinations.truncate(1);
         model.combinations[0].terms = vec![PreviewCombinationTerm {
-            load_case: case,
+            load_case: case.clone(),
             factor: 1.0,
         }];
-        let mut results = Vec::new();
-        let mut diagnostics = Vec::new();
-        append_combination_results(
-            &model,
-            &rows,
-            &HashMap::new(),
-            &mut results,
-            &mut diagnostics,
-        );
-        assert!(!results
-            .iter()
-            .any(|r| r.kind == "displacement_magnitude" && r.entity_ref == "node:N-110"));
+        let combination = &model.combinations[0];
+        let expression = CombinationExpression::resolve(combination).expect("a one-term mechanics combination resolves");
+        let base_id = "result:disp:node-N-110";
+        let reference = rows[base_id][&case].clone();
+        assert_eq!((reference.kind.as_str(), reference.entity_ref.as_str()), ("displacement_magnitude", "node:N-110"));
+        let run = |rows: &HashMap<String, HashMap<String, ResultItem>>| {
+            let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
+            append_combined_vector_magnitude(combination, &expression, base_id, &reference, rows, &HashMap::new(), &mut results, &mut diagnostics);
+            (results, diagnostics)
+        };
+        // Control: complete components publish the magnitude (one factor-1 term reproduces the case's own value).
+        let (results, diagnostics) = run(&rows);
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].id, qualified_combination_result_id(&combination.id, base_id));
+        assert!((results[0].value - reference.value).abs() <= 1e-12 * reference.value.abs().max(1.0));
+        rows.remove("result:disp:node-N-110:uy");
+        let (results, diagnostics) = run(&rows);
+        assert!(results.is_empty());
         assert!(diagnostics
             .iter()
             .any(|d| d.code == "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"));
