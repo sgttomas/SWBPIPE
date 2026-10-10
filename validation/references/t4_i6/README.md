@@ -45,8 +45,9 @@ scripts import round 00's `curved_ref.py` from a sibling `rerun00/`
 directory; it is `_run_records/curved_ref.py` here (same SHA-256,
 `1f524bcc…`). Consumed by: the curved true-positive candidates, CSKEW_9/10,
 K1/K1F and the acceptance-range samples (through `kd5_models/`), FK's K2
-test (`k2_kernel_kill`, embedded literals) and PP's acceptance-range guard
-test (`acceptance_range_samples`).
+test (`k2_kernel_kill`, embedded literals), PP's acceptance-range guard
+test (`acceptance_range_samples`) and PP's P5 test, whose seeded generator is
+round 01 §8's (RV2 N-8).
 
 ## `kd5_models/` (added by T4-I15, T4-U1 phase B)
 
