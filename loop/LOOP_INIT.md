@@ -9,11 +9,12 @@ relevant neighbourhood. Code and checks are located through
 The current objective comes from the init prompt and subsequent owner steering.
 Edit current source documents when decisions or dependency conditions change;
 the PR is the change record. No routine progress or lifecycle files are updated.
-Hosted checks cover the exact merge head: selected desktop build, behavioural
-tests and core browser journey; selected Cargo numerical oracles and Python
-product contracts. Broad browser matrices run nightly or on demand. Once the
-replacement required checks are applied and demonstrated, this rule supersedes
-DEC-025's blanket local merge sweep. `tools/release/run_evidence_sweep.py` remains
+The required `harness` result covers the exact PR head: selected desktop build
+and core browser persistence journey, changed Rust crates and their consumers,
+and focused Python security/input checks. Broad suites run only on request or
+for release preparation. Once this replacement is demonstrated, it supersedes
+DEC-025's blanket local merge sweep. Do not repeat a passing hosted suite locally
+without a new change or unresolved concern. `tools/release/run_evidence_sweep.py` remains
 optional preparation for macOS release candidates; release is an owner act.
 
 ## Hard boundaries

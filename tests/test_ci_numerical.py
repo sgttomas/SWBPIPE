@@ -192,3 +192,24 @@ class NumericalTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class AffectedCratesTests(unittest.TestCase):
+    def test_changed_dependency_selects_transitive_consumers_not_unrelated_crates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifests = []
+            for name, supplier in [('a', None), ('b', 'a'), ('c', 'b'), ('unrelated', None)]:
+                manifest = Path('core') / name / 'Cargo.toml'
+                (root / manifest).parent.mkdir(parents=True)
+                text = f'[package]\nname="{name}"\nversion="0.1.0"\n'
+                if supplier:
+                    text += f'[dependencies]\n{supplier}={{path="../{supplier}"}}\n'
+                (root / manifest).write_text(text)
+                manifests.append(manifest)
+            chosen = ci.affected_manifests(root, manifests, [ci.PROJECT + 'core/a/src/lib.rs'])
+            self.assertEqual(chosen, manifests[:3])
+            self.assertEqual(ci.affected_manifests(root, manifests, [ci.PROJECT + 'core/c/src/lib.rs']), [manifests[2]])
+            self.assertEqual(ci.affected_manifests(root, manifests, [ci.PROJECT + 'tests/test_schema.py']), [])
+            self.assertEqual(ci.affected_manifests(root, manifests, ['tools/shared.py']), manifests)
+            self.assertEqual(ci.affected_manifests(root, manifests, [ci.PROJECT + 'core/deleted/lib.rs']), manifests)

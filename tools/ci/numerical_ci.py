@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tomllib
 
 
 def load_module(name, path):
@@ -33,7 +34,60 @@ def validate_plan(root, plan):
         raise ValueError('Numerical runner requires explicit selected coverage')
 
 
-def cargo_plan(project):
+def affected_manifests(project, manifests, paths):
+    """Select changed crates and transitive path-dependency consumers.
+
+    Shared/unknown inputs conservatively retain the full set. A removed crate
+    likewise cannot be resolved here and falls back to full verification.
+    """
+    if not paths:
+        return manifests
+    selected = set()
+    roots = {m.parent: m for m in manifests}
+    for path in paths:
+        if not path.startswith(PROJECT):
+            return manifests
+        relative = Path(path[len(PROJECT):])
+        # Python test edits select the Python lane, not every Rust crate.
+        if relative.parts[0] == 'tests' and relative.suffix == '.py':
+            continue
+        owners = [m for directory, m in roots.items() if relative.is_relative_to(directory)]
+        if not owners:
+            return manifests
+        selected.update(owners)
+    dependencies = {}
+    for manifest in manifests:
+        data = tomllib.loads((project / manifest).read_text())
+        targets = set()
+        def visit(value):
+            if isinstance(value, dict):
+                # Workspace inheritance needs resolution outside this manifest.
+                if value.get('workspace') is True:
+                    raise ValueError('workspace inheritance')
+                if isinstance(value.get('path'), str):
+                    target = (project / manifest.parent / value['path'] / 'Cargo.toml').resolve()
+                    targets.add(target)
+                for child in value.values():
+                    visit(child)
+            elif isinstance(value, list):
+                for child in value:
+                    visit(child)
+        try:
+            for key in ('dependencies', 'dev-dependencies', 'build-dependencies', 'target'):
+                visit(data.get(key, {}))
+        except ValueError:
+            return manifests
+        dependencies[manifest] = targets
+    while True:
+        selected_paths = {(project / m).resolve() for m in selected}
+        consumers = {m for m, deps in dependencies.items() if deps & selected_paths}
+        enlarged = selected | consumers
+        if enlarged == selected:
+            return [m for m in manifests if m in selected]
+        selected = enlarged
+
+
+def cargo_plan(project, paths=None):
     """Use the real readiness discovery and commands, adding locked resolution."""
     manifests = readiness.discover_cargo_manifests(project)
     if not manifests:
@@ -45,8 +99,11 @@ def cargo_plan(project):
     steps = readiness.build_plan('cargo', project)
     if len(steps) != len(manifests):
         raise ValueError('Cargo profile and discovery differ')
+    chosen = affected_manifests(project, manifests, paths) if paths is not None else manifests
     tests = []
     for manifest, step in zip(manifests, steps):
+        if manifest not in chosen:
+            continue
         argv = list(step.command)
         if argv[:2] != ['cargo', 'test'] or '--offline' not in argv or argv[argv.index('--manifest-path') + 1] != manifest.as_posix():
             raise ValueError('Unsupported release cargo command: ' + repr(argv))
@@ -64,8 +121,8 @@ def cargo_plan(project):
             tests.append(argv + ['--doc'])
         else:
             tests.append(argv)
-    fetches = [['cargo', 'fetch', '--locked', '--manifest-path', p.as_posix()] for p in manifests]
-    return manifests, fetches + tests
+    fetches = [['cargo', 'fetch', '--locked', '--manifest-path', p.as_posix()] for p in chosen]
+    return chosen, fetches + tests
 
 
 def execute_commands(project, commands, evidence, evidence_dir, env=None):
@@ -94,7 +151,7 @@ def run(root, plan, evidence_dir):
         validate_plan(root, plan)
         evidence['plan_validated'] = True
         project = root / PROJECT
-        manifests, commands = cargo_plan(project)
+        manifests, commands = cargo_plan(project, plan.get('paths') if plan.get('event') == 'pull_request' else None)
         evidence['manifests'] = [p.as_posix() for p in manifests]
         evidence['input_sha256'] = {p.as_posix(): hashlib.sha256((project / p).read_bytes()).hexdigest()
             for m in manifests for p in (m, m.with_name('Cargo.lock'))}
