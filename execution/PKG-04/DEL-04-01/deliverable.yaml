@@ -135,42 +135,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-- from: DEL-05-01
-  when: K-D5 revision 1 (member-relative bound, option (d)) implementation
-  condition: 'K-D5 revision 1 (Design/kd5-member-relative-bound.md section 1) re-forms every formed load
-    term at p = 128 from its binary64 primitives and uses no ledger value of a formed term. DEL-05-01 supplies,
-    for each primitive load it forms (thermal and free strain from alpha and Delta T, self-weight from the
-    section and density inputs), an intended-load definition K-D5 can re-form at p: the binary64 primitives
-    and the formula, attached to the formed ledger term as a FormationSource load primitive. A formed term
-    without one makes the formation check unavailable.'
-  gating: true
-- from: DEL-04-02
-  when: K-D5 revision 1 (member-relative bound, option (d)) implementation
-  condition: 'K-D5 revision 1 (Design/kd5-member-relative-bound.md section 1) re-forms every formed load
-    term at p = 128. DEL-04-02 supplies an intended-load definition K-D5 can re-form at p for the straight
-    member''s formed terms: the consistent uniform-load vector (wL/2, wL^2/12 in the chord frame), the free-strain
-    eigen pair (E A epsilon along the chord) and the straight-route pressure end forces, each as binary64
-    primitives and formula attached to the formed ledger term. The same definitions serve the certified straight
-    recovery at the corrected displacement.'
-  gating: true
-- from: DEL-04-07
-  when: K-D5 revision 1 (member-relative bound, option (d)) implementation
-  condition: 'K-D5 revision 1 (Design/kd5-member-relative-bound.md section 1) re-forms every formed load
-    term at p = 128. DEL-04-07 supplies an intended-load definition K-D5 can re-form at p for the product
-    assembly''s formed terms: arc thermal and T4-U2 pressure free strain (K_b u_free(epsilon), K_b u_free(epsilon_p)),
-    the exact-pressure operands (terminal caps, bend terms -c_b, kink remainder), connector reference loads
-    (q_ref) and their W2 force-scaled forms, each as binary64 primitives and formula attached to the formed
-    ledger term; and passes them to the formation source (NI structural_adapter). It also publishes the
-    certified member rows and fails the nonlinear-support route closed with a named reason.'
-  gating: true
-- from: DEL-05-05
-  when: K-D5 revision 1 (member-relative bound, option (d)) implementation
-  condition: 'K-D5 revision 1 (Design/kd5-member-relative-bound.md section 1) re-forms every formed load
-    term at p = 128. DEL-05-05 applies the distributed loads, including R-1''s certified arc loads (DEL-04-01''s
-    certify_curved_uniform_load): it supplies, for each uniform element load on a straight member or a realized
-    arc, an intended-load definition K-D5 can re-form at p (the binary64 primitives and formula, and for arcs
-    R-1''s midpoint-radius enclosure with its radius carried), attached to the formed ledger term.'
-  gating: true
 code_paths:
 - core/solver/curved_bend
 - core/solver/frame_kernel

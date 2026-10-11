@@ -76,13 +76,13 @@ A fresh numerical reviewer, who did not design or write the unit, reviews it aga
   - every mutant is killed by a named test;
   - item 6's no-regression conditions hold.
 
-## Superseded in part by K-D5 revision 1
+## Superseded in part by the K-D5 member-relative bound unit
 
-HELP_HUMAN ruled on 2026-10-11 for option (d) ([kd5-member-relative-bound.md](kd5-member-relative-bound.md)). When that unit lands:
+HELP_HUMAN ruled on 2026-10-11 for option (d) ([kd5-member-relative-bound.md](kd5-member-relative-bound.md)). The ruling supersedes "my short-bend thresholds (ruling 5, plus the withdrawn (c) limit)", to be named "in the DEL-04-01 Design as superseded by this unit". When that unit lands:
 
 - **Predicate.** The arc predicate is replaced by the unified member predicate on certified rows. This covers R-b′ on B_f + B_u and R-2's B_f clause.
 - **Arc rows.** They are published as recoveries at the corrected displacement u + w + w₂, with K-D5's arc matrix. They no longer come from the formed K_c·u.
-- **Short-bend rule.** The rule and its Passed limit of 1.6e-2 (option (c), withdrawn) are removed with the load closure.
+- **Short-bend rule.** The rule and the withdrawn (c) limit, its Passed ratio of 1.6e-2, are removed with the load closure.
 
 The requirement above remains the record of O-13's unit.
 
