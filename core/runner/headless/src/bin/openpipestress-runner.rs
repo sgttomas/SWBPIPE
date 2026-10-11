@@ -299,8 +299,15 @@ where
     })
 }
 
-fn usage() -> &'static str {
-    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner read <retained-precision|retained-precision-transport> [--input <reader-input.json>|-]"
+fn usage() -> String {
+    let readers = reader_binding::READERS
+        .iter()
+        .map(|reader| reader.name)
+        .collect::<Vec<_>>()
+        .join("|");
+    format!(
+        "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner read <{readers}> [--input <reader-input.json>|-]"
+    )
 }
 
 fn read_input(input_path: Option<&str>) -> Result<String, String> {
