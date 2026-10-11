@@ -1876,7 +1876,7 @@ fn support_hypot(specs:&[ProductRowSpec<'_>],values:&[f64],support:u32,first:usi
     if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
     // I109: one correctly rounded 3-norm (platform-independent), still charged as the two
     // scalar operations of the former `hypot` chain.
-    let value=crate::correct_norm::norm3(v[0],v[1],v[2]);
+    let value=open_pipe_stress_correct_norm::norm3(v[0],v[1],v[2]);
     if !value.is_finite() || value<0.0{return Err(bad("support projection hypot range"));}
     Ok(if value==0.0{0.0}else{value})
 }

@@ -456,6 +456,8 @@ fn finalization_size(
     selected: &SelectedSourceRecovery,
     rows: &[ResultItem],
 ) -> usize {
+    #[cfg(test)]
+    pressure_source_context_tests::observe_reservation_inputs(capture, selected, rows);
     let response = selected.retained().response();
     let source = response.source_system();
     let mut n = response
@@ -919,6 +921,12 @@ impl FinalizedSourceBlockReceipt {
     ) -> Result<Self, ReceiptError> {
         // The captured invocation, not the envelope label, selects the policy.
         let policy = capture.composite_context()?.receipt_policy();
+        #[cfg(test)]
+        let mut cases = cases;
+        #[cfg(test)]
+        if pressure_source_context_tests::intercept_finalizer(capture, envelope, &mut cases, invocation_budget) {
+            return Err(bad("private test captured finalizer inputs"));
+        }
         Self::finalize_for(capture, envelope, cases, invocation_budget, policy)
     }
     fn finalize_for(

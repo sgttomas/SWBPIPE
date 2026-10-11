@@ -114,8 +114,36 @@ def _row_segments(*parts: str) -> str:
 
 def _consistent_norm(magnitude: float, components: list[float]) -> bool:
     x, y, z = components
-    expected = math.hypot(math.hypot(x, y), z)
-    return magnitude >= 0 and abs(magnitude - expected) <= GUARD * max(abs(magnitude), TINY)
+    if magnitude < 0 or not all(math.isfinite(value) for value in (magnitude, x, y, z)):
+        return False
+    # Independent exact-integer oracle: align the published binary64 dyadics,
+    # square and sum exactly, then round the square root on the binary64 grid.
+    # This does not share the Rust implementation's FMA/expansion algorithm.
+    ratios = [float(value).as_integer_ratio() for value in (x, y, z)]
+    denominator_exponent = max(denominator.bit_length() - 1 for _, denominator in ratios)
+    square_sum = sum((numerator << (denominator_exponent - (denominator.bit_length() - 1))) ** 2
+                     for numerator, denominator in ratios)
+    if square_sum == 0:
+        expected = 0.0
+    else:
+        root_exponent = (square_sum.bit_length() - 1) // 2 - denominator_exponent
+        grid_exponent = max(root_exponent - 52, -1074)
+        shift = denominator_exponent + grid_exponent
+        if shift >= 0:
+            lower = math.isqrt(square_sum) >> shift
+            midpoint_square = (2 * lower + 1) ** 2 << (2 * shift)
+            four_square_sum = 4 * square_sum
+        else:
+            scaled_square_sum = square_sum << (-2 * shift)
+            lower = math.isqrt(scaled_square_sum)
+            midpoint_square = (2 * lower + 1) ** 2
+            four_square_sum = 4 * scaled_square_sum
+        rounded = lower + int(four_square_sum > midpoint_square or (four_square_sum == midpoint_square and lower & 1))
+        try:
+            expected = math.ldexp(float(rounded), grid_exponent)
+        except OverflowError:
+            expected = math.inf
+    return math.isfinite(expected) and abs(magnitude - expected) <= GUARD * max(abs(magnitude), TINY)
 
 
 def signature(row: Mapping[str, Any]) -> Mapping[str, Any] | None:
@@ -185,6 +213,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
             _require(_integer(extremum["span_index"]) and extremum["span_index"] >= 0 and _integer(extremum["subdivisions"]) and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1, "extrema fractions")
             _require(0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"], "extrema bounds")
+            _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
         _require(len(set(pipes)) == len(pipes) and not set(pipes) & (set(coverage["unavailable_pipe_ids"]) | set(coverage["outside_domain_pipe_ids"])), "extrema member partition")
         for measure in case["intensified_measures"]:

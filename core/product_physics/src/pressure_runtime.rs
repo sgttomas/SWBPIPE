@@ -10,7 +10,7 @@ use super::{
     normalize_quantity, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
     PreviewLoadCase, PreviewModel, Quantity, DOF_PER_NODE,
 };
-use open_pipe_stress_frame_kernel::correct_norm::norm3;
+use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_units::Dimension;
 use serde::Deserialize;
 use serde_json::{json, Value};

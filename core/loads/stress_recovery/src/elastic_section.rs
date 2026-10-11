@@ -103,7 +103,7 @@ pub fn evaluate_elastic_section(
         section.second_moment,
         "bending_normal_z",
     )?;
-    let bending_amplitude = finite_output("bending_amplitude", crate::correct_norm::norm2(by, bz))?;
+    let bending_amplitude = finite_output("bending_amplitude", open_pipe_stress_correct_norm::norm2(by, bz))?;
     let torsional_shear = scaled_ratio(
         actions.torsional_moment,
         section.outer_radius,

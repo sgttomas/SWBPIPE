@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { isRetainedIdentity, isRetainedRoute } from '../features/results/numericalResultQuality';
+import { isRetainedIdentity, isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from '../features/results/numericalResultQuality';
 import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceContract } from '../features/results/resultReader';
 import { registerSourceRecovery, sameModelData, validateLoadReferenceSourceEvidence } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
@@ -135,11 +135,16 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
-    if (sourceContract(source) === "source_blocks" || sourceContract(source) === "physics_source") {
+    const sourceRoute = sourceContract(source);
+    if (sourceRoute === "source_blocks" || sourceRoute === "physics_source" || sourceRoute === "pressure_source"
+      || source.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
       // G3 (b7-plan R2): the caller's model is the one dispatched to native; a
       // normalization between them registers nothing.
       if (!sameModelData(JSON.parse(checkedJsonText(capture.callerModel)), capture.invocation.request.model)) throw new Error("CALLER_DISPATCH_NORMALIZATION_MISMATCH");
-      await registerSourceRecovery(source, capture.invocation, capture.callerModel);
+      // A claimed pressure-source identity whose Rust header refuses also reaches
+      // this registration boundary, so it cannot acquire native registration unread.
+      await registerSourceRecovery(source, capture.invocation, capture.callerModel,
+        model => hasNativeMechanicsInvocation(source, model as PreviewModel, capture.invocation.solver_mode));
     }
     // A preview-physics-1 source registers only when its closed reader checks pass.
     if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);

@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_correct_norm"
+version = "0.1.0"
+edition = "2021"
+description = "Correctly rounded Euclidean norms for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

@@ -605,6 +605,7 @@ pub(crate) fn validate_physics_evidence_in(
                 lower >= 0.0
                     && upper >= lower
                     && global >= upper
+                    && upper == global
                     && gap >= 0.0
                     && gap <= 1e-12 + 1e-12 * lower
                     && gap >= global - lower

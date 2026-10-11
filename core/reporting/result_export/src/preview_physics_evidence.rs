@@ -1,6 +1,7 @@
 //! Admission of the closed preview-physics-1 evidence namespace (T0R S1 section 9).
 //! These checks establish internal consistency of a received envelope, not
 //! solver accuracy, origin, model freshness or engineering acceptance.
+use open_pipe_stress_correct_norm::norm3;
 use serde_json::Value;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
@@ -472,6 +473,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 lower >= 0.0
                     && lower <= value
                     && value <= upper
+                    && upper == number(&extrema["global_upper_bound_pa"])?
                     && value == lower + 0.5 * (upper - lower),
                 "EXTREMA_BOUNDS",
             )?;
@@ -727,14 +729,12 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
 
 fn magnitudes(components: &HashMap<&str, &Value>) -> Check {
     let v = |c: &str| number(&components[c]["value"]);
+    let force = v("force_magnitude")?;
+    let moment = v("moment_magnitude")?;
     require(
-        guarded(
-            v("force_magnitude")?,
-            v("Fx")?.hypot(v("Fy")?).hypot(v("Fz")?),
-        ) && guarded(
-            v("moment_magnitude")?,
-            v("Mx")?.hypot(v("My")?).hypot(v("Mz")?),
-        ),
+        force >= 0.0 && moment >= 0.0
+            && guarded(force, norm3(v("Fx")?, v("Fy")?, v("Fz")?))
+            && guarded(moment, norm3(v("Mx")?, v("My")?, v("Mz")?)),
         "SUPPORT_MAGNITUDE",
     )
 }
@@ -774,19 +774,26 @@ fn combination_magnitudes(rows: &[&Value]) -> Check {
     for row in rows {
         let entity = &row["entity_ref"];
         let recomputed = match row["kind"].as_str() {
-            Some("displacement_magnitude") => find("global_nodal_displacement_x", entity, None)?
-                .hypot(find("global_nodal_displacement_y", entity, None)?)
-                .hypot(find("global_nodal_displacement_z", entity, None)?),
-            Some(SUPPORT_FORCE) => find(SUPPORT_COMPONENT, entity, Some("Fx"))?
-                .hypot(find(SUPPORT_COMPONENT, entity, Some("Fy"))?)
-                .hypot(find(SUPPORT_COMPONENT, entity, Some("Fz"))?),
-            Some(SUPPORT_MOMENT) => find(SUPPORT_COMPONENT, entity, Some("Mx"))?
-                .hypot(find(SUPPORT_COMPONENT, entity, Some("My"))?)
-                .hypot(find(SUPPORT_COMPONENT, entity, Some("Mz"))?),
+            Some("displacement_magnitude") => norm3(
+                find("global_nodal_displacement_x", entity, None)?,
+                find("global_nodal_displacement_y", entity, None)?,
+                find("global_nodal_displacement_z", entity, None)?,
+            ),
+            Some(SUPPORT_FORCE) => norm3(
+                find(SUPPORT_COMPONENT, entity, Some("Fx"))?,
+                find(SUPPORT_COMPONENT, entity, Some("Fy"))?,
+                find(SUPPORT_COMPONENT, entity, Some("Fz"))?,
+            ),
+            Some(SUPPORT_MOMENT) => norm3(
+                find(SUPPORT_COMPONENT, entity, Some("Mx"))?,
+                find(SUPPORT_COMPONENT, entity, Some("My"))?,
+                find(SUPPORT_COMPONENT, entity, Some("Mz"))?,
+            ),
             _ => continue,
         };
+        let magnitude = number(&row["value"])?;
         require(
-            guarded(number(&row["value"])?, recomputed),
+            magnitude >= 0.0 && guarded(magnitude, recomputed),
             "COMBINATION_MAGNITUDE",
         )?;
     }
@@ -821,3 +828,7 @@ fn headline(value: &Value, rows: &[Value], kind: &str, allowed: bool) -> Check {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "preview_magnitude_tests.rs"]
+mod magnitude_tests;

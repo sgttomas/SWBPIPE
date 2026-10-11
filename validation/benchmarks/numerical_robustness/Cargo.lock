@@ -15,6 +15,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
+name = "open_pipe_stress_correct_norm"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_curved_bend"
 version = "0.1.0"
 dependencies = [
@@ -24,6 +28,9 @@ dependencies = [
 [[package]]
 name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_correct_norm",
+]
 
 [[package]]
 name = "open_pipe_stress_linear_supports"

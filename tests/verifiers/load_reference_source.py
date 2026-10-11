@@ -109,6 +109,13 @@ def _validate(source: Mapping[str, Any], raw: bool) -> None:
         raise LoadReferenceSourceError(f"{lr._code('JOIN_PHYSICS_SOURCE')}: {error}") from error
 
 
+def validate_pressure_source_evidence(source: Mapping[str, Any], *, raw: bool) -> None:
+    """Direct received 0.4 pressure-source pre-pass; no v2 projection or reseal."""
+    from .physics_source import SourceContract
+    SourceContract.PRESSURE_V3.check_received(source)
+    lr._prepass(source, raw, lr.PRESSURE_JOINED)
+
+
 def _case_pressure(pressure: list[Any], case_id: Any) -> list[Any]:
     return [p for p in pressure if isinstance(p, Mapping) and p.get("load_case_id") == case_id]
 

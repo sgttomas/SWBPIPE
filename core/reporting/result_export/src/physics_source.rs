@@ -1,6 +1,6 @@
 //! Explicit composite validation of untouched physical and retained-source records.
 //! Hash/recipe consistency is not custody; numerical use needs captured invocation.
-use crate::source_blocks::{domain_hash, shape_in};
+use crate::source_blocks::{domain_hash, shape_in, shape_in_resources};
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
@@ -117,7 +117,10 @@ pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
     validate_receipt_shape_in(receipt, SourceContract::PhysicsV2)
 }
 pub fn validate_receipt_shape_in(receipt: &Value, contract: SourceContract) -> Result<(), String> {
-    require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE")
+    let definition = if contract == SourceContract::PressureV3 {
+        &schema()["$defs"]["pressure_source_receipt"]
+    } else { schema() };
+    require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, definition, schema()), "RECEIPT_SHAPE")
 }
 fn case<'a>(source: &'a Value, cid: &str) -> Result<&'a Value, String> {
     let found = array(&source["source_block_recovery"]["body"]["cases"])?
@@ -144,10 +147,16 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
         "RECEIPT_HASH",
     )?;
     let evidence = &source["contract_evidence"];
-    require(
-        shape_in(evidence, &schema()["$defs"]["physical_evidence"], schema()),
-        "PHYSICAL_SHAPE",
-    )?;
+    let definition = &schema()["$defs"][if contract == SourceContract::PressureV3 {
+        "pressure_source_physical_evidence"
+    } else { "physical_evidence" }];
+    let closed_shape = if resolved {
+        // This already pinned resource serves the received resolved state. No
+        // result/schema copy or received-profile inference selects the context.
+        let load_schema = crate::load_reference::transport_schema()?;
+        shape_in_resources(evidence, definition, schema(), &[("load_reference_state.schema.json", load_schema)])
+    } else { shape_in(evidence, definition, schema()) };
+    require(closed_shape, "PHYSICAL_SHAPE")?;
     let physical = array(&evidence["exact_cases"])?;
     let records = array(&body["cases"])?;
     require(

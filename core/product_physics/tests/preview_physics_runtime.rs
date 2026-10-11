@@ -8,7 +8,7 @@
 //! rounded norm the product uses, verified against an exact oracle (I109, RV126).
 //! Every model goes through the captured value entry the desktop uses. Criterion:
 //! |observed - expected| <= 1e-9 * max(|expected|, zero scale). No new tolerance.
-use open_pipe_stress_frame_kernel::correct_norm::norm2;
+use open_pipe_stress_correct_norm::norm2;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use std::collections::HashSet;

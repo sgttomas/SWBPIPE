@@ -15,7 +15,7 @@ use crate::{
     stable_suffix, Diagnostic, MaterialInput, PreviewLoadCase, PreviewModel, PreviewSupport,
     Quantity, DOF_PER_NODE,
 };
-use open_pipe_stress_frame_kernel::correct_norm::norm3;
+use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_linear_supports::FrameDof;
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};

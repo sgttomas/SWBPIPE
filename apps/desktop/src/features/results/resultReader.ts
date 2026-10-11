@@ -33,7 +33,7 @@ export const RESULT_READER_UNAVAILABLE = "RESULT_READER_UNAVAILABLE";
 /** The value has no JSON text a reader can read. */
 export const JSON_PARSE_REJECTED = "JSON_PARSE_REJECTED";
 
-export type ReaderName = "preview-physics" | "physics" | "physics-source" | "source-blocks" | "source-recovery" | "load-reference" | "load-reference-source";
+export type ReaderName = "preview-physics" | "physics" | "physics-source" | "pressure-source" | "source-blocks" | "source-recovery" | "load-reference" | "load-reference-source";
 export type TransportReaderName = Exclude<ReaderName, "source-recovery">;
 export type StandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
 /** G1: the desktop's numerical standing, as Rust computes it. */

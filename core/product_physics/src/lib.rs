@@ -39,7 +39,7 @@ mod source_budget_tests;
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame};
 // I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
-use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
+use open_pipe_stress_correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
@@ -867,13 +867,9 @@ struct SourceRecoveryBudget {
     /// 0.4.0 only: the first cause for which a selected join could not
     /// finalize. The captured route then republishes ordinarily.
     load_state_join_failure: Option<String>,
-    /// HELP_HUMAN's ruling 3: the invocation was captured, but its model does
-    /// not join retained-source recovery (`exact_admission::joins_retained_source`);
-    /// each case v2 would route to recovery names the missing join.
-    retained_source_not_joined: bool,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None, retained_source_not_joined: false } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
@@ -891,7 +887,6 @@ impl SourceRecoveryBudget {
             attempts: self.attempts,
             load_state_join_withheld: Some(cause),
             load_state_join_failure: self.load_state_join_failure.clone(),
-            retained_source_not_joined: self.retained_source_not_joined,
         }
     }
     fn record_load_state_join_failure(&mut self, cause: String) {
@@ -920,6 +915,7 @@ pub const SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/physics-source-1";
+pub const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str = exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID;
 pub const PRECISION_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/precision-1";
 pub const PHYSICS_SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
@@ -1013,12 +1009,14 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
+    formulation_basis_for_model_with_source(model, false)
+}
+fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected: bool) -> FormulationBasis {
     let mut basis = if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        // T4-U3: a model with an objective connector states its law; a model
-        // without one keeps v3's text unchanged.
-        exact_admission::pressure_v3_formulation_basis(
+        exact_admission::pressure_v3_formulation_basis_with_source(
             case_state::is_load_state(model),
             model.components.iter().any(|c| c.objective_connector.is_some()),
+            source_selected,
         )
     } else
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
@@ -1363,28 +1361,6 @@ fn append_integrity_failure(
 ) {
     let code = integrity_failure_code(error);
     diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
-}
-
-/// HELP_HUMAN's ruling 3 (`exact_admission::RETAINED_SOURCE_NOT_JOINED`): for
-/// a case of a captured invocation whose model does not join retained-source
-/// recovery and whose ordinary attempt needs recovery, the diagnostic is added
-/// when the case would be retained-source eligible on the captured entry
-/// (main's predicate). Static text; refs name the case.
-fn append_retained_source_not_joined(
-    diagnostics: &mut Vec<Diagnostic>,
-    case_id: &str,
-    built: &BuiltModel,
-    model: &PreviewModel,
-) {
-    if source_eligible(true, !built.nonlinear_supports.is_empty(), !model.combinations.is_empty()) {
-        diagnostics.push(diag(
-            &format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id)),
-            exact_admission::RETAINED_SOURCE_NOT_JOINED,
-            "info",
-            exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT,
-            vec![case_id.to_string()],
-        ));
-    }
 }
 
 /// HELP_HUMAN's ruling 5 (2026-10-10; DEL-04-01 "Stable small-angle
@@ -2450,7 +2426,7 @@ fn ordinary_dispatch(
 }
 
 fn source_finalization_failed(envelope: &MechanicsEnvelope) -> bool {
-    matches!(envelope.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
+    matches!(envelope.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID | PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID)
         && envelope.source_block_recovery.is_none()
 }
 
@@ -2508,10 +2484,6 @@ fn run_linear_static_preview_observed(
     source_budget: &mut SourceRecoveryBudget,
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
-    // T4-U2a: a v3 invocation is not joined to retained-source recovery.
-    let joins = exact_admission::joins_retained_source(&request.model);
-    source_budget.retained_source_not_joined = capture.is_some() && !joins;
-    let capture = capture.filter(|_| joins);
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
@@ -2958,6 +2930,25 @@ fn run_linear_static_preview_observed(
     // Publish finite computed binary64 quantities without an absolute decimal quantum.
     let composite = source_selected && pressure_runtime::is_exact(&model);
     let joined_load_state = composite && case_state::is_load_state(&model);
+    // The captured request selects the source namespace. A received label is
+    // never a context input, and an unsupported capture has no source default.
+    let composite_context = if composite {
+        let context = capture.ok_or_else(|| source_receipt::ReceiptError("selected composite requires captured invocation".into(), None))
+            .and_then(source_receipt::CapturedInvocation::composite_context);
+        match context {
+            Ok(context) => Some(context),
+            Err(error) => {
+                if joined_load_state { source_budget.record_load_state_join_failure(format!("captured source context: {}", error.0)); }
+                diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", error.0, vec![]));
+                return blocked_envelope(model, diagnostics);
+            }
+        }
+    } else { None };
+    let source_formulation = composite_context.and_then(|context| match context {
+        source_receipt::CompositeSourceContext::PressureSource => Some(formulation_basis_for_model_with_source(&model, true)),
+        source_receipt::CompositeSourceContext::LoadReferenceSource => Some(joined_load_state_formulation_basis()),
+        source_receipt::CompositeSourceContext::PhysicsSource => None,
+    });
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model), "exact_cases": exact_cases});
@@ -3002,11 +2993,10 @@ fn run_linear_static_preview_observed(
         envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     if source_selected {
-        envelope.producer.semantic_contract_id = if joined_load_state {
-            // The joined envelope has its own semantics and exclusive profile.
-            envelope.formulation_basis = joined_load_state_formulation_basis();
-            LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
-        } else if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
+        envelope.producer.semantic_contract_id = if let Some(context) = composite_context {
+            if let Some(basis) = source_formulation { envelope.formulation_basis = basis; }
+            context.semantic_id()
+        } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
         if let Some(capture) = capture {
             let finalized = if composite {
                 source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
@@ -4795,11 +4785,6 @@ fn solve_load_case_observed(
                 source_failure = Some(failure);
             }
         }
-    }
-    // HELP_HUMAN's ruling 3: a case v2's captured entry would route to
-    // retained-source recovery names the join v3 lacks.
-    if source_budget.retained_source_not_joined && needs_source_recovery {
-        append_retained_source_not_joined(diagnostics, &load_case.id, built, model);
     }
     // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
     if let Some(observer) = product.as_deref_mut() {

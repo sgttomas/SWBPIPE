@@ -158,7 +158,7 @@ fn scalar_and_magnitude_publication_precede_stress_scaling() {
     let rows = [row, row, row];
     let magnitude = certified_magnitude(&rows).unwrap();
     let rounded_components =
-        crate::correct_norm::norm3(row.published, row.published, row.published);
+        open_pipe_stress_correct_norm::norm3(row.published, row.published, row.published);
     assert_ne!(magnitude.published, rounded_components);
     let group = certified_group(&rows).unwrap();
     assert_eq!(group.q, rounded_components);
@@ -268,7 +268,7 @@ fn arc_recovery_uses_the_intended_matrix_and_equilibrium_sections() {
     }
     // All section forces/moments transfer the same j-end actions; a force
     // component's magnitude is invariant under the section-frame rotation.
-    let tipnorm = crate::correct_norm::norm3(global[6], global[7], global[8]);
+    let tipnorm = open_pipe_stress_correct_norm::norm3(global[6], global[7], global[8]);
     for station in &recovered.sections {
         let q = certified_group(&station[..3]).unwrap();
         assert!((q.q - tipnorm).abs() <= q.bound + 8.0 * f64::EPSILON * tipnorm);
@@ -356,7 +356,7 @@ fn magnitudes_scale_before_ball_products_at_extreme_exponents() {
         )
         .unwrap();
         let magnitude = certified_magnitude(&[row, row, row]).unwrap();
-        let expected = crate::correct_norm::norm3(component, component, component);
+        let expected = open_pipe_stress_correct_norm::norm3(component, component, component);
         assert_eq!(magnitude.published, expected, "component {component}");
         assert!(magnitude.radius.is_finite());
         assert!(magnitude.bound().is_finite());

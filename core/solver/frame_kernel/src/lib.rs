@@ -4,7 +4,6 @@
 //! code compliance checks, protected standards content, or private project data.
 
 pub mod connector;
-pub mod correct_norm;
 pub mod exact_sum;
 pub mod load_ledger;
 pub mod structural;

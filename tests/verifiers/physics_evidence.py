@@ -165,13 +165,16 @@ def _contract_identity(evidence: Any, contract: tuple[str, str]) -> None:
 
 
 def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None, contract: tuple[str, str] = STRAIGHT_V2) -> None:
-    _require(context is None or contract == STRAIGHT_V2, "composite contract")
     _contract_identity(source.get("contract_evidence"), contract)
     _require(not any(key in source for key in (("source_block_recovery", "carrier_evidence") if context is None else ("carrier_evidence",))), "unsupported source namespace")
     evidence = source.get("contract_evidence")
-    _shape(evidence, {"pressure", "connector", "exact_cases"}, "namespace")
+    resolved = context is not None and contract == PRESSURE_V3 and isinstance(evidence, Mapping) and "load_reference_states" in evidence
+    if resolved:
+        from .load_reference_evidence import _prepass, PRESSURE_JOINED
+        _prepass(source, True, PRESSURE_JOINED)
+    _shape(evidence, {"pressure", "connector", "exact_cases"} | ({"load_reference_states"} if resolved else set()), "namespace")
     _finite_tree(evidence)
-    _require((contract == PRESSURE_V3 and isinstance(evidence["connector"], list) or evidence["connector"] == []) and isinstance(evidence["pressure"], list), "unsupported connector")
+    _require((context is None and contract == PRESSURE_V3 and isinstance(evidence["connector"], list) or evidence["connector"] == []) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
     rows = _indexed(source.get("results"), "id", "result IDs")
     quality = source.get("numerical_quality", {}).get("cases", [])
@@ -189,7 +192,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
         _require(bool(geometries[cid]) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
         for material in materials[cid].values():
-            _shape(material, MATERIAL, "material shape")
+            _shape(material, MATERIAL | ({"material_selection_kind", "resolved_eigenstrain"} if resolved else set()), "material shape")
             _require(_text(material["material_id"]) and _text(material["provenance"]) and material["constitutive_basis"] == "homogeneous_isotropic_E_nu_v1", "material basis")
             _require(all(_number(material[k]) for k in ("E_pa", "G_pa", "nu")) and material["E_pa"] > 0 and material["G_pa"] > 0 and -1 < material["nu"] < 0.5, "material range")
             expected_g = material["E_pa"] / (2 * (1 + material["nu"]))
@@ -222,6 +225,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
             _require(row.get("value") == extremum["value_lower_pa"] + 0.5 * (extremum["value_upper_pa"] - extremum["value_lower_pa"]), "extrema published witness")
             _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
+            _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "extrema witness")
         _validate_rhs(case["pressure_rhs_assembly"], cid)
     owners: dict[tuple[str, str], str] = {}
@@ -250,8 +254,12 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
             _shape(gm[pid], GEOMETRY | {"traversal_forward"}, "region geometry shape")
             _require(type(gm[pid]["traversal_forward"]) is bool and {k:v for k,v in gm[pid].items() if k != "traversal_forward"} == geometries[cid][pid], "geometry disagreement")
             _shape(mm[pid], MATERIAL | {"temperature_basis"}, "region material shape")
-            _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
-            _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k:v for k,v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
+            if resolved:
+                from .load_reference_evidence import REGION_TEMPERATURE_BASIS
+                _require(mm[pid]["temperature_basis"] == REGION_TEMPERATURE_BASIS and all(mm[pid][key] == materials[cid][pid][key] for key in MATERIAL), "material disagreement")
+            else:
+                _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
+                _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k:v for k,v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
             _shape(loads[pid], {"pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"}, "applied load shape")
             _require(_vector(loads[pid]["local_x_global"], 3) and all(_vector(loads[pid][k], 2) for k in ("eigenload_pair_local_n", "mathematical_cap_pair_local_n")) and loads[pid]["thermal_included"] is False, "applied load vectors")
         terminals = region["terminals"]

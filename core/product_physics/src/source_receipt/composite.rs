@@ -461,6 +461,9 @@ pub(super) fn physical_source_built(
     source_selected: bool,
     load_state: Option<(&case_state::resolve::ResolvedCase, Option<&Value>)>,
 ) -> Result<(), ReceiptError> {
+    // Every caller supplies the model rebuilt from capture, through either the
+    // pre-0.4 normalization or resolved-case replay; envelope labels are absent.
+    let context = CompositeSourceContext::for_model(model)?;
     if !pressure_runtime::is_exact(model) || built.exact_sections.len() != model.pipe_segments.len()
     {
         return Err(bad("physical source exact profile and geometry inventory"));
@@ -506,7 +509,7 @@ pub(super) fn physical_source_built(
             "recovery_method",
         ])
         || evidence["load_case_id"] != case_id
-        || evidence["profile_mode"] != "exact_straight_pressure_v2"
+        || evidence["profile_mode"] != context.profile_mode()
         || evidence["recovery_method"] != expected_method
         || evidence["material_basis"]
             != if load_state.is_some() {

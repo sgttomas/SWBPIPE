@@ -314,7 +314,7 @@ fn norm_up(values: impl IntoIterator<Item = f64>) -> f64 {
             norm = if norm == 0.0 {
                 v.abs()
             } else {
-                crate::correct_norm::norm2(norm, v).next_up()
+                open_pipe_stress_correct_norm::norm2(norm, v).next_up()
             };
         }
     }
@@ -367,8 +367,8 @@ pub fn certified_magnitude(rows: &[CertifiedRow]) -> Result<CertifiedRow, Recove
 pub fn certified_group(rows: &[CertifiedRow]) -> Result<CertifiedGroup, RecoveryFailure> {
     let q = match rows {
         [a] => a.published.abs(),
-        [a, b] => crate::correct_norm::norm2(a.published, b.published),
-        [a, b, c] => crate::correct_norm::norm3(a.published, b.published, c.published),
+        [a, b] => open_pipe_stress_correct_norm::norm2(a.published, b.published),
+        [a, b, c] => open_pipe_stress_correct_norm::norm3(a.published, b.published, c.published),
         [] => 0.0,
         _ => return Err(shape("recovery group size")),
     };
@@ -379,7 +379,7 @@ pub fn certified_group(rows: &[CertifiedRow]) -> Result<CertifiedGroup, Recovery
             midpoint_norm = if midpoint_norm == 0.0 {
                 v
             } else {
-                crate::correct_norm::norm2(midpoint_norm, v).next_up()
+                open_pipe_stress_correct_norm::norm2(midpoint_norm, v).next_up()
             };
         }
     }

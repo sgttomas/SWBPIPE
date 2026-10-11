@@ -924,3 +924,30 @@ fn current_maximum_declaration_refuses_old_and_mixed_scope() {
         assert!(derive(&invalid).is_err(), "old or mixed declaration derived: {field}");
     }
 }
+
+#[test]
+fn current_maximum_enclosure_refuses_a_local_witness_upper() {
+    let mut invalid = invented();
+    s::for_source(&invalid).expect("current global maximum must admit");
+    open_pipe_stress_result_export::retained_precision::validate_preview_physics_transport_metadata(&invalid)
+        .expect("current global maximum transport must admit");
+    let maximum = invalid["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].clone();
+    let id = maximum["result_id"].as_str().unwrap();
+    let global = maximum["global_upper_bound_pa"].as_f64().unwrap();
+    let upper = global.next_down();
+    let lower = upper.next_down();
+    let value = lower + 0.5 * (upper - lower);
+    let gap = global - lower;
+    assert!(lower >= 0.0 && lower <= value && value <= upper && upper < global);
+    assert!(gap <= 1e-12 + 1e-12 * lower);
+    let row = rows(&mut invalid).iter_mut().find(|row| row["id"] == id).unwrap();
+    row["value"] = json!(value);
+    let maximum = &mut invalid["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0];
+    maximum["value_lower_pa"] = json!(lower);
+    maximum["value_upper_pa"] = json!(upper);
+    maximum["certified_gap_pa"] = json!(gap);
+    assert!(s::for_source(&invalid).unwrap_err().contains("EXTREMA_BOUNDS"));
+    assert!(derive(&invalid).is_err());
+    assert!(open_pipe_stress_result_export::retained_precision::validate_preview_physics_transport_metadata(&invalid)
+        .unwrap_err().contains("extrema bounds"));
+}
