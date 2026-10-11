@@ -59,9 +59,11 @@ fn g1_arc_predicate_conjuncts_at_their_boundaries() {
     assert!(!arc_group_fires(ArcRowGroup::Torsion, 1.0, &bound(CRITERION, 0.0), unit));
     // A binary64 `B > 1e-9 q` would not fire at B = fl(1e-9) (M18's constant).
     assert!(arc_group_fires(ArcRowGroup::Axial, 1.0, &bound(1e-9, 0.0), unit));
-    // Torsion, axial and shear ignore B_u.
+    // Torsion, axial and shear ignore B_u: a resolved B_u above the
+    // criterion fires bending only.
+    assert!(arc_group_fires(bending, 1.0, &bound(0.0, 2e-9), unit));
     for group in [ArcRowGroup::Torsion, ArcRowGroup::Axial, ArcRowGroup::Shear] {
-        assert!(!arc_group_fires(group, 1.0, &bound(0.0, 1e-3), unit), "{group:?}");
+        assert!(!arc_group_fires(group, 1.0, &bound(0.0, 2e-9), unit), "{group:?}");
     }
     // The floor, on both paths: q = 2^-34 S* is above it; S* one step larger is not.
     let floor_scale = 1.0 / FLOOR;
@@ -535,6 +537,24 @@ fn p8_a_stress_free_arc_stays_passed() {
     observations(&request);
 }
 
+/// The scale extension at the call site (entity rule 2b lifted): a realized
+/// arc's rows are excluded from S* only when the arc has no record.
+#[test]
+fn only_an_unguarded_arc_is_excluded_from_the_scales() {
+    let request = l_line("invented:o13:2b", [0.0; 3], 1.5, 0.2286, -450.0, 0.0);
+    let built = prepared(&request).built;
+    let bends: HashMap<usize, &CurvedBendMacroBuild> =
+        built.curved_bend_elements.iter().map(|b| (b.pipe_index, b)).collect();
+    assert_eq!(unguarded_arcs(&bends, &[]), HashSet::from(["BC".to_string()]));
+    let record = ArcRecoveryRecord {
+        member: "BC".into(),
+        body: Some(0),
+        q: [[0.0; 4]; 2],
+        bounds: Err("x".into()),
+    };
+    assert!(unguarded_arcs(&bends, &[record]).is_empty());
+}
+
 /// The record's q: |N|, hypot(Vy, Vz), |T| and hypot(My, Mz) of the
 /// published rows, per end (FK's correct norm, as R-b').
 #[test]
@@ -664,6 +684,7 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     );
     let site = &solve[record_at..];
     for call in [
+        "&unguarded_arcs(&curved_bends_by_pipe, &arc_records),",
         "formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)",
         "formation_guard::arc_recovery_finding(&arc_records, &scales, &load_case.id)",
         "formation_guard::short_bend_finding(&short_bends, &load_case.id)",

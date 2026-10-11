@@ -5982,16 +5982,11 @@ fn solve_load_case_observed(
     }
 
     if !recovery_records.is_empty() || !arc_records.is_empty() {
-        // Entity rule 2b holds only for a realized arc without a record.
         let guarded: HashSet<&str> = arc_records.iter().map(|r| r.member.as_str()).collect();
         let scales = formation_guard::action_scales(
             &results,
             &formation_entity_bodies(model, built, &formation_bodies),
-            &curved_bends_by_pipe
-                .values()
-                .filter(|bend| !guarded.contains(bend.pipe_id.as_str()))
-                .map(|bend| bend.pipe_id.clone())
-                .collect(),
+            &unguarded_arcs(&curved_bends_by_pipe, &arc_records),
             &formation_bodies,
         );
         let short_bends: Vec<formation_guard::ShortBend> = bend_neighbour_ratios(built)
@@ -11349,6 +11344,19 @@ fn exact_straight_end_forces(
                 .and_then(|()| accumulator.round())
                 .unwrap_or(f64::NAN)
         })
+        .collect()
+}
+
+/// Entity rule 2b after O-13: the realized arcs whose rows stay out of the
+/// guards' scales are those without an arc recovery record.
+fn unguarded_arcs(
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+    arc_records: &[formation_guard::ArcRecoveryRecord],
+) -> HashSet<String> {
+    curved_bends_by_pipe
+        .values()
+        .filter(|bend| !arc_records.iter().any(|r| r.member == bend.pipe_id))
+        .map(|bend| bend.pipe_id.clone())
         .collect()
 }
 
