@@ -1,4 +1,4 @@
-# VP-STATIC exact_pressure_1 cases (T4-U2; pending independent review)
+# VP-STATIC exact_pressure_1 cases (T4-U2; admitted after T4-RV28)
 
 This package scores the `exact_pressure_1_cli_1.0_raw0.2` transport
 (`tools/validation/qualification_exact_pressure.py`) against the frozen,
@@ -10,14 +10,15 @@ independently refuted T4-U2 references:
 - `validation/references/t4_i8/rebuilt_reference_cases.json` (T4-I8, the
   rebuilt straight cases; sha256 `838578ab…724b`).
 
-**Status: not admitted.** The references are frozen and refuted (T4-RV3,
-T4-RV4), but this package's mapping of them onto rows, evidence, criteria and
-absences has not had its independent review. Until an `ADMISSION.json` names
-that review, every generated reference is `pending_independent_review` and
-every profile a draft, so the gate refuses the package. Admission changes
-statuses only, never a value or rule. It is a development-comparison
-admission, not engineering acceptance or a release criterion. Standard claim
-fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: admitted.** The references are frozen and refuted (T4-RV3,
+T4-RV4). The independent review T4-RV28 (`INDEPENDENT_REVIEW_T4-RV28.md`,
+verdict ADMIT) checked this package's mapping of them onto rows, evidence,
+criteria and absences, and `ADMISSION.json` names that review by sha256.
+Without `ADMISSION.json`, every generated reference is
+`pending_independent_review` and every profile a draft, so the gate refuses
+the package. Admission changes statuses only, never a value or rule. It is a
+development-comparison admission, not engineering acceptance or a release
+criterion. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 All inputs are invented test quantities from the references. None of them is
 material-library, component-library or code-rule data.
@@ -28,6 +29,8 @@ material-library, component-library or code-rule data.
 |---|---|---|
 | `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
+| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the review by path and sha256. |
+| `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The independent admission review, verbatim. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
 
 The case files total about 72 MB, mostly selectors, so they are generated
