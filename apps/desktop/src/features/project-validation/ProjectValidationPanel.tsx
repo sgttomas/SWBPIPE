@@ -1,3 +1,4 @@
+import { isExactPressureContract } from "../pressure-authoring/pressureContract";
 import { ClipboardCheck, Download } from "lucide-react";
 import type {
   AgentProposal,
@@ -638,7 +639,7 @@ function unitMetadataPresent(model: PreviewModel): boolean {
     Object.values(model.project.units).every((unit) => unit.length > 0) &&
     countUnitBearingRecords(model) > 0 &&
 	    model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
-	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && (model.schema_version === "0.3.0" && (model.pressure_contract?.mode === "exact_straight_pressure_v2" || model.pressure_contract?.mode === "exact_pressure_v3") ? material.constitutive_basis === "homogeneous_isotropic_E_nu_v1" && hasUnit(material.poisson_ratio) && material.poisson_ratio.unit === "1" : hasUnit(material.shear_modulus))) &&
+	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && (isExactPressureContract(model) ? material.constitutive_basis === "homogeneous_isotropic_E_nu_v1" && hasUnit(material.poisson_ratio) && material.poisson_ratio.unit === "1" : hasUnit(material.shear_modulus))) &&
 	    model.supports.every((support) =>
 	      supportUnitQuantities(support).every((quantity) => !quantity || hasUnit(quantity))
 	    ) &&

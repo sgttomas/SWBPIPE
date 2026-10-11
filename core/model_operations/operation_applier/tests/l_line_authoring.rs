@@ -15,6 +15,11 @@ use std::collections::HashMap;
 
 const I7_DOCUMENTS: &str = include_str!("../../../../validation/references/t4_i7/u2_document_sketches.json");
 const PROVENANCE: &str = "invented T4-U2 authoring input (from T4-I7's L line); not library, component, catalog or code-rule data";
+/// The desktop's authoring check reads these bytes: the corner document, the
+/// document authored from it here, and PP's sparse pressure-1 result for it.
+/// Regenerate with `T4_U2_WRITE_L_LINE_FIXTURE=1`; otherwise they must be current.
+const FIXTURE: &str = include_str!("../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json");
+const FIXTURE_PATH: &str = "../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
 
 fn i7_l_line() -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
@@ -375,4 +380,22 @@ fn pressure_regions_admit_realized_bends_and_refuse_geometry_only_spans_and_mitr
     d["position"]["x"] = json!(3.25 + 4.0 * 5.0e-4);
     let outcome = apply_operation(&admitted, &op(&admitted), Some(&hash(&admitted)));
     assert!(outcome.diagnostics.iter().all(|d| d.severity != "blocking"), "{:?}", outcome.diagnostics);
+}
+
+#[test]
+fn the_desktop_l_line_fixture_is_current() {
+    let authored = authored(true);
+    let fixture = json!({
+        "fixture": "T4-U2 L line authored from its corner (invented); read by the desktop's authoring and pressure-1 refusal tests",
+        "generator": "core/model_operations/operation_applier/tests/l_line_authoring.rs::the_desktop_l_line_fixture_is_current",
+        "corner_document": corner_document(),
+        "authored_model": authored,
+        "sparse_result": solve(&authored, PreviewSolverMode::SparseInteractive),
+    });
+    let bytes = serde_json::to_string_pretty(&fixture).unwrap() + "\n";
+    if std::env::var_os("T4_U2_WRITE_L_LINE_FIXTURE").is_some() {
+        std::fs::write(FIXTURE_PATH, &bytes).unwrap();
+        return;
+    }
+    assert!(FIXTURE == bytes, "the desktop L-line fixture is stale; regenerate it");
 }

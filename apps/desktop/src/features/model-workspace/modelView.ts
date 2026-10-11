@@ -142,8 +142,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
     if (isBendComponent(component)) {
       rows.push(
         ["Bend radius", quantityDisplay(component.geometry?.bend_radius, "length")],
-        ["Bend angle", quantityDisplay(component.geometry?.bend_angle, "angle")],
-        ["Bend plane", component.geometry?.bend_plane_orientation ?? "TBD"]
+        ["Bend angle", quantityDisplay(component.geometry?.bend_angle, "angle")]
       );
       // User-entered curved-bend span mapping (DEC-070). The slot is
       // optional for the straight-chord modes, so an absent value is shown
