@@ -253,7 +253,7 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
   1. c is pre-guard Passed with `member_bound` present: K-D5 ran and passed, there is no load-row finding, and no other demotion applies;
   2. the unified predicate demotes c, and every B_g of c is finite;
   3. Z(g) holds for every member and support group of c, judged or not, in every body.
-- **"Solely because"** is decided by condition 3. Every group that fires is noise-level, and every S*_g is then at most max q̂ ≤ 2^-34·max a, so S* is noise-derived. A single group with q̂_g > 2^-34·a_g, anywhere in the case, suppresses the notice whatever the standing.
+- **"Solely because"** is decided by condition 3. Every group that fires is noise-level. Within each body, with body length L_b, the coupled force scale obeys S*_force ≤ 2^-34·max(max a_force, max a_moment/L_b), and the coupled moment scale obeys S*_moment ≤ 2^-34·max(max a_moment, L_b·max a_force). These bounds preserve units and show that both scales are noise-derived. A single group with q̂_g > 2^-34·a_g, anywhere in the case, suppresses the notice whatever the standing.
 - **What it states.** X = max over the force groups (axial, shear, support force) and Y = max over the moment groups (torsion, bending, support moment) of ‖fl(m_g)‖ + B_g, rounded upward. Under A1 every force row's true magnitude is at most X and every moment row's at most Y. Draft text, to be run through the claims lint (GEN-13) at implementation:
 
   > "Load case {case}: every member and support force row is bounded by {X} N and every moment row by {Y} N·m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."
