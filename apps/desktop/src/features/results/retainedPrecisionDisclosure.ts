@@ -15,7 +15,8 @@
  * here changes standing, and nothing claims a stop-rule bound, an extrema
  * enclosure or producer origin (D-U7-6).
  */
-import { decodeBinary64, validateRetainedPrecision, type RowClassification } from "./retainedPrecision";
+import { validateRetainedPrecision } from "./retainedPrecisionReader";
+import { decodeBinary64, type RowClassification } from "./retainedPrecisionTypes";
 import { classificationSummary } from "./retainedPrecisionStanding";
 import { isRetainedIdentity, isRetainedRoute, sourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";

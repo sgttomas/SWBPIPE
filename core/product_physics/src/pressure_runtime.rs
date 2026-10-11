@@ -176,6 +176,8 @@ fn present(value: &Option<String>) -> Option<&str> {
 /// Validate the explicit profile and input namespace before unit conversion.
 /// Region geometry is checked later against normalized, actually built pipes.
 pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    // T4-U3 (D-4): legacy joints are refused first, on every route and version.
+    super::joint::refuse_legacy_joints(model, diagnostics);
     match model.schema_version.as_str() {
         "0.1.0" | "0.2.0" => {
             if model.pressure_contract.is_some() {
@@ -215,8 +217,16 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         ),
     }
 
+    let v3 = exact_contract(model) == Some(ExactContract::PressureV3);
     for component in &model.components {
         if let Some(contract) = &component.objective_connector {
+            // T4-U3: a v3 joint's connector goes to the joint classifier.
+            if v3
+                && component.kind == "expansion_joint"
+                && contract.get("version").and_then(Value::as_str) == Some("1.0.0")
+            {
+                continue;
+            }
             let code = if !matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0") {
                 "PREVIEW_CONTRACT_VERSION_MISMATCH"
             } else if contract.get("version").and_then(Value::as_str) != Some("1.0.0") {
@@ -238,6 +248,10 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
         // excluded: accepting one as a straight span would misrepresent the
         // explicit composition.
         for component in &model.components {
+            // A legacy joint already carries its refusal; the seam skips it.
+            if super::joint::is_legacy_joint(component) {
+                continue;
+            }
             if let Admission::Refused { code, message } =
                 exact_admission::admission(contract, component_family(component))
             {
@@ -279,6 +293,9 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             {
                 problem(diagnostics, code, &[&combination.id], message);
             }
+        }
+        if v3 {
+            super::joint::classify_connectors(model, diagnostics);
         }
     }
 

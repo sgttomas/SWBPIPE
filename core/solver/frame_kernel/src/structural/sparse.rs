@@ -8,7 +8,7 @@
 //!   element order (D1 §7.3 mutation 10).
 //! - `SparseStiffness` holds one coalesced value per pattern entry. Each value
 //!   is summed from +0.0 in exactly the order the dense assembly adds it
-//!   (frames, user elements, curved and other explicit blocks, then springs),
+//!   (frames, objective connectors, curved and other explicit blocks, then springs),
 //!   so every entry is bit-identical to the dense entry: the parity basis is
 //!   bitwise equality, with no tolerance.
 //! - `SparseStructuralSystem` is the sparse sibling of `StructuralSystem`. The
@@ -34,10 +34,11 @@
 //! The dense `StructuralSystem` API is unchanged; dense scrutiny materializes
 //! `SparseStiffness::to_dense` and runs today's dense Cholesky.
 use super::*;
+use crate::connector::ObjectiveConnector;
 use crate::load_ledger::ReducedForce;
 use crate::{
     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
-    FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF,
+    FrameKernelError, Matrix12, DOF_PER_NODE, ELEMENT_DOF,
 };
 
 // ------------------------------------------------------------------ pattern
@@ -477,6 +478,10 @@ impl SparseStiffness {
 pub struct SparseAssemblyOptions {
     /// K2b (D1 §4.7, formation-time scaling): 2^b, even; `UNSCALED` by default.
     force_scale: ForceScale,
+    /// T4-U3 (K2b N-5): set only by the K2b retry of `assemble_sparse_stiffness`
+    /// (never by a caller): the connectors' end nodes and Ke formed at b = 0
+    /// times 2^b, in order, used in place of forming them.
+    formed_connectors: Option<Vec<(usize, usize, Matrix12)>>,
 }
 
 impl SparseAssemblyOptions {
@@ -484,10 +489,11 @@ impl SparseAssemblyOptions {
     pub fn new() -> Self {
         Self {
             force_scale: ForceScale::UNSCALED,
+            formed_connectors: None,
         }
     }
 
-    /// K2b: form every frame (E and G), user element, block and spring at
+    /// K2b: form every frame (E and G), connector, block and spring at
     /// 2^b, exactly (`FrameElement::force_scaled`, `force_scaled_matrix`,
     /// `force_scaled_value`).
     pub fn with_force_scale(mut self, force_scale: ForceScale) -> Self {
@@ -501,28 +507,18 @@ impl SparseAssemblyOptions {
 }
 
 /// K2b: the inputs of `assemble_sparse_stiffness` formed at 2^b.
-type ForceScaledInputs = (
-    Vec<FrameElement>,
-    Vec<UserStiffnessElement>,
-    Vec<StiffnessBlock>,
-    Vec<(usize, f64)>,
-);
+type ForceScaledInputs = (Vec<FrameElement>, Vec<StiffnessBlock>, Vec<(usize, f64)>);
 
-/// K2b: the frames (E and G), user elements, blocks and springs times 2^b,
-/// exactly, in their given order. A value that cannot stay normal is
-/// `NumericalRange` with the scaled operand's name.
+/// K2b: the frames (E and G), blocks and springs times 2^b, exactly, in their
+/// given order. A value that cannot stay normal is `NumericalRange` with the
+/// scaled operand's name.
 fn force_scaled_inputs(
     frames: &[FrameElement],
-    users: &[UserStiffnessElement],
     blocks: &[StiffnessBlock],
     springs: &[(usize, f64)],
     force_scale: ForceScale,
 ) -> Result<ForceScaledInputs, FrameKernelError> {
     let frames = frames
-        .iter()
-        .map(|element| element.force_scaled(force_scale))
-        .collect::<Result<Vec<_>, _>>()?;
-    let users = users
         .iter()
         .map(|element| element.force_scaled(force_scale))
         .collect::<Result<Vec<_>, _>>()?;
@@ -549,11 +545,11 @@ fn force_scaled_inputs(
             ))
         })
         .collect::<Result<Vec<_>, FrameKernelError>>()?;
-    Ok((frames, users, blocks, springs))
+    Ok((frames, blocks, springs))
 }
 
 /// An element given by its global 12×12 matrix (a realized curved bend, or
-/// any explicit element), added after the frames and user elements, as the
+/// any explicit element), added after the frames and connectors, as the
 /// product adds its curved contributions.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct StiffnessBlock {
@@ -573,46 +569,70 @@ fn check_node(node_index: usize, node_count: usize) -> Result<(), FrameKernelErr
 }
 
 /// The kernel's sparse assembly, per modulus basis (D1 §4.8): the global
-/// stiffness of `frames`, `users`, `blocks` and ground `springs` (global DOF,
-/// stiffness) on its connectivity pattern.
+/// stiffness of `frames`, objective `connectors`, `blocks` and ground
+/// `springs` (global DOF, stiffness) on its connectivity pattern.
 ///
-/// It is the sparse sibling of `assemble_global_stiffness_with_user_elements`
+/// It is the sparse sibling of `assemble_global_stiffness_with_connectors`
 /// followed by the product's curved and spring additions, and it keeps their
 /// semantics:
 /// - each element is formed by the same call (`global_stiffness`) in the same
 ///   order, after the same node check, so a formation refusal is the same
 ///   error for the same first element, before any value is accumulated;
-/// - values accumulate in the dense order (frames, users, blocks, springs);
-/// - after the frames and users, the first non-finite entry in row-major order
-///   is refused as `NonFiniteInput { name: "assembled stiffness" }`; blocks
-///   and springs are then added unchecked, as the product adds them.
+/// - values accumulate in the dense order (frames, connectors, blocks,
+///   springs), so the entries are the dense entries bit for bit;
+/// - after the frames and connectors, the first non-finite entry in
+///   row-major order is refused as `NonFiniteInput { name: "assembled
+///   stiffness" }`; blocks and springs are then added unchecked, as the
+///   product adds them.
+///
+/// T4-U3 (S2, K2b N-5): at 2^b each connector adds its Ke formed at b = 0
+/// times 2^b (`force_scaled_matrix`), as a realized curved bend does.
 ///
 /// A block or spring outside the model is refused as `InvalidNodeIndex`
 /// (the dense additions would index out of bounds).
 pub fn assemble_sparse_stiffness(
     node_count: usize,
     frames: &[FrameElement],
-    users: &[UserStiffnessElement],
+    connectors: &[ObjectiveConnector],
     blocks: &[StiffnessBlock],
     springs: &[(usize, f64)],
     options: &SparseAssemblyOptions,
 ) -> Result<SparseStiffness, FrameKernelError> {
-    let SparseAssemblyOptions { force_scale } = options;
+    let SparseAssemblyOptions {
+        force_scale,
+        formed_connectors,
+    } = options;
     if !force_scale.is_unscaled() {
-        // K2b: the same assembly, of the inputs formed at 2^b.
-        let (frames, users, blocks, springs) =
-            force_scaled_inputs(frames, users, blocks, springs, *force_scale)?;
+        // K2b: the same assembly, of the inputs formed at 2^b: the frames',
+        // blocks' and springs' scaled operands are checked first, then each
+        // connector's Ke formed at b = 0 times 2^b.
+        let (frames, blocks, springs) =
+            force_scaled_inputs(frames, blocks, springs, *force_scale)?;
+        let formed = connectors
+            .iter()
+            .map(|connector| {
+                Ok((
+                    connector.node_i().index,
+                    connector.node_j().index,
+                    connector.force_scaled_global_stiffness(*force_scale)?,
+                ))
+            })
+            .collect::<Result<Vec<_>, FrameKernelError>>()?;
         return assemble_sparse_stiffness(
             node_count,
             &frames,
-            &users,
+            &[],
             &blocks,
             &springs,
-            &SparseAssemblyOptions::new(),
+            &SparseAssemblyOptions {
+                force_scale: ForceScale::UNSCALED,
+                formed_connectors: Some(formed),
+            },
         );
     }
     let dimension = node_count * DOF_PER_NODE;
-    let mut formed: Vec<(usize, usize, Matrix12)> = Vec::with_capacity(frames.len() + users.len());
+    let mut formed: Vec<(usize, usize, Matrix12)> =
+        Vec::with_capacity(frames.len() + connectors.len());
     for element in frames {
         check_node(element.node_i.index, node_count)?;
         check_node(element.node_j.index, node_count)?;
@@ -622,14 +642,25 @@ pub fn assemble_sparse_stiffness(
             element.global_stiffness()?,
         ));
     }
-    for element in users {
-        check_node(element.node_i.index, node_count)?;
-        check_node(element.node_j.index, node_count)?;
-        formed.push((
-            element.node_i.index,
-            element.node_j.index,
-            element.global_stiffness()?,
-        ));
+    match formed_connectors {
+        Some(scaled) => {
+            for &(node_i, node_j, matrix) in scaled {
+                check_node(node_i, node_count)?;
+                check_node(node_j, node_count)?;
+                formed.push((node_i, node_j, matrix));
+            }
+        }
+        None => {
+            for element in connectors {
+                check_node(element.node_i().index, node_count)?;
+                check_node(element.node_j().index, node_count)?;
+                formed.push((
+                    element.node_i().index,
+                    element.node_j().index,
+                    element.global_stiffness()?,
+                ));
+            }
+        }
     }
     for block in blocks {
         check_node(block.node_i, node_count)?;

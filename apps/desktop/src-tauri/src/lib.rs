@@ -1756,7 +1756,7 @@ fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String
 }
 
 fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
-    solve_preview_mechanics_with_mode(model_payload, PreviewSolverMode::default())
+    solve_preview_mechanics_value_with_mode(model_payload, PreviewSolverMode::default())
 }
 
 fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolverMode, String> {
@@ -1767,12 +1767,25 @@ fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolve
     }
 }
 
+/// The producer's exact serialized bytes for the desktop's solve request
+/// (`{"model": <model>, "materials": []}`): what the solve commands and jobs hand
+/// the desktop, which reads its result and registers it from these bytes (b7-plan
+/// R1, "Exact bytes to the desktop"), never a re-encoded value.
 fn solve_preview_mechanics_with_mode(
     model_payload: Value,
     solver_mode: PreviewSolverMode,
-) -> Result<Value, String> {
+) -> Result<String, String> {
     let request = json!({"model":model_payload,"materials":[]});
-    serde_json::to_value(open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(request, solver_mode)?)
+    serde_json::to_string(&open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(request, solver_mode)?)
+        .map_err(|error| error.to_string())
+}
+
+/// The same solve read as a value, for the native self-tests that inspect it.
+fn solve_preview_mechanics_value_with_mode(
+    model_payload: Value,
+    solver_mode: PreviewSolverMode,
+) -> Result<Value, String> {
+    serde_json::from_str(&solve_preview_mechanics_with_mode(model_payload, solver_mode)?)
         .map_err(|error| error.to_string())
 }
 
@@ -1782,15 +1795,15 @@ fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
 }
 
 #[tauri::command]
-fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
-    solve_preview_mechanics(resolve_solve_model_payload(model)?)
+fn run_preview_mechanics(model: Option<Value>) -> Result<String, String> {
+    solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, PreviewSolverMode::default())
 }
 
 #[tauri::command]
 fn run_preview_mechanics_with_solver_mode(
     model: Option<Value>,
     solver_mode: Option<String>,
-) -> Result<Value, String> {
+) -> Result<String, String> {
     let mode = parse_preview_solver_mode(solver_mode)?;
     solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, mode)
 }
@@ -1812,7 +1825,8 @@ struct SolveJobStatusReport {
     cancellation_requested: bool,
     cancellation_status: String,
     cancellation_scope: &'static str,
-    result: Option<Value>,
+    /// The producer's exact serialized bytes of a completed solve.
+    result: Option<String>,
     error_message: Option<String>,
 }
 
@@ -1832,7 +1846,7 @@ struct SolveJobRecord {
     state: String,
     cancellation_requested: bool,
     cancellation_status: String,
-    result: Option<Value>,
+    result: Option<String>,
     error_message: Option<String>,
 }
 
@@ -1911,7 +1925,7 @@ fn execute_solve_job(
 fn publish_solve_outcome(
     jobs: &Arc<Mutex<SolveJobTable>>,
     job_id: &str,
-    outcome: Result<Value, String>,
+    outcome: Result<String, String>,
 ) {
     let Ok(mut table) = lock_solve_jobs(jobs) else {
         return;
@@ -2975,8 +2989,8 @@ fn validate_rule_pack(
 /// outcomes (completion plan C4). The pack is validated first; a pack with
 /// blocking validation findings is reported as `RULE_INPUTS_INCOMPLETE` without
 /// running checks. Solver values are resolved from the solved mechanics
-/// envelope (supplied directly via `solved_envelope`, or produced by
-/// `run_preview_mechanics`) using the caller's `{input_id, result_id}`
+/// envelope (supplied directly via `solved_envelope`, or solved here as
+/// `run_preview_mechanics` solves) using the caller's `{input_id, result_id}`
 /// selectors; user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
@@ -2998,7 +3012,7 @@ fn run_rule_checks(
     let (envelope, invocation) = match solved_envelope {
         Some(value) => (value, source_block_invocation),
         None => (
-            run_preview_mechanics(Some(supplied_model.clone()))?,
+            solve_preview_mechanics(supplied_model.clone())?,
             Some(json!({"request":{"model":supplied_model,"materials":[]},"solver_mode":PreviewSolverMode::default().as_str()})),
         ),
     };
@@ -3115,7 +3129,7 @@ fn run_rule_checks_core(
 
     let envelope = match solved_envelope {
         Some(value) => value,
-        None => run_preview_mechanics(model)?,
+        None => solve_preview_mechanics(resolve_solve_model_payload(model)?)?,
     };
 
     // Solver values for `solver_result` inputs come from two sources: an
@@ -5039,6 +5053,12 @@ pub fn run() {
         .expect("error while running SWBPIPE");
 }
 
+/// The solve command's bytes read as a value, for tests that inspect them.
+#[cfg(test)]
+fn run_preview_mechanics_value(model: Option<Value>) -> Result<Value, String> {
+    run_preview_mechanics(model).map(|bytes| serde_json::from_str(&bytes).expect("the producer's bytes are JSON"))
+}
+
 #[cfg(test)]
 mod legacy_store_carry_forward_tests {
     use super::*;
@@ -5354,7 +5374,7 @@ mod tests {
         request["model"]["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/source-blocks-1");
             assert_eq!(solved["source_block_recovery"]["body"]["status"], "qualified");
             let invocation = json!({"request":request,"solver_mode":mode.as_str()});
@@ -5379,7 +5399,7 @@ mod tests {
         )).unwrap();
         model["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let source = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/physics-1");
             let row = source["results"].as_array().unwrap().iter().find(|r|
@@ -5403,7 +5423,7 @@ mod tests {
         for force in [-1.0e-6_f64, 1.0e-6] {
             let mut model = precision_model();
             model["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(force);
-            let solved = run_preview_mechanics(Some(model.clone())).unwrap();
+            let solved = run_preview_mechanics_value(Some(model.clone())).unwrap();
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(solved["schema_version"], "0.2.0");
             assert_eq!(solved["producer"]["component_version"], "0.2.0");
@@ -6124,7 +6144,7 @@ mod tests {
             expected["combinations"].as_u64().unwrap() as usize
         );
 
-        let solved = run_preview_mechanics(Some(model.clone()))
+        let solved = run_preview_mechanics_value(Some(model.clone()))
             .expect("from-blank authored model solves through backend mechanics");
         assert_eq!(solved["model_ref"], model["project"]["id"]);
         assert_eq!(
@@ -6207,7 +6227,7 @@ mod tests {
         assert_eq!(loaded.mechanics_result, Value::Null);
         assert_eq!(loaded.analysis_run, Value::Null);
 
-        let solved = run_preview_mechanics(Some(loaded.model.clone()))
+        let solved = run_preview_mechanics_value(Some(loaded.model.clone()))
             .expect("saved authored model solves through backend mechanics");
         assert_eq!(solved["model_ref"], json!(project_id));
         assert_eq!(
@@ -7096,6 +7116,56 @@ mod tests {
         );
     }
 
+    /// b7-plan R1, "Exact bytes to the desktop": for the G10 milestone model, the solve
+    /// command and the job hand the desktop the producer's exact bytes (PP's pins in
+    /// `core/product_physics/tests/g10_desktop_milestone_model.rs`), the committed copies
+    /// the desktop's tests replay are those bytes, and the native save writes received
+    /// bytes unchanged. With `G10_DESKTOP_RESULT_OUT` set, writes the copies there.
+    #[test]
+    fn solves_hand_the_desktop_the_producers_exact_bytes() {
+        const PINS: [(&str, usize, &str); 2] = [
+            ("sparse_interactive", 68250, "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871"),
+            ("dense_scrutiny", 69366, "aa8b93ba9717bcc61bf708bb3dd7ab4848d655334dd1f3f6d5e852c2d40f8a8d"),
+        ];
+        let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
+        let model: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json"
+        ))
+        .unwrap();
+        for (mode, len, digest) in PINS {
+            let bytes = run_preview_mechanics_with_solver_mode(Some(model.clone()), Some(mode.into())).unwrap();
+            let sha = open_pipe_stress_operation_applier::sha256_hex(&bytes);
+            assert_eq!((bytes.len(), sha.as_str()), (len, digest), "{mode}: the command's bytes are the producer's");
+            // The job path publishes the same bytes.
+            let registry = SolveJobRegistry::default();
+            let receipt = start_solve_job(&registry.jobs).unwrap();
+            execute_solve_job(&registry.jobs, &receipt.job_id, Ok(model.clone()), PreviewSolverMode::from_wire(mode).unwrap());
+            assert_eq!(solve_job_status(&registry.jobs, &receipt.job_id).unwrap().result.as_deref(), Some(bytes.as_str()), "{mode}: the job's bytes");
+            let copy = fixtures.join(format!("rf_skew_t_cant_off_122_r1e-04.desktop_result_{mode}.json"));
+            if let Ok(dir) = std::env::var("G10_DESKTOP_RESULT_OUT") {
+                fs::write(std::path::Path::new(&dir).join(copy.file_name().unwrap()), &bytes).unwrap();
+                continue;
+            }
+            assert_eq!(fs::read_to_string(&copy).unwrap(), bytes, "{mode}: the desktop tests' copy");
+            // The native save writes the received bytes, byte for byte.
+            let root = std::env::temp_dir().join(format!("ops-g10-exact-bytes-{}-{mode}", std::process::id()));
+            let _ = fs::remove_dir_all(&root);
+            fs::create_dir(&root).unwrap();
+            let href: String = bytes.bytes().map(|b| format!("%{b:02X}")).collect();
+            let request: native_result_download::SaveRequest = serde_json::from_value(json!({
+                "href": format!("data:application/json;charset=utf-8,{href}"), "file_name": "openpipestress-preview-results-g10.json",
+                "screening": {"route_id":"DOTH-JSON-001","export_context":"local_private","explicit_local_private_intent":true,"blocked":false,
+                    "materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},
+                "local_first": {"route_id":"DOTH-JSON-001","export_context":"local_private","storage_context":"local_private","action":"include_metadata_only",
+                    "reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}
+            })).unwrap();
+            let saved = native_result_download::save_request(request, || Ok::<_, ()>(root.clone())).unwrap_or_else(|e| panic!("{mode}: {}", e.code));
+            let written = fs::read(root.join(&saved.file_name)).unwrap();
+            fs::remove_dir_all(&root).unwrap();
+            assert_eq!(written, bytes.as_bytes(), "{mode}: the saved bytes are the received bytes");
+        }
+    }
+
     #[test]
     fn solve_job_seam_completes_and_reports_result_without_cancellation() {
         let registry = SolveJobRegistry::default();
@@ -7125,7 +7195,7 @@ mod tests {
         assert_eq!(status.state, "completed");
         assert!(!status.cancellation_requested);
         assert_eq!(status.cancellation_status, "not_requested");
-        let result = status.result.expect("completed job publishes a result");
+        let result: Value = serde_json::from_str(&status.result.expect("completed job publishes a result")).unwrap();
         assert!(
             result["results"]
                 .as_array()
@@ -7139,16 +7209,16 @@ mod tests {
     #[test]
     fn run_preview_mechanics_uses_supplied_model_payload() {
         // A solve always carries a model; there is no implicit model.
-        let refused = run_preview_mechanics(None).expect_err("a solve without a model is refused");
+        let refused = run_preview_mechanics_value(None).expect_err("a solve without a model is refused");
         assert!(refused.starts_with("PREVIEW-SOLVE-MODEL-REQUIRED"), "{refused}");
         assert_bundled_demo_solved(
-            &run_preview_mechanics(Some(load_preview_model().expect("bundled demo loads"))).expect("bundled demo solves"),
+            &run_preview_mechanics_value(Some(load_preview_model().expect("bundled demo loads"))).expect("bundled demo solves"),
         );
         let mut model = derived_invented_model();
         model["project"]["id"] = json!("project:edited-solve-command");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
 
-        let solved = run_preview_mechanics(Some(model)).expect("supplied model solves");
+        let solved = run_preview_mechanics_value(Some(model)).expect("supplied model solves");
 
         assert_eq!(solved["model_ref"], json!("project:edited-solve-command"));
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
@@ -7181,7 +7251,7 @@ mod tests {
         assert!(opened.migrated_document.is_none());
         assert_eq!(labelled, before);
 
-        let solved = run_preview_mechanics(Some(labelled)).expect("refusal is a published envelope");
+        let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
         assert_eq!(solved["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
         assert!(solved["results"].as_array().expect("result rows").is_empty());
         assert!(solved["diagnostics"].as_array().expect("diagnostics").iter().any(|d| {
@@ -7223,7 +7293,7 @@ mod tests {
             "diagnostics": []
         });
 
-        let solved = run_preview_mechanics(Some(blank))
+        let solved = run_preview_mechanics_value(Some(blank))
             .expect("blank model produces an honest result envelope");
         let diagnostics = solved["diagnostics"]
             .as_array()
@@ -7263,7 +7333,7 @@ mod tests {
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
         assert_eq!(status.state, "completed");
-        let result = status.result.expect("completed job publishes a result");
+        let result: Value = serde_json::from_str(&status.result.expect("completed job publishes a result")).unwrap();
         assert_eq!(result["model_ref"], json!("project:edited-solve-job"));
         assert_eq!(result["status"]["mechanics"], json!("MECHANICS_SOLVED"));
         assert!(
@@ -7333,7 +7403,7 @@ mod tests {
         publish_solve_outcome(
             &registry.jobs,
             &receipt.job_id,
-            solve_preview_mechanics(load_preview_model().expect("bundled demo loads")),
+            solve_preview_mechanics_with_mode(load_preview_model().expect("bundled demo loads"), PreviewSolverMode::default()),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -7439,14 +7509,14 @@ mod tests {
         assert_eq!(resolve_solve_model_payload(Some(model.clone())).expect("supplied payload"), model);
         assert!(resolve_solve_model_payload(None).is_err(), "no implicit model");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).expect("default model solves");
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("default model solves");
             assert_bundled_demo_solved(&solved);
             assert_eq!(
                 solved["producer"]["semantic_contract_id"],
                 json!("openpipestress.result_semantics/0.3.0/preview-physics-1")
             );
         }
-        assert_bundled_demo_solved(&run_preview_mechanics(Some(model)).expect("default solve command"));
+        assert_bundled_demo_solved(&run_preview_mechanics_value(Some(model)).expect("default solve command"));
     }
 
     fn fixture_inspector_intent(before: &str, after: &str) -> Value {
@@ -7576,7 +7646,7 @@ mod tests {
             json!(200000000000_i64)
         );
         // The edited bundled demo still solves through the preview mechanics path.
-        let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
+        let solved = run_preview_mechanics_value(Some(outcome["applied_model"].clone()))
             .expect("edited model still solves through the preview mechanics path");
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
         assert!(solved["results"]

@@ -261,13 +261,19 @@ fn expected_for(m: &Value) -> &Value {
 /// invocation digest to the edited invocation; then rehash per `rehash`.
 /// Returns the edited source and the invocation to validate against.
 fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
-    use open_pipe_stress_result_export::source_blocks::domain_hash;
     let case = shared["cases"]
         .as_array()
         .unwrap()
         .iter()
         .find(|c| c["id"] == entry["base"])
         .unwrap();
+    // The shared format admits only rehash:"all" (D11).
+    assert_eq!(entry["rehash"], "all", "{}", entry["id"]);
+    apply_on(case, entry)
+}
+/// `apply_entry` on a given base `{source, invocation}`, with the rehash always run.
+fn apply_on(case: &Value, entry: &Value) -> (Value, Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
     let mut source = case["source"].clone();
     for e in entry["edits"].as_array().unwrap() {
         edit(&mut source, e);
@@ -283,8 +289,6 @@ fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
                 .unwrap()
                 .into();
     }
-    // The shared format admits only rehash:"all" (D11).
-    assert_eq!(entry["rehash"], "all", "{}", entry["id"]);
     rehash(&mut source);
     // D24: the optional `after_rehash` edit list is applied after the rehash.
     for e in entry["after_rehash"].as_array().cloned().unwrap_or_default() {
@@ -6846,7 +6850,7 @@ fn snapshot_07n_counts_and_format() {
     for e in &per {
         let r = &e["expected_by_reader"];
         assert!(
-            r["python"] == r["typescript"]
+            r.as_object().unwrap().keys().map(String::as_str).eq(["python", "rust"])
                 && r["python"] == e["expected"]
                 && r["rust"] != e["expected"]
                 && e["expected"]["gate"] == "G7"
@@ -7528,4 +7532,168 @@ fn b2_parity_probes_shared() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+// ---- R1 (b7-plan Unit R): the native outcomes the desktop's wasm reader must equal ----
+
+/// The shared corpus's successor fixtures (`retained_precision_*_successor_*.json`).
+const R1_SUCCESSORS: [(&str, &str); 12] = [
+    ("combination_successor_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json")),
+    ("combination_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")),
+    ("exact_successor_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json")),
+    ("exact_successor_derivative_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json")),
+    ("exact_successor_derivative_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json")),
+    ("exact_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json")),
+    ("l0_successor_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_l0_successor_dense_scrutiny.json")),
+    ("l0_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_l0_successor_sparse_interactive.json")),
+    ("milestone_successor_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+    ("milestone_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+    ("w_c2_successor_dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json")),
+    ("w_c2_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json")),
+];
+/// The carrier cases' fixtures, by their `path`.
+const R1_CARRIER_FIXTURES: [(&str, &str); 5] = [
+    ("fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", R1_SUCCESSORS[9].1),
+    ("fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json", R1_SUCCESSORS[8].1),
+    ("fixtures/product_preview/invented_demo_result_legacy_0_1.json", include_str!("../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json")),
+    ("fixtures/results/preview_physics_invented_sparse.json", include_str!("../../../../fixtures/results/preview_physics_invented_sparse.json")),
+    ("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")),
+];
+const R1_OUTCOMES_PATH: &str = "fixtures/results/retained_precision_reader_outcomes.json";
+
+/// Every reader input of the shared corpus, keyed, in a fixed order: the corpus's
+/// bases, mutations and must-pass entries; the B2 parity probes and RV120's inputs
+/// in the corpus grammar; the successor fixtures (a derivative's `result_envelope`,
+/// unbound); and the carrier cases and declared-difference forms as the carriers
+/// apply them. `src/features/results/retainedPrecisionWasmEquivalence.test.ts`
+/// builds the same list.
+fn r1_reader_inputs() -> Vec<(String, Value, Option<Value>)> {
+    let shared = corpus();
+    let mut out = Vec::new();
+    for c in shared["cases"].as_array().unwrap() {
+        out.push((format!("corpus:case:{}", c["id"].as_str().unwrap()), c["source"].clone(), Some(c["invocation"].clone())));
+    }
+    for (kind, list) in [("mutation", "mutations"), ("must_pass", "must_pass")] {
+        for e in shared[list].as_array().unwrap() {
+            let (source, invocation) = apply_entry(&shared, e);
+            out.push((format!("corpus:{kind}:{}", e["id"].as_str().unwrap()), source, Some(invocation)));
+        }
+    }
+    let probes: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_b2_parity_probes.json")).unwrap();
+    for s in probes["shapes"].as_array().unwrap() {
+        let (source, invocation) = apply_entry(&shared, s);
+        out.push((format!("b2_parity:{}", s["name"].as_str().unwrap()), source, Some(invocation)));
+    }
+    let rv120: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_rv120_b3_inputs.json")).unwrap();
+    for s in rv120["shapes"].as_array().unwrap() {
+        let id = s["base"][1].as_str().unwrap();
+        let base = match s["base"][0].as_str().unwrap() {
+            "corpus" => shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone(),
+            "m3x_producer" => {
+                let name = format!("exact_successor_{id}");
+                serde_json::from_str(R1_SUCCESSORS.iter().find(|f| f.0 == name).unwrap().1).unwrap()
+            }
+            other => panic!("rv120 base {other}"),
+        };
+        let (source, invocation) = apply_on(&base, s);
+        out.push((format!("rv120:{}", s["name"].as_str().unwrap()), source, Some(invocation)));
+    }
+    for (name, text) in R1_SUCCESSORS {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        let (source, invocation) = match doc.get("result_envelope") {
+            Some(envelope) => (envelope.clone(), None),
+            None => (doc["source"].clone(), Some(doc["invocation"].clone())),
+        };
+        out.push((format!("successor:{name}"), source, invocation));
+    }
+    let carriers: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_carrier_cases.json")).unwrap();
+    let fixture = |id: &str| -> (Value, Value) {
+        let f = &carriers["fixtures"][id];
+        let text = R1_CARRIER_FIXTURES.iter().find(|x| f["path"] == x.0).unwrap().1;
+        let doc: Value = serde_json::from_str(text).unwrap();
+        match f["shape"].as_str().unwrap() {
+            "milestone" => (doc["source"].clone(), doc["invocation"].clone()),
+            _ => (doc, Value::Null),
+        }
+    };
+    // As the carriers apply them (`retained_precision_carriers.rs` `apply_shared`).
+    let apply = |c: &Value, (mut source, mut invocation): (Value, Value)| -> (Value, Option<Value>) {
+        for e in c["edits"].as_array().unwrap() {
+            let mut at = if e["target"] == "source" { &mut source } else { &mut invocation };
+            for key in e["path"].as_array().unwrap() {
+                at = match key {
+                    Value::String(k) => &mut at[k.as_str()],
+                    k => &mut at[k.as_u64().unwrap() as usize],
+                };
+            }
+            *at = e["value"].clone();
+        }
+        let invocation = if c["invocation"].is_object() {
+            Some(c["invocation"].clone())
+        } else {
+            (!c["invocation"].is_null()).then_some(invocation)
+        };
+        (source, invocation)
+    };
+    for c in carriers["cases"].as_array().unwrap() {
+        let (source, invocation) = apply(c, fixture(c["fixture"].as_str().unwrap()));
+        out.push((format!("carrier:case:{}", c["id"].as_str().unwrap()), source, invocation));
+    }
+    for d in carriers["declared_differences"].as_array().unwrap() {
+        for f in d["forms"].as_array().unwrap() {
+            for id in f["fixtures"].as_array().unwrap() {
+                let (source, invocation) = apply(f, fixture(id.as_str().unwrap()));
+                out.push((format!("carrier:declared:{}:{}:{}", d["id"].as_str().unwrap(), f["label"].as_str().unwrap(), id.as_str().unwrap()), source, invocation));
+            }
+        }
+    }
+    out
+}
+/// One reading: the sha256 of the JCS form of the reader's outcome JSON, and a summary.
+fn r1_reading(outcome: Result<rp::Validation, rp::ValidationError>) -> Value {
+    use sha2::{Digest, Sha256};
+    let summary = match &outcome {
+        Ok(v) => format!("pass{} rows={}", if v.numerical_eligible { " eligible" } else { "" }, v.classifications.len()),
+        Err(e) => format!("{} {}{}", e.gate, e.code, e.detail.as_ref().map(|d| format!(": {d}")).unwrap_or_default()),
+    };
+    let canonical = open_pipe_stress_canonical_json::canonical_json(&rp::outcome_json(&outcome));
+    serde_json::json!([format!("{:x}", Sha256::digest(canonical.as_bytes())), summary])
+}
+/// The native outcomes file: per input, its key, the sha256 of the JCS form of
+/// `[source, invocation or null]`, and its bound (when it has an invocation),
+/// unbound and transport readings. One entry per line.
+fn r1_outcomes_text() -> String {
+    use sha2::{Digest, Sha256};
+    let inputs = r1_reader_inputs();
+    let keys: std::collections::BTreeSet<_> = inputs.iter().map(|x| x.0.as_str()).collect();
+    assert_eq!(keys.len(), inputs.len(), "reader input keys are unique");
+    let lines: Vec<String> = inputs
+        .iter()
+        .map(|(key, source, invocation)| {
+            let input = serde_json::json!([source, invocation.clone().unwrap_or(Value::Null)]);
+            let input = format!("{:x}", Sha256::digest(open_pipe_stress_canonical_json::canonical_json(&input).as_bytes()));
+            let mut readings = serde_json::Map::new();
+            if let Some(invocation) = invocation {
+                readings.insert("bound".into(), r1_reading(rp::validate(source, Some(invocation))));
+            }
+            readings.insert("unbound".into(), r1_reading(rp::validate(source, None)));
+            readings.insert("transport".into(), r1_reading(rp::validate_transport_metadata(source)));
+            serde_json::to_string(&serde_json::json!([key, input, readings])).unwrap()
+        })
+        .collect();
+    let description = "R1 (b7-plan Unit R): the native Rust retained-precision reader's outcome on every reader input of the shared corpus, which the desktop's wasm reader must equal (src/features/results/retainedPrecisionWasmEquivalence.test.ts). Each entry: the input's key; the sha256 of the JCS form of [source, invocation or null]; per reading (bound, when the input has an invocation; unbound; transport), the sha256 of the JCS form of retained_precision::outcome_json and a summary. Written by result_export's retained_precision_contract.rs r1_native_reader_outcomes with RETAINED_READER_OUTCOMES_OUT set; test data, not evidence of execution.";
+    format!("{{\"description\":{},\"entries\":[\n{}\n]}}\n", Value::from(description), lines.join(",\n"))
+}
+/// R1's item 1, native half: the committed outcomes are this reader's. With
+/// `RETAINED_READER_OUTCOMES_OUT` set, writes them there instead.
+#[test]
+fn r1_native_reader_outcomes() {
+    let text = r1_outcomes_text();
+    if let Ok(path) = std::env::var("RETAINED_READER_OUTCOMES_OUT") {
+        std::fs::write(path, &text).unwrap();
+        return;
+    }
+    let committed = std::fs::read_to_string(format!("{}/../../../{R1_OUTCOMES_PATH}", env!("CARGO_MANIFEST_DIR"))).unwrap();
+    let differing: Vec<_> = text.lines().zip(committed.lines()).filter(|(a, b)| a != b).map(|(a, _)| a.chars().take(160).collect::<String>()).collect();
+    assert!(differing.is_empty() && text == committed, "{} lines differ:\n{}", differing.len(), differing.join("\n"));
 }

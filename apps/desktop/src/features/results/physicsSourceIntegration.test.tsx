@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -52,7 +53,7 @@ async function received(name: string, mode: string, generation = caseGeneration)
     expect(command).toBe("run_preview_mechanics_with_solver_mode");
     expect(args.solverMode).toBe(mode);
     expect(isDeepStrictEqual({ model: args.model, materials: [] }, request)).toBe(true);
-    return structuredClone(original);
+    return solveBytes(original);
   });
   const source = await runPreviewMechanics(model, mode as "sparse_interactive" | "dense_scrutiny");
   const inputManifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"unit-transport-replay-not-native-witness",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
@@ -87,7 +88,7 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
     }
     if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${generation}:${name}:${started.length}`) {
-      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: structuredClone(original), error_message: null };
+      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: solveBytes(original), error_message: null };
     }
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });

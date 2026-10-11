@@ -119,7 +119,7 @@ code_paths:
 - core/loads/load_case_algebra/src/lib.rs
 - core/reporting/result_export/src/retained_precision.rs
 - tests/verifiers
-- apps/desktop/src/features/results/retainedPrecision.ts
+- apps/desktop/src/features/results/retainedPrecisionReader.ts
 - core/reporting/result_export/src/preview_physics_evidence.rs
 - core/reporting/result_export/src/physics_evidence.rs
 - core/reporting/result_export/src/physics_source.rs

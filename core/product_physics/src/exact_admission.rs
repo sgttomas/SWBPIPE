@@ -85,10 +85,11 @@ impl ExactContract {
 /// v3's own formulation basis (its approximation text). It names the admitted
 /// families, states the D-3 exclusions and that external-pressure stability
 /// and collapse are not assessed. A 0.4.0 document adds the load/reference
-/// state method's statements.
-pub(crate) fn pressure_v3_formulation_basis(load_state: bool) -> FormulationBasis {
+/// state method's statements; a model with an objective connector (T4-U3)
+/// then adds the connector law's statement.
+pub(crate) fn pressure_v3_formulation_basis(load_state: bool, connectors: bool) -> FormulationBasis {
     let mut limitations = vec![
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.".to_string(),
+        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.".to_string(),
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.".to_string(),
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.".to_string(),
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.".to_string(),
@@ -105,6 +106,9 @@ pub(crate) fn pressure_v3_formulation_basis(load_state: bool) -> FormulationBasi
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.".to_string(),
         ]);
+    }
+    if connectors {
+        limitations.push(super::joint::CONNECTOR_LIMITATION.to_string());
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
@@ -256,22 +260,25 @@ impl ExactFamily {
 /// The table's verdict for one family under one contract.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
-    /// The extension point: T4-U2 and T4-U3 add the first admitted entries.
-    #[allow(dead_code)]
+    /// The extension point: T4-U3 admits the objective connector; T4-U2 the
+    /// realized bend.
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
 /// The admission table. Under v2 it reproduces v2's existing codes and texts
-/// (SP-1). Under v3 no family is admitted yet.
+/// (SP-1). Under v3 the objective connector is admitted (T4-U3).
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
-    match contract {
-        ExactContract::StraightV2 => {
+    match (contract, family) {
+        // T4-U3: an explicit objective connector on v3, with its own
+        // classifier (`joint::classify_connectors`), mechanics and evidence.
+        (ExactContract::PressureV3, ExactFamily::ObjectiveConnector) => Admission::Admitted,
+        (ExactContract::StraightV2, _) => {
             let (code, message) = straight_v2_refusal(family);
             Admission::Refused { code, message }
         }
-        ExactContract::PressureV3 => Admission::Refused {
+        (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
         },
@@ -322,27 +329,14 @@ pub(crate) fn component_family(component: &PreviewComponent) -> ExactFamily {
         "reducer" => ExactFamily::Reducer,
         "branch" | "tee" | "branch_connection" => ExactFamily::Branch,
         "rigid" | "specialty" => ExactFamily::RigidComponent,
-        "expansion_joint" if consumption == Some("not_solver_consumed") && !has_legacy_joint_fields(component) => {
+        // D-4 (T4-U3): an explicit annotation is exempt from the legacy
+        // recognition, whatever other fields it carries.
+        "expansion_joint" if consumption == Some("not_solver_consumed") => {
             ExactFamily::ExpansionJointAnnotation
         }
         "expansion_joint" => ExactFamily::ExpansionJointLegacy,
         _ => ExactFamily::OtherComponent,
     }
-}
-
-/// T4-I10 section 4.2: a joint with a pipe reference or any of the four
-/// user rates is a legacy flexibility joint whatever its consumption mode.
-fn has_legacy_joint_fields(component: &PreviewComponent) -> bool {
-    component
-        .geometry
-        .as_ref()
-        .is_some_and(|geometry| geometry.expansion_joint_pipe_ref.is_some())
-        || component.modifiers.as_ref().is_some_and(|modifiers| {
-            modifiers.axial_stiffness_user_value.is_some()
-                || modifiers.lateral_stiffness_user_value.is_some()
-                || modifiers.angular_stiffness_user_value.is_some()
-                || modifiers.torsional_stiffness_user_value.is_some()
-        })
 }
 
 /// The family of a support outside the straight base, or `None` for a linear
@@ -380,9 +374,10 @@ mod tests {
     ];
 
     #[test]
-    fn no_family_is_admitted_yet_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_is_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
+                Admission::Admitted if family == ExactFamily::ObjectiveConnector => {}
                 Admission::Refused { code, message } => {
                     assert_eq!(code, FAMILY_NOT_ADMITTED);
                     assert!(message.starts_with(family.name()), "{message}");

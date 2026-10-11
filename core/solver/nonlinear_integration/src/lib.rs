@@ -18,10 +18,9 @@ use structural_adapter::{AssemblyEvidence, StrictGapEvidence};
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, node_dof_index,
+    assemble_global_stiffness_with_connectors, node_dof_index,
     reduce_system_with_prescribed_displacements_binary64, solve_dense, DenseMatrix, DenseVector,
-    FrameDof, FrameElement, FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE,
-    ELEMENT_DOF,
+    FrameDof, FrameElement, FrameKernelError, Matrix12, DOF_PER_NODE, ELEMENT_DOF,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration_with_resolved_friction_states, ActiveSetIteration,
@@ -165,7 +164,7 @@ impl DerivedFrictionNormalReaction {
 /// arc stiffness — either formed once at model build time or through
 /// [`CurvedBendStiffnessElement::from_macro_element`] — so every linearized
 /// active-set iteration assembles the identical arc stiffness beside the frame
-/// and user-stiffness elements. No straight-chord fallback is derived here.
+/// and objective connectors. No straight-chord fallback is derived here.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CurvedBendStiffnessElement {
     pub element_id: String,
@@ -240,7 +239,9 @@ impl CurvedBendStiffnessElement {
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
-    pub user_stiffness_elements: Vec<UserStiffnessElement>,
+    /// T4-U3 (S5): objective connectors are not assembled by this loop;
+    /// `validate_input` refuses a non-empty list (fail closed until T5).
+    pub connectors: Vec<open_pipe_stress_frame_kernel::connector::ObjectiveConnector>,
     pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
@@ -578,10 +579,10 @@ pub fn solve_active_set_frame_with_mode_and_springs(
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
 
-    let mut stiffness = assemble_global_stiffness_with_user_elements(
+    let mut stiffness = assemble_global_stiffness_with_connectors(
         input.node_count,
         &input.elements,
-        &input.user_stiffness_elements,
+        &input.connectors,
     )?;
     add_curved_bend_stiffness_contributions(&mut stiffness, &input.curved_bend_elements);
     for &(dof, value) in springs {
@@ -600,7 +601,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     let assembly = AssemblyEvidence::new(
         input.node_count,
         &input.elements,
-        &input.user_stiffness_elements,
+        &input.connectors,
         &input.curved_bend_elements,
         springs,
     )?;
@@ -1107,8 +1108,8 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "Friction support normal reactions are either explicit input evidence or derived from the same linearized iterate through a named support-normal DOF supplied by the caller.".to_string(),
         "A friction support remains sliding only when its current post-force contact, motion, applied-force, and reported-force evidence is admissible; an inconsistent trial returns to the exact sticking candidate on the next iteration.".to_string(),
         "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate has one explicit nonconvergent warm-start iteration so the bounded force is tried without treating the seed as physical history.".to_string(),
-        "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
-        "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame and user-stiffness elements in every linearized iteration.".to_string(),
+        "Objective connectors are not assembled by this loop; a model containing one is refused (T5).".to_string(),
+        "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame elements in every linearized iteration.".to_string(),
     ]
 }
 
@@ -1117,7 +1118,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "DEC-053 sparse interactive mode uses direct reduced profile-entry sparse solves as the default linearized active-set path; dense scrutiny remains an explicit parity/review mode.".to_string(),
         "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.".to_string(),
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
-        "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
+        "Curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The bounded sliding friction force is a same-iterate affine Coulomb coupling, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
     ]
 }
@@ -1165,6 +1166,11 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
     if input.node_count == 0 {
         return Err(NonlinearIntegrationError::InvalidInput {
             detail: "node_count must be positive".to_string(),
+        });
+    }
+    if !input.connectors.is_empty() {
+        return Err(NonlinearIntegrationError::InvalidInput {
+            detail: "objective connectors are not assembled by the nonlinear loop; a model containing one is refused".to_string(),
         });
     }
     let expected_dofs = input.node_count * DOF_PER_NODE;
@@ -1221,7 +1227,7 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
 }
 
 /// Scatter-add the explicit curved-bend macro-element global stiffness beside
-/// the frame and user-stiffness assembly for every linearized iteration.
+/// the frame assembly for every linearized iteration.
 fn add_curved_bend_stiffness_contributions(
     stiffness: &mut DenseMatrix,
     curved_bend_elements: &[CurvedBendStiffnessElement],
@@ -1307,7 +1313,7 @@ fn solve_iteration_with_sliding_friction(
     let assembly = AssemblyEvidence::new(
         input.node_count,
         &input.elements,
-        &input.user_stiffness_elements,
+        &input.connectors,
         &input.curved_bend_elements,
         &[],
     )?;
@@ -3128,7 +3134,7 @@ mod tests {
         NonlinearFrameSolveInput {
             node_count: 2,
             elements: vec![element],
-            user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: Vec::new(),
             force,
             base_restrained_dofs: vec![
@@ -3202,7 +3208,7 @@ mod tests {
         NonlinearFrameSolveInput {
             node_count: 2,
             elements: Vec::new(),
-            user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -3583,20 +3589,16 @@ mod tests {
         seed: ActiveSetState,
         max_iterations: usize,
     ) -> NonlinearFrameSolveInput {
+        // T4-U3 (slot table section 4.6): an ordinary frame on an off-axis
+        // chord (3, -4, 0), L = 5, with the fixture's own section, replaces the
+        // deleted user element. Node 1's translational block is EA/L = 20 and
+        // 12EI/L^3 = 48/5: Kxx = 1668/125, Kxy = -624/125 (T4-I12's frozen
+        // U3-NI-FRICTION-FRAME, re-derived in rationals).
         let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
-        let node_j = FrameNode::new(1, [1.0, 1.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [3.0, -4.0, 0.0]).unwrap();
         let mut input = two_node_axial_problem(Vec::new(), Vec::new(), max_iterations);
-        input.elements.clear();
-        input.user_stiffness_elements = vec![UserStiffnessElement::new(
-            node_i,
-            node_j,
-            [-1.0, 1.0, 0.0],
-            100.0,
-            200.0,
-            200.0,
-            200.0,
-        )
-        .unwrap()];
+        let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+        input.elements = vec![FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap()];
         input.force[node_dof_index(1, FrameDof::Ux)] = force_x;
         input.force[node_dof_index(1, FrameDof::Uy)] = force_y;
         input.nonlinear_supports =
@@ -3672,7 +3674,7 @@ mod tests {
         NonlinearFrameSolveInput {
             node_count: 2,
             elements: Vec::new(),
-            user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -3724,7 +3726,7 @@ mod tests {
         NonlinearFrameSolveInput {
             node_count: 2,
             elements: Vec::new(),
-            user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot],
             force,
             base_restrained_dofs: (0..2 * DOF_PER_NODE)
@@ -3758,8 +3760,8 @@ mod tests {
     #[test]
     fn current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes() {
         for (force_x, force_y, expected_u, expected_normal, expected_friction) in [
-            (10.0, -10.0, 7.0 / 135.0, 200.0 / 27.0, -20.0 / 9.0),
-            (-10.0, -10.0, -7.0 / 165.0, 400.0 / 33.0, 40.0 / 11.0),
+            (10.0, -10.0, 4375.0 / 7404.0, 4350.0 / 617.0, -1305.0 / 617.0),
+            (-10.0, -10.0, -4375.0 / 9276.0, 9550.0 / 773.0, 2865.0 / 773.0),
         ] {
             let mut physical_results = Vec::new();
             for seed in [ActiveSetState::Sticking, ActiveSetState::Sliding] {
@@ -3845,10 +3847,10 @@ mod tests {
                 assert_eq!(previous.reactions[source_dof], load_sign);
                 assert_eq!(previous.active_set.states[0].state, ActiveSetState::Sliding);
 
-                let mut stiffness = assemble_global_stiffness_with_user_elements(
+                let mut stiffness = assemble_global_stiffness_with_connectors(
                     input.node_count,
                     &input.elements,
-                    &input.user_stiffness_elements,
+                    &input.connectors,
                 )
                 .unwrap();
                 add_curved_bend_stiffness_contributions(
@@ -3917,22 +3919,22 @@ mod tests {
                 );
                 assert!(
                     (branch_retry.displacements[node_dof_index(1, FrameDof::Ux)]
-                        - sign * 97.0 / 1350.0)
+                        - sign * 12125.0 / 14808.0)
                         .abs()
                         <= 1.0e-12
                 );
                 assert!(
-                    (branch_retry.applied_sliding_friction_forces[0].force - sign * 7.0 / 9.0)
+                    (branch_retry.applied_sliding_friction_forces[0].force - sign * 1143.0 / 1234.0)
                         .abs()
                         <= 1.0e-12
                 );
                 assert!(
-                    (branch_retry.reactions[node_dof_index(1, FrameDof::Ux)] - sign * 7.0 / 9.0)
+                    (branch_retry.reactions[node_dof_index(1, FrameDof::Ux)] - sign * 1143.0 / 1234.0)
                         .abs()
                         <= 1.0e-12
                 );
                 assert!(
-                    (branch_retry.reactions[node_dof_index(1, FrameDof::Uy)] + sign * 70.0 / 27.0)
+                    (branch_retry.reactions[node_dof_index(1, FrameDof::Uy)] + sign * 1905.0 / 617.0)
                         .abs()
                         <= 1.0e-12
                 );
@@ -3941,12 +3943,12 @@ mod tests {
                 let normal = final_iteration.reactions[node_dof_index(1, FrameDof::Uy)];
                 let friction = final_iteration.reactions[node_dof_index(1, FrameDof::Ux)];
                 assert!(
-                    (result.displacements[node_dof_index(1, FrameDof::Ux)] - sign * 103.0 / 1650.0)
+                    (result.displacements[node_dof_index(1, FrameDof::Ux)] - sign * 12875.0 / 18552.0)
                         .abs()
                         <= 1.0e-12
                 );
-                assert!((friction + sign * 7.0 / 11.0).abs() <= 1.0e-12);
-                assert!((normal + sign * 70.0 / 33.0).abs() <= 1.0e-12);
+                assert!((friction + sign * 1143.0 / 1546.0).abs() <= 1.0e-12);
+                assert!((normal + sign * 1905.0 / 773.0).abs() <= 1.0e-12);
                 assert!(friction * result.displacements[node_dof_index(1, FrameDof::Ux)] < 0.0);
                 assert!((friction.abs() - 0.30 * normal.abs()).abs() <= 1.0e-12);
             }
@@ -4137,10 +4139,10 @@ mod tests {
                     SupportStateRecord::new("F-X", ActiveSetState::Sliding),
                     SupportStateRecord::new("F-Y", ActiveSetState::Sliding),
                 ];
-                let mut stiffness = assemble_global_stiffness_with_user_elements(
+                let mut stiffness = assemble_global_stiffness_with_connectors(
                     input.node_count,
                     &input.elements,
-                    &input.user_stiffness_elements,
+                    &input.connectors,
                 )
                 .unwrap();
                 add_curved_bend_stiffness_contributions(
@@ -4777,7 +4779,7 @@ mod tests {
             let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
             assert!(solved.converged);
             assert_eq!(solved.iterations.len(), 2);
-            assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/user/affine"));
+            assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/connector/affine"));
             assert!(product_unsupported_gap_state_is_inspectable(&input, &[], &solved).unwrap());
             assert!(!product_selected_state_is_qualified(&input, &[], &solved).unwrap());
             assert_eq!(
@@ -4919,7 +4921,7 @@ mod tests {
             assert!(result
                 .strict_gap_unqualified_reason()
                 .unwrap()
-                .contains("mixed/curved/user/affine"));
+                .contains("mixed/curved/connector/affine"));
             assert!(!product_selected_state_is_qualified(&mixed, &[], &result).unwrap());
         }
     }
@@ -4981,16 +4983,16 @@ mod tests {
                 100.0,
                 1.0,
             );
-            let stiffness = assemble_global_stiffness_with_user_elements(
+            let stiffness = assemble_global_stiffness_with_connectors(
                 input.node_count,
                 &input.elements,
-                &input.user_stiffness_elements,
+                &input.connectors,
             )
             .unwrap();
             let assembly = AssemblyEvidence::new(
                 input.node_count,
                 &input.elements,
-                &input.user_stiffness_elements,
+                &input.connectors,
                 &input.curved_bend_elements,
                 &[],
             )
@@ -5448,7 +5450,7 @@ mod tests {
         let input = NonlinearFrameSolveInput {
             node_count: 2,
             elements: Vec::new(),
-            user_stiffness_elements: Vec::new(),
+            connectors: Vec::new(),
             curved_bend_elements: vec![slot.clone()],
             force: force.clone(),
             base_restrained_dofs: base_restrained_dofs.clone(),

@@ -5,7 +5,8 @@ import { validatePreviewPhysicsEvidence } from "./previewPhysicsEvidence";
 import { validateLoadReferenceEvidence } from "./loadReferenceEvidence";
 import { loadReferenceSourceReceiptShape, loadReferenceSourceStanding, LOAD_REFERENCE_SOURCE_PROFILE } from "./loadReferenceSourceEvidence";
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
-import { RETAINED_METHOD, validateRetainedPrecisionTransport } from "./retainedPrecision";
+import { validateRetainedPrecisionTransport } from "./retainedPrecisionReader";
+import { RETAINED_METHOD } from "./retainedPrecisionTypes";
 import type { MechanicsResult, PreviewModel } from "../../types";
 export const PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1";
 export const PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e";
@@ -25,11 +26,9 @@ export const LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantic
 export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337";
 /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor and its pinned
  * table. Header dispatch only selects the route; the statement is checked only
- * by the accepted reader (`retainedPrecision.ts`), and standing comes only from
- * that reader's registered validation (`retainedPrecisionStanding.ts`). The
- * literals equal the reader's constants (pinned by test); they are not imported
- * so that this module's top level never reads a binding across the import cycle
- * (the reader's G7 calls `sourceContract`). Imported bindings are read in functions only. */
+ * by the accepted reader (the Rust one, through `retainedPrecisionReader.ts`), and
+ * standing comes only from that reader's registered validation
+ * (`retainedPrecisionStanding.ts`). The literals equal the reader's constants. */
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
 export const PREVIEW_PHYSICS_RETAINED_PROFILE = "product_preview_retained_w1a_v2";

@@ -4,6 +4,7 @@
  * results. Absent keys stay absent, explicit nulls stay null, and a key the
  * desktop does not model survives byte-exactly. All values are invented. */
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { solveBytes } from "../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import { readFileSync } from "node:fs";
@@ -84,7 +85,7 @@ describe("0.4.0 documents through session state, manifests, IPC and operations",
     const model = model040(), raw = json("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json") as MechanicsResult;
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     let sent: unknown = null;
-    invokeMock.mockImplementation(async (_command: string, args: { model: unknown }) => { sent = args.model; return structuredClone(raw); });
+    invokeMock.mockImplementation(async (_command: string, args: { model: unknown }) => { sent = args.model; return solveBytes(raw); });
     const source = await runPreviewMechanics(model, "sparse_interactive");
     expect(text(sent)).toBe(text(model));
     expect(text(source)).toBe(text(raw));

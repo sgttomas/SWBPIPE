@@ -268,8 +268,8 @@ class PinTests(unittest.TestCase):
         for path, digest in lr.DEPENDENCIES.items():
             if path != lr.MODULE:
                 self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
-        start = subprocess.check_output(['git', 'show', f'eeb16c35ba:./{lr.MODULE}'], cwd=PROJECT)
-        self.assertEqual(sha256_bytes(start), lr.MODULE_SHA256, 'reader pin is not the integrated reader bytes (eeb16c35ba, T4-U2a pressure-contract dispatch; earlier pins 1ccca8b87 after the REVIEW_A follow-up, bfef71b19 and the WP5 start commit d8f0dc4f7)')
+        start = subprocess.check_output(['git', 'show', f'575677cfef:./{lr.MODULE}'], cwd=PROJECT)
+        self.assertEqual(sha256_bytes(start), lr.MODULE_SHA256, 'reader pin is not the integrated reader bytes (575677cfef, T4-U3 connector evidence; earlier pins eeb16c35ba for the T4-U2a pressure-contract dispatch, 1ccca8b87 after the REVIEW_A follow-up, bfef71b19 and the WP5 start commit d8f0dc4f7)')
         self.assertEqual(lr.TRANSPORT, 'load_reference_1_cli_1.0_raw0.2')
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])
 

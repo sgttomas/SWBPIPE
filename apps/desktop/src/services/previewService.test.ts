@@ -2,7 +2,7 @@ import historicalMechanicsFixture from "../../../../fixtures/product_preview/inv
 import sparseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json";
 import denseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json";
 import inventedPreviewModel from "../../../../fixtures/product_preview/invented_preview_model.json";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../test/nativeMechanicsReplay";
 import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
 import { numericalResultStanding, sourceContract, PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -629,10 +629,11 @@ describe("native invocation provenance under bounded unit transport replay", () 
   it("does not treat an omitted-model native response as a captured model invocation", async () => {
     const pair = nativeMechanicsReplayPair();
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(pair.source);
-    expect(await runPreviewMechanics()).toBe(pair.source);
-    expect(hasNativeMechanicsInvocation(pair.source, pair.model)).toBe(false);
-    expect(retainedNativeMechanicsInvocation(pair.source, pair.model)).toBeNull();
+    invokeMock.mockResolvedValue(pair.bytes);
+    const received = await runPreviewMechanics();
+    expect(received).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(received, pair.model)).toBe(false);
+    expect(retainedNativeMechanicsInvocation(received, pair.model)).toBeNull();
   });
 
   it("rejects source, same-ID model and solver-mode changes, including a signed-zero-only source change", async () => {
@@ -709,9 +710,9 @@ describe("native invocation provenance under bounded unit transport replay", () 
     expect(duplicate.result).not.toBe(first.result);
     expect(hasNativeMechanicsInvocation(duplicate.result, pair.model, pair.mode)).toBe(false);
     expect(hasNativeMechanicsInvocation(first.result, pair.model, pair.mode)).toBe(true);
-    invokeMock.mockResolvedValue({ ...first, job_id: "unknown-terminal", result: pair.source });
+    invokeMock.mockResolvedValue({ ...first, job_id: "unknown-terminal", result: pair.bytes });
     const unknown = await pollPreviewMechanicsJob("unknown-terminal");
-    expect(unknown.result).toBe(pair.source);
+    expect(unknown.result).toEqual(pair.source);
     expect(hasNativeMechanicsInvocation(unknown.result, pair.model, pair.mode)).toBe(false);
   });
 
@@ -799,8 +800,9 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-1 re
   invokeMock.mockImplementation(async (command: string, args?: unknown) => {
     const answer = await replay.invoke(command, args);
     if (command !== "run_preview_mechanics_with_solver_mode") return answer;
-    answer.diagnostics[0].affected_refs = [...(answer.diagnostics[0].affected_refs ?? []), "result:reaction:support-fixture-root"];
-    return answer;
+    const edited = JSON.parse(answer);
+    edited.diagnostics[0].affected_refs = [...(edited.diagnostics[0].affected_refs ?? []), "result:reaction:support-fixture-root"];
+    return solveBytes(edited);
   });
   const tampered = await runPreviewMechanics(pair.model, mode);
   expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);

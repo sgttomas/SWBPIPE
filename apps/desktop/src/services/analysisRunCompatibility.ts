@@ -3,7 +3,7 @@ import { validatePhysicsEvidence } from "../features/results/physicsResultEviden
 import { validatePreviewPhysicsEvidence } from "../features/results/previewPhysicsEvidence";
 import { validateLoadReferenceEvidence } from "../features/results/loadReferenceEvidence";
 import { validateLoadReferenceSourceEvidence } from "../features/results/loadReferenceSourceEvidence";
-import { validateRetainedPrecision } from "../features/results/retainedPrecision";
+import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
 import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
 import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract, retainedPrecisionDowngrade, isRetainedRoute } from "../features/results/numericalResultQuality";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";

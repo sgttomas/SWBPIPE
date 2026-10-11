@@ -9,17 +9,19 @@
 //! No expected value passes through the platform libm.
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::rigid_body::{
-    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, user_element_tie,
-    ConstrainedAssessment, ConstrainedGround, GroundKind, ObjectiveFamily, RigidBodyStatus,
-    TieRefusal, CONSTRAINED_RANK_UNRESOLVED, CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE,
+    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, ConstrainedAssessment,
+    ConstrainedGround, GroundKind, ObjectiveFamily, RigidBodyStatus, CONSTRAINED_RANK_UNRESOLVED,
+    CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE,
 };
 use open_pipe_stress_frame_kernel::structural::StructuralError;
-use open_pipe_stress_frame_kernel::{FrameNode, UserStiffnessElement};
 
 const SAMPLE: &str = include_str!("k5_constrained/b1_sample.txt");
 const CASES: &str = include_str!("k5_constrained/cases.txt");
 const SUBNORMAL: &str = include_str!("k5_constrained/subnormal.txt");
 const SOURCE: &str = include_str!("../src/rigid_body.rs");
+/// T4-U3 (slot table S-5(d)): W4's link rule reads the connector's exact
+/// definiteness decision, so its source is scanned too.
+const CONNECTOR_SOURCE: &str = include_str!("../src/connector.rs");
 
 // ------------------------------------------------------------------ records
 
@@ -908,156 +910,22 @@ fn k5_b10_libm_free_source_scan() {
         "reduce_constrained_body",
         "root_one_plus_square",
         "null_translations",
-        "user_element_tie",
     ] {
         assert!(scanned.contains(&format!("fn {name}(")), "{name} scanned");
     }
     assert_eq!(forbidden_calls(&scanned), Vec::<String>::new());
-}
-
-// ------------------------------------------------------------------ C: user elements
-
-fn element(lateral: f64) -> UserStiffnessElement {
-    UserStiffnessElement {
-        node_i: FrameNode {
-            index: 3,
-            coordinates: [0.0, 0.0, 0.0],
-        },
-        node_j: FrameNode {
-            index: 7,
-            coordinates: [3.0, 1.5, 0.0],
-        },
-        y_reference: [0.0, 0.0, 1.0],
-        axial_stiffness: 2.5e6,
-        lateral_stiffness: lateral,
-        angular_stiffness: 4.0e4,
-        torsional_stiffness: 6.0e4,
-    }
-}
-
-/// C (Q5(a)): a tie only when all four stiffnesses are finite and positive
-/// and the orientation is valid. Lateral = 0 (a struct literal, as
-/// `kd5_tests.rs` builds it) is no tie: the relative lateral translation is
-/// then free, so a tie would over-constrain the element.
-#[test]
-fn k5_c_user_tie_rule() {
-    assert_eq!(user_element_tie(&element(1.0e5)), Ok([3, 7]));
-    assert_eq!(
-        user_element_tie(&element(0.0)),
-        Err(TieRefusal::Stiffness("lateral"))
-    );
-    assert_eq!(
-        user_element_tie(&element(-1.0)),
-        Err(TieRefusal::Stiffness("lateral"))
-    );
-    for (field, value) in [
-        ("axial", f64::NAN),
-        ("angular", -0.0),
-        ("torsional", f64::INFINITY),
-        ("axial", -2.0),
+    // S-5(d): the connector module, its definiteness decision included.
+    let connector = without_test_modules(&lex(CONNECTOR_SOURCE));
+    for name in [
+        "exact_definiteness",
+        "definiteness",
+        "global_stiffness",
+        "b",
     ] {
-        let mut e = element(1.0e5);
-        match field {
-            "axial" => e.axial_stiffness = value,
-            "angular" => e.angular_stiffness = value,
-            _ => e.torsional_stiffness = value,
-        }
-        assert_eq!(
-            user_element_tie(&e),
-            Err(TieRefusal::Stiffness(field)),
-            "{field} {value}"
-        );
+        assert!(connector.contains(&format!("fn {name}(")), "{name} scanned");
     }
-    let mut repeated = element(1.0e5);
-    repeated.node_j.index = 3;
-    assert_eq!(user_element_tie(&repeated), Err(TieRefusal::Orientation));
-    let mut parallel = element(1.0e5);
-    parallel.y_reference = [2.0, 1.0, 0.0];
-    assert_eq!(user_element_tie(&parallel), Err(TieRefusal::Orientation));
+    assert_eq!(forbidden_calls(&connector), Vec::<String>::new());
 }
-
-/// **T4 tripwire (M07).** For today's user element with positive stiffnesses,
-/// the tie space {u_a = u_b, θ_a = θ_b} is exactly the null space of the
-/// represented element:
-/// - `local_stiffness()` is, bit for bit, Σ_d k_d (e_d − e_{d+6})(e_d − e_{d+6})ᵀ
-///   with k = (axial, lateral, lateral, torsional, angular, angular), whose null
-///   space is exactly {Δ = 0} when every k_d > 0;
-/// - `global_stiffness()` has the block form [[A, −A], [−A, A]] in value, so it
-///   annihilates (b, b) exactly, and the orientation is valid (T invertible).
-///
-/// T4's M07 repair (the joint's lateral springs with the rigid-body moment
-/// coupling) changes the local form and fails this test. W4's tie rule
-/// (`user_element_tie`) must then be revised with it.
-#[test]
-fn k5_t4_tripwire_user_tie_space_is_the_represented_null_space() {
-    let cases = [
-        (
-            [0.0, 0.0, 0.0],
-            [3.0, 1.5, 0.0],
-            [0.0, 0.0, 1.0],
-            [2.5e6, 1.0e5, 4.0e4, 6.0e4],
-        ),
-        (
-            [1.0, 2.0, 3.0],
-            [1.0, 2.0, 4.0],
-            [1.0, 0.0, 0.0],
-            [1.0, 2.0, 3.0, 4.0],
-        ),
-        (
-            [5e6, 5e6, 0.0],
-            [5e6 + 0.7, 5e6 - 0.2, 0.3],
-            [0.3, 0.1, 0.9],
-            [9e5, 9e5, 1e3, 7e7],
-        ),
-    ];
-    for (xi, xj, yref, [axial, lateral, angular, torsional]) in cases {
-        let e = UserStiffnessElement {
-            node_i: FrameNode {
-                index: 0,
-                coordinates: xi,
-            },
-            node_j: FrameNode {
-                index: 1,
-                coordinates: xj,
-            },
-            y_reference: yref,
-            axial_stiffness: axial,
-            lateral_stiffness: lateral,
-            angular_stiffness: angular,
-            torsional_stiffness: torsional,
-        };
-        assert_eq!(user_element_tie(&e), Ok([0, 1]));
-        let k = [axial, lateral, lateral, torsional, angular, angular];
-        let mut expected = [[0.0_f64; 12]; 12];
-        for d in 0..6 {
-            expected[d][d] = k[d];
-            expected[d + 6][d + 6] = k[d];
-            expected[d][d + 6] = -k[d];
-            expected[d + 6][d] = -k[d];
-        }
-        let local = e.local_stiffness();
-        for i in 0..12 {
-            for j in 0..12 {
-                assert_eq!(
-                    local[i][j].to_bits(),
-                    expected[i][j].to_bits(),
-                    "local[{i}][{j}]"
-                );
-            }
-        }
-        assert!(e.orientation().is_ok());
-        let g = e.global_stiffness().unwrap();
-        for r in 0..6 {
-            for c in 0..6 {
-                assert!(g[r + 6][c + 6] == g[r][c], "G_jj != G_ii at {r},{c}");
-                assert!(g[r][c + 6] == -g[r][c], "G_ij != -G_ii at {r},{c}");
-                assert!(g[r + 6][c] == -g[r][c], "G_ji != -G_ii at {r},{c}");
-            }
-        }
-    }
-}
-
-// ------------------------------------------------------------------ RV14-4
 
 /// RV14-4: `rigid_parameters` = [t/L, θ] is published only when it is exact.
 /// At a subnormal span, L is tiny and t/L overflows: RV14's minimal case (two
