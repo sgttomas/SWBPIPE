@@ -236,8 +236,8 @@ impl Binary64Split {
     }
 
     /// True when set bits below 2^−1074 were dropped; then the remainder is
-    /// nonzero, below 2^−1074 in magnitude and has the value's sign.
-    #[cfg(test)]
+    /// nonzero, below 2^−1074 in magnitude and has the value's sign. The
+    /// certified arc-load output rule (`arc_certificate`, T4-U1b) reads it.
     pub(crate) fn truncated_below_min_subnormal(&self) -> bool {
         self.truncated_below_min_subnormal
     }
