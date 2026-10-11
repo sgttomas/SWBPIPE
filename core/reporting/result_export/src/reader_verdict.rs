@@ -71,7 +71,7 @@ pub fn error_json(text: &str) -> Value {
     let code = &text[..end];
     json!({"code": code, "detail": if code == text { Value::Null } else { Value::from(text) }})
 }
-fn refused(text: &str) -> Value {
+fn verdict_refusal(text: &str) -> Value {
     json!({"ok": false, "error": error_json(text)})
 }
 fn present(value: Option<&Value>) -> Option<&Value> {
@@ -210,7 +210,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
     let (model, invocation) = (present(model), present(invocation));
     let checked = |check: Result<(), String>| match check {
         Ok(()) => json!({"ok": true}),
-        Err(e) => refused(&e),
+        Err(e) => verdict_refusal(&e),
     };
     match reader {
         "preview-physics" => checked(sc::validate_preview_physics_evidence(source)),
@@ -227,7 +227,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         })),
         "load-reference-source" => match sc::validate_load_reference_source_evidence(source) {
             Ok(eligible) => json!({"ok": true, "eligible": eligible}),
-            Err(e) => refused(&e),
+            Err(e) => verdict_refusal(&e),
         },
         "physics-source" | "source-blocks" => {
             let composite = reader == "physics-source";
@@ -237,10 +237,10 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                         .map_or_else(Vec::new, |i| source_findings(source, i, composite));
                     json!({"ok": true, "eligible": eligible, "findings": findings})
                 }
-                Err(e) => refused(&e),
+                Err(e) => verdict_refusal(&e),
             }
         }
-        other => refused(&format!("READER_UNKNOWN: {other}")),
+        other => verdict_refusal(&format!("READER_UNKNOWN: {other}")),
     }
 }
 /// A source reader's validation. With an invocation, physics-source-1 also takes
@@ -270,7 +270,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
     };
     match result {
         Ok(()) => json!({"ok": true}),
-        Err(e) => refused(&e),
+        Err(e) => verdict_refusal(&e),
     }
 }
 
@@ -538,13 +538,13 @@ pub fn row_semantics(row: &Value, source: Option<&Value>) -> Value {
         None => sc::contract(),
         Some(source) => match route(source) {
             Ok((_, table)) => table,
-            Err(_) => return refused("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
+            Err(_) => return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
         },
     };
     match sc::signature_in(table, row) {
         Ok(signature) => json!({"ok": true, "signature": signature,
             "complete_metadata": sc::complete_metadata(row),
             "canonical_metadata": sc::canonical_metadata_in(table, row)}),
-        Err(e) => refused(&e),
+        Err(e) => verdict_refusal(&e),
     }
 }
