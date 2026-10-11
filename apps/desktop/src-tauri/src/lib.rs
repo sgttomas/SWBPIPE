@@ -1271,7 +1271,8 @@ fn refuse_unconfirmed_replacement(
         entry.project_id, entry.project_name, entry.updated_at_unix
     );
     match expected_base {
-        Some(base) if base == stored_envelope_hash_value(connection, project_id)? => Ok(()),
+        // A row without an envelope hash has no revision to compare: it asks.
+        Some(base) if !base.is_empty() && base == stored_envelope_hash_value(connection, project_id)? => Ok(()),
         Some(_) => Err(format!(
             "PROJECT-BASE-MOVED: {stored} changed after this session opened or saved it; replacing it needs the user's confirmation."
         )),
@@ -8809,6 +8810,9 @@ mod replace_confirmation_tests {
         let moved = refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:older")).expect_err("stale base");
         assert!(moved.starts_with("PROJECT-BASE-MOVED: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{moved}");
         refuse_unconfirmed_replacement(&connection, &id, true, Some("sha256:older")).expect("confirmed over a moved base");
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        assert!(refuse_unconfirmed_replacement(&connection, &id, false, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
         let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
         assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));
         assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());

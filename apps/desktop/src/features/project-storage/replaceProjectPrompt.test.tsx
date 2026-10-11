@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -244,6 +244,46 @@ describe("saving onto a stored project id asks first", () => {
       [false, "sha256:stored-revision-1"],
       [false, "sha256:stored-revision-1"]
     ]);
+  });
+
+  it("a save in place that lands while the user acts still moves the session's base", async () => {
+    let storedBase = "sha256:rev-1";
+    let release: (() => void) | null = null;
+    const openedEnvelope = {
+      ...stored({ model: demoModel as unknown as PreviewModel }, "Opened local SQLite project snapshot."),
+      project_envelope_hash: { value: storedBase } as LocalProjectEnvelope["project_envelope_hash"]
+    };
+    await renderNativeApp((command, args) => {
+      const request = (args as { request?: { replace_existing?: boolean; expected_base?: string | null; model: PreviewModel } }).request;
+      if (command === "save_local_project") {
+        if (!request!.replace_existing && request!.expected_base !== storedBase) throw REFUSAL.replace("PROJECT-ID-EXISTS", "PROJECT-BASE-MOVED");
+        const next = storedBase === "sha256:rev-1" ? "sha256:rev-2" : "sha256:rev-3";
+        const answer = () => { storedBase = next; return { ...stored({ model: request!.model }, "Saved current project model snapshot."), project_envelope_hash: { value: next } }; };
+        if (next === "sha256:rev-2") return new Promise((resolve) => { release = () => resolve(answer()); });
+        return answer();
+      }
+      if (command === "find_local_project") return STORED;
+      if (command === "open_local_project") return openedEnvelope;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(message()).toHaveTextContent("Opened local SQLite project snapshot."));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(release).not.toBeNull());
+    // The user selects something while the save is in flight (the request epoch moves).
+    const tree = screen.getByLabelText("Model tree");
+    fireEvent.change(within(tree).getByTestId("model-tree-filter-input"), { target: { value: "node:N-100" } });
+    const nodeRow = await within(tree).findByTestId(`tree-row-node-${encodeURIComponent("node:N-100")}`);
+    fireEvent.click(nodeRow);
+    expect(nodeRow).toHaveAttribute("aria-selected", "true");
+    await act(async () => { release!(); });
+    await waitFor(() => expect(storedBase).toBe("sha256:rev-2"));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(storedBase).toBe("sha256:rev-3"));
+    expect(screen.queryByTestId("replace-project-prompt")).not.toBeInTheDocument();
+    const bases = invokeMock.mock.calls.filter(([name]) => name === "save_local_project")
+      .map(([, args]) => (args as { request: { expected_base: string | null } }).request.expected_base);
+    expect(bases).toEqual(["sha256:rev-1", "sha256:rev-2"]);
   });
 
   it("is modal: the workspace is inert, and menu commands and shortcuts wait for the answer", async () => {

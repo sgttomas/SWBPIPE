@@ -598,7 +598,8 @@ function refuseUnconfirmedBrowserReplacement(projectId: string, replaceExisting:
   if (replaceExisting || browserPreviewSnapshot?.summary.project_id !== projectId) return;
   const stored = `project \`${projectId}\` ("${browserPreviewSnapshot.summary.project_name}", last saved at unix ${browserPreviewSnapshotUpdatedAtUnix})`;
   if (expectedBase === null) throw new Error(`PROJECT-ID-EXISTS: ${stored} is already stored; replacing it needs the user's confirmation.`);
-  if (expectedBase !== (browserPreviewSnapshot.project_envelope_hash?.value ?? "")) {
+  const storedBase = browserPreviewSnapshot.project_envelope_hash?.value ?? "";
+  if (expectedBase === "" || expectedBase !== storedBase) {
     throw new Error(`PROJECT-BASE-MOVED: ${stored} changed after this session opened or saved it; replacing it needs the user's confirmation.`);
   }
 }

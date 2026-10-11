@@ -122,7 +122,8 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(created.summary.unit_round_trip_checked_ref_count).toBe(1);
     expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
-    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, false, created.project_envelope_hash?.value ?? "");
+    // Saves over its own stored snapshot (no envelope hash here); the guard is covered below.
+    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, true);
     expect(saved.model_document_migration?.status).toBe("current");
     expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
     expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
@@ -180,9 +181,10 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
       provenance: "legacy compatibility test"
     }] }];
     const before = JSON.stringify(model);
-    // Saving the project just created: a save in place from its stored base.
-    const createdModel = await createLocalProject(model);
-    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, false, createdModel.project_envelope_hash?.value ?? "");
+    // The round trip saves over its own stored snapshot (no envelope hash here);
+    // the replacement guard itself is covered below.
+    await createLocalProject(model);
+    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
     const opened = await openLocalProject(model.project.id);
     expect(JSON.stringify(saved.model)).toBe(before);
     expect(JSON.stringify(opened?.model)).toBe(before);
@@ -203,6 +205,9 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     await expect(createLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
     await expect(saveLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
     await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, "sha256:not-the-stored-base"))
+      .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
+    // The stored snapshot records no envelope hash: no base can match it.
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, ""))
       .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
     expect(await findLocalProject("project:not-stored")).toBeNull();
   });

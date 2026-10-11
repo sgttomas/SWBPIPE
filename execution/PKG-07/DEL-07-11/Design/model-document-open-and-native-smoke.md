@@ -67,8 +67,13 @@ export use their existing routes unchanged.
     holds:
     - `replace_existing`: the user chose Replace;
     - for Save, `expected_base` equals the stored envelope hash. This is the
-      `project_envelope_hash` value the session last opened or saved, and the
-      store already holds it, so no new revision field is needed.
+      `project_envelope_hash` value of the revision the session last opened
+      or wrote. The session records it wherever an open or a write lands for
+      it, even when a later action superseded the request, so its own last
+      save always counts as its base. The store already holds this hash, so
+      no new revision field is needed. A row without an envelope hash (for
+      example a legacy row) has no revision to compare, and a save onto it
+      asks.
 
     A save in place whose base has moved is refused with `PROJECT-BASE-MOVED`.
     The browser preview's one-snapshot store mirrors this. The check runs after
@@ -92,7 +97,7 @@ export use their existing routes unchanged.
       stored project is kept, and the status line says so.
   - **Modality.** While the prompt is open, the workspace is `inert`, Tab
     cycles the prompt's buttons, and menu commands and window shortcuts are
-    ignored.
+    ignored. When the prompt closes, focus returns to where it was.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
   - **Normalization.** The existing 0.1.0 → 0.2.0 normalization on save is

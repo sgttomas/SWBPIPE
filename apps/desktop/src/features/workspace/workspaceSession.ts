@@ -252,6 +252,14 @@ export function useWorkspaceSession() {
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // While the prompt is open, menu commands and shell accelerators are ignored.
   const replacePromptOpenRef = useRef(false);
+  // The stored project this session is, at the revision it last opened or wrote:
+  // its id and stored envelope hash. Set wherever an open or a write lands for
+  // this project session, whether or not a later edit superseded the request,
+  // so a save in place always carries the revision this session itself last saw.
+  const storedBaseRef = useRef<{ projectId: string; value: string | null } | null>(null);
+  function recordStoredBase(envelope: LocalProjectEnvelope) {
+    storedBaseRef.current = { projectId: envelope.summary.project_id, value: envelope.project_envelope_hash?.value ?? null };
+  }
   // Service fulfillment is our observable landed-write order, before canonical
   // verification can complete out of order. This is not a backend commit clock.
   const persistedWriteObservation = useRef(0);
@@ -1638,6 +1646,7 @@ export function useWorkspaceSession() {
 
   function adoptSavedAsNewModel(renamed: PreviewModel) {
     commitModel(renamed);
+    storedBaseRef.current = null;
     preserveAndPruneSelection(renamed);
     // Undo checkpoints hold the old identity; Save as new starts a fresh history.
     setUndoStack([]);
@@ -1726,6 +1735,7 @@ export function useWorkspaceSession() {
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: created, ordinal: writeObservation };
+      if (created.summary.project_id === requestModel.project.id) recordStoredBase(created);
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
@@ -1907,6 +1917,7 @@ export function useWorkspaceSession() {
       setIssuesDrawerOpen(false);
       setOperationTab("review");
       commitModel(created.model);
+      recordStoredBase(created);
       if (verifiedBlankResponse) setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: returnedHash!.value, source: "create" });
       setSelection(defaultSelection(created.model));
       epoch = requestEpochRef.current;
@@ -1970,6 +1981,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
       commitModel(opened.model);
+      recordStoredBase(opened);
       const openedGeneration = projectSessionGenerationRef.current;
       const openedRevision = uiModelRevisionRef.current;
       const openedBasisSequence = ++savedBasisSequence.current;
@@ -2075,6 +2087,7 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHashIntegrity(null);
       advanceProjectSession();
       commitModel(document);
+      storedBaseRef.current = null;
       const generation = projectSessionGenerationRef.current;
       const revision = uiModelRevisionRef.current;
       const sequence = ++savedBasisSequence.current;
@@ -2179,8 +2192,10 @@ export function useWorkspaceSession() {
           envelopeHash,
           modelDocumentMigration,
           replaceExisting,
-          // The session's own stored project: a save in place from this base.
-          projectSummary?.project_id === requestModel.project.id ? projectEnvelopeHash?.value ?? "" : null
+          // The session's own stored project: a save in place from the revision it
+          // last opened or wrote. Without a recorded hash there is no base to
+          // check, and the save asks.
+          storedBaseRef.current?.projectId === requestModel.project.id ? storedBaseRef.current.value : null
         ));
       if (written.outcome === "kept") {
         setProjectMessage(keptStoredProjectMessage(written.existing));
@@ -2195,6 +2210,7 @@ export function useWorkspaceSession() {
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: saved, ordinal: writeObservation };
+      if (saved.summary.project_id === requestModel.project.id) recordStoredBase(saved);
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
