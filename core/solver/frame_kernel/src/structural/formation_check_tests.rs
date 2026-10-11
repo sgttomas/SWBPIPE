@@ -67,18 +67,32 @@ fn kd5_frame_reformation_agrees_with_the_binary64_formation_to_roundoff() {
 
 #[test]
 fn kd5_reformed_elements_have_the_rigid_body_null_space() {
-    // Frame, joint and curved bend: rigid translation (1,−2,0.5) and rotation ω = (0.25,0.5,−0.125) (dyadic, so u is exact) about the
-    // origin: K_e·u_rigid is zero to p for the re-formed frame and joint.
+    // Frame, objective connector and curved bend: rigid translation (1,−2,0.5) and rotation ω = (0.25,0.5,−0.125) (dyadic, so u is exact) about the
+    // origin: K_e·u_rigid is zero to p for the re-formed frame and connector.
+    // T4-U3: the connector carries offsets, a skew Q (Q.x along r) and a
+    // coupled K (case 22's H), on the frame's nodes.
     let e = skew_frame();
-    let user = UserStiffnessElement {
-        node_i: e.node_i,
-        node_j: e.node_j,
-        y_reference: [1.0, 0.0, 0.0],
-        axial_stiffness: 2.0e6,
-        lateral_stiffness: 0.0,
-        angular_stiffness: 3.0e4,
-        torsional_stiffness: 5.0e4,
-    };
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    let connector = ObjectiveConnector::new(
+        e.node_i,
+        e.node_j,
+        crate::connector::ConnectorAttachment::global([0.125, -0.25, 0.375]),
+        crate::connector::ConnectorAttachment::global([0.375, 0.25, 0.875]),
+        [
+            [third, two_thirds, -two_thirds],
+            [two_thirds, third, two_thirds],
+            [two_thirds, -two_thirds, -third],
+        ],
+        crate::connector::ScaledWorkMatrix {
+            upper_triangle: [
+                12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0,
+                250.0, 0.0, 0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+            ],
+            translation_scale: 0.25,
+        },
+        [0.0; 6],
+    )
+    .unwrap();
     let mut arith = WideArith::new(FORMATION_PRECISION).unwrap();
     let omega = [0.25, 0.5, -0.125];
     let t = [1.0, -2.0, 0.5];
@@ -128,7 +142,7 @@ fn kd5_reformed_elements_have_the_rigid_body_null_space() {
     assert!(cost < 5000, "{cost}");
     for k in [
         frame_matrix(&mut arith, &e).unwrap(),
-        user_matrix(&mut arith, &user).unwrap(),
+        connector_matrix(&mut arith, &connector).unwrap(),
         curved,
     ] {
         let scale = k
@@ -348,6 +362,149 @@ fn kd5_curved_arctangent_domain_errors_fail_closed() {
                 )
             }
             other => panic!("{label}: {other:?}"),
+        }
+    }
+}
+
+// ------------------------------------------------------------------ T4-U3 (S10)
+
+/// T4-I12 round 02 U3-KD5-UTM-SKEW-OFFSET-COUPLED (case 22) at x offset X0:
+/// binary64 offsets with tails below the UTM grid, the binary64 rounding of
+/// a rational skew rotation, U3-GENERIC's coupled PD H at Ls = 1/4 m, and a
+/// dyadic q_ref.
+fn kd5_case22(x0: f64) -> ObjectiveConnector {
+    use crate::connector::{ConnectorAttachment, ScaledWorkMatrix};
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    let q = [
+        [third, two_thirds, -two_thirds],
+        [two_thirds, third, two_thirds],
+        [two_thirds, -two_thirds, -third],
+    ];
+    let h = [
+        12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0, 250.0, 0.0,
+        0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+    ];
+    ObjectiveConnector::new(
+        FrameNode::new(0, [x0 + 0.5, -1.25, 2.0]).unwrap(),
+        FrameNode::new(1, [x0 + 1.8125, 0.8125, 3.375]).unwrap(),
+        ConnectorAttachment::global([0.2, 0.4, -0.2]),
+        ConnectorAttachment::global([-0.1, 0.3625, 0.44999999999999996]),
+        q,
+        ScaledWorkMatrix {
+            upper_triangle: h,
+            translation_scale: 0.25,
+        },
+        [
+            0.0009765625,
+            -0.00048828125,
+            0.000244140625,
+            0.001953125,
+            0.0,
+            -0.0009765625,
+        ],
+    )
+    .unwrap()
+}
+
+#[test]
+fn kd5_connector_reformation_agrees_and_has_the_rigid_null_space() {
+    for x0 in [0.0, 5.0e6, 7.3e6] {
+        let c = kd5_case22(x0);
+        let mut arith = WideArith::new(FORMATION_PRECISION).unwrap();
+        let wide = connector_matrix(&mut arith, &c).unwrap();
+        let binary64 = c.global_stiffness().unwrap();
+        let scale = binary64
+            .iter()
+            .flatten()
+            .fold(0.0_f64, |m, v| m.max(v.abs()));
+        for r in 0..12 {
+            for col in 0..12 {
+                let w = round(&wide[r][col]);
+                assert!(
+                    (w - binary64[r][col]).abs() <= 1e-13 * scale,
+                    "X0 {x0} [{r}][{col}] {w} {}",
+                    binary64[r][col]
+                );
+            }
+        }
+        // A dyadic rigid motion about the origin (exact in binary64 at UTM).
+        let omega = [0.25, -0.5, 0.125];
+        let t = [1.0, -2.0, 0.5];
+        let motion = |x: [f64; 3]| {
+            [
+                t[0] + (omega[1] * x[2] - omega[2] * x[1]),
+                t[1] + (omega[2] * x[0] - omega[0] * x[2]),
+                t[2] + (omega[0] * x[1] - omega[1] * x[0]),
+                omega[0],
+                omega[1],
+                omega[2],
+            ]
+        };
+        let mut u = [0.0; 12];
+        u[..6].copy_from_slice(&motion(c.node_i().coordinates));
+        u[6..].copy_from_slice(&motion(c.node_j().coordinates));
+        let magnitude = u.iter().fold(0.0_f64, |m, v| m.max(v.abs()));
+        for row in &wide {
+            let mut acc = ExactAccumulator::new();
+            for (kv, &x) in row.iter().zip(&u) {
+                kv.add_product_to(&mut acc, x).unwrap();
+            }
+            assert!(
+                acc.round().unwrap().abs() <= 1e-25 * scale * magnitude,
+                "X0 {x0}"
+            );
+        }
+    }
+}
+
+/// S-3 at the kernel level (dense): the connector case is not demoted at
+/// X0 = 0, 5e6 and 7.3e6 m, and perturbing only the assembled matrix by
+/// δ = 2^-20·max|Ke| at the largest diagonal (k = 3) demotes it.
+#[test]
+fn kd5_connector_case_is_not_demoted_and_its_perturbed_matrix_is() {
+    for x0 in [0.0, 5.0e6, 7.3e6] {
+        let c = kd5_case22(x0);
+        let ke = c.global_stiffness().unwrap();
+        let max = ke.iter().flatten().fold(0.0_f64, |m, v| m.max(v.abs()));
+        assert_eq!(ke[3][3], max, "k = 3 is the largest diagonal");
+        let source = FormationSource {
+            node_count: 2,
+            connectors: vec![c],
+            ..FormationSource::default()
+        };
+        let force = [
+            1000.0, -2000.0, 1500.0, 300.0, -200.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        ];
+        let free: Vec<usize> = (0..6).collect();
+        let prescribed: Vec<(usize, f64)> = (6..12).map(|d| (d, 0.0)).collect();
+        for perturbed in [false, true] {
+            let mut k: Vec<Vec<f64>> = ke.iter().map(|row| row.to_vec()).collect();
+            if perturbed {
+                k[3][3] += max * 2f64.powi(-20);
+            }
+            let system = StructuralSystem {
+                stiffness: &k,
+                force: &force,
+                free_dofs: &free,
+                prescribed: &prescribed,
+                contributions: None,
+                symmetry: None,
+            };
+            let plain = solve_structural_dense(&system).unwrap();
+            assert_eq!(plain.report.quality, SolveQuality::Passed, "X0 {x0}");
+            let checked = system.with_formation_source(&source);
+            let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+            if perturbed {
+                assert_eq!(result.report.quality, SolveQuality::Sensitive, "X0 {x0}");
+                let check = result.formation_check.unwrap();
+                assert_eq!(check.reason, FormationCheckReason::Estimate, "X0 {x0}");
+            } else {
+                assert_eq!(result.formation_check, None, "X0 {x0}");
+                assert_eq!(
+                    format!("{:?}", plain.report),
+                    format!("{:?}", result.report)
+                );
+            }
         }
     }
 }

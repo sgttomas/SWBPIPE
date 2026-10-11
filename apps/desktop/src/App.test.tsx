@@ -12846,7 +12846,10 @@ describe("SWBPIPE desktop preview", () => {
     );
   });
 
-  it.each(["tee", "reducer", "valve", "flange", "expansion_joint", "bend"])(
+  // T4-U3 (D-4): the applier refuses the legacy four-rate joint this form
+  // still authors; its own test below pins the refusal until the desktop
+  // offers connector (v3) and annotation (0.1.0/0.2.0) creation.
+  it.each(["tee", "reducer", "valve", "flange", "bend"])(
     "creates a %s end-to-end from the explicit viewport component tool",
     async (kind) => {
       render(<App />);
@@ -12873,10 +12876,30 @@ describe("SWBPIPE desktop preview", () => {
       );
       expect(screen.getByTestId("viewport-select-component:C-1")).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByLabelText("Property inspector").textContent).toContain(
-        kind === "tee" || kind === "expansion_joint" ? "pipe:P-110" : kind === "bend" ? "pipe:P-100" : "pipe:P-120",
+        kind === "tee" ? "pipe:P-110" : kind === "bend" ? "pipe:P-100" : "pipe:P-120",
       );
     },
   );
+
+  it("refuses legacy four-rate expansion-joint creation from the explicit viewport component tool (T4-U3)", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const commandBar = screen.getByTestId("command-bar");
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
+    const panel = screen.getByTestId("viewport-create-component-form");
+    fillComponentForm(panel, "viewport-create", "expansion_joint");
+    fireEvent.click(within(panel).getByTestId("queue-explicit-component-intent"));
+
+    const applyPanel = operationApplyPanel();
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Operation op:create-expansion_joint-component-C-1-001 was not applied (blocked)",
+      ),
+    );
+    expect(screen.queryByTestId("viewport-select-component:C-1")).toBeNull();
+  });
 
   it("creates an expansion joint on the exact selected pipe at a three-incident node and preserves every entered value", async () => {
     render(<App />);
@@ -12943,20 +12966,15 @@ describe("SWBPIPE desktop preview", () => {
     expectVirtualTargetEmpty(panel, "create-component-pipe");
     expect(queueButton).toBeDisabled();
     fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    // T4-U3 (D-4): the applier refuses the legacy four-rate joint this form
+    // authors (OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED); nothing is created.
     await waitFor(() =>
       expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
-        "Applied op:create-expansion_joint-component-C-1",
+        "Operation op:create-expansion_joint-component-C-1",
       ),
     );
-
-    const appliedInspector = screen.getByLabelText("Property inspector");
-    expect(appliedInspector.textContent).toContain("Mapped pipepipe:P-150");
-    expect(appliedInspector.textContent).toContain("Effective area0.018 m^2");
-    expect(appliedInspector.textContent).toContain("Movement limit0.045 m");
-    expect(appliedInspector.textContent).toContain("Axial stiffness3200000 N/m");
-    expect(appliedInspector.textContent).toContain("Torsional stiffness620000 N*m/rad");
-    expect(appliedInspector.textContent).toContain("user_ref:pressure-thrust-review");
-    expect(appliedInspector.textContent).toContain("user_entered_expansion_joint_no_catalog");
+    expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain("was not applied (blocked)");
+    expect(screen.queryByTestId("viewport-select-component:C-1")).toBeNull();
   });
 
   it("clears a queued tee at a three-incident node then applies the next exact user-selected roles", async () => {

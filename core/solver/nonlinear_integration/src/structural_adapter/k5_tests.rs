@@ -13,6 +13,7 @@ use crate::{
     solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
     NonlinearFrameSolveInput, NonlinearIntegrationError,
 };
+use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ScaledWorkMatrix};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
 use open_pipe_stress_frame_kernel::structural::{
@@ -36,7 +37,7 @@ use kd5_models::*;
 struct Model {
     node_count: usize,
     frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
+    connectors: Vec<ObjectiveConnector>,
     macros: Vec<CurvedBendMacroElement>,
     slots: Vec<CurvedBendStiffnessElement>,
     springs: Vec<(usize, f64)>,
@@ -59,7 +60,7 @@ impl Model {
         Model {
             node_count,
             frames: Vec::new(),
-            users: Vec::new(),
+            connectors: Vec::new(),
             macros: Vec::new(),
             slots: Vec::new(),
             springs: Vec::new(),
@@ -121,7 +122,7 @@ impl Model {
         assemble_sparse_stiffness(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.blocks(),
             &self.springs,
             &SparseAssemblyOptions::new().with_force_scale(scale),
@@ -135,7 +136,7 @@ impl Model {
         AssemblyEvidence::new_force_scaled(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
             scale,
@@ -147,7 +148,7 @@ impl Model {
             k.pattern(),
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.slots,
             &self.springs,
             scale,
@@ -238,12 +239,12 @@ fn curved_only() -> Model {
 }
 const CURVED_ONLY: [[f64; 6]; 2] = [[0.0, 0.0, 0.0, 1.0, 1.0, 0.0]; 2];
 
-/// Two frames tied by a user element (a struct literal, as `kd5_tests.rs`
-/// builds joints): FK's `npc_internal` case. Pins at nodes 0, 1 and 3 are not
-/// collinear, but the virtual pins (the tie shifts the second frame by
-/// x_1 − x_2 = (0, −1, 0)) lie on the x axis: θ = (1, 0, 0), u = 0 at every
-/// node. `rx` adds RX at node 3 (restrained).
-fn joint_mechanism(lateral: f64, rx: bool) -> Model {
+/// T4-U3: two frames joined by a positive definite connector (a link). The
+/// translation pins at nodes 0 and 1 lie on the x axis and nothing else is
+/// grounded, so the linked body turns about that axis: θ = (1, 0, 0) at every
+/// node, u = θ × x = (0, 0, y), i.e. u_z = 1 at nodes 2 and 3 (y = 1). `rx`
+/// adds RX at node 3 (restrained).
+fn connector_mechanism(rx: bool) -> Model {
     let p = [
         [0.0, 0.0, 0.0],
         [2.0, 0.0, 0.0],
@@ -253,16 +254,9 @@ fn joint_mechanism(lateral: f64, rx: bool) -> Model {
     let mut m = Model::empty(4);
     m.frame((0, p[0]), (1, p[1]), [0.0, 0.0, 1.0]);
     m.frame((2, p[2]), (3, p[3]), [0.0, 0.0, 1.0]);
-    m.users.push(UserStiffnessElement {
-        node_i: node(1, p[1]),
-        node_j: node(2, p[2]),
-        y_reference: [0.0, 0.0, 1.0],
-        axial_stiffness: 2.5e6,
-        lateral_stiffness: lateral,
-        angular_stiffness: 4.0e4,
-        torsional_stiffness: 6.0e4,
-    });
-    let mut pins = vec![0, 1, 2, 6, 7, 8, 18, 19, 20];
+    m.connectors
+        .push(connector((1, p[1]), (2, p[2]), AXES_Y, PD, 0.0));
+    let mut pins = vec![0, 1, 2, 6, 7, 8];
     if rx {
         pins.push(21);
     }
@@ -270,7 +264,12 @@ fn joint_mechanism(lateral: f64, rx: bool) -> Model {
     m.loads = vec![(14, 1000.0)];
     m
 }
-const JOINT_MECHANISM: [[f64; 6]; 4] = [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0]; 4];
+const CONNECTOR_MECHANISM: [[f64; 6]; 4] = [
+    [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 1.0, 0.0, 0.0],
+];
 
 fn from_kd5(m: &ModelData) -> Model {
     let s = &m.section;
@@ -512,7 +511,7 @@ fn direction(result: &Result<StructuralSolution, StructuralError>) -> Vec<u64> {
 // ------------------------------------------------------------------ E: the wiring
 
 /// E (Q1(b)): on mixed-body mechanisms (a bend in a frame line, a lone bend,
-/// a user-element tie), the four selected branches give W4's `Mechanism` with
+/// a positive definite connector link), the four selected branches give W4's `Mechanism` with
 /// the exact direction, identical in both representations; every unselected
 /// entry gives the matrix gate's outcome (never a `Mechanism`: only the
 /// geometric screen produces one), with each typed entry's `selected = false`
@@ -532,9 +531,9 @@ fn k5_w4_runs_in_the_four_selected_branches_only() {
         ),
         ("lone bend", curved_only(), flat(&CURVED_ONLY)),
         (
-            "user-element tie",
-            joint_mechanism(1.0e5, false),
-            flat(&JOINT_MECHANISM),
+            "connector link",
+            connector_mechanism(false),
+            flat(&CONNECTOR_MECHANISM),
         ),
     ];
     for (name, m, expected) in cases {
@@ -587,7 +586,7 @@ fn k5_nonlinear_loop_keeps_todays_geometry() {
         let input = NonlinearFrameSolveInput {
             node_count: m.node_count,
             elements: m.frames.clone(),
-            user_stiffness_elements: vec![],
+            connectors: Vec::new(),
             curved_bend_elements: m.slots.clone(),
             force: m.force(),
             base_restrained_dofs: m.prescribed.iter().map(|p| p.0).collect(),
@@ -942,54 +941,6 @@ fn k5_w4_entry_is_named_only_in_the_four_selected_bodies() {
     }
 }
 
-// ------------------------------------------------------------------ C: user elements
-
-/// C (Q5(a)): a user element is a tie only when all four stiffnesses are
-/// finite and positive. Lateral = 0 and a negative lateral leave the body
-/// unqualified (the matrix gate runs, the outcome is today's); a positive
-/// one ties it. A non-finite stiffness never reaches W4: the evidence refuses it.
-#[test]
-fn k5_user_elements_tie_only_with_positive_stiffnesses() {
-    for (lateral, name) in [(0.0, "lateral"), (-1.0, "lateral")] {
-        let m = joint_mechanism(lateral, false);
-        assert_eq!(
-            m.w4_body(&m.macros, ForceScale::UNSCALED),
-            W4Body::Unqualified(W4Unqualified::UserTie {
-                element: 0,
-                refusal: TieRefusal::Stiffness(name)
-            })
-        );
-        for mode in MODES {
-            let plain = unselected(&m, mode);
-            let today = &plain
-                .iter()
-                .find(|o| o.0 == "dense solve_assembled")
-                .unwrap()
-                .1;
-            for result in selected(&m, mode, 0, &m.macros) {
-                assert!(!is_mechanism(&result));
-                same_geometry(&result, today, &format!("{lateral} {mode:?}"));
-            }
-        }
-    }
-    let tied = joint_mechanism(1.0e5, false);
-    let W4Body::Assessed { nodes, assessment } = tied.w4_body(&tied.macros, ForceScale::UNSCALED)
-    else {
-        panic!("a positive joint ties the body");
-    };
-    assert_eq!(nodes, vec![0, 1, 2, 3]);
-    assert_eq!(assessment.status, RigidBodyStatus::MechanismWitnessed);
-    let restrained = joint_mechanism(1.0e5, true);
-    let W4Body::Assessed { assessment, .. } =
-        restrained.w4_body(&restrained.macros, ForceScale::UNSCALED)
-    else {
-        panic!("tied");
-    };
-    assert_eq!(assessment.status, RigidBodyStatus::Restrained);
-    let mut nan = joint_mechanism(1.0e5, false);
-    nan.users[0].angular_stiffness = f64::NAN;
-    assert!(AssemblyEvidence::new(4, &nan.frames, &nan.users, &[], &[]).is_err());
-}
 
 // ------------------------------------------------------------------ D: curved elements
 
@@ -1122,7 +1073,7 @@ fn k5_force_scaled_branches_give_the_same_witness() {
     for (m, expected) in [
         (curved_mechanism(0.0, false), flat(&CURVED_MECHANISM)),
         (curved_only(), flat(&CURVED_ONLY)),
-        (joint_mechanism(1.0e5, false), flat(&JOINT_MECHANISM)),
+        (connector_mechanism(false), flat(&CONNECTOR_MECHANISM)),
     ] {
         for mode in MODES {
             for b in [2, -2, 40, -40] {
@@ -1238,10 +1189,10 @@ fn k5_screen_ratio_is_recorded_per_element() {
 /// body's selected outcome is its plain one.
 #[test]
 fn k5_basis_text_and_family_flag_are_unchanged() {
-    const MIXED: &str = "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory";
+    const MIXED: &str = "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing curved elements or connectors; matrix positivity remains mandatory";
     for (name, m) in [
         ("curved companion", curved_mechanism(0.0, true)),
-        ("joint companion", joint_mechanism(1.0e5, true)),
+        ("connector companion", connector_mechanism(true)),
     ] {
         let e = m.dense_evidence_at(ForceScale::UNSCALED);
         assert!(!e.qualified_passive_family(), "{name}");
@@ -1294,7 +1245,7 @@ fn selected_is_unselected(m: &Model, sources: &[CurvedBendMacroElement], what: &
 }
 
 /// RV14-2 (Q2(b), RETURN §2.3 Step 2): two matched bends meet at node 1, which
-/// no frame or user element touches, and their macro sources disagree on it:
+/// no frame or connector touches, and their macro sources disagree on it:
 /// A ends at (0.25, 0.25, 0), B starts at (0.5, 0.25, 0). W4 takes a
 /// curved-only node's coordinates from its matched sources, so they must agree
 /// with each other, not only with a frame. The body is unqualified
@@ -1347,4 +1298,187 @@ fn k5_positive_springs_ground_w4_bodies() {
         other => panic!("spring-held curved line: {other:?}"),
     }
     selected_is_unselected(&m, &m.macros, "spring-held curved line");
+}
+
+// ------------------------------------------------------------------ T4-U3: connectors (S11)
+
+/// A connector between two nodes with no offsets, Q.x along the chord
+/// (`axes`, columns are axes), and the stiffness diag(`k`) at Ls = 1 m, with
+/// `coupling` at (0, 3) for a coupled law.
+fn connector(
+    i: (usize, [f64; 3]),
+    j: (usize, [f64; 3]),
+    axes: [[f64; 3]; 3],
+    k: [f64; 6],
+    coupling: f64,
+) -> ObjectiveConnector {
+    let mut h = [0.0; 21];
+    for (d, index) in [0, 6, 11, 15, 18, 20].into_iter().enumerate() {
+        h[index] = k[d];
+    }
+    h[3] = coupling;
+    ObjectiveConnector::new(
+        node(i.0, i.1),
+        node(j.0, j.1),
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        axes,
+        ScaledWorkMatrix {
+            upper_triangle: h,
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
+    )
+    .unwrap()
+}
+
+const AXES_X: [[f64; 3]; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+/// Columns x = (0, 1, 0), y = (−1, 0, 0), z = (0, 0, 1).
+const AXES_Y: [[f64; 3]; 3] = [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]];
+const PD: [f64; 6] = [2.0e5, 8.0e4, 1.2e5, 600.0, 900.0, 1200.0];
+
+/// Frames a-b and c-d joined by a connector b-c on the x axis; a anchored,
+/// a transverse load at d.
+fn connected_line(k: [f64; 6], coupling: f64) -> Model {
+    let p = [
+        [0.0, 0.0, 0.0],
+        [2.0, 0.0, 0.0],
+        [2.5, 0.0, 0.0],
+        [4.5, 0.0, 0.0],
+    ];
+    let mut m = Model::empty(4);
+    m.frame((0, p[0]), (1, p[1]), [0.0, 0.0, 1.0]);
+    m.frame((2, p[2]), (3, p[3]), [0.0, 0.0, 1.0]);
+    m.connectors
+        .push(connector((1, p[1]), (2, p[2]), AXES_X, k, coupling));
+    m.pin(&[0, 1, 2, 3, 4, 5]);
+    m.loads = vec![(19, 1000.0), (20, -500.0)];
+    m
+}
+
+/// S11: a positive definite connector links its ends: the body is assessed
+/// and restrained, and every selected branch passes.
+#[test]
+fn k5_positive_definite_connector_links() {
+    let m = connected_line(PD, 0.0);
+    let W4Body::Assessed { nodes, assessment } = m.w4_body(&m.macros, ForceScale::UNSCALED) else {
+        panic!("a positive definite connector links");
+    };
+    assert_eq!(nodes, vec![0, 1, 2, 3]);
+    assert_eq!(assessment.status, RigidBodyStatus::Restrained);
+    for mode in MODES {
+        for b in [0, 20] {
+            for result in selected(&m, mode, b, &m.macros) {
+                assert!(result.is_ok(), "{mode:?} b = {b}: {}", render(&result));
+            }
+        }
+    }
+}
+
+/// S11: the frames of the deleted tie case (FK npc_internal), joined by a positive definite
+/// connector instead of the old tie, are restrained: the objective link
+/// carries the rigid-body moment the tie did not (the virtual pins of the
+/// tie reduction are gone).
+#[test]
+fn k5_connector_link_is_objective_where_the_old_tie_was_a_mechanism() {
+    let p = [
+        [0.0, 0.0, 0.0],
+        [2.0, 0.0, 0.0],
+        [2.0, 1.0, 0.0],
+        [4.0, 1.0, 0.0],
+    ];
+    let mut m = Model::empty(4);
+    m.frame((0, p[0]), (1, p[1]), [0.0, 0.0, 1.0]);
+    m.frame((2, p[2]), (3, p[3]), [0.0, 0.0, 1.0]);
+    m.connectors
+        .push(connector((1, p[1]), (2, p[2]), AXES_Y, PD, 0.0));
+    m.pin(&[0, 1, 2, 6, 7, 8, 18, 19, 20]);
+    m.loads = vec![(14, 1000.0)];
+    let W4Body::Assessed { assessment, .. } = m.w4_body(&m.macros, ForceScale::UNSCALED) else {
+        panic!("linked");
+    };
+    assert_eq!(assessment.status, RigidBodyStatus::Restrained);
+    for mode in MODES {
+        for result in selected(&m, mode, 0, &m.macros) {
+            assert!(result.is_ok(), "{mode:?}: {}", render(&result));
+        }
+    }
+}
+
+/// S11 (S-5(c)): a semidefinite connector leaves its body to the matrix gate
+/// (`ConnectorSemidefinite`). The hinge (no stiffness about the local z) is
+/// a real mechanism of an otherwise anchored body: a "semidefinite as link"
+/// rule would assess that body as restrained; here no branch passes it.
+#[test]
+fn k5_semidefinite_connectors_are_unqualified_and_the_hinge_is_not_passed() {
+    let coupled = connected_line([4.0, 0.0, 0.0, 9.0, 0.0, 0.0], 1.0);
+    assert_eq!(
+        coupled.connectors[0].definiteness(),
+        ConnectorDefiniteness::PositiveSemidefinite
+    );
+    assert_eq!(
+        coupled.w4_body(&coupled.macros, ForceScale::UNSCALED),
+        W4Body::Unqualified(W4Unqualified::ConnectorSemidefinite { element: 0 })
+    );
+    let mut hinge = Model::empty(2);
+    hinge.connectors.push(connector(
+        (0, [0.0, 0.0, 0.0]),
+        (1, [0.5, 0.0, 0.0]),
+        AXES_X,
+        [2.0e5, 8.0e4, 1.2e5, 600.0, 900.0, 0.0],
+        0.0,
+    ));
+    hinge.pin(&[0, 1, 2, 3, 4, 5]);
+    hinge.loads = vec![(7, 100.0), (11, 10.0)];
+    assert_eq!(
+        hinge.w4_body(&hinge.macros, ForceScale::UNSCALED),
+        W4Body::Unqualified(W4Unqualified::ConnectorSemidefinite { element: 0 })
+    );
+    // The hinge's mechanism is real: d = (θ_j = e_z, u_j = e_z × r/2) has
+    // q = 0 except q_r,z, on which K is zero.
+    let mut d = [0.0; 12];
+    d[11] = 1.0;
+    d[7] = 0.25;
+    let q = hinge.connectors[0].recover(&d).unwrap();
+    assert_eq!(q.g, [0.0; 6]);
+    assert_eq!(q.q, [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]);
+    for m in [&coupled, &hinge] {
+        for mode in MODES {
+            for result in selected(m, mode, 0, &m.macros) {
+                assert!(result.is_err(), "{mode:?}: {}", render(&result));
+            }
+        }
+    }
+}
+
+/// S5: the nonlinear loop refuses a connector (fail closed until T5).
+#[test]
+fn k5_nonlinear_loop_refuses_connectors() {
+    let m = connected_line(PD, 0.0);
+    let input = NonlinearFrameSolveInput {
+        node_count: m.node_count,
+        elements: m.frames.clone(),
+        connectors: m.connectors.clone(),
+        curved_bend_elements: vec![],
+        force: m.force(),
+        base_restrained_dofs: m.prescribed.iter().map(|p| p.0).collect(),
+        nonlinear_supports: vec![],
+        initial_states: vec![],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![],
+        convergence: ConvergenceControl::new(
+            "DEC-046-fixture-active-set-count-tightening",
+            ConvergencePolicyStatus::Accepted,
+            0.0,
+            0.0,
+            4,
+        )
+        .unwrap(),
+    };
+    for mode in MODES {
+        assert!(matches!(
+            solve_active_set_frame_with_mode_and_springs(&input, mode, &m.springs),
+            Err(NonlinearIntegrationError::InvalidInput { .. })
+        ));
+    }
 }

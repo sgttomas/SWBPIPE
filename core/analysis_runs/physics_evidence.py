@@ -44,6 +44,23 @@ SIGNS = {
 }
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
 
+# T4-U3 (S14): objective connector rows and records, pressure-1 only (the
+# connector_* rows of semantic_contract_v0_3_pressure_1.json; Rust
+# ``connector_evidence``). kind -> (unit, components, locations).
+CONNECTOR_KINDS = {
+    "connector_generalized_translation_v1": ("m", ("qt_x", "qt_y", "qt_z"), ("connector_local",)),
+    "connector_generalized_rotation_v1": ("rad", ("qr_x", "qr_y", "qr_z"), ("connector_local",)),
+    "connector_generalized_force_v1": ("N", ("gt_x", "gt_y", "gt_z"), ("connector_local",)),
+    "connector_generalized_moment_v1": ("N*m", ("gr_x", "gr_y", "gr_z"), ("connector_local",)),
+    "connector_endpoint_force_v1": ("N", ("Fx", "Fy", "Fz"), ("end_i", "end_j")),
+    "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
+}
+CONNECTOR_ROWS_PER_CASE = 24
+CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
+CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
+CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
+CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
+
 GEOMETRY = {"pipe_id", "geometry_basis", "outside_diameter_m", "effective_wall_thickness_m", "ri_m", "ro_m", "Ai_m2", "As_m2", "I_m4", "J_m4", "Z_m3"}
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
 
@@ -150,7 +167,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
     evidence = source.get("contract_evidence")
     _shape(evidence, {"pressure", "connector", "exact_cases"}, "namespace")
     _finite_tree(evidence)
-    _require(evidence["connector"] == [] and isinstance(evidence["pressure"], list), "unsupported connector")
+    _require((contract == PRESSURE_V3 and isinstance(evidence["connector"], list) or evidence["connector"] == []) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
     rows = _indexed(source.get("results"), "id", "result IDs")
     quality = source.get("numerical_quality", {}).get("cases", [])
@@ -288,6 +305,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
                 _require(row["id"] in extrema_ids, "unbound extrema row")
             else:
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
+    _validate_connectors(evidence["connector"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED", contract == PRESSURE_V3)
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     headline = source.get("summary", {}).get("max_open_formula_stress")
@@ -323,6 +341,62 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
                 _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
             else:
                 _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
+
+
+def _connector_matrix3(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 3 and all(_vector(row, 3) for row in value)
+
+
+def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool, admitted: bool) -> None:
+    """T4-U3 (S14): ``contract_evidence.connector`` records and the rows bound
+    to them, pressure-1 only (Rust ``connector_evidence::validate``)."""
+    _require(isinstance(records, list) and (admitted or not records), "unsupported connector")
+    spans: dict[str, str] = {}
+    for record in records:
+        _shape(record, CONNECTOR_RECORD, "connector record shape")
+        _require(all(_text(record[k]) for k in ("component_id", "replaced_pipe_id", "node_i", "node_j", "provenance")) and record["node_i"] != record["node_j"], "connector record identity")
+        _require(record["topology"] == "replaces_span" and record["motion_basis"] == "symmetric_midpoint_small_rotation_v1" and record["calibration"] == "constant_structural_elasticity_v1"
+                 and record["hardware"] == "untied" and record["pressure_model"] == "unpressurized" and record["temperature_applicability"] == "fixed_installed_parameters_v1"
+                 and record["reference_state"] in {"stress_free", "prestressed"}, "connector record law")
+        _require(all(_connector_matrix3(record[k]) for k in ("connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global"))
+                 and _vector(record["end_i_offset_local_m"], 3) and _vector(record["end_j_offset_local_m"], 3) and _vector(record["q_ref"], 6)
+                 and _number(record["installed_reference_temperature_k"]) and record["installed_reference_temperature_k"] > 0, "connector record frame")
+        matrix = record["work_matrix"]
+        _require(isinstance(matrix, Mapping) and set(matrix) == CONNECTOR_MATRIX and matrix["representation"] == "scaled_work_coefficients_v1"
+                 and matrix["coordinate_order"] == ["tx", "ty", "tz", "rx", "ry", "rz"] and _number(matrix["translation_scale_m"]) and matrix["translation_scale_m"] > 0
+                 and _number(matrix["rotation_scale_rad"]) and matrix["rotation_scale_rad"] == 1 and matrix["coefficient_unit"] == "N*m"
+                 and _vector(matrix["upper_triangle"], 21) and _text(matrix["source_reference"]), "connector work matrix")
+        _require(record["component_id"] not in spans, "duplicate connector record")
+        _require(record["replaced_pipe_id"] not in spans.values(), "duplicate connector replaced span")
+        _require(record["replaced_pipe_id"] not in members, "connector replaced span published")
+        spans[record["component_id"]] = record["replaced_pipe_id"]
+    replaced = set(spans.values())
+    slots: set[tuple[str, str, str, str, str]] = set()
+    counts: dict[tuple[str, str], int] = {}
+    for row in rows.values():
+        _require(row.get("entity_ref") not in replaced, "connector replaced span published")
+        kind = row.get("kind", "")
+        if not kind.startswith("connector_"):
+            continue
+        _require(admitted, "unsupported connector")
+        _require(kind in CONNECTOR_KINDS, "unknown connector kind")
+        _require(row.get("entity_ref") in spans, "unbound connector row")
+        unit, components, locations = CONNECTOR_KINDS[kind]
+        metadata = row.get("metadata")
+        _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "connector metadata shape")
+        local = metadata["location"] == "connector_local"
+        _require(row.get("unit") == unit and metadata["component"] in components and metadata["location"] in locations
+                 and metadata["coordinate_system"] == ("connector_axes_q" if local else "global")
+                 and metadata["basis"] == f"objective_connector_v1;replaces_span={spans[row['entity_ref']]};symmetric_midpoint_small_rotation_v1"
+                 and metadata["sign_convention"] == (CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
+        case = row["basis_ref"]["ref_id"]
+        _require(case in cases, "connector row case")
+        slot = (case, row["entity_ref"], kind, metadata["component"], metadata["location"])
+        _require(slot not in slots, "duplicate connector row")
+        slots.add(slot)
+        counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
+    if solved:
+        _require(all(counts.get((case, component)) == CONNECTOR_ROWS_PER_CASE for case in cases for component in spans), "connector row coverage")
 
 
 def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:

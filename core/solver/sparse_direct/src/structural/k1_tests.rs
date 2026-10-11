@@ -7,15 +7,17 @@
 //! and a `Debug`-identical `StructuralSolution` for the same equations.
 use super::*;
 use crate::{adjacency_from_dense, adjacency_from_symmetric_entries, reverse_cuthill_mckee};
+use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix};
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
-    SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
-    StiffnessContribution, SymmetryEvidence, TransformationRoundoff,
+    assemble_sparse_stiffness, gamma,
+    negative_pair_witness, transform_roundoff, FormationSource, SparseAssemblyOptions,
+    SparseStiffness, SparseSymmetryEvidence, StiffnessBlock, StiffnessContribution,
+    SymmetryEvidence, TransformationRoundoff,
 };
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, element_dof_map, FrameElement, FrameNode,
-    FrameSection, Matrix12, UserStiffnessElement,
+    assemble_global_stiffness_with_connectors, element_dof_map, FrameElement, FrameNode,
+    FrameSection, Matrix12,
 };
 
 // ------------------------------------------------------------------ models
@@ -31,12 +33,12 @@ fn node(index: usize, p: [f64; 3]) -> FrameNode {
     FrameNode::new(index, p).unwrap()
 }
 
-/// An invented model with every assembled family (frames, a user element,
+/// An invented model with every assembled family (frames, a connector,
 /// an explicit block, springs) and its boundary and loads.
 struct Model {
     node_count: usize,
     frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
+    connectors: Vec<ObjectiveConnector>,
     blocks: Vec<StiffnessBlock>,
     /// Each block's formation bounds and counts (`transform_roundoff` of the
     /// element it was formed from).
@@ -52,7 +54,7 @@ impl Model {
         assemble_sparse_stiffness(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.blocks,
             &self.springs,
             &SparseAssemblyOptions::new(),
@@ -60,10 +62,10 @@ impl Model {
         .unwrap()
     }
     fn dense(&self) -> Vec<Vec<f64>> {
-        let mut k = assemble_global_stiffness_with_user_elements(
+        let mut k = assemble_global_stiffness_with_connectors(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
         )
         .unwrap();
         for block in &self.blocks {
@@ -100,11 +102,11 @@ impl Model {
                 &e.global_stiffness().unwrap(),
             );
         }
-        for e in &self.users {
+        for c in &self.connectors {
             push(
-                e.node_i.index,
-                e.node_j.index,
-                &e.global_stiffness().unwrap(),
+                c.node_i().index,
+                c.node_j().index,
+                &c.global_stiffness().unwrap(),
             );
         }
         for b in &self.blocks {
@@ -156,10 +158,14 @@ impl Model {
             let evidence = transform_roundoff(&e.local_stiffness().unwrap(), &t).unwrap();
             element(e.node_i.index, e.node_j.index, &evidence);
         }
-        for e in &self.users {
-            let t = e.orientation().unwrap().transformation_matrix();
-            let evidence = transform_roundoff(&e.local_stiffness(), &t).unwrap();
-            element(e.node_i.index, e.node_j.index, &evidence);
+        for c in &self.connectors {
+            let (absolute_roundoff, operation_counts) = c.formation_roundoff().unwrap();
+            let evidence = TransformationRoundoff {
+                absolute_roundoff,
+                operation_counts,
+                basis: "connector",
+            };
+            element(c.node_i().index, c.node_j().index, &evidence);
         }
         for (b, evidence) in self.blocks.iter().zip(&self.block_formation) {
             element(b.node_i, b.node_j, evidence);
@@ -198,7 +204,7 @@ impl Model {
         FormationSource {
             node_count: self.node_count,
             frames: self.frames.clone(),
-            users: self.users.clone(),
+            connectors: self.connectors.clone(),
             curved: Vec::new(),
             springs: self.springs.clone(),
             unavailable: Vec::new(),
@@ -267,7 +273,7 @@ fn chain(members: usize, e: f64, settle: f64) -> Model {
     Model {
         node_count: members + 1,
         frames,
-        users: Vec::new(),
+        connectors: Vec::new(),
         blocks: Vec::new(),
         block_formation: Vec::new(),
         springs: Vec::new(),
@@ -277,8 +283,8 @@ fn chain(members: usize, e: f64, settle: f64) -> Model {
     }
 }
 
-/// A branched, mostly axis-aligned model (explicit zeros), with a user
-/// element, an explicit block, ground springs and prescribed motion.
+/// A branched, mostly axis-aligned model (explicit zeros), with an objective
+/// connector, an explicit block, ground springs and prescribed motion.
 fn tree(e: f64) -> Model {
     let s = section(e, e / 2.6);
     let p = [
@@ -309,16 +315,7 @@ fn tree(e: f64) -> Model {
             f(1, 5, [1.0, 0.0, 0.0]),
             f(6, 7, [0.0, 0.0, 1.0]),
         ],
-        users: vec![UserStiffnessElement::new(
-            node(2, p[2]),
-            node(6, p[6]),
-            [0.0, 0.0, 1.0],
-            3.0e7,
-            4.0e6,
-            2.5e5,
-            1.5e5,
-        )
-        .unwrap()],
+        connectors: vec![chord_connector(node(2, p[2]), node(6, p[6]))],
         blocks: vec![StiffnessBlock {
             node_i: 4,
             node_j: 7,
@@ -808,4 +805,120 @@ fn k1_storage_counts_of_the_rf_large_chain_and_tree() {
             }
         }
     }
+}
+
+// ------------------------------------------------------------------ T4-U3 (S10, S-3)
+
+/// T4-I12 round 02 case 22 (U3-KD5-UTM-SKEW-OFFSET-COUPLED) on the pattern
+/// path, with no contribution evidence: the connector alone, end j held,
+/// loads at end i. At X0 = 0, 5e6 and 7.3e6 m it is not demoted; perturbing
+/// only the assembled matrix by δ = 2^-20·max|Ke| at its largest diagonal
+/// (k = 3) demotes it.
+#[test]
+fn k1_connector_case_22_formation_check_on_the_pattern() {
+    use open_pipe_stress_frame_kernel::connector::{
+        ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix,
+    };
+    use open_pipe_stress_frame_kernel::structural::{FormationCheckReason, SolveQuality};
+    let (third, two_thirds) = (1.0 / 3.0, 2.0 / 3.0);
+    for x0 in [0.0, 5.0e6, 7.3e6] {
+        let connector = ObjectiveConnector::new(
+            node(0, [x0 + 0.5, -1.25, 2.0]),
+            node(1, [x0 + 1.8125, 0.8125, 3.375]),
+            ConnectorAttachment::global([0.2, 0.4, -0.2]),
+            ConnectorAttachment::global([-0.1, 0.3625, 0.44999999999999996]),
+            [
+                [third, two_thirds, -two_thirds],
+                [two_thirds, third, two_thirds],
+                [two_thirds, -two_thirds, -third],
+            ],
+            ScaledWorkMatrix {
+                upper_triangle: [
+                    12500.0, 625.0, 0.0, 0.0, 500.0, 0.0, 9375.0, 312.5, 0.0, 0.0, -750.0, 7500.0,
+                    250.0, 0.0, 0.0, 800.0, 50.0, 0.0, 900.0, 100.0, 1200.0,
+                ],
+                translation_scale: 0.25,
+            },
+            [0.0; 6],
+        )
+        .unwrap();
+        let assembled = assemble_sparse_stiffness(
+            2,
+            &[],
+            &[connector],
+            &[],
+            &[],
+            &SparseAssemblyOptions::new(),
+        )
+        .unwrap();
+        let source = FormationSource {
+            node_count: 2,
+            connectors: vec![connector],
+            ..FormationSource::default()
+        };
+        let force = [
+            1000.0, -2000.0, 1500.0, 300.0, -200.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        ];
+        let free: Vec<usize> = (0..6).collect();
+        let prescribed: Vec<(usize, f64)> = (6..12).map(|d| (d, 0.0)).collect();
+        let max = assembled
+            .values()
+            .iter()
+            .fold(0.0_f64, |m, v| m.max(v.abs()));
+        for perturbed in [false, true] {
+            let mut dense = assembled.to_dense();
+            assert_eq!(dense[3][3], max);
+            if perturbed {
+                dense[3][3] += max * 2f64.powi(-20);
+            }
+            let k = SparseStiffness::from_dense(&dense).unwrap();
+            let system = SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None);
+            let plain = solve_sparse_structural(&system).unwrap();
+            assert_eq!(plain.report.quality, SolveQuality::Passed, "X0 {x0}");
+            let checked = solve_formation_checked_sparse_structural(
+                &SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None)
+                    .with_formation_source(&source),
+            )
+            .unwrap();
+            if perturbed {
+                assert_eq!(checked.report.quality, SolveQuality::Sensitive, "X0 {x0}");
+                assert_eq!(
+                    checked.formation_check.unwrap().reason,
+                    FormationCheckReason::Estimate
+                );
+            } else {
+                assert_eq!(checked.formation_check, None, "X0 {x0}");
+                assert_eq!(checked.displacements, plain.displacements);
+            }
+        }
+    }
+}
+
+/// T4-U3: an objective connector with Q.x along the chord (z global), zero
+/// offsets and an uncoupled K at Ls = 1 m, in place of the deleted user element.
+fn chord_connector(i: FrameNode, j: FrameNode) -> ObjectiveConnector {
+    let d = [
+        j.coordinates[0] - i.coordinates[0],
+        j.coordinates[1] - i.coordinates[1],
+        j.coordinates[2] - i.coordinates[2],
+    ];
+    assert_eq!(d[2], 0.0);
+    let length = (d[0] * d[0] + d[1] * d[1]).sqrt();
+    let x = [d[0] / length, d[1] / length];
+    ObjectiveConnector::new(
+        i,
+        j,
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        [[x[0], -x[1], 0.0], [x[1], x[0], 0.0], [0.0, 0.0, 1.0]],
+        ScaledWorkMatrix {
+            upper_triangle: [
+                3.0e7, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0e6, 0.0, 0.0, 0.0, 0.0, 4.0e6, 0.0, 0.0, 0.0,
+                1.5e5, 0.0, 0.0, 2.5e5, 0.0, 2.5e5,
+            ],
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
+    )
+    .unwrap()
 }

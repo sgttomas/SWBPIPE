@@ -80,7 +80,7 @@ pub(crate) struct FormationFinding {
 // ------------------------------------------------------------------ bodies
 
 /// Connected bodies of the element graph (DESIGN section 4.1.6.1 item 1):
-/// straight members, curved spans and user stiffness elements connect their
+/// straight members, curved spans and objective connectors connect their
 /// nodes; springs, restraints and imposed motions do not.
 pub(crate) struct Bodies {
     body_of_node: Vec<usize>,
