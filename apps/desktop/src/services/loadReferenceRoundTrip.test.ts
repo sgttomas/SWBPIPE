@@ -10,7 +10,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, PreviewModel } from "../types";
 import { clonePreviewModel } from "../features/workspace/sessionModel";
-import { createLocalProject, evaluateModelDocumentLocal, LOAD_REFERENCE_MODEL_SCHEMA_VERSION, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
+import { createLocalProject,
+  findLocalProject, evaluateModelDocumentLocal, LOAD_REFERENCE_MODEL_SCHEMA_VERSION, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { runPreviewMechanics, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation } from "./previewService";
 import { applyModelOperation } from "./operationService";
@@ -54,7 +55,7 @@ describe("0.4.0 documents in the browser persistence mirror", () => {
     const run = json("fixtures/results/load_reference_source_mixed_sparse.analysis_run.json") as AnalysisRunEnvelope;
     // Saves over its own stored snapshot (no envelope hash here); the replacement
     // guard is covered in projectService.test.ts.
-    await saveLocalProject(model, [], null, null, raw, run, null, null, null, true);
+    await saveLocalProject(model, [], null, null, raw, run, null, null, null, (await findLocalProject(model.project.id))!.revision);
     const opened = await openLocalProject(model.project.id);
     expect(text(opened!.model)).toBe(before);
     expect(loadStateKeys(opened!.model)).toBe(loadStateKeys(model));

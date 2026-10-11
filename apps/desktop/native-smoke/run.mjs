@@ -179,7 +179,7 @@ function checkPrompt(name, prompt, storedName, storedId) {
   check("own project, Save Local Project: saved in place without a prompt", own && !own.prompted && own.message?.includes("Saved current project model snapshot"), own?.message);
   const stale = promptFor(first, `${promptCase.case}/copy/stale-base`);
   check("own project saved elsewhere since: the save asks, naming the stored copy",
-    stale?.detail?.includes(`was saved after this session opened or saved it`) && stale.detail.includes(`(${copy?.new_project_id}), last saved `), stale?.detail);
+    stale?.detail?.includes(`has been saved since this session last saw it`) && stale.detail.includes(`(${copy?.new_project_id}), last saved `), stale?.detail);
   check("own project saved elsewhere since: Cancel is the default (focused)", stale?.cancel_focused === true);
   check("own project saved elsewhere since, Cancel: the stored copy is kept", stale?.message?.startsWith("Not saved: the stored project "), stale?.message);
   check("save as a new project: same rows and probed value", seen && original && seen.proof_rows === original.proof_rows && seen.probe_entered === original.probe_entered, `${seen?.proof_rows}; ${seen?.probe_entered}`);

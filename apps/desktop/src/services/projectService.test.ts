@@ -12,10 +12,16 @@ import {
   LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
   modelDocumentVersionCheckDiagnostic,
   modelDocumentVersionCheckStatus,
+  listLocalProjects,
   openLocalProject,
   saveLocalProject,
   SUPPORTED_MODEL_SCHEMA_VERSION
 } from "./projectService";
+
+/** The revision a Replace of this stored project confirms (as the prompt would). */
+async function shownRevision(projectId: string): Promise<string> {
+  return (await findLocalProject(projectId))!.revision;
+}
 
 function sampleModel(schemaVersion: string): PreviewModel {
   return {
@@ -105,7 +111,9 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const created = await createLocalProject(model);
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model.schema_version).toBe("0.3.0");
-    await saveLocalProject(model);
+    // Saves over its own stored snapshot (no envelope hash here), confirmed; the
+    // replacement guard is covered below (HELP_HUMAN ruling 2026-10-10, #1252).
+    await saveLocalProject(model, [], null, null, null, null, null, null, null, await shownRevision(model.project.id));
     expect((await openLocalProject(model.project.id))?.model.schema_version).toBe("0.3.0");
   });
 
@@ -165,7 +173,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
     // Saves over its own stored snapshot (no envelope hash here); the guard is covered below.
-    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, true);
+    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, await shownRevision("project:doc-migration-test"));
     expect(saved.model_document_migration?.status).toBe("current");
     expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
     expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
@@ -226,7 +234,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     // The round trip saves over its own stored snapshot (no envelope hash here);
     // the replacement guard itself is covered below.
     await createLocalProject(model);
-    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
+    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, await shownRevision(model.project.id));
     const opened = await openLocalProject(model.project.id);
     expect(JSON.stringify(saved.model)).toBe(before);
     expect(JSON.stringify(opened?.model)).toBe(before);
@@ -235,23 +243,42 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   });
 
   it("refuses to persist documents with refused schema versions", async () => {
-    await expect(createLocalProject(sampleModel("0.9.0"), [], null, null, null, null, null, null, true)).rejects.toThrow(/newer_than_supported/);
-    await expect(saveLocalProject(sampleModel("not-semver"), [], null, null, null, null, null, null, null, true)).rejects.toThrow(/unsupported_schema/);
+    await expect(createLocalProject(sampleModel("0.9.0"))).rejects.toThrow(/newer_than_supported/);
+    await expect(saveLocalProject(sampleModel("not-semver"))).rejects.toThrow(/unsupported_schema/);
+  });
+
+  it("keeps every project it is given: saving one id never discards another (HELP_HUMAN 2026-10-10)", async () => {
+    const first = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    const second = { ...sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), project: { ...first.project, id: "project:invented-second", name: "Invented second" } };
+    await createLocalProject(first);
+    await createLocalProject(second);
+    expect((await listLocalProjects()).map((entry) => entry.project_id)).toEqual(["project:invented-second", first.project.id]);
+    expect((await openLocalProject(first.project.id))?.model.project.id).toBe(first.project.id);
+    expect((await openLocalProject())?.model.project.id).toBe("project:invented-second");
+    // A later write to the first makes it the most recent; the second is still stored.
+    await saveLocalProject(first, [], null, null, null, null, null, null, null, await shownRevision(first.project.id));
+    expect((await openLocalProject())?.model.project.id).toBe(first.project.id);
+    expect(await findLocalProject("project:invented-second")).toMatchObject({ project_name: "Invented second" });
   });
 
   it("never replaces the stored project without confirmation (HELP_HUMAN ruling 2026-10-10)", async () => {
     const model = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
-    await createLocalProject(model, [], null, null, null, null, null, null, true);
+    await createLocalProject(model);
     const stored = await findLocalProject(model.project.id);
     expect(stored).toMatchObject({ project_id: model.project.id, project_name: model.project.name });
     await expect(createLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
     await expect(saveLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
-    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, "sha256:not-the-stored-base"))
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, null, "sha256:not-the-stored-base"))
       .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
     // The stored snapshot records no envelope hash: no base can match it.
-    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, ""))
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, null, ""))
       .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
     expect(await findLocalProject("project:not-stored")).toBeNull();
+    // A Replace confirms the revision the prompt showed; one saved since is refused.
+    const shown = await shownRevision(model.project.id);
+    await saveLocalProject(model, [], null, null, null, null, null, null, null, shown);
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, shown))
+      .rejects.toThrow(/^PROJECT-BASE-MOVED: .* changed after the replace prompt showed it/);
   });
 
   it("round-trips old ledger bytes and optional transition hash evidence without projecting raw claims", async () => {

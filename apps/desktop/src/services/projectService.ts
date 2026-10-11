@@ -14,16 +14,33 @@ import type {
   SelectedReviewTarget
 } from "../types";
 
-let browserPreviewSnapshot: LocalProjectEnvelope | null = null;
-let browserPreviewSnapshotCreatedAtUnix = 0;
-let browserPreviewSnapshotUpdatedAtUnix = 0;
+// The browser preview's in-memory project store: one snapshot per project id,
+// like the native SQLite store (HELP_HUMAN rulings 2026-10-10: saving one
+// project never discards another). Created time is kept across writes, as the
+// native upsert keeps it. "Most recent" follows write order.
+type BrowserStoredProject = {
+  envelope: LocalProjectEnvelope;
+  createdAtUnix: number;
+  updatedAtUnix: number;
+  writeSequence: number;
+};
+const browserPreviewStore = new Map<string, BrowserStoredProject>();
+let browserWriteSequence = 0;
 
-function recordBrowserSnapshotTimestamps(resetCreated: boolean): void {
+function storeBrowserProject(stored: LocalProjectEnvelope): LocalProjectEnvelope {
   const nowUnix = Math.floor(Date.now() / 1000);
-  if (resetCreated || browserPreviewSnapshotCreatedAtUnix === 0) {
-    browserPreviewSnapshotCreatedAtUnix = nowUnix;
-  }
-  browserPreviewSnapshotUpdatedAtUnix = nowUnix;
+  const prior = browserPreviewStore.get(stored.summary.project_id);
+  browserPreviewStore.set(stored.summary.project_id, {
+    envelope: stored,
+    createdAtUnix: prior?.createdAtUnix ?? nowUnix,
+    updatedAtUnix: nowUnix,
+    writeSequence: ++browserWriteSequence
+  });
+  return cloneEnvelope(stored);
+}
+
+function browserProjectsByRecency(): BrowserStoredProject[] {
+  return [...browserPreviewStore.values()].sort((a, b) => b.writeSequence - a.writeSequence);
 }
 
 function hasTauriRuntime(): boolean {
@@ -576,11 +593,11 @@ export async function createLocalProject(
   analysisRun: AnalysisRunEnvelope | null = null,
   modelHash: ModelHashEvidence | null = null,
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
-  replaceExisting = false
+  confirmedRevision: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting, null);
-    browserPreviewSnapshot = envelope(
+    refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, null);
+    return storeBrowserProject(envelope(
       model,
       editorIntents,
       proposal,
@@ -590,9 +607,7 @@ export async function createLocalProject(
       modelHash,
       projectEnvelopeHash,
       "Created local browser-preview project snapshot without external file copies."
-    );
-    recordBrowserSnapshotTimestamps(true);
-    return cloneEnvelope(browserPreviewSnapshot);
+    ));
   }
   return invoke<LocalProjectEnvelope>("create_local_project", {
     model,
@@ -603,44 +618,59 @@ export async function createLocalProject(
     analysisRun,
     modelHash,
     projectEnvelopeHash,
-    replaceExisting
+    confirmedRevision
   });
+}
+
+/** A stored project's index entry and the revision a Replace of it confirms. */
+export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string };
+
+function browserRevision(stored: BrowserStoredProject): string {
+  return `${stored.envelope.project_envelope_hash?.value ?? ""}@${stored.writeSequence}`;
 }
 
 /** HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
  * project. Mirrors the native store's `refuse_unconfirmed_replacement`: a write
- * onto a stored id needs Replace (`replaceExisting`), or `expectedBase` equal to
- * the stored envelope hash (a save in place from the stored revision). */
-function refuseUnconfirmedBrowserReplacement(projectId: string, replaceExisting: boolean, expectedBase: string | null) {
-  if (replaceExisting || browserPreviewSnapshot?.summary.project_id !== projectId) return;
-  const stored = `project \`${projectId}\` ("${browserPreviewSnapshot.summary.project_name}", last saved at unix ${browserPreviewSnapshotUpdatedAtUnix})`;
+ * onto a stored id needs a Replace of the revision the prompt showed
+ * (`confirmedRevision`), or `expectedBase` equal to the stored envelope hash (a
+ * save in place from the stored revision). */
+function refuseUnconfirmedBrowserReplacement(projectId: string, confirmedRevision: string | null, expectedBase: string | null) {
+  const existing = browserPreviewStore.get(projectId);
+  if (!existing) return;
+  const stored = `project \`${projectId}\` ("${existing.envelope.summary.project_name}", last saved at unix ${existing.updatedAtUnix})`;
+  if (confirmedRevision !== null) {
+    if (confirmedRevision === browserRevision(existing)) return;
+    throw new Error(`PROJECT-BASE-MOVED: ${stored} changed after the replace prompt showed it; replacing it needs the user's confirmation.`);
+  }
   if (expectedBase === null) throw new Error(`PROJECT-ID-EXISTS: ${stored} is already stored; replacing it needs the user's confirmation.`);
-  const storedBase = browserPreviewSnapshot.project_envelope_hash?.value ?? "";
+  const storedBase = existing.envelope.project_envelope_hash?.value ?? "";
   if (expectedBase === "" || expectedBase !== storedBase) {
     throw new Error(`PROJECT-BASE-MOVED: ${stored} changed after this session opened or saved it; replacing it needs the user's confirmation.`);
   }
 }
 
-/** Empty the browser preview's one-snapshot store, as a fresh page load does.
- * The test setup calls this between cases so no case inherits a stored project. */
+/** Empty the browser preview's store, as a fresh page load does. The test
+ * setup calls this between cases so no case inherits a stored project. */
 export function clearBrowserPreviewStore(): void {
-  browserPreviewSnapshot = null;
+  browserPreviewStore.clear();
 }
 
-/** The stored project with this id, if any, for the replace prompt. */
-export async function findLocalProject(projectId: string): Promise<LocalProjectIndexEntry | null> {
+/** The stored project with this id, if any, and its revision, for the replace prompt. */
+export async function findLocalProject(projectId: string): Promise<StoredProjectEntry | null> {
   if (!hasTauriRuntime()) {
-    return (await listLocalProjects()).find((entry) => entry.project_id === projectId) ?? null;
+    const stored = browserPreviewStore.get(projectId);
+    const entry = (await listLocalProjects()).find((candidate) => candidate.project_id === projectId);
+    return stored && entry ? { ...entry, revision: browserRevision(stored) } : null;
   }
-  return invoke<LocalProjectIndexEntry | null>("find_local_project", { projectId });
+  return invoke<StoredProjectEntry | null>("find_local_project", { projectId });
 }
 
 export async function openLocalProject(projectId: string | null = null): Promise<LocalProjectEnvelope | null> {
   if (!hasTauriRuntime()) {
-    if (!browserPreviewSnapshot) return null;
-    if (projectId && browserPreviewSnapshot.summary.project_id !== projectId) return null;
-    requireEditableModelDocument(browserPreviewSnapshot.model);
-    const opened = cloneEnvelope(browserPreviewSnapshot);
+    const stored = projectId ? browserPreviewStore.get(projectId) : browserProjectsByRecency()[0];
+    if (!stored) return null;
+    requireEditableModelDocument(stored.envelope.model);
+    const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
       ? `Opened local browser-preview project snapshot by id ${projectId}.`
       : "Opened local browser-preview project snapshot.";
@@ -651,16 +681,13 @@ export async function openLocalProject(projectId: string | null = null): Promise
 
 export async function listLocalProjects(): Promise<LocalProjectIndexEntry[]> {
   if (!hasTauriRuntime()) {
-    if (!browserPreviewSnapshot) return [];
-    return [
-      {
-        project_id: browserPreviewSnapshot.summary.project_id,
-        project_name: browserPreviewSnapshot.summary.project_name,
-        storage_mode: "browser_memory_preview",
-        created_at_unix: browserPreviewSnapshotCreatedAtUnix,
-        updated_at_unix: browserPreviewSnapshotUpdatedAtUnix
-      }
-    ];
+    return browserProjectsByRecency().map((stored) => ({
+      project_id: stored.envelope.summary.project_id,
+      project_name: stored.envelope.summary.project_name,
+      storage_mode: "browser_memory_preview",
+      created_at_unix: stored.createdAtUnix,
+      updated_at_unix: stored.updatedAtUnix
+    }));
   }
   return invoke<LocalProjectIndexEntry[]>("list_local_projects");
 }
@@ -675,12 +702,12 @@ export async function saveLocalProject(
   modelHash: ModelHashEvidence | null = null,
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
   modelDocumentMigration: ModelDocumentMigrationStatus | null = null,
-  replaceExisting = false,
+  confirmedRevision: string | null = null,
   expectedBase: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting, expectedBase);
-    browserPreviewSnapshot = envelope(
+    refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
+    return storeBrowserProject(envelope(
       model,
       editorIntents,
       proposal,
@@ -690,9 +717,7 @@ export async function saveLocalProject(
       modelHash,
       projectEnvelopeHash,
       "Saved local browser-preview project snapshot without external file copies."
-    );
-    recordBrowserSnapshotTimestamps(false);
-    return cloneEnvelope(browserPreviewSnapshot);
+    ));
   }
   return invoke<LocalProjectEnvelope>("save_local_project", {
     request: {
@@ -707,7 +732,7 @@ export async function saveLocalProject(
       model_hash: modelHash,
       project_envelope_hash: projectEnvelopeHash,
       model_document_migration: modelDocumentMigration,
-      replace_existing: replaceExisting,
+      confirmed_revision: confirmedRevision,
       expected_base: expectedBase
     }
   });

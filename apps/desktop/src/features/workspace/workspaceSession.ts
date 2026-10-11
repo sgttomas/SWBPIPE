@@ -1608,30 +1608,41 @@ export function useWorkspaceSession() {
   async function writeWithReplaceConfirmation(
     kind: "create" | "save",
     requestModel: PreviewModel,
-    write: (replaceExisting: boolean) => Promise<LocalProjectEnvelope>
+    write: (confirmedRevision: string | null) => Promise<LocalProjectEnvelope>
   ): Promise<StoredProjectWrite> {
+    const refusalCode = (error: unknown) => /^(?:Error: )?(PROJECT-ID-EXISTS|PROJECT-BASE-MOVED): /.exec(String(error))?.[1];
     let stale = false;
     try {
-      return { outcome: "written", envelope: await write(false) };
+      return { outcome: "written", envelope: await write(null) };
     } catch (error) {
-      const code = /^(?:Error: )?(PROJECT-ID-EXISTS|PROJECT-BASE-MOVED): /.exec(String(error))?.[1];
+      const code = refusalCode(error);
       if (!code) throw error;
       stale = code === "PROJECT-BASE-MOVED";
     }
-    const existing = await findLocalProject(requestModel.project.id);
-    if (!existing) return { outcome: "written", envelope: await write(false) };
-    const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
-      replacePromptOpenRef.current = true;
-      // Captured before the workspace turns inert, which drops its focus.
-      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      setReplaceProjectPrompt({
-        kind, existing, stale, opener,
-        choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
+    for (;;) {
+      const existing = await findLocalProject(requestModel.project.id);
+      if (!existing) return { outcome: "written", envelope: await write(null) };
+      const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
+        replacePromptOpenRef.current = true;
+        // Captured before the workspace turns inert, which drops its focus.
+        const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        setReplaceProjectPrompt({
+          kind, existing, stale, opener,
+          choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
+        });
       });
-    });
-    if (choice === "cancel") return { outcome: "kept", existing };
-    if (choice === "replace") return { outcome: "written", envelope: await write(true) };
-    return { outcome: "save-as-new", model: await withUnusedProjectId(requestModel) };
+      if (choice === "cancel") return { outcome: "kept", existing };
+      if (choice === "save-as-new") return { outcome: "save-as-new", model: await withUnusedProjectId(requestModel) };
+      // Replace confirms the revision the prompt showed. If another writer saved
+      // the project while the prompt was open, the store refuses and the user is
+      // asked again about the revision now stored.
+      try {
+        return { outcome: "written", envelope: await write(existing.revision) };
+      } catch (error) {
+        if (refusalCode(error) !== "PROJECT-BASE-MOVED") throw error;
+        stale = true;
+      }
+    }
   }
 
   /** The same document under a project id the store does not hold. Only
@@ -1713,7 +1724,7 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const written = await writeWithReplaceConfirmation("create", requestModel, (replaceExisting) => createLocalProject(
+      const written = await writeWithReplaceConfirmation("create", requestModel, (confirmedRevision) => createLocalProject(
           requestModel,
           combinedContext,
           proposal,
@@ -1722,7 +1733,7 @@ export function useWorkspaceSession() {
           snapshotAnalysisRun,
           snapshotModelHash,
           envelopeHash,
-          replaceExisting
+          confirmedRevision
         ));
       if (written.outcome === "kept") {
         setProjectMessage(keptStoredProjectMessage(written.existing));
@@ -2183,7 +2194,7 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const written = await writeWithReplaceConfirmation("save", requestModel, (replaceExisting) => saveLocalProject(
+      const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => saveLocalProject(
           requestModel,
           combinedContext,
           proposal,
@@ -2193,7 +2204,7 @@ export function useWorkspaceSession() {
           snapshotModelHash,
           envelopeHash,
           modelDocumentMigration,
-          replaceExisting,
+          confirmedRevision,
           // The session's own stored project: a save in place from the revision it
           // last opened or wrote. Without a recorded hash there is no base to
           // check, and the save asks.
