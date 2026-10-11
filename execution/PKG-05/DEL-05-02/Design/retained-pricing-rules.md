@@ -155,47 +155,53 @@ history pricing, with no product format compatibility path.
   are included at that peak: 2·(B(20N)+s(MemberBoundInputs)). The unscaled
   exponent vector is counted as well as w/w₂.
 - **KD5O6 (recovery records and groups).** At D1, m straight members each own
-  up to 7 locations ×4 groups and g supports up to 2 groups. Price
+  up to 7 locations ×4 groups and g supports 4 evaluands (force/moment
+  vectors and their separately published magnitudes). Price
   V(RecoveryRecord,m+g), each record's separately grown group backing
-  (m·PushCap(28)+g·PushCap(2))·s(RecoveryGroup), every member/support id, two
+  (m·PushCap(28)+g·PushCap(4))·s(RecoveryGroup), every member/support id, two
   owned labels per group at 128 B each, and the error child at
   TextCap(8192) for every group. Group allocation headers are in the actual
   in-build `RecoveryRecord`; all group fields are in the in-build
-  `RecoveryGroup`. The fired-items Vec also gets V(String,28m+2g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted.
+  `RecoveryGroup`. The fired-items Vec also gets V(String,28m+4g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted.
   `member_scales` collects its paired maxima map into a second paired map.
   Both `(usize,(f64,f64))` bucket maps are priced concurrently, with no
   allocator-reuse assumption. Older snapshots retain the original paired
   map plus scalar map formula.
 
-Every new weighted layout atom binds to `size_of` of the actual PP/FK type.
-The Python ASSUMED strides remain illustrative and are not budget evidence.
+Every weighted layout atom binds to actual in-build sizes or an explicit
+source upper over those types. Workspace unions are source uppers, not
+compiler-frame measurements. Python ASSUMED strides are not budget evidence.
 Final completeness and budget claims require the implementing commit's full
 pricing run and in-build atom evaluation.
 
 
-- **KD5T1/T2 (unified fixed text).** `kd5_text_model.py` pins all four
-  certified record constructors, their private group helper, the D1 case
-  consumer and the recovery finding. This establishes that every produced
-  group location/kind comes from the enumerated literal inventory, and that
-  the consumer uses these records without replacing their labels. A changed
-  pinned body stops pricing for a new producer/consumer review. At exact
-  `e9296aae32`, the complete constructor inventory is: all, axial, bending,
-  connector_local, cut_i, cut_j, end_i, end_j, force, midspan, moment, node,
-  pipe_wall, quarter_1, quarter_3, recovery, shear, support_force,
-  support_moment, torsion, wall_cut_i, wall_cut_j, wall_end_i, wall_end_j,
-  wall_midspan, wall_quarter_1 and wall_quarter_3. The maximum is 15 B;
-  even non-D1 wall/connector labels are included conservatively. Numeric
-  item literal is 10 B, unavailable-item literal 38 B, and unified sentence
-  literal 200 B. Member ids remain IN128, error content stays 8192 B and
-  f64 exponent spelling stays 24 B. Thus F_len = 8388 B and the six-item
-  sentence bound is 50717 B. Fixed route tokens are at most 30 B. K-D5 has
-  one recovery sentence, with no three-sentence merge factor. Historical
-  O-13/registered snapshots retain their former bounds. The four-evaluand
-  support repair and comparison-unavailable detail require their actual
-  next source inventory/pins before this proof can be carried forward.
+- **KD5T1/T2 (unified fixed text).** Final source basis c62d759f1556cb7c0380aea9f4146a0c8412ddce
+  has source-pinned record constructors, group/magnitude_group helpers,
+  member_group_decision, the D1 case consumer and both maximum evidence
+  producers. Production-prefix pins protect the certified-publication,
+  certified-recovery and exact-sum source/slot inventories as well.
+  Every produced group label comes from the exhaustive constructor list:
+  all, axial, bending, connector_local, cut_i, cut_j, end_i, end_j, force,
+  midspan, moment, node, pipe_wall, quarter_1, quarter_3, recovery, shear,
+  support_force, support_force_magnitude, support_moment,
+  support_moment_magnitude, torsion, wall_cut_i, wall_cut_j, wall_end_i,
+  wall_end_j, wall_midspan, wall_quarter_1 and wall_quarter_3. The maximum
+  is24 UTF8 B; non-D1 wall/connector labels remain conservatively included.
+  Numeric/bound-unavailable/comparison-unavailable item literals are
+  10/38/36 B; the unified sentence literal is234 B. The pinned comparison
+  producer's longest reason is35 B (nonfinite certified group magnitude).
+  Bound-unavailable reason content remains8192 B, member ids IN128 and
+  f64 exponent spelling24 B. Thus F_len=max(234,8406,247)=8406 B and
+  the six-item sentence bound is50859 B. Fixed route tokens are at most30 B.
+  One unified recovery sentence has no three-sentence merge factor.
+  Current maximum coefficient_basis/enclosure_scope literals are46/79 B,
+  present in both pinned producers and within the existing120-B ordinary
+  evidence allowance; the evidence object field count remains within15.
+  Changed producer/consumer/inventory source fails closed for renewed
+  review. Historical registered snapshots retain their original formula.
 - **KD5L1/L2 (group census).** The surviving `record in records` header is
   re-bound to m+g on the unified record shape; the separate per-record
-  `group` header is bounded at 28 (supports have only two). This protects
+  `group` header is bounded at 28 (supports have four evaluands). This protects
   every new support record instead of retaining the former member-only m
   census. The new-header rule is limited to the two actual guard functions.
 
@@ -477,3 +483,44 @@ pricing run and in-build atom evaluation.
   helper bodies remain individually pinned for the positive608-B branch.
   A changed source stops for a renewed source/slot review. Native profile
   and whole-stack claims remain pending final immutable source evaluation.
+
+- **KD5C4 (primitive min/max call targets).** New private
+  certified_publication::FallbackError min/max methods made the heuristic
+  graph incorrectly fan primitive-number calls into their error-returning
+  bodies. The type is private, has no escaping producer/return, and every
+  named outside caller's receiver is a primitive number or its numeric
+  iterator. These calls use the standard intrinsic, with no repository
+  method body or String allocation. Explicit caller/name bindings remove
+  that false target; all real FallbackError min/max calls in
+  fallback_section_errors remain. The one included CP caller,
+  fallback_denominator_relative_error, has f64 lower/ratio operands only.
+  The current production-prefix pin protects that typed boundary.
+  Existing true visits and R2 call paths remain; this is a type binding,
+  not a fixture-derived multiplicity or an unpriced-site waiver.
+- **KD5L14–L16 (new fixed/span headers).** The mapped certificate/fallback
+  span walk retains positive2l+1 under KD5O10's current-D1 one-interval
+  producer. Section maximum coverage walks exactly5 sections. Coefficient
+  controls, stress components, sample values and local intensities are
+  arrays of3; section-force/moment walks have6 entries. Rules are limited
+  to their named actual functions and retain all case/replay multipliers.
+  False primitive min/max ancestors no longer create fictitious TEXT
+  visits on Bodies coordinates/edges, g5a rows or notice group scans.
+- **KD5L17/L18 (power-transport error).** Each i32 remaining/exponent moves
+  toward zero in signed steps of512, except its final smaller step. The
+  positive universal loop bound is ceil(2^31/512)=4194304; no pressure
+  namespace inference is used. fallback_power_up's sole error copy returns
+  Err immediately, so it allocates at most once per actual invocation.
+  Its existing positive site_from family preserves the full function's
+  case/replay count while bounding only the returning allocation.
+- **KD5A7 (MPa copies and identities).** stable_suffix replaces each colon
+  by one hyphen, preserving the capped pipe-id byte length. pipe_id and
+  record.member remain IN128; pipe.element_id.len() remains numeric20.
+  Endpoint/station location rewriting uses fixed tokens; kind/component/
+  label/basis and the three stress-name alternatives use existing128-B
+  fixed-token caps. The pinned caller supplies only current code constants.
+  The lexicon additionally inventories the actual sign.map(str::to_string)
+  copy at append_stress_mpa, which a method-only pattern missed. Its two
+  caller constants measure167/179 UTF8 B; use the measured179-B bound and
+  retain the fallback format allocation separately as an alternative sum.
+  No global identifier/message cap is narrowed. Historical snapshots
+  without this producer do not gain this lexical row or these rules.

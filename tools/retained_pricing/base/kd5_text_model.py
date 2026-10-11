@@ -7,7 +7,9 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': '00d97e3e62b9533ee1bf49c5e8dad88d38028b9f29a173115182e31ce322a169', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '854169c4f86d9fc8c96aa642f8295c6f6ccf5e7c5f0ff9103044a2c70d8fb774', 'unavailable_record': 'dce5657004aeb2807d7c3fe6a8814c7963df73d73422a583e5465efd8ea6f407', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': '8182d4258b0b7ddd452ffb5df65619c1283abf3e055916e2bc220d233e4b8307'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '74c5cead7b08e7456f604bd026ccafd13f35516cfac172aef217fedc0d4c4894'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': '5a16ba3e4680f456ec998edbad20ef80a7fdf3edb0c85665bafac61dfb0c19b0', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '80364dda6df61d5e0037a38b590b69492b90e63f33efba3b29d0d30dc346a8ee'}}
+
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'df35c2086250919d7171e8ea9c9cdadd44cf44cc6409dfc6295969bd4035cb6c', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -28,6 +30,11 @@ def literal_bytes(template):
 
 def inspect(snapshot):
     bodies = {}
+    for file, digest in PRODUCTION_PINS.items():
+        with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+            source = stream.read().split("#[cfg(test)]", 1)[0]
+        if hashlib.sha256(source.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
     for file, functions in PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read()
@@ -49,7 +56,26 @@ def inspect(snapshot):
     routes = [value for value in literals(bodies["solve_load_case_observed"]) if value.startswith("on ") and value.endswith(" route")]
     if not routes:
         raise ValueError("KD5T2: no fixed route strings")
+    with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), encoding="utf-8") as stream:
+        consumer_source = stream.read()
+    sign_values = []
+    for name in ("STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION", "CURVED_BEND_SECTION_SIGN_CONVENTION"):
+        hits = re.findall(r"const " + name + r': &str = "([^"\\]+)";', consumer_source)
+        if len(hits) != 1:
+            raise ValueError(f"KD5A7: expected one unescaped sign constant {name}")
+        sign_values += hits
+    comparison_reasons = literals(bodies["member_group_decision"])
+    coefficient_basis = "j_side_section_equilibrium_binary64_enclosures"
+    enclosure_scope = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+    for producer in ("extrema_evidence", "solve_load_case_observed"):
+        values = literals(bodies[producer])
+        if coefficient_basis not in values or enclosure_scope not in values:
+            raise ValueError(f"KD5T2: current maximum literal absent in {producer}")
     return {"labels": labels, "label_bytes": max(len(value.encode()) for value in labels),
+            "comparison_reason_bytes": max(len(value.encode()) for value in comparison_reasons),
+            "sign_bytes": max(len(value.encode()) for value in sign_values),
+            "item_comparison_literal": one("member comparison unavailable"),
+            "coefficient_basis_bytes": len(coefficient_basis.encode()), "enclosure_scope_bytes": len(enclosure_scope.encode()),
             "item_numeric_literal": one(": q="), "item_unavailable_literal": one("member bound is unavailable"),
             "sentence_literal": one("S11-G recovery guard"), "route_bytes": max(len(value.encode()) for value in routes)}
 

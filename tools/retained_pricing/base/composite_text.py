@@ -112,7 +112,8 @@ if "fn member_group_fires(" in _fg:
     from kd5_text_model import inspect as _kd5_text_inventory
     _kd5 = _kd5_text_inventory(proot)
     F_len = max(ident + 2 * _kd5["label_bytes"] + _kd5["item_numeric_literal"] + 2 * F64D,
-                ident + 2 * _kd5["label_bytes"] + _kd5["item_unavailable_literal"] + ERR)
+                ident + 2 * _kd5["label_bytes"] + _kd5["item_unavailable_literal"] + ERR,
+                ident + 2 * _kd5["label_bytes"] + _kd5["item_comparison_literal"] + _kd5["comparison_reason_bytes"])
 
 J_len = 6 * F_len + 2 * 5
 C_len = 11 + 20
