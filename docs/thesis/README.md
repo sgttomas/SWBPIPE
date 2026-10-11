@@ -19,7 +19,7 @@ Chirality can transfer to other applications, what remains host-specific and
 why re-derivation from current requirements must preserve accumulated learning.
 
 The [shared conjecture](appendix_d_framework_s.md) retains its formal argument
-and prose. C names temporal dependence. The necessary meaning at issue is S's
+with shared definitions and revised interpretation. C names temporal dependence. The necessary meaning at issue is S's
 recognition of the necessity of contingency; N is existential affirmation,
 not modal necessity. G remains undefined. The practical argument does not
 require assent to the conjecture or derive engineering mechanisms from it.

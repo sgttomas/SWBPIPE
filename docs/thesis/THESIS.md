@@ -95,8 +95,8 @@ agent, with workflow authoring as the first exemplar. SWBPIPE asks what that
 participation requires when the subject is a particular engineering activity.
 
 The three theses share a philosophical origin. [Appendix D][D1] preserves the
-formal argument and its prose. C names temporal dependence; the necessary
-meaning at issue is S's recognition of the necessity of contingency; N names
+formal argument with shared definitions and concise commentary. C names
+temporal dependence; the necessary meaning at issue is S's recognition of the necessity of contingency; N names
 existential affirmation, not modal necessity. G remains undefined. The kernel
 is not expanded here into a derivation of engineering or software mechanisms.
 The practical argument can be examined on its own grounds.
@@ -627,8 +627,8 @@ per DEC-081).
 - **A2:** [App v4 host integration][A2], §§2–7 and 10–11: shared operation
   meanings, host responsibilities, unresolved generation scope and the limits
   of currently established integration.
-- **D1:** [Shared conjecture][D1]: unchanged formal argument and prose with
-  the agreed definitions and light commentary.
+- **D1:** [Shared conjecture][D1]: unchanged formal argument, agreed definitions
+  and revised concise interpretation.
 - **P1:** [SWBPIPE PRD][P1], §§1, 4–5, 8, 10, 13 and 15: product purpose,
   domain objects, model/action relations, comparisons and reliance pathway.
   These are commitments, not claims that every requirement is implemented.
