@@ -483,7 +483,7 @@ T3's R2 (Rust-only base readers) commits native outcomes for a shared base corpu
 | "Ordinary formation check (outer vectors)" | + 2·Xc(ExactAccumulator, F) for s and s₂; + B(8·5F) for the radius vector ψ, w₂, the second right-hand side and the ε_E row and column sums; the per-row allowance replaces the `Vec<f64>` lists; + V(LoadPrimitive, l) and the complete closure manifests with their expected summand identities |
 | "H_formation128 (T06: heap 0)" | Stays 0 only if every re-formation is on the stack: K_int per element for ρ, s, s₂, ε_E and recovery, and load primitives at p, with no `Vec<Element>` cache (S5). A test pins it |
 | StructuralSolution (now priced, S5) | + B(16·N) for w and w₂, + s(MemberBoundInputs), live from the completion through the recovery stage |
-| W2 "evaluate" | It is ×2 over core_total, so it counts the larger formation-check row twice (T3's double count). The tail gains the unscaled member-bound inputs once: + B(16·N) |
+| W2 "evaluate" | It is ×2 over core_total, so it counts the larger formation-check row twice (T3's double count). The tail gains the retained attempt member-bound inputs once: + B(16·N) |
 | "Straight member recovery" | V(RecoveryRecord, m) becomes V(RecoveryRecord, m + a + c + g) (a = c = 0 under D1). s(RecoveryRecord) grows to 7 locations × 4 groups for members and 2 groups for supports. The certified recovery uses the stack only |
 | "Formation-guard late maps and RecoveryFinding" | Coupled force and moment scales per body (O-13's ActionScales) |
 | Text(recovery_finding), Text(formation_detail), D, D_env | Re-run the TEXT chain: new sentence items (no longer than today's), new detail strings, the notice and the limitation sentences |
@@ -513,7 +513,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 - `finish_checked_factor` passes est, the norm and the contributions to the check.
 - The sparse `formation_check` view passes the contributions (today it passes `None`).
 - `StructuralSolution.member_bound: Option<MemberBoundInputs>`, never in `StructuralReport`.
-- The W2 entry computes Λ′ from its own attempt, passes w and w₂ through, and unscales Λ′·σ′ upward (§2.2).
+- The W2 entry computes Λ′ from its own attempt and passes D′, Λ′·σ′, w and w₂ through unchanged to the physical-A recovery API (§2.2). It never unscales Λ′·σ′ alone. Only a recovery using scaled A′ and scaled loads would unscale its completed force rows and R, upward for R.
 
 **FK certificates (new `structural/certified_recovery.rs`):**
 
@@ -576,7 +576,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - m_g at u;
   - rounding magnitudes after their components;
   - the governing maximum formed from v instead of the repaired actions;
-  - the K2b unscaling of w (must not happen) and of R (must).
+  - K2b unscaling of w or w₂ (must not happen), or standalone unscaling of Λ′·σ′ on the physical-A route (must not happen; a positive-b control kills its too-small bound). If a scaled-A′ recovery route is used, its completed force-unit m and R must both be unscaled, upward for R; that requirement does not apply to the physical-A route.
 - **The decision:**
   - `≥` in place of `>`;
   - a rounded comparison;
