@@ -2519,6 +2519,28 @@ fn resolve_expansion_joint_creation(
             );
             (from == node_i && to == node_j) || (from == node_j && to == node_i)
         });
+        // A realized curved span is an arc, not a straight span a connector replaces.
+        let realized_span = model
+            .get("components")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .any(|c| {
+                matches!(c.get("kind").and_then(Value::as_str), Some("bend" | "elbow"))
+                    && c.pointer("/mechanics_interface/solver_consumption").and_then(Value::as_str)
+                        == Some(bend_authoring::CURVED)
+                    && c.pointer("/geometry/bend_pipe_ref").and_then(Value::as_str) == Some(span)
+            });
+        if realized_span {
+            checker.push(
+                "OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID",
+                "blocking",
+                format!("Pipe `{span}` is a realized bend's arc span; an objective connector replaces a straight span only."),
+                "Select a straight span for the connector.",
+                vec![target_ref.to_string(), span.to_string()],
+            );
+            return None;
+        }
         let valid = connector.and_then(|c| c.get("version")).and_then(Value::as_str) == Some("1.0.0")
             && topology.and_then(|t| t.get("type")).and_then(Value::as_str) == Some("replaces_span")
             && !node_i.is_empty()

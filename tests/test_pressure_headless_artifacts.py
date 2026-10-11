@@ -25,7 +25,7 @@ from schema_validation import validate_instance
 PROJECT = Path(__file__).resolve().parents[1]
 STEMS = ["arc-u2-l-anch-ptw-k2-0-3-0", "arc-u2-l-anch-ptw-k2-0-4-0", "arc-u2-l-kink-anch-p-k2-0-3-0",
          "arc-l-line-with-connector-0-3-0", "arc-replaced-span-only-0-3-0",
-         "connector-u3-sys-demo-connector-001", "connector-u3-sys-demo-connector-002-lr1"]
+         "connector-u3-sys-demo-connector-001", "connector-u3-sys-demo-connector-002-lr1", "authored-l-line"]
 NAMES = [f"{stem}-{mode}" for stem in STEMS for mode in ("sparse_interactive", "dense_scrutiny")]
 
 

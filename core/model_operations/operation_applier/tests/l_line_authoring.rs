@@ -399,3 +399,19 @@ fn the_desktop_l_line_fixture_is_current() {
     }
     assert!(FIXTURE == bytes, "the desktop L-line fixture is stale; regenerate it");
 }
+
+/// An objective connector replaces a straight span only: a realized arc span is refused.
+#[test]
+fn a_connector_cannot_replace_a_realized_arc_span() {
+    let mut model = authored(true);
+    for case in model["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+        case["primitive_loads"] = json!([]);
+    }
+    let connector = |span: &str, from: &str, to: &str| json!({"id": "component:J-1", "label": "Joint", "kind": "expansion_joint", "node": to, "provenance": PROVENANCE,
+        "objective_connector": {"version": "1.0.0", "end_i": {"node_ref": from}, "end_j": {"node_ref": to}, "topology": {"type": "replaces_span", "span_ref": span}}});
+    let create = |payload: &Value| intent("insert", "insert_component_symbol", "Component", "component:J-1", "components", "not_present", &payload.to_string(), "none", "dimensionless");
+    assert!(codes(&model, &create(&connector("pipe:BEND", "node:B", "node:C"))).contains(&"OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID".into()));
+    let outcome = apply_operation(&model, &create(&connector("pipe:S1", "node:A", "node:B")), Some(&hash(&model)));
+    assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
+}

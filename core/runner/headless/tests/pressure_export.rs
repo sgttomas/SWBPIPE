@@ -2,7 +2,9 @@
 //! runner's export chain, in both solver modes: every document of the shared
 //! arc reader corpus (realized arcs on 0.3.0 and 0.4.0, the admitted kink, an
 //! arc beside a connector, a replaced-span-only model) and the frozen T4-I12
-//! connector system documents (with their variable spring hanger) produce a
+//! connector system documents (with their variable spring hanger), and the L
+//! line authored from its corner through the operation applier (T4-U2 phase 3,
+//! `fixtures/model_operations/pressure_v3_l_line_authoring.json`) produce a
 //! pressure-1 export document that the exporter's independent check admits,
 //! with its contract evidence copied whole.
 //!
@@ -20,6 +22,8 @@ use serde_json::Value;
 const ARC_CORPUS: &str =
     include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json");
 const I12: &str = include_str!("../../../../validation/references/t4_i12/u3_reference_cases.json");
+const AUTHORED: &str =
+    include_str!("../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json");
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
@@ -73,6 +77,8 @@ fn inputs() -> Vec<(String, Value)> {
     for (case, key) in [("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0"), ("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0")] {
         out.push((format!("connector-{}", case.to_lowercase()), references["cases"][case]["inputs"][key].clone()));
     }
+    let authored: Value = serde_json::from_str(AUTHORED).unwrap();
+    out.push(("authored-l-line".into(), serde_json::json!({"model": authored["authored_model"], "materials": []})));
     out
 }
 
@@ -113,5 +119,5 @@ fn pressure_1_documents_export_in_both_modes() {
             exported += 1;
         }
     }
-    assert_eq!(exported, 14);
+    assert_eq!(exported, 16);
 }
