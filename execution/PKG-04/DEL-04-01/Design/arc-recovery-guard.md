@@ -103,6 +103,25 @@ W1c (curved bends in W1, with T4) remains T3's retained-precision phase. When it
 
 Curved spans stay outside D1, checked on the implementing head. `source_recovery` refuses the component, curved, user-matrix or release source family, `retained_product` refuses any realized curved element, and F1b's W2 refuses the curved family at b ≠ 0. T4-U2's v3 admission of realized bends does not reach the retained source. Arc records therefore exist only on the ordinary linear and nonlinear routes. I5 ruling 3's receipt residual cannot reach arcs.
 
+### Evidence and cost
+
+T4-I37's evidence is in T4's scratch (`t4_i37/`). The product's own bounds and verdicts were recorded by a scratch hook and compared with T4-I34's 120-digit references: f(z, u) for formation, and exact model solves for published errors where the model has no pressure, imposed motion or nonlinear support.
+
+- **T4's fixtures (400 case-modes, both modes).** Covered: the L line from 90° to 1e-3 rad (w, w+T, UTM), 0.3 m arcs to 1e-4 rad, k = 2 and 10, the I7 L and U lines (incl. skew and UTM), the 79 pressurized I7 documents, the demo with its elbow realized, the ARC-INPLANE analogues and large k.
+  - Every bound encloses.
+  - No final Passed case publishes a breach above the floor.
+  - The arc guard demotes 20 case-modes, every one a breach of 7.6e2× to 5.2e3× (ARC-INPLANE and ARC-ONLY at G1e80). The short-bend rule demotes 14.
+  - No correct case is demoted except by the short-bend limit (the 8° L lines).
+- **Committed PP suites under the hook.** Covered: the lib and the curved, pressure, connector and admission suites.
+  - The only demotions are this unit's own tests.
+  - Every T4-I7 pressure reference stays Passed.
+  - The residual is R-b′'s accepted structural zero. Two stress-free arcs publish rounding-size rows against an exact zero, with B_f ≤ 8e-6 of the criterion, and stay Passed (`p8_a_stress_free_arc_stays_passed`).
+- **SP-1.** T4-I19's probe (182 documents, straight-only and bend-free; PP's ordinary, captured, typed and retained entries and HR's runner; both modes) gives 364 of 364 rows byte-identical between this unit's head and its pre-O-13 base. Against main, the differences are those the base already had (T4's declared legacy-joint refusals); none is this unit's.
+- **Cost (O-2; release, shared host).**
+  - Per arc and case: `certify_curved_recovery` about 80 µs, about 80 µs per uniform-load certificate, and `bound_end_actions` about 5 µs.
+  - Per invocation: the I7 U line rose from 4.0 to 4.6 ms and the L line from 1.3 to 1.45 ms.
+  - The per-arc certificate is not cached across cases. Caching would save about 80 µs per arc and additional case, and would need state carried through the case loop.
+
 ### Tests
 
 - **FK** `arc_recovery_tests.rs` against `validation/references/t4_o13/`:
