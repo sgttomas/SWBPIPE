@@ -43,8 +43,9 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, certify_curved_uniform_load, reduce_assembled_sparse_system,
-    CurvedFormation, ForceScaleReason, ForceScaledError,
+    assemble_sparse_stiffness, certify_curved_recovery, certify_curved_uniform_load,
+    reduce_assembled_sparse_system, ArcCertificateFailure, ArcRowGroup, CurvedFormation,
+    ForceScaleReason, ForceScaledError,
     ForceScalingRefusal, FormationCheck, FormationCheckReason, LoadFidelityReport, PublishedValue,
     RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
@@ -1404,9 +1405,17 @@ const PIVOT_SCREEN_REASON: &str = "nonpositive or cancellation-unresolved struct
 const CURVED_BEND_SHORT_TEXT: &str = "the bend is too short relative to its neighbours for a reliable solution: its arc is stiff against the adjacent members, so the assembled system is ill-conditioned beyond binary64 resolution (a straight chord of the same length behaves identically)";
 
 /// The realized bend with the smallest arc-length ratio to its shorter
-/// adjacent member (a straight's chord length, or a neighbouring bend's arc
-/// length), with that ratio; `None` when no bend has a neighbour.
+/// adjacent member, with that ratio; `None` when no bend has a neighbour.
 fn shortest_bend_against_neighbours(built: &BuiltModel) -> Option<(&CurvedBendMacroBuild, f64)> {
+    bend_neighbour_ratios(built)
+        .into_iter()
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+}
+
+/// Each realized bend that has a neighbour, with its arc length over the
+/// shorter adjacent member's length (a straight's chord length, or a
+/// neighbouring bend's arc length).
+fn bend_neighbour_ratios(built: &BuiltModel) -> Vec<(&CurvedBendMacroBuild, f64)> {
     let member_length = |index: usize| {
         built
             .curved_bend_elements
@@ -1439,7 +1448,7 @@ fn shortest_bend_against_neighbours(built: &BuiltModel) -> Option<(&CurvedBendMa
                 .min_by(|a, b| a.total_cmp(b))?;
             Some((bend, bend.arc_length / shorter))
         })
-        .min_by(|a, b| a.1.total_cmp(&b.1))
+        .collect()
 }
 
 /// Ruling 5: after a pivot-screen refusal, one diagnostic per refused case
@@ -5297,8 +5306,10 @@ fn solve_load_case_observed(
     );
 
     // S11-G R-b' (section 4): (member, end, q, B) of each straight member end
-    // published from the formed K_e * u, decided after the loop.
+    // published from the formed K_e * u, decided after the loop; O-13: each
+    // realized arc's end groups published from the formed K_c * u.
     let mut recovery_records = Vec::new();
+    let mut arc_records = Vec::new();
     let mut max_stress = None;
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
@@ -5349,9 +5360,12 @@ fn solve_load_case_observed(
                 bend,
                 pipe,
                 &displacements,
-                &thermal_loads,
+                &curved_bend_free_expansions(
+                    bend,
+                    &thermal_loads,
+                    bend_pressure::recovery_strain(exact_pressure.as_ref(), pipe_index),
+                ),
                 uniform_intensities,
-                bend_pressure::recovery_strain(exact_pressure.as_ref(), pipe_index),
             ) {
                 Ok(local_forces) => local_forces,
                 Err(message) => {
@@ -5457,6 +5471,20 @@ fn solve_load_case_observed(
                 body: formation_bodies.body_of_node(pipe.node_i.index),
                 ends: [end(0, 0), end(DOF_PER_NODE, 1)],
             });
+        } else if let (None, Some(bend)) = (recovered_member, macro_bend) {
+            arc_records.push(arc_recovery_record(
+                bend,
+                pipe,
+                &displacements,
+                &curved_bend_free_expansions(
+                    bend,
+                    &thermal_loads,
+                    bend_pressure::recovery_strain(exact_pressure.as_ref(), pipe_index),
+                ),
+                uniform_intensities,
+                &corrected_local_forces,
+                formation_bodies.body_of_node(pipe.node_i.index),
+            ));
         }
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
         // Raw end rows remain node-on-element actions. Stress recovery and
@@ -5929,19 +5957,36 @@ fn solve_load_case_observed(
         );
     }
 
-    if !recovery_records.is_empty() {
-        let scales = formation_guard::moment_scales(
+    if !recovery_records.is_empty() || !arc_records.is_empty() {
+        let guarded: HashSet<&str> = arc_records.iter().map(|r| r.member.as_str()).collect();
+        let scales = formation_guard::action_scales(
             &results,
             &formation_entity_bodies(model, built, &formation_bodies),
-            &curved_bends_by_pipe
-                .values()
-                .map(|bend| bend.pipe_id.clone())
-                .collect(),
+            &unguarded_arcs(&curved_bends_by_pipe, &arc_records),
             &formation_bodies,
         );
-        if let Some(finding) =
-            formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)
-        {
+        let short_bends: Vec<formation_guard::ShortBend> = bend_neighbour_ratios(built)
+            .into_iter()
+            .filter(|(bend, _)| guarded.contains(bend.pipe_id.as_str()))
+            .map(|(bend, ratio)| formation_guard::ShortBend {
+                component: bend.component_id.clone(),
+                pipe: bend.pipe_id.clone(),
+                ratio,
+            })
+            .collect();
+        let findings = [
+            formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id),
+            formation_guard::arc_recovery_finding(&arc_records, &scales, &load_case.id),
+            formation_guard::short_bend_finding(&short_bends, &load_case.id),
+        ];
+        #[cfg(test)]
+        formation_guard::observed::record(formation_guard::observed::ArcObservation {
+            project: model.project.id.clone(),
+            records: arc_records.clone(),
+            scales: scales.clone(),
+            finding: findings[1].clone(),
+        });
+        if let Some(finding) = formation_guard::merge(findings.into_iter().flatten().collect()) {
             let demoted = formation_guard::amend_integrity_report(
                 diagnostics,
                 &integrity_diagnostic_id(&load_case.id),
@@ -11277,25 +11322,24 @@ fn exact_straight_end_forces(
         .collect()
 }
 
-// Macro-span recovery: end forces are K_macro * (d - u_free) minus the
-// arc-consistent distributed equivalent loads, in global coordinates — the
-// exact free-expansion correction mirrors
-// `corrected_local_forces_for_axial_effects` so recovered forces exclude the
-// self-equilibrated thermal part, and the equivalent-load subtractions turn
-// the nodal solve response into the true node-on-element end forces of the
-// continuously loaded arc — then rotated to the chord frame of the replaced
-// straight span so the existing result rows keep their convention. No
-// pressure load reaches a macro span: the radial pressure treatment was
-// retired, legacy pressure is refused on every route, and the exact pressure
-// profile refuses bend components.
-fn recover_curved_bend_local_forces(
+/// Entity rule 2b after O-13: the realized arcs whose rows stay out of the
+/// guards' scales are those without an arc recovery record.
+fn unguarded_arcs(
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+    arc_records: &[formation_guard::ArcRecoveryRecord],
+) -> HashSet<String> {
+    curved_bends_by_pipe
+        .values()
+        .filter(|bend| !arc_records.iter().any(|r| r.member == bend.pipe_id))
+        .map(|bend| bend.pipe_id.clone())
+        .collect()
+}
+
+/// The arc's 12 global displacements [node i; node j].
+fn curved_bend_element_displacements(
     bend: &CurvedBendMacroBuild,
-    pipe: &StraightPipeElement,
     displacements: &[f64],
-    thermal_loads: &[ThermalElementLoad],
-    uniform_intensities: &[[f64; 3]],
-    pressure_strain: Option<f64>,
-) -> Result<Vec<f64>, String> {
+) -> Result<[f64; ELEMENT_DOF], String> {
     let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
     if displacements.len() < required {
         return Err(format!(
@@ -11311,20 +11355,103 @@ fn recover_curved_bend_local_forces(
                 displacements[node_index * DOF_PER_NODE + dof];
         }
     }
-    // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
-    // products K_rc * d_c, minus K_rc * fl(eps_l * chord_c) for each thermal
-    // load l (the force side's exact products), minus each uniform load's own
-    // consistent equivalent, rounded once. The chord rotation below stays a
-    // formed transform.
-    // T4-U2 (H-2): an arc in a pressure region also subtracts the free
-    // expansion of its represented ε_p, the value its load used.
-    let free_expansions = thermal_loads
+    Ok(element_displacements)
+}
+
+/// The free expansions an arc's recovery subtracts: one per thermal load on
+/// the arc and, T4-U2 (H-2), one for the represented ε_p of an arc in a
+/// pressure region (the value its load used).
+fn curved_bend_free_expansions(
+    bend: &CurvedBendMacroBuild,
+    thermal_loads: &[ThermalElementLoad],
+    pressure_strain: Option<f64>,
+) -> Vec<[f64; ELEMENT_DOF]> {
+    thermal_loads
         .iter()
         .filter(|load| load.element_index == bend.pipe_index)
         .map(|load| load.thermal_strain)
         .chain(pressure_strain)
         .map(|strain| curved_bend_free_expansion_displacements(bend, strain))
-        .collect::<Vec<_>>();
+        .collect()
+}
+
+/// O-13: an arc's recovery record. q per end group from the published rows,
+/// and FK's certified bounds for the same u, free expansions and uniform
+/// loads the recovery used (`arc-recovery-guard.md`). A failed certificate
+/// (the arc's, or a uniform load's) is an unavailable bound, which fires.
+/// T4-U2's bend-pressure terms need no ball of their own here: recovery
+/// subtracts only K_b*u_free(eps_p), whose held free expansion enters the ball
+/// exactly as the thermal one; -c_b, the caps and the remainders are nodal
+/// source loads that reach the arc only through u.
+fn arc_recovery_record(
+    bend: &CurvedBendMacroBuild,
+    pipe: &StraightPipeElement,
+    displacements: &[f64],
+    free_expansions: &[[f64; ELEMENT_DOF]],
+    uniform_intensities: &[[f64; 3]],
+    published: &[f64],
+    body: Option<usize>,
+) -> formation_guard::ArcRecoveryRecord {
+    let published: [f64; ELEMENT_DOF] = std::array::from_fn(|k| published[k]);
+    let q = [0, DOF_PER_NODE].map(|base| {
+        ArcRowGroup::ALL.map(|group| match group.rows() {
+            [row] => published[base + row].abs(),
+            [a, b] => norm2(published[base + a], published[base + b]),
+            _ => f64::NAN,
+        })
+    });
+    let bounds = (|| {
+        let formation = curved_formation_of(bend);
+        let unavailable = |error: ArcCertificateFailure| format!("{error:?}");
+        let certificate = certify_curved_recovery(
+            &formation,
+            pipe.node_i.coordinates,
+            pipe.node_j.coordinates,
+            pipe.y_reference,
+        )
+        .map_err(unavailable)?;
+        let loads = uniform_intensities
+            .iter()
+            .filter(|intensity| **intensity != [0.0; 3])
+            .map(|&intensity| certify_curved_uniform_load(&formation, intensity))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(unavailable)?;
+        let u = curved_bend_element_displacements(bend, displacements)?;
+        let ends = certificate
+            .bound_end_actions(&u, free_expansions, &loads, &published)
+            .map_err(unavailable)?;
+        Ok([0, 1].map(|end| ArcRowGroup::ALL.map(|group| ends.group(end, group))))
+    })();
+    formation_guard::ArcRecoveryRecord {
+        member: pipe.element_id.clone(),
+        body,
+        q,
+        bounds,
+    }
+}
+
+// Macro-span recovery: end forces are K_macro * (d - u_free) minus the
+// arc-consistent distributed equivalent loads, in global coordinates — the
+// exact free-expansion correction (thermal and, T4-U2, the represented eps_p)
+// mirrors `corrected_local_forces_for_axial_effects` so recovered forces
+// exclude the self-equilibrated part, and the equivalent-load subtractions
+// turn the nodal solve response into the true node-on-element end forces of
+// the continuously loaded arc — then rotated to the chord frame of the
+// replaced straight span so the existing result rows keep their convention.
+// O-13 bounds these rows (`arc_recovery_record`).
+fn recover_curved_bend_local_forces(
+    bend: &CurvedBendMacroBuild,
+    pipe: &StraightPipeElement,
+    displacements: &[f64],
+    free_expansions: &[[f64; ELEMENT_DOF]],
+    uniform_intensities: &[[f64; 3]],
+) -> Result<Vec<f64>, String> {
+    let element_displacements = curved_bend_element_displacements(bend, displacements)?;
+    // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
+    // products K_rc * d_c, minus K_rc * fl(eps_l * chord_c) for each free
+    // expansion l (the force side's exact products), minus each uniform
+    // load's own consistent equivalent, rounded once. The chord rotation
+    // below stays a formed transform.
     let mut equivalents = Vec::new();
     for &intensity in uniform_intensities {
         if intensity != [0.0; 3] {
@@ -11344,7 +11471,7 @@ fn recover_curved_bend_local_forces(
                 accumulator.add_product(bend.global_stiffness[row][col], displacement)
             });
         }
-        for free_expansion in &free_expansions {
+        for free_expansion in free_expansions {
             for (col, &free_value) in free_expansion.iter().enumerate() {
                 if free_value != 0.0 {
                     summed = summed.and_then(|()| {

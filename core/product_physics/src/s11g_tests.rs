@@ -350,10 +350,11 @@ fn rb_view(request: &Value, envelope: &MechanicsEnvelope, case: &str) -> Vec<End
         .map(|b| b.pipe_id.clone())
         .collect();
     let owned: Vec<ResultItem> = rows.iter().map(|r| (*r).clone()).collect();
-    let scales = formation_guard::moment_scales(
+    // O-13: every published arc is guarded, so its rows are in S* (2b lifted).
+    let scales = formation_guard::action_scales(
         &owned,
         &formation_entity_bodies(&model, &built, &bodies),
-        &curved,
+        &HashSet::new(),
         &bodies,
     );
     let moment = |member: &str, component: &str, location: &str| {
@@ -376,8 +377,8 @@ fn rb_view(request: &Value, envelope: &MechanicsEnvelope, case: &str) -> Vec<End
         let bounds = pipe.bending_formation_bound(&u).unwrap();
         let s_star = bodies
             .body_of_node(pipe.node_i.index)
-            .and_then(|b| scales.get(&b).copied())
-            .unwrap_or(0.0);
+            .and_then(|b| scales.get(&b))
+            .map_or(0.0, |s| s.moment);
         for (index, (end, location)) in [("i", "end_i"), ("j", "end_j")].into_iter().enumerate() {
             let (Some(y), Some(z)) = (
                 moment(&pipe.element_id, "bending_moment_y", location),
@@ -3076,3 +3077,6 @@ fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
 
 // HELP_HUMAN's ruling 5 (T4): short stiff bends.
 mod short_bend;
+
+// O-13: the arc recovery guard and the short-bend rule.
+mod arc_recovery;
