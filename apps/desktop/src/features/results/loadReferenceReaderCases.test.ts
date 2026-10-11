@@ -1,6 +1,6 @@
 /** Targeted load-reference-1 reader refusals, each raising Python's code (T1 WP2).
  *
- * loadReferenceReaderCases.cases.json holds JSON-pointer ops on committed
+ * fixtures/results/loadReferenceReaderCases.cases.json holds JSON-pointer ops on committed
  * load-reference-1 raws; each case's `python` value is the code Python
  * validate_load_reference_evidence raised on the same bytes (authored by the
  * T1 WP2 return's make_reader_cases.py). The desktop reader must raise the same
@@ -13,7 +13,7 @@ import { resolve } from "node:path";
 import type { MechanicsResult } from "../../types";
 import { at, guarded, LoadReferenceError, validateLoadReferenceEvidence, verifyLoadReferenceTransportSchema } from "./loadReferenceEvidence";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, LOAD_REFERENCE_SOURCE_VALIDATION_REQUIRED, loadReferenceSourceStanding, validateLoadReferenceSourceEvidence } from "./loadReferenceSourceEvidence";
-import cases from "./loadReferenceReaderCases.cases.json";
+import cases from "../../../../../fixtures/results/loadReferenceReaderCases.cases.json";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const root = resolve(__dirname, "../../../../../");

@@ -182,7 +182,7 @@ pub fn physics_retained_contract() -> &'static Value {
 }
 /// Either successor identity: the preview `<preview-physics-retained>` or the
 /// exact `<physics-retained>` (B3b). Only these may carry a receipt.
-fn is_retained(source: &Value) -> bool {
+pub(crate) fn is_retained(source: &Value) -> bool {
     source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID
         || source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID
 }
@@ -200,14 +200,14 @@ fn retained_error(error: crate::retained_precision::ValidationError) -> String {
     error.detail.unwrap_or(error.code)
 }
 /// F-5: no identity but the successor may carry a receipt member.
-fn forbid_retained_member(source: &Value) -> Result<(), String> {
+pub(crate) fn forbid_retained_member(source: &Value) -> Result<(), String> {
     if !is_retained(source) && source.get("retained_precision").is_some() {
         return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
     }
     Ok(())
 }
 /// F-5 (C1 G6): no raw row outside the successor carries the W1 method token.
-fn forbid_retained_rows(source: &Value) -> Result<(), String> {
+pub(crate) fn forbid_retained_rows(source: &Value) -> Result<(), String> {
     if !is_retained(source)
         && source["results"].as_array().is_some_and(|rows| {
             rows.iter()

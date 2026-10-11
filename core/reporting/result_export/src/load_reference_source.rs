@@ -216,3 +216,26 @@ fn project(source: &Value, raw: bool) -> Result<Value, String> {
     )?);
     Ok(projected)
 }
+
+/// b7-plan R2: the receipt-shape step of the joined receipt check (policy, then the
+/// closed physics-source-1 receipt shape with only the policy substituted), alone,
+/// for the header dispatch. The same two checks `receipt` runs first.
+pub fn validate_receipt_shape(receipt: &Value) -> Check {
+    require(receipt["body"]["policy"] == POLICY, "JOIN_RECEIPT_POLICY")?;
+    let mut shaped = receipt.clone();
+    shaped["body"]["policy"] = json!(PHYSICS_SOURCE_POLICY);
+    require(
+        crate::physics_source::validate_receipt_shape(&shaped).is_ok(),
+        "JOIN_RECEIPT_SHAPE",
+    )
+}
+
+/// b7-plan R2: the physics-source-1 projection of raw joined bytes that J3
+/// validates, for the shared ledger cases
+/// (`fixtures/results/loadReferenceSourceLedger.cases.json`). The caller passes
+/// a publication this reader admitted; `project` relies on the shapes the
+/// pre-pass and the receipt check fixed.
+pub fn physics_source_projection(source: &Value) -> Result<Value, String> {
+    validate(source, true)?;
+    project(source, true)
+}

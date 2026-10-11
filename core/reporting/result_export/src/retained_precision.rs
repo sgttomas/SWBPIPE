@@ -6449,3 +6449,10 @@ pub fn outcome_json(outcome: &VResult<Validation>) -> Value {
         Err(e) => json!({"ok": false, "error": {"gate": e.gate, "code": e.code, "detail": e.detail}}),
     }
 }
+
+/// b7-plan R2: preview-physics-1's transport metadata check (the base check this
+/// reader's transport reading runs at G7), for callers that read a preview-physics-1
+/// header directly. Unchanged; this only makes it reachable.
+pub fn validate_preview_physics_transport_metadata(source: &Value) -> Result<(), String> {
+    preview_physics_transport_metadata(source)
+}

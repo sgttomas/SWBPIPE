@@ -2,7 +2,7 @@
  * (loadReferenceSourceEvidence.ts) with Python
  * source_blocks._validate_source_blocks(doc, None, context=physics_source).
  *
- * loadReferenceSourceLedger.cases.json holds concrete JSON-pointer ops on the
+ * fixtures/results/loadReferenceSourceLedger.cases.json holds concrete JSON-pointer ops on the
  * physics-source-1 projection of committed joined raws; the publication and
  * receipt hashes are resealed so the targeted check is reached. Each case's
  * `python` value is the code Python raised on the same bytes (authored by the
@@ -17,7 +17,7 @@ import { resolve } from "node:path";
 import type { MechanicsResult } from "../../types";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { loadReferenceSourceLedgerTestSeam as seam } from "./loadReferenceSourceEvidence";
-import cases from "./loadReferenceSourceLedger.cases.json";
+import cases from "../../../../../fixtures/results/loadReferenceSourceLedger.cases.json";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const root = resolve(__dirname, "../../../../../");
