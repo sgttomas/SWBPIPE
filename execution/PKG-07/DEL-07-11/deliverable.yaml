@@ -121,3 +121,11 @@ code_paths:
 - apps/desktop/src-tauri/tauri.conf.json
 - apps/desktop/src/App.tsx
 - apps/desktop/src/features/workspace/
+- apps/desktop/src/features/model-file/
+- apps/desktop/src/services/modelDocumentFile.ts
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src-tauri/src/native_smoke.rs
+- apps/desktop/native-smoke/
+checks:
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/native-smoke/run.mjs

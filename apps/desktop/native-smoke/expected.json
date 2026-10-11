@@ -1,0 +1,28 @@
+{
+  "description": "Expected observations for the desktop walking-skeleton native smoke (run.mjs). Values come from T3's G10 checklist (a jsdom replay of the same models); they are not re-pinned from a native run. The model hash is computed by run.mjs from each file (RFC 8785 JCS, SHA-256), independently of the app.",
+  "bundled_project_id": "project:invented-demo-loop-01",
+  "refusals": [
+    { "file": "newer-schema.json", "code": "MODEL-FILE-SCHEMA-REFUSED" },
+    { "file": "solve-request-model.json", "code": "MODEL-FILE-SHAPE" },
+    { "file": "not-json.json", "code": "MODEL-FILE-NOT-JSON" }
+  ],
+  "cases": [
+    {
+      "case": "milestone",
+      "fixture": "fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json",
+      "probe": "result:disp:N1",
+      "observations": {
+        "sparse_interactive": { "rows": 98, "probe_entered": "Entered: 0.09426732782247198 mm", "standing_prefix": "Numerical integrity: sensitive." },
+        "dense_scrutiny": { "rows": 99, "probe_entered": "Entered: 0.0942673274792288 mm" }
+      }
+    },
+    {
+      "case": "demo",
+      "fixture": "fixtures/product_preview/invented_demo_model.json",
+      "observations": {
+        "sparse_interactive": { "rows": 625, "standing_prefix": "Numerical integrity: checks_passed." },
+        "dense_scrutiny": { "rows": 627, "standing_prefix": "Numerical integrity: checks_passed." }
+      }
+    }
+  ]
+}

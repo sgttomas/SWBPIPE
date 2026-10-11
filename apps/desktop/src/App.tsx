@@ -250,6 +250,7 @@ function AppSession() {
     handleCreateBlankProject,
     handleCreateBlankLoadStateProject,
     handleOpenProject,
+    handleOpenModelDocument,
     handleSaveProject,
     handleListProjects
   } = session.project;
@@ -821,6 +822,10 @@ function AppSession() {
             <FilePlus size={15} aria-hidden="true" />
             Blank 0.4.0 model
           </button>
+          <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
+            <FolderOpen size={15} aria-hidden="true" />
+            Open model file
+          </button>
           <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
             Open local
@@ -1147,6 +1152,7 @@ function MenuBar({
         { kind: "command", id: "file.new-local", label: "New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
         { kind: "separator" },
+        { kind: "command", id: "file.open-model", label: "Open Model Document…", disabled: projectBusy },
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
