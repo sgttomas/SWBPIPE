@@ -1716,9 +1716,19 @@ def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
     pair, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_RECOVERY, I4P_EVIDENCE_NULL], "rehash": "all"})
     assert dispatch(carrier) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
     assert dispatch(pair) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
-    # A preview-physics-1 statement's own transport dispatch is unchanged (Python's order).
-    assert dispatch(_i4p_projected(carrier)) == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-    assert dispatch(_i4p_projected(pair)) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+    # A preview-physics-1 statement's own transport dispatch: the verifier keeps Python's order; the product
+    # takes the Rust reader's (b7-plan R2's declared class): G5's carrier refusal, and Rust's header order.
+    from tests.verifiers import compatibility as verifier
+    def verified(s):
+        try:
+            verifier._source_contract(deepcopy(s), check_receipt=False)
+            return "ok"
+        except ValueError as error:
+            return str(error)
+    assert verified(_i4p_projected(carrier)) == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+    assert verified(_i4p_projected(pair)) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+    assert dispatch(_i4p_projected(carrier)) == "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+    assert dispatch(_i4p_projected(pair)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
 
 
 def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets():
@@ -1730,7 +1740,7 @@ def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets()
     `r2:t_extrema_certified_gap_null`). The same check serves a preview-physics-1 statement's transport
     dispatch, with the same result. Raw reads are unchanged."""
     from core.analysis_runs import compatibility as c
-    from core.analysis_runs.preview_physics_evidence import validate_transport_metadata
+    from tests.verifiers.preview_physics_evidence import validate_transport_metadata
     two = "two_case_synthetic"
     path = lambda i: ["contract_evidence", "preview_cases", i, "support_attribution", "withheld"]
     s = {"support_id": "s", "reason": "CONSTANT_EFFORT_NOT_CONSUMED"}
@@ -1752,13 +1762,21 @@ def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets()
     # The same transport metadata check, reached without a receipt, and the raw base check.
     source, _ = apply_entry(_cases()[two], {"edits": rows["t_withheld_duplicate_multiset"][0], "rehash": "all"})
     base = _i4p_projected(source)
-    for check in (validate_transport_metadata, lambda s: c._source_contract(s, check_receipt=False)):
+    from tests.verifiers import compatibility as verifier
+    for check in (validate_transport_metadata, lambda s: verifier._source_contract(s, check_receipt=False)):
         with pytest.raises(ValueError) as error:
             check(deepcopy(base))
         assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: support attribution differs between cases"
     with pytest.raises(ValueError) as error:
-        c._source_contract(deepcopy(base))
+        verifier._source_contract(deepcopy(base))
     assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: withheld support record and diagnostic disagree"
+    # The product takes the Rust reader's words for the same refusals (b7-plan R2's declared class).
+    with pytest.raises(ValueError) as error:
+        c._source_contract(deepcopy(base), check_receipt=False)
+    assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: attribution sets differ between cases"
+    with pytest.raises(ValueError) as error:
+        c._source_contract(deepcopy(base))
+    assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE"
     equal, _ = apply_entry(_cases()[two], {"edits": rows["equal multisets, in another order"][0], "rehash": "all"})
     validate_transport_metadata(_i4p_projected(equal))
     # The extrema-number demand, kept: refused bound, unbound and on transport.

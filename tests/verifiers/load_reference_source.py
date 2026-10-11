@@ -1,5 +1,9 @@
 """Closed admission of the joined load-reference-source-1 evidence.
 
+Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/load_reference_source.rs`), which
+product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
+this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
+
 Mirror of ``core/reporting/result_export/src/load_reference_source.rs``: the
 same checks run in the same order and raise the same error strings. Change both
 together. Contract ``openpipestress.result_semantics/0.3.0/load-reference-source-1``,

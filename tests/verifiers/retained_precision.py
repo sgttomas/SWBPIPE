@@ -4,8 +4,8 @@ Tests only: the product reader is Rust's (`core/reporting/result_export/src/reta
 product Python reaches through `openpipestress-runner read`. No module outside `tests/` imports this one
 (`tests/test_verifier_independence.py`). It shares no code with the producer: it hashes through
 `tests/verifiers/canonical_json.py` and converts units through `tests/verifiers/units.py`, never through a
-bridge to a crate the producer links. Its base step at G7 and the exact route's G8 materials still run the
-Python base readers in `core/analysis_runs/` (they move under `tests/` with R2's base readers).
+bridge to a crate the producer links. Its base step at G7 and the exact route's G8 materials run the
+base-reader verifiers beside it in `tests/verifiers/` (b7-plan R2).
 
 The verifier has no solver, native registration, or carrier side effects. Exact
 helpers below implement only the finite binary64 decisions named by the policy.
@@ -22,8 +22,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, NamedTuple
 
-from core.analysis_runs.compatibility import _source_contract
-from core.analysis_runs.physics_source import _actual_materials, _canonical_inputs
+from .compatibility import _source_contract
+from .physics_source import _actual_materials, _canonical_inputs
 from .canonical_json import canonical_sha256
 from .units import convert_quantities_to_canonical
 

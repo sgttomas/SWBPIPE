@@ -16,6 +16,7 @@ import pytest
 from core.analysis_runs import compatibility as c
 from core.analysis_runs import rust_reader
 from tests.verifiers import retained_precision as rp
+from tests.verifiers import compatibility as v
 
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
@@ -223,51 +224,52 @@ def test_a_solved_status_is_required_before_the_eligibility_conjunct(mode):
 
 
 def test_standing_rule_conjuncts_with_eligibility_set():
-    """The standing rule's conjuncts, through the seam (the reader's eligibility is on since U7)."""
+    """The standing rule's conjuncts, through the seam (the reader's eligibility is on since U7). b7-plan R2: the
+    seam is the verifier's; product standing is the Rust reader's, whose conjuncts the standing tests above read."""
     source, invocation = milestone("sparse_interactive")
     refs = requested(invocation)
     validation = dict(rp.validate_retained_precision(source, invocation), numerical_eligible=True)
-    assert c._retained_standing_from(validation, source, refs) == "numerically_eligible"
-    assert c._retained_standing_from(dict(validation, numerical_eligible=False), source, refs) == "needs_recompute"
-    assert c._retained_standing_from(dict(validation, invocation_bound=False), source, refs) == "needs_recompute"
+    assert v._retained_standing_from(validation, source, refs) == "numerically_eligible"
+    assert v._retained_standing_from(dict(validation, numerical_eligible=False), source, refs) == "needs_recompute"
+    assert v._retained_standing_from(dict(validation, invocation_bound=False), source, refs) == "needs_recompute"
     for other in ([], [{"ref_type": "load_case", "ref_id": "other"}], refs + [{"ref_type": "load_case", "ref_id": "other"}]):
-        assert c._retained_standing_from(validation, source, other) == "needs_recompute"
+        assert v._retained_standing_from(validation, source, other) == "needs_recompute"
     unsolved = deepcopy(source)
     unsolved["status"]["mechanics"] = "MODEL_INCOMPLETE"
-    assert c._retained_standing_from(validation, unsolved, refs) == "needs_recompute"
+    assert v._retained_standing_from(validation, unsolved, refs) == "needs_recompute"
     not_required = deepcopy(source)
     not_required["retained_precision"]["body"]["cases"][0]["status"] = "not_required"
     q = not_required["numerical_quality"]["cases"][0]
     q.update(solve_quality="checks_passed", structural_status="passive_model_basis",
              model_matrix_fidelity="represented_equations_retained", accuracy_evidence="not_claimed")
     assert q["evidence_refs"]
-    assert c._retained_standing_from(validation, not_required, refs) == "numerically_eligible"
+    assert v._retained_standing_from(validation, not_required, refs) == "numerically_eligible"
     for field, value in (("solve_quality", "sensitive"), ("structural_status", "numerically_unresolved"),
                          ("model_matrix_fidelity", "assembly_uncertainty"), ("accuracy_evidence", "unresolved"),
                          ("evidence_refs", []), ("evidence_refs", ["diagnostic:absent"]),
                          ("basis_ref", {"ref_type": "load_case", "ref_id": "other"})):
         bad = deepcopy(not_required)
         bad["numerical_quality"]["cases"][0][field] = value
-        assert c._retained_standing_from(validation, bad, refs) == "needs_recompute", field
+        assert v._retained_standing_from(validation, bad, refs) == "needs_recompute", field
     duplicate = deepcopy(not_required)
     duplicate["results"].append(deepcopy(duplicate["results"][0]))
-    assert c._retained_standing_from(validation, duplicate, refs) == "needs_recompute"
+    assert v._retained_standing_from(validation, duplicate, refs) == "needs_recompute"
     short = deepcopy(not_required)
     short["numerical_quality"]["cases"] = []
-    assert c._retained_standing_from(validation, short, refs) == "needs_recompute"
+    assert v._retained_standing_from(validation, short, refs) == "needs_recompute"
     # Any other case status is not eligible, even with ordinarily eligible quality.
     for status in ("unavailable", "other", None):
         case = deepcopy(not_required)
         case["retained_precision"]["body"]["cases"][0]["status"] = status
-        assert c._retained_standing_from(validation, case, refs) == "needs_recompute", status
+        assert v._retained_standing_from(validation, case, refs) == "needs_recompute", status
     # RV88 N-3 (Q06): with two cases the requested refs must follow the receipt's case order.
     two = deepcopy(source)
     second = dict(deepcopy(two["retained_precision"]["body"]["cases"][0]), basis_ref={"ref_type": "load_case", "ref_id": "case-2"})
     two["retained_precision"]["body"]["cases"].append(second)
     ordered = [case["basis_ref"] for case in two["retained_precision"]["body"]["cases"]]
-    assert c._retained_standing_from(validation, two, ordered) == "numerically_eligible"
+    assert v._retained_standing_from(validation, two, ordered) == "numerically_eligible"
     for wrong in (ordered[::-1], ordered[:1], ordered[1:], ordered + ordered[:1]):
-        assert c._retained_standing_from(validation, two, wrong) == "needs_recompute", wrong
+        assert v._retained_standing_from(validation, two, wrong) == "needs_recompute", wrong
 
 
 CASES = ROOT / "fixtures/results/retained_precision_carrier_cases.json"
@@ -541,10 +543,10 @@ def test_binding_refusal_follows_the_validated_class_only(mode):
 
 
 def test_each_class_maps_to_its_refusal():
-    assert c._class_binding_refusal("absolute_verified") == c.RULE_QUANTITY_BELOW_VERIFIED_FLOOR
-    assert c._class_binding_refusal("not_covered") == c.RULE_QUANTITY_NOT_COVERED
+    assert v._class_binding_refusal("absolute_verified") == c.RULE_QUANTITY_BELOW_VERIFIED_FLOOR
+    assert v._class_binding_refusal("not_covered") == c.RULE_QUANTITY_NOT_COVERED
     for cls in ("relative_verified", "input_derived", "non_quantity", None):
-        assert c._class_binding_refusal(cls) is None
+        assert v._class_binding_refusal(cls) is None
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -573,20 +575,20 @@ def test_classification_summary_counts_validated_classes(mode):
     assert c.classification_summary(projected(source)) == []
     # Through the seam: only absolute and not-covered rows stay withheld when Current.
     validation = dict(rp.validate_retained_precision(source, invocation), numerical_eligible=True)
-    assert c._classification_summary_from(validation, source, requested(invocation)) == current
-    assert c._classification_summary_from(validation, source, []) == expected
-    assert c._classification_summary_from(validation, source, other_refs) == expected
+    assert v._classification_summary_from(validation, source, requested(invocation)) == current
+    assert v._classification_summary_from(validation, source, []) == expected
+    assert v._classification_summary_from(validation, source, other_refs) == expected
     classes = deepcopy(validation["classifications"])
     index = next(i for i, item in enumerate(classes) if item["class"] == "relative_verified")
     classes[index]["class"] = "not_covered"
     uncovered = deepcopy(current)
     uncovered[0].update(relative_verified=relative - 1, not_covered=1, withheld=absolute + 1)
-    assert c._classification_summary_from(dict(validation, classifications=classes), source, requested(invocation)) == uncovered
+    assert v._classification_summary_from(dict(validation, classifications=classes), source, requested(invocation)) == uncovered
     uncovered[0]["withheld"] = relative + absolute + input_derived
-    assert c._classification_summary_from(dict(validation, classifications=classes, numerical_eligible=False), source, requested(invocation)) == uncovered
+    assert v._classification_summary_from(dict(validation, classifications=classes, numerical_eligible=False), source, requested(invocation)) == uncovered
     # Counts are per case: a classification under another case is not counted here.
     stray = dict(classes[index], basis_ref={"ref_type": "load_case", "ref_id": "other"})
-    assert c._classification_summary_from(dict(validation, classifications=classes + [stray], numerical_eligible=False), source, requested(invocation)) == uncovered
+    assert v._classification_summary_from(dict(validation, classifications=classes + [stray], numerical_eligible=False), source, requested(invocation)) == uncovered
 
 
 def test_d_u7_4_forms_python_side_standing_and_summary():
@@ -690,16 +692,16 @@ def test_legacy_sources_with_a_token_row_are_refused_on_every_python_path():
 
 
 def test_private_seams_have_no_product_callers():
-    """As Rust's #[doc(hidden)] guard (RV88 U6a N-3): the eligibility-forcing seams
-    are used by compatibility.py itself and by tests only."""
+    """As Rust's #[doc(hidden)] guard (RV88 U6a N-3): the eligibility-forcing seams are used by the
+    verifier's compatibility module itself and by tests only. b7-plan R2: product code has none (it takes
+    the Rust reader's standing, summary and binding)."""
     seams = {"_retained_standing_from": 3, "_classification_summary_from": 2, "_class_binding_refusal": 2}
     files = [path for path in (ROOT / "core").rglob("*.py")] + [path for path in (ROOT / "tools").rglob("*.py")]
     assert len(files) > 20
     for seam, uses in seams.items():
         for path in files:
-            count = path.read_text(encoding="utf-8").count(f"{seam}(")
-            expected = uses if path == ROOT / "core/analysis_runs/compatibility.py" else 0
-            assert count == expected, (seam, str(path.relative_to(ROOT)))
+            assert path.read_text(encoding="utf-8").count(f"{seam}(") == 0, (seam, str(path.relative_to(ROOT)))
+        assert (ROOT / "tests/verifiers/compatibility.py").read_text(encoding="utf-8").count(f"{seam}(") == uses, seam
 
 
 @pytest.mark.parametrize("mode", MODES)

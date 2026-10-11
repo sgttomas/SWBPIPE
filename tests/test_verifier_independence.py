@@ -1,10 +1,13 @@
 """The Python verifiers under `tests/verifiers/` are test-only and independent of the producer.
 
-- No module outside `tests/` imports them, by package or by path; the former product module
-  `core.analysis_runs.retained_precision` is gone.
-- They spawn no process: the retained verifier hashes through `tests/verifiers/canonical_json.py`
-  and converts units through `tests/verifiers/units.py`, never through a bridge to a crate the
-  producer links.
+- No module outside `tests/` imports them, by package or by path; the former product modules
+  (`core.analysis_runs.retained_precision` in R1; the base readers and the reader half of
+  `compatibility` in R2) are gone.
+- They import nothing from product code: each imports only the standard library and its
+  siblings in `tests/verifiers/`.
+- They spawn no process: the verifiers hash through `tests/verifiers/canonical_json.py`
+  and convert units through `tests/verifiers/units.py`, never through a bridge to a crate the
+  producer links (`core/serialization/canonical_json/adapter.py`, `core/units/adapter.py`).
 - Those two are checked against the crates' committed vectors, read from their files: the
   canonical JSON crate's `fixtures/canonical_hash/cases.json` and
   `fixtures/results/precision_transport_v0_3.json`, and the units crate's catalog (bit for bit)
@@ -39,9 +42,14 @@ def _product_modules():
             yield relative, path.read_text(encoding="utf-8")
 
 
+# R2: the base-reader verifiers moved from `core/analysis_runs/` (b7-plan R2).
+MOVED = ("preview_physics_evidence", "physics_evidence", "physics_source", "load_reference_evidence", "load_reference_source", "source_blocks")
+VERIFIERS = {path.stem for path in (ROOT / "tests/verifiers").glob("*.py")} - {"__init__"}
+
+
 def _verifier_imports(tree):
     """Every import naming the verifiers package or one of its modules, whatever path put it on sys.path."""
-    names = {"verifiers", "retained_precision", "canonical_json", "units"}
+    names = {"verifiers", *VERIFIERS}
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             modules = [alias.name for alias in node.names]
@@ -52,7 +60,8 @@ def _verifier_imports(tree):
         for module in modules:
             parts = module.split(".")
             if parts[:2] == ["tests", "verifiers"] or parts[0] == "verifiers" or parts == ["retained_precision"] or (
-                    parts[0] == "tests" and len(parts) > 1 and parts[1] in names) or module == "core.analysis_runs.retained_precision":
+                    parts[0] == "tests" and len(parts) > 1 and parts[1] in names) or module == "core.analysis_runs.retained_precision" or (
+                    parts[-1] in MOVED):
                 yield module
 
 
@@ -68,10 +77,42 @@ def test_no_module_outside_tests_imports_a_verifier():
     assert count > 100 and found == []
 
 
-def test_the_former_product_module_is_gone():
+def test_the_former_product_modules_are_gone():
     import importlib.util
-    assert importlib.util.find_spec("core.analysis_runs.retained_precision") is None
-    assert not (ROOT / "core/analysis_runs/retained_precision.py").exists()
+    for name in ("retained_precision", *MOVED):
+        assert importlib.util.find_spec(f"core.analysis_runs.{name}") is None, name
+        assert not (ROOT / f"core/analysis_runs/{name}.py").exists(), name
+        assert (ROOT / f"tests/verifiers/{name}.py").is_file(), name
+    # The reader half of `compatibility` moved too: product keeps the record builder and takes the Rust verdict.
+    from core.analysis_runs import compatibility
+    for name in ("_standing_reason", "_retained_standing_from", "_classification_summary_from", "_class_binding_refusal",
+                 "_retained_binding_refusal", "_not_required_cases_ordinarily_eligible"):
+        assert not hasattr(compatibility, name), name
+    import core.analysis_runs as package
+    assert not hasattr(package, "validate_source_blocks")
+
+
+def test_the_verifiers_import_nothing_from_product_code():
+    """Each verifier imports only the standard library and its siblings (relative, or `tests.verifiers`)."""
+    import sys
+    stdlib = set(sys.stdlib_module_names)
+    checked = 0
+    for path in sorted((ROOT / "tests/verifiers").glob("*.py")):
+        checked += 1
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"), filename=str(path))):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    assert node.module is None or node.module.split(".")[0] in VERIFIERS, (path.name, node.module)
+                    continue
+                modules = [node.module or ""]
+            else:
+                continue
+            for module in modules:
+                root = module.split(".")[0]
+                assert module.startswith("tests.verifiers") or (root in stdlib and root != "subprocess"), (path.name, module)
+    assert checked == len(VERIFIERS) + 1 and set(MOVED) | {"compatibility", "retained_precision"} <= VERIFIERS
 
 
 def test_canonical_json_matches_the_crates_committed_vectors():
@@ -263,7 +304,7 @@ def test_the_verifiers_units_reproduce_the_producers_converted_materials_and_sec
     converted moduli, temperature-interpolated moduli and section terms; the exact-route G8 check the
     verifier runs (`_actual_materials` over `_canonical_inputs`) matches them bit for bit with this
     module's conversions."""
-    from core.analysis_runs.physics_source import _actual_materials, _canonical_inputs
+    from tests.verifiers.physics_source import _actual_materials, _canonical_inputs
     folder = ROOT / "fixtures/product_preview/physics_source"
     source = json.loads((folder / f"{name}-{mode}.raw.json").read_text(encoding="utf-8"))
     invocation = {"request": json.loads((folder / f"{name}.request.json").read_text(encoding="utf-8")), "solver_mode": mode}
@@ -273,3 +314,25 @@ def test_the_verifiers_units_reproduce_the_producers_converted_materials_and_sec
     for exact in cases:
         actual = next(c for c in invocation["request"]["model"]["load_cases"] if c["id"] == exact["load_case_id"])
         _actual_materials(invocation, actual, exact, canonical)
+
+
+@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+def test_the_base_verifiers_read_raw_statements_without_any_process(no_processes, mode):
+    """R2: the base verifiers' hashing (receipt, publication and invocation digests) and unit conversion
+    run in process: source-blocks-1 and physics-source-1 statements bound to their producer's invocation,
+    and a joined load-reference-source-1 statement, are admitted with no process spawned."""
+    from tests.verifiers import compatibility
+    from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
+    from tests.verifiers.physics_source import validate_physics_source
+    from tests.verifiers.source_blocks import validate_source_blocks
+    for folder, name, request, validate in (("source_blocks", "n05", f"n05-{mode}", validate_source_blocks),
+                                            ("physics_source", "mixed_units", "mixed_units", validate_physics_source)):
+        base = ROOT / "fixtures/product_preview" / folder
+        source = json.loads((base / f"{name}-{mode}.raw.json").read_text(encoding="utf-8"))
+        invocation = {"request": json.loads((base / f"{request}.request.json").read_text(encoding="utf-8")), "solver_mode": mode}
+        assert validate(deepcopy(source), invocation) is True, (folder, name)
+        refs = [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]
+        assert compatibility.numerical_use_standing(source, refs, invocation) == "numerically_eligible", (folder, name)
+    joined = json.loads((ROOT / f"fixtures/product_preview/load_reference_source/n05-{mode}.raw.json").read_text(encoding="utf-8"))
+    assert validate_load_reference_source_evidence(joined) is False
+    assert compatibility._source_contract(joined)[0] == compatibility.LOAD_REFERENCE_SOURCE_CONTRACT_ID

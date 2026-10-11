@@ -1,5 +1,9 @@
 """Explicit physics-source-1 consumer binding; no imported record proves custody.
 
+Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/physics_source.rs`), which
+product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
+this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
+
 The untouched received source is checked in both method contexts. Actual numerical
 eligibility additionally requires the independently captured full invocation.
 """
@@ -309,10 +313,11 @@ def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], inv
 
 
 def _canonical_inputs(invocation: Mapping[str, Any], convert=None):
-    """Batch original quantities through the same Rust unit authority as producer. `convert` replaces
-    that authority's batch call only for the test verifier, which converts without the producer's crate."""
+    """Batch original quantities through the verifier's unit catalog (`tests/verifiers/units.py`, pinned bit for
+    bit to the unit authority's catalog), never through a bridge to the producer's crate. `convert` replaces it
+    only where a caller passes its own batch conversion."""
     if convert is None:
-        from core.units.adapter import convert_quantities_to_canonical as convert
+        from .units import convert_quantities_to_canonical as convert
     model = invocation["request"]["model"]
     materials = invocation["request"].get("materials") or model.get("materials", [])
     queries = []

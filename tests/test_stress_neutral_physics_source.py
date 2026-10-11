@@ -385,7 +385,7 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
     assert path.exists(), "Requires actual Unicode producer capture, not relabelled source headers"
     raw, analysis, packet = captured(path)
     original_request = json.loads((COMPOSITE_DIR / "n05_unicode.request.json").read_text())
-    from core.analysis_runs.source_blocks import domain_hash
+    from tests.verifiers.source_blocks import domain_hash
     assert original_request["model"]["project"]["id"] == raw["model_ref"]
     assert raw["source_block_recovery"]["body"]["invocation"]["value"] == domain_hash("source_blocks_invocation_v1", {"request": original_request, "solver_mode": mode})
     assert any(not row["id"].isascii() for row in raw["results"])

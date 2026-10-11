@@ -41,7 +41,8 @@ def test_precision_dispatch_and_schema_binding_preserve_source_hash_and_rule_rev
     assert verify_analysis_run_record(revised)=="match"
     for name in ['reactions','pressure','stress','future']:
         bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}-1'
-        with pytest.raises(ValueError,match='CONTRACT_UNSUPPORTED'):build(bad)
+        # b7-plan R2's declared class: the Rust header knows pressure-1 and refuses its profile first.
+        with pytest.raises(ValueError,match='SOURCE_FORMULATION_BASIS_UNSUPPORTED' if name=='pressure' else 'CONTRACT_UNSUPPORTED'):build(bad)
 
 def test_history_never_becomes_current_from_source_or_input_authenticity():
     raw=source();assert numerical_use_standing(raw,[BASIS])=='needs_recompute'

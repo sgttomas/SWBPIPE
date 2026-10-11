@@ -6,6 +6,10 @@ must reproduce every expectation, so they accept and reject the same inputs with
 the same error. Carrier fixtures under ``fixtures/results/load_reference_*`` are
 derived from the four frozen producer envelopes by these readers; they prove
 reader preservation, not producer authentication or engineering acceptance.
+
+b7-plan R2: the Python reader is the test verifier (``tests/verifiers``), which
+these cases check against the Python expectations; product Python reads through
+the Rust reader, whose text ``test_base_reader_verifier.py`` checks on this corpus.
 """
 from __future__ import annotations
 
@@ -23,10 +27,11 @@ from core.analysis_runs.compatibility import (
     PHYSICS_CONTRACT_ID, _source_contract, build_analysis_run, build_analysis_run_v0_3,
     numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
-from core.analysis_runs.load_reference_evidence import (
+from tests.verifiers.load_reference_evidence import (
     TRANSPORT_SCHEMA_SHA256, load_reference_table, validate_load_reference_evidence,
     validate_load_reference_transport_metadata, verify_load_reference_table,
 )
+from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -170,7 +175,9 @@ def test_frozen_inputs_and_table_identity():
 @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
 def test_shared_adversarial_case(case):
     doc = apply(source(case["source"]), case["ops"])
-    dispatch = outcome(lambda: _source_contract(doc))
+    # The verifier's dispatch against the Python expectation; the product (Rust) admits exactly the same statements.
+    dispatch = outcome(lambda: verifier._source_contract(doc))
+    assert (outcome(lambda: _source_contract(doc)) == "accept") == (dispatch == "accept")
     validator = outcome(lambda: validate_load_reference_evidence(doc))
     RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
     assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
@@ -209,6 +216,7 @@ def test_transport_metadata_case(case):
     RESULTS.append({"id": case["id"], "transport": result})
     assert agrees(result, case["expect"]), result
     if result == "accept":
+        assert verifier._source_contract(meta, check_receipt=False)[0] == LOAD_REFERENCE_CONTRACT_ID
         assert _source_contract(meta, check_receipt=False)[0] == LOAD_REFERENCE_CONTRACT_ID
 
 
@@ -273,9 +281,12 @@ def test_physics_one_dispatch_is_unchanged_and_load_reference_evidence_is_forbid
     physics = source("physics-sparse")
     assert _source_contract(physics)[0] == PHYSICS_CONTRACT_ID
     physics["contract_evidence"]["load_reference_states"] = []
-    assert outcome(lambda: _source_contract(physics)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
+    assert outcome(lambda: verifier._source_contract(physics)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
     meta = metadata(physics)
-    assert outcome(lambda: _source_contract(meta, check_receipt=False)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
+    assert outcome(lambda: verifier._source_contract(meta, check_receipt=False)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
+    # The product takes Rust's reading (R2's declared class): the physics-1 reader's closed namespace.
+    assert outcome(lambda: _source_contract(physics)) == "SOURCE_PHYSICS_EVIDENCE_SHAPE"
+    assert outcome(lambda: _source_contract(meta, check_receipt=False)) == "SOURCE_PHYSICS_TRANSPORT_SHAPE"
 
 
 def test_zzz_write_parity_log():

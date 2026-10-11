@@ -28,8 +28,8 @@ from core.analysis_runs.compatibility import (
     LOAD_REFERENCE_SOURCE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3,
     numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
-from core.analysis_runs.load_reference_source import validate_load_reference_source_evidence
-from core.analysis_runs.source_blocks import domain_hash
+from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
+from tests.verifiers.source_blocks import domain_hash
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import validate_instance
 

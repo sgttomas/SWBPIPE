@@ -10,7 +10,7 @@ from core.analysis_runs.compatibility import (
     build_analysis_run, numerical_use_standing, validate_analysis_run_v0_3,
     verify_analysis_run_record,
 )
-from core.analysis_runs.physics_evidence import validate_physics_evidence
+from tests.verifiers.physics_evidence import validate_physics_evidence
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import validate_instance
 
@@ -77,7 +77,8 @@ def test_physics_table_identity_and_frozen_precision_table():
 def test_physics_source_corruption_cannot_gain_semantic_or_numerical_admission(change):
     source = actual()
     change(source)
-    with pytest.raises(ValueError, match="SOURCE_"):
+    # b7-plan R2: a non-finite number has no JSON text, so the Rust reader never reads it (READER_INPUT_NOT_JSON).
+    with pytest.raises(ValueError, match="SOURCE_|READER_INPUT_NOT_JSON"):
         build(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 
@@ -199,7 +200,8 @@ def test_review_corruptions_refused_before_record_or_numerical_admission(mode, c
     change(source)
     with pytest.raises(ValueError, match="SOURCE_PHYSICS_EVIDENCE_INVALID"):
         validate_physics_evidence(source)
-    with pytest.raises(ValueError, match="SOURCE_PHYSICS_EVIDENCE_INVALID"):
+    # The product takes the Rust reader's refusal (b7-plan R2's declared class): its own physics-1 code.
+    with pytest.raises(ValueError, match="^SOURCE_PHYSICS_"):
         build(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 

@@ -17,6 +17,9 @@ approval, physical validation, professional acceptance or release
 qualification. The joined ``load-reference-source-1`` transport, legacy raw0.1,
 physics-1, physics-source/composite and unknown future profiles are refused.
 No build, network, unit conversion, reference regeneration or fallback occurs.
+The owned reader's verdict is the Rust product reader's (b7-plan R2), taken from
+the explicitly built ``openpipestress-runner read load-reference`` named by
+OPENPIPESTRESS_RUNNER_BIN.
 """
 from __future__ import annotations
 import argparse
@@ -41,23 +44,26 @@ except ImportError:
     from qualification_process import capture, file_sha256, sha256_bytes
     import qualification_gate as gate
     import qualification_physics as physics
+from core.analysis_runs import rust_reader
 
 TRANSPORT = 'load_reference_1_cli_1.0_raw0.2'
 RUN_FORMAT = 'openpipestress.load_reference_qualification_run/1'
 MANIFEST_FORMAT = 'openpipestress.load_reference_qualification_manifest/1'
 SELECTOR_FORMAT = 'openpipestress.first_static_selector_candidate/1'
 REFERENCE_FORMAT = gate.REFERENCE_FORMAT
-BINDING_FORMAT = 'openpipestress.load_reference_consistency_binding/1'
+# Version 2: the files name the Rust reader's source (version 1 named the former Python reader).
+BINDING_FORMAT = 'openpipestress.load_reference_consistency_binding/2'
+READER = 'load-reference'
 ENTRYPOINT = 'validate_load_reference_evidence'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/load-reference-1'
 PROFILE = 'resolved_straight_load_state_v1'
 TABLE = 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'
 TABLE_SHA256 = '44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d'
-MODULE = 'core/analysis_runs/load_reference_evidence.py'
-# Reader bytes as integrated with T4-U3's connector evidence at 575677cfef (re-pinned at
-# integration; earlier pins eeb16c35ba for T4-U2a's pressure-contract dispatch, 1ccca8b87 after
-# REVIEW_A, bfef71b19 and the WP5 start commit d8f0dc4f7); re-pin deliberately whenever the reader changes.
-MODULE_SHA256 = '4974b30ecfa1ec2678afd5b09f7ce2bce34f35aae989405cd14d4d96d9099cbc'
+# b7-plan R2: the owned reader is Rust's load-reference-1 reader (`validate_load_reference_evidence`), over
+# its physics-1 reader. Reader source bytes as of R2 (the Python reader's last pin, 4974b30e…, was its
+# T4-U3 integration at 575677cfef); re-pin deliberately whenever the reader changes.
+MODULE = 'core/reporting/result_export/src/load_reference.rs'
+MODULE_SHA256 = '5d2e5ce616029676b283967f017744b0c3c4758146e3bdc1f1c8d2e2f621a690'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
@@ -67,7 +73,6 @@ DEPENDENCIES = {
     UNITS: physics.DEPENDENCIES[UNITS],
 }
 ANALYTICAL_REFERENCE = 'core/product_physics/tests/fixtures/load_reference_states/reference_cases.json'
-HELPER = Path(__file__).with_name('qualification_load_reference_helper.py')
 LIMIT = gate.MAX_INPUT_BYTES  # bound input files: manifest, selectors, references, criteria, binding
 MAX_OUTPUT_LIMIT = 64 * 1024 * 1024  # the run's selectable process output limit ceiling
 MODES = ('sparse_interactive', 'dense_scrutiny')
@@ -731,7 +736,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
 
     def owned_reader(details):
         require(reader is not None, 'owned reader observation unavailable: ' + str(reader_error))
-        details.update(verdict=reader['response'].get('verdict'), reason=reader['response'].get('reason'), helper_sha256=reader['helper_sha256'],
+        details.update(verdict=reader['response'].get('verdict'), reason=reader['response'].get('reason'), reader_executable_sha256=reader['reader_executable_sha256'],
                        binding_sha256=reader['binding_sha256'], scope=reader['scope'])
         require(reader['response'].get('verdict') == 'consistent', 'owned reader refused the envelope')
 
@@ -796,38 +801,31 @@ def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, req
 
 def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_limit: int = LIMIT,
                             timeout_seconds: float = 60) -> dict:
-    """Run only the owned reader entry in the fixed isolated helper.
+    """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read load-reference`).
 
-    The helper input is a derived parsed snapshot, not the runner's stdout bytes.
+    The reader input is a derived parsed snapshot, not the runner's stdout bytes. A
+    refusal is a genuine owned-reader verdict, reported as a failed obligation. The
+    reader executable is identified by its digest only, not as built from the bound sources.
     """
     require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'load-reference raw/producer dispatch mismatch')
-    request_bytes = json.dumps(raw, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
+    request_bytes = json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
     require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
-    require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before helper')
-    helper_sha256 = file_sha256(HELPER)
-    arguments = ['-I', '-S', str(HELPER), '--source-root', str(binding.get('snapshot_root', binding['source_root'])),
-                 '--binding', str(binding.get('snapshot_binding_path', binding['binding_path'])), '--binding-sha256', binding['binding_sha256'],
-                 '--source-limit-bytes', str(input_limit)]
-    executable = Path(sys.executable).resolve()
-    process = capture(executable, arguments, request_bytes, directory, timeout_seconds=max(60, timeout_seconds), output_limit_bytes=LIMIT,
-                      expected_executable_sha256=file_sha256(executable))
-    require(file_sha256(HELPER) == helper_sha256, 'fixed helper changed during execution')
-    response_bytes = gate.read_captured_bytes(directory / 'stdout.bin', process['stdout_sha256'], process['stdout_bytes'], LIMIT)
-    response = gate.strict_json(response_bytes) if response_bytes else {}
-    if process['outcome'] == 'nonzero_exit' and process['return_code'] == 2 and response.get('verdict') == 'refused':
-        pass  # a genuine owned-reader refusal: reported as a failed obligation, not an error
-    else:
-        require(process['outcome'] == 'completed' and process['stdin_delivery_complete'], 'reader helper failed: ' + process['outcome'])
-        require(response.get('verdict') == 'consistent', 'unknown helper response')
-    require(response.get('artifact') == 'openpipestress.load_reference_consistency_observation' and response.get('version') == '1.0.0',
-            'unknown helper response')
-    if response['verdict'] == 'consistent':
-        require(response.get('binding_sha256') == binding['binding_sha256'] and response.get('source_bytes_sha256') == sha256_bytes(request_bytes)
-                and response.get('dependencies') == binding['binding']['files'] and response.get('contract_id') == CONTRACT,
-                'helper response identity mismatch')
+    require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
     for row in binding['binding']['files']:
         bounded(binding['source_root'] / row['path'], row['sha256'])
-    return {'process': process, 'response': response, 'helper_sha256': helper_sha256, 'binding_sha256': binding['binding_sha256'],
+    executable = rust_reader.runner_executable().resolve()
+    executable_sha256 = file_sha256(executable)
+    process = capture(executable, ['read', READER], request_bytes, directory, timeout_seconds=max(60, timeout_seconds),
+                      output_limit_bytes=LIMIT, expected_executable_sha256=executable_sha256)
+    require(file_sha256(executable) == executable_sha256, 'reader executable changed during execution')
+    response_bytes = gate.read_captured_bytes(directory / 'stdout.bin', process['stdout_sha256'], process['stdout_bytes'], LIMIT)
+    verdict, reason, outcome = physics.reader_verdict(process, response_bytes, READER, require)
+    for row in binding['binding']['files']:
+        bounded(binding['source_root'] / row['path'], row['sha256'])
+    response = {'artifact': rust_reader.ARTIFACT, 'reader': READER, 'verdict': verdict, 'reason': reason, 'outcome': outcome,
+                'binding_sha256': binding['binding_sha256'], 'source_bytes_sha256': sha256_bytes(request_bytes),
+                'dependencies': binding['binding']['files'], 'contract_id': CONTRACT}
+    return {'process': process, 'response': response, 'reader_executable_sha256': executable_sha256, 'binding_sha256': binding['binding_sha256'],
             'binding_admitted': binding['admitted'],
             'scope': 'internal source consistency of parsed snapshot only; runner provenance and numerical comparison are separate'}
 
@@ -949,7 +947,7 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
             'reader_module_sha256': MODULE_SHA256, 'reader_binding_sha256': reader_binding['binding_sha256'],
             'reader_binding_admitted': reader_binding['admitted'], 'units_sha256': DEPENDENCIES[UNITS],
             'existing_predicate_sha256': gate.CLASSIFIER_SHA256, 'harness_sha256': file_sha256(Path(__file__)),
-            'gate_sha256': file_sha256(Path(gate.__file__)), 'helper_sha256': file_sha256(HELPER),
+            'gate_sha256': file_sha256(Path(gate.__file__)), 'reader_executable_sha256': file_sha256(rust_reader.runner_executable().resolve()),
             'process_supervisor_sha256': file_sha256(Path(__file__).with_name('qualification_process.py')),
             'python': sys.version, 'platform': platform.platform(),
             'source_artifact_association': 'selected checkout and executable identities; not independent build-source attestation',
@@ -1012,18 +1010,18 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
                 except (ValueError, KeyError, TypeError, OSError) as exc:
                     reader_error = str(exc)
                 finally:
-                    helper_dir = output_dir / f'{prefix}-reader'
+                    reader_dir = output_dir / f'{prefix}-reader'
                     if reader is not None:
-                        helper_process = reader['process']
+                        reader_process = reader['process']
                         for stream_name in ('stdout', 'stderr'):
                             case_artifacts[case_ledger['id']].append({'role': 'reader_' + stream_name, 'path': f'{prefix}-reader/{stream_name}.bin',
-                                'sha256': helper_process[stream_name + '_sha256'], 'byte_length': helper_process[stream_name + '_bytes'],
-                                'byte_limit': helper_process['output_limit_bytes_per_stream']})
-                        helper_bytes = gate.read_captured_bytes(helper_dir / 'stdin.bin', helper_process['stdin_sha256'],
-                                                                helper_process['stdin_bytes_delivered'], output_limit_bytes)
-                        case_artifacts[case_ledger['id']].append(gate.artifact_binding('reader_input', f'{prefix}-reader/stdin.bin', helper_bytes,
+                                'sha256': reader_process[stream_name + '_sha256'], 'byte_length': reader_process[stream_name + '_bytes'],
+                                'byte_limit': reader_process['output_limit_bytes_per_stream']})
+                        reader_bytes = gate.read_captured_bytes(reader_dir / 'stdin.bin', reader_process['stdin_sha256'],
+                                                                reader_process['stdin_bytes_delivered'], output_limit_bytes)
+                        case_artifacts[case_ledger['id']].append(gate.artifact_binding('reader_input', f'{prefix}-reader/stdin.bin', reader_bytes,
                                                                                        output_limit_bytes))
-                        case_ledger['reader_consistency'] = {k: reader[k] for k in ('response', 'helper_sha256', 'binding_sha256', 'binding_admitted', 'scope')}
+                        case_ledger['reader_consistency'] = {k: reader[k] for k in ('response', 'reader_executable_sha256', 'binding_sha256', 'binding_admitted', 'scope')}
                 checks = structural_checks(mechanics, prepared, mode, standing, standing_error, reader, reader_error, coverage)
                 require([row['id'] for row in checks] == list(REQUIRED_STRUCTURAL_CHECKS), 'structural checker lost required denominator')
                 case_ledger['structural_checks'] = checks
