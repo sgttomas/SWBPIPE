@@ -6075,9 +6075,9 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                 nonempty(&x["pipe_id"])
                     && nonempty(&x["result_id"])
                     && x["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64"
+                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
                     && x["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
                 "extrema identity or basis",
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at

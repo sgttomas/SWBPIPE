@@ -74,6 +74,11 @@ impl SourceAnnulus {
     pub(crate) fn outer_radius_m(self) -> f64 {
         self.kernel.outer_radius_m()
     }
+    /// Exact stored pressure constituents, before any binary64 publication.
+    pub(crate) fn area_dyadic_parts(self)->((f64,i32),(f64,i32)) {
+        (self.kernel.ai_scaled.dyadic_parts(),self.kernel.as_scaled.dyadic_parts())
+    }
+
     pub(crate) fn internal_area_m2(self) -> f64 {
         self.kernel.internal_area_m2()
     }

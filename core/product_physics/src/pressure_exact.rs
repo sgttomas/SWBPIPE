@@ -122,6 +122,9 @@ impl Scaled {
         )
     }
 
+    /// Readonly exact dyadic representation used by numerical enclosures.
+    pub(crate) fn dyadic_parts(self)->(f64,i32) {(self.mantissa,self.exponent)}
+
     pub(super) fn to_f64(self) -> f64 {
         if self.mantissa == 0.0 {
             return self.mantissa;

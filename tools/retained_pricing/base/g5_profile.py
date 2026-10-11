@@ -31,6 +31,9 @@ def node(k, v):
 def est(why):
     return ("Estimate", None, why)
 
+def upr(expr, why):
+    return ("SourceUpper", expr, why)
+
 VEC = "Vec<u8>"
 BIND = {
     # serde_json, std and primitive layouts
@@ -43,7 +46,7 @@ BIND = {
     "s((&str,&T))": sz("(&'static str, &'static u8)"), "s((&str,&Value))": sz("(&'static str, &'static Value)"),
     "s((&str,usize))": sz("(&'static str, usize)"), "s((&str,usize,u64))": sz("(&'static str, usize, u64)"),
     "s((String,String))": sz("(String, String)"), "s((String,[f64;3]))": sz("(String, [f64; 3])"),
-    "s((String,[f64;6]))": sz("(String, [f64; 6])"), "s((String,f64,f64))": sz("(String, f64, f64)"),
+    "s((String,[f64;6]))": sz("(String, [f64; 6])"), "s((String,[f64;2]))": sz("(String, [f64; 2])"), "s((String,f64,f64))": sz("(String, f64, f64)"),
     "s((String,usize))": sz("(String, usize)"), "s((f64,f64))": sz("(f64, f64)"), "s((usize,(f64,f64)))": sz("(usize, (f64, f64))"),
     "s((usize,[f64;3],usize,[f64;3]))": sz("(usize, [f64; 3], usize, [f64; 3])"), "s((usize,f64))": sz("(usize, f64)"),
     "s((usize,f64,f64))": sz("(usize, f64, f64)"), "s((usize,usize))": sz("(usize, usize)"), "s((usize,usize,bool))": sz("(usize, usize, bool)"),
@@ -57,6 +60,20 @@ BIND = {
     "s(Authored<Vec<ExpansionLawInput>>)": sz("crate::Authored<Vec<crate::ExpansionLawInput>>"),
     "s((String,DerivedSection))": sz("(String, crate::DerivedSection)"), "s((String,ResultItem))": sz("(String, crate::ResultItem)"),
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
+    "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
+    "s(MemberBoundInputs)": sz("open_pipe_stress_frame_kernel::structural::MemberBoundInputs"),
+    "s(CertifiedMemberOption)": sz("Option<open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery>"),
+    "s(CertifiedMemberRecovery)": sz("open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery"),
+    "s(CertifiedMemberRecoveryResult)": sz("Result<open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery, open_pipe_stress_frame_kernel::structural::RecoveryFailure>"),
+    "s(CertifiedMemberRecoveryPairResult)": sz("Result<(open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery, open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery), open_pipe_stress_frame_kernel::structural::RecoveryFailure>"),
+    "s(CertifiedSupportRows)": sz("[open_pipe_stress_frame_kernel::structural::CertifiedRow; 6]"),
+    "s(CertifiedSupportResult)": sz("Result<[open_pipe_stress_frame_kernel::structural::CertifiedRow; 6], open_pipe_stress_frame_kernel::structural::RecoveryFailure>"),
+    "s(CertifiedSupportOption)": sz("Option<[open_pipe_stress_frame_kernel::structural::CertifiedRow; 6]>"),
+    "s(CertifiedRow)": sz("open_pipe_stress_frame_kernel::structural::CertifiedRow"),
+    "s(CertifiedGroup)": sz("open_pipe_stress_frame_kernel::structural::CertifiedGroup"),
+    "s(LoadClosureRecord)": sz("open_pipe_stress_frame_kernel::load_ledger::LoadClosureRecord"),
+    "s(LoadClosureEntry)": sz("open_pipe_stress_frame_kernel::structural::LoadClosureEntry"),
+    "s(LoadPrimitive)": sz("open_pipe_stress_frame_kernel::structural::LoadPrimitive"),
     "s(RecoveryRecord)": sz("crate::formation_guard::RecoveryRecord"), "s(MemberRecovery)": sz("crate::source_recovery::MemberRecovery"),
     "s(SpringAction)": sz("crate::source_recovery::SpringAction"), "s(SupportActions)": sz("crate::source_recovery::SupportActions"),
     "s(FinalizedSourceBlockCase)": sz("crate::source_receipt::FinalizedSourceBlockCase"),
@@ -81,6 +98,14 @@ BIND = {
     "s(AnalysisStatus)": sz("open_pipe_stress_stress_recovery::AnalysisStatus"), "s(StressFinding)": sz("open_pipe_stress_stress_recovery::StressFinding"),
     "s((&str,StressRecoveryResult))": sz("(&'static str, open_pipe_stress_stress_recovery::StressRecoveryResult)"),
     "s(QuadraticStressSpan)": sz("open_pipe_stress_stress_recovery::elastic_extrema::QuadraticStressSpan"),
+    "s(EnclosedQuadraticStressSpan)": sz("open_pipe_stress_stress_recovery::elastic_extrema::EnclosedQuadraticStressSpan"),
+    "s(CertifiedStraightStressSpan)": sz("open_pipe_stress_frame_kernel::structural::CertifiedStraightStressSpan"),
+    "s(CertifiedStressControlWorkspace)": upr("open_pipe_stress_frame_kernel::structural::certified_stress_control_sizes().workspace_upper",
+        "KD5O10: source-owned typed workspace upper over certificate constructor/evaluation, retaining nested matrix/section/row/accumulator and return/move slots; not a compiler-frame measurement"),
+    "s(FallbackReplayWorkspace)": upr("256 * size_of::<(f64, f64)>() + 384 * max_usize(size_of::<usize>(), size_of::<f64>()) + 2 * fkr::EXACT_ACCUMULATOR + 8 * size_of::<[u64; 68]>()",
+        "KD5O12: source-checked fallback replay values plus sequential exact-product accumulator, initializer/round/subtract/project buffers and complete scalar call-chain staging; no compiler slot reuse; separate vector/kernel/caller owners"),
+    "s(DirectedHelperWorkspace)": upr("8 * size_of::<u128>() + 6 * size_of::<(u64, i32)>() + 48 * max_usize(size_of::<u64>(), max_usize(size_of::<f64>(), size_of::<usize>()))",
+        "KD5O13: source-pinned three-frame FK directed comparator, integer product/shift operands, three dyadic tuples and return staging, scalar arguments/locals/results; no heap, recursion, or compiler slot reuse assumption"),
     "s(Node_SR)": ("InBuild", "open_pipe_stress_stress_recovery::elastic_extrema::NODE_STRIDE", "SR export elastic_extrema::NODE_STRIDE"),
     # the kernel, through its resource module
     "s(Wide<4>)": fk("WIDE_4"), "s(Wide<8>)": fk("WIDE_8"), "s(Wide<16>)": fk("WIDE_16"),
@@ -139,8 +164,6 @@ BIND = {
 # the atom is bound to that owner again: a conservative double count, stated.
 def ins(expr, why):
     return ("InBuild", expr, why)
-def upr(expr, why):
-    return ("SourceUpper", expr, why)
 RP = "crate::retained_product::"
 RR = "crate::retained_receipt::"
 BIND.update({

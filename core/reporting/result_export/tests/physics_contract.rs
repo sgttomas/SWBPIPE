@@ -430,3 +430,19 @@ fn pressure_ledger_cannot_claim_to_include_thermal_actions() {
         .unwrap_err()
         .contains("APPLIED_THERMAL_FLAG"));
 }
+
+#[test]
+fn current_maximum_declaration_refuses_old_and_mixed_scope() {
+    let current = source(false);
+    s::for_source(&current).expect("current enclosed maximum must admit");
+    derive(&current).expect("current enclosed maximum transport must derive");
+    for (field, value) in [
+        ("coefficient_basis", "j_side_section_equilibrium_binary64"),
+        ("enclosure_scope", "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"),
+    ] {
+        let mut invalid = current.clone();
+        invalid["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0][field] = json!(value);
+        assert!(s::for_source(&invalid).is_err(), "old or mixed declaration admitted: {field}");
+        assert!(derive(&invalid).is_err(), "old or mixed declaration derived: {field}");
+    }
+}

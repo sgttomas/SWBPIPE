@@ -477,9 +477,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             )?;
             require(
                 extrema["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && extrema["coefficient_basis"] == "j_side_section_equilibrium_binary64"
+                    && extrema["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
                     && extrema["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
                 "EXTREMA_BASIS",
             )?;
         }

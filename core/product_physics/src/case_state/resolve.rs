@@ -392,6 +392,9 @@ pub(crate) struct ResolvedMember {
     pub pipe_id: String,
     pub material: ResolvedMemberMaterial,
     pub strain: ResolvedStrain,
+    /// Normalized immutable source operands for the intended p=128 eigenstrain.
+    pub thermal_input: ThermalInput,
+    pub fit_input: FitInput,
 }
 
 pub(crate) struct ResolvedCase {
@@ -1027,6 +1030,8 @@ pub(crate) fn resolve_case(
             pipe_id: pipe.id.clone(),
             material: resolved_material,
             strain,
+            thermal_input,
+            fit_input,
         });
     }
     let node_index = model
@@ -1147,7 +1152,8 @@ pub(crate) fn resolve_case(
 
 /// T4-U3 S20 (b) (RV6 C-1): on 0.4.0, a resolved total eigenstrain on a
 /// span replaced by an objective connector that is not exactly zero refuses
-/// its case; an explicit zero is admitted with no effect. The resolver still
+/// its case; only a source eigenstrain whose p midpoint and enclosure radius
+/// are both exactly zero is admitted with no effect. The resolver still
 /// resolves every pipe. It reads resolved cases, so it runs only for a
 /// load-state document.
 pub(crate) fn refuse_resolved_span_strain(
@@ -1164,14 +1170,21 @@ pub(crate) fn refuse_resolved_span_strain(
             let Some(spec) = specs.iter().find(|s| s.span_id == member.pipe_id) else {
                 continue;
             };
-            if member.strain.total_eigenstrain == 0.0 {
+            let mut intended=crate::certified_loads::eigenstrain(&member.thermal_input,member.fit_input);
+            if let open_pipe_stress_frame_kernel::structural::FitPrimitive::NaturalLengthChange {change_m,..}=intended.fit {
+                let pipe=&model.pipe_segments[member.pipe_index];
+                if let (Some(coordinates_i),Some(coordinates_j))=(node_position(model,&pipe.from),node_position(model,&pipe.to)) {
+                    intended.fit=open_pipe_stress_frame_kernel::structural::FitPrimitive::NaturalLengthChangeStraight {change_m,coordinates_i,coordinates_j};
+                } else { continue; } // The ordinary model validation owns missing nodes.
+            }
+            if open_pipe_stress_frame_kernel::structural::eigenstrain_is_exact_zero(&intended) {
                 continue;
             }
             diagnostics.push(diag(
                 &format!("diagnostic:joint:{}:replaced-span-strain:{}", stable_suffix(&spec.component_id), stable_suffix(&case.effective_case.id)),
                 crate::joint::SPAN_LOAD_UNOWNED,
                 "blocking",
-                format!("load case {} resolves a nonzero eigenstrain ({}) on pipe {}, which objective connector {} replaces; the strain has no owner until its producer is implemented and is never moved to the connector or dropped", case.effective_case.id, member.strain.total_eigenstrain, spec.span_id, spec.component_id),
+                format!("load case {} cannot establish its source eigenstrain as exact zero with zero enclosure radius (ordinary resolved value {}) on pipe {}, which objective connector {} replaces; the strain has no owner until its producer is implemented and is never moved to the connector or dropped", case.effective_case.id, member.strain.total_eigenstrain, spec.span_id, spec.component_id),
                 vec![spec.component_id.clone(), format!("element_state:{}", spec.span_id), spec.span_id.clone()],
             ));
         }

@@ -755,18 +755,6 @@
     "source": "STATIC"
    }
   },
-  "core/product_physics/src/formation_guard.rs:450": {
-   "record.member": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/product_physics/src/formation_guard.rs:456": {
-   "record.member": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
   "core/product_physics/src/formation_guard.rs:465": {
    "case_id": {
     "bytes": 128,
@@ -1153,24 +1141,6 @@
    "component": {
     "bytes": 128,
     "source": "STATIC"
-   }
-  },
-  "core/product_physics/src/lib.rs:1209": {
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/product_physics/src/lib.rs:1214": {
-   "node.id": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/product_physics/src/lib.rs:1219": {
-   "support.id": {
-    "bytes": 128,
-    "source": "IN128"
    }
   },
   "core/product_physics/src/lib.rs:1264": {
@@ -1810,12 +1780,6 @@
     "bytes": 128,
     "source": "IN128"
    },
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/product_physics/src/lib.rs:5185": {
    "pipe.element_id": {
     "bytes": 128,
     "source": "IN128"
@@ -4707,12 +4671,6 @@
    "detail": {
     "bytes": 2173,
     "source": "NOTID"
-   }
-  },
-  "core/solver/frame_kernel/src/structural/formation_check.rs:167": {
-   "family": {
-    "bytes": 128,
-    "source": "STATIC"
    }
   },
   "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4881": {

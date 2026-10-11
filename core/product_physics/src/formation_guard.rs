@@ -1,11 +1,11 @@
 //! S11-G, the formation-noise guard (`S11G_GUARD.md` revision 2.1, selected
 //! by ROOT; I5 rulings recorded in `ROOT_RULINGS_V1.md`).
 //!
-//! Two guards demote a load case to `NUMERICAL_INTEGRITY_SENSITIVE` when a
-//! published value may carry more formation noise than the 1e-9 criterion
-//! allows. Nothing is refused, nothing is `Err`, and no envelope field, code
-//! or enum value is added: a fired case keeps every value and gains one
-//! reason sentence in its existing integrity message.
+//! The load-row guard retains the ordinary ledger rule. The recovery guard
+//! judges every certified member and support group against the member-relative
+//! criterion, after repaired values have been published. A fired Passed case
+//! keeps those values and gains a reason sentence in its integrity diagnostic.
+//! The stress-free notice is informational and never changes integrity.
 //!
 //! - **The load-row guard** (section 3) reads the case ledger's formation
 //!   records (`AssembledForce::formation_rows`): per loaded row, the exact
@@ -26,12 +26,12 @@
 //!   and S* the section 4.1.6 coupled body scale of the intended nets (free
 //!   rows over the body's free rows, restrained rows over all its loaded
 //!   rows). The floor applies to the self-equilibrated defect only (DB-1).
-//! - **The recovery guard R-b'** (section 4) reads each straight member end
-//!   whose published bending rows come from the formed K_e * u: q =
-//!   hypot(My, Mz), B = `bending_formation_bound`. It fires when
-//!   `B > RD(1e-9) q` (exact), `q > 2^10 B` and `q >= 2^-34 S*_moment`, with
-//!   S*_moment the body's coupled moment scale over the case's published
-//!   rows (DESIGN section 4.1.6.1).
+//! - **The recovery guard R-b'** reads every certified end, section, station,
+//!   wall and support group. It fires for a nonfinite bound or exactly
+//!   `B > RD(1e-9) q` with `S* >= 2^-988` and `q_hat >= 2^-34 S*`.
+//!   The force and moment body scales are coupled; the floor uses the
+//!   certified upper magnitude. No resolution conjunct applies.
+
 use super::{Diagnostic, ResultItem, DOF_PER_NODE};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
@@ -45,8 +45,6 @@ use std::collections::{HashMap, HashSet};
 pub(crate) const CRITERION: f64 = f64::from_bits(1e-9_f64.to_bits() - 1);
 /// 2^-10: the self-equilibrated floor factor (SF-4).
 const FLOOR_FACTOR: f64 = 1.0 / 1024.0;
-/// 2^10: R-b's resolution factor.
-const RESOLUTION_FACTOR: f64 = 1024.0;
 /// 2^-34: the DESIGN V1-S8/S8-R floor R.
 const DESIGN_FLOOR: f64 = f64::from_bits(0x3DD0_0000_0000_0000);
 /// S* below 2^-988 makes the floor product inexact (DESIGN N-2): every row of
@@ -329,14 +327,48 @@ pub(crate) fn load_row_finding(
 
 // ------------------------------------------------------------ recovery guard
 
-/// One straight member's ends as published from the formed K_e * u.
+/// Every certified member/support group, including groups below the floor.
+#[derive(Debug, Clone)]
+pub(crate) struct RecoveryGroup {
+    pub(crate) location: String,
+    pub(crate) kind: String,
+    pub(crate) moment: bool,
+    pub(crate) q: f64,
+    /// Exact squared norm of the actual published components is at most B².
+    /// Arithmetic unavailability is false; RN norm equality is insufficient.
+    pub(crate) zero_compatible: bool,
+    pub(crate) q_hat: f64,
+    pub(crate) bound: Result<f64, String>,
+    pub(crate) absolute_scale: f64,
+    /// Largest published row in this group (support norms are published rows).
+    pub(crate) published_scale: f64,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct RecoveryRecord {
     pub(crate) member: String,
     pub(crate) body: Option<usize>,
-    /// Per end (i, j): q = hypot(My, Mz) of the published rows, and B (or the
-    /// reason B is unavailable, which fires).
-    pub(crate) ends: [(f64, Result<f64, String>); 2],
+    pub(crate) groups: Vec<RecoveryGroup>,
+}
+
+/// Coupled force and moment scales over every repaired published group.
+pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, (f64, f64)> {
+    let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
+    for record in records {
+        let Some(body) = record.body else { continue };
+        let entry = maxima.entry(body).or_insert((0.0, 0.0));
+        for group in &record.groups {
+            let scale = group.published_scale;
+            if group.moment { entry.1 = entry.1.max(scale); } else { entry.0 = entry.0.max(scale); }
+        }
+    }
+    maxima.into_iter().map(|(body, (force, moment))| {
+        let extent = bodies.extent(body);
+        let scales = if extent > 0.0 && extent.is_finite() {
+            (force.max(moment / extent), moment.max(extent * force))
+        } else { (force, moment) };
+        (body, scales)
+    }).collect()
 }
 
 /// DESIGN section 4.1.6.1 closed table, force and moment classes only, with
@@ -417,59 +449,101 @@ pub(crate) fn moment_scales(
         .collect()
 }
 
-/// R-b' for one end: true when it fires (a non-finite B fires, fail-closed).
-pub(crate) fn rb_prime_fires(q: f64, bound: f64, s_star_moment: f64) -> bool {
-    if !bound.is_finite() {
-        return true;
+/// Exact finite member-relative decision. Invalid or unrepresentable
+/// comparison inputs are unavailable, never a silent non-firing group.
+pub(crate) fn member_group_decision(q: f64, q_hat: f64, bound: f64, s_star: f64) -> Result<bool, &'static str> {
+    for (value,reason) in [(q,"nonfinite published group norm"),(q_hat,"nonfinite certified group magnitude"),(bound,"nonfinite member bound"),(s_star,"nonfinite body action scale")] {
+        if !value.is_finite() { return Err(reason); }
     }
-    // B > RD(1e-9) q, exactly.
-    let mut first = ExactAccumulator::new();
-    let first_clause =
-        first.add(bound).is_ok() && first.add_product(-CRITERION, q).is_ok() && first.signum() > 0;
-    let resolved = q > RESOLUTION_FACTOR * bound;
-    let above_floor = s_star_moment >= DESIGN_FLOOR_MIN_SCALE && q >= DESIGN_FLOOR * s_star_moment;
-    first_clause && resolved && above_floor
+    if q < 0.0 || q_hat < q || bound < 0.0 || s_star < 0.0 { return Err("invalid member comparison inputs"); }
+    let mut comparison = ExactAccumulator::new();
+    comparison.add(bound).map_err(|_| "exact member comparison range")?;
+    comparison.add_product(-CRITERION, q).map_err(|_| "exact member comparison range")?;
+    Ok(comparison.signum() > 0 && s_star >= DESIGN_FLOOR_MIN_SCALE && q_hat >= DESIGN_FLOOR * s_star)
 }
 
-/// The recovery guard's finding for one case, or `None` when no end fires.
+/// Boolean interface used by controls; unavailable comparisons fail closed.
+pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) -> bool {
+    member_group_decision(q,q_hat,bound,s_star).unwrap_or(true)
+}
+
+/// Unified finding over all member locations, wall rows and support groups.
 pub(crate) fn recovery_finding(
     records: &[RecoveryRecord],
-    scales: &HashMap<usize, f64>,
+    scales: &HashMap<usize, (f64, f64)>,
     case_id: &str,
 ) -> Option<FormationFinding> {
     let mut fired = Vec::new();
     for record in records {
-        let s_star = record
-            .body
-            .and_then(|body| scales.get(&body).copied())
-            .unwrap_or(0.0);
-        for (end, (q, bound)) in ["i", "j"].iter().zip(&record.ends) {
-            match bound {
-                Ok(bound) => {
-                    if rb_prime_fires(*q, *bound, s_star) {
-                        fired.push(format!(
-                            "{}.{end}: q={q:e} N*m, B={bound:e} N*m, S*_moment={s_star:e} N*m",
-                            record.member
-                        ));
-                    }
-                }
-                Err(reason) => fired.push(format!(
-                    "{}.{end}: the formation bound is unavailable ({reason})",
-                    record.member
-                )),
+        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or((0.0, 0.0));
+        for group in &record.groups {
+            let scale = if group.moment { scales.1 } else { scales.0 };
+            match &group.bound {
+                Ok(bound) => match member_group_decision(group.q,group.q_hat,*bound,scale) {
+                    Ok(true) => fired.push(format!("{}.{}.{}: q={:e}, B={bound:e}",record.member,group.location,group.kind,group.q)),
+                    Ok(false) => {},
+                    Err(reason) => fired.push(format!("{}.{}.{}: member comparison unavailable ({reason})",record.member,group.location,group.kind)),
+                },
+                Err(reason) => fired.push(format!("{}.{}.{}: the member bound is unavailable ({reason})", record.member, group.location, group.kind)),
             }
         }
     }
     (!fired.is_empty()).then(|| FormationFinding {
         guard: Guard::Recovery,
         sentence: format!(
-            "S11-G recovery guard (R-b'): load case {case_id} is Sensitive because {} straight member end bending row(s) published from the formed K_e*u carry formation noise above the 1e-9 criterion; every value is kept for inspection. Ends: [{}]{}",
-            fired.len(),
-            fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            "S11-G recovery guard (R-b'): load case {case_id} is Sensitive because {} member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [{}]{}",
+            fired.len(), fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
             if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
         ),
         fired,
     })
+}
+
+/// Notice evidence only: compare Σ(v_i²) <= B² without forming a rounded
+/// norm or product. The accumulator covers the full binary64 product range.
+pub(crate) fn notice_zero_compatible(values:impl IntoIterator<Item=f64>,bound:f64)->bool {
+    if !bound.is_finite() || bound<0.0 {return false;}
+    let mut squared=ExactAccumulator::new();
+    for value in values {
+        if !value.is_finite() || squared.add_product(value,value).is_err() {return false;}
+    }
+    if squared.add_product(-bound,bound).is_err() {return false;}
+    squared.signum()<=0
+}
+
+/// Caller supplies conditions 1 and 2 (§3.3); this checks every group in
+/// every body, including groups not judged by the relative floor.
+pub(crate) fn stress_free_notice(records: &[RecoveryRecord], case_id: &str) -> Option<Diagnostic> {
+    if records.is_empty() || records.iter().any(|record| record.groups.is_empty()) { return None; }
+    let mut force = 0.0_f64;
+    let mut moment = 0.0_f64;
+    for group in records.iter().flat_map(|record| &record.groups) {
+        let bound = group.bound.as_ref().ok()?;
+        // Cancellation-scale smallness alone cannot distinguish a tiny
+        // resolved load from a zero-compatible row. This notice-only check
+        // leaves the integrity predicate and its relative criterion unchanged.
+        if !group.zero_compatible || !bound.is_finite() || *bound < 0.0 || !group.q.is_finite() || group.q < 0.0 || group.q > *bound
+            || !group.q_hat.is_finite() || group.q_hat < group.q || !group.absolute_scale.is_finite() || group.absolute_scale < 0.0
+            || group.q_hat > product_downward(DESIGN_FLOOR, group.absolute_scale) {
+            return None; }
+        // q is correctly rounded for the one-, two- and three-component
+        // product groups. next_up(q) encloses its exact norm; exact squared
+        // zero compatibility also bounds that norm by B. Take the tighter
+        // bound, then add B exactly and round upward once. An unavailable or
+        // infinite upper suppresses information rather than emitting +inf.
+        let norm_upper=if group.q==0.0 {0.0} else {group.q.next_up().min(*bound)};
+        let mut sum=ExactAccumulator::new();sum.add(norm_upper).ok()?;sum.add(*bound).ok()?;
+        let rounded=sum.round().ok()?;sum.add(-rounded).ok()?;
+        let upper=if sum.signum()>0 {rounded.next_up()} else {rounded};
+        if !upper.is_finite() {return None;}
+        if group.moment { moment = moment.max(upper); } else { force = force.max(upper); }
+    }
+    Some(super::diag(
+        &format!("diagnostic:stress-free-within-numerical-precision:{case_id}"),
+        "STRESS_FREE_WITHIN_NUMERICAL_PRECISION", "info",
+        format!("Load case {case_id}: every member and support force row is bounded by {force:e} N and every moment row by {moment:e} N*m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."),
+        vec![case_id.to_string()],
+    ))
 }
 
 // ------------------------------------------------------------------ verdict

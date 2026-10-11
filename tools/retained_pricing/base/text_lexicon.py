@@ -159,7 +159,12 @@ for key in sorted(reach):
                 rec = arg
             if kind == "into":
                 lastn = re.sub(r"\(.*$", "", rec.split(".")[-1]).strip("&*() ")
-                if lit is None and not TEXT_NAMES.search(lastn):
+                if lit is None and not TEXT_NAMES.search(lastn) and not (
+                    (f == "core/product_physics/src/certified_publication.rs" and rec in ("member", "support", "entity")) or
+                    (f == "core/solver/frame_kernel/src/structural/formation_check.rs" and key.endswith(":detail")
+                     and rec == "(*s)" and "pub struct MemberBoundInputs" in raw)):
+                    # KD5A2: these &str parameters become the RecoveryRecord's
+                    # owned String. Other non-text conversions stay unchanged.
                     into_other[(f.split("/src/")[-1], rec[-60:])] += 1
                     continue
                 kind = "into_text"

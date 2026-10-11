@@ -47,8 +47,8 @@ INTENSIFIED_SIGN_PREFIX = "nonnegative i*hypot(My,Mz)/Z at the member end; i="
 EXTREMA_KEYS = frozenset({"pipe_id", "result_id", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions", "approximation", "coefficient_basis", "enclosure_scope"})
 EXTREMA_CONSTANTS = {
     "approximation": "piecewise_quadratic_straight_section_statics",
-    "coefficient_basis": "j_side_section_equilibrium_binary64",
-    "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+    "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+    "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
 }
 CASE_KEYS = frozenset({"load_case_id", "pipe_stress_extrema", "stress_maximum_coverage", "support_attribution", "intensified_measures"})
 INTENSIFIED_KEYS = frozenset({"result_id", "component_id", "pipe_id", "location", "factor_role", "sif", "sif_source_reference", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m"})

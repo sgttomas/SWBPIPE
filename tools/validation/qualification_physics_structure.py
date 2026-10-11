@@ -23,8 +23,7 @@ CONTRACT = 'openpipestress.result_semantics/0.3.0/physics-1'
 PROFILE = 'exact_straight_pressure_v2'
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}
 MAXIMUM_ID = 'result:elastic-maximum:4:case:4:pipe'
-ENCLOSURE = ('supplied_binary64_polynomial_coefficients; '
-             'solution and coefficient formation error are separate')
+ENCLOSURE = 'supplied_binary64_polynomial_coefficient_enclosures; solution error is separate'
 CASES = {
     'original_static_axial_v1': ('axial', [('global_x', 1000, 'force')]),
     'original_static_bending_torsion_v1': (
@@ -400,7 +399,7 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
                  and coverage['complete'] is True and coverage['unavailable_pipe_ids'] == [],
                  'normal maximum coverage incomplete')
         _require(ex['approximation'] == 'piecewise_quadratic_straight_section_statics'
-                 and ex['coefficient_basis'] == 'j_side_section_equilibrium_binary64'
+                 and ex['coefficient_basis'] == 'j_side_section_equilibrium_binary64_enclosures'
                  and ex['enclosure_scope'] == ENCLOSURE, 'normal maximum method/enclosure scope differs')
         row = _row(raw, MAXIMUM_ID, 'pipe_elastic_normal_stress_maximum_v2', 'Pa', 'pipe')
         lower, upper, global_upper = [_number(ex[key]) for key in

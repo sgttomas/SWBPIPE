@@ -108,7 +108,8 @@ All outputs go to `--out`.
 - **Source:** I104's chain scripts, at `e85d383b64:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I104/b1_sq_01/_run_records/chain/`.
 - **N-5 adapter rows:** applied in `producer_caps.py` and `g5_profile.py` by that record's `g6/tools/sq_n5_chain.py`.
 - **Rule tables and keys:** the rule tables, `sens.py`'s keys and I65's premise pins were carried from `57c92a7b33` to `2243be380b` by RV132's line map. This is the base SQ2 was qualified on.
-- **Check:** on `f78f52b7e2`, `2c5cf0823b` and `e9cc7e3f5f`, carrying from this base gives rule tables byte-identical to the earlier two-hop carry from `57c92a7b33`.
+- **Historical carry check:** before K-D5's name-key migrations, carrying this base at `f78f52b7e2`, `2c5cf0823b` and `e9cc7e3f5f` gave rule tables byte-identical to the earlier two-hop carry from `57c92a7b33`. K-D5 moves reviewed changed sites and the condition-estimator call into name-keyed rules; the registered batch-3 tree still reproduces with the same 630 coefficients.
+- **Current-source model:** K-D5's owned-layout and unified-text additions apply only when the snapshot defines `MemberBoundInputs`. Older priced revisions keep their original formulas and illustrative-layout metadata. The positive owners and domain-grounded empty children are explained in the governed pricing rules.
 - **Generator change:** `g5_profile.py` also takes the wrapped basis line described under "The basis line".
 - **Not included:** the chain's patch logs and its stale template inventory, because a run regenerates the inventory.
 

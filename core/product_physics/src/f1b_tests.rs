@@ -2262,6 +2262,7 @@ fn f1b_admission_names_each_family() {
         source: "load:t".into(),
         axial_load: 1.0,
         thermal_strain: 1.0e-5,
+        strain_primitive: certified_loads::constant_alpha(1.0e-5, 1.0),
     }];
     let mut uniform = chain_request(2);
     uniform["model"]["load_cases"][0]["primitive_loads"]
