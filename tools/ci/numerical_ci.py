@@ -169,6 +169,18 @@ def build_commands(commands):
             for command in commands if '--doc' not in command]
 
 
+def cargo_timings(output):
+    """Cargo compilation and harness test time, distinct from command wall time."""
+    text = re.sub(r'\x1b\[[0-9;]*m', '', output)
+    compile_seconds = 0.0
+    for duration in re.findall(r'Finished .* target\(s\) in ([^\n]+)', text):
+        compile_seconds += sum(float(number) * {'m': 60, 's': 1}[unit]
+                               for number, unit in re.findall(r'([0-9.]+)([ms])', duration))
+    test_seconds = sum(float(seconds) for seconds in
+                       re.findall(r'test result: .* finished in ([0-9.]+)s', text))
+    return dict(compile_seconds=round(compile_seconds, 3), test_seconds=round(test_seconds, 3))
+
+
 def execute_commands(project, commands, evidence, evidence_dir, env=None):
     """Public bounded executor also supports a real temporary failing-crate control."""
     for index, argv in enumerate(commands):
@@ -181,6 +193,7 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
             result = subprocess.run(argv, cwd=project, env=env, stdout=log, stderr=subprocess.STDOUT, check=False)
         row['elapsed_seconds'] = round(time.monotonic() - started, 3)
         row['exit_code'] = result.returncode
+        row.update(cargo_timings(output.read_text()))
         row['output_sha256'] = hashlib.sha256(output.read_bytes()).hexdigest()
         if result.returncode:
             return result.returncode if result.returncode > 0 else 128 - result.returncode
@@ -220,6 +233,14 @@ def run(root, plan, evidence_dir, build_only=False):
         print(evidence['error'], file=sys.stderr)
     finally:
         evidence['exit_code'] = code
+        totals = {key: round(sum(row.get(key, 0) for row in evidence['commands']), 3)
+                  for key in ('compile_seconds', 'test_seconds', 'elapsed_seconds')}
+        evidence['timing'] = totals
+        message = f"Numerical {evidence['execution']} timing (seconds): {json.dumps(totals)}; status={evidence['status']}"
+        print(message, flush=True)
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+                summary.write(message + '\n')
         (evidence_dir / 'numerical.json').write_text(json.dumps(evidence, indent=2) + '\n')
     return code
 
