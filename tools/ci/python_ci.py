@@ -35,6 +35,8 @@ def select(project, plan):
                                  'tests/test_physical_to_analytical_transform.py'])
             if local.startswith('core/model_operations/validation_preview/'):
                 patterns.append('tests/test_operation_validation_preview.py')
+            if local.startswith('tools/retained_pricing/'):
+                patterns.append('tests/test_retained_pricing_tool.py')
             # Run an edited test itself, in addition to its affected family.
             if local.startswith('tests/') and Path(local).name.startswith('test_') and local.endswith('.py') and (project / local).is_file():
                 patterns.append(local)
