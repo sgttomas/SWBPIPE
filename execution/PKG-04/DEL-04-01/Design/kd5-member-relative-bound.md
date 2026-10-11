@@ -19,7 +19,7 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
   The worst judged B/c is 0.032, so the margin is at least 31 (§4.2).
 - **W1's N-5 abandonment (T3's M1).** (d) abandons none of the 2,844 invocations in W1's domain; R-b′ abandons 64 of them today (§4.4).
 - **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Nonzero evaluation cases generally change last bits; zero-load and exact-result cases can retain identical member bytes. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
-- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a certified row is nonzero and its coupled force or moment scale reaches the existing 2^-988 guard. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
+- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a nonzero certified group passes both the existing S* ≥ 2^-988 guard and the relative floor q̂ ≥ 2^-34·S*. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
 - **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). The short-bend rule is removed only with the closure, in the same unit (T3's M3).
 - **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
 
@@ -239,12 +239,12 @@ One predicate replaces `rb_prime_fires`, O-13's `arc_group_fires` with its B_u, 
 - `CHECKS_PASSED` becomes `SENSITIVE`;
 - the no-op rule holds, and the load-row sentence stands first (I5 ruling 1).
 
-**All-zero bodies (HELP_HUMAN's ruling).** A body whose true rows are all zero is Sensitive whenever a certified row is nonzero and the corresponding coupled scale S* reaches 2^-988. This follows from A1, under which a true-zero row has ‖m_g‖ ≤ ‖r_g‖ + ‖R_g‖:
+**All-zero bodies (HELP_HUMAN's ruling).** A body whose true rows are all zero is Sensitive whenever a nonzero certified group passes both the coupled-scale guard S* ≥ 2^-988 and the relative floor q̂ ≥ 2^-34·S*. This follows from A1, under which a true-zero row has ‖m_g‖ ≤ ‖r_g‖ + ‖R_g‖:
 
 - B_g = ‖v_g − m_g‖ + ‖r_g‖ + ‖R_g‖ ≥ ‖v_g − m_g‖ + ‖m_g‖ ≥ q_g > RD(1e-9)·q_g whenever q_g > 0;
-- the largest row sets S* and passes the relative floor; the separate S* ≥ 2^-988 guard must also hold.
+- if the group passes both the relative floor and the coupled-scale guard, its error-bound conjunct fires. The coupled scales do not guarantee that the largest raw force or moment row passes both conditions.
 
-A body whose every certified row is exactly zero (S* = 0) stays Passed, for example a zero-load case with u = 0. A body whose force and moment scales are both below 2^-988 can also stay Passed under the existing guard, even with nonzero noise; this unit does not change that criterion or emit the demotion-only notice there. The floor is not anchored to the load scale.
+A body whose every certified row is exactly zero (S* = 0) stays Passed, for example a zero-load case with u = 0. A body with nonzero noise can also stay Passed when no group passes both the relative floor and the coupled-scale guard, including a body whose force and moment scales are both below 2^-988. A sufficiently small L_b can lift the force scale through moment coupling while every force group remains below its relative floor and the moment groups remain below 2^-988. This unit does not change either condition or emit the demotion-only notice there. The floor is not anchored to the load scale.
 
 **The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION`** (info severity, one per load case, emitted after that case's integrity diagnostic). It is an implementation item of this unit, with no criterion change.
 
@@ -397,7 +397,7 @@ So the short-bend rule is removed in the same unit as the closure and after it. 
 
 - **Integrity codes that move to Sensitive:**
   - the nonlinear-route cases (§5);
-  - all-zero bodies whose certified rows are not all exactly zero and whose coupled scale reaches 2^-988 (§3.3); the notice is emitted only when every group in the case satisfies §3.3 condition 3. In SP-1 set E these are up to 82 committed case-modes: the free-length, coefficient-definition, constant-α, thermal-datum, released fit-state and free-tip prescribed-rotation qualification requests, in both modes and both request forms, plus the three mixed ordinary-pressure requests. O-13's `p8_a_stress_free_arc_stays_passed` is another. Revision 1's count of 16 undercounted these. The implementation counts them; a body whose certified rows all come out exactly zero stays Passed.
+  - all-zero bodies whose nonzero certified groups pass both the relative floor and the S* ≥ 2^-988 guard (§3.3); the notice is emitted only when every group in the case satisfies §3.3 condition 3. In SP-1 set E these are up to 82 committed case-modes: the free-length, coefficient-definition, constant-α, thermal-datum, released fit-state and free-tip prescribed-rotation qualification requests, in both modes and both request forms, plus the three mixed ordinary-pressure requests. O-13's `p8_a_stress_free_arc_stays_passed` is another. Revision 1's count of 16 undercounted these. The implementation counts them; a body whose certified rows all come out exactly zero stays Passed.
 - **Predicted to stay Passed** with repaired rows:
   - I7's `U2-L-FREE-P-K2-SKEW-X5E6` and `-X7P3E6`;
   - `prescribed_rotation_all_fixed`;
@@ -581,7 +581,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - `≥` in place of `>`;
   - a rounded comparison;
   - the floor conjunct, and q in place of q̂;
-  - the 2^-988 guard;
+  - the 2^-988 guard; a boundary control also pins a tiny body where moment coupling lifts the force scale above the guard but all force groups stay below the relative floor while the moment scale stays below the guard;
   - the resolution conjunct reintroduced (RV29's cantilever kills it);
   - group norm replaced by a maximum;
   - the force and moment reaction groups merged;
