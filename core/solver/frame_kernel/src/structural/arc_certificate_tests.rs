@@ -217,11 +217,18 @@ fn directed_primitives_are_on_the_right_side() {
     assert!(sign_of(&[(a * b, 1.0), (a, -b)]) < 0);
     let (a, b) = (1.4795854905185333, 0.0004178009747299189);
     assert!(sign_of(&[(a / b, b), (a, -1.0)]) < 0);
-    // MU6f: the fma-remainder pattern of `load_ledger::product_upward`
-    // (without RV129's subnormal guard) under-bounds this subnormal product;
-    // mul_up does not.
+    // MU6f: the local legacy FMA-remainder mutant (without RV129's
+    // subnormal guard) under-bounds this subnormal product; mul_up does not.
+    let legacy_fma_product_upward = |a: f64, b: f64| {
+        let p = a * b;
+        if p.is_finite() && a.mul_add(b, -p) > 0.0 {
+            p.next_up()
+        } else {
+            p
+        }
+    };
     let (a, b) = (1.4077782219387978e-163, 2.5298885888751426e-160);
-    assert!(sign_of(&[(crate::load_ledger::product_upward(a, b), 1.0), (a, -b)]) < 0);
+    assert!(sign_of(&[(legacy_fma_product_upward(a, b), 1.0), (a, -b)]) < 0);
     assert!(sign_of(&[(mul_up(a, b), 1.0), (a, -b)]) >= 0);
     // Subnormals are not flushed to zero (Lemma R's premise).
     assert!(TINY > 0.0 && f64::MIN_POSITIVE / 4.0 > 0.0 && (3.0 * TINY) * 0.5 > 0.0);
