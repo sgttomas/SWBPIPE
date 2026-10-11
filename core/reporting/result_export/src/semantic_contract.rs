@@ -95,6 +95,9 @@ pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 /// `pressure-1` semantics on 0.3.0 and 0.4.0 documents, with one profile.
 pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
+pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
+/// Reviewed nonresident binding table; rows use physics_source_contract().
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
 /// Resolved load/reference-state method; bound to exactly one formulation profile.
 pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
@@ -318,6 +321,24 @@ pub fn preview_physics_contract() -> &'static Value {
         .expect("pinned preview-physics semantic contract")
     })
 }
+/// Verify supplied pressure-source binding bytes without caching another row
+/// table. Its digest is the reviewed file's pin, and its rows remain those of
+/// the one resident physics_source_contract().
+pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_SOURCE_TABLE_SHA256 {
+        return Err("SOURCE_PRESSURE_SOURCE_TABLE_HASH".into());
+    }
+    let table: Value = serde_json::from_slice(bytes).map_err(|_| "SOURCE_PRESSURE_SOURCE_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != PRESSURE_SOURCE_ID
+        || table["formulation_profile_id"] != PRESSURE_PROFILE
+        || table["source_block_policy"] != crate::physics_source::SourceContract::PressureV3.policy()
+        || table["rows"] != physics_source_contract()["rows"]
+        || table["canonical_metadata_vocabulary"] != physics_source_contract()["canonical_metadata_vocabulary"] {
+        return Err("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
 pub fn physics_source_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
@@ -370,6 +391,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                         PRECISION_ID
                             | PHYSICS_ID
                             | PRESSURE_ID
+                            | PRESSURE_SOURCE_ID
                             | PHYSICS_SOURCE_ID
                             | LOAD_REFERENCE_ID
                             | LOAD_REFERENCE_SOURCE_ID
@@ -390,6 +412,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             }
             if p["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID
                 && p["semantic_contract_id"] != PHYSICS_SOURCE_ID
+                && p["semantic_contract_id"] != PRESSURE_SOURCE_ID
                 && p["semantic_contract_id"] != LOAD_REFERENCE_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
             {
@@ -399,6 +422,11 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 && !source.get("contract_evidence").is_some_and(Value::is_object)
             {
                 return Err("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED".into());
+            }
+            match p["semantic_contract_id"].as_str() {
+                Some(PRESSURE_SOURCE_ID) => crate::physics_source::SourceContract::PressureV3.check_received(source)?,
+                Some(PHYSICS_SOURCE_ID) => crate::physics_source::SourceContract::PhysicsV2.check_received(source)?,
+                _ => {}
             }
             let q = &source["numerical_quality"];
             if !exact_keys(
@@ -466,7 +494,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             let profile = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID | PHYSICS_SOURCE_ID) => "exact_straight_pressure_v2",
                 // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
-                Some(PRESSURE_ID) => PRESSURE_PROFILE,
+                Some(PRESSURE_ID | PRESSURE_SOURCE_ID) => PRESSURE_PROFILE,
                 // The only profile for load-reference-1; no other contract accepts it.
                 Some(LOAD_REFERENCE_ID) => LOAD_REFERENCE_PROFILE,
                 // The only profile for load-reference-source-1, likewise exclusive.
@@ -486,7 +514,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
                 Some(PRESSURE_ID) => pressure_rows_contract(),
-                Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
+                Some(PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID) => physics_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
@@ -521,6 +549,9 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
         Some(PHYSICS_SOURCE_ID) => {
             forbid_load_reference_evidence(source)?;
             crate::physics_source::validate(source, None)?;
+        }
+        Some(PRESSURE_SOURCE_ID) => {
+            crate::physics_source::validate_in(source, None, crate::physics_source::SourceContract::PressureV3)?;
         }
         Some(LOAD_REFERENCE_ID) => validate_load_reference_evidence(source)?,
         Some(LOAD_REFERENCE_SOURCE_ID) => {
@@ -575,6 +606,7 @@ pub const FRESH_IDENTITIES: &[&str] = &[
     crate::source_blocks::CONTRACT_ID,
     PHYSICS_ID,
     PHYSICS_SOURCE_ID,
+    PRESSURE_SOURCE_ID,
     // T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
     LOAD_REFERENCE_ID,
     LOAD_REFERENCE_SOURCE_ID,
@@ -827,7 +859,7 @@ pub fn numerical_use_standing_with_context(
     }
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
-        Some(crate::source_blocks::CONTRACT_ID | PHYSICS_SOURCE_ID)
+        Some(crate::source_blocks::CONTRACT_ID | PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID)
     ) {
         let expected = source["source_block_recovery"]["body"]["cases"]
             .as_array()
@@ -838,7 +870,9 @@ pub fn numerical_use_standing_with_context(
         if expected != requested_basis_refs {
             return "needs_recompute";
         }
-        let standing = if source["producer"]["semantic_contract_id"] == PHYSICS_SOURCE_ID {
+        let standing = if source["producer"]["semantic_contract_id"] == PRESSURE_SOURCE_ID {
+            crate::physics_source::validate_in(source, actual_invocation, crate::physics_source::SourceContract::PressureV3)
+        } else if source["producer"]["semantic_contract_id"] == PHYSICS_SOURCE_ID {
             crate::physics_source::validate(source, actual_invocation)
         } else {
             crate::source_blocks::validate(source, actual_invocation)

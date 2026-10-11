@@ -163,8 +163,12 @@ fn vector(v: &Value, len: usize) -> Check {
     }
     Ok(())
 }
-fn material(v: &Value) -> Check {
-    require(keys(v, MATERIAL_KEYS), "MATERIAL_SHAPE")?;
+fn material(v: &Value) -> Check { material_in(v, false) }
+fn material_in(v: &Value, resolved: bool) -> Check {
+    let fields: Vec<_> = MATERIAL_KEYS.iter().copied()
+        .chain(resolved.then_some("material_selection_kind"))
+        .chain(resolved.then_some("resolved_eigenstrain")).collect();
+    require(keys(v, &fields), "MATERIAL_SHAPE")?;
     for k in ["pipe_id", "material_id", "provenance"] {
         text(&v[k])?;
     }
@@ -401,17 +405,13 @@ pub fn validate_pressure_evidence(source: &Value) -> Check {
         validate_physics_evidence_in(source, false, PressureContract::PressureV3)
     }
 }
-/// The physics checks under one exact pressure contract (composite readers:
-/// v2 only).
+/// The physics checks under an explicitly selected exact pressure contract.
+/// A v3 source composite reads its received 0.4 resolved state directly.
 pub(crate) fn validate_physics_evidence_in(
     source: &Value,
     composite: bool,
     contract: PressureContract,
 ) -> Check {
-    require(
-        !composite || contract == PressureContract::StraightV2,
-        "CONTRACT_COMPOSITE_UNSUPPORTED",
-    )?;
     contract_identity(&source["contract_evidence"], contract)?;
     finite_tree(source)?;
     require(
@@ -420,14 +420,20 @@ pub(crate) fn validate_physics_evidence_in(
         "FOREIGN_METHOD_EVIDENCE",
     )?;
     let evidence = &source["contract_evidence"];
-    require(
-        keys(evidence, &["pressure", "connector", "exact_cases"]),
-        "EVIDENCE_SHAPE",
-    )?;
+    let resolved = composite && contract == PressureContract::PressureV3
+        && evidence.get("load_reference_states").is_some();
+    if resolved {
+        // The direct v3 context binds the received resolved fields. It never
+        // projects them onto the v2 namespace or recomputes a commitment.
+        crate::load_reference::prepass(source, true, crate::load_reference::Method::PressureJoined)?;
+    }
+    let fields: Vec<_> = ["pressure", "connector", "exact_cases"].into_iter()
+        .chain(resolved.then_some("load_reference_states")).collect();
+    require(keys(evidence, &fields), "EVIDENCE_SHAPE")?;
     // T4-U3: connector records are admitted under pressure-1 only (checked,
     // with their rows, by `connector_evidence` once the cases are read).
     require(
-        contract == PressureContract::PressureV3 || array(&evidence["connector"])?.is_empty(),
+        (!composite && contract == PressureContract::PressureV3) || array(&evidence["connector"])?.is_empty(),
         "CONNECTOR_UNSUPPORTED",
     )?;
     let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
@@ -518,7 +524,7 @@ pub(crate) fn validate_physics_evidence_in(
             all_members = Some(members.clone());
         }
         for m in array(&case["pipe_materials"])? {
-            material(m)?;
+            material_in(m, resolved)?;
         }
         for s in array(&case["pipe_sections"])? {
             geometry(s)?;
@@ -605,7 +611,7 @@ pub(crate) fn validate_physics_evidence_in(
                     && number(&row["value"])? == lower + 0.5 * (upper - lower),
                 "EXTREMA_BOUNDS",
             )?;
-            require(ex["approximation"] == "piecewise_quadratic_straight_section_statics" && ex["coefficient_basis"] == "j_side_section_equilibrium_binary64" && ex["enclosure_scope"] == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate", "EXTREMA_BASIS")?;
+            require(ex["approximation"] == "piecewise_quadratic_straight_section_statics" && ex["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" && ex["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "EXTREMA_BASIS")?;
         }
         case_members.insert(case_id, members);
     }
@@ -767,11 +773,15 @@ pub(crate) fn validate_physics_evidence_in(
             for duplicate in array(&region[field])? {
                 let member = text(&duplicate["pipe_id"])?;
                 require(
-                    without(duplicate, extra) == *basis[member],
+                    if resolved && field == "materials" {
+                        MATERIAL_KEYS.iter().all(|key| duplicate[*key] == basis[member][*key])
+                    } else { without(duplicate, extra) == *basis[member] },
                     "REGION_DUPLICATE_CONTRADICTION",
                 )?;
                 if field == "geometry" {
                     require(duplicate[extra].is_boolean(), "TRAVERSAL_FLAG")?;
+                } else if resolved {
+                    require(duplicate[extra] == crate::load_reference::REGION_TEMPERATURE_BASIS, "TEMPERATURE_CASE_BINDING")?;
                 } else {
                     temperature(
                         &duplicate[extra],

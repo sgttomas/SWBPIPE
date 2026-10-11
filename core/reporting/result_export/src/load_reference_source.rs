@@ -102,6 +102,13 @@ fn validate(source: &Value, raw: bool) -> Check {
     inherited.map_err(|e| format!("{}: {e}", code("JOIN_PHYSICS_SOURCE")))
 }
 
+/// pressure-source-1's 0.4 load-state admission runs on the received evidence.
+/// No v2 projection or resealing is permitted on this Method::PressureJoined path.
+pub(crate) fn validate_pressure_source_evidence(source: &Value, raw: bool) -> Check {
+    crate::physics_source::SourceContract::PressureV3.check_received(source)?;
+    prepass(source, raw, Method::PressureJoined)
+}
+
 fn case_pressure<'a>(pressure: &'a [Value], case_id: &Value) -> Vec<&'a Value> {
     pressure
         .iter()

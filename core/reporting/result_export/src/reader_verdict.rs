@@ -25,12 +25,13 @@ use crate::semantic_contract as sc;
 use serde_json::{json, Value};
 
 /// The desktop's route names (its `SourceContract`), one per readable identity.
-pub const ROUTES: [&str; 10] = [
+pub const ROUTES: [&str; 11] = [
     "legacy",
     "precision",
     "physics",
     "source_blocks",
     "physics_source",
+    "pressure_source",
     "preview_physics",
     "load_reference",
     "load_reference_source",
@@ -49,11 +50,12 @@ pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
 /// `binding_hashes_are_the_table_files` checks them). Legacy has none.
-const BINDINGS: [(&str, &str, &str); 9] = [
+const BINDINGS: [(&str, &str, &str); 10] = [
     ("precision", sc::PRECISION_ID, "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"),
     ("physics", sc::PHYSICS_ID, "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"),
     ("source_blocks", crate::source_blocks::CONTRACT_ID, "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"),
     ("physics_source", sc::PHYSICS_SOURCE_ID, "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"),
+    ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
     ("preview_physics", sc::PREVIEW_PHYSICS_ID, "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"),
     ("load_reference", sc::LOAD_REFERENCE_ID, "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"),
     ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"),
@@ -106,8 +108,14 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
         }
         Some(sc::PHYSICS_ID) => "physics",
         Some(sc::PHYSICS_SOURCE_ID) => {
+            crate::physics_source::SourceContract::PhysicsV2.check_received(source)?;
             crate::physics_source::validate_receipt_shape(receipt)?;
             "physics_source"
+        }
+        Some(sc::PRESSURE_SOURCE_ID) => {
+            crate::physics_source::SourceContract::PressureV3.check_received(source)?;
+            crate::physics_source::validate_receipt_shape_in(receipt, crate::physics_source::SourceContract::PressureV3)?;
+            "pressure_source"
         }
         Some(crate::source_blocks::CONTRACT_ID) => {
             crate::source_blocks::validate_receipt_shape(receipt)?;
@@ -193,10 +201,11 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
 }
 
 /// The readers by name: `(reader, source, model, invocation)` to an outcome.
-pub const READERS: [&str; 7] = [
+pub const READERS: [&str; 8] = [
     "preview-physics",
     "physics",
     "physics-source",
+    "pressure-source",
     "source-blocks",
     "source-recovery",
     "load-reference",
@@ -231,9 +240,10 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
             Ok(eligible) => json!({"ok": true, "eligible": eligible}),
             Err(e) => verdict_refusal(&e),
         },
-        "physics-source" | "source-blocks" => {
-            let composite = reader == "physics-source";
-            match source_validate(source, invocation, composite) {
+        "physics-source" | "pressure-source" | "source-blocks" => {
+            let composite = reader != "source-blocks";
+            let contract = if reader == "pressure-source" { crate::physics_source::SourceContract::PressureV3 } else { crate::physics_source::SourceContract::PhysicsV2 };
+            match source_validate_in(source, invocation, composite, contract) {
                 Ok(eligible) => {
                     let findings = invocation
                         .map_or_else(Vec::new, |i| source_findings(source, i, composite));
@@ -248,11 +258,9 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
 /// A source reader's validation. With an invocation, physics-source-1 also takes
 /// G2's model checks against the invocation's model, as the TypeScript validation
 /// ran its physics checks with that model.
-fn source_validate(source: &Value, invocation: Option<&Value>, composite: bool) -> Result<bool, String> {
-    if !composite {
-        return crate::source_blocks::validate(source, invocation);
-    }
-    let eligible = crate::physics_source::validate(source, invocation)?;
+fn source_validate_in(source: &Value, invocation: Option<&Value>, composite: bool, contract: crate::physics_source::SourceContract) -> Result<bool, String> {
+    if !composite { return crate::source_blocks::validate(source, invocation); }
+    let eligible = crate::physics_source::validate_in(source, invocation, contract)?;
     if let Some(i) = invocation {
         physics_model_checks(source, &i["request"]["model"])?;
     }
@@ -266,6 +274,7 @@ pub fn source_recovery(source: &Value) -> Result<(), String> {
     match route(source).map(|r| r.0) {
         Ok("source_blocks") => crate::source_blocks::validate_transport_metadata(source)?,
         Ok("physics_source") => crate::physics_source::validate_transport_metadata(source)?,
+        Ok("pressure_source") => crate::physics_source::validate_transport_metadata_in(source, crate::physics_source::SourceContract::PressureV3)?,
         _ => return Err("SOURCE_RECOVERY_METADATA_CONTRADICTION".into()),
     }
     crate::source_blocks::validate_publication_hash(source)
@@ -279,6 +288,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
         }
         "physics" => sc::validate_physics_transport_metadata(source),
         "physics-source" => crate::physics_source::validate_transport_metadata(source),
+        "pressure-source" => crate::physics_source::validate_transport_metadata_in(source, crate::physics_source::SourceContract::PressureV3),
         "source-blocks" => crate::source_blocks::validate_transport_metadata(source),
         "load-reference" => sc::validate_load_reference_transport_metadata(source),
         "load-reference-source" => sc::validate_load_reference_source_transport_metadata(source),
@@ -381,7 +391,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         Ok((route, _)) => route,
         Err(code) => {
             findings.push(
-                if code == sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
             );
             UNSUPPORTED
         }
@@ -394,14 +404,18 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     match route {
         UNSUPPORTED => {}
         "legacy" => findings.push("LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED".into()),
-        "physics_source" | "source_blocks" => match invocation {
+        "physics_source" | "pressure_source" | "source_blocks" => match invocation {
             None => findings.push(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED.into()),
             Some(i) => {
-                let composite = route == "physics_source";
-                match source_validate(source, Some(i), composite) {
+                let composite = route != "source_blocks";
+                let contract = if route == "pressure_source" { crate::physics_source::SourceContract::PressureV3 } else { crate::physics_source::SourceContract::PhysicsV2 };
+                match source_validate_in(source, Some(i), composite, contract) {
                     Err(code) => findings.push(code),
                     Ok(_) => {
                         findings.extend(source_findings(source, i, composite).into_iter().map(String::from));
+                        if route == "pressure_source" && source["contract_evidence"].get("load_reference_states").is_some() {
+                            findings.push(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE.into());
+                        }
                         if !composite && crate::source_blocks::has_ordinary_qualified_case(source) {
                             let legacy = sc::SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS;
                             if !findings.iter().any(|f| f == legacy) {

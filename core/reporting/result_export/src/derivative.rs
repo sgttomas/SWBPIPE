@@ -32,7 +32,7 @@ fn is_successor(source: &Value) -> bool {
 pub const PRESSURE_1_EXPORT_NOT_AVAILABLE: &str = "PRESSURE_1_EXPORT_NOT_AVAILABLE: \
 pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it arrives with T4-U2";
 fn refuse_pressure_1_export(source: &Value) -> Result<(), String> {
-    if source["producer"]["semantic_contract_id"] == crate::semantic_contract::PRESSURE_ID {
+    if matches!(source["producer"]["semantic_contract_id"].as_str(), Some(crate::semantic_contract::PRESSURE_ID | crate::semantic_contract::PRESSURE_SOURCE_ID)) {
         return Err(PRESSURE_1_EXPORT_NOT_AVAILABLE.into());
     }
     Ok(())
@@ -130,8 +130,8 @@ pub fn derive_document(
     origin: Value,
     request: Option<&Value>,
 ) -> Result<Value, String> {
-    let (table, version) = for_source(source)?;
     refuse_pressure_1_export(source)?;
+    let (table, version) = for_source(source)?;
     let classes = retained_row_classes(source)?;
     guard_json(model)?;
     guard_json(source)?;
@@ -402,10 +402,10 @@ pub fn derive_document(
 /// Independent structural/value/hash accounting check. Strict whole schema is
 /// additionally exercised by the version-dispatched schema validation gate.
 pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
+    refuse_pressure_1_export(source)?;
     guard_json(doc)?;
     guard_json(source)?;
     let (table, version) = for_source(source)?;
-    refuse_pressure_1_export(source)?;
     let classes = retained_row_classes(source)?;
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),

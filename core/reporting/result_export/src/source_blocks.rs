@@ -700,10 +700,18 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
 }
 /// Explicit method context; never alters received bytes to fit another contract.
 pub(crate) fn validate_in(
-    source: &Value,
-    actual_invocation: Option<&Value>,
-    composite: bool,
+    source: &Value, actual_invocation: Option<&Value>, composite: bool,
 ) -> Result<bool, String> {
+    validate_source_contract_in(source, actual_invocation, composite.then_some(crate::physics_source::SourceContract::PhysicsV2))
+}
+pub(crate) fn validate_source_contract_in(
+    source: &Value, actual_invocation: Option<&Value>, contract: Option<crate::physics_source::SourceContract>,
+) -> Result<bool, String> {
+    let composite = contract.is_some();
+    if let Some(contract) = contract {
+        if let Some(invocation) = actual_invocation { contract.check_invocation(invocation)?; }
+        contract.check_received(source)?;
+    }
     require!(
         keys(
             source,
@@ -734,18 +742,14 @@ pub(crate) fn validate_in(
     require!(
         source["schema_version"] == "0.2.0"
             && source["producer"]
-                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":if composite {crate::physics_source::CONTRACT_ID} else {CONTRACT_ID}}),
+                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":contract.map_or(CONTRACT_ID, |c| c.identity())}),
         "PRODUCER"
     );
     let formulation = &source["formulation_basis"];
     require!(
         keys(formulation, &["profile_id", "limitations"])
             && formulation["profile_id"]
-                == if composite {
-                    crate::physics_source::PROFILE
-                } else {
-                    "product_preview_mechanics_v1"
-                }
+                == contract.map_or("product_preview_mechanics_v1", |c| c.profile())
             && formulation["limitations"]
                 .as_array()
                 .is_some_and(|a| !a.is_empty()
@@ -754,7 +758,7 @@ pub(crate) fn validate_in(
     );
     let receipt = &source["source_block_recovery"];
     if composite {
-        crate::physics_source::validate_receipt_shape(receipt)?;
+        crate::physics_source::validate_receipt_shape_in(receipt, contract.unwrap())?;
     } else {
         validate_receipt_shape(receipt)?;
     }
@@ -1210,7 +1214,7 @@ pub(crate) fn validate_in(
             supports(case, &raw, ps, model, composite)?;
             required_affine(case, &raw, ps, model, composite)?;
             if composite {
-                crate::physics_source::validate_source_case(source, case, actual_invocation)?;
+                crate::physics_source::validate_source_case_in(source, case, actual_invocation, contract.unwrap())?;
             }
         } else {
             require!(
