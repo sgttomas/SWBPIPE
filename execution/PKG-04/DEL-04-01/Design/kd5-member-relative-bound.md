@@ -129,12 +129,12 @@ K̃_s is symmetric, so its 1- and ∞-norm inverses agree, and ε_E bounds both 
 
 - **A1, the one assumption (RV33 finding 1).** ‖K̃_s⁻¹‖_∞ ≤ 2^10·est. Hager's estimate is a lower bound, so this is an assumption.
   - With A1 and 2^10·est·ε_E < 1, ‖K_s⁻¹‖_∞ ≤ Λ (Neumann).
-  - Measured: the Hager ratio lies in [1, 7.17], a margin of at least 140, and the true ‖K_s⁻¹‖_∞ ≤ Λ on every evaluated case-mode.
+  - Measured: the Hager ratio for the prepared factor matrix K̃_s lies in [1, 7.17], a margin of at least 140. I44 checks that matrix's inverse; the bound on the intended K_s inverse follows from A1 and the Neumann argument, rather than an independent intended-matrix inverse measurement.
 - **The correction solves need no assumption.** s₂ is the exact residual of w + w₂; the solves affect only tightness.
 
 ### 2.1 ε_E, measured (T3's I4)
 
-**Method.** The I44 measurement uses ordinary summation with inflation; it measures the triangle-bound scale and cannot substitute for the implementation's rigorous upward accumulation and its tests. A scratch build of the product (t4-u2 at 98dba87714, which contains I41's probe base d92850097d) forms the three contributions to ε_E inside `evaluate` as step 7 states. It walks the 144-entry contribution blocks in assembly order, re-forms each element at p, and also forms the exact ‖E‖ directly. Sets: the realistic set (921 pre-guard Passed, including the loops), RV29 (tiny-angle and UTM), the W1 straight set, and all of RV30 (C/D families and the short-bend family). Evidence: `WT/scratch/t4_code/t4_i44/` (`wt/` probe hook, `tools/i44_eval.py`, `tools/analyze.py`, `analysis.txt`).
+**Method.** The I44 measurement uses ordinary summation with inflation; it measures the triangle-bound scale and cannot substitute for the implementation's rigorous upward accumulation and its tests. A scratch build of the product (t4-u2 at 98dba87714, which contains I41's probe base d92850097d) forms the three contributions to ε_E inside `evaluate` as step 7 states. It walks the 144-entry contribution blocks in assembly order, re-forms each element at p, and also evaluates the ‖E‖ norm directly for comparison. Sets: the realistic set (921 pre-guard Passed, including the loops), RV29 (tiny-angle and UTM), the W1 straight set, and all of RV30 (C/D families and the short-bend family). Evidence: `WT/scratch/t4_code/t4_i44/` (`wt/` probe hook, `tools/i44_eval.py`, `tools/analyze.py`, `analysis.txt`).
 
 **Pass condition.** K-D5 runs only when r̂ ≥ √ε = 2^-26. So ε_E ≤ 2^-36·‖K̃_s‖₁ guarantees 2^10·est·ε_E ≤ 1 at every r̂ the check sees. **Go/no-go threshold:** go if every evaluated case-mode has ε_E ≤ 2^-40·‖K̃_s‖₁, which is 16 times under the pass condition and equal to revision 1's stand-in. No-go if any realistic or short-bend case-mode exceeds 2^-36·‖K̃_s‖₁.
 
@@ -344,7 +344,7 @@ The closed bound is applied to today's published rows v (I43): B_c = ‖v − m_
   - W1 set: 64 straight R-b′.
 
   Every one publishes repaired rows within its criterion.
-- **Fail-closed conditions.** None fires on any set. The contraction is at most 1.7e-9 against 2^-20 = 9.5e-7. 2^10·est·ε_E is at most 0.010 (§2.1). Λ ≥ the true ‖K_s⁻¹‖_∞ on every case-mode.
+- **Fail-closed conditions.** None fires on any set. The contraction is at most 1.7e-9 against 2^-20 = 9.5e-7. 2^10·est·ε_E is at most 0.010 (§2.1). The measured K̃_s inverse satisfies A1 on every case-mode; the intended K_s inverse bound is the conditional Neumann consequence.
 - **D5C-1 fold.** With the closed w, the per-DOF rule demotes no case-mode that the ledger w did not, and stops demoting none. The largest trigger ratio is 0.998 (RV30), 0.994 (realistic) and 0.97 (RV29).
 - **The load-row guard (T3's I6).** S11-G's load-row guard still demotes on formed-term ledger defects. Under (d) those defects reach no certified row: the closure keeps them out of ρ and the rows, and their effect on u is judged by D5C-1 and the bound.
   - Its role after this unit is a conservative standing demotion and the trigger for retained-source recovery (`needs_source_recovery`). It stays unchanged here, because retiring it changes W1's routing, which is T3's interface.
