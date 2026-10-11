@@ -23,7 +23,7 @@ import {buildAnalysisRunV03,sourceBasisReference} from '../../services/analysisR
 import {checkedJsonText} from '../../services/hashService';
 import {registerRetainedPrecision} from '../results/retainedPrecisionStanding';
 import {numericalResultStanding as successorStanding} from '../results/numericalResultQuality';
-import {validateRetainedPrecision} from '../results/retainedPrecision';
+import {validateRetainedPrecision} from '../results/retainedPrecisionReader';
 import {retainedClassDisclosure} from '../results/retainedPrecisionDisclosure';
 import combinationSuccessorSparse from '../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json';
 import combinationSuccessorDense from '../../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json';

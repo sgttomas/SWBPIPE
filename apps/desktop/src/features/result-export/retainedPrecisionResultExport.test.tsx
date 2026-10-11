@@ -27,7 +27,7 @@ import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestEvide
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { numericalResultStanding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision } from "../results/retainedPrecisionStanding";
-import { validateRetainedPrecision } from "../results/retainedPrecision";
+import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import { LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure } from "../results/retainedPrecisionDisclosure";
 import {

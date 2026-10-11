@@ -26,8 +26,8 @@ import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisio
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 const u7 = vi.hoisted(() => ({ simulate: false, held: false, notCovered: null as string | null, noAbsolute: false }));
-vi.mock("./retainedPrecision", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./retainedPrecision")>();
+vi.mock("./retainedPrecisionReader", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./retainedPrecisionReader")>();
   return {
     ...actual,
     validateRetainedPrecision: async (source: unknown, invocation?: unknown) => {
@@ -69,10 +69,8 @@ import {
   RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, currentSemanticContract, hasCurrentSourceContract, numericalResultStanding,
   RETAINED_STANDING_STATUS, ordinaryCaseEligible, retainedPrecisionDowngrade, sourceContract, sourceContractTransport, sourceSemanticBinding,
 } from "./numericalResultQuality";
-import {
-  RETAINED_METHOD, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, decodeBinary64, validateRetainedPrecision, validateRetainedPrecisionTransport,
-  type RetainedPrecisionValidation, type RowClassification,
-} from "./retainedPrecision";
+import { validateRetainedPrecision, validateRetainedPrecisionTransport } from "./retainedPrecisionReader";
+import { RETAINED_METHOD, decodeBinary64, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import {
   RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, classificationSummary, classificationSummaryFrom,
   registerRetainedPrecision, retainedPrecisionInvocation, retainedPrecisionRegistration, retainedPrecisionStanding, retainedPrecisionStandingText, retainedRowClasses, retainedStandingFrom,
@@ -100,6 +98,10 @@ const root = resolve(__dirname, "../../../../../");
 const caseFile = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_carrier_cases.json"), "utf8"));
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
+/** The accepted reader's constants, read from the Rust reader's source (R1: the only reader). */
+const RUST_READER = readFileSync(resolve(root, "core/reporting/result_export/src/retained_precision.rs"), "utf8");
+const rustConstant = (name: string) => RUST_READER.match(new RegExp(`pub const ${name}: &str =\\s*"([^"]*)";`))![1];
+const RETAINED_PRECISION_ID = rustConstant("CONTRACT_ID"), RETAINED_PRECISION_PROFILE = rustConstant("PROFILE");
 /** A shared-file fixture by id, checked by sha256 (D-U6-5). Format v2: a
  * `milestone` file is {id, invocation, source}; a `raw` file is the source itself
  * and has no invocation. */
@@ -233,6 +235,7 @@ describe("the inputs and the pinned identity", () => {
   it("dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's", () => {
     expect(PREVIEW_PHYSICS_RETAINED_CONTRACT_ID).toBe(RETAINED_PRECISION_ID);
     expect(PREVIEW_PHYSICS_RETAINED_PROFILE).toBe(RETAINED_PRECISION_PROFILE);
+    expect(RETAINED_METHOD).toBe(rustConstant("METHOD"));
     const bytes = readFileSync(resolve(root, "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"));
     expect(sha256(bytes)).toBe(PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256);
     const { source } = milestone("sparse_interactive");

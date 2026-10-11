@@ -4,7 +4,7 @@
 import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
-import { decodeBinary64, type AccuracyClass } from "./retainedPrecision";
+import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import type { MechanicsResult } from "../../types";
 
 /** Static fresh-identity set: the same constant in each language, no route

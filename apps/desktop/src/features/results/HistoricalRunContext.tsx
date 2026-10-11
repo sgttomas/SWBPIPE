@@ -1,5 +1,5 @@
 import { numericalResultStanding, sourceContract, isRetainedRoute } from "./numericalResultQuality";
-import { validateRetainedPrecision } from "./retainedPrecision";
+import { validateRetainedPrecision } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";

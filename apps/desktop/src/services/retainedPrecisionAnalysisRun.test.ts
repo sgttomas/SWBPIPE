@@ -20,7 +20,7 @@ import {
 import { bindSourceResultDimensions, buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "./previewService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
-import { validateRetainedPrecision } from "../features/results/retainedPrecision";
+import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any

@@ -26,7 +26,8 @@ import { numericalResultStanding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from 
 import {
   RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision,
 } from "../results/retainedPrecisionStanding";
-import { validateRetainedPrecision, type RowClassification } from "../results/retainedPrecision";
+import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
+import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
 import {
   RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedNotCoveredMessage, retainedPrecisionSummaryLine, retainedRowClassesFromReader, rustLowerExp,

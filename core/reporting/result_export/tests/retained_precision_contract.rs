@@ -6850,7 +6850,7 @@ fn snapshot_07n_counts_and_format() {
     for e in &per {
         let r = &e["expected_by_reader"];
         assert!(
-            r["python"] == r["typescript"]
+            r.as_object().unwrap().keys().map(String::as_str).eq(["python", "rust"])
                 && r["python"] == e["expected"]
                 && r["rust"] != e["expected"]
                 && e["expected"]["gate"] == "G7"

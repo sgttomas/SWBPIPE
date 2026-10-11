@@ -2,8 +2,8 @@
  * `openpipestress.result_semantics/0.3.0/preview-physics-retained-1`.
  *
  * Peer of Rust `semantic_contract.rs` (U6a) and Python `compatibility.py`
- * (U6b). The statement itself is checked only by the accepted reader
- * (`retainedPrecision.ts`, read-only here). This module adds:
+ * (U6b). The statement itself is checked only by the accepted reader, the
+ * Rust one through `retainedPrecisionReader.ts` (R1), read-only here. This module adds:
  *
  * - a private registration: only a completed reader validation, run with the
  *   captured native invocation, is recorded against these exact source bytes
@@ -18,7 +18,8 @@
  * extrema intervals (RV86 limits); the only bound named is the receipt's
  * published absolute bound b of an `absolute_verified` row.
  */
-import { validateRetainedPrecision, type AccuracyClass, type RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecision";
+import { validateRetainedPrecision } from "./retainedPrecisionReader";
+import type { AccuracyClass, RetainedPrecisionError, RetainedPrecisionValidation, RowClassification } from "./retainedPrecisionTypes";
 import { ordinaryCaseEligible } from "./numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";

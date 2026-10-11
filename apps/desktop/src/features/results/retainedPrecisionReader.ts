@@ -17,7 +17,7 @@
  * statements; they do not establish producer origin (D-U7-6). */
 import { checkedJsonText } from "../../services/hashService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecision";
+import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 
 type ReaderOutcome =
   | { ok: true; validation: Omit<RetainedPrecisionValidation, "standing"> }
