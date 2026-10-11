@@ -320,6 +320,7 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
 
   Validation: the emulated contraction against the product's own (I41's w and w₂ on the ledger residual) has a median ratio of 0.75 (p1 0.03, p99 11). The product's largest contraction is 2.3e-9.
 - **Judging** is RV30's grouping, with RD(1e-9) and the floor as in §3.3. r_g is the stand-in 2^-100·‖A·D‖·‖D⁻¹u‖.
+- **Public samples and units.** Evaluation converts each published binary64 MPa component to Pa as its exact rational value times 10^6. For the circular metric, a finite global upper U covers the sample exactly when U - |axial| is nonnegative and (U - |axial|)^2 >= My^2 + Mz^2, with all operands compared as exact rationals. The L1 summary is compared with the exact rational sum of the three absolute published components in its own unit. Rounded square roots, unit products and display approximations do not decide either comparison. The independent frozen reference remains the evaluation basis.
 - **Evidence:** `WT/scratch/t4_code/t4_i43/` (revision 1: `tools/i43_eval.py`, `analyze.py`, `extra.py`, `d5c1.py`, `noclosure.py`, `gen_w1.py`; `analysis_*.txt`, `eval/`, `w1/`) and `WT/scratch/t4_code/t4_i44/` (revision 2: `wt/` probe hook, `tools/i44_eval.py`, `tools/analyze.py`, `analysis.txt`, `logs/`).
 
 ### 4.1 Soundness: B ≥ err on every breaching group (T3's M2)
