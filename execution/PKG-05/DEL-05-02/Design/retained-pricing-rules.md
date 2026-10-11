@@ -82,3 +82,103 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 - **`g5_native_combinations`' operand loop (99cb958e85).**
   - 99cb958e85 zipped the loop with the combination's terms. Both header forms are bound at 3, one per term.
   - The pre-99cb958e85 form is kept so that the registered tree's revision (`f78f52b7e2`) still prices.
+
+
+## E. T4 batch 4: U2 and O-13 at `98dba87714`
+
+These additions close the new header and argument inventory. They do not
+zero a newly reached branch. D1 still admits no components and no pressure-v3
+namespace (§B P1–P3); true array and collection bounds are used even when the
+chain conservatively reaches an arc helper.
+
+| Label | Rule and code argument |
+|---|---|
+| **U2L1** | `exact.pipe_states` in `add_curved_bend_pressure_equivalent_load` has one entry per built pipe, at most m. |
+| **U2L2/U2L3** | The thermal and pressure free-expansion helpers walk `element_dof_map` and `free_expansion`, each a 12-element array (`ELEMENT_DOF`). Both headers are bounded at 12. |
+| **U2E1** | RE `arc_evidence::ROWS` is a four-element array, so its coverage header is bounded at 4. |
+| **U2E2** | `build_pressure_case_with_members` constructs one junction for each adjacent checked traversal pair. The traversal has at most m pipes, so the junction list is bounded at m. |
+| **U2A** | The `bend_pressure::append_arc_pressure_results` case and pipe ids are IN128. Their `.len()` spellings are integers (20 B upper). Its row kind, location and component are static tokens (each <128 B). The new exact-stress diagnostic suffixes preserve the case and pipe id lengths; the arc recovery record's member is a pipe id. The test observation's project is the D1-capped project id. `pressure_treatment` selects one of two static literals (<128 B). The newly conservatively reached `LoadLedger::push_product` source is the capped pressure region/source id. The arc guard endpoint `name` (i or j), group label and `unit` are static tokens. |
+| **U2C** | `component_solver_consumption` copies a component's authored text or the static default. D1.4 excludes components, but the chain conservatively reaches this helper at a positive multiplicity. It stays priced at that computed multiplicity. Its lexical receiver is audited as IN128: the authored field is within D1's text cap, and the static defaults also fit 128 B. No edge or site multiplicity is overridden. |
+| **O13L1** | `ArcRowGroup::ALL` is `[Self;4]`. The guard walks all four groups, bounded at 4. |
+| **O13A1** | A fired item is bounded by the existing F_len = max(id+34+3·24, id+41+8192): numeric items fit the first/unavailable upper, and an unavailable certificate carries the 8192 B error class. Each finding has at most six named items. A sentence is bounded by 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1. The merge receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B. `composite_text.py` uses this whole-sentence bound for `evidence_line`; the per-site `merged.sentence` is classed by the same bound. The old formula remains on revisions without the arc finding, preserving the registered tree. |
+| **O13T** | `s11g_tests/arc_recovery.rs` is included only with `#[cfg(test)]`; no test function is on the product graph. These arguments nevertheless receive honest bounds: mode Debug ≤17 B, f64 Display ≤327 B, project/member ids IN128, each sentence ≤50,955 B, and a copied source line no longer than the total included source bytes measured at the snapshot. No test site is assigned a fabricated zero. |
+
+U2 deletes `connector_evidence::row_basis`; its E4 edge and A3 audit are added
+only when that function is present. This avoids a null stale key without
+weakening a surviving function's rule. The registered revision still carries
+the original E4/A3 entries.
+
+
+## F. K-D5 actual owned layouts (KD5O1–KD5O6)
+
+These model additions apply only when the priced source defines
+`MemberBoundInputs`. Pricing an older registered revision keeps its original
+formula. The tool's snapshot path is passed to `ordinary_caps.py`; this is
+history pricing, with no product format compatibility path.
+
+- **KD5O1/O2 (ordinary formation peak).** `evaluate` reuses its rho backing for
+  s and s₂, then drops it before `epsilon_e` allocates one reusable F-row of
+  exact accumulators. The conservative three-row allowance in §6 is retained:
+  +2·Xc(ExactAccumulator,F) over the old row and +8·5F bytes for psi, the
+  correction right-hand side/solve scratch and epsilon's row/column sums. The
+  old per-row list allowance also remains conservative. Every element/load
+  re-formation and certified recovery remains stack-only; the matrix-cache
+  row stays zero, subject to the source/T06 checks.
+- **KD5O3 (closure owners and their children).** Every nodal term now retains
+  a `LoadClosureRecord` (formed=false, manifest=None) beside its ordinary
+  formation record: add V(LoadClosureRecord,l), and its exact-count scaled
+  clone in W2. The empty primitive Vec inline owners in AssembledForce, FormationSource and the scaled force remain positive (`s(Vec)`); manifest headers are already inside each closure-record stride. D1.3 admits only the preview/straight-pressure namespace and excludes 0.4.0, v3, expansion laws and load-state references; `lib.rs w1_route` also returns None when `case_state::is_load_state(model)`. D1.7 admits only nodal force/moment input loads; D1.5 excludes
+  analysis states, equivalent-static generation and every pressure region
+  (also its spare capacity); D1.4 excludes components and D1.6 hanger and
+  nonlinear supports. Therefore no formed load, supplied LoadPrimitive,
+  expected LoadClosureEntry, operand-bits Vec, intensity-product factors or
+  thermal-table clone exists on a D1 route. Their backing children, including the per-primitive temporary binding operand Vec, are priced
+  at zero by these domain predicates, independently of typical fixtures.
+  The positive closure-record vector remains priced. Adding one of these
+  families to D1 (including B7 namespace/domain extension) requires re-auditing these guards and a new count law for both independent expected
+  manifests and supplied primitives, including all identity strings,
+  operand vectors and cloned thermal tables, before the profile can bind it.
+- **KD5O4 (solution payload).** `MemberBoundInputs` retains f64[N] w and w₂,
+  i32[N] global exponents and the inline owner: B(20N)+s(MemberBoundInputs),
+  through completion and recovery. W2's evaluate includes the larger core
+  twice as before.
+- **KD5O5 (W2 tail).** `force_scaling_recovery` clones the complete payload into
+  PreviewLinearSolve while the outcome's solution still lives. Both payloads
+  are included at that peak: 2·(B(20N)+s(MemberBoundInputs)). The unscaled
+  exponent vector is counted as well as w/w₂.
+- **KD5O6 (recovery records and groups).** At D1, m straight members each own
+  up to 7 locations ×4 groups and g supports up to 2 groups. Price
+  V(RecoveryRecord,m+g), each record's separately grown group backing
+  (m·PushCap(28)+g·PushCap(2))·s(RecoveryGroup), every member/support id, two
+  owned labels per group at 128 B each, and the error child at
+  TextCap(8192) for every group. Group allocation headers are in the actual
+  in-build `RecoveryRecord`; all group fields are in the in-build
+  `RecoveryGroup`. The fired-items Vec also gets V(String,28m+2g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted.
+  Coupled force/moment body scales already have the `(usize,(f64,f64))` map
+  row; the old auxiliary scalar map remains a conservative allowance.
+
+Every new weighted layout atom binds to `size_of` of the actual PP/FK type.
+The Python ASSUMED strides remain illustrative and are not budget evidence.
+Final completeness and budget claims require the implementing commit's full
+pricing run and in-build atom evaluation.
+
+
+- **KD5T1 (unified text).** Each fired item carries the member id and two
+  owned static labels, each ≤128 B, plus ≤64 wrapper bytes and the 8192 B
+  error class. F_len is therefore at most 8,640 B at D1; a six-item sentence
+  is bounded by 600+id+count+6·F_len+10+31 B. K-D5 has one unified recovery
+  sentence, so no three-sentence merge factor remains. This source condition
+  preserves the earlier O-13 and registered-revision sentence bounds.
+- **KD5L1/L2 (group census).** The surviving `record in records` header is
+  re-bound to m+g on the unified record shape; the separate per-record
+  `group` header is bounded at 28 (supports have only two). This protects
+  every new support record instead of retaining the former member-only m
+  census. The new-header rule is limited to the two actual guard functions.
+
+- **KD5A1 (publication identity and labels).** `certified_publication::member`
+  forms a prefix from the pipe id (IN128) and its integer length. Its record
+  constructors own a member/support/entity id, each taken directly from the
+  D1-capped model id. `group` copies the static location and kind tokens from
+  those constructors; all are shorter than 128 B. Each copy remains priced
+  at its computed multiplicity. The removed `arc_recovery_record` audit is
+  retained only on snapshots that still define that function.

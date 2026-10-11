@@ -1,0 +1,1142 @@
+//! K-D5 repaired recovery against the same p=128 intended stiffness and loads.
+//! Matrices and row operators are re-formed on the stack. Correction products
+//! enter exact sums separately: no binary64 `u+w+w2` is formed. Every published
+//! scalar is rounded once from its ball midpoint; radii and third-order
+//! remainders are accumulated upward. See DEL-04-01 Design §3.
+use super::arc_certificate::{
+    abs_up, add_up, arc_geometry, div_up, finite, mul_up, ArcCertificateFailure, Ball, Balls,
+};
+use super::formation_check::{
+    chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
+    FormationSource, LoadFormula, LoadPrimitive, MemberBoundInputs,
+};
+use super::retained::wide::{Wide2, WideArith, WideError};
+use crate::connector::ObjectiveConnector;
+use crate::exact_sum::{ExactAccumulator, SumError};
+use crate::load_ledger::AssembledForce;
+use crate::{element_dof_map, FrameElement};
+
+pub type RecoveryFailure = ArcCertificateFailure;
+const TINY: f64 = f64::from_bits(1);
+const U: f64 = f64::from_bits(895_u64 << 52);
+
+fn sum_error(_: SumError) -> RecoveryFailure {
+    RecoveryFailure::Wide(WideError::CountRange("certified recovery exact sum"))
+}
+fn shape(site: &'static str) -> RecoveryFailure {
+    RecoveryFailure::Wide(WideError::CountRange(site))
+}
+/// Exact power scaling, with upward rounding for underflow as well as normal values.
+fn scale_up(mut x: f64, mut exponent: i32) -> f64 {
+    while x != 0.0 && exponent != 0 {
+        let step = exponent.clamp(-512, 512);
+        x = mul_up(x, 2.0_f64.powi(step));
+        exponent -= step;
+    }
+    x
+}
+
+/// Projects the exact fixed-grid sum once to p=128, using integer guard/sticky
+/// bits. Construction by four exact 32-bit chunks introduces no new rounding.
+fn sum_ball(sum: &ExactAccumulator, radius: f64) -> Result<Ball, RecoveryFailure> {
+    let (negative, mag, quantum) = sum.net_parts();
+    let Some(top) = mag.iter().rposition(|&v| v != 0) else {
+        return Ok(Ball {
+            m: Wide2::ZERO,
+            r: finite(radius, "exact sum")?,
+        });
+    };
+    let high = top * 64 + 63 - mag[top].leading_zeros() as usize;
+    let drop = high.saturating_sub(127);
+    let bit = |n: usize| -> bool {
+        mag.get(n / 64)
+            .is_some_and(|v| v & (1_u64 << (n % 64)) != 0)
+    };
+    let mut sig = 0_u128;
+    for i in (drop..=high).rev() {
+        sig = (sig << 1) | u128::from(bit(i));
+    }
+    let inexact = (0..drop).any(bit);
+    let round = drop > 0 && bit(drop - 1) && ((0..drop - 1).any(bit) || sig & 1 != 0);
+    let mut power = quantum + drop as i64;
+    if round {
+        match sig.checked_add(1) {
+            Some(v) => sig = v,
+            None => {
+                sig = 1_u128 << 127;
+                power += 1;
+            }
+        }
+    }
+    let mut a = WideArith::new(128)?;
+    let mut m = Wide2::ZERO;
+    for i in 0..4 {
+        let v = ((sig >> (32 * i)) & 0xffff_ffff) as u32;
+        if v != 0 {
+            let chunk = Wide2::from_f64(f64::from(v))?.mul_pow2(power + 32 * i as i64)?;
+            m = a.add(&m, &chunk)?;
+        }
+    }
+    if negative {
+        m = m.neg();
+    }
+    let r = if inexact {
+        add_up(radius, mul_up(U, abs_up(&m)?))
+    } else {
+        radius
+    };
+    Ok(Ball {
+        m,
+        r: finite(r, "exact sum")?,
+    })
+}
+fn add_ball(
+    sum: &mut ExactAccumulator,
+    radius: &mut f64,
+    ball: Ball,
+    negate: bool,
+) -> Result<(), RecoveryFailure> {
+    let split = ball.m.split_binary64()?;
+    for &part in split.terms() {
+        sum.add(if negate { -part } else { part })
+            .map_err(sum_error)?;
+    }
+    *radius = add_up(*radius, ball.r);
+    if split.truncated_below_min_subnormal() {
+        *radius = add_up(*radius, TINY);
+    }
+    Ok(())
+}
+fn midpoint_publication(m: Wide2) -> Result<f64, RecoveryFailure> {
+    // Wide's converter applies the power before rounding, including subnormals.
+    let v = m
+        .to_binary64()
+        .value()
+        .ok_or_else(|| shape("recovery publication"))?;
+    if v.is_finite() {
+        Ok(if v == 0.0 { 0.0 } else { v })
+    } else {
+        Err(shape("recovery publication"))
+    }
+}
+
+/// A p=128 value with an evaluation radius. Construction helpers expose no
+/// retained-arithmetic internals to product callers.
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedValue {
+    ball: Ball,
+}
+impl CertifiedValue {
+    pub const ZERO: Self = Self { ball: Ball::ZERO };
+    pub fn exact(value: f64) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Balls::new()?.lift(value)?,
+        })
+    }
+    pub fn published(&self) -> Result<f64, RecoveryFailure> {
+        midpoint_publication(self.ball.m)
+    }
+    pub fn radius(&self) -> f64 {
+        self.ball.r
+    }
+    pub fn add(self, other: Self) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Balls::new()?.add(self.ball, other.ball)?,
+        })
+    }
+    pub fn product(self, other: Self) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Balls::new()?.mul(self.ball, other.ball)?,
+        })
+    }
+    pub fn divided(self, other: Self) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Balls::new()?.div(self.ball, other.ball, "certified value divisor")?,
+        })
+    }
+}
+
+/// One repaired scalar and the three terms of its error bound.
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedRow {
+    value: Ball,
+    pub published: f64,
+    pub radius: f64,
+    pub remainder: f64,
+    /// Upward evaluation scale; +infinity means its magnitude exceeds the
+    /// binary64 metadata range. Such a scale cannot establish notice Z.
+    pub absolute_scale: f64,
+    pub rounding_gap: f64,
+}
+impl CertifiedRow {
+    pub const ZERO: Self = Self {
+        value: Ball::ZERO,
+        published: 0.0,
+        radius: 0.0,
+        remainder: 0.0,
+        absolute_scale: 0.0,
+        rounding_gap: 0.0,
+    };
+    fn finish(value: Ball, remainder: f64, absolute_scale: f64) -> Result<Self, RecoveryFailure> {
+        if absolute_scale.is_nan() || absolute_scale < 0.0 {
+            return Err(shape("recovery absolute scale"));
+        }
+        let published = midpoint_publication(value.m)?;
+        let mut a = WideArith::new(128)?;
+        let gap = a.sub(&Wide2::from_f64(published)?, &value.m)?;
+        let rounding_gap = if gap.is_zero() {
+            0.0
+        } else {
+            add_up(abs_up(&gap)?, mul_up(U, abs_up(&gap)?))
+        };
+        Ok(Self {
+            value,
+            published,
+            radius: value.r,
+            remainder: finite(remainder, "recovery remainder")?,
+            absolute_scale,
+            rounding_gap,
+        })
+    }
+    pub fn bound(&self) -> f64 {
+        add_up(add_up(self.rounding_gap, self.radius), self.remainder)
+    }
+    pub fn certified_magnitude_up(&self) -> Result<f64, RecoveryFailure> {
+        Ok(add_up(
+            add_up(abs_up(&self.value.m)?, self.radius),
+            self.remainder,
+        ))
+    }
+    pub fn value(&self) -> CertifiedValue {
+        CertifiedValue { ball: self.value }
+    }
+    /// Derived stress is formed before the scalar publication, preserving the
+    /// recovered resultant's radius and remainder through the same factor.
+    pub fn scaled(self, factor: f64) -> Result<Self, RecoveryFailure> {
+        let mut b = Balls::new()?;
+        let value = b.mul(self.value, b.lift(factor)?)?;
+        Self::finish(
+            value,
+            mul_up(self.remainder, factor.abs()),
+            mul_up(self.absolute_scale, factor.abs()),
+        )
+    }
+    pub fn divided(self, denominator: f64) -> Result<Self, RecoveryFailure> {
+        let mut b = Balls::new()?;
+        let value = b.div(self.value, b.lift(denominator)?, "stress denominator")?;
+        Self::finish(
+            value,
+            div_up(self.remainder, denominator.abs()),
+            div_up(self.absolute_scale, denominator.abs()),
+        )
+    }
+    /// Forms factor*(self+other) at p and publishes only the final value.
+    /// Scaling before the ball sum avoids an unrepresentable intermediate
+    /// (for example Pa above MAX whose published MPa is finite).
+    pub fn sum_scaled(self, other: Self, factor: f64) -> Result<Self, RecoveryFailure> {
+        let mut b = Balls::new()?;
+        let scale = b.lift(factor)?;
+        let left = b.mul(self.value, scale)?;
+        let right = b.mul(other.value, scale)?;
+        let value = b.add(left, right)?;
+        let remainder = add_up(
+            mul_up(self.remainder, factor.abs()),
+            mul_up(other.remainder, factor.abs()),
+        );
+        let absolute_scale = add_up(
+            mul_up(self.absolute_scale, factor.abs()),
+            mul_up(other.absolute_scale, factor.abs()),
+        );
+        Self::finish(value, remainder, absolute_scale)
+    }
+    /// Wall axial action N_eff+pAi: the pressure product is formed at p.
+    pub fn add_value(self, value: CertifiedValue) -> Result<Self, RecoveryFailure> {
+        let out = Balls::new()?.add(self.value, value.ball)?;
+        Self::finish(
+            out,
+            self.remainder,
+            add_up(
+                self.absolute_scale,
+                add_up(abs_up(&value.ball.m)?, value.ball.r),
+            ),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedGroup {
+    pub q: f64,
+    pub q_hat: f64,
+    pub bound: f64,
+    pub absolute_scale: f64,
+}
+fn norm_up(values: impl IntoIterator<Item = f64>) -> f64 {
+    let mut norm = 0.0;
+    for v in values {
+        if v != 0.0 {
+            norm = if norm == 0.0 {
+                v.abs()
+            } else {
+                crate::correct_norm::norm2(norm, v).next_up()
+            };
+        }
+    }
+    norm
+}
+/// Norm of certified components at p, followed by one scalar publication.
+pub fn certified_magnitude(rows: &[CertifiedRow]) -> Result<CertifiedRow, RecoveryFailure> {
+    // The intended midpoint may have an exponent far above binary64 when
+    // squared, even though the resulting norm is representable. Scale before
+    // every ball product so its directed binary64 radius stays in range.
+    let maximum = rows
+        .iter()
+        .fold(0.0_f64, |m, row| m.max(row.published.abs()));
+    let exponent = if maximum == 0.0 {
+        0
+    } else if maximum.is_normal() {
+        ((maximum.to_bits() >> 52) & 0x7ff) as i32 - 1023
+    } else {
+        63 - maximum.to_bits().leading_zeros() as i32 - 1074
+    };
+    let mut b = Balls::new()?;
+    let mut sq = Ball::ZERO;
+    for row in rows {
+        let scaled = b.pow2(row.value, -i64::from(exponent))?;
+        let part = b.mul(scaled, scaled)?;
+        sq = b.add(sq, part)?;
+    }
+    let root = if sq.m.is_zero() && sq.r == 0.0 {
+        Ball::ZERO
+    } else if let Ok(root) = b.sqrt(sq, "resultant magnitude") {
+        root
+    } else {
+        // At zero or near cancellation the absolute square-root continuity
+        // bound avoids L4's positive-ball precondition.
+        let mut a = WideArith::new(128)?;
+        let m = a.sqrt(&sq.m)?;
+        Ball {
+            m,
+            r: add_up(sq.r.sqrt().next_up(), mul_up(U, abs_up(&m)?)),
+        }
+    };
+    let value = b.pow2(root, i64::from(exponent))?;
+    CertifiedRow::finish(
+        value,
+        norm_up(rows.iter().map(|r| r.remainder)),
+        norm_up(rows.iter().map(|r| r.absolute_scale)),
+    )
+}
+
+pub fn certified_group(rows: &[CertifiedRow]) -> Result<CertifiedGroup, RecoveryFailure> {
+    let q = match rows {
+        [a] => a.published.abs(),
+        [a, b] => crate::correct_norm::norm2(a.published, b.published),
+        [a, b, c] => crate::correct_norm::norm3(a.published, b.published, c.published),
+        [] => 0.0,
+        _ => return Err(shape("recovery group size")),
+    };
+    let mut midpoint_norm = 0.0_f64;
+    for row in rows {
+        let v = abs_up(&row.value.m)?;
+        if v != 0.0 {
+            midpoint_norm = if midpoint_norm == 0.0 {
+                v
+            } else {
+                crate::correct_norm::norm2(midpoint_norm, v).next_up()
+            };
+        }
+    }
+    let radii = norm_up(rows.iter().map(|r| r.radius));
+    let remainders = norm_up(rows.iter().map(|r| r.remainder));
+    let rounding = norm_up(rows.iter().map(|r| r.rounding_gap));
+    let upper = add_up(add_up(midpoint_norm, radii), remainders);
+    Ok(CertifiedGroup {
+        q,
+        q_hat: q.max(upper),
+        bound: add_up(add_up(rounding, radii), remainders),
+        absolute_scale: norm_up(rows.iter().map(|r| r.absolute_scale)),
+    })
+}
+
+/// Global intensity re-formed from the same authored or generated primitive.
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedUniformLoad {
+    intensity: [Ball; 3],
+    pub start_fraction: f64,
+    pub end_fraction: f64,
+}
+#[derive(Debug, Clone)]
+pub struct CertifiedMemberLoads<'a> {
+    equivalent: [Ball; 12],
+    equivalent_scale: [f64; 12],
+    primitives: &'a [LoadPrimitive],
+    node_i: usize,
+    node_j: usize,
+    source_prefix: &'a str,
+}
+impl Default for CertifiedMemberLoads<'_> {
+    fn default() -> Self {
+        Self {
+            equivalent: [Ball::ZERO; 12],
+            equivalent_scale: [0.0; 12],
+            primitives: &[],
+            node_i: usize::MAX,
+            node_j: usize::MAX,
+            source_prefix: "",
+        }
+    }
+}
+fn same_pair(ni: usize, nj: usize, i: usize, j: usize) -> bool {
+    ni == i && nj == j
+}
+fn member_pair(formula: &LoadFormula) -> Option<(usize, usize)> {
+    match formula {
+        LoadFormula::UniformStraight { frame, .. }
+        | LoadFormula::FreeStrainStraight { frame, .. } => {
+            Some((frame.node_i.index, frame.node_j.index))
+        }
+        LoadFormula::UniformCurved { arc, .. }
+        | LoadFormula::FreeStrainCurved { arc, .. }
+        | LoadFormula::PressureFreeStrainCurved { arc, .. } => Some((arc.node_i, arc.node_j)),
+        LoadFormula::ConnectorReference { connector } => {
+            Some((connector.node_i().index, connector.node_j().index))
+        }
+        // Effective-force pressure nodal operands do not subtract from member
+        // recovery; its mechanical wall action has its own pAi group.
+        LoadFormula::PressureOperand { .. } | LoadFormula::NodalProduct { .. } => None,
+    }
+}
+impl<'a> CertifiedMemberLoads<'a> {
+    pub fn from_primitives(
+        node_i: usize,
+        node_j: usize,
+        primitives: &'a [LoadPrimitive],
+    ) -> Result<Self, RecoveryFailure> {
+        Self::from_member_primitives(node_i, node_j, primitives, "")
+    }
+    /// Member-qualified source identities prevent parallel members with the
+    /// same node pair from consuming one another's primitive summands.
+    pub fn from_member_primitives(
+        node_i: usize,
+        node_j: usize,
+        primitives: &'a [LoadPrimitive],
+        source_prefix: &'a str,
+    ) -> Result<Self, RecoveryFailure> {
+        let mut out = Self {
+            primitives,
+            node_i,
+            node_j,
+            source_prefix,
+            ..Self::default()
+        };
+        let mut b = Balls::new()?;
+        for primitive in primitives {
+            if !primitive.identity.source.starts_with(source_prefix) {
+                continue;
+            }
+            if !member_pair(&primitive.formula)
+                .is_some_and(|(i, j)| same_pair(node_i, node_j, i, j))
+            {
+                continue;
+            }
+            if primitive.local_row >= 12 {
+                return Err(shape("member primitive local row"));
+            }
+            let (m, r) = load_reformation(primitive)?;
+            let row = primitive.local_row;
+            out.equivalent[row] = b.add(
+                out.equivalent[row],
+                Ball {
+                    m: m[row],
+                    r: r[row],
+                },
+            )?;
+            out.equivalent_scale[row] =
+                add_up(out.equivalent_scale[row], add_up(abs_up(&m[row])?, r[row]));
+        }
+        Ok(out)
+    }
+    /// Re-forms each source once on the stack; the complete scalar closure
+    /// carries row 0 even when its load is zero. No recovery load cache exists.
+    fn uniform_loads(
+        &self,
+    ) -> impl Iterator<Item = Result<CertifiedUniformLoad, RecoveryFailure>> + '_ {
+        self.primitives
+            .iter()
+            .filter(|p| {
+                p.identity.source.starts_with(self.source_prefix)
+                    && p.local_row == 0
+                    && member_pair(&p.formula)
+                        .is_some_and(|(i, j)| same_pair(self.node_i, self.node_j, i, j))
+            })
+            .filter_map(|p| {
+                let data = match &p.formula {
+                    LoadFormula::UniformStraight {
+                        intensity,
+                        start_fraction,
+                        end_fraction,
+                        ..
+                    } => Some((intensity, *start_fraction, *end_fraction)),
+                    LoadFormula::UniformCurved { intensity, .. } => Some((intensity, 0.0, 1.0)),
+                    _ => None,
+                }?;
+                Some((|| {
+                    let mut intensity = super::formation_check::intensity_reformation(data.0)?;
+                    for value in &mut intensity {
+                        value.m = value.m.mul_pow2(i64::from(p.force_scale_exponent))?;
+                        value.r = scale_up(value.r, p.force_scale_exponent);
+                    }
+                    Ok(CertifiedUniformLoad {
+                        intensity,
+                        start_fraction: data.1,
+                        end_fraction: data.2,
+                    })
+                })())
+            })
+    }
+}
+
+/// The five section locations are endpoints plus the three station rows.
+#[derive(Debug, Clone)]
+pub struct CertifiedMemberRecovery {
+    pub ends: [CertifiedRow; 12],
+    pub sections: [[CertifiedRow; 6]; 5],
+}
+pub const CERTIFIED_SECTION_FRACTIONS: [f64; 5] = [0.0, 0.25, 0.5, 0.75, 1.0];
+type Operator = [[Ball; 12]; 12];
+fn local_operator(
+    matrix: &[[Wide2; 12]; 12],
+    axes: &[[Wide2; 3]; 3],
+) -> Result<Operator, RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let mut out = [[Ball::ZERO; 12]; 12];
+    for block in 0..4 {
+        for axis in 0..3 {
+            for col in 0..12 {
+                for c in 0..3 {
+                    let product = b.mul(
+                        Ball::exact(axes[axis][c]),
+                        Ball::exact(matrix[3 * block + c][col]),
+                    )?;
+                    out[3 * block + axis][col] = b.add(out[3 * block + axis][col], product)?;
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+fn local_loads(
+    loads: &CertifiedMemberLoads,
+    axes: &[[Wide2; 3]; 3],
+) -> Result<([Ball; 12], [f64; 12]), RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let mut out = [Ball::ZERO; 12];
+    let mut scale = [0.0; 12];
+    for block in 0..4 {
+        for axis in 0..3 {
+            for c in 0..3 {
+                let product = b.mul(Ball::exact(axes[axis][c]), loads.equivalent[3 * block + c])?;
+                out[3 * block + axis] = b.add(out[3 * block + axis], product)?;
+                scale[3 * block + axis] = add_up(
+                    scale[3 * block + axis],
+                    mul_up(
+                        abs_up(&axes[axis][c])?,
+                        loads.equivalent_scale[3 * block + c],
+                    ),
+                );
+            }
+        }
+    }
+    Ok((out, scale))
+}
+fn corrected_ball(u: f64, w: f64, w2: f64) -> Result<Ball, RecoveryFailure> {
+    let mut sum = ExactAccumulator::new();
+    for value in [u, w, w2] {
+        sum.add(value).map_err(sum_error)?;
+    }
+    sum_ball(&sum, 0.0)
+}
+fn evaluate_row<const N: usize>(
+    operator: &[Ball; N],
+    map: &[usize; N],
+    load: Ball,
+    load_scale: f64,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, RecoveryFailure> {
+    let mut sum = ExactAccumulator::new();
+    let mut radius = 0.0;
+    let mut scale = 0.0;
+    let mut norm = 0.0;
+    for c in 0..N {
+        let i = map[c];
+        if i >= u.len() || i >= bound.w.len() || i >= bound.w2.len() || i >= bound.exponents.len() {
+            return Err(shape("recovery DOF"));
+        }
+        let x = corrected_ball(u[i], bound.w[i], bound.w2[i])?;
+        let xu = add_up(abs_up(&x.m)?, x.r);
+        let coefficient = operator[c];
+        // Exact split products of each correction separately; below-grid bits
+        // and coefficient ball uncertainty are radii, never midpoint shifts.
+        for value in [u[i], bound.w[i], bound.w2[i]] {
+            if coefficient.m.add_product_to(&mut sum, value)? {
+                radius = add_up(radius, mul_up(TINY, value.abs()));
+            }
+        }
+        radius = add_up(radius, mul_up(coefficient.r, xu));
+        let ku = add_up(abs_up(&coefficient.m)?, coefficient.r);
+        scale = add_up(scale, mul_up(ku, xu));
+        if bound.exponents[i] != i32::MIN {
+            norm = add_up(norm, scale_up(ku, bound.exponents[i]));
+        }
+    }
+    add_ball(&mut sum, &mut radius, load, true)?;
+    scale = add_up(scale, load_scale);
+    CertifiedRow::finish(
+        sum_ball(&sum, radius)?,
+        mul_up(norm, bound.lambda_sigma),
+        scale,
+    )
+}
+fn evaluate_ends(
+    operator: &Operator,
+    map: &[usize; 12],
+    loads: &[Ball; 12],
+    load_scales: &[f64; 12],
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<[CertifiedRow; 12], RecoveryFailure> {
+    let mut out = [CertifiedRow::ZERO; 12];
+    for r in 0..12 {
+        out[r] = evaluate_row(&operator[r], map, loads[r], load_scales[r], u, bound)?;
+    }
+    Ok(out)
+}
+
+pub fn certify_straight_recovery(
+    frame: &FrameElement,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+    let mut a = WideArith::new(128)?;
+    let matrix = frame_matrix(&mut a, frame)?;
+    let (axes, length) = chord_axes(
+        &mut a,
+        frame.node_i.coordinates,
+        frame.node_j.coordinates,
+        frame.y_reference,
+    )?;
+    let operator = local_operator(&matrix, &axes)?;
+    let (equivalent, equivalent_scale) = local_loads(loads, &axes)?;
+    let map = element_dof_map(frame.node_i.index, frame.node_j.index);
+    let ends = evaluate_ends(&operator, &map, &equivalent, &equivalent_scale, u, bound)?;
+    let mut sections = [[CertifiedRow::ZERO; 6]; 5];
+    let mut b = Balls::new()?;
+    for (s, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
+        let distance = b.mul(Ball::exact(length), b.lift(fraction)?)?;
+        let mut op = [[Ball::ZERO; 12]; 6];
+        let mut eq = [Ball::ZERO; 6];
+        let mut es = [0.0; 6];
+        for r in 0..6 {
+            for c in 0..12 {
+                op[r][c] = operator[r][c].neg();
+            }
+            eq[r] = equivalent[r].neg();
+            es[r] = equivalent_scale[r];
+        }
+        for (moment, shear, sign) in [(4, 2, -1.0), (5, 1, 1.0)] {
+            for c in 0..12 {
+                let term = b.mul(distance, operator[shear][c])?;
+                op[moment][c] = if sign < 0.0 {
+                    b.sub(op[moment][c], term)?
+                } else {
+                    b.add(op[moment][c], term)?
+                };
+            }
+            es[moment] = add_up(
+                es[moment],
+                mul_up(
+                    add_up(abs_up(&distance.m)?, distance.r),
+                    equivalent_scale[shear],
+                ),
+            );
+            let term = b.mul(distance, equivalent[shear])?;
+            eq[moment] = if sign < 0.0 {
+                b.sub(eq[moment], term)?
+            } else {
+                b.add(eq[moment], term)?
+            };
+        }
+        for load in loads.uniform_loads() {
+            let load = load?;
+            let end = fraction.min(load.end_fraction);
+            if end <= load.start_fraction {
+                continue;
+            }
+            let start = b.mul(Ball::exact(length), b.lift(load.start_fraction)?)?;
+            let active_end = b.mul(Ball::exact(length), b.lift(end)?)?;
+            let active = b.sub(active_end, start)?;
+            let ea = b.mul(active_end, active_end)?;
+            let sa = b.mul(start, start)?;
+            let diff = b.sub(ea, sa)?;
+            let half = b.half(diff)?;
+            let da = b.mul(distance, active)?;
+            let lever = b.sub(da, half)?;
+            let mut intensity = [Ball::ZERO; 3];
+            for r in 0..3 {
+                for c in 0..3 {
+                    let term = b.mul(Ball::exact(axes[r][c]), load.intensity[c])?;
+                    intensity[r] = b.add(intensity[r], term)?;
+                }
+            }
+            for r in 0..3 {
+                let term = b.mul(intensity[r], active)?;
+                eq[r] = b.add(eq[r], term)?;
+                es[r] = add_up(es[r], add_up(abs_up(&term.m)?, term.r));
+            }
+            let my = b.mul(intensity[2], lever)?;
+            eq[4] = b.add(eq[4], my)?;
+            es[4] = add_up(es[4], add_up(abs_up(&my.m)?, my.r));
+            let mz = b.mul(intensity[1], lever)?;
+            eq[5] = b.sub(eq[5], mz)?;
+            es[5] = add_up(es[5], add_up(abs_up(&mz.m)?, mz.r));
+        }
+        for r in 0..6 {
+            sections[s][r] = evaluate_row(&op[r], &map, eq[r], es[r], u, bound)?;
+        }
+    }
+    Ok(CertifiedMemberRecovery { ends, sections })
+}
+
+/// Pressure pAi from the authored annulus, at the same p as the load closure.
+pub fn certified_pressure_area_product(
+    pressure: f64,
+    outer_diameter: f64,
+    wall_thickness: f64,
+) -> Result<CertifiedValue, RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let pi4 = b.atan(Ball::ONE)?;
+    let pi2 = b.pow2(pi4, 1)?;
+    let pi = b.pow2(pi2, 1)?;
+    let od = b.lift(outer_diameter)?;
+    let ro = b.half(od)?;
+    let t = b.lift(wall_thickness)?;
+    let ri = b.sub(ro, t)?;
+    let ri2 = b.mul(ri, ri)?;
+    let ai = b.mul(pi, ri2)?;
+    let p = b.lift(pressure)?;
+    Ok(CertifiedValue {
+        ball: b.mul(p, ai)?,
+    })
+}
+impl CertifiedValue {
+    pub fn scaled(self, factor: f64) -> Result<Self, RecoveryFailure> {
+        self.product(Self::exact(factor)?)
+    }
+    pub fn difference(self, other: Self) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Balls::new()?.sub(self.ball, other.ball)?,
+        })
+    }
+}
+
+fn fraction_trig(
+    b: &mut Balls,
+    g: &super::arc_certificate::ArcGeometry,
+    fraction: f64,
+) -> Result<(Ball, Ball), RecoveryFailure> {
+    if fraction == 0.0 {
+        return Ok((Ball::ZERO, Ball::ONE));
+    }
+    if fraction == 1.0 {
+        return Ok((g.sin, g.cos));
+    }
+    let one_plus = b.add(Ball::ONE, g.cos)?;
+    let half_plus = b.half(one_plus)?;
+    let ch = b.sqrt(half_plus, "arc half cosine")?;
+    let half_minus = b.half(g.one_c)?;
+    let sh = b.sqrt(half_minus, "arc half sine")?;
+    if fraction == 0.5 {
+        return Ok((sh, ch));
+    }
+    let one_plus = b.add(Ball::ONE, ch)?;
+    let plus = b.half(one_plus)?;
+    let cq = b.sqrt(plus, "arc quarter cosine")?;
+    // sin(phi/4)=sin(phi/2)/(2cos(phi/4)) avoids small-angle subtraction.
+    let twice = b.pow2(cq, 1)?;
+    let sq = b.div(sh, twice, "arc quarter cosine")?;
+    if fraction == 0.25 {
+        return Ok((sq, cq));
+    }
+    if fraction == 0.75 {
+        let a = b.mul(sh, cq)?;
+        let c = b.mul(ch, sq)?;
+        let sin = b.add(a, c)?;
+        let a = b.mul(ch, cq)?;
+        let c = b.mul(sh, sq)?;
+        return Ok((sin, b.sub(a, c)?));
+    }
+    Err(shape("arc certificate station"))
+}
+fn ball_magnitude(value: Ball) -> Result<f64, RecoveryFailure> {
+    Ok(add_up(abs_up(&value.m)?, value.r))
+}
+fn cross_operators(
+    b: &mut Balls,
+    arm: &[Ball; 3],
+    force: &[[Ball; 12]; 3],
+) -> Result<[[Ball; 12]; 3], RecoveryFailure> {
+    let mut out = [[Ball::ZERO; 12]; 3];
+    for r in 0..3 {
+        let j = (r + 1) % 3;
+        let k = (r + 2) % 3;
+        for c in 0..12 {
+            let left = b.mul(arm[j], force[k][c])?;
+            let right = b.mul(arm[k], force[j][c])?;
+            out[r][c] = b.sub(left, right)?;
+        }
+    }
+    Ok(out)
+}
+
+/// Arc end rows use K_int,arc from the formation residual, rather than the
+/// independently inverted real-arc stiffness of the former O-13 certificate.
+/// Section transfers retain O-13's ball geometry and exact equilibrium recipe.
+pub fn certify_arc_recovery(
+    arc: &CurvedFormation,
+    span: &FrameElement,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+    let mut a = WideArith::new(128)?;
+    let matrix = curved_matrix(&mut a, arc)?;
+    let (chord_axes, _) = chord_axes(
+        &mut a,
+        span.node_i.coordinates,
+        span.node_j.coordinates,
+        span.y_reference,
+    )?;
+    let operator = local_operator(&matrix, &chord_axes)?;
+    let (equivalent, es) = local_loads(loads, &chord_axes)?;
+    let map = element_dof_map(arc.node_i, arc.node_j);
+    let ends = evaluate_ends(&operator, &map, &equivalent, &es, u, bound)?;
+    let mut b = Balls::new()?;
+    let geometry = arc_geometry(&mut b, arc)?;
+    let mut tip = [[Ball::ZERO; 12]; 6];
+    let mut teq = [Ball::ZERO; 6];
+    let mut tes = [0.0; 6];
+    for block in 0..2 {
+        for r in 0..3 {
+            for k in 0..3 {
+                let axis = geometry.axes[r][k];
+                for c in 0..12 {
+                    let term = b.mul(axis, Ball::exact(matrix[6 + 3 * block + k][c]))?;
+                    tip[3 * block + r][c] = b.add(tip[3 * block + r][c], term)?;
+                }
+                let term = b.mul(axis, loads.equivalent[6 + 3 * block + k])?;
+                teq[3 * block + r] = b.add(teq[3 * block + r], term)?;
+                tes[3 * block + r] = add_up(
+                    tes[3 * block + r],
+                    mul_up(
+                        ball_magnitude(axis)?,
+                        loads.equivalent_scale[6 + 3 * block + k],
+                    ),
+                );
+            }
+        }
+    }
+    let mut sections = [[CertifiedRow::ZERO; 6]; 5];
+    for (s, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
+        let (sin, cos) = fraction_trig(&mut b, &geometry, fraction)?;
+        let theta = b.mul(geometry.phi, b.lift(fraction)?)?;
+        let remaining = b.sub(geometry.phi, theta)?;
+        let dc = b.sub(geometry.cos, cos)?;
+        let ds = b.sub(geometry.sin, sin)?;
+        let arm = [
+            b.mul(geometry.radius, dc)?,
+            b.mul(geometry.radius, ds)?,
+            Ball::ZERO,
+        ];
+        let force = [tip[0], tip[1], tip[2]];
+        let transfer = cross_operators(&mut b, &arm, &force)?;
+        let eqforce = [teq[0], teq[1], teq[2]];
+        let eqtransfer = b.cross(&arm, &eqforce)?;
+        let mut op = tip;
+        let mut eq = teq;
+        let mut eqscale = tes;
+        for r in 0..3 {
+            for c in 0..12 {
+                op[3 + r][c] = b.add(op[3 + r][c], transfer[r][c])?;
+            }
+            eq[3 + r] = b.add(eq[3 + r], eqtransfer[r])?;
+            let j = (r + 1) % 3;
+            let k = (r + 2) % 3;
+            eqscale[3 + r] = add_up(
+                eqscale[3 + r],
+                add_up(
+                    mul_up(ball_magnitude(arm[j])?, tes[k]),
+                    mul_up(ball_magnitude(arm[k])?, tes[j]),
+                ),
+            );
+        }
+        let r2 = b.mul(geometry.radius, geometry.radius)?;
+        let rc = b.mul(remaining, cos)?;
+        let rs = b.mul(remaining, sin)?;
+        let distx = b.sub(ds, rc)?;
+        let disty = b.sub(dc.neg(), rs)?;
+        let distarm = [b.mul(r2, distx)?, b.mul(r2, disty)?, Ball::ZERO];
+        let length = b.mul(geometry.radius, remaining)?;
+        for load in loads.uniform_loads() {
+            let load = load?;
+            let mut wl = [Ball::ZERO; 3];
+            for r in 0..3 {
+                wl[r] = b.dot(&geometry.axes[r], &load.intensity)?;
+            }
+            let moment = b.cross(&distarm, &wl)?;
+            for r in 0..3 {
+                let term = b.mul(length, wl[r])?;
+                eq[r] = b.sub(eq[r], term)?;
+                eqscale[r] = add_up(eqscale[r], ball_magnitude(term)?);
+                eq[3 + r] = b.sub(eq[3 + r], moment[r])?;
+                eqscale[3 + r] = add_up(eqscale[3 + r], ball_magnitude(moment[r])?);
+            }
+        }
+        let axes = [
+            [sin.neg(), cos, Ball::ZERO],
+            [cos.neg(), sin.neg(), Ball::ZERO],
+            [Ball::ZERO, Ball::ZERO, Ball::ONE],
+        ];
+        for block in 0..2 {
+            for r in 0..3 {
+                let mut row = [Ball::ZERO; 12];
+                let mut load = Ball::ZERO;
+                let mut ls = 0.0;
+                for k in 0..3 {
+                    for c in 0..12 {
+                        let term = b.mul(axes[r][k], op[3 * block + k][c])?;
+                        row[c] = b.add(row[c], term)?;
+                    }
+                    let term = b.mul(axes[r][k], eq[3 * block + k])?;
+                    load = b.add(load, term)?;
+                    ls = add_up(
+                        ls,
+                        mul_up(ball_magnitude(axes[r][k])?, eqscale[3 * block + k]),
+                    );
+                }
+                sections[s][3 * block + r] = evaluate_row(&row, &map, load, ls, u, bound)?;
+            }
+        }
+    }
+    Ok(CertifiedMemberRecovery { ends, sections })
+}
+
+#[derive(Debug, Clone)]
+pub struct CertifiedConnectorRecovery {
+    pub ends: [CertifiedRow; 12],
+    pub q: [CertifiedRow; 6],
+    pub deformation: [CertifiedRow; 6],
+    pub g: [CertifiedRow; 6],
+}
+fn connector_b(connector: &ObjectiveConnector) -> Result<[[Ball; 12]; 6], RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let ni = connector.node_i();
+    let nj = connector.node_j();
+    let (ai, aj) = connector.offsets();
+    let mut arm = [Ball::ZERO; 3];
+    for k in 0..3 {
+        let d = b.sub(b.lift(nj.coordinates[k])?, b.lift(ni.coordinates[k])?)?;
+        let o = b.sub(b.lift(aj[k])?, b.lift(ai[k])?)?;
+        let combined = b.add(d, o)?;
+        arm[k] = b.half(combined)?;
+    }
+    let skew = |v: [Ball; 3]| {
+        [
+            [Ball::ZERO, v[2].neg(), v[1]],
+            [v[2], Ball::ZERO, v[0].neg()],
+            [v[1].neg(), v[0], Ball::ZERO],
+        ]
+    };
+    let sai = skew([b.lift(ai[0])?, b.lift(ai[1])?, b.lift(ai[2])?]);
+    let saj = skew([b.lift(aj[0])?, b.lift(aj[1])?, b.lift(aj[2])?]);
+    let sr = skew(arm);
+    let axes = connector.axes();
+    let mut out = [[Ball::ZERO; 12]; 6];
+    for axis in 0..3 {
+        for c in 0..3 {
+            let q = b.lift(axes[c][axis])?;
+            out[axis][c] = q.neg();
+            out[axis][6 + c] = q;
+            out[3 + axis][3 + c] = q.neg();
+            out[3 + axis][9 + c] = q;
+            for k in 0..3 {
+                let mi = b.add(sai[k][c], sr[k][c])?;
+                let mj = b.sub(sr[k][c], saj[k][c])?;
+                let q = b.lift(axes[k][axis])?;
+                let term = b.mul(q, mi)?;
+                out[axis][3 + c] = b.add(out[axis][3 + c], term)?;
+                let term = b.mul(q, mj)?;
+                out[axis][9 + c] = b.add(out[axis][9 + c], term)?;
+            }
+        }
+    }
+    Ok(out)
+}
+pub fn certify_connector_recovery(
+    connector: &ObjectiveConnector,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedConnectorRecovery, RecoveryFailure> {
+    let mut a = WideArith::new(128)?;
+    let matrix = connector_matrix(&mut a, connector)?;
+    let operator = matrix.map(|row| row.map(Ball::exact));
+    let map = element_dof_map(connector.node_i().index, connector.node_j().index);
+    let ends = evaluate_ends(
+        &operator,
+        &map,
+        &loads.equivalent,
+        &loads.equivalent_scale,
+        u,
+        bound,
+    )?;
+    let bop = connector_b(connector)?;
+    let reference = connector.q_ref();
+    let stiffness = connector.stiffness();
+    let mut b = Balls::new()?;
+    let mut q = [CertifiedRow::ZERO; 6];
+    let mut g = [CertifiedRow::ZERO; 6];
+    let mut deformation = [CertifiedRow::ZERO; 6];
+    for r in 0..6 {
+        q[r] = evaluate_row(&bop[r], &map, Ball::ZERO, 0.0, u, bound)?;
+        deformation[r] = evaluate_row(
+            &bop[r],
+            &map,
+            b.lift(reference[r])?,
+            reference[r].abs(),
+            u,
+            bound,
+        )?;
+        let mut op = [Ball::ZERO; 12];
+        let mut load = Ball::ZERO;
+        let mut ls = 0.0;
+        for k in 0..6 {
+            let kr = b.lift(stiffness[r][k])?;
+            for c in 0..12 {
+                let term = b.mul(kr, bop[k][c])?;
+                op[c] = b.add(op[c], term)?;
+            }
+            let term = b.mul(kr, b.lift(reference[k])?)?;
+            load = b.add(load, term)?;
+            ls = add_up(ls, ball_magnitude(term)?);
+        }
+        g[r] = evaluate_row(&op, &map, load, ls, u, bound)?;
+    }
+    Ok(CertifiedConnectorRecovery {
+        ends,
+        q,
+        deformation,
+        g,
+    })
+}
+
+/// Restrained reaction K_int,r*corrected_u - f_int,r. The caller supplies the
+/// same unscaled physical ledger/source used for member recovery. Element
+/// blocks are re-formed and discarded one at a time, never heap-cached.
+/// The remainder uses the upward triangle upper bound obtained by summing
+/// each contribution's free-column ||A_e D||1; prescribed columns are absent.
+pub fn certify_support_reaction(
+    source: &FormationSource,
+    force: &AssembledForce,
+    dof: usize,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, RecoveryFailure> {
+    if dof >= u.len() {
+        return Err(shape("support reaction DOF"));
+    }
+    let mut sum = ExactAccumulator::new();
+    let mut radius = 0.0;
+    let mut scale = 0.0;
+    let mut remainder = 0.0;
+    let mut a = WideArith::new(128)?;
+    let mut apply =
+        |ni: usize, nj: usize, matrix: &[[Wide2; 12]; 12]| -> Result<(), RecoveryFailure> {
+            let map = element_dof_map(ni, nj);
+            let Some(row) = map.iter().position(|&i| i == dof) else {
+                return Ok(());
+            };
+            let op = matrix[row].map(Ball::exact);
+            let evaluated = evaluate_row(&op, &map, Ball::ZERO, 0.0, u, bound)?;
+            add_ball(&mut sum, &mut radius, evaluated.value, false)?;
+            scale = add_up(scale, evaluated.absolute_scale);
+            remainder = add_up(remainder, evaluated.remainder);
+            Ok(())
+        };
+    for frame in &source.frames {
+        let k = frame_matrix(&mut a, frame)?;
+        apply(frame.node_i.index, frame.node_j.index, &k)?;
+    }
+    for arc in &source.curved {
+        let k = curved_matrix(&mut a, arc)?;
+        apply(arc.node_i, arc.node_j, &k)?;
+    }
+    for connector in &source.connectors {
+        let k = connector_matrix(&mut a, connector)?;
+        apply(connector.node_i().index, connector.node_j().index, &k)?;
+    }
+    for &(i, k) in &source.springs {
+        if i == dof {
+            let op = [Ball::exact(Wide2::from_f64(k)?)];
+            let row = evaluate_row(&op, &[i], Ball::ZERO, 0.0, u, bound)?;
+            add_ball(&mut sum, &mut radius, row.value, false)?;
+            scale = add_up(scale, row.absolute_scale);
+            remainder = add_up(remainder, row.remainder);
+        }
+    }
+    for (index, term) in force
+        .terms()
+        .iter()
+        .enumerate()
+        .filter(|(_, term)| term.dof == dof)
+    {
+        let record = force
+            .closure_records()
+            .get(index)
+            .ok_or_else(|| shape("reaction closure"))?;
+        if record.formed {
+            for primitive in source.loads.iter().filter(|p| p.term_index == index) {
+                let (m, r) = load_reformation(primitive)?;
+                let row = primitive.local_row;
+                let ball = Ball {
+                    m: m[row],
+                    r: r[row],
+                };
+                add_ball(&mut sum, &mut radius, ball, true)?;
+                scale = add_up(scale, ball_magnitude(ball)?);
+            }
+        } else {
+            let mut held = ExactAccumulator::new();
+            term.accumulate(&mut held, false).map_err(sum_error)?;
+            let value = sum_ball(&held, 0.0)?;
+            add_ball(&mut sum, &mut radius, value, true)?;
+            scale = add_up(scale, ball_magnitude(value)?);
+        }
+    }
+    CertifiedRow::finish(sum_ball(&sum, radius)?, remainder, scale)
+}
+/// Spring support-on-pipe sign is negative on ordinary and W2 routes.
+pub fn certify_spring_reaction(
+    dof: usize,
+    stiffness: f64,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, RecoveryFailure> {
+    let op = [Ball::exact(Wide2::from_f64(-stiffness)?)];
+    evaluate_row(&op, &[dof], Ball::ZERO, 0.0, u, bound)
+}
+
+#[cfg(test)]
+#[path = "certified_recovery_tests.rs"]
+mod tests;

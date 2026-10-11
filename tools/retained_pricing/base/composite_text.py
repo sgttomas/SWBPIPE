@@ -105,9 +105,23 @@ formation_check_line = max(120 + dof_label + 3 * F64D, 70 + 30 + ERR)
 range_entry = 2 + max(9 + 600 + 600 + 60, 64 + 600 + 24)
 range_line = 80 + 20 + 6 * range_entry + 30              # NAMED = 6 entries + "more=" (PP lib.rs:1754-1768)
 F_len = max(ident + 34 + 3 * 24, ident + 41 + ERR)       # formation_guard.rs fired item (I54 RESIDUALS)
+_fg = open(os.path.join(proot, "core/product_physics/src/formation_guard.rs"), encoding="utf-8").read()
+if "fn member_group_fires(" in _fg:
+    # KD5T1: member id, owned location and owned kind, plus the literal
+    # unavailable wrapper and the existing error-display class.
+    F_len = max(3 * ident + 64 + 3 * F64D, 3 * ident + 64 + ERR)
+
 J_len = 6 * F_len + 2 * 5
 C_len = 11 + 20
 S_len = 221 + ident + 20 + J_len + C_len                 # guard sentence (I54 RESIDUALS)
+# O13A1: the old profile's sentence is retained on the registered revision.
+# O-13 adds at most three findings. Each has six named fired items and
+# <=600 literal bytes, an identifier and an item count; two join spaces.
+if "fn member_group_fires(" in _fg:
+    S_len = 600 + ident + U + J_len + C_len
+elif "fn arc_recovery_finding(" in _fg:
+    S_len = 3 * (600 + ident + U + J_len + C_len) + 2
+
 message_int = (integrity_literal + STATIC + ident + report + dof_map
                + 1 + formation_check_line + 1 + range_line + 1 + S_len)
 # load-row sources: sum over all rows <= l source ids (each nodal load contributes to one DOF)

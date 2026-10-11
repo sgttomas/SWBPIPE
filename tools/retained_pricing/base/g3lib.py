@@ -216,6 +216,11 @@ ASSUMED.update({
 })
 
 
+# KD5 illustrative layouts only; g5_profile binds actual in-build sizes.
+ASSUMED.update({"s(MemberBoundInputs)": 80, "s(LoadClosureRecord)": 32,
+                "s(LoadPrimitive)": 512, "s(LoadClosureEntry)": 80,
+                "s(RecoveryGroup)": 120})
+
 # ---- G4: cap overrides for the sensitivity table (G4_CAPS='{"m": 16, ...}') -----------------
 def g4_caps():
     """The D1 base caps with any G4_CAPS overrides, and every derived count the scripts use."""

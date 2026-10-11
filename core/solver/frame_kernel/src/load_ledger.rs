@@ -16,7 +16,16 @@
 //! defects in two accumulators (net and self-equilibrated), with no binary64
 //! intermediate before the guard's decision.
 use crate::exact_sum::{ExactAccumulator, SumError};
+use crate::structural::{LoadClosureEntry, LoadPrimitive};
 use std::fmt;
+
+/// Trusted formed/input classification survives omission of numeric S11-G records.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct LoadClosureRecord {
+    pub formed: bool,
+    pub manifest: Option<Vec<LoadClosureEntry>>,
+    pub force_scale_exponent: i32,
+}
 
 /// One contribution as the producer formed it (S11 section 4.2 granularity).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -111,6 +120,8 @@ struct FormationRecord {
 pub struct LoadLedger {
     terms: Vec<ForceTerm>,
     formations: Vec<Option<FormationRecord>>,
+    closures: Vec<LoadClosureRecord>,
+    loads: Vec<LoadPrimitive>,
 }
 
 // Exactly the derived output of today's single-field struct (S11-G N-6).
@@ -135,6 +146,7 @@ impl LoadLedger {
             kind: ForceTermKind::Term(value),
         });
         self.formations.push(None);
+        self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one load-proportional product, kept exact.
@@ -145,6 +157,7 @@ impl LoadLedger {
             kind: ForceTermKind::Product(a, b),
         });
         self.formations.push(None);
+        self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one rounded formed term with its formation record (S11-G).
@@ -179,7 +192,33 @@ impl LoadLedger {
         self.attach(formation, operand_bound, self_equilibrated);
     }
 
+    pub fn term_count(&self) -> usize {
+        self.terms.len()
+    }
+
+    /// Install the complete source-enumerated manifest before attaching supplied primitives.
+    pub fn set_closure_manifest(
+        &mut self,
+        term_index: usize,
+        expected: Vec<LoadClosureEntry>,
+    ) -> bool {
+        match self.closures.get_mut(term_index) {
+            Some(record) if record.formed => {
+                record.manifest = Some(expected);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    pub fn attach_load_primitive(&mut self, primitive: LoadPrimitive) {
+        self.loads.push(primitive);
+    }
+
     fn attach(&mut self, formation: Formation, operand_bound: f64, self_equilibrated: bool) {
+        if let Some(record) = self.closures.last_mut() {
+            record.formed = true;
+        }
         if let Some(slot) = self.formations.last_mut() {
             *slot = Some(FormationRecord {
                 formation,
@@ -231,6 +270,8 @@ impl LoadLedger {
             by_dof,
             evidence,
             formations: self.formations,
+            closures: self.closures,
+            loads: self.loads,
         })
     }
 }
@@ -242,6 +283,8 @@ pub struct AssembledForce {
     by_dof: Vec<Vec<usize>>,
     evidence: LedgerEvidence,
     formations: Vec<Option<FormationRecord>>,
+    closures: Vec<LoadClosureRecord>,
+    loads: Vec<LoadPrimitive>,
 }
 
 // Exactly the derived output of today's four fields; the S11-G formation
@@ -258,6 +301,13 @@ impl fmt::Debug for AssembledForce {
 }
 
 impl AssembledForce {
+    pub fn load_primitives(&self) -> &[LoadPrimitive] {
+        &self.loads
+    }
+    pub fn closure_records(&self) -> &[LoadClosureRecord] {
+        &self.closures
+    }
+
     pub fn values(&self) -> &[f64] {
         &self.values
     }
@@ -332,8 +382,10 @@ impl AssembledForce {
     ///   (as `LoadLedger::finish` rounds it), with the same underflow evidence.
     /// - Sources, DOFs and the per-DOF term order are unchanged. Nothing is
     ///   pushed to a ledger. The S11-G formation records are not carried: the
-    ///   kernel's solve never reads them (they serve the product's guard,
-    ///   which reads the unscaled force).
+    ///   numeric bounds serve the product's guard, which reads the unscaled
+    ///   force. Trusted formed classification and complete closure manifests
+    ///   survive independently, rebound with the exact force exponent, as do
+    ///   every supplied primitive's authored operands.
     pub fn force_scaled(
         &self,
         scale: crate::ForceScale,
@@ -363,6 +415,32 @@ impl AssembledForce {
             values,
             by_dof: self.by_dof.clone(),
             formations: vec![None; terms.len()],
+            closures: self
+                .closures
+                .iter()
+                .map(|record| {
+                    let mut record = record.clone();
+                    record.force_scale_exponent = record
+                        .force_scale_exponent
+                        .checked_add(scale.exponent())
+                        .ok_or(failed.clone())?;
+                    if let Some(entries) = record.manifest.as_mut() {
+                        for entry in entries {
+                            let exponent = entry.operand_bits.last_mut().ok_or(failed.clone())?;
+                            let value = (*exponent as i64)
+                                .checked_add(i64::from(scale.exponent()))
+                                .ok_or(failed.clone())?;
+                            *exponent = value as u64;
+                        }
+                    }
+                    Ok(record)
+                })
+                .collect::<Result<Vec<_>, crate::structural::ForceScaleReason>>()?,
+            loads: self
+                .loads
+                .iter()
+                .map(|p| p.force_scaled(scale.exponent()).ok_or(failed.clone()))
+                .collect::<Result<Vec<_>, _>>()?,
             terms,
             evidence,
         })

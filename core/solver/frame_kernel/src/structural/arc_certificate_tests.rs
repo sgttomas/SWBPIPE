@@ -970,3 +970,6 @@ fn large_flexibility_certifies_with_a_small_radius() {
         other => panic!("{other:?}"),
     }
 }
+
+#[path = "arc_recovery_tests.rs"]
+mod recovery_tests;

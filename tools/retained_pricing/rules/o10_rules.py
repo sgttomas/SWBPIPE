@@ -82,7 +82,8 @@ if fnkey("validate", CE):
          O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), "
          "<= C·P_final = Pall", ["connector_evidence.rs:validate"]),
     ]
-    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),
+    if fnkey("row_basis", CE):
+        O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),
         O10 + "E4 (route E): row_basis is called only for a connector-kind row after `require_connector(admitted, \"UNSUPPORTED\")?`, "
         "which returns Err when !admitted (E1: every reached caller passes StraightV2), ending validate")]
     O10_SITE_FROM = O10_SITE_FROM + [(site("require_connector", CE, 'Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))'),
@@ -92,8 +93,9 @@ if fnkey("validate", CE):
          "(validate_physics_evidence_in) propagates with `?`: <= 1 per validate_physics_evidence call"})]
     O10_ID_AUDIT = O10_ID_AUDIT + [
         (site("require_connector", CE, 'Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))', full=True), {"code": ST}),
-        (site("row_basis", CE, "format!(\"objective_connector_v1;replaces_span={span}", full=True), {"span": IN}),
     ]
+    if fnkey("row_basis", CE):
+        O10_ID_AUDIT += [(site("row_basis", CE, "format!(\"objective_connector_v1;replaces_span={span}", full=True), {"span": IN})]
 if fnkey("fmt", FK_ + "connector.rs"):
     O10_ID_AUDIT = O10_ID_AUDIT + [(site("fmt", FK_ + "connector.rs", t_, full=True), {"name": ST}) for t_ in (
         'write!(f, "connector input {name} is not finite")',
@@ -161,3 +163,103 @@ if _os.path.exists(_os.path.join(_SNAP, _SB)):
 if fnkey("append_retained_source_not_joined", PP_ + "lib.rs"):
     O10_ARGS_FIRST = [{"re": r"^exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT$", "max": _NJ,
         "why": O10 + "N (diag message): the &'static str const RETAINED_SOURCE_NOT_JOINED_TEXT, its literal length read from exact_admission.rs at the snapshot"}]
+
+
+# ---- U2/O-13 at 98dba87714 (Design retained-pricing-rules.md §E).
+# Header limits are true upper bounds even for a route conservatively reaching
+# an arc helper. No new edge or site is declared zero.
+if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
+    O10_LOOPS_LAST += [
+        ("for (pipe_index, state) in &exact.pipe_states", "m", O10 + "U2L1: pipe_states has at most one entry per built pipe, hence <= m", ["lib.rs:add_curved_bend_pressure_equivalent_load"]),
+        ("for (local_row, &global_row) in dof_map.iter().enumerate()", "12", O10 + "U2L2: element_dof_map returns [usize; ELEMENT_DOF], ELEMENT_DOF = 12", ["lib.rs:add_curved_bend_thermal_equivalent_load", "lib.rs:add_curved_bend_pressure_equivalent_load"]),
+        ("for (local_col, &free_value) in free_expansion.iter().enumerate()", "12", O10 + "U2L3: curved_bend_free_expansion_displacements returns [f64; ELEMENT_DOF], ELEMENT_DOF = 12", ["lib.rs:add_curved_bend_thermal_equivalent_load", "lib.rs:add_curved_bend_pressure_equivalent_load"]),
+    ]
+    O10_LOOPS_LAST += [("for junction in &junctions", "m", O10 + "U2E2: checked traversal's junction list has one entry per adjacent member pair, <= traversal length <= m", ["pressure_runtime.rs:build_pressure_case_with_members"])]
+    O10_LOOPS_LAST += [("for (kind, component, stations) in crate::arc_evidence::ROWS", "4", O10 + "U2E1: arc_evidence::ROWS is a fixed array of four row families", ["physics_evidence.rs:validate_physics_evidence_in"])]
+    _LL = FK_ + "load_ledger.rs"
+    O10_ID_AUDIT += [(site("push_product", _LL, "source: source.into()", full=True), {"source": IN})]
+    _BP = PP_ + "bend_pressure.rs"
+    if fnkey("append_arc_pressure_results", _BP):
+        for _text, _values in [
+            ("vec![case.id.clone(), pipe_id.to_string()]", {"case.id": IN, "pipe_id": IN}),
+            ('"result:pressure-exact:{}:{}:{}:{}:{}:{}"', {"case.id.len()": NUM_, "case.id": IN, "pipe_id.len()": NUM_, "pipe_id": IN,
+                "location": ST, "component": ST}),
+            ("kind: kind.to_string()", {"kind": ST}),
+            ("entity_ref: pipe_id.to_string()", {"pipe_id": IN}),
+            ("ref_id: case.id.clone()", {"case.id": IN}),
+            ("component: component.to_string()", {"component": ST}),
+            ("location: location.to_string()", {"location": ST}),
+        ]:
+            O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
+    _L = PP_ + "lib.rs"
+    O10_ID_AUDIT += [
+        (site("solve_load_case_observed", _L, 'last.id = format!("diagnostic:exact-stress:', full=True), {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
+    ]
+    if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
+        O10_ID_AUDIT += [(site("solve_load_case_observed", _L, "project: model.project.id.clone()", full=True), {"model.project.id": IN})]
+    if fnkey("arc_recovery_record", _L):
+        O10_ID_AUDIT += [(site("arc_recovery_record", _L, "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
+    # U2C: keep this conservative callgraph site's computed multiplicity.
+    # The authored string is D1-capped; the static default also fits IN128.
+    O10_ID_AUDIT += [(site("component_solver_consumption", _L, ".to_string()", full=True), {
+        "terface.as_ref().and_then(|interface|interface.solver_consumption.as_deref()).unwrap_or(default)": IN,
+    })]
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [{"re": r"^pressure_treatment$", "max": 128,
+        "why": O10 + "U2A: append_curved_bend_macro_element_results selects one of two static ASCII literals, each <128 B"}]
+
+if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
+    _FG = PP_ + "formation_guard.rs"
+    O10_LOOPS_LAST += [("for (slot, group) in ArcRowGroup::ALL.into_iter().enumerate()", "4", O10 + "O13L1: ArcRowGroup::ALL is [Self;4]; includes all four groups", ["formation_guard.rs:arc_recovery_finding", "s11g_tests/arc_recovery.rs:p2_realistic_arcs_are_not_demoted"])]
+    O10_ID_AUDIT += [
+        (site("arc_recovery_finding", _FG, '"{}: the formation bound is unavailable', full=True, row="format!("), {"record.member": IN}),
+        (site("arc_recovery_finding", _FG, '"S11-G recovery guard', full=True, row="format!("), {"case_id": IN}),
+        (site("arc_recovery_finding", _FG, '"{}.{name}.{}:', full=True, row="format!("), {"record.member": IN, "group.label()": ST, "name": ST, "unit": ST}),
+    ]
+    # Six named items; each unavailable item <= id+41+8192. 600 covers
+    # each guard's literal, then id, item count and the "and more" suffix.
+    _SENTENCE = 600 + 128 + 20 + 6 * (128 + 41 + 8192) + 10 + 31
+    if fnkey("short_bend_finding", _FG):
+        O10_ID_AUDIT += [(site("short_bend_finding", _FG, '"Short-bend rule:', full=True, row="format!("), {"case_id": IN})]
+    if fnkey("merge", _FG):
+        O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [{"re": r"^merged\.sentence$", "max": 3 * _SENTENCE + 2,
+            "why": O10 + "O13A1: merge receives at most straight, arc and short-bend findings; each <= S, joined with two spaces; prefix <= whole"}]
+    _AR = PP_ + "s11g_tests/arc_recovery.rs"
+    if _os.path.exists(_os.path.join(_SNAP, _AR)):
+        # All test-only; honest classes, never a guessed zero size.
+        for _fn, _text, _values in [
+            ("record", "member: member.to_string()", {"member": IN}),
+            ("g5_merge_keeps_a_single_sentence_and_orders_several", 'format!("{} {} {}"', {"straight.sentence": {"bytes": _SENTENCE, "source": "O13A1"}, "arc.sentence": {"bytes": _SENTENCE, "source": "O13A1"}, "short.sentence": {"bytes": _SENTENCE, "source": "O13A1"}}),
+            ("p2_realistic_arcs_are_not_demoted", 'let tag = format!("{} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+            ("p5_an_already_sensitive_case_is_left_untouched", 'let tag = format!("P5 {} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+        ]:
+            if fnkey(_fn, _AR):
+                O10_ID_AUDIT += [(site(_fn, _AR, _text, full=True), _values)]
+        _SRC_BYTES = sum(_os.path.getsize(_os.path.join(_SNAP, PP_ + f)) for f in ("lib.rs", "formation_guard.rs"))
+        O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+            {"re": r"^mode$", "max": 17, "why": O10 + "O13T: PreviewSolverMode Debug is SparseInteractive (17) or DenseScrutiny (13)"},
+            {"re": r"^phi$|^factor$", "max": 327, "why": O10 + "O13T: f64 Display maximum is 327"},
+            {"re": r"^line$", "max": _SRC_BYTES, "why": O10 + "O13T: product_text copies a line of its include_str source; one line <= combined source bytes, measured at snapshot"},
+        ]
+
+
+# KD5L1: current unified RecoveryRecord includes supports. Rebind the
+# surviving earlier header conservatively; an old snapshot does not change.
+if fnkey("member_group_fires", PP_ + "formation_guard.rs"):
+    REBIND = list(globals().get("REBIND", [])) + [("record in records", "m+g",
+        "KD5L1: RecoveryRecord has one record per admitted straight member and support; arcs/connectors excluded by D1.4/8")]
+    O10_LOOPS_LAST += [("for group in &record.groups", "28", O10 + "KD5L2: each member has at most seven locations times four groups; a support has two <=28", ["formation_guard.rs:member_scales", "formation_guard.rs:recovery_finding"])]
+
+
+# KD5A1: current certified publication's input ids and fixed owned labels.
+_CP = PP_ + "certified_publication.rs"
+if fnkey("member", _CP):
+    O10_ID_AUDIT += [(site("member", _CP, 'let prefix = format!("member:', full=True), {"pipe.element_id.len()": NUM_, "pipe.element_id": IN})]
+    for _fn, _text, _values in [
+        ("group", "location: location.into()", {"location": ST, "kind": ST}),
+        ("member_record", "member: member.into()", {"member": IN}),
+        ("support_record", "member: support.into()", {"support": IN}),
+        ("unavailable_record", "member: entity.into()", {"entity": IN}),
+        ("connector_record", "member: entity.into()", {"entity": IN}),
+    ]:
+        if fnkey(_fn, _CP):
+            O10_ID_AUDIT += [(site(_fn, _CP, _text, full=True), _values)]

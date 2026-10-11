@@ -63,6 +63,8 @@ pub(crate) struct ExactPressureCase {
     /// group order. The case ledger pushes these operands, never the
     /// pre-summed `assembled_loads` total (kept as evidence).
     pub assembled_operands: Vec<(usize, f64, String)>,
+    /// Complete original factor-group source operands, before primitive collection.
+    pub closure_sources: Vec<Vec<(String, open_pipe_stress_frame_kernel::structural::LoadFormula)>>,
     pub assembly_evidence: Value,
     pub evidence: Vec<Value>,
 }
@@ -560,6 +562,7 @@ pub(crate) fn build_pressure_case_with_members(
         cap_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         assembled_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         assembled_operands: Vec::new(),
+        closure_sources: Vec::new(),
         assembly_evidence: Value::Null,
         evidence: Vec::new(),
     };
@@ -872,7 +875,7 @@ pub(crate) fn build_pressure_case_with_members(
             ),
         }
     }
-    finish_source_groups(model, case, &mut output, factor_groups, diagnostics);
+    finish_source_groups(model, built, case, &mut output, factor_groups, diagnostics);
     if output
         .eigenloads
         .iter()
@@ -945,6 +948,7 @@ fn add_factor_term(
 }
 fn finish_source_groups(
     model: &PreviewModel,
+    built: &BuiltModel,
     case: &PreviewLoadCase,
     output: &mut ExactPressureCase,
     groups: BTreeMap<FactorKey, FactorGroup>,
@@ -987,6 +991,27 @@ fn finish_source_groups(
             .terms
             .first()
             .map_or_else(|| case.id.clone(), |term| term.1.clone());
+        // Enumerate every original source constituent. This list is independent
+        // of the primitive vector attached later by the ledger producer.
+        let sources = group.terms.iter().map(|term| {
+            use open_pipe_stress_frame_kernel::structural::{LoadFormula, PressureCoefficient, PressureDirection, PressureGeometry};
+            let pipe_index = built.pipes.iter().position(|pipe| pipe.element_id == term.2).expect("pressure source pipe");
+            let pipe = &built.pipes[pipe_index];
+            let state = &output.pipe_states[&pipe_index];
+            let frame = pipe.frame_element().expect("validated pressure frame");
+            let axis = dof % DOF_PER_NODE;
+            let direction = frame.orientation().expect("validated orientation").local_axes[0][axis];
+            let sign = if term.0.is_sign_negative() == direction.is_sign_negative() { 1.0 } else { -1.0 };
+            let coefficient = if term.3 == "poisson_eigen" {
+                PressureCoefficient::Poisson { poisson_ratio: state.material.poisson_ratio(), sign: sign * 2.0 * if state.material.poisson_ratio().is_sign_negative() { -1.0 } else { 1.0 } }
+            } else { PressureCoefficient::Constant(sign) };
+            (format!("{}:{}:{}", term.1, term.2, term.3), LoadFormula::PressureOperand {
+                geometry: PressureGeometry::Straight { frame }, pressure: state.pressure.pressure_pa(),
+                outer_diameter: state.annulus.outside_diameter_m(), wall_thickness: state.annulus.effective_wall_thickness_m(),
+                coefficient, direction: PressureDirection::Chord { axis },
+            })
+        }).collect();
+        output.closure_sources.push(sources);
         output.assembled_operands.push((dof, value, source));
         evidence.push(json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
             "pressure_bits":format!("{pbits:016x}"),"source_inner_radius_hi_bits":format!("{hi:016x}"),"source_inner_radius_lo_bits":format!("{lo:016x}"),

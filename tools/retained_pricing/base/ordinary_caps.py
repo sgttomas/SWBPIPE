@@ -18,6 +18,13 @@ from g3lib import X, B, s, atom, V, A, Xc, Mat, HashReq, buckets, pushcap, appen
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 HERE = os.path.dirname(os.path.abspath(__file__))
+# KD5O1: history pricing preserves the registered earlier tree. On an
+# implementing snapshot, account for the actual owned correction/closure/group
+# structures (Design retained-pricing-rules.md §F). No product format fallback.
+_snapshot = os.environ.get("RP_SNAPSHOT")
+_fc_path = os.path.join(_snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs") if _snapshot else None
+KD5 = bool(_fc_path and os.path.exists(_fc_path) and "pub struct MemberBoundInputs" in open(_fc_path, encoding="utf-8").read())
+
 if which == "caps":
     from g3lib import g4_caps as _gc
     _c = _gc(); n, m, g, sp, r, l = _c["n"], _c["m"], _c["g"], _c["s"], _c["r"], _c["l"]
@@ -150,7 +157,8 @@ add("Primitive loads and application", "CasePrefix",
     A("PrimitiveLoad", l) + V("NodalLoadContribution", l) + B(2 * l * ID) + Sort("NodalLoadContribution", l)
     + HashReq("(&str,usize)", n) + HashReq("(&str,&T)", m))
 def assembled_force():
-    return (B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
+    closure = V("LoadClosureRecord", l) + s("Vec") if KD5 else X()
+    return (closure + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
             + B(8 * (4 * N + 2 * l)) + B(8 * pushcap(min(l, N))) + B(l * ID))
 add("AssembledForce, nodal family", "CasePrefix", assembled_force(), s("ForceTerm") * (pushcap(l) // 2))
 add("Sparse reduction (+ caller prescribed, observation force)", "CasePrefix",
@@ -213,6 +221,19 @@ def typed_core(mode):
         Xc("Option<usize>", N) + Xc("ExactAccumulator", F) + Xc("Vec<f64>", F) + B(8 * (4 * F + 288 * m))
         + Xc("Option<i32>", F) + B(8 * F + 16 * F) + B(72 * n + 24) + Xc("(f64,f64)", 2 * n)
         + Xc("Option<[f64;3]>", n) + V("(usize,[f64;3],usize,[f64;3])", m) + tx("formation_detail"))
+    if KD5:
+        # KD5O2: rho is reused as s/s2; epsilon_e later owns one F row.
+        # Three rows are conservative over both peaks. Five F f64 arrays
+        # cover psi, correction RHS/solve scratch and epsilon row/column sums.
+        # The old per-row list allowance is retained conservatively.
+        out["Ordinary formation check (outer vectors)"] += Xc("ExactAccumulator", F) * 2 + B(8 * 5 * F)
+        # D1.4/5/6/7 admit nodal loads only, with no states, regions,
+        # components or generated equivalents. Each closure record is
+        # retained above, but no formed primitive/entry/table owner exists.
+        out["D1 formed primitive and independent manifest children (KD5O3)"] = s("Vec") + V("LoadPrimitive", 0) + V("LoadClosureEntry", 0)
+        # Both correction vectors and global exponents remain in the solution
+        # through recovery. Inline owner includes all three Vec headers.
+        out["StructuralSolution member-bound payload (KD5O4)"] = B(20 * N) + s("MemberBoundInputs")
     out["H_formation128 (T06: heap 0)"] = X()
     kpk = k + sp
     out["Rigid-body geometry (BodyEvidence + witnesses)"] = (
@@ -242,7 +263,7 @@ dense_parity = (Mat(8, N, N) + Mat(8, F, F) * 2 + B(8 * F) + A("usize", F) + B(8
 
 # ---------------- W2 (W2_RETURN.md) ---------------------------------------------------------
 def w2(mode, core_total, report, fidelity):
-    scaled_force = (B(8 * N) + A("ForceTerm", l) + B(l * ID) + Xc("Vec<usize>", N) + B(8 * l)
+    scaled_force = ((Xc("LoadClosureRecord", l) + s("Vec") if KD5 else X()) + B(8 * N) + A("ForceTerm", l) + B(l * ID) + Xc("Vec<usize>", N) + B(8 * l)
                     + Xc("Option<FormationRecord>", l) + B(8 * pushcap(min(l, N))))
     scaled_prims = A("FrameElement", m) + A("(usize,f64)", sp)
     kbuild = K_resident() + pattern_build()
@@ -254,17 +275,28 @@ def w2(mode, core_total, report, fidelity):
     tail = (K_resident() + B(8 * N) + report * 2 + fidelity * 2 + tx("formation_detail") * 2
             + V("RecordOutcome", 6 * F) + publication + scaled_force + B(8 * N + 8 * k)
             + A("PublishedValue", k) + A("usize", F) + B(8 * F) + HashReq("&str", l) + B(qf))
+    if KD5:
+        # KD5O5: outcome.solution and its PreviewLinearSolve clone coexist.
+        tail += (B(20 * N) + s("MemberBoundInputs")) * 2
     tail_mov = (A("PublishedValue", k) + A("PublishedValue", sp) + A("[PublishedValue;12]", m) + A("usize", F)
                 + A("ForceTerm", l) + B(8 * pushcap(min(l, N))) + B(qf))
     return evaluate + unscale + tail + B(16 * N) + Xc("(usize,f64)", sp), tail_mov
 
 # ---------------- Ordinary recovery (BOUND :75; ADDENDUM stress, guard maps, records) ----
+# KD5O6: seven locations/four member groups, two support groups. Each
+# record push-builds its own groups; summing PushCap(28), PushCap(2)
+# retains every per-record backing. Labels are static <=128 B each;
+# bound Err children use the existing 8192-B error-content class.
+_recovery_count = m + g if KD5 else m
+_recovery_groups = (s("RecoveryGroup") * (pushcap(28) * m + pushcap(2) * g)
+                    + B((28 * m + 2 * g) * (2 * ID + textcap(8192)))
+                    + V("String", 28 * m + 2 * g)) if KD5 else X()
 J = 17 + max(8, 2 * 57)
 stress_children = s("AnalysisStatus") * 8 + s("StressFinding") * 4 + B(4 * J)
 add("Straight member recovery (+ stress supplement)", "OrdinaryRecovery",
     B(96 + 160) + s("StationResultants") * 4 + B(8 * N)
     + HashReq("(String,[f64;6])", g) + B(g * ID) + Xc("SupportVector", g) + B(g * ID)
-    + V("MemberRecord", m) + B(m * ID) + V("RecoveryRecord", m) + B(m * ID)
+    + V("MemberRecord", m) + B(m * ID) + V("RecoveryRecord", _recovery_count) + B(_recovery_count * ID) + _recovery_groups
     + tx("err") * (2 * m + 1) + tx("err") * m
     + s("(&str,StressRecoveryResult)") * 3 + stress_children * 6 + s("AnalysisStatus") + B(64 + 16 + 160),
     B(32) + s("AnalysisStatus") * 8 + s("StressFinding") * 2 + B(max(8, 2 * 57)))

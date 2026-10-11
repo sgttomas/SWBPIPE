@@ -120,7 +120,7 @@ type Failure = ArcCertificateFailure;
 // ---------------------------------------------------------------------------
 
 /// ≥ a + b.
-fn add_up(a: f64, b: f64) -> f64 {
+pub(super) fn add_up(a: f64, b: f64) -> f64 {
     if a == 0.0 {
         b
     } else if b == 0.0 {
@@ -151,7 +151,7 @@ fn sub_dn(a: f64, b: f64) -> f64 {
 }
 
 /// ≥ ab.
-fn mul_up(a: f64, b: f64) -> f64 {
+pub(super) fn mul_up(a: f64, b: f64) -> f64 {
     if a == 0.0 || b == 0.0 {
         0.0
     } else {
@@ -169,7 +169,7 @@ fn mul_dn(a: f64, b: f64) -> f64 {
 }
 
 /// ≥ a/b for b > 0.
-fn div_up(a: f64, b: f64) -> f64 {
+pub(super) fn div_up(a: f64, b: f64) -> f64 {
     if a == 0.0 {
         0.0
     } else {
@@ -184,7 +184,7 @@ fn abs_dn(m: &Wide2) -> Result<f64, Failure> {
 }
 
 /// next_up(|t₀|) ≥ |m| for m ≠ 0 (2⁻¹⁰⁷⁴ for an empty split); 0 for m = 0.
-fn abs_up(m: &Wide2) -> Result<f64, Failure> {
+pub(super) fn abs_up(m: &Wide2) -> Result<f64, Failure> {
     if m.is_zero() {
         return Ok(0.0);
     }
@@ -196,7 +196,7 @@ fn u_term(m: &Wide2) -> Result<f64, Failure> {
     Ok(mul_up(U64, abs_up(m)?))
 }
 
-fn finite(r: f64, site: &'static str) -> Result<f64, Failure> {
+pub(super) fn finite(r: f64, site: &'static str) -> Result<f64, Failure> {
     if r.is_finite() {
         Ok(r)
     } else {
@@ -213,27 +213,27 @@ fn is_positive(m: &Wide2) -> bool {
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy)]
-struct Ball {
-    m: Wide2,
-    r: f64,
+pub(super) struct Ball {
+    pub(super) m: Wide2,
+    pub(super) r: f64,
 }
 
 impl Ball {
-    const ZERO: Self = Self {
+    pub(super) const ZERO: Self = Self {
         m: Wide2::ZERO,
         r: 0.0,
     };
-    const ONE: Self = Self {
+    pub(super) const ONE: Self = Self {
         m: Wide2::ONE,
         r: 0.0,
     };
 
-    fn exact(m: Wide2) -> Self {
+    pub(super) fn exact(m: Wide2) -> Self {
         Self { m, r: 0.0 }
     }
 
     /// L6: negation keeps the radius.
-    fn neg(self) -> Self {
+    pub(super) fn neg(self) -> Self {
         Self {
             m: self.m.neg(),
             r: self.r,
@@ -241,24 +241,24 @@ impl Ball {
     }
 }
 
-struct Balls {
+pub(super) struct Balls {
     arith: WideArith,
 }
 
 impl Balls {
-    fn new() -> Result<Self, Failure> {
+    pub(super) fn new() -> Result<Self, Failure> {
         Ok(Self {
             arith: WideArith::new(PRECISION)?,
         })
     }
 
     /// L0: the exact lift of a finite binary64 value.
-    fn lift(&self, x: f64) -> Result<Ball, Failure> {
+    pub(super) fn lift(&self, x: f64) -> Result<Ball, Failure> {
         Ok(Ball::exact(Wide2::from_f64(x)?))
     }
 
     /// L1.
-    fn add(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
+    pub(super) fn add(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
         let m = self.arith.add(&a.m, &b.m)?;
         let r = add_up(add_up(a.r, b.r), u_term(&m)?);
         Ok(Ball {
@@ -268,12 +268,12 @@ impl Balls {
     }
 
     /// L1 with b negated (L6).
-    fn sub(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
+    pub(super) fn sub(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
         self.add(a, b.neg())
     }
 
     /// L2.
-    fn mul(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
+    pub(super) fn mul(&mut self, a: Ball, b: Ball) -> Result<Ball, Failure> {
         let m = self.arith.mul(&a.m, &b.m)?;
         let r = add_up(mul_up(abs_up(&a.m)?, b.r), mul_up(abs_up(&b.m)?, a.r));
         let r = add_up(r, mul_up(a.r, b.r));
@@ -285,7 +285,7 @@ impl Balls {
     }
 
     /// L3.
-    fn div(&mut self, a: Ball, b: Ball, site: &'static str) -> Result<Ball, Failure> {
+    pub(super) fn div(&mut self, a: Ball, b: Ball, site: &'static str) -> Result<Ball, Failure> {
         let den = if b.m.is_zero() {
             0.0
         } else {
@@ -305,7 +305,7 @@ impl Balls {
     }
 
     /// L4.
-    fn sqrt(&mut self, a: Ball, site: &'static str) -> Result<Ball, Failure> {
+    pub(super) fn sqrt(&mut self, a: Ball, site: &'static str) -> Result<Ball, Failure> {
         if !(is_positive(&a.m) && sub_dn(abs_dn(&a.m)?, a.r) > 0.0) {
             return Err(Failure::SqrtArgumentNotPositive { site });
         }
@@ -322,7 +322,7 @@ impl Balls {
     }
 
     /// L5 with the sharpened derivative bound 1/(1 + (m_t − r_t)²) (A-6).
-    fn atan(&mut self, t: Ball) -> Result<Ball, Failure> {
+    pub(super) fn atan(&mut self, t: Ball) -> Result<Ball, Failure> {
         let lo = if is_positive(&t.m) {
             sub_dn(abs_dn(&t.m)?, t.r)
         } else {
@@ -341,20 +341,26 @@ impl Balls {
     }
 
     /// L6: exact scaling by 2ᵏ (k = ±1 here).
-    fn pow2(&mut self, a: Ball, k: i64) -> Result<Ball, Failure> {
+    pub(super) fn pow2(&mut self, a: Ball, k: i64) -> Result<Ball, Failure> {
         let m = a.m.mul_pow2(k)?;
-        let factor = if k > 0 { 2.0 } else { 0.5 };
+        let mut radius = a.r;
+        let mut exponent = k;
+        while exponent != 0 && radius != 0.0 && radius.is_finite() {
+            let step = exponent.clamp(-512, 512);
+            radius = mul_up(radius, 2.0_f64.powi(step as i32));
+            exponent -= step;
+        }
         Ok(Ball {
             m,
-            r: finite(mul_up(a.r, factor), "L6")?,
+            r: finite(radius, "L6")?,
         })
     }
 
-    fn half(&mut self, a: Ball) -> Result<Ball, Failure> {
+    pub(super) fn half(&mut self, a: Ball) -> Result<Ball, Failure> {
         self.pow2(a, -1)
     }
 
-    fn dot(&mut self, a: &[Ball; 3], b: &[Ball; 3]) -> Result<Ball, Failure> {
+    pub(super) fn dot(&mut self, a: &[Ball; 3], b: &[Ball; 3]) -> Result<Ball, Failure> {
         let p0 = self.mul(a[0], b[0])?;
         let p1 = self.mul(a[1], b[1])?;
         let s = self.add(p0, p1)?;
@@ -362,7 +368,7 @@ impl Balls {
         self.add(s, p2)
     }
 
-    fn cross(&mut self, a: &[Ball; 3], b: &[Ball; 3]) -> Result<[Ball; 3], Failure> {
+    pub(super) fn cross(&mut self, a: &[Ball; 3], b: &[Ball; 3]) -> Result<[Ball; 3], Failure> {
         let mut out = [Ball::ZERO; 3];
         for (i, slot) in out.iter_mut().enumerate() {
             let (j, k) = ((i + 1) % 3, (i + 2) % 3);
@@ -504,21 +510,21 @@ type Actions = [[Ball; 3]; 4];
 /// the stable half-angle forms, φ and the arc's centre-frame axes. Shared by
 /// the load certificate and the recovery certificate (O-13), so both enclose
 /// the same real arc; the order is the load certificate's.
-struct ArcGeometry {
-    d: [Ball; 3],
-    radius: Ball,
-    phi: Ball,
-    sin: Ball,
-    one_c: Ball,
-    cos: Ball,
-    sin2: Ball,
-    c2m1: Ball,
-    cos2: Ball,
+pub(super) struct ArcGeometry {
+    pub(super) d: [Ball; 3],
+    pub(super) radius: Ball,
+    pub(super) phi: Ball,
+    pub(super) sin: Ball,
+    pub(super) one_c: Ball,
+    pub(super) cos: Ball,
+    pub(super) sin2: Ball,
+    pub(super) c2m1: Ball,
+    pub(super) cos2: Ball,
     /// Rows e_x, e_y, e_z of the centre frame, in global components.
-    axes: [[Ball; 3]; 3],
+    pub(super) axes: [[Ball; 3]; 3],
 }
 
-fn arc_geometry(b: &mut Balls, bend: &CurvedFormation) -> Result<ArcGeometry, Failure> {
+pub(super) fn arc_geometry(b: &mut Balls, bend: &CurvedFormation) -> Result<ArcGeometry, Failure> {
     // (1) d, d·d, L.
     let mut d = [Ball::ZERO; 3];
     for (k, slot) in d.iter_mut().enumerate() {
@@ -680,8 +686,32 @@ pub fn certify_curved_uniform_load(
     bend: &CurvedFormation,
     intensity: [f64; 3],
 ) -> Result<CertifiedLoadVector, ArcCertificateFailure> {
-    let mut b = Balls::new()?;
+    let b = Balls::new()?;
+    let w = [
+        b.lift(intensity[0])?,
+        b.lift(intensity[1])?,
+        b.lift(intensity[2])?,
+    ];
+    let (global, rho) = curved_uniform_load_balls(bend, w)?;
     let single_component = intensity.iter().filter(|w| **w != 0.0).count() <= 1;
+    let mut terms = std::array::from_fn(|_| CertifiedLoadTerm {
+        intended: Vec::new(),
+        radius: 0.0,
+        magnitude_up: 0.0,
+        single_component,
+    });
+    for (slot, ball) in terms.iter_mut().zip(global) {
+        *slot = finish_component(&ball, single_component)?;
+    }
+    Ok(CertifiedLoadVector { terms, rho })
+}
+
+/// Stack-only R-1 re-formation, also used for the closed load primitives.
+pub(super) fn curved_uniform_load_balls(
+    bend: &CurvedFormation,
+    w: [Ball; 3],
+) -> Result<([Ball; 12], f64), ArcCertificateFailure> {
+    let mut b = Balls::new()?;
     let geometry = arc_geometry(&mut b, bend)?;
     let ArcFlexibility {
         cases,
@@ -705,10 +735,6 @@ pub fn certify_curved_uniform_load(
     let (one, zero) = (Ball::ONE, Ball::ZERO);
 
     // (4) The intensity and the chord in the centre frame.
-    let mut w = [Ball::ZERO; 3];
-    for k in 0..3 {
-        w[k] = b.lift(intensity[k])?;
-    }
     let mut wl = [Ball::ZERO; 3];
     let mut chord = [Ball::ZERO; 3];
     for a in 0..3 {
@@ -839,15 +865,7 @@ pub fn certify_curved_uniform_load(
         }
     }
 
-    // (9) Split each component; a truncated split adds 2⁻¹⁰⁷⁴.
-    let mut terms: Vec<CertifiedLoadTerm> = Vec::with_capacity(12);
-    for ball in &global {
-        terms.push(finish_component(ball, single_component)?);
-    }
-    let terms: [CertifiedLoadTerm; 12] = terms
-        .try_into()
-        .map_err(|_| Failure::Wide(WideError::CountRange("arc certificate terms")))?;
-    Ok(CertifiedLoadVector { terms, rho })
+    Ok((global, rho))
 }
 
 // ---------------------------------------------------------------------------
@@ -858,9 +876,11 @@ pub fn certify_curved_uniform_load(
 const HALF_ULP: f64 = f64::from_bits(970_u64 << 52);
 
 /// 2ᵏ as an exact binary64 power of two (|k| ≤ 1022).
-fn power_of_two(k: i64) -> Result<f64, Failure> {
+pub(super) fn power_of_two(k: i64) -> Result<f64, Failure> {
     if k.abs() > 1022 {
-        return Err(Failure::RadiusNotFinite { site: "L7' scaling" });
+        return Err(Failure::RadiusNotFinite {
+            site: "L7' scaling",
+        });
     }
     Ok(f64::from_bits(((1023 + k) as u64) << 52))
 }
@@ -987,7 +1007,8 @@ pub fn certify_curved_recovery(
                     for a in 0..3 {
                         let mut inner = Ball::ZERO;
                         for c in 0..3 {
-                            let product = b.mul(tip[3 * block_r + a][3 * block_c + c], axes[c][q])?;
+                            let product =
+                                b.mul(tip[3 * block_r + a][3 * block_c + c], axes[c][q])?;
                             inner = b.add(inner, product)?;
                         }
                         let product = b.mul(axes[a][p], inner)?;
@@ -1256,7 +1277,10 @@ impl CertifiedArcRecovery {
             for a in 0..3 {
                 let mut acc = 0.0;
                 for c in 0..3 {
-                    acc = add_up(acc, mul_up(self.frame_magnitude[a][c], global_bound[3 * block + c]));
+                    acc = add_up(
+                        acc,
+                        mul_up(self.frame_magnitude[a][c], global_bound[3 * block + c]),
+                    );
                 }
                 resolution[3 * block + a] = finite(acc, "R9")?;
             }
@@ -1287,7 +1311,7 @@ fn finish_component(ball: &Ball, single_component: bool) -> Result<CertifiedLoad
 
 /// The strain-energy weights of B1's flexibility.
 struct Rigidity {
-    radius: Ball,
+    pub(super) radius: Ball,
     k_in: Ball,
     k_out: Ball,
     ei: Ball,

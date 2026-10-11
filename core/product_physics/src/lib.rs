@@ -8,6 +8,8 @@
 
 mod annulus_geometry;
 mod formation_guard;
+mod certified_loads;
+mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
 // case drives assembly, recovery and published evidence.
 mod case_state;
@@ -44,7 +46,7 @@ use open_pipe_stress_frame_kernel::load_ledger::{
 };
 use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, certify_curved_uniform_load, reduce_assembled_sparse_system,
-    CurvedFormation, ForceScaleReason, ForceScaledError,
+    CurvedFormation, ForceScaleReason, ForceScaledError, LoadFormula, MemberBoundInputs,
     ForceScalingRefusal, FormationCheck, FormationCheckReason, LoadFidelityReport, PublishedValue,
     RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
@@ -1011,24 +1013,27 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
-    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+    let mut basis = if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
         // T4-U3: a model with an objective connector states its law; a model
         // without one keeps v3's text unchanged.
-        return exact_admission::pressure_v3_formulation_basis(
+        exact_admission::pressure_v3_formulation_basis(
             case_state::is_load_state(model),
             model.components.iter().any(|c| c.objective_connector.is_some()),
-        );
-    }
+        )
+    } else
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
     // blocked envelope stays on the load/reference-state identity and profile.
     if case_state::is_load_state(model) {
-        return load_state_formulation_basis();
-    }
-    if !pressure_runtime::is_exact(model) {
-        return preview_formulation_basis();
-    }
-    exact_straight_pressure_formulation_basis()
+        load_state_formulation_basis()
+    } else if !pressure_runtime::is_exact(model) {
+        preview_formulation_basis()
+    } else { exact_straight_pressure_formulation_basis() };
+    basis.limitations.extend([
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+    ]);
+    basis
 }
 
 fn load_state_formulation_basis() -> FormulationBasis {
@@ -1055,6 +1060,10 @@ fn joined_load_state_formulation_basis() -> FormulationBasis {
     basis.profile_id = LOAD_STATE_SOURCE_PROFILE_ID.to_string();
     let last = basis.limitations.len() - 1;
     basis.limitations[last] = "A case whose ordinary attempt is sensitive or rejected publishes its selected retained-source exact response when the resolved case closes on the retained source (eigen element loads, member pairs and prescribed motions included) and no pressure region is present; every other case publishes checked ordinary structural recovery. A finalized receipt binds every case. No code compliance or professional acceptance is produced.".to_string();
+    basis.limitations.extend([
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+    ]);
     basis
 }
 
@@ -1633,6 +1642,7 @@ fn force_scaling_attempt(
         structural_report: solution.report.clone(),
         load_fidelity: solution.load_fidelity.clone(),
         formation_check: solution.formation_check.clone(),
+        member_bound: solution.member_bound.clone(),
         solution: free
             .iter()
             .map(|&dof| solution.displacements[dof])
@@ -2223,6 +2233,7 @@ struct ThermalElementLoad {
     /// Free thermal strain `alpha * delta_T`; the curved-bend macro span uses
     /// this with the exact free-expansion identity instead of `axial_load`.
     thermal_strain: f64,
+    strain_primitive: open_pipe_stress_frame_kernel::structural::EigenstrainPrimitive,
 }
 
 /// Curved-bend macro-element realization of one bend component over one pipe
@@ -3704,7 +3715,7 @@ fn load_state_eigen_loads(
     state
         .members
         .iter()
-        .filter(|member| member.strain.total_eigenstrain != 0.0)
+        .filter(|member| member.strain.total_eigenstrain != 0.0 || certified_loads::has_eigen_source(&member.thermal_input,member.fit_input))
         .map(|member| {
             let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
             Ok(ThermalElementLoad {
@@ -3714,6 +3725,7 @@ fn load_state_eigen_loads(
                     * section.area
                     * member.strain.total_eigenstrain,
                 thermal_strain: member.strain.total_eigenstrain,
+                strain_primitive: certified_loads::eigenstrain(&member.thermal_input, member.fit_input),
             })
         })
         .collect()
@@ -4096,7 +4108,7 @@ fn case_force_ledger(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> LoadLedger {
     let mut ledger = LoadLedger::new();
-    push_nodal_loads(&mut ledger, load_application, built.nodes.len());
+    certified_loads::nodal(&mut ledger,model,load_application,load_case_id,built.nodes.len());
     add_uniform_element_loads(
         &mut ledger,
         model,
@@ -4152,6 +4164,10 @@ fn append_connector_results(
     load_case_id: &str,
     results: &mut Vec<ResultItem>,
     diagnostics: &mut Vec<Diagnostic>,
+    force: &AssembledForce,
+    bound: Option<&MemberBoundInputs>,
+    bodies: &formation_guard::Bodies,
+    recovery_records: &mut Vec<formation_guard::RecoveryRecord>,
 ) {
     for (connector, record) in built.connectors.iter().zip(&built.connector_records) {
         let recovered = connector
@@ -4171,11 +4187,33 @@ fn append_connector_results(
                 continue;
             }
         };
+        let certificate = bound.and_then(|bound| {
+            use open_pipe_stress_frame_kernel::structural::{CertifiedMemberLoads,certify_connector_recovery};
+            let prefix = format!("member:{}:{}:", record.component_id.len(),record.component_id);
+            match CertifiedMemberLoads::from_member_primitives(connector.node_i().index,connector.node_j().index,force.load_primitives(),&prefix).and_then(|loads| certify_connector_recovery(connector,&loads,displacements,bound)) {
+                Ok(certificate) => {
+                    match certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate) {
+                        Ok(record) => recovery_records.push(record),
+                        Err(error) => recovery_records.push(certified_publication::unavailable_record(&record.component_id,bodies.body_of_node(connector.node_i().index),format!("{error:?}"))),
+                    }
+                    Some(certificate)
+                }
+                Err(error) => { recovery_records.push(certified_publication::unavailable_record(&record.component_id,bodies.body_of_node(connector.node_i().index),format!("{error:?}"))); None }
+            }
+        });
         let rows = joint::connector_rows(&recovery);
         for row in 0..8 {
             let (kind, components, unit, values, location) = rows[row];
             for axis in 0..3 {
-                let (component, value) = (components[axis], values[axis]);
+                let value = certificate.as_ref().map_or(values[axis],|certificate| {
+                    match row {
+                        0 => certificate.deformation[axis].published, 1 => certificate.deformation[3+axis].published,
+                        2 => certificate.g[axis].published, 3 => certificate.g[3+axis].published,
+                        4 => certificate.ends[axis].published, 5 => certificate.ends[3+axis].published,
+                        6 => certificate.ends[6+axis].published, _ => certificate.ends[9+axis].published,
+                    }
+                });
+                let component = components[axis];
                 results.push(ResultItem {
                     id: format!(
                         "result:connector:{}:{}:{location}:{}",
@@ -4243,9 +4281,8 @@ fn add_connector_reference_loads(
         let dofs = element_dof_map(connector.node_i().index, connector.node_j().index);
         for index in 0..12 {
             let (dof, value, bound) = (dofs[index], values[index], bounds[index]);
-            if value == 0.0 {
-                continue;
-            }
+            // A zero folded value cannot drop a nonzero source recipe.
+            // reference_load(None) above is the exact source-zero omission.
             ledger.push_formed(
                 format!("connector_reference:{}", record.component_id),
                 dof,
@@ -4254,6 +4291,7 @@ fn add_connector_reference_loads(
                 0.0,
                 true,
             );
+            certified_loads::attach_last(ledger, certified_loads::summand("connector_reference", &certified_loads::member_source(&record.component_id,"reference"), index, index, LoadFormula::ConnectorReference { connector: connector.clone() }));
         }
     }
 }
@@ -4264,7 +4302,7 @@ fn push_exact_pressure_operands(
     ledger: &mut LoadLedger,
     exact: &pressure_runtime::ExactPressureCase,
 ) {
-    for (dof, value, source) in &exact.assembled_operands {
+    for (group_index, (dof, value, source)) in exact.assembled_operands.iter().enumerate() {
         ledger.push_formed(
             source,
             *dof,
@@ -4275,6 +4313,8 @@ fn push_exact_pressure_operands(
             0.0,
             false,
         );
+        let expected_sources = exact.closure_sources[group_index].iter().enumerate().map(|(ordinal, (identity, formula))| certified_loads::summand("pressure_operand", identity, ordinal, dof % DOF_PER_NODE, formula.clone())).collect();
+        certified_loads::attach(ledger, ledger.term_count() - 1, expected_sources);
     }
 }
 
@@ -5094,6 +5134,16 @@ fn solve_load_case_observed(
             );
         }
     }
+    let member_bound = linear_solve.as_ref().filter(|solve| built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
+    if member_bound.is_none() {
+        let route = if built.nonlinear_supports.is_empty() { "on this route" } else { "on the nonlinear-support route" };
+        let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery,
+            sentence: format!("the member-relative formation check is not available {route}; member rows are binary64 recoveries"), fired: Vec::new() };
+        formation_guard::amend_integrity_report(diagnostics, &integrity_diagnostic_id(&load_case.id), &finding);
+    }
+    let pre_guard_passed = diagnostics.iter().find(|d| d.id == integrity_diagnostic_id(&load_case.id)).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    let certified_source = member_bound.map(|_| certified_publication::source(built, &force, spring_entries));
+    let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
     // U3: legacy pressure thrust is retired; the published summary count stays 0.
     let component_pressure_thrust_load_count = 0;
@@ -5231,12 +5281,33 @@ fn solve_load_case_observed(
                     });
                 }
             }
+            let certified_support = match (member_bound, certified_source.as_ref()) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,source,&force,&displacements,bound) {
+                    Ok(rows) => {
+                        vector = rows.map(|row| row.published);
+                        match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows) {
+                            Ok(record) => recovery_records.push(record),
+                            Err(error) => recovery_records.push(certified_publication::unavailable_record(&support.id,formation_bodies.body_of_node(index),format!("{error:?}"))),
+                        }
+                        Some(rows)
+                    }
+                    Err(error) => { recovery_records.push(certified_publication::unavailable_record(&support.id,formation_bodies.body_of_node(index),format!("{error:?}"))); None }
+                },
+                _ => None,
+            };
             require_finite_mechanics(vector)?;
             if let Some(record) = preview_record.as_mut() {
                 record.support_vectors.push((support.id.clone(), vector));
+                if let Some(rows) = &certified_support {
+                    let force_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified force norm",value:f64::NAN })?.published;
+                    let moment_norm = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[3..]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified moment norm",value:f64::NAN })?.published;
+                    record.certified_support_norms.push((support.id.clone(),[force_norm,moment_norm]));
+                }
             }
             let force_vector = [vector[0], vector[1], vector[2]];
-            let magnitude = if selected_source.is_some() {
+            let magnitude = if let Some(rows) = &certified_support {
+                open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified support magnitude", value:f64::NAN })?.published
+            } else if selected_source.is_some() {
                 source_receipt::scaled_norm(force_vector)
             } else {
                 norm3(force_vector[0], force_vector[1], force_vector[2])
@@ -5256,7 +5327,14 @@ fn solve_load_case_observed(
                             vec![load_case.id.clone(), support.id.clone()],
                         )),
                     }
-                } else { append_signed_support_results(&mut results, load_case, support, vector); }
+                } else {
+                    append_signed_support_results(&mut results, load_case, support, vector);
+                    if let Some(rows) = &certified_support {
+                        let end = results.len();
+                        results[end-2].value = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified support force norm",value:f64::NAN })?.published;
+                        results[end-1].value = open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[3..]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified support moment norm",value:f64::NAN })?.published;
+                    }
+                }
             }
             if !pressure_runtime::is_exact(model) {
                 results.push(ResultItem {
@@ -5283,7 +5361,6 @@ fn solve_load_case_observed(
 
     // S11-G R-b' (section 4): (member, end, q, B) of each straight member end
     // published from the formed K_e * u, decided after the loop.
-    let mut recovery_records = Vec::new();
     let mut max_stress = None;
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
@@ -5322,7 +5399,7 @@ fn solve_load_case_observed(
         };
         let mut exact_mechanical_local_forces = None;
         let recovered_member = selected_source.as_ref().and_then(|recovery| recovery.members().get(pipe_index));
-        let corrected_local_forces = if let Some(member) = recovered_member {
+        let mut corrected_local_forces = if let Some(member) = recovered_member {
             member.end_forces.to_vec()
         } else if let Some(bend) = macro_bend {
             // Macro-span end forces come from the assembled arc stiffness
@@ -5426,26 +5503,39 @@ fn solve_load_case_observed(
             wall
         };
         require_finite_mechanics(corrected_local_forces.iter().copied())?;
-        if recovered_member.is_none() && macro_bend.is_none() {
-            let bounds = pipe
-                .bending_formation_bound(&displacements)
-                .map_err(|error| error.to_string());
-            let end = |offset: usize, index: usize| {
-                (
-                    norm2(corrected_local_forces[offset + RY], corrected_local_forces[offset + RZ]),
-                    bounds.clone().map(|b| b[index]),
-                )
-            };
-            recovery_records.push(formation_guard::RecoveryRecord {
-                member: pipe.element_id.clone(),
-                body: formation_bodies.body_of_node(pipe.node_i.index),
-                ends: [end(0, 0), end(DOF_PER_NODE, 1)],
+        // A pre-guard Passed linear case publishes the p=128 recovery even
+        // if the unified member predicate subsequently demotes it.
+        let mut certified_member = None;
+        let mut certified_effective = None;
+        if let Some(bound) = member_bound {
+            let certificate = certified_publication::member(pipe, macro_bend, &force, &displacements, bound).and_then(|mechanical| {
+                if let Some(state) = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index)) {
+                    exact_mechanical_local_forces = Some(mechanical.ends.map(|row| row.published).to_vec());
+                    let effective = certified_publication::pressure_adjustment(&mechanical, state, false)?;
+                    let wall = certified_publication::pressure_adjustment(&mechanical, state, true)?;
+                    Ok((effective, wall))
+                } else { Ok((mechanical.clone(), mechanical)) }
             });
+            match certificate {
+                Ok((effective, published)) => {
+                    let wall = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index)).map(|_| &published);
+                    match certified_publication::member_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), &effective, wall) {
+                        Ok(record) => recovery_records.push(record),
+                        Err(error) => recovery_records.push(certified_publication::unavailable_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), format!("{error:?}"))),
+                    }
+                    corrected_local_forces = published.ends.map(|row| row.published).to_vec();
+                    certified_effective = Some(effective);
+                    certified_member = Some(published);
+                }
+                Err(error) => recovery_records.push(certified_publication::unavailable_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), format!("{error:?}"))),
+            }
         }
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
         // Raw end rows remain node-on-element actions. Stress recovery and
         // station rows consume the common j-side section-cut convention.
-        let station_resultants = if let Some(member) = recovered_member {
+        let station_resultants = if let Some(member) = &certified_member {
+            [("quarter_1",1usize),("midspan",2),("quarter_3",3)].into_iter().map(|(location,index)| StationResultants { location, resultants: member.sections[index].map(|row| row.published) }).collect::<Vec<_>>()
+        } else if let Some(member) = recovered_member {
             [("quarter_1", 1usize), ("midspan", 2), ("quarter_3", 3)].into_iter()
                 .map(|(location, index)| StationResultants { location, resultants: member.sections[index] }).collect::<Vec<_>>()
         } else if let Some(bend) = macro_bend {
@@ -5503,7 +5593,9 @@ fn solve_load_case_observed(
             }
             stations
         };
-        let endpoint_resultants = if let Some(member) = recovered_member {
+        let endpoint_resultants = if let Some(member) = &certified_member {
+            [member.sections[0].map(|row| row.published),member.sections[4].map(|row| row.published)]
+        } else if let Some(member) = recovered_member {
             if pressure_runtime::is_exact(model) {
                 // Composite stresses and endpoint maxima share the actual
                 // retained section-cut functionals, including endpoint zeros.
@@ -5607,19 +5699,19 @@ fn solve_load_case_observed(
                 }),
                 end_resultants: endpoint_resultants,
                 section_modulus: section.section_modulus,
+                certified_end_bending: certified_member.as_ref().map(|member| {
+                    [0usize,4].map(|index| open_pipe_stress_frame_kernel::structural::certified_magnitude(&member.sections[index][4..6]))
+                }).map(|values| values.into_iter().collect::<Result<Vec<_>,_>>()).transpose().map_err(|_| FrameKernelError::NonFiniteInput { name:"certified end bending",value:f64::NAN })?.map(|values| [values[0],values[1]]),
             });
         }
-        let end_i_stress = recover_section_stress(&endpoint_resultants[0], section);
-        let end_j_stress = recover_section_stress(&endpoint_resultants[1], section);
-        let station_stresses = station_resultants
-            .iter()
-            .map(|station| {
-                (
-                    station.location,
-                    recover_section_stress(&station.resultants, section),
-                )
-            })
-            .collect::<Vec<_>>();
+        let end_i_stress = certified_member.as_ref().map(|member| certified_publication::stress(&member.sections[0], section)).transpose().map_err(|_| FrameKernelError::NonFiniteInput { name:"certified endpoint stress",value:f64::NAN })?.unwrap_or_else(|| recover_section_stress(&endpoint_resultants[0], section));
+        let end_j_stress = certified_member.as_ref().map(|member| certified_publication::stress(&member.sections[4], section)).transpose().map_err(|_| FrameKernelError::NonFiniteInput { name:"certified endpoint stress",value:f64::NAN })?.unwrap_or_else(|| recover_section_stress(&endpoint_resultants[1], section));
+        let station_stresses = station_resultants.iter().enumerate().map(|(index,station)| {
+            let stress = if let Some(member) = &certified_member {
+                certified_publication::stress(&member.sections[index+1],section).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified station stress",value:f64::NAN })?
+            } else { recover_section_stress(&station.resultants,section) };
+            Ok((station.location,stress))
+        }).collect::<Result<Vec<_>,FrameKernelError>>()?;
         for stress in std::iter::once(&end_i_stress)
             .chain(std::iter::once(&end_j_stress))
             .chain(station_stresses.iter().map(|(_, stress)| stress))
@@ -5723,6 +5815,12 @@ fn solve_load_case_observed(
         for (_, stress) in &station_stresses {
             if let Some(value) = open_formula_summary_mpa(stress) {
                 summary_values.push(value);
+            }
+        }
+        if let Some(member) = &certified_member {
+            summary_values.clear();
+            for rows in &member.sections {
+                summary_values.push(certified_publication::summary(rows,section).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified station summary",value:f64::NAN })?);
             }
         }
         if macro_bend.is_none() && !pressure_runtime::is_exact(model) && recovered_member.is_none() {
@@ -5878,6 +5976,8 @@ fn solve_load_case_observed(
                 exact_mechanical_local_forces.as_deref(),
                 pipe,
                 &straight_loads,
+                certified_member.as_ref(),
+                certified_effective.as_ref(),
             );
         }
         component_stress_modifier_count += append_component_stress_multiplier_results(
@@ -5888,19 +5988,14 @@ fn solve_load_case_observed(
             &pipe.element_id,
             &end_i_stress,
             &end_j_stress,
+            certified_member.as_ref(),
+            Some(section),
         );
     }
 
+    append_connector_results(built, &displacements, &load_case.id, &mut results, diagnostics, &force, member_bound, &formation_bodies, &mut recovery_records);
     if !recovery_records.is_empty() {
-        let scales = formation_guard::moment_scales(
-            &results,
-            &formation_entity_bodies(model, built, &formation_bodies),
-            &curved_bends_by_pipe
-                .values()
-                .map(|bend| bend.pipe_id.clone())
-                .collect(),
-            &formation_bodies,
-        );
+        let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);
         if let Some(finding) =
             formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)
         {
@@ -5912,6 +6007,11 @@ fn solve_load_case_observed(
             // I61 U1 (G-b): no wire member carries R-b''s finding.
             if let (true, Some(observer)) = (demoted, product.as_deref_mut()) {
                 observer.ordinary_recovery_demoted(&load_case.id);
+            }
+            if demoted && pre_guard_passed && member_bound.is_some() && load_row_finding.is_none() {
+                if let Some(notice) = formation_guard::stress_free_notice(&recovery_records, &load_case.id) {
+                    if let Some(index) = diagnostics.iter().position(|d| d.id == integrity_diagnostic_id(&load_case.id)) { diagnostics.insert(index+1,notice); }
+                }
             }
         }
     }
@@ -5944,7 +6044,6 @@ fn solve_load_case_observed(
     if pressure_runtime::is_exact(model) && !unavailable_stress_maximum_members.is_empty() {
         max_stress = None;
     }
-    append_connector_results(built, &displacements, &load_case.id, &mut results, diagnostics);
     let exact_case_evidence = pressure_runtime::is_exact(model).then(|| {
         let mut evidence = serde_json::json!({
         "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
@@ -6441,6 +6540,7 @@ struct PreviewLinearSolve {
     /// F1a: K-D5's formation-check record, `Some` only when the check demoted
     /// the case; rendered only as the integrity diagnostic's evidence line.
     formation_check: Option<FormationCheck>,
+    member_bound: Option<MemberBoundInputs>,
     solution: Vec<f64>,
     solution_basis: &'static str,
     sparse_entry_count: Option<usize>,
@@ -6555,6 +6655,7 @@ fn solve_preview_reduced_system(
         structural_report: checked.report,
         load_fidelity: checked.load_fidelity,
         formation_check: checked.formation_check,
+        member_bound: checked.member_bound,
         solution_basis: match solver_mode {
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
@@ -10810,7 +10911,7 @@ fn straight_summary_extrema(
 
 fn add_uniform_element_loads(
     ledger: &mut LoadLedger,
-    _model: &PreviewModel,
+    model: &PreviewModel,
     loads: &[open_pipe_stress_primitive_loads::ElementUniformLoadContribution],
     pipes: &[StraightPipeElement],
     curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
@@ -10824,6 +10925,7 @@ fn add_uniform_element_loads(
         ) {
             continue;
         }
+        let intensity_primitive = certified_loads::intensity(model, load, load_case_id);
         // S11-G section 3.2: an equivalent-static generated intensity carries
         // gamma_4 of operand formation (a same-sign product chain).
         let generated = load
@@ -10894,6 +10996,7 @@ fn add_uniform_element_loads(
                                     term.operand_bound(generated),
                                     false,
                                 );
+                                certified_loads::attach_last(ledger, certified_loads::summand("uniform_curved", &certified_loads::member_source(&bend.pipe_id, &load.load_id), local_dof, local_dof, LoadFormula::UniformCurved { arc: curved_formation_of(bend), intensity: intensity_primitive.clone() }));
                             }
                         }
                         Err(_) => {
@@ -10906,6 +11009,7 @@ fn add_uniform_element_loads(
                                     0.0,
                                     false,
                                 );
+                                certified_loads::attach_last(ledger, certified_loads::summand("uniform_curved", &certified_loads::member_source(&bend.pipe_id, &load.load_id), local_dof, local_dof, LoadFormula::UniformCurved { arc: curved_formation_of(bend), intensity: intensity_primitive.clone() }));
                             }
                         }
                     }
@@ -10963,6 +11067,8 @@ fn add_uniform_element_loads(
                         operand_bound,
                         false,
                     );
+                    let span = load.extent.as_ref().map_or((0.0, 1.0), |span| (span.start_fraction, span.end_fraction));
+                    certified_loads::attach_last(ledger, certified_loads::summand("uniform_straight", &certified_loads::member_source(&pipe.element_id, &load.load_id), slot, slot, LoadFormula::UniformStraight { frame: pipe.frame_element().expect("validated pipe"), intensity: intensity_primitive.clone(), start_fraction: span.0, end_fraction: span.1 }));
                 }
             }
             Err(error) => diagnostics.push(diag(
@@ -11048,6 +11154,7 @@ fn build_thermal_element_loads(
             source: load.id.clone(),
             axial_load: material.elastic_modulus.value * section.area * epsilon_th,
             thermal_strain: epsilon_th,
+            strain_primitive: certified_loads::constant_alpha(alpha, load.magnitude.value),
         });
     }
     loads
@@ -11066,6 +11173,7 @@ fn add_thermal_equivalent_loads(
                 &load.source,
                 bend,
                 load.thermal_strain,
+                &certified_loads::member_eigenstrain(&load.strain_primitive,&pipes[load.element_index],Some(bend)),
             );
             continue;
         }
@@ -11096,7 +11204,9 @@ fn add_thermal_equivalent_loads(
                 0.0,
                 true,
             );
+            certified_loads::attach_last(ledger, certified_loads::summand("free_strain_straight", &certified_loads::member_source(&pipe.element_id, &load.source), axis, axis, LoadFormula::FreeStrainStraight { frame: frame_element.clone(), strain: certified_loads::member_eigenstrain(&load.strain_primitive,pipe,None) }));
             ledger.push_formed(&load.source, j_base + axis, value, product(1.0), 0.0, true);
+            certified_loads::attach_last(ledger, certified_loads::summand("free_strain_straight", &certified_loads::member_source(&pipe.element_id, &load.source), 6 + axis, 6 + axis, LoadFormula::FreeStrainStraight { frame: frame_element.clone(), strain: certified_loads::member_eigenstrain(&load.strain_primitive,pipe,None) }));
         }
     }
 }
@@ -11113,12 +11223,14 @@ fn add_curved_bend_thermal_equivalent_load(
     source: &str,
     bend: &CurvedBendMacroBuild,
     thermal_strain: f64,
+    strain_primitive: &open_pipe_stress_frame_kernel::structural::EigenstrainPrimitive,
 ) {
     let free_expansion = curved_bend_free_expansion_displacements(bend, thermal_strain);
     let dof_map = element_dof_map(bend.node_i, bend.node_j);
     for (local_row, &global_row) in dof_map.iter().enumerate() {
         for (local_col, &free_value) in free_expansion.iter().enumerate() {
-            if free_value != 0.0 {
+            if (DOF_PER_NODE..DOF_PER_NODE+3).contains(&local_col) {
+                // A folded zero does not drop its source product or radius.
                 // S11-G: K_rc * fl(eps * chord_c), an exact scaled rounded
                 // product (self-equilibrated: K * u_free of a rigid-free field).
                 let k = bend.global_stiffness[local_row][local_col];
@@ -11135,6 +11247,7 @@ fn add_curved_bend_thermal_equivalent_load(
                     0.0,
                     true,
                 );
+                certified_loads::attach_last(ledger, certified_loads::summand("free_strain_curved", &certified_loads::member_source(&bend.pipe_id, source), local_row * 12 + local_col, local_row, LoadFormula::FreeStrainCurved { arc: curved_formation_of(bend), strain: strain_primitive.clone(), column: Some(local_col) }));
             }
         }
     }
@@ -11776,6 +11889,8 @@ fn append_exact_pressure_results(
     mechanical_actions: Option<&[f64]>,
     pipe: &StraightPipeElement,
     loads: &[SpannedUniformLocalLoad],
+    certified_wall: Option<&open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery>,
+    certified_effective: Option<&open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery>,
 ) {
     // T4-U0 (A3): a region member without straight mechanical/thermal
     // recovery (a realized curved bend) is refused by name, never recovered
@@ -11879,7 +11994,14 @@ fn append_exact_pressure_results(
                     return;
                 }
             };
-        let (wall, effective, membrane) = match state.annulus.recover_wall_effective_membrane(
+        let (wall, effective, membrane) = if let (Some(wall),Some(effective)) = (certified_wall,certified_effective) {
+            let index = if fraction == 0.0 {0} else if fraction == 1.0 {4} else if fraction == 0.25 {1} else if fraction == 0.5 {2} else {3};
+            let membrane = match wall.sections[index][0].divided(state.annulus.wall_area_m2()) {
+                Ok(row) => row.published,
+                Err(error) => { diagnostics.push(diag("diagnostic:exact-pressure:certified-membrane", "EXACT_PRESSURE_RECOVERY_FAILED", "blocking",format!("certified membrane stress unavailable: {error:?}"),vec![case.id.clone(),pipe_id.to_string()])); return; }
+            };
+            (wall.sections[index][0].published,effective.sections[index][0].published,membrane)
+        } else { match state.annulus.recover_wall_effective_membrane(
             mechanical[0],
             state.material,
             state.pressure,
@@ -11895,7 +12017,7 @@ fn append_exact_pressure_results(
                 ));
                 return;
             }
-        };
+        } };
         append(
             "pipe_wall_axial_force_v2",
             "wall_axial_force",
@@ -11980,6 +12102,8 @@ fn append_component_stress_multiplier_results(
     pipe_id: &str,
     end_i_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
     end_j_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
+    certificate: Option<&open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery>,
+    section: Option<&DerivedSection>,
 ) -> usize {
     let Some(pipe) = model
         .pipe_segments
@@ -12019,6 +12143,16 @@ fn append_component_stress_multiplier_results(
                 base_value_mpa,
                 modifier,
             );
+            if let (Some(certificate),Some(section)) = (certificate,section) {
+                let index = if location == "end_i" {0} else {4};
+                let scaled = certified_publication::summary_row(&certificate.sections[index],section).and_then(|row| {
+                    row.scaled(modifier.sif).and_then(|row| if modifier.flexibility_in_assembled_stiffness { Ok(row) } else { row.scaled(modifier.flexibility) })
+                });
+                match scaled {
+                    Ok(row) => { if let Some(result) = results.last_mut() { result.value = row.published; } },
+                    Err(error) => diagnostics.push(diag(&format!("diagnostic:certified-component:{}:{location}",component.id),"ELEMENT_FORCE_RECOVERY_FAILED","blocking",format!("certified component stress unavailable: {error:?}"),vec![component.id.clone(),load_case_id.to_string()])),
+                }
+            }
             appended += 1;
         }
     }
@@ -13796,6 +13930,309 @@ mod nonlinear_context_passthrough_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
+        use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
+        let mut model=p5_beam_request().model;model.schema_version="0.4.0".into();
+        let case_id=model.load_cases[0].id.clone();
+        let mut load=model.load_cases[0].primitive_loads[0].clone();load.id="factor:load".into();load.magnitude.value=0.1;
+        load.target=LoadTargetInput::Element {pipe:model.pipe_segments[0].id.clone()};load.category="distributed_force".into();load.dimension="force_per_length".into();load.magnitude.unit="N/m".into();
+        model.load_cases[0].primitive_loads=vec![load];model.load_cases[0].equivalent_static=None;
+        model.load_cases[0].analysis_state=Authored::Value(serde_json::from_value(serde_json::json!({"contract":LOAD_REFERENCE_STATE_CONTRACT,"reference_configuration_ref":"reference:test","element_states":[],"support_states":[],"load_sources":[{"source_ref":"factor:load","factor":1.1}],"history":{"kind":"independent_equilibrium"},"provenance":"invented factor test"})).unwrap());
+        let mut diagnostics=Vec::new();let loads=build_load_case_primitive_loads(&model,&model.load_cases[0],&mut diagnostics);
+        let mut application=prepare_loads(model.nodes.len(),model.pipe_segments.len(),&loads);
+        let uniform=&mut application.element_uniform_loads[0];uniform.magnitude.value=0.1*1.1;
+        assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Product {factors:vec![0.1,1.1],direction:[0.0,1.0,0.0]});
+        let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,"mass_inputs":{"outside_diameter":{"value":0.2},"wall_thickness":{"value":0.01},"material_density":{"value":7800.0}}});
+        model.load_cases[0].primitive_loads[0].provenance=Some(evidence.to_string());
+        assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Seismic {
+            mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });
+        let mut ledger=LoadLedger::new();
+        let mut nodal=LoadApplication {nodal_loads:vec![open_pipe_stress_primitive_loads::NodalLoadContribution {load_id:"factor:load".into(),node_index:1,global_dof:7,value:0.1*1.1}],..application};
+        certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        let force=ledger.finish(model.nodes.len()*6).unwrap();
+        assert_eq!(force.values()[7],0.1*1.1);
+        assert!(force.closure_records()[0].formed);
+        assert!(matches!(force.load_primitives()[0].formula,LoadFormula::NodalProduct {global_dof:7,magnitude:0.1,factor:1.1}));
+        // An un-factored authored nodal term stays an input term.
+        model.schema_version="0.2.0".into();nodal.nodal_loads[0].value=0.1;
+        let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
+    }
+
+    #[test]
+    fn kd5_eight_committed_nonlinear_case_modes_have_named_sensitive_reason() {
+        let models=[include_str!("../../../fixtures/product_preview/invented_demo_model.json"),include_str!("../tests/fixtures/preview_physics_invented_model.json")];
+        let mut checked=0;
+        for model in models {
+            for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+                let model:serde_json::Value=serde_json::from_str(model).unwrap();
+                let output=run_linear_static_preview_value_with_mode(serde_json::json!({"model":model}),mode).unwrap();
+                assert_eq!(output.status.mechanics,"MECHANICS_SOLVED","{:?}",output.diagnostics);
+                for case in ["load:L-100","load:L-200"] {
+                    let diagnostic=output.diagnostics.iter().find(|diagnostic|diagnostic.id==integrity_diagnostic_id(case)).unwrap();
+                    assert_eq!(diagnostic.code,"NUMERICAL_INTEGRITY_SENSITIVE","{}",diagnostic.message);
+                    assert!(diagnostic.message.contains("the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries"));
+                    checked+=1;
+                }
+            }
+        }
+        assert_eq!(checked,8);
+    }
+
+    #[test]
+    fn kd5_fit_geometry_and_zero_rounded_arc_sources_are_complete() {
+        use open_pipe_stress_frame_kernel::structural::{FitPrimitive,ThermalPrimitive,EigenstrainPrimitive};
+        let model=curved_bend_span_request().model;
+        let mut diagnostics=Vec::new();let built=build_model(&model,&model.materials,&mut diagnostics).unwrap();
+        let bend=&built.curved_bend_elements[0];let pipe=&built.pipes[bend.pipe_index];
+        let source=EigenstrainPrimitive {thermal:ThermalPrimitive::UnchangedReference,fit:FitPrimitive::NaturalLengthChange {change_m:0.001,reference_length_m:123.0}};
+        let straight=certified_loads::member_eigenstrain(&source,pipe,None);
+        assert_eq!(straight.fit,FitPrimitive::NaturalLengthChangeStraight {change_m:0.001,coordinates_i:pipe.node_i.coordinates,coordinates_j:pipe.node_j.coordinates});
+        let arc=certified_loads::member_eigenstrain(&source,pipe,Some(bend));
+        assert_eq!(arc.fit,FitPrimitive::NaturalLengthChangeCurved {change_m:0.001,arc:curved_formation_of(bend)});
+        let eigen=certified_loads::eigenstrain(&case_state::thermal::ThermalInput::ConstantAlphaInterval {coefficient_per_kelvin:0.1,temperature_change_kelvin:10.0},case_state::thermal::FitInput::EngineeringStrain {strain:-0.5});
+        let mut ledger=LoadLedger::new();
+        add_curved_bend_thermal_equivalent_load(&mut ledger,"arc-zero",bend,0.0,&eigen);
+        let force=ledger.finish(built.nodes.len()*6).unwrap();
+        assert!(force.values().iter().all(|value|*value==0.0));
+        assert_eq!(force.load_primitives().len(),36);
+        assert!(force.closure_records().iter().all(|record|record.formed && record.manifest.as_ref().unwrap().len()==1));
+        for primitive in force.load_primitives() {
+            assert!(matches!(&primitive.formula,LoadFormula::FreeStrainCurved {column:Some(6..=8),..}));
+        }
+    }
+
+    #[test]
+    fn kd5_thermal_l_with_prescribed_rigid_rotation_emits_notice() {
+        for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+            let mut wire:serde_json::Value=serde_json::from_str(include_str!("../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json")).unwrap();
+            wire["model"]["nodes"]=serde_json::json!([
+                {"id":"root","position":{"x":5e6,"y":7.3e6,"z":1.2e6}},
+                {"id":"tip","position":{"x":5e6+3.0,"y":7.3e6+4.0,"z":1.2e6+5.0}},
+                {"id":"free","position":{"x":5e6-1.0,"y":7.3e6+7.0,"z":1.2e6+5.0}}]);
+            for node in wire["model"]["nodes"].as_array_mut().unwrap() { node["provenance"]=serde_json::json!("invented KD5 rigid thermal L"); }
+            wire["model"]["pipe_segments"][0]["y_reference"]=serde_json::json!({"x":0.3,"y":0.1,"z":1.0});
+            let mut leg=wire["model"]["pipe_segments"][0].clone();leg["id"]=serde_json::json!("member2");leg["from"]=serde_json::json!("tip");leg["to"]=serde_json::json!("free");wire["model"]["pipe_segments"].as_array_mut().unwrap().push(leg);
+            wire["model"]["supports"].as_array_mut().unwrap().truncate(1);
+            wire["model"]["supports"][0]["restraints"]=serde_json::json!(["UX","UY","UZ","RX","RY","RZ"]);
+            let reference=serde_json::json!({"pipe_ref":"member","basis":{"kind":"direct_strain_reference"},"fit":{"kind":"none"},"provenance":"invented KD5 rigid thermal L"});
+            let mut second=reference.clone();second["pipe_ref"]=serde_json::json!("member2");
+            wire["model"]["reference_configurations"][0]["member_references"]=serde_json::json!([reference,second]);
+            let element=serde_json::json!({"pipe_ref":"member","material_selection":{"kind":"explicit_base_properties","material_ref":"material","applicability_reference":"invented KD5 reference"},"thermal_state":{"kind":"explicit_interval_strain","strain":{"value":0.00012,"unit":"1"},"interval_reference":"invented thermal interval","provenance":"invented KD5 reference"}});
+            let mut second=element.clone();second["pipe_ref"]=serde_json::json!("member2");
+            wire["model"]["load_cases"][0]["primitive_loads"]=serde_json::json!([]);
+            let state=&mut wire["model"]["load_cases"][0]["analysis_state"];
+            state["element_states"]=serde_json::json!([element,second]);state["load_sources"]=serde_json::json!([]);
+            state["support_states"]=serde_json::json!([{"support_ref":"anchor","participation":{"kind":"active_model_device"},"boundary_motion":[
+                {"dof":"RX","value":{"value":0.01,"unit":"rad"},"meaning":"absolute_reference_displacement"},
+                {"dof":"RY","value":{"value":-0.005,"unit":"rad"},"meaning":"absolute_reference_displacement"},
+                {"dof":"RZ","value":{"value":0.007,"unit":"rad"},"meaning":"absolute_reference_displacement"}]}]);
+            // Independent intended-system solution: u*(x)=eps*(x-xroot)
+            // +phi cross (x-xroot), theta*=phi. Each straight member's
+            // strain is exactly eps and its rigid-body rotation has zero
+            // curvature/twist, so all mechanical actions and reactions are0.
+            let output=run_linear_static_preview_value_with_mode(wire.clone(),mode).unwrap();
+            assert_eq!(output.status.mechanics,"MECHANICS_SOLVED","{:?}",output.diagnostics);
+            let index=output.diagnostics.iter().position(|d|d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
+            assert_eq!(output.diagnostics[index].code,"NUMERICAL_INTEGRITY_SENSITIVE");
+            assert_eq!(output.diagnostics[index+1].code,"STRESS_FREE_WITHIN_NUMERICAL_PRECISION","{:?}",output.diagnostics);
+            assert!(output.diagnostics[index+1].message.contains("standing remains NUMERICAL_INTEGRITY_SENSITIVE"));
+            let message=&output.diagnostics[index+1].message;
+            let force_bound:f64=message.split("bounded by ").nth(1).unwrap().split(" N").next().unwrap().parse().unwrap();
+            let moment_bound:f64=message.split("every moment row by ").nth(1).unwrap().split(" N*m").next().unwrap().parse().unwrap();
+            for row in &output.results {
+                if row.kind.starts_with("element_local_") || row.kind.starts_with("pipe_wall_") || row.kind.starts_with("pipe_effective_") || row.kind.starts_with("support_reaction_") {
+                    match row.unit.as_str() { "N"=>assert!(row.value.abs()<=force_bound),"N*m"=>assert!(row.value.abs()<=moment_bound),_=>{} }
+                }
+            }
+
+            // A loaded body in the same case suppresses condition3 even if
+            // the stress-free cancellation still fires elsewhere.
+            wire["model"]["load_cases"][0]["primitive_loads"]=serde_json::json!([{"id":"loaded-control","category":"concentrated_force","target":{"type":"node","node":"free"},"direction":"global_y","magnitude":{"value":1.0,"unit":"N"},"dimension":"force","provenance":"invented KD5 loaded body"}]);
+            wire["model"]["load_cases"][0]["analysis_state"]["load_sources"]=serde_json::json!([{"source_ref":"loaded-control","factor":1.0}]);
+            let loaded=run_linear_static_preview_value_with_mode(wire.clone(),mode).unwrap();
+            assert_eq!(loaded.status.mechanics,"MECHANICS_SOLVED");
+            assert!(!loaded.diagnostics.iter().any(|d|d.code=="STRESS_FREE_WITHIN_NUMERICAL_PRECISION"));
+        }
+    }
+
+    #[test]
+    fn kd5_ten_metre_skew_cantilever_is_repaired_within_existing_criterion() {
+        for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+            let mut input=p5_beam_request();
+            input.model.nodes[0].position=Vec3{x:5e6,y:7.3e6,z:0.0};
+            input.model.nodes[1].position=Vec3{x:5e6+6.0,y:7.3e6+8.0,z:0.0};
+            input.model.pipe_segments[0].y_reference=Some(Vec3{x:0.3,y:0.1,z:1.0});
+            let output=run_linear_static_preview_with_mode(input,mode);
+            assert_eq!(output.status.mechanics,"MECHANICS_SOLVED","{:?}",output.diagnostics);
+            let integrity=output.diagnostics.iter().find(|d|d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
+            assert_eq!(integrity.code,"NUMERICAL_INTEGRITY_CHECKS_PASSED","{}",integrity.message);
+            let end=|component:&str| output.results.iter().find(|row|row.entity_ref=="pipe:P-100" && row.kind==component && row.metadata.as_ref().is_some_and(|m|m.location=="end_i")).unwrap().value;
+            let axial=end("element_local_axial_force");
+            let shear=norm2(end("element_local_shear_force_y"),end("element_local_shear_force_z"));
+            let bending=norm2(end("element_local_bending_moment_y"),end("element_local_bending_moment_z"));
+            // Independent statics: F dot x=280N; transverse F=210N;
+            // root couple is |(6,8,0) cross (0,350,0)|=2100N*m.
+            assert!((axial.abs()-280.0).abs()<=formation_guard::CRITERION*280.0);
+            assert!((shear-210.0).abs()<=formation_guard::CRITERION*210.0);
+            assert!((bending-2100.0).abs()<=formation_guard::CRITERION*2100.0);
+            assert!(!output.diagnostics.iter().any(|d|d.code=="STRESS_FREE_WITHIN_NUMERICAL_PRECISION"));
+        }
+    }
+
+    #[test]
+    fn kd5_zero_source_retention_is_exact_and_preserves_raw_operands() {
+        use case_state::thermal::{ThermalInput,FitInput,resolve_strain};
+        // Binary64 alpha*DT rounds to 1; the source product at p differs.
+        let thermal=ThermalInput::ConstantAlphaInterval { coefficient_per_kelvin:0.1,temperature_change_kelvin:10.0 };
+        let fit=FitInput::EngineeringStrain { strain:-0.5 };
+        let strain=resolve_strain(&thermal,&fit).unwrap();
+        assert_eq!(strain.total_eigenstrain,0.0);
+        assert!(certified_loads::has_eigen_source(&thermal,fit));
+        let primitive=certified_loads::eigenstrain(&thermal,fit);
+        assert_eq!(primitive.thermal,open_pipe_stress_frame_kernel::structural::ThermalPrimitive::ConstantAlphaInterval { coefficient_per_kelvin:0.1,temperature_change_kelvin:10.0 });
+        assert!(!certified_loads::has_eigen_source(&ThermalInput::UnchangedReference,FitInput::None));
+        assert!(!certified_loads::has_eigen_source(&ThermalInput::ConstantAlphaInterval { coefficient_per_kelvin:1.2e-5,temperature_change_kelvin:0.0 },FitInput::EngineeringStrain { strain:0.0 }));
+        // Exact binary64 0.1 exceeds 1/10 by 1/(10*2^54), so the intended
+        // composed eigenstrain is 0.5*(10*0.1-1)=2^-55 >0.
+        let model=p5_beam_request().model;
+        let mut diagnostics=Vec::new(); let built=build_model(&model,&model.materials,&mut diagnostics).unwrap();
+        let frame=built.pipes[0].frame_element().unwrap();
+        let mut ledger=LoadLedger::new();
+        let eigen=ThermalElementLoad { element_index:0,source:"cancelled-source".into(),axial_load:0.0,thermal_strain:0.0,strain_primitive:primitive };
+        add_thermal_equivalent_loads(&mut ledger,&[eigen],&built.pipes,&HashMap::new());
+        let force=ledger.finish(12).unwrap();
+        assert!(force.values().iter().all(|value|*value==0.0));
+        assert_eq!(force.load_primitives().len(),6);
+        let source_prefix=certified_loads::member_source(&built.pipes[0].element_id,"");
+        let loads=open_pipe_stress_frame_kernel::structural::CertifiedMemberLoads::from_member_primitives(0,1,force.load_primitives(),&source_prefix).unwrap();
+        let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0 };
+        let recovered=open_pipe_stress_frame_kernel::structural::certify_straight_recovery(&frame,&loads,&[0.0;12],&bound).unwrap();
+        let expected=frame.section.elastic_modulus*frame.section.area*2f64.powi(-55);
+        assert!(recovered.ends[0].published>0.0);
+        assert!((recovered.ends[0].published-expected).abs()<=formation_guard::CRITERION*expected);
+    }
+
+    #[test]
+    fn kd5_pure_free_expansion_l_preserves_all_group_notice_condition() {
+        for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+            let mut input=fixed_fixed_thermal_request("global_x");
+            input.model.supports.truncate(1);
+            input.model.components.clear();
+            input.model.nodes[0].position=Vec3{x:5e6,y:7.3e6,z:1.2e6};
+            input.model.nodes[1].position=Vec3{x:5e6+3.0,y:7.3e6+4.0,z:1.2e6+5.0};
+            let mut node=input.model.nodes[1].clone();node.id="node:L-free".into();node.position=Vec3{x:5e6-1.0,y:7.3e6+7.0,z:1.2e6+5.0};input.model.nodes.push(node);
+            let mut pipe=input.model.pipe_segments[0].clone();pipe.id="pipe:L-leg".into();pipe.from="node:N-110".into();pipe.to="node:L-free".into();input.model.pipe_segments.push(pipe);
+            for pipe in &mut input.model.pipe_segments { pipe.y_reference=Some(Vec3{x:0.3,y:0.1,z:1.0}); }
+            let mut thermal=input.model.load_cases[0].primitive_loads[0].clone();thermal.id="thermal:L-leg".into();thermal.target=LoadTargetInput::Element {pipe:"pipe:L-leg".into()};input.model.load_cases[0].primitive_loads.push(thermal);
+            let output=run_linear_static_preview_with_mode(input.clone(),mode);
+            assert_eq!(output.status.mechanics,"MECHANICS_SOLVED","{:?}",output.diagnostics);
+            let standing=output.diagnostics.iter().find(|d|d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
+            assert_eq!(standing.code,"NUMERICAL_INTEGRITY_SENSITIVE","{}",standing.message);
+            // Pure thermal expansion has unjudged nearzero torsion groups with
+            // a nearly0 absolute scale and a nonzero global remainder; the
+            // all-group notice condition correctly suppresses explanation.
+            assert!(!output.diagnostics.iter().any(|d|d.code=="STRESS_FREE_WITHIN_NUMERICAL_PRECISION"));
+            input.model.load_cases[0].primitive_loads.push(PreviewPrimitiveLoad { id:"force:L-free".into(),category:"occasional".into(),target:LoadTargetInput::Node {node:"node:L-free".into()},direction:"global_y".into(),magnitude:Quantity {value:1.0,unit:"N".into()},dimension:"force".into(),provenance:Some("invented KD5 loaded control".into()) });
+            let loaded=run_linear_static_preview_with_mode(input,mode);
+            assert_eq!(loaded.status.mechanics,"MECHANICS_SOLVED");
+            assert!(!loaded.diagnostics.iter().any(|d|d.code=="STRESS_FREE_WITHIN_NUMERICAL_PRECISION"));
+        }
+    }
+
+    #[test]
+    fn kd5_notice_checks_all_groups_and_preserves_sensitive() {
+        use formation_guard::{RecoveryRecord,RecoveryGroup};
+        let noisy = RecoveryGroup { location:"end_i".into(),kind:"axial".into(),moment:false,
+            q:1e-12,q_hat:1e-12,bound:Ok(1e-12),absolute_scale:1.0,published_scale:1e-12 };
+        let mut records = vec![RecoveryRecord { member:"stress_free".into(),body:Some(0),groups:vec![noisy.clone()] }];
+        let notice = formation_guard::stress_free_notice(&records,"case").unwrap();
+        assert_eq!(notice.code,"STRESS_FREE_WITHIN_NUMERICAL_PRECISION");
+        assert_eq!(notice.severity,"info");
+        assert!(notice.message.contains("standing remains NUMERICAL_INTEGRITY_SENSITIVE"));
+        // A significant group below the relative floor still suppresses notice.
+        let mut significant = noisy.clone(); significant.q_hat=1e-9;
+        records.push(RecoveryRecord { member:"loaded_body".into(),body:Some(1),groups:vec![significant] });
+        assert!(formation_guard::stress_free_notice(&records,"case").is_none());
+        records.pop();records[0].groups[0].bound=Ok(f64::INFINITY);
+        assert!(formation_guard::stress_free_notice(&records,"case").is_none());
+    }
+
+    #[test]
+    fn kd5_zero_and_tiny_coupled_bodies_do_not_emit_notice() {
+        use formation_guard::{Bodies,RecoveryRecord,RecoveryGroup,member_scales,recovery_finding};
+        let bodies = Bodies::new(&[[0.0,0.0,0.0],[2f64.powi(-20),0.0,0.0]],&[(0,1)]);
+        let f = 2f64.powi(-1020); let m = 2f64.powi(-990);
+        let make = |kind:&str,moment,q| RecoveryGroup { location:"end_i".into(),kind:kind.into(),moment,q,q_hat:q,bound:Ok(q),absolute_scale:1.0,published_scale:q };
+        let record = RecoveryRecord { member:"tiny".into(),body:Some(0),groups:vec![make("axial",false,f),make("bending",true,m)] };
+        let scales=member_scales(std::slice::from_ref(&record),&bodies);
+        assert!(scales[&0].0 >= 2f64.powi(-988));
+        assert!(scales[&0].1 < 2f64.powi(-988));
+        assert!(recovery_finding(&[record],&scales,"tiny_case").is_none());
+        let zero = RecoveryRecord { member:"zero".into(),body:Some(0),groups:vec![make("axial",false,0.0),make("bending",true,0.0)] };
+        let scales=member_scales(std::slice::from_ref(&zero),&bodies);
+        assert!(recovery_finding(&[zero],&scales,"zero_case").is_none());
+    }
+
+    #[test]
+    fn kd5_manifest_is_kept_when_one_supplied_summand_is_dropped() {
+        use open_pipe_stress_frame_kernel::structural::{LoadFormula,IntensityPrimitive};
+        let model = p5_uniform_request(None).model;
+        let mut diagnostics=Vec::new();
+        let built=build_model(&model,&model.materials,&mut diagnostics).unwrap();
+        let frame=built.pipes[0].frame_element().unwrap();
+        let sources=|| [1.0,2.0].into_iter().enumerate().map(|(ordinal,w)| certified_loads::summand("uniform_straight","member:pipe",ordinal,7,LoadFormula::UniformStraight { frame:frame.clone(),intensity:IntensityPrimitive::Authored([0.0,w,0.0]),start_fraction:0.0,end_fraction:1.0 })).collect();
+        let mut ledger=LoadLedger::new();
+        ledger.push_formed("group",7,3.0,Formation::Bounded{bound:0.0},0.0,false);
+        certified_loads::attach(&mut ledger,0,sources());
+        let force=ledger.finish(12).unwrap();
+        assert_eq!(force.closure_records()[0].manifest.as_ref().unwrap().len(),2);
+        assert_eq!(force.load_primitives().len(),2);
+        // Recreate the formed record with its original expected manifest, but
+        // collect only one supplied primitive: expectation is independent.
+        let mut incomplete=LoadLedger::new();
+        incomplete.push_formed("group",7,3.0,Formation::Bounded{bound:0.0},0.0,false);
+        incomplete.set_closure_manifest(0,force.closure_records()[0].manifest.clone().unwrap());
+        incomplete.attach_load_primitive(force.load_primitives()[0].clone());
+        let missing=incomplete.finish(12).unwrap();
+        assert_eq!(missing.closure_records()[0].manifest.as_ref().unwrap().len(),2);
+        assert_eq!(missing.load_primitives().len(),1);
+        let scaled=missing.force_scaled(ForceScale::new(2).unwrap()).unwrap();
+        assert_eq!(scaled.closure_records()[0].manifest.as_ref().unwrap().len(),2);
+        assert_eq!(scaled.load_primitives().len(),1);
+        assert_eq!(scaled.load_primitives()[0].force_scale_exponent,2);
+        let prescribed=(0..6).map(|dof|(dof,0.0)).collect::<Vec<_>>();
+        let free=(6..12).collect::<Vec<_>>();
+        let matrix=frame.global_stiffness().unwrap().map(|row|row.to_vec()).to_vec();
+        let evidence=AssemblyEvidence::new(2,&[frame.clone()],&[],&[],&[]).unwrap();
+        for mode in [LinearSolveMode::DenseScrutiny,LinearSolveMode::SparseInteractive] {
+            let rejected=evidence.solve_assembled_with_formation_check(&matrix,&missing,&free,&prescribed,mode,&[],true).unwrap();
+            assert_eq!(rejected.report.quality,SolveQuality::Sensitive);
+            assert!(format!("{:?}",rejected.formation_check).contains("load closure"));
+            assert!(rejected.member_bound.is_none());
+            let scale=ForceScale::new(2).unwrap();
+            let scaled_frame=frame.force_scaled(scale).unwrap();
+            let matrix=scaled_frame.global_stiffness().unwrap().map(|row|row.to_vec()).to_vec();
+            let evidence=AssemblyEvidence::new_force_scaled(2,&[frame.clone()],&[],&[],&[],scale).unwrap();
+            let rejected=evidence.solve_force_scaled_with_formation_check(&matrix,&missing,&free,&prescribed,mode,&[],true).unwrap();
+            assert_eq!(rejected.solution.report.quality,SolveQuality::Sensitive);
+            assert!(format!("{:?}",rejected.solution.formation_check).contains("load closure"));
+            assert!(rejected.solution.member_bound.is_none());
+        }
+
+    }
+
+    #[test]
+    fn kd5_nonlinear_route_named_fail_closed_in_both_modes() {
+        for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+            let output=run_linear_static_preview_with_mode(friction_preview_request(),mode);
+            let diagnostic=output.diagnostics.iter().find(|d| d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
+            assert_ne!(diagnostic.code,"NUMERICAL_INTEGRITY_CHECKS_PASSED");
+            if diagnostic.code=="NUMERICAL_INTEGRITY_SENSITIVE" { assert!(diagnostic.message.contains("member-relative formation check is not available on the nonlinear-support route")); }
+        }
+    }
+
 
     // Analytic seed policy: relative 1e-9, no publication-rounding allowance.
     macro_rules! analytic_close {

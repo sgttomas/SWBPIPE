@@ -53,7 +53,7 @@ run([os.path.join(work, "producer_caps.py"), "caps"], "producer_caps.caps.out.js
 run([os.path.join(work, "t07_repair.py"), "caps"], "t07_repair.caps.out.json")
 run([os.path.join(work, "t25_g4.py"), "caps", eps], f"t25_g4.caps.eps{eps}.out.json")
 shutil.copy(os.path.join(work, f"t25_g4.caps.eps{eps}.out.json"), os.path.join(work, "t25_caps.caps.out.json"))
-run([os.path.join(work, "ordinary_caps.py"), "caps"], "ordinary_caps.caps.out.json")
+run([os.path.join(work, "ordinary_caps.py"), "caps"], "ordinary_caps.caps.out.json", {"RP_SNAPSHOT": snap})
 run([os.path.join(work, "g4_caps.py"), "caps", eps, snap], f"g4_caps.caps.eps{eps}.out.json", {"PROFILE_TREE": os.path.join(work, "profile_tree.json")})
 g = json.load(open(os.path.join(work, f"g4_caps.caps.eps{eps}.out.json")))
 txt = json.load(open(os.path.join(work, "text_closure.caps.json")))["atoms"]

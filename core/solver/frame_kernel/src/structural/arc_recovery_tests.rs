@@ -5,8 +5,7 @@
 //! and exact end actions), three binary64 terms per value.
 use super::*;
 
-const O13: &str =
-    include_str!("../../../../../validation/references/t4_o13/o13_fk_references.txt");
+const O13: &str = include_str!("../../../../../validation/references/t4_o13/o13_fk_references.txt");
 
 /// RD(1e-9), the guard's criterion.
 const CRITERION: f64 = f64::from_bits(1e-9_f64.to_bits() - 1);
@@ -74,7 +73,11 @@ fn references() -> (Vec<Stiffness>, Vec<Rows>) {
                 let (r, c): (usize, usize) = (f[1].parse().unwrap(), f[2].parse().unwrap());
                 k[r][c] = f[3..6].iter().map(|t| hex(t)).collect();
             }
-            stiffness.push(Stiffness { id: id.to_string(), bend, k });
+            stiffness.push(Stiffness {
+                id: id.to_string(),
+                bend,
+                k,
+            });
         } else {
             let id = head.strip_prefix("row ").unwrap().to_string();
             let u: [f64; 12] = hexes(lines.next().unwrap().strip_prefix("u ").unwrap())
@@ -89,7 +92,13 @@ fn references() -> (Vec<Stiffness>, Vec<Rows>) {
                 assert_eq!((fields[0], fields[1].parse::<usize>().unwrap()), ("f", k));
                 f.push(fields[2..5].iter().map(|t| hex(t)).collect());
             }
-            rows.push(Rows { id, bend, u, span_y, f });
+            rows.push(Rows {
+                id,
+                bend,
+                u,
+                span_y,
+                f,
+            });
         }
         assert_eq!(lines.next(), Some("end"));
     }
@@ -210,7 +219,12 @@ fn c2_row_bounds_enclose_and_stay_tight() {
                     let actual = difference(&[published[k]], &case.f[k]).abs();
                     assert!(bounds.formation[k] > 0.0, "{}: row {k}", case.id);
                     assert!(
-                        within(&case.f[k], &[published[k]], e * published[k].abs(), bounds.formation[k]),
+                        within(
+                            &case.f[k],
+                            &[published[k]],
+                            e * published[k].abs(),
+                            bounds.formation[k]
+                        ),
                         "{}: row {k} not enclosed",
                         case.id
                     );
@@ -306,7 +320,12 @@ fn free_expansion_is_subtracted_in_the_ball() {
                 for &row in group.rows() {
                     let k = 6 * end + row;
                     assert!(
-                        within(&halves[k], &[published[k]], e * published[k].abs(), bounds.formation[k]),
+                        within(
+                            &halves[k],
+                            &[published[k]],
+                            e * published[k].abs(),
+                            bounds.formation[k]
+                        ),
                         "{}: row {k}",
                         case.id
                     );
@@ -344,7 +363,12 @@ fn certified_load_is_subtracted_in_the_ball() {
         let Ok(load) = certify_curved_uniform_load(&bend, intensity) else {
             continue;
         };
-        let Ok(cert) = certify_curved_recovery(&bend, bend.coordinates_i, bend.coordinates_j, [0.0, 1.0, 0.0]) else {
+        let Ok(cert) = certify_curved_recovery(
+            &bend,
+            bend.coordinates_i,
+            bend.coordinates_j,
+            [0.0, 1.0, 0.0],
+        ) else {
             continue;
         };
         let published: [f64; 12] = std::array::from_fn(|k| -lead(&case.refs[k].0));
@@ -388,7 +412,10 @@ fn c6_failed_preconditions_are_unavailable() {
     );
     let mut bend = t15_body(1.0);
     bend.radius = 0.5;
-    assert_eq!(class_of(&certify_curved_recovery(&bend, i, j, y).unwrap_err()), 3);
+    assert_eq!(
+        class_of(&certify_curved_recovery(&bend, i, j, y).unwrap_err()),
+        3
+    );
     assert_eq!(
         certify_curved_recovery(&body, i, j, [1.0, 0.0, 0.0]).unwrap_err(),
         ArcCertificateFailure::SqrtArgumentNotPositive {
@@ -398,7 +425,9 @@ fn c6_failed_preconditions_are_unavailable() {
     let cert = certify_curved_recovery(&body, i, j, y).unwrap();
     let mut published = [0.0; 12];
     published[4] = f64::NAN;
-    assert!(cert.bound_end_actions(&[0.0; 12], &[], &[], &published).is_err());
+    assert!(cert
+        .bound_end_actions(&[0.0; 12], &[], &[], &published)
+        .is_err());
 }
 
 /// L7′ against L7 on the binding long chord (30 m at 2e-9 rad): no entry's

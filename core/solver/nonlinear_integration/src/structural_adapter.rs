@@ -281,7 +281,8 @@ impl AssemblyEvidence {
         unscaled_evidence(self.force_scale)?;
         self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = self.symmetry_basis();
-        let source = self.formation_source(curved_sources);
+        let mut source = self.formation_source(curved_sources);
+        source.loads = f.load_primitives().to_vec();
         let system = StructuralSystem::assembled(
             k,
             f,
@@ -467,8 +468,9 @@ impl AssemblyEvidence {
         let screened = self.constrained_geometry(prescribed, curved_sources);
         let solved = screened.and_then(|()| {
             let symmetry_basis = self.symmetry_basis();
-            let source =
+            let mut source =
                 force_scaled_formation_source(&self.formation, curved_sources, self.force_scale);
+            source.loads = force.load_primitives().to_vec();
             let system = StructuralSystem::assembled(
                 k,
                 force,
@@ -762,7 +764,8 @@ impl SparseAssemblyEvidence {
         self.check_pattern(k)?;
         self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = symmetry_basis(&self.edges);
-        let source = formation_source(&self.formation, curved_sources);
+        let mut source = formation_source(&self.formation, curved_sources);
+        source.loads = f.load_primitives().to_vec();
         match mode {
             LinearSolveMode::DenseScrutiny => {
                 let dense = k.to_dense();
@@ -952,11 +955,12 @@ impl SparseAssemblyEvidence {
             .and_then(|()| self.constrained_geometry(prescribed, curved_sources))
             .and_then(|()| {
                 let symmetry_basis = symmetry_basis(&self.edges);
-                let source = force_scaled_formation_source(
+                let mut source = force_scaled_formation_source(
                     &self.formation,
                     curved_sources,
                     self.force_scale,
                 );
+                source.loads = force.load_primitives().to_vec();
                 match mode {
                     LinearSolveMode::DenseScrutiny => {
                         let dense = k.to_dense();
@@ -1622,6 +1626,7 @@ fn formation_source(
 ) -> FormationSource {
     let mut source = FormationSource {
         node_count: primitives.node_count,
+        loads: Vec::new(),
         frames: primitives.frames.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
@@ -1760,6 +1765,7 @@ fn force_scaled_formation_source(
     }
     let mut source = FormationSource {
         node_count: primitives.node_count,
+        loads: Vec::new(),
         frames: primitives.frames.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
