@@ -96,21 +96,25 @@ pub(super) fn append_arc_pressure_results(
         ("end_j", endpoint_resultants[1][UX]),
     ];
     sections.extend(stations.iter().map(|station| (station.location, station.resultants[UX])));
-    let mut recovered = Vec::with_capacity(sections.len());
+    let wanted = sections.len();
+    let mut recovered = Vec::with_capacity(wanted);
     for (location, elastic) in sections {
-        match state.annulus.recover_arc_wall_effective_membrane(elastic, state.pressure) {
-            Ok(values) => recovered.push((location, values)),
-            Err(_) => {
-                diagnostics.push(diag(
-                    "diagnostic:exact-pressure:arc-section",
-                    RECOVERY_FAILED,
-                    "blocking",
-                    RECOVERY_UNREPRESENTABLE,
-                    vec![case.id.clone(), pipe_id.to_string()],
-                ));
-                return;
-            }
-        }
+        let Ok(values) = state.annulus.recover_arc_wall_effective_membrane(elastic, state.pressure) else {
+            break;
+        };
+        recovered.push((location, values));
+    }
+    // The first unrepresentable section ends the arc's recovery; its one
+    // diagnostic is formed once, outside the sections loop.
+    if recovered.len() != wanted {
+        diagnostics.push(diag(
+            "diagnostic:exact-pressure:arc-section",
+            RECOVERY_FAILED,
+            "blocking",
+            RECOVERY_UNREPRESENTABLE,
+            vec![case.id.clone(), pipe_id.to_string()],
+        ));
+        return;
     }
     let mut append = |kind: &str, component: &str, location: &str, value: f64, stress: bool, sign: &str| {
         results.push(ResultItem {

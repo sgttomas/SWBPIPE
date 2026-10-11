@@ -239,7 +239,8 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     enum = schema["$defs"]["RowDisclosure"]["properties"]["reason_code"]["enum"]
     assert enum[-2:] == CODES and len(set(enum)) == len(enum)
     clause = {"properties": {"row_disclosures": {"items": {"properties": {"reason_code": {"not": {"enum": CODES}}}}}}}
-    branches = schema["$defs"]["ResultEnvelope"]["oneOf"]
+    from tests.schema_validation import envelope_branches
+    branches = envelope_branches(schema)  # pressure-1's branch is held in results_pressure_1.v0.3
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         if sid in SUCCESSORS:

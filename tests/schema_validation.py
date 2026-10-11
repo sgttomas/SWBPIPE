@@ -47,6 +47,20 @@ def schema_for_definition(root_schema, definition_name):
     return schema
 
 
+def envelope_branches(results):
+    """ResultEnvelope's oneOf branches of a results schema; a branch held in a
+    sibling schema (`<file>#/$defs/<name>`, as pressure-1's) is read from it."""
+    schema_dir = Path(__file__).resolve().parents[1] / "schemas"
+    branches = []
+    for branch in results["$defs"]["ResultEnvelope"]["oneOf"]:
+        ref = branch.get("$ref", "#")
+        if not ref.startswith("#"):
+            name, definition = ref.split("#/$defs/")
+            branch = json.loads((schema_dir / name).read_text(encoding="utf-8"))["$defs"][definition]
+        branches.append(branch)
+    return branches
+
+
 def validate_instance(schema, instance, *, schema_label="schema", instance_label="instance"):
     """Validate an instance and raise an assertion with compact error paths."""
     validate_schema_document(schema, schema_label=schema_label)

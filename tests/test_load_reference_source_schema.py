@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 
 import pytest
 
-from schema_validation import validate_schema_document
+from schema_validation import envelope_branches, validate_schema_document
 
 PROJECT = Path(__file__).resolve().parents[1]
 SCHEMAS = PROJECT / "schemas"
@@ -293,7 +293,8 @@ def test_joined_table_identity_is_pinned_not_inferred():
 
 def test_joined_branches_are_appended_with_pinned_identities():
     results = schema(RESULTS)["$defs"]["ResultEnvelope"]
-    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
+    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
+           for branch in envelope_branches(schema(RESULTS))]
     assert ids == CARRIER_ORDER
     branch = results["oneOf"][NEW_BRANCH]
     assert branch["required"] == ["source_block_recovery", "contract_evidence"]

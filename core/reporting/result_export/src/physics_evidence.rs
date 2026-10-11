@@ -288,17 +288,11 @@ fn case_basis(row: &Value) -> Result<&str, String> {
     )?;
     text(&b["ref_id"])
 }
-/// T4-U2 (pressure-1): an input review row (a realized bend's flexibility, a
-/// hanger's or a component's entered values) is model scoped and states no
-/// load case. Only a row without `basis_ref` whose pressure-1 signature is
-/// `review_evidence` qualifies; every other row stays case scoped. physics-1
-/// keeps its case-scoped rule.
-fn model_scoped_review(row: &Value, contract: PressureContract) -> Result<bool, String> {
-    if contract != PressureContract::PressureV3 || row.get("basis_ref").is_some() {
-        return Ok(false);
-    }
-    Ok(crate::semantic_contract::signature_in(contract.table(), row)?
-        .is_some_and(|s| s["category"] == "review_evidence"))
+/// A row's load case, which must be one of the evidence's exact cases.
+fn row_case<'a>(row: &'a Value, cases: &HashMap<&str, &Value>) -> Result<&'a str, String> {
+    let case = case_basis(row)?;
+    require(cases.contains_key(case), "ROW_CASE_UNRESOLVED")?;
+    Ok(case)
 }
 fn pressure_kind(kind: &str) -> bool {
     matches!(
@@ -315,22 +309,15 @@ fn pipe_kind(kind: &str) -> bool {
     pressure_kind(kind) || kind == "pipe_elastic_normal_stress_maximum_v2"
 }
 
+/// One published row's declared semantics; `signature` is the row's signature
+/// under the reader's table (taken once per row by the caller).
 fn physical_row(
     row: &Value,
+    kind: &str,
+    signature: Option<&'static Value>,
     source_selected: bool,
-    composite: bool,
-    contract: PressureContract,
     arc: bool,
 ) -> Check {
-    let kind = text(&row["kind"])?;
-    let signature = crate::semantic_contract::signature_in(
-        if composite {
-            crate::semantic_contract::physics_source_contract()
-        } else {
-            contract.table()
-        },
-        row,
-    )?;
     if !kind.ends_with("_v2") {
         return Ok(());
     }
@@ -685,17 +672,33 @@ pub(crate) fn validate_physics_evidence_in(
                 .is_none_or(|v| v.as_array().is_some_and(|a| a.is_empty())),
             "DERIVED_ROWS_UNSUPPORTED",
         )?;
-        if model_scoped_review(row, contract)? {
-            continue;
-        }
-        let case = case_basis(row)?;
-        require(cases.contains_key(case), "ROW_CASE_UNRESOLVED")?;
+        // T4-U2 (pressure-1): an input review row (a realized bend's
+        // flexibility, a hanger's or a component's entered values) is model
+        // scoped and states no load case. Only a pressure-1 row without
+        // `basis_ref` whose signature is `review_evidence` qualifies; every
+        // other row stays case scoped, and physics-1 keeps its case-scoped
+        // rule. The contract is checked before the row's one signature lookup.
+        let scoped = contract == PressureContract::PressureV3 && row.get("basis_ref").is_none();
+        let case = if scoped { None } else { Some(row_case(row, &cases)?) };
         let kind = text(&row["kind"])?;
+        let signature = crate::semantic_contract::signature_in(
+            if composite {
+                crate::semantic_contract::physics_source_contract()
+            } else {
+                contract.table()
+            },
+            row,
+        )?;
+        let case = match case {
+            Some(case) => case,
+            None if signature.is_some_and(|s| s["category"] == "review_evidence") => continue,
+            None => row_case(row, &cases)?,
+        };
         physical_row(
             row,
+            kind,
+            signature,
             composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
-            composite,
-            contract,
             arc_members.contains(&(case, text(&row["entity_ref"])?)),
         )?;
         if pipe_kind(kind) {

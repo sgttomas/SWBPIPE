@@ -182,8 +182,9 @@ def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
 
 def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
     """pressure-1 statements without raw rows: closed shape against the results
-    0.3 ``PressureContractEvidence`` (0.4.0 records against the frozen
-    load/reference-state schema) and internal joins only; never raw row evidence."""
+    0.3 ``PressureContractEvidence`` (held in ``results_pressure_1.v0.3``; 0.4.0
+    records against the frozen load/reference-state schema) and internal joins
+    only; never raw row evidence."""
     try:
         _transport(source)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
@@ -684,7 +685,7 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
 def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]) -> bool:
     """The closed JSON-schema vocabulary the committed schemas use; nothing else is interpreted."""
     if "$ref" in schema:
-        return _schema_shape(value, root["$defs"][schema["$ref"].removeprefix("#/$defs/")], root)
+        return _schema_shape(value, root["$defs"][schema["$ref"].split("#/$defs/", 1)[1]], root)
     if "anyOf" in schema and not any(_schema_shape(value, branch, root) for branch in schema["anyOf"]):
         return False
     if "oneOf" in schema and sum(_schema_shape(value, branch, root) for branch in schema["oneOf"]) != 1:
@@ -728,11 +729,15 @@ def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]
 
 def _transport(source: Mapping[str, Any]) -> None:
     results = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
+    pressure = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
+    # The pressure-1 definitions name the shared ones as `results.v0.3.schema.yaml#/$defs/<name>`;
+    # every definition name is unique across the two files.
+    root = {"$defs": {**results["$defs"], **pressure["$defs"]}}
     evidence = source.get("contract_evidence")
     _require(isinstance(evidence, Mapping), "transport evidence shape")
     records = evidence.get("load_reference_states")
     body = {key: value for key, value in evidence.items() if key != "load_reference_states"}
-    _require(_schema_shape(body, results["$defs"]["PressureContractEvidence"], results), "transport evidence shape")
+    _require(_schema_shape(body, root["$defs"]["PressureContractEvidence"], root), "transport evidence shape")
     if records is not None:
         frozen = json.loads((PROJECT / "schemas/load_reference_state.schema.json").read_text())
         _require(isinstance(records, list) and all(_schema_shape(r, frozen["$defs"]["LoadReferenceStateRecord"], frozen) for r in records), "transport evidence shape")

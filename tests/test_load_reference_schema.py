@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from schema_validation import schema_for_definition, validate_instance, validate_schema_document
+from schema_validation import envelope_branches, schema_for_definition, validate_instance, validate_schema_document
 
 PROJECT = Path(__file__).resolve().parents[1]
 SCHEMAS = PROJECT / "schemas"
@@ -601,7 +601,8 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     """T1's branches follow every branch main carries (T0R's preview-physics-1
     included); positions are looked up by identity, the relative order is pinned."""
     results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
-    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
+    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
+           for branch in envelope_branches(schema("results.v0.3.schema.yaml"))]
     assert ids == ["openpipestress.result_semantics/0.3.0/precision-1", PHYSICS_ID,
                    "openpipestress.result_semantics/0.3.0/source-blocks-1",
                    "openpipestress.result_semantics/0.3.0/physics-source-1",

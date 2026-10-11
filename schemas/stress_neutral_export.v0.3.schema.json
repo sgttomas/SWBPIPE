@@ -3802,7 +3802,7 @@
           }
         },
         "contract_evidence": {
-          "$ref": "results.v0.3.schema.yaml#/$defs/PressureContractEvidence"
+          "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureContractEvidence"
         },
         "export_profile": {
           "required": [

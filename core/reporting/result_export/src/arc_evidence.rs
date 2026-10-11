@@ -9,7 +9,9 @@
 //!
 //! These are code constants shared in meaning with the producer
 //! (`product_physics` `pressure_runtime.rs`, `bend_pressure.rs`) and with the
-//! Python and TypeScript readers. The reader checks bindings and declared
+//! test-only Python verifier (`tests/verifiers/pressure_1.py`). This Rust
+//! reader is pressure-1's only product reader; the desktop and Python product
+//! paths refuse pressure-1 by name. The reader checks bindings and declared
 //! semantics, never values: no table and no static is added (T4-RV14 F1).
 use serde_json::Value;
 use std::collections::HashSet;

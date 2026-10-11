@@ -1,6 +1,6 @@
 import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
 import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
-import { sourceContract, numericalResultStanding, isRetainedRoute } from "../features/results/numericalResultQuality";
+import { sourceContract, numericalResultStanding, isRetainedRoute, isPressure1Result, PRESSURE_1_RESULT_REFUSAL } from "../features/results/numericalResultQuality";
 import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, retainedRowClassLabel, N_P1, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invoke } from "@tauri-apps/api/core";
@@ -119,6 +119,9 @@ export async function runRuleChecks(args: {
   // `private_library_value` inputs (resolved backend-side from the local store).
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
   const source = args.solvedEnvelope ?? await runPreviewMechanics(args.model);
+  // T4-U2: the desktop has no pressure-1 reader, so such a source is refused by
+  // name before any provenance or freshness check could refuse it generically.
+  if (isPressure1Result(source)) throw new Error(PRESSURE_1_RESULT_REFUSAL);
   if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible; precision-1 is historical.
   if (!isFreshSemanticResult(source)) throw new Error(standingReason(source) === PRECISION_1_HISTORICAL_SEMANTICS ? `${PRECISION_1_HISTORICAL_SEMANTICS}: ${N_P1}` : "RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");

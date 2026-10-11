@@ -22,7 +22,7 @@ from core.analysis_runs.compatibility import (
     PRESSURE_1_RESULT_NOT_READABLE_IN_PYTHON_PRODUCT_PATH, PRESSURE_CONTRACT_ID, _source_contract, build_analysis_run_v0_3,
     numerical_use_standing,
 )
-from schema_validation import validate_instance
+from schema_validation import envelope_branches, validate_instance
 from tests.verifiers.pressure_1 import verify_source
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -46,13 +46,15 @@ def _schema(name):
 def _branches(instance):
     document = _schema("results.v0.3.schema.yaml")
     found = []
-    for index, branch in enumerate(document["$defs"]["ResultEnvelope"]["oneOf"]):
+    # pressure-1's branch is a reference into results_pressure_1.v0.3 (validated
+    # through it); its identity is read from the referenced definition.
+    for index, (branch, resolved) in enumerate(zip(document["$defs"]["ResultEnvelope"]["oneOf"], envelope_branches(document))):
         alone = {"$schema": document["$schema"], "$id": document["$id"], "$defs": document["$defs"], **branch}
         try:
             validate_instance(alone, instance["result_envelope"], instance_label=f"branch {index}")
         except AssertionError:
             continue
-        found.append(branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"])
+        found.append(resolved["properties"]["producer"]["properties"]["semantic_contract_id"]["const"])
     return found
 
 
