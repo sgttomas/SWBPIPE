@@ -34,10 +34,27 @@ function hasTauriRuntime(): boolean {
 // TP-APP-R2-COMBEXPR-001; minor bumps for any change to what a document can
 // contain. Mirrors apps/desktop/src-tauri/src/model_document_migration.rs.
 export const SUPPORTED_MODEL_SCHEMA_VERSION = "0.2.0";
-// T1 (owner D3): the explicitly authored load/reference-state namespace is
-// retained exactly as authored, without migration, upgrade or down-migration.
-// Mirrors LOAD_REFERENCE_MODEL_SCHEMA_VERSION in model_document_migration.rs.
+// Explicitly authored namespaces, each current and retained exactly as authored,
+// without migration, upgrade or down-migration: the explicit pressure profile and
+// (T1, owner D3) the load/reference-state namespace. Mirrors
+// EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION and LOAD_REFERENCE_MODEL_SCHEMA_VERSION
+// in model_document_migration.rs.
+export const EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION = "0.3.0";
 export const LOAD_REFERENCE_MODEL_SCHEMA_VERSION = "0.4.0";
+// The native evaluation's explicit branches, as one table: no migrated document is
+// produced and no coefficient, datum, fit, predecessor or state is supplied.
+const EXPLICIT_MODEL_SCHEMA_VERSIONS: ReadonlyArray<{ version: string; detail: string }> = [
+  {
+    version: EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION,
+    detail:
+      "Explicit model 0.3.0 is retained without migration; pressure-profile inputs and solve eligibility are validated separately."
+  },
+  {
+    version: LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
+    detail:
+      "Explicit model 0.4.0 is retained without migration or upgrade; load/reference-state records, pressure-profile inputs and solve eligibility are validated separately."
+  }
+];
 const MODEL_MIGRATION_FRAMEWORK = "application_service_separate_db_and_product_schema";
 
 type LocalModelDocumentMigration = {
@@ -150,20 +167,20 @@ function migrateModelDocumentLocal(model: PreviewModel): {
       }
     };
   }
-  // Native mirror: a 0.4.0 document is current and retained as authored. No
-  // migrated document is produced and no coefficient, datum, fit, predecessor
-  // or state is supplied; 0.4.1 and later remain newer than supported.
-  const loadReference = parseSemver(LOAD_REFERENCE_MODEL_SCHEMA_VERSION)!;
-  if (documentVersion.every((part, index) => part === loadReference[index])) {
+  const explicit = EXPLICIT_MODEL_SCHEMA_VERSIONS.find((entry) => {
+    const version = parseSemver(entry.version)!;
+    return documentVersion.every((part, index) => part === version[index]);
+  });
+  if (explicit) {
     return {
       model,
       status: {
         ...base,
-        target_schema_version: LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
+        target_schema_version: explicit.version,
         status: "current",
         product_schema_migration_status: "current",
         persistence_state: "stored_document_current",
-        detail: "Explicit model 0.4.0 is retained without migration or upgrade; load/reference-state records, pressure-profile inputs and solve eligibility are validated separately."
+        detail: explicit.detail
       }
     };
   }
@@ -189,7 +206,7 @@ function migrateModelDocumentLocal(model: PreviewModel): {
         status: "newer_than_supported",
         product_schema_migration_status: "newer_than_supported",
         persistence_state: "not_applicable_document_refused",
-        detail: `Model document schema_version ${raw} is newer than the supported ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration).`
+        detail: `Model document schema_version ${raw} is newer than the legacy migration target ${SUPPORTED_MODEL_SCHEMA_VERSION} and does not match the separately supported explicit ${EXPLICIT_MODEL_SCHEMA_VERSIONS.map((entry) => entry.version).join(" or ")}; refusing to open for editing (no down-migration).`
       }
     };
   }

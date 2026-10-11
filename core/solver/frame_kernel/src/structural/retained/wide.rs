@@ -140,10 +140,10 @@ pub(crate) const ATAN_MAX_TERMS: u32 = 15;
 /// Regression tolerance of the arctangent on the committed vectors only, in
 /// tenths of an ulp of p (measured; not a bound; the contract is the proved
 /// bound below).
-#[allow(dead_code)] // test-only: the regression tolerance the K3a tests assert
+#[cfg(test)]
 pub(crate) const ATAN_REGRESSION_TOLERANCE_TENTH_ULPS: u32 = 61;
 /// Proved worst-case bound of the included angle, in tenths of an ulp of p.
-#[allow(dead_code)] // test-only: the proved bound the K3a tests assert
+#[cfg(test)]
 pub(crate) const ATAN_PROVED_BOUND_TENTH_ULPS: u32 = 236;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -237,7 +237,7 @@ impl Binary64Split {
 
     /// True when set bits below 2^−1074 were dropped; then the remainder is
     /// nonzero, below 2^−1074 in magnitude and has the value's sign.
-    #[allow(dead_code)] // test-only: K-D5 reads the flag through `add_product_to`
+    #[cfg(test)]
     pub(crate) fn truncated_below_min_subnormal(&self) -> bool {
         self.truncated_below_min_subnormal
     }
@@ -275,7 +275,7 @@ impl Wide<2> {
     }
 
     /// Validated construction from raw parts (value model above).
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
+    #[cfg(test)]
     pub(crate) fn from_parts(
         negative: bool,
         exponent: i64,
@@ -304,7 +304,7 @@ impl Wide<2> {
     }
 
     /// (negative, exponent of the leading bit, little-endian significand).
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
+    #[cfg(test)]
     pub(crate) fn parts(&self) -> (bool, i64, [u64; 2]) {
         (self.negative, self.exponent, self.significand)
     }
@@ -337,13 +337,12 @@ impl Wide<2> {
         self.sig() == 0
     }
 
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn is_sign_negative(&self) -> bool {
         self.negative
     }
 
     /// Exponent of the leading bit (0 for zero).
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
+    #[cfg(test)]
     pub(crate) fn exponent(&self) -> i64 {
         self.exponent
     }
@@ -363,7 +362,7 @@ impl Wide<2> {
     }
 
     /// True when the value has at most p significant bits.
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
+    #[cfg(test)]
     pub(crate) fn fits_precision(&self, p: u32) -> bool {
         p >= 128 || self.sig() & ((1u128 << (128 - p)) - 1) == 0
     }
@@ -856,7 +855,7 @@ pub(crate) struct WorkCounter {
 impl WorkCounter {
     /// Correctly rounded operations (+ − × ÷ √), including those inside the
     /// arctangent.
-    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
+    #[cfg(test)]
     pub(crate) fn rounded_operations(&self) -> u64 {
         self.add
             .saturating_add(self.sub)
@@ -884,12 +883,12 @@ impl WideArith {
         })
     }
 
-    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
+    #[cfg(test)]
     pub(crate) fn precision(&self) -> u32 {
         self.precision
     }
 
-    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
+    #[cfg(test)]
     pub(crate) fn work(&self) -> WorkCounter {
         self.work
     }
@@ -936,7 +935,6 @@ impl WideArith {
     }
 
     /// atan t ∈ (0, π/2) for t > 0 (the same reduction and series).
-    #[allow(dead_code)] // later-slice API (W1c; K3 Q6)
     pub(crate) fn atan_positive(&mut self, t: &Wide2) -> Result<Wide2, WideError> {
         self.work.atan = self.work.atan.saturating_add(1);
         self.check_atan_precision()?;

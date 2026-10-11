@@ -1,8 +1,10 @@
-//! I61 U1 grant 1 (with U2): tests of the private retained-precision serializer
-//! (`retained_wire`) through the private prepared driver. The accepted Rust
-//! reader runs in-process (dev-dependency); Python and TypeScript validate the
-//! emitted receipts in their own lanes (I61_U1_OUT).
+//! Tests of the private retained-precision serializer (`retained_wire`): `serialize_cases` over
+//! the W1 transaction (`transaction`, as `w1_transaction` runs it), and the serializer's typed
+//! projections through the private one-case driver. The accepted Rust reader runs in-process
+//! (dev-dependency); Python and TypeScript validate the emitted receipts in their own lanes
+//! (I61_U1_OUT).
 use super::retained_product as rp;
+use super::retained_tests_hooks as hooks;
 use super::retained_wire as wire;
 use super::*;
 use open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage;
@@ -54,6 +56,73 @@ fn invocation(mode: PreviewSolverMode) -> Value {
 }
 fn pretty(v: &Value) -> String {
     serde_json::to_string_pretty(v).unwrap()
+}
+/// The milestone with a second, identical load case `case-2` (its loads renamed): both cases are
+/// in A, and unfaulted both are selected.
+fn milestone_two_cases() -> Value {
+    let mut raw = milestone_raw();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    raw
+}
+/// The W1 transaction as `w1_transaction` runs it, through the call, with every requested case
+/// in A: the observed ordinary run (the route and budget `permitted_run` decides), custody and one
+/// product attempt per case (T-6, T-7), and the one call (T-8). The armed test hooks fire at their
+/// own stages. Returns the transaction and the captured invocation.
+fn called(raw: &Value, mode: PreviewSolverMode) -> (rp::PreparedCases, source_receipt::CapturedInvocation) {
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let route = w1_route(&request.model).unwrap_or_default();
+    let mut observer = rp::ProductCapture::prepared_probe_on(route);
+    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut w1_budget(route), Some(&mut observer));
+    let requested = raw["model"]["load_cases"].as_array().unwrap().len();
+    let attempted: Vec<usize> = (0..requested).collect();
+    let mut prepared = match observer.prepare_cases(ordinary, requested, &attempted) { Ok(p) => p, Err(f) => panic!("custody: {:?}", f.error) };
+    hooks::before_native(&mut prepared);
+    prepared.native();
+    (prepared, capture)
+}
+/// The rest of the transaction up to the serializer: the freezes (T-9), the combinations'
+/// dispositions and custody, and staging (T-11). Returns the staged envelope.
+fn staged(prepared: &mut rp::PreparedCases) -> MechanicsEnvelope {
+    prepared.freeze();
+    prepared.dispositions();
+    prepared.combine().unwrap_or_else(|c| panic!("combination custody: {}", c.0));
+    hooks::before_staging(prepared);
+    prepared.staged_envelope().unwrap_or_else(|f| panic!("staging: {}", f.0))
+}
+/// The whole transaction up to `serialize_cases`: the transaction, its staged envelope and the
+/// captured invocation.
+fn transaction(raw: &Value, mode: PreviewSolverMode) -> (rp::PreparedCases, MechanicsEnvelope, source_receipt::CapturedInvocation) {
+    let (mut prepared, capture) = called(raw, mode);
+    let staged = staged(&mut prepared);
+    (prepared, staged, capture)
+}
+/// The frozen case of request `index`.
+fn frozen(prepared: &rp::PreparedCases, index: usize) -> &rp::FrozenCase {
+    match &prepared.attempts.iter().find(|a| a.request == index).unwrap().end {
+        rp::AttemptEnd::Frozen(frozen) => frozen,
+        _ => panic!("case {index}: frozen expected"),
+    }
+}
+/// The refused case of request `index` (refused after its selected Run).
+fn refused_mut(prepared: &mut rp::PreparedCases, index: usize) -> &mut rp::RefusedCase {
+    match &mut prepared.attempts.iter_mut().find(|a| a.request == index).unwrap().end {
+        rp::AttemptEnd::Candidate(refused) => refused,
+        _ => panic!("case {index}: refused candidate expected"),
+    }
+}
+/// The two-case milestone with case-2's freeze refused after its selected Run at `fault` (a
+/// facade fault after its proof started); case 0 is selected.
+fn refused_second_case(mode: PreviewSolverMode, fault: super::retained_receipt::TraceFault)
+    -> (rp::PreparedCases, MechanicsEnvelope, source_receipt::CapturedInvocation) {
+    hooks::fault_case(1, fault);
+    let outcome = transaction(&milestone_two_cases(), mode);
+    assert!(hooks::armed_names().is_empty(), "the fault fired: {:?}", hooks::armed_names());
+    outcome
 }
 
 /// Protected byte control 1 (experiment 03 A and B): capture never changes the
@@ -108,7 +177,7 @@ fn u1_typed_ordinary_capture_milestone() {
     }
 }
 
-/// The deliverable: the serializer's milestone receipts, both modes, validated
+/// The deliverable: the serializer's milestone receipts (c = 1), both modes, validated
 /// in-process by the accepted Rust reader, eligible with the invocation (U7), with exact
 /// class parity against the certificate's own verdicts, byte-stable.
 #[test]
@@ -116,16 +185,16 @@ fn u1_milestone_successor_both_modes() {
     let out = std::env::var("I61_U1_OUT").ok().map(std::path::PathBuf::from);
     for (mode, (name, file_sha, receipt_sha)) in MODES.into_iter().zip(SUCCESSOR_SHA256) {
         assert_eq!(mode.as_str(), name);
-        let (candidate, capture, _) = milestone_candidate(mode);
-        let successor = wire::serialize_selected(&candidate, &capture).unwrap_or_else(|f| panic!("{name}: {f:?}"));
-        let again = wire::serialize_selected(&candidate, &capture).unwrap();
+        let (mut prepared, staged, capture) = transaction(&milestone_raw(), mode);
+        let successor = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap_or_else(|f| panic!("{name}: {f:?}"));
+        let again = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap();
         assert_eq!(pretty(&successor), pretty(&again), "{name}: deterministic");
         let invocation = invocation(mode);
         let validation = reader::validate(&successor, Some(&invocation)).unwrap_or_else(|e| panic!("{name}: reader {e:?}"));
         assert!(validation.invocation_bound && validation.numerical_eligible, "{name}: eligible with the actual invocation (U7)");
         // Parity: every reader class equals the certificate's verdict class.
         let rows: Vec<&str> = successor["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap()).collect();
-        let verdicts = candidate.certificate().verdicts();
+        let verdicts = frozen(&prepared, 0).certificate().verdicts();
         assert_eq!(validation.classifications.len(), verdicts.len(), "{name}: one class per row");
         for (c, v) in validation.classifications.iter().zip(verdicts) {
             assert_eq!(c.result_id, rows[v.row]);
@@ -156,14 +225,15 @@ fn u1_milestone_successor_both_modes() {
 #[test]
 fn u2_foreign_owner_refused() {
     let mode = PreviewSolverMode::SparseInteractive;
-    let (mut first, capture, _) = milestone_candidate(mode);
-    let (mut second, _, _) = milestone_candidate(mode);
-    assert!(wire::serialize_selected(&first, &capture).is_ok(), "own proof serializes");
-    first.test_swap_certificate(&mut second);
-    let refused = wire::serialize_selected(&first, &capture);
+    let (mut first, first_staged, capture) = transaction(&milestone_raw(), mode);
+    let (mut second, second_staged, _) = transaction(&milestone_raw(), mode);
+    assert!(wire::serialize_cases(&mut first, &first_staged, &capture).is_ok(), "own proof serializes");
+    let (rp::AttemptEnd::Frozen(a), rp::AttemptEnd::Frozen(b)) = (&mut first.attempts[0].end, &mut second.attempts[0].end) else { panic!("selected") };
+    a.test_swap_certificate(b);
+    let refused = wire::serialize_cases(&mut first, &first_staged, &capture);
     println!("I61_FOREIGN_OWNER serializer_refused={}", refused.is_err());
     assert_eq!(refused, Err(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "cases[].selection.owner" }));
-    assert_eq!(wire::serialize_selected(&second, &capture).err().map(|f| f.field_path), Some("cases[].selection.owner"));
+    assert_eq!(wire::serialize_cases(&mut second, &second_staged, &capture).err().map(|f| f.field_path), Some("cases[].selection.owner"));
 }
 
 /// ROOT correction (I65 D-4 §3): every record amount is read through its checked
@@ -231,8 +301,9 @@ fn u1_stage_slots_require_an_exact_status() {
 /// the logical partition and after = before + increment).
 #[test]
 fn u1_conservation_checked_before_emission() {
-    let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let (inv, case) = candidate.capture().native_pair().unwrap();
+    let (mut prepared, staged, capture) = transaction(&milestone_raw(), PreviewSolverMode::SparseInteractive);
+    let successor = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap();
+    let (inv, case) = prepared.capture.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else { panic!("selected") };
     let run = &inv.runs()[case.run];
     let records = &owner.evidence().attempts;
@@ -252,7 +323,6 @@ fn u1_conservation_checked_before_emission() {
         let failures = wire::test_physical(&stop, run.records[i]);
         assert!(failures.contains(&inconsistent("run.records[].work.stop_rule_lme")[0]), "{failures:?}");
     }
-    let successor = wire::serialize_selected(&candidate, &source_receipt::CapturedInvocation::parse(milestone_raw(), PreviewSolverMode::SparseInteractive).unwrap().1).unwrap();
     let attempts = successor["retained_precision"]["body"]["cases"][0]["run"]["attempts"].as_array().unwrap().clone();
     assert!(wire::test_run_conservation(&attempts, run).is_empty());
     let mut broken = attempts.clone();
@@ -384,19 +454,14 @@ fn u1_constants_bound_to_in_tree_fixtures() {
 #[test]
 fn u1_refusals_are_typed() {
     let mode = PreviewSolverMode::SparseInteractive;
-    // Another invocation's custody for the same candidate: the mode differs.
-    let (candidate, _, _) = milestone_candidate(mode);
+    // Another invocation's custody for the same transaction: the mode differs.
+    let (mut prepared, staged, _) = transaction(&milestone_raw(), mode);
     let (_, other) = source_receipt::CapturedInvocation::parse(milestone_raw(), PreviewSolverMode::DenseScrutiny).unwrap();
-    assert_eq!(wire::serialize_selected(&candidate, &other).err().map(|f| f.field_path), Some("invocation"));
-    // A second requested case is wider F2a; since RV82-S2 such an invocation is
-    // also not the one this candidate observed, so it is refused as foreign first
-    // (the Scope branch remains for the candidate's own invocation).
-    let mut raw = milestone_raw();
-    let mut second = raw["model"]["load_cases"][0].clone();
-    second["id"] = json!("case-2");
-    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
-    let (_, two) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
-    assert_eq!(wire::serialize_selected(&candidate, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" }));
+    assert_eq!(wire::serialize_cases(&mut prepared, &staged, &other).err().map(|f| f.field_path), Some("invocation"));
+    // An invocation with a second requested case is not the one this transaction observed
+    // (RV82-S2), so it is refused as foreign before its cases are scoped.
+    let (_, two) = source_receipt::CapturedInvocation::parse(milestone_two_cases(), mode).unwrap();
+    assert_eq!(wire::serialize_cases(&mut prepared, &staged, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" }));
 }
 
 /// G-b and D39 on an actual load-row case (S11-G T1, RF-CANCEL-UDL-W1e8, captured
@@ -457,16 +522,6 @@ fn u1g2_translation_corpus() {
 }
 const GOLDEN_CORPUS_SHA256: &str = "4489a9df4ba668811ce5948b307b55432bc7ba95d801d103c47351a497b4c6f6";
 
-/// The private driver up to a refused candidate (selected native Run, then an
-/// injected facade fault after the proof started).
-fn refused_candidate(mode: PreviewSolverMode, fault: super::retained_receipt::TraceFault)
-    -> (rp::PreparedCandidateRefusal, source_receipt::CapturedInvocation) {
-    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
-    let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
-    prepared.test_capture_mut().trace_fault = Some(fault);
-    prepared.solve_native().unwrap();
-    match prepared.project_candidate() { Err(r) => (r, capture), Ok(_) => panic!("refusal expected") }
-}
 fn write_receipt(name: &str, successor: &Value, mode: PreviewSolverMode) {
     if let Some(dir) = std::env::var("I61_U1_OUT").ok().map(std::path::PathBuf::from) {
         std::fs::write(dir.join(format!("{name}.json")), pretty(&json!({"id":name,"source":successor,"invocation":invocation(mode)}))).unwrap();
@@ -476,76 +531,79 @@ fn body(successor: &Value) -> &Value {
     &successor["retained_precision"]["body"]
 }
 
-/// Grant 2, item 4: the C1-C3 unavailable representation of an actual
-/// preparation refusal (injected trigger, as experiment 02: facts[0] diameter 0).
-/// Under T3 it is not a publication; every accepted reader refuses it at G3.
+/// The C1-C3 unavailable representation of an actual preparation refusal (the closed annulus
+/// helper refuses a zero diameter: `fail_preparation_of_case`) beside a selected case: case-2
+/// has no CaseSource, Run or execution entry; its legacy disclosure is kept and referenced.
 #[test]
 fn u1g2_preparation_refusal_representation() {
     let mode = PreviewSolverMode::SparseInteractive;
-    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
-    let mut observer = rp::ProductCapture::prepared_probe();
-    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
-    observer.facts[0].diameter = 0.0;
-    let failed = match observer.prepare_case(ordinary) { Err(f) => f, Ok(_) => panic!("helper refusal expected") };
-    let successor = wire::serialize_unavailable(wire::Refused::Preparation(&failed), &capture).unwrap_or_else(|f| panic!("{f:?}"));
+    hooks::fail_preparation_of_case(1);
+    let (mut prepared, staged, capture) = transaction(&milestone_two_cases(), mode);
+    assert!(hooks::armed_names().is_empty(), "the fault fired");
+    let successor = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap_or_else(|f| panic!("{f:?}"));
     let b = body(&successor);
-    let case = &b["cases"][0];
+    let case = &b["cases"][1];
+    assert_eq!(b["cases"][0]["status"], json!("selected"));
     assert_eq!((case["status"].as_str(), &case["reason"]), (Some("unavailable"),
-        &json!({"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":0}})));
-    assert_eq!((&case["run"], &case["source_ref"], &b["sources"], &b["work"]["execution_order"], &b["calls"]), (&Value::Null, &Value::Null, &json!([]), &json!([]), &json!([])));
-    let attempt = &b["product_attempts"][0];
+        &json!({"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}})));
+    assert_eq!((&case["run"], &case["source_ref"]), (&Value::Null, &Value::Null));
+    assert_eq!((b["sources"].as_array().map(Vec::len), &b["work"]["execution_order"], &b["calls"][0]["owner_refs"]),
+        (Some(1), &json!([{"kind":"case","index":0}]), &json!([{"kind":"case","index":0}])), "no CaseSource, Run or call entry for case-2");
+    let attempt = &b["product_attempts"][1];
     assert_eq!((attempt["result"]["kind"].as_str(), attempt["result"]["error"]["kind"].as_str(), &attempt["run_ref"], &attempt["source_ref"]),
         (Some("unavailable"), Some("preparation"), &Value::Null, &Value::Null));
     // Unselected: the legacy disclosure is kept and referenced (C2:160), no method token.
-    assert_eq!(b["ordinary_attempts"][0]["legacy_source"], json!({"disposition":"unavailable","diagnostic_ref":"diagnostic:source-recovery:case","work_ref":0}));
-    assert!(successor["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
-    assert!(successor["results"].as_array().unwrap().iter().all(|r| r.get("recovery_method").is_none()));
-    let unavailable: Vec<&Value> = successor["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == wire::UNAVAILABLE_CODE).collect();
+    let Some(rp::LegacySeed::Unavailable { diagnostic_ref, .. }) = &prepared.capture.ordinary[1].legacy else { panic!("legacy unavailable expected") };
+    assert_eq!(diagnostic_ref, "diagnostic:source-recovery:case-2");
+    assert_eq!(b["ordinary_attempts"][1]["legacy_source"], json!({"disposition":"unavailable","diagnostic_ref":diagnostic_ref,"work_ref":1}));
+    let diagnostics = successor["diagnostics"].as_array().unwrap();
+    assert!(diagnostics.iter().any(|d| d["id"] == json!(diagnostic_ref) && d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
+    let case_rows = || successor["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_id"] == "case-2");
+    assert!(case_rows().count() > 0 && case_rows().all(|r| r.get("recovery_method").is_none()));
+    let unavailable: Vec<&Value> = diagnostics.iter().filter(|d| d["code"] == wire::UNAVAILABLE_CODE).collect();
     assert_eq!(unavailable.len(), 1);
-    assert_eq!((unavailable[0]["id"].as_str(), &case["diagnostic_ref"]), (Some("diagnostic:retained-precision:case:unavailable"), &unavailable[0]["id"]));
+    assert_eq!((unavailable[0]["id"].as_str(), &case["diagnostic_ref"]), (Some("diagnostic:retained-precision:case-2:unavailable"), &unavailable[0]["id"]));
     write_receipt("u1g2_preparation_refusal_sparse_interactive", &successor, mode);
 }
 
-/// Grant 2, item 2 (D38): a prepared solve that fails before any kernel schedule
-/// (injected: the prepared source is withdrawn) carries `run:null`, `run_ref:null`
-/// and a `capture` error with the actual cause.
+/// D38 on the W1 transaction: a prepared case whose native source is withdrawn fails the call
+/// itself before any Run, so every prepared attempt ends `Native` with that `capture` cause, the
+/// native stage entered and failed. No case is selected, so `serialize_cases` refuses (`Scope`,
+/// `cases[].status`): no successor carries a prepared attempt without its Run.
 #[test]
-fn u1g2_d38_failure_before_any_run() {
+fn u1g2_d38_call_failure_selects_no_case() {
     for mode in MODES {
-        let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
-        let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
-        prepared.test_capture_mut().source = None;
-        assert!(prepared.solve_native().is_err());
-        assert!(prepared.capture().native_pair().is_none(), "precondition: no kernel schedule ran");
-        let successor = wire::serialize_unavailable(wire::Refused::Native(&prepared), &capture).unwrap_or_else(|f| panic!("{f:?}"));
-        let b = body(&successor);
-        let (case, attempt) = (&b["cases"][0], &b["product_attempts"][0]);
-        assert_eq!((&case["run"], &attempt["run_ref"], &case["source_ref"], &attempt["source_ref"]), (&Value::Null, &Value::Null, &Value::Null, &Value::Null));
-        assert_eq!(attempt["result"], json!({"kind":"unavailable","error":{"kind":"capture","cause":{"kind":"association","detail":"prepared source"}}}));
-        assert_eq!(attempt["stages"]["native"], json!("failed"), "the native stage was entered");
-        assert_eq!((&case["reason"]["code"], &case["reason"]["phase"]), (&json!("source_unavailable"), &json!("preparation")));
-        assert_eq!((&b["work"]["charged"], &b["work"]["execution_order"], &b["calls"]), (&json!(0), &json!([]), &json!([])));
-        write_receipt(&format!("u1g2_d38_{}", mode.as_str()), &successor, mode);
+        hooks::withdraw_next_native_source();
+        let (mut prepared, staged, capture) = transaction(&milestone_raw(), mode);
+        assert!(hooks::armed_names().is_empty(), "the fault fired");
+        assert!(prepared.capture.native_pair().is_none(), "precondition: no kernel schedule ran");
+        let attempt = &prepared.attempts[0];
+        assert!(matches!(attempt.end, rp::AttemptEnd::Native), "{mode:?}");
+        assert!(matches!(&attempt.trace.native_error, Some(rp::CaptureError::Association(d)) if d == "prepared source"), "{:?}", attempt.trace.native_error);
+        assert_eq!(attempt.trace.stages[super::retained_receipt::Stage::Native as usize], super::retained_receipt::StageState::Failed, "the native stage was entered");
+        assert_eq!(wire::serialize_cases(&mut prepared, &staged, &capture).err(),
+            Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Scope, field_path: "cases[].status" }));
     }
 }
 
-/// Grant 2, items 3 and 4: a candidate refused after its selected native Run (an
-/// injected facade fault). The refused proof binds to its owner (U2, failure path);
-/// the case is unavailable at the facade with the actual selected Run.
+/// A candidate refused after its selected native Run (an injected facade fault), beside a
+/// selected case. The refused proof binds to its owner (U2, failure path); the case is
+/// unavailable at the facade with the actual selected Run and its CaseSource.
 #[test]
 fn u1g2_candidate_refusal_after_selected_run() {
     use super::retained_receipt::TraceFault as F;
     let mode = PreviewSolverMode::SparseInteractive;
     for (fault, error) in [(F::Maxima, "abandoned"), (F::ValuesCompletion, "values")] {
-        let (refused, capture) = refused_candidate(mode, fault);
-        let successor = wire::serialize_unavailable(wire::Refused::Candidate(&refused), &capture).unwrap_or_else(|f| panic!("{fault:?}: {f:?}"));
+        let (mut prepared, staged, capture) = refused_second_case(mode, fault);
+        let successor = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap_or_else(|f| panic!("{fault:?}: {f:?}"));
         let b = body(&successor);
-        let (case, attempt) = (&b["cases"][0], &b["product_attempts"][0]);
+        let (case, attempt) = (&b["cases"][1], &b["product_attempts"][1]);
+        assert_eq!((b["cases"][0]["status"].as_str(), case["status"].as_str(), &case["product_attempt_ref"]), (Some("selected"), Some("unavailable"), &json!(1)), "{fault:?}");
         assert_eq!(attempt["result"]["error"]["kind"].as_str(), Some(error), "{fault:?}");
         assert_eq!((&case["reason"]["code"], &case["reason"]["phase"]), (&json!("facade_certificate"), &json!("facade")));
         assert_eq!(case["run"]["kernel_terminal"], json!({"kind":"selected","reason":null}));
-        assert_eq!((&case["source_ref"], &attempt["source_ref"], &attempt["run_ref"]), (&json!(0), &json!(0), &json!(0)));
-        assert_eq!(b["sources"].as_array().map(Vec::len), Some(1));
+        assert_eq!((&case["source_ref"], &attempt["source_ref"], &attempt["run_ref"]), (&json!(1), &json!(1), &json!(1)));
+        assert_eq!(b["sources"].as_array().map(Vec::len), Some(2));
         assert!(case.get("selection").is_none() && case.get("method").is_none());
         write_receipt(&format!("u1g2_candidate_{error}_sparse_interactive"), &successor, mode);
     }
@@ -557,11 +615,11 @@ fn u1g2_candidate_refusal_after_selected_run() {
 fn u2_failure_path_foreign_owner_refused() {
     use super::retained_receipt::TraceFault as F;
     let mode = PreviewSolverMode::SparseInteractive;
-    let (mut first, capture) = refused_candidate(mode, F::ValuesCompletion);
-    let (mut second, _) = refused_candidate(mode, F::ValuesCompletion);
-    assert!(wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture).is_ok(), "own refused proof serializes");
-    first.test_swap_error(&mut second);
-    let refused = wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture);
+    let (mut first, staged, capture) = refused_second_case(mode, F::ValuesCompletion);
+    let (mut second, _, _) = refused_second_case(mode, F::ValuesCompletion);
+    assert!(wire::serialize_cases(&mut first, &staged, &capture).is_ok(), "own refused proof serializes");
+    refused_mut(&mut first, 1).test_swap_error(refused_mut(&mut second, 1));
+    let refused = wire::serialize_cases(&mut first, &staged, &capture);
     println!("I61_FOREIGN_OWNER failure_path_serializer_refused={}", refused.is_err());
     assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
 }
@@ -602,64 +660,59 @@ fn u1g2_kernel_terminals() {
     assert_eq!(wire::test_kernel_terminal(&refused), (0, json!({"kind":"refused","reason":{"space":"refusal","tag":"structure"}})));
 }
 
-/// C2/C3: a source-constructor refusal needs `source_decline`, whose constructor
-/// counts are not captured typed in grant 1-2, so it fails closed (typed).
+/// C2/C3: a source-constructor refusal needs `source_decline`, whose constructor counts are not
+/// captured typed, so it fails closed (typed) even beside a selected case.
 #[test]
 fn u1g2_source_constructor_refusal_fails_closed() {
     use super::retained_receipt::TraceFault as F;
     let mode = PreviewSolverMode::SparseInteractive;
-    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
-    let mut observer = rp::ProductCapture::prepared_probe();
-    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
-    observer.trace_fault = Some(F::SourceConstruction);
-    let failed = match observer.prepare_case(ordinary) { Err(f) => f, Ok(_) => panic!("source refusal expected") };
-    assert!(matches!(failed.capture.error, Some(rp::CaptureError::Source(_))), "precondition: {:?}", failed.capture.error);
-    assert_eq!(wire::serialize_unavailable(wire::Refused::Preparation(&failed), &capture).err(),
+    hooks::fault_case(1, F::SourceConstruction);
+    let (mut prepared, staged, capture) = transaction(&milestone_two_cases(), mode);
+    assert!(hooks::armed_names().is_empty(), "the fault fired");
+    assert!(matches!(prepared.attempts[1].end, rp::AttemptEnd::Preparation) && matches!(prepared.attempts[0].end, rp::AttemptEnd::Frozen(_)));
+    let error = prepared.capture.with_case(1, |c| c.error.clone());
+    assert!(matches!(error, Some(rp::CaptureError::Source(_))), "precondition: {error:?}");
+    assert_eq!(wire::serialize_cases(&mut prepared, &staged, &capture).err(),
         Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Untranslated, field_path: "cases[].source_decline" }));
 }
 
-/// U2 on the failure path, certified proof of a commit refusal: the proof survives
-/// an atomic-commit accounting refusal (as i51's control); a foreign one is refused.
+/// U2 on the failure path, a refused case's surviving certified proof: case-2's freeze is
+/// refused at its observables stage, after its certificate (its first stress extremum's
+/// `approximation` is altered in the ordinary owner after custody), beside a selected case; a
+/// foreign certificate is refused.
 #[test]
 fn u2_failure_path_foreign_certificate_refused() {
-    use rp::AdapterEvent as E;
     let mode = PreviewSolverMode::SparseInteractive;
-    let commit_refusal = || {
-        let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
-        let prepared_case = || {
-            let mut p = rp::PreparedCase::prepare_observed(request.clone(), mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
-            p.solve_native().unwrap();
-            p
-        };
-        let first = prepared_case();
-        let before = first.capture().adapter.counts.get()[E::MapWrite as usize];
-        let candidate = match first.project_candidate() { Ok(c) => c, Err(e) => panic!("{:?}", e.error) };
-        let writes = candidate.capture().adapter.counts.get()[E::MapWrite as usize] - before;
-        let prepared = prepared_case();
-        let mut counts = prepared.capture().adapter.counts.get();
-        counts[E::MapWrite as usize] = u64::MAX - (writes - 1);
-        prepared.capture().adapter.counts.set(counts);
-        let refusal = match prepared.project_candidate() { Err(r) => r, Ok(_) => panic!("commit refusal expected") };
+    let raw = milestone_two_cases();
+    let observable_refusal = || {
+        let (mut prepared, capture) = called(&raw, mode);
+        prepared.ordinary.contract_evidence.as_mut().unwrap()["preview_cases"][1]["pipe_stress_extrema"][0]["approximation"] = json!("altered");
+        let staged = staged(&mut prepared);
+        assert!(matches!(prepared.attempts[0].end, rp::AttemptEnd::Frozen(_)), "precondition: case 0 selected");
+        let refusal = refused_mut(&mut prepared, 1);
+        assert!(matches!(refusal.error, rp::PreparedCandidateError::Observable), "precondition: {:?}", refusal.error);
         assert!(refusal.certificate().is_some() && refusal.proof_failure().is_none(), "precondition: certified proof survives");
-        (refusal, capture)
+        (prepared, staged, capture)
     };
-    let (mut first, capture) = commit_refusal();
-    let (mut second, _) = commit_refusal();
-    first.test_swap_certificate(&mut second);
-    let refused = wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture);
+    let (mut first, staged, capture) = observable_refusal();
+    let (mut second, _, _) = observable_refusal();
+    assert!(wire::serialize_cases(&mut first, &staged, &capture).is_ok(), "own certified proof serializes");
+    refused_mut(&mut first, 1).test_swap_certificate(refused_mut(&mut second, 1));
+    let refused = wire::serialize_cases(&mut first, &staged, &capture);
     assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
 }
 
 /// RV82-S2: the supplied invocation binds structurally (its digest), not by mode
 /// and case id alone: a same-mode invocation with another case label, project id
-/// or load is refused before projection, on both serializer paths.
+/// or load is refused before projection, with a selected case alone and beside an
+/// unavailable one.
 #[test]
 fn u1g2_foreign_invocation_refused() {
     let mode = PreviewSolverMode::SparseInteractive;
-    let (candidate, own, _) = milestone_candidate(mode);
-    assert!(wire::serialize_selected(&candidate, &own).is_ok(), "own invocation serializes");
-    let foreign = |edit: &dyn Fn(&mut Value)| {
-        let mut raw = milestone_raw();
+    let (mut prepared, staged, own) = transaction(&milestone_raw(), mode);
+    assert!(wire::serialize_cases(&mut prepared, &staged, &own).is_ok(), "own invocation serializes");
+    let foreign = |raw: Value, edit: &dyn Fn(&mut Value)| {
+        let mut raw = raw;
         edit(&mut raw);
         source_receipt::CapturedInvocation::parse(raw, mode).unwrap().1
     };
@@ -669,15 +722,15 @@ fn u1g2_foreign_invocation_refused() {
         ("project_id", &|r: &mut Value| r["model"]["project"]["id"] = json!("another-project")),
         ("load", &|r: &mut Value| r["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(0.0049)),
     ] {
-        let other = foreign(edit);
+        let other = foreign(milestone_raw(), edit);
         assert_eq!(other.mode(), mode, "{label}: same mode");
         assert_ne!(other.borrowed_digest(), own.borrowed_digest(), "{label}: a different invocation");
-        assert_eq!(wire::serialize_selected(&candidate, &other).err(), refused, "{label}");
+        assert_eq!(wire::serialize_cases(&mut prepared, &staged, &other).err(), refused, "{label}");
     }
-    let (refusal, own_refusal_invocation) = refused_candidate(mode, super::retained_receipt::TraceFault::ValuesCompletion);
-    assert!(wire::serialize_unavailable(wire::Refused::Candidate(&refusal), &own_refusal_invocation).is_ok());
-    let other = foreign(&|r: &mut Value| r["model"]["load_cases"][0]["label"] = json!("another label"));
-    assert_eq!(wire::serialize_unavailable(wire::Refused::Candidate(&refusal), &other).err(), refused);
+    let (mut refusal, refusal_staged, own_refusal_invocation) = refused_second_case(mode, super::retained_receipt::TraceFault::ValuesCompletion);
+    assert!(wire::serialize_cases(&mut refusal, &refusal_staged, &own_refusal_invocation).is_ok());
+    let other = foreign(milestone_two_cases(), &|r: &mut Value| r["model"]["load_cases"][1]["label"] = json!("another label"));
+    assert_eq!(wire::serialize_cases(&mut refusal, &refusal_staged, &other).err(), refused);
 }
 
 /// RV82 N1′ (R08 at its call site): `run_conservation`'s own checks over explicit

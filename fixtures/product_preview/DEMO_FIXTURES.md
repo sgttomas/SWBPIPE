@@ -13,6 +13,8 @@
 
 **The refused demo.** `invented_preview_model.json` stays unchanged as the refused demo for the product's tests. It still carries legacy pressure primitives and the joint. `invented_mechanics_result_preview_physics_1_sparse.json` and `_dense.json` are the product's verbatim refusal envelopes for it, and `preview_physics_fixture_generation.json` is their record.
 
+**The milestone model for the desktop app.** `rf_skew_t_cant_off_122_r1e-04.desktop_model.json` is the `model` of `rf_skew_t_cant_off_122_r1e-04.request.json` (the F2a milestone) with only the display fields the desktop shell needs added: `data_boundary` (from the bundled demo), a project name and description, labels equal to ids on materials, nodes, pipe segments and supports, empty `components` and `diagnostics`, and `status: "preview_only"` on its load case. Ids, values and `schema_version` are unchanged. `core/product_physics/tests/g10_desktop_milestone_model.rs` checks that difference and that the desktop's solve request publishes the milestone's protected ordinary bytes in both modes; `apps/desktop/src/services/g10DesktopMilestoneModel.test.ts` opens it through the model index and the input manifest.
+
 The bundled results computed with the flawed joint and the legacy pressure (`invented_mechanics_result.json` and the precision-1 pair) were removed by the owner's decision on M07 (G10, D-3).
 
 ## Regenerating

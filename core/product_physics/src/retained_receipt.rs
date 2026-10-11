@@ -1,5 +1,4 @@
 //! Private typed C3 seam. No serializer, public receipt, profile or selection.
-#![allow(dead_code)]
 use super::retained_product as p;
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
 
@@ -90,6 +89,7 @@ pub(super) struct CoverageBody {pub body:u32,pub stop:[bool;4],pub has_data:bool
 #[derive(Debug,Clone,Copy)]
 pub(super) struct CompleteCoverage<'a> {entries:&'a [k::ProductSummaryCoverage]}
 impl<'a> CompleteCoverage<'a> {
+    #[cfg(test)]
     pub fn len(&self)->usize {self.entries.len()}
     /// Ascending native body ids 0..body_count-1, one compact entry each.
     pub fn bodies(&self)->impl Iterator<Item=CoverageBody>+'a {
@@ -131,6 +131,10 @@ fn summary_coverage<'a>(trace:&PreparedTrace,capture:&'a p::ProductCapture,resul
         Err(_)=>Err(TraceProjectionError::LostTrace),
     }
 }
+/// One product attempt's typed view. The serializer and the tests read the members they
+/// project; the view's layout is a priced atom of the registered memory profile
+/// (`retained_memory.rs`), so its members change only with a re-registration.
+#[allow(dead_code)]
 pub(super) struct PreparedAttemptView<'a> {
     pub case:&'a str,pub result:ResultRef<'a>,pub stages:&'a [StageState;10],
     pub old_coverage:OldCoverage,pub old_vector_swapped:bool,
