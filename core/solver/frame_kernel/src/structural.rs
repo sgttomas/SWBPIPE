@@ -67,6 +67,8 @@ pub use formation_check::{
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
+// O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
+pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{
     assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
     finish_sparse_structural, prepare_assembled_sparse_structural,
