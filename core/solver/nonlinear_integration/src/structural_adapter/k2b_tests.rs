@@ -19,8 +19,8 @@ use crate::{
 };
 use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, Formation, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{
-    unscale_for_publication, FormationCheckReason, PublishedValue, RecordOutcome,
-    RecordRepresentability, Representability, SolveQuality,
+    assemble_sparse_stiffness, unscale_for_publication, FormationCheckReason, PublishedValue,
+    RecordOutcome, RecordRepresentability, Representability, SolveQuality,
 };
 use open_pipe_stress_frame_kernel::{FrameDof, FrameNode, FrameSection};
 use open_pipe_stress_nonlinear_supports::{
@@ -268,7 +268,7 @@ impl Model {
         ForceScalingCase {
             node_count: self.node_count,
             frames: &self.frames,
-            users: &[],
+            connectors: &[],
             curved: &self.slots,
             curved_sources: &self.macros,
             springs: &self.springs,
@@ -1409,7 +1409,7 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
         let input = NonlinearFrameSolveInput {
             node_count: 2,
             elements: model.frames.clone(),
-            user_stiffness_elements: vec![],
+            connectors: Vec::new(),
             curved_bend_elements: vec![],
             force: force.values().to_vec(),
             base_restrained_dofs: model.rigid(),

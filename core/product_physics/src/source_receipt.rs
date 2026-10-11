@@ -309,10 +309,10 @@ impl CapturedInvocation {
             return Err(bad("invocation actual built source unavailable"));
         }
         let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-        let mut stiffness = assemble_global_stiffness_with_user_elements(
+        let mut stiffness = assemble_global_stiffness_with_connectors(
             built.nodes.len(),
             &built.frame_elements,
-            &built.user_stiffness_elements,
+            &built.connectors,
         )
         .map_err(|e| bad(e.to_string()))?;
         add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);

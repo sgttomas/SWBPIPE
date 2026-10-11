@@ -1136,8 +1136,8 @@ mod tests {
         }
     }
 
-    // T0R A1: the invented demo keeps a realized user-stiffness joint, which the
-    // ordinary route now refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED). These
+    // The invented demo keeps a legacy joint, which every route refuses
+    // (LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED, D-4). These
     // bridge tests need a solved model, so they use the derived joint-free model.
     fn preview_request() -> LinearStaticPreviewRequest {
         LinearStaticPreviewRequest {

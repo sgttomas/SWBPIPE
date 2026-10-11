@@ -2382,6 +2382,11 @@ fn resolve_create_component(
         );
         return None;
     }
+    if kind == "expansion_joint" {
+        return resolve_expansion_joint_creation(
+            model, target_ref, record, id, label, node, provenance, checker,
+        );
+    }
     let Some(geometry) = record.get("geometry").and_then(Value::as_object) else {
         checker.push(
             "OP-CREATE-COMPONENT-GEOMETRY-INVALID",
@@ -2398,44 +2403,138 @@ fn resolve_create_component(
         "reducer" | "valve" | "flange" => {
             resolve_rigid_creation_geometry(model, target_ref, kind, node, geometry, checker)
         }
-        "expansion_joint" => {
-            resolve_expansion_joint_creation_geometry(model, target_ref, node, geometry, checker)
-        }
         _ => unreachable!("component kind allowlist checked above"),
     }?;
-    let canonical_modifiers = if kind == "expansion_joint" {
-        let Some(modifiers) = record.get("modifiers").and_then(Value::as_object) else {
-            checker.push(
-                "OP-CREATE-EXPANSION-JOINT-MODIFIERS-INVALID",
-                "blocking",
-                "Expansion-joint creation requires an explicit modifiers object with four-axis user-entered stiffness data.".to_string(),
-                "Provide every explicit expansion-joint stiffness quantity and its source reference; values are never inferred.",
-                vec![target_ref.to_string()],
-            );
-            return None;
-        };
-        Some(resolve_expansion_joint_creation_modifiers(
-            target_ref, modifiers, checker,
-        )?)
-    } else {
-        None
-    };
     checker.reference_state = "passed";
-    let mut canonical_record = serde_json::json!({
+    Some(serde_json::json!({
         "id": id,
         "label": label,
         "kind": kind,
         "node": node,
         "geometry": canonical_geometry,
         "provenance": provenance,
-    });
-    if let Some(modifiers) = canonical_modifiers {
-        canonical_record
-            .as_object_mut()
-            .expect("component record is an object")
-            .insert("modifiers".to_string(), modifiers);
+    }))
+}
+
+/// T4-U3 (D-4, slot table N-9): expansion-joint creation follows the
+/// document's contract. On a `3.0.0/exact_pressure_v3` document a joint is
+/// created as an explicit objective connector (`objective_connector`
+/// 1.0.0, `replaces_span` of a pipe joining its two end nodes, at one of
+/// them); on 0.1.0/0.2.0 documents only the annotation mode is offered
+/// (`not_solver_consumed`, analysed as pipe). Legacy four-rate creation is
+/// retired everywhere and nothing is converted; existing joints stay
+/// readable, editable and saveable. The solver checks the connector in full.
+#[allow(clippy::too_many_arguments)]
+fn resolve_expansion_joint_creation(
+    model: &Value,
+    target_ref: &str,
+    record: &serde_json::Map<String, Value>,
+    id: &str,
+    label: &str,
+    node: &str,
+    provenance: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    let schema = model.get("schema_version").and_then(Value::as_str).unwrap_or("");
+    let contract = model.get("pressure_contract");
+    let v3 = matches!(schema, "0.3.0" | "0.4.0")
+        && contract.and_then(|c| c.get("version")).and_then(Value::as_str) == Some("3.0.0")
+        && contract.and_then(|c| c.get("mode")).and_then(Value::as_str) == Some("exact_pressure_v3");
+    let legacy = record.get("modifiers").is_some()
+        || record
+            .get("geometry")
+            .and_then(|g| g.get("expansion_joint_pipe_ref"))
+            .is_some();
+    if legacy {
+        checker.push(
+            "OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED",
+            "blocking",
+            "Legacy four-rate expansion-joint creation (a pipe reference with scalar stiffness rates) is retired: such a joint is neither solved nor converted.".to_string(),
+            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a 0.1.0/0.2.0 document create the annotation mode (not_solver_consumed).",
+            vec![target_ref.to_string()],
+        );
+        return None;
     }
-    Some(canonical_record)
+    let consumption = record
+        .get("mechanics_interface")
+        .and_then(|m| m.get("solver_consumption"))
+        .and_then(Value::as_str);
+    if v3 {
+        let connector = record.get("objective_connector").filter(|c| c.is_object());
+        let end = |key: &str| {
+            connector
+                .and_then(|c| c.get(key))
+                .and_then(|e| e.get("node_ref"))
+                .and_then(Value::as_str)
+                .unwrap_or("")
+        };
+        let (node_i, node_j) = (end("end_i"), end("end_j"));
+        let topology = connector.and_then(|c| c.get("topology"));
+        let span = topology.and_then(|t| t.get("span_ref")).and_then(Value::as_str).unwrap_or("");
+        let pipe = find_entity(model, "pipe_segments", span);
+        let joins = pipe.is_some_and(|p| {
+            let (from, to) = (
+                p.get("from").and_then(Value::as_str).unwrap_or(""),
+                p.get("to").and_then(Value::as_str).unwrap_or(""),
+            );
+            (from == node_i && to == node_j) || (from == node_j && to == node_i)
+        });
+        let valid = connector.and_then(|c| c.get("version")).and_then(Value::as_str) == Some("1.0.0")
+            && topology.and_then(|t| t.get("type")).and_then(Value::as_str) == Some("replaces_span")
+            && !node_i.is_empty()
+            && node_i != node_j
+            && (node == node_i || node == node_j)
+            && joins
+            && matches!(consumption, None | Some("objective_connector"));
+        if !valid {
+            checker.push(
+                "OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID",
+                "blocking",
+                "On a 3.0.0/exact_pressure_v3 document an expansion joint is created as an objective connector: objective_connector version 1.0.0 whose replaces_span pipe joins its two end nodes, placed at one of them, with solver_consumption absent or objective_connector.".to_string(),
+                "Author the connector's end nodes, the replaced span and the remaining connector fields explicitly; nothing is inferred from a pipe or legacy rates.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+        checker.reference_state = "passed";
+        return Some(serde_json::json!({
+            "id": id,
+            "label": label,
+            "kind": "expansion_joint",
+            "node": node,
+            "objective_connector": connector.cloned().expect("checked above"),
+            "provenance": provenance,
+        }));
+    }
+    if matches!(schema, "0.1.0" | "0.2.0") {
+        if consumption != Some("not_solver_consumed") || record.get("objective_connector").is_some() {
+            checker.push(
+                "OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY",
+                "blocking",
+                "On a 0.1.0/0.2.0 document an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
+                "Create the annotation, or move the model to a 3.0.0/exact_pressure_v3 document and author an objective connector.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+        checker.reference_state = "passed";
+        return Some(serde_json::json!({
+            "id": id,
+            "label": label,
+            "kind": "expansion_joint",
+            "node": node,
+            "mechanics_interface": { "solver_consumption": "not_solver_consumed" },
+            "provenance": provenance,
+        }));
+    }
+    checker.push(
+        "OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED",
+        "blocking",
+        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on 0.1.0/0.2.0 documents; this document's contract admits neither.".to_string(),
+        "Use a 3.0.0/exact_pressure_v3 document for a solved joint.",
+        vec![target_ref.to_string()],
+    );
+    None
 }
 
 fn component_kind_label(kind: &str) -> &str {
@@ -2699,174 +2798,6 @@ fn resolve_tee_creation_geometry(
     }))
 }
 
-fn resolve_expansion_joint_creation_geometry(
-    model: &Value,
-    target_ref: &str,
-    node: &str,
-    geometry: &serde_json::Map<String, Value>,
-    checker: &mut Checker,
-) -> Option<Value> {
-    let pipe_ref = geometry
-        .get("expansion_joint_pipe_ref")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    let hardware_reference = geometry
-        .get("hardware_reference")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    let manufacturer_reference = geometry
-        .get("manufacturer_reference")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    let pressure_thrust_reference = geometry
-        .get("pressure_thrust_reference")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    let source_reference = geometry
-        .get("expansion_joint_source_reference")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    let effective_area = geometry
-        .get("effective_area")
-        .and_then(parse_positive_quantity);
-    let movement_limit = geometry
-        .get("movement_limit")
-        .and_then(parse_positive_quantity);
-    if pipe_ref.is_empty()
-        || hardware_reference.is_empty()
-        || manufacturer_reference.is_empty()
-        || pressure_thrust_reference.is_empty()
-        || source_reference.is_empty()
-        || effective_area.is_none()
-        || movement_limit.is_none()
-    {
-        checker.push(
-            "OP-CREATE-EXPANSION-JOINT-GEOMETRY-INVALID",
-            "blocking",
-            "Expansion-joint geometry requires a non-empty pipe ref, hardware/manufacturer/pressure-thrust/source references, and finite positive effective-area and movement-limit quantities.".to_string(),
-            "Complete every explicit expansion-joint geometry and connectivity field; pipe roles and engineering values are never inferred.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
-    if !referenced_pipe_is_incident(
-        model,
-        target_ref,
-        "expansion_joint",
-        node,
-        pipe_ref,
-        checker,
-    ) {
-        return None;
-    }
-    let effective_area = effective_area.unwrap();
-    let movement_limit = movement_limit.unwrap();
-    if !entered_quantity_has_dimension(
-        &effective_area,
-        Dimension::Area,
-        target_ref,
-        "Expansion-joint effective area",
-        checker,
-    ) || !entered_quantity_has_dimension(
-        &movement_limit,
-        Dimension::Length,
-        target_ref,
-        "Expansion-joint movement limit",
-        checker,
-    ) {
-        return None;
-    }
-    Some(serde_json::json!({
-        "expansion_joint_pipe_ref": pipe_ref,
-        "effective_area": { "value": effective_area.value, "unit": effective_area.unit },
-        "movement_limit": { "value": movement_limit.value, "unit": movement_limit.unit },
-        "hardware_reference": hardware_reference,
-        "manufacturer_reference": manufacturer_reference,
-        "pressure_thrust_reference": pressure_thrust_reference,
-        "expansion_joint_source_reference": source_reference,
-    }))
-}
-
-fn resolve_expansion_joint_creation_modifiers(
-    target_ref: &str,
-    modifiers: &serde_json::Map<String, Value>,
-    checker: &mut Checker,
-) -> Option<Value> {
-    let axial = modifiers
-        .get("axial_stiffness_user_value")
-        .and_then(parse_positive_quantity);
-    let lateral = modifiers
-        .get("lateral_stiffness_user_value")
-        .and_then(parse_positive_quantity);
-    let angular = modifiers
-        .get("angular_stiffness_user_value")
-        .and_then(parse_positive_quantity);
-    let torsional = modifiers
-        .get("torsional_stiffness_user_value")
-        .and_then(parse_positive_quantity);
-    let source_reference = modifiers
-        .get("source_reference")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
-    if axial.is_none()
-        || lateral.is_none()
-        || angular.is_none()
-        || torsional.is_none()
-        || source_reference.is_empty()
-    {
-        checker.push(
-            "OP-CREATE-EXPANSION-JOINT-MODIFIERS-INVALID",
-            "blocking",
-            "Expansion-joint modifiers require finite positive axial, lateral, angular, and torsional stiffness quantities plus a non-empty source reference.".to_string(),
-            "Complete all four explicit user-entered stiffness quantities and their source reference; no stiffness value is inferred.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
-    let axial = axial.unwrap();
-    let lateral = lateral.unwrap();
-    let angular = angular.unwrap();
-    let torsional = torsional.unwrap();
-    for (quantity, dimension, field_label) in [
-        (
-            &axial,
-            Dimension::LinearStiffness,
-            "Expansion-joint axial stiffness",
-        ),
-        (
-            &lateral,
-            Dimension::LinearStiffness,
-            "Expansion-joint lateral stiffness",
-        ),
-        (
-            &angular,
-            Dimension::RotationalStiffness,
-            "Expansion-joint angular stiffness",
-        ),
-        (
-            &torsional,
-            Dimension::RotationalStiffness,
-            "Expansion-joint torsional stiffness",
-        ),
-    ] {
-        if !entered_quantity_has_dimension(quantity, dimension, target_ref, field_label, checker) {
-            return None;
-        }
-    }
-    Some(serde_json::json!({
-        "axial_stiffness_user_value": { "value": axial.value, "unit": axial.unit },
-        "lateral_stiffness_user_value": { "value": lateral.value, "unit": lateral.unit },
-        "angular_stiffness_user_value": { "value": angular.value, "unit": angular.unit },
-        "torsional_stiffness_user_value": { "value": torsional.value, "unit": torsional.unit },
-        "source_reference": source_reference,
-    }))
-}
 
 fn resolve_rigid_creation_geometry(
     model: &Value,
@@ -13204,172 +13135,89 @@ mod tests {
         assert!(outcome.applied_model.is_none());
     }
 
+    /// T4-U3 (D-4, N-9): legacy four-rate creation is retired on every
+    /// document; a 0.1.0/0.2.0 document offers the annotation mode only.
     #[test]
-    fn explicit_expansion_joint_creation_applies_and_preserves_entered_refs_and_units() {
+    fn legacy_expansion_joint_creation_is_retired_and_the_annotation_is_offered() {
         let model = sample_model();
-        let before_snapshot = model.clone();
-        let payload = expansion_joint_payload();
-        let intent = expansion_joint_intent(&payload);
-
-        let outcome = apply_operation(&model, &intent, None);
-
-        assert_eq!(
-            model, before_snapshot,
-            "apply must not mutate the input model in place"
-        );
-        assert!(
-            outcome.diagnostics.is_empty(),
-            "unexpected diagnostics: {:?}",
-            outcome.diagnostics
-        );
-        assert_eq!(
-            outcome.validation.application_status,
-            "applied_to_session_model"
-        );
-        assert_eq!(outcome.validation.reference_validation, "passed");
-        assert_eq!(outcome.validation.unit_validation, "passed");
+        let legacy = expansion_joint_payload();
+        let outcome = apply_operation(&model, &expansion_joint_intent(&legacy), None);
+        assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED"]);
+        assert!(outcome.applied_model.is_none());
+        let annotation = json!({
+            "id": "component:C-expansion-joint", "label": "User expansion joint",
+            "kind": "expansion_joint", "node": "node:N-2",
+            "mechanics_interface": {"solver_consumption": "not_solver_consumed"},
+            "provenance": "user_entered_local_preview"
+        });
+        let outcome = apply_operation(&model, &expansion_joint_intent(&annotation), None);
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.validation.application_status, "applied_to_session_model");
         let applied = outcome.applied_model.expect("applied model");
-        assert_eq!(applied["components"].as_array().unwrap().len(), 2);
+        assert_eq!(applied["components"][1], annotation);
+        // Anything other than the annotation is refused on 0.1.0/0.2.0.
+        let mut not_annotation = annotation.clone();
+        not_annotation["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
+        let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
+        assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
+    }
+
+    /// A v3 document: the objective connector for the replaced span between
+    /// its end nodes.
+    fn v3_model() -> Value {
+        let mut model = sample_model();
+        model["schema_version"] = json!("0.3.0");
+        model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
+        model
+    }
+
+    fn connector_payload() -> Value {
+        json!({
+            "id": "component:C-expansion-joint", "label": "User expansion joint",
+            "kind": "expansion_joint", "node": "node:N-2",
+            "objective_connector": {
+                "version": "1.0.0",
+                "end_i": {"node_ref": "node:N-1"},
+                "end_j": {"node_ref": "node:N-2"},
+                "topology": {"type": "replaces_span", "span_ref": "pipe:P-1"}
+            },
+            "provenance": "user_entered_local_preview"
+        })
+    }
+
+    #[test]
+    fn v3_expansion_joint_creation_is_an_objective_connector() {
+        let model = v3_model();
+        let payload = connector_payload();
+        let outcome = apply_operation(&model, &expansion_joint_intent(&payload), None);
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        let applied = outcome.applied_model.expect("applied model");
         assert_eq!(applied["components"][1], payload);
-        assert_eq!(
-            applied["components"][1]["geometry"]["expansion_joint_pipe_ref"],
-            json!("pipe:P-1")
-        );
-        assert_eq!(
-            applied["components"][1]["geometry"]["effective_area"]["unit"],
-            json!("in^2")
-        );
-        assert_eq!(
-            applied["components"][1]["geometry"]["movement_limit"]["unit"],
-            json!("in")
-        );
-        assert_eq!(
-            applied["components"][1]["geometry"]["pressure_thrust_reference"],
-            json!("user_entered_pressure_thrust_review")
-        );
-        assert_eq!(
-            applied["components"][1]["modifiers"]["source_reference"],
-            json!("user_entered_expansion_joint_stiffness")
-        );
-    }
-
-    #[test]
-    fn expansion_joint_creation_blocks_missing_geometry_or_stiffness_data() {
-        let model = sample_model();
-
-        let mut missing_pressure_reference = expansion_joint_payload();
-        missing_pressure_reference["geometry"]
-            .as_object_mut()
-            .unwrap()
-            .remove("pressure_thrust_reference");
-        let outcome = apply_operation(
-            &model,
-            &expansion_joint_intent(&missing_pressure_reference),
-            None,
-        );
-        assert!(codes(&outcome).contains(&"OP-CREATE-EXPANSION-JOINT-GEOMETRY-INVALID"));
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-
-        let mut missing_axial_stiffness = expansion_joint_payload();
-        missing_axial_stiffness["modifiers"]
-            .as_object_mut()
-            .unwrap()
-            .remove("axial_stiffness_user_value");
-        let outcome = apply_operation(
-            &model,
-            &expansion_joint_intent(&missing_axial_stiffness),
-            None,
-        );
-        assert!(codes(&outcome).contains(&"OP-CREATE-EXPANSION-JOINT-MODIFIERS-INVALID"));
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-    }
-
-    #[test]
-    fn expansion_joint_creation_blocks_unknown_or_nonincident_selected_pipe() {
-        let model = sample_model();
-        let mut unknown_pipe = expansion_joint_payload();
-        unknown_pipe["geometry"]["expansion_joint_pipe_ref"] = json!("pipe:missing");
-        let outcome = apply_operation(&model, &expansion_joint_intent(&unknown_pipe), None);
-        assert!(codes(&outcome).contains(&"OP-COMPONENT-PIPE-NOT-FOUND"));
-        assert_eq!(outcome.validation.reference_validation, "blocked");
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-
-        let mut disconnected_model = model.clone();
-        disconnected_model["nodes"].as_array_mut().unwrap().extend([
-            json!({
-                "id": "node:N-3",
-                "label": "Disconnected start",
-                "position": { "x": 10.0, "y": 0.0, "z": 0.0 },
-                "provenance": "invented_example"
-            }),
-            json!({
-                "id": "node:N-4",
-                "label": "Disconnected end",
-                "position": { "x": 12.0, "y": 0.0, "z": 0.0 },
-                "provenance": "invented_example"
-            }),
-        ]);
-        disconnected_model["pipe_segments"]
-            .as_array_mut()
-            .unwrap()
-            .push(json!({
-                "id": "pipe:P-2",
-                "label": "Disconnected run",
-                "from": "node:N-3",
-                "to": "node:N-4",
-                "section": {
-                    "outside_diameter": { "value": 0.168, "unit": "m" },
-                    "wall_thickness": { "value": 0.007, "unit": "m" }
-                },
-                "material": "material:steel",
-                "provenance": "invented_example"
-            }));
-        let mut nonincident_pipe = expansion_joint_payload();
-        nonincident_pipe["geometry"]["expansion_joint_pipe_ref"] = json!("pipe:P-2");
-        let outcome = apply_operation(
-            &disconnected_model,
-            &expansion_joint_intent(&nonincident_pipe),
-            None,
-        );
-        assert!(codes(&outcome).contains(&"OP-COMPONENT-CONNECTIVITY-INVALID"));
-        assert_eq!(outcome.validation.reference_validation, "blocked");
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-    }
-
-    #[test]
-    fn expansion_joint_creation_blocks_invalid_dimensions_and_nonpositive_values() {
-        let model = sample_model();
-
-        let mut invalid_area_unit = expansion_joint_payload();
-        invalid_area_unit["geometry"]["effective_area"]["unit"] = json!("m");
-        let outcome = apply_operation(&model, &expansion_joint_intent(&invalid_area_unit), None);
-        assert!(codes(&outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
-        assert_eq!(outcome.validation.unit_validation, "blocked");
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-
-        let mut invalid_angular_unit = expansion_joint_payload();
-        invalid_angular_unit["modifiers"]["angular_stiffness_user_value"]["unit"] = json!("N/m");
-        let outcome = apply_operation(&model, &expansion_joint_intent(&invalid_angular_unit), None);
-        assert!(codes(&outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
-        assert_eq!(outcome.validation.unit_validation, "blocked");
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
-
-        let mut nonpositive_stiffness = expansion_joint_payload();
-        nonpositive_stiffness["modifiers"]["torsional_stiffness_user_value"]["value"] = json!(0.0);
-        let outcome = apply_operation(
-            &model,
-            &expansion_joint_intent(&nonpositive_stiffness),
-            None,
-        );
-        assert!(codes(&outcome).contains(&"OP-CREATE-EXPANSION-JOINT-MODIFIERS-INVALID"));
-        assert_eq!(outcome.validation.application_status, "blocked");
-        assert!(outcome.applied_model.is_none());
+        // Legacy rates are retired on v3 as well.
+        let outcome = apply_operation(&model, &expansion_joint_intent(&expansion_joint_payload()), None);
+        assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED"]);
+        // An unknown span, a span not joining the end nodes, another
+        // topology, a node off the connector or a contradictory consumption.
+        for change in [
+            ("/objective_connector/topology/span_ref", json!("pipe:missing")),
+            ("/objective_connector/end_i/node_ref", json!("node:N-2")),
+            ("/objective_connector/topology/type", json!("parallel_with_elements")),
+            ("/node", json!("node:N-9")),
+            ("/mechanics_interface", json!({"solver_consumption": "not_solver_consumed"})),
+        ] {
+            let mut invalid = payload.clone();
+            let (parent, key) = change.0.rsplit_once('/').unwrap();
+            let target = if parent.is_empty() { &mut invalid } else { invalid.pointer_mut(parent).unwrap() };
+            target[key] = change.1.clone();
+            let outcome = apply_operation(&model, &expansion_joint_intent(&invalid), None);
+            assert!(outcome.applied_model.is_none(), "{change:?}");
+            assert!(!codes(&outcome).is_empty(), "{change:?}");
+        }
+        // A v2 document admits neither form.
+        let mut v2 = v3_model();
+        v2["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+        let outcome = apply_operation(&v2, &expansion_joint_intent(&payload), None);
+        assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"]);
     }
 
     #[test]

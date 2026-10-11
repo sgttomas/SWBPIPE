@@ -74,6 +74,17 @@
   "results": [],
   "diagnostics": [
     {
+      "id": "diagnostic:joint:component-C-150:legacy-reauthor",
+      "code": "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED",
+      "severity": "blocking",
+      "message": "expansion joint component:C-150 on pipe pipe:P-130 is a legacy four-rate finite-span joint; it is neither solved nor converted, and it is not analysed as pipe. Re-author it as an objective connector (objective_connector 1.0.0) on a 3.0.0/exact_pressure_v3 document: the connector frame and both end attachments, a 6x6 scaled work matrix with its basis and provenance, the topology (replaces_span), the hardware and the pressure model",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-150",
+        "pipe:P-130"
+      ]
+    },
+    {
       "id": "diagnostic:pressure-runtime:load-L-100-load-L-100-P:PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "severity": "blocking",
@@ -147,16 +158,6 @@
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-130"
-      ]
-    },
-    {
-      "id": "diagnostic:component:component-C-150:expansion-joint-review",
-      "code": "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
-      "severity": "info",
-      "message": "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-150"
       ]
     }
   ],

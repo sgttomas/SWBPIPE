@@ -447,7 +447,9 @@ mod tests {
  const PREVIEW_MODEL_FIXTURE:&str=include_str!("../../../product_physics/tests/fixtures/preview_physics_invented_model.json");
  fn realized_joint_ids(model: &Value) -> Vec<Value> {
    model["components"].as_array().into_iter().flatten()
-     .filter(|c| c["kind"] == "expansion_joint" && c["mechanics_interface"]["solver_consumption"] == "mechanics_geometry_and_user_flexibility")
+     // T4-U3 (D-4): every legacy joint (no connector, not the annotation mode).
+     .filter(|c| c["kind"] == "expansion_joint" && c.get("objective_connector").is_none()
+       && c["mechanics_interface"]["solver_consumption"] != "not_solver_consumed")
      .map(|c| c["id"].clone()).collect()
  }
  fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
@@ -473,11 +475,11 @@ mod tests {
      }
      let joints = realized_joint_ids(&model);
      if !joints.is_empty() && case["expected_status"] == "MECHANICS_SOLVED" {
-       // T0R A1: a realized user-stiffness joint is refused before solving.
+       // T4-U3 (D-4): a legacy joint is refused before solving.
        let refused = run_preview_model_value(request(), serde_json::json!({"model":model,"materials":[]})).unwrap();
        let blocked = refused.mechanics_envelope.as_ref().unwrap();
        assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE", "{}", case["case_id"]);
-       assert!(blocked.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"));
+       assert!(blocked.diagnostics.iter().any(|d| d.code == "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED"));
        assert!(blocked.results.is_empty());
        assert!(refused.result_envelope_document.is_none());
        assert_eq!(refused.canonical_export_unavailability.as_deref(), Some("SOURCE_NOT_SOLVED"));

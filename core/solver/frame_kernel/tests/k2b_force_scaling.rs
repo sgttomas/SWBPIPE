@@ -11,6 +11,7 @@
 //! its section formed as PP `derive_pipe_section` forms it; its expected
 //! census (-1079, -333, b = 734) is the independent generator's
 //! (`IMPLEMENTATION/K2B/_run_records/k2b_models.py.txt`).
+use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
     AssembledForce, ForceTerm, ForceTermKind, Formation, LoadLedger,
@@ -24,7 +25,7 @@ use open_pipe_stress_frame_kernel::structural::{
 };
 use open_pipe_stress_frame_kernel::{
     force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus, FrameElement,
-    FrameKernelError, FrameNode, FrameSection, Matrix12, UserStiffnessElement,
+    FrameKernelError, FrameNode, FrameSection, Matrix12,
 };
 use std::f64::consts::PI;
 
@@ -156,7 +157,7 @@ fn k2b_force_scaled_value_is_exact_and_refuses_what_cannot_stay_normal() {
 }
 
 #[test]
-fn k2b_elements_scale_e_g_and_user_stiffnesses_only() {
+fn k2b_elements_scale_e_g_and_connector_stiffnesses_only() {
     let member = x_member(product_section(2.0e11, 8.0e10, 0.2, 0.01), 3.0);
     let scaled = member.force_scaled(scale(-40)).unwrap();
     assert_eq!(scaled.section.elastic_modulus, 2.0e11 * pow2(-40));
@@ -182,31 +183,45 @@ fn k2b_elements_scale_e_g_and_user_stiffnesses_only() {
             name: "E*2^b (force scale)"
         })
     );
-    let user = UserStiffnessElement::new(
-        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
-        FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
-        [0.0, 1.0, 0.0],
-        1.0e6,
-        2.0e6,
-        3.0e6,
-        4.0e6,
+    // T4-U3 (S8): a connector scales its K (and so its Ke) by 2^b exactly.
+    let connector = x_connector();
+    let c = connector.force_scaled(scale(10)).unwrap();
+    for (row, row_scaled) in connector.stiffness().iter().zip(c.stiffness()) {
+        for (&v, w) in row.iter().zip(row_scaled) {
+            assert_eq!(w.to_bits(), (v * 1024.0).to_bits());
+        }
+    }
+    for (row, row_scaled) in connector
+        .global_stiffness()
+        .unwrap()
+        .iter()
+        .zip(c.global_stiffness().unwrap())
+    {
+        for (&v, w) in row.iter().zip(row_scaled) {
+            assert_eq!(w.to_bits(), (v * 1024.0).to_bits());
+        }
+    }
+}
+
+/// An invented connector along global x between nodes 2 and 3 (offsets zero,
+/// identity Q, an uncoupled K at Ls = 1 m).
+fn x_connector() -> ObjectiveConnector {
+    ObjectiveConnector::new(
+        FrameNode::new(2, [3.0, 1.5, 0.5]).unwrap(),
+        FrameNode::new(3, [4.0, 1.5, 0.5]).unwrap(),
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        ScaledWorkMatrix {
+            upper_triangle: [
+                1.0e8, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0e7, 0.0, 0.0, 0.0, 0.0, 2.0e7, 0.0, 0.0, 0.0,
+                4.0e6, 0.0, 0.0, 3.0e6, 0.0, 3.0e6,
+            ],
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
     )
-    .unwrap();
-    let u = user.force_scaled(scale(10)).unwrap();
-    assert_eq!(
-        [
-            u.axial_stiffness,
-            u.lateral_stiffness,
-            u.angular_stiffness,
-            u.torsional_stiffness
-        ],
-        [
-            1.0e6 * 1024.0,
-            2.0e6 * 1024.0,
-            3.0e6 * 1024.0,
-            4.0e6 * 1024.0
-        ]
-    );
+    .unwrap()
 }
 
 // ------------------------------------------------------------------ the b-rule
@@ -309,18 +324,6 @@ fn k2b_the_census_refuses_every_kind_of_subnormal_input() {
     let mut m: Matrix12 = [[0.0; 12]; 12];
     m[2][2] = 2.0e-310;
     c.matrix(&m);
-    assert_eq!(c.force_scale(), refused);
-    let mut c = normal();
-    let user = UserStiffnessElement {
-        node_i: FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
-        node_j: FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
-        y_reference: [0.0, 1.0, 0.0],
-        axial_stiffness: 1.0,
-        lateral_stiffness: 0.0,
-        angular_stiffness: 1.0e-310,
-        torsional_stiffness: 1.0,
-    };
-    c.user(&user);
     assert_eq!(c.force_scale(), refused);
     // A frame operand that does not scale with b (I here) is still refused,
     // and so is a subnormal E.
@@ -535,7 +538,7 @@ fn k2b_the_s11g_records_are_dropped_and_unread_by_the_kernel() {
 
 fn assembly_inputs() -> (
     Vec<FrameElement>,
-    Vec<UserStiffnessElement>,
+    Vec<ObjectiveConnector>,
     Vec<StiffnessBlock>,
     Vec<(usize, f64)>,
 ) {
@@ -557,16 +560,7 @@ fn assembly_inputs() -> (
         )
         .unwrap(),
     ];
-    let users = vec![UserStiffnessElement::new(
-        node(2, [3.0, 1.5, 0.5]),
-        node(3, [3.0, 2.5, 0.5]),
-        [1.0, 0.0, 0.0],
-        1.0e8,
-        2.0e7,
-        3.0e6,
-        4.0e6,
-    )
-    .unwrap()];
+    let connectors = vec![x_connector()];
     let mut block = [[0.0; 12]; 12];
     for (k, row) in block.iter_mut().enumerate() {
         row[k] = 1.0e7 + k as f64;
@@ -576,16 +570,16 @@ fn assembly_inputs() -> (
         node_j: 3,
         stiffness: block,
     }];
-    (frames, users, blocks, vec![(5, 3.0e5), (13, 7.0e4)])
+    (frames, connectors, blocks, vec![(5, 3.0e5), (13, 7.0e4)])
 }
 
 #[test]
 fn k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly() {
-    let (frames, users, blocks, springs) = assembly_inputs();
+    let (frames, connectors, blocks, springs) = assembly_inputs();
     let base = assemble_sparse_stiffness(
         4,
         &frames,
-        &users,
+        &connectors,
         &blocks,
         &springs,
         &SparseAssemblyOptions::new(),
@@ -594,7 +588,7 @@ fn k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly() {
     let same = assemble_sparse_stiffness(
         4,
         &frames,
-        &users,
+        &connectors,
         &blocks,
         &springs,
         &SparseAssemblyOptions::new().with_force_scale(ForceScale::UNSCALED),
@@ -609,7 +603,7 @@ fn k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly() {
         let options = SparseAssemblyOptions::new().with_force_scale(scale(b));
         assert_eq!(options.force_scale(), scale(b));
         let scaled =
-            assemble_sparse_stiffness(4, &frames, &users, &blocks, &springs, &options).unwrap();
+            assemble_sparse_stiffness(4, &frames, &connectors, &blocks, &springs, &options).unwrap();
         assert_eq!(scaled.pattern(), base.pattern());
         for (&v, &w) in base.values().iter().zip(scaled.values()) {
             assert_eq!(w.to_bits(), (v * pow2(b)).to_bits(), "b = {b}");
@@ -646,7 +640,7 @@ fn k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly() {
         assemble_sparse_stiffness(
             4,
             &frames,
-            &users,
+            &connectors,
             &blocks,
             &springs,
             &SparseAssemblyOptions::new().with_force_scale(scale(1000)),

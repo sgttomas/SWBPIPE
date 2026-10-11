@@ -8,8 +8,8 @@ moving either boundary.
 Current slice:
 
 - assembles the frame stiffness matrix each iteration, including explicit
-  user-stiffness macro-elements and explicit curved-bend macro-element
-  stiffness slots (`DEC-070`) supplied by the caller;
+  curved-bend macro-element stiffness slots (`DEC-070`) supplied by the
+  caller; objective connectors are refused by this loop (T4-U3, until T5);
 - applies base restraints plus active nonlinear restraints;
 - applies the `DEC-067` bounded `+/- mu*N` tangential force at friction
   supports classified sliding, opposing the observed motion with the current

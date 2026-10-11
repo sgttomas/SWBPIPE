@@ -31,6 +31,10 @@ type Check = Result<(), String>;
 pub(crate) enum Method {
     LoadReference,
     Joined,
+    /// T4-U2a/T4-U3: the `pressure-1` 0.4.0 pre-pass. Identical to
+    /// `LoadReference` except that connector records are left to the
+    /// inherited physics pass under the v3 contract.
+    Pressure,
 }
 
 pub const RECORD_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
@@ -359,9 +363,15 @@ pub fn validate_load_reference_transport_metadata(source: &Value) -> Check {
 }
 
 /// T4-U2a: `contract` selects the inherited raw physics checks: v2's
-/// (physics-1) or, for a 0.4.0 `pressure-1` envelope, v3's.
+/// (physics-1) or, for a 0.4.0 `pressure-1` envelope, v3's. T4-U3: the v3
+/// contract also selects the `pressure-1` pre-pass, which leaves connector
+/// records to the inherited v3 physics checks.
 fn validate(source: &Value, raw: bool, contract: PressureContract) -> Check {
-    prepass(source, raw, Method::LoadReference)?;
+    let method = match contract {
+        PressureContract::StraightV2 => Method::LoadReference,
+        PressureContract::PressureV3 => Method::Pressure,
+    };
+    prepass(source, raw, method)?;
     // S14 inherited physics-1 checks on the projected copy.
     let projected = project(source);
     let inherited = if raw {
@@ -417,8 +427,10 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     }
     // S3-S5 namespace.
     require(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")?;
+    // T4-U3: pressure-1's connector records are checked by the inherited
+    // physics pass under the v3 contract; every other method refuses them.
     require(
-        array(&evidence["connector"])?.is_empty(),
+        method == Method::Pressure || array(&evidence["connector"])?.is_empty(),
         "CONNECTOR_UNSUPPORTED",
     )?;
     let pressure = array(&evidence["pressure"])?;

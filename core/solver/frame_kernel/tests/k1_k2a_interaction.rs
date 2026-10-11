@@ -18,7 +18,7 @@
 //! The section is formed as PP `derive_pipe_section` forms it, as K2a's tests do.
 use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, FrameElement, FrameKernelError, FrameNode,
+    assemble_global_stiffness_with_connectors, FrameElement, FrameKernelError, FrameNode,
     FrameProperties, FrameSection,
 };
 use std::f64::consts::PI;
@@ -80,7 +80,7 @@ fn member_at(
 /// Both assemblies of `frames` on `node_count` nodes: the same error, or
 /// bit-identical values.
 fn assert_same(node_count: usize, frames: &[FrameElement], ctx: &str) -> Option<FrameKernelError> {
-    let dense = assemble_global_stiffness_with_user_elements(node_count, frames, &[]);
+    let dense = assemble_global_stiffness_with_connectors(node_count, frames, &[]);
     let sparse = assemble_sparse_stiffness(
         node_count,
         frames,

@@ -260,8 +260,6 @@ fn original_rigid_witness(
 // and `original_rigid_witness` above are K5-unchanged; I109 replaced the former's
 // two `hypot` calls with `correct_norm`'s correctly rounded norms.
 
-use crate::UserStiffnessElement;
-
 /// K5 (Q6): the kind of a directional ground row.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum GroundKind {
@@ -297,8 +295,8 @@ pub const CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE: &str =
     "constrained-body witness parameters not representable";
 
 /// K5: W4's assessment of one constrained body. `status` is never
-/// `UnqualifiedFamily`: qualifying the elements is the caller's (the tie rule
-/// `user_element_tie`; the adapter's curved rule).
+/// `UnqualifiedFamily`: qualifying the elements is the caller's (the adapter's
+/// curved and connector rules).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConstrainedAssessment {
     pub status: RigidBodyStatus,
@@ -324,40 +322,6 @@ pub struct ConstrainedAssessment {
     /// statuses): `CONSTRAINED_RANK_UNRESOLVED` or
     /// `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`.
     pub unresolved: Option<&'static str>,
-}
-
-/// K5 (Q5(a)): why today's user element is not a tie.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TieRefusal {
-    /// "axial", "lateral", "angular" or "torsional": zero, negative or not finite.
-    Stiffness(&'static str),
-    /// The element repeats a node or has no valid local orientation.
-    Orientation,
-}
-
-/// K5 (Q5(a)): today's user-stiffness element has relative springs along its
-/// local axes, the lateral ones without the rigid-body moment coupling. Its
-/// energy `Σ k_d (Δ_d)²` over the six relative local DOFs is zero exactly for
-/// `u_a = u_b` and `θ_a = θ_b` when all four stiffnesses are finite and positive
-/// and its orientation is valid: that is the tie W4 imposes. With a zero lateral
-/// stiffness the relative lateral translation is free, so the element is no tie.
-/// Returns the tie's node indices. T4's M07 repair changes this rule (the FK
-/// test `k5_t4_tripwire_user_tie_space_is_the_represented_null_space`).
-pub fn user_element_tie(element: &UserStiffnessElement) -> Result<[usize; 2], TieRefusal> {
-    for (name, value) in [
-        ("axial", element.axial_stiffness),
-        ("lateral", element.lateral_stiffness),
-        ("angular", element.angular_stiffness),
-        ("torsional", element.torsional_stiffness),
-    ] {
-        if !(value.is_finite() && value > 0.0) {
-            return Err(TieRefusal::Stiffness(name));
-        }
-    }
-    if element.node_i.index == element.node_j.index || element.orientation().is_err() {
-        return Err(TieRefusal::Orientation);
-    }
-    Ok([element.node_i.index, element.node_j.index])
 }
 
 /// K5: the connected components of `links` (objective elements: straight
