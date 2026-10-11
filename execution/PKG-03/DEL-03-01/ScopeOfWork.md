@@ -27,7 +27,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > ##### PDU-024 Version Integration
 >
 > - Owning material schema remains `schemas/material.schema.yaml`.
-> - Project-carried material data consumes DEL-02-05 model-document version handling, whose accepted current family is `0.2.0`.
+> - Project-carried material data consumes DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
 > - No material fixture migration, material serializer, or new migration status is added by this tranche.
 >
 
@@ -125,7 +125,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### PDU-024 Persistence Integration Boundary
 >
-> When material data is carried in a project model, downstream DEL-02-05 persistence uses the accepted model-document `0.2.0` family and established current/stale/unsupported/newer/failed version checks. This integration evidence does not add a DEL-03-01-owned serializer, migrate the invented material fixture, or close the separately recorded material round-trip persistence deferral.
+> When material data is carried in a project model, downstream DEL-02-05 persistence uses its single current model-document version and current-or-refused version checks (DEL-02-05 CLM-003). This integration evidence does not add a DEL-03-01-owned serializer, migrate the invented material fixture, or close the separately recorded material round-trip persistence deferral.
 >
 
 ### CLM-011 — Requirements

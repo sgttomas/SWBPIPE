@@ -349,7 +349,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 ## SCA-011 — Interface responsibility and verification hook
 
-- **DEL-08-04-SCA011-REQ-001** — Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. Existing accepted 0.1/0.2 result contracts and raw-source preservation remain governing.
+- **DEL-08-04-SCA011-REQ-001** — Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. The current result-export contract (0.3.0) and raw-source preservation govern. Result exports 0.1 and 0.2 are refused by name under the owner's 2026-10-10 one-version decision ("as you recommended, no-compatibility principle carries") and are removed in B7a (DEL-05-02 Design, `b7-plan.md`).
 - **DEL-08-04-SCA011-VER-001** — Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.

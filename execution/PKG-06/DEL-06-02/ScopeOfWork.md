@@ -29,7 +29,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 > ##### PDU-024 Version Integration
 >
-> - Project-carried evaluator inputs consume DEL-02-05 model-document version handling; accepted current family is `0.2.0`.
+> - Project-carried evaluator inputs consume DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
 > - Version-check diagnostics remain the established current/stale/unsupported/newer/failed vocabulary.
 > - No expression grammar, binding namespace, evaluator library, rule-pack fixture, or migration tooling is added.
 >
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 > ##### PDU-024 Persistence Integration Boundary
 >
-> When user-supplied design-basis inputs or rule-check references are carried in a project model, downstream DEL-02-05 persistence uses the accepted model-document `0.2.0` family and established current/stale/unsupported/newer/failed version checks. This does not change the evaluator's binding contract, grammar, sandbox, or result-field scope.
+> When user-supplied design-basis inputs or rule-check references are carried in a project model, downstream DEL-02-05 persistence uses its single current model-document version and current-or-refused version checks (DEL-02-05 CLM-003). This does not change the evaluator's binding contract, grammar, sandbox, or result-field scope.
 >
 
 ### CLM-013 — Requirements
