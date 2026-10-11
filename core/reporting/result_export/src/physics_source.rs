@@ -1097,8 +1097,10 @@ fn validate_stress(
         .ok_or("PHYSICS_SOURCE_STRESS_SECTION")?;
     let params = &check["parameters"];
     require(
-        *params
-            == json!({"area_m2":section["As_m2"],"section_modulus_m3":section["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section["J_m4"],"pa_per_mpa":1e6}),
+        crate::json_value_eq(
+            params,
+            &json!({"area_m2":section["As_m2"],"section_modulus_m3":section["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section["J_m4"],"pa_per_mpa":1e6}),
+        ),
         "STRESS_SECTION_PARAMETERS",
     )?;
     let action = num(&check["action"]["value"])?;

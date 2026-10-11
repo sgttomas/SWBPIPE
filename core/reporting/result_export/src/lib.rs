@@ -8,6 +8,37 @@
 
 use serde_json::{json, Value};
 
+/// b7-plan R2 A2: two JSON values equal by value. Numbers compare by binary64
+/// value (`==`, so `-0` equals `0`, as every JCS copy writes it), an integer
+/// equalling a float only when the float is that exact integer, so a statement or
+/// a copied member re-serialized in JCS or `JSON.stringify` form (which write `1e6`
+/// as `1000000`) reads as it was published. Objects compare by key set and arrays
+/// in order.
+pub fn json_value_eq(a: &Value, b: &Value) -> bool {
+    fn integer(n: &serde_json::Number) -> Option<i128> {
+        n.as_i64().map(i128::from).or_else(|| n.as_u64().map(i128::from))
+    }
+    fn exact(f: f64, i: i128) -> bool {
+        f.fract() == 0.0 && f.abs() < 1.7e38 && f as i128 == i
+    }
+    match (a, b) {
+        (Value::Number(x), Value::Number(y)) => match (integer(x), integer(y)) {
+            (Some(i), Some(j)) => i == j,
+            (Some(i), None) => y.as_f64().is_some_and(|f| exact(f, i)),
+            (None, Some(j)) => x.as_f64().is_some_and(|f| exact(f, j)),
+            (None, None) => x.as_f64() == y.as_f64(),
+        },
+        (Value::Array(x), Value::Array(y)) => {
+            x.len() == y.len() && x.iter().zip(y).all(|(x, y)| json_value_eq(x, y))
+        }
+        (Value::Object(x), Value::Object(y)) => {
+            x.len() == y.len()
+                && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| json_value_eq(v, w)))
+        }
+        _ => a == b,
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AnalysisStatus {
     ModelIncomplete,

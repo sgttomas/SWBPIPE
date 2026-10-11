@@ -415,7 +415,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
                 | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
         )
     ) {
-        if doc["result_envelope"]["source_block_recovery"] != source["source_block_recovery"] {
+        if !crate::json_value_eq(&doc["result_envelope"]["source_block_recovery"], &source["source_block_recovery"]) {
             return Err("SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH".into());
         }
     } else if doc["result_envelope"]
@@ -427,7 +427,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     // D2 4.9.7: the copied receipt equals the source's, whole; no other
     // identity's document carries one.
     if is_successor(source) {
-        if doc["result_envelope"]["retained_precision"] != source["retained_precision"] {
+        if !crate::json_value_eq(&doc["result_envelope"]["retained_precision"], &source["retained_precision"]) {
             return Err(RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH.into());
         }
     } else if doc["result_envelope"].get("retained_precision").is_some() {
@@ -435,13 +435,15 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     }
     if version == "0.3.0" {
         for key in ["producer", "numerical_quality", "formulation_basis"] {
-            if doc["result_envelope"][key] != source[key] {
+            if !crate::json_value_eq(&doc["result_envelope"][key], &source[key]) {
                 return Err("SOURCE_METADATA_BINDING_MISMATCH".into());
             }
         }
-        if doc["result_envelope"].get("contract_evidence")
-            != source.get("contract_evidence").filter(|v| !v.is_null())
-        {
+        let evidence = source.get("contract_evidence").filter(|v| !v.is_null());
+        if !match (doc["result_envelope"].get("contract_evidence"), evidence) {
+            (Some(copied), Some(evidence)) => crate::json_value_eq(copied, evidence),
+            (copied, evidence) => copied == evidence,
+        } {
             return Err("SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH".into());
         }
         if doc["result_envelope"]["semantic_contract_ref"]
@@ -662,7 +664,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         } else {
             (&target["magnitude"], &target["unit"])
         };
-        if value != &row["value"]
+        if !crate::json_value_eq(value, &row["value"])
             || unit != &row["unit"]
             || target["object_ref"]
                 != reference(
@@ -764,12 +766,16 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             || w["source_row_index"] != i
             || w["source_result_ref"] != reference("received_result", row["id"].as_str().unwrap())
             || w["source_field_path"] != a["source_field_path"]
-            || w["source_quantity"]
-                != json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed})
+            || !crate::json_value_eq(
+                &w["source_quantity"],
+                &json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed}),
+            )
             || w["target_result_ref"] != a["target_ref"]
             || w["target_field_path"] != a["target_field_path"]
-            || w["target_quantity"]
-                != json!({"value":row["value"],"unit":row["unit"],"dimension":dimension})
+            || !crate::json_value_eq(
+                &w["target_quantity"],
+                &json!({"value":row["value"],"unit":row["unit"],"dimension":dimension}),
+            )
             || w["received_carrier_row_checksum"] != row_hash
             || w["original_producer_row_checksum"] != original
             || w["source_physical_semantic_dimension"] != math

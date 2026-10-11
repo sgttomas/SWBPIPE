@@ -546,3 +546,94 @@ fn base_reader_outcomes_are_the_committed_corpus_outcomes() {
     }
     assert!(read_text(OUTCOMES) == text, "{OUTCOMES} differs from the native outcomes");
 }
+
+/// b7-plan R2 A2: the JCS form of a value (`canonical_json`, the form every
+/// hash-by-value copy has) and the `JSON.stringify` form (ECMAScript numbers; an
+/// integer beyond 2^53 is a binary64 there).
+fn jcs_form(value: &Value) -> Value {
+    serde_json::from_str(&open_pipe_stress_canonical_json::canonical_json(value)).unwrap()
+}
+fn stringify_form(value: &Value) -> Value {
+    match value {
+        Value::Number(n) => {
+            let safe = n.as_u64().map(|u| u <= 1 << 53).or(n.as_i64().map(|i| i.unsigned_abs() <= 1 << 53));
+            if safe == Some(true) {
+                return value.clone();
+            }
+            serde_json::from_str(&open_pipe_stress_canonical_json::ecma_number_to_string(n.as_f64().unwrap())).unwrap()
+        }
+        Value::Array(items) => Value::Array(items.iter().map(stringify_form).collect()),
+        Value::Object(map) => Value::Object(map.iter().map(|(k, v)| (k.clone(), stringify_form(v))).collect()),
+        other => other.clone(),
+    }
+}
+
+/// Whether a re-serialized value holds the same binary64 values, bit for bit, as
+/// the original: false where it wrote `-0` as `0` or rounded an integer beyond 2^53.
+fn same_bits(a: &Value, b: &Value) -> bool {
+    fn integer(n: &serde_json::Number) -> Option<i128> {
+        n.as_i64().map(i128::from).or_else(|| n.as_u64().map(i128::from))
+    }
+    fn exact(f: f64, i: i128) -> bool {
+        f.fract() == 0.0 && !(f == 0.0 && f.is_sign_negative()) && f.abs() < 1.7e38 && f as i128 == i
+    }
+    match (a, b) {
+        (Value::Number(x), Value::Number(y)) => match (integer(x), integer(y)) {
+            (Some(i), Some(j)) => i == j,
+            (Some(i), None) => exact(y.as_f64().unwrap(), i),
+            (None, Some(j)) => exact(x.as_f64().unwrap(), j),
+            (None, None) => x.as_f64().unwrap().to_bits() == y.as_f64().unwrap().to_bits(),
+        },
+        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(x, y)| same_bits(x, y)),
+        (Value::Object(x), Value::Object(y)) => x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same_bits(v, w))),
+        _ => a == b,
+    }
+}
+
+/// A2: the readers read numbers by value. Every corpus statement, with its model
+/// and invocation, re-serialized in either form, gives its committed outcome.
+#[test]
+fn base_reader_outcomes_hold_for_re_serialized_inputs() {
+    let (mut differing, mut changed) = (Vec::new(), Vec::new());
+    for input in corpus() {
+        let Ok(source) = &input.source else { continue };
+        let want = outcome_of(&input);
+        // Each form for the whole input, and for the source or its model and
+        // invocation alone (a caller may hold them in different forms).
+        let forms: [(&str, fn(&Value) -> Value, fn(&Value) -> Value); 4] = [
+            ("jcs", jcs_form, jcs_form),
+            ("stringify", stringify_form, stringify_form),
+            ("source-only", stringify_form, |v| v.clone()),
+            ("inputs-only", |v| v.clone(), stringify_form),
+        ];
+        for (form, f, g) in forms {
+            let moved = Input {
+                id: input.id.clone(),
+                source: Ok(f(source)),
+                model: input.model.as_ref().map(g),
+                invocation: input.invocation.as_ref().map(g),
+                readers: input.readers.clone(),
+                transports: input.transports.clone(),
+                rows: input.rows,
+            };
+            let preserved = [(Some(source), moved.source.as_ref().ok()), (input.model.as_ref(), moved.model.as_ref()), (input.invocation.as_ref(), moved.invocation.as_ref())]
+                .iter()
+                .all(|(a, b)| a.zip(*b).is_none_or(|(a, b)| same_bits(a, b)));
+            // A form that changed a value (a `-0` written `0`, an integer beyond 2^53
+            // rounded) reads another statement; where its outcome differs it is listed.
+            let got = outcome_of(&moved);
+            if got != want && !preserved {
+                changed.push(format!("{} [{form}]", input.id));
+            } else if got != want {
+                differing.push(format!("{} [{form}]: {} -> {}", input.id, serde_json::to_string(&want).unwrap().chars().take(600).collect::<String>(), serde_json::to_string(&got).unwrap().chars().take(600).collect::<String>()));
+            }
+        }
+    }
+    if let Ok(path) = std::env::var("A2_BY_VALUE_OUT") {
+        std::fs::write(format!("{path}/base.txt"), differing.join("\n")).unwrap();
+        std::fs::write(format!("{path}/base_value_changed.txt"), changed.join("\n")).unwrap();
+    }
+    // Only the unsafe-integer mutation's JSON.stringify forms change an outcome.
+    assert_eq!(changed, ["lrs/NUM-unsafe-integer-in-publication [stringify]", "lrs/NUM-unsafe-integer-in-publication [source-only]"]);
+    assert!(differing.is_empty(), "{} outcomes differ:\n{}", differing.len(), differing.iter().take(40).cloned().collect::<Vec<_>>().join("\n"));
+}
