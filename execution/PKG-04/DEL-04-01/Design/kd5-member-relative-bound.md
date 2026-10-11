@@ -18,8 +18,8 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 
   The worst judged B/c is 0.032, so the margin is at least 31 (§4.2).
 - **W1's N-5 abandonment (T3's M1).** (d) abandons none of the 2,844 invocations in W1's domain; R-b′ abandons 64 of them today (§4.4).
-- **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Every such case changes last bits. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
-- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a certified row is nonzero and its coupled force or moment scale reaches the existing 2^-988 guard. The resulting noise-only demotion carries the notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
+- **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Nonzero evaluation cases generally change last bits; zero-load and exact-result cases can retain identical member bytes. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
+- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a certified row is nonzero and its coupled force or moment scale reaches the existing 2^-988 guard. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
 - **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). The short-bend rule is removed only with the closure, in the same unit (T3's M3).
 - **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
 
@@ -63,7 +63,7 @@ FK's `FormationSource` gains `loads: Vec<LoadPrimitive>`. Each primitive names t
 
 A formed term whose primitives do not cover it, or a primitive whose re-formation fails (a `WideError` or a failed R-1 precondition), makes the check unavailable: `FormationCheckUnavailable { "load closure: <source> …" }`. Coverage is decided by the ledger's own formation records, not by a hand-kept list or by whether a term has any primitive.
 
-**Complete summands (HELP_HUMAN's delegated technical ruling, 2026-10-11).** Each formed ledger term has a closure manifest of expected summand identities. The identity is the ledger term's index plus its producer's stable summand identity (family, member or support identity, and ordinal within that producer's authored or factor group). The manifest is established by the producer's complete source/factor-group enumeration, before and independently of collecting the supplied `LoadPrimitive` entries. It is retained with the ledger formation record. The supplied primitives reference these identities; FK compares their identity multiset exactly with the manifest before any residual or recovery evaluation. Missing, duplicate, extra, mismatched-term, and absent-manifest entries make the check unavailable with a named load-closure detail. Input terms have no formation record and may not carry a closure primitive.
+**Complete summands (HELP_HUMAN's delegated technical ruling, 2026-10-11).** Each formed ledger term has a closure manifest of expected summand identities. The identity is the ledger term's index plus its producer's stable summand identity (family, member or support identity, and ordinal within that producer's authored or factor group). Each expected entry also binds the primitive to its immutable source operands: the family and source slot, sign and coefficient, geometry reference, and exact binary64 operand bits. Supplied operand bindings are compared exactly; a matching identity attached to the wrong pipe, direction or operands fails closed. The manifest is established by the producer's complete source/factor-group enumeration, before and independently of collecting the supplied `LoadPrimitive` entries. It is retained with the ledger formation record. The supplied primitives reference these identities; FK compares their identity multiset exactly with the manifest before any residual or recovery evaluation, on both the ordinary and W2 force-scaled routes. Missing, duplicate, extra, mismatched-term, wrong-operand-binding, and absent-manifest entries make the check unavailable with a named load-closure detail. Input terms have no formation record and may not carry a closure primitive.
 
 The expected identities must never be derived from the supplied primitive vector: doing so would bless a dropped summand. For a grouped pressure term, the manifest enumerates every operand in its producer's factor group, including all pipes meeting the node; dropping one supplied operand leaves the original manifest intact and fails closed. Producer tests independently compare each complete family with its exact reference, and a mutant that drops one of several supplied primitives must fail the closure before publication. Both the manifest and the actual primitive storage are included in re-registration pricing (§6).
 
@@ -134,7 +134,7 @@ K̃_s is symmetric, so its 1- and ∞-norm inverses agree, and ε_E bounds both 
 
 ### 2.1 ε_E, measured (T3's I4)
 
-**Method.** A scratch build of the product (t4-u2 at 98dba87714, which contains I41's probe base d92850097d) forms ε_E inside `evaluate` exactly as step 7 states. It walks the 144-entry contribution blocks in assembly order, re-forms each element at p, and also forms the exact ‖E‖ directly. Sets: the realistic set (921 pre-guard Passed, including the loops), RV29 (tiny-angle and UTM), the W1 straight set, and all of RV30 (C/D families and the short-bend family). Evidence: `WT/scratch/t4_code/t4_i44/` (`wt/` probe hook, `tools/i44_eval.py`, `tools/analyze.py`, `analysis.txt`).
+**Method.** The I44 measurement uses ordinary summation with inflation; it measures the triangle-bound scale and cannot substitute for the implementation's rigorous upward accumulation and its tests. A scratch build of the product (t4-u2 at 98dba87714, which contains I41's probe base d92850097d) forms the three contributions to ε_E inside `evaluate` as step 7 states. It walks the 144-entry contribution blocks in assembly order, re-forms each element at p, and also forms the exact ‖E‖ directly. Sets: the realistic set (921 pre-guard Passed, including the loops), RV29 (tiny-angle and UTM), the W1 straight set, and all of RV30 (C/D families and the short-bend family). Evidence: `WT/scratch/t4_code/t4_i44/` (`wt/` probe hook, `tools/i44_eval.py`, `tools/analyze.py`, `analysis.txt`).
 
 **Pass condition.** K-D5 runs only when r̂ ≥ √ε = 2^-26. So ε_E ≤ 2^-36·‖K̃_s‖₁ guarantees 2^10·est·ε_E ≤ 1 at every r̂ the check sees. **Go/no-go threshold:** go if every evaluated case-mode has ε_E ≤ 2^-40·‖K̃_s‖₁, which is 16 times under the pass condition and equal to revision 1's stand-in. No-go if any realistic or short-bend case-mode exceeds 2^-36·‖K̃_s‖₁.
 
@@ -270,7 +270,7 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
 
 **Property.** Member rows (end actions, section actions, station rows, stresses, pipe-wall rows) and support reactions of a load case published `NUMERICAL_INTEGRITY_CHECKS_PASSED` on the linear route are certified recoveries. They are not binary64 recomputations from the published displacements.
 
-- Last bits change on every such case: 100 % of the evaluated Passed case-modes.
+- Last bits changed on every Passed case-mode in the nonzero evaluation sets; this is a measurement, not a universal property. Zero-load and exact-result cases can remain byte-identical.
 - In 21.8 % of RV30 case-modes (23.0 % realistic, 21.3 % on W1's straight set), some row moves by more than its criterion. These are today's breaches, repaired. The attempt's own matrix changes the repaired values by at most B, which is far below c, so these rates are those of revision 1's emulation.
 - The per-case largest change |v_d − v|/S*:
 
@@ -402,7 +402,7 @@ So the short-bend rule is removed in the same unit as the closure and after it. 
   - `prescribed_rotation_all_fixed`;
   - the 1e-4 rad arc of t15b;
   - the zero-load and temperature-identity cases (u = 0, rows exactly zero).
-- **Every Passed linear-route case changes member-row bytes** (§6).
+- **Passed linear-route cases publish certified member rows** (§6); zero-load and exact-result cases can remain byte-identical.
 
 ## 5. The nonlinear-support route
 
@@ -432,7 +432,7 @@ The cost and the W1 relation (the route is outside D1) belong to that unit.
 
 **Bytes that change.**
 
-- **Member rows and support reactions** of every Passed linear-route case: 36 committed linear output fixtures carry Passed member rows (`fixtures/results/*`, `fixtures/product_preview/{load_reference,load_reference_source,physics_source}/*`, `core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json`). Displacements and every case that is not pre-guard Passed are unchanged.
+- **Member rows and support reactions** of every Passed linear-route case: 36 committed linear output fixtures carry Passed member rows (`fixtures/results/*`, `fixtures/product_preview/{load_reference,load_reference_source,physics_source}/*`, `core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json`). Displacements and every case that is not pre-guard Passed are unchanged. Zero-load and exact-result cases may retain identical member bytes.
 - **The retained successors' ordinary base.** W-C2 (B1) and the B2 combination successors each contain a `CHECKS_PASSED` case (`not_required`) whose ordinary base rows change, so their publication and receipt hashes change. The exact successors have no Passed case and do not move. Each item below was located by grep at this revision:
   - PP `core/product_physics/src/retained_facade_tests.rs`:
     - `W_C2_PINNED` (:1882). Its registered branch in `b1_sp_w_c2_fixtures_are_the_live_successors` (:2194) needs the re-registered profile.
@@ -566,7 +566,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - for W2, reuse the unscaled attempt's Λ.
 - **The closure:**
   - a formed term without a primitive must fail closed;
-  - a ledger term carrying several primitives, with one dropped while its independently enumerated ledger manifest remains intact, must fail closed; duplicates, extras and mismatched term identities must also fail closed;
+  - a ledger term carrying several primitives, with one dropped while its independently enumerated ledger manifest remains intact, must fail closed; duplicates, extras, mismatched term identities and wrong operand bindings must also fail closed, in ordinary and W2 routes;
   - K-D5 with no ledger must fail closed;
   - a ledger value substituted for a primitive (the realistic STD-U wT utm-skew line kills it at 3.8e3·c);
   - each primitive family has a test against an exact reference.
@@ -584,6 +584,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - the resolution conjunct reintroduced (RV29's cantilever kills it);
   - group norm replaced by a maximum;
   - the force and moment reaction groups merged;
+  - the spring support-on-pipe sign reversed; signed components and equilibrium are pinned on ordinary and W2 routes;
   - the pipe-wall group merged into N.
 - **The notice:**
   - the positive, the negative control and the "solely because" pin of §3.3;
