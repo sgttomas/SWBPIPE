@@ -1,396 +1,480 @@
 # K-D5 member-relative bound and the unified R-b′ predicate (T4-KD5)
 
-This record gives the derivation and evidence for HELP_HUMAN's ruling of 2026-10-10. The ruling is a correctness fix for main: the integrity system must not publish `NUMERICAL_INTEGRITY_CHECKS_PASSED` for a case whose published member rows breach the 1e-9 row-relative criterion. The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integrity.md)) and R-b′/O-13 ([arc-recovery-guard.md](arc-recovery-guard.md)). It changes no product code. The reserved choices at the end go to HELP_HUMAN before implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Revision 1. It implements HELP_HUMAN's ruling of 2026-10-11, made under the owner's delegation: **option (d), "repair"**. Revision 0 (68d78411af) derived the bound and measured the cost of applying it as a guard. Revision 1 makes the unit publish what the bound certifies. It also folds T3's load closure into D5C-1, and applies RV33's corrections and T3's interface review (M1–M3, S1–S7).
+
+The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integrity.md)) and R-b′/O-13 ([arc-recovery-guard.md](arc-recovery-guard.md)). It changes no product code. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Result.**
 
-- **The bound.** A certified member-relative bound follows from K-D5's p = 128 re-formation with one more exact residual and one more correction solve (§1). It is certified against K-D5's intended system under one conditioning assumption, which holds with a measured margin above 140.
-- **Tightness.** With exact loads, the bound reproduces the true u-propagated row error to within 6e-6, relative.
-- **Use.** The bound is applied in the *corrected-row* form (§2), which also measures the recovery's own rounding.
-- **Catches.** It catches every Passed breach in RV29's set and in a realistic set of standard-elbow lines.
-- **It does not catch every RV30 breach.** It misses 12 of 8,946 breaching RV30 case-modes. All 12 are t96 lines at UTM skew placements with formed thermal or pressure loads, on torsion rows at q/S* ≤ 3.5e-7, with err/c from 1.0 to 8.6. Eleven of the 12 are also missed today. The cause is load formation, which K-D5's residual takes as intended; §4.1 gives the evidence and §6 the closure.
-- **Cost.** The cost is the true breach rate. At today's floor (2^-34·S*), 21.9 % of the 42,096 pre-guard-Passed case-modes evaluated publish a breaching member row. In the realistic set this includes:
-  - L lines (12 %);
-  - U lines (31 %);
-  - Z lines (27 %);
-  - 4-bend expansion loops (45 %);
-  - committed qualification and reference requests.
+- **One intended system.** K-D5's intended system is its p = 128 re-formation of the stiffness and, new in revision 1, of every formed load term from its binary64 primitives (§1). The residual, both corrections, the bound and the published member rows all use that one system. No ledger value of a formed load term enters any of them.
+- **Repair.** A member row of a case that would publish Passed is published as its certified recovery: the intended recovery m_g evaluated at the corrected displacement u + w + w₂, rounded once to binary64 (§3). Its bound is the rounding, the evaluation radius and the third-order remainder.
+- **The bound holds on every breaching group.** On all 90,734 breaching groups of the RV30 and realistic sets (87,375 + 3,359) and RV29's 190, B_c ≥ err. The certified remainder exceeds the true remainder ‖A(e − w − w₂)‖ by at least 2,763 times on every group. There are no exceptions (§4.1).
+- **Residual demotions (predicted by emulation).**
+  - RV30: 0 of 41,085 pre-guard-Passed case-modes.
+  - Realistic set: 0 of 921.
+  - RV29: 0 of 90.
 
-  Whether to accept that loss or to change the floor is the first reserved choice.
+  The worst judged ratio B/c is 0.023, so the margin is at least 43 (§4.2).
+- **W1's N-5 abandonment (T3's M1).** On 2,844 straight-only invocations in W1's retained-source domain, (d) demotes none, so W1 abandons none. Today R-b′ makes W1 abandon 64 of them. Revision 0's guard-only form would have made it abandon 533 (§4.4).
+- **Published values change.** Every member row of a Passed case is recomputed at p, so last bits change on every such case. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired. The per-case largest change is about 1e-12·S* at the median, 4e-10·S* at p99 and at most 6.3e-9·S* (§3.4).
+- **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes, up to 3.9e4 times the criterion (§4.3). The short-bend rule is therefore removed only with the closure, in the same unit (T3's M3). With the closure, no case moves from Sensitive to Passed with a breach.
+- **Nonlinear-support route.** It has no K-D5, so it fails closed with a named reason. 8 committed case-modes move to Sensitive: the demo and the invented preview-physics model, two cases each, both modes (§5). Extending K-D5 to the converged active set is the next T4 unit.
 
-## The defect
+## The ruling and what it supersedes
 
-- **K-D5 is not member-relative.**
-  - **The rule.** K-D5 estimates the forward error of u as w = K̃⁻¹ρ. It demotes a case when 2|w_i| > 1e-9·max(|u_i|, S*_kind) at a free DOF.
-  - **The recovery.** Member rows are formed from K_m·Δ_m, with Δ_m the member's end-relative motion.
-  - **The mechanism.** Take a row whose value is small against its member's |K_m||Δ_m|. A stiff short member, a near-zero torsion or a near-symmetric station shear are examples. The recovery cancels, and an error in u that passes K-D5 becomes a row error far above 1e-9·q.
-- **R-b′ masks gross errors.** `rb_prime_fires` requires q > 2^10·B. RV29's determinate 10 × 1 m skew cantilever therefore publishes Passed with errors of 6.1e5–7.3e5 × RD(1e-9)·q.
-- **O-13's short-bend limit is geometric.** The limit is Rφ/L < 1.6e-2. Inert collinear nodes and soft legs defeat it (RV29). The same amplification occurs in straight chord twins and in rows away from the bend (RV30).
+**HELP_HUMAN, 2026-10-11 (under the owner's delegation).** The unit's target is option (d): publish the certified member rows recovered at p (the intended recovery m_g at u + w + w₂, rounded to binary64), with T3's full load closure folded into D5C-1, so that K-D5 certifies one intended system. The 1e-9 criterion and its 2^-34·S* floor stay unchanged, with no interim criterion change. The conditions are T3's M1–M3 and S1–S7 and RV33's corrections; this record meets them in the sections named below.
 
-## What K-D5 computes today
+**Superseded when this unit lands:**
 
-FK `structural/formation_check.rs` (`check`, `evaluate`) is called from `finish_checked_factor` in `structural.rs`. It runs only when the case would publish Passed (`!ordinary_sensitive`) and a `FormationSource` is attached.
+1. **HELP_HUMAN's ruling 5 on short stiff bends** ([curved-numerical-integrity.md](curved-numerical-integrity.md), "Short stiff bends"), in respect of its Passed and Sensitive thresholds.
+   - The thresholds were Passed at 6.6e-3, Sensitive from about 6e-3 down to 5e-5, and O-13's derived Passed limit.
+   - They become outcomes of the solver's own gate (r̂ < √ε) and of the unified predicate, not rules.
+   - The pivot-screen refusal and `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` below 1e-4 stay.
+2. **The withdrawn option (c) limit of 1.6e-2.** This is O-13's `SHORT_BEND_PASSED_RATIO` with the short-bend rule (`short_bend_finding`, `ShortBend`), on `codex/piping-t4-o13-20261010`. It is removed in this unit, after the closure (§4.3).
+3. **The t15b acceptance at 1e-4 rad.** This is the requirement that "guard and K-D5 margin from φ = 1e-4 rad" holds, with the test `t15b_certified_arcs_pass_at_utm_and_small_angles` pinning Passed.
+   - A small arc's verdict is now the unified predicate's outcome on its certified rows.
+   - t15b is re-pinned to that outcome, which is predicted Passed because its rows are repaired. It is no longer an acceptance requirement.
 
-1. **K_p.** Every stiffness contribution is re-formed in `Wide<2>` at p = 128 from its binary64 primitives: straight frames, realized curved bends, objective connectors and springs.
-2. **ρ.** ρ = f − K_p·u, one `ExactAccumulator` per free row.
-   - f uses the ledger's force terms.
-   - Each re-formed coefficient enters through its exact binary64 split; prescribed columns are included.
-   - A split truncated below 2^-1074 widens the row by 2^-1074·|u_j|.
-3. **w.** w = D·F̃⁻¹(D·ρ·2^t)·2^-t.
-   - D = diag(2^{e_r}) is the attempt's scaling.
-   - F̃ is the attempt's own factor: dense Cholesky or sparse skyline LDL.
-   - Rows more than 2^1022 below the largest are flushed to zero.
-4. **D5C-1.** The case is demoted (`Estimate`) at the worst free row with 2|w_i| > 1e-9·max(|u_i|, S*_kind), where S* is the coupled body scale of u. Anything that cannot be re-formed or evaluated also demotes (`FormationCheckUnavailable`).
+Notes recording this are added to both Design files.
 
-The gate before K-D5 supplies two quantities:
+## The defect (unchanged from revision 0)
 
-- r̂, the Hager/Higham estimate of 1/κ₁(K̃_s) (`estimate_rcond`, documented as not certified);
-- a = (relative perturbation + load perturbation)/r̂, which must be below 1.
+- **K-D5 is not member-relative.** K-D5 bounds the forward error of u per DOF against max(|u_i|, S*_kind). Member rows come from K_m·Δ_m. A row that is small against its member's |K_m||Δ_m| cancels in recovery, so an error in u that passes K-D5 becomes a row error far above 1e-9·q.
+- **R-b′ masks gross errors.** `rb_prime_fires` requires q > 2^10·B. RV29's skew cantilevers therefore publish Passed with errors of 6.1e5–7.3e5 × RD(1e-9)·q.
+- **O-13's short-bend limit is geometric.** It is defeated by inert nodes, soft legs and chord twins (RV29, RV30).
+- **K-D5's residual takes the ledger's formed loads as intended.** Load formation propagates into rows unseen (RV33 finding 2; T3's M2). This is new in revision 1's analysis; §4.3 measures it.
 
-A Passed case has r̂ ≥ √ε.
+## 1. The intended system and the load closure (T3's M2, S1, S2)
 
-## 1. The bound
+### Definitions
 
-### Premises inherited from K-D5
+- **Certified** means certified against K-D5's intended system (S1). That system is the linear problem K_int·u* = f_int.
+  - K_int is K-D5's p = 128 re-formation of every stiffness contribution from its binary64 primitives, as today: straight frames, realized arcs, objective connectors and springs.
+  - f_int is the p = 128 re-formation of every load term from its binary64 primitives.
+  - The input representation is part of the intended input: binary64 coordinates, section properties, E, G, α, ΔT, p, k and loads as authored. The distance between K_int's arc and the real-number element stays K-D5's existing premise (2^-120·κ_tip, not certified).
+- **One intended system (S2).** These all use the same re-formed matrices and the same re-formed load terms:
+  - the residual ρ = f_int − K_int·u;
+  - the residuals s and s₂ of the two corrections;
+  - the recovery m_g of every published row.
 
-- **P1 (intended system).** The intended problem is K_p·u* = f, with K_p the p = 128 re-formation and f the ledger's force terms, as K-D5 takes it. Load formation before S11-F, recovery formation and input representation lie outside it (K-D5's "What EF does not see"). The bound is certified against this problem; §4.1 measures the gap to an exact reference.
-- **P2 (exact sums).** The residual sums are exact (`ExactAccumulator`), with K-D5's truncation allowance.
+  No formed ledger value enters any of them. There is no ledger-and-p hybrid.
+
+### The closure rule (fail closed)
+
+FK's `FormationSource` gains `loads: Vec<LoadPrimitive>`, one entry per formed load contribution, each naming the ledger terms it replaces. Every ledger term falls into exactly one class:
+
+- **Input term.** A term with no S11-G formation record, such as a nodal force or moment, a constant effort, or a prescribed displacement value. It enters as its exact binary64 value, which is its intended value.
+- **Formed term.** A term with a formation record. It is replaced by its primitive's re-formation at p, added to the row accumulators as the exact split of the Wide2 value. Any enclosure radius is carried (§2).
+
+A formed term that no primitive covers, or a primitive whose re-formation fails (a `WideError` or a failed R-1 precondition), makes the check unavailable: `FormationCheckUnavailable { "load closure: <source> …" }`. The case is then Sensitive at the solve, never Passed on a ledger value. Coverage is therefore decided by the ledger's own formation records, not by a list kept by hand.
+
+### Every formed load term
+
+All producers are in PP `lib.rs` unless named. The primitive and its re-formation at p are given per term.
+
+| Term | Producer | Owner | Primitive and re-formation at p | Radius |
+|---|---|---|---|---|
+| Nodal forces and moments, constant-effort support forces | `push_nodal_loads`, `add_constant_effort_support_loads` | DEL-05-05, DEL-04-07 | Input terms: no primitive | 0 |
+| Prescribed displacements | `imposed_displacements`, K_fc·u_c | DEL-04-07 | Input u_c; K_fc·u_c is already in ρ (prescribed columns) | as today |
+| Self-weight and uniform loads on straight members | `self_weight.rs` → `add_uniform_element_loads` (consistent vector) | DEL-05-01 (self-weight), DEL-05-05 (application), DEL-04-02 (consistent vector) | `UniformStraight{frame, w}`: wL/2 and wL²/12 in the chord frame from (x_i, x_j, y, w), rotated to global | 2^-120 level |
+| Uniform loads on realized arcs (R-1's certified arc loads) | `add_uniform_element_loads` → FK `certify_curved_uniform_load` | DEL-05-05 (with DEL-04-01's certificate) | `UniformCurved{arc, w}`: R-1's midpoint–radius enclosure of the consistent vector | R-1's radius |
+| Thermal and free strain on straight members (eigen pair P·x_a) | `add_thermal_equivalent_loads` | DEL-05-01 (α, ΔT, ε), DEL-04-02 | `FreeStrainStraight{frame, ε}`: ±E·A·ε along the chord, with ε = α·ΔT formed at p | 2^-120 level |
+| Thermal free strain on arcs, K_b·u_free(ε) | `add_curved_bend_thermal_equivalent_load` | DEL-05-01, DEL-04-07 | `FreeStrainCurved{arc, ε}`: K_int,arc·(ε·d) with the same arc matrix as ρ | 2^-120 level |
+| T4-U2 pressure free strain on arcs, K_b·u_free(ε_p) | exact-pressure route | DEL-04-07 | `FreeStrainCurved{arc, ε_p}`: ε_p = (1 − 2ν)·p·A_i/(E·A), formed at p | 2^-120 level |
+| T4-U2 pressure operands: terminal caps, bend terms −c_b, kink remainder | `push_exact_pressure_operands` | DEL-04-07 | `PressureOperand{kind, p, A_i, tangents}`: tangents from the arc's (d, R, y) at p, as K-D5 forms the arc | 2^-120 level |
+| Straight-route pressure end forces | `exact_straight_end_forces` | DEL-04-02 | `PressureStraight{frame, p, section}` | 2^-120 level |
+| Connector reference loads (T4-U3 q_ref) | `add_connector_reference_loads` | DEL-04-07 | `ConnectorReference{connector, q_ref}`: `connector_matrix`·q_ref | 2^-120 level |
+| W2 force-scaled terms | F1b/K2b | DEL-04-07 | The same primitives at 2^b, which is an exact scaling | as above |
+
+Under the effective-force pressure model the nodal pressure terms (caps, −c_b and kink remainder) net to zero at bend ends in the intended system. Re-formed at p, they do net. Today their binary64 residue enters ρ as if intended.
+
+**Dependency edges.** DEL-04-01's `deliverable.yaml` gains gating needs on the load owners, DEL-05-01, DEL-04-02, DEL-04-07 and DEL-05-05 (R-1's arc loads are applied by DEL-05-05). Each need states the condition the owner must meet: an intended-load definition K-D5 can re-form at p, made of the binary64 primitives and the formula, attached to the formed ledger term as a `LoadPrimitive`.
+
+**D5C-1 fold.** K-D5's per-DOF rule runs on the closed w. On every evaluated set no per-DOF verdict changes (§4.2): the load-formation part of w is far below 1e-9·S*.
+
+## 2. The bound (RV33's corrections and T3's S6)
 
 ### Computation
 
-These steps extend `evaluate` after w is formed.
+These steps run in FK `formation_check.rs` `evaluate`. The element matrices are re-formed on the stack at each use, never cached on the heap (S5).
 
-1. s = ρ − K_p·w, exactly, in the same accumulators, with the element matrices from K-D5's step 1.
-2. w₂ = D·F̃⁻¹(D·s·2^{t₂})·2^{-t₂}, the same solve as for w.
-3. s₂ = s − K_p·w₂, exactly.
-4. Λ = 2^10 / ((1 − a)·r̂·‖K̃_s‖₁), rounded upward. ‖K̃_s‖₁ is the norm that `estimate_rcond` already forms; it is returned.
-5. For each member m and each published row r of m, form the u-linear recovery map A_r. This is the row as a function of the member's end displacements:
-   - for end rows, K_p,m in the row's frame;
-   - for section cuts and stations, that map times the station transfer;
-   - stresses are scalar multiples of their resultants.
-
-   Evaluate A_r·w and A_r·w₂ as exact sums of the K_p,m splits times the binary64 components, followed by the transfer at p. Evaluate ‖A_r·D‖₁ = Σ_c |A_rc|·2^{e_c} over the member's free DOFs, rounded upward.
+1. **ρ.** ρ = f_int − K_int·u, exactly, as one `ExactAccumulator` per free row.
+   - The loads are as in §1.
+   - Every coefficient enters through its exact split.
+   - The radius vector ψ_ρ collects every split truncated below 2^-1074 (2^-1074·|u_j|) and the load enclosure radii.
+   - The allowances are carried as a radius, not added into the accumulator as a shift (RV33 finding 4).
+2. **w.** w = D·F̃⁻¹(D·ρ·2^t)·2^-t, with the attempt's own factor, as today. D5C-1 then runs on w.
+3. **s.** s = ρ − K_int·w, exactly, in the same accumulators. ψ_s = ψ_ρ plus the truncation allowances of K_int·w.
+4. **w₂.** w₂ = D·F̃⁻¹(D·s·2^{t₂})·2^{-t₂}.
+5. **s₂.** s₂ = s − K_int·w₂, exactly. ψ = ψ_s plus the allowances of K_int·w₂.
+6. **The radius on ‖D·s₂‖.** σ := ‖D·(|s₂| + ψ)‖_∞, rounded upward.
+7. **Λ (RV33 finding 1).** `estimate_rcond` exposes the Hager estimate: est ≈ ‖K̃_s⁻¹‖₁ = 1/(r̂·‖K̃_s‖₁) and ‖K̃_s‖₁.
+   - ε_E bounds ‖E‖ for E = K_s − K̃_s. It is formed directly, upward, as the larger of the row-sum and column-sum norms. It is the triangle bound over the element contributions: Σ_e |D(K_int,e − K̃_e)D|, with K̃_e the binary64 contribution the assembly used, plus the exact assembly rounding |D(Σ_e K̃_e − K̃)D| that the contribution audit already forms.
+   - Λ := 2^10·est / (1 − 2^10·est·ε_E), rounded upward.
+   - The gate's `a` is not used for this. It covers assembly rounding only, not element formation (RV33).
+8. **The recovery map.** For each published row, A_r is the row as a linear function of the member's end displacements, and ‖A_r·D‖₁ = Σ_c |A_rc|·2^{e_c}, upward.
 
 ### The bound
 
-Let e = u* − u. For any vectors w and w₂, however the solves produced them, this identity is exact:
+Let e = u* − u. For any w and w₂, exactly, e = w + w₂ + K_int⁻¹·s₂*, where s₂* is s₂ and |s₂* − s₂| ≤ ψ. K_s = D·K_int·D is not exactly symmetric (S6, RV33 note 5): `rotate` and the arc's H·K_t·Hᵀ round independently. The bound therefore uses the ∞-norm directly:
 
-  e = w + w₂ + K_p⁻¹·s₂ .
+  |A_r·K_int⁻¹·s₂*| = |A_r·D·K_s⁻¹·D·s₂*| ≤ ‖A_r·D‖₁ · ‖K_s⁻¹‖_∞ · σ =: R_r .
 
-K_s = D·K_p·D is symmetric, so ‖·‖₁ = ‖·‖_∞. Hence
+K̃_s (the prepared binary64 matrix) is symmetric, so its 1- and ∞-norm inverses agree. The ∞-norm Neumann step needs ‖E‖_∞, and ε_E bounds both norms.
 
-  |A_r·e| ≤ B_e,r := |A_r·w| + |A_r·w₂| + ‖A_r·D‖₁ · ‖K_s⁻¹‖_∞ · ‖D·s₂‖_∞ .
+- **A1, the one assumption (RV33 finding 1).** ‖K̃_s⁻¹‖_∞ ≤ 2^10·est. Hager's estimate is a lower bound, so A1 is an assumption on ‖K̃_s⁻¹‖ and is stated as one.
+  - With A1 and 2^10·est·ε_E < 1, ‖K_s⁻¹‖_∞ ≤ Λ (Neumann).
+  - Measured: true ‖K_s⁻¹‖ ≤ Λ on every evaluated case-mode, and the Hager ratio lies in [1, 7.17] (revision 0), a margin of at least 140.
+- **The correction solves need no assumption.** s₂ is the exact residual of w + w₂. The quality of the solves affects only how tight the bound is.
 
-Call the last term R_r. For a group g of rows (|N|, hypot(V_y, V_z), |T| or hypot(M_y, M_z)):
+### Fail closed
 
-  ‖(A·e)_g‖₂ ≤ ‖(A·w)_g‖₂ + ‖(A·w₂)_g‖₂ + ‖(R_r)_{r∈g}‖₂ .
+The bound is unavailable, and the case is Sensitive, when any of these holds:
 
-What the bound assumes:
-
-- **A1 (conditioning, the only estimate).** ‖K_s⁻¹‖_∞ ≤ Λ.
-  - It holds when the Hager estimate underestimates ‖K̃_s⁻¹‖₁ by at most 2^10, and the formation perturbation from K̃_s to K_s stays within the gate's a (a Neumann bound).
-  - The product's amplification gate already relies on both estimates.
-  - Measured over the 42,096 evaluated case-modes, ‖K_s⁻¹‖·r̂·‖K̃_s‖₁ lies in [1, 7.17], a margin above 140.
-  - Λ enters only through the third-order term. A larger error in the estimate changes only that term (§4.3).
-- **The correction solve's own error.** No assumption is needed. s₂ is the exact residual of w + w₂, so the quality of the solves affects only how tight the bound is. Observed ‖w₂‖/‖w‖ ≤ 2.4e-9.
-- **Rounding of the published rows** (recovery formation) is not in B_e. §2 measures it.
-- **Dense and sparse.** Nothing depends on the factorization: each mode uses its own F̃, w, w₂ and r̂. The bound holds for the binary64 solve as computed.
-
-### Preconditions, and the unavailable path (fail closed)
-
-The bound is unavailable, and every group of the case fires, when any of these holds:
-
-- K-D5 itself is unavailable or demoting. The case is then already Sensitive, so this is a no-op.
+- 2^10·est·ε_E ≥ 1.
+- The observed contraction is above 2^-20: ‖D⁻¹·w₂‖_∞ / ‖D⁻¹·w‖_∞ > 2^-20. This is RV33's "‖D·w₂‖/‖D·w‖", written in the solve's own scaled variables y = D⁻¹w. It is where K_int differs from K̃ enough to matter.
 - s or s₂ leaves the exact-sum range, or the second solve fails or returns a non-finite value.
-- r̂ ≤ 0, a ≥ 1, or Λ·‖D·s₂‖ is non-finite.
-- A member's recovery map cannot be formed at p: an explicit curved matrix, or an uncertified load term.
-- The published u is not the u that K-D5 checked.
-  - A W2 force-scaled publication must carry its own scaled check, with w unscaled by 2^-b.
-  - A source-recovery selection publishes retained values and is outside this guard.
+- Λ·σ is not finite.
+- The load closure fails (§1).
 
-If ρ = 0 exactly, then w = w₂ = s₂ = 0 and B_e = 0.
+All of these are decided in FK and reported as K-D5's `FormationCheckUnavailable` with a named detail, so the solve itself is Sensitive. That keeps them off R-b′'s recovery-demotion path, and so off W1's N-5 abandonment (§4.4).
 
-## 2. The integrity decision: the corrected-row form
+ρ = 0 exactly gives w = w₂ = s₂ = 0 and R = 0.
 
-Take a published member group g with published values v_g. Define m_g and r_g as follows:
+**K2b scaling (S3).** W2 solves K' = 2^b·K_int, f' = 2^b·f_int.
 
-- **m_g** is the intended recovery of g evaluated at the corrected displacement u + w + w₂. It uses the row's intended function (K_p,m, the intended load and free-strain terms, the station transfer) at p = 128, with K_p,m·(u + w + w₂) taken as one exact sum of the three products.
-- **r_g** is the ball radius of that evaluation (at the 2^-120 level) plus ‖(R_r)_g‖.
+- The displacements are unchanged at any b. w and w₂ are displacement corrections and **need no unscaling** (revision 0's "w unscaled by 2^-b" was wrong).
+- s, s₂, ψ, σ and every force-unit row are formed at 2^b. D' = 2^{-b/2}·D, Λ' = Λ and R' = 2^b·R.
+- m_g and R_r are unscaled by 2^-b consistently: m_g by the publication's single rounding (`unscale_for_publication` of the exact value) and R_r rounded upward. The ratio R/c does not depend on b.
 
-Under P1, P2 and A1:
+## 3. Repair: the published rows and the decision
 
-  ‖v_g − g_int(u*)‖ ≤ B_g := ‖v_g − m_g‖ + r_g .
+### 3.1 The certified row
 
-This is I34's a-posteriori form B_f = |v − m| + r (O-13's arc certificate), with u replaced by u + w + w₂. One certificate measures the recovery's own rounding and the solve's error together. They are not added in absolute value, so cancellation between them is not charged.
+For a group g of a case that would publish Passed:
 
-The triangle form B_f + B_e is a valid but looser alternative. It needs an a-posteriori B_f at every group; with today's a-priori straight bound (γ₁₆Σ|K||T||u|) it is not usable (§4.2, variant U2).
+- **m_g** is the intended recovery of g at the corrected displacement u + w + w₂: K_int,m·(u + w + w₂) as one exact sum of three products per coefficient split, the member's intended load terms (§1), the station transfer at p, and the stress factors at p. It is evaluated in ball arithmetic (T4-U1b's), with midpoint m_g and radius r_g.
+  - **Straight members** use a new FK certificate.
+  - **Arcs** use O-13's certificate structure (Δ through K·u = [−H·f_j; f_j], so rigid motion cancels exactly), with K_int,arc in place of the L7′ ball. The rows then belong to the same system as ρ.
+  - **Connectors** use `connector_matrix`.
+- **The published value** is v_g = fl(m_g), each row rounded once. Magnitude rows are formed at p from their components, then rounded.
+- **The bound** is B_g = ‖v_g − m_g‖ + ‖r_g‖ + ‖R_g‖, rounded upward.
 
-**The decision.** For a case that would publish Passed, a group g is *unresolved-or-breaching* when B_g is unavailable or non-finite, or when
+Under A1, B_g bounds ‖v_g − g_int(u*)‖. Its terms are the rounding to binary64 (½ ulp), the evaluation radius (about 2^-120 of |A||u|) and the third-order remainder.
 
-  B_g > RD(1e-9)·q_g (decided exactly) ∧ S*_g ≥ 2^-988 ∧ q_g ≥ 2^-34·S*_g .
+### 3.2 The groups (RV33 finding 3)
 
-- q_g is the 2-norm of the group's published values.
-- S*_g is the body's coupled scale over the case's published rows, as O-13 extended it, guarded arcs included: the moment scale for bending and torsion, the force scale for axial and shear.
+The groups are every published member row, for straight members, realized arcs and connectors:
 
-**The consequence.** If any group fires, the case is demoted by R-b′'s mechanism.
+- end rows, endpoint section cuts and the three interior stations;
+- per location, four groups: |N|, hypot(V_y, V_z), |T| and hypot(M_y, M_z);
+- stress and pipe-wall rows, judged through the resultant they scale.
 
-- One sentence is appended to the case's existing integrity diagnostic, naming at most six groups (member, location, group, q, B), and the code moves from `CHECKS_PASSED` to `SENSITIVE`.
-- The no-op rule holds: a case already Sensitive or weaker is left byte for byte.
-- Nothing is refused, no value changes, and no envelope field or code is added.
+**Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and k·(u + w + w₂) for springs. They form two groups per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z). Revision 0 mixed N and N·m in one group, which made the decision depend on the units.
 
-**The groups** are every published member row, for straight frames, realized arcs and objective connectors:
+Displacement and rotation rows are published unchanged (u). K-D5's per-DOF rule judges them, as today. The bound covers them (the 286 breaching rotation and displacement groups in §4.1), but they are not repaired.
 
-- end rows (chord frame);
-- endpoint section cuts;
-- the three interior stations.
+### 3.3 The decision (S7)
 
-The stress, pipe-wall and membrane rows are judged through the resultant they scale. Support reactions (K_rf·u − f at restrained rows) form one group per support, with A = K_rf.
+One predicate replaces `rb_prime_fires`, O-13's `arc_group_fires` with its B_u, and the short-bend rule:
 
-Displacement and rotation rows stay with K-D5's per-DOF rule. Rotation rows also breach row-relatively (128 group-cases in this evidence). That is K-D5's own question and is not changed here.
+  fires(g) ⟺ ¬finite(B_g) ∨ [ exceeds(B_g, q_g) ∧ S*_g ≥ 2^-988 ∧ q̂_g ≥ 2^-34·S*_g ] .
 
-## 3. R-b′ unified for all members
+- **q_g** is the 2-norm of the published values, and exceeds(B, q) is today's exact B > RD(1e-9)·q.
+- **The floor operand (S7)** is q̂_g = max(q_g, ‖m_g‖ + ‖r_g‖ + ‖R_g‖), the certified upper bound of the row's true magnitude. A gross error cannot shrink a judged row below the floor and hide.
+  - On every evaluated set, the only rows that leave the floor under repair are rows whose true value is below it. Example: RV30's 26 C-family symmetric midspan shear rows, at about 1e-16·S* in truth, published today as noise at about 1e-10·S*.
+- **S*_g** is the body's coupled scale over the published (repaired) rows: the moment scale for bending, torsion and support moment groups, and the force scale for axial, shear and support force groups. This is O-13's scale extension, which includes arcs.
+- **No resolution conjunct.** R-2's behaviour now applies to every member.
 
-One predicate replaces `rb_prime_fires` (straight), `arc_group_fires` (O-13 with R-2), O-13's B_u and the short-bend rule:
+**The consequence.** If any group fires, the case is demoted by R-b′'s mechanism:
 
-  fires(g) ⟺ ¬finite(B_g) ∨ [ exceeds(B_g, q_g) ∧ S*_g ≥ 2^-988 ∧ q_g ≥ 2^-34·S*_g ] ,
+- one sentence, naming at most six groups (member or support, location, group, q, B), each item no longer than today's per-end item;
+- `CHECKS_PASSED` becomes `SENSITIVE`;
+- the no-op rule holds, and the load-row sentence stands first (I5 ruling 1).
 
-where `exceeds` is today's exact test B > RD(1e-9)·q.
+A case that K-D5 demotes or cannot check keeps today's binary64 rows and today's bytes. A case that is not pre-guard Passed publishes no certified rows.
 
-- **No resolution conjunct.** A row whose error is gross relative to q fires. This is R-2's behaviour, now for every member and group.
-- **Composition with §1–§2.** B_g is the corrected-row bound.
-- **K-D5's per-DOF rule** is unchanged and runs first.
-- **The load-row guard** is unchanged. When it fires on the same case, the load-row sentence stands first (I5 ruling 1).
+**Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`append_combination_results`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that. It is disclosed, and listed under open items.
 
-**RV29's straight masking is closed.** The 10 m and 20 m skew cantilevers at η = 1e-9 (q = 1.94e-6 N·m) publish Passed today. Under the predicate, B_g/(RD(1e-9)·q) at the end groups M7.j and M8.i matches the true error, 8.2e5 to 8.3e6. The error is u-driven (Eu ≈ err), and the groups fire in both modes. The same holds for η = 3e-9 to 1e-6, where today's R-b′ also fires.
+### 3.4 The published values change (property)
 
-## 4. Evidence
+**Property.** Member rows (end actions, section actions, station rows, stresses) and support reactions of a load case published `NUMERICAL_INTEGRITY_CHECKS_PASSED` on the linear route are certified recoveries. They are not binary64 recomputations from the published displacements.
+
+- Last bits change on every such case: 100 % of the evaluated Passed case-modes.
+- In 21.8 % of RV30 case-modes (23.0 % realistic, 21.3 % on W1's straight set), some row moves by more than its criterion. These are today's breaches, repaired.
+- The per-case largest change |v_d − v|/S*:
+
+| Set | Median | p90 | p99 | Maximum |
+|---|---|---|---|---|
+| RV30 | 9.2e-13 | 3.6e-11 | 4.0e-10 | 6.3e-9 |
+| Realistic | 6.3e-13 | 4.9e-11 | 3.7e-10 | 5.9e-10 |
+
+A reader recomputing K_e·u from the published displacements in binary64 will therefore differ from the published rows by about 1e-12·S*, and by up to about 6e-9·S* on stiff short members.
+
+**Limitation sentence (draft for the implementation).** This sentence goes in the linear profiles' `FormulationBasis.limitations`. It avoids the registered boundary vocabulary; run the claims lint on it.
+
+> "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+
+## 4. Evidence (emulation; the implementation confirms)
 
 **Method.**
 
-- **Probe.** A scratch probe ran in a detached worktree of `codex/piping-t4-u2-20261010` (d92850097d, with O-13 and U3 merged). For each case-mode it dumped K-D5's u, w, s, w₂ and s₂, the gate's r̂ and a, and Λ·‖D·s₂‖.
-- **Prototype.** A scratch PP hook evaluated B_e and the predicate variants with the product's own recovery code.
-- **Reference.** RV30's exact reference (`ref.py`, 80-digit Decimal) gave, per group:
-  - the published error err;
-  - its exact split into the u-part Eu = ‖A(u* − u)‖ and the formation part Ef;
-  - the emulated bounds, including the corrected-row bound B_c = ‖(v − R(u)) − A(w + w₂)‖ + R.
+- **Probe and reference.**
+  - I41's probe binary (built at d92850097d, observe mode) was re-run on RV30's 22,560 models, both modes. It dumps K-D5's u, w, w₂, ρ, s, s₂, the scale exponents, r̂ and ‖K̃_s‖₁.
+  - I41's realistic and RV29 dumps were reused.
+  - RV30's exact reference (80-digit Decimal; I41's extension for RV29) gives u* and the exact rows.
+- **The emulation** (`tools/i43_eval.py`):
+  - **The closure.** The intended system is the reference: loads exact from their primitives, so the closure is perfect except for input representation. Section-property rounding moves the truth by at most 3e-8·c (RV33).
+  - **The closed corrections.** ρ_c = K·e is exact. w_c and w₂_c come from a binary64 LU of the scaled reference stiffness, which stands in for the attempt's factor and affects tightness only. s_c and s₂_c are exact.
+  - **Λ** is formed from the product's est with the stand-in ε_E := 2^-40·‖K̃_s‖₁, about 4,096 ε relative and above binary64 element formation.
+  - **r_g** := 2^-100·‖A·D‖·‖D⁻¹u‖, conservative against 2^-120.
+  - **Judging** is RV30's grouping, with RD(1e-9) and the floor as in §3.3.
+- **Sets:**
+  - RV30, all families: 41,085 pre-guard-Passed case-modes;
+  - realistic: 921;
+  - RV29: 90;
+  - a new W1-domain straight set: 1,422 models (2,844 case-modes), described in §4.4.
+- **Evidence:** `WT/scratch/t4_code/t4_i43/`:
+  - `tools/`: `i43_eval.py`, `analyze.py`, `extra.py`, `d5c1.py`, `noclosure.py`, `gen_w1.py`, `driver.sh`;
+  - `analysis_*.txt`, `extra_*.txt`, `d5c1.txt`, `noclosure.txt`;
+  - `eval/`, `w1/`.
 
-  RV29's specs were converted to it, with per-member sections and nodal loads added.
-- **Judging** follows RV30's `compare.py`: groups at or above 2^-34·S*, with the ratio err/(RD(1e-9)·q).
-- **Sets with an exact reference:**
-  - all 22,560 RV30 models (families A–D, chord twins, corner, cert, k1–k3 and smoke), typed entry, both modes;
-  - RV29's 53 specs (inert-node, soft-leg, near-π, large-k, tiny-angle and straight cantilevers);
-  - a realistic set of 492 lines:
-    - I34's L-line set;
-    - standard elbows at R = 1.5D and R = 0.2286 m, with t7, t24 and t96 sections, as L, U and Z lines and 4-bend expansion loops;
-    - loads w, wT and wTp, at origin-xy and UTM-skew placements.
-- **Sets without a reference:**
-  - T4-I19's 182 SP-1 committed requests;
-  - T4-I7's U2 reference cases, built as I34 built them;
-  - the demo.
-- **Evidence location:** `WT/scratch/t4_code/t4_i41/`: `tools/`, `analysis_*.txt`, `floor.txt`, `moves_*.txt`, `avail_extra.txt`, `real/`, `rv29/`, `eval/`.
+### 4.1 Soundness: B_c ≥ err on every breaching group (T3's M2)
 
-### 4.1 Acceptance
+The closed bound is applied to today's published rows v: B_c = ‖v − m_g‖ + ‖r‖ + ‖R‖, against err = ‖v − g(u*)‖. Since B_c − err ≥ ‖R‖ − ‖A(e − w − w₂)‖, the remainder ratio decides it.
 
-The table counts pre-guard-Passed case-modes: solver Passed, K-D5 not demoting, load-row guard silent. Today's short-bend rule counts as a guard here, because it is replaced.
+| Set | Breaching groups | of which displacement or rotation | B_c < err | min R / ‖A(e − w − w₂)‖ | max ‖A(e − w − w₂)‖/c |
+|---|---|---|---|---|---|
+| RV30 | 87,375 | 286 | 0 | 4,756 | 1.2e-9 |
+| Realistic | 3,359 | 0 | 0 | 2,763 | 6.9e-11 |
+| RV29 | 190 | 0 | 0 | 2.1e8 | 2.5e-14 |
+| W1 straight set | 16,609 | 0 | 0 | 22,262 | 9.0e-12 |
 
-| Set | Pre-guard Passed | Breaching | Missed today | B_e alone misses | Corrected-row misses (×1) | Corrected-row misses (×2) |
-|---|---|---|---|---|---|---|
-| RV30, all families | 41,085 | 8,946 | 6,119 | 203 | **12** | 1 |
-| RV29 | 90 | 42 | 17 | 2 | **0** | 0 |
-| Realistic | 921 | 212 | 176 | 3 | **0** | 0 |
+There are no exceptions on the 90,734 groups (RV30 and realistic). The same closed bound applied as a guard to today's rows would fire on exactly the 8,942 RV30 case-modes with a breaching member or reaction group, with no miss and no false demotion. Revision 0, without the closure, had 12 misses and 16 non-breach demotions. The other 4 of RV30's 8,946 breaching case-modes breach only through displacement or rotation groups (RV33 note 9).
 
-**Soundness of B_e.**
+### 4.2 Under (d): residual demotions, verdict moves and D5C-1
 
-- With exact loads (RV29), Eu ≤ 1.000006·B_e on all 3,076 groups with Eu > 0.1·c.
-- With formed distributed, thermal and pressure loads, Eu exceeds B_e where load formation, unseen by K-D5, propagates into the rows.
-  - Eu > 1.5·B_e on 723 of 508,877 RV30 groups with Eu > 0.1·c, and on 35 of 17,930 realistic ones.
-  - The largest ratios are 206 (on a row with Eu < 0.6·c) and 69 (B-family wTp at UTM-skew).
+| Set | Pre-guard Passed | Demoted under (d) | Worst judged B/c | Passed with a breach | Sensitive today → Passed (with a breach of the repaired rows) |
+|---|---|---|---|---|---|
+| RV30 | 41,085 | **0** | 0.023 | 0 | 7,608 (0) |
+| Realistic | 921 | **0** | 0.012 | 0 | 48 (0) |
+| RV29 | 90 | **0** | 1.2e-5 | 0 | 34 (0) |
+| W1 straight set | 2,561 | **0** | 0.0062 | 0 | 64 (0) |
 
-**The corrected-row misses are those load-formation rows at the threshold.**
+- **The Sensitive → Passed moves** are today's guard demotions.
+  - RV30: short-bend rule 7,003, arc guard 399, both 206; 2,827 of them breach today.
+  - Realistic: 36, 6 and 6.
+  - RV29: 14 short-bend and 20 straight R-b′.
+  - W1 set: 64 straight R-b′.
 
-- All 12 RV30 misses are t96 lines at UTM-skew placements with thermal or pressure loads.
-- They are torsion rows (end, section cut or midspan) at q/S* ≤ 3.5e-7, with err/c from 1.0 to 8.6.
-- The worst, B|L|0.5-20|t96|R1|ρ0.02|wTp at end_j, has err/c = 8.6 and B/c = 0.61.
-- Eleven of the 12 are also missed today.
-- A factor of 2 on B_g (K-D5's `FORMATION_FACTOR` convention) leaves one miss: a Z line, wT, utm5-skew, err/c = 1.11, B/c = 0.22, with Eu/B_e = 3.3. Its cost is in §4.2.
-- The sound closure is to re-form the load terms at p (§6).
+  Every one publishes repaired rows within its criterion.
+- **T3 estimated about 0.09 % on RV30** by counting R > c at today's q. In this evaluation that count is 26 case-modes, all of them the C-family symmetric-midspan rows of §3.3. Repaired, they leave the floor because their true value does, so (d) judges none of them.
+- **Fail-closed conditions.**
+  - Contraction is at most 1.7e-9 against the 2^-20 = 9.5e-7 limit.
+  - 2^10·est·ε_E is at most 0.062 with the stand-in ε_E, at r̂ = 1.5e-8.
+  - Λ ≥ the true ‖K_s⁻¹‖_∞ on every case-mode.
+- **D5C-1 fold.** With the closed w, the per-DOF rule demotes no case-mode that the ledger w did not, and stops demoting none. The largest trigger ratio is 0.998 against 0.998 (RV30), 0.994 against 0.994 (realistic) and 0.97 (RV29).
 
-**B_e alone** misses 203 RV30 case-modes. These breaches are formation-dominated.
+### 4.3 Why the closure is required, and M3
 
-- 182 of them are the arc's endpoint section-cut torsion (`s_torsion end_j`), with err up to 5.3·c and Ef ≈ err. O-13's B_f covers only the chord-frame end groups.
-- The corrected-row form measures formation at every group. It closes these, and it closes RV29's tiny-angle station breach (φ = 1e-6, R = 3e5 m): torsion at the quarter points and midspan, err = 2.9e4·c, q/S* ≈ 1e-8, Ef ≈ err.
+**(d) without the closure.** This variant uses the ledger's w, w₂ and s₂ in m_g. It publishes repaired rows that keep the load-formation gap, and its bound cannot see the gap.
 
-### 4.2 Availability
+| Set | Passed with a breach | of which Sensitive today | Worst err/c |
+|---|---|---|---|
+| RV30 | 2,215 | 713 | 3.9e4 (A-family thermal T at utm5-skew, torsion) |
+| Realistic | 76 | 10 | 3.8e3 (STD-U t24 wT utm-skew, section-cut torsion) |
+| RV29, W1 set | 0 | 0 | (nodal loads are exact) |
 
-**Case-modes demoted by the corrected-row form at the 2^-34·S* floor:**
+**T3's case** `B|L|1-4|t96|R1|rho0.016|k5|wTp|utm73-skew`:
 
-| Set | Demoted | Share of pre-guard Passed |
-|---|---|---|
-| All sets | 9,204 of 42,096 | 21.9 % |
-| RV30 family A | 1,279 | 8 % |
-| RV30 family B | 2,841 | 20 % |
-| RV30 family C | 743 | 78 % |
-| RV30 family D | 3,969 | 40 % |
-| Realistic: standard L lines | 45 of 376 | 12.0 % |
-| Realistic: U lines | 45 of 144 | 31.2 % |
-| Realistic: Z lines | 76 of 281 | 27.0 % |
-| Realistic: 4-bend loops | 35 of 78 | 44.9 % |
-| Realistic: I34's L lines | 9 of 32 | 28.1 % |
+- Today it is Sensitive by the short-bend rule, with breaches of 1.10 (sparse) and 1.75 (dense) × c.
+- Under (d) with the closure it publishes Passed, with repaired rows at err/c = 1.03e-7 and B/c = 1.03e-7 in both modes.
 
-**Verdict moves against today:**
+So the short-bend rule is removed in the same unit as the closure and after it. On every evaluated set, no case moves from Sensitive to Passed with a breach.
 
-| Set | Passed → Sensitive | of which correct (no breach) | Sensitive → Passed | of which breaching |
-|---|---|---|---|---|
-| RV30 | 6,121 | 13 | 4,779 (short-bend false demotions removed) | 1 |
-| Realistic | 176 | 0 | 12 | 0 |
+### 4.4 W1's N-5 abandonment (T3's M1)
 
-**The floor (`floor.txt`, all sets).** τ is a hypothetical floor: rows are judged only when q/S* ≥ τ.
+**The mechanism.** A straight-member recovery demotion on a W1 invocation sets `recovery_demoted` (`lib.rs` `observer.ordinary_recovery_demoted`). T-4's `case_triggers` reads the published `solve_quality` after R-b′ and attempts the case. Then `retained_wire.rs` records `ordinary_attempts[].formation.recovery_finding` as untranslated, and W1 declines the whole retained successor (`b1_sp_w_c2_transaction_faults_and_abandonment`).
 
-| τ | Breaching case-modes | Demoted |
-|---|---|---|
-| 2^-34 (today) | 9,200 | 9,204 (21.9 %) |
-| 1e-6 | 5,889 | 5,893 (14.0 %) |
-| 1e-3 | 2,879 | 2,879 (6.8 %) |
-| 1e-2 | 1,776 | 1,776 (4.2 %) |
-| 1e-1 | 630 | 630 (1.5 %) |
+**The set.** `tools/gen_w1.py` builds 1,422 invented straight-only models in `source_recovery`'s admitted family, beyond the B1 corpus:
 
-At τ = 1e-3 the realistic families are still demoted: U lines 20.8 %, loops 33.3 %, Z lines 9.3 %, L lines 4.8 %.
+- straight frames, end anchors (or one anchor), concentrated nodal forces and moments only;
+- chord twins of the L, U, Z and 4-bend loop lines at Rφ/L from 0.008 to 90°, sharp-corner twins, and skew multi-span runs and cantilevers;
+- t7, t24 and t96 sections; origin, utm73-skew, utm5-skew and skew2 placements.
 
-**Why.**
+| | Invocations | Refused | Sensitive at the solve | Pre-guard Passed | Recovery demotions (abandonments) |
+|---|---|---|---|---|---|
+| Today (R-b′) | 2,844 | 108 | 175 | 2,561 | 64 |
+| Revision 0, as a guard on today's rows | 2,844 | 108 | 175 | 2,561 | 533 |
+| Revision 1 (d) | 2,844 | 108 | 175 | 2,561 | **0** |
 
-- **The demotions are true breaches.** The corrected-row form demotes 16 non-breaching RV30 case-modes and none in RV29 or the realistic set.
-- **Where the breaching rows are.** They are mostly rows whose value is small against their member's |K||Δ|:
-  - torsion and shear in near-planar systems (straight-member torsion is the largest single class);
-  - interior-station shear at near-symmetric points;
-  - axial force where a free expansion is unrestrained.
-- **Realistic loops are short-stiff-bend systems.** Expansion loops with 0.25 m elbows and 20 m runs have Rφ/L ≈ 0.02.
+Every fail-closed condition is decided in FK as K-D5 unavailability, so it follows W1's K-D5 path (`d5_diagnostic_ref`, translated), not N-5. On W1's domain only straight frames occur, so every member's certified recovery is formable. A PP-side firing would still abandon W1; its predicted rate is 0. N-5 is left unchanged.
 
-**Committed requests** (no exact reference; prototype predicate):
+### 4.5 Committed requests (no exact reference; predicted)
 
-- **SP-1 set E: 16–18 case-modes move to Sensitive.**
-  - **Load-reference qualification fixtures** (`coefficient_definition`, `constant_alpha_interval`, `multi_segment_free_length`, as preview requests and runner inputs; DenseScrutiny): 16 case-modes.
-    - The axial force of a freely expanding member is published as −1.16e-10 N, where the truth is 0.
-    - Every force row of the body is noise, so S* is the noise and q/S* = 1; B_e ≈ 1.4·q.
-  - **`prescribed_rotation_all_fixed`**, with the triangle variant only: R-b′'s a-priori straight bound is 63 × q there. It is masked today by the resolution conjunct.
-- **I7: 8 case-modes.** These are `U2-L-FREE-P-K2-SKEW-X5E6` and `-X7P3E6`, W and W+T, both modes. The arc's end section-cut torsion fires at q/S* = 3.4e-10, with B/c from 5e3 to 2e4.
-- **SP-1 sets B1 (the retained-precision corpus requests) and Z:** no change.
-- **Not evaluable on this head:** set D, set V and the demo are blocked on U2 (legacy pressure and connector re-authoring).
+- **Integrity codes that move to Sensitive:**
+  - the nonlinear-route cases (§5);
+  - bodies whose every row is zero in the intended system: SP-1 set E's 16 load-reference qualification case-modes (free expansion, rows today about 1e-10 N against 0) and O-13's `p8_a_stress_free_arc_stays_passed`.
 
-**Committed PP tests.** With the predicate applied in the prototype, 15 PP tests fail:
+  Under (d) those rows become third-order values against an exact zero, and the unchanged criterion fires on them unless they come out exactly zero. The implementation confirms which. This is the consequence of keeping the criterion and floor, as ruled.
+- **Predicted to stay Passed** with repaired rows (they demote under revision 0):
+  - I7's `U2-L-FREE-P-K2-SKEW-X5E6` and `-X7P3E6`;
+  - `prescribed_rotation_all_fixed`;
+  - the 1e-4 rad arc of t15b.
+- **Every Passed linear-route case changes member-row bytes** (§6).
 
-- in `s11g`: `p1`, `p4`, `p5`, `p6` and `p8` of `arc_recovery`, the two short-bend tests, `t11`, `t15b` and `t20`;
-- `f1b_w2_runtime` (2 tests);
-- `k2a_formation_range_runtime` (2 tests);
-- `s11f_site_test` rule 6.
+## 5. The nonlinear-support route
 
-Among them are two controls designed to stay Passed:
+**Fail closed.** The route has no K-D5: no `FormationCheckedSystem` is built when nonlinear supports exist (ROOT's ruling). With (d) the unified predicate has no B_g there. A converged nonlinear case whose report would be `CHECKS_PASSED` is published `NUMERICAL_INTEGRITY_SENSITIVE`, with the sentence:
 
-- `p8_a_stress_free_arc_stays_passed`: every row is noise of about 1e-12 N, S* is that noise, and B_e ≈ 100·q.
-- `t15b_certified_arcs_pass_at_utm_and_small_angles`: a 1e-4 rad arc whose quarter-station bending at q/S* = 8e-9 gives B/c = 2.2.
+> "the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries"
 
-The W2 and K2a failures are prototype artifacts. Those tests rely on R-b′'s sentence on routes where the prototype's bound was not attached. Under §1's unavailable rule those cases stay Sensitive.
+Its rows stay today's binary64 rows. The `RECOVERY_BASIS_UNQUALIFIED` branches are unchanged.
 
-**Variants rejected on this evidence:**
+**Committed cases moving to Sensitive.** These are the two models with nonlinear supports that publish Passed today, `fixtures/product_preview/invented_demo_model.json` and `core/product_physics/tests/fixtures/preview_physics_invented_model.json`. Each has two cases (`load:L-100`, `load:L-200`), in both modes: 8 case-modes. They appear in 5 committed outputs:
 
-- **U2.** The a-priori γ₁₆Σ|A||u| bound for every group demotes 12,979 RV30 and 225 realistic case-modes that do not breach.
-- **U1.** B_e with today's B_f and no resolution conjunct misses the formation-dominated section-cut and station breaches: 332 RV30 and 10 realistic case-modes.
-- **B_e with a factor of 2 plus today's guards** demotes 2,294 non-breaching RV30 case-modes and 69 realistic ones.
+- `invented_demo_result_preview_physics_1_{sparse,dense}.json`;
+- `invented_demo_result_legacy_0_1.json`;
+- `fixtures/results/preview_physics_invented_{sparse,dense}.json`.
 
-### 4.3 Numerical checks
+That is 10 integrity diagnostics. The desktop demo's cases show Sensitive.
 
-- **Hager ratio.** ‖K_s⁻¹‖·r̂·‖K̃_s‖₁ ∈ [1, 7.17] (A1's margin ≥ 140).
-- **The third-order remainder** ‖A·D‖·Λ·‖D·s₂‖ is at most 0.01·c on the realistic set and 4e-6·c on RV29.
-  - In the RV30 C family it reaches 39·c to 106·c on 73 case-modes with r̂ ≈ 2e-8. Those cases are Sensitive or breaching anyway; this is where the 2^10 in Λ costs.
-  - A first-order remainder ‖A·D‖·Λ·‖D·s‖ reaches 2e3·c on RV29's L4 lines. The second correction is what makes the bound tight.
-- **Probe consistency.** The probe's u matched the published displacement rows bit for bit on every RV30 run. The product prototype and the Python emulation agree on B_e: for example 0.0953·c on the smoke L line at ρ = 0.017, in both.
+**The next T4 unit: K-D5 on the converged active set.** At convergence the selected state solves a linear system: K plus the active supports' stiffness or constraint rows, with the closed and gapped supports fixed.
 
-## 5. Bytes and blast radius (SP-4 forecast)
+- Build its `FormationCheckedSystem`, with active support springs as springs, active gaps as prescribed or eliminated rows, and friction as its linearized state.
+- Run K-D5 and (d) unchanged on it.
+- Add one condition: the active set is certified. Each inactive support's gap, and each active support's contact force, has the right sign with margin above its own bound (a ball on the support reaction rows). Otherwise the case fails closed with a named reason.
 
-- **T3's retained route does not use K-D5.**
-  - `source_recovery::solve_ordinary` and the retained product solve through the exact boundary path, and curved spans stay outside D1 (`source_recovery.rs`, `retained_product.rs`).
-  - Every invocation's *ordinary attempt* does run K-D5, and the new solve and residuals add cost to the ordinary route.
-  - Like R-b′, the demotion is applied after recovery. It never changes `needs_source_recovery` or D1 admission.
-- **Registered profile.**
-  - `s(RecoveryRecord)` is priced by `size_of`, and it grows to per-location, per-group records. That needs re-registration under D3, pre-approved within M = 10.5 GiB and the 5 % text budget.
-  - `Text(recovery_finding)` is a priced text atom. Keep each named group item no longer than today's per-end item, with at most six named, or re-run the TEXT chain.
-  - `Text(formation_detail)` changes only if a new unavailable detail is longer than today's longest.
-  - `StructuralSolution`, which gains the bound's inputs, is not priced.
-- **Pins:**
-  - `formation_guard.rs` and its S11-G pins: `rb_prime_clauses_at_their_boundaries`, `t11`, `t12`, `t13`, `t13b`, `t20` and `ruling1_both_guards_fire_and_the_load_row_sentence_stands`;
-  - O-13's arc tests `p1`–`p8`;
-  - the short-bend tests, deleted with the rule. The refusal `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` below 1e-4 stays;
-  - `t15b`;
-  - the F1b W2 and K2a reach tests that read R-b′'s sentence;
-  - the S11-F site table (`s11f_site_test` rule 6, which lists every function that touches the force).
+The cost and the W1 relation (the route is outside D1) are that unit's.
 
-  straight_pipe's `t17` is unchanged unless the straight bound is replaced.
-- **Corpus and committed outputs.**
-  - Integrity codes move from `CHECKS_PASSED` to `SENSITIVE` for the committed requests listed in §4.2. Each regenerated output is declared under SP-1.
-  - No retained-precision corpus request moved in the prototype.
-  - TEXT entries change only through the sentence (above). No value, field or code changes.
+## 6. Bytes, pins and pricing (SP-4 forecast)
 
-## 6. Implementation plan
+**Bytes.**
 
-- **FK `structural/formation_check.rs`.**
-  - Keep each element's K_p from the ρ pass, or re-form it.
-  - After w, form s, w₂ and s₂ as exact sums.
-  - Return `MemberBoundInputs { w, w2, scale: D, lambda_ds2 }`, or the unavailable reason.
-  - **Load-formation closure** (needed for zero RV30 misses): form the thermal and pressure free-strain load terms of f from their primitives at p, as K_p·(ε·d), instead of taking the binary64 ledger values. The 12 misses all come from such terms at UTM coordinates.
-- **FK `structural.rs`.**
-  - `estimate_rcond` returns ‖K̃_s‖₁.
-  - `finish_checked_factor` passes r̂ and a to the check.
-  - `StructuralSolution` carries the inputs. `StructuralReport` does not, so reports that are not demoted keep their bytes.
-  - The W2 force-scaled entry carries its scaled inputs and unscales them once.
-- **Certificates.**
-  - A straight-member recovery certificate at p: end actions from K_p,m and the intended load and free-strain terms, endpoint section cuts and stations. It sits beside O-13's arc certificate.
-  - Both certificates take the correction w + w₂ as an extra exact-sum term, and both cover section cuts and stations.
-  - Connectors use K-D5's connector matrix.
-- **PP `formation_guard.rs`.**
-  - `member_group_fires(q, B, S*)` replaces `rb_prime_fires` and `arc_group_fires`.
-  - One `RecoveryRecord` shape: member, body, and for each location the four groups' q and B, or the unavailable reason.
-  - One finding.
-  - `short_bend_finding`, `ShortBend` and `SHORT_BEND_PASSED_RATIO` are removed.
-- **PP `lib.rs`.**
-  - Records are made for every published member group and every support group.
-  - `bend_neighbour_ratios` stays only for the refusal diagnostic.
-- **Tests and mutants that must be killed:**
-  - **each B_e term:** drop |A·w₂|; drop the remainder; use s instead of s₂; drop (1 − a); drop the 2^10 factor; drop D;
-  - **the corrected-row form:** evaluate m at u instead of u + w + w₂; drop r;
-  - **the decision:**
-    - `≥` in place of `>`;
-    - a rounded comparison in place of the exact one;
-    - the floor conjunct;
-    - the 2^-988 guard;
-    - the resolution conjunct reintroduced (RV29's cantilever kills it);
-    - the group norm replaced by a maximum;
-  - **the unavailable path:** a failed second solve, a non-finite Λ, an unformable member and a mismatched u each fire;
-  - **the no-op rule**, and the load-row and recovery sentences together;
-  - **a source pin** tying the call site to the tested predicate;
-  - **natural positives:**
-    - RV29's 10 m cantilever at η = 1e-9 (straight);
-    - the inert-node L line at 4.5° (arc shear);
-    - a B-family arc endpoint section cut (`s_torsion end_j`, formation-dominated);
-    - RV30's far-member L line at 32.7×;
-  - **natural negatives:** the 90° L line and I34's realistic Passed lines.
-- **O-13's empirical limit.** `SHORT_BEND_PASSED_RATIO` = 1.6e-2 and its record in arc-recovery-guard.md are removed when this lands. The Passed and Sensitive thresholds in the "Short stiff bends" ruling become outcomes of the predicate, not rules.
+- **Member rows and support reactions** change bits on every Passed linear-route case. 36 committed linear output fixtures carry Passed member rows (`fixtures/results/*`, `fixtures/product_preview/{load_reference,load_reference_source,physics_source}/*`, `core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json`). The ordinary base of the retained successors changes too.
+  - Displacements and every Sensitive case are unchanged.
+  - Each regenerated output is declared under SP-1, and the SP-1 corpus bases (sets E, B1, Z, F, V, D) are re-based.
+  - None of the registered profile's `reviewed_inputs` fixtures carries a Passed integrity code (checked), so the profile identity line does not move for this reason.
+- **Integrity codes** change per §4.5 and §5.
+- **TEXT:**
+  - the unified sentence;
+  - the nonlinear fail-closed sentence;
+  - the new K-D5 unavailable details (closure, contraction, Neumann, second solve);
+  - the limitation sentence in the linear `FormulationBasis`.
 
-## Reserved choices for HELP_HUMAN
+**Pins.**
 
-1. **The cost of the criterion as written.**
-   - At the 2^-34·S* floor, the fix demotes 21.9 % of the pre-guard-Passed case-modes evaluated: realistic L lines (12 %), U lines (31 %), Z lines (27 %) and loops (45 %), and the committed requests in §4.2. These are true breaches.
-   - The options:
-     - accept the demotions;
-     - change which rows the 1e-9 row-relative criterion protects, with a higher member-row floor τ (§4.2);
-     - add an absolute noise floor for bodies whose rows are all noise (p8, the free-expansion load-reference fixtures).
+- S11-G: `rb_prime_clauses_at_their_boundaries`, `t11`, `t12`, `t13`, `t13b`, `t20` and `ruling1_both_guards_fire_and_the_load_row_sentence_stands`.
+- O-13's `arc_recovery` P1–P8 and G1–G6. The short-bend tests are deleted.
+- `t15b`, re-pinned to its outcome.
+- F1b's W2 and K2a reach tests that read R-b′'s sentence.
+- The S11-F site table (`s11f_site_test` rule 6, and FK's `s11_site_table`): every new function that forms a load at p, and the recovery at p, is a force site.
+- straight_pipe's `t17` retires with `bending_formation_bound`'s guard use.
+- FK `formation_check_tests` (`kd5_*`), for the closure and the second correction.
+- `retained_wire_tests` and the retained façade tests are unchanged (N-5 stays).
 
-   Each option other than accepting the demotions changes an acceptance criterion.
-2. **Load formation.**
-   - K-D5 does not see it, so the corrected-row form misses 12 RV30 case-modes; 11 of these are also missed today.
-   - The options:
-     - re-form the free-strain load terms at p (§6), which is sound;
-     - apply a factor of 2 on B_g, which leaves 1 miss and demotes 2,366 non-breaching RV30 and 70 realistic case-modes;
-     - disclose the residual.
-3. **Routes without K-D5.**
-   - The nonlinear-support route is never selected for K-D5 (ROOT's ruling).
-   - Failing closed would demote every Passed case on that route.
-   - Keeping today's formation-only R-b′ there leaves the same breach mechanism unguarded, and must be disclosed.
+**Pricing (registered profile; T3's repo tool `tools/retained_pricing`, `price.py run <head>`).** Re-registration is pre-approved within M = 10.5 GiB (11,274,289,152 B) and the 5 % rule. The rows that change are forecast below. Each is small at the D1 caps (n = m = g = 32, F = N = 192), against the 8.1 % (dense) and 9.6 % (sparse) of TAV_W that the 0.9 M rule leaves for text error. The tool's run on the implementing head gives the numbers.
+
+| Row (`base/ordinary_caps.py` and its tree) | Change |
+|---|---|
+| "Ordinary formation check (outer vectors)" | + 2·Xc(ExactAccumulator, F) for s and s₂; + B(8·5F) for the radius vector ψ, w₂, the second right-hand side and the ε_E row and column sums; the per-row allowance replaces the `Vec<f64>` lists; + V(LoadPrimitive, l) |
+| "H_formation128 (T06: heap 0)" | Stays 0 only if every re-formation is on the stack: K_int per element for ρ, s, s₂, ε_E and recovery, and load primitives at p, with no `Vec<Element>` cache (S5). A test pins it |
+| StructuralSolution (now priced, S5) | + B(16·N) for w and w₂, + s(MemberBoundInputs), live from the completion through the recovery stage |
+| W2 "evaluate" | It is ×2 over core_total, so it counts the larger formation-check row twice (T3's double count). The tail gains the unscaled member-bound inputs once: + B(16·N) |
+| "Straight member recovery" | V(RecoveryRecord, m) becomes V(RecoveryRecord, m + a + c + g) (a = c = 0 under D1). s(RecoveryRecord) grows by size_of to 7 locations × 4 groups for members and 2 groups for supports. The certified recovery uses the stack only |
+| "Formation-guard late maps and RecoveryFinding" | Coupled force and moment scales per body (O-13's ActionScales) |
+| Text(recovery_finding), Text(formation_detail), D, D_env | Re-run the TEXT chain: new sentence items (kept no longer than today's), new detail strings and the limitation sentence |
+| New FK loops (load primitives; the s and s₂ passes; ε_E over contributions; the recovery locations) | O-10 loop rules (`O10_LOOPS_LAST`), with their arguments in DEL-05-02's `retained-pricing-rules.md` |
+
+The run is `run <head>`, then `compare` against the registered tree, then `generate`. The `profile_` law tests are re-pinned.
+
+## 7. Implementation plan
+
+**FK `structural/formation_check.rs`:**
+
+- `LoadPrimitive` enum (§1) and `FormationSource::loads`.
+- In `evaluate`:
+  - the closure rule over the ledger's formation records;
+  - the radius vector ψ;
+  - the s, w₂ and s₂ passes, with each element re-formed on the stack;
+  - ε_E;
+  - the contraction and Neumann checks;
+  - D5C-1 on the closed w.
+- Return `MemberBoundInputs { w, w2, exponents, lambda_sigma }`, or `FormationCheckUnavailable` with a named detail.
+
+**FK `structural.rs`:**
+
+- `estimate_rcond` keeps its signature. `ConditionMatrix::estimate_condition` returns (r̂, est, ‖K̃_s‖₁).
+- `finish_checked_factor` passes est and the contribution list to the check.
+- `StructuralSolution.member_bound: Option<MemberBoundInputs>`, never in `StructuralReport`.
+- The W2 entry passes w and w₂ through and unscales Λ·σ upward (S3).
+
+**FK certificates (new `structural/certified_recovery.rs`):**
+
+- `certify_straight_recovery(frame, loads, u, w, w2)` for end rows, endpoint section cuts and the three stations, as balls.
+- `certify_curved_recovery`, O-13's, gains the correction terms and uses K_int,arc.
+- Connectors and support reactions as §3.2.
+
+**NI `structural_adapter.rs`** (`formation_source`, `solve_assembled_with_formation_check`) attaches the load primitives that the PP producers hand over with their ledger terms.
+
+**PP `lib.rs`:**
+
+- The producers of §1's table push their `LoadPrimitive` beside each formed term.
+- The recovery loop publishes fl(m_g) for every member row (straight, arc and connector branches), the stresses scaled at p, and the reactions, when `member_bound` is present and the case is not Sensitive. It forms one `RecoveryRecord` per member and per support.
+- The nonlinear route fails closed (§5).
+- The short-bend rule is removed. `bend_neighbour_ratios` stays for the refusal.
+- The linear `FormulationBasis` gains the limitation sentence.
+
+**PP `formation_guard.rs`:**
+
+- `member_group_fires(q, q_floor, B, S*)` replaces `rb_prime_fires` and `arc_group_fires`.
+- One `RecoveryRecord` shape: member or support, body, and per location and group (q, q̂, B), or the unavailable reason.
+- One finding sentence.
+- `short_bend_finding`, `ShortBend`, `SHORT_BEND_PASSED_RATIO` and `RESOLUTION_FACTOR` are removed.
+
+**Readers.** No field moves; only values and codes change, so no reader changes.
+
+**Tests and mutants that must be killed:**
+
+- **Each B term:**
+  - drop ‖A·w₂‖ (in m_g, evaluate at u + w);
+  - drop R, or use s in place of s₂;
+  - drop ψ;
+  - drop the 2^10;
+  - use 1/(1 − a) in place of the ε_E Neumann factor;
+  - drop D;
+  - use ‖·‖₁ in place of ‖·‖_∞ on a non-symmetric K_int fixture.
+- **The closure:**
+  - a formed term without a primitive must fail closed;
+  - a ledger value substituted for a primitive (the realistic STD-U wT utm-skew line kills it at 3.8e3·c);
+  - each primitive family has a test against an exact reference.
+- **Repair:**
+  - publishing v instead of fl(m_g);
+  - m_g at u;
+  - rounding magnitudes after their components;
+  - the K2b unscaling of w (must not happen) and of R (must).
+- **The decision:**
+  - `≥` in place of `>`;
+  - a rounded comparison;
+  - the floor conjunct, and q in place of q̂;
+  - the 2^-988 guard;
+  - the resolution conjunct reintroduced (RV29's cantilever kills it);
+  - group norm replaced by a maximum;
+  - the force and moment reaction groups merged.
+- **Fail closed:** the contraction limit, the Neumann limit, the second solve, the closure and the nonlinear route each demote, with the named detail.
+- **The no-op rule**, and the load-row and recovery sentences together.
+- **Source pins** tying the call sites to the tested predicate and to the stack-only re-formation (T06).
+- **Natural positives:**
+  - RV29's 10 m cantilever, which is repaired and stays Passed, with a test asserting its rows are now within c;
+  - a no-closure kill: the A-family thermal L line at utm5-skew.
+- **Natural negatives** (Passed with repaired rows):
+  - T3's M3 case;
+  - the realistic STD-L, STD-U and loop lines.
+- **The W1 relation:** a W1-domain straight invocation that R-b′ demotes today publishes Passed, with no N-5 abandonment.
+
+## Open items
+
+- **All-zero bodies.** Free expansions and stress-free arcs stay Sensitive under the unchanged criterion (§4.5) unless their certified rows are exactly zero. This is a consequence of the ruling, recorded here. It is not a new choice.
+- **Combination rows** are not judged against their own q (§3.3).
+- **ε_E on curved elements at UTM** is measured by the implementation. The emulation used a stand-in. Failure would show as a fail-closed rate above 0 on the realistic set.
+- **The emulation's intended loads** are RV30's reference definitions. The implementation's primitives must match them, including the effective-force pressure model, or the closure test against the exact reference fails.

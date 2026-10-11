@@ -76,6 +76,16 @@ A fresh numerical reviewer, who did not design or write the unit, reviews it aga
   - every mutant is killed by a named test;
   - item 6's no-regression conditions hold.
 
+## Superseded in part by K-D5 revision 1
+
+HELP_HUMAN ruled on 2026-10-11 for option (d) ([kd5-member-relative-bound.md](kd5-member-relative-bound.md)). When that unit lands:
+
+- **Predicate.** The arc predicate is replaced by the unified member predicate on certified rows. This covers R-b′ on B_f + B_u and R-2's B_f clause.
+- **Arc rows.** They are published as recoveries at the corrected displacement u + w + w₂, with K-D5's arc matrix. They no longer come from the formed K_c·u.
+- **Short-bend rule.** The rule and its Passed limit of 1.6e-2 (option (c), withdrawn) are removed with the load closure.
+
+The requirement above remains the record of O-13's unit.
+
 Sources:
 - S11-G design: [S11G_GUARD.md revision 2.1](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/S11G_GUARD.md).
 - R-b′ selection and load-bearing ruling: [T3 rulings](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md), sections "S11-G note revision 2: rulings …", "S11-G revision 2 after V1's delta check" and "S11-G implementation: I5 rulings".

@@ -22,6 +22,14 @@ If the stable form needs more than about two days, or a T3 re-agreement beyond T
 
 O-3 accepts Lemma 3 with no `CRITERION` change. O-4 makes this `atan_positive`'s first product caller, with N-2's test and A-6's near-π treatment. These are the RV129 O-3/O-4 dispositions, distinct from the M31b0 N-1/N-2 conditions above.
 
+**Superseded in part by K-D5 revision 1** (HELP_HUMAN, 2026-10-11, option (d); [kd5-member-relative-bound.md](kd5-member-relative-bound.md)). When that unit lands, three things stop being rules.
+
+- **The short-stiff-bend thresholds** ("Short stiff bends", above). The Passed and Sensitive thresholds become outcomes of the solver's own gate and of the unified member predicate on certified rows.
+- **O-13's Passed limit.** This is the 1.6e-2 limit of option (c), now withdrawn, enforced by the short-bend rule. It is removed together with the load closure.
+- **The 1e-4 rad acceptance** in "Stable small-angle evaluation", pinned by t15b. It is replaced by the predicate's outcome.
+
+The pivot-screen refusal below 1e-4 is unchanged.
+
 ## T4-U1 as implemented
 
 - **Element.** CB forms the bend from (x_i, x_j, R, y_reference) only: no absolute centre; c from 4R² − |d|² formed from exact products. φ comes from K3a's `atan_positive` at p = 128 rounded once, so the formation path calls no platform libm and its bits are the same on every platform. The cancelling flexibility integrals use exact-rational series below the switch s < 1/2 (a libm-free comparison) and half-angle closed forms above; the jump at the switch is ≤ 5e-15 relative. Before the guarded tip inversion F is scaled by one power of two, so short arcs form down to the 1e-9 rad floor without changing any element that formed before. PP drops the `bend_plane_orientation` requirement (D-B) except on `2.0.0/exact_straight_pressure_v2` documents, whose diagnostics stay byte-identical (SP-1).
