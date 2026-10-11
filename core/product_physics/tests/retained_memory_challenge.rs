@@ -33,10 +33,10 @@ use b1_sq_inputs as inputs;
 
 /// The profile's in-build W1 phase (requested + moving, without R), sparse and dense, in the
 /// pinned record's build (the lib test `challenge_bounds_are_the_profile` checks it there).
-const W1_PHASE_BYTES: [u64; 2] = [4_853_699_162, 4_912_830_506];
+const W1_PHASE_BYTES: [u64; 2] = [4_850_720_982, 4_909_852_326];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6).
-const MAX_PHASE_BYTES: [u64; 2] = [9_689_069_896, 9_748_201_240];
+const MAX_PHASE_BYTES: [u64; 2] = [9_686_194_148, 9_745_325_492];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.
