@@ -2,13 +2,18 @@
 from copy import deepcopy
 import json
 from pathlib import Path
+import sys
 
 import jsonschema
 import pytest
 
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from retained_precision_corpus import load_corpus  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / "schemas/retained_precision_mp_v2.schema.json").read_text())
-CORPUS = json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())
+CORPUS = load_corpus()
 
 
 def validate(value, name=None):

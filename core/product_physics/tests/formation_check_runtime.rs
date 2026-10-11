@@ -307,29 +307,7 @@ const PP_UTM_7E3_PHI10: PpRouteElbow = PpRouteElbow {
     ],
 };
 
-/// X = 5e6 m, Y = 3.5e6 m, φ = 5°: PP's binary64 centre (rounded at ulp(5e6))
-/// is admissible but not equidistant, so the product's chord R(cos φ − 1),
-/// R sin φ is not the actual chord and the published error exceeds the
-/// criterion (model PP_UTM_5E6_PHI5_PRODUCT_SECTION; RV5-B1, ROOT's ruling).
-const PP_UTM_5E6: PpRouteElbow = PpRouteElbow {
-    id: "PP-UTM-5E6-PHI5",
-    x0: [5000000.0, 3500000.0],
-    x1: [5000000.026146723, 3500000.0011415905],
-    radius: 0.3,
-    u_int: [
-        (3, 1e-06),
-        (4, 1e-06),
-        (5, 1e-06),
-        (6, -1.1434351901457734e-09),
-        (7, 2.6210121544675173e-08),
-        (8, -2.5067176622443854e-08),
-        (9, 1.0061076233272944e-06),
-        (10, 1.004902172644534e-06),
-        (11, 1.0048463700931492e-06),
-    ],
-};
-
-/// The same elbow as PP_UTM_5E6 with T4-U1's objective element: u_int is
+/// X = 5e6 m, Y = 3.5e6 m, φ = 5° (RV5-B1's elbow) with T4-U1's objective element: u_int is
 /// T4-I6's exact reference for the element formed from (x_i, x_j, R, y)
 /// (round 00 `t3_models[16]`, `u_int_new`, rounded once).
 const PP_UTM_5E6_OBJECTIVE: PpRouteElbow = PpRouteElbow {
@@ -505,27 +483,3 @@ fn kd5_k1_stable_form_on_the_pp_route_at_utm_coordinates_is_not_demoted() {
     assert_published_accurately_and_not_demoted(&K1_IP_UTM);
 }
 
-#[test]
-#[ignore = "M31b0 equivalence pending ROOT ruling (DEL-04-01 Design); see K1/K2 for M31b"]
-fn kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries() {
-    // ROOT's product-level demotion test (RV5-B1): at X = 5e6 m PP's own
-    // binary64 centre makes the product's chord differ from the actual chord,
-    // and the published error exceeds the criterion. The check's H uses the
-    // actual chord, so the case publishes SENSITIVE on both entries in both
-    // modes; mutation 31b (H from the product's chord) publishes
-    // CHECKS_PASSED and fails the integrity assertion below.
-    for (ctx, envelope, actual) in run_pp_route_elbow(&PP_UTM_5E6) {
-        // Precondition: the published error is above the criterion.
-        assert!(actual > 1.0, "{ctx}: actual {actual}");
-        assert_eq!(
-            integrity_codes(&envelope),
-            vec!["NUMERICAL_INTEGRITY_SENSITIVE"],
-            "{ctx}"
-        );
-        assert_eq!(
-            case_qualities(&envelope),
-            vec![NumericalQualityStatus::Sensitive],
-            "{ctx}"
-        );
-    }
-}

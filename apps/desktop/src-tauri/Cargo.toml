@@ -9,6 +9,11 @@ edition = "2021"
 name = "openpipestress_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+# Native smoke harness (`src/native_smoke.rs`, `native-smoke/run.mjs`). Never
+# enabled by a product build.
+native-smoke = []
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

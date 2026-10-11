@@ -34,6 +34,7 @@ import {
   CURRENT_ORIGIN_LIMIT, buildCurrentResultExport, currentReceivedOrigin, currentResultDocumentBase, deriveResultDocument, validateResultDocument, type JsonObject,
 } from "./resultExportAdapter";
 import { ResultExportPanel } from "./ResultExportPanel";
+import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisionCorpus";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 afterEach(() => { cleanup(); invokeMock.mockReset(); delete (window as Json).__TAURI_INTERNALS__; });
@@ -41,7 +42,7 @@ const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const sha256 = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
 const caseFile = json("fixtures/results/retained_precision_carrier_cases.json");
-const corpus = json("fixtures/results/retained_precision_cases.json");
+const corpus = readRetainedPrecisionCorpus();
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** I76's goldens (committed at 055ee0c0bc) and its recorded inputs (R/I76/t6s_01/inputs/). */
