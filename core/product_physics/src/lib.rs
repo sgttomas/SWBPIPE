@@ -5876,13 +5876,12 @@ fn solve_load_case_observed(
                 }
                 Err(error) => {
                     unavailable_stress_maximum_members.push(pipe.element_id.clone());
-                    if macro_bend.is_none() {
                     diagnostics.push(diag(&format!("diagnostic:exact-stress:{}:extrema",stable_suffix(&pipe.element_id)),"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {error}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
-                    } else {
-                        // T4-U2: an arc's withheld maximum recurs in every case,
-                        // so its id is case-qualified; the straight site above
-                        // keeps its text and bytes (SP-1).
-                        diagnostics.push(diag(&format!("diagnostic:exact-stress:{}:{}:extrema",stable_suffix(&load_case.id),stable_suffix(&pipe.element_id)),"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {error}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
+                    // T4-U2: an arc's withheld maximum recurs in every case, so
+                    // its id is case-qualified on the arc branch; the straight
+                    // site above keeps its text and bytes (SP-1).
+                    if let (Some(_), Some(last)) = (macro_bend, diagnostics.last_mut()) {
+                        last.id = format!("diagnostic:exact-stress:{}:{}:extrema", stable_suffix(&load_case.id), stable_suffix(&pipe.element_id));
                     }
                 }
             }
