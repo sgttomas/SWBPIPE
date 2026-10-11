@@ -606,12 +606,14 @@ pub(crate) fn arc_recovery_finding(
 // --------------------------------------------------------- short-bend rule
 
 /// HELP_HUMAN's R-1, option (c) (`arc-recovery-guard.md`, "Short bends"):
-/// below this arc-length ratio to the shorter adjacent member a realized
-/// bend's torsion and shear rows carry the solve's rounding amplified by the
-/// recovery's cancellation, about 13.4 (R phi/L)^-3 on T4's L line, beyond
-/// what B_f can see; a case publishing such a bend is not Passed. The value
-/// is the derived breach ratio 1.22e-2 with a factor 1.88 margin on the error.
-pub(crate) const SHORT_BEND_PASSED_RATIO: f64 = 1.5e-2;
+/// below this arc-length ratio rho to the shorter adjacent member a realized
+/// bend's recovered rows carry the solve's rounding amplified by the
+/// recovery's cancellation C = a rho^-3 (a <= 13.7 on T4's L line), beyond
+/// what B_f can see, so a case publishing such a bend is not Passed. The
+/// published error is theta 2^-53 C q with theta <= 1.21, which reaches
+/// RD(1e-9) q at rho = 1.23e-2; the limit is that ratio times 2^(1/3) (a
+/// factor 2 on the error), rounded up.
+pub(crate) const SHORT_BEND_PASSED_RATIO: f64 = 1.6e-2;
 
 /// One published realized bend that is short against its neighbours.
 #[derive(Debug, Clone)]

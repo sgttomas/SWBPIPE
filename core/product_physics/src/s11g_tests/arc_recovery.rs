@@ -213,7 +213,7 @@ fn short_bend_finding_is_strict_and_names_each_bend() {
     };
     assert!(short_bend_finding(&[at(SHORT_BEND_PASSED_RATIO)], "c").is_none());
     let finding = short_bend_finding(&[at(SHORT_BEND_PASSED_RATIO.next_down()), at(0.5)], "c").unwrap();
-    assert_eq!(finding.fired, ["component:B (pipe B): 1.500e-2"]);
+    assert_eq!(finding.fired, ["component:B (pipe B): 1.600e-2"]);
     assert!(finding.sentence.starts_with(&format!("{SHORT}: load case c is Sensitive because 1 realized bend(s)")));
 }
 
@@ -567,7 +567,7 @@ fn arc_record_q_is_each_group_norm() {
 /// SHORT_BEND_PASSED_RATIO of its shorter neighbour demotes its Passed case,
 /// naming the bend and its ratio; just above the limit the case stays
 /// Passed. On the L line (shorter neighbour 3 m) the limit is at
-/// phi = 3 * 1.5e-2 / 0.2286 rad.
+/// phi = 3 * 1.6e-2 / 0.2286 rad.
 #[test]
 fn short_bend_rule_at_its_limit() {
     let limit_phi = 3.0 * SHORT_BEND_PASSED_RATIO / 0.2286;
