@@ -120,3 +120,5 @@ code_paths:
 - core/reporting/result_export/src/retained_precision.rs
 - core/analysis_runs/retained_precision.py
 - apps/desktop/src/features/results/retainedPrecision.ts
+- core/product_physics/src/retained_memory.rs
+- tools/retained_pricing
