@@ -1,25 +1,9 @@
-/** U6d: TypeScript standing and carriers for the F2a preview successor
- * `openpipestress.result_semantics/0.3.0/preview-physics-retained-1`.
- *
- * Peer of Rust `semantic_contract.rs` (U6a) and Python `compatibility.py`
- * (U6b). The statement itself is checked only by the accepted reader, the
- * Rust one through `retainedPrecisionReader.ts` (R1), read-only here. This module adds:
- *
- * - a private registration: only a completed reader validation, run with the
- *   captured native invocation, is recorded against these exact source bytes
- *   (the pattern of the joined route's registration, `resultStanding.ts`). A copy, a header, a hash or a
- *   saved record never registers, and any later byte change voids it;
- * - synchronous standing from that registration only (D2 4.9.4; plan 3).
- *   `numerical_quality` never contributes;
- * - validated row classes for binding refusals and the per-case summary
- *   (D2 4.9.9). An unregistered or refused statement has no validated class.
- *
- * Nothing here claims the sharper stop-rule bound or truth enclosure by the
- * extrema intervals (RV86 limits); the only bound named is the receipt's
- * published absolute bound b of an `absolute_verified` row.
- */
-import { validateRetainedPrecision, validateRetainedPrecisionBytes } from "./retainedPrecisionReader";
-import { RetainedPrecisionError, type AccuracyClass, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
+/** Unit R: retained-source session capture and presentation. Rust owns the
+ * receipt reading, standing predicates and classification summary. This module
+ * binds the accepted validation to the captured source and invocation, retains
+ * reader errors and checks the desktop's live native capture (D-U7-4). */
+import { retainedPrecisionSemantics, validateRetainedPrecision, validateRetainedPrecisionBytes, type RetainedClassificationSummary } from "./retainedPrecisionReader";
+import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -32,16 +16,7 @@ export const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_N
 export const RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED = "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED";
 
 export type RetainedStandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
-export type RetainedClassificationSummary = {
-  case_id: unknown;
-  relative_verified: number;
-  absolute_verified: number;
-  interval_bindable: number;
-  not_covered: number;
-  input_derived: number;
-  non_quantity: number;
-  withheld: number;
-};
+export type { RetainedClassificationSummary } from "./retainedPrecisionReader";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Fingerprint = { text: string; negativeZeros: string };
 type Outcome = { validation: RetainedPrecisionValidation; error: null } | { validation: null; error: string };
@@ -63,13 +38,6 @@ function negativeZeroPaths(value: unknown): string {
 }
 function fingerprint(value: unknown): Fingerprint | null {
   try { return { text: checkedJsonText(value), negativeZeros: negativeZeroPaths(value) }; } catch { return null; }
-}
-/** Key-order-insensitive JSON equality (serde_json `Value` equality, where an
- * absent member reads as null). */
-function sameJson(a: unknown, b: unknown): boolean {
-  const order = (v: unknown): unknown => Array.isArray(v) ? v.map(order)
-    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order((v as Record<string, unknown>)[k])])) : v;
-  return JSON.stringify(order(a ?? null)) === JSON.stringify(order(b ?? null));
 }
 function receiptCases(source: MechanicsResult): Json[] {
   const cases = (source as Json)?.retained_precision?.body?.cases;
@@ -120,46 +88,9 @@ export function retainedPrecisionRegistration(source: MechanicsResult | null | u
   return registered(source)?.outcome ?? null;
 }
 
-/** One `numerical_quality` case's ordinary eligibility by the base rules (Rust
- * `not_required_cases_ordinarily_eligible`'s predicate), for a `not_required` case. */
-function ordinaryCaseEligible(c: Json, emitted: ReadonlySet<string>): boolean {
-  return !!c && c.structural_status === "passive_model_basis" && c.solve_quality === "checks_passed"
-    && c.model_matrix_fidelity === "represented_equations_retained" && ["not_claimed", "reference_verified"].includes(c.accuracy_evidence)
-    && Array.isArray(c.evidence_refs) && !!c.evidence_refs.length && c.evidence_refs.every((id: unknown) => emitted.has(id as string));
-}
-/** Every case is `selected`, or `not_required` and ordinarily eligible by the
- * base rules, by its receipt index (D2 4.9.4; I66 F-7). Mirrors Rust
- * `not_required_cases_ordinarily_eligible`, including the requirement that every
- * result and diagnostic id is a unique non-empty string. */
-function notRequiredCasesOrdinarilyEligible(source: MechanicsResult, cases: Json[]): boolean {
-  const quality: Json[] = Array.isArray(source.numerical_quality?.cases) ? source.numerical_quality!.cases : [];
-  const ids = new Set<string>();
-  for (const items of [source.results, source.diagnostics]) {
-    for (const item of Array.isArray(items) ? items : []) {
-      const id = (item as Json)?.id;
-      if (typeof id !== "string" || !id || ids.has(id)) return false;
-      ids.add(id);
-    }
-  }
-  return cases.every((c, index) => {
-    if (c?.status === "selected") return true;
-    if (c?.status !== "not_required") return false;
-    const q = quality[index];
-    return !!q && sameJson(q.basis_ref, c.basis_ref) && ordinaryCaseEligible(q, ids);
-  });
-}
-/** D2 4.9.4 over an accepted-reader validation (Rust `retained_standing_from`).
- * `numerically_eligible` needs all of: an invocation-bound validation whose
- * eligibility is set; requested refs equal to the receipt's case order;
- * `MECHANICS_SOLVED`; and every case `selected` or an ordinarily eligible
- * `not_required` case. `numerical_quality` never contributes for a selected case. */
-export function retainedStandingFrom(validation: Pick<RetainedPrecisionValidation, "invocation_bound" | "numerical_eligible">, source: MechanicsResult, requested: readonly unknown[]): "numerically_eligible" | "needs_recompute" {
-  const cases = receiptCases(source);
-  if (!validation.invocation_bound || !validation.numerical_eligible
-    || cases.length !== requested.length || cases.some((c, index) => !sameJson(c?.basis_ref, requested[index]))
-    || source.status?.mechanics !== "MECHANICS_SOLVED"
-    || !notRequiredCasesOrdinarilyEligible(source, cases)) return "needs_recompute";
-  return "numerically_eligible";
+/** Transport-only seam for Rust's standing over an accepted validation. */
+export function retainedStandingFrom(validation: RetainedPrecisionValidation, source: MechanicsResult, requested: readonly unknown[]): "numerically_eligible" | "needs_recompute" {
+  return retainedPrecisionSemantics(validation, source, requested).standing;
 }
 function requestedRefs(model: Pick<PreviewModel, "load_cases"> | null | undefined): Json[] {
   return (model?.load_cases ?? []).map(c => ({ ref_type: "load_case", ref_id: c.id }));
@@ -178,7 +109,10 @@ export function retainedPrecisionStanding(source: MechanicsResult, model?: Pick<
   const registration = registered(source);
   if (!registration) return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] };
   if (registration.outcome.error !== null) return { standing: "unsupported", eligible: false, findings: [registration.outcome.error] };
-  if (retainedStandingFrom(registration.outcome.validation, source, requestedRefs(model)) !== "numerically_eligible") return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] };
+  let standing: "numerically_eligible" | "needs_recompute";
+  try { standing = retainedStandingFrom(registration.outcome.validation, source, requestedRefs(model)); }
+  catch { return { standing: "unsupported", eligible: false, findings: [RETAINED_PRECISION_READER_UNAVAILABLE] }; }
+  if (standing !== "numerically_eligible") return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] };
   if (registration.live?.(model) !== true) return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] };
   return { standing: "numerically_eligible", eligible: true, findings: [] };
 }
@@ -194,21 +128,9 @@ export function retainedRowClasses(source: MechanicsResult | null | undefined): 
   const validation = registered(source)?.outcome.validation;
   return validation ? new Map(validation.classifications.map(row => [row.result_id, row])) : null;
 }
-const CLASS_INDEX: Record<AccuracyClass, number> = { relative_verified: 0, absolute_verified: 1, not_covered: 2, input_derived: 3, non_quantity: 4 };
-/** D2 4.9.9 per-case counts over a validated statement (Rust
- * `classification_summary_from`). `withheld` counts the quantity rows that
- * cannot bind under the standing for `requested`: every quantity row unless the
- * standing is `numerically_eligible`; otherwise the absolute and not-covered
- * rows, since S-I has not landed (`interval_bindable` is 0). */
+/** Transport-only seam for Rust's summary over an accepted validation. */
 export function classificationSummaryFrom(validation: RetainedPrecisionValidation, source: MechanicsResult, requested: readonly unknown[]): RetainedClassificationSummary[] {
-  const current = retainedStandingFrom(validation, source, requested) === "numerically_eligible";
-  return receiptCases(source).map(c => {
-    const id = c?.basis_ref?.ref_id;
-    const n = [0, 0, 0, 0, 0];
-    for (const row of validation.classifications) if (sameJson(row.basis_ref?.ref_id, id)) n[CLASS_INDEX[row.class]] += 1;
-    const withheld = current ? n[1] + n[2] : n[0] + n[1] + n[2] + n[3];
-    return { case_id: id, relative_verified: n[0], absolute_verified: n[1], interval_bindable: 0, not_covered: n[2], input_derived: n[3], non_quantity: n[4], withheld };
-  });
+  return retainedPrecisionSemantics(validation, source, requested).classification_summary;
 }
 /** The per-case summary over the registered validation; empty when nothing
  * valid is registered for these bytes. `withheld` counts as Current only when
@@ -216,7 +138,9 @@ export function classificationSummaryFrom(validation: RetainedPrecisionValidatio
  * otherwise no requested refs are passed, which gives the not-Current count. */
 export function classificationSummary(source: MechanicsResult | null | undefined, model?: Pick<PreviewModel, "load_cases"> | null): RetainedClassificationSummary[] {
   const validation = registered(source)?.outcome.validation;
-  return validation ? classificationSummaryFrom(validation, source!, retainedPrecisionStanding(source!, model).eligible ? requestedRefs(model) : []) : [];
+  if (!validation) return [];
+  try { return classificationSummaryFrom(validation, source!, retainedPrecisionStanding(source!, model).eligible ? requestedRefs(model) : []); }
+  catch { return []; } // The semantic binding did not read a verdict: fail closed.
 }
 /** Results-panel standing text from the registered receipt only, never from the
  * ordinary `numerical_quality` (D2 4.9.2). The receipt's case count is shown only

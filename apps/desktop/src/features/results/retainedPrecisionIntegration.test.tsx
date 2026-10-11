@@ -8,8 +8,8 @@
  *
  * Since U7 (D-U7-5) the reader's eligibility is on: the unedited successor with
  * its captured invocation reads `numerically_eligible` through the real reader.
- * The pure seams (`retainedStandingFrom`, `classificationSummaryFrom`) are
- * exercised directly. A test-only wrapper of the accepted reader has two uses:
+ * The transport seams (`retainedStandingFrom`, `classificationSummaryFrom`)
+ * exercise Rust's semantic helpers through wasm. A test-only wrapper of the accepted reader has two uses:
  * `u7.simulate` marks one row `not_covered` (no available statement has one;
  * U6a F3) or reclassifies the absolute rows, to reach the summary branches; and
  * `u7.held` returns the reader's validation as it was before U7 (never eligible,
@@ -17,7 +17,7 @@
  * and gates' not-eligible branches stay exercised. With both false the wrapper
  * returns the reader's own frozen result unchanged.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createHash } from "node:crypto";
@@ -429,7 +429,8 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
 describe("the post-U7 standing rules (seams, independent of the reader's flag)", () => {
   const { source } = milestone("sparse_interactive");
   const requested = [{ ref_type: "load_case", ref_id: "case" }];
-  const bound = { invocation_bound: true, numerical_eligible: true };
+  let bound: RetainedPrecisionValidation;
+  beforeAll(async () => { bound = { ...await validateRetainedPrecision(source), invocation_bound: true, numerical_eligible: true }; });
   /** A two-case statement: the milestone's selected case plus a not_required one. */
   function twoCase(edit?: (s: Json) => void): MechanicsResult {
     const s = structuredClone(source) as Json;
@@ -468,7 +469,7 @@ describe("the post-U7 standing rules (seams, independent of the reader's flag)",
     expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 97 }]);
     const current = classificationSummaryFrom({ ...validation, invocation_bound: true, numerical_eligible: true }, source, requested);
     expect(current[0].withheld).toBe(69);
-    const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered" } : row) };
+    const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered", scale_bits: null, bound_bits: null } : row) };
     expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 1, withheld: 69 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
     // Rows count only toward their own case.
     const split: RetainedPrecisionValidation = { ...validation, classifications: validation.classifications.map((row, i) => i < 10 ? { ...row, basis_ref: { ref_type: "load_case", ref_id: "second" } } : row) };

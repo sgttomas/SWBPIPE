@@ -6,7 +6,7 @@ vi.mock("../../services/wasmEngine/loadWasmEngine", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/wasmEngine/loadWasmEngine")>();
   return { ...actual, loadedWasmEngine: () => (engine.loaded ? actual.loadedWasmEngine() : null) };
 });
-import { JSON_PARSE_REJECTED, RESULT_READER_UNAVAILABLE, ResultReaderError, readerDispatch, readerRowSemantics, readerSourceText, readerValidate, rememberReceivedText } from "./resultReader";
+import { JSON_PARSE_REJECTED, RESULT_READER_UNAVAILABLE, ResultReaderError, readerDispatch, readerRowSemantics, readerSourceText, readerTransport, readerValidate, rememberReceivedText } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -46,4 +46,17 @@ describe("the result reader module", () => {
     expect(readerDispatch(value)).toMatchObject({ ok: true, route: "preview_physics" });
     expect(readerRowSemantics(value)(value.results[0]).signature).not.toBeNull();
   });
+});
+
+it("carries source-blocks transport and portable source commitments through wasm", () => {
+  const source = JSON.parse(text("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")) as Json;
+  expect(readerValidate("source-recovery", source)).toEqual({});
+  const header = { source_block_recovery: structuredClone(source.source_block_recovery) };
+  expect(() => readerTransport("source-blocks", header)).not.toThrow();
+  header.source_block_recovery.receipt_sha256 = "0".repeat(64);
+  expect(() => readerTransport("source-blocks", header)).toThrow("SOURCE_BLOCKS_RECEIPT_HASH");
+  header.source_block_recovery.extra = 1;
+  expect(() => readerTransport("source-blocks", header)).toThrow("SOURCE_BLOCKS_RECEIPT_SHAPE");
+  source.run_id = "edited-publication";
+  expect(() => readerValidate("source-recovery", source)).toThrow("SOURCE_BLOCKS_PUBLICATION_HASH");
 });

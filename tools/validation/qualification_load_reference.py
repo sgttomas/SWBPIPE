@@ -60,8 +60,7 @@ PROFILE = 'resolved_straight_load_state_v1'
 TABLE = 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'
 TABLE_SHA256 = '44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d'
 # b7-plan R2: the owned reader is Rust's load-reference-1 reader (`validate_load_reference_evidence`), over
-# its physics-1 reader. Reader source bytes as of R2 (the Python reader's last pin, 4974b30e…, was its
-# T4-U3 integration at 575677cfef); re-pin deliberately whenever the reader changes.
+# its physics-1 reader. Re-pin deliberately whenever the owned reader source changes.
 MODULE = 'core/reporting/result_export/src/load_reference.rs'
 MODULE_SHA256 = '5d2e5ce616029676b283967f017744b0c3c4758146e3bdc1f1c8d2e2f621a690'
 UNITS = physics.UNITS

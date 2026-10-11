@@ -525,9 +525,9 @@ fn base_reader_outcomes_are_the_committed_corpus_outcomes() {
         std::fs::create_dir_all(&dir).unwrap();
         let mut lines = String::new();
         for input in &inputs {
-            // JSON texts as the Rust readers read them: a reader compares
-            // numbers by their JSON form (1e6 is not 1000000), so a caller passes
-            // these texts, not a re-serialization.
+            // Preserve the source JSON texts, including negative zero and unsafe
+            // integers; a value-preserving numeric re-serialization gives the
+            // same verdict, as the A2 test below checks.
             let text = |v: &Value| serde_json::to_string(v).unwrap();
             let (source, rows) = match &input.source {
                 Ok(v) => (json!(text(v)), json!(v["results"].as_array().map(|r| r.iter().map(text).collect::<Vec<_>>()))),

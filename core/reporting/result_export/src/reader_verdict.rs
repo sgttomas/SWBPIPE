@@ -193,11 +193,12 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
 }
 
 /// The readers by name: `(reader, source, model, invocation)` to an outcome.
-pub const READERS: [&str; 6] = [
+pub const READERS: [&str; 7] = [
     "preview-physics",
     "physics",
     "physics-source",
     "source-blocks",
+    "source-recovery",
     "load-reference",
     "load-reference-source",
 ];
@@ -213,6 +214,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         Err(e) => verdict_refusal(&e),
     };
     match reader {
+        "source-recovery" => checked(source_recovery(source)),
         "preview-physics" => checked(sc::validate_preview_physics_evidence(source)),
         "physics" => checked(sc::validate_physics_evidence(source).and_then(|()| {
             model.map_or(Ok(()), |m| physics_model_checks(source, m))
@@ -256,6 +258,19 @@ fn source_validate(source: &Value, invocation: Option<&Value>, composite: bool) 
     }
     Ok(eligible)
 }
+/// Portable receipt/publication consistency for the analysis-run and derivative
+/// builders. This deliberately reads only the checks they previously ran: the
+/// header, the source route's transport metadata, and the publication commitment.
+/// It does not validate raw rows, an invocation, or numerical eligibility.
+pub fn source_recovery(source: &Value) -> Result<(), String> {
+    match route(source).map(|r| r.0) {
+        Ok("source_blocks") => crate::source_blocks::validate_transport_metadata(source)?,
+        Ok("physics_source") => crate::physics_source::validate_transport_metadata(source)?,
+        _ => return Err("SOURCE_RECOVERY_METADATA_CONTRADICTION".into()),
+    }
+    crate::source_blocks::validate_publication_hash(source)
+}
+
 /// One reader's transport (metadata-only) checks; never eligible.
 pub fn transport(reader: &str, source: &Value) -> Value {
     let result = match reader {
@@ -264,6 +279,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
         }
         "physics" => sc::validate_physics_transport_metadata(source),
         "physics-source" => crate::physics_source::validate_transport_metadata(source),
+        "source-blocks" => crate::source_blocks::validate_transport_metadata(source),
         "load-reference" => sc::validate_load_reference_transport_metadata(source),
         "load-reference-source" => sc::validate_load_reference_source_transport_metadata(source),
         other => Err(format!("READER_UNKNOWN: {other}")),

@@ -547,3 +547,52 @@ fn error_json_splits_code_and_detail() {
     assert_eq!(rv::error_json("SOURCE_X: more"), json!({"code": "SOURCE_X", "detail": "SOURCE_X: more"}));
     assert_eq!(rv::error_json("SOURCE_V2_Y"), json!({"code": "SOURCE_V2_Y", "detail": null}));
 }
+
+#[test]
+fn source_blocks_transport_reads_only_the_receipt_shape_and_hash() {
+    let raw = read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
+    let mut header = json!({"source_block_recovery": raw["source_block_recovery"]});
+    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
+    // A transport has no raw publication or invocation to check.
+    header["source_block_recovery"]["body"]["publication_sha256"] = json!("0".repeat(64));
+    header["source_block_recovery"]["receipt_sha256"] = json!(
+        open_pipe_stress_result_export::source_blocks::domain_hash(
+            "source_blocks_receipt_v1", &header["source_block_recovery"]["body"]
+        ).unwrap()
+    );
+    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
+    header["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
+    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_HASH");
+    header["source_block_recovery"]["extra"] = json!(1);
+    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_SHAPE");
+}
+
+#[test]
+fn source_recovery_preserves_the_portable_commitment_check_depth() {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    for (folder, receipt_error) in [
+        ("source_blocks", "SOURCE_BLOCKS_RECEIPT_HASH"),
+        ("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH"),
+    ] {
+        let raw = read(&format!("fixtures/product_preview/{folder}/n05-sparse_interactive.raw.json"));
+        assert_eq!(rv::validate("source-recovery", &raw, None, None), json!({"ok": true}));
+        let mut bad = raw.clone();
+        bad["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
+        assert_eq!(rv::validate("source-recovery", &bad, None, None)["error"]["code"], receipt_error);
+        let mut bad = raw.clone();
+        bad["run_id"] = json!("edited-publication");
+        assert_eq!(rv::validate("source-recovery", &bad, None, None)["error"]["code"], "SOURCE_BLOCKS_PUBLICATION_HASH");
+        // Rebinding a changed row does not turn this portable check into the raw
+        // evidence reader. That separate reader still refuses the changed row.
+        let mut changed = raw.clone();
+        changed["results"][0]["id"] = json!("unbound-result-row");
+        let mut publication = changed.clone();
+        publication.as_object_mut().unwrap().remove("source_block_recovery");
+        changed["source_block_recovery"]["body"]["publication_sha256"] = json!(domain_hash("source_blocks_publication_v1", &publication).unwrap());
+        changed["source_block_recovery"]["receipt_sha256"] = json!(domain_hash("source_blocks_receipt_v1", &changed["source_block_recovery"]["body"]).unwrap());
+        assert_eq!(rv::validate("source-recovery", &changed, None, None), json!({"ok": true}));
+        let reader = if folder == "source_blocks" { "source-blocks" } else { "physics-source" };
+        assert_eq!(rv::validate(reader, &changed, None, None)["ok"], false);
+    }
+    assert_eq!(rv::validate("source-recovery", &precision_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
+}

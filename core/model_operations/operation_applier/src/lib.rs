@@ -24,6 +24,8 @@ mod boundary_association;
 mod display_units;
 mod geometry_operations;
 mod rich_authoring;
+mod retained_semantics_binding;
+pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
 mod pressure_authoring;
 mod section_bindings;
@@ -1151,6 +1153,15 @@ mod wasm_api {
     #[wasm_bindgen]
     pub fn validate_retained_precision_transport_json(source_json: &str) -> Result<String, JsError> {
         super::retained_precision_transport_outcome_json(source_json)
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: standing and classification over the registration's accepted verdict.
+    #[wasm_bindgen]
+    pub fn retained_precision_semantics_json(
+        source_json: &str, validation_json: &str, requested_json: &str,
+    ) -> Result<String, JsError> {
+        super::retained_precision_semantics_json(source_json, validation_json, requested_json)
             .map_err(|error| JsError::new(&error))
     }
 

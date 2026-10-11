@@ -2,7 +2,7 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
-import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, sourceContract } from "../results/resultReader";
+import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, ResultReaderError, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
@@ -1153,9 +1153,12 @@ async function validateNeutralTransportEvidence(header: MechanicsResult): Promis
   else if (route === "preview_physics") readerTransport("preview-physics", header);
   else if (route === "physics_source") readerTransport("physics-source", header);
   else if (route === "source_blocks") {
-    // The receipt's shape is the header dispatch's (G5); its hash is checked here.
-    const receipt = header.source_block_recovery as { body: unknown; receipt_sha256: string };
-    if (receipt.receipt_sha256 !== await canonicalSha256HexCheckedV1({domain:"source_blocks_receipt_v1",payload:receipt.body})) throw new Error("SN-SOURCE-RECEIPT-METADATA");
+    try { readerTransport("source-blocks", header); }
+    catch (error) {
+      // Preserve this package surface's refusal vocabulary over Rust's verdict.
+      if (error instanceof ResultReaderError && error.code === "SOURCE_BLOCKS_RECEIPT_HASH") throw new Error("SN-SOURCE-RECEIPT-METADATA");
+      throw error;
+    }
   }
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.

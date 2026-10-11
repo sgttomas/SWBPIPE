@@ -632,7 +632,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         if ann["annotation_id"] != ann_id
             || ann["source_row_index"] != i
             || ann["source_result_id"] != row["id"]
-            || ann["metadata"] != row.get("metadata").cloned().unwrap_or(Value::Null)
+            || !crate::json_value_eq(&ann["metadata"], row.get("metadata").unwrap_or(&Value::Null))
             || ann["basis_ref"] != row.get("basis_ref").cloned().unwrap_or(Value::Null)
             || ann["source_result_refs"]
                 != row.get("source_result_refs").cloned().unwrap_or(json!([]))

@@ -16,7 +16,6 @@
 use open_pipe_stress_result_export::reader_verdict as rv;
 use open_pipe_stress_result_export::retained_precision as rp;
 use open_pipe_stress_result_export::semantic_contract as sc;
-use open_pipe_stress_result_export::source_blocks as sb;
 use serde_json::{json, Map, Value};
 
 pub const ARTIFACT: &str = "openpipestress.result_reader_verdict";
@@ -64,23 +63,6 @@ fn requested_refs(input: &Map<String, Value>) -> Result<&[Value], Value> {
         None => Ok(&[]),
         Some(Value::Array(refs)) => Ok(refs),
         Some(_) => Err(refused("READER_REQUESTED_BASIS_REFS_INVALID")),
-    }
-}
-
-/// A transported source-blocks-1 receipt: its shape and its receipt hash (the
-/// raw publication is not transported, so nothing else can be recomputed).
-fn source_blocks_transport(input: &Map<String, Value>) -> Value {
-    let receipt = &input["source"]["source_block_recovery"];
-    let checked = sb::validate_receipt_shape(receipt).and_then(|()| {
-        if receipt["receipt_sha256"] == sb::domain_hash("source_blocks_receipt_v1", &receipt["body"])? {
-            Ok(())
-        } else {
-            Err("SOURCE_BLOCKS_RECEIPT_HASH".to_string())
-        }
-    });
-    match checked {
-        Ok(()) => json!({"ok": true}),
-        Err(e) => refused(&e),
     }
 }
 
@@ -164,12 +146,14 @@ pub const READERS: &[Reader] = &[
     base!("physics", &["model"]),
     base!("physics-source", &["invocation"]),
     base!("source-blocks", &["invocation"]),
+    base!("source-recovery", &[]),
     base!("load-reference", &["model"]),
     base!("load-reference-source", &[]),
     // `reader_verdict::transport`: `{"source": <statement>}`.
     transport!("preview-physics"),
     transport!("physics"),
     transport!("physics-source"),
+    transport!("source-blocks"),
     transport!("load-reference"),
     transport!("load-reference-source"),
     // `reader_verdict::row_semantics`: `{"row", "source"?}`.
@@ -178,13 +162,6 @@ pub const READERS: &[Reader] = &[
         required_members: &["row"],
         optional_members: &["source"],
         read: row_semantics,
-    },
-    // A transported source-blocks-1 receipt's shape and hash: `{"source": <statement>}`.
-    Reader {
-        name: "source-blocks-transport",
-        required_members: &["source"],
-        optional_members: &[],
-        read: source_blocks_transport,
     },
     // `semantic_contract::numerical_use_standing_with_context` and `standing_reason`:
     // `{"source", "requested_basis_refs", "invocation"?}`; `{"ok":true,"token","reason"}`.
@@ -261,6 +238,7 @@ pub fn read(reader: &str, input: &str) -> Result<(u8, Value), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_result_export::source_blocks as sb;
 
     #[test]
     fn unusable_inputs_never_run_a_reader() {
@@ -326,6 +304,8 @@ mod tests {
             ("dispatch", json!({"source": source, "model": null, "invocation": null}), rv::dispatch(&source, None, None)),
             ("physics", json!({"source": source, "model": {"load_cases": []}}), rv::validate("physics", &source, Some(&json!({"load_cases": []})), None)),
             ("source-blocks", json!({"source": source}), rv::validate("source-blocks", &source, None, None)),
+            ("source-recovery", json!({"source": source}), rv::validate("source-recovery", &source, None, None)),
+            ("source-blocks-transport", json!({"source": source}), rv::transport("source-blocks", &source)),
             ("load-reference-transport", json!({"source": source}), rv::transport("load-reference", &source)),
             ("row-semantics", json!({"row": {"kind": "x"}}), rv::row_semantics(&json!({"kind": "x"}), None)),
         ] {

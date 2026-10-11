@@ -17,7 +17,7 @@
  * statements; they do not establish producer origin (D-U7-6). */
 import { checkedJsonText } from "../../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
-import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
+import { loadedWasmEngine, loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 
 type ReaderOutcome =
@@ -93,4 +93,37 @@ export async function validateRetainedPrecisionTransport(source: unknown): Promi
   try { sourceJson = retainedJsonText(source); } catch { throw unreadable(); }
   const engine = await loadWasmEngine();
   return run(() => engine.validateRetainedPrecisionTransportJson(sourceJson));
+}
+
+export type RetainedClassificationSummary = {
+  case_id: unknown;
+  relative_verified: number;
+  absolute_verified: number;
+  interval_bindable: number;
+  not_covered: number;
+  input_derived: number;
+  non_quantity: number;
+  withheld: number;
+};
+type RetainedSemantics = Readonly<{
+  standing: "numerically_eligible" | "needs_recompute";
+  classification_summary: RetainedClassificationSummary[];
+}>;
+const semanticVerdicts = new WeakMap<RetainedPrecisionValidation, Map<string, RetainedSemantics>>();
+/** Rust's semantic helpers over the registration's accepted reader verdict. The
+ * registration binds it to this source; this function only carries their JSON.
+ * The engine is already loaded by validation. A missing or failed engine is loud,
+ * so the registration carrier can retain its named unavailable error state. */
+export function retainedPrecisionSemantics(validation: RetainedPrecisionValidation, source: unknown, requested: readonly unknown[]): RetainedSemantics {
+  const engine = loadedWasmEngine();
+  if (!engine) throw new Error("RETAINED_PRECISION_READER_UNAVAILABLE");
+  const sourceJson = retainedJsonText(source), requestedJson = retainedJsonText(requested);
+  const key = `${sourceJson}\u0000${requestedJson}`;
+  let entries = semanticVerdicts.get(validation);
+  if (!entries) { entries = new Map(); semanticVerdicts.set(validation, entries); }
+  if (!entries.has(key)) {
+    entries.set(key, freeze(JSON.parse(engine.retainedPrecisionSemanticsJson(sourceJson, retainedJsonText(validation), requestedJson)) as RetainedSemantics));
+    while (entries.size > 24) entries.delete(entries.keys().next().value!);
+  }
+  return entries.get(key)!;
 }

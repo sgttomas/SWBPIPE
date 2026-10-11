@@ -1090,13 +1090,13 @@ fn u6_product_text_drops_only_test_gated_items() {
     assert_eq!(bare_count("x seam_x as y; seam_xy; my_seam_x; seam_x(", "seam_x"), 2);
 }
 
-/// RV88 U6a N-3: the `#[doc(hidden)]` public seams are test seams. No product
-/// source file outside their defining module names them, as a whole identifier
-/// anywhere in its product text (the file without its `#[cfg(test)]`-gated
-/// items), and the defining modules name them exactly as pinned here
-/// (definition plus internal calls).
+/// RV88 U6a N-3: semantic seams have no ungoverned product callers. Unit R2
+/// moves desktop standing and class counts to Rust: its operation binding may
+/// call those two helpers over a fingerprint-bound accepted Validation. Other
+/// product files remain excluded. Scan whole identifiers outside cfg(test),
+/// retaining the defining-module counts (definition plus internal calls).
 #[test]
-fn u6_doc_hidden_seams_have_no_product_callers() {
+fn u6_semantic_seams_have_only_governed_product_callers() {
     const SEAMS: [(&str, &str, usize); 4] = [
         ("class_binding_refusal", "core/reporting/result_export/src/semantic_contract.rs", 2),
         ("retained_standing_from", "core/reporting/result_export/src/semantic_contract.rs", 3),
@@ -1145,7 +1145,10 @@ fn u6_doc_hidden_seams_have_no_product_callers() {
             assert!(!product.contains("mod legacy_store_carry_forward_tests") && !product.contains("\nmod tests {"));
         }
         for (seam, home, uses) in SEAMS {
-            let expected = if relative == home { uses } else { 0 };
+            let expected = if relative == home { uses }
+                else if relative == "core/model_operations/operation_applier/src/retained_semantics_binding.rs"
+                    && matches!(seam, "retained_standing_from" | "classification_summary_from") { 1 }
+                else { 0 };
             assert_eq!(bare_count(&product, seam), expected, "{seam} in {relative}");
         }
     }

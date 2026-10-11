@@ -31,6 +31,7 @@ export type WasmOperationEngine = {
   // JSON (WASM-ENGINE-INPUT-JSON-INVALID).
   validateRetainedPrecisionJson: (sourceJson: string, invocationJson?: string) => string;
   validateRetainedPrecisionTransportJson: (sourceJson: string) => string;
+  retainedPrecisionSemanticsJson: (sourceJson: string, validationJson: string, requestedJson: string) => string;
   // R2 (b7-plan Unit R): the Rust base-route readers (`reader_verdict`). JSON
   // text in, the verdict's JSON out; an absent model, invocation or source reads
   // as absent. Throw only on input that is not JSON.
@@ -53,6 +54,7 @@ type GeneratedGlueModule = {
   canonical_sha256_hex_checked_v1: (valueJson: string) => string;
   validate_retained_precision_json: (sourceJson: string, invocationJson?: string | null) => string;
   validate_retained_precision_transport_json: (sourceJson: string) => string;
+  retained_precision_semantics_json: WasmOperationEngine["retainedPrecisionSemanticsJson"];
   reader_dispatch_json: (sourceJson: string, modelJson?: string | null, invocationJson?: string | null) => string;
   reader_validate_json: (reader: string, sourceJson: string, modelJson?: string | null, invocationJson?: string | null) => string;
   reader_transport_json: (reader: string, sourceJson: string) => string;
@@ -161,7 +163,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -176,6 +178,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     canonicalSha256HexCheckedV1: glue.canonical_sha256_hex_checked_v1,
     validateRetainedPrecisionJson: (sourceJson, invocationJson) => glue.validate_retained_precision_json(sourceJson, invocationJson ?? null),
     validateRetainedPrecisionTransportJson: glue.validate_retained_precision_transport_json,
+    retainedPrecisionSemanticsJson: glue.retained_precision_semantics_json,
     readerDispatchJson: (sourceJson, modelJson, invocationJson) => glue.reader_dispatch_json(sourceJson, modelJson ?? null, invocationJson ?? null),
     readerValidateJson: (reader, sourceJson, modelJson, invocationJson) => glue.reader_validate_json(reader, sourceJson, modelJson ?? null, invocationJson ?? null),
     readerTransportJson: glue.reader_transport_json,

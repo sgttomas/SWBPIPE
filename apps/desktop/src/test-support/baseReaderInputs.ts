@@ -2,10 +2,10 @@
  * `tests/base_reader_outcomes.rs` (`corpus()`) builds them, for the desktop's
  * equivalence gate (`baseReaderWasmEquivalence.test.ts`).
  *
- * The Rust readers compare some numbers by their JSON form (`1e6` is a float,
- * `1000000` an integer), so every statement is built and written as raw JSON:
- * each number keeps its text from the corpus file, and the text handed to the
- * reader parses, in serde_json, to the `Value` the native test read. An
+ * Every statement is built and written as raw JSON so negative zero and unsafe
+ * integers keep their source values. The Rust readers compare numbers by value;
+ * value-preserving numeric re-serialization gives the same verdict (A2). The
+ * text parses to the `Value` the native test read. An
  * unmutated statement is the corpus file's own text. Test input only; this
  * module reads nothing about a statement. */
 import { readFileSync } from "node:fs";

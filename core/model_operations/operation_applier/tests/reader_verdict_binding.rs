@@ -32,6 +32,16 @@ fn the_entry_points_return_the_verdicts() {
     assert_eq!(unbound["standing"]["findings"], json!([rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]));
     let validated = outcome(reader_validate_json("source-blocks", SOURCE, None, Some(&invocation_text)).unwrap());
     assert_eq!(validated, json!({"ok": true, "eligible": true, "findings": []}));
+    assert_eq!(outcome(reader_validate_json("source-recovery", SOURCE, None, None).unwrap()), json!({"ok": true}));
+    let header = json!({"source_block_recovery": source["source_block_recovery"]});
+    assert_eq!(outcome(reader_transport_json("source-blocks", &header.to_string()).unwrap()), json!({"ok": true}));
+    let mut bad = header;
+    bad["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
+    assert_eq!(
+        outcome(reader_transport_json("source-blocks", &bad.to_string()).unwrap()),
+        rv::transport("source-blocks", &bad)
+    );
+    assert_eq!(outcome(reader_transport_json("source-blocks", &bad.to_string()).unwrap())["error"]["code"], "SOURCE_BLOCKS_RECEIPT_HASH");
     // The model reaches the load-reference reader (G2).
     let lr_model: Value = serde_json::from_str(LOAD_REFERENCE_REQUEST).unwrap();
     let mut fewer = lr_model["model"].clone();

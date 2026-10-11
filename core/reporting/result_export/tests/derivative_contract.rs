@@ -46,3 +46,24 @@ fn capture(name:&str,doc:&Value,source:&Value){if let Ok(dir)=std::env::var("RES
  for path in paths{let mut bad=doc.clone();*bad.pointer_mut(path).unwrap()=json!("tampered");bad["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");let hash=d::checksum(&bad,"derivative_document_excludes_own_hash",d::reference("derivative_document",bad["result_envelope"]["envelope_id"].as_str().unwrap())).unwrap();bad["result_envelope"]["reproducibility"]["derivative_hash"]=hash;assert!(d::validate_document(&bad,&source).is_err(),"{path}");}
  for value in [json!(null),json!({}),json!([])]{let mut bad=doc.clone();bad["result_envelope"]["result_sets"]=value;assert!(d::validate_document(&bad,&source).is_err());}
 }
+
+#[test]
+fn numeric_raw_annotations_bind_by_value_across_json_forms() {
+    let (doc, source) = project(json!({
+        "id": "unknown-numeric-annotation", "kind": "invented_unknown_kind",
+        "value": 1.0, "unit": "m", "entity_ref": "node:fixture",
+        "metadata": {"extra": {"é": [1.0, {"value": 2.0}]}}
+    })).unwrap();
+    let jcs = |v: &Value| -> Value {
+        serde_json::from_str(&open_pipe_stress_canonical_json::canonical_json(v)).unwrap()
+    };
+    let copied = jcs(&doc);
+    assert_ne!(copied, doc, "JCS changes numeric JSON forms");
+    assert_eq!(open_pipe_stress_canonical_json::canonical_json(&copied),
+               open_pipe_stress_canonical_json::canonical_json(&doc));
+    assert_eq!(d::validate_document(&copied, &source), Ok(()));
+    assert_eq!(d::validate_document(&doc, &jcs(&source)), Ok(()));
+    let mut wrong = copied;
+    wrong["result_envelope"]["source_annotations"][0]["metadata"]["extra"]["é"][0] = json!(2);
+    assert_eq!(d::validate_document(&wrong, &source), Err("SOURCE_ANNOTATION_MISMATCH".into()));
+}

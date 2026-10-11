@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult } from "../types";
-import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference } from "./analysisRunCompatibility";
+import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference, validateRetainedRecoverySource } from "./analysisRunCompatibility";
 import combinationSuccessor from "../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
 import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
 import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { PRECISION_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import { sourceContract } from "../features/results/resultReader";
+import sourceBlocks from "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
+import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
 import expectedRecord from "../../../../fixtures/analysis_runs/invented/analysis_run_v0_2.json";
 
 const result: MechanicsResult = {
@@ -215,4 +217,23 @@ it("binds a combination successor's Combination basis references (T6S, B2-C §10
   await expect(validateAnalysisRunV03(record, source, refs)).resolves.toBeUndefined();
   expect((await buildAnalysisRunV03(source, own)).analysis_run.load_basis_refs).toContainEqual({ object_type: "Combination", ref: "combination:ab" });
   await expect(buildAnalysisRunV03(source, own, undefined, refs.filter(r => r.object_type !== "Combination"))).rejects.toThrow("ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH");
+});
+
+describe.each([
+  ["source-blocks", sourceBlocks, "SOURCE_RECOVERY_RECEIPT_HASH"],
+  ["physics-source", physicsSource, "PHYSICS_SOURCE_RECEIPT_HASH"],
+] as const)("%s portable source consistency", (_route, fixture, receiptError) => {
+  it("takes Rust's commitment verdict while preserving the surface's refusal codes", async () => {
+    const source = structuredClone(fixture) as unknown as MechanicsResult;
+    await expect(validateRetainedRecoverySource(source)).resolves.toBeUndefined();
+    const badReceipt = structuredClone(source) as any;
+    badReceipt.source_block_recovery.receipt_sha256 = "0".repeat(64);
+    await expect(validateRetainedRecoverySource(badReceipt)).rejects.toThrow(receiptError);
+    const badPublication = structuredClone(source);
+    badPublication.run_id = "edited-publication";
+    await expect(validateRetainedRecoverySource(badPublication)).rejects.toThrow("SOURCE_RECOVERY_PUBLICATION_HASH");
+    const badShape = structuredClone(source) as any;
+    badShape.source_block_recovery.extra = 1;
+    await expect(validateRetainedRecoverySource(badShape)).rejects.toThrow("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+  });
 });

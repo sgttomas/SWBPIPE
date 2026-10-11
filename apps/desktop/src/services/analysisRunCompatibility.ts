@@ -1,6 +1,6 @@
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
-import { hasCurrentSourceContract, readerDispatch, readerTransport, readerValidate, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
+import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderError, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
 import { validateLoadReferenceSourceEvidence } from "../features/results/resultStanding";
 import legacyTable from "../../../../fixtures/results/semantic_contract_v0_2.json";
 import precisionTable from "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json";
@@ -269,9 +269,13 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
 export async function validateRetainedRecoverySource(source: MechanicsResult): Promise<void> {
   const route = sourceContract(source);
   if (route !== "source_blocks" && route !== "physics_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (route === "physics_source") readerTransport("physics-source", source);
-  const receipt = source.source_block_recovery as { body: { publication_sha256: string }; receipt_sha256: string };
-  if (receipt.receipt_sha256 !== await canonicalSha256HexCheckedV1({ domain: "source_blocks_receipt_v1", payload: receipt.body })) throw new Error("SOURCE_RECOVERY_RECEIPT_HASH");
-  const { source_block_recovery: _receipt, ...publication } = source;
-  if (receipt.body.publication_sha256 !== await canonicalSha256HexCheckedV1({ domain: "source_blocks_publication_v1", payload: publication })) throw new Error("SOURCE_RECOVERY_PUBLICATION_HASH");
+  try { readerValidate("source-recovery", source); }
+  catch (error) {
+    // The record/export surfaces keep their refusal vocabulary over Rust's verdict.
+    if (error instanceof ResultReaderError) {
+      if (error.code === "SOURCE_BLOCKS_RECEIPT_HASH") throw new Error("SOURCE_RECOVERY_RECEIPT_HASH");
+      if (error.code === "SOURCE_BLOCKS_PUBLICATION_HASH") throw new Error("SOURCE_RECOVERY_PUBLICATION_HASH");
+    }
+    throw error;
+  }
 }

@@ -189,6 +189,35 @@ pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
     require!(shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE");
     Ok(())
 }
+/// A receipt's canonical commitment; shared by raw and transported statements.
+fn validate_receipt_hash(receipt: &Value) -> Result<(), String> {
+    require!(
+        receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", &receipt["body"])?,
+        "RECEIPT_HASH"
+    );
+    Ok(())
+}
+/// A transported source-blocks-1 receipt: shape and hash only. The raw
+/// publication and invocation are not transported, so neither is recomputed.
+pub fn validate_transport_metadata(source: &Value) -> Result<(), String> {
+    let receipt = &source["source_block_recovery"];
+    validate_receipt_shape(receipt)?;
+    validate_receipt_hash(receipt)
+}
+/// Bind the receipt to the raw publication. Callers validate the receipt first.
+pub fn validate_publication_hash(source: &Value) -> Result<(), String> {
+    let mut publication = source.clone();
+    publication
+        .as_object_mut()
+        .ok_or("SOURCE_BLOCKS_RAW_FIELDS")?
+        .remove("source_block_recovery");
+    require!(
+        source["source_block_recovery"]["body"]["publication_sha256"]
+            == domain_hash("source_blocks_publication_v1", &publication)?,
+        "PUBLICATION_HASH"
+    );
+    Ok(())
+}
 fn signature(row: &Value, composite: bool) -> Result<Option<&'static Value>, String> {
     let s = signature_in(
         if composite {
@@ -730,19 +759,8 @@ pub(crate) fn validate_in(
         validate_receipt_shape(receipt)?;
     }
     let body = &receipt["body"];
-    require!(
-        receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body)?,
-        "RECEIPT_HASH"
-    );
-    let mut publication = source.clone();
-    publication
-        .as_object_mut()
-        .unwrap()
-        .remove("source_block_recovery");
-    require!(
-        body["publication_sha256"] == domain_hash("source_blocks_publication_v1", &publication)?,
-        "PUBLICATION_HASH"
-    );
+    validate_receipt_hash(receipt)?;
+    validate_publication_hash(source)?;
     let model = if let Some(invocation) = actual_invocation {
         require!(
             keys(invocation, &["request", "solver_mode"])
