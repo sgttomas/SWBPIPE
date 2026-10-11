@@ -446,6 +446,15 @@ if fnkey("fallback_circular_maximum", _CP):
             "exclude_targets": [Resolved(_target) for _target in _rule["exclude_targets"]],
             "added": "KD5C5", "evidence": "current private FallbackError has no trait/public-return/function-pointer/macro escape; pinned outside receivers are Scaled/Bytes/ExactAccumulator/CertifiedRow/CertifiedValue; subtract only this qualified candidate and preserve all other and inside-CP candidates"}]
 
+# KD5C6: returning allocation alternatives only; no visit or graph cap.
+import runpy as _c6_runpy
+_c6_model = _c6_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "kd5_first_error_model.py"))
+_c6_state = _c6_model["inspect"](_SNAP)
+if _c6_state is not None:
+    FIRST_ERROR_GUARD = "KD5C6"
+    O10_SITE_FROM += [(Resolved(_key), dict(_entry, **{"from": [Resolved(_root) for _root in _entry["from"]]}))
+                     for _key, _entry in _c6_model["site_rules"](_c6_state)]
+
 # KD5L14-L18: actual fixed arrays, conservative span census, and returning
 # power-transport error. No function or run multiplier is globally capped.
 if fnkey("fallback_circular_maximum", _CP):

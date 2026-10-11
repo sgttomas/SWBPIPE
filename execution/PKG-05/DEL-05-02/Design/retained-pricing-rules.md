@@ -526,6 +526,37 @@ pricing run and in-build atom evaluation.
   rows, cases, counts, source/workspace owners, D1 premise or memory/text
   limit. The failed b3a2c739 tree remains evidence; corrected contributions
   and native budget outcomes require the subsequent immutable-head run.
+- **KD5C6 (conditional first-return String allocation).** Exactly14
+  returning allocation alternatives in certified_publication receive per1
+  site_from bounds: checked/divided use fallback_circular_maximum,
+  summary_row, stress_mpa and maximum_summary_mpa; the six transport errors
+  use both fallback_circular_maximum and straight_stress_spans; the two
+  maximum_cover errors and three public-MPa errors use maximum_cover;
+  direct fallback transport failure uses fallback_circular_maximum.
+  Each genuine inner Err propagates immediately from that complete attempt,
+  including Result<Vec<_>,String> collection's first-error stop. Preserved
+  conservative CertifiedRow/Value receiver candidates retain positive root
+  allowances. Every outer attempt/member/case/replay count remains, along
+  with all graph/function/loop counts, 4194304 arithmetic visits and2l+1
+  span capacity/traversal. Inner returned Strings, outer formatted Strings
+  and stored certified_spans error clones are distinct positive owners;
+  solve_load_case_observed may catch and continue, so no bound spans those
+  attempts. Sites731/765/816/872/931/943, engine formatters, outer clones
+  and all other String sites remain unchanged. The whole CPP file/prefix,
+  all12 private helpers, roots and solve/exactStraight consumers are pinned.
+  ALL fully qualified incoming graph edges must match the reviewed five
+  entry functions and exact shared-helper parents; exact kind+site inventory
+  and positive root witnesses must hold. Every consumer lookup spelling
+  (short, qualified, kind-qualified and lexical fallback) refuses count,
+  size, zero, aggregate or total overrides outside the14 canonical per1
+  records. The actual post-rebind multiplicity must equal its positive
+  source-root sum. Catch/continue/retry, swallowed
+  Err, collection, parent or allocation changes refuse for re-review.
+  Historical no-cap behavior requires CPP absence plus pinned original
+  directed wrappers; current marker removal alone never selects history.
+  Limits, criteria and positive-path arithmetic are unchanged. This source
+  proof confers no budget pass; final immutable pricing/native evaluation
+  remains required before registration.
 - **KD5L14–L16 (new fixed/span headers).** The mapped certificate/fallback
   span walk retains positive2l+1 under KD5O10's current-D1 one-interval
   producer. Section maximum coverage walks exactly5 sections. Coefficient
