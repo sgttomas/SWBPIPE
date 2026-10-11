@@ -15,6 +15,8 @@
 
 use open_pipe_stress_result_export::reader_verdict as rv;
 use open_pipe_stress_result_export::retained_precision as rp;
+use open_pipe_stress_result_export::semantic_contract as sc;
+use open_pipe_stress_result_export::source_blocks as sb;
 use serde_json::{json, Map, Value};
 
 pub const ARTIFACT: &str = "openpipestress.result_reader_verdict";
@@ -50,6 +52,63 @@ fn dispatch(input: &Map<String, Value>) -> Value {
 
 fn row_semantics(input: &Map<String, Value>) -> Value {
     rv::row_semantics(&input["row"], member(input, "source"))
+}
+
+fn refused(text: &str) -> Value {
+    json!({"ok": false, "error": rv::error_json(text)})
+}
+
+/// The caller's requested basis references: an array, or refused.
+fn requested_refs(input: &Map<String, Value>) -> Result<&[Value], Value> {
+    match member(input, "requested_basis_refs") {
+        None => Ok(&[]),
+        Some(Value::Array(refs)) => Ok(refs),
+        Some(_) => Err(refused("READER_REQUESTED_BASIS_REFS_INVALID")),
+    }
+}
+
+/// A transported source-blocks-1 receipt: its shape and its receipt hash (the
+/// raw publication is not transported, so nothing else can be recomputed).
+fn source_blocks_transport(input: &Map<String, Value>) -> Value {
+    let receipt = &input["source"]["source_block_recovery"];
+    let checked = sb::validate_receipt_shape(receipt).and_then(|()| {
+        if receipt["receipt_sha256"] == sb::domain_hash("source_blocks_receipt_v1", &receipt["body"])? {
+            Ok(())
+        } else {
+            Err("SOURCE_BLOCKS_RECEIPT_HASH".to_string())
+        }
+    });
+    match checked {
+        Ok(()) => json!({"ok": true}),
+        Err(e) => refused(&e),
+    }
+}
+
+/// `semantic_contract::numerical_use_standing_with_context` over the caller's
+/// requested references, and `standing_reason`.
+fn standing(input: &Map<String, Value>) -> Value {
+    let refs = match requested_refs(input) {
+        Ok(refs) => refs,
+        Err(refusal) => return refusal,
+    };
+    let source = &input["source"];
+    json!({"ok": true,
+        "token": sc::numerical_use_standing_with_context(source, refs, member(input, "invocation")),
+        "reason": sc::standing_reason(source)})
+}
+
+/// `semantic_contract::classification_summary`.
+fn classification_summary(input: &Map<String, Value>) -> Value {
+    match requested_refs(input) {
+        Ok(refs) => json!({"ok": true,
+            "summary": sc::classification_summary(&input["source"], member(input, "invocation"), refs)}),
+        Err(refusal) => refusal,
+    }
+}
+
+/// `semantic_contract::rule_binding_refusal`.
+fn rule_binding(input: &Map<String, Value>) -> Value {
+    json!({"ok": true, "refusal": sc::rule_binding_refusal(&input["envelope"], &input["row"])})
 }
 
 /// A base reader's validation, by its `reader_verdict` name.
@@ -119,6 +178,37 @@ pub const READERS: &[Reader] = &[
         required_members: &["row"],
         optional_members: &["source"],
         read: row_semantics,
+    },
+    // A transported source-blocks-1 receipt's shape and hash: `{"source": <statement>}`.
+    Reader {
+        name: "source-blocks-transport",
+        required_members: &["source"],
+        optional_members: &[],
+        read: source_blocks_transport,
+    },
+    // `semantic_contract::numerical_use_standing_with_context` and `standing_reason`:
+    // `{"source", "requested_basis_refs", "invocation"?}`; `{"ok":true,"token","reason"}`.
+    Reader {
+        name: "standing",
+        required_members: &["source", "requested_basis_refs"],
+        optional_members: &["invocation"],
+        read: standing,
+    },
+    // `semantic_contract::classification_summary`: `{"source", "invocation"?,
+    // "requested_basis_refs"?}`; `{"ok":true,"summary":[…]}`.
+    Reader {
+        name: "classification-summary",
+        required_members: &["source"],
+        optional_members: &["invocation", "requested_basis_refs"],
+        read: classification_summary,
+    },
+    // `semantic_contract::rule_binding_refusal`: `{"envelope", "row"}`;
+    // `{"ok":true,"refusal":<code>|null}`.
+    Reader {
+        name: "rule-binding",
+        required_members: &["envelope", "row"],
+        optional_members: &[],
+        read: rule_binding,
     },
 ];
 
@@ -190,7 +280,10 @@ mod tests {
             ("preview-physics", r#"{"source":{},"model":{}}"#),
             ("load-reference-source", r#"{"source":{},"model":{}}"#),
             ("physics-transport", r#"{"source":{},"model":{}}"#),
-            ("source-blocks-transport", r#"{"source":{}}"#),
+            ("source-blocks-transport", r#"{"source":{},"model":{}}"#),
+            ("standing", r#"{"source":{}}"#),
+            ("rule-binding", r#"{"row":{}}"#),
+            ("classification-summary", r#"{"source":{},"model":{}}"#),
             ("row-semantics", r#"{"source":{}}"#),
             ("row-semantics", r#"{"row":{},"invocation":null}"#),
         ] {
@@ -248,5 +341,33 @@ mod tests {
         for name in rv::READERS {
             assert!(READERS.iter().any(|r| r.name == name), "{name}");
         }
+    }
+
+    #[test]
+    fn the_semantic_contract_entries_return_its_values() {
+        let source = json!({"schema_version": "0.1.0", "results": [], "diagnostics": []});
+        let refs = json!([{"ref_type": "load_case", "ref_id": "lc"}]);
+        let (code, output) =
+            read("standing", &json!({"source": source, "requested_basis_refs": refs}).to_string()).unwrap();
+        assert_eq!(code, EXIT_PASS);
+        assert_eq!(
+            output["outcome"],
+            json!({"ok": true, "token": sc::numerical_use_standing(&source, refs.as_array().unwrap()),
+                "reason": sc::standing_reason(&source)})
+        );
+        let (code, output) =
+            read("standing", &json!({"source": source, "requested_basis_refs": {}}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("READER_REQUESTED_BASIS_REFS_INVALID")));
+        let envelope = json!({"producer": {"semantic_contract_id": sb::CONTRACT_ID}, "summary": {}});
+        let row = json!({"id": "r", "kind": "open_formula_stress_summary"});
+        let (_, output) = read("rule-binding", &json!({"envelope": envelope, "row": row}).to_string()).unwrap();
+        assert_eq!(output["outcome"], json!({"ok": true, "refusal": sc::rule_binding_refusal(&envelope, &row)}));
+        assert_eq!(output["outcome"]["refusal"], sc::RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE);
+        let (_, output) = read("classification-summary", &json!({"source": source}).to_string()).unwrap();
+        assert_eq!(output["outcome"], json!({"ok": true, "summary": []}));
+        // A transported receipt of the wrong shape is refused with the reader's code.
+        let (code, output) =
+            read("source-blocks-transport", &json!({"source": {"source_block_recovery": {}}}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_BLOCKS_RECEIPT_SHAPE")));
     }
 }
