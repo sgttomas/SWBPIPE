@@ -6,6 +6,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import {
   buildBlankLocalModelDocument,
   createLocalProject,
+  findLocalProject,
   evaluateModelDocumentLocal,
   modelDocumentVersionCheckDiagnostic,
   modelDocumentVersionCheckStatus,
@@ -114,14 +115,15 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   });
 
   it("round-trips create, save, and open with current migration evidence and an empty ledger", async () => {
-    const created = await createLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
+    // The sample id is already stored by an earlier case: replacing it is confirmed.
+    const created = await createLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, true);
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model_migration_ledger).toEqual([]);
     expect(created.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
     expect(created.summary.unit_round_trip_checked_ref_count).toBe(1);
     expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
-    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
+    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, true);
     expect(saved.model_document_migration?.status).toBe("current");
     expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
     expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
@@ -179,8 +181,8 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
       provenance: "legacy compatibility test"
     }] }];
     const before = JSON.stringify(model);
-    await createLocalProject(model);
-    const saved = await saveLocalProject(model);
+    await createLocalProject(model, [], null, null, null, null, null, null, true);
+    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
     const opened = await openLocalProject(model.project.id);
     expect(JSON.stringify(saved.model)).toBe(before);
     expect(JSON.stringify(opened?.model)).toBe(before);
@@ -189,8 +191,18 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   });
 
   it("refuses to persist documents with refused schema versions", async () => {
-    await expect(createLocalProject(sampleModel("0.9.0"))).rejects.toThrow(/newer_than_supported/);
-    await expect(saveLocalProject(sampleModel("not-semver"))).rejects.toThrow(/unsupported_schema/);
+    await expect(createLocalProject(sampleModel("0.9.0"), [], null, null, null, null, null, null, true)).rejects.toThrow(/newer_than_supported/);
+    await expect(saveLocalProject(sampleModel("not-semver"), [], null, null, null, null, null, null, null, true)).rejects.toThrow(/unsupported_schema/);
+  });
+
+  it("never replaces the stored project without confirmation (HELP_HUMAN ruling 2026-10-10)", async () => {
+    const model = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    await createLocalProject(model, [], null, null, null, null, null, null, true);
+    const stored = await findLocalProject(model.project.id);
+    expect(stored).toMatchObject({ project_id: model.project.id, project_name: model.project.name });
+    await expect(createLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
+    await expect(saveLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
+    expect(await findLocalProject("project:not-stored")).toBeNull();
   });
 
   it("round-trips old ledger bytes and optional transition hash evidence without projecting raw claims", async () => {

@@ -1,0 +1,227 @@
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
+import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
+import { App } from "../../App";
+import type { LocalProjectEnvelope, LocalProjectIndexEntry, PreviewModel } from "../../types";
+import { keptStoredProjectMessage, storedProjectDescription } from "./storedProjectConflict";
+
+// HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored project.
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
+
+const STORED: LocalProjectIndexEntry = {
+  project_id: demoModel.project.id,
+  project_name: "Stored invented demo",
+  storage_mode: "local_sqlite",
+  created_at_unix: 1760000000,
+  updated_at_unix: 1760086400
+};
+const REFUSAL = `PROJECT-ID-EXISTS: project \`${STORED.project_id}\` ("${STORED.project_name}", last saved at unix ${STORED.updated_at_unix}) is already stored; replacing it needs the user's confirmation.`;
+
+function nativeMenuCommand(command: string) {
+  window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
+}
+
+type WriteArgs = {
+  model: PreviewModel;
+  editorIntents?: unknown[];
+  proposal?: unknown;
+  selectedReviewTarget?: unknown;
+  mechanicsResult?: unknown;
+  analysisRun?: unknown;
+  modelHash?: unknown;
+  projectEnvelopeHash?: unknown;
+  replaceExisting?: boolean;
+};
+
+// The store's answer to an admitted write: the request echoed as a snapshot.
+function stored(args: WriteArgs, message: string): LocalProjectEnvelope {
+  return {
+    summary: {
+      project_id: args.model.project.id,
+      project_name: args.model.project.name,
+      database_path: "/invented/local/store.sqlite",
+      storage_mode: "local_sqlite",
+      migration_status: "current",
+      migration_framework: "application_service_separate_db_and_product_schema",
+      store_schema_version: 1,
+      store_schema_target_version: 1,
+      migrations_applied_on_open: [],
+      fts_indexed: true,
+      copied_external_files: false,
+      editor_intent_count: 0,
+      proposal_count: 0,
+      selected_review_target_count: 0,
+      selected_review_target_ref: "none",
+      persisted_mechanics_result_count: args.mechanicsResult ? 1 : 0,
+      persisted_analysis_run_count: 0,
+      persisted_analysis_run_ref: "none",
+      persisted_model_hash_count: 1,
+      persisted_model_hash_ref: args.model.project.id,
+      persisted_project_envelope_hash_count: 1,
+      persisted_project_envelope_hash_ref: args.model.project.id,
+      unit_round_trip_status: "not_checked_in_invented_test",
+      unit_round_trip_checked_ref_count: 0,
+      unit_round_trip_signature: "none",
+      message
+    },
+    model: args.model,
+    editor_intents: (args.editorIntents ?? []) as LocalProjectEnvelope["editor_intents"],
+    proposal: (args.proposal ?? null) as LocalProjectEnvelope["proposal"],
+    selected_review_target: (args.selectedReviewTarget ?? null) as LocalProjectEnvelope["selected_review_target"],
+    mechanics_result: (args.mechanicsResult ?? null) as LocalProjectEnvelope["mechanics_result"],
+    analysis_run: (args.analysisRun ?? null) as LocalProjectEnvelope["analysis_run"],
+    model_hash: (args.modelHash ?? null) as LocalProjectEnvelope["model_hash"],
+    project_envelope_hash: (args.projectEnvelopeHash ?? null) as LocalProjectEnvelope["project_envelope_hash"],
+    model_document_migration: null,
+    model_migration_ledger: []
+  };
+}
+
+async function renderNativeApp(handler: (command: string, args: Record<string, unknown>) => unknown) {
+  invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+    if (command === "sync_native_shell_state") return Promise.resolve(null);
+    try {
+      return Promise.resolve(handler(command, args ?? {}));
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  });
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  await screen.findByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`);
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+}
+
+const message = () => screen.getByTestId("local-project-message");
+const writes = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).map(([, args]) => args as WriteArgs);
+
+describe("saving onto a stored project id asks first", () => {
+  it("names the stored project, focuses Cancel, and Cancel keeps the stored project", async () => {
+    await renderNativeApp((command, args) => {
+      if (command === "create_local_project" && !(args as WriteArgs).replaceExisting) throw REFUSAL;
+      if (command === "find_local_project") return STORED;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    const prompt = await screen.findByTestId("replace-project-prompt");
+    expect(prompt).toHaveAttribute("role", "alertdialog");
+    expect(screen.getByTestId("replace-project-detail")).toHaveTextContent(
+      `Creating this project would replace the stored project ${storedProjectDescription(STORED)}.`
+    );
+    expect(screen.getByTestId("replace-project-cancel")).toHaveFocus();
+    fireEvent.click(screen.getByTestId("replace-project-cancel"));
+    await waitFor(() => expect(message()).toHaveTextContent(keptStoredProjectMessage(STORED)));
+    expect(screen.queryByTestId("replace-project-prompt")).not.toBeInTheDocument();
+    expect(writes("create_local_project").map((args) => args.replaceExisting)).toEqual([false]);
+  });
+
+  it("Escape is Cancel", async () => {
+    await renderNativeApp((command, args) => {
+      if (command === "create_local_project" && !(args as WriteArgs).replaceExisting) throw REFUSAL;
+      if (command === "find_local_project") return STORED;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    fireEvent.keyDown(await screen.findByTestId("replace-project-prompt"), { key: "Escape" });
+    await waitFor(() => expect(message()).toHaveTextContent(keptStoredProjectMessage(STORED)));
+    expect(writes("create_local_project")).toHaveLength(1);
+  });
+
+  it("Replace writes again, confirmed", async () => {
+    await renderNativeApp((command, args) => {
+      const write = args as WriteArgs;
+      if (command === "create_local_project") {
+        if (!write.replaceExisting) throw REFUSAL;
+        return stored(write, "Created local SQLite project snapshot without external file copies.");
+      }
+      if (command === "find_local_project") return STORED;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    fireEvent.click(await screen.findByTestId("replace-project-replace"));
+    await waitFor(() => expect(message()).toHaveTextContent("Created local SQLite project snapshot"));
+    expect(writes("create_local_project").map((args) => [args.model.project.id, args.replaceExisting])).toEqual([
+      [STORED.project_id, false],
+      [STORED.project_id, true]
+    ]);
+  });
+
+  it("Save as a new project writes the same document under an unused id, without the old run", async () => {
+    await renderNativeApp((command, args) => {
+      const write = args as WriteArgs;
+      if (command === "create_local_project") {
+        if (write.model.project.id === STORED.project_id && !write.replaceExisting) throw REFUSAL;
+        return stored(write, "Created local SQLite project snapshot without external file copies.");
+      }
+      if (command === "find_local_project") return (args as { projectId: string }).projectId === STORED.project_id ? STORED : null;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    fireEvent.click(await screen.findByTestId("replace-project-save-as-new"));
+    await waitFor(() => expect(message()).toHaveTextContent("Created local SQLite project snapshot"));
+    const [, second] = writes("create_local_project");
+    expect(second.replaceExisting).toBe(false);
+    expect(second.model.project.id).toMatch(new RegExp(`^${STORED.project_id}:copy-[0-9t]+z$`));
+    expect(second.mechanicsResult).toBeNull();
+    const { project: renamedProject, ...renamedRest } = second.model;
+    const { project: sourceProject, ...sourceRest } = demoModel as unknown as PreviewModel;
+    expect(renamedRest).toEqual(sourceRest);
+    expect({ ...renamedProject, id: sourceProject.id }).toEqual(sourceProject);
+    expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(second.model.project.id)}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(STORED.project_id)}`)).not.toBeInTheDocument();
+  });
+
+  it("Save as a new project from Save Local Project saves under the unused id", async () => {
+    await renderNativeApp((command, args) => {
+      const request = (args as { request?: { replace_existing?: boolean; model: PreviewModel } }).request;
+      if (command === "save_local_project") {
+        if (request!.model.project.id === STORED.project_id && !request!.replace_existing) throw REFUSAL;
+        return stored({ model: request!.model }, "Saved local SQLite project snapshot.");
+      }
+      if (command === "find_local_project") return (args as { projectId: string }).projectId === STORED.project_id ? STORED : null;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    fireEvent.click(await screen.findByTestId("replace-project-save-as-new"));
+    await waitFor(() => expect(message()).toHaveTextContent("Saved local SQLite project snapshot."));
+    const saves = invokeMock.mock.calls.filter(([name]) => name === "save_local_project")
+      .map(([, args]) => (args as { request: { model: PreviewModel; replace_existing: boolean; mechanics_result: unknown } }).request);
+    expect(saves.map((request) => request.replace_existing)).toEqual([false, false]);
+    expect(saves[1].model.project.id).toMatch(new RegExp(`^${STORED.project_id}:copy-`));
+    expect(saves[1].mechanics_result).toBeNull();
+  });
+
+  it("Save Local Project of the bundled demo asks too; a session that is the stored project saves confirmed", async () => {
+    const openedEnvelope = stored({ model: demoModel as unknown as PreviewModel }, "Opened local SQLite project snapshot.");
+    await renderNativeApp((command, args) => {
+      const request = (args as { request?: { replace_existing?: boolean } }).request;
+      if (command === "save_local_project") {
+        if (!request?.replace_existing) throw REFUSAL;
+        return stored({ ...(request as unknown as WriteArgs), model: (request as unknown as { model: PreviewModel }).model }, "Saved local SQLite project snapshot.");
+      }
+      if (command === "find_local_project") return STORED;
+      if (command === "open_local_project") return openedEnvelope;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    expect(await screen.findByTestId("replace-project-detail")).toHaveTextContent("Saving this project would replace the stored project");
+    fireEvent.click(screen.getByTestId("replace-project-cancel"));
+    await waitFor(() => expect(message()).toHaveTextContent(keptStoredProjectMessage(STORED)));
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(message()).toHaveTextContent("Opened local SQLite project snapshot."));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(message()).toHaveTextContent("Saved local SQLite project snapshot."));
+    const saves = invokeMock.mock.calls.filter(([name]) => name === "save_local_project").map(([, args]) => (args as { request: { replace_existing: boolean } }).request.replace_existing);
+    expect(saves).toEqual([false, true]);
+    expect(screen.queryByTestId("replace-project-prompt")).not.toBeInTheDocument();
+  });
+});

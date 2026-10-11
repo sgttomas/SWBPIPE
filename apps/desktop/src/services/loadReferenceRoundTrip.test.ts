@@ -52,7 +52,8 @@ describe("0.4.0 documents in the browser persistence mirror", () => {
     expect(created.model_document_migration?.status).toBe("current");
     const raw = json("fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json") as MechanicsResult;
     const run = json("fixtures/results/load_reference_source_mixed_sparse.analysis_run.json") as AnalysisRunEnvelope;
-    await saveLocalProject(model, [], null, null, raw, run);
+    // Saving the project just created: the session is that stored project.
+    await saveLocalProject(model, [], null, null, raw, run, null, null, null, true);
     const opened = await openLocalProject(model.project.id);
     expect(text(opened!.model)).toBe(before);
     expect(loadStateKeys(opened!.model)).toBe(loadStateKeys(model));

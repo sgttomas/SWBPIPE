@@ -558,9 +558,11 @@ export async function createLocalProject(
   mechanicsResult: MechanicsResult | null = null,
   analysisRun: AnalysisRunEnvelope | null = null,
   modelHash: ModelHashEvidence | null = null,
-  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
+  replaceExisting = false
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting);
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
@@ -583,8 +585,31 @@ export async function createLocalProject(
     mechanicsResult,
     analysisRun,
     modelHash,
-    projectEnvelopeHash
+    projectEnvelopeHash,
+    replaceExisting
   });
+}
+
+/** HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored
+ * project. The native store refuses an unconfirmed write onto a stored id
+ * (`PROJECT-ID-EXISTS`); the browser preview's one-snapshot store does the same. */
+function refuseUnconfirmedBrowserReplacement(projectId: string, replaceExisting: boolean) {
+  if (replaceExisting || browserPreviewSnapshot?.summary.project_id !== projectId) return;
+  throw new Error(`PROJECT-ID-EXISTS: project \`${projectId}\` ("${browserPreviewSnapshot.summary.project_name}", last saved at unix ${browserPreviewSnapshotUpdatedAtUnix}) is already stored; replacing it needs the user's confirmation.`);
+}
+
+/** Empty the browser preview's one-snapshot store, as a fresh page load does.
+ * The test setup calls this between cases so no case inherits a stored project. */
+export function clearBrowserPreviewStore(): void {
+  browserPreviewSnapshot = null;
+}
+
+/** The stored project with this id, if any, for the replace prompt. */
+export async function findLocalProject(projectId: string): Promise<LocalProjectIndexEntry | null> {
+  if (!hasTauriRuntime()) {
+    return (await listLocalProjects()).find((entry) => entry.project_id === projectId) ?? null;
+  }
+  return invoke<LocalProjectIndexEntry | null>("find_local_project", { projectId });
 }
 
 export async function openLocalProject(projectId: string | null = null): Promise<LocalProjectEnvelope | null> {
@@ -626,9 +651,11 @@ export async function saveLocalProject(
   analysisRun: AnalysisRunEnvelope | null = null,
   modelHash: ModelHashEvidence | null = null,
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
-  modelDocumentMigration: ModelDocumentMigrationStatus | null = null
+  modelDocumentMigration: ModelDocumentMigrationStatus | null = null,
+  replaceExisting = false
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
+    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting);
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
@@ -655,7 +682,8 @@ export async function saveLocalProject(
       analysis_run: analysisRun,
       model_hash: modelHash,
       project_envelope_hash: projectEnvelopeHash,
-      model_document_migration: modelDocumentMigration
+      model_document_migration: modelDocumentMigration,
+      replace_existing: replaceExisting
     }
   });
 }

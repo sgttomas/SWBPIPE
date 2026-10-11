@@ -95,7 +95,8 @@ function launch(phase) {
     phase,
     bundled_project_id: expected.bundled_project_id,
     refusals: expected.refusals.map((item) => ({ path: path.join(models, item.file) })),
-    documents: documents.map(({ case: name, path: file, project_id, modes, probe }) => ({ case: name, path: file, project_id, modes, probe: probe ?? null }))
+    // The first case also exercises the replace prompt (HELP_HUMAN ruling 2026-10-10).
+    documents: documents.map(({ case: name, path: file, project_id, modes, probe }, index) => ({ case: name, path: file, project_id, modes, probe: probe ?? null, replace_flows: index === 0 }))
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
   return new Promise((resolve) => {
@@ -157,6 +158,30 @@ for (const doc of documents) {
   for (const mode of doc.modes) checkObservation(`${doc.case}/${mode}`, observation(first, doc.case, mode), doc.observations[mode], hash);
 }
 
+// HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored project.
+const promptCase = documents[0];
+const promptFor = (report, label) => report.prompts?.find((item) => item.label === label);
+function checkPrompt(name, prompt, storedName, storedId) {
+  check(`${name}: prompt shown, naming the stored project and when it was last saved`,
+    prompt?.detail?.includes(`"${storedName}" (${storedId}), last saved `), prompt?.detail);
+  check(`${name}: Cancel is the default (focused)`, prompt?.cancel_focused === true);
+}
+{
+  const cancel = promptFor(first, `${promptCase.case}/second-save`);
+  checkPrompt("second save of the same document", cancel, promptCase.document.project.name, promptCase.project_id);
+  check("second save, Cancel: the stored project is kept", cancel?.message?.startsWith("Not saved: the stored project "), cancel?.message);
+  const copy = promptFor(first, `${promptCase.case}/save-as-new`);
+  checkPrompt("save as a new project", copy, promptCase.document.project.name, promptCase.project_id);
+  check("save as a new project: a new project id", copy?.new_project_id?.startsWith(`${promptCase.project_id}:copy-`) && !copy.original_kept_in_tree, copy?.new_project_id);
+  const seen = observation(first, `${promptCase.case}/copy`, promptCase.modes[0]);
+  const original = observation(first, promptCase.case, promptCase.modes[0]);
+  check("save as a new project: the solve proof's model hash changed with the id", seen?.proof_model_sha256 && seen.proof_model_sha256 !== original?.proof_model_sha256, seen?.proof_model_sha256);
+  check("save as a new project: same rows and probed value", seen && original && seen.proof_rows === original.proof_rows && seen.probe_entered === original.probe_entered, `${seen?.proof_rows}; ${seen?.probe_entered}`);
+  const replace = promptFor(first, `${promptCase.case}/replace`);
+  checkPrompt("save over the stored project", replace, promptCase.document.project.name, promptCase.project_id);
+  check("Replace: written only after confirmation", replace?.message?.includes("Created local SQLite project snapshot"), replace?.message);
+}
+
 // The store under the throwaway HOME holds both projects.
 const storePath = path.join(home, "Library", "Application Support", IDENTIFIER, "openpipestress-projects.sqlite3");
 const stored = {};
@@ -175,6 +200,20 @@ for (const doc of documents) {
   check(`${doc.case}: saved project's model is the opened document (schema_version ${fileVersion} -> ${savedVersion})`,
     model && canonical(savedRest) === canonical(fileRest), doc.project_id);
   doc.saved_model = model;
+}
+{
+  const copyId = promptFor(first, `${promptCase.case}/save-as-new`)?.new_project_id;
+  const copyModel = stored[copyId];
+  const { schema_version: copyVersion, project: copyProject, ...copyRest } = copyModel ?? {};
+  const { schema_version: fileVersion, project: fileProject, ...fileRest } = promptCase.document;
+  void copyVersion; void fileVersion;
+  check("save as a new project: stored under the new id, the document otherwise unchanged",
+    copyModel && canonical(copyRest) === canonical(fileRest) && canonical({ ...copyProject, id: fileProject.id }) === canonical(fileProject), copyId);
+  // The session solved the renamed document as saved (the existing save-time
+  // normalization applies), so the proof's hash is the stored copy's.
+  const copySeen = observation(first, `${promptCase.case}/copy`, promptCase.modes[0]);
+  check("save as a new project: the solve proof's model hash is the stored renamed document's", copyModel && copySeen?.proof_model_sha256 === modelSha256(copyModel), copySeen?.proof_model_sha256);
+  check("store holds exactly the expected projects", canonical(Object.keys(stored).sort()) === canonical([...documents.map((doc) => doc.project_id), copyId].sort()), Object.keys(stored));
 }
 const downloads = path.join(home, "Downloads");
 const exported = existsSync(downloads) ? readdirSync(downloads).filter((name) => name.endsWith(".json")) : [];
@@ -202,6 +241,12 @@ check("at least one result export written", exported.length > 0, exported);
 
 const second = await launch("reopen");
 check("phase reopen completed", second.ok, second.error);
+{
+  const bundled = promptFor(second, "bundled-demo/save");
+  const demoDoc = documents.find((doc) => doc.project_id === expected.bundled_project_id);
+  checkPrompt("bundled demo, Save Local Project", bundled, demoDoc?.document.project.name, expected.bundled_project_id);
+  check("bundled demo, Cancel: the stored demo is kept", bundled?.message?.startsWith("Not saved: the stored project "), bundled?.message);
+}
 for (const doc of documents) {
   const hash = doc.saved_model ? modelSha256(doc.saved_model) : null;
   for (const mode of doc.modes) {

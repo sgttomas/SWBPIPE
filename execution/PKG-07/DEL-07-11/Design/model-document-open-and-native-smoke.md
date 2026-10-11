@@ -53,11 +53,29 @@ export use their existing routes unchanged.
   Local Project saves it, and the existing persistence normalization still
   applies on save (for example 0.1.0 → 0.2.0 with its ledger record). A refusal,
   a cancelled chooser or a superseded request leaves the session as it was.
-- **Project identity.** Local projects are keyed by `project.id`, as before. If
-  an opened file carries the id of a stored project, New Local Project replaces
-  that project's snapshot and keeps its migration ledger, exactly as saving the
-  bundled demo always has. Nothing prompts first. Whether the product should
-  ask is an open product choice.
+- **Project identity: never a silent replacement.** Local projects are keyed by
+  `project.id`. HELP_HUMAN's ruling (2026-10-10): "the app never silently
+  replaces a stored project". The bundled demo is no exception. The store
+  enforces it: `create_local_project` and `save_local_project` refuse a write
+  onto a stored id with `PROJECT-ID-EXISTS` unless `replace_existing` is set.
+  The browser preview's one-snapshot store does the same. The webview sends a
+  write unconfirmed unless the session already is that stored project, meaning
+  Save Local Project of the project it opened, created or saved. On
+  `PROJECT-ID-EXISTS` it asks (`ReplaceProjectPrompt`, an alert dialog):
+  - **Replace "name"** names the stored project and when it was last saved.
+    Only this choice resends the write with `replace_existing`; the stored
+    migration ledger is kept, as before.
+  - **Save as a new project** gives the document a new id,
+    `<id>:copy-<timestamp>`, unused in the store; nothing else in the document
+    changes. The session adopts the renamed document, so its model hash, and the
+    next solve proof's `model_sha256`, change with the id. The run solved under
+    the old id is not written under the new one.
+  - **Cancel** is the default: it has focus, and Escape chooses it. The stored
+    project is kept, and the status line says so.
+
+  A New Blank whose time-stamped id is already stored takes a suffixed id
+  instead, since a new blank has no identity of its own to keep. The existing
+  0.1.0 → 0.2.0 normalization on save is unchanged; B7 removes it.
 - **Display fields are part of the desktop document contract.** A document
   without them is refused by name rather than given defaults (label = id,
   empty lists). Defaults would make the session's document, and its hash,
@@ -120,6 +138,11 @@ It also checks:
 
 - the proof hash against its own JCS hash of each file;
 - each saved model against the opened document;
+- the replace prompt as a named observation. In phase 1, the milestone's
+  second save prompts (Cancel keeps the stored project), Save as a new project
+  writes the renamed document and its solve proof carries the renamed
+  document's hash, and Replace writes only after confirmation. In phase 2,
+  saving the bundled demo over the stored demo prompts too;
 - that the exported file in Downloads is bound to the solved model's project,
   shows the row count the export panel showed, and accounts for every row of the
   solve.

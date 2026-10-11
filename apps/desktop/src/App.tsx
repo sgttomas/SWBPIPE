@@ -89,6 +89,7 @@ import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
+import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -252,7 +253,8 @@ function AppSession() {
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects
+    handleListProjects,
+    replaceProjectPrompt
   } = session.project;
   const {
     uiPreferences, setUiPreferences,
@@ -1051,6 +1053,7 @@ function AppSession() {
           onSelectDiagnostic={handleSelectDiagnostic}
         />
       ) : null}
+      <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>

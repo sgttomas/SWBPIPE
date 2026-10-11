@@ -543,6 +543,10 @@ struct SaveLocalProjectRequest {
     /// migrated document can write its ledger record (DEC-019).
     #[serde(default)]
     model_document_migration: Value,
+    /// True only when the user confirmed replacing the stored project of this id,
+    /// or the session is that stored project. See `refuse_unconfirmed_replacement`.
+    #[serde(default)]
+    replace_existing: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1217,6 +1221,35 @@ fn list_projects(connection: &Connection) -> Result<Vec<LocalProjectIndexEntry>,
         .collect::<Result<Vec<_>, _>>()
         .map_err(|error| error.to_string())?;
     Ok(entries)
+}
+
+fn stored_project_entry(connection: &Connection, project_id: &str) -> Result<Option<LocalProjectIndexEntry>, String> {
+    Ok(list_projects(connection)?.into_iter().find(|entry| entry.project_id == project_id))
+}
+
+/// HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored
+/// project. A write onto a stored `project_id` needs `replace_existing`, which
+/// the webview sets only after the user chose Replace, or when the session is
+/// that stored project (opened, created or saved as it).
+fn refuse_unconfirmed_replacement(connection: &Connection, project_id: &str, replace_existing: bool) -> Result<(), String> {
+    if replace_existing {
+        return Ok(());
+    }
+    match stored_project_entry(connection, project_id)? {
+        Some(entry) => Err(format!(
+            "PROJECT-ID-EXISTS: project `{}` (\"{}\", last saved at unix {}) is already stored; replacing it needs the user's confirmation.",
+            entry.project_id, entry.project_name, entry.updated_at_unix
+        )),
+        None => Ok(()),
+    }
+}
+
+/// The stored project with this id, if any, for the replace prompt.
+#[tauri::command]
+fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<LocalProjectIndexEntry>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    stored_project_entry(&connection, &project_id)
 }
 
 fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
@@ -2324,10 +2357,12 @@ fn create_local_project(
     analysis_run: Option<Value>,
     model_hash: Option<Value>,
     project_envelope_hash: Option<Value>,
+    replace_existing: Option<bool>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
     let project_id = project_id_from_model(&model);
+    refuse_unconfirmed_replacement(&connection, &project_id, replace_existing.unwrap_or(false))?;
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
     let proposal = normalized_proposal(proposal);
@@ -2462,6 +2497,7 @@ fn save_local_project(
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
+    refuse_unconfirmed_replacement(&connection, &request.project_id, request.replace_existing)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
     let proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
@@ -4783,6 +4819,7 @@ macro_rules! app_invoke_handler {
             create_local_project,
             open_local_project,
             list_local_projects,
+            find_local_project,
             save_local_project,
             sync_native_shell_state,
             validate_rule_pack,
@@ -8700,5 +8737,36 @@ mod tests {
         // An unsupported kind is rejected at the metadata-key boundary.
         let unsupported = library_metadata_key("widget").expect_err("unsupported kind must reject");
         assert!(unsupported.contains("widget"));
+    }
+}
+
+#[cfg(test)]
+mod replace_confirmation_tests {
+    use super::*;
+
+    #[test]
+    fn a_stored_project_is_never_replaced_without_confirmation() {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-replace-confirmation-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let (mut connection, _) = open_project_store(&root.join(PROJECT_STORE_FILE)).unwrap();
+        let model = load_preview_model().unwrap();
+        let id = model["project"]["id"].as_str().unwrap().to_string();
+        // Nothing stored yet: a first save needs no confirmation.
+        refuse_unconfirmed_replacement(&connection, &id, false).expect("first save");
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        let refused = refuse_unconfirmed_replacement(&connection, &id, false).expect_err("unconfirmed replacement");
+        assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{refused}");
+        refuse_unconfirmed_replacement(&connection, &id, true).expect("confirmed replacement");
+        refuse_unconfirmed_replacement(&connection, "project:another", false).expect("another id");
+        let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
+        assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));
+        assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());
+        drop(connection);
+        fs::remove_dir_all(&root).unwrap();
     }
 }

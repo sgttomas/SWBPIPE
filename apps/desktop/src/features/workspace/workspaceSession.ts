@@ -31,12 +31,19 @@ import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
   createLocalProject,
+  findLocalProject,
   getLocalStorageCapability,
   listLocalProjects,
   openLocalProject,
   saveLocalProject
 } from "../../services/projectService";
 import { modelFileRefusalMessage, openModelDocumentFile } from "../../services/modelDocumentFile";
+import {
+  keptStoredProjectMessage,
+  type ReplaceProjectChoice,
+  type ReplaceProjectPromptState,
+  type StoredProjectWrite
+} from "../project-storage/storedProjectConflict";
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import { saveReportPackage } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
@@ -241,6 +248,8 @@ export function useWorkspaceSession() {
     source: "loaded-source" | "open" | "create" | "save";
   } | null>(null);
   const savedBasisSequence = useRef(0);
+  // The open replace prompt, if a save onto a stored project id is waiting for the user.
+  const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
   // Service fulfillment is our observable landed-write order, before canonical
   // verification can complete out of order. This is not a backend commit clock.
   const persistedWriteObservation = useRef(0);
@@ -1578,30 +1587,96 @@ export function useWorkspaceSession() {
     setProjectBusy(false);
   }
 
+  /** HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored
+   * project. A write goes out unconfirmed unless the session already is that
+   * stored project (`confirmed`: Save Local Project of the opened, created or
+   * saved project). If the store refuses it (`PROJECT-ID-EXISTS`), the user is
+   * asked: Replace (retry, confirmed), Save as a new project, or Cancel, the
+   * default. */
+  async function writeWithReplaceConfirmation(
+    kind: "create" | "save",
+    requestModel: PreviewModel,
+    write: (replaceExisting: boolean) => Promise<LocalProjectEnvelope>,
+    confirmed: boolean
+  ): Promise<StoredProjectWrite> {
+    try {
+      return { outcome: "written", envelope: await write(confirmed) };
+    } catch (error) {
+      if (confirmed || !String(error).includes("PROJECT-ID-EXISTS")) throw error;
+    }
+    const existing = await findLocalProject(requestModel.project.id);
+    if (!existing) return { outcome: "written", envelope: await write(false) };
+    const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
+      setReplaceProjectPrompt({ kind, existing, choose: (picked) => { setReplaceProjectPrompt(null); resolve(picked); } });
+    });
+    if (choice === "cancel") return { outcome: "kept", existing };
+    if (choice === "replace") return { outcome: "written", envelope: await write(true) };
+    return { outcome: "save-as-new", model: await withUnusedProjectId(requestModel) };
+  }
+
+  /** The same document under a project id the store does not hold. Only
+   * `project.id` changes, so the model hash changes with it. */
+  async function withUnusedProjectId(source: PreviewModel): Promise<PreviewModel> {
+    const token = new Date().toISOString().replace(/[^0-9TZ]/g, "").toLowerCase();
+    const base = `${source.project.id}:copy-${token}`;
+    let candidate = base;
+    for (let suffix = 2; await findLocalProject(candidate); suffix += 1) candidate = `${base}-${suffix}`;
+    const renamed = structuredClone(source);
+    renamed.project.id = candidate;
+    return renamed;
+  }
+
+  function adoptSavedAsNewModel(renamed: PreviewModel) {
+    commitModel(renamed);
+    preserveAndPruneSelection(renamed);
+    setProjectSummary(null);
+    setProjectEnvelopeHash(null);
+    setModelMigrationLedger([]);
+    setResult(null);
+    setAnalysisRun(null);
+    setInputManifest(null);
+    setRuleCheckAggregate(null);
+    setSolveJob(initialSolveJob());
+  }
+
   async function handleCreateProject() {
+    return createProject(null);
+  }
+
+  /** `saveAsNew`: the renamed document after the user chose Save as a new
+   * project. The session already holds it; the run solved under the old
+   * identity is not written under the new one. */
+  async function createProject(saveAsNew: PreviewModel | null) {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
-    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
-    const requestModel = model;
+    // Save as a new project follows the session's own adoption of the renamed
+    // document, after which the shell may settle its selection; that write is
+    // current while the session still holds exactly that document.
+    const stillCurrent = () => request === projectRequest.current &&
+      (saveAsNew ? currentModel.current === saveAsNew : epoch === requestEpochRef.current);
+    const requestModel = saveAsNew ?? model;
+    const dropRun = saveAsNew !== null;
+    let pendingSaveAsNew: PreviewModel | null = null;
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
-    const retainedRun = retainedReferencePersistence(requestModel);
-    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
-    const requestMigrationLedgerCount = modelMigrationLedger.length;
+    const retainedRun = dropRun ? null : retainedReferencePersistence(requestModel);
+    const requestHistoricalRun = dropRun ? null : historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
+    // A renamed document has no stored ledger of its own yet.
+    const requestMigrationLedgerCount = dropRun ? 0 : modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : analysisRun);
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
-        model,
+        model: requestModel,
         editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
@@ -1612,16 +1687,28 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const created = await createLocalProject(
-        model,
-        combinedContext,
-        proposal,
-        selectedReviewTarget,
-        snapshotResult,
-        snapshotAnalysisRun,
-        snapshotModelHash,
-        envelopeHash
-      );
+      const written = await writeWithReplaceConfirmation("create", requestModel, (replaceExisting) => createLocalProject(
+          requestModel,
+          combinedContext,
+          proposal,
+          selectedReviewTarget,
+          snapshotResult,
+          snapshotAnalysisRun,
+          snapshotModelHash,
+          envelopeHash,
+          replaceExisting
+        ), false);
+      if (written.outcome === "kept") {
+        if (!stillCurrent()) return;
+        setProjectMessage(keptStoredProjectMessage(written.existing));
+        setProjectOperation("create_kept_stored_project");
+        return;
+      }
+      if (written.outcome === "save-as-new") {
+        pendingSaveAsNew = written.model;
+        return;
+      }
+      const created = written.envelope;
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: created, ordinal: writeObservation };
@@ -1709,6 +1796,12 @@ export function useWorkspaceSession() {
       setProjectOperation("create_failed");
     } finally {
       releaseProjectOperation(owner);
+      // Save as a new project: adopt the renamed document, then write it as a
+      // project of its own (an early return in the try block still reaches here).
+      if (pendingSaveAsNew && stillCurrent()) {
+        adoptSavedAsNewModel(pendingSaveAsNew);
+        await createProject(pendingSaveAsNew);
+      }
     }
   }
 
@@ -1729,18 +1822,32 @@ export function useWorkspaceSession() {
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     try {
-      const blankModel = buildBlankModel();
-      const blankModelHash = await computeModelHash(blankModel);
-      const envelopeHash = await computeProjectEnvelopeHash({
-        model: blankModel,
-        editor_intents: [],
-        proposal: null,
-        selected_review_target: null,
-        mechanics_result: null,
-        analysis_run: null,
-        model_hash: blankModelHash
-      });
-      const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
+      let blankModel = buildBlankModel();
+      const blankId = blankModel.project.id;
+      let blankModelHash: ModelHashEvidence | null;
+      let created: LocalProjectEnvelope;
+      for (let attempt = 2; ; attempt += 1) {
+        blankModelHash = await computeModelHash(blankModel);
+        const envelopeHash = await computeProjectEnvelopeHash({
+          model: blankModel,
+          editor_intents: [],
+          proposal: null,
+          selected_review_target: null,
+          mechanics_result: null,
+          analysis_run: null,
+          model_hash: blankModelHash
+        });
+        try {
+          created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
+          break;
+        } catch (error) {
+          // A new blank has no identity of its own to keep. If its time-stamped
+          // id is already stored, it takes a suffixed id; the stored project is
+          // never replaced (HELP_HUMAN ruling 2026-10-10).
+          if (!String(error).includes("PROJECT-ID-EXISTS") || attempt > 20) throw error;
+          blankModel = { ...blankModel, project: { ...blankModel.project, id: `${blankId}-${attempt}` } };
+        }
+      }
       if (!stillCurrent()) return;
       const returnedHash = await computeModelHash(created.model);
       const returnedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -1997,29 +2104,43 @@ export function useWorkspaceSession() {
   }
 
   async function handleSaveProject() {
+    return saveProject(null);
+  }
+
+  /** `saveAsNew`: the renamed document after the user chose Save as a new
+   * project. The session already holds it; the run solved under the old
+   * identity is not written under the new one. */
+  async function saveProject(saveAsNew: PreviewModel | null) {
     if (!model) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
-    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
-    const requestModel = model;
+    // Save as a new project follows the session's own adoption of the renamed
+    // document, after which the shell may settle its selection; that write is
+    // current while the session still holds exactly that document.
+    const stillCurrent = () => request === projectRequest.current &&
+      (saveAsNew ? currentModel.current === saveAsNew : epoch === requestEpochRef.current);
+    const requestModel = saveAsNew ?? model;
+    const dropRun = saveAsNew !== null;
+    let pendingSaveAsNew: PreviewModel | null = null;
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
-    const retainedRun = retainedReferencePersistence(requestModel);
-    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
-    const requestMigrationLedgerCount = modelMigrationLedger.length;
+    const retainedRun = dropRun ? null : retainedReferencePersistence(requestModel);
+    const requestHistoricalRun = dropRun ? null : historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
+    // A renamed document has no stored ledger of its own yet.
+    const requestMigrationLedgerCount = dropRun ? 0 : modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : analysisRun);
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
-        model,
+        model: requestModel,
         editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
@@ -2030,17 +2151,29 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const saved = await saveLocalProject(
-        model,
-        combinedContext,
-        proposal,
-        selectedReviewTarget,
-        snapshotResult,
-        snapshotAnalysisRun,
-        snapshotModelHash,
-        envelopeHash,
-        modelDocumentMigration
-      );
+      const written = await writeWithReplaceConfirmation("save", requestModel, (replaceExisting) => saveLocalProject(
+          requestModel,
+          combinedContext,
+          proposal,
+          selectedReviewTarget,
+          snapshotResult,
+          snapshotAnalysisRun,
+          snapshotModelHash,
+          envelopeHash,
+          modelDocumentMigration,
+          replaceExisting
+        ), projectSummary?.project_id === requestModel.project.id);
+      if (written.outcome === "kept") {
+        if (!stillCurrent()) return;
+        setProjectMessage(keptStoredProjectMessage(written.existing));
+        setProjectOperation("save_kept_stored_project");
+        return;
+      }
+      if (written.outcome === "save-as-new") {
+        pendingSaveAsNew = written.model;
+        return;
+      }
+      const saved = written.envelope;
       const writeObservation = ++persistedWriteObservation.current;
       if (!sameProjectSession()) return;
       pendingObservation = { envelope: saved, ordinal: writeObservation };
@@ -2130,6 +2263,12 @@ export function useWorkspaceSession() {
       setProjectOperation("save_failed");
     } finally {
       releaseProjectOperation(owner);
+      // Save as a new project: adopt the renamed document, then write it as a
+      // project of its own (an early return in the try block still reaches here).
+      if (pendingSaveAsNew && stillCurrent()) {
+        adoptSavedAsNewModel(pendingSaveAsNew);
+        await saveProject(pendingSaveAsNew);
+      }
     }
   }
 
@@ -2829,7 +2968,8 @@ export function useWorkspaceSession() {
       handleOpenProject,
       handleOpenModelDocument,
       handleSaveProject,
-      handleListProjects
+      handleListProjects,
+      replaceProjectPrompt
     },
     chrome: {
       uiPreferences, setUiPreferences,
