@@ -2,6 +2,7 @@
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
 mod formation_check;
+mod arc_certificate;
 mod retained;
 /// W1a's public surface: T3 K4 `RETURN.md` §16's export list, with ROOT's
 /// rulings on K6b's A0 and V-K's Q8. `retained` stays private; no product
@@ -65,6 +66,7 @@ pub use formation_check::{
     CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
+pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
 pub use sparse::{
     assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
     finish_sparse_structural, prepare_assembled_sparse_structural,

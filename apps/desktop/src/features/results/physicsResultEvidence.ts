@@ -2,7 +2,12 @@ import { physicsEvidenceTransportShape, physicsSourceReceiptShape, physicsSource
 import { validatePhysicsSourceMaximum, PHYSICS_SOURCE_MAX_SIGN, PHYSICS_SOURCE_MAX_BASIS } from './physicsSourceRecovery';
 import type { MechanicsResult, PreviewModel } from "../../types";
 
-const PROFILE = "exact_straight_pressure_v2";
+/** T4-U2a: the exact pressure contract a reader admits. v2 (physics-1,
+ * load-reference-1) refuses p_pa < 0; v3 (pressure-1) admits straight families
+ * only, with signed p_pa. Neither contract's evidence is read as the other's. */
+export type PressureContract = { version: "2.0.0"; mode: "exact_straight_pressure_v2" } | { version: "3.0.0"; mode: "exact_pressure_v3" };
+export const STRAIGHT_V2: PressureContract = { version: "2.0.0", mode: "exact_straight_pressure_v2" };
+export const PRESSURE_V3: PressureContract = { version: "3.0.0", mode: "exact_pressure_v3" };
 type RecordValue = Record<string, any>;
 function demand(ok: unknown, reason: string): asserts ok {
   if (!ok) throw new Error(`PHYSICS_EVIDENCE_${reason}`);
@@ -96,13 +101,27 @@ function section(s: unknown, region = false): asserts s is RecordValue {
 export function validatePhysicsEvidence(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
   validateKnownPhysicsEvidence(source, model, false);
 }
+/** The same checks under an explicit contract (the pressure-1 reader passes v3). */
+export function validatePhysicsEvidenceFor(source: MechanicsResult, contract: PressureContract, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
+  validateKnownPhysicsEvidence(source, model, false, contract);
+}
+/** A v3 result offered to a v2 reader (or the reverse) is refused by name. */
+function contractIdentity(evidence: unknown, contract: PressureContract): void {
+  const other = contract.mode === STRAIGHT_V2.mode ? PRESSURE_V3 : STRAIGHT_V2;
+  const e = (evidence && typeof evidence === "object" ? evidence : {}) as RecordValue;
+  const names = (Array.isArray(e.exact_cases) && e.exact_cases.some((c: RecordValue) => c?.profile_mode === other.mode))
+    || (Array.isArray(e.pressure) && e.pressure.some((r: RecordValue) => r?.profile_mode === other.mode || r?.profile_version === other.version));
+  demand(!names, contract.mode === STRAIGHT_V2.mode ? "EXACT_PRESSURE_V3_READ_AS_V2" : "EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3");
+}
 /** Explicit composite entry validates the untouched source in its own method. */
 export function validatePhysicsSourceEvidence(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
   demand(source.producer?.semantic_contract_id === 'openpipestress.result_semantics/0.3.0/physics-source-1' && Object.hasOwn(source, 'source_block_recovery'), 'COMPOSITE_METHOD');
   demand(physicsSourceReceiptShape(source.source_block_recovery) && physicsSourcePhysicalShape(source.contract_evidence), 'COMPOSITE_SHAPE');
   validateKnownPhysicsEvidence(source, model, true);
 }
-function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | undefined, composite: boolean): void {
+function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | undefined, composite: boolean, contract: PressureContract = STRAIGHT_V2): void {
+  demand(!composite || contract.mode === STRAIGHT_V2.mode, "COMPOSITE_CONTRACT");
+  contractIdentity(source.contract_evidence, contract);
   demand((composite || !Object.hasOwn(source, "source_block_recovery")) && !Object.hasOwn(source, "carrier_evidence"), "UNSUPPORTED_SOURCE_NAMESPACE");
   const evidence = source.contract_evidence;
   shape(evidence, ["pressure", "connector", "exact_cases"], "SHAPE");
@@ -134,8 +153,8 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
   const regionMembers = new Set<string>(), boundRows = new Set<string>(), regionKeys = new Set<string>();
   for (const r of regions) {
     shape(r, pressureFields, "PRESSURE_SHAPE");
-    demand(text(r.region_id) && caseIds.includes(r.load_case_id) && r.profile_version === "2.0.0" && r.profile_mode === PROFILE
-      && r.pressure_basis === "internal_differential_zero_external_v1" && finite(r.p_pa) && r.p_pa >= 0 && r.external_pressure_increment_pa === 0
+    demand(text(r.region_id) && caseIds.includes(r.load_case_id) && r.profile_version === contract.version && r.profile_mode === contract.mode
+      && r.pressure_basis === "internal_differential_zero_external_v1" && finite(r.p_pa) && (contract.mode === PRESSURE_V3.mode || r.p_pa >= 0) && r.external_pressure_increment_pa === 0
       && r.approximation === "long_straight_annulus_small_strain_v2" && text(r.provenance)
       && unique(r.member_pipe_ids) && r.member_pipe_ids.length > 0 && unique(r.result_ids), "PRESSURE_INVALID");
     const key = JSON.stringify([r.load_case_id, r.region_id]); demand(!regionKeys.has(key), "REGION_ID_AMBIGUOUS"); regionKeys.add(key);
@@ -180,7 +199,7 @@ function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<Prev
     }
   }
   for (const c of cases) {
-    demand(c.profile_mode === PROFILE && text(c.material_basis) && Array.isArray(c.pipe_materials) && Array.isArray(c.pipe_sections) && Array.isArray(c.pipe_stress_extrema), "CASE_INVALID");
+    demand(c.profile_mode === contract.mode && text(c.material_basis) && Array.isArray(c.pipe_materials) && Array.isArray(c.pipe_sections) && Array.isArray(c.pipe_stress_extrema), "CASE_INVALID");
     c.pipe_materials.forEach((m: unknown) => material(m)); c.pipe_sections.forEach((s: unknown) => section(s));
     const members = c.pipe_materials.map((m: RecordValue) => m.pipe_id);
     demand(unique(members) && members.length > 0 && unique(c.pipe_sections.map((s: RecordValue) => s.pipe_id)) && sameSet(members, c.pipe_sections.map((s: RecordValue) => s.pipe_id)), "CASE_MEMBER_SCOPE");

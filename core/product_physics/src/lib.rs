@@ -43,7 +43,8 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, reduce_assembled_sparse_system, ForceScaleReason, ForceScaledError,
+    assemble_sparse_stiffness, certify_curved_uniform_load, reduce_assembled_sparse_system,
+    CurvedFormation, ForceScaleReason, ForceScaledError,
     ForceScalingRefusal, FormationCheck, FormationCheckReason, LoadFidelityReport, PublishedValue,
     RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
@@ -111,6 +112,8 @@ mod membrane_publication_range;
 #[allow(dead_code)]
 mod pressure_exact;
 mod pressure_material;
+mod exact_admission;
+use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
 mod preview_physics;
 mod retained_product;
@@ -861,9 +864,13 @@ struct SourceRecoveryBudget {
     /// 0.4.0 only: the first cause for which a selected join could not
     /// finalize. The captured route then republishes ordinarily.
     load_state_join_failure: Option<String>,
+    /// HELP_HUMAN's ruling 3: the invocation was captured, but its model does
+    /// not join retained-source recovery (`exact_admission::joins_retained_source`);
+    /// each case v2 would route to recovery names the missing join.
+    retained_source_not_joined: bool,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None, retained_source_not_joined: false } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
@@ -881,6 +888,7 @@ impl SourceRecoveryBudget {
             attempts: self.attempts,
             load_state_join_withheld: Some(cause),
             load_state_join_failure: self.load_state_join_failure.clone(),
+            retained_source_not_joined: self.retained_source_not_joined,
         }
     }
     fn record_load_state_join_failure(&mut self, cause: String) {
@@ -991,7 +999,9 @@ pub fn mechanics_producer() -> MechanicsProducer {
 
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
     let mut producer = mechanics_producer();
-    if case_state::is_load_state(model) {
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        producer.semantic_contract_id = PRESSURE_SEMANTIC_CONTRACT_ID.to_string();
+    } else if case_state::is_load_state(model) {
         producer.semantic_contract_id = LOAD_REFERENCE_SEMANTIC_CONTRACT_ID.to_string();
     } else if pressure_runtime::is_exact(model) {
         producer.semantic_contract_id = PHYSICS_SEMANTIC_CONTRACT_ID.to_string();
@@ -1000,6 +1010,9 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        return exact_admission::pressure_v3_formulation_basis(case_state::is_load_state(model));
+    }
     // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
     // the exact contract never solves (pressure_runtime blocks it), and its
     // blocked envelope stays on the load/reference-state identity and profile.
@@ -1327,6 +1340,113 @@ fn append_integrity_failure(
 ) {
     let code = integrity_failure_code(error);
     diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+}
+
+/// HELP_HUMAN's ruling 3 (`exact_admission::RETAINED_SOURCE_NOT_JOINED`): for
+/// a case of a captured invocation whose model does not join retained-source
+/// recovery and whose ordinary attempt needs recovery, the diagnostic is added
+/// when the case would be retained-source eligible on the captured entry
+/// (main's predicate). Static text; refs name the case.
+fn append_retained_source_not_joined(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    built: &BuiltModel,
+    model: &PreviewModel,
+) {
+    if source_eligible(true, !built.nonlinear_supports.is_empty(), !model.combinations.is_empty()) {
+        diagnostics.push(diag(
+            &format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id)),
+            exact_admission::RETAINED_SOURCE_NOT_JOINED,
+            "info",
+            exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT,
+            vec![case_id.to_string()],
+        ));
+    }
+}
+
+/// HELP_HUMAN's ruling 5 (2026-10-10; DEL-04-01 "Stable small-angle
+/// evaluation"): a refusal by FK's structural pivot screen (`screen_pivot`,
+/// T3's M03-INTEGRITY policy, unchanged) of a model holding a realized bend
+/// that is short against its neighbours names that bend.
+pub(crate) const CURVED_BEND_SHORT: &str = "CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS";
+/// The ratio test: arc length R*phi over the shorter adjacent member's length
+/// below 1e-4. T4-I22 measured the screen's refusal boundary on the L line
+/// (R = 0.2286 m, 3 m / 4 m straights) at R*phi/L of about 5e-5, where the
+/// condensed transverse pivot, about 0.67*(R*phi/L)^3 of the stiff diagonal,
+/// meets the screen's bound of about 8.5e-14; 1e-4 is that boundary with a
+/// factor-of-two margin for the bound's constants (k, operation count), so a
+/// case refused near the boundary is still identified. The diagnostic is only
+/// added to a case the screen has already refused.
+pub(crate) const CURVED_BEND_SHORT_RATIO: f64 = 1e-4;
+/// FK `screen_pivot`'s refusal reason, verbatim (pinned by the L-line tests).
+const PIVOT_SCREEN_REASON: &str = "nonpositive or cancellation-unresolved structural pivot";
+const CURVED_BEND_SHORT_TEXT: &str = "the bend is too short relative to its neighbours for a reliable solution: its arc is stiff against the adjacent members, so the assembled system is ill-conditioned beyond binary64 resolution (a straight chord of the same length behaves identically)";
+
+/// The realized bend with the smallest arc-length ratio to its shorter
+/// adjacent member (a straight's chord length, or a neighbouring bend's arc
+/// length), with that ratio; `None` when no bend has a neighbour.
+fn shortest_bend_against_neighbours(built: &BuiltModel) -> Option<(&CurvedBendMacroBuild, f64)> {
+    let member_length = |index: usize| {
+        built
+            .curved_bend_elements
+            .iter()
+            .find(|bend| bend.pipe_index == index)
+            .map_or_else(
+                || {
+                    let pipe = &built.pipes[index];
+                    let (a, b) = (pipe.node_i.coordinates, pipe.node_j.coordinates);
+                    norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+                },
+                |bend| bend.arc_length,
+            )
+    };
+    built
+        .curved_bend_elements
+        .iter()
+        .filter_map(|bend| {
+            let shorter = built
+                .pipes
+                .iter()
+                .enumerate()
+                .filter(|(index, pipe)| {
+                    *index != bend.pipe_index
+                        && [pipe.node_i.index, pipe.node_j.index]
+                            .iter()
+                            .any(|node| *node == bend.node_i || *node == bend.node_j)
+                })
+                .map(|(index, _)| member_length(index))
+                .min_by(|a, b| a.total_cmp(b))?;
+            Some((bend, bend.arc_length / shorter))
+        })
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+}
+
+/// Ruling 5: after a pivot-screen refusal, one diagnostic per refused case
+/// naming the shortest bend when its ratio is below [`CURVED_BEND_SHORT_RATIO`].
+fn append_short_bend_refusal(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    error: &StructuralError,
+    built: &BuiltModel,
+) {
+    if !matches!(error, StructuralError::NumericallyUnresolved { reason, .. } if *reason == PIVOT_SCREEN_REASON) {
+        return;
+    }
+    let Some((bend, ratio)) = shortest_bend_against_neighbours(built) else {
+        return;
+    };
+    if ratio < CURVED_BEND_SHORT_RATIO {
+        diagnostics.push(diag(
+            &format!("diagnostic:curved-bend-short:{}", stable_suffix(case_id)),
+            CURVED_BEND_SHORT,
+            "blocking",
+            format!(
+                "Load case {case_id}: realized bend {} (pipe {}): arc length / shorter adjacent member length = {ratio:.3e}, below {CURVED_BEND_SHORT_RATIO:e}; {CURVED_BEND_SHORT_TEXT}",
+                bend.component_id, bend.pipe_id
+            ),
+            vec![case_id.to_string(), bend.component_id.clone(), bend.pipe_id.clone()],
+        ));
+    }
 }
 
 // ------------------------------------------------------------ F1b: W2 (range)
@@ -2358,6 +2478,10 @@ fn run_linear_static_preview_observed(
     source_budget: &mut SourceRecoveryBudget,
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
+    // T4-U2a: a v3 invocation is not joined to retained-source recovery.
+    let joins = exact_admission::joins_retained_source(&request.model);
+    source_budget.retained_source_not_joined = capture.is_some() && !joins;
+    let capture = capture.filter(|_| joins);
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
@@ -4489,6 +4613,11 @@ fn solve_load_case_observed(
             }
         }
     }
+    // HELP_HUMAN's ruling 3: a case v2's captured entry would route to
+    // retained-source recovery names the join v3 lacks.
+    if source_budget.retained_source_not_joined && needs_source_recovery {
+        append_retained_source_not_joined(diagnostics, &load_case.id, built, model);
+    }
     // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
     if let Some(observer) = product.as_deref_mut() {
         observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
@@ -4610,6 +4739,7 @@ fn solve_load_case_observed(
                     if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
                         observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
                     }
+                    append_short_bend_refusal(diagnostics, &load_case.id, &error, built);
                     return Ok(LoadCaseSolve {
                 load_state_evidence: None,
                 pressure_evidence: Vec::new(),
@@ -5465,9 +5595,17 @@ fn solve_load_case_observed(
             }
         }
         let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
-            let maximum = source_receipt::composite_member_maximum(
-                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-            );
+            // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
+            // unloaded circular straight span only; the arc policy gates it.
+            // The withheld reason is a static text borrowed, not formatted, inside
+            // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it
+            // as `error.0`, like the composite error's own text.
+            let maximum = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
+                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err((std::borrow::Cow::Borrowed(reason),)),
+                pressure_runtime::ExactMemberMaximumPolicy::Compute => source_receipt::composite_member_maximum(
+                    &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
+                ).map_err(|error| (std::borrow::Cow::Owned(error.0),)),
+            };
             match maximum {
                 Ok(maximum) => {
                     let value = maximum.value_pa();
@@ -5660,7 +5798,7 @@ fn solve_load_case_observed(
     }
     let exact_case_evidence = pressure_runtime::is_exact(model).then(|| {
         let mut evidence = serde_json::json!({
-        "load_case_id":load_case.id,"profile_mode":"exact_straight_pressure_v2",
+        "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
         "material_basis":modulus_basis_record.unwrap_or("base_material_common_E_nu"),
         "pressure_rhs_assembly":pressure_assembly_evidence,
         "pipe_sections":built.pipes.iter().map(|pipe| exact_section_evidence(&pipe.element_id,*built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry"))).collect::<Vec<_>>(),
@@ -10616,6 +10754,11 @@ fn add_uniform_element_loads(
         ) {
             continue;
         }
+        // S11-G section 3.2: an equivalent-static generated intensity carries
+        // gamma_4 of operand formation (a same-sign product chain).
+        let generated = load
+            .load_id
+            .starts_with(&format!("{load_case_id}:generated:"));
         // Curved-bend macro spans consume arc-consistent equivalent nodal
         // loads: fixed-end forces and moments from exact closed-form
         // integration of the uniform intensity along the arc, consistent with
@@ -10650,8 +10793,8 @@ fn add_uniform_element_loads(
                 continue;
             }
             let dof = load.direction.dof_index();
+            let mut intensity = [0.0; 3];
             let equivalent = if dof < 3 {
-                let mut intensity = [0.0; 3];
                 intensity[dof] = load.magnitude.value;
                 bend.macro_element
                     .consistent_uniform_nodal_loads(intensity)
@@ -10663,18 +10806,38 @@ fn add_uniform_element_loads(
                 Ok(equivalent) => {
                     // S11 section 4.2: one term per (load, DOF) from this load's
                     // own consistent equivalent.
-                    // S11-G SF-2: a curved consistent vector has no conservative
-                    // formation bound (CannotBound demotes the case).
+                    // T4-U1b (R-1): certified arc terms; any failed precondition
+                    // keeps CannotBound (S11-G SF-2), which demotes the case.
                     let dof_map = element_dof_map(bend.node_i, bend.node_j);
-                    for (local_dof, &global_dof) in dof_map.iter().enumerate() {
-                        ledger.push_formed(
-                            &load.load_id,
-                            global_dof,
-                            equivalent[local_dof],
-                            Formation::CannotBound,
-                            0.0,
-                            false,
-                        );
+                    match certify_curved_uniform_load(&curved_formation_of(bend), intensity) {
+                        Ok(certified) => {
+                            for (local_dof, &global_dof) in dof_map.iter().enumerate() {
+                                let term = &certified.terms[local_dof];
+                                ledger.push_formed(
+                                    &load.load_id,
+                                    global_dof,
+                                    equivalent[local_dof],
+                                    Formation::Exact {
+                                        scale: 1.0,
+                                        scaled_intended: term.intended.clone(),
+                                    },
+                                    term.operand_bound(generated),
+                                    false,
+                                );
+                            }
+                        }
+                        Err(_) => {
+                            for (local_dof, &global_dof) in dof_map.iter().enumerate() {
+                                ledger.push_formed(
+                                    &load.load_id,
+                                    global_dof,
+                                    equivalent[local_dof],
+                                    Formation::CannotBound,
+                                    0.0,
+                                    false,
+                                );
+                            }
+                        }
                     }
                 }
                 Err(message) => {
@@ -10706,11 +10869,6 @@ fn add_uniform_element_loads(
         let pipe = &pipes[load.element_index];
         let equivalent = straight_global_uniform_load(load)
             .and_then(|global| pipe.equivalent_global_nodal_loads_with_spans_formed(&[global]));
-        // S11-G section 3.2: an equivalent-static generated intensity carries
-        // gamma_4 of operand formation (a same-sign product chain).
-        let generated = load
-            .load_id
-            .starts_with(&format!("{load_case_id}:generated:"));
         match equivalent {
             Ok((equivalent, formations)) => {
                 // One load per call: the SP formula of one load is formation
@@ -10748,6 +10906,28 @@ fn add_uniform_element_loads(
                 vec![load.load_id.clone(), load_case_id.to_string()],
             )),
         }
+    }
+}
+
+/// T4-U1b: the held operands of a realized arc for its load certificate
+/// (`certify_curved_uniform_load`), copied from the validated macro-element
+/// as SA's formation source copies them (no force scaling).
+fn curved_formation_of(bend: &CurvedBendMacroBuild) -> CurvedFormation {
+    let m = &bend.macro_element;
+    CurvedFormation {
+        node_i: m.node_i.index,
+        node_j: m.node_j.index,
+        coordinates_i: m.node_i.coordinates,
+        coordinates_j: m.node_j.coordinates,
+        radius: m.radius,
+        y_reference: m.y_reference,
+        elastic_modulus: m.elastic_modulus,
+        shear_modulus: m.shear_modulus,
+        area: m.area,
+        second_moment: m.second_moment,
+        torsion_constant: m.torsion_constant,
+        in_plane_flexibility_factor: m.in_plane_flexibility_factor,
+        out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
     }
 }
 

@@ -47,6 +47,12 @@ it("says when a model without a contract still carries legacy pressure primitive
   expect(screen.getByText(/pressure mode: 1\.0\.1\/legacy_pressure_v1 \(unsupported; solves are refused/)).toBeInTheDocument();
   expect(screen.queryByText(/\(retired;/)).toBeNull();
 });
+it("shows a declared 3.0.0/exact_pressure_v3 contract as solving its admitted families (T4-U2a)", () => {
+  const v3 = structuredClone(model); v3.pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3" };
+  render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members and linear restraints or springs only; other families are refused by name; result export is not yet available\)/)).toBeInTheDocument();
+  expect(screen.queryByText(/solves are refused/)).toBeNull();
+});
 it("retains regions and ordered terminal declarations through an edit", async () => {
   const queue = vi.fn(); render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={queue} />);
   change("Region 1 terminal 2 closure transfer", "separately_supported_or_compensated");

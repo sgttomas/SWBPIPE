@@ -1212,9 +1212,22 @@ fn rv8_case(
 /// to 2, about (0, 2R, 0)), anchored straight runs 3-0 and 2-4, and a straight
 /// branch 1-5, so node 1 carries the branch and both bends. Kills
 /// RV8-BLOCK-ORDER (the blocks added in reverse).
+///
+/// Re-derived for the global-frame assembly (T4-I33): a bend lying in a
+/// coordinate plane now forms exact zeros between its in-plane and
+/// out-of-plane DOFs, so in the XY-plane tee only node 1's six diagonal slots
+/// summed three addends and reversing the bends changed no bit. The same tee
+/// is turned out of every coordinate plane by an exact-rational rotation
+/// (5-12-13 about x, then 3-4-5 about z; no libm), so all 36 of node 1's
+/// slots sum the branch and both bends.
 #[test]
 fn k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1() {
     let r = RV8_R;
+    let tilt = |v: [f64; 3]| -> [f64; 3] {
+        let (cx, sx, cz, sz) = (12.0 / 13.0, 5.0 / 13.0, 0.8, 0.6);
+        let a = [v[0], cx * v[1] - sx * v[2], sx * v[1] + cx * v[2]];
+        [cz * a[0] - sz * a[1], sz * a[0] + cz * a[1], a[2]]
+    };
     let p = [
         [r, 0.0, 0.0],
         [0.0, r, 0.0],
@@ -1222,19 +1235,20 @@ fn k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1() {
         [r, -2.0, 0.0],
         [-r, 2.0 * r + 2.0, 0.0],
         [0.0, r, 2.2],
-    ];
+    ]
+    .map(tilt);
     let s = rv8_frame_section();
     for flex in [1.0, 1.7] {
         let case = rv8_case(
             6,
             vec![
-                frame(3, p[3], 0, p[0], s, [0.0, 0.0, 1.0]),
-                frame(2, p[2], 4, p[4], s, [0.0, 0.0, 1.0]),
+                frame(3, p[3], 0, p[0], s, tilt([0.0, 0.0, 1.0])),
+                frame(2, p[2], 4, p[4], s, tilt([0.0, 0.0, 1.0])),
                 frame(1, p[1], 5, p[5], s, [1.0, 0.0, 0.0]),
             ],
             vec![
-                rv8_bend(0, p[0], 1, p[1], [1.0, 1.0, 0.0], flex),
-                rv8_bend(1, p[1], 2, p[2], [-1.0, -1.0, 0.0], flex),
+                rv8_bend(0, p[0], 1, p[1], tilt([1.0, 1.0, 0.0]), flex),
+                rv8_bend(1, p[1], 2, p[2], tilt([-1.0, -1.0, 0.0]), flex),
             ],
             Vec::new(),
             &(18..36).collect::<Vec<_>>(),

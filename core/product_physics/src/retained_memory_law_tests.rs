@@ -986,7 +986,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // SQ2 G5 (B2/B3): the registered profile is the maximum over routes L and E; the text closure's
     // diagnostics are route E's (the exact route at c = 3: D 51,938, D_env 23,877; route L keeps
     // B1 SQ's D_env 22,911, with D 41,773).
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_021_551, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,938, D_env 23,877)");
+    // O-10 (T4 batch 2, rulings 3 and 5): two new diagnostic sites per case, D 51,938 -> 51,944 and
+    // D_env 23,877 -> 23,883, Text(diag_env) +21,087.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_042_638, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,944, D_env 23,883; O-10 at T4 batch 2)");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -997,7 +999,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // U3's (2,599,962 -> 2,599,357: U3's removed legacy pressure text, as RV132's regenerated tree
     // has it), and D_env route E's (22,911 -> 23,877: the exact route's diagnostics).
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_599_357, 2_330, 16_384, 23_877, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (2_599_357, 2_330, 16_384, 23_883, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3 (O-10: D_env +6)");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1242,9 +1244,19 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 ///   W2 +4,187,280, W3 +189,558,050, W4 +184,354,254, W5 +25,597,019, X1 +965,976,686,
 ///   X2 +814,006,448.
 /// W3 stays the maximum in both modes.
+/// O-10 (T4's batch 2 at e9cc7e3f5f, re-run by SQ2's chain): against the registered record, both
+/// modes, W1 +104,426, W2 +104,426, W3 +532,148, W4 +499,680, W5 +179,133, X1 +403,573, X2 +127,454:
+/// - +22,694 in every phase: U2a's v3 identity texts, priced by Agent 0's ruling (+23,920), and U1's
+///   shorter curved-bend Display text (−1,226);
+/// - the rest, HELP_HUMAN's rulings 3 and 5 (W1 +81,732, W2 +81,732, W3 +509,454, W4 +476,986,
+///   W5 +156,439, X1 +380,879, X2 +104,760): two new diagnostics per case,
+///   `append_retained_source_not_joined` (+15,450 B of TEXT) and `append_short_bend_refusal`
+///   (+28,086), with their ids through `integrity_diagnostic_id`, `stable_suffix` and the reader's
+///   `identity` and evidence validation; D and D_env +6, so Text(diag_env) +21,087 and the typed
+///   forms' diagnostic slots (STAGED, SUCC, T16, T17, T25) rise with them.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [4_853_594_736, 5_177_026_698, 9_688_537_748, 9_468_148_375, 5_769_410_537, 9_523_453_340, 5_562_472_950],
-    [4_912_726_080, 5_236_158_042, 9_747_669_092, 9_527_279_719, 5_828_541_881, 9_582_584_684, 5_621_604_294],
+    [4_853_699_162, 5_177_131_124, 9_689_069_896, 9_468_648_055, 5_769_589_670, 9_523_856_913, 5_562_600_404],
+    [4_912_830_506, 5_236_262_468, 9_748_201_240, 9_527_779_399, 5_828_721_014, 9_582_988_257, 5_621_731_748],
 ];
 
 #[test]
@@ -1333,7 +1345,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 23_877, "D_env at C_eq = 3: route E's (SQ2 G5)");
+    assert_eq!(caps.complete[3], 23_883, "D_env at C_eq = 3: route E's (SQ2 G5; O-10 at T4 batch 2: +6, the two new diagnostics)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

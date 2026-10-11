@@ -13,8 +13,8 @@ product-physics integration, schema change, or recovery path.
   parameterization `(x_i, x_j, R, y_reference)`. No absolute arc centre is
   formed, so the element depends on the nodes only through `d = x_j - x_i`.
 - 12x12 global stiffness in the frame-kernel DOF order ([ux, uy, uz, rx,
-  ry, rz] at node `i` then node `j`), plus the local end-flexibility matrix
-  and the local frame used.
+  ry, rz] at node `i` then node `j`), plus the local end-flexibility matrix,
+  its inverse (the local tip stiffness) and the local frame used.
 - User-entered in-plane and out-of-plane bending flexibility factors consumed
   as validated opaque numbers (finite, positive). Factors of 1 reproduce the
   plain Euler-Bernoulli curved beam.
@@ -67,17 +67,24 @@ diagonal entry into `[1, 2)`, and the solution by `c` again: every operation
 scales exactly, so the inverse is bit for bit the unscaled one wherever that
 is formed, while the solver's absolute pivot guard acts at the matrix's own
 scale and does not refuse short arcs for the size of their flexibilities.
-The full 12x12 follows from the rigid equilibrium transfer
-`H = [[I, 0], [skew(x_j - x_i), I]]`:
+`K_jj` is rotated to global components, `K_g = A^T K_jj A` with
+`A = blockdiag(axes, axes)`, and symmetrized. The full 12x12 follows in
+global coordinates from the rigid equilibrium transfer over the global chord
+`d = x_j - x_i`, `H = [[I, 0], [skew(d), I]]`:
 
 ```
-K = [[ H K_jj H^T, -H K_jj ],
-     [ -K_jj H^T,   K_jj   ]]
+K = [[ H K_g H^T, -H K_g ],
+     [ -K_g H^T,   K_g   ]]
 ```
 
-formed in the local bend-plane frame and rotated to global coordinates with
-the frame-kernel orientation transform. `H` uses the chord in the local frame,
-`(-sL, cL, 0)`, so `K` annihilates the rigid motions of the actual nodes.
+so `K` annihilates the rigid motions of the actual nodes to rounding of the
+formed products (T4-I33). There is no local 12x12: rotating one (`T^T K T`)
+carries the rigid motions through binary64 axes that are orthonormal only to
+rounding, which left rigid-motion residuals up to 4.5e-11 of a row's scale on
+small-angle chords near a coordinate plane (T4-RV11 N-1). The consistent
+uniform-load vector uses the same `K_g` and `H`: the free-tip deflection and
+the load resultant are formed in the local frame and rotated to global, then
+`p_j = -X` and `p_i = H X + W` with `X = -K_g delta`.
 
 Geometry (`objective_arc`, shared with `arc_geometry`): with `L = |d|`,
 `d^ = d/L` and `n^` the unit component of `y_reference` normal to `d^` (two

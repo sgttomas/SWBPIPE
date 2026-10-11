@@ -15,12 +15,13 @@ use std::f64::consts::PI;
 use std::fmt;
 
 use open_pipe_stress_frame_kernel::{
-    solve_dense, transform_global_stiffness, FrameKernelError, FrameNode, FrameOrientation,
-    Matrix12, DOF_PER_NODE, ELEMENT_DOF,
+    solve_dense, FrameKernelError, FrameNode, FrameOrientation, Matrix12, DOF_PER_NODE, ELEMENT_DOF,
 };
 
 mod arc_integrals;
 use arc_integrals::HalfAngle;
+#[cfg(test)]
+use arc_integrals::SERIES_SWITCH_HALF_SINE;
 
 /// Node-level 6x6 matrix in the frame-kernel DOF order [ux, uy, uz, rx, ry, rz].
 pub type Matrix6 = [[f64; DOF_PER_NODE]; DOF_PER_NODE];
@@ -105,8 +106,6 @@ pub struct ArcGeometry {
     pub cos_half_angle: f64,
     /// L = |x_j − x_i|.
     pub chord_length: f64,
-    /// The chord x_j − x_i in the local frame: (−sL, cL, 0).
-    pub chord_local: [f64; 3],
     /// d̂ = (x_j − x_i)/L.
     pub chord_unit: [f64; 3],
     /// n̂: the unit in-plane normal to the chord on the bow side.
@@ -272,7 +271,6 @@ fn objective_arc(
         sin_half_angle: s,
         cos_half_angle: c,
         chord_length,
-        chord_local: [-s * chord_length, c * chord_length, 0.0],
         chord_unit,
         bow_normal: normal,
     })
@@ -288,8 +286,8 @@ fn objective_arc(
 /// The element is defined by (x_i, x_j, R, y_reference) and the section
 /// constants (T4-U1): its geometry depends on the nodes only through
 /// d = x_j − x_i, so it is invariant under translation, and its stiffness
-/// annihilates the rigid motions of the actual nodes (H uses the actual
-/// chord (−sL, cL, 0)).
+/// annihilates the rigid motions of the actual nodes (assembled in global
+/// coordinates with H over the actual chord d, `global_stiffness`).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CurvedBendMacroElement {
     pub node_i: FrameNode,
@@ -461,23 +459,42 @@ impl CurvedBendMacroElement {
         f
     }
 
-    /// 12x12 stiffness in the local frame, DOF order [node i; node j]:
-    /// [[H K_t Hᵀ, −H K_t], [−K_t Hᵀ, K_t]] with K_t = F⁻¹ and H the rigid
-    /// transfer over the actual chord (−sL, cL, 0).
-    pub fn local_stiffness(&self) -> Result<Matrix12, CurvedBendError> {
+    /// 12x12 stiffness in global coordinates, DOF order [node i; node j]:
+    /// [[H K_g Hᵀ, −H K_g], [−K_g Hᵀ, K_g]] with K_g the tip stiffness
+    /// K_t = F⁻¹ rotated to global (`tip_stiffness_global`) and H the rigid
+    /// transfer over the global chord d = x_j − x_i (`chord`).
+    ///
+    /// Rotating an assembled local 12x12 instead (Tᵀ K T) carries the local
+    /// rigid motions through binary64 axes that are orthonormal only to
+    /// rounding, so A(w × d) and (Aw) × (Ad) differ by about u·|d|; on
+    /// small-angle chords near a coordinate plane that left rigid-motion
+    /// residuals up to 4.5e-11 of a row's scale (T4-RV11 N-1). Assembled over
+    /// d, the rigid motions of the actual nodes are annihilated by H's
+    /// structure, to rounding of the formed products. The element has no
+    /// local 12x12: the stiffness and the load vector share this one tip
+    /// stiffness and this one H.
+    pub fn global_stiffness(&self) -> Result<Matrix12, CurvedBendError> {
         let geometry = self.geometry()?;
-        let tip_stiffness = invert_symmetric6(&self.flexibility_of(&geometry))?;
-        Ok(assemble_macro_stiffness(
-            &tip_stiffness,
-            geometry.chord_local,
-        ))
+        let tip_global = self.tip_stiffness_global(&geometry)?;
+        Ok(assemble_macro_stiffness(&tip_global, self.chord()))
     }
 
-    /// 12x12 stiffness in global coordinates.
-    pub fn global_stiffness(&self) -> Result<Matrix12, CurvedBendError> {
-        let local = self.local_stiffness()?;
-        let orientation = self.orientation()?;
-        Ok(transform_global_stiffness(&local, &orientation))
+    /// Tip stiffness K_t = F⁻¹ at node `j` with node `i` fixed, in the local
+    /// frame (DOF order as `end_flexibility`), symmetrized: the represented
+    /// operand that `global_stiffness` rotates to global.
+    pub fn tip_stiffness(&self) -> Result<Matrix6, CurvedBendError> {
+        let geometry = self.geometry()?;
+        invert_symmetric6(&self.flexibility_of(&geometry))
+    }
+
+    /// K_g = Aᵀ K_t A, symmetrized (`rotate_tip_to_global`): the tip
+    /// stiffness K_t = F⁻¹ in global components, A = blockdiag(axes, axes)
+    /// with the rows of `local_axes` the local axes. The local frame is
+    /// validated first (unit, orthogonal, right-handed).
+    fn tip_stiffness_global(&self, geometry: &ArcGeometry) -> Result<Matrix6, CurvedBendError> {
+        FrameOrientation::new(geometry.local_axes)?;
+        let tip_local = invert_symmetric6(&self.flexibility_of(geometry))?;
+        Ok(rotate_tip_to_global(&tip_local, &geometry.local_axes))
     }
 
     /// Consistent equivalent nodal loads, in global coordinates ordered
@@ -504,10 +521,28 @@ impl CurvedBendMacroElement {
         let geometry = self.geometry()?;
         let intensity_local = rotate_to_local(&geometry.local_axes, intensity_global);
         let tip_deflection = self.tip_deflection_under_uniform_load(&geometry, intensity_local);
-        let tip_stiffness = invert_symmetric6(&self.flexibility_of(&geometry))?;
+        let axes = &geometry.local_axes;
+        // The same K_g and H(d) as `global_stiffness`.
+        let tip_stiffness = self.tip_stiffness_global(&geometry)?;
+        let translation = rotate_to_global(
+            axes,
+            [tip_deflection[0], tip_deflection[1], tip_deflection[2]],
+        );
+        let rotation = rotate_to_global(
+            axes,
+            [tip_deflection[3], tip_deflection[4], tip_deflection[5]],
+        );
+        let tip_deflection = [
+            translation[0],
+            translation[1],
+            translation[2],
+            rotation[0],
+            rotation[1],
+            rotation[2],
+        ];
 
         // Clamped-tip redundant (support-on-element force at node j in the
-        // both-ends-clamped state): X = -K_jj * delta0.
+        // both-ends-clamped state), global: X = -K_g * delta0.
         let mut clamped_tip_force = [0.0; DOF_PER_NODE];
         for row in 0..DOF_PER_NODE {
             for col in 0..DOF_PER_NODE {
@@ -515,9 +550,10 @@ impl CurvedBendMacroElement {
             }
         }
 
-        // Distributed-load resultant about node i in the local frame:
-        // total force R*phi*w and moment R^2 * (sin phi - phi, 1 - cos phi, 0) x w
-        // (sin phi - phi and 1 - cos phi in their stable forms).
+        // Distributed-load resultant about node i, formed in the local frame
+        // and rotated to global: total force R*phi*w and moment
+        // R^2 * (sin phi - phi, 1 - cos phi, 0) x w (sin phi - phi and
+        // 1 - cos phi in their stable forms).
         let radius = geometry.radius;
         let included_angle = geometry.included_angle;
         let half = geometry.half_angle();
@@ -526,37 +562,32 @@ impl CurvedBendMacroElement {
             radius * radius * half.one_minus_cos(),
             0.0,
         ];
-        let load_moment_about_i = cross(moment_arm, intensity_local);
-        let mut load_resultant_at_i = [0.0; DOF_PER_NODE];
-        for axis in 0..3 {
-            load_resultant_at_i[axis] = radius * included_angle * intensity_local[axis];
-            load_resultant_at_i[3 + axis] = load_moment_about_i[axis];
-        }
+        let load_moment_about_i = rotate_to_global(axes, cross(moment_arm, intensity_local));
+        let load_force = rotate_to_global(
+            axes,
+            [
+                radius * included_angle * intensity_local[0],
+                radius * included_angle * intensity_local[1],
+                radius * included_angle * intensity_local[2],
+            ],
+        );
 
         // Equivalent nodal loads: p_j = -X and p_i = H X + W_i, with H the
-        // rigid transfer of node-j forces to node i over the actual chord.
-        let transfer = equilibrium_transfer(geometry.chord_local);
-        let mut local_loads = [0.0; ELEMENT_DOF];
+        // rigid transfer of node-j forces to node i over the global chord d.
+        let transfer = equilibrium_transfer(self.chord());
+        let mut global_loads = [0.0; ELEMENT_DOF];
         for row in 0..DOF_PER_NODE {
             let mut transferred = 0.0;
             for col in 0..DOF_PER_NODE {
                 transferred += transfer[row][col] * clamped_tip_force[col];
             }
-            local_loads[row] = transferred + load_resultant_at_i[row];
-            local_loads[DOF_PER_NODE + row] = -clamped_tip_force[row];
-        }
-
-        let mut global_loads = [0.0; ELEMENT_DOF];
-        for block in 0..(ELEMENT_DOF / 3) {
-            let local_block = [
-                local_loads[3 * block],
-                local_loads[3 * block + 1],
-                local_loads[3 * block + 2],
-            ];
-            let global_block = rotate_to_global(&geometry.local_axes, local_block);
-            global_loads[3 * block] = global_block[0];
-            global_loads[3 * block + 1] = global_block[1];
-            global_loads[3 * block + 2] = global_block[2];
+            let resultant = if row < 3 {
+                load_force[row]
+            } else {
+                load_moment_about_i[row - 3]
+            };
+            global_loads[row] = transferred + resultant;
+            global_loads[DOF_PER_NODE + row] = -clamped_tip_force[row];
         }
         Ok(global_loads)
     }
@@ -718,8 +749,24 @@ impl CurvedBendMacroElement {
 
     // Free-tip (node i clamped) deflection at node j under the uniform load,
     // local frame, by the unit-load theorem with the same strain-energy
-    // weights as `end_flexibility`.
+    // weights as `end_flexibility`. Below the series switch (s < 1/2) the
+    // integrals come from `arc_integrals`' load series (T4-U1b, T4-RV8 C-1:
+    // the Gram combination below cancels like 1/φ^k at small angles); above
+    // it, the Gram closed forms in half-angle quantities.
     fn tip_deflection_under_uniform_load(
+        &self,
+        geometry: &ArcGeometry,
+        intensity_local: [f64; 3],
+    ) -> [f64; DOF_PER_NODE] {
+        if geometry.half_angle().use_series() {
+            self.tip_deflection_by_series(geometry, intensity_local)
+        } else {
+            self.tip_deflection_by_gram(geometry, intensity_local)
+        }
+    }
+
+    // The deflection from the Gram closed forms (used for s ≥ 1/2).
+    fn tip_deflection_by_gram(
         &self,
         geometry: &ArcGeometry,
         intensity_local: [f64; 3],
@@ -743,6 +790,55 @@ impl CurvedBendMacroElement {
                         / bending_rigidity
                     + cross_quad(&gram, case.torsion, load.torsion) / torsion_rigidity
                     + cross_quad(&gram, case.axial, load.axial) / axial_rigidity);
+        }
+        deflection
+    }
+
+    // The same deflection from the load integrals' series (φ < π/3). With
+    // the unit-load actions of `unit_load_actions` and the load actions of
+    // `distributed_load_actions` (in-plane moment R²(w_y a_x − w_x a_y),
+    // out-of-plane moment R² w_z (1 − cos ψ), torsion R² w_z (ψ − sin ψ),
+    // axial force R ψ (w_y cos θ − w_x sin θ)), each family's integral is a
+    // fixed multiple of one `LoadIntegrals` entry; nothing cancels.
+    fn tip_deflection_by_series(
+        &self,
+        geometry: &ArcGeometry,
+        intensity_local: [f64; 3],
+    ) -> [f64; DOF_PER_NODE] {
+        let n = geometry.half_angle().load_integrals_series();
+        let r = geometry.radius;
+        let r2 = r * r;
+        let r3 = r2 * r;
+        let [w_x, w_y, w_z] = intensity_local;
+        // Per row: (in-plane, out-of-plane, torsion, axial) integrals.
+        let families: [[f64; 4]; DOF_PER_NODE] = [
+            [
+                r3 * (w_y * n.p0x - w_x * n.p0y),
+                0.0,
+                0.0,
+                r * (w_x * n.ass - w_y * n.asc),
+            ],
+            [
+                r3 * (w_y * n.p1x - w_x * n.p1y),
+                0.0,
+                0.0,
+                r * (w_y * n.acc - w_x * n.asc),
+            ],
+            [0.0, r3 * w_z * n.q2, r3 * w_z * n.t2, 0.0],
+            [0.0, r2 * w_z * n.q3, -(r2 * w_z * n.t3), 0.0],
+            [0.0, r2 * w_z * n.q4, r2 * w_z * n.t4, 0.0],
+            [r2 * (w_y * n.p5x - w_x * n.p5y), 0.0, 0.0, 0.0],
+        ];
+        let bending_rigidity = self.elastic_modulus * self.second_moment;
+        let torsion_rigidity = self.shear_modulus * self.torsion_constant;
+        let axial_rigidity = self.elastic_modulus * self.area;
+        let mut deflection = [0.0; DOF_PER_NODE];
+        for (row, [q_in, q_out, q_torsion, q_axial]) in families.into_iter().enumerate() {
+            deflection[row] = r
+                * (self.in_plane_flexibility_factor * q_in / bending_rigidity
+                    + self.out_of_plane_flexibility_factor * q_out / bending_rigidity
+                    + q_torsion / torsion_rigidity
+                    + q_axial / axial_rigidity);
         }
         deflection
     }
@@ -896,8 +992,10 @@ fn distributed_load_actions(
 // (rows) with the extended basis {1, cos, sin, theta, theta cos, theta sin}
 // (columns).
 // sin, cos, 1 - cos, sin 2phi = 2SC and cos 2phi - 1 = -2S^2 come from the
-// half-angle quantities; the theta-weighted entries keep their closed forms
-// (they still cancel at small angles; a certified arc load is T4-U1b's).
+// half-angle quantities; the theta-weighted entries keep their closed forms.
+// They are used only above the series switch (s ≥ 1/2), where the
+// combination does not cancel materially; below it the deflection comes from
+// `arc_integrals`' load series (T4-U1b).
 fn trig_extended_gram(half: &HalfAngle) -> [[f64; 6]; 3] {
     let phi = half.phi;
     let sin_end = half.sin();
@@ -1021,6 +1119,32 @@ fn flexibility_scale(matrix: &Matrix6) -> f64 {
     f64::from_bits(((1023 - exponent) as u64) << 52)
 }
 
+// Aᵀ K A for the 6x6 tip stiffness with A = blockdiag(axes, axes) (rows of
+// `axes` are the local axes in global components), then symmetrized.
+fn rotate_tip_to_global(tip: &Matrix6, axes: &[[f64; 3]; 3]) -> Matrix6 {
+    let mut rotation = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
+    let mut rotation_transpose = [[0.0; DOF_PER_NODE]; DOF_PER_NODE];
+    for block in [0, 3] {
+        for row in 0..3 {
+            for col in 0..3 {
+                rotation[block + row][block + col] = axes[row][col];
+                rotation_transpose[block + col][block + row] = axes[row][col];
+            }
+        }
+    }
+    let mut global = multiply6(&rotation_transpose, &multiply6(tip, &rotation));
+    // The symmetric pair update touches both (row, col) and (col, row).
+    #[allow(clippy::needless_range_loop)]
+    for row in 0..DOF_PER_NODE {
+        for col in (row + 1)..DOF_PER_NODE {
+            let average = 0.5 * (global[row][col] + global[col][row]);
+            global[row][col] = average;
+            global[col][row] = average;
+        }
+    }
+    global
+}
+
 // Rigid equilibrium transfer H from node j loads to node i reactions:
 // f_i = -H f_j with H = [[I, 0], [skew(chord), I]], chord = x_j - x_i.
 fn equilibrium_transfer(chord: [f64; 3]) -> Matrix6 {
@@ -1140,6 +1264,9 @@ mod s11k_tests;
 
 #[cfg(test)]
 mod short_arc_tests;
+
+#[cfg(test)]
+mod load_vector_tests;
 
 #[cfg(test)]
 mod tests {

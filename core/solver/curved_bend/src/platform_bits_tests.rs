@@ -7,6 +7,9 @@
 //! its own formation against them. Each digest is FNV-1a (64-bit) over the
 //! little-endian bits of φ, then the global K row by row, then (where
 //! listed) the global consistent load vector for w = (1, −2, 3) N/m.
+//! The K and load digests were re-frozen when the element moved to its
+//! global-frame assembly (T4-I33: Aᵀ K_t A and H over the global chord, also
+//! + − × only); φ's bits did not move.
 use super::*;
 use open_pipe_stress_frame_kernel::FrameNode;
 
@@ -19,8 +22,8 @@ struct Frozen {
     factors: (f64, f64),
     phi_bits: u64,
     k_digest: u64,
-    /// Digest including the load vector; `None` where the load path is not
-    /// frozen here (below the series switch, T4-U1b's path).
+    /// Digest including the load vector (`None`: not frozen). Below the
+    /// series switch it is T4-U1b's series path (`tip_deflection_by_series`).
     load_digest: Option<u64>,
 }
 
@@ -47,10 +50,11 @@ const FROZEN: [Frozen; 4] = [
         y: [0.0, 0.0, 1.0],
         factors: (1.0, 1.0),
         phi_bits: 0x3ff921fb54442d18,
-        k_digest: 0x82e9fae73fe184ea,
-        load_digest: Some(0xdd1b375e35908141),
+        k_digest: 0xe5870bbd0baf78ad,
+        load_digest: Some(0x2ca1cde1343f52ce),
     },
-    // A short arc below the series switch (s < 1/2).
+    // A short arc below the series switch (s < 1/2); its load digest is
+    // T4-U1b's series path.
     Frozen {
         label: "short_series",
         xi: [3.0, -1.0, 2.0],
@@ -59,8 +63,8 @@ const FROZEN: [Frozen; 4] = [
         y: [0.3, 1.0, 0.2],
         factors: (1.0, 1.0),
         phi_bits: 0x3fc766ee6f97bf88,
-        k_digest: 0xa960942f1d683461,
-        load_digest: None,
+        k_digest: 0xdb6fb5f1bb871744,
+        load_digest: Some(0x8a5c6b03188c5015),
     },
     // s = 1/2 exactly (L = R): the first closed-form arc.
     Frozen {
@@ -71,8 +75,8 @@ const FROZEN: [Frozen; 4] = [
         y: [-1.0, 1.0, 3.0],
         factors: (2.5, 1.7),
         phi_bits: 0x3ff0c152382d7366,
-        k_digest: 0x339995d1ca3ae0f1,
-        load_digest: Some(0xd774f32b9183a6a5),
+        k_digest: 0x745ce5aa933bd2d8,
+        load_digest: Some(0x6727471d9c2ca0d0),
     },
     // A near-π arc on a skew chord.
     Frozen {
@@ -83,8 +87,8 @@ const FROZEN: [Frozen; 4] = [
         y: [0.0, 0.0, 1.0],
         factors: (1.0, 1.0),
         phi_bits: 0x4007b04580d8398c,
-        k_digest: 0x739f4ee142ed53ac,
-        load_digest: Some(0x021dd56871b62c49),
+        k_digest: 0x7cad55d1897e97fb,
+        load_digest: Some(0x9d6b1a458926973f),
     },
 ];
 

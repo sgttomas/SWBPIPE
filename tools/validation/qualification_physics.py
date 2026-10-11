@@ -22,7 +22,7 @@ MODULE = 'core/analysis_runs/physics_evidence.py'
 UNITS = 'core/units/src/lib.rs'
 TABLE_SHA256 = '9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc'
 DEPENDENCIES = {
-    MODULE: '40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad',
+    MODULE: 'a7024b01d5e5ef3b8d57c0d78fb7ad3e82bcca5677bf1dae3ac4c72fbd0cdcb5',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
