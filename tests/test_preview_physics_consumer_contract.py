@@ -19,10 +19,11 @@ from core.analysis_runs.compatibility import (
     build_analysis_run, is_fresh_contract_id, numerical_use_standing, rule_binding_refusal,
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
-from core.analysis_runs.preview_physics_evidence import (
+from tests.verifiers.preview_physics_evidence import (
     LIMITATIONS, validate_preview_physics_evidence, validate_transport_metadata,
 )
 from schema_validation import schema_for_definition, validate_instance
+from tests.verifiers import compatibility as verifier
 
 PROJECT = Path(__file__).resolve().parents[1]
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
@@ -190,7 +191,7 @@ def test_f1_positive_control_non_result_references_are_not_resolved():
 
 
 def test_arc_variant_resolves_first_and_generic_follows():
-    from core.analysis_runs.preview_physics_evidence import signature
+    from tests.verifiers.preview_physics_evidence import signature
     row = {"kind": "element_local_axial_normal_stress", "unit": "MPa", "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")}
     assert signature(row)["signature_id"] == "preview-physics-arc-015"
     row["metadata"]["basis"] = "recovered_from_open_mechanics_stress_components"
@@ -704,6 +705,9 @@ def test_a3_tamper_controls(change):
     source = envelope()
     change(source)
     with pytest.raises(ValueError, match="negative intensified value|support both attributed and withheld"):
+        verifier._source_contract(source)
+    # The product takes the Rust reader's refusal (b7-plan R2's declared class): its own code for each.
+    with pytest.raises(ValueError, match="^(SOURCE_PREVIEW_PHYSICS_INTENSIFIED_NEGATIVE|SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE)$"):
         _source_contract(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 
@@ -832,7 +836,7 @@ def _mixed_source_blocks():
 
 
 def test_selected_plus_ordinary_source_blocks_is_not_current():
-    from core.analysis_runs.source_blocks import validate_source_blocks
+    from tests.verifiers.source_blocks import validate_source_blocks
     source, context = _mixed_source_blocks()
     bases_ = [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]
     assert validate_source_blocks(source, context) is True  # statement itself is valid
@@ -865,7 +869,7 @@ def test_partial_source_blocks_receipt_stays_not_eligible():
 
 @pytest.mark.parametrize("stem", ["mixed", "mixed_units"])
 def test_physics_source_with_ordinary_cases_stays_admitted(stem):
-    from core.analysis_runs.physics_source import validate_physics_source
+    from tests.verifiers.physics_source import validate_physics_source
     folder = PROJECT / "fixtures/product_preview/physics_source"
     source = json.loads((folder / f"{stem}-sparse_interactive.raw.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
     request = json.loads((folder / f"{stem}.request.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))

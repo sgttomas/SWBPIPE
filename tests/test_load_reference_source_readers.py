@@ -8,6 +8,10 @@ inputs with the same error. Carrier fixtures under
 joined producer envelopes by these readers; they prove reader preservation, not
 producer authentication, numerical eligibility or engineering acceptance. All
 inputs are invented.
+
+b7-plan R2: the Python reader is the test verifier (``tests/verifiers``), which
+these cases check against the Python expectations; product Python reads through
+the Rust reader, whose text ``test_base_reader_verifier.py`` checks on this corpus.
 """
 from __future__ import annotations
 
@@ -24,13 +28,14 @@ from core.analysis_runs.compatibility import (
     LOAD_REFERENCE_SOURCE_PROFILE, _source_contract, build_analysis_run, build_analysis_run_v0_3,
     numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
-from core.analysis_runs.load_reference_evidence import validate_load_reference_evidence
-from core.analysis_runs.load_reference_source import (
+from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
+from tests.verifiers.load_reference_source import (
     POLICY, load_reference_source_table, validate_load_reference_source_evidence,
     validate_load_reference_source_transport_metadata, verify_table,
 )
-from core.analysis_runs.physics_source import validate_physics_source
-from core.analysis_runs.source_blocks import domain_hash
+from tests.verifiers.physics_source import validate_physics_source
+from tests.verifiers.source_blocks import domain_hash
+from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -201,7 +206,9 @@ def test_pinned_table_and_inputs():
 @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
 def test_shared_adversarial_case(case):
     doc = apply(source(case["source"]), case["ops"])
-    dispatch = outcome(lambda: _source_contract(doc))
+    # The verifier's dispatch against the Python expectation; the product (Rust) admits exactly the same statements.
+    dispatch = outcome(lambda: verifier._source_contract(doc))
+    assert (outcome(lambda: _source_contract(doc)) == "accept") == (dispatch == "accept")
     joined = outcome(lambda: validate_load_reference_source_evidence(doc))
     entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
     if "lr" in case:
@@ -250,6 +257,7 @@ def test_transport_metadata_case(case):
     RESULTS.append({"id": case["id"], "transport": result})
     assert agrees(result, case["expect"]), result
     if result == "accept":
+        assert verifier._source_contract(meta, check_receipt=False)[0] == LOAD_REFERENCE_SOURCE_CONTRACT_ID
         assert _source_contract(meta, check_receipt=False)[0] == LOAD_REFERENCE_SOURCE_CONTRACT_ID
 
 
@@ -267,11 +275,14 @@ def test_existing_readers_refuse_every_joined_envelope_under_their_own_labels():
         as_lr = deepcopy(raw)
         as_lr["producer"]["semantic_contract_id"] = LOAD_REFERENCE_CONTRACT_ID
         as_lr["formulation_basis"]["profile_id"] = "resolved_straight_load_state_v1"
+        assert outcome(lambda: verifier._source_contract(as_lr)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
         assert outcome(lambda: _source_contract(as_lr)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
         as_ps = deepcopy(raw)
         as_ps["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/physics-source-1"
         as_ps["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"
-        assert outcome(lambda: _source_contract(as_ps)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
+        assert outcome(lambda: verifier._source_contract(as_ps)) == "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN"
+        # The product takes Rust's reading (R2's declared class): the header's physics-source-1 receipt shape.
+        assert outcome(lambda: _source_contract(as_ps)) == "PHYSICS_SOURCE_RECEIPT_SHAPE"
 
 
 def _carrier_path(name: str, kind: str) -> Path:

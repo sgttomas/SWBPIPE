@@ -17,6 +17,7 @@ import sys
 import pytest
 
 from tests.verifiers import retained_precision as rp
+from tests.verifiers import compatibility as compatibility_verifier
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -751,7 +752,7 @@ def test_b3b_carriers(mode):
     assert len(summary) == 1 and summary[0]["relative_verified"] == sum(1 for x in classes if x["class"] == "relative_verified")
     rows = {row["id"]: row for row in source["results"]}
     for item in classes:
-        assert c.rule_binding_refusal(source, rows[item["result_id"]]) == c._class_binding_refusal(item["class"])
+        assert c.rule_binding_refusal(source, rows[item["result_id"]]) == compatibility_verifier._class_binding_refusal(item["class"])
     record = built(source)
     assert isinstance(record, dict), record
     run = record["analysis_run"]
