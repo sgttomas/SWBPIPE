@@ -42,9 +42,6 @@ UNAVAILABLE = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
 # joined load-reference-source-1 pre-pass (``load_reference_source``).
 LOAD_REFERENCE = "load_reference"
 JOINED = "joined"
-# T4-U3: the pressure-1 0.4.0 pre-pass; as LOAD_REFERENCE, except that
-# connector records are left to the inherited physics pass under v3.
-PRESSURE = "pressure"
 REGION_TEMPERATURE_BASIS = "resolved_member_state"
 G_BASIS = "E/[2(1+nu)] from the selected pair"
 COMPOSITION = "lambda_fit*lambda_thermal-1"
@@ -264,23 +261,6 @@ def validate_load_reference_transport_metadata(source: Mapping[str, Any]) -> Non
     _guarded(source, raw=False)
 
 
-def validate_pressure_load_reference_evidence(source: Mapping[str, Any]) -> None:
-    """T4-U2a: a 0.4.0 pressure-1 envelope (3.0.0/exact_pressure_v3): the same
-    pre-pass, then the inherited physics checks under the v3 contract."""
-    try:
-        _prepass(source, True, PRESSURE)
-        projected = _project(source)
-        from .physics_evidence import PRESSURE_V3, _validate_physics_evidence
-        try:
-            _validate_physics_evidence(projected, contract=PRESSURE_V3)
-        except ValueError as error:
-            raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: {error}") from error
-        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
-            raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
-    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
-        raise LoadReferenceError("SOURCE_LOAD_REFERENCE_MALFORMED") from error
-
-
 def _guarded(source: Mapping[str, Any], *, raw: bool) -> None:
     try:
         _validate(source, raw)
@@ -332,7 +312,7 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
         _require(schema_shape(evidence, schema["$defs"]["LoadReferenceContractEvidence"], schema), "TRANSPORT_SHAPE")
     # S3-S5 namespace.
     _require(_keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")
-    _require(method == PRESSURE or not _array(evidence["connector"]), "CONNECTOR_UNSUPPORTED")
+    _require(not _array(evidence["connector"]), "CONNECTOR_UNSUPPORTED")
     pressure = _array(evidence["pressure"])
     exact = _array(evidence["exact_cases"])
     records = _array(evidence["load_reference_states"])
@@ -398,11 +378,7 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
             _require(_same(_get(record["solve"], "requested_mode"), _get(first["solve"], "requested_mode")), "SOLVE_CONSISTENCY")
     # S12 pressure-region materials are the resolved member pair of their case.
     for region in pressure:
-        # T4-U2: a pressure-1 region with a realized arc adds the arc keys
-        # (checked with the arc members by the inherited physics pass).
-        from .physics_evidence import ARC_REGION_KEYS, arc_members
-        arcs = arc_members(region, method == PRESSURE)
-        _require(_keys(region, REGION_KEYS + (sorted(ARC_REGION_KEYS) if arcs else [])), "REGION_SHAPE")
+        _require(_keys(region, REGION_KEYS), "REGION_SHAPE")
         case_id = _text(region["load_case_id"])
         _text(region["region_id"])
         case = next((value for known, value in cases if known == case_id), None)

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Isolated fixed-entry helper for the owned pressure-1 evidence reader.
+"""Isolated fixed-entry helper for the test-only pressure-1 verifier.
 
-Invoked with Python -I -S. Copies the verified physics and load/reference-state
-readers and the pressure-1 table to a private snapshot, then loads the two
-modules as one private package, so a same-named module in another checkout,
-the working directory or PYTHONPATH cannot replace them. Only the fixed entry
-``physics_evidence.validate_pressure_evidence`` executes (a 0.4.0 envelope
-takes the load/reference-state pre-pass through the same package). The unit
+Invoked with Python -I -S. Copies the independent pressure-1 verifier
+(``tests/verifiers/pressure_1.py``; the Rust reader is the only product
+reader) and the pressure-1 table to a private snapshot, then loads the
+verifier as the only member of a private package, so a same-named module in
+another checkout, the working directory or PYTHONPATH cannot replace it. Only
+the fixed entry ``pressure_1.validate_pressure_evidence`` executes (a 0.4.0
+envelope takes the verifier's load/reference-state pre-pass). The unit
 authority is bound read-only. The verdict is internal source consistency only,
 never producer authentication, numerical accuracy or model freshness. No
 network, runtime build, import fallback or target edit.
@@ -26,19 +27,16 @@ MAX_SOURCE_LIMIT = 64 * 1024 * 1024  # ceiling for the derived raw snapshot, set
 FORMAT = 'openpipestress.exact_pressure_consistency_binding/1'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
 ENTRYPOINT = 'validate_pressure_evidence'
-MODULE = 'core/analysis_runs/physics_evidence.py'
-LOAD_REFERENCE_MODULE = 'core/analysis_runs/load_reference_evidence.py'
+MODULE = 'tests/verifiers/pressure_1.py'
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
 UNITS = 'core/units/src/lib.rs'
-PATHS = {MODULE, LOAD_REFERENCE_MODULE, TABLE, UNITS}
+PATHS = {MODULE, TABLE, UNITS}
 PRODUCER = {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
             'semantic_contract_id': CONTRACT}
-# Top-level imports each executed module may make; deferred relative imports
-# resolve only inside the private package (source_blocks is deliberately absent).
+# Top-level imports the executed verifier may make: the standard library only
+# (it shares no code with the producer and imports no product module).
 ALLOWED_IMPORTS = {
-    MODULE: {'__future__', 'math', 'struct', 'json', 'pathlib', 'collections.abc', 'typing'},
-    LOAD_REFERENCE_MODULE: {'__future__', 'copy', 'functools', 'hashlib', 'json', 'math', 'struct', 'pathlib',
-                            'collections.abc', 'typing'},
+    MODULE: {'__future__', 'collections.abc', 'copy', 'hashlib', 'json', 'math', 'pathlib', 'struct', 'typing'},
 }
 PACKAGE = 'openpipestress_gate_exact_pressure'
 ARTIFACT = 'openpipestress.exact_pressure_consistency_observation'
@@ -88,7 +86,7 @@ def top_level_imports(name, data):
 
 
 def load_private_package(snapshot_root, snapshots):
-    """Execute both verified modules as members of one private package.
+    """Execute the verified verifier as the only member of one private package.
 
     ``__path__`` is empty, so a relative import can only find a member that is
     already registered here; an absent member fails instead of searching disk.
@@ -96,18 +94,15 @@ def load_private_package(snapshot_root, snapshots):
     package = types.ModuleType(PACKAGE)
     package.__path__ = []
     package.__package__ = PACKAGE
-    previous = {name: sys.modules.get(name) for name in (PACKAGE, PACKAGE + '.physics_evidence', PACKAGE + '.load_reference_evidence')}
+    previous = {name: sys.modules.get(name) for name in (PACKAGE, PACKAGE + '.pressure_1')}
     sys.modules[PACKAGE] = package
-    loaded = {}
-    for member, path in (('physics_evidence', MODULE), ('load_reference_evidence', LOAD_REFERENCE_MODULE)):
-        module = types.ModuleType(PACKAGE + '.' + member)
-        module.__file__ = str(snapshot_root / path)
-        module.__package__ = PACKAGE
-        sys.modules[module.__name__] = module
-        exec(compile(snapshots[path], module.__file__, 'exec'), module.__dict__)
-        setattr(package, member, module)
-        loaded[member] = module
-    return loaded, previous
+    module = types.ModuleType(PACKAGE + '.pressure_1')
+    module.__file__ = str(snapshot_root / MODULE)
+    module.__package__ = PACKAGE
+    sys.modules[module.__name__] = module
+    exec(compile(snapshots[MODULE], module.__file__, 'exec'), module.__dict__)
+    setattr(package, 'pressure_1', module)
+    return {'pressure_1': module}, previous
 
 
 def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes: bytes, source_limit: int = LIMIT) -> dict:
@@ -121,7 +116,7 @@ def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes
     files = binding.get('files')
     require(type(files) is list and len(files) == len(PATHS), 'closed dependency set required')
     paths = [row.get('path') if type(row) is dict else None for row in files]
-    require(set(paths) == PATHS and len(paths) == len(set(paths)), 'dependency paths differ from closed pressure-1 reader')
+    require(set(paths) == PATHS and len(paths) == len(set(paths)), 'dependency paths differ from the closed pressure-1 verifier')
     snapshots = {}
     for row in files:
         require(set(row) == {'path', 'sha256'}, 'unknown dependency binding fields')
@@ -136,16 +131,16 @@ def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes
     require(type(source) is dict and source.get('schema_version') == '0.2.0', 'pressure-1 raw0.2 required')
     require(source.get('producer') == PRODUCER, 'pressure-1 producer identity required')
     require('source_block_recovery' not in source and 'carrier_evidence' not in source, 'source/composite namespaces refused')
-    imports = sorted(set(top_level_imports(MODULE, snapshots[MODULE])) | set(top_level_imports(LOAD_REFERENCE_MODULE, snapshots[LOAD_REFERENCE_MODULE])))
-    with tempfile.TemporaryDirectory(prefix='exact-pressure-reader-') as temporary:
+    imports = sorted(set(top_level_imports(MODULE, snapshots[MODULE])))
+    with tempfile.TemporaryDirectory(prefix='exact-pressure-verifier-') as temporary:
         snapshot_root = Path(temporary)
-        for name in (MODULE, LOAD_REFERENCE_MODULE, TABLE):
+        for name in (MODULE, TABLE):
             target = snapshot_root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(snapshots[name])
         modules, previous = load_private_package(snapshot_root, snapshots)
         try:
-            getattr(modules['physics_evidence'], ENTRYPOINT)(source)
+            getattr(modules['pressure_1'], ENTRYPOINT)(source)
             require(read_bytes(snapshot_root / TABLE) == snapshots[TABLE], 'private table snapshot changed')
         finally:
             for name, module in previous.items():

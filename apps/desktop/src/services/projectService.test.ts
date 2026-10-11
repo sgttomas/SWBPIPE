@@ -105,7 +105,8 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const created = await createLocalProject(model);
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model.schema_version).toBe("0.3.0");
-    await saveLocalProject(model);
+    // Saves over its own stored snapshot (no envelope hash here), as the other round trips do (#1252).
+    await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
     expect((await openLocalProject(model.project.id))?.model.schema_version).toBe("0.3.0");
   });
 

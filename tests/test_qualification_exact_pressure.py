@@ -7,8 +7,8 @@ ControlledExport wrapper: the T4-I7 L line (``U2-L-ANCH-PTW-K2``) on 0.3.0
 whose documents are the package's own generated requests. They are scored
 against the generated package (analytical values from the frozen T4-I7
 references), admitted here with a synthetic test-only stub; no product solver
-or runner binary is executed. The owned reader genuinely runs in its isolated
-helper.
+or runner binary is executed. The owned reader, the test-only pressure-1
+verifier, genuinely runs in its isolated helper.
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -24,7 +24,6 @@ from unittest.mock import patch
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
 from tools.validation import qualification_exact_pressure as ep
-from tools.validation import qualification_load_reference as lr
 from tools.validation import qualification_physics as physics
 from tools.validation import qualification_exact_pressure_helper as helper
 from tools.validation.qualification_process import sha256_bytes
@@ -173,9 +172,11 @@ def arc_row(raw, kind, location='midspan'):
 
 
 class PinTests(unittest.TestCase):
-    def test_reader_pins_are_the_physics_and_load_reference_pins(self):
-        self.assertEqual(ep.DEPENDENCIES, {physics.MODULE: physics.DEPENDENCIES[physics.MODULE], lr.MODULE: lr.MODULE_SHA256,
-                                           ep.TABLE: ep.TABLE_SHA256, physics.UNITS: physics.DEPENDENCIES[physics.UNITS]})
+    def test_reader_pins_are_the_verifier_table_and_unit_pins(self):
+        # The owned reader is the test-only verifier, never a product module.
+        self.assertEqual(ep.MODULE, 'tests/verifiers/pressure_1.py')
+        self.assertEqual(ep.DEPENDENCIES, {ep.MODULE: ep.VERIFIER_SHA256, ep.TABLE: ep.TABLE_SHA256,
+                                           physics.UNITS: physics.DEPENDENCIES[physics.UNITS]})
         for path, digest in ep.DEPENDENCIES.items():
             self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
         table = json.loads((PROJECT / ep.TABLE).read_text())

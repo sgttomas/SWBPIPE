@@ -37,12 +37,10 @@ try:
     from .qualification_process import capture, file_sha256, sha256_bytes
     from . import qualification_gate as gate
     from . import qualification_physics as physics
-    from . import qualification_load_reference as load_reference
 except ImportError:
     from qualification_process import capture, file_sha256, sha256_bytes
     import qualification_gate as gate
     import qualification_physics as physics
-    import qualification_load_reference as load_reference
 
 TRANSPORT = 'exact_pressure_1_cli_1.0_raw0.2'
 RUN_FORMAT = 'openpipestress.exact_pressure_qualification_run/1'
@@ -56,15 +54,18 @@ PROFILE = 'exact_pressure_v3'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
 TABLE_SHA256 = '2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1'
-# The pressure-1 reader is physics_evidence.validate_pressure_evidence; a 0.4.0
-# envelope takes load_reference_evidence's pre-pass. Both pins are the ones
-# the physics-1 and load-reference-1 adapters hold, so a reader change re-pins once.
-MODULE = physics.MODULE
-LOAD_REFERENCE_MODULE = load_reference.MODULE
+# The owned reader this gate runs is the independent test-only pressure-1
+# verifier (``tests/verifiers/pressure_1.py``, entry validate_pressure_evidence;
+# a 0.4.0 envelope takes its load/reference-state pre-pass). The Rust reader is
+# the only product reader (owner, 2026-10-10: "move to one product reader in
+# Rust"); no Python product module reads pressure-1. Re-pin VERIFIER_SHA256
+# deliberately whenever the verifier changes. The unit authority is bound
+# read-only, as for physics-1.
+MODULE = 'tests/verifiers/pressure_1.py'
+VERIFIER_SHA256 = 'd1ecf8b2c970bd7ae766d9205326466e22a266ec116c6a65856233a53d766d9c'
 UNITS = physics.UNITS
 DEPENDENCIES = {
-    MODULE: physics.DEPENDENCIES[MODULE],
-    LOAD_REFERENCE_MODULE: load_reference.MODULE_SHA256,
+    MODULE: VERIFIER_SHA256,
     TABLE: TABLE_SHA256,
     UNITS: physics.DEPENDENCIES[UNITS],
 }
@@ -143,7 +144,7 @@ def project_root(source_root: Path) -> Path:
     if (source_root / MODULE).is_file():
         return source_root.resolve()
     candidate = source_root / 'projects/chirality-piping'
-    require((candidate / MODULE).is_file(), 'owned pressure-1 reader not available in selected candidate')
+    require((candidate / MODULE).is_file(), 'owned pressure-1 verifier not available in selected candidate')
     return candidate.resolve()
 
 

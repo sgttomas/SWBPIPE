@@ -39,10 +39,12 @@ def test_precision_dispatch_and_schema_binding_preserve_source_hash_and_rule_rev
     revised=build_analysis_run_v0_3(raw,input_manifest_ref={"object_type":"InputManifest","ref":"manifest:transport"},input_manifest_hash="1"*64,rule_check_status="USER_RULE_CHECKED")
     assert next(x for x in revised['analysis_run']['hashes'] if x['payload_scope']=='received_result')==received
     assert verify_analysis_run_record(revised)=="match"
-    # pressure-1 is a current identity since T4-U2; the others stay future.
     for name in ['reactions','stress','future']:
         bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}-1'
         with pytest.raises(ValueError,match='CONTRACT_UNSUPPORTED'):build(bad)
+    # pressure-1 is published (T4-U2), but only the Rust reader reads it: Python product paths refuse it by name.
+    bad=deepcopy(raw);bad['producer']['semantic_contract_id']='openpipestress.result_semantics/0.3.0/pressure-1'
+    with pytest.raises(ValueError,match='PRESSURE_1_RESULT_NOT_READABLE_IN_PYTHON_PRODUCT_PATH'):build(bad)
 
 def test_history_never_becomes_current_from_source_or_input_authenticity():
     raw=source();assert numerical_use_standing(raw,[BASIS])=='needs_recompute'

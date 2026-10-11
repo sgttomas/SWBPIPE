@@ -133,6 +133,7 @@ code_paths:
 - core/analysis_runs/load_reference_evidence.py
 - core/analysis_runs/load_reference_source.py
 - core/analysis_runs/source_blocks.py
+- tests/verifiers/pressure_1.py
 - apps/desktop/src/features/results/previewPhysicsEvidence.ts
 - apps/desktop/src/features/results/physicsResultEvidence.ts
 - apps/desktop/src/features/results/physicsSourceRecovery.ts

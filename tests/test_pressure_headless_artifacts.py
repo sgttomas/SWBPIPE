@@ -4,9 +4,11 @@ The Rust lane ``core/runner/headless/tests/pressure_export.rs`` writes each
 case's raw producer envelope and canonical export document when
 ``HEADLESS_PRESSURE_OUTPUT_DIR`` is set. These tests read them: the document
 validates against the results 0.3 schema on the pressure-1 branch only; the
-Python reader, transport check and standing admit the raw envelope; and the
-AnalysisRun built from it is verified and schema valid. They skip only when
-the variable is unset and must be run with it set. All inputs are invented.
+test-only verifier admits the raw envelope and its transported statements;
+and every Python product path refuses it by name (the Rust reader is the only
+product reader, so no Python AnalysisRun record is built from pressure-1 until
+T3's unit R2). They skip only when the variable is unset and must be run with
+it set. All inputs are invented.
 """
 from __future__ import annotations
 
@@ -17,10 +19,11 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs.compatibility import (
-    PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3,
-    numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
+    PRESSURE_1_RESULT_NOT_READABLE_IN_PYTHON_PRODUCT_PATH, PRESSURE_CONTRACT_ID, _source_contract, build_analysis_run_v0_3,
+    numerical_use_standing,
 )
 from schema_validation import validate_instance
+from tests.verifiers.pressure_1 import verify_source
 
 PROJECT = Path(__file__).resolve().parents[1]
 STEMS = ["arc-u2-l-anch-ptw-k2-0-3-0", "arc-u2-l-anch-ptw-k2-0-4-0", "arc-u2-l-kink-anch-p-k2-0-3-0",
@@ -54,7 +57,7 @@ def _branches(instance):
 
 
 @pytest.mark.parametrize("name", NAMES)
-def test_actual_pressure_1_document_selects_its_branch_and_analysis_run_matches(name):
+def test_actual_pressure_1_document_selects_its_branch_and_the_verifier_admits_it(name):
     folder = _folder()
     raw = json.loads((folder / f"{name}.raw.json").read_text())
     document = json.loads((folder / f"{name}.document.json").read_text())
@@ -63,15 +66,14 @@ def test_actual_pressure_1_document_selects_its_branch_and_analysis_run_matches(
     envelope = document["result_envelope"]
     for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence"):
         assert envelope[key] == raw[key], key
-    assert _source_contract(raw)[:2] == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)
-    assert _source_contract(raw, check_receipt=False)[0] == PRESSURE_CONTRACT_ID
+    verify_source(raw)
+    verify_source(raw, raw=False)
+    for read in (_source_contract, lambda e: _source_contract(e, check_receipt=False),
+                 lambda e: build_analysis_run_v0_3(e, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:{name}"}, input_manifest_hash="1" * 64)):
+        with pytest.raises(ValueError, match=PRESSURE_1_RESULT_NOT_READABLE_IN_PYTHON_PRODUCT_PATH):
+            read(raw)
     bases = [case["basis_ref"] for case in raw["numerical_quality"]["cases"]]
-    assert numerical_use_standing(raw, bases) == "numerically_eligible"
-    record = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:{name}"}, input_manifest_hash="1" * 64)
-    validate_analysis_run_v0_3(record, raw)
-    assert verify_analysis_run_record(record) == "match"
-    validate_instance(_schema("analysis_run.v0.3.schema.json"), record, instance_label=f"AnalysisRun {name}")
-    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": PRESSURE_CONTRACT_ID, "sha256": PRESSURE_CONTRACT_SHA256}
+    assert numerical_use_standing(raw, bases) == "unsupported"
 
 
 def test_artifact_folder_holds_exactly_the_expected_cases():
