@@ -1,4 +1,4 @@
-import { semanticFamily, semanticCategory } from "./resultSemantics";
+import { semanticFamily, semanticLabels } from "./resultSemantics";
 import type {
   AnalysisRunEnvelope,
   DesignKnowledge,
@@ -26,6 +26,7 @@ export function buildResultInterpretation({
 }): ResultInterpretation | null {
   const item = result.results.find((candidate) => candidate.id === resultId);
   if (!item) return null;
+  const labels = semanticLabels(result);
 
   const linkedDiagnostics = result.diagnostics.filter((diagnostic) =>
     [item.id, item.entity_ref].some((ref) => diagnostic.affected_refs?.includes(ref))
@@ -41,7 +42,7 @@ export function buildResultInterpretation({
 
   return {
     result_id: item.id,
-    family: semanticFamily(item, result)==="other" ? semanticCategory(item, result) : semanticFamily(item, result),
+    family: labels.family(item)==="other" ? labels.category(item) : labels.family(item),
     entity_ref: item.entity_ref,
     value_label: `${item.value} ${item.unit}`,
     component: item.metadata?.component ?? item.kind,

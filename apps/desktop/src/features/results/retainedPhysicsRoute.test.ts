@@ -3,12 +3,12 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import exactTable from "../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import physicsTable from "../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json";
-import {
-  PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_SHA256, PHYSICS_RETAINED_PROFILE, numericalResultStanding, retainedPrecisionDowngrade,
-  sourceContract, sourceContractTransport, sourceSemanticBinding,
-} from "./numericalResultQuality";
+import { PHYSICS_RETAINED_CONTRACT_ID } from "./numericalResultQuality";
+import { PHYSICS_RETAINED_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { readerDispatch, readerRowSemantics, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "./resultReader";
+import { validateRetainedPrecisionTransport } from "./retainedPrecisionReader";
+import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
-import { semanticContractForSource } from "./resultSemantics";
 import { knownSemanticNotices, resultRowLabel, ruleBindingRefusal, RULE_QUANTITY_NOT_COVERED } from "./knownSemanticLimitations";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -21,15 +21,17 @@ const rustConstant = (name: string) => RUST_READER.match(new RegExp(`pub const $
 describe("the exact retained route on the desktop's carriers", () => {
   it("header dispatch, binding, downgrade guard, transport through the Rust reader, standing, table and notices", async () => {
     const { source, invocation } = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_exact_successor_sparse_interactive.json"), "utf8")) as Json;
-    // The route's literals equal the Rust reader's constants.
-    expect([PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_PROFILE]).toEqual([rustConstant("EXACT_CONTRACT_ID"), rustConstant("EXACT_PROFILE")]);
+    // The route's identity equals the Rust reader's constant, and its profile is the one the source states.
+    expect(PHYSICS_RETAINED_CONTRACT_ID).toBe(rustConstant("EXACT_CONTRACT_ID"));
+    expect(source.formulation_basis.profile_id).toBe(rustConstant("EXACT_PROFILE"));
     expect(sourceContract(source)).toBe("retained_physics");
     expect(sourceSemanticBinding(source)).toEqual({ id: PHYSICS_RETAINED_CONTRACT_ID, sha256: PHYSICS_RETAINED_CONTRACT_SHA256 });
     expect(retainedPrecisionDowngrade(source)).toBe(false);
-    expect(await sourceContractTransport(source)).toBe("retained_physics");
-    // A tampered receipt is refused on transport with the reader's code.
+    // The header dispatch runs the reader's transport checks (G5): a tampered receipt is refused with the reader's code.
+    expect(readerDispatch(source)).toMatchObject({ ok: true, route: "retained_physics" });
     const tampered = structuredClone(source); tampered.retained_precision.body.work_policy = "W1-LME-20B-60B-v2";
-    await expect(sourceContractTransport(tampered)).rejects.toMatchObject({ gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" });
+    expect(readerDispatch(tampered)).toMatchObject({ ok: false, route: "unsupported", error: { code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" } });
+    await expect(validateRetainedPrecisionTransport(tampered)).rejects.toMatchObject({ gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" });
     // The downgrade guard: physics-1 carrying a receipt is unsupported.
     const downgraded = structuredClone(source); downgraded.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-1"; downgraded.formulation_basis.profile_id = "exact_straight_pressure_v2";
     expect(sourceContract(downgraded)).toBe("unsupported");
@@ -39,7 +41,9 @@ describe("the exact retained route on the desktop's carriers", () => {
     // Standing comes only from a registered validation: unregistered bytes need recompute.
     expect(numericalResultStanding(source, invocation.request.model)).toMatchObject({ contract: "retained_physics", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
     // XTABLE's rows are physics-1's; the row semantics read XTABLE.
-    expect(semanticContractForSource(source)).toEqual(exactTable);
+    const rows = readerRowSemantics(source);
+    for (const row of source.results) { const signature = rows(row).signature; if (signature) expect(exactTable.rows).toContainEqual(signature); }
+    expect(source.results.some((row: Json) => rows(row).signature !== null)).toBe(true);
     expect(exactTable.rows).toEqual(physicsTable.rows);
     // Notices: no preview notice (physics-1's rows); the unvalidated successor notice; no kind label.
     expect(knownSemanticNotices(source).map(n => n.id)).toEqual(["retained-precision-unvalidated"]);

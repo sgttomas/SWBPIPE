@@ -25,7 +25,8 @@ import { canonicalJsonString, canonicalSha256Hex, checkedJsonText } from "../../
 import { buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
-import { numericalResultStanding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
+import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
+import { numericalResultStanding } from "../results/resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import { LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
@@ -231,10 +232,11 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
     await expect(deriveResultDocument(base, model, relabelled, await currentReceivedOrigin(model, relabelled, MANIFEST_REF, false, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     await expect(validateResultDocument(doc, relabelled)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-    // A statement the reader refuses has no validated classes, so it derives nothing.
+    // A statement the reader refuses derives nothing: R2's header dispatch runs the reader's transport checks
+    // (G5), so it reads unsupported (TS: the reader's RETAINED_PRECISION_RECEIPT_MISMATCH).
     const unread = structuredClone(source) as Json; unread.retained_precision.receipt_sha256 = "0".repeat(64);
-    await expect(deriveResultDocument(base, model, unread, await currentReceivedOrigin(model, unread, MANIFEST_REF, false, ORIGIN_LIMIT))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
-    await expect(validateResultDocument(doc, unread)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
+    await expect(deriveResultDocument(base, model, unread, await currentReceivedOrigin(model, unread, MANIFEST_REF, false, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+    await expect(validateResultDocument(doc, unread)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     // The receipt must bind the source, whole.
     const edit = async (change: (d: Json) => void) => { const d = structuredClone(doc); change(d); return rehashed(d); };
     await expect(validateResultDocument(await edit(d => { d.result_envelope.retained_precision.receipt_sha256 = "0".repeat(64); }), source)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH");

@@ -4,10 +4,10 @@ The fake runner replays the committed producer raws
 (``fixtures/product_preview/load_reference/*.raw.json``) inside a synthetic
 ControlledExport wrapper. Reference values are synthetic harness controls
 copied from those raws (``reference_kind: harness_synthetic``); they are not
-analytical targets, criteria or production policy, and no product solver or
-runner binary is executed. The owned reader genuinely runs in its isolated
-helper against the committed raws. Run with unittest to avoid the repository
-pytest setup's unrelated Rust build.
+analytical targets, criteria or production policy, and no product solver is
+executed. The owned reader genuinely runs against the committed raws: b7-plan R2,
+the Rust product reader through the explicitly built ``openpipestress-runner read
+load-reference`` named by OPENPIPESTRESS_RUNNER_BIN (the test session builds it).
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -268,8 +268,9 @@ class PinTests(unittest.TestCase):
         for path, digest in lr.DEPENDENCIES.items():
             if path != lr.MODULE:
                 self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
-        start = subprocess.check_output(['git', 'show', f'575677cfef:./{lr.MODULE}'], cwd=PROJECT)
-        self.assertEqual(sha256_bytes(start), lr.MODULE_SHA256, 'reader pin is not the integrated reader bytes (575677cfef, T4-U3 connector evidence; earlier pins eeb16c35ba for the T4-U2a pressure-contract dispatch, 1ccca8b87 after the REVIEW_A follow-up, bfef71b19 and the WP5 start commit d8f0dc4f7)')
+        # b7-plan R2: the owned reader is Rust's; its pinned source is the load-reference-1 reader over physics-1's.
+        self.assertEqual((lr.MODULE, lr.BINDING_FORMAT), ('core/reporting/result_export/src/load_reference.rs',
+                                                          'openpipestress.load_reference_consistency_binding/2'))
         self.assertEqual(lr.TRANSPORT, 'load_reference_1_cli_1.0_raw0.2')
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])
 
@@ -277,7 +278,7 @@ class PinTests(unittest.TestCase):
         # Fails deliberately while the working-tree reader differs from the pin
         # (e.g. WP1 changed it): re-pin MODULE_SHA256 at integration, never skip.
         self.assertEqual(sha256_bytes((PROJECT / lr.MODULE).read_bytes()), lr.MODULE_SHA256,
-                         'working-tree load_reference_evidence.py differs from MODULE_SHA256: re-pin at integration')
+                         'working-tree load_reference.rs differs from MODULE_SHA256: re-pin at integration')
 
 
 class CompleteRunTests(unittest.TestCase):
@@ -650,6 +651,36 @@ class StandingTests(unittest.TestCase):
 
 
 class ReaderTests(unittest.TestCase):
+    def test_reader_binding_canonical_root_alias_and_dependency_escape(self):
+        fixture = Fixture(self, families=('connected',))
+        binding_path = fixture.root / 'binding.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        digest = sha256_bytes(binding_path.read_bytes())
+        alias = fixture.root / 'candidate-alias'
+        alias.symlink_to(fixture.candidate.resolve(), target_is_directory=True)
+        binding = lr.load_binding(alias, binding_path, digest)
+        self.assertEqual(binding['source_root'], fixture.candidate.resolve())
+        self.assertEqual(set(binding['dependency_bytes']), set(lr.DEPENDENCIES))
+        dependency = fixture.candidate / lr.MODULE
+        external = fixture.root / 'external-reader.rs'
+        external.write_bytes(dependency.read_bytes())
+        dependency.unlink()
+        dependency.symlink_to(external.resolve())
+        with self.assertRaisesRegex(lr.AdmissionError, 'dependency leaves selected candidate root'):
+            lr.load_binding(alias, binding_path, digest)
+
+    def test_reader_binding_refuses_review_escape_with_matching_bytes(self):
+        fixture = Fixture(self, families=('connected',))
+        binding_path = fixture.root / 'binding.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        review = fixture.candidate / fixture.binding['review_basis'][0]['path']
+        external = fixture.root / 'external-review.md'
+        external.write_bytes(review.read_bytes())
+        review.unlink()
+        review.symlink_to(external.resolve())
+        with self.assertRaisesRegex(lr.AdmissionError, 'review origin leaves selected candidate root'):
+            lr.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+
     def test_owned_reader_refusal_fails_its_obligation_only(self):
         fixture = Fixture(self, families=('connected',))
         raw = deepcopy(fixture.raws['connected'])
@@ -666,36 +697,36 @@ class ReaderTests(unittest.TestCase):
         self.assertTrue(reader['details']['reason'].startswith('SOURCE_LOAD_REFERENCE_'))
         self.assertEqual(case['state'], 'failed')
 
-    def test_helper_isolated_and_bound(self):
+    def test_reader_verdict_is_the_runners_and_bound(self):
+        """b7-plan R2: the verdict is the Rust reader's, through `openpipestress-runner read load-reference`; the
+        binding's selected sources are checked before the reader runs, and a foreign identity never reaches it."""
         fixture = Fixture(self, families=('pressure',))
         binding_path = fixture.root / 'binding.json'
         binding_path.write_bytes(dump(fixture.binding))
-        digest = sha256_bytes(binding_path.read_bytes())
-        raw = (RAWS / 'pressure-dense_scrutiny.raw.json').read_bytes()
-        (fixture.root / 'json.py').write_text('raise RuntimeError("shadow json executed")')
-        (fixture.root / 'load_reference_evidence.py').write_text('raise RuntimeError("shadow reader executed")')
-        def helper(isolated=True, source=None, binding_digest=digest, data=raw):
-            command = [sys.executable, *(['-I', '-S'] if isolated else []), str(lr.HELPER), '--source-root', str(source or fixture.candidate),
-                       '--binding', str(binding_path), '--binding-sha256', binding_digest]
-            # Shadow modules sit in PYTHONPATH and the cwd; only the isolated helper must ignore them.
-            env = dict(os.environ, PYTHONPATH=str(fixture.root)) if isolated else {k: v for k, v in os.environ.items() if k != 'PYTHONPATH'}
-            return subprocess.run(command, input=data, cwd=fixture.root, env=env, capture_output=True, timeout=60)
-        result = helper()
-        self.assertEqual(result.returncode, 0, result.stderr)
-        reply = json.loads(result.stdout)
-        self.assertEqual((reply['verdict'], reply['entrypoint'], reply['isolation']['unit_authority_execution']),
-                         ('consistent', lr.ENTRYPOINT, False))
-        self.assertEqual(json.loads(helper(isolated=False).stdout)['verdict'], 'refused')
-        self.assertIn('binding digest mismatch', json.loads(helper(binding_digest='0' * 64).stdout)['reason'])
-        for name in lr.DEPENDENCIES:
+        binding = lr.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+        raw = json.loads((RAWS / 'pressure-dense_scrutiny.raw.json').read_bytes())
+        observed = lr.consistency_observation(raw, binding, fixture.root / 'reader-consistent')
+        self.assertEqual((observed['response']['verdict'], observed['response']['reader']), ('consistent', lr.READER))
+        self.assertEqual(observed['process']['command'][1:], ['read', lr.READER])
+        self.assertEqual(json.loads((fixture.root / 'reader-consistent/stdin.bin').read_bytes()), {'source': raw})
+        self.assertEqual(observed['response']['dependencies'], fixture.binding['files'])
+        for index, name in enumerate(lr.DEPENDENCIES):
             path = fixture.candidate / name
             before = path.read_bytes()
             path.write_bytes(before + b'\n')
-            self.assertIn('dependency digest mismatch', json.loads(helper().stdout)['reason'])
+            with self.assertRaisesRegex(ValueError, 'bound bytes differ'):
+                lr.consistency_observation(raw, binding, fixture.root / f'reader-changed-{index}')
+            self.assertFalse((fixture.root / f'reader-changed-{index}').exists())
             path.write_bytes(before)
-        foreign = json.loads(raw)
+        foreign = deepcopy(raw)
         foreign['producer']['semantic_contract_id'] = 'openpipestress.result_semantics/0.3.0/load-reference-source-1'
-        self.assertEqual(json.loads(helper(data=json.dumps(foreign).encode()).stdout)['verdict'], 'refused')
+        with self.assertRaisesRegex(ValueError, 'dispatch mismatch'):
+            lr.consistency_observation(foreign, binding, fixture.root / 'reader-foreign')
+        broken = deepcopy(raw)
+        broken['contract_evidence']['load_reference_states'][0]['members'][0]['thermal_strain'] += 1e-3
+        refused = lr.consistency_observation(broken, binding, fixture.root / 'reader-refused')
+        self.assertEqual(refused['response']['verdict'], 'refused')
+        self.assertTrue(refused['response']['reason'].startswith('SOURCE_LOAD_REFERENCE_'))
 
 
 class AdmissionTests(unittest.TestCase):
@@ -1016,7 +1047,7 @@ class OutputLimitTests(unittest.TestCase):
             self.assertEqual(lr.gate.strict_json(doc), value)
             self.assertEqual(lr.strict_json_limited(doc + pad, lr.MAX_OUTPUT_LIMIT), value)
 
-    def test_reader_snapshot_bounded_by_selected_limit_before_helper(self):
+    def test_reader_snapshot_bounded_by_selected_limit_before_reading(self):
         raw = raw_for('pressure', 'sparse_interactive')
         with tempfile.TemporaryDirectory() as temp:
             for limit, message in ((1024, 'reader input limit'), (lr.MAX_OUTPUT_LIMIT + 1, 'reader input limit')):
@@ -1024,19 +1055,17 @@ class OutputLimitTests(unittest.TestCase):
                     lr.consistency_observation(raw, {}, Path(temp) / 'never-created', input_limit=limit)
             self.assertFalse((Path(temp) / 'never-created').exists())
 
-    def test_helper_source_limit_is_selected_and_bounded(self):
+    def test_reader_source_limit_is_selected_and_bounded(self):
         fixture = Fixture(self, families=('connected',))
         binding_path = fixture.root / 'binding.json'
         binding_path.write_bytes(dump(fixture.binding))
-        data = json.dumps(inflated(fixture.raws['connected'], 9 * MIB), separators=(',', ':')).encode()
-        def helper(*extra):
-            command = [sys.executable, '-I', '-S', str(lr.HELPER), '--source-root', str(fixture.candidate), '--binding', str(binding_path),
-                       '--binding-sha256', sha256_bytes(binding_path.read_bytes()), *extra]
-            return json.loads(subprocess.run(command, input=data, capture_output=True, timeout=120).stdout)
-        self.assertEqual(helper('--source-limit-bytes', str(16 * MIB))['verdict'], 'consistent')
-        self.assertIn('helper JSON byte limit', helper()['reason'])
-        self.assertIn('helper JSON byte limit', helper('--source-limit-bytes', str(len(data) - 1))['reason'])
-        self.assertIn('invalid source byte limit', helper('--source-limit-bytes', str(lr.MAX_OUTPUT_LIMIT + 1))['reason'])
+        binding = lr.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+        raw = inflated(fixture.raws['connected'], 9 * MIB)
+        size = len(json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':')).encode())
+        self.assertEqual(lr.consistency_observation(raw, binding, fixture.root / 'large', input_limit=16 * MIB)['response']['verdict'], 'consistent')
+        for limit in (lr.LIMIT, size - 1, lr.MAX_OUTPUT_LIMIT + 1):
+            with self.assertRaisesRegex(ValueError, 'reader input limit'):
+                lr.consistency_observation(raw, binding, fixture.root / f'refused-{limit}', input_limit=limit)
 
 
 class PureSemanticsTests(unittest.TestCase):

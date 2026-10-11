@@ -1,11 +1,12 @@
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
-import { sourceContract, isRetainedRoute } from "./numericalResultQuality";
+import { isRetainedRoute } from "./numericalResultQuality";
+import { sourceContract } from "./resultReader";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
-import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
+import { semanticDimension, semanticLabels, type RowLabels } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
@@ -57,19 +58,21 @@ export function ResultsPanel({
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
+  // One reading of the source's row semantics per result, for every row.
+  const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
   const familyCounts = useMemo(
-    () => (result ? countResultFamilies(result.results, result) : EMPTY_RESULT_FAMILY_COUNTS),
-    [result]
+    () => (result && labels ? countResultFamilies(result.results, labels) : EMPTY_RESULT_FAMILY_COUNTS),
+    [result, labels]
   );
   const filteredResults = useMemo(
-    () => (result ? filterResults(result.results, filterText, familyFilter, result) : []),
-    [familyFilter, filterText, result]
+    () => (result && labels ? filterResults(result.results, filterText, familyFilter, labels) : []),
+    [familyFilter, filterText, result, labels]
   );
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
   );
-  const groups = result ? groupResults(page.items, result) : [];
+  const groups = result && labels ? groupResults(page.items, labels) : [];
   // Dispatch once per render; the row labels apply to preview-physics-1 and its successor only.
   const labelSource = useMemo(() => {
     try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
@@ -160,11 +163,11 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {semanticCategory(item, result)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}</td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
-                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: semanticDimension(item, result) ?? "unknown" }} />
+                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" }} />
                           </td>
                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
                             <span>Entered: {item.value} {item.unit}</span>
@@ -485,7 +488,7 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   );
 }
 
-function groupResults(resultItems: MechanicsResult["results"], source: MechanicsResult) {
+function groupResults(resultItems: MechanicsResult["results"], labels: RowLabels) {
   const specs: { title: string; family: ResultFamily }[] = [
     { title: "Displacement", family: "displacement" },
     { title: "Rotation", family: "rotation" },
@@ -500,7 +503,7 @@ function groupResults(resultItems: MechanicsResult["results"], source: Mechanics
   return specs
     .map((spec) => ({
       title: spec.title,
-      items: resultItems.filter((item) => resultFamilyKey(item, source) === spec.family)
+      items: resultItems.filter((item) => resultFamilyKey(item, labels) === spec.family)
     }))
     .filter((group) => group.items.length > 0);
 }
@@ -528,10 +531,10 @@ function paginateResults(resultItems: MechanicsResult["results"], pageIndex: num
   };
 }
 
-function countResultFamilies(resultItems: MechanicsResult["results"], source: MechanicsResult): ResultFamilyCounts {
+function countResultFamilies(resultItems: MechanicsResult["results"], labels: RowLabels): ResultFamilyCounts {
   const counts: ResultFamilyCounts = { ...EMPTY_RESULT_FAMILY_COUNTS, total: resultItems.length };
   for (const item of resultItems) {
-    counts[resultFamilyKey(item, source)] += 1;
+    counts[resultFamilyKey(item, labels)] += 1;
   }
   return counts;
 }
@@ -540,12 +543,12 @@ function filterResults(
   resultItems: MechanicsResult["results"],
   filterText: string,
   familyFilter: ResultFamilyFilter,
-  source: MechanicsResult
+  labels: RowLabels
 ): MechanicsResult["results"] {
   const query = filterText.trim().toLowerCase();
 
   return resultItems.filter((item) => {
-    if (familyFilter !== "all" && resultFamilyKey(item, source) !== familyFilter) return false;
+    if (familyFilter !== "all" && resultFamilyKey(item, labels) !== familyFilter) return false;
     if (!query) return true;
     const searchable = [
       item.id,
@@ -569,8 +572,8 @@ function filterResults(
   });
 }
 
-function resultFamilyKey(result: MechanicsResult["results"][number], source: MechanicsResult): ResultFamily {
-  return semanticFamily(result, source) as ResultFamily;
+function resultFamilyKey(result: MechanicsResult["results"][number], labels: RowLabels): ResultFamily {
+  return labels.family(result) as ResultFamily;
 }
 function SemanticResultQuantity({result,id,fallback}:{result:MechanicsResult|null;id:string;fallback:string}) {
   const row=result?.results.find(x=>x.id===id);

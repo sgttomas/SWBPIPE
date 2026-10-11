@@ -1,9 +1,12 @@
-import { currentSemanticContract, hasCurrentSourceContract, numericalResultStanding, PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
+import { PHYSICS_CONTRACT_ID, PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { currentSemanticContract, hasCurrentSourceContract } from "../results/resultReader";
+import { numericalResultStanding } from "../results/resultStanding";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { useResultsSessionState } from "./resultsSessionState";
@@ -138,7 +141,7 @@ it.each([["physics_source", "physics_source", "n05.request.json"], ["source_bloc
  const prefix = `../../../../../fixtures/product_preview/${folder}/`;
  const mode = "sparse_interactive";
  const request = JSON.parse(retainedSourceFixtures[`${prefix}${requestName}`]);
- const original = JSON.parse(retainedSourceFixtures[`${prefix}n05-${mode}.raw.json`]) as MechanicsResult;
+ const originalText = retainedSourceFixtures[`${prefix}n05-${mode}.raw.json`];
  const model = request.model as PreviewModel;
  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
  // Unit transport replay of the captured producer bytes; not a native UI witness.
@@ -146,7 +149,7 @@ it.each([["physics_source", "physics_source", "n05.request.json"], ["source_bloc
    expect(command).toBe("run_preview_mechanics_with_solver_mode");
    expect(args.solverMode).toBe(mode);
    expect(args.model).toEqual(request.model);
-   return solveBytes(original);
+   return originalText; // the producer's bytes, as captured
  });
  const source = await runPreviewMechanics(model, mode);
  const manifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:retained-source-mode-control",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});

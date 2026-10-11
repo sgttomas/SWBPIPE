@@ -1,5 +1,9 @@
 """Finite exact-profile evidence and source joins; never producer authentication.
 
+Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/physics_evidence.rs`), which
+product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
+this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
+
 The published membrane and effective force values are source observations. This
 reader validates their provenance relationships without reconstructing them from
 rounded neighbouring rows or treating pressure arithmetic as a numerical pass.

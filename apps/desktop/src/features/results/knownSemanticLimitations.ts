@@ -1,8 +1,8 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
-import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
+import { PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import type { MechanicsResult } from "../../types";
@@ -93,6 +93,18 @@ export function retainedRowClassLabel(row: { id?: string; unit?: string }, sourc
 export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
   const binding = currentSemanticContract(source);
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
+}
+
+/** Which notice and reason label a source-blocks-1 statement shows: a qualified case
+ * whose selected method is not the retained exact method carries rows with the retired
+ * precision-1 semantics (T0R, S1 §10; Rust `source_blocks::has_ordinary_qualified_case`).
+ * Text selection only, for any statement of this identity, registered or not; the
+ * standing that follows from it is Rust's (`resultStanding.ts`, with the registered
+ * invocation). It goes with B4/D1 (b). */
+function sourceBlocksOrdinaryCaseLegacy(source: MechanicsResult): boolean {
+  if (source.producer?.semantic_contract_id !== SOURCE_BLOCKS_CONTRACT_ID) return false;
+  const cases = (source.source_block_recovery as { body?: { cases?: unknown } } | undefined)?.body?.cases;
+  return Array.isArray(cases) && cases.some((c: { outcome?: unknown; selected_method?: unknown } | null) => c?.outcome === "qualified" && c.selected_method !== "retained_source_blocks_exact_v1");
 }
 
 function isNonCompositeSourceBlocks(source: MechanicsResult): boolean {

@@ -1,5 +1,9 @@
 """Closed preview-physics-1 reader checks (T0R S1 §9); never producer authentication.
 
+Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/preview_physics_evidence.rs`), which
+product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
+this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
+
 The checks bind the published rows, diagnostics, headlines and the closed
 ``contract_evidence`` statement to one another. They do not recompute the
 solve, the enclosures or the support laws; numerical standing still needs the

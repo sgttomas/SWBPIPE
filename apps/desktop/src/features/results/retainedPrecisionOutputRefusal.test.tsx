@@ -35,7 +35,8 @@ import {
   isLoadReferenceRoute, loadReferenceOutputRefusal, refuseLoadReferenceOutput,
 } from "./loadReferenceOutputAvailability";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
-import { currentSemanticContract, numericalResultStanding } from "./numericalResultQuality";
+import { currentSemanticContract } from "./resultReader";
+import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE } from "./outputPolicy";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";

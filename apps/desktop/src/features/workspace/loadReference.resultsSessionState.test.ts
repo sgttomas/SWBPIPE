@@ -11,8 +11,8 @@ import { resolve } from "node:path";
 import { runPreviewMechanics, buildAnalysisRunPreview, hasNativeMechanicsInvocation } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { runRuleChecks } from "../../services/ruleCheckService";
-import { numericalResultStanding } from "../results/numericalResultQuality";
-import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE } from "../results/loadReferenceSourceEvidence";
+import { numericalResultStanding } from "../results/resultStanding";
+import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE } from "../results/resultStanding";
 import { useResultsSessionState } from "./resultsSessionState";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -22,7 +22,7 @@ const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf
 type Mode = "sparse_interactive" | "dense_scrutiny";
 
 async function solve(rawPath: string, requestPath: string, mode: Mode) {
-  const request = json(requestPath), original = json(rawPath) as MechanicsResult;
+  const request = json(requestPath), originalText = readFileSync(resolve(root, rawPath), "utf8");
   // The committed request model plus the case metadata the desktop session
   // requires (invented labels only; the product reads no physics from them).
   const model = structuredClone(request.model) as PreviewModel;
@@ -32,7 +32,7 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
     if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`unexpected ${command}`);
     expect(args.solverMode).toBe(mode);
     expect(args.model).toEqual(model);
-    return solveBytes(original);
+    return originalText; // the producer's bytes, as captured
   });
   const source = await runPreviewMechanics(model, mode);
   const manifestFor = (m: PreviewModel) => buildCurrentSessionInputManifest({ model: m, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:load-reference-unit-transport-replay", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });

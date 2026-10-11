@@ -3,23 +3,25 @@ import { afterEach, describe, expect, it } from "vitest";
 import { SolvePanel } from "./SolvePanel";
 import { INTEGRITY_CHECKED, NEEDS_RECOMPUTE_NOT_CURRENT } from "./LoadReferenceStatesBlock";
 import { initialSolveJob } from "../workspace/solveJobAudit";
-import { numericalResultStanding } from "../results/numericalResultQuality";
-import { validateLoadReferenceSourceEvidence } from "../results/loadReferenceSourceEvidence";
+import { numericalResultStanding } from "../results/resultStanding";
+import { validateLoadReferenceSourceEvidence } from "../results/resultStanding";
 import { LOAD_REFERENCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
 import type { LoadReferenceContractEvidence, MechanicsResult, PreviewModel } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
+import { receivedFromText } from "../../test-support/receivedText";
 
 // Committed producer raws (fixtures/product_preview/load_reference*/) and the
 // committed sensitive ordinary raw. All values are invented fixture data.
-const raws = import.meta.glob<{ default: unknown }>([
+// Read from their bytes, as the desktop receives a result (b7-plan R2: the readers read received text).
+const raws = import.meta.glob<string>([
   "../../../../../fixtures/product_preview/load_reference/*.json",
   "../../../../../fixtures/product_preview/load_reference_source/*.json",
   "../../../../../core/reporting/result_export/tests/fixtures/load_reference_fallback_uz*.json"
-], { eager: true });
+], { query: "?raw", import: "default", eager: true });
 function fixture(path: string): unknown {
   const key = Object.keys(raws).find(k => k.endsWith(path));
   if (!key) throw new Error(`fixture ${path} not found`);
-  return structuredClone(raws[key].default);
+  return receivedFromText(raws[key]);
 }
 const MODES: PreviewSolverMode[] = ["sparse_interactive", "dense_scrutiny"];
 function pair(dir: string, name: string, mode: PreviewSolverMode) {

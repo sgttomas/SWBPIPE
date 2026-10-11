@@ -3,7 +3,8 @@ import { statusChipInputsFromCells, statusChips, statusChipText } from "./featur
 import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
 import refusedPreviewModel from "../../../fixtures/product_preview/invented_preview_model.json";
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
-import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "./test/nativeMechanicsReplay";
 import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";

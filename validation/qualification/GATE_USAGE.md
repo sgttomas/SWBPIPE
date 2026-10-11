@@ -125,16 +125,21 @@ remains required for that claim. This matters especially while the engine is bei
 integrated. Model/request/mode identity and process capture are necessary evidence,
 not an engineering acceptance certificate.
 
-The ordinary adapter calls the existing owned `validate_physics_evidence`
-function in a fixed Python `-I -S` helper. Its exact module, semantic table and
-unit authority hashes are selected together. The module/table are copied to a
-private snapshot; same-named modules in another checkout or `PYTHONPATH` cannot
-replace them. Only the fixed ordinary entry executes; the unit authority is
-bound read-only, without unit conversion/build/network fallback. Review records
-and finite admission records are also byte-bound and retained. The helper input
-is a derived parsed snapshot, distinct from the original runner stdout bytes.
-Its verdict establishes internal physical consistency only; actual process
-provenance and analytical comparisons remain separate evidence.
+The ordinary adapter takes the owned physics-1 reader's verdict
+(`validate_physics_evidence`) from the Rust product reader, the only product
+reader (b7-plan R2): an explicitly built `openpipestress-runner read physics`
+named by `OPENPIPESTRESS_RUNNER_BIN`, captured as a supervised process. The
+binding (`openpipestress.ordinary_physics_consistency_binding/2`) selects the
+reader's source, semantic table and unit authority by hash; they are checked in
+the candidate before and after each reading and copied to the run's retained
+basis. The reader executable is recorded by digest only; it is not proof of a
+build from those sources. The unit authority is bound read-only, without unit
+conversion/build/network fallback. Review records and finite admission records
+are also byte-bound and retained. The reader input is a derived parsed snapshot,
+distinct from the original runner stdout bytes. Its verdict establishes internal
+physical consistency only; actual process provenance and analytical comparisons
+remain separate evidence. The load-reference-1 adapter takes `read
+load-reference` the same way (binding version 2).
 
 The ten structural checks cover transport/mode, input binding, ordinary contract,
 case/material/section, numerical standing, complete unique scalar coverage,
@@ -162,7 +167,7 @@ The final ledger records the custody observation time and these limits.
 Reports explicitly state `qualification: not_established_by_this_harness`.
 For the ordinary path, final custody observation includes reader dependencies/
 reviews, finite selection records, original selected packet files, derived
-criteria, structural files, and helper input/output streams. A failed reader or
+criteria, structural files, and reader input/output streams. A failed reader or
 malformed structural return cannot remove the predeclared obligations.
 
 ## Verification and remaining integration

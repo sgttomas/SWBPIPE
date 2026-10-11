@@ -1,4 +1,4 @@
-import { sourceContract } from "../results/numericalResultQuality";
+import { sourceContract } from "../results/resultReader";
 import { isFreshSemanticResult, N_P1, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, REPORT_PACKAGE_PRECISION_1_HISTORICAL } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
@@ -14,7 +14,7 @@ import {
   verifyCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence
 } from "../../services/inputManifestService";
-import { resultSemantics, completeSourceMetadata } from "../results/resultSemantics";
+import { semanticLabels } from "../results/resultSemantics";
 
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
@@ -63,8 +63,8 @@ function safeId(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "report-package";
 }
 
-function reportMetadata(item: MechanicsResult["results"][number]) {
-  if (!completeSourceMetadata(item)) return null;
+function reportMetadata(item: MechanicsResult["results"][number], completeMetadata: boolean) {
+  if (!completeMetadata) return null;
   const md = item.metadata!;
   // The unchanged report transport accepts the legacy metadata vocabulary.
   const component = ["axial_force", "shear_force_y", "shear_force_z", "torsional_moment", "bending_moment_y", "bending_moment_z", "nodal_force_x", "nodal_force_y", "nodal_force_z", "nodal_moment_x", "nodal_moment_y", "nodal_moment_z", "axial_normal_stress", "bending_normal_stress_y", "bending_normal_stress_z", "torsional_shear_stress", "pressure_hoop_stress", "pressure_longitudinal_stress", "section_area", "section_modulus_y", "section_modulus_z", "torsion_constant", "torsion_radius", "TBD"];
@@ -141,8 +141,10 @@ export function projectReceivedReportResults(
   );
   const semanticDisclosures: Array<{id:string;reason:string}> = [];
   const groupedResults = new Map<string, MechanicsResult["results"]>();
+  const rows = semanticLabels(analysisRun.schema_version === "0.3.0" ? result : undefined).semantics;
   for (const item of result.results) {
-    const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined); // known unit/component contradictions fail closed
+    const read = rows(item); // known unit/component contradictions fail closed
+    const semantics = read.signature;
     const declared = resultDimensions.get(item.id);
     const expectedSourceDimension = strictAnalysis
       ? semantics?.source_physical_semantic_dimension
@@ -152,7 +154,7 @@ export function projectReceivedReportResults(
       semanticDisclosures.push({id:item.id,reason:semantics?.category ?? "unsupported_source_kind"}); continue;
     }
     const requiredMetadata = ["force","moment","section_property"].includes(semantics.family ?? "");
-    if (requiredMetadata && !reportMetadata(item)) {
+    if (requiredMetadata && !reportMetadata(item, read.complete_metadata)) {
       semanticDisclosures.push({id:item.id,reason:"legacy_report_metadata_unavailable"}); continue;
     }
     const basisKey = `${item.basis_ref?.ref_type ?? "analysis_run"}:${item.basis_ref?.ref_id ?? result.run_id}`;
@@ -165,7 +167,7 @@ export function projectReceivedReportResults(
       set_type: "mechanics",
       basis_ref: reference(basis.ref_type, basis.ref_id),
       values: values.map((item) => {
-        const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined)!;
+        const read = rows(item), semantics = read.signature!;
         const sourceDimension = resultDimensions.get(item.id);
         if (!sourceDimension) {
           throw new Error(
@@ -190,7 +192,7 @@ export function projectReceivedReportResults(
         magnitude: item.value,
         unit: item.unit,
         dimension: semantics.derivative_target_dimension,
-        metadata: reportMetadata(item),
+        metadata: reportMetadata(item, read.complete_metadata),
         diagnostics: [],
         trace_chain: (item.source_result_refs ?? []).map((source, traceIndex) => ({
           trace_id: `trace:${item.id}:${traceIndex + 1}`,

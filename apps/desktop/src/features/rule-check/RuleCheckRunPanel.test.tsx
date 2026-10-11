@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
 import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
-import { numericalResultStanding } from "../results/numericalResultQuality";
+import { numericalResultStanding } from "../results/resultStanding";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import type { MechanicsResult, PreviewModel } from "../../types";
 

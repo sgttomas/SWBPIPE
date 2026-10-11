@@ -13,7 +13,8 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
-import { numericalResultStanding, type SourceContract } from "./numericalResultQuality";
+import { type SourceContract } from "./numericalResultQuality";
+import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import {
   LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES,
@@ -78,11 +79,16 @@ describe("the output policy (T6S-3)", () => {
     expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).not.toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
   });
   it("B3b: an exact successor reads its own reason on every refused surface, and the two panels need eligible standing", () => {
-    // Header dispatch only (no reader run): the milestone relabelled as the exact successor routes to `retained_physics`.
-    const { source, model } = milestone("sparse_interactive");
-    const exact = structuredClone(source) as Json;
-    exact.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-retained-1";
-    exact.formulation_basis.profile_id = "exact_straight_retained_w1a_v2";
+    // R2 (G5): the header dispatch runs the reader's transport checks, so the exact successor's route is read
+    // from lane P's genuine exact successor; the milestone relabelled as it reads unsupported, and the policy
+    // adds no refusal to an unsupported statement (each surface refuses it through its own contract check).
+    const { source } = milestone("sparse_interactive");
+    const relabelled = structuredClone(source) as Json;
+    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+    relabelled.formulation_basis.profile_id = "exact_straight_retained_w1a_v2";
+    expect(loadReferenceOutputRefusal(relabelled)).toBeNull();
+    const genuine = json("fixtures/results/retained_precision_exact_successor_sparse_interactive.json");
+    const exact = genuine.source as Json, model = genuine.invocation.request.model as PreviewModel;
     expect(routeSurfaceDecision("retained_physics", "stress-neutral")).toStrictEqual({ decision: "admitted_when_eligible", reason: RETAINED_PHYSICS_OUTPUT_REFUSAL });
     expect(routeSurfaceDecision("retained_physics", "invented-surface")).toStrictEqual({ decision: "refused", reason: RETAINED_PHYSICS_OUTPUT_REFUSAL });
     expect(loadReferenceOutputRefusal(exact)).toBe(RETAINED_PHYSICS_OUTPUT_REFUSAL);

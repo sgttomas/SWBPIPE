@@ -1,17 +1,15 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
-import { validatePhysicsSourceTransportMetadata } from "../results/physicsSourceRecovery";
-import { sourceBlockReceiptShape } from "../results/sourceBlockRecovery";
-import { validatePhysicsTransportMetadata } from "../results/physicsResultEvidence";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
-import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
-import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
+import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
+import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, ResultReaderError, sourceContract } from "../results/resultReader";
+import { numericalResultStanding } from "../results/resultStanding";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
 import { validateRetainedPrecisionTransport } from "../results/retainedPrecisionReader";
 import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
-import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
+import { semanticFamily, semanticDimension } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
@@ -486,7 +484,7 @@ export function strictWitnessDisposition(source: MechanicsResult["results"][numb
 }
 function ordinaryWitnessDisposition(source: MechanicsResult["results"][number], carrier: MechanicsResult): StrictWitnessInterpretation {
   try {
-    const semantic = hasCurrentSourceContract(carrier) ? analysisRowSemantics(source, carrier).semantic : resultSemantics(source, carrier);
+    const semantic = hasCurrentSourceContract(carrier) ? analysisRowSemantics(source, carrier).semantic : readerRowSemantics(carrier)(source).signature;
     if (!semantic) return { disposition: "unknown_semantic", dimension: null };
     if (semantic.category === "diagnostic_work") return { disposition: "diagnostic_work", dimension: semantic.derivative_target_dimension };
     if (semantic.component !== null && (!source.metadata || typeof source.metadata.component !== "string" || source.metadata.component.length === 0)) {
@@ -1151,12 +1149,16 @@ function semanticTablePath(source: MechanicsResult): string {
 }
 async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
-  if (route === "physics") validatePhysicsTransportMetadata(header.contract_evidence);
-  else if (route === "preview_physics") validatePreviewPhysicsTransportMetadata(header);
-  else if (route === "physics_source") await validatePhysicsSourceTransportMetadata(header);
+  if (route === "physics") readerTransport("physics", header);
+  else if (route === "preview_physics") readerTransport("preview-physics", header);
+  else if (route === "physics_source") readerTransport("physics-source", header);
   else if (route === "source_blocks") {
-    const receipt = header.source_block_recovery as { body: unknown; receipt_sha256: string };
-    if (!sourceBlockReceiptShape(receipt) || receipt.receipt_sha256 !== await canonicalSha256HexCheckedV1({domain:"source_blocks_receipt_v1",payload:receipt.body})) throw new Error("SN-SOURCE-RECEIPT-METADATA");
+    try { readerTransport("source-blocks", header); }
+    catch (error) {
+      // Preserve this package surface's refusal vocabulary over Rust's verdict.
+      if (error instanceof ResultReaderError && error.code === "SOURCE_BLOCKS_RECEIPT_HASH") throw new Error("SN-SOURCE-RECEIPT-METADATA");
+      throw error;
+    }
   }
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.

@@ -1,81 +1,38 @@
-import physicsSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json';
-import contract from '../../../../../fixtures/results/semantic_contract_v0_2.json';
-import sourceBlocksContract from '../../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json';
-import physicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json';
-import precisionContract from '../../../../../fixtures/results/semantic_contract_v0_3_precision_1.json';
-import previewPhysicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json';
-import loadReferenceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json';
-import loadReferenceSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json';
-import previewPhysicsRetainedContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
-import physicsRetainedContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json';
-import { sourceContract } from './numericalResultQuality';
-import type { MechanicsResult } from '../../types';
-export type SourceRow = MechanicsResult['results'][number];
-export type SemanticSignature = (typeof contract.rows)[number] & { source_basis?: string };
-export { contract as resultSemanticContract, previewPhysicsContract as previewPhysicsSemanticContract };
-/** A new-method discriminator only; old table signatures omit this field. */
-export function semanticSourceBasisMatches(signature: { kind: string; source_basis?: string }, row: SourceRow): boolean {
-  return !("source_basis" in signature) || signature.source_basis === row.metadata?.basis;
-}
-export function semanticContractForSource(source?: MechanicsResult) {
-  if (!source || sourceContract(source) === 'legacy') return contract;
-  if (sourceContract(source) === 'precision') return precisionContract;
-  if (sourceContract(source) === 'physics') return physicsContract;
-  if (sourceContract(source) === 'physics_source') return physicsSourceContract;
-  if (sourceContract(source) === 'source_blocks') return sourceBlocksContract;
-  // First variant in table order whose source_basis is absent or equals metadata.basis (S1 §1).
-  if (sourceContract(source) === 'preview_physics') return previewPhysicsContract;
-  // T1: each load/reference-state identity reads its own pinned table (rows
-  // equal to physics-1 and physics-source-1 respectively).
-  if (sourceContract(source) === 'load_reference') return loadReferenceContract;
-  if (sourceContract(source) === 'load_reference_source') return loadReferenceSourceContract;
-  // U6d: the successor reads its own pinned table, whose rows equal preview-physics-1's
-  // (the reader's G0 binds these bytes by sha256).
-  if (sourceContract(source) === 'retained_preview_physics') return previewPhysicsRetainedContract;
-  // B3b: the exact successor reads XTABLE, whose rows equal physics-1's (the reader's G0
-  // binds these bytes by sha256).
-  if (sourceContract(source) === 'retained_physics') return physicsRetainedContract;
-  throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
-}
-export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {
-  const known = semanticContractForSource(source).rows.filter(s => s.kind === row.kind);
-  if (!known.length) return null;
-  const units = known.filter(s => s.unit === row.unit);
-  if (!units.length) throw new Error(`SOURCE_UNIT_CONTRADICTION: ${row.kind}`);
-  const observedComponent = row.metadata?.component;
-  const component = typeof observedComponent === "string" && observedComponent.length > 0 ? observedComponent : undefined;
-  const variants = units.filter(s => s.component === null || s.component === component);
-  const exact = variants.find(s => semanticSourceBasisMatches(s, row));
-  if (exact) return exact;
-  if (variants.length) throw new Error(`SOURCE_BASIS_CONTRADICTION: ${row.kind}`);
-  if (component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind}`);
-  return units[0]; // incomplete disclosure only; never a guessed physical variant
+/** Row labels over the Rust reader's row semantics (`resultReader.ts`,
+ * `reader_verdict::row_semantics`): a row's family, dimension and category as the
+ * desktop shows them. R2 (b7-plan Unit R): the signature comes from the Rust reader of
+ * the source's table; nothing here reads a table. */
+import { readerRowSemantics, type RowSemantics } from "./resultReader";
+import type { MechanicsResult } from "../../types";
+export type SourceRow = MechanicsResult["results"][number];
+export type RowLabels = Readonly<{
+  /** The row's semantics; throws the reader's refusal (an unsupported source or a contradictory row). */
+  semantics: (row: SourceRow) => RowSemantics;
+  /** A physical quantity's family, else `other`. */
+  family: (row: SourceRow) => string;
+  /** The derivative target dimension, or null. */
+  dimension: (row: SourceRow) => string | null;
+  /** The table category; `unknown` without a signature, `integrity_failure` when refused. */
+  category: (row: SourceRow) => string;
+}>;
+/** The labels of one source's rows (the legacy table without a source). Read every row
+ * of a source through one call. */
+export function semanticLabels(source?: MechanicsResult | null): RowLabels {
+  const semantics = readerRowSemantics(source);
+  const signature = (row: SourceRow) => semantics(row).signature;
+  return {
+    semantics,
+    family: row => { try { const s = signature(row); return s?.category === "physical_quantity" ? s.family ?? "other" : "other"; } catch { return "other"; } },
+    dimension: row => { try { return signature(row)?.derivative_target_dimension ?? null; } catch { return null; } },
+    category: row => { try { return signature(row)?.category ?? "unknown"; } catch { return "integrity_failure"; } },
+  };
 }
 export function semanticFamily(row: SourceRow, source?: MechanicsResult): string {
-  try { const s = resultSemantics(row, source); return s?.category === 'physical_quantity' ? s.family ?? 'other' : 'other'; }
-  catch { return 'other'; }
+  return semanticLabels(source).family(row);
 }
 export function semanticDimension(row: SourceRow, source?: MechanicsResult): string | null {
-  try { return resultSemantics(row, source)?.derivative_target_dimension ?? null; }
-  catch { return null; }
+  return semanticLabels(source).dimension(row);
 }
 export function semanticCategory(row: SourceRow, source?: MechanicsResult): string {
-  try { return resultSemantics(row, source)?.category ?? 'unknown'; } catch { return 'integrity_failure'; }
-}
-export function completeSourceMetadata(row: SourceRow): boolean {
-  return ['component','coordinate_system','location','basis','sign_convention'].every(k => {
-    const v = (row.metadata as unknown as Record<string, unknown> | null)?.[k];
-    return typeof v === 'string' && v.length > 0;
-  });
-}
-export function canonicalResultMetadata(row: SourceRow, source?: MechanicsResult): Record<string,string> | null {
-  if (!completeSourceMetadata(row)) return null;
-  const projection: Record<string,string> = {};
-  for (const [key, rule] of Object.entries(semanticContractForSource(source).canonical_metadata_vocabulary)) {
-    const value = (row.metadata as unknown as Record<string,string>)[key];
-    const allowed = (rule as {enum?: string[]}).enum;
-    if (allowed && !allowed.includes(value)) return null;
-    projection[key] = value;
-  }
-  return projection;
+  return semanticLabels(source).category(row);
 }

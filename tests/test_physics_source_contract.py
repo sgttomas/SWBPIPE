@@ -4,9 +4,9 @@ from pathlib import Path
 import hashlib
 import json
 import pytest
-from core.analysis_runs import physics_source as composite
-from core.analysis_runs.physics_evidence import validate_physics_evidence, validate_transport_metadata as physics_transport
-from core.analysis_runs.source_blocks import validate_source_blocks, domain_hash, _signature
+from tests.verifiers import physics_source as composite
+from tests.verifiers.physics_evidence import validate_physics_evidence, validate_transport_metadata as physics_transport
+from tests.verifiers.source_blocks import validate_source_blocks, domain_hash, _signature
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/product_preview/physics_source"

@@ -24,6 +24,8 @@ mod boundary_association;
 mod display_units;
 mod geometry_operations;
 mod rich_authoring;
+mod retained_semantics_binding;
+pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
 mod pressure_authoring;
 mod section_bindings;
@@ -902,6 +904,54 @@ pub fn retained_precision_transport_outcome_json(source_json: &str) -> Result<St
     Ok(rp::outcome_json(&rp::validate_transport_metadata(&source)).to_string())
 }
 
+/// b7-plan R2: the base-route readers' verdicts (`result_export::reader_verdict`)
+/// over JSON text, through `wasm_api` for the desktop. An absent or `null`
+/// model or invocation reads as absent.
+fn optional_reader_input(label: &str, text: Option<&str>) -> Result<Option<Value>, String> {
+    Ok(text
+        .map(|text| parse_reader_input(label, text))
+        .transpose()?
+        .filter(|value| !value.is_null()))
+}
+/// The dispatch entry: route, table binding, header refusal and standing.
+pub fn reader_dispatch_json(
+    source_json: &str,
+    model_json: Option<&str>,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let source = parse_reader_input("source", source_json)?;
+    let model = optional_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    Ok(rv::dispatch(&source, model.as_ref(), invocation.as_ref()).to_string())
+}
+/// One named reader's raw validation (`reader_verdict::READERS`).
+pub fn reader_validate_json(
+    reader: &str,
+    source_json: &str,
+    model_json: Option<&str>,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let source = parse_reader_input("source", source_json)?;
+    let model = optional_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    Ok(rv::validate(reader, &source, model.as_ref(), invocation.as_ref()).to_string())
+}
+/// One named reader's transport checks.
+pub fn reader_transport_json(reader: &str, source_json: &str) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let source = parse_reader_input("source", source_json)?;
+    Ok(rv::transport(reader, &source).to_string())
+}
+/// One row's semantics under its source's table (the legacy table without one).
+pub fn reader_row_semantics_json(row_json: &str, source_json: Option<&str>) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let row = parse_reader_input("row", row_json)?;
+    let source = optional_reader_input("source", source_json)?;
+    Ok(rv::row_semantics(&row, source.as_ref()).to_string())
+}
+
 fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
     serde_json::from_str(text).map_err(|error| {
         format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON: {error}")
@@ -1103,6 +1153,51 @@ mod wasm_api {
     #[wasm_bindgen]
     pub fn validate_retained_precision_transport_json(source_json: &str) -> Result<String, JsError> {
         super::retained_precision_transport_outcome_json(source_json)
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: standing and classification over the registration's accepted verdict.
+    #[wasm_bindgen]
+    pub fn retained_precision_semantics_json(
+        source_json: &str, validation_json: &str, requested_json: &str,
+    ) -> Result<String, JsError> {
+        super::retained_precision_semantics_json(source_json, validation_json, requested_json)
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: the base readers' dispatch verdict (route, binding, refusal, standing).
+    #[wasm_bindgen]
+    pub fn reader_dispatch_json(
+        source_json: &str,
+        model_json: Option<String>,
+        invocation_json: Option<String>,
+    ) -> Result<String, JsError> {
+        super::reader_dispatch_json(source_json, model_json.as_deref(), invocation_json.as_deref())
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: one named base reader's raw validation.
+    #[wasm_bindgen]
+    pub fn reader_validate_json(
+        reader: &str,
+        source_json: &str,
+        model_json: Option<String>,
+        invocation_json: Option<String>,
+    ) -> Result<String, JsError> {
+        super::reader_validate_json(reader, source_json, model_json.as_deref(), invocation_json.as_deref())
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: one named base reader's transport checks.
+    #[wasm_bindgen]
+    pub fn reader_transport_json(reader: &str, source_json: &str) -> Result<String, JsError> {
+        super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+    }
+
+    /// R2: one result row's semantics under its source's table.
+    #[wasm_bindgen]
+    pub fn reader_row_semantics_json(row_json: &str, source_json: Option<String>) -> Result<String, JsError> {
+        super::reader_row_semantics_json(row_json, source_json.as_deref())
             .map_err(|error| JsError::new(&error))
     }
 }

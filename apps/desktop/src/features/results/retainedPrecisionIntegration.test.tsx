@@ -8,8 +8,8 @@
  *
  * Since U7 (D-U7-5) the reader's eligibility is on: the unedited successor with
  * its captured invocation reads `numerically_eligible` through the real reader.
- * The pure seams (`retainedStandingFrom`, `classificationSummaryFrom`) are
- * exercised directly. A test-only wrapper of the accepted reader has two uses:
+ * The transport seams (`retainedStandingFrom`, `classificationSummaryFrom`)
+ * exercise Rust's semantic helpers through wasm. A test-only wrapper of the accepted reader has two uses:
  * `u7.simulate` marks one row `not_covered` (no available statement has one;
  * U6a F3) or reclassifies the absolute rows, to reach the summary branches; and
  * `u7.held` returns the reader's validation as it was before U7 (never eligible,
@@ -17,7 +17,7 @@
  * and gates' not-eligible branches stay exercised. With both false the wrapper
  * returns the reader's own frozen result unchanged.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createHash } from "node:crypto";
@@ -66,11 +66,10 @@ vi.mock("../result-export/resultExportAdapter", async (importOriginal) => {
 import type { LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
 // Import order matters for the wrapper above: the carriers load first, so their
 // import of the reader resolves to the wrapped module, not through the cycle.
-import {
-  PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, PREVIEW_PHYSICS_RETAINED_PROFILE,
-  RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, currentSemanticContract, hasCurrentSourceContract, numericalResultStanding,
-  RETAINED_STANDING_STATUS, ordinaryCaseEligible, retainedPrecisionDowngrade, sourceContract, sourceContractTransport, sourceSemanticBinding,
-} from "./numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, RETAINED_STANDING_STATUS } from "./numericalResultQuality";
+import { PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { currentSemanticContract, hasCurrentSourceContract, readerDispatch, readerRowSemantics, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "./resultReader";
+import { numericalResultStanding } from "./resultStanding";
 import { validateRetainedPrecision, validateRetainedPrecisionTransport } from "./retainedPrecisionReader";
 import { RETAINED_METHOD, decodeBinary64, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import {
@@ -81,7 +80,8 @@ import {
   FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_RP_ABSOLUTE, N_RP_NOT_COVERED, N_RP_UNVALIDATED, N_SB, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED,
   classBindingRefusal, isFreshSemanticResult, knownSemanticNotices, resultRowLabel, retainedAbsoluteNotice, ruleBindingRefusal, standingReason, upwardBoundText,
 } from "./knownSemanticLimitations";
-import { semanticContractForSource, previewPhysicsSemanticContract } from "./resultSemantics";
+import previewPhysicsSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
+import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
 import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, type PreviewSolverMode } from "../../services/previewService";
@@ -236,14 +236,17 @@ describe("the inputs and the pinned identity", () => {
   });
   it("dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's", () => {
     expect(PREVIEW_PHYSICS_RETAINED_CONTRACT_ID).toBe(RETAINED_PRECISION_ID);
-    expect(PREVIEW_PHYSICS_RETAINED_PROFILE).toBe(RETAINED_PRECISION_PROFILE);
+    expect(milestone("sparse_interactive").source.formulation_basis!.profile_id).toBe(RETAINED_PRECISION_PROFILE);
     expect(RETAINED_METHOD).toBe(rustConstant("METHOD"));
     const bytes = readFileSync(resolve(root, "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"));
     expect(sha256(bytes)).toBe(PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256);
     const { source } = milestone("sparse_interactive");
-    const table = semanticContractForSource(source) as Json;
+    const table = previewPhysicsRetainedSemanticContract as Json;
     expect(table.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
     expect(table.rows).toStrictEqual(previewPhysicsSemanticContract.rows);
+    // The Rust reader reads the successor's rows by this table.
+    const rows = readerRowSemantics(source);
+    for (const row of source.results) { const signature = rows(row).signature; if (signature) expect(table.rows).toContainEqual(signature); }
     expect(sourceSemanticBinding(source)).toStrictEqual({ id: RETAINED_PRECISION_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 });
     expect(FRESH_SEMANTIC_CONTRACT_IDS).toContain(RETAINED_PRECISION_ID);
   });
@@ -338,7 +341,6 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
   it.each([
     ["an edited covered row", (s: Json) => { s.results[0].value = 12345; }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
     ["a hash-consistent-looking quality claim of checks_passed", (s: Json) => { s.numerical_quality.status = "checks_passed"; s.numerical_quality.cases[0].solve_quality = "checks_passed"; }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
-    ["an altered receipt", (s: Json) => { s.retained_precision.body.receipt_version = 1; s.retained_precision.receipt_sha256 = "f".repeat(64); }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
   ] as const)("a delivery with %s records the reader's first code: unsupported, never registered natively", async (_label, edit, code) => {
     const { source, model } = milestone(mode);
     const edited = structuredClone(source); edit(edited);
@@ -350,14 +352,29 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     expect(retainedRowClasses(received)).toBeNull();
   });
 
+  // R2 (G5): the header dispatch runs the reader's transport checks, so a delivery whose receipt the transport
+  // checks refuse reads unsupported (its standing is Rust's, SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED); the
+  // reader's refusal is still recorded and no native registration follows (TS: the header admitted it and
+  // the standing showed the reader's code; both refuse).
+  it("a delivery with an altered receipt reads unsupported at the header, records the reader's code, never registered natively", async () => {
+    const { source, model } = milestone(mode);
+    const edited = structuredClone(source) as Json; edited.retained_precision.body.receipt_version = 1; edited.retained_precision.receipt_sha256 = "f".repeat(64);
+    const received = await deliverDirect(edited, model, mode);
+    expect(readerDispatch(received)).toMatchObject({ ok: false, route: "unsupported", error: { code: "RETAINED_PRECISION_RECEIPT_MISMATCH" } });
+    expect(retainedPrecisionRegistration(received)).toStrictEqual({ validation: null, error: "RETAINED_PRECISION_RECEIPT_MISMATCH" });
+    expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "unsupported", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"] });
+    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
+    expect(retainedRowClasses(received)).toBeNull();
+  });
+
   it("numerical_quality never contributes, even with the post-U7 reader and a fully passing ordinary claim", async () => {
     u7.simulate = true;
     const { source, model } = milestone(mode);
     const claimed = structuredClone(source) as Json;
     claimed.numerical_quality.status = "checks_passed";
     claimed.numerical_quality.cases[0].solve_quality = "checks_passed";
-    // The generic branch would accept this ordinary claim; the successor branch refuses it at G1.
-    expect(claimed.numerical_quality.cases.every((c: Json) => ordinaryCaseEligible(c, new Set([...claimed.results, ...claimed.diagnostics].map((x: Json) => x.id))))).toBe(true);
+    // The ordinary claim would pass the generic checks; the successor's reader refuses it at G1.
     const received = await deliverDirect(claimed, model, mode);
     expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"] });
   });
@@ -412,7 +429,8 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
 describe("the post-U7 standing rules (seams, independent of the reader's flag)", () => {
   const { source } = milestone("sparse_interactive");
   const requested = [{ ref_type: "load_case", ref_id: "case" }];
-  const bound = { invocation_bound: true, numerical_eligible: true };
+  let bound: RetainedPrecisionValidation;
+  beforeAll(async () => { bound = { ...await validateRetainedPrecision(source), invocation_bound: true, numerical_eligible: true }; });
   /** A two-case statement: the milestone's selected case plus a not_required one. */
   function twoCase(edit?: (s: Json) => void): MechanicsResult {
     const s = structuredClone(source) as Json;
@@ -451,7 +469,7 @@ describe("the post-U7 standing rules (seams, independent of the reader's flag)",
     expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 97 }]);
     const current = classificationSummaryFrom({ ...validation, invocation_bound: true, numerical_eligible: true }, source, requested);
     expect(current[0].withheld).toBe(69);
-    const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered" } : row) };
+    const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered", scale_bits: null, bound_bits: null } : row) };
     expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 1, withheld: 69 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
     // Rows count only toward their own case.
     const split: RetainedPrecisionValidation = { ...validation, classifications: validation.classifications.map((row, i) => i < 10 ? { ...row, basis_ref: { ref_type: "load_case", ref_id: "second" } } : row) };
@@ -707,8 +725,9 @@ describe("the declared differences, with TypeScript's expectations", () => {
       // The token is compared; TS's status follows the pinned mapping (RV92 N-8).
       expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: RETAINED_STANDING_STATUS[expected.standing as keyof typeof RETAINED_STANDING_STATUS], eligible: false, findings: [expected.finding] });
     } else if (form.subject === "transport") {
-      // TS's carrier transport route (RV88 and RV92 N-1).
-      expect(await sourceContractTransport(received).then(() => "ok", (error: Error) => error.message)).toBe(expected.transport);
+      // The header dispatch's transport reading (G5; RV88 and RV92 N-1).
+      const dispatch = readerDispatch(received);
+      expect(dispatch.ok ? "ok" : dispatch.error!.code).toBe(expected.transport);
     } else if (form.subject === "summary") {
       if (expected.summary === "empty") expect(classificationSummary(received, model)).toStrictEqual([]);
       else {
@@ -771,7 +790,7 @@ describe("the declared differences, with TypeScript's expectations", () => {
 // with Rust's code (RV92's 10 probes: these five forms in both modes; the
 // no-invocation twin is the same bytes, since transport reads no invocation).
 describe.each(MODES)("%s: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1)", (mode) => {
-  const transport = (s: MechanicsResult) => sourceContractTransport(s).then(route => `ok:${route}`, (error: Error) => error.message);
+  const transport = (s: MechanicsResult) => { const d = readerDispatch(s); return d.ok ? `ok:${d.route}` : d.error!.code; };
   const zeroHash = (s: Json) => { s.retained_precision.receipt_sha256 = "0".repeat(64); };
   const headerOnly = (s: Json) => { delete s.results; };
   it.each([
@@ -782,32 +801,33 @@ describe.each(MODES)("%s: the carrier transport route runs the reader's transpor
     ["transport_no_results_receipt_zero", (s: Json) => { headerOnly(s); zeroHash(s); }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
   ] as const)("%s is refused with Rust's code", async (_label, edit, code) => {
     const s = structuredClone(milestone(mode).source) as Json; edit(s);
-    // The header route alone admits it; the transport route does not.
-    expect(sourceContract(s)).toBe("retained_preview_physics");
-    expect(await transport(s)).toBe(code);
+    // The header dispatch runs the reader's transport checks (G5), so the route is refused with the reader's code.
+    expect(transport(s)).toBe(code);
+    expect(sourceContract(s)).toBe("unsupported");
   });
   it("an untampered transport passes, with or without raw rows, and is never eligible", async () => {
     const { source } = milestone(mode);
-    expect(await transport(structuredClone(source))).toBe("ok:retained_preview_physics");
+    expect(transport(structuredClone(source))).toBe("ok:retained_preview_physics");
     const header = structuredClone(source) as Json; headerOnly(header);
-    expect(await transport(header)).toBe("ok:retained_preview_physics");
+    expect(transport(header)).toBe("ok:retained_preview_physics");
     expect((await validateRetainedPrecisionTransport(header)).numerical_eligible).toBe(false);
   });
   it("a receipt-consistent but base-inconsistent transport is refused at the reader's G7", async () => {
     const s = structuredClone(milestone(mode).source) as Json; s.contract_evidence.combination_gates = "not-an-array";
-    expect(sourceContract(s)).toBe("retained_preview_physics");
-    const error = await sourceContractTransport(s).then(() => null, (e: Json) => e);
+    expect(sourceContract(s)).toBe("unsupported");
+    const error = await validateRetainedPrecisionTransport(s).then(() => null, (e: Json) => e);
     expect(error?.gate).toBe("G7");
+    expect(readerDispatch(s).error?.code).toBe(error?.code);
   });
 });
 describe("the carrier transport route on other identities is the header route", () => {
   it("resolves each existing route, and refuses an unsupported or downgraded header with its standing code", async () => {
     const legacy = sharedFixture("legacy_preview_0_1").source, preview = sharedFixture("preview_physics_1_invented_sparse").source, blocks = sharedFixture("source_blocks_n05_sparse").source;
-    expect(await sourceContractTransport(structuredClone(legacy))).toBe("legacy");
-    expect(await sourceContractTransport(structuredClone(preview))).toBe("preview_physics");
-    expect(await sourceContractTransport(structuredClone(blocks))).toBe("source_blocks");
-    await expect(sourceContractTransport({ ...structuredClone(preview), retained_precision: null } as MechanicsResult)).rejects.toThrow(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
-    await expect(sourceContractTransport({ ...structuredClone(preview), carrier_evidence: {} } as MechanicsResult)).rejects.toThrow("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
+    expect(readerDispatch(structuredClone(legacy)).route).toBe("legacy");
+    expect(readerDispatch(structuredClone(preview)).route).toBe("preview_physics");
+    expect(readerDispatch(structuredClone(blocks)).route).toBe("source_blocks");
+    expect(readerDispatch({ ...structuredClone(preview), retained_precision: null } as MechanicsResult)).toMatchObject({ route: "unsupported", error: { code: RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } });
+    expect(readerDispatch({ ...structuredClone(preview), carrier_evidence: {} } as MechanicsResult)).toMatchObject({ route: "unsupported", error: { code: "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" } });
   });
 });
 

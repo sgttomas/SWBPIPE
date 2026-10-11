@@ -3,9 +3,14 @@ import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import { validatePhysicsEvidence } from "../results/physicsResultEvidence";
-import { numericalResultStanding, sourceContract, sourceSemanticBinding, PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
-import { resultSemantics, canonicalResultMetadata } from "../results/resultSemantics";
+import { readerValidate } from "../results/resultReader";
+import { PHYSICS_CONTRACT_ID, PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { sourceContract, sourceSemanticBinding } from "../results/resultReader";
+import { numericalResultStanding } from "../results/resultStanding";
+import { readerRowSemantics } from "../results/resultReader";
+const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
+const canonicalResultMetadata = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).canonical_metadata;
 import { buildAnalysisRunV03, validateAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { deriveResultDocument, validateResultDocument, buildCurrentResultExport, resultDigest, ref, derivativeProvenance } from "./resultExportAdapter";
@@ -39,7 +44,7 @@ describe("actual joined physics-1 source consumers", () => {
     const source = raw(mode), before = JSON.stringify(source);
     expect(sourceContract(source)).toBe("physics");
     expect(sourceSemanticBinding(source)).toEqual({ id: PHYSICS_CONTRACT_ID, sha256: PHYSICS_CONTRACT_SHA256 });
-    expect(() => validatePhysicsEvidence(source, model())).not.toThrow();
+    expect(() => readerValidate("physics", source, model())).not.toThrow();
     expect(numericalResultStanding(source, model()).eligible).toBe(true);
     for (const row of source.results.filter(r => r.kind.endsWith("_v2"))) {
       expect(resultSemantics(row, source)?.category).toBe("physical_quantity");
@@ -91,16 +96,17 @@ describe("actual joined physics-1 source consumers", () => {
     ["misdimensioned reaction", (s: MechanicsResult) => { s.results.find(r => r.kind === "support_reaction_component_v2" && r.metadata?.component === "Mx")!.unit = "N"; }],
   ] as const)("rejects %s", (_, mutate) => {
     const source = raw(); mutate(source);
-    expect(() => validatePhysicsEvidence(source, model())).toThrow();
+    expect(() => readerValidate("physics", source, model())).toThrow();
     expect(numericalResultStanding(source, model()).eligible).toBe(false);
   });
   it("withholds a headline for incomplete extrema but retains valid signed rows", () => {
     const source = raw(), c = evidence(source).exact_cases[1], id = c.pipe_stress_extrema[0].result_id;
     c.stress_maximum_coverage = { complete: false, unavailable_pipe_ids: [c.pipe_materials[0].pipe_id] }; c.pipe_stress_extrema = [];
     source.results = source.results.filter(r => r.id !== id);
-    expect(() => validatePhysicsEvidence(source)).toThrow("INCOMPLETE_MAXIMUM_HEADLINE");
+    // R2: the Rust reader's code (TS: INCOMPLETE_MAXIMUM_HEADLINE).
+    expect(() => readerValidate("physics", source)).toThrow("SOURCE_PHYSICS_INCOMPLETE_STRESS_HEADLINE");
     source.summary.max_open_formula_stress = null;
-    expect(() => validatePhysicsEvidence(source)).not.toThrow();
+    expect(() => readerValidate("physics", source)).not.toThrow();
   });
   it("keeps Sensitive evidence inspectable without promoting its accuracy claim", () => {
     const source = raw(); source.numerical_quality!.status = "sensitive"; source.numerical_quality!.cases[0].solve_quality = "sensitive"; source.numerical_quality!.cases[0].accuracy_evidence = "reference_verified";

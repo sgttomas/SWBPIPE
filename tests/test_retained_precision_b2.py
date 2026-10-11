@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from tests.verifiers import retained_precision as rp
-from core.analysis_runs import preview_physics_evidence as ppe
+from tests.verifiers import preview_physics_evidence as ppe
 from test_retained_precision_contract import _rehash_ref, apply_mutation
 
 ROOT = Path(__file__).resolve().parents[1]

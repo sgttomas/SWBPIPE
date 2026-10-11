@@ -9,7 +9,7 @@ from pathlib import Path
 import unittest
 
 from core.analysis_runs.compatibility import numerical_use_standing, _source_contract
-from core.analysis_runs.source_blocks import (
+from tests.verifiers.source_blocks import (
     CONTRACT_ID, CONTRACT_SHA256, CONTRACT_PATH, validate_source_blocks,
     validate_receipt_shape, domain_hash, _derived, NORM_INPUT_RELATIVE_LIMIT, STRESS_INPUT_RELATIVE_LIMIT, STRESS_ACTION_KINDS, STRESS_LOCATIONS,
 )

@@ -4,7 +4,8 @@ vi.mock("@tauri-apps/api/core",()=>({invoke:vi.fn()}));
 import { buildAnalysisRunV02, modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
 import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
-import {resultSemantics} from '../results/resultSemantics';
+import {readerRowSemantics} from '../results/resultReader';
+const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 import {afterEach,it,expect,vi} from 'vitest';
 import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
@@ -22,7 +23,7 @@ import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/n
 import {buildAnalysisRunV03,sourceBasisReference} from '../../services/analysisRunCompatibility';
 import {checkedJsonText} from '../../services/hashService';
 import {registerRetainedPrecision} from '../results/retainedPrecisionStanding';
-import {numericalResultStanding as successorStanding} from '../results/numericalResultQuality';
+import { numericalResultStanding as successorStanding } from '../results/resultStanding';
 import {validateRetainedPrecision} from '../results/retainedPrecisionReader';
 import {retainedClassDisclosure} from '../results/retainedPrecisionDisclosure';
 import combinationSuccessorSparse from '../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json';
@@ -443,3 +444,10 @@ it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 
  for(const c of classes.filter(c=>c.class==='non_quantity'))expect(packet.diagnostics.some((d:any)=>d.source?.ref===c.result_id&&String(d.code).includes('RETAINED-PRECISION'))).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
 },60_000);
+
+it('preserves the stress-neutral source-blocks receipt refusal over the Rust transport reader',async()=>{
+ const source=JSON.parse(readFileSync(path.resolve(__dirname,'../../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json'),'utf8'));
+ const packet={schema_version:'0.3.0',producer:source.producer,numerical_quality:source.numerical_quality,formulation_basis:source.formulation_basis,source_block_recovery:source.source_block_recovery,export_profile:{csv_encoding:'utf-8',csv_row_order:'unicode_scalar_value_result_id'}};
+ packet.source_block_recovery.receipt_sha256='0'.repeat(64);
+ await expect(validateStressNeutralExportPacket(packet)).rejects.toThrow('SN-SOURCE-RECEIPT-METADATA');
+});

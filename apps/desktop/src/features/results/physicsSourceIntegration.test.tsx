@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -11,14 +10,15 @@ import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocat
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
-import { physicsSourceModeMatches } from "./physicsSourceRecovery";
+import { sourceRecoveryModeMatches as physicsSourceModeMatches } from "./resultStanding";
 import { buildCurrentResultExport, validateResultDocument } from "../result-export/resultExportAdapter";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, validateStressNeutralCsv } from "../stress-neutral/StressNeutralExportPanel";
 import { canonicalJsonCheckedV1, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildReportPackageRequest } from "../report/reportPackageRequest";
-import { numericalResultStanding } from "./numericalResultQuality";
+import { numericalResultStanding } from "./resultStanding";
 import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
-import { resultSemantics } from './resultSemantics';
+import { readerRowSemantics } from './resultReader';
+const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 
 // Test isolation (T0R S5): a case that times out keeps running in the background.
 // Teardown advances the case generation, unmounts every session hook it created,
@@ -53,7 +53,7 @@ async function received(name: string, mode: string, generation = caseGeneration)
     expect(command).toBe("run_preview_mechanics_with_solver_mode");
     expect(args.solverMode).toBe(mode);
     expect(isDeepStrictEqual({ model: args.model, materials: [] }, request)).toBe(true);
-    return solveBytes(original);
+    return sourceText; // the producer's bytes, as captured
   });
   const source = await runPreviewMechanics(model, mode as "sparse_interactive" | "dense_scrutiny");
   const inputManifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"unit-transport-replay-not-native-witness",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
@@ -88,7 +88,7 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
     }
     if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${generation}:${name}:${started.length}`) {
-      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: solveBytes(original), error_message: null };
+      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: sourceText, error_message: null };
     }
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });

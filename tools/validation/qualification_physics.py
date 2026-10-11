@@ -1,7 +1,9 @@
 """Closed ordinary physics-1 adapter support; physical consistency is not origin.
 
-The final reviewed candidate binding is supplied explicitly. No same-named
-module import, build, network, unit conversion or older-profile fallback occurs.
+The final reviewed candidate binding is supplied explicitly. Its physical-consistency
+verdict is the Rust product reader's (b7-plan R2: Rust is the only product reader),
+taken from the explicitly built `openpipestress-runner read physics` named by
+OPENPIPESTRESS_RUNNER_BIN. No build, network, unit conversion or older-profile fallback occurs.
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -9,24 +11,32 @@ import json
 from pathlib import Path
 import sys
 
+PROJECT = Path(__file__).resolve().parents[2]
+if str(PROJECT) not in sys.path:
+    sys.path.insert(0, str(PROJECT))
 try:
     from .qualification_process import capture, file_sha256, sha256_bytes
 except ImportError:
     from qualification_process import capture, file_sha256, sha256_bytes
+from core.analysis_runs import rust_reader
 
 TRANSPORT = 'ordinary_physics_1_cli_1.0_raw0.2'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/physics-1'
 PROFILE = 'exact_straight_pressure_v2'
 TABLE = 'fixtures/results/semantic_contract_v0_3_physics_1.json'
-MODULE = 'core/analysis_runs/physics_evidence.py'
+# b7-plan R2: the owned reader is Rust's physics-1 reader (`validate_physics_evidence`); the binding
+# selects its source with the table and unit authority. Re-pin deliberately whenever the reader changes.
+MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 TABLE_SHA256 = '9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc'
 DEPENDENCIES = {
-    MODULE: '7b9673f25d4bdbd2615c2d42bde6b78fd99bddec3e6c28a5289b593739fe6a70',
+    MODULE: '899f9ba28ad3adb07720674cf9ae6bd6157dd260bf48d3651b34d9b678853a57',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
-HELPER = Path(__file__).with_name('qualification_physics_helper.py')
+# Version 2: the files name the Rust reader's source (version 1 named the former Python reader).
+BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/2'
+READER = 'physics'
 LIMIT = 8 * 1024 * 1024
 REFERENCE_BASIS_SHA256 = 'be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9'
 SECTION_CRITERIA_SHA256 = '1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2'
@@ -168,7 +178,7 @@ def load_binding(source_root: Path, binding_path: Path, expected_sha256: str,
                  *, require_reviewed: bool = True) -> dict:
     data = bounded(binding_path, expected_sha256)
     binding = json.loads(data)
-    require(binding.get('format') == 'openpipestress.ordinary_physics_consistency_binding/1'
+    require(binding.get('format') == BINDING_FORMAT
             and binding.get('contract_id') == CONTRACT, 'unsupported binding identity')
     require(binding.get('entrypoint') == 'validate_physics_evidence', 'unsupported owned entry')
     if require_reviewed:
@@ -201,39 +211,61 @@ def load_binding(source_root: Path, binding_path: Path, expected_sha256: str,
             'admitted': require_reviewed and binding.get('status') == 'reviewed_candidate'}
 
 
+def reader_verdict(process: dict, response_bytes: bytes, reader: str, require=None) -> tuple[str, str | None, dict]:
+    """The Rust reader's verdict from one captured `read <reader>` process: ('consistent', None, outcome) on exit 0,
+    ('refused', its text, outcome) on exit 1; any other process or response is an error (the caller's `require`)."""
+    require = require or globals()['require']
+    try:
+        verdict = json.loads(response_bytes)
+    except ValueError:
+        verdict = None
+    outcome = verdict.get('outcome') if type(verdict) is dict else None
+    require(type(verdict) is dict and set(verdict) == {'artifact', 'schema_version', 'reader', 'outcome'}
+            and verdict['artifact'] == rust_reader.ARTIFACT and verdict['schema_version'] == rust_reader.SCHEMA_VERSION
+            and verdict['reader'] == reader and type(outcome) is dict, 'unknown reader response')
+    if process['outcome'] == 'completed' and process['stdin_delivery_complete'] and outcome == {'ok': True}:
+        return 'consistent', None, outcome
+    error = outcome.get('error')
+    require(process['outcome'] == 'nonzero_exit' and process['return_code'] == 1 and outcome.get('ok') is False
+            and set(outcome) == {'ok', 'error'} and type(error) is dict and set(error) == {'code', 'detail'}
+            and type(error['code']) is str and error['code'] and (error['detail'] is None or type(error['detail']) is str),
+            'reader process failed: ' + process['outcome'])
+    return 'refused', error['detail'] or error['code'], outcome
+
+
 def consistency_observation(raw: dict, binding: dict, directory: Path) -> dict:
-    """Execute only the owned physical-consistency reader in an isolated helper.
+    """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read physics`).
 
     Raw is a transport snapshot extracted from separately captured/checked solver
     stdout. This derived replay hash is not the original stdout's raw-byte hash.
+    The reader executable is identified by its digest only; it is not proof of a
+    build from the bound sources.
     """
     require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == {
         'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
         'semantic_contract_id': CONTRACT}, 'ordinary raw/producer dispatch mismatch')
     require('source_block_recovery' not in raw and 'carrier_evidence' not in raw, 'source/composite namespace refused')
-    request_bytes = json.dumps(raw, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
+    request_bytes = json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
     require(len(request_bytes) <= LIMIT, 'physical consistency input limit')
-    require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before helper')
-    helper_sha256 = file_sha256(HELPER)
-    arguments = ['-I', '-S', str(HELPER), '--source-root', str(binding.get('snapshot_root', binding['source_root'])),
-                 '--binding', str(binding.get('snapshot_binding_path', binding['binding_path'])), '--binding-sha256', binding['binding_sha256']]
-    process = capture(Path(sys.executable).resolve(), arguments, request_bytes, directory,
-                      timeout_seconds=30, output_limit_bytes=LIMIT,
-                      expected_executable_sha256=file_sha256(Path(sys.executable).resolve()))
-    require(process['outcome'] == 'completed' and process['stdin_delivery_complete'], 'consistency helper refused or failed')
-    require(file_sha256(HELPER) == helper_sha256, 'fixed helper changed during execution')
-    response_bytes = bounded(directory / 'stdout.bin', process['stdout_sha256'])
-    require(len(response_bytes) == process['stdout_bytes'], 'helper response byte count differs')
-    response = json.loads(response_bytes)
-    require(response.get('artifact') == 'openpipestress.ordinary_physics_consistency_observation'
-            and response.get('version') == '1.0.0' and response.get('verdict') == 'consistent', 'unknown or refused helper response')
-    require(response.get('binding_sha256') == binding['binding_sha256']
-            and response.get('source_bytes_sha256') == sha256_bytes(request_bytes)
-            and response.get('dependencies') == binding['binding']['files']
-            and response.get('contract_id') == CONTRACT, 'helper response identity mismatch')
+    require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
     for row in binding['binding']['files']:
         bounded(binding['source_root'] / row['path'], row['sha256'])
-    return {'process': process, 'response': response, 'helper_sha256': helper_sha256,
+    executable = rust_reader.runner_executable().resolve()
+    executable_sha256 = file_sha256(executable)
+    process = capture(executable, ['read', READER], request_bytes, directory,
+                      timeout_seconds=30, output_limit_bytes=LIMIT, expected_executable_sha256=executable_sha256)
+    require(file_sha256(executable) == executable_sha256, 'reader executable changed during execution')
+    response_bytes = bounded(directory / 'stdout.bin', process['stdout_sha256'])
+    require(len(response_bytes) == process['stdout_bytes'], 'reader response byte count differs')
+    verdict, reason, outcome = reader_verdict(process, response_bytes, READER)
+    require(verdict == 'consistent', 'owned reader refused: ' + str(reason))
+    for row in binding['binding']['files']:
+        bounded(binding['source_root'] / row['path'], row['sha256'])
+    response = {'artifact': rust_reader.ARTIFACT, 'reader': READER, 'verdict': verdict, 'outcome': outcome,
+                'binding_sha256': binding['binding_sha256'], 'source_bytes_sha256': sha256_bytes(request_bytes),
+                'dependencies': binding['binding']['files'], 'contract_id': CONTRACT,
+                'claim': 'internal physical consistency only; no input freshness, producer origin, numerical accuracy or Current qualification'}
+    return {'process': process, 'response': response, 'reader_executable_sha256': executable_sha256,
             'binding_sha256': binding['binding_sha256'], 'binding_admitted': binding['admitted'],
             'scope': 'physical consistency of parsed snapshot only; runner provenance and numerical comparison are separate'}
 

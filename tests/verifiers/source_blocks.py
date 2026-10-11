@@ -1,5 +1,9 @@
 """Closed source-blocks-1 statement/binding validation, never arithmetic proof.
 
+Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/source_blocks.rs`), which
+product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
+this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
+
 Positive numerical standing additionally needs independently captured invocation
 JSON and the caller's existing authentic source/model/input/build binding.
 """
@@ -12,7 +16,7 @@ import re
 import struct
 import sys
 from typing import Any
-from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
+from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
