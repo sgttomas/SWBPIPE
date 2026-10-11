@@ -85,6 +85,22 @@ class NumericalTests(unittest.TestCase):
             self.assertIn('--doc', tests[2])
             self.assertNotIn('--config', tests[2])
 
+    def test_build_only_retains_profiles_without_executing_tests_or_doctests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            source = self.fixture(project)
+            destination = project / 'core/solver/frame_kernel'
+            destination.parent.mkdir(parents=True)
+            source.rename(destination)
+            _, commands = ci.cargo_plan(project)
+            build = ci.build_commands(commands)
+            self.assertEqual(build[0], commands[0])
+            self.assertEqual(len(build), 3)
+            self.assertIn('profile.test.opt-level=2', build[1])
+            self.assertNotIn('--config', build[2])
+            self.assertTrue(all('--no-run' in argv for argv in build[1:]))
+            self.assertTrue(all('--doc' not in argv for argv in build))
+
     def test_subprocess_failure_is_recorded_and_stops(self):
         with tempfile.TemporaryDirectory() as tmp:
             evidence = {'commands': []}

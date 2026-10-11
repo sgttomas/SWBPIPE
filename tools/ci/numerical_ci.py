@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tomllib
+import time
 
 
 def load_module(name, path):
@@ -158,6 +159,16 @@ def cargo_plan(project, paths=None):
     return chosen, fetches + tests
 
 
+def build_commands(commands):
+    """Compile the selected test profiles without executing tests.
+
+    rustdoc has no stable --no-run mode. The ordinary test-profile library
+    compilation supplies its dependencies; omit the separate doctest execution.
+    """
+    return [command + ['--no-run'] if command[:2] == ['cargo', 'test'] else list(command)
+            for command in commands if '--doc' not in command]
+
+
 def execute_commands(project, commands, evidence, evidence_dir, env=None):
     """Public bounded executor also supports a real temporary failing-crate control."""
     for index, argv in enumerate(commands):
@@ -165,8 +176,10 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
         row = dict(argv=list(argv), cwd=str(project), output=output.name, exit_code=None)
         evidence['commands'].append(row)
         print('Running: ' + ' '.join(argv), flush=True)
+        started = time.monotonic()
         with output.open('w') as log:
             result = subprocess.run(argv, cwd=project, env=env, stdout=log, stderr=subprocess.STDOUT, check=False)
+        row['elapsed_seconds'] = round(time.monotonic() - started, 3)
         row['exit_code'] = result.returncode
         row['output_sha256'] = hashlib.sha256(output.read_bytes()).hexdigest()
         if result.returncode:
@@ -174,17 +187,21 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
     return 0
 
 
-def run(root, plan, evidence_dir):
+def run(root, plan, evidence_dir, build_only=False):
     root, evidence_dir = Path(root).resolve(), Path(evidence_dir).resolve()
     evidence_dir.mkdir(parents=True, exist_ok=True)
     evidence = dict(status='failed', head=plan.get('head'), target_base=plan.get('target_base'),
-                    plan=plan, commands=[], manifests=[], plan_validated=False)
+                    plan=plan, commands=[], manifests=[], plan_validated=False,
+                    execution='build-only' if build_only else 'tests')
     code = 1
     try:
         validate_plan(root, plan)
         evidence['plan_validated'] = True
         project = root / PROJECT
         manifests, commands = cargo_plan(project, plan.get('paths') if plan.get('event') == 'pull_request' else None)
+        if build_only:
+            commands = build_commands(commands)
+            print('Build-only: compiling selected profiles; no tests execute.', flush=True)
         evidence['manifests'] = [p.as_posix() for p in manifests]
         evidence['input_sha256'] = {p.as_posix(): hashlib.sha256((project / p).read_bytes()).hexdigest()
             for m in manifests for p in (m, m.with_name('Cargo.lock'))}
@@ -222,8 +239,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--plan', required=True)
     parser.add_argument('--evidence-dir', required=True)
+    parser.add_argument('--build-only', action='store_true', help='Compile the selected test profiles without running tests')
     args = parser.parse_args()
-    return run(HERE.parents[3], json.loads(Path(args.plan).read_text()), args.evidence_dir)
+    return run(HERE.parents[3], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only)
 
 
 if __name__ == '__main__':
