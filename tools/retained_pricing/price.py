@@ -22,6 +22,9 @@ ROOT_FN = "run_linear_static_preview_value_with_retained_direct"
 RULE_FILES = ("callgraph_rules.g4.json", "loop_bounds.g4.json", "text_args.g4.json", "sens.py", "premise_pins.json")
 POINTS = (("L", 3, 0), ("L", 2, 1), ("L", 1, 2), ("E", 3, 0))
 GIT_ENV = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+MARKER = ".retained_pricing_out"            # written in an output directory this tool created or claimed while empty
+OWNED = ("snap", "map", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
+RESOLUTIONS = os.path.join(RULES, "linemap_resolutions.json")
 
 
 def chain_env(**extra):
@@ -111,27 +114,50 @@ def point(chain, O, caps, W, looplog=True):
     if os.path.exists(os.path.join(O, "summary.json")) and os.path.getsize(os.path.join(O, "summary.json")):
         s = json.load(open(os.path.join(O, "summary.json")))
         res.update({m: {k: s[m][k] for k in ("admission_phase", "E_mov_plus_R", "fraction_of_M", "margin_rule", "fits_M", "TAV_W", "TAV_X")} for m in ("sparse", "dense")})
+        res.update(text_complete=s["text_complete"], D_converged=s["D_converged"])
     return res
+
+
+def inside_work_tree(path):
+    """The first ancestor of path (itself included) holding a .git entry, or None."""
+    p = os.path.realpath(path)
+    while True:
+        if os.path.lexists(os.path.join(p, ".git")):
+            return p
+        parent = os.path.dirname(p)
+        if parent == p:
+            return None
+        p = parent
+
+
+def claim_out(out):
+    """Make or reuse the output directory: never inside a git work tree; an existing non-empty directory only when it
+    carries this tool's marker. Only the tool's own entries (OWNED) are removed before a run."""
+    wt = inside_work_tree(out)
+    if wt:
+        stop(2, "the output directory is inside a git work tree; choose one outside any checkout", out=out, work_tree=wt)
+    if os.path.isdir(out) and os.listdir(out) and not os.path.exists(os.path.join(out, MARKER)):
+        stop(2, f"the output directory is not empty and was not made by this tool (no {MARKER}); choose a new or empty one", out=out)
+    os.makedirs(out, exist_ok=True)
+    open(os.path.join(out, MARKER), "w").write("retained_pricing output directory; price.py run replaces its own entries here\n")
+    for d in OWNED:
+        q = os.path.join(out, d)
+        if os.path.isdir(q) and not os.path.islink(q):
+            shutil.rmtree(q)
+        elif os.path.lexists(q):
+            os.remove(q)
 
 
 def cmd_run(a):
     repo = a.repo or default_repo()
     out = os.path.abspath(a.out or os.environ.get("RP_OUT") or stop(2, "no output directory: --out or RP_OUT"))
-    top = os.path.realpath(repo)
-    if os.path.realpath(out) == top or os.path.realpath(out).startswith(top + os.sep):
-        stop(2, "the output directory is inside the repository checkout; choose one outside it", out=out)
     rev = git(repo, "rev-parse", "--verify", a.rev + "^{commit}", text=True).strip()
     short = rev[:10]
     try:
         git(repo, "cat-file", "-e", BASIS + "^{commit}")
     except subprocess.CalledProcessError:
         stop(2, f"the basis {BASIS} is not in {repo}: a full clone (not shallow) is needed")
-    os.makedirs(out, exist_ok=True)
-    for d in ("snap", "map", "chain", "rcL", "rcE", "runs", "logs"):
-        shutil.rmtree(os.path.join(out, d), ignore_errors=True)
-    for f in ("tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json"):
-        if os.path.exists(os.path.join(out, f)):
-            os.remove(os.path.join(out, f))
+    claim_out(out)
     os.makedirs(os.path.join(out, "logs"))
     report = {"rev": rev, "basis": BASIS}
     # 1. the snapshot
@@ -139,12 +165,15 @@ def cmd_run(a):
     # 2. the base chain's line-keyed rules, basis -> rev (stops on any key it cannot carry)
     m = os.path.join(out, "map")
     r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, BASIS, rev, m] + [os.path.join(BASE, f) for f in RULE_FILES],
-           env=chain_env(LINEMAP_CRATES=os.path.join(BASE, "crate_dirs.txt"), LINEMAP_ROWS=os.path.join(DATA, "basis_text_rows.json")),
+           env=chain_env(LINEMAP_CRATES=os.path.join(BASE, "crate_dirs.txt"), LINEMAP_ROWS=os.path.join(DATA, "basis_text_rows.json"),
+                         LINEMAP_RESOLUTIONS=RESOLUTIONS),
            out=os.path.join(out, "logs", "linemap.json"))
     lm = json.load(open(os.path.join(m, "g7_linemap.out.json")))["summary"] if os.path.exists(os.path.join(m, "g7_linemap.out.json")) else {}
-    report["linemap"] = {"remapped": lm.get("remapped"), "unmapped": lm.get("unmapped"), "pruned": [p["ctx"] for p in lm.get("pruned_deleted", [])]}
+    report["linemap"] = {"remapped": lm.get("remapped"), "unmapped": lm.get("unmapped"), "resolutions_used": lm.get("resolutions_used"),
+                         "pruned": [[p["ctx"], p["rule"]] for p in lm.get("pruned_deleted", [])]}
     if r.returncode:
-        stop(4, "rule keys not carried from the basis (logs/linemap.json, map/g7_linemap.out.json)", unmapped=lm.get("unmapped"), stderr=r.stderr[-2000:])
+        stop(4, "rule keys not carried from the basis (logs/linemap.json, map/g7_linemap.out.json); a 'fewer_definitions' key "
+                "needs a reviewed entry in rules/linemap_resolutions.json", unmapped=lm.get("unmapped"), stderr=r.stderr[-2000:])
     # 3. the premise pins (the dead-branch warrant lines) read as reviewed
     bad = []
     pins = json.load(open(os.path.join(m, "premise_pins.json")))["pins"]
@@ -166,7 +195,8 @@ def cmd_run(a):
     # 5. SQ2 + O-10 rules per route
     for route in ("L", "E"):
         r = py([os.path.join(LIB, "sq2_rules.py"), chain, os.path.join(out, "rc" + route), os.path.join(RULES, f"sq2_decisions_{route}.py")],
-               env=chain_env(SQ2_SNAP=W, SQ2_TARGET=rev, SQ2_REPO=repo, SQ2_DEC_BASIS=BASIS, SQ2_LM=os.path.join(m, "g7_linemap.out.json")),
+               env=chain_env(SQ2_SNAP=W, SQ2_TARGET=rev, SQ2_REPO=repo, SQ2_DEC_BASIS=BASIS, SQ2_LM=os.path.join(m, "g7_linemap.out.json"),
+                             SQ2_RESOLUTIONS=RESOLUTIONS),
                out=os.path.join(out, "logs", f"sq2_rules_{route}.out"))
         if r.returncode:
             stop(4, f"route {route}: the SQ2 rules did not apply (logs/sq2_rules_{route}.err)", stderr=r.stderr[-3000:])
@@ -184,7 +214,10 @@ def cmd_run(a):
         res = json.load(open(res_p)) if os.path.exists(res_p) else {"error": f"no result (job rc {rc}; logs/{name}.log)"}
         report["points"][name] = res
         print(json.dumps({name: res}))
-    bad = {k: v for k, v in report["points"].items() if v.get("error") or v.get("sens_rc") or not v.get("complete") or v.get("unmapped") or v.get("unclassified")}
+    # a point passes only when sens.py ran clean, all four TEXT variants are complete (text_complete), the diagnostics
+    # fixpoint converged, and no loop header is unmapped and no argument unclassified
+    bad = {k: v for k, v in report["points"].items() if v.get("error") or v.get("sens_rc") or not v.get("complete") or not v.get("text_complete")
+           or not v.get("D_converged") or v.get("unmapped") or v.get("unclassified")}
     # 7. the O-10 checks: each appended loop rule matched only its functions; the mult-0 sites stayed at 0
     report["o10_check"] = {}
     for route in ("L", "E"):
@@ -194,8 +227,9 @@ def cmd_run(a):
             continue
         r = py([os.path.join(LIB, "o10_check.py"), os.path.join(out, "rc" + route), *runs], out=os.path.join(out, f"o10_check_{route}.json"))
         report["o10_check"][route] = r.returncode
-    # 8. the merged tree: the maximum over route L's worst shape (3,0) and route E
-    if "L_30" not in bad and "E_30" not in bad:
+    # 8. the merged tree (the maximum over route L's worst shape (3,0) and route E), only when every point passed and both
+    # o10 checks held
+    if not bad and all(v == 0 for v in report["o10_check"].values()):
         basis = a.basis or (f"SQ2 G5 at {short}: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128")
         r = py([os.path.join(LIB, "merge_trees.py"), os.path.join(out, "runs", "L_30", "work", "profile_tree.json"),
                 os.path.join(out, "runs", "E_30", "work", "profile_tree.json"), os.path.join(out, "tree_merged.json"), basis])

@@ -24,31 +24,18 @@ for _f in ("EDGE_ZERO", "SITE_FROM", "SITE_ZERO", "ID_AUDIT", "ARGS_FIRST"):
 # FK production code is identical from c3cf970ad3 to there). They are carried to the target revision (env SQ2_TARGET)
 # by the same line map as the rule tables (linemap_lib.Mapper: offset, else by function, else by the line's text); a key
 # resolved by name at the snapshot (decisions' `Resolved`, from rs()/rs_line()) is already the target's. Any key that
-# cannot be carried stops the run, unless it is listed in the decisions' KEYMAP_ALLOW with a reason.
+# cannot be carried stops the run, unless the decisions' KEYMAP_ALLOW lists it with the kind the map reports and a reason
+# (rule_ops.carry_decision_keys).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from rule_ops import carry_decision_keys, remove_caller_zero_edges
 if os.environ.get("SQ2_TARGET"):
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from linemap_lib import Mapper, load_rows
+    from linemap_lib import Mapper, load_resolutions, load_rows
     _H = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     _rows = load_rows([os.environ.get("SQ2_ROWS", os.path.join(_H, "data", "basis_text_rows.json"))])
     _M = Mapper(os.environ["SQ2_REPO"], os.environ.get("SQ2_DEC_BASIS", "2243be380b"), os.environ["SQ2_TARGET"],
-                open(os.path.join(src, "crate_dirs.txt")).read().split(), _rows)
-    def _km(v, ctx):
-        if type(v).__name__ == "Resolved":
-            return str(v)
-        if isinstance(v, str):
-            return _M.map_key(v, ctx)
-        if isinstance(v, tuple):
-            return tuple(_km(x, ctx) for x in v)
-        if isinstance(v, list):
-            return [_km(x, f"{ctx}[{i}]") for i, x in enumerate(v)]
-        if isinstance(v, dict):
-            return {(_km(k, ctx + "/key") if isinstance(k, str) else k): (x if k in ("why", "evidence", "about", "reason") else _km(x, ctx + "/" + str(k)[:30])) for k, x in v.items()}
-        return v
-    for _k in [k for k in D if k.isupper() and k not in ("KEYMAP_ALLOW",)]:
-        D[_k] = _km(D[_k], _k)
-    _allow = dict(D.get("KEYMAP_ALLOW", {}))
+                open(os.path.join(src, "crate_dirs.txt")).read().split(), _rows, load_resolutions(os.environ.get("SQ2_RESOLUTIONS")))
+    _bad = carry_decision_keys(D, _M)
     LOG["decision_keymap"] = {"summary": _M.summary(), "report": _M.report}
-    _bad = [u for u in _M.unmapped if u[1] not in _allow]
     if _bad:
         json.dump(LOG, open(os.path.join(dst, "SQ2_RULES.json"), "w"), indent=1)
         raise SystemExit("DECISION KEYS NOT CARRIED: " + json.dumps(_bad))
@@ -120,13 +107,7 @@ for pat, b, why in D.get("REBIND", []):
 # O-10: the line map's prune may have dropped zero edges of a caller whose callee the head deleted; the expected count
 # (written at the basis) is reduced by exactly those (env SQ2_LM: the line map's g7_linemap.out.json).
 _PRUNED = json.load(open(os.environ["SQ2_LM"]))["summary"].get("pruned_deleted", []) if os.environ.get("SQ2_LM") else []
-for caller, n_expected, why in D.get("EDGE_ZERO_REMOVE_CALLER", []):
-    hits = [e for e in LB["edge_zero"] if e["caller"] == caller]
-    gone = [p for p in _PRUNED if p["family"] == "edge_zero" and isinstance(p["rule"], dict) and p["rule"].get("caller") == caller]
-    if gone: LOG["other"].append(["edge_zero_remove_caller: pruned at the line map", caller, [g["rule"]["callee"] for g in gone]])
-    if len(hits) != n_expected - len(gone): raise SystemExit(f"EDGE_ZERO_REMOVE_CALLER {caller}: {len(hits)} != {n_expected} - {len(gone)} pruned")
-    for e in hits: LB["edge_zero"].remove(e)
-    LOG["other"].append(["edge_zero removed (caller)", caller, sorted(e["callee"] for e in hits), why])
+LOG["other"] += remove_caller_zero_edges(LB["edge_zero"], D.get("EDGE_ZERO_REMOVE_CALLER", []), _PRUNED)
 for pat, b, why in D.get("LOOPS_LAST", []):
     LB["loops"].append({"re": pat, "bound": b, "why": "SQ2 G5 (appended last: only headers no earlier rule matches): " + why})
     LOG["other"].append(["loop last", pat, b])

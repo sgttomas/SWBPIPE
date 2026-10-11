@@ -10,7 +10,7 @@ Run from any directory:
 
 ```bash
 P=projects/chirality-piping/tools/retained_pricing
-python3 $P/price.py run <rev> --out <dir outside the checkout>   # price a revision
+python3 $P/price.py run <rev> --out <new dir outside any checkout> # price a revision
 python3 $P/price.py compare <tree A> <tree B>                    # coefficient-wise comparison
 python3 $P/price.py generate <tree> <retained_memory.rs>         # rewrite the GENERATED PROFILE block
 python3 $P/price.py generate <tree> <retained_memory.rs> --check # compare instead of writing
@@ -20,10 +20,11 @@ python3 $P/price.py eval <law-test log> <tree>                   # phases at in-
 ### Reading a profile change
 
 1. **Run the new head.** `run <head>` should complete on all four points with no unmapped loop header and no unclassified argument, and both o10 checks should pass.
-2. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
+2. **Review the prune.** `summary.json`'s `linemap.pruned` lists every rule the line map dropped, each with its rule. Each one must belong to a function or line the head really deleted. A dropped `site_from`, `site_total`, `edge_per_call` or `loop_total` rule removes a bound, so read the code. `linemap.resolutions_used` lists the reviewed resolutions that applied.
+3. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
    - `a_le_b` true (every coefficient no higher) means the registered block still bounds the head, so nothing needs re-registering.
    - Otherwise, regenerate the block with `generate` and re-pin the law tests whose values moved. The law tests are `cargo test --lib profile_` in `core/product_physics`. Their `I65_G5_ATOM` lines feed `eval`.
-3. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
+4. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
 
 ### The basis line
 
@@ -52,11 +53,14 @@ For example, main's block at `2c5cf0823b` is the registered tree with:
 
 ## Outputs
 
-All outputs go to `--out`, which must be outside the checkout. The output directory is not a record; delete it when done.
+All outputs go to `--out`.
+- It must not lie inside any git work tree; the tool looks for a `.git` entry in it and every parent.
+- It must be new, empty, or a directory this tool made before (it holds the marker `.retained_pricing_out`). Before a run the tool removes only its own entries, those listed in the table below.
+- The output directory is not a record; delete it when done.
 
 | Path | Content |
 |---|---|
-| `tree_merged.json` | The profile tree: the coefficient-wise maximum of route L at (3,0) and route E |
+| `tree_merged.json` | The profile tree: the coefficient-wise maximum of route L at (3,0) and route E. Written only when every point passes and both o10 checks hold |
 | `summary.json` | The line map (remapped, unmapped, pruned), the premise pins, each point's completeness, D, TAV, sparse and dense E+R and TAV_W/TAV_X, the o10 checks and the merge |
 | `runs/{L_30,L_21,L_12,E_30}/` | Each point's call graph, lexicon, chain work directory (`work/text_budget.caps.out.json`, `work/profile_tree.json`), `summary.json` and `looplog.json` |
 | `map/`, `chain/`, `rcL/`, `rcE/` | The carried rule tables and line-map report, the base chain at the revision, and each route's chain (`SQ2_RULES.json` logs every rule applied and the decision-key map) |
@@ -68,9 +72,9 @@ All outputs go to `--out`, which must be outside the checkout. The output direct
 |---|---|
 | 0 | Complete |
 | 2 | Bad input |
-| 3 | An o10 check failed |
+| 3 | An o10 check failed; no tree is written |
 | 4 | Stopped before the points: a rule or decision key not carried, a premise pin not as reviewed, or a template inventory or rules step failed |
-| 5 | A point is incomplete: unmapped header, unclassified argument, or chain error |
+| 5 | A point failed its gate and no tree is written. A point passes only when `sens.py` ran clean, `complete` and `text_complete` (all four TEXT variants) hold, `D_converged` holds, and it has no unmapped header and no unclassified argument |
 | 6 | Merge or generator failure, or `generate --check` found a difference |
 
 ## Pipeline
@@ -82,15 +86,20 @@ All outputs go to `--out`, which must be outside the checkout. The output direct
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
-   - **Prune.** A key whose function or line the revision deleted is dropped with its rule, including list-form rules, and the drop is reported.
+   - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported.
+   - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
+     - `{"as": "deleted", "why": …}` prunes it;
+     - `{"as": n, "why": …}` maps it to the head's n-th definition.
+
+     The decision keys use the same resolutions.
 3. Check the premise pins (the warrant lines of dead branches) against the snapshot's text.
 4. Regenerate the template inventory on the snapshot.
 5. For each route, apply the decisions with `lib/sq2_rules.py` and `rules/sq2_decisions_{L,E}.py`.
    - The decisions include the shared `rules/sq2_decisions_common.py`. Its last step executes `rules/o10_rules.py`.
    - Keys written at the basis are carried by the same map. Keys resolved by name at the snapshot (`rs`, `rs_any`, `fnkey`, `site`) are used as resolved.
-   - An uncarried key stops the run unless the decisions' `KEYMAP_ALLOW` gives a reason.
+   - An uncarried key stops the run unless the decisions' `KEYMAP_ALLOW` lists it as `("deleted", why)` and the map reported it deleted. A replaced key is never allowed (`lib/rule_ops.py`).
 6. Run the points. Route L runs at (lc, z) = (3,0), (2,1) and (1,2); route E runs at 3. Caps are `l = 128` and `c = 3`. Each point writes its loop log (`lib/mk_looplog.py`).
-7. Run `lib/o10_check.py`. Each appended loop rule may match only its listed `file:fn` functions, and each multiplicity-0 site must stay at 0.
+7. Run `lib/o10_check.py`. Each appended loop rule may match only its listed `file:fn` functions, and each multiplicity-0 site must stay at 0. If a check fails, the run ends with exit 3 and no tree.
 8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json`, and they should stay below (3,0)'s; the tool does not check this itself.
 
 ## Layout and provenance
@@ -103,10 +112,12 @@ All outputs go to `--out`, which must be outside the checkout. The output direct
 - **Generator change:** `g5_profile.py` also takes the wrapped basis line described under "The basis line".
 - **Not included:** the chain's patch logs and its stale template inventory, because a run regenerates the inventory.
 
-**`rules/`** holds the decision tables: SQ2's route rules and the O-10 name-keyed rules. `i95_new_loops.json` lists I95's B3-S rebinding loops for route E.
+**`rules/`** holds the decision tables: SQ2's route rules and the O-10 name-keyed rules.
+- `i95_new_loops.json` lists I95's B3-S rebinding loops for route E.
+- `linemap_resolutions.json` holds the reviewed resolutions of `fewer_definitions` keys. Its one entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3. That entry is not used on main; at `666cb30520` it reproduces O-10's tree.
 
 **`lib/`** is the machinery.
-- `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
+- `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `rule_ops.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
 - `mk_looplog.py` is vendored unchanged from the I104 record above (`tools/mk_looplog.py`).
 
 **`data/`** holds two files.
@@ -119,7 +130,11 @@ All outputs go to `--out`, which must be outside the checkout. The output direct
 - **Basis-relative keys.** Decision keys are written at the basis. A long-moved file can need a key re-expressed by name (`fnkey` or `site` in `o10_rules.py`).
 - **Fixed points.** The points and caps are D1's: C_eq ≤ 3 and l ≤ 128. Other shapes need a code change.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
-- **Runtime and CI.** A full run takes about one minute of CPU on one core. It is not in CI; `tests/test_retained_pricing_tool.py` covers the keymap and the prune on a two-commit fixture repository.
+- **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
+  - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
+  - the decision-key stop and `KEYMAP_ALLOW`;
+  - the `EDGE_ZERO_REMOVE_CALLER` count;
+  - the generator's basis line.
 
 ## Adding an adjudication rule
 
@@ -131,5 +146,5 @@ Add a rule when a run stops or reports incomplete on a new head.
    - Guard it with `if fnkey(...)` so that heads without the function add nothing.
    - Use the existing families: `O10_LOOPS_LAST` (exact header, bound, why, the only `file:fn` it may match), `O10_EDGE_ZERO`, `O10_SITE_FROM`, `O10_SITE_SIZE`, `O10_ID_AUDIT` and `O10_ARGS_FIRST`.
    - For a site you claim has multiplicity 0, prefer `O10_SITE_SIZE` 0, which `o10_check` guards, over a zero.
-4. If a function the decisions name was renamed or deleted, change only the affected entry and leave its argument unchanged. Use `rs_any` for a rename, or a `KEYMAP_ALLOW` entry with its reason for a deletion.
+4. If a function the decisions name was renamed or deleted, change only the affected entry and leave its argument unchanged. Use `rs_any` for a rename, or a `KEYMAP_ALLOW` entry `("deleted", why)` for a deletion.
 5. Re-run the head and the registered revision. The registered tree must still reproduce exactly. Then compare against the registered tree as above.

@@ -33,8 +33,9 @@ def rs_any(*names, f="core/reporting/result_export/src/retained_precision.rs"):
     raise SystemExit(f"rs_any(): none of {names} defined in {f}")
 # PB7 / #1251 (E13): the legacy combination engine is deleted on main after #1251. EDGE_ZERO[0] zeroed its only call
 # edge; with the function gone the edge has no callee, so this key may stay unmapped (the rule then names nothing).
-KEYMAP_ALLOW = {"lib.rs:13102:append_combination_results":
-    "E13 (#1251): fn append_combination_results is deleted (lib.rs, pre-B7 cleanup); EDGE_ZERO[0]'s callee no longer exists"}
+# Each entry is (the kind the line map must report, why); rule_ops.carry_decision_keys never allows "replaced".
+KEYMAP_ALLOW = {"lib.rs:13102:append_combination_results": ("deleted",
+    "E13 (#1251): fn append_combination_results is deleted (lib.rs, pre-B7 cleanup); EDGE_ZERO[0]'s callee no longer exists")}
 Z = "D1.4 (B2-A): the model's combinations, z <= 2 (D1.9 row Combinations)"
 T = "D1.4 (B2-A): one combination's terms, repeats counted, <= 3 (D1.9 row CombinationTerms)"
 O = "D1.4 (B2-A): one combination's operand load cases (mechanics terms, a subtraction's two ids, or a range envelope's ids), <= 3 (D1.9 rows CombinationTerms and RangeOperands)"

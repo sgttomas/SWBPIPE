@@ -15,8 +15,10 @@ These are Agent 0's rulings. Heads: `c2f1db4814`, `8388da7a8c`, `666cb30520`.
 - **The v3 identity text is priced.** No rule.
   - TAV rises by exactly 23,920 B on both routes and in every variant.
   - The increase is `exact_admission.rs pressure_v3_formulation_basis` (+17,648) plus `lib.rs mechanics_producer_for_model` (+6,272).
-- **The rule whose callee `UserStiffnessElement::orientation` was deleted is dropped.** This is automatic: the line map's prune drops `loop_bounds` `edge_zero` {caller `build_pressure_case_with_members`, callee `lib.rs:674:orientation`}.
-  - The frame kernel's `lib.rs` defined `fn orientation` twice: in `impl FrameElement` and in `impl UserStiffnessElement`. At `666cb30520` only `FrameElement`'s remains, so the dropped rule's callee is the deleted one. `FrameElement`'s own zero edge is kept.
+- **The rule whose callee `UserStiffnessElement::orientation` was deleted is dropped.** The line map's prune drops `loop_bounds` `edge_zero` {caller `build_pressure_case_with_members`, callee `lib.rs:675:orientation` at the basis}.
+  - The frame kernel's `lib.rs` defined `fn orientation` twice: in `impl FrameElement` (604) and in `impl UserStiffnessElement` (675).
+  - a601e3706d deletes `UserStiffnessElement`, so at `666cb30520` only `FrameElement`'s definition remains, and the dropped rule's callee is the deleted one. `FrameElement`'s own zero edge is kept.
+  - The definition count falls from 2 to 1, and that alone does not say which definition went. The prune therefore happens only through the reviewed entry for this key in the tool's `rules/linemap_resolutions.json`; without it the run stops.
   - Route E's `EDGE_ZERO_REMOVE_CALLER` count (51 at the basis) is reduced by exactly the pruned edges, and the reduction is logged.
 
 ## B. Connector rules (L, E, A, J), at `666cb30520`

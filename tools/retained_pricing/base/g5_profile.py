@@ -256,16 +256,18 @@ w = L.append
 w("// ---- BEGIN GENERATED PROFILE (part2/_run_records/g5_profile.py from profile_tree.json; do not edit by hand) ----")
 w("/// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a")
 w("/// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving")
-# The source clause: a basis that starts with "," continues the sentence after "corrections," and is wrapped at 100
-# columns (retained_pricing's `generate --basis`); any other basis is written whole after "corrections at".
-if tree["basis"].startswith(","):
+def source_clause(basis):
+    """The block's source lines: a basis that starts with "," continues the sentence after "corrections," and is wrapped
+    at 100 columns (retained_pricing's `generate --basis`); any other basis is written whole after "corrections at"."""
     import textwrap
-    w("/// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,")
-    for _l in textwrap.wrap(tree["basis"][1:].strip(), 96, break_on_hyphens=False, break_long_words=False):
-        w("/// " + _l)
-else:
-    w("/// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at")
-    w(f"/// {tree['basis']}.")
+    head = "/// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections"
+    if basis.startswith(","):
+        return [head + ","] + ["/// " + l for l in textwrap.wrap(basis[1:].strip(), 96, break_on_hyphens=False, break_long_words=False)]
+    return [head + " at", f"/// {basis}."]
+
+
+for _l in source_clause(tree["basis"]):
+    w(_l)
 w("pub(super) mod profile {")
 w("    #![allow(clippy::all, dead_code)]")
 w("    use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;")

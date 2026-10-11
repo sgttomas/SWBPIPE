@@ -4,17 +4,18 @@ I104 SQ / I107 lineage). Changes, each for O-10:
   line's text (site keys) instead of stopping the run; what cannot be re-keyed is still reported unmapped;
 - the KEY pattern has a left boundary `(?<![A-Za-z0-9_])`, so `preview_physics_evidence.rs:N` is never read as
   `physics_evidence.rs:N` (T4-I26's finding);
-- with --prune-deleted, a rule whose key names a deleted function or a deleted line is dropped, the list-form rules
+- with --prune-deleted, a rule whose key names a deleted function (no `fn name` left in its file) or a deleted line is dropped, the list-form rules
   (loop_bounds edge_zero, edge_per_call, ...) included, and every drop is reported (RV132's prune_deleted.py dropped
   only dict-keyed rules).
 Keys in descriptive fields (why, evidence, about, reason, note, source) are citations and are left as written.
 Usage: python3 linemap_rules.py [--prune-deleted] <repo> <OLD> <NEW> <out dir> <rules json|py> ...
 Env: LINEMAP_CRATES (crate_dirs.txt), LINEMAP_ROWS (the basis TEXT rows, comma-separated: data/basis_text_rows.json or a
-TEXT run's text_budget json/json.gz; optional).
+TEXT run's text_budget json/json.gz; optional), LINEMAP_RESOLUTIONS (rules/linemap_resolutions.json: keys whose function
+lost a definition, resolved by review; optional).
 """
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from linemap_lib import Mapper, load_rows
+from linemap_lib import Mapper, load_resolutions, load_rows
 args = sys.argv[1:]
 prune = "--prune-deleted" in args
 args = [a for a in args if a != "--prune-deleted"]
@@ -22,7 +23,7 @@ repo, old, new, outdir = args[:4]
 srcs = args[4:]
 crates = open(os.environ["LINEMAP_CRATES"]).read().split()
 rows = load_rows(filter(None, os.environ.get("LINEMAP_ROWS", "").split(",")))
-M = Mapper(repo, old, new, crates, rows)
+M = Mapper(repo, old, new, crates, rows, load_resolutions(os.environ.get("LINEMAP_RESOLUTIONS")))
 KEY = re.compile(r"(?<![A-Za-z0-9_/])(W/)?((?:core/[a-z_/]+/src/)?(?:[a-z_0-9]+/)*[a-z_0-9]+\.rs):(\d+)(?::([A-Za-z_][A-Za-z_0-9]*))?")
 DELETED = []    # (ctx) of each deleted key
 

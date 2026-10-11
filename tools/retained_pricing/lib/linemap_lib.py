@@ -7,8 +7,11 @@ full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
 2. a line outside every changed hunk: the cumulative offset, checked (the fn still defined there, or the same text);
 3. otherwise (a line inside a changed hunk, or a failed check):
    - a fn key by function: the same ordinal definition of `fn name` in the file when OLD and NEW define it the
-     same number of times; when NEW defines it fewer times and the OLD definition lies in a changed hunk, the key is
-     reported "deleted" (its function is gone); anything else stays unmapped;
+     same number of times. When the OLD definition lies in a changed hunk and NEW defines `fn name` no more in that
+     file, the key is reported "deleted" (its function is gone). When NEW defines it fewer times but still at least
+     once, the key is "fewer_definitions": which definition went cannot be read from the count, so it is unmapped (the
+     run stops) unless `resolutions` names it: {"as": "deleted", "why": ...} (its own definition is the one gone) or
+     {"as": <n>, "why": ...} (it is NEW's n-th definition, 1-based). Anything else is "replaced";
    - a site key by text: the OLD line's text (stripped) found exactly once in the hunk's NEW range, else exactly once in
      the NEW file; none is "deleted" when the hunk removed the line with nothing in its place, else "replaced".
 A key never maps silently: every key that is not left as written is reported with how it was mapped.
@@ -29,8 +32,19 @@ def load_rows(paths):
     return rows
 
 
+def load_resolutions(path):
+    """The reviewed resolutions of "fewer_definitions" keys: {key: {"as": "deleted" | n, "why": ...}} (None: none)."""
+    if not path:
+        return {}
+    keys = json.load(open(path)).get("keys", {})
+    for k, v in keys.items():
+        if not (v.get("as") == "deleted" or (isinstance(v.get("as"), int) and v["as"] >= 1)) or not v.get("why"):
+            raise SystemExit(f"resolution for {k}: 'as' must be \"deleted\" or a definition number >= 1, with a 'why'")
+    return keys
+
+
 class Mapper:
-    def __init__(self, repo, old, new, crates, rows=None):
+    def __init__(self, repo, old, new, crates, rows=None, resolutions=None):
         self.repo, self.old, self.new, self.crates = repo, old, new, crates
         self.env = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
         changed = [f[len(P):] for f in self.git("diff", "--name-only", old, new, "--", P + "core").split("\n") if f.endswith(".rs")]
@@ -45,6 +59,8 @@ class Mapper:
             self.hunks[f] = hs
         self.all_old = [f[len(P):] for c in crates for f in self.git("ls-tree", "-r", "--name-only", old, "--", P + c).split("\n") if f.endswith(".rs")]
         self.rows = rows or set()
+        self.resolutions = dict(resolutions or {})      # key (as written) -> {"as": "deleted" | n, "why": ...}
+        self.resolutions_used = []
         self.report, self.unmapped, self.resolved = [], [], []
 
     def git(self, *a):
@@ -121,9 +137,22 @@ class Mapper:
                 if len(od) == len(nd) and ln in od:
                     nl, how = nd[od.index(ln)], f"by function: definition {od.index(ln) + 1} of {len(od)} of fn {name}"
                 else:
-                    kind = "deleted" if (len(nd) < len(od) and hunk is not None) else "replaced"
-                    self.unmapped.append([ctx, whole, f"fn {name}: {len(od)} definitions at OLD, {len(nd)} at NEW", kind])
-                    return whole
+                    res = self.resolutions.get(whole) if (hunk is not None and 0 < len(nd) < len(od)) else None
+                    if res is not None and isinstance(res.get("as"), int) and 1 <= res["as"] <= len(nd):
+                        nl, how = nd[res["as"] - 1], f"resolved: definition {res['as']} of {len(nd)} of fn {name} ({res['why']})"
+                        self.resolutions_used.append([ctx, whole, res])
+                    else:
+                        if hunk is not None and not nd:
+                            kind = "deleted"
+                        elif hunk is not None and len(nd) < len(od):
+                            kind = "fewer_definitions"
+                            if res is not None and res.get("as") == "deleted":
+                                kind = "deleted"
+                                self.resolutions_used.append([ctx, whole, res])
+                        else:
+                            kind = "replaced"
+                        self.unmapped.append([ctx, whole, f"fn {name}: {len(od)} definitions at OLD, {len(nd)} at NEW", kind])
+                        return whole
             else:
                 t = old[ln - 1].strip() if ln <= len(old) else None
                 rng = range(hunk[2], hunk[2] + hunk[3]) if hunk else range(0)
@@ -144,4 +173,5 @@ class Mapper:
 
     def summary(self):
         return {"old": self.old, "new": self.new, "changed_production_rs": self.changed, "hunks": {f: len(h) for f, h in self.hunks.items()},
-                "remapped": len(self.report), "unmapped": self.unmapped, "resolved_ambiguous": self.resolved}
+                "remapped": len(self.report), "unmapped": self.unmapped, "resolved_ambiguous": self.resolved,
+                "resolutions_used": self.resolutions_used}
