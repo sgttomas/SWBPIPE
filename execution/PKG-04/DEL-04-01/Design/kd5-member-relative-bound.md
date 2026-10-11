@@ -75,10 +75,11 @@ Producers are in PP `lib.rs` unless named.
 
 | Term | Producer | Owner | Primitive and re-formation at p | Radius |
 |---|---|---|---|---|
-| Nodal forces and moments, constant-effort support forces | `push_nodal_loads`, `add_constant_effort_support_loads` | DEL-05-05, DEL-04-07 | Input terms: no primitive | 0 |
+| Unfactored nodal forces and moments, constant-effort support forces | `push_nodal_loads`, `add_constant_effort_support_loads` | DEL-05-05, DEL-04-07 | Input terms: no primitive | 0 |
+| Load-source-factored nodal forces and moments | `push_nodal_loads` after load-state resolution | DEL-05-05 | `NodalProduct{global_dof, magnitude, factor}`: authored magnitude times the authored source factor at p; the effective binary64 fold is a formed term, not an input leaf | 2^-120 level |
 | Prescribed displacements | `imposed_displacements`, K_fc·u_c | DEL-04-07 | Input u_c; K_fc·u_c is already in ρ (prescribed columns) | as today |
-| Uniform loads on straight members, authored | `add_uniform_element_loads` (consistent vector) | DEL-05-05 (application), DEL-04-02 (consistent vector) | `UniformStraight{frame, w}`: wL/2 and wL²/12 in the chord frame from (x_i, x_j, y, w), rotated to global | 2^-120 level |
-| Generated self-weight | `self_weight.rs` (`stable_mass_per_length` × g) → `add_uniform_element_loads` | DEL-05-01 | `SelfWeight{pipe, densities, OD, t, insulation, g}`: the intensity w = g·Σ ρ_k·A_k is re-formed at p from the authored inputs, then enters `UniformStraight` or `UniformCurved`. The ledger's γ₄ operand bound is therefore not needed | 2^-120 level |
+| Uniform loads on straight members, authored | `add_uniform_element_loads` (consistent vector) | DEL-05-05 (application), DEL-04-02 (consistent vector) | `UniformStraight{frame, w}`: wL/2 and wL²/12 in the chord frame from (x_i, x_j, y, w), rotated to global; any authored load-source factor multiplies the original authored intensity at p and enters the operand binding | 2^-120 level |
+| Generated self-weight | `self_weight.rs` (`stable_mass_per_length` × g) → `add_uniform_element_loads` | DEL-05-01 | `SelfWeight{pipe, densities, OD, t, insulation, g}`: the intensity w = g·Σ ρ_k·A_k is re-formed at p from the authored inputs, then enters `UniformStraight` or `UniformCurved`. The authored load-source factor, when present, also multiplies the re-formed intensity at p and enters the binding. The ledger's γ₄ operand bound is therefore not needed | 2^-120 level |
 | Uniform loads on realized arcs (R-1's certified arc loads) | `add_uniform_element_loads` → FK `certify_curved_uniform_load` | DEL-05-05 (with DEL-04-01's certificate) | `UniformCurved{arc, w}`: R-1's midpoint–radius enclosure, which is linear in w and is applied to each term of w's exact split | R-1's radius |
 | Free strain on straight members (eigen pair P·x_a) | `add_thermal_equivalent_loads` | DEL-05-01 (ε), DEL-04-02 | `FreeStrainStraight{frame, ε}`: ±E·A·ε along the chord | 2^-120 level |
 | Free strain on arcs, K_b·u_free(ε) | `add_curved_bend_thermal_equivalent_load` | DEL-05-01, DEL-04-07 | `FreeStrainCurved{arc, ε}`: K_int,arc·(ε·d) with the same arc matrix as ρ | 2^-120 level |
@@ -87,7 +88,11 @@ Producers are in PP `lib.rs` unless named.
 | Connector reference loads (T4-U3 q_ref) | `add_connector_reference_loads` | DEL-04-07 | `ConnectorReference{connector, q_ref}`: `connector_matrix`·q_ref | 2^-120 level |
 | W2 force-scaled terms | F1b/K2b | DEL-04-07 | The same primitives at 2^b, which is an exact scaling | as above |
 
-**One ε.** ε is the resolved total eigenstrain of the load state: thermal α·ΔT plus fit and cold-spring strain on the 0.4.0 route. It is formed once at p from its primitives, and that one value feeds the straight, arc and pressure primitives of the case. A producer may omit a source-known exactly zero contribution only when its enclosure radius is also exactly zero, but may not omit a formed contribution solely because its binary64 fold is zero. In particular, a thermal/fit cancellation whose p re-formation is nonzero retains a zero-valued binary64 formed eigenload and its complete closure metadata: the ordinary force bits stay unchanged while the intended load enters the closed residual. A regression pins this cancellation boundary.
+**One ε.** ε is the resolved total eigenstrain of the load state, formed under its selected thermal and fit/reference measures. On the 0.4.0 route the stretch composition is λ_fit·λ_thermal − 1 = ε_fit + ε_thermal + ε_fit·ε_thermal, including the adopted cold-spring contribution; it is not a lift of the rounded total strain. It is formed once at p from its primitives, and that one value feeds the straight, arc and pressure primitives of the case. A producer may omit a source-known exactly zero contribution only when its enclosure radius is also exactly zero, but may not omit a formed contribution solely because its binary64 fold is zero. In particular, a thermal/fit cancellation whose p re-formation is nonzero retains a zero-valued binary64 formed eigenload and its complete closure metadata: the ordinary force bits stay unchanged while the intended load enters the closed residual. A regression pins this cancellation boundary.
+
+**Raw natural-length reference.** A `NaturalLengthChange` uses δL/L formed at p. An actually authored length remains an input leaf; a reference length derived by `fit_reference_length` is re-formed from the original chord coordinates or from the same p=128 R·φ geometry as K_int for an arc. Geometry enters the expected manifest binding, so a wrong length geometry fails closed.
+
+**Replaced-span source zero (delegated technical ruling, 2026-10-11).** A pipe whose stiffness is replaced by a connector has no owner for transferred eigenloads. The existing named unsupported-transfer refusal applies unless raw ε has intended midpoint exactly zero and enclosure radius exactly zero. A folded binary64 total of zero is insufficient. This preserves the author-supplied connector q_ref policy and adds no schema or criterion.
 
 Under the effective-force pressure model the nodal pressure terms net to zero at bend ends in the intended system. Re-formed at p, they do net. Today their binary64 residue enters ρ as if intended.
 
@@ -248,7 +253,7 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
 
 **The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION`** (info severity, one per load case, emitted after that case's integrity diagnostic). It is an implementation item of this unit, with no criterion change.
 
-- **Noise-level group.** Let a_g be the group's absolute evaluation scale: the 2-norm over its rows of Σ|t| over the terms t of the exact sum that forms m_g. These are the |K_int,m|·|u + w + w₂| products and the member's intended load terms. a_g is formed upward in the same ball evaluation that forms r_g. The group is noise-level, Z(g), when q̂_g ≤ 2^-34·a_g: the certified upper bound of its true magnitude lies below 2^-34 of the terms that cancel to form it.
+- **Noise-level group.** Let a_g be the group's absolute evaluation scale: the 2-norm over its rows of Σ|t| over the terms t of the exact sum that forms m_g. These are the |K_int,m|·|u + w + w₂| products and the member's intended load terms. a_g is formed upward in the same ball evaluation that forms r_g. The group is noise-level, Z(g), only when a_g is finite and q̂_g ≤ 2^-34·a_g: the certified upper bound of its true magnitude lies below 2^-34 of the terms that cancel to form it. If upward absolute-scale arithmetic overflows to +∞, Z is unavailable and the notice is suppressed; finite member publication and its independent B are retained. Infinity may never establish the noise condition.
 - **Firing predicate.** The notice appears for load case c exactly when all three hold:
   1. c is pre-guard Passed with `member_bound` present: K-D5 ran and passed, there is no load-row finding, and no other demotion applies;
   2. the unified predicate demotes c, and every B_g of c is finite;
@@ -260,9 +265,11 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
 
 - **Constraints.** It never changes the code: the case stays `NUMERICAL_INTEGRITY_SENSITIVE`. No standing logic, W1 path or integrity reader reads it. Its code does not begin with `NUMERICAL_INTEGRITY_`, so readers that select the integrity diagnostic by prefix are unaffected. It does not appear when any row is significant (condition 3).
 - **Pins.**
-  - Positive: a free-expansion L line under ΔT with one anchor. It is Sensitive, carries the notice, and X and Y are at least every published |row|.
+  - Positive: the invented thermal L line with a common prescribed rigid rotation. Root is (5e6, 7.3e6, 1.2e6) m; the other nodes are root+(3,4,5) and root+(−1,7,5), giving orthogonal straight legs with y_reference=(0.3,0.1,1). OD=0.2 m, t=0.01 m, E=200 GPa and ν=0.25. Each member has explicit interval strain ε=0.00012 and no fit; the root anchor prescribes all six DOFs, with zero translations and rotation φ=(0.01,−0.005,0.007) rad. The independent physical reference u=εr+φ×r and θ=φ has zero mechanical actions; independent code scrutiny also checks its intended-system property. Both modes are Sensitive with the notice, and X/Y contain every published force/moment row. The nonzero common rotation supplies meaningful cancellation scales in otherwise unloaded torsional groups.
   - Negative control: the same L line with one genuinely loaded member (a nodal force at the free end). There is no notice, whatever the standing.
   - "Solely because": a stress-free body beside a loaded body. The stress-free body makes the case Sensitive, and there is no notice.
+  - A thermal-only planar or generic L line may correctly suppress the notice: an unloaded group can have a=0 (or only residual noise) while its global remainder is positive. A regression preserves that unjudged-group suppression.
+  - A significant finite published row with infinite absolute-scale metadata suppresses the notice.
   - A zero-load case (u = 0) stays Passed with no notice.
 
 **Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`preview_physics::append_combination_results` in `PP/src/preview_physics.rs`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that; it is disclosed and listed under open items.
@@ -570,7 +577,8 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - a ledger term carrying several primitives, with one dropped while its independently enumerated ledger manifest remains intact, must fail closed; duplicates, extras, mismatched term identities and wrong operand bindings must also fail closed, in ordinary and W2 routes;
   - K-D5 with no ledger must fail closed;
   - a ledger value substituted for a primitive (the realistic STD-U wT utm-skew line kills it at 3.8e3·c);
-  - a binary64-zero thermal/fit fold with nonzero p strain retains its formed term and is pinned;
+  - a binary64-zero thermal/fit fold with nonzero p strain retains its formed term, including every arc column and connector reference row; source-factor reformation and raw natural-length geometry are pinned;
+  - replaced spans require raw exact-zero midpoint and radius, with independent nonzero-p folded-zero and genuine zero controls;
   - each primitive family has a test against an exact reference; a W2 formed-load case asserts preserved classification and complete scaled closure, and the drop-one-of-many mutant is killed on that route too.
 - **Repair:**
   - publishing v instead of fl(m_g);
