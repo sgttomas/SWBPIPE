@@ -397,7 +397,7 @@ So the short-bend rule is removed in the same unit as the closure and after it. 
 
 - **Integrity codes that move to Sensitive:**
   - the nonlinear-route cases (§5);
-  - all-zero bodies whose certified rows are not all exactly zero (§3.3), each with the notice. In SP-1 set E these are up to 82 committed case-modes: the free-length, coefficient-definition, constant-α, thermal-datum, released fit-state and free-tip prescribed-rotation qualification requests, in both modes and both request forms, plus the three mixed ordinary-pressure requests. O-13's `p8_a_stress_free_arc_stays_passed` is another. Revision 1's count of 16 undercounted these. The implementation counts them; a body whose certified rows all come out exactly zero stays Passed.
+  - all-zero bodies whose certified rows are not all exactly zero and whose coupled scale reaches 2^-988 (§3.3); the notice is emitted only when every group in the case satisfies §3.3 condition 3. In SP-1 set E these are up to 82 committed case-modes: the free-length, coefficient-definition, constant-α, thermal-datum, released fit-state and free-tip prescribed-rotation qualification requests, in both modes and both request forms, plus the three mixed ordinary-pressure requests. O-13's `p8_a_stress_free_arc_stays_passed` is another. Revision 1's count of 16 undercounted these. The implementation counts them; a body whose certified rows all come out exactly zero stays Passed.
 - **Predicted to stay Passed** with repaired rows:
   - I7's `U2-L-FREE-P-K2-SKEW-X5E6` and `-X7P3E6`;
   - `prescribed_rotation_all_fixed`;
