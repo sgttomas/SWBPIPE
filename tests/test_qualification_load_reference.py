@@ -651,6 +651,36 @@ class StandingTests(unittest.TestCase):
 
 
 class ReaderTests(unittest.TestCase):
+    def test_reader_binding_canonical_root_alias_and_dependency_escape(self):
+        fixture = Fixture(self, families=('connected',))
+        binding_path = fixture.root / 'binding.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        digest = sha256_bytes(binding_path.read_bytes())
+        alias = fixture.root / 'candidate-alias'
+        alias.symlink_to(fixture.candidate.resolve(), target_is_directory=True)
+        binding = lr.load_binding(alias, binding_path, digest)
+        self.assertEqual(binding['source_root'], fixture.candidate.resolve())
+        self.assertEqual(set(binding['dependency_bytes']), set(lr.DEPENDENCIES))
+        dependency = fixture.candidate / lr.MODULE
+        external = fixture.root / 'external-reader.rs'
+        external.write_bytes(dependency.read_bytes())
+        dependency.unlink()
+        dependency.symlink_to(external.resolve())
+        with self.assertRaisesRegex(lr.AdmissionError, 'dependency leaves selected candidate root'):
+            lr.load_binding(alias, binding_path, digest)
+
+    def test_reader_binding_refuses_review_escape_with_matching_bytes(self):
+        fixture = Fixture(self, families=('connected',))
+        binding_path = fixture.root / 'binding.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        review = fixture.candidate / fixture.binding['review_basis'][0]['path']
+        external = fixture.root / 'external-review.md'
+        external.write_bytes(review.read_bytes())
+        review.unlink()
+        review.symlink_to(external.resolve())
+        with self.assertRaisesRegex(lr.AdmissionError, 'review origin leaves selected candidate root'):
+            lr.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+
     def test_owned_reader_refusal_fails_its_obligation_only(self):
         fixture = Fixture(self, families=('connected',))
         raw = deepcopy(fixture.raws['connected'])

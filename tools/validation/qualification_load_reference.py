@@ -766,6 +766,7 @@ def bounded(path: Path, expected: str, limit: int = LIMIT) -> bytes:
 
 
 def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, require_reviewed: bool = True) -> dict:
+    project = project.resolve()
     data = bounded(binding_path, expected_sha256)
     binding = gate.strict_json(data)
     require(type(binding) is dict and binding.get('format') == BINDING_FORMAT and binding.get('contract_id') == CONTRACT,
