@@ -1,9 +1,8 @@
 //! `openpipestress-runner read`: the retained reader's verdict through the CLI
 //! over the shared corpus's bases and the producer-solved successors. The
-//! verdict is the reader's own (`retained_precision::validate` and
-//! `validate_transport_metadata`, run in process here for comparison) and the
-//! corpus's Rust expectation.
-use open_pipe_stress_headless_runner::reader_binding::{refusal_json, validation_json};
+//! outcome is the reader's own `outcome_json` of `retained_precision::validate`
+//! and `validate_transport_metadata`, run in process here for comparison, and
+//! the corpus's Rust expectation.
 use open_pipe_stress_result_export::retained_precision as rp;
 use serde_json::{json, Value};
 use std::io::Write;
@@ -67,27 +66,17 @@ fn run(args: &[&str], input: &str) -> (i32, Value, String) {
     )
 }
 
-/// The CLI verdict a reader result must produce.
+/// The CLI verdict a reader result must produce: exit 0 or 1 and the reader's
+/// own `outcome_json` in the command's envelope.
 fn expected(reader: &str, result: Result<rp::Validation, rp::ValidationError>) -> (i32, Value) {
-    let head = json!({
+    let code = if result.is_ok() { 0 } else { 1 };
+    let verdict = json!({
         "artifact": "openpipestress.result_reader_verdict",
         "schema_version": "1.0.0",
         "reader": reader,
+        "outcome": rp::outcome_json(&result),
     });
-    let mut verdict = head.as_object().unwrap().clone();
-    let code = match result {
-        Ok(validation) => {
-            verdict.insert("verdict".into(), json!("pass"));
-            verdict.insert("validation".into(), validation_json(&validation));
-            0
-        }
-        Err(error) => {
-            verdict.insert("verdict".into(), json!("refused"));
-            verdict.insert("refusal".into(), refusal_json(&error));
-            1
-        }
-    };
-    (code, Value::Object(verdict))
+    (code, verdict)
 }
 
 /// Bound, unbound and transport reads of one statement through the CLI.
@@ -126,7 +115,7 @@ fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
         let id = &case["id"];
         if case["expected"].get("gate").is_some() {
             // The corpus's refused bases: refused bound, passed unbound and on transport.
-            let refusal = &bound.1["refusal"];
+            let refusal = &bound.1["outcome"]["error"];
             assert_eq!(
                 json!({"gate": refusal["gate"], "code": refusal["code"]}),
                 case["expected"],
@@ -136,7 +125,7 @@ fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
             continue;
         }
         assert_eq!(bound.0, 0, "{id}: {}", bound.1);
-        let validation = &bound.1["validation"];
+        let validation = &bound.1["outcome"]["validation"];
         assert_eq!(validation["invocation_bound"], true, "{id}");
         assert_eq!(
             validation["numerical_eligible"], case["expected"]["numerical_eligible"],
@@ -151,9 +140,12 @@ fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
             case["source"]["retained_precision"]["body"]["publication_sha256"],
             "{id}"
         );
-        assert_eq!(unbound.1["validation"]["numerical_eligible"], false, "{id}");
         assert_eq!(
-            transport.1["validation"]["classifications"],
+            unbound.1["outcome"]["validation"]["numerical_eligible"], false,
+            "{id}"
+        );
+        assert_eq!(
+            transport.1["outcome"]["validation"]["classifications"],
             json!([]),
             "{id}"
         );
@@ -168,7 +160,10 @@ fn producer_solved_successors_read_through_the_cli_and_bind_eligible() {
             read_three_ways(&fixture["source"], &fixture["invocation"]);
         let id = &fixture["id"];
         assert_eq!(bound.0, 0, "{id}: {}", bound.1);
-        assert_eq!(bound.1["validation"]["invocation_bound"], true, "{id}");
+        assert_eq!(
+            bound.1["outcome"]["validation"]["invocation_bound"], true,
+            "{id}"
+        );
         assert_eq!((unbound.0, transport.0), (0, 0), "{id}");
     }
 }

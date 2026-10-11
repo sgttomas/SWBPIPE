@@ -36,13 +36,14 @@ def test_a_response_outside_the_verdict_contract_is_never_taken(monkeypatch):
     head = {"artifact": rust_reader.ARTIFACT, "schema_version": rust_reader.SCHEMA_VERSION, "reader": rust_reader.RETAINED_PRECISION}
     validation = {"invocation_bound": False, "numerical_eligible": False, "publication_sha256": "0" * 64, "classifications": []}
     refusal = {"gate": "G1", "code": "RETAINED_PRECISION_RECEIPT_MISMATCH", "detail": None}
-    for code, stdout in [(0, dict(head, verdict="refused", validation=validation)), (1, dict(head, verdict="pass", refusal=refusal)),
-                         (0, dict(head, verdict="pass", validation=validation, extra=1)), (0, dict(head, reader="other", verdict="pass", validation=validation)),
-                         (2, dict(head, verdict="pass", validation=validation)), (0, [])]:
+    passed, refused = {"ok": True, "validation": validation}, {"ok": False, "error": refusal}
+    for code, stdout in [(0, dict(head, outcome=refused)), (1, dict(head, outcome=passed)),
+                         (0, dict(head, outcome=passed, extra=1)), (0, dict(head, outcome=dict(passed, error=refusal))),
+                         (0, dict(head, reader="other", outcome=passed)), (2, dict(head, outcome=passed)), (0, [])]:
         monkeypatch.setattr(rust_reader.subprocess, "run", lambda *args, **kwargs: Completed(code, stdout))
         with pytest.raises(RuntimeError):
             rust_reader.retained_precision({"producer": {}})
-    monkeypatch.setattr(rust_reader.subprocess, "run", lambda *args, **kwargs: Completed(1, dict(head, verdict="refused", refusal=refusal)))
+    monkeypatch.setattr(rust_reader.subprocess, "run", lambda *args, **kwargs: Completed(1, dict(head, outcome=refused)))
     with pytest.raises(rust_reader.ReaderRefusal) as error:
         rust_reader.retained_precision({"producer": {}})
     assert (error.value.gate, error.value.code, error.value.detail, str(error.value)) == ("G1", refusal["code"], None, refusal["code"])

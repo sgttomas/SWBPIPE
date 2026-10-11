@@ -2,9 +2,10 @@
 
 Rust is the only product reader of result statements. Python product code that
 meets one takes the Rust reader's verdict through `openpipestress-runner read
-<reader>` and never re-derives it: JSON in on stdin, the reader's `Validation`
-or refusal (gate, code and detail) out on stdout, exit 0 when it passed and 1
-when it refused.
+<reader>` and never re-derives it: JSON in on stdin; out on stdout, the
+reader's own outcome (`retained_precision::outcome_json`, the shape the
+desktop's wasm engine returns too), `{"ok": true, "validation": {...}}` with
+exit 0 or `{"ok": false, "error": {gate, code, detail}}` with exit 1.
 
 The runner is an explicitly built executable named by OPENPIPESTRESS_RUNNER_BIN,
 an absolute path. There is no runtime build, PATH search, shell or fallback.
@@ -59,16 +60,18 @@ def read(reader: str, payload: Mapping[str, Any]) -> dict[str, Any]:
         verdict = json.loads(completed.stdout)
     except ValueError as error:
         raise RuntimeError(f"RUST-READER-RESPONSE-INVALID: {reader}") from error
-    expected = "pass" if completed.returncode == 0 else "refused"
-    member = "validation" if completed.returncode == 0 else "refusal"
-    if (not isinstance(verdict, dict) or set(verdict) != {"artifact", "schema_version", "reader", "verdict", member}
-            or verdict["artifact"] != ARTIFACT or verdict["schema_version"] != SCHEMA_VERSION
-            or verdict["reader"] != reader or verdict["verdict"] != expected or not isinstance(verdict[member], dict)):
+    passed = completed.returncode == 0
+    member = "validation" if passed else "error"
+    outcome = verdict.get("outcome") if isinstance(verdict, dict) else None
+    if (not isinstance(verdict, dict) or set(verdict) != {"artifact", "schema_version", "reader", "outcome"}
+            or verdict["artifact"] != ARTIFACT or verdict["schema_version"] != SCHEMA_VERSION or verdict["reader"] != reader
+            or not isinstance(outcome, dict) or set(outcome) != {"ok", member} or outcome["ok"] is not passed
+            or not isinstance(outcome[member], dict)):
         raise RuntimeError(f"RUST-READER-RESPONSE-INVALID: {reader}")
-    if completed.returncode == 1:
-        refusal = verdict["refusal"]
-        raise ReaderRefusal(refusal["gate"], refusal["code"], refusal["detail"])
-    return verdict["validation"]
+    if not passed:
+        error = outcome["error"]
+        raise ReaderRefusal(error["gate"], error["code"], error["detail"])
+    return outcome["validation"]
 
 
 def retained_precision(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
