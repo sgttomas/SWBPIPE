@@ -1,0 +1,2466 @@
+{
+ "about": "Loop-header bound table for text_budget.py. Each rule: regex on the loop header text (whitespace-normalized, string contents blanked), a bound expression over the D1 count symbols, and the reason. Bound 0 means the loop iterates a collection that D1 forces empty (DOMAIN.md clause cited). First matching rule wins. G4: RV83 R-2 (ruled: price it) removes the validate_profile and build_pressure_case_with_members exclusions; their sites are priced at their multiplicity. G4 (RV84 S-2): broad zero rules anchored; specific rules for real local tables placed first; text_budget lists every zero-matched header (zero_matched_headers) for review. G4: the result_export exclusion is dropped; the precommit reader (T17) is on the Direct path at b1f80234dc and its text is counted here. | G5 R-4: one rule added (final_case.rs:317), loop_bounds.r4.json",
+ "counts": {
+  "caps": {
+   "n": 32,
+   "m": 32,
+   "g": 32,
+   "s": 32,
+   "k": 192,
+   "r": 192,
+   "l": 192,
+   "N": 192,
+   "F": 192,
+   "Z": 4640,
+   "C": 4640,
+   "mats": 8,
+   "pts": 16,
+   "P": 2115,
+   "R0": 1891,
+   "cases": 1,
+   "diag": 0,
+   "D": 25544,
+   "E": 2528,
+   "H": 18528,
+   "Q": 1472,
+   "att": 1,
+   "L": 192,
+   "Pall": 2115
+  },
+  "milestone": {
+   "n": 2,
+   "m": 1,
+   "g": 4,
+   "s": 3,
+   "k": 3,
+   "r": 6,
+   "l": 3,
+   "N": 12,
+   "F": 9,
+   "Z": 144,
+   "C": 147,
+   "mats": 1,
+   "pts": 0,
+   "P": 100,
+   "R0": 72,
+   "cases": 1,
+   "diag": 0,
+   "D": 993,
+   "E": 48,
+   "H": 45,
+   "Q": 58,
+   "att": 1,
+   "L": 3,
+   "Pall": 100
+  }
+ },
+ "unmapped_default": null,
+ "recursion_factor": {
+  "assemble_sparse_stiffness": 2,
+  "retained_basis": 2
+ },
+ "loops": [
+  {
+   "re": "^for r in &envelope\\.results$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (placed first): source_receipt.rs finalize_for (:982, :1074; branch X): the whole envelope's rows. B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final (the composite rule `for r in rows|&case.rows|..|&envelope..` keeps P for per-case rows)"
+  },
+  {
+   "re": "^for row in &envelope\\.results$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (placed first): retained_product.rs bind_observations_by_case (:1142): the whole envelope's rows. B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final"
+  },
+  {
+   "re": "^for\\ \\(k,\\ case_id\\)\\ in\\ case_ids\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3077): lib.rs ReservedNotices::reserve: case_ids are A's ids (retained_w1 passes attempted.ids()). B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ \\(\\(slot,\\ id\\),\\ case_id\\)\\ in\\ notices\\.iter_mut\\(\\)\\.zip\\(ids\\)\\.zip\\(case_ids\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3086): lib.rs ReservedNotices::reserve: one notice slot per case in A. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ \\(k,\\ ReservedNotice\\(mut\\ notice\\)\\)\\ in\\ self\\.0\\.into_iter\\(\\)\\.flatten\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3105): lib.rs ReservedNotices::publish: the reserved notices, one per case in A. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ \\(\\(\\&request,\\ \\&id\\),\\ trigger\\)\\ in\\ self\\.requests\\(\\)\\.iter\\(\\)\\.zip\\(self\\.ids\\(\\)\\)\\.zip\\(triggers\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3146): lib.rs CaseSet::attempted: the requested cases and their triggers. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ \\(request,\\ case\\)\\ in\\ cases\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3165): lib.rs w1_case_ids: the request's load_cases, 1 <= len <= LOAD_CASES checked first. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:if\\ ordinary\\.diagnostics\\.iter\\(\\)\\.any$",
+   "bound": "D",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3079): lib.rs ReservedNotices::reserve: the ordinary envelope's diagnostics <= D_env <= D (TEXT fixpoint), once per case in A (the enclosing loop)"
+  },
+  {
+   "re": "^iter:case_ids\\.iter\\(\\)\\.map$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3196): lib.rs case_triggers: one trigger per requested case id. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:quality\\.cases\\.iter\\(\\)\\.filter$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3197): lib.rs case_triggers: numerical_quality.cases, one entry per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:only_one\\(quality\\.cases\\.iter\\(\\)\\.filter\\(\\|entry\\|\\ entry\\.basis_ref\\.ref_id\\ ==\\ case_id\\)\\)\\.map$",
+   "bound": "1",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3197): lib.rs case_triggers: only_one(..).map is Option::map. Option/Result adapter: the closure runs at most once"
+  },
+  {
+   "re": "^iter:seeds\\.iter\\(\\)\\.filter$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3198): lib.rs case_triggers: the ordinary seeds, one per requested case (T-2). B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:if\\ !case_triggers\\(\\&ordinary\\.numerical_quality,\\ \\&observer\\.ordinary,\\ cases\\.ids\\(\\)\\)\\.any$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3250): lib.rs retained_w1: .any over case_triggers(..), one item per requested case (the generic 'no iterator source' rule would read it as once). B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:\\|stage:\\ fn\\(\\&AttemptEnd\\)\\ \\->\\ bool\\|\\ prepared\\.attempts\\.iter\\(\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at lib.rs:3299): lib.rs w1_transaction: `reached` scans prepared.attempts, one per case in A. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ load\\ in\\ m\\.load_cases\\.iter\\(\\)\\.flat_map\\(\\|case\\|\\ \\&case\\.primitive_loads\\)$",
+   "bound": "L",
+   "why": "I104 SQ B1 (new or changed loop at retained_memory.rs:791): retained_memory.rs family_clauses (D1.7 per case, B1 SA): every case's primitive loads, sum_i l_i <= L"
+  },
+  {
+   "re": "^iter:refuse\\(C::Case,\\ F::AnalysisState\\);\\ \\}\\ \\}\\ for\\ support\\ in\\ \\&m\\.supports\\ \\{\\ if\\ support\\.hanger\\.is_some\\(\\)\\ \\{\\ return\\ refuse\\(C::Supports,\\ F::Hanger\\);\\ \\}\\ if\\ support\\.nonlinear\\.is_some\\(\\)\\ \\{\\ return\\ refuse\\(C::Supports,\\ F::Nonlinear\\);\\ \\}\\ if\\ let\\ Some\\(family\\)\\ =\\ \\&support\\.family\\ \\{\\ if\\ !matches!\\(family\\.as_str\\(\\),\\ \"\\ \"\\ \\|\\ \"\\ \"$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_memory.rs:791): retained_memory.rs family_clauses: the header is the `.flat_map(|case| &case.primitive_loads)` adapter (its receiver text runs back over the preceding loops); the closure runs once per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:requested\\ \\&\\&\\ capture\\.ordinary\\.iter\\(\\)\\.all$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_memory.rs:2621): retained_memory.rs ordinary_solve_attempted: capture.ordinary, one seed per requested case (T-3 (e)). B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ index\\ in\\ 0\\.\\.cases$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:1117): retained_product.rs bind_observations_by_case: cases = cases_seen() <= c. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ _\\ in\\ 0\\.\\.cases$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:1138): retained_product.rs bind_observations_by_case: one counter pair per case seen. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ row\\ in\\ \\&envelope\\.results$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:1142): retained_product.rs bind_observations_by_case: one pass over the whole envelope's rows (T-6; RV109 decision 19). B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final"
+  },
+  {
+   "re": "^for\\ attempt\\ in\\ attempts\\.iter_mut\\(\\)\\.filter\\(\\|attempt\\|\\ matches!\\(attempt\\.end,\\ AttemptEnd::Prepared\\)\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3683): retained_product.rs PreparedCases::native: attempts filtered to Prepared. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ attempt\\ in\\ attempts\\.iter_mut\\(\\)\\.filter\\(\\|attempt\\|\\ matches!\\(attempt\\.end,\\ AttemptEnd::Selected\\)\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3719): retained_product.rs PreparedCases::freeze: attempts filtered to Selected (T-9). B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ attempt\\ in\\ \\&self\\.attempts$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3742): retained_product.rs PreparedCases::staged_envelope: one overlay per frozen attempt. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ \\(index,row\\)\\ in\\ ordinary\\.results\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3843): retained_product.rs bind_case_rows: one pass over the whole envelope's rows (T-6, c >= 2). B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final"
+  },
+  {
+   "re": "^for\\ \\(attempt,\\&request\\)\\ in\\ attempted\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3876): retained_product.rs prepare_cases: one product attempt per case in A (T-7). B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ request\\ in\\ submitted\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3921): retained_product.rs native_call: submitted() yields the prepared requests. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^for\\ \\(request,case\\)\\ in\\ submitted\\(\\)\\.zip\\(cases\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3937): retained_product.rs native_call: one kernel case per submitted request. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^for\\ \\(i,r\\)\\ in\\ rows\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4296): retained_product.rs prepared_alias: the frozen case's own rows (its case scope, one block of P_final rows)"
+  },
+  {
+   "re": "^for\\ \\(i,row\\)\\ in\\ rows\\.iter_mut\\(\\)\\.enumerate\\(\\)$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4457): retained_product.rs apply_prepared_overlay: the case's scoped rows (one block of P_final; the whole envelope only at c = 1, where it is P_final)"
+  },
+  {
+   "re": "^for\\ row\\ in\\ staged\\.results\\.iter\\(\\)\\.filter\\(\\|row\\|row\\.kind==kind\\)$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4485): retained_product.rs stage_headlines: the staged envelope's rows of one kind, per headline kind (the enclosing array literal of 2). B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final"
+  },
+  {
+   "re": "^iter:1\\ \\|\\|\\ self\\.source\\.is_none\\(\\)\\ \\|\\|\\ self\\.parked\\.iter\\(\\)\\.any$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:1935): retained_product.rs finish: the parked case slots (c - 1 at most). B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:if\\ !attempts\\.iter\\(\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3680): retained_product.rs PreparedCases::native: attempts.iter().any. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:if\\ !attempts\\.iter\\(\\)\\.any\\(\\|attempt\\|\\ matches!\\(attempt\\.end,\\ AttemptEnd::Prepared\\)\\)\\ \\{\\ return;\\ \\}\\ for\\ attempt\\ in\\ attempts\\.iter_mut\\(\\)\\.filter$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3683): retained_product.rs PreparedCases::native: the filter closure over attempts (its receiver text runs back over the early return). B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:\\|\\|\\ attempts\\.iter\\(\\)\\.filter$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3688): retained_product.rs PreparedCases::native: submitted() closure: attempts filtered to Prepared. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:\\|\\|\\ attempts\\.iter\\(\\)\\.filter\\(\\|attempt\\|\\ matches!\\(attempt\\.end,\\ AttemptEnd::Prepared\\)\\)\\.map$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3688): retained_product.rs PreparedCases::native: submitted() closure's map over the filtered attempts. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:for\\ attempt\\ in\\ attempts\\.iter_mut\\(\\)\\.filter$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3690): retained_product.rs PreparedCases::native/freeze: the filter closure over attempts. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:self\\.attempts\\.iter\\(\\)\\.enumerate\\(\\)\\.filter$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3755): retained_product.rs selected_attempts: attempts enumerated and filtered. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:self\\.parked\\.iter_mut\\(\\)\\.find$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3810): retained_product.rs prepared_custody: the parked slots (c - 1 at most). B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:1\\ \\|\\|\\ ordinary\\.source_block_recovery\\.is_some\\(\\)\\ \\|\\|\\ self\\.native\\.is_some\\(\\)\\ \\|\\|\\ self\\.native_invocation\\.is_some\\(\\)\\ \\|\\|\\ self\\.parked\\.iter\\(\\)\\.any$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3819): retained_product.rs prepared_custody: parked.iter().any over the parked slots. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:requested\\ \\{\\ return\\ Err\\(\"\\ \"\\.into\\(\\)\\);\\ \\}\\ if\\ attempted\\.iter\\(\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3827): retained_product.rs prepared_custody: attempted.iter().any over A's request indices. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:requested\\ \\{\\ return\\ Err\\(\"\\ \"\\.into\\(\\)\\);\\ \\}\\ if\\ attempted\\.iter\\(\\)\\.any\\(\\|\\&request\\|request>=requested\\)\\ \\|\\|\\ attempted\\.windows\\(2\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3827): retained_product.rs prepared_custody: attempted.windows(2).any over A's request indices. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:if\\ self\\.native_invocation\\.is_some\\(\\)\\ \\|\\|\\ submitted\\(\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3902): retained_product.rs native_call: submitted().any (the generic 'no iterator source' rule would read it as once). B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^iter:if\\ self\\.native_invocation\\.is_some\\(\\)\\ \\|\\|\\ submitted\\(\\)\\.any\\(\\|request\\|self\\.case_native\\(request\\)\\.is_some\\(\\)\\)\\ \\{\\ return\\ Err\\(\"\\ \"\\.into\\(\\)\\);\\ \\}\\ if\\ submitted\\(\\)\\.any$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:3905): retained_product.rs native_call: the second submitted().any (its receiver text runs back over the first). B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^iter:self\\.case_rows\\(\\)\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4150): retained_product.rs ProductCaseView::rows: the case's rows (case_rows: its scope, one block of P_final)"
+  },
+  {
+   "re": "^iter:\"\\ \":self\\.verdicts\\.iter\\(\\)\\.map$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4377): retained_product.rs freeze_case: the case's verdicts, one per row of its scope (inside a #[cfg(test)] println)"
+  },
+  {
+   "re": "^iter:for\\ row\\ in\\ staged\\.results\\.iter\\(\\)\\.filter$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 (new or changed loop at retained_product.rs:4485): retained_product.rs stage_headlines: the filter closure over the staged envelope's rows. B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final"
+  },
+  {
+   "re": "^for\\ case_index\\ in\\ 0\\.\\.cases$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:870): retained_wire.rs material_basis: every requested case's base selector. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ d\\ in\\ env\\[\"\\ \"\\]\\.as_array\\(\\)\\.ok_or\\(fail\\(ReceiptCheck::Association,\\ \"\\ \"\\)\\)\\?$",
+   "bound": "D",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1481): retained_wire.rs case_diagnostic_refs_into: the successor envelope's diagnostics, D_env plus the appended selected/unavailable diagnostics <= D (TEXT fixpoint)"
+  },
+  {
+   "re": "^for\\ \\(case_id,\\ refs\\)\\ in\\ case_ids\\.iter\\(\\)\\.zip\\(refs\\.iter_mut\\(\\)\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1486): retained_wire.rs case_diagnostic_refs_into: one ref list per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ attempt\\ in\\ attempts$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1794): retained_wire.rs serialize_cases_with: every attempt's slot. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^for\\ \\(index,\\ seed\\)\\ in\\ pc\\.ordinary\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1818): retained_wire.rs serialize_cases_with: one legacy disposition per requested case's seed. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ \\(index,\\ \\(_,\\ omit\\)\\)\\ in\\ legacy\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1825): retained_wire.rs serialize_cases_with: each requested case's legacy entry. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ index\\ in\\ 0\\.\\.count$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1830): retained_wire.rs serialize_cases_with: `0..count`, count = requested cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ \\(index,\\ \\(\\(seed,\\ \\(legacy_v,\\ _\\)\\),\\ refs\\)\\)\\ in\\ pc\\.ordinary\\.iter\\(\\)\\.zip\\(legacy\\)\\.zip\\(diagnostic_refs\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1840): retained_wire.rs serialize_cases_with: one ordinary attempt per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ \\(index,\\ part\\)\\ in\\ case_parts\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1873): retained_wire.rs serialize_cases_with: cases[], one per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:\"\\ \":c\\.owners\\.iter\\(\\)\\.map\\(owner\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1417): retained_wire.rs invocation_arrays: the one call's owners, one per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^iter:e\\.exact\\(run\\.work\\.invocation_after\\(\\),\\ \"\\ \"\\)\\ \\{\\ return\\ Err\\(fail\\(ReceiptCheck::WorkCounterInconsistent,\\ \"\\ \"\\)\\);\\ \\}\\ if\\ inv\\.calls\\(\\)\\.iter\\(\\)\\.any$",
+   "bound": "1",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1442): retained_wire.rs invocation_arrays: inv.calls().iter().any: one CaseBatchCall per invocation (T-8; serialize_cases_with checks calls().len() == 1)"
+  },
+  {
+   "re": "^iter:if\\ affected\\.iter\\(\\)\\.any$",
+   "bound": "L+4",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1487): retained_wire.rs case_diagnostic_refs_into: one diagnostic's affected refs (G4's l + 4, rule `for reference in affected`, with a per-load list spanning every case: L + 4)"
+  },
+  {
+   "re": "^iter:request_cases\\.iter\\(\\)\\.map$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1785): retained_wire.rs serialize_cases_with: the request's load_cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:count\\ \\{\\ return\\ Err\\(scope\\(\"\\ \"\\)\\);\\ \\}\\ if\\ pc\\.ordinary\\.iter\\(\\)\\.zip\\(\\&case_ids\\)\\.any$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1789): retained_wire.rs serialize_cases_with: seeds zipped with the case ids. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:attempt_of\\.iter\\(\\)\\.map$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1800): retained_wire.rs serialize_cases_with: each requested case's attempt slot. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:attempts\\.iter\\(\\)\\.filter$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1809): retained_wire.rs serialize_cases_with: the attempts filtered to prepared. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:attempts\\.iter\\(\\)\\.filter\\(\\|attempt\\|\\ attempt\\.prepared\\)\\.map$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1809): retained_wire.rs serialize_cases_with: the prepared attempts' requests. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c)"
+  },
+  {
+   "re": "^iter:requests\\.iter\\(\\)\\.position$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1855): retained_wire.rs serialize_cases_with: requests = the prepared attempts' request indices. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^iter:requests\\.iter\\(\\)\\.position\\(\\|r\\|\\ \\*r\\ ==\\ request\\)\\.filter$",
+   "bound": "1",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1855): retained_wire.rs serialize_cases_with: Option::filter on the position. Option/Result adapter: the closure runs at most once"
+  },
+  {
+   "re": "^iter:inv\\.runs\\(\\)\\.iter\\(\\)\\.map$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1889): retained_wire.rs serialize_cases_with: execution_order over the call's Runs, one per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^iter:results\\.iter\\(\\)\\.map$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1935): retained_wire.rs serialize_attempt: the case scope's rows of the successor (one block of P_final)"
+  },
+  {
+   "re": "^iter:\\|r\\|\\ r\\[\"\\ \"\\]\\.as_str\\(\\)\\.map\\(str::to_owned\\)$",
+   "bound": "1",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1935): retained_wire.rs serialize_attempt: Option::map inside the row map. Option/Result adapter: the closure runs at most once"
+  },
+  {
+   "re": "^iter:row_ids\\.len\\(\\)\\ \\|\\|\\ rows\\.iter\\(\\)\\.zip\\(\\&row_ids\\)\\.any$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_wire.rs:1936): retained_wire.rs serialize_attempt: the case's bound rows zipped with its row ids (one block of P_final)"
+  },
+  {
+   "re": "^for\\ \\(si,\\ s\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:735): retained_precision.rs g3 (RS): body.sources, one CaseSource per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^for\\ s\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:3732): retained_precision.rs g8 (RS): body.sources, one CaseSource per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a)"
+  },
+  {
+   "re": "^for\\ c\\ in\\ list\\(\\&evidence\\[\"\\ \"\\]\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4579): retained_precision.rs preview_physics_transport_metadata (RS): evidence.preview_cases, one per requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^for\\ record\\ in\\ list\\(\\&attribution\\[\"\\ \"\\]\\)$",
+   "bound": "g",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4629): retained_precision.rs preview_physics_transport_metadata (RS): one case's withheld support records <= g supports"
+  },
+  {
+   "re": "^for\\ x\\ in\\ list\\(\\&c\\[\"\\ \"\\]\\)$",
+   "bound": "2*m",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4646): retained_precision.rs preview_physics_transport_metadata (RS): one case's pipe_stress_extrema <= 2 per member (as G4's extrema rule)"
+  },
+  {
+   "re": "^for\\ m\\ in\\ list\\(\\&c\\[\"\\ \"\\]\\)$",
+   "bound": "m",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4698): retained_precision.rs preview_physics_transport_metadata (RS): one case's intensified measures <= one per member"
+  },
+  {
+   "re": "^for\\ gate\\ in\\ list\\(\\&evidence\\[\"\\ \"\\]\\)$",
+   "bound": "0",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4743): retained_precision.rs preview_physics_transport_metadata (RS): combination_gates exist only for combinations (none in D1.4/B1)"
+  },
+  {
+   "re": "^iter:mi\\ as\\ u64\\ \\&\\&\\ list\\(\\&mb\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\.all$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:753): retained_precision.rs g3 (RS): one material basis's case_indices, each a requested case. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:\"\\ \"\\ \\&\\&\\ STAGE8\\[2\\.\\.\\]\\ \\.iter\\(\\)\\ \\.chain\\(\\&\\[\"\\ \",\\ \"\\ \"\\]\\)\\.all$",
+   "bound": "8",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:2052): retained_precision.rs d38_capture_before_run (RS): STAGE8[2..] (6 of the 8 stage names) chained with a 2-element literal"
+  },
+  {
+   "re": "^iter:matches!\\(text\\(\\&model\\[\"\\ \"\\]\\),\\ \"\\ \"\\ \\|\\ \"\\ \"\\ \\|\\ \"\\ \"\\)\\ \\&\\&\\ model\\[\"\\ \"\\]\\.is_null\\(\\)\\ \\&\\&\\ \\[\"\\ \",\\ \"\\ \"\\]\\ \\.iter\\(\\)\\.all$",
+   "bound": "2",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:3522): retained_precision.rs g8 (RS): the 2-element literal [combinations, components]"
+  },
+  {
+   "re": "^iter:rows\\ \\.iter\\(\\)\\.filter$",
+   "bound": "P",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:3604): retained_precision.rs g8 (RS): the case's rows (rows_for, one block of P_final)"
+  },
+  {
+   "re": "^iter:\\|mb\\|\\ list\\(\\&mb\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.any$",
+   "bound": "cases",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4220): retained_precision.rs g5_ordinary (RS): one material basis's case_indices. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA)"
+  },
+  {
+   "re": "^iter:keys\\.len\\(\\)\\ \\&\\&\\ keys\\.iter\\(\\)\\.all$",
+   "bound": "16",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4495): retained_precision.rs preview_physics_transport_metadata `shape` (RS): a literal key list, at most 16 keys"
+  },
+  {
+   "re": "^iter:a\\.iter\\(\\)\\.all$",
+   "bound": "max(m, g)",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4501): retained_precision.rs preview_physics_transport_metadata `strings` (RS): a pipe-id (<= m) or support-id (<= g) list"
+  },
+  {
+   "re": "^iter:!list\\(unavailable\\)\\.iter\\(\\)\\.any$",
+   "bound": "m",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4610): retained_precision.rs preview_physics_transport_metadata (RS): one case's unavailable pipe ids <= m"
+  },
+  {
+   "re": "^iter:!list\\(attributed\\)\\ \\.iter\\(\\)\\.any$",
+   "bound": "g",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4643): retained_precision.rs preview_physics_transport_metadata (RS): one case's attributed support ids <= g"
+  },
+  {
+   "re": "^iter:\\|x\\|\\ withheld\\.iter\\(\\)\\.any$",
+   "bound": "g",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4643): retained_precision.rs preview_physics_transport_metadata (RS): the withheld records collected for one case <= g"
+  },
+  {
+   "re": "^iter:\\[\"\\ \",\\ \"\\ \"\\]\\ \\.iter\\(\\)\\.all$",
+   "bound": "2",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4662): retained_precision.rs preview_physics_transport_metadata (RS): a 2-element key literal"
+  },
+  {
+   "re": "^iter:list\\(\\&c\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\.map$",
+   "bound": "2*m",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4686): retained_precision.rs preview_physics_transport_metadata (RS): one case's pipe_stress_extrema <= 2 per member"
+  },
+  {
+   "re": "^iter:list\\(unavailable\\)\\ \\.iter\\(\\)\\ \\.chain\\(list\\(outside\\)\\)\\.any$",
+   "bound": "2*m",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4694): retained_precision.rs preview_physics_transport_metadata (RS): unavailable then outside-domain pipe ids, <= m each"
+  },
+  {
+   "re": "^iter:\\[\\ \"\\ \",\\ \"\\ \",\\ \"\\ \",\\ \"\\ \",\\ \\]\\ \\.iter\\(\\)\\.all$",
+   "bound": "4",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4720): retained_precision.rs preview_physics_transport_metadata (RS): a 4-element key literal"
+  },
+  {
+   "re": "^iter:list\\(attributed\\)\\.iter\\(\\)\\.map\\(text\\)$",
+   "bound": "g",
+   "why": "I104 SQ B1 (new or changed loop at retained_precision.rs:4727): retained_precision.rs preview_physics_transport_metadata (RS): one case's attributed support ids <= g"
+  },
+  {
+   "re": "^iter:pending\\.take\\(\\)\\.map$",
+   "bound": "1",
+   "why": "G5 part 2 (rebase to 1e323058f3): U3 grant 1b permitted_dispatch (PP lib.rs:2930): Option::map on the moved request slot runs at most once (replaces G4's iter:slot.take().map rule, whose text changed)"
+  },
+  {
+   "re": "^for\\ \\(i,entry\\)\\ in\\ self\\.summary_coverage\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "n",
+   "why": "G5 (RV83 R-4, R4c): final_case.rs:315-324 check_summary_coverage, reached through retained_receipt.rs:128 `proof.check_summary_coverage(` once the let-else-rebound `proof` is untyped. The loop checks summary_coverage.len() == body_count first (:316), and bodies <= n (G4 PUBLICATION_READER.md \u00a71)"
+  },
+  {
+   "re": "devices \\.values\\(\\) \\.filter\\(\\|ids\\| ids\\.len\\(\\) > 1\\) \\.flatten\\(\\)\\.map$",
+   "bound": "r",
+   "why": "G4 (RV84 S-2 self-check): preview_physics.rs:202-225 ambiguous_supports. The adapter header spans the preceding for loops (its receiver walk crosses their braces) and contains \"nonlinear\", so the broad nonlinear zero rule matched a real D1 loop. The flattened ids are one per restrained DOF of a linear support (<= r) plus one per nonlinear support (0 in D1.6)"
+  },
+  {
+   "re": "^for\\ \\(i,r\\)\\ in\\ e\\.results\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "P",
+   "why": "G4 (N-2 follow-through, retained_product.rs capture): the envelope rows <= P_final"
+  },
+  {
+   "re": "^for\\ bi\\ in\\ 0\\.\\.nb$",
+   "bound": "n",
+   "why": "G4 (T17 reader): bodies <= n"
+  },
+  {
+   "re": "^for\\ g\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)$",
+   "bound": "g",
+   "why": "G4 (T17 reader): source supports <= g"
+  },
+  {
+   "re": "^for\\ st\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)$",
+   "bound": "3*m",
+   "why": "G4 (T17 reader): source stations"
+  },
+  {
+   "re": "^for\\ t\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)$",
+   "bound": "l",
+   "why": "G4 (T17 reader): source nodal terms <= l"
+  },
+  {
+   "re": "^for\\ c\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)$",
+   "bound": "k",
+   "why": "G4 (T17 reader): source constraints <= k"
+  },
+  {
+   "re": "^for\\ m\\ in\\ list\\(\\&maps\\[\"\\ \"\\]\\)$",
+   "bound": "m",
+   "why": "G4 (T17 reader): id_maps members"
+  },
+  {
+   "re": "^for\\ sp\\ in\\ list\\(\\&maps\\[\"\\ \"\\]\\)$",
+   "bound": "s",
+   "why": "G4 (T17 reader): id_maps springs"
+  },
+  {
+   "re": "^for\\ n\\ in\\ list\\(\\&maps\\[\"\\ \"\\]\\)$",
+   "bound": "n",
+   "why": "G4 (T17 reader): id_maps nodes"
+  },
+  {
+   "re": "^for\\ m\\ in\\ list\\(\\&a\\[\"\\ \"\\]\\[\"\\ \"\\]\\)$",
+   "bound": "m",
+   "why": "G4 (T17 reader): attempt preparation members"
+  },
+  {
+   "re": "^for\\ sp\\ in\\ list\\(\\&g\\[\"\\ \"\\]\\)$",
+   "bound": "s",
+   "why": "G4 (T17 reader): springs of one support group <= s"
+  },
+  {
+   "re": "^for\\ v\\ in\\ list\\(\\&n\\[\"\\ \"\\]\\)$",
+   "bound": "3",
+   "why": "G4 (T17 reader): node coordinates"
+  },
+  {
+   "re": "^for\\ v\\ in\\ list\\(\\&m\\[\"\\ \"\\]\\)$",
+   "bound": "16",
+   "why": "G4 (T17 reader): one member record array (y_reference 3, old_source 6, old_facts 7) <= 16"
+  },
+  {
+   "re": "^for\\ p\\ in\\ std::iter::once\\(raw\\)\\.chain\\(list\\(\\&raw\\[\"\\ \"\\]\\)\\.iter\\(\\)\\)$",
+   "bound": "17",
+   "why": "G4 (T17 reader): a material and its <= 16 temperature points (D1 cap)"
+  },
+  {
+   "re": "^for\\ p\\ in\\ list\\(\\&raw\\[\"\\ \"\\]\\)$",
+   "bound": "16",
+   "why": "G4 (T17 reader): temperature points <= 16"
+  },
+  {
+   "re": "^for\\ v\\ in\\ list\\(\\&sel\\[key\\]\\)$",
+   "bound": "4*n",
+   "why": "G4 (T17 reader): selection kind_value lists: <= 4 kinds per body"
+  },
+  {
+   "re": "^for\\ ni\\ in\\ list\\(\\&body\\[\"\\ \"\\]\\)$",
+   "bound": "n",
+   "why": "G4 (T17 reader): body nodes <= n"
+  },
+  {
+   "re": "^for\\ root\\ in\\ g5a_roots$",
+   "bound": "2*m+3",
+   "why": "G4 (T17 reader): g5a error roots: operational errors (2m) plus the three checks"
+  },
+  {
+   "re": "^for\\ \\(i,\\ x\\)\\ in\\ a\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "N",
+   "why": "G4 (T17 reader): an array inside an error subtree (a mode direction <= N, rigid parameters 6)"
+  },
+  {
+   "re": "^for\\ a\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (retained_precision.rs :560, :2377, :3956): body.product_attempts, one per case in A. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(ai,\\ a\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:2083 g5_products): body.product_attempts. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(si,\\ s\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:735 g3): body.sources, one per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "1",
+   "why": "I104 SQ B1 re-checked, kept (1): RS reader (:747 g3, :3616 g8): body.material_bases: the producer emits one material basis (D1.5's one default basis) whose case_indices name every case (retained_wire.rs material_basis). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(i,\\ c\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:4200 g5_ordinary): body.cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(i,\\ a\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:756 g3): body.product_attempts. B1 SP T-5/T-7..T-11: one entry per case in A, the attempted cases (|A| <= a <= c). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(call_id,\\ call\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "1",
+   "why": "I104 SQ B1 re-checked, kept (1): RS reader (:963, :1427): body.calls: one CaseBatchCall per invocation (T-8; the serializer refuses calls().len() != 1). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(i,\\ g\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "1",
+   "why": "I104 SQ B1 re-checked, kept (1): RS reader (:946): body.groups: every case shares the model and D1.5's one basis, so one stiffness and one group (C2 \u00a74; RV109 round 2 SF-1: one group, C reusing A's builds). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(i,\\ build\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "7",
+   "why": "I104 SQ B1 re-checked, kept (7): RS reader: body.builds: one shared build per origin slot of the one group (7 slots), reused by every case's Run (RV109 round 2 SF-1). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work hold <= 1 entry in D1 (one case, one run), builds <= 7 (one per origin slot): <= 7"
+  },
+  {
+   "re": "^for\\ c\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\ \\.filter\\(\\|c\\|\\ c\\[\"\\ \"\\]\\ ==\\ \"\\ \"\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:2657 numeric_cases): body.cases filtered. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ c\\ in\\ list\\(\\&body\\[\"\\ \"\\]\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:3030 g5a, :4437 validate): body.cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ s\\ in\\ list\\(\\&r\\[\"\\ \"\\]\\[\"\\ \"\\]\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:608 g1): body.sources. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ c\\ in\\ list\\(\\&r\\[\"\\ \"\\]\\[\"\\ \"\\]\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:631 g1): body.cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+  },
+  {
+   "re": "^for\\ \\(position,\\ ri\\)\\ in\\ list\\(\\&call\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:968 g5_native): the one call's run_refs, one Run per submitted case. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: G4 (T17 precommit reader at b1f80234dc): run refs of the one call"
+  },
+  {
+   "re": "^for\\ \\(ri,\\ si\\)\\ in\\ list\\(\\&call\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.zip\\(list\\(\\&call\\[\"\\ \"\\]\\)\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:1434): the one call's run/source refs. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: G4 (T17 precommit reader at b1f80234dc): run/source refs of the one call"
+  },
+  {
+   "re": "^for\\ si\\ in\\ list\\(\\&g\\[\"\\ \"\\]\\)$",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): RS reader (:952 g5_native): the one group's source_refs, every submitted case's source. B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: G4 (T17 precommit reader at b1f80234dc): source refs of the one group"
+  },
+  {
+   "re": "^for\\ fr\\ in\\ list\\(\\&a\\[\"\\ \"\\]\\)$",
+   "bound": "3",
+   "why": "G4 (T17 precommit reader at b1f80234dc): charge fragments of one logical attempt <= 3 (retained_wire.rs logical)"
+  },
+  {
+   "re": "^for\\ \\(index,\\ record\\)\\ in\\ records\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "4",
+   "why": "G4 (T17 precommit reader at b1f80234dc): physical records <= 4"
+  },
+  {
+   "re": "^for\\ \\(ai,\\ a\\)\\ in\\ attempts\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "4",
+   "why": "G4 (T17 precommit reader at b1f80234dc): logical attempts <= 4"
+  },
+  {
+   "re": "^for\\ ok\\ in\\ pending_work$",
+   "bound": "4*m+16",
+   "why": "G4 (T17 precommit reader at b1f80234dc): pending work checks of one product attempt: <= 4 per member plus the fixed stages"
+  },
+  {
+   "re": "^for\\ \\(bi,\\ body\\)\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "n",
+   "why": "G4 (T17 precommit reader at b1f80234dc): bodies of the source <= n"
+  },
+  {
+   "re": "^for\\ \\(bi,\\ b\\)\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "n",
+   "why": "G4 (T17 precommit reader at b1f80234dc): bodies <= n"
+  },
+  {
+   "re": "^for\\ bi\\ in\\ 0\\.\\.c\\.raw\\.len\\(\\)$",
+   "bound": "n",
+   "why": "G4 (T17 precommit reader at b1f80234dc): one raw scale per body <= n"
+  },
+  {
+   "re": "^for\\ d\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)$",
+   "bound": "k",
+   "why": "G4 (T17 precommit reader at b1f80234dc): source constraints <= k"
+  },
+  {
+   "re": "^for\\ c\\ in\\ \\&constraints$",
+   "bound": "k",
+   "why": "G4 (T17 precommit reader at b1f80234dc): constrained DOFs <= k"
+  },
+  {
+   "re": "^for\\ \\(left,\\ right\\)\\ in\\ list\\(\\&s\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\ \\.zip\\(list\\(\\&c\\.source\\[\"\\ \"\\]\\)\\)$",
+   "bound": "Q",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a source array zipped with itself: the longest source array is the layout, <= Q"
+  },
+  {
+   "re": "^iter:list\\(\\&s\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\.map$",
+   "bound": "Q",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a source array: the longest is the layout, <= Q"
+  },
+  {
+   "re": "^for\\ r\\ in\\ \\&rows$",
+   "bound": "P",
+   "why": "G4 (T17 precommit reader at b1f80234dc): published rows <= P"
+  },
+  {
+   "re": "^for\\ row\\ in\\ \\&c\\.rows$",
+   "bound": "P",
+   "why": "G4 (T17 precommit reader at b1f80234dc): rows of the case <= P"
+  },
+  {
+   "re": "^for\\ row\\ in\\ rows_for\\(source,\\ c\\)$",
+   "bound": "P",
+   "why": "G4 (T17 precommit reader at b1f80234dc): rows of the case <= P"
+  },
+  {
+   "re": "^for\\ c\\ in\\ cases$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:3206 g5b, :3293 g5c): the numeric cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): numeric cases: one case"
+  },
+  {
+   "re": "^for\\ \\(i,\\ c\\)\\ in\\ cs\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:668 g3): body.cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): one case"
+  },
+  {
+   "re": "^for\\ \\(i,\\ case\\)\\ in\\ cases\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "cases",
+   "why": "I104 SQ B1 rebind (1 -> cases): RS reader (:3566 g8): the invocation's load cases. B1: one entry per requested case (c <= C = 3; D1.4 at B1 SA). Was: G4 (T17 precommit reader at b1f80234dc): one load case (D1.4)"
+  },
+  {
+   "re": "^for\\ \\(j,\\ pm\\)\\ in\\ list\\(\\&a\\[\"\\ \"\\]\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): preparation members or operational records of the attempt <= m"
+  },
+  {
+   "re": "^for\\ m\\ in\\ list\\(\\&mb\\[\"\\ \"\\]\\)$",
+   "bound": "8",
+   "why": "G4 (T17 precommit reader at b1f80234dc): materials of one basis <= 8"
+  },
+  {
+   "re": "^for\\ \\(i,\\ l\\)\\ in\\ list\\(\\&case\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "l",
+   "why": "G4 (T17 precommit reader at b1f80234dc): primitive loads of the case <= l"
+  },
+  {
+   "re": "^for\\ \\(i,\\ n\\)\\ in\\ list\\(\\&model\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "n",
+   "why": "G4 (T17 precommit reader at b1f80234dc): model nodes <= n"
+  },
+  {
+   "re": "^iter:\\|\\(i,_\\)\\|\\[\\(\"\\ \",0\\.25\\),\\(\"\\ \",0\\.5\\),\\(\"\\ \",0\\.75\\)\\]\\.into_iter\\(\\)\\.enumerate\\(\\)\\.map$",
+   "bound": "3",
+   "why": "G4 (T17 precommit reader at b1f80234dc): three stations"
+  },
+  {
+   "re": "^for\\ \\(bi,\\ rt\\)\\ in\\ roots\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "n",
+   "why": "G4 (T17 precommit reader at b1f80234dc): bodies <= n"
+  },
+  {
+   "re": "^for\\ d\\ in\\ list\\(\\&raw\\[\"\\ \"\\]\\)$",
+   "bound": "6",
+   "why": "G4 (T17 precommit reader at b1f80234dc): restraints of one raw support <= 6 DOF"
+  },
+  {
+   "re": "^for\\ sp\\ in\\ \\&springs$",
+   "bound": "s",
+   "why": "G4 (T17 precommit reader at b1f80234dc): springs <= s"
+  },
+  {
+   "re": "^iter:Sha256::digest\\(bytes\\)\\ \\.iter\\(\\)\\.map$",
+   "bound": "32",
+   "why": "G4 (T17 precommit reader at b1f80234dc): SHA-256 digest bytes"
+  },
+  {
+   "re": "^for\\ \\(a,\\ \\(charges,\\ case,\\ inv\\)\\)\\ in\\ out\\.iter_mut\\(\\)\\.zip\\(parts\\)$",
+   "bound": "4",
+   "why": "G4 (T17 precommit reader at b1f80234dc): logical attempts <= 4 (retained_wire.rs:1081-1085)"
+  },
+  {
+   "re": "^for\\ row\\ in\\ rows_list$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 rebind (P -> Pall): preview_physics_evidence.rs validate_preview_physics_evidence (:270, :280, :629, :678): the source's whole results array. B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final. Was: G4 (T17 precommit reader at b1f80234dc): published rows <= P"
+  },
+  {
+   "re": "^for\\ row\\ in\\ rows_list\\.iter\\(\\)\\.filter\\(in_case\\)$",
+   "bound": "P",
+   "why": "I104 SQ B1 re-checked, kept (P): preview_physics_evidence.rs :523: the rows of one case (inside `for case in preview_cases`). Was: G4 (T17 precommit reader at b1f80234dc): rows <= P"
+  },
+  {
+   "re": "^iter:rows_list\\ \\.iter\\(\\)\\ \\.filter\\(in_case\\)\\ \\.filter\\(\\|r\\|\\ r\\[\"\\ \"\\]\\ ==\\ \"\\ \"\\)\\.map$",
+   "bound": "P",
+   "why": "G4 (T17 precommit reader at b1f80234dc): rows <= P"
+  },
+  {
+   "re": "^for\\ row\\ in\\ rows\\.iter\\(\\)\\.filter\\(\\|r\\|\\ r\\[\"\\ \"\\]\\ ==\\ kind\\)$",
+   "bound": "Pall",
+   "why": "I104 SQ B1 rebind (P -> Pall): preview_physics_evidence.rs headline (:775), called on rows_list (:640, :646): the whole results array. B1: every row of the c-case envelope (one block of P_final rows per requested case, lib.rs's case loop): c*P_final. Was: G4 (T17 precommit reader at b1f80234dc): rows <= P"
+  },
+  {
+   "re": "^for\\ row\\ in\\ rows$",
+   "bound": "P",
+   "why": "G4 (T17 precommit reader at b1f80234dc): rows <= P (formation_guard row_scales: <= N rows <= P)"
+  },
+  {
+   "re": "^for\\ item\\ in\\ array\\(v\\)\\?$",
+   "bound": "P",
+   "why": "I104 SQ B1 re-checked, kept (P): preview_physics_evidence.rs strings: one case's coverage/attribution id list (<= P, G4's bound), called per case. Was: G4 (T17 precommit reader at b1f80234dc): an id list of the evidence (coverage, attribution): <= P"
+  },
+  {
+   "re": "^for\\ measure\\ in\\ array\\(\\&case\\[\"\\ \"\\]\\)\\?$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): intensified measures <= one per member (D1.4: none)"
+  },
+  {
+   "re": "^for\\ extrema\\ in\\ array\\(\\&case\\[\"\\ \"\\]\\)\\?$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): one elastic maximum per member"
+  },
+  {
+   "re": "^for\\ \\(pipe,\\ ex\\)\\ in\\ extrema$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): per member"
+  },
+  {
+   "re": "^for\\ ex\\ in\\ maxima\\.values\\(\\)$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): per member"
+  },
+  {
+   "re": "^for\\ pipe\\ in\\ unavailable\\.iter\\(\\)\\.chain\\(outside\\.iter\\(\\)\\)$",
+   "bound": "m",
+   "why": "G4 (T17 precommit reader at b1f80234dc): pipes <= m"
+  },
+  {
+   "re": "^for\\ diagnostic\\ in\\ diagnostics$",
+   "bound": "D",
+   "why": "G4 (T17 precommit reader at b1f80234dc): envelope diagnostics <= D"
+  },
+  {
+   "re": "^for\\ gate\\ in\\ gates$",
+   "bound": "0",
+   "why": "G4 (T17 precommit reader at b1f80234dc): combination gates exist only for combinations (D1.4)"
+  },
+  {
+   "re": "^for\\ record\\ in\\ array\\(\\&attribution\\[\"\\ \"\\]\\)\\?$",
+   "bound": "g",
+   "why": "G4 (T17 precommit reader at b1f80234dc): attribution records <= g"
+  },
+  {
+   "re": "^for\\ components\\ in\\ actions\\.values\\(\\)$",
+   "bound": "g",
+   "why": "G4 (T17 precommit reader at b1f80234dc): per support <= g"
+  },
+  {
+   "re": "^for\\ reference\\ in\\ affected$",
+   "bound": "L+4",
+   "why": "I104 SQ B1 rebind (l+4 -> L+4): the T17 reader's preview-evidence check (preview_physics_evidence.rs `for reference in affected`): one diagnostic's affected refs (G4's l + 4, with a per-load list spanning every case: L + 4). Was: G4 (T17 precommit reader at b1f80234dc): affected refs of one diagnostic <= l + 4"
+  },
+  {
+   "re": "^for\\ reference\\ in\\ array\\(refs\\)\\?$",
+   "bound": "l+4",
+   "why": "G4 (T17 precommit reader at b1f80234dc): refs <= l + 4"
+  },
+  {
+   "re": "^for\\ value\\ in\\ fields\\.values\\(\\)$",
+   "bound": "8",
+   "why": "G4 (T17 precommit reader at b1f80234dc): metadata fields <= 8"
+  },
+  {
+   "re": "^for\\ reference\\ in\\ array\\(\\&row\\[\"\\ \"\\]\\)\\?$",
+   "bound": "4",
+   "why": "G4 (T17 precommit reader at b1f80234dc): source result refs <= 4 per row"
+  },
+  {
+   "re": "^iter:\" \":v\\.(resolution|theta|bound)\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
+   "bound": "n",
+   "why": "G4 (U1 serializer): a physical record verification: one entry per body <= n"
+  },
+  {
+   "re": "^iter:\" \":v\\.normalization_check\\.iter\\(\\)\\.map$",
+   "bound": "3",
+   "why": "G4 (U1 serializer): [f64; 3] (retained_product.rs:2573)"
+  },
+  {
+   "re": "^iter:\" \":o\\.inputs\\.iter\\(\\)\\.map$",
+   "bound": "10",
+   "why": "G4 (U1 serializer): [u64; 10] (retained_product.rs:2578)"
+  },
+  {
+   "re": "^for \\(i, f\\) in capture\\.facts\\.iter\\(\\)\\.enumerate\\(\\)$|^for \\(i,f\\) in facts\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "m",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one section fact per member"
+  },
+  {
+   "re": "^for \\(i, r\\) in records\\.iter\\(\\)\\.enumerate\\(\\)$|^iter:records\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
+   "bound": "4",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): physical records <= 4 (FK origins.rs:194, 687: the four-record schedule)"
+  },
+  {
+   "re": "^iter:\" \":scales\\.iter\\(\\)\\.map$|^iter:\" \":ev\\.resolution_scale\\.iter\\(\\)\\.map$|^iter:\" \":ev\\.theta\\.iter\\(\\)\\.map$|^iter:\" \":ev\\.certified_bound\\.iter\\(\\)\\.map$|^iter:\\|f\\|f\\.iter\\(\\)\\.map$|^for v in coverage$",
+   "bound": "n",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one entry per body <= n"
+  },
+  {
+   "re": "^iter:list\\.iter\\(\\)\\.map$",
+   "bound": "4*n",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): kind_value lists (stop rule, estimate, charge): <= 4 kinds per body"
+  },
+  {
+   "re": "^iter:inv\\.calls\\(\\)\\.iter\\(\\)\\.map$|^iter:inv\\.groups\\(\\)\\.iter\\(\\)\\.map$",
+   "bound": "1",
+   "why": "I104 SQ B1 re-checked, kept (1): retained_wire.rs invocation_arrays: one call and one group (as above). Was: G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one native call and one group (one_run, retained_wire.rs:1340-1349)"
+  },
+  {
+   "re": "^iter:inv\\.builds\\(\\)\\.iter\\(\\)\\.map$",
+   "bound": "7",
+   "why": "I104 SQ B1 re-checked, kept (7): retained_wire.rs invocation_arrays: the one group's 7 shared builds (as above). Was: G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one shared build per origin slot (7 slots, FK origins OriginSlot::ALL)"
+  },
+  {
+   "re": "^iter:source\\.stations\\(\\)\\.iter\\(\\)\\.map$",
+   "bound": "3*m",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): three stations per member"
+  },
+  {
+   "re": "^for i in used$",
+   "bound": "8",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): used materials <= model + request materials <= 4 + 4 (D1 caps)"
+  },
+  {
+   "re": "^iter:\" \":direction\\.iter\\(\\)\\.map$",
+   "bound": "N",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): a StructuralError mode direction vector <= N"
+  },
+  {
+   "re": "^iter:\" \":w\\.conversion_outcomes\\(\\)\\.iter\\(\\)\\.flatten\\(\\)\\.map$",
+   "bound": "9",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): conversion_outcomes: [Option<..>; 9] (product_certificate.rs:654)"
+  },
+  {
+   "re": "^iter:p\\.lanes\\.iter\\(\\)\\.flatten\\(\\)\\.map$",
+   "bound": "2",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): two readout lanes"
+  },
+  {
+   "re": "^for v in verdicts$|^for spec in specs$|^for \\(spec,value\\) in specs\\.iter\\(\\)\\.zip\\(&values\\)$|^iter:\" \":p\\.projection_outcomes\\.iter\\(\\)\\.map$",
+   "bound": "P",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one per published row <= P_final (projection outcomes reserved at specs.len(), final_case.rs:1716, :1802)"
+  },
+  {
+   "re": "^iter:\" \":c\\.iter\\(\\)\\.map$|^iter:\" \":km\\.y_reference\\.iter\\(\\)\\.map$",
+   "bound": "3",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): three coordinates"
+  },
+  {
+   "re": "^for \\(i, s\\) in capture\\.spring_map\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "s",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one per spring"
+  },
+  {
+   "re": "^for c in source\\.constraints\\(\\)$",
+   "bound": "k",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): constrained DOFs <= k = min(N, r)"
+  },
+  {
+   "re": "^for \\(i, l\\) in source\\.loads\\(\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "l",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): nodal loads <= l"
+  },
+  {
+   "re": "^iter:k::layout\\(source\\)\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
+   "bound": "Q",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): layout measures <= Q = 1,472"
+  },
+  {
+   "re": "^iter:\" \":rigid_parameters\\.iter\\(\\)\\.map$",
+   "bound": "6",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): [f64; 6] (adaptive.rs:2863)"
+  },
+  {
+   "re": "^iter:\" \":b\\.bits\\(\\)\\.iter\\(\\)\\.map$",
+   "bound": "5",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): [u64; 5] (product_certificate.rs:621)"
+  },
+  {
+   "re": "^iter:\" \":m\\.old_source\\.iter\\(\\)\\.map$",
+   "bound": "6",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): [u64; 6] (retained_product.rs:3273)"
+  },
+  {
+   "re": "^iter:\" \":m\\.old_facts\\.iter\\(\\)\\.map$",
+   "bound": "7",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): [u64; 7] (retained_product.rs:3275)"
+  },
+  {
+   "re": "^iter:\" \":view\\.operational_old\\.iter\\(\\)\\.map$|^iter:\" \":view\\.operational_new\\.iter\\(\\)\\.map$|^for _ in &self\\.maxima$",
+   "bound": "m",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): one per member"
+  },
+  {
+   "re": "^for \\(n, s\\) in names\\.iter\\(\\)\\.zip\\(view\\.stages\\.iter\\(\\)\\)$",
+   "bound": "10",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): ten stage names (retained_wire.rs:1289)"
+  },
+  {
+   "re": "^iter:\" \":n\\.entries\\.iter\\(\\)\\.map$",
+   "bound": "7",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): entries: [WorkTotal; 7] (product_certificate.rs:125)"
+  },
+  {
+   "re": "^for \\(j,v\\) in ends\\.iter_mut\\(\\)\\.enumerate\\(\\)$",
+   "bound": "2",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): two ends"
+  },
+  {
+   "re": "^for key in PREPARED_MAX_KEYS$",
+   "bound": "8",
+   "why": "G4 (U1 serializer and U1/U3 capture, retained_wire.rs / retained_product.rs at b1f80234dc): [&str; 8] (retained_product.rs:3473)"
+  },
+  {
+   "re": "^iter:slot\\.take\\(\\)\\.map$",
+   "bound": "1",
+   "why": "G4: U3 permitted_dispatch (PP lib.rs:2895): Option::map runs at most once"
+  },
+  {
+   "re": "^for &\\[a, b\\] in links$",
+   "bound": "m+s+g",
+   "why": "G4 (R-1, newly reached): rigid_body.rs:373 objective_sub_bodies: links between nodes, one per member, spring or support tie"
+  },
+  {
+   "re": "^while next < body\\.len\\(\\)$|^while head < queue\\.len\\(\\)$",
+   "bound": "n",
+   "why": "G4 (R-1, newly reached): rigid_body.rs BFS over one body: each node is enqueued once, <= n"
+  },
+  {
+   "re": "^for &other in &adjacent\\[node\\]$|^for &k in &adjacency\\[current\\]$",
+   "bound": "n",
+   "why": "G4 (R-1, newly reached): rigid_body.rs neighbours of one node <= n"
+  },
+  {
+   "re": "^for \\(k, &\\[a, b\\]\\) in ties\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "r",
+   "why": "G4 (R-1, newly reached): rigid_body.rs:693 reduce_constrained_body: one tie per restraint <= r"
+  },
+  {
+   "re": "^for mut w in std::mem::take\\(vectors\\)$",
+   "bound": "6*n",
+   "why": "G4 (R-1, newly reached): rigid_body.rs:1155 reduce_to_echelon: <= 6 rigid vectors per node"
+  },
+  {
+   "re": "^for \\(index, &\\(a, b, _\\)\\) in evidence\\.edges\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "m+s",
+   "why": "G4 (R-1, newly reached): structural_adapter.rs body evidence edges: one per member and per spring"
+  },
+  {
+   "re": "^iter:terms\\.iter\\(\\)\\.map$",
+   "bound": "l",
+   "why": "G4 (R-1, newly reached): structural.rs:1098 row_sources: the force terms of one row <= l"
+  },
+  {
+   "re": "^for treatment in ledger\\.iter\\(\\)\\.filter\\(\\|r\\| r\\.treatment == \" \"\\)$",
+   "bound": "P",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs:161 recipes: the case ledger rows <= the case rows <= P_final"
+  },
+  {
+   "re": "^for i in 0\\.\\.n$",
+   "bound": "N",
+   "why": "G4 (R-1, newly reached on the repaired graph): structural.rs audit_load_fidelity / prepare_bound / solve: n is the system dimension <= N"
+  },
+  {
+   "re": "^for c in coverage$",
+   "bound": "n",
+   "why": "G4 (R-1, newly reached on the repaired graph): retained_product.rs:2950 validate_summary_shape: one coverage entry per body <= n"
+  },
+  {
+   "re": "^for seed in 0\\.\\.n$|^while index < body\\.len\\(\\)$",
+   "bound": "n",
+   "why": "G4 (R-1, newly reached on the repaired graph): structural_adapter.rs:1258 BodyEvidence::geometry: nodes <= n"
+  },
+  {
+   "re": "^for &\\(a, b, _\\) in self\\.edges$",
+   "bound": "m+s",
+   "why": "G4 (R-1, newly reached on the repaired graph): structural_adapter.rs BodyEvidence edges: one per member and per spring"
+  },
+  {
+   "re": "^for \\(i, law\\) in laws\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "2",
+   "why": "G4 (R-1, newly reached on the repaired graph): product_certificate bridge.rs:451 and source_residual.rs: two readout laws (admitted_k, annular_source)"
+  },
+  {
+   "re": "^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter",
+   "bound": "l",
+   "why": "G4 (R-1, newly reached on the repaired graph): force terms: one per nodal load primitive <= l (D1.7)"
+  },
+  {
+   "re": "^for &component in scaled_intended$",
+   "bound": "l",
+   "why": "G4 (R-1, newly reached on the repaired graph): load_ledger.rs:595 add_defect: the scaled intended components of one DOF row <= its force terms <= l"
+  },
+  {
+   "re": "^for _ in 0\\.\\.support_count$",
+   "bound": "g",
+   "why": "G4 (R-1, newly reached on the repaired graph): final_case.rs:1114 row_scales: supports <= g"
+  },
+  {
+   "re": "^for station in &station_resultants$|^iter:station_resultants \\.iter\\(\\)\\.map$",
+   "bound": "3",
+   "why": "G4 (R-1, newly reached on the repaired graph): lib.rs:4687-4689: three stations (quarter_1, midspan, quarter_3) per member"
+  },
+  {
+   "re": "^iter:\" \":forces\\.iter\\(\\)\\.map$",
+   "bound": "l",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs:376 commitment force_terms: <= l nodal force terms"
+  },
+  {
+   "re": "^iter:indices \\.into_iter\\(\\)\\.map$",
+   "bound": "6",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs:189-243 recipes: <= 2 stations x 3 components, or 3 support components"
+  },
+  {
+   "re": "^for \\(name,path,v\\) in operands$",
+   "bound": "2",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs:181 recipes: a literal vec of 1 or 2 operands"
+  },
+  {
+   "re": "^for t in &d\\.terms$",
+   "bound": "144*m+s+l",
+   "why": "G4 (R-1, newly reached on the repaired graph): terms of one descriptor <= contributions + springs + force terms"
+  },
+  {
+   "re": "^for product in &row\\.offset$",
+   "bound": "144*m+s+l",
+   "why": "G4 (R-1, newly reached on the repaired graph): source_recovery.rs:1412 append_scaled_products: offset products of one row <= the descriptor bound"
+  },
+  {
+   "re": "^for status in source_statuses$",
+   "bound": "4",
+   "why": "G4 (R-1, newly reached on the repaired graph): stress_recovery lib.rs:1059 collect_statuses: the statuses of the 4 stress components"
+  },
+  {
+   "re": "^for value in stiffness\\.iter\\(\\)\\.flatten\\(\\)$",
+   "bound": "N*N",
+   "why": "G4 (R-1, newly reached on the repaired graph): nonlinear_integration lib.rs:574: a dense N x N stiffness"
+  },
+  {
+   "re": "^for &value in &input\\.force$",
+   "bound": "N",
+   "why": "G4 (R-1, newly reached on the repaired graph): nonlinear_integration validate_input: a force vector of N"
+  },
+  {
+   "re": "^for e in &source\\.frames$",
+   "bound": "m",
+   "why": "G4 (R-1, newly reached on the repaired graph): formation_check.rs: frame primitives <= m"
+  },
+  {
+   "re": "^for e in &source\\.users$",
+   "bound": "0",
+   "why": "G4 (R-1, newly reached on the repaired graph): formation_check.rs: user-stiffness primitives exist only for components (D1.4)"
+  },
+  {
+   "re": "^for r in &relative$|^for p in coordinates$",
+   "bound": "n",
+   "why": "G4 (R-1, newly reached on the repaired graph): rigid_body.rs: one entry per node <= n"
+  },
+  {
+   "re": "^for \\(station, \\(location, fraction\\)\\) in stations\\.iter_mut\\(\\)\\.zip",
+   "bound": "3",
+   "why": "G4 (R-1, newly reached on the repaired graph): lib.rs:10737 curved_bend_station_resultants: three stations (and curved bends need components, D1.4)"
+  },
+  {
+   "re": "^iter:m \\.iter\\(\\)\\.map$",
+   "bound": "N",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs:5 matrix / :11 matrix12 rows <= N (12 for matrix12); per-fn totals in loop_total"
+  },
+  {
+   "re": "^iter:r\\.iter\\(\\)\\.copied\\(\\)\\.map\\(bits\\)$",
+   "bound": "N",
+   "why": "G4 (R-1, newly reached on the repaired graph): source.rs matrix/matrix12/products row atoms <= N per matrix row; per-fn totals in loop_total"
+  },
+  {
+   "re": "^for \\(end_i_id, end_j_id, kind, component, dof, unit\\) in components$",
+   "bound": "6",
+   "why": "G4 (RV84 S-2): append_element_force_results local table of 6 component tuples (PP lib.rs:11106-11156 at b1f80234dc)"
+  },
+  {
+   "re": "^for \\(id_tail, kind, component, dof, scale, unit, sign_convention\\) in components$",
+   "bound": "6",
+   "why": "G4 (RV84 S-2): append_node_displacement_component_results table of 6 (lib.rs:11190-11246)"
+  },
+  {
+   "re": "^for \\(id, kind, component, value, unit\\) in components$",
+   "bound": "6",
+   "why": "G4 (RV84 S-2): append_station_force_results table of 6 (lib.rs:11277-11321)"
+  },
+  {
+   "re": "^for \\(id_tail, kind, component, value, sign_convention\\) in local_components$",
+   "bound": "4",
+   "why": "G4 (RV84 S-2): endpoint/station stress tables of 4 (lib.rs:12579-12609, :12672-12702)"
+  },
+  {
+   "re": "^for \\(i, c\\) in components\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "3",
+   "why": "G4 (RV84 S-2): retained_product.rs:2162, a [&str; 3] array"
+  },
+  {
+   "re": "^for (bounds|interval) in boundaries\\.windows\\(2\\)$",
+   "bound": "1",
+   "why": "G4 (RV84 S-2): boundaries = [0, 1] plus two per element load of the pipe; D1.7 has none, so one window (lib.rs:9983-9986, :10073-10109)"
+  },
+  {
+   "re": "^for \\(value, accumulator\\) in w\\.iter_mut\\(\\)\\.zip\\(&intensity\\)$",
+   "bound": "3",
+   "why": "G4 (RV84 S-2): [f64; 3] accumulators (lib.rs:10011-10012)"
+  },
+  {
+   "re": "^for pair in boundary_pairs\\.windows\\(2\\)$",
+   "bound": "N",
+   "why": "G4 (RV84 S-2): pairs over base restrained DOFs <= N (nonlinear_integration lib.rs:1883-1918)"
+  },
+  {
+   "re": "^for binding in bindings$",
+   "bound": "42*m+N+s+6*g",
+   "why": "functional row bindings <= Fn"
+  },
+  {
+   "re": "derived_for\\(",
+   "bound": "P",
+   "why": "derived rows <= the case's rows <= P_final"
+  },
+  {
+   "re": "selected\\.support_actions\\(\\)",
+   "bound": "g",
+   "why": "support actions <= g"
+  },
+  {
+   "re": "^for r in rows$|^for r in &case\\.rows$|^iter:rows: rows \\.iter\\(\\)\\.map$|^for r in &envelope\\.results$",
+   "bound": "P",
+   "why": "rows of the case or envelope <= P_final"
+  },
+  {
+   "re": "^for row in generated$|generated\\.into_iter\\(\\)\\.take\\(6\\)",
+   "bound": "6",
+   "why": "generated support component rows: six per support (rows.rs)"
+  },
+  {
+   "re": "spent\\.rows\\.len\\(\\)|owner\\.publish\\(\\)\\.rows\\.len\\(\\)",
+   "bound": "Q",
+   "why": "native published rows <= Q"
+  },
+  {
+   "re": "^for row in 0\\.\\.dimension$|^for col in 0\\.\\.row$",
+   "bound": "N",
+   "why": "matrix dimension <= N"
+  },
+  {
+   "re": "^iter:\\(0\\.\\.3\\)\\.map$",
+   "bound": "3",
+   "why": "literal range"
+  },
+  {
+   "re": "old\\.constraints\\(\\)",
+   "bound": "r",
+   "why": "source constraints <= r raw"
+  },
+  {
+   "re": "old\\.springs\\(\\)|&x\\.springs",
+   "bound": "s",
+   "why": "springs <= s"
+  },
+  {
+   "re": "&x\\.directional_springs",
+   "bound": "0",
+   "why": "C2: no directional springs"
+  },
+  {
+   "re": "old\\.stations\\(\\)",
+   "bound": "3*m",
+   "why": "stations = 3m"
+  },
+  {
+   "re": "old\\.loads\\(\\)|^for f in forces$",
+   "bound": "l",
+   "why": "nodal loads/forces <= l"
+  },
+  {
+   "re": "^for d in &envelope\\.diagnostics$",
+   "bound": "D",
+   "why": "diagnostics <= D"
+  },
+  {
+   "re": "^for \\(i, f\\) in facts\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "m",
+   "why": "member facts <= m"
+  },
+  {
+   "re": "owner\\.source\\(\\)\\.body_count\\(\\)",
+   "bound": "n",
+   "why": "bodies <= n"
+  },
+  {
+   "re": "system\\.prescribed",
+   "bound": "k",
+   "why": "prescribed pairs <= k"
+  },
+  {
+   "re": "rows\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "6",
+   "why": "six support component rows"
+  },
+  {
+   "re": "^for \\(i, row\\) in end\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "12",
+   "why": "twelve end-action rows"
+  },
+  {
+   "re": "state\\.load_sources",
+   "bound": "0",
+   "why": "D1.3: no load-reference state"
+  },
+  {
+   "re": "^while cursor < block\\.len\\(\\)$",
+   "bound": "F",
+   "why": "block search over F free DOFs"
+  },
+  {
+   "re": "^for \\(i, t\\) in d\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "bound": "144*m+s+l",
+   "why": "terms of one descriptor <= contributions + springs + force terms"
+  },
+  {
+   "re": "^iter:refs\\.iter\\(\\)\\.map$",
+   "bound": "4",
+   "why": "refs of one diagnostic <= 4 (vec! literals)"
+  },
+  {
+   "re": "self\\.data\\.specs",
+   "bound": "P",
+   "why": "final product row specs <= P_final"
+  },
+  {
+   "re": "for input in inputs$",
+   "bound": "0",
+   "why": "build_pressure_thrust_loads: pressure-thrust inputs exist only for expansion-joint components (D1.4)"
+  },
+  {
+   "re": "exact\\.assembled_operands",
+   "bound": "0",
+   "why": "exact pressure operands (D1.3)"
+  },
+  {
+   "re": "^for entry in entries$",
+   "bound": "E",
+   "why": "sparse_direct adjacency over the lower symmetric entries: <= E = 78m+s"
+  },
+  {
+   "re": "^iter:rows\\.iter\\(\\)\\.cloned\\(\\)\\.map$",
+   "bound": "R0",
+   "why": "qualify_source_case_rows: the case's original rows <= R0"
+  },
+  {
+   "re": "for seed in 0\\.\\.node_count|while let Some\\(node\\) = queue\\.pop_front\\(\\)|for &next in &neighbors\\[node\\]",
+   "bound": "F",
+   "why": "RCM over F free DOFs: each vertex is enqueued once; neighbours of one vertex <= F"
+  },
+  {
+   "re": "^iter:value \\.filter\\(\\|value\\| value\\.is_finite\\(\\)\\)\\.map$",
+   "bound": "1",
+   "why": "Option adapter"
+  },
+  {
+   "re": "^for &\\(dof, value\\) in springs$",
+   "bound": "s",
+   "why": "spring tuples <= s"
+  },
+  {
+   "re": "item\\.kind == \\\" \\\"\\)\\.filter_map|append_combination|^iter:sources\\.iter\\(\\)\\.map$",
+   "bound": "0",
+   "why": "combination records (D1.4: no combinations)"
+  },
+  {
+   "re": "^for &index in indices$|^for \\(index, term\\) in self\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$|^iter:self \\.terms \\.iter\\(\\)\\.map$",
+   "bound": "l",
+   "why": "load ledger terms and per-DOF index lists <= l nodal terms"
+  },
+  {
+   "re": "case\\.get\\(\\\" \\\"\\)\\.and_then\\(\\|v\\| v\\.as_array\\(\\)\\)\\.into_iter\\(\\)\\.flatten\\(\\)",
+   "bound": "l",
+   "why": "loads of the one case in the raw request <= l"
+  },
+  {
+   "re": "&dispositions",
+   "bound": "g",
+   "why": "support dispositions <= g"
+  },
+  {
+   "re": "LIMITATIONS\\.iter\\(\\)",
+   "bound": "16",
+   "why": "fixed LIMITATIONS array (preview_physics.rs), fewer than 16 entries"
+  },
+  {
+   "re": "^for d in diagnostics\\.iter_mut\\(\\)$|^for diagnostic in &mut diagnostics$",
+   "bound": "D",
+   "why": "diagnostics vector <= D"
+  },
+  {
+   "re": "groups\\.iter\\(\\)\\.enumerate\\(\\)|for map in &self\\.spring_map|for used in built_used",
+   "bound": "g+s",
+   "why": "support groups and spring maps <= g + s"
+  },
+  {
+   "re": "^for &g in restrained$",
+   "bound": "k",
+   "why": "restrained DOFs <= k"
+  },
+  {
+   "re": "extrema\\.iter\\(\\)\\.enumerate\\(\\)",
+   "bound": "2*m",
+   "why": "maximum and displacement extrema rows <= 2m"
+  },
+  {
+   "re": "rows\\.iter\\(\\)\\.flatten\\(\\)\\.filter\\(\\|r\\|r\\.metadata|^for row in produced_rows$|^for row in &envelope\\.results$",
+   "bound": "P",
+   "why": "result rows <= P_final"
+  },
+  {
+   "re": "^for b in 0\\.\\.nb$|^for body in 0\\.\\.source\\.body_count\\(\\)$",
+   "bound": "n",
+   "why": "bodies <= n"
+  },
+  {
+   "re": "^for key in object\\.keys\\(\\)$",
+   "bound": "16",
+   "why": "closed-key check of one fixed-shape object (retained_product.rs:2865), at most 16 keys"
+  },
+  {
+   "re": "^for selection in &self\\.selections$",
+   "bound": "cases",
+   "why": "I104 SQ B1 re-checked, kept (cases): one selection per case (as G4). Was: one selection per case"
+  },
+  {
+   "re": "source \\.(member_ids|spring_ids|support_ids) \\.iter\\(\\) \\.enumerate\\(\\)\\.map",
+   "bound": "m+s+g",
+   "why": "member/spring/support id vectors"
+  },
+  {
+   "re": "^for index in 0\\.\\.functionals\\.len\\(\\)$",
+   "bound": "42*m+N+s+6*g",
+   "why": "functional descriptors Fn"
+  },
+  {
+   "re": "^for fraction in STATIONS$",
+   "bound": "5",
+   "why": "STATIONS has 5 entries (source_recovery.rs:31)"
+  },
+  {
+   "re": "support_ids\\.iter\\(\\)\\.enumerate\\(\\)",
+   "bound": "g",
+   "why": "support ids <= g"
+  },
+  {
+   "re": "^loop$",
+   "bound": "4",
+   "why": "finish_checked_factor refinement loop: at most 3 refinements then exit (I54 BOUND 'Condition/refinement', FK structural.rs:1687-1820)"
+  },
+  {
+   "re": "trackers\\.into_trackers\\(\\)",
+   "bound": "N*N",
+   "why": "tracker map entries: one per (test, body, kind) key; bounded by the D1 collection ceiling N*N (TEXT.md section 4)"
+  },
+  {
+   "re": "^for start in 0\\.\\.n$|^while let Some\\(a\\) = stack\\.pop\\(\\)$|structure\\.pattern\\.row_range\\(ordering\\.free\\[a\\]\\)",
+   "bound": "F",
+   "why": "free-block search over F free DOFs"
+  },
+  {
+   "re": "kind\\.offset\\(\\)\\.\\.kind\\.offset\\(\\) \\+ 3",
+   "bound": "3",
+   "why": "literal three-component range"
+  },
+  {
+   "re": "for \\(dof, net\\) in &self\\.entries",
+   "bound": "N",
+   "why": "ledger entries <= N DOFs"
+  },
+  {
+   "re": "&prep\\.prescribed|^for &\\(c, v\\) in list$",
+   "bound": "N",
+   "why": "prescribed lists per group <= N"
+  },
+  {
+   "re": "^iter:(frames|users) \\.iter\\(\\)\\.map$",
+   "bound": "m",
+   "why": "frame primitives <= m; user primitives 0 (D1.4)"
+  },
+  {
+   "re": "load_application\\s*\\.findings",
+   "bound": "l",
+   "why": "primitive_loads prepare_loads: at most one LoadFinding per primitive load (each prepare_* returns one Result per load)"
+  },
+  {
+   "re": "boundary\\s*\\.findings",
+   "bound": "r+g",
+   "why": "linear_supports prepare_boundary: at most one finding per support plus one per raw restraint entry"
+  },
+  {
+   "re": "traversal|terminals|\\(dof, pbits, hi, lo, _\\), group\\) in groups",
+   "bound": "0",
+   "why": "D1.3/D1.5: pressure_runtime paths (no pressure contract/regions)"
+  },
+  {
+   "re": "initial_states|current_states|all_active|\\bstates\\b|state_summary",
+   "bound": "0",
+   "why": "D1.6: nonlinear support states (no nonlinear supports)"
+  },
+  {
+   "re": "flat_map\\(\\|case\\| case\\.primitive_loads",
+   "bound": "L",
+   "why": "I104 SQ B1 rebind (l -> L): every case's primitive loads (validation.rs :227, :802, :1890; lib.rs :8920 normalize_model_units): sum_i l_i <= L (I82's rebind, re-derived on the real code). Was: loads over the one case: l"
+  },
+  {
+   "re": "stress\\.findings",
+   "bound": "4",
+   "why": "at most four findings per stress result (I54 correction ADDENDUM: four recovery channels)"
+  },
+  {
+   "re": "model\\s*\\.\\s*components|&model\\.components|&mut model\\.components|is_expansion_joint_component|is_curved_bend|associations\\(",
+   "bound": "0",
+   "why": "D1.4: model.components is empty (associations() iterates components, preview_physics.rs:338-340). G4 (RV84 S-2): anchored to model.components; local `components` tables are real loops (rules above)"
+  },
+  {
+   "re": "combination|operand_id",
+   "bound": "0",
+   "why": "D1.4: model.combinations is empty"
+  },
+  {
+   "re": "\\bwind\\b|exposed_spans|seismic|axis_factors|element_masses",
+   "bound": "0",
+   "why": "D1.5: equivalent_static is None, so no seismic/wind generation (primitive_loads lib.rs:1913-1947). G4 (RV84 S-2): `wind` anchored as a word (it matched `windows`)"
+  },
+  {
+   "re": "curved|bend\\b|bend in|primitives\\.curved",
+   "bound": "0",
+   "why": "D1.4/D1.8: no components, so no curved-bend elements"
+  },
+  {
+   "re": "constant_effort|is_variable_spring_hanger|hanger\\.|hanger_",
+   "bound": "0",
+   "why": "D1.6: every support has hanger None and a non-hanger family"
+  },
+  {
+   "re": "nonlinear|friction|support_state|boundary_motion|max_iterations|final_states|solve\\.diagnostics",
+   "bound": "0",
+   "why": "D1.6: no nonlinear supports, so the nonlinear loop (PP lib.rs:5160-5260) never runs"
+  },
+  {
+   "re": "pressure|region|aggregates",
+   "bound": "0",
+   "why": "D1.3/D1.5: no pressure contract/regions; pressure-thrust aggregates need expansion-joint components (PP lib.rs:10755-10769)"
+  },
+  {
+   "re": "thermal",
+   "bound": "0",
+   "why": "D1.7: no thermal loads (nodal force/moment only)"
+  },
+  {
+   "re": "span\\.start_fraction|uniform_intensities",
+   "bound": "0",
+   "why": "D1.7: no element (distributed) loads, so no load spans (PP lib.rs:9999-10015 at b1f80234dc). G4 (RV84 S-2): bare `intensity` removed (it matched the 3-accumulator zip)"
+  },
+  {
+   "re": "subset\\.pipe_segments",
+   "bound": "0",
+   "why": "D1.7: self-weight generation subset is built only for generated self-weight (element) loads (self_weight.rs:277)"
+  },
+  {
+   "re": "\\bstate\\s*\\.members|state\\.prescribed",
+   "bound": "0",
+   "why": "D1.3: load-reference state (schema 0.4.0) is excluded; source_recovery.rs:1270-1284 close_load_state"
+  },
+  {
+   "re": "^iter:.*(\\.as_ref\\(\\)|\\.as_deref\\(\\)|\\.as_mut\\(\\)|\\.ok\\(\\)|\\.err\\(\\)|\\.get\\([^)]*\\)|\\.first\\(\\)|\\.last\\(\\)|\\.next\\(\\)|\\.pop\\(\\)|\\.checked_\\w+\\([^)]*\\))\\.\\w+$",
+   "bound": "1",
+   "why": "Option/Result adapter: the closure runs at most once"
+  },
+  {
+   "re": "^iter:(?!.*(\\.iter\\(|into_iter|iter_mut|\\.chars\\(|\\.windows\\(|\\.zip\\(|\\.enumerate\\(|\\.keys\\(|\\.values\\(|\\.drain\\(|\\.\\.|\\.lines\\(|\\.split|\\.entries\\(|\\.rows\\(|row_range|_iter\\(|\\.copied\\(\\)|\\.cloned\\(\\)|\\.flatten\\(\\)|\\.rev\\(\\)|\\.skip\\(|\\.take\\(|\\.step_by\\(|\\.filter\\(|\\.map\\(|\\.chain\\(|\\.peekable\\()).*$",
+   "bound": "1",
+   "why": "receiver text carries no iterator source: an Option/Result/value adapter, closure runs at most once (each such header is listed in TEXT.md for review)"
+  },
+  {
+   "re": "temperature_points|point in",
+   "bound": "pts",
+   "why": "D1 cap: <= 16 temperature points per material"
+  },
+  {
+   "re": "material",
+   "bound": "mats",
+   "why": "D1 cap: <= 4 model + 4 request materials"
+  },
+  {
+   "re": "SUPPORT_COMPONENTS",
+   "bound": "6",
+   "why": "fixed 6-entry constant"
+  },
+  {
+   "re": "restraint|restrained_dofs|raw in &support",
+   "bound": "r",
+   "why": "D1 cap: total raw restraint entries <= 192 (an upper for any one support's list)"
+  },
+  {
+   "re": "model\\s*\\.supports|supports\\b|support in|springs\\.iter|spring_dofs",
+   "bound": "g",
+   "why": "D1 cap: supports <= 32; springs <= supports"
+  },
+  {
+   "re": "load_cases|load_case in|case in|load_case_solves|solves\\.iter|\\(case_index",
+   "bound": "cases",
+   "why": "D1.4: exactly one load case"
+  },
+  {
+   "re": "primitive_loads|nodal_loads|load in loads|applied_forces|\\(occurrence, l\\)",
+   "bound": "l",
+   "why": "D1 cap: nodal load primitives <= 192"
+  },
+  {
+   "re": "pipe_segments|built\\.pipes|pipes\\b|record\\.members|members\\b|member in|extents_by_pipe|publication\\.members",
+   "bound": "m",
+   "why": "D1 cap: straight members <= 32"
+  },
+  {
+   "re": "nodes|node in",
+   "bound": "n",
+   "why": "D1 cap: nodes <= 32"
+  },
+  {
+   "re": "station_stresses",
+   "bound": "3",
+   "why": "three interior stations (PP lib.rs recovery)"
+  },
+  {
+   "re": "endpoint_stresses",
+   "bound": "2",
+   "why": "two member ends"
+  },
+  {
+   "re": "local_components",
+   "bound": "6",
+   "why": "fixed six-row local component table (PP lib.rs:12309-12350)"
+  },
+  {
+   "re": "metadata_component, unit, quantity\\) in entries",
+   "bound": "0",
+   "why": "user-stiffness modifier entries exist only for components (D1.4)"
+  },
+  {
+   "re": "boundaries\\.windows",
+   "bound": "1",
+   "why": "no distributed loads: two boundaries, one span (I54 BOUND:76)"
+  },
+  {
+   "re": "publication\\.records",
+   "bound": "6*F",
+   "why": "W2 RecordOutcome records <= 6F (I54 W2_RETURN)"
+  },
+  {
+   "re": "publication\\.reactions|dof in 0\\.\\.input\\.force\\.len|dof in 0\\.\\.",
+   "bound": "N",
+   "why": "reaction/DOF loops <= N"
+  },
+  {
+   "re": "actions\\.iter\\(\\)",
+   "bound": "12",
+   "why": "12 end actions per member"
+  },
+  {
+   "re": "base_ids|solve\\.results|row in old|row in &rows",
+   "bound": "P",
+   "why": "result rows <= P_final"
+  },
+  {
+   "re": "finding",
+   "bound": "r+g+l+20*m",
+   "why": "findings: boundary <= r+g, load application <= l, stress <= 20 per member (I54 correction RESIDUALS)"
+  },
+  {
+   "re": "record in records",
+   "bound": "m",
+   "why": "one RecoveryRecord per member (formation_guard.rs:441)"
+  },
+  {
+   "re": "descriptors",
+   "bound": "42*m+N+g+6*g",
+   "why": "functional descriptors 42m+N+s+6g (source_recovery.rs:1110-1240), s<=g"
+  },
+  {
+   "re": "derived_candidates",
+   "bound": "7+2*n",
+   "why": "rigid-body candidates <= 7+2n (I54 BOUND:70)"
+  },
+  {
+   "re": "request\\.pipe_refs",
+   "bound": "m",
+   "why": "self-weight request pipe refs <= members"
+  },
+  {
+   "re": "for id in ids",
+   "bound": "max(l, L)",
+   "why": "I104 SQ B1 rebind (l -> max(l, L)): entity id lists (validation.rs detect_empty_ids/detect_duplicate_ids, pressure_runtime.rs :363): the load-id list spans every case (I82's rebind): <= max(l, L). Was: entity id iterator: <= the largest D1 entity list (l = 192)"
+  },
+  {
+   "re": "offending",
+   "bound": "l",
+   "why": "loads with a support target <= l (preview_physics.rs:1022-1031)"
+  },
+  {
+   "re": "view\\.rows\\(\\)|solve \\.results|rows\\.iter\\(\\)\\.map|row in &rows",
+   "bound": "P",
+   "why": "result rows <= P_final"
+  },
+  {
+   "re": "report \\.rows",
+   "bound": "N",
+   "why": "load-fidelity rows <= N"
+  },
+  {
+   "re": "spring_entries",
+   "bound": "g",
+   "why": "spring entries <= supports"
+  },
+  {
+   "re": "&node, edges\\) in &adjacency",
+   "bound": "n",
+   "why": "adjacency over nodes"
+  },
+  {
+   "re": "free_dofs\\.iter\\(\\)\\.take\\(reduced_row",
+   "bound": "F",
+   "why": "inner triangle loop over free DOFs"
+  },
+  {
+   "re": "free_dofs|free\\.iter|by_dof|input \\.force|global_stiffness|&value in row",
+   "bound": "N",
+   "why": "DOF-indexed loops <= N (F <= N)"
+  },
+  {
+   "re": "sources\\.iter\\(\\)\\.enumerate\\(\\)",
+   "bound": "att",
+   "why": "I104 SQ B1 rebind (1 -> att): FK origins.rs :364 solve_cases and adaptive.rs :4994 solve_cases_projected: one kernel case per submitted source (B1 SP T-8; FK unchanged). B1 SP T-8: the prepared cases of A submitted to the one CaseBatchCall (<= |A| <= a). Was: D1.4: one case source, no combination sources"
+  },
+  {
+   "re": "while c < 3",
+   "bound": "3",
+   "why": "literal bound"
+  },
+  {
+   "re": "diagnostics \\.iter\\(\\)\\.find|diagnostics\\.iter\\(\\)\\.find",
+   "bound": "D",
+   "why": "find over the diagnostics vector: <= D (total diagnostics, computed from the diag-site multiplicities)"
+  },
+  {
+   "re": "parts \\.iter\\(\\)\\.map",
+   "bound": "3",
+   "why": "exact_source_identity parts (<= 3)"
+  },
+  {
+   "re": "take\\(formation_guard::NAMED\\)",
+   "bound": "6",
+   "why": "NAMED = 6 (formation_guard.rs:58)"
+  },
+  {
+   "re": "significand\\.iter\\(\\)",
+   "bound": "16",
+   "why": "Wide<L> limbs, L <= 16"
+  },
+  {
+   "re": "cases \\.iter\\(\\)",
+   "bound": "cases",
+   "why": "one case"
+  },
+  {
+   "re": "points",
+   "bound": "pts",
+   "why": "temperature points <= 16"
+  }
+ ],
+ "edge_zero": [
+  {
+   "caller": "formation_guard.rs:297:load_row_finding",
+   "callee": "formation_guard.rs:216:decide_row",
+   "why": "D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:1203:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:1251:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:1265:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:1283:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:133:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:1465:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:380:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:42:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:80:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "case_state/thermal.rs:82:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:13688:is_temperature_change_dimension",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:792:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:10447:exact_section_evidence",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:212:inner_radius_m",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:237:new",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:255:elastic_modulus_pa",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:259:poisson_ratio",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:263:shear_modulus_pa",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:274:new",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact.rs:281:pressure_pa",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact/source_geometry.rs:166:surface_stresses",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact/source_geometry.rs:71:inner_radius_m",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact/source_geometry.rs:92:cap_pair",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_exact/source_geometry.rs:98:eigenload_pair",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_runtime.rs:793:add_factor_term",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_runtime.rs:835:finish_source_groups",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_runtime.rs:89:problem",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_runtime.rs:933:temperature_basis",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_runtime.rs:943:traverse_region",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "pressure_sum.rs:16:exact_sum",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "retained_receipt.rs:93:len",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:195:orientation",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:130:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:278:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:56:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:604:orientation",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:675:orientation",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "load_ledger.rs:131:push",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "load_ledger.rs:265:get",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "load_ledger.rs:269:len",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "load_ledger.rs:757:len",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "structural/exact_boundary/functionals.rs:718:len",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "structural/retained/adaptive.rs:83:get",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "structural/retained/product_certificate/final_case.rs:1796:len",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "structural/sparse.rs:184:find",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "structural/sparse.rs:288:get",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:49:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:157:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:303:get",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:449:frame_element",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:426:build_pressure_case_with_members",
+   "callee": "lib.rs:93:as_str",
+   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+  },
+  {
+   "caller": "pressure_runtime.rs:115:validate_profile",
+   "callee": "pressure_runtime.rs:356:check_suffixes",
+   "why": "G4 (RV83 R-2 follow-through): check_suffixes is called only inside the is_exact branch (pressure_runtime.rs:168-200); D1.3 makes is_exact false"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "load_reference.rs:349:validate_load_reference_evidence",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "load_reference_source.rs:73:validate_load_reference_source_evidence",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "physics_evidence.rs:319:validate_physics_evidence",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "physics_source.rs:1129:validate",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "source_blocks.rs:669:validate",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "semantic_contract.rs:533:forbid_load_reference_evidence",
+   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "retained_precision.rs:5801:validate",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "semantic_contract.rs:146:preview_physics_retained_contract",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  },
+  {
+   "caller": "semantic_contract.rs:480:for_source",
+   "callee": "semantic_contract.rs:195:retained_error",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  },
+  {
+   "caller": "semantic_contract.rs:312:for_source_metadata",
+   "callee": "retained_precision.rs:6172:validate_transport_metadata",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source_metadata is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  },
+  {
+   "caller": "semantic_contract.rs:312:for_source_metadata",
+   "callee": "semantic_contract.rs:146:preview_physics_retained_contract",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source_metadata is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  },
+  {
+   "caller": "semantic_contract.rs:312:for_source_metadata",
+   "callee": "semantic_contract.rs:195:retained_error",
+   "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source_metadata is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+  }
+ ],
+ "edge_once": [
+  {
+   "caller": "lib.rs:9093:normalize_quantity",
+   "callee": "lib.rs:9176:unit_conversion_diag",
+   "why": "the three calls are on mutually exclusive branches, each followed by return/end (PP lib.rs:8357-8384)"
+  },
+  {
+   "caller": "lib.rs:2307:run_linear_static_preview_captured",
+   "callee": "lib.rs:2345:run_linear_static_preview_captured_once",
+   "why": "the second call is the 0.4.0 load-state join fallback (PP lib.rs:2248-2262, withholding_load_state_join), unreachable under D1.3"
+  }
+ ],
+ "pairs": [
+  {
+   "outer": "model\\s*\\.supports|support in|supports\\b",
+   "inner": "restraint|restrained_dofs",
+   "joint": "r",
+   "why": "sum over supports of each support's restraint list = total raw restraint entries r"
+  },
+  {
+   "outer": "nodal_loads|\\(occurrence, l\\)",
+   "inner": "primitive_loads",
+   "joint": "l*l",
+   "why": "nested search over the same case's loads: l*l"
+  },
+  {
+   "outer": "free_dofs\\.iter\\(\\)\\.enumerate",
+   "inner": "free_dofs\\.iter\\(\\)\\.take",
+   "joint": "F*(F+1)//2",
+   "why": "lower triangle"
+  }
+ ],
+ "fn_zero": [
+  {
+   "fn": "self_weight.rs:50:invalid",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:60:quantity",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:63:optional",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:66:normalize",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:88:provenance_present",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:97:draft",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:122:generate_self_weight_operations",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:129:generate_operations",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:412:stable_mass_per_length",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:416:range",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:420:area",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:441:term",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:529:valid_hash",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:537:dependency_projection",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:547:primitive_payload",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:558:retained_basis",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "self_weight.rs:938:old_dependencies_mass",
+   "why": "PROPOSED D1.10 (G2_AMENDMENTS.md section 5): every primitive load's provenance is absent or its first non-whitespace byte is not '{'. Then serde_json::from_str yields no object, p[\"method\"] is not a string, so `recognized` and `claimed_method_family` are false; `deterministic_identity` is false for a Node target (D1.7); inspect_applied_self_weight `continue`s every load (self_weight.rs:795-832) and reaches none of this module's other functions. validate_applied_self_weight (lib.rs:2320) is the module's only external entry."
+  },
+  {
+   "fn": "lib.rs:8103:resolve_shared_sections",
+   "why": "amended D1.3 (G2_AMENDMENTS section 3): every pipe has section_ref None, so the loop body continues at lib.rs:7359-7361 before any text site or call"
+  },
+  {
+   "fn": "case_state/resolve.rs:67:validate_document",
+   "why": "D1.3/D1.5: not a load-state document and `carries` is false (reference_configurations Absent, every material_expansion_laws Absent, request_material_expansion_laws empty, analysis_state Absent), so it returns at case_state/resolve.rs:84-90 without text"
+  },
+  {
+   "fn": "lib.rs:10631:add_uniform_element_loads",
+   "why": "D1.7: iterates load_application.element_uniform_loads (lib.rs:3223-3226), empty for nodal-only loads; every text site is inside that loop"
+  },
+  {
+   "fn": "lib.rs:10782:build_thermal_element_loads",
+   "why": "D1.7: every text site follows the `load.category != \"thermal\"` continue (lib.rs:10051-10053)"
+  },
+  {
+   "fn": "lib.rs:11552:append_exact_pressure_results",
+   "why": "called only under `exact_pressure` Some (lib.rs:4851-4855); D1.3 has no exact pressure case"
+  },
+  {
+   "fn": "lib.rs:7034:build_nonlinear_supports",
+   "why": "D1.6: every text site follows `let Some(input) = &support.nonlinear else continue` (lib.rs:6299-6301)"
+  },
+  {
+   "fn": "lib.rs:13734:missing_nonlinear_field_diag",
+   "why": "called only from build_nonlinear_supports after its nonlinear guard (lib.rs:6362-6436)"
+  },
+  {
+   "fn": "lib.rs:13748:invalid_nonlinear_field_diag",
+   "why": "called only from build_nonlinear_supports after its nonlinear guard"
+  },
+  {
+   "fn": "validation.rs:816:validate_spring_hangers",
+   "why": "D1.6: no variable spring hanger or constant-effort support: each support continues at validation.rs:818-820"
+  },
+  {
+   "fn": "validation.rs:861:validate_variable_spring_hanger",
+   "why": "called only from validate_spring_hangers after its guard"
+  },
+  {
+   "fn": "validation.rs:950:validate_constant_effort_support",
+   "why": "called only from validate_spring_hangers after its guard"
+  },
+  {
+   "fn": "validation.rs:1066:spring_hanger_diag",
+   "why": "called only from the three hanger validators above (validation.rs:822-1002)"
+  },
+  {
+   "fn": "lib.rs:9448:append_equivalent_static_generated_loads",
+   "why": "D1.5: returns at lib.rs:8708-8710 because equivalent_static is None"
+  },
+  {
+   "fn": "lib.rs:5825:append_nonlinear_support_loop_results",
+   "why": "G4 (R-1, newly reached): returns None at PP lib.rs:5349 when built.nonlinear_supports is empty (D1.6), before any text or call"
+  }
+ ],
+ "file_zero": [
+  {
+   "file": "core/product_physics/src/source_receipt/composite.rs",
+   "why": "every entry is guarded by an exact-pressure or physical-evidence condition false in D1: composite_support_norms (lib.rs:4226 is_exact), composite_member_maximum (lib.rs:4746 is_exact), validate_publication (source_receipt.rs:938-956, `composite` = source_selected && is_exact, lib.rs:2743), physical_source_built (source_receipt.rs:254, :374, under `physical` Some, which check_input never passes, :147; :254 is the load-state replay)"
+  },
+  {
+   "file": "core/product_physics/src/pressure_material.rs",
+   "why": "resolve_base returns at pressure_material.rs:66-68 when !is_exact (D1.3); resolve_case is called only under is_exact (lib.rs:9108-9110)"
+  },
+  {
+   "file": "core/product_physics/src/case_state/",
+   "why": "D1.3: no load-state document. validate_document emits nothing for D1 (see fn_zero); resolve_case is called only when is_load_state (lib.rs:2335-2356, source_receipt.rs:178 inside captured_load_state_case); every other case_state function takes a ResolvedCase, which exists only for a load-state document"
+  },
+  {
+   "file": "core/serialization/canonical_json/src/lib.rs",
+   "why": "canonical rendering and checked parse are priced by the HashRoute law (I54 COEFFICIENTS J3-J10) in every phase that hashes (T25 here; T16/T17 in G4); its error texts are refusal-only and bounded by J9"
+  }
+ ],
+ "fn_cap": [
+  {
+   "fn": "lib.rs:4133:solve_load_case_observed",
+   "cap": "cases",
+   "why": "per case the three call sites (lib.rs:2502, :2532, :2590) are mutually exclusive branches: the resolved-case branch (load-state only) and the default-basis branch each end in `continue`; D1.4 has one case"
+  },
+  {
+   "fn": "lib.rs:13399:blocked_envelope",
+   "cap": "1",
+   "why": "every call site returns its result as the invocation's envelope (`return blocked_envelope(..)` or the solver_blocked/imposed refusal tails), so it runs at most once per invocation"
+  },
+  {
+   "fn": "lib.rs:249:new",
+   "cap": "4*cases*(g+r)",
+   "why": "I104 SQ B1 (4*(g+r) -> 4*cases*(g+r)): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: linear_supports SupportFinding::new: per prepare_boundary call at most one finding per support (missing DOF) plus one per raw restraint entry (invalid or repeated DOF), so <= g + r; prepare_boundary runs at most 4 times per invocation (its multiplicity on the graph: ordinary build, T25 check_input, and the two remaining build_model_for_members paths)"
+  },
+  {
+   "fn": "lib.rs:634:add_restrained_dof",
+   "cap": "4*cases*r",
+   "why": "I104 SQ B1 (4*r -> 4*cases*r): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: called once per raw restraint entry of each support, per prepare_boundary call: sum over supports = r; prepare_boundary runs <= 4 times"
+  },
+  {
+   "fn": "lib.rs:2354:run_linear_static_preview_observed",
+   "cap": "1",
+   "why": "G4 (RV84 S-7, U3 budget B-1): exactly one ordinary run per invocation. At b1f80234dc the Direct dispatch (PP lib.rs:2243-2261) either returns permitted_dispatch or runs ordinary_dispatch; permitted_dispatch (:2887-2902) runs permitted_run on the reserved thread or, only when the thread did not run (slot still Some), ordinary_dispatch; permitted_run (:2921-2944) runs ordinary_dispatch (Domain) or its own observed run. Every branch makes one ordinary run"
+  }
+ ],
+ "loop_total": [
+  {
+   "fn": "source_receipt/source.rs:46:lowered_products",
+   "loop": "^for \\(i, product\\) in p\\.iter\\(\\)\\.enumerate\\(\\)$|^for \\(j, v\\) in product\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "total": "16384*cases",
+   "why": "I104 SQ B1 (16384 -> 16384*cases): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: T25 runs only after descriptors_charge accepted every descriptor: descriptors + terms + products + atoms <= 16,384 per invocation (FKS/exact_boundary/functionals.rs:409-470); each iteration is one product or atom"
+  },
+  {
+   "fn": "source_receipt/source.rs:17:products",
+   "loop": "^iter:p \\.iter\\(\\)\\.map$|^iter:r\\.iter\\(\\)\\.copied\\(\\)\\.map\\(bits\\)$",
+   "total": "16384*cases",
+   "why": "I104 SQ B1 (16384 -> 16384*cases): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: as lowered_products: products + atoms <= 16,384"
+  },
+  {
+   "fn": "source_receipt/source.rs:252:commitment",
+   "loop": "d\\.terms\\.iter\\(\\)\\.map",
+   "total": "16384*cases",
+   "covers": "descriptors\\(\\)\\.iter\\(\\)\\.enumerate\\(\\)\\.map",
+   "why": "I104 SQ B1 (16384 -> 16384*cases): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: terms over every descriptor <= 16,384 (as above)"
+  },
+  {
+   "fn": "source_receipt/source.rs:11:matrix12",
+   "loop": "^iter:m \\.iter\\(\\)\\.map$|^iter:r\\.iter\\(\\)\\.copied\\(\\)\\.map\\(bits\\)$",
+   "total": "cases*3*m*144",
+   "why": "I104 SQ B1 (3*m*144 -> cases*3*m*144): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: matrix12 is called three times per frame (local, transform, global; source.rs:299), each 12 x 12"
+  },
+  {
+   "fn": "source_receipt/source.rs:5:matrix",
+   "loop": "^iter:m \\.iter\\(\\)\\.map$|^iter:r\\.iter\\(\\)\\.copied\\(\\)\\.map\\(bits\\)$",
+   "total": "cases*N*N",
+   "why": "I104 SQ B1 (N*N -> cases*N*N): the D1 reason counts one case's T25 replay / boundary preparations; at c cases each requested case may run them, so the per-invocation total is scaled by c (conservative: whether a meter is per case or per invocation is not re-derived). Was: matrix is called once, for the N x N stiffness aggregate (source.rs:376)"
+  }
+ ],
+ "edge_per_call": [
+  {
+   "caller": "pressure_runtime.rs:115:validate_profile",
+   "callee": "pressure_runtime.rs:89:problem",
+   "per_call": "L",
+   "why": "I104 SQ B1 rebind (l -> L): validate_profile's !exact arm (D1.3) fires PRESSURE_MODEL_REAUTHOR_REQUIRED at most once per primitive load of every case (pressure_runtime.rs :207-225, `for case in &model.load_cases { .. for load in &case.primitive_loads`): <= L per call (I82's rebind, re-derived). Was: RV83 R-2 (ruled: price it). Under D1.3 (schema 0.1.0/0.2.0, no pressure contract) is_exact is false, so of validate_profile's problem() calls only the !exact arm runs: pressure_regions is None (D1.5), and PRESSURE_MODEL_REAUTHOR_REQUIRED fires at most once per primitive load of the one case (pressure_runtime.rs:207-225): <= l per call"
+  }
+ ],
+ "recursion_reviewed": [
+  {
+   "fn": "derivative.rs:70:guard_json",
+   "why": "G7 (RV87 G7 N-1): its own text is error-path only: the first failure returns through `?`, so one error String per top-level call, whatever the recursion depth (derivative.rs:65, :67)"
+  },
+  {
+   "fn": "lib.rs:125:write_canonical",
+   "why": "G7: canonical_json's canonical writer; text multiplicity 0 on D1 as a TEXT site (its per-tree text is priced by the hash route, g4_caps hash_route, in T16/T17)"
+  },
+  {
+   "fn": "lib.rs:94:validate_checked_value",
+   "why": "G7: canonical_json's checked walk; text multiplicity 0 on D1; its own text is error-path only: the first failure returns through `?`, so one error String per top-level call, whatever the recursion depth"
+  },
+  {
+   "fn": "load_reference.rs:306:finite_tree",
+   "why": "G7: multiplicity 0 on D1 (behind G4's load-reference edge_zero rules); no own text"
+  },
+  {
+   "fn": "physics_evidence.rs:77:finite_tree",
+   "why": "G7: multiplicity 0 on D1 (behind G4's edge_zero rules); no own text"
+  },
+  {
+   "fn": "preview_physics_evidence.rs:126:finite_tree",
+   "why": "G7: no own text; its one text-bearing callee `number` (:102) allocates only on its error path, which returns at the first failure"
+  },
+  {
+   "fn": "retained_precision.rs:2413:located",
+   "why": "G7: the walker's per-object path copies are priced in T17's OBJ_WALK (G5 part 2, RV87 N-2): String x 9 per attempt object plus 9 x 32 B; its TEXT rows (:1729, :1738) carry the loop bounds G4 reviewed"
+  },
+  {
+   "fn": "retained_precision.rs:476:encoding",
+   "why": "G7: no own text; its text-bearing callee `error` (:206) runs only on the failure path, which returns at the first failure"
+  },
+  {
+   "fn": "self_weight.rs:558:retained_basis",
+   "why": "G7: bounded self-recursion with recursion_factor 2 (G4); text multiplicity 0 on D1"
+  },
+  {
+   "fn": "source_blocks.rs:87:shape_in",
+   "why": "G7: multiplicity 0 on D1 (the source-block shape check is not on the D1 path); text only on its error path"
+  },
+  {
+   "fn": "structural/sparse.rs:592:assemble_sparse_stiffness",
+   "why": "G7: bounded self-recursion with recursion_factor 2 (G4: the one retry at sparse.rs:605); no own text"
+  }
+ ]
+}

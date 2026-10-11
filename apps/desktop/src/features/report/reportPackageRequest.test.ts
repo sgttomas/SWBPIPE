@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach, vi } from "vitest";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
@@ -35,7 +35,7 @@ async function legacySession(solverBuildRef = "open_pipe_stress_product_physics@
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(async (command: string) => {
     if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`LEGACY_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
-    return structuredClone(historicalResult);
+    return solveBytes(historicalResult);
   });
   const result = await runPreviewMechanics(model) as MechanicsResult;
   const inputManifest = await buildCurrentSessionInputManifest({

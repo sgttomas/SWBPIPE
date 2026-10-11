@@ -11,8 +11,9 @@
 //!   only (half-angle sine and cosine by square roots, the K3a included
 //!   angle, the closed-form end flexibility with 1 − cos φ = 2s², its
 //!   inverse, and the equilibrium transfer from the actual chord), and
-//!   user-stiffness elements with zero
-//!   lateral stiffness; ground springs are their exact binary64 values.
+//!   objective connectors (T4-U3: BᵀKB from the binary64 decode, r from the
+//!   node and offset differences); ground springs are their exact binary64
+//!   values.
 //! - Each free row's ρ_i is one `ExactAccumulator` sum (the same exact-sum
 //!   machinery as the kernel's intended-action audit): the load terms (the
 //!   ledger's terms where the caller supplied them, otherwise the folded
@@ -33,9 +34,10 @@
 //! recovery, or input representation (D1 §4.3.1, "What EF does not see").
 use super::retained::wide::{Wide2, WideArith, WideError};
 use super::{binary_exponent, StructuralError, StructuralSystem};
+use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::ForceTerm;
-use crate::{element_dof_map, FrameElement, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF};
+use crate::{element_dof_map, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
 
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
@@ -73,7 +75,9 @@ pub struct CurvedFormation {
 pub struct FormationSource {
     pub node_count: usize,
     pub frames: Vec<FrameElement>,
-    pub users: Vec<UserStiffnessElement>,
+    /// T4-U3 (S10): objective connectors, re-formed by `connector_matrix`
+    /// (at 2^b, K-D5's scaled source holds `ObjectiveConnector::force_scaled`).
+    pub connectors: Vec<ObjectiveConnector>,
     pub curved: Vec<CurvedFormation>,
     /// Ground springs (global DOF, stiffness), exact binary64 values.
     pub springs: Vec<(usize, f64)>,
@@ -172,13 +176,6 @@ where
     if let Some(family) = source.unavailable.first() {
         return Some(FormationCheck::unavailable(family.clone()));
     }
-    if let Some(user) = source.users.iter().find(|e| e.lateral_stiffness != 0.0) {
-        // A joint with lateral stiffness is not objective (ROOT: demote).
-        return Some(FormationCheck::unavailable(format!(
-            "user_stiffness_lateral_nonzero:{}-{}",
-            user.node_i.index, user.node_j.index
-        )));
-    }
     match evaluate(system, source, force_terms, scale_exponents, u, solve) {
         Ok(result) => result,
         Err(failure) => Some(FormationCheck::unavailable(failure.detail())),
@@ -258,9 +255,9 @@ where
         let k = frame_matrix(&mut arith, e)?;
         apply(e.node_i.index, e.node_j.index, &k)?;
     }
-    for e in &source.users {
-        let k = user_matrix(&mut arith, e)?;
-        apply(e.node_i.index, e.node_j.index, &k)?;
+    for c in &source.connectors {
+        let k = connector_matrix(&mut arith, c)?;
+        apply(c.node_i().index, c.node_j().index, &k)?;
     }
     for e in &source.curved {
         let k = curved_matrix(&mut arith, e)?;
@@ -395,13 +392,9 @@ fn body_scales(source: &FormationSource, free: &[usize], u: &[f64]) -> Vec<(f64,
             e.node_j.coordinates,
         ));
     }
-    for e in &source.users {
-        edges.push((
-            e.node_i.index,
-            e.node_i.coordinates,
-            e.node_j.index,
-            e.node_j.coordinates,
-        ));
+    for c in &source.connectors {
+        let (i, j) = (c.node_i(), c.node_j());
+        edges.push((i.index, i.coordinates, j.index, j.coordinates));
     }
     for e in &source.curved {
         edges.push((e.node_i, e.coordinates_i, e.node_j, e.coordinates_j));
@@ -640,30 +633,102 @@ fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideErro
     rotate(a, &k, &axes)
 }
 
-/// A user-stiffness element (expansion joint) re-formed in the exact local
-/// frame of its actual chord: relative axial, torsional and angular springs.
-/// Only lateral stiffness zero reaches here (`check` demotes the rest).
-fn user_matrix(a: &mut WideArith, e: &UserStiffnessElement) -> Result<Element, WideError> {
-    let (axes, _) = chord_axes(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference)?;
-    let mut k = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
-    for (dof, value) in [
-        (0, e.axial_stiffness),
-        (1, e.lateral_stiffness),
-        (2, e.lateral_stiffness),
-        (3, e.torsional_stiffness),
-        (4, e.angular_stiffness),
-        (5, e.angular_stiffness),
-    ] {
-        let v = lift(value)?;
-        if v.is_zero() {
-            continue;
+/// T4-U3 (S10): an objective connector's BᵀKB re-formed at p from the
+/// binary64 decode (node coordinates, global offsets, Q and K), sharing no
+/// arithmetic with `ObjectiveConnector::b` or `global_stiffness`:
+/// r = (x_j − x_i) + (a_j − a_i) (never x + a), M_i = S(a_i) + S(r)/2,
+/// M_j = S(r)/2 − S(a_j), B_t = Qᵀ[−I, M_i, I, M_j], B_r = Qᵀ[0, −I, 0, I],
+/// then K·B and Bᵀ(K·B).
+fn connector_matrix(a: &mut WideArith, c: &ObjectiveConnector) -> Result<Element, WideError> {
+    let xi = lift3(c.node_i().coordinates)?;
+    let xj = lift3(c.node_j().coordinates)?;
+    let (ai, aj) = c.offsets();
+    let (ai, aj) = (lift3(ai)?, lift3(aj)?);
+    let d = sub3(a, &xj, &xi)?;
+    let o = sub3(a, &aj, &ai)?;
+    let r = [
+        a.add(&d[0], &o[0])?,
+        a.add(&d[1], &o[1])?,
+        a.add(&d[2], &o[2])?,
+    ];
+    let half = [r[0].mul_pow2(-1)?, r[1].mul_pow2(-1)?, r[2].mul_pow2(-1)?];
+    let skew = |v: &Vec3| -> [[Wide2; 3]; 3] {
+        [
+            [Wide2::ZERO, v[2].neg(), v[1]],
+            [v[2], Wide2::ZERO, v[0].neg()],
+            [v[1].neg(), v[0], Wide2::ZERO],
+        ]
+    };
+    let (s_r, s_ai, s_aj) = (skew(&half), skew(&ai), skew(&aj));
+    let mut m_i = [[Wide2::ZERO; 3]; 3];
+    let mut m_j = [[Wide2::ZERO; 3]; 3];
+    for row in 0..3 {
+        for col in 0..3 {
+            m_i[row][col] = a.add(&s_ai[row][col], &s_r[row][col])?;
+            m_j[row][col] = a.sub(&s_r[row][col], &s_aj[row][col])?;
         }
-        k[dof][dof] = v;
-        k[dof + 6][dof + 6] = v;
-        k[dof][dof + 6] = v.neg();
-        k[dof + 6][dof] = v.neg();
     }
-    rotate(a, &k, &axes)
+    let axes = c.axes();
+    let mut q = [[Wide2::ZERO; 3]; 3];
+    for row in 0..3 {
+        q[row] = lift3(axes[row])?;
+    }
+    let mut b = [[Wide2::ZERO; ELEMENT_DOF]; 6];
+    for axis in 0..3 {
+        for col in 0..3 {
+            let qc = q[col][axis];
+            b[axis][col] = qc.neg();
+            b[axis][6 + col] = qc;
+            b[3 + axis][3 + col] = qc.neg();
+            b[3 + axis][9 + col] = qc;
+            let mut ti = Wide2::ZERO;
+            let mut tj = Wide2::ZERO;
+            for k in 0..3 {
+                let pi = a.mul(&q[k][axis], &m_i[k][col])?;
+                ti = a.add(&ti, &pi)?;
+                let pj = a.mul(&q[k][axis], &m_j[k][col])?;
+                tj = a.add(&tj, &pj)?;
+            }
+            b[axis][3 + col] = ti;
+            b[axis][9 + col] = tj;
+        }
+    }
+    let stiffness = c.stiffness();
+    let mut k = [[Wide2::ZERO; 6]; 6];
+    for row in 0..6 {
+        for col in 0..6 {
+            k[row][col] = lift(stiffness[row][col])?;
+        }
+    }
+    let mut kb = [[Wide2::ZERO; ELEMENT_DOF]; 6];
+    for row in 0..6 {
+        for col in 0..ELEMENT_DOF {
+            let mut s = Wide2::ZERO;
+            for l in 0..6 {
+                if k[row][l].is_zero() || b[l][col].is_zero() {
+                    continue;
+                }
+                let t = a.mul(&k[row][l], &b[l][col])?;
+                s = a.add(&s, &t)?;
+            }
+            kb[row][col] = s;
+        }
+    }
+    let mut out = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
+    for i in 0..ELEMENT_DOF {
+        for j in 0..ELEMENT_DOF {
+            let mut s = Wide2::ZERO;
+            for row in 0..6 {
+                if b[row][i].is_zero() || kb[row][j].is_zero() {
+                    continue;
+                }
+                let t = a.mul(&b[row][i], &kb[row][j])?;
+                s = a.add(&s, &t)?;
+            }
+            out[i][j] = s;
+        }
+    }
+    Ok(out)
 }
 
 /// A realized curved bend re-formed as the objective element of T4-U1

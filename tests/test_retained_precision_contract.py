@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 
 import pytest
-from core.analysis_runs import retained_precision as rp
+from tests.verifiers import retained_precision as rp
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -718,10 +718,10 @@ def test_snapshot_07_counts_and_entry_format():
     g7 = lambda code: {"gate": "G7", "code": code}
     assert {e["id"]: (e["expected"], e["expected_by_reader"]) for e in entries if "expected_by_reader" in e} == {
         "g7_maximum_off_enclosure": (g7("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"), {"python": g7("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"),
-                                     "typescript": g7("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"), "rust": g7("SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS")}),
-        # PLAN decision 11 (B6): TS aligned, so the three readers share the base readers' code.
+                                     "rust": g7("SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS")}),
+        # PLAN decision 11 (B6): the readers share the base readers' code.
         "g7_not_required_quality_enum_invalid": (g7("SOURCE_NUMERICAL_CASE_INVALID"), {"python": g7("SOURCE_NUMERICAL_CASE_INVALID"),
-                                                 "typescript": g7("SOURCE_NUMERICAL_CASE_INVALID"), "rust": g7("SOURCE_NUMERICAL_CASE_INVALID")}),
+                                                 "rust": g7("SOURCE_NUMERICAL_CASE_INVALID")}),
     }
     assert len({e["id"] for e in entries}) == len(entries)
 
@@ -1327,8 +1327,8 @@ def test_b1_rv108_n2_a_missing_verdict_is_g5_attempt():
 
 # I91 repair 01 (RR "I91's SR-PY verified; the Build check accepted; PY's four false accepts repaired
 # before RV-R"): Python admitted four statements that Rust and TypeScript refuse at G8. Each is now
-# refused with their gate and code. Rust: RE `src/retained_precision.rs` `g8`; TS:
-# `apps/desktop/src/features/results/retainedPrecision.ts` `invocationBinding`.
+# refused with their gate and code. Rust: RE `src/retained_precision.rs` `g8` (TS's `invocationBinding`
+# was deleted with the TypeScript reader in R1).
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
 
 
@@ -1824,9 +1824,9 @@ def test_snapshot_07n_appends_only_and_states_every_read():
     assert all("expected_transport" in e and ("expected_unbound" in e) != ("expected_unbound_by_reader" in e) for e in new)
     per = [e for e in new if "expected_by_reader" in e]
     assert len(per) == 45 and all("expected_unbound_by_reader" in e for e in per)
-    # The declared class only: Python and TS share the expectation, Rust's raw code differs, all at G7, and the
-    # unbound read is the same raw read per reader.
-    assert all(e["expected_by_reader"]["python"] == e["expected_by_reader"]["typescript"] == e["expected"] != e["expected_by_reader"]["rust"]
+    # The declared class only: Python's expectation is the shared one, Rust's raw code differs, all at G7, and the
+    # unbound read is the same raw read per reader. R1 removed the TypeScript member.
+    assert all(set(e["expected_by_reader"]) == {"python", "rust"} and e["expected_by_reader"]["python"] == e["expected"] != e["expected_by_reader"]["rust"]
                and e["expected"]["gate"] == e["expected_by_reader"]["rust"]["gate"] == "G7" and e["expected_unbound_by_reader"] == e["expected_by_reader"] for e in per)
     assert sum("expected_classifications" in e for e in c["must_pass"][28:78]) == 16
     eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
@@ -1906,12 +1906,14 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
 # Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.
 # ---------------------------------------------------------------------------------------------
-# The corpus files' bytes, in CORPUS_FILES order: the 07m + 07n file is byte-identical to its pre-07o state, and 07o is its
-# own compact file. Joined (`retained_precision_corpus.py`) and written as the single file was (indent 2, ASCII, final
-# newline), they are byte for byte the single-file corpus 07o was merged as (O07_JOINED_SHA256).
-O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "0703ec17402037b01155e0f74bf2646d87a6bdf31850121628fc4f5e763396fa",
-              "fixtures/results/retained_precision_cases_07o.json": "ee5b8af2c8f186d349933cede51b36397ed63cecb20ab55071c7027de7a2adac"}
-O07_JOINED_SHA256 = "78d6d7c50cb220678e599294f9df05c9543c9614d1422772593e055e5a816b11"
+# The corpus files' bytes, in CORPUS_FILES order: the 07m + 07n file, and 07o in its own compact file. Joined
+# (`retained_precision_corpus.py`) and written as the single file was (indent 2, ASCII, final newline), they are byte
+# for byte one document (O07_JOINED_SHA256). R1 re-pinned all three: its only change removed every per-reader
+# `typescript` member (92 in the 07m + 07n file, 1 in 07o), each file otherwise the same JSON in the same form
+# (was 0703ec17…, ee5b8af2… and joined 78d6d7c5…).
+O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "28ae62bfa708f63269f44707a13912b1d80b31c72079ca5cd53a2303a6dbf765",
+              "fixtures/results/retained_precision_cases_07o.json": "327180453ff71b8146e3c1edab901c06fb3932a68629817aa24740f58f8cd8f8"}
+O07_JOINED_SHA256 = "b8f89d25a8d1c7b41dc0af5b60777eadd376e6f752f8cee82be031f508136cdc"
 O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
     f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
     "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]

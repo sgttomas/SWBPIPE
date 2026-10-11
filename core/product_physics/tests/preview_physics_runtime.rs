@@ -1034,13 +1034,10 @@ fn invented_demo_without_pressure() -> Value {
     model
 }
 
-/// M07 containment (ROOT ruling on R1 N-1). Evidence, from hand statics rather
-/// than product output: joint C-150 couples its two nodes, 2.2 m apart, only
-/// through relative lateral springs k = 900000 N/m. A relative lateral
-/// displacement then produces equal and opposite forces 2.2 m apart with no
-/// balancing couple, so the element is not in moment equilibrium; in the
-/// invented demo's L-100 that unbalanced couple is k*du*L = 900000 * 3.3254e-4 m
-/// * 2.2 m = 658.44 N*m about Y. The ordinary route therefore refuses the solve.
+/// T4-U3 (D-4): the demo's legacy four-rate joint C-150 is refused by name in
+/// both modes, neither solved nor converted. (Its old element was not in moment
+/// equilibrium: k*du*L = 900000 * 3.3254e-4 m * 2.2 m = 658.44 N*m about Y in
+/// L-100, by hand statics; the element is deleted, not repaired.)
 #[test]
 fn joint_element_without_moment_coupling_is_refused() {
     let model = invented_demo_without_pressure();
@@ -1048,35 +1045,97 @@ fn joint_element_without_moment_coupling_is_refused() {
         let v = solve(&json!({"model": model.clone(), "materials": []}), mode);
         assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE");
         assert!(results(&v).is_empty());
-        let d = diag(&v, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED");
+        let d = diag(&v, "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED");
         assert_eq!(d.len(), 1);
         assert_eq!(d[0]["severity"], "blocking");
         assert_eq!(d[0]["affected_refs"], json!(["component:C-150", "pipe:P-130"]));
         assert_eq!(v["contract_evidence"], json!({"preview_cases": [], "combination_gates": []}));
     }
-    // Boundaries: axial/rotational-only stiffness, or a zero lateral value, is not refused.
+    // Every legacy shape is refused, in both modes: lateral, axial/rotational
+    // only, zero lateral, zero length, any consumption other than the
+    // annotation, rates without a pipe, and the residual shape. The annotation
+    // mode is analysed as pipe with the disclosure.
     let joint = |lateral: f64| json!({"id":"component:joint","label":"t0r joint","kind":"expansion_joint","node":"node:b",
         "geometry":{"expansion_joint_pipe_ref":"pipe:b-c","effective_area":{"value":0.01,"unit":"m^2"},"expansion_joint_source_reference":"t0r"},
         "modifiers":{"axial_stiffness_user_value":{"value":3.2e6,"unit":"N/m"},"lateral_stiffness_user_value":{"value":lateral,"unit":"N/m"},
             "angular_stiffness_user_value":{"value":4.8e5,"unit":"N*m/rad"},"torsional_stiffness_user_value":{"value":6.2e5,"unit":"N*m/rad"},"source_reference":"t0r_invented"},
         "mechanics_interface":{"solver_consumption":"mechanics_geometry_and_user_flexibility","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"t0r"});
-    let wire = |lateral: f64| base(
+    let wire = |component: Value| base(
         json!([node("node:a", 0.0, 0.0, 0.0), node("node:b", 1.0, 0.0, 0.0), node("node:c", 1.5, 0.0, 0.0)]),
         json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:b-c", "node:b", "node:c", [0.0, 1.0, 0.0])]),
         json!([anchor("node:a"), support("support:c", "node:c", &["UX", "UY", "UZ", "RX", "RY", "RZ"])]),
-        json!([joint(lateral)]),
+        json!([component]),
         json!([case("case:j", json!([force("f", "node:b", "global_y", 100.0)]))]),
         json!([]),
     );
-    let refused = solve(&wire(9e5), PreviewSolverMode::SparseInteractive);
-    assert_eq!(diag(&refused, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").len(), 1);
-    let axial_rotational = solve(&wire(0.0), PreviewSolverMode::SparseInteractive);
-    assert!(diag(&axial_rotational, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").is_empty(), "{}", axial_rotational["diagnostics"]);
-    // Zero length: coincident joint nodes are never refused by this rule.
-    let mut zero = wire(9e5);
-    zero["model"]["nodes"][2]["position"]["x"] = json!(1.0);
-    let zero = solve(&zero, PreviewSolverMode::SparseInteractive);
-    assert!(diag(&zero, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").is_empty());
+    let geometry_only = {
+        let mut j = joint(9e5);
+        j["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
+        j
+    };
+    let no_consumption = {
+        let mut j = joint(9e5);
+        j.as_object_mut().unwrap().remove("mechanics_interface");
+        j
+    };
+    let rates_only = {
+        let mut j = joint(9e5);
+        j["geometry"].as_object_mut().unwrap().remove("expansion_joint_pipe_ref");
+        j
+    };
+    let pipe_only = {
+        let mut j = joint(9e5);
+        j.as_object_mut().unwrap().remove("modifiers");
+        j
+    };
+    let residual = json!({"id":"component:joint","label":"t0r joint","kind":"expansion_joint","node":"node:b","provenance":"t0r"});
+    let cases = [
+        ("lateral", wire(joint(9e5)), Some(json!(["component:joint", "pipe:b-c"]))),
+        ("axial/rotational only", wire(joint(0.0)), Some(json!(["component:joint", "pipe:b-c"]))),
+        ("zero length", {
+            let mut zero = wire(joint(9e5));
+            zero["model"]["nodes"][2]["position"]["x"] = json!(1.0);
+            zero
+        }, Some(json!(["component:joint", "pipe:b-c"]))),
+        ("geometry only", wire(geometry_only), Some(json!(["component:joint", "pipe:b-c"]))),
+        ("no consumption", wire(no_consumption), Some(json!(["component:joint", "pipe:b-c"]))),
+        ("rates without a pipe", wire(rates_only), Some(json!(["component:joint"]))),
+        ("pipe without rates", wire(pipe_only), Some(json!(["component:joint", "pipe:b-c"]))),
+        ("residual", wire(residual.clone()), Some(json!(["component:joint"]))),
+    ];
+    for (label, request, refs) in cases {
+        for mode in MODES {
+            let v = solve(&request, mode);
+            let d = diag(&v, "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED");
+            assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE", "{label}");
+            assert_eq!(d.len(), 1, "{label}: {}", v["diagnostics"]);
+            assert_eq!(Some(d[0]["affected_refs"].clone()), refs, "{label}");
+            assert!(diag(&v, "EXPANSION_JOINT_ANNOTATION_ONLY").is_empty(), "{label}");
+        }
+    }
+    // The annotation (with or without the legacy fields) is analysed as pipe:
+    // its results equal the joint-free model's, plus the disclosure.
+    let mut annotation = joint(9e5);
+    annotation["mechanics_interface"]["solver_consumption"] = json!("not_solver_consumed");
+    let mut minimal = residual;
+    minimal["mechanics_interface"] = json!({"solver_consumption": "not_solver_consumed"});
+    let mut plain = wire(json!(null));
+    plain["model"]["components"] = json!([]);
+    for mode in MODES {
+        let plain = solve(&plain, mode);
+        assert_eq!(plain["status"]["mechanics"], "MECHANICS_SOLVED");
+        for component in [annotation.clone(), minimal.clone()] {
+            let v = solve(&wire(component), mode);
+            assert_eq!(v["status"]["mechanics"], "MECHANICS_SOLVED", "{}", v["diagnostics"]);
+            assert_eq!(v["results"], plain["results"]);
+            let d = diag(&v, "EXPANSION_JOINT_ANNOTATION_ONLY");
+            assert_eq!(d.len(), 1);
+            assert_eq!(d[0]["severity"], "info");
+            assert_eq!(d[0]["affected_refs"], json!(["component:joint"]));
+            assert!(diag(&v, "LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED").is_empty());
+            assert!(!v["diagnostics"].to_string().contains("EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED"));
+        }
+    }
 }
 
 /// R1 SF-1: a case that blocks after earlier cases pushed row-naming

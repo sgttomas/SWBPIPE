@@ -308,9 +308,11 @@ def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], inv
         _require(all(s.get("nonlinear") is None and s.get("family") != "constant_effort_support" and (s.get("hanger") or {}).get("constant_load") is None for s in model["supports"]), "ACTUAL_SUPPORT_FAMILY")
 
 
-def _canonical_inputs(invocation: Mapping[str, Any]):
-    """Batch original quantities through the same Rust unit authority as producer."""
-    from core.units.adapter import convert_quantities_to_canonical
+def _canonical_inputs(invocation: Mapping[str, Any], convert=None):
+    """Batch original quantities through the same Rust unit authority as producer. `convert` replaces
+    that authority's batch call only for the test verifier, which converts without the producer's crate."""
+    if convert is None:
+        from core.units.adapter import convert_quantities_to_canonical as convert
     model = invocation["request"]["model"]
     materials = invocation["request"].get("materials") or model.get("materials", [])
     queries = []
@@ -331,7 +333,7 @@ def _canonical_inputs(invocation: Mapping[str, Any]):
             add(pipe["section"].get(key),"length")
     for case in model["load_cases"]:
         add(case.get("modulus_basis_temperature"),"temperature")
-    normalized = {r["id"]:r["value"] for r in convert_quantities_to_canonical(queries)}
+    normalized = {r["id"]:r["value"] for r in convert(queries)}
     return lambda quantity,dimension: normalized[identities[(id(quantity),dimension)]]
 
 

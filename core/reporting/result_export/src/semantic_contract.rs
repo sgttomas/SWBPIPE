@@ -262,11 +262,16 @@ pub fn physics_contract() -> &'static Value {
 /// pressure-1 rows against physics-1's resident table and holds no table of its
 /// own: no static is added to the reader's reach (T4-RV14 F1). The identity and
 /// profile are checked from the envelope header, never inferred from the table.
-/// A unit that gives pressure-1 rows of its own must first settle how that
-/// table is priced (T3 O-10).
+/// T4-U3's objective connector rows, the skeleton's only rows beyond
+/// physics-1's, are checked against code constants ([`CONNECTOR_ROW_KINDS`]),
+/// not against a resident table. A unit that gives pressure-1 rows of its own
+/// through a table must first settle how that table is priced (T3 O-10).
 pub fn pressure_rows_contract() -> &'static Value {
     physics_contract()
 }
+/// T4-U3 (S14): the objective connector row signatures of `pressure-1`:
+/// (kind, unit, components, locations).
+pub use crate::connector_evidence::KINDS as CONNECTOR_ROW_KINDS;
 /// Pinned table bytes: identity, profile and sha256 are checked, never inferred.
 pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};

@@ -8,7 +8,7 @@
 use super::*;
 use crate::load_ledger::LoadLedger;
 use crate::{
-    assemble_global_stiffness_with_user_elements, reduce_assembled_system,
+    assemble_global_stiffness_with_connectors, reduce_assembled_system,
     reduce_assembled_system_with_prescribed_displacements, FrameNode, FrameSection,
 };
 
@@ -22,14 +22,14 @@ fn section(e: f64, g: f64) -> FrameSection {
     FrameSection::new(e, g, area, inertia, inertia, 2.0 * inertia).unwrap()
 }
 
-/// A generated product-shaped model (invented): frames, user elements,
+/// A generated product-shaped model (invented): frames, objective connectors,
 /// explicit blocks (the stand-in for realized curved bends, which live in
 /// `curved_bend`; the adapter tests use real ones), springs and boundary.
 #[derive(Debug, Clone)]
 struct Model {
     node_count: usize,
     frames: Vec<FrameElement>,
-    users: Vec<UserStiffnessElement>,
+    connectors: Vec<ObjectiveConnector>,
     blocks: Vec<StiffnessBlock>,
     /// Each block's formation bounds and operation counts (the
     /// `transform_roundoff` of the element the block was formed from).
@@ -66,10 +66,14 @@ impl Model {
             let evidence = transform_roundoff(&e.local_stiffness().unwrap(), &t).unwrap();
             element(e.node_i.index, e.node_j.index, &evidence);
         }
-        for e in &self.users {
-            let t = e.orientation().unwrap().transformation_matrix();
-            let evidence = transform_roundoff(&e.local_stiffness(), &t).unwrap();
-            element(e.node_i.index, e.node_j.index, &evidence);
+        for c in &self.connectors {
+            let (absolute_roundoff, operation_counts) = c.formation_roundoff().unwrap();
+            let evidence = TransformationRoundoff {
+                absolute_roundoff,
+                operation_counts,
+                basis: "connector",
+            };
+            element(c.node_i().index, c.node_j().index, &evidence);
         }
         for (b, evidence) in self.blocks.iter().zip(&self.block_formation) {
             element(b.node_i, b.node_j, evidence);
@@ -94,21 +98,21 @@ impl Model {
         assemble_sparse_stiffness(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
             &self.blocks,
             &self.springs,
             &SparseAssemblyOptions::new(),
         )
         .unwrap()
     }
-    /// The product's dense order: frames and users
-    /// (`assemble_global_stiffness_with_user_elements`), then the explicit
+    /// The product's dense order: frames and connectors
+    /// (`assemble_global_stiffness_with_connectors`), then the explicit
     /// blocks, then the springs, each `+=` on the dense matrix.
     fn dense(&self) -> Vec<Vec<f64>> {
-        let mut k = assemble_global_stiffness_with_user_elements(
+        let mut k = assemble_global_stiffness_with_connectors(
             self.node_count,
             &self.frames,
-            &self.users,
+            &self.connectors,
         )
         .unwrap();
         for block in &self.blocks {
@@ -147,11 +151,11 @@ impl Model {
                 &e.global_stiffness().unwrap(),
             );
         }
-        for e in &self.users {
+        for c in &self.connectors {
             push(
-                e.node_i.index,
-                e.node_j.index,
-                &e.global_stiffness().unwrap(),
+                c.node_i().index,
+                c.node_j().index,
+                &c.global_stiffness().unwrap(),
             );
         }
         for b in &self.blocks {
@@ -215,7 +219,7 @@ fn chain(members: usize, e: f64, settle: f64) -> Model {
     let mut model = Model {
         node_count: members + 1,
         frames,
-        users: Vec::new(),
+        connectors: Vec::new(),
         blocks: Vec::new(),
         block_formation: Vec::new(),
         springs: Vec::new(),
@@ -232,7 +236,7 @@ fn chain(members: usize, e: f64, settle: f64) -> Model {
 }
 
 /// A branched model (invented): an axis-aligned trunk with branches, one
-/// user element (an expansion joint), one explicit block, ground springs
+/// objective connector (an expansion joint), one explicit block, ground springs
 /// (two on one DOF), and prescribed motion. Axis-aligned members leave
 /// explicit zeros in the pattern.
 fn tree(e: f64) -> Model {
@@ -258,18 +262,30 @@ fn tree(e: f64) -> Model {
         f(1, 5, [1.0, 0.0, 0.0]),
         f(6, 7, [0.0, 0.0, 1.0]),
     ];
-    let users = vec![UserStiffnessElement::new(
+    // T4-U3: an objective connector between nodes 2 and 6 (Q.x along the
+    // chord, z global; an uncoupled K at Ls = 1 m).
+    let chord = [p[6][0] - p[2][0], p[6][1] - p[2][1], p[6][2] - p[2][2]];
+    let length = (chord[0] * chord[0] + chord[1] * chord[1] + chord[2] * chord[2]).sqrt();
+    let x = [chord[0] / length, chord[1] / length, chord[2] / length];
+    let axes = [[x[0], -x[1], 0.0], [x[1], x[0], 0.0], [0.0, 0.0, 1.0]];
+    let connectors = vec![ObjectiveConnector::new(
         node(2, p[2]),
         node(6, p[6]),
-        [0.0, 0.0, 1.0],
-        3.0e7,
-        4.0e6,
-        2.5e5,
-        1.5e5,
+        crate::connector::ConnectorAttachment::global([0.0; 3]),
+        crate::connector::ConnectorAttachment::global([0.0; 3]),
+        axes,
+        crate::connector::ScaledWorkMatrix {
+            upper_triangle: [
+                3.0e7, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0e6, 0.0, 0.0, 0.0, 0.0, 4.0e6, 0.0, 0.0, 0.0,
+                1.5e5, 0.0, 0.0, 2.5e5, 0.0, 2.5e5,
+            ],
+            translation_scale: 1.0,
+        },
+        [0.0; 6],
     )
     .unwrap()];
     // An explicit block (standing in for a realized bend's global matrix):
-    // a frame's matrix between nodes 4 and 7, added after the frames and users.
+    // a frame's matrix between nodes 4 and 7, added after the frames and connectors.
     let stand_in = FrameElement::new(node(4, p[4]), node(7, p[7]), s, [0.0, 0.0, 1.0]).unwrap();
     let blocks = vec![StiffnessBlock {
         node_i: 4,
@@ -290,7 +306,7 @@ fn tree(e: f64) -> Model {
     let mut model = Model {
         node_count: 8,
         frames,
-        users,
+        connectors,
         blocks,
         block_formation,
         springs,
@@ -409,17 +425,17 @@ fn k1_coalesced_values_are_bit_identical_to_the_dense_assembly() {
 fn k1_assembly_refusals_match_the_dense_assembly() {
     // A frame outside the model: the same error for the same first element.
     let model = tree(200e9);
-    let dense = assemble_global_stiffness_with_user_elements(7, &model.frames, &model.users);
+    let dense = assemble_global_stiffness_with_connectors(7, &model.frames, &model.connectors);
     let sparse = assemble_sparse_stiffness(
         7,
         &model.frames,
-        &model.users,
+        &model.connectors,
         &[],
         &[],
         &SparseAssemblyOptions::new(),
     );
     assert_eq!(sparse.unwrap_err(), dense.unwrap_err());
-    // A non-finite coalesced entry after the frames and users: two collinear
+    // A non-finite coalesced entry after the frames and connectors: two collinear
     // members whose axial stiffness EA/L = 1e300 * 1e8 / 1 = 1e308 each meet
     // at node 1 (every formed term is finite; 12 E I / L^3 = 1.2e298).
     let s = FrameSection::new(1e300, 1.0, 1e8, 1e-3, 1e-3, 2e-3).unwrap();
@@ -439,7 +455,7 @@ fn k1_assembly_refusals_match_the_dense_assembly() {
         )
         .unwrap(),
     ];
-    let dense = assemble_global_stiffness_with_user_elements(3, &frames, &[]).unwrap_err();
+    let dense = assemble_global_stiffness_with_connectors(3, &frames, &[]).unwrap_err();
     let sparse =
         assemble_sparse_stiffness(3, &frames, &[], &[], &[], &SparseAssemblyOptions::new())
             .unwrap_err();

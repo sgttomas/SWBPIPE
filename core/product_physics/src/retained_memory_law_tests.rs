@@ -988,7 +988,10 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // B1 SQ's D_env 22,911, with D 41,773).
     // O-10 (T4 batch 2, rulings 3 and 5): two new diagnostic sites per case, D 51,938 -> 51,944 and
     // D_env 23,877 -> 23,883, Text(diag_env) +21,087.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_042_638, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,944, D_env 23,883; O-10 at T4 batch 2)");
+    // T4 batch 3 (ff5347ff98): U3's K-D5 formation diagnostic text is 776 B longer (I18's declared
+    // M03 text) at each of route E's 9 largest diagnostic slots: Text(diag_env) +6,984; D and D_env
+    // are unchanged.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_049_622, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,944, D_env 23,883; T4 batch 3)");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -998,8 +1001,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // The atoms' values in the profile regenerated at C_eq = 3 (SQ2 G5; I89's value pins): L_PUB is
     // U3's (2,599,962 -> 2,599,357: U3's removed legacy pressure text, as RV132's regenerated tree
     // has it), and D_env route E's (22,911 -> 23,877: the exact route's diagnostics).
+    // T4 batch 3: L_PUB +776 (2,599,357 -> 2,600,133), the longer K-D5 diagnostic text.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_599_357, 2_330, 16_384, 23_883, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3 (O-10: D_env +6)");
+        (2_600_133, 2_330, 16_384, 23_883, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3 (O-10: D_env +6; T4 batch 3: L_PUB +776)");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1254,9 +1258,20 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 ///   (+28,086), with their ids through `integrity_diagnostic_id`, `stable_suffix` and the reader's
 ///   `identity` and evidence validation; D and D_env +6, so Text(diag_env) +21,087 and the typed
 ///   forms' diagnostic slots (STAGED, SUCC, T16, T17, T25) rise with them.
+/// T4 batch 3 (U3 on batch 2, ff5347ff98; the retained pricing tool, U3's connector rules in
+/// DEL-05-02's retained-pricing-rules.md section B): against batch 2's record, both modes, W1
+/// −2,978,180, W2 −2,978,180, W3 −2,875,748, W4 −2,875,748, W5 −2,971,196, X1 −2,882,732, X2
+/// −2,978,180. TEXT falls 2,987,522 B on route L and 2,987,216 B on route E: FK formation_check's
+/// unavailable/check text −3,017,280 and `solve_load_case_observed` −19,920; I18's longer K-D5
+/// diagnostic text (+776 B per site) +41,904 (`append_integrity_report`, `demote`); the v3 basis
+/// clause and connector limitation +6,700; the connector Display +1,842; route E's
+/// `require_connector` +306 (rule E5). The longer K-D5 text also raises Text(diag_env) +6,984,
+/// L_PUB +776, Text(recovery_finding) +3,104 and Text(sym) +2, and with them the typed forms'
+/// diagnostic slots (STAGED, SUCC, T16, T17, T25), so the profile is re-registered although every
+/// phase falls.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [4_853_699_162, 5_177_131_124, 9_689_069_896, 9_468_648_055, 5_769_589_670, 9_523_856_913, 5_562_600_404],
-    [4_912_830_506, 5_236_262_468, 9_748_201_240, 9_527_779_399, 5_828_721_014, 9_582_988_257, 5_621_731_748],
+    [4_850_720_982, 5_174_152_944, 9_686_194_148, 9_465_772_307, 5_766_618_474, 9_520_974_181, 5_559_622_224],
+    [4_909_852_326, 5_233_284_288, 9_745_325_492, 9_524_903_651, 5_825_749_818, 9_580_105_525, 5_618_753_568],
 ];
 
 #[test]

@@ -8,7 +8,8 @@ import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysi
 import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
-import { validateRetainedPrecisionTransport, type RowClassification } from "../results/retainedPrecision";
+import { validateRetainedPrecisionTransport } from "../results/retainedPrecisionReader";
+import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";

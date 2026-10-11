@@ -2981,10 +2981,10 @@ fn t21_selection_is_declined_for_a_formation_finding() {
     let request = n05_request(vec![n05_torques()]);
     let Prepared { model, built, .. } = prepared(&request);
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    let mut stiffness = assemble_global_stiffness_with_user_elements(
+    let mut stiffness = assemble_global_stiffness_with_connectors(
         built.nodes.len(),
         &built.frame_elements,
-        &built.user_stiffness_elements,
+        &built.connectors,
     )
     .unwrap();
     for spring in &boundary.springs {

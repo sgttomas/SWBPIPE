@@ -16,6 +16,7 @@
  * unchanged. Inputs are PP's pinned milestone successor bytes (D-U6-5); unit
  * rendering only, NOT a native witness (plan F-1). */
 import { cleanup, render, screen } from "@testing-library/react";
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -221,7 +222,7 @@ describe("other consumers are unchanged; the standing session Current reads of a
   it.each(MODES)("%s: a registered successor is fresh and numerically eligible for its captured model only (U7)", async (mode) => {
     const { source, model } = milestone(mode);
     (window as Json).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(async () => structuredClone(source));
+    invokeMock.mockImplementation(async () => solveBytes(source));
     const received = await runPreviewMechanics(model, mode);
     expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
     expect(isFreshSemanticResult(received)).toBe(true);

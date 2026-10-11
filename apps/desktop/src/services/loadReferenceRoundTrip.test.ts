@@ -4,13 +4,15 @@
  * results. Absent keys stay absent, explicit nulls stay null, and a key the
  * desktop does not model survives byte-exactly. All values are invented. */
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { solveBytes } from "../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, PreviewModel } from "../types";
 import { clonePreviewModel } from "../features/workspace/sessionModel";
-import { createLocalProject, evaluateModelDocumentLocal, LOAD_REFERENCE_MODEL_SCHEMA_VERSION, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
+import { createLocalProject,
+  findLocalProject, evaluateModelDocumentLocal, LOAD_REFERENCE_MODEL_SCHEMA_VERSION, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { runPreviewMechanics, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation } from "./previewService";
 import { applyModelOperation } from "./operationService";
@@ -54,7 +56,7 @@ describe("0.4.0 documents in the browser persistence mirror", () => {
     const run = json("fixtures/results/load_reference_source_mixed_sparse.analysis_run.json") as AnalysisRunEnvelope;
     // Saves over its own stored snapshot (no envelope hash here); the replacement
     // guard is covered in projectService.test.ts.
-    await saveLocalProject(model, [], null, null, raw, run, null, null, null, true);
+    await saveLocalProject(model, [], null, null, raw, run, null, null, null, (await findLocalProject(model.project.id))!.revision);
     const opened = await openLocalProject(model.project.id);
     expect(text(opened!.model)).toBe(before);
     expect(loadStateKeys(opened!.model)).toBe(loadStateKeys(model));
@@ -83,7 +85,7 @@ describe("0.4.0 documents through session state, manifests, IPC and operations",
     const model = model040(), raw = json("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json") as MechanicsResult;
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     let sent: unknown = null;
-    invokeMock.mockImplementation(async (_command: string, args: { model: unknown }) => { sent = args.model; return structuredClone(raw); });
+    invokeMock.mockImplementation(async (_command: string, args: { model: unknown }) => { sent = args.model; return solveBytes(raw); });
     const source = await runPreviewMechanics(model, "sparse_interactive");
     expect(text(sent)).toBe(text(model));
     expect(text(source)).toBe(text(raw));

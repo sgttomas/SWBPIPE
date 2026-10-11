@@ -2,8 +2,8 @@
  * `openpipestress.result_semantics/0.3.0/preview-physics-retained-1`.
  *
  * Peer of Rust `semantic_contract.rs` (U6a) and Python `compatibility.py`
- * (U6b). The statement itself is checked only by the accepted reader
- * (`retainedPrecision.ts`, read-only here). This module adds:
+ * (U6b). The statement itself is checked only by the accepted reader, the
+ * Rust one through `retainedPrecisionReader.ts` (R1), read-only here. This module adds:
  *
  * - a private registration: only a completed reader validation, run with the
  *   captured native invocation, is recorded against these exact source bytes
@@ -18,7 +18,8 @@
  * extrema intervals (RV86 limits); the only bound named is the receipt's
  * published absolute bound b of an `absolute_verified` row.
  */
-import { validateRetainedPrecision, type AccuracyClass, type RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecision";
+import { validateRetainedPrecision, validateRetainedPrecisionBytes } from "./retainedPrecisionReader";
+import { RetainedPrecisionError, type AccuracyClass, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import { ordinaryCaseEligible } from "./numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -76,25 +77,32 @@ function receiptCases(source: MechanicsResult): Json[] {
   return Array.isArray(cases) ? cases : [];
 }
 
+/** The recorded code when the reader could not run (the wasm engine is unavailable or failed). */
+export const RETAINED_PRECISION_READER_UNAVAILABLE = "RETAINED_PRECISION_READER_UNAVAILABLE";
+
 /** Registration after actual direct IPC or a completed known job only
  * (`previewService.validateCapturedSource`). Runs the accepted reader with the
  * captured invocation and records its outcome, validation or first code,
  * against the exact bytes it validated. A refusal is rethrown after it is
  * recorded, so the caller does not register the native invocation.
  * `live` is the native capture's liveness for these bytes; only previewService
- * passes it. Without it the registration can never stand eligible (U7 slice T). */
-export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown, live: LiveNativeCapture | null = null): Promise<RetainedPrecisionValidation> {
+ * passes it. Without it the registration can never stand eligible (U7 slice T).
+ * `sourceBytes`, when given, are the producer's bytes `source` was read from: the
+ * reader then reads those bytes (b7-plan R1, "Exact bytes to the desktop"). */
+export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown, live: LiveNativeCapture | null = null, sourceBytes: string | null = null): Promise<RetainedPrecisionValidation> {
   // Captured before the reader's first await, as the reader snapshots its inputs.
   // Bytes outside the checked JSON profile never register (the reader refuses them).
   const sourcePrint = fingerprint(source), captured = structuredClone(invocation);
   const record = (outcome: Outcome) => { if (sourcePrint) registrations.set(source, { source: sourcePrint, invocation: captured, outcome, live }); };
   try {
-    const validation = await validateRetainedPrecision(source, invocation);
+    const validation = sourceBytes === null ? await validateRetainedPrecision(source, invocation) : await validateRetainedPrecisionBytes(sourceBytes, invocation);
     record({ validation, error: null });
     return validation;
   } catch (error) {
-    // The reader throws only RetainedPrecisionError, whose message is its code.
-    record({ validation: null, error: (error as RetainedPrecisionError).message });
+    // A reader refusal records its code. Any other failure (the wasm engine did not load, or
+    // failed other than by reading) records RETAINED_PRECISION_READER_UNAVAILABLE: the
+    // statement was not read, so it stays refused (fail closed) without a reader code.
+    record({ validation: null, error: error instanceof RetainedPrecisionError ? error.code : RETAINED_PRECISION_READER_UNAVAILABLE });
     throw error;
   }
 }

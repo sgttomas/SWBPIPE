@@ -543,9 +543,10 @@ struct SaveLocalProjectRequest {
     /// migrated document can write its ledger record (DEC-019).
     #[serde(default)]
     model_document_migration: Value,
-    /// True only when the user chose Replace. See `refuse_unconfirmed_replacement`.
+    /// The stored revision the user chose to Replace in the prompt, if any.
+    /// See `refuse_unconfirmed_replacement`.
     #[serde(default)]
-    replace_existing: bool,
+    confirmed_revision: Option<String>,
     /// The stored envelope hash value this session last opened or saved, sent
     /// when the session is that stored project (an ordinary save in place).
     #[serde(default)]
@@ -870,6 +871,11 @@ fn store_user_version(connection: &Connection) -> Result<i64, String> {
 
 fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence), String> {
     let connection = Connection::open(path).map_err(|error| error.to_string())?;
+    // A second writer waits this long for the store's write lock, then fails
+    // visibly ("database is locked") rather than writing.
+    connection
+        .busy_timeout(std::time::Duration::from_secs(5))
+        .map_err(|error| error.to_string())?;
     let migration = apply_store_migrations(&connection)?;
     Ok((connection, migration))
 }
@@ -987,8 +993,63 @@ fn project_id_from_model(model: &Value) -> String {
         .to_string()
 }
 
+/// Write one project row and its search row (unguarded). Used by tests, the
+/// packaged self-test and the smoke harness; the app's commands write through
+/// `guarded_write_project_rows` on their own `BEGIN IMMEDIATE` transaction.
 fn upsert_project(
     connection: &mut Connection,
+    project_id: &str,
+    project_name: &str,
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+    project_envelope_hash: &Value,
+    model_migration_ledger: &Value,
+) -> Result<(), String> {
+    let transaction = immediate_transaction(connection)?;
+    write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
+        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
+    transaction.commit().map_err(|error| error.to_string())
+}
+
+/// The replacement check and the write, on a transaction the caller opened
+/// with `BEGIN IMMEDIATE` (HELP_HUMAN rulings 2026-10-10). The store's write lock
+/// is held from before the caller's preparation reads through the check and the
+/// write, so two writers (two windows or processes) cannot both pass the check
+/// for the same id: the second waits, then sees the first's row and is refused.
+fn guarded_write_project_rows(
+    transaction: &rusqlite::Transaction<'_>,
+    confirmed_revision: Option<&str>,
+    expected_base: Option<&str>,
+    project_id: &str,
+    project_name: &str,
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+    project_envelope_hash: &Value,
+    model_migration_ledger: &Value,
+) -> Result<(), String> {
+    refuse_unconfirmed_replacement(transaction, project_id, confirmed_revision, expected_base)?;
+    write_project_rows(transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
+        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger)
+}
+
+fn immediate_transaction(connection: &mut Connection) -> Result<rusqlite::Transaction<'_>, String> {
+    connection
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())
+}
+
+fn write_project_rows(
+    transaction: &rusqlite::Transaction<'_>,
     project_id: &str,
     project_name: &str,
     model: &Value,
@@ -1020,9 +1081,6 @@ fn upsert_project(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
     let now = now_unix_seconds()?;
-    let transaction = connection
-        .transaction()
-        .map_err(|error| error.to_string())?;
     transaction
         .execute(
             "
@@ -1072,7 +1130,7 @@ fn upsert_project(
             params![project_id, project_name, search_text],
         )
         .map_err(|error| error.to_string())?;
-    transaction.commit().map_err(|error| error.to_string())
+    Ok(())
 }
 
 struct StoredProjectRecord {
@@ -1246,23 +1304,49 @@ fn stored_envelope_hash_value(connection: &Connection, project_id: &str) -> Resu
     Ok(hash.get("value").and_then(Value::as_str).unwrap_or("").to_string())
 }
 
+/// The stored revision of a project as the replace prompt shows it: its
+/// envelope hash and its last-saved time. A Replace confirms exactly this.
+/// The stored row's content fingerprint is part of the revision, so two writes
+/// in one second differ unless they stored identical bytes, which loses nothing.
+/// FNV-1a 64 (a fixed, stable function), not a security hash.
+fn stored_revision(connection: &Connection, entry: &LocalProjectIndexEntry) -> Result<String, String> {
+    let row: String = connection
+        .query_row(
+            "SELECT model_json || char(31) || editor_intents_json || char(31) || proposal_json || char(31) ||
+                    selected_review_target_json || char(31) || mechanics_result_json || char(31) ||
+                    analysis_run_json || char(31) || model_hash_json || char(31) ||
+                    project_envelope_hash_json || char(31) || model_migration_ledger_json
+             FROM local_projects WHERE project_id = ?1",
+            params![entry.project_id],
+            |row| row.get(0),
+        )
+        .map_err(|error| error.to_string())?;
+    let fingerprint = row.bytes().fold(0xcbf2_9ce4_8422_2325_u64, |hash, byte| {
+        (hash ^ u64::from(byte)).wrapping_mul(0x0000_0100_0000_01b3)
+    });
+    Ok(format!(
+        "{}@{}@{fingerprint:016x}",
+        stored_envelope_hash_value(connection, &entry.project_id)?,
+        entry.updated_at_unix
+    ))
+}
+
 /// HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
 /// project. A write onto a stored `project_id` is admitted when
-/// - `replace_existing`: the user chose Replace in the prompt; or
+/// - `confirmed_revision` equals the stored revision: the user chose Replace in
+///   a prompt that showed this revision; or
 /// - `expected_base` equals the stored envelope hash: the session is that stored
 ///   project, at the revision it last opened or saved (an ordinary save in place).
-/// Otherwise it is refused: `PROJECT-BASE-MOVED` when the session's base is no
-/// longer the stored revision (another window or process saved that id),
-/// `PROJECT-ID-EXISTS` for any other stored project.
+/// Otherwise it is refused: `PROJECT-BASE-MOVED` when the revision the user or
+/// the session last saw is no longer the stored one (another window or process
+/// saved that id since), `PROJECT-ID-EXISTS` for any other stored project.
+/// Callers run it inside the write's `BEGIN IMMEDIATE` transaction.
 fn refuse_unconfirmed_replacement(
     connection: &Connection,
     project_id: &str,
-    replace_existing: bool,
+    confirmed_revision: Option<&str>,
     expected_base: Option<&str>,
 ) -> Result<(), String> {
-    if replace_existing {
-        return Ok(());
-    }
     let Some(entry) = stored_project_entry(connection, project_id)? else {
         return Ok(());
     };
@@ -1270,6 +1354,15 @@ fn refuse_unconfirmed_replacement(
         "project `{}` (\"{}\", last saved at unix {})",
         entry.project_id, entry.project_name, entry.updated_at_unix
     );
+    if let Some(confirmed) = confirmed_revision {
+        return if confirmed == stored_revision(connection, &entry)? {
+            Ok(())
+        } else {
+            Err(format!(
+                "PROJECT-BASE-MOVED: {stored} changed after the replace prompt showed it; replacing it needs the user's confirmation."
+            ))
+        };
+    }
     match expected_base {
         // A row without an envelope hash has no revision to compare: it asks.
         Some(base) if !base.is_empty() && base == stored_envelope_hash_value(connection, project_id)? => Ok(()),
@@ -1282,12 +1375,22 @@ fn refuse_unconfirmed_replacement(
     }
 }
 
-/// The stored project with this id, if any, for the replace prompt.
+#[derive(Debug, Serialize)]
+struct StoredProjectEntry {
+    #[serde(flatten)]
+    entry: LocalProjectIndexEntry,
+    /// What a Replace of this project confirms (`stored_revision`).
+    revision: String,
+}
+
+/// The stored project with this id, if any, and its revision, for the replace prompt.
 #[tauri::command]
-fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<LocalProjectIndexEntry>, String> {
+fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<StoredProjectEntry>, String> {
     let path = app_store_path(&app)?;
     let (connection, _migration) = open_project_store(&path)?;
-    stored_project_entry(&connection, &project_id)
+    stored_project_entry(&connection, &project_id)?
+        .map(|entry| Ok(StoredProjectEntry { revision: stored_revision(&connection, &entry)?, entry }))
+        .transpose()
 }
 
 fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
@@ -1653,7 +1756,7 @@ fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String
 }
 
 fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
-    solve_preview_mechanics_with_mode(model_payload, PreviewSolverMode::default())
+    solve_preview_mechanics_value_with_mode(model_payload, PreviewSolverMode::default())
 }
 
 fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolverMode, String> {
@@ -1664,12 +1767,25 @@ fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolve
     }
 }
 
+/// The producer's exact serialized bytes for the desktop's solve request
+/// (`{"model": <model>, "materials": []}`): what the solve commands and jobs hand
+/// the desktop, which reads its result and registers it from these bytes (b7-plan
+/// R1, "Exact bytes to the desktop"), never a re-encoded value.
 fn solve_preview_mechanics_with_mode(
     model_payload: Value,
     solver_mode: PreviewSolverMode,
-) -> Result<Value, String> {
+) -> Result<String, String> {
     let request = json!({"model":model_payload,"materials":[]});
-    serde_json::to_value(open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(request, solver_mode)?)
+    serde_json::to_string(&open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(request, solver_mode)?)
+        .map_err(|error| error.to_string())
+}
+
+/// The same solve read as a value, for the native self-tests that inspect it.
+fn solve_preview_mechanics_value_with_mode(
+    model_payload: Value,
+    solver_mode: PreviewSolverMode,
+) -> Result<Value, String> {
+    serde_json::from_str(&solve_preview_mechanics_with_mode(model_payload, solver_mode)?)
         .map_err(|error| error.to_string())
 }
 
@@ -1679,15 +1795,15 @@ fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
 }
 
 #[tauri::command]
-fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
-    solve_preview_mechanics(resolve_solve_model_payload(model)?)
+fn run_preview_mechanics(model: Option<Value>) -> Result<String, String> {
+    solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, PreviewSolverMode::default())
 }
 
 #[tauri::command]
 fn run_preview_mechanics_with_solver_mode(
     model: Option<Value>,
     solver_mode: Option<String>,
-) -> Result<Value, String> {
+) -> Result<String, String> {
     let mode = parse_preview_solver_mode(solver_mode)?;
     solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, mode)
 }
@@ -1709,7 +1825,8 @@ struct SolveJobStatusReport {
     cancellation_requested: bool,
     cancellation_status: String,
     cancellation_scope: &'static str,
-    result: Option<Value>,
+    /// The producer's exact serialized bytes of a completed solve.
+    result: Option<String>,
     error_message: Option<String>,
 }
 
@@ -1729,7 +1846,7 @@ struct SolveJobRecord {
     state: String,
     cancellation_requested: bool,
     cancellation_status: String,
-    result: Option<Value>,
+    result: Option<String>,
     error_message: Option<String>,
 }
 
@@ -1808,7 +1925,7 @@ fn execute_solve_job(
 fn publish_solve_outcome(
     jobs: &Arc<Mutex<SolveJobTable>>,
     job_id: &str,
-    outcome: Result<Value, String>,
+    outcome: Result<String, String>,
 ) {
     let Ok(mut table) = lock_solve_jobs(jobs) else {
         return;
@@ -2386,6 +2503,7 @@ fn prepare_project_persistence_tuple(
 
 #[tauri::command]
 fn create_local_project(
+
     app: AppHandle,
     model: Value,
     editor_intents: Option<Value>,
@@ -2395,10 +2513,29 @@ fn create_local_project(
     analysis_run: Option<Value>,
     model_hash: Option<Value>,
     project_envelope_hash: Option<Value>,
-    replace_existing: Option<bool>,
+    confirmed_revision: Option<String>,
 ) -> Result<LocalProjectEnvelope, String> {
-    let path = app_store_path(&app)?;
+    create_project_in_store(app_store_path(&app)?, model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash, project_envelope_hash, confirmed_revision)
+}
+
+/// `create_local_project` on a given store: one `BEGIN IMMEDIATE` transaction
+/// from the preparation's reads through the replacement check, the write and
+/// the commit (HELP_HUMAN rulings 2026-10-10). The race tests call this path.
+fn create_project_in_store(
+    path: PathBuf,
+    model: Value,
+    editor_intents: Option<Value>,
+    proposal: Option<Value>,
+    selected_review_target: Option<Value>,
+    mechanics_result: Option<Value>,
+    analysis_run: Option<Value>,
+    model_hash: Option<Value>,
+    project_envelope_hash: Option<Value>,
+    confirmed_revision: Option<String>,
+) -> Result<LocalProjectEnvelope, String> {
     let (mut connection, migration) = open_project_store(&path)?;
+    // One write transaction from the preparation's reads to the commit.
+    let transaction = immediate_transaction(&mut connection)?;
     let project_id = project_id_from_model(&model);
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
@@ -2410,7 +2547,7 @@ fn create_local_project(
     let received_project_envelope_hash = project_envelope_hash.unwrap_or(Value::Null);
     let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
         prepare_project_persistence_tuple(
-        &connection,
+        &transaction,
         &project_id,
         model,
         &Value::Null,
@@ -2422,9 +2559,10 @@ fn create_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    refuse_unconfirmed_replacement(&connection, &project_id, replace_existing.unwrap_or(false), None)?;
-    upsert_project(
-        &mut connection,
+    guarded_write_project_rows(
+        &transaction,
+        confirmed_revision.as_deref(),
+        None,
         &project_id,
         &project_name,
         &model,
@@ -2437,6 +2575,7 @@ fn create_local_project(
         &project_envelope_hash,
         &model_migration_ledger,
     )?;
+    transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             project_id,
@@ -2533,8 +2672,15 @@ fn save_local_project(
     app: AppHandle,
     request: SaveLocalProjectRequest,
 ) -> Result<LocalProjectEnvelope, String> {
-    let path = app_store_path(&app)?;
+    save_project_in_store(app_store_path(&app)?, request)
+}
+
+/// `save_local_project` on a given store, with the same single transaction as
+/// `create_project_in_store`.
+fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Result<LocalProjectEnvelope, String> {
     let (mut connection, migration) = open_project_store(&path)?;
+    // One write transaction from the preparation's reads to the commit.
+    let transaction = immediate_transaction(&mut connection)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
     let proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
@@ -2545,7 +2691,7 @@ fn save_local_project(
     let received_project_envelope_hash = request.project_envelope_hash;
     let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
         prepare_project_persistence_tuple(
-        &connection,
+        &transaction,
         &request.project_id,
         request.model,
         &request.model_document_migration,
@@ -2557,9 +2703,10 @@ fn save_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    refuse_unconfirmed_replacement(&connection, &request.project_id, request.replace_existing, request.expected_base.as_deref())?;
-    upsert_project(
-        &mut connection,
+    guarded_write_project_rows(
+        &transaction,
+        request.confirmed_revision.as_deref(),
+        request.expected_base.as_deref(),
         &request.project_id,
         &request.project_name,
         &model,
@@ -2572,6 +2719,7 @@ fn save_local_project(
         &project_envelope_hash,
         &model_migration_ledger,
     )?;
+    transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             request.project_id,
@@ -2841,8 +2989,8 @@ fn validate_rule_pack(
 /// outcomes (completion plan C4). The pack is validated first; a pack with
 /// blocking validation findings is reported as `RULE_INPUTS_INCOMPLETE` without
 /// running checks. Solver values are resolved from the solved mechanics
-/// envelope (supplied directly via `solved_envelope`, or produced by
-/// `run_preview_mechanics`) using the caller's `{input_id, result_id}`
+/// envelope (supplied directly via `solved_envelope`, or solved here as
+/// `run_preview_mechanics` solves) using the caller's `{input_id, result_id}`
 /// selectors; user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
@@ -2864,7 +3012,7 @@ fn run_rule_checks(
     let (envelope, invocation) = match solved_envelope {
         Some(value) => (value, source_block_invocation),
         None => (
-            run_preview_mechanics(Some(supplied_model.clone()))?,
+            solve_preview_mechanics(supplied_model.clone())?,
             Some(json!({"request":{"model":supplied_model,"materials":[]},"solver_mode":PreviewSolverMode::default().as_str()})),
         ),
     };
@@ -2981,7 +3129,7 @@ fn run_rule_checks_core(
 
     let envelope = match solved_envelope {
         Some(value) => value,
-        None => run_preview_mechanics(model)?,
+        None => solve_preview_mechanics(resolve_solve_model_payload(model)?)?,
     };
 
     // Solver values for `solver_result` inputs come from two sources: an
@@ -4905,6 +5053,12 @@ pub fn run() {
         .expect("error while running SWBPIPE");
 }
 
+/// The solve command's bytes read as a value, for tests that inspect them.
+#[cfg(test)]
+fn run_preview_mechanics_value(model: Option<Value>) -> Result<Value, String> {
+    run_preview_mechanics(model).map(|bytes| serde_json::from_str(&bytes).expect("the producer's bytes are JSON"))
+}
+
 #[cfg(test)]
 mod legacy_store_carry_forward_tests {
     use super::*;
@@ -5220,7 +5374,7 @@ mod tests {
         request["model"]["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/source-blocks-1");
             assert_eq!(solved["source_block_recovery"]["body"]["status"], "qualified");
             let invocation = json!({"request":request,"solver_mode":mode.as_str()});
@@ -5245,7 +5399,7 @@ mod tests {
         )).unwrap();
         model["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let source = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/physics-1");
             let row = source["results"].as_array().unwrap().iter().find(|r|
@@ -5269,7 +5423,7 @@ mod tests {
         for force in [-1.0e-6_f64, 1.0e-6] {
             let mut model = precision_model();
             model["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(force);
-            let solved = run_preview_mechanics(Some(model.clone())).unwrap();
+            let solved = run_preview_mechanics_value(Some(model.clone())).unwrap();
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(solved["schema_version"], "0.2.0");
             assert_eq!(solved["producer"]["component_version"], "0.2.0");
@@ -5990,7 +6144,7 @@ mod tests {
             expected["combinations"].as_u64().unwrap() as usize
         );
 
-        let solved = run_preview_mechanics(Some(model.clone()))
+        let solved = run_preview_mechanics_value(Some(model.clone()))
             .expect("from-blank authored model solves through backend mechanics");
         assert_eq!(solved["model_ref"], model["project"]["id"]);
         assert_eq!(
@@ -6073,7 +6227,7 @@ mod tests {
         assert_eq!(loaded.mechanics_result, Value::Null);
         assert_eq!(loaded.analysis_run, Value::Null);
 
-        let solved = run_preview_mechanics(Some(loaded.model.clone()))
+        let solved = run_preview_mechanics_value(Some(loaded.model.clone()))
             .expect("saved authored model solves through backend mechanics");
         assert_eq!(solved["model_ref"], json!(project_id));
         assert_eq!(
@@ -6962,6 +7116,56 @@ mod tests {
         );
     }
 
+    /// b7-plan R1, "Exact bytes to the desktop": for the G10 milestone model, the solve
+    /// command and the job hand the desktop the producer's exact bytes (PP's pins in
+    /// `core/product_physics/tests/g10_desktop_milestone_model.rs`), the committed copies
+    /// the desktop's tests replay are those bytes, and the native save writes received
+    /// bytes unchanged. With `G10_DESKTOP_RESULT_OUT` set, writes the copies there.
+    #[test]
+    fn solves_hand_the_desktop_the_producers_exact_bytes() {
+        const PINS: [(&str, usize, &str); 2] = [
+            ("sparse_interactive", 68250, "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871"),
+            ("dense_scrutiny", 69366, "aa8b93ba9717bcc61bf708bb3dd7ab4848d655334dd1f3f6d5e852c2d40f8a8d"),
+        ];
+        let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
+        let model: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json"
+        ))
+        .unwrap();
+        for (mode, len, digest) in PINS {
+            let bytes = run_preview_mechanics_with_solver_mode(Some(model.clone()), Some(mode.into())).unwrap();
+            let sha = open_pipe_stress_operation_applier::sha256_hex(&bytes);
+            assert_eq!((bytes.len(), sha.as_str()), (len, digest), "{mode}: the command's bytes are the producer's");
+            // The job path publishes the same bytes.
+            let registry = SolveJobRegistry::default();
+            let receipt = start_solve_job(&registry.jobs).unwrap();
+            execute_solve_job(&registry.jobs, &receipt.job_id, Ok(model.clone()), PreviewSolverMode::from_wire(mode).unwrap());
+            assert_eq!(solve_job_status(&registry.jobs, &receipt.job_id).unwrap().result.as_deref(), Some(bytes.as_str()), "{mode}: the job's bytes");
+            let copy = fixtures.join(format!("rf_skew_t_cant_off_122_r1e-04.desktop_result_{mode}.json"));
+            if let Ok(dir) = std::env::var("G10_DESKTOP_RESULT_OUT") {
+                fs::write(std::path::Path::new(&dir).join(copy.file_name().unwrap()), &bytes).unwrap();
+                continue;
+            }
+            assert_eq!(fs::read_to_string(&copy).unwrap(), bytes, "{mode}: the desktop tests' copy");
+            // The native save writes the received bytes, byte for byte.
+            let root = std::env::temp_dir().join(format!("ops-g10-exact-bytes-{}-{mode}", std::process::id()));
+            let _ = fs::remove_dir_all(&root);
+            fs::create_dir(&root).unwrap();
+            let href: String = bytes.bytes().map(|b| format!("%{b:02X}")).collect();
+            let request: native_result_download::SaveRequest = serde_json::from_value(json!({
+                "href": format!("data:application/json;charset=utf-8,{href}"), "file_name": "openpipestress-preview-results-g10.json",
+                "screening": {"route_id":"DOTH-JSON-001","export_context":"local_private","explicit_local_private_intent":true,"blocked":false,
+                    "materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},
+                "local_first": {"route_id":"DOTH-JSON-001","export_context":"local_private","storage_context":"local_private","action":"include_metadata_only",
+                    "reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}
+            })).unwrap();
+            let saved = native_result_download::save_request(request, || Ok::<_, ()>(root.clone())).unwrap_or_else(|e| panic!("{mode}: {}", e.code));
+            let written = fs::read(root.join(&saved.file_name)).unwrap();
+            fs::remove_dir_all(&root).unwrap();
+            assert_eq!(written, bytes.as_bytes(), "{mode}: the saved bytes are the received bytes");
+        }
+    }
+
     #[test]
     fn solve_job_seam_completes_and_reports_result_without_cancellation() {
         let registry = SolveJobRegistry::default();
@@ -6991,7 +7195,7 @@ mod tests {
         assert_eq!(status.state, "completed");
         assert!(!status.cancellation_requested);
         assert_eq!(status.cancellation_status, "not_requested");
-        let result = status.result.expect("completed job publishes a result");
+        let result: Value = serde_json::from_str(&status.result.expect("completed job publishes a result")).unwrap();
         assert!(
             result["results"]
                 .as_array()
@@ -7005,16 +7209,16 @@ mod tests {
     #[test]
     fn run_preview_mechanics_uses_supplied_model_payload() {
         // A solve always carries a model; there is no implicit model.
-        let refused = run_preview_mechanics(None).expect_err("a solve without a model is refused");
+        let refused = run_preview_mechanics_value(None).expect_err("a solve without a model is refused");
         assert!(refused.starts_with("PREVIEW-SOLVE-MODEL-REQUIRED"), "{refused}");
         assert_bundled_demo_solved(
-            &run_preview_mechanics(Some(load_preview_model().expect("bundled demo loads"))).expect("bundled demo solves"),
+            &run_preview_mechanics_value(Some(load_preview_model().expect("bundled demo loads"))).expect("bundled demo solves"),
         );
         let mut model = derived_invented_model();
         model["project"]["id"] = json!("project:edited-solve-command");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
 
-        let solved = run_preview_mechanics(Some(model)).expect("supplied model solves");
+        let solved = run_preview_mechanics_value(Some(model)).expect("supplied model solves");
 
         assert_eq!(solved["model_ref"], json!("project:edited-solve-command"));
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
@@ -7047,7 +7251,7 @@ mod tests {
         assert!(opened.migrated_document.is_none());
         assert_eq!(labelled, before);
 
-        let solved = run_preview_mechanics(Some(labelled)).expect("refusal is a published envelope");
+        let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
         assert_eq!(solved["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
         assert!(solved["results"].as_array().expect("result rows").is_empty());
         assert!(solved["diagnostics"].as_array().expect("diagnostics").iter().any(|d| {
@@ -7089,7 +7293,7 @@ mod tests {
             "diagnostics": []
         });
 
-        let solved = run_preview_mechanics(Some(blank))
+        let solved = run_preview_mechanics_value(Some(blank))
             .expect("blank model produces an honest result envelope");
         let diagnostics = solved["diagnostics"]
             .as_array()
@@ -7129,7 +7333,7 @@ mod tests {
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
         assert_eq!(status.state, "completed");
-        let result = status.result.expect("completed job publishes a result");
+        let result: Value = serde_json::from_str(&status.result.expect("completed job publishes a result")).unwrap();
         assert_eq!(result["model_ref"], json!("project:edited-solve-job"));
         assert_eq!(result["status"]["mechanics"], json!("MECHANICS_SOLVED"));
         assert!(
@@ -7199,7 +7403,7 @@ mod tests {
         publish_solve_outcome(
             &registry.jobs,
             &receipt.job_id,
-            solve_preview_mechanics(load_preview_model().expect("bundled demo loads")),
+            solve_preview_mechanics_with_mode(load_preview_model().expect("bundled demo loads"), PreviewSolverMode::default()),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -7305,14 +7509,14 @@ mod tests {
         assert_eq!(resolve_solve_model_payload(Some(model.clone())).expect("supplied payload"), model);
         assert!(resolve_solve_model_payload(None).is_err(), "no implicit model");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).expect("default model solves");
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("default model solves");
             assert_bundled_demo_solved(&solved);
             assert_eq!(
                 solved["producer"]["semantic_contract_id"],
                 json!("openpipestress.result_semantics/0.3.0/preview-physics-1")
             );
         }
-        assert_bundled_demo_solved(&run_preview_mechanics(Some(model)).expect("default solve command"));
+        assert_bundled_demo_solved(&run_preview_mechanics_value(Some(model)).expect("default solve command"));
     }
 
     fn fixture_inspector_intent(before: &str, after: &str) -> Value {
@@ -7442,7 +7646,7 @@ mod tests {
             json!(200000000000_i64)
         );
         // The edited bundled demo still solves through the preview mechanics path.
-        let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
+        let solved = run_preview_mechanics_value(Some(outcome["applied_model"].clone()))
             .expect("edited model still solves through the preview mechanics path");
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
         assert!(solved["results"]
@@ -8783,6 +8987,86 @@ mod tests {
 mod replace_confirmation_tests {
     use super::*;
 
+    fn scratch_store(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-{label}-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let store = root.join(PROJECT_STORE_FILE);
+        drop(open_project_store(&store).unwrap());
+        store
+    }
+
+    fn invented_model(id: &str, name: &str) -> Value {
+        let mut model = load_preview_model().unwrap();
+        model["project"]["id"] = json!(id);
+        model["project"]["name"] = json!(name);
+        model
+    }
+
+    /// An unconfirmed write through the commands' own store path, alternating
+    /// create and save as the two writers' commands.
+    fn unconfirmed_write(store: &Path, id: &str, name: &str, save: bool) -> Result<(), String> {
+        let model = invented_model(id, name);
+        if save {
+            let request: SaveLocalProjectRequest = serde_json::from_value(json!({
+                "project_id": id, "project_name": name, "model": model
+            })).unwrap();
+            save_project_in_store(store.to_path_buf(), request).map(|_| ())
+        } else {
+            create_project_in_store(store.to_path_buf(), model, None, None, None, None, None, None, None, None).map(|_| ())
+        }
+    }
+
+    /// Writer A holds the store's write lock between its check and its write.
+    /// Writer B, a second connection as another window or process would hold,
+    /// cannot run its check meanwhile: it waits, then sees A's row and is refused.
+    /// (With the check outside the transaction, B's check would read the empty
+    /// store while A held the lock, and B would then overwrite A's project.)
+    #[test]
+    fn a_second_writer_cannot_pass_the_check_while_the_first_is_writing() {
+        let store = scratch_store("check-and-write");
+        let id = "project:invented-race";
+        let (mut first, _) = open_project_store(&store).unwrap();
+        let transaction = first.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).unwrap();
+        refuse_unconfirmed_replacement(&transaction, id, None, None).expect("A: nothing stored yet");
+        let second_store = store.clone();
+        let second = std::thread::spawn(move || unconfirmed_write(&second_store, id, "Writer B", false));
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        assert!(!second.is_finished(), "B must wait for A's write lock before it can check");
+        write_project_rows(&transaction, id, "Writer A", &invented_model(id, "Writer A"), &json!([]), &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        transaction.commit().unwrap();
+        let refused = second.join().unwrap().expect_err("B is refused");
+        assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-race` (\"Writer A\""), "{refused}");
+        let (connection, _) = open_project_store(&store).unwrap();
+        assert_eq!(stored_project_entry(&connection, id).unwrap().unwrap().project_name, "Writer A");
+        fs::remove_dir_all(store.parent().unwrap()).unwrap();
+    }
+
+    /// Two writers race for the same new id: exactly one writes; the other is refused.
+    #[test]
+    fn two_concurrent_writers_to_the_same_new_id_never_both_write() {
+        for round in 0..20 {
+            let store = scratch_store("concurrent-writers");
+            let id = format!("project:invented-race-{round}");
+            let barrier = Arc::new(std::sync::Barrier::new(2));
+            let writers: Vec<_> = [("Writer A", false), ("Writer B", round % 2 == 1)].into_iter().map(|(name, save)| {
+                let (store, id, barrier) = (store.clone(), id.clone(), Arc::clone(&barrier));
+                std::thread::spawn(move || { barrier.wait(); unconfirmed_write(&store, &id, name, save).map(|()| name) })
+            }).collect();
+            let results: Vec<_> = writers.into_iter().map(|writer| writer.join().unwrap()).collect();
+            let written: Vec<_> = results.iter().filter_map(|result| result.as_ref().ok().copied()).collect();
+            assert_eq!(written.len(), 1, "round {round}: {results:?}");
+            assert!(results.iter().any(|result| matches!(result, Err(error) if error.starts_with("PROJECT-ID-EXISTS"))), "round {round}: {results:?}");
+            let (connection, _) = open_project_store(&store).unwrap();
+            assert_eq!(stored_project_entry(&connection, &id).unwrap().unwrap().project_name, written[0]);
+            fs::remove_dir_all(store.parent().unwrap()).unwrap();
+        }
+    }
+
     #[test]
     fn a_stored_project_is_never_replaced_without_confirmation() {
         let root = std::env::temp_dir().join(format!(
@@ -8795,24 +9079,41 @@ mod replace_confirmation_tests {
         let model = load_preview_model().unwrap();
         let id = model["project"]["id"].as_str().unwrap().to_string();
         // Nothing stored yet: a first save needs no confirmation.
-        refuse_unconfirmed_replacement(&connection, &id, false, None).expect("first save");
+        refuse_unconfirmed_replacement(&connection, &id, None, None).expect("first save");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
-        let refused = refuse_unconfirmed_replacement(&connection, &id, false, None).expect_err("unconfirmed replacement");
+        let refused = refuse_unconfirmed_replacement(&connection, &id, None, None).expect_err("unconfirmed replacement");
         assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{refused}");
-        refuse_unconfirmed_replacement(&connection, &id, true, None).expect("confirmed replacement");
-        refuse_unconfirmed_replacement(&connection, "project:another", false, None).expect("another id");
+        let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
+        let shown = stored_revision(&connection, &entry).unwrap();
+        refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect("Replace of the revision shown");
+        refuse_unconfirmed_replacement(&connection, "project:another", None, None).expect("another id");
         // A save in place is admitted only from the stored revision.
         let base = json!({"algorithm": "sha256", "value": "sha256:base"});
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
-        refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:base")).expect("save in place");
-        let moved = refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:older")).expect_err("stale base");
+        refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:base")).expect("save in place");
+        let moved = refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:older")).expect_err("stale base");
         assert!(moved.starts_with("PROJECT-BASE-MOVED: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{moved}");
-        refuse_unconfirmed_replacement(&connection, &id, true, Some("sha256:older")).expect("confirmed over a moved base");
+        // A Replace confirms the revision the prompt showed; one saved since is not confirmed.
+        let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
+        let current = stored_revision(&connection, &entry).unwrap();
+        assert!(current.starts_with(&format!("sha256:base@{}@", entry.updated_at_unix)), "{current}");
+        // Two different writes in the same second have different revisions (the
+        // row fingerprint), even without an envelope hash.
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!(["edited"]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+        let after_edit = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
+        assert_ne!(after_edit, current);
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+        let current = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
+        refuse_unconfirmed_replacement(&connection, &id, Some(&current), Some("sha256:older")).expect("Replace of the shown revision");
+        let replaced_unseen = refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect_err("revision saved after the prompt");
+        assert!(replaced_unseen.starts_with("PROJECT-BASE-MOVED") && replaced_unseen.contains("after the replace prompt showed it"), "{replaced_unseen}");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
-        assert!(refuse_unconfirmed_replacement(&connection, &id, false, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
+        assert!(refuse_unconfirmed_replacement(&connection, &id, None, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
         let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
         assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));
         assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());

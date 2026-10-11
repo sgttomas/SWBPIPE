@@ -7,6 +7,7 @@
  * (D-U6-5) delivered through mocked IPC: a unit transport replay, NOT a native
  * witness (plan F-1; D-U6-3). */
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { solveBytes } from "../test/nativeMechanicsReplay";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -20,7 +21,7 @@ import {
 import { bindSourceResultDimensions, buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "./previewService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
-import { validateRetainedPrecision } from "../features/results/retainedPrecision";
+import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -39,7 +40,7 @@ async function delivered(mode: PreviewSolverMode, source?: MechanicsResult) {
   (window as Json).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(async (command: string) => {
     expect(command).toBe("run_preview_mechanics_with_solver_mode");
-    return structuredClone(source ?? pinned.source);
+    return solveBytes(source ?? pinned.source);
   });
   const received = await runPreviewMechanics(pinned.model, mode);
   // The pinned request model has no desktop load-case status, which the input

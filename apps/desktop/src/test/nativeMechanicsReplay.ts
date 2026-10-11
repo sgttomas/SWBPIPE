@@ -3,15 +3,21 @@
  * It never installs a runtime, registers a source, or edits producer evidence. */
 import { isDeepStrictEqual } from "node:util";
 import modelFixture from "../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
-import sparseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_sparse.json";
-import denseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_dense.json";
+import sparseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_sparse.json?raw";
+import denseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_dense.json?raw";
 import precisionModelFixture from "../../../../fixtures/model_operations/precision_connected_ui_model.json";
-import precisionSparseFixture from "../../../../fixtures/results/precision_connected_ui_mechanics_sparse.json";
-import precisionDenseFixture from "../../../../fixtures/results/precision_connected_ui_mechanics_dense.json";
-import previewSparseFixture from "../../../../fixtures/results/preview_physics_connected_sparse.json";
-import previewDenseFixture from "../../../../fixtures/results/preview_physics_connected_dense.json";
+import precisionSparseFixture from "../../../../fixtures/results/precision_connected_ui_mechanics_sparse.json?raw";
+import precisionDenseFixture from "../../../../fixtures/results/precision_connected_ui_mechanics_dense.json?raw";
+import previewSparseFixture from "../../../../fixtures/results/preview_physics_connected_sparse.json?raw";
+import previewDenseFixture from "../../../../fixtures/results/preview_physics_connected_dense.json?raw";
+import { jsonTextKeepingNegativeZero } from "../services/jsonText";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { PreviewSolverMode } from "../services/previewService";
+
+/** The bytes a mocked native solve hands over for a result value (b7-plan R1: the solve commands
+ * and jobs hand over serialized bytes): its JSON text, negative zeros kept, unchecked. The reader
+ * module writes parsed values with the same writer. */
+export const solveBytes = jsonTextKeepingNegativeZero;
 
 export const NATIVE_MECHANICS_REPLAY_NOTICE = "Unit transport replay of captured producer bytes; NOT actual native UI qualification";
 /** `preview` is the fresh non-exact route (preview-physics-1). `precision` is kept
@@ -27,12 +33,14 @@ export function nativeMechanicsReplayPair(mode: PreviewSolverMode = "sparse_inte
   if (profile !== "physics" && profile !== "precision" && profile !== "preview") throw new Error("NATIVE_REPLAY_PROFILE_UNSUPPORTED");
   const sparse = mode === "sparse_interactive";
   const model = profile === "physics" ? modelFixture : precisionModelFixture;
-  const source = profile === "physics" ? (sparse ? sparseFixture : denseFixture)
+  // The producer's bytes, as the native solve hands them over (b7-plan R1, exact bytes).
+  const bytes = profile === "physics" ? (sparse ? sparseFixture : denseFixture)
     : profile === "preview" ? (sparse ? previewSparseFixture : previewDenseFixture)
     : (sparse ? precisionSparseFixture : precisionDenseFixture);
   return {
     model: structuredClone(model) as PreviewModel,
-    source: structuredClone(source) as unknown as MechanicsResult,
+    source: JSON.parse(bytes) as MechanicsResult,
+    bytes,
     mode,
     profile,
     provenance: {
@@ -54,7 +62,7 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
   const profile = options.profile ?? "physics";
   nativeMechanicsReplayPair("sparse_interactive", { profile });
   const prefix = options.jobIdPrefix ?? `unit-native-replay:${++instanceSequence}`;
-  const jobs = new Map<string, { source: MechanicsResult; cancelled: boolean }>();
+  const jobs = new Map<string, { bytes: string; cancelled: boolean }>();
   let sequence = 0;
   const requestPair = (args: unknown) => {
     if (!args || typeof args !== "object" || Array.isArray(args)) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
@@ -70,10 +78,10 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
       if (args !== undefined) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
       return nativeMechanicsReplayPair("sparse_interactive", { profile }).model;
     }
-    if (command === "run_preview_mechanics_with_solver_mode") return requestPair(args).source;
+    if (command === "run_preview_mechanics_with_solver_mode") return requestPair(args).bytes;
     if (command === "start_preview_mechanics_job_with_solver_mode") {
       const pair = requestPair(args), job_id = `${prefix}:${++sequence}`;
-      jobs.set(job_id, { source: pair.source, cancelled: false });
+      jobs.set(job_id, { bytes: pair.bytes, cancelled: false });
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: "unit_transport_replay_not_native_ui_qualification" };
     }
     if (command === "poll_preview_mechanics_job" || command === "cancel_preview_mechanics_job") {
@@ -88,7 +96,7 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
       }
       return { job_id: jobId, state: job.cancelled ? "cancelled" : "completed", cancellation_requested: job.cancelled,
         cancellation_status: job.cancelled ? "cancelled" : "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification",
-        result: job.cancelled ? null : structuredClone(job.source), error_message: null };
+        result: job.cancelled ? null : job.bytes, error_message: null };
     }
     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   };

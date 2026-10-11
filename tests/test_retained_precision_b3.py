@@ -16,7 +16,7 @@ import sys
 
 import pytest
 
-from core.analysis_runs import retained_precision as rp
+from tests.verifiers import retained_precision as rp
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -763,12 +763,16 @@ def test_b3b_carriers(mode):
     with pytest.raises(ValueError) as error:
         c.validate_analysis_run_v0_3(dropped, source)
     assert str(error.value) == c.ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH
-    # F-5: physics-1 carrying the receipt is a downgrade; the reader's G7 text comes back on a refused successor.
+    # F-5: physics-1 carrying the receipt is a downgrade; the Rust reader's G7 text comes back on a refused
+    # successor (its own base code, where the verifier reports SOURCE_PHYSICS_EVIDENCE_INVALID).
     downgraded = rp._project(source, rp.EXACT_ROUTE)
     downgraded["retained_precision"] = deepcopy(source["retained_precision"])
     assert dispatch(downgraded) == c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
     broken, _ = exact_shape(mode, "16 connector non-empty")
-    assert dispatch(broken).startswith("SOURCE_PHYSICS_EVIDENCE_INVALID")
+    assert dispatch(broken) == "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED"
+    with pytest.raises(rp.RetainedPrecisionError) as verifier:
+        rp.validate_retained_precision(broken)
+    assert (verifier.value.gate, verifier.value.code) == BASE_G7
 
 
 @pytest.mark.parametrize("mode", MODES)

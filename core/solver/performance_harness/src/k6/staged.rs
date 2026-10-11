@@ -286,7 +286,7 @@ pub fn frames_formation_source(node_count: usize, frames: &[FrameElement]) -> Fo
     FormationSource {
         node_count,
         frames: frames.to_vec(),
-        users: Vec::new(),
+        connectors: Vec::new(),
         curved: Vec::new(),
         springs: Vec::new(),
         unavailable: Vec::new(),

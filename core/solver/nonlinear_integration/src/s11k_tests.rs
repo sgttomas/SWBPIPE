@@ -29,7 +29,7 @@ fn adjacent_input() -> NonlinearFrameSolveInput {
     NonlinearFrameSolveInput {
         node_count: 3,
         elements,
-        user_stiffness_elements: vec![],
+        connectors: Vec::new(),
         curved_bend_elements: vec![],
         force,
         base_restrained_dofs: (0..18).filter(|&i| i != 6 && i != 12).collect(),
@@ -865,7 +865,7 @@ fn option_c_active_set_loop_first_closed_gap_iteration_is_binary64() {
         let input = NonlinearFrameSolveInput {
             node_count: 3,
             elements: elements.clone(),
-            user_stiffness_elements: vec![],
+            connectors: Vec::new(),
             curved_bend_elements: vec![],
             force: probe_force(),
             base_restrained_dofs: PROBE_BASE_RESTRAINTS.to_vec(),
@@ -1265,7 +1265,7 @@ fn kd5_loop_input(built: &crate::structural_adapter::kd5_tests::Built) -> Nonlin
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: built.frames.clone(),
-        user_stiffness_elements: vec![],
+        connectors: Vec::new(),
         curved_bend_elements: vec![],
         force: built.f.clone(),
         base_restrained_dofs: crate::structural_adapter::kd5_tests::skew_122_rigid().to_vec(),
@@ -1357,7 +1357,7 @@ fn kd5_friction_probe_input(g: f64) -> NonlinearFrameSolveInput {
     NonlinearFrameSolveInput {
         node_count: 3,
         elements: probe_p_elements(),
-        user_stiffness_elements: vec![],
+        connectors: Vec::new(),
         curved_bend_elements: vec![],
         force,
         base_restrained_dofs: PROBE_BASE_RESTRAINTS.to_vec(),

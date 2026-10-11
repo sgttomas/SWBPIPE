@@ -289080,10 +289080,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS"
@@ -303223,10 +303219,6 @@
       },
       "expected_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_NUMERICAL_CASE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_NUMERICAL_CASE_INVALID"
         },
@@ -341875,10 +341867,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
@@ -341886,10 +341874,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
         },
@@ -341925,10 +341909,6 @@
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_FOREIGN_METHOD_EVIDENCE"
@@ -341936,10 +341916,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
@@ -341983,10 +341959,6 @@
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_NUMERICAL_QUALITY_INVALID"
@@ -341994,10 +341966,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
@@ -342040,10 +342008,6 @@
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
@@ -342051,10 +342015,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
@@ -342603,10 +342563,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"
@@ -342614,10 +342570,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -343007,10 +342959,6 @@
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_NUMERICAL_CASE_INVALID"
@@ -343018,10 +342966,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
         },
@@ -343064,10 +343008,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
@@ -343075,10 +343015,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
         },
@@ -377130,10 +377066,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_SHAPE"
@@ -377141,10 +377073,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377181,10 +377109,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID"
@@ -377192,10 +377116,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377234,10 +377154,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_CASE_SHAPE"
@@ -377245,10 +377161,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377287,10 +377199,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_STRING_INVALID"
@@ -377298,10 +377206,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377340,10 +377244,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_DUPLICATE_CASE"
@@ -377351,10 +377251,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377394,10 +377290,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE"
@@ -377405,10 +377297,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377455,10 +377343,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE_PARTITION"
@@ -377466,10 +377350,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377515,10 +377395,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_DUPLICATE_ID"
@@ -377526,10 +377402,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377574,10 +377446,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE"
@@ -377585,10 +377453,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377633,10 +377497,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_REASON"
@@ -377644,10 +377504,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377692,10 +377548,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_RECORD"
@@ -377703,10 +377555,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377743,10 +377591,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_SUPPORT_ATTRIBUTION_CASE_MISMATCH"
@@ -377754,10 +377598,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377822,10 +377662,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE"
@@ -377833,10 +377669,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377877,10 +377709,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_SHAPE"
@@ -377888,10 +377716,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377932,10 +377756,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS"
@@ -377943,10 +377763,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -377987,10 +377803,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION"
@@ -377998,10 +377810,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378042,10 +377850,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION"
@@ -378053,10 +377857,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378097,10 +377897,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_SUBDIVISIONS"
@@ -378108,10 +377904,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378152,10 +377944,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_SUBDIVISIONS"
@@ -378163,10 +377951,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378207,10 +377991,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_SUBDIVISIONS"
@@ -378218,10 +377998,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378262,10 +378038,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS"
@@ -378273,10 +378045,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378317,10 +378085,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS"
@@ -378328,10 +378092,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378372,10 +378132,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"
@@ -378383,10 +378139,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378427,10 +378179,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"
@@ -378438,10 +378186,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378482,10 +378226,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID"
@@ -378493,10 +378233,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378541,10 +378277,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE_PARTITION"
@@ -378552,10 +378284,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378625,10 +378353,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE_PARTITION"
@@ -378636,10 +378360,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378691,10 +378411,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING"
@@ -378702,10 +378418,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378754,10 +378466,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING"
@@ -378765,10 +378473,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378820,10 +378524,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING"
@@ -378831,10 +378531,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378886,10 +378582,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING"
@@ -378897,10 +378589,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -378964,10 +378652,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING"
@@ -378975,10 +378659,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379021,10 +378701,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_GATE_REASON"
@@ -379032,10 +378708,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379078,10 +378750,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_GATE_REASON"
@@ -379089,10 +378757,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379140,10 +378804,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_GATE_DUPLICATE"
@@ -379151,10 +378811,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379197,10 +378853,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_GATE_SHAPE"
@@ -379208,10 +378860,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379264,10 +378912,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_SHAPE"
@@ -379275,10 +378919,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
@@ -379322,10 +378962,6 @@
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },
-        "typescript": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
         "rust": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_GATE_SHAPE"
@@ -379333,10 +378969,6 @@
       },
       "expected_unbound_by_reader": {
         "python": {
-          "gate": "G7",
-          "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
-        },
-        "typescript": {
           "gate": "G7",
           "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
         },

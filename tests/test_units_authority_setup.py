@@ -15,20 +15,33 @@ def module(path, name):
 def test_controller_prepares_units_even_with_existing_json_authority(monkeypatch, tmp_path):
     conftest=module(ROOT/'tests/conftest.py','units_setup_test')
     monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/checked-json')
+    monkeypatch.setenv('OPENPIPESTRESS_RUNNER_BIN','/configured/runner')
     monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False)
     calls=[]; target=tmp_path/'units-authority'
     monkeypatch.setitem(sys.modules,'build_units_authority',SimpleNamespace(build=lambda:(calls.append('units') or target)))
     conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
     assert calls==['units'];assert os.environ['OPENPIPESTRESS_UNITS_BIN']==str(target)
 
+def test_controller_prepares_the_runner_even_with_existing_authorities(monkeypatch, tmp_path):
+    conftest=module(ROOT/'tests/conftest.py','runner_setup_test')
+    monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/checked-json')
+    monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','/configured/units')
+    monkeypatch.delenv('OPENPIPESTRESS_RUNNER_BIN',raising=False)
+    calls=[]; target=tmp_path/'openpipestress-runner'
+    monkeypatch.setitem(sys.modules,'build_runner',SimpleNamespace(build=lambda:(calls.append('runner') or target)))
+    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
+    assert calls==['runner'];assert os.environ['OPENPIPESTRESS_RUNNER_BIN']==str(target)
+
 def test_workers_and_configured_controller_do_not_build(monkeypatch):
     conftest=module(ROOT/'tests/conftest.py','units_setup_worker_test')
     def forbidden():raise AssertionError('unexpected build')
     monkeypatch.setitem(sys.modules,'build_units_authority',SimpleNamespace(build=forbidden))
     monkeypatch.setitem(sys.modules,'build_checked_json',SimpleNamespace(build=forbidden))
-    monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False);monkeypatch.delenv('OPENPIPESTRESS_CHECKED_JSON_BIN',raising=False)
+    monkeypatch.setitem(sys.modules,'build_runner',SimpleNamespace(build=forbidden))
+    for name in ('OPENPIPESTRESS_UNITS_BIN','OPENPIPESTRESS_CHECKED_JSON_BIN','OPENPIPESTRESS_RUNNER_BIN'):monkeypatch.delenv(name,raising=False)
     conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace(workerinput={})))
     monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','/configured/units');monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/json')
+    monkeypatch.setenv('OPENPIPESTRESS_RUNNER_BIN','/configured/runner')
     conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
 
 def test_explicit_build_uses_locked_release_cli_and_target(monkeypatch,tmp_path):
@@ -38,6 +51,14 @@ def test_explicit_build_uses_locked_release_cli_and_target(monkeypatch,tmp_path)
     assert result==(tmp_path/'target/release/openpipestress_units').resolve()
     args,options=calls[0];assert '--locked' in args and '--release' in args
     assert args[args.index('--features')+1]=='cli';assert options['cwd']==ROOT/'core/units';assert options['check'] is True
+
+def test_explicit_runner_build_uses_locked_release_binary_and_target(monkeypatch,tmp_path):
+    helper=module(ROOT/'tools/runner/build_runner.py','runner_build_test'); calls=[]
+    monkeypatch.setattr(helper.subprocess,'run',lambda args,**kwargs:calls.append((args,kwargs)))
+    result=helper.build(tmp_path/'target')
+    assert result==(tmp_path/'target/release/openpipestress-runner').resolve()
+    args,options=calls[0];assert '--locked' in args and '--release' in args
+    assert args[args.index('--bin')+1]=='openpipestress-runner';assert options['cwd']==ROOT/'core/runner/headless';assert options['check'] is True
 
 def test_adapter_requires_configured_absolute_authority(monkeypatch):
     monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False)
