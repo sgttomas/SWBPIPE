@@ -1,6 +1,13 @@
-"""Standalone prepared-result statement validation; never producer authentication.
+"""Independent test verifier of retained-precision successor statements; never producer authentication.
 
-The reader has no solver, native registration, or carrier side effects. Exact
+Tests only: the product reader is Rust's (`core/reporting/result_export/src/retained_precision.rs`), which
+product Python reaches through `openpipestress-runner read`. No module outside `tests/` imports this one
+(`tests/test_verifier_independence.py`). It shares no code with the producer: it hashes through
+`tests/verifiers/canonical_json.py` and converts units through `tests/verifiers/units.py`, never through a
+bridge to a crate the producer links. Its base step at G7 and the exact route's G8 materials still run the
+Python base readers in `core/analysis_runs/` (they move under `tests/` with R2's base readers).
+
+The verifier has no solver, native registration, or carrier side effects. Exact
 helpers below implement only the finite binary64 decisions named by the policy.
 """
 from __future__ import annotations
@@ -14,6 +21,11 @@ from functools import lru_cache
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, NamedTuple
+
+from core.analysis_runs.compatibility import _source_contract
+from core.analysis_runs.physics_source import _actual_materials, _canonical_inputs
+from .canonical_json import canonical_sha256
+from .units import convert_quantities_to_canonical
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
@@ -224,8 +236,7 @@ def _encoding(value, spec):
 
 
 def _hash(domain, payload):
-    from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
-    return canonical_sha256_checked_v1({"domain": domain, "payload": payload})
+    return canonical_sha256({"domain": domain, "payload": payload})
 
 
 def _at(items, index, gate="G5", code="PRODUCT_ATTEMPT_MISMATCH"):
@@ -1645,11 +1656,10 @@ def _g8_exact_materials(body, source, invocation, case_bases):
     source-1's actual-material check over every exact_cases entry, through its own `_actual_materials` and
     `_canonical_inputs`, used as they are (B3D-12; N-9), with its code as detail only (B3D-13). N-6: each entry's
     published G_pa is, bit for bit, the receipt's shear modulus for that material."""
-    from .physics_source import _actual_materials, _canonical_inputs
     model = invocation["request"]["model"]
     entries = source["contract_evidence"]["exact_cases"]
     try:
-        canonical = _canonical_inputs(invocation)
+        canonical = _canonical_inputs(invocation, convert_quantities_to_canonical)
         for entry in entries:
             actual = next(c for c in model["load_cases"] if c["id"] == entry["load_case_id"])
             _actual_materials(invocation, actual, entry, canonical)
@@ -1686,7 +1696,6 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
-    from core.units.adapter import convert_quantities_to_canonical
     def unit(q, dimension):
         values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
         return float(values[0]["value"])
@@ -2455,7 +2464,6 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
     B3b (B3-D §6.2, transport): on the exact branch the projection is physics-1's and its metadata check is physics-1's
     transport check, whose code (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
     projected=_project(snapshot,route)
-    from .compatibility import _source_contract
     try:_source_contract(projected,check_receipt=False,rust_header_order=True)
     except ValueError as exc:
         text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
@@ -2697,7 +2705,6 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
             for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,gate,"ROW_METHOD_MISMATCH")
         gate="G7";projected=_project(snapshot,route)
-        from .compatibility import _source_contract
         try:_source_contract(projected)
         except ValueError as exc:
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)

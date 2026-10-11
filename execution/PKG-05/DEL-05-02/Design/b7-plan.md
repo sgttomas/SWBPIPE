@@ -44,7 +44,7 @@ Unit R has two stages, both ahead of the join: **R1**, the retained reader (this
 **The arrangement (R1).** One product reader replaces the three retained readers held at parity:
 - **Rust, the only product reader.** `core/reporting/result_export/src/retained_precision.rs` reads retained-precision successors natively, and compiled to wasm for the desktop.
 - **TypeScript, deleted.** `apps/desktop/src/features/results/retainedPrecision.ts` goes.
-- **Python, a test-only verifier.** `core/analysis_runs/retained_precision.py` becomes an independent verifier that only tests use, never a product path.
+- **Python, a test-only verifier.** `core/analysis_runs/retained_precision.py` becomes `tests/verifiers/retained_precision.py`, an independent verifier that only tests use, never a product path.
 
 After R1 and R2, B7's table, schema and reader changes are made in two places, not three: the Rust reader and the Python verifier.
 
@@ -83,13 +83,15 @@ After R1 and R2, B7's table, schema and reader changes are made in two places, n
   - `services/retainedPrecisionAnalysisRun.test.ts`.
 
 **The Python verifier.**
-- **Location.** It moves under `tests/`. A test asserts that no module outside `tests/` imports it.
-- **Product callers.** `core/analysis_runs/compatibility.py`'s `_retained_validation` and `_retained_transport` stop importing it.
-  - Python product code that meets a retained successor takes the Rust reader's verdict. It gets it through an `openpipestress-runner` subcommand that R adds over the same two functions.
-  - It never re-derives a verdict.
-- **Independence.** It shares no code with the producer.
-  - Today it hashes through `core/serialization/canonical_json/adapter.py` and converts units through `core/units/adapter.py`. Both are subprocess bridges to crates the producer links.
-  - R replaces both with Python implementations under `tests/`. These are checked against those crates' committed vectors, not by calling them.
+- **Location.** `tests/verifiers/retained_precision.py`, in the test-only package `tests/verifiers/`. `tests/test_verifier_independence.py` asserts that no module outside `tests/` imports it, by package or by path.
+- **Product callers.** `core/analysis_runs/compatibility.py`'s `_retained_validation` and `_retained_transport` no longer import it.
+  - Python product code that meets a retained successor takes the Rust reader's verdict through `core/analysis_runs/rust_reader.py`. It runs `openpipestress-runner read retained-precision` (`validate`; `{"source", "invocation"?}` in) or `read retained-precision-transport` (`validate_transport_metadata`; `{"source"}` in), with the runner at `OPENPIPESTRESS_RUNNER_BIN`. Out comes `{"verdict": "pass", "validation"}` with exit 0, or `{"verdict": "refused", "refusal": {gate, code, detail}}` with exit 1; an unusable input exits 2. R2 adds its readers to the same `read` table.
+  - It never re-derives a verdict. Every other product path reaches the retained reader only through those two functions: `compatibility.py`'s dispatch, standing, classification summary and rule binding, its analysis-run builder and validator, and the stress-neutral 0.3 packager. The product preview service (whose 0.1.0 wrapper refuses a receipt-carrying source by name, unread) and the qualification tools do not reach it.
+  - The product takes Rust's text. Only on the corpus's declared G7 class (47 entries, where Rust reports finer base codes) does a product refusal read differently: Rust's code on raw reads, and on 23 transport reads the same code with Rust's detail. Every pass or refusal, every other refusal, every passing validation, standing and classification summary, and every analysis-run record built is unchanged.
+- **Independence.** It shares no code with the producer and spawns no process.
+  - It hashes through `tests/verifiers/canonical_json.py` and converts units through `tests/verifiers/units.py`, in place of the subprocess bridges `core/serialization/canonical_json/adapter.py` and `core/units/adapter.py`.
+  - These are checked against the crates' committed vectors, read from their files: `fixtures/canonical_hash/cases.json` and `fixtures/results/precision_transport_v0_3.json` for canonical JSON, and the witness tables in `core/units/src/lib.rs` for units. The verifier's replay of the producer-solved successors and of the mixed-unit physics-source statements matches the producer's hashes and converted bits.
+  - Its base step (G7) and the exact route's G8 materials still run the Python base readers in `core/analysis_runs/`, which R2 moves under `tests/`.
 
 **The shared conformance corpus.** These become the conformance corpus shared by the Rust reader and the Python verifier:
 - the 07m/07n/07o corpora;
@@ -141,9 +143,9 @@ A difference outside item 2 stops the deletion.
 **What moves.** Desktop outcomes only where item 2 declares a difference, and the desktop bundle. No producer byte, reviewed input or table moves. Rust reader layouts and statics are unchanged unless R2 changes a Rust entry point; if it does, R2 joins the batch and re-registers under D3.
 
 **The Python verifier's dependencies to cut (R1 and R2).**
-- **Subprocess bridges to producer crates.** `core/serialization/canonical_json/adapter.py` (used by `compatibility.py`, `source_blocks.py` and `retained_precision.py`) and `core/units/adapter.py` (used by `physics_source.py` and `retained_precision.py`). They are replaced by Python implementations under `tests/`, checked against the crates' committed vectors rather than by calling them.
-- **Product-path calls.** `compatibility.py`'s reader half (`_source_contract`, the dispatch into the evidence modules, `_retained_validation`, `_retained_transport`) is called on product paths by its own analysis-run builder (`build_analysis_run_v0_3`, `validate_analysis_run_v0_3`), by `core/handoff/stress_neutral/package_v0_3.py` and by `core/product_preview/service.py`; `tools/validation/qualification_*` call it too. After R2 those callers take the Rust reader's verdict through the `openpipestress-runner` reader subcommand (R1 adds the retained entry, R2 the base dispatch); the qualification tools may call the verifier only from tests.
-- **Moved under `tests/`:** `preview_physics_evidence.py`, `physics_evidence.py`, `physics_source.py`, `load_reference_evidence.py`, `load_reference_source.py`, `source_blocks.py`, `retained_precision.py`, and `compatibility.py`'s reader half. `core/analysis_runs/__init__.py` stops re-exporting them. The record builder stays in `compatibility.py` (DEL-14-02).
+- **Subprocess bridges to producer crates.** `core/serialization/canonical_json/adapter.py` (used by `compatibility.py` and `source_blocks.py`) and `core/units/adapter.py` (used by `physics_source.py`). R1 cut the retained verifier's use of both. They are replaced by Python implementations under `tests/`, checked against the crates' committed vectors rather than by calling them.
+- **Product-path calls.** `compatibility.py`'s reader half (`_source_contract` and the dispatch into the evidence modules; `_retained_validation` and `_retained_transport` take the Rust verdict since R1) is called on product paths by its own analysis-run builder (`build_analysis_run_v0_3`, `validate_analysis_run_v0_3`), by `core/handoff/stress_neutral/package_v0_3.py` and by `core/product_preview/service.py`; `tools/validation/qualification_*` call it too. After R2 those callers take the Rust reader's verdict through the `openpipestress-runner` reader subcommand (R1 adds the retained entry, R2 the base dispatch); the qualification tools may call the verifier only from tests.
+- **Moved under `tests/`:** `preview_physics_evidence.py`, `physics_evidence.py`, `physics_source.py`, `load_reference_evidence.py`, `load_reference_source.py`, `source_blocks.py`, and `compatibility.py`'s reader half (`retained_precision.py` moved in R1). `core/analysis_runs/__init__.py` stops re-exporting them. The record builder stays in `compatibility.py` (DEL-14-02).
 
 ## The join: `pressure-source-1`
 

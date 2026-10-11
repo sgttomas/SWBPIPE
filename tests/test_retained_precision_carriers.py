@@ -14,7 +14,8 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs import compatibility as c
-from core.analysis_runs import retained_precision as rp
+from core.analysis_runs import rust_reader
+from tests.verifiers import retained_precision as rp
 
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
@@ -88,7 +89,7 @@ def test_dispatch_admits_the_successor_through_the_accepted_reader_only(mode):
     assert hashlib.sha256(path.read_bytes()).hexdigest() == rp.TABLE_HASH == sha
     assert c.is_fresh_contract_id(SUCC) and SUCC in c.CURRENT_RECORD_CONTRACT_IDS
     assert c.standing_reason(source) is None
-    # The reader's first code; a G7 failure keeps the base validator's own text.
+    # The Rust reader's first code; a G7 failure keeps the base validator's own text.
     broken = deepcopy(source)
     broken["retained_precision"]["receipt_sha256"] = "0" * 64
     raises("RETAINED_PRECISION_RECEIPT_MISMATCH", c._source_contract, broken)
@@ -96,10 +97,14 @@ def test_dispatch_admits_the_successor_through_the_accepted_reader_only(mode):
     index = next(i for i, row in enumerate(unit["results"]) if row["kind"] == "linear_solver_mode_basis")
     unit["results"][index]["unit"] = "m"
     unit = rehash(unit)
-    with pytest.raises(rp.RetainedPrecisionError) as reader:
-        rp.validate_retained_precision(unit)
+    with pytest.raises(rust_reader.ReaderRefusal) as reader:
+        rust_reader.retained_precision(unit)
     assert reader.value.gate == "G7" and reader.value.detail and reader.value.detail != reader.value.code
-    raises(reader.value.detail, c._source_contract, unit)
+    raises("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE: SOURCE_UNIT_CONTRADICTION: linear_solver_mode_basis", c._source_contract, unit)
+    # The verifier refuses it at G7 too, with Python's base code (the corpus's declared G7 class).
+    with pytest.raises(rp.RetainedPrecisionError) as verifier:
+        rp.validate_retained_precision(unit)
+    assert (verifier.value.gate, verifier.value.code) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
     # F-U6b-2 (B6): the transport dispatch runs the reader's transport validator, as Rust's
     # for_source_metadata and TS's sourceContractTransport do: the successor resolves, and a
     # statement the reader refuses is refused with its first code, raw and transport alike.

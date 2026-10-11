@@ -7,6 +7,7 @@ import json
 from typing import Any, Callable, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
+from . import rust_reader
 from .source_blocks import (CONTRACT_ID as SOURCE_BLOCKS_CONTRACT_ID,
     CONTRACT_SHA256 as SOURCE_BLOCKS_CONTRACT_SHA256, CONTRACT_PATH as _SOURCE_BLOCKS_CONTRACT_PATH,
     validate_source_blocks, validate_receipt_shape, domain_hash, ordinary_case_legacy_semantics)
@@ -275,26 +276,25 @@ def _is_retained(source: Any) -> bool:
 
 
 def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
-    """The accepted reader's G0-G8 on a successor; a G7 failure keeps the base
-    validator's own text, every other gate its code."""
-    from .retained_precision import RetainedPrecisionError, validate_retained_precision
+    """The Rust reader's G0-G8 on a successor (`retained_precision::validate`, through
+    `openpipestress-runner read`); a G7 failure keeps the base validator's own text,
+    every other gate its code."""
     try:
-        return validate_retained_precision(source, invocation)
-    except RetainedPrecisionError as error:
-        raise ValueError(error.detail or error.code) from error
+        return rust_reader.retained_precision(source, invocation)
+    except rust_reader.ReaderRefusal as refusal:
+        raise ValueError(refusal.detail or refusal.code) from refusal
 
 
 def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
-    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2, then
-    the base header in Rust's order and the preview-physics transport metadata on its
-    projection; RR "I4 made at `30f3d1b24a`; …", rulings 1 and 2), as Rust's
-    for_source_metadata and TS's sourceContractTransport run theirs; never eligible.
-    A G7 failure keeps the base validator's own text, every other gate its code."""
-    from .retained_precision import RetainedPrecisionError, validate_retained_precision_transport
+    """F-U6b-2 (B6): the Rust reader's transport checks on a successor
+    (`retained_precision::validate_transport_metadata`, through `openpipestress-runner
+    read`: G0-G2, then the base header and the base's transport metadata on its
+    projection); never eligible. A G7 failure keeps the base validator's own text,
+    every other gate its code."""
     try:
-        return validate_retained_precision_transport(source)
-    except RetainedPrecisionError as error:
-        raise ValueError(error.detail or error.code) from error
+        return rust_reader.retained_precision_transport(source)
+    except rust_reader.ReaderRefusal as refusal:
+        raise ValueError(refusal.detail or refusal.code) from refusal
 
 
 def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool) -> tuple[str, str, Path]:
@@ -402,7 +402,7 @@ def _classification_summary_from(validation: Mapping[str, Any], source: Mapping[
 def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, rust_header_order: bool = False) -> tuple[str, str, Path]:
     """Interpretation dispatch does not authenticate a producer or qualify Current.
 
-    `rust_header_order` is passed only by the retained reader's transport step, on its projection
+    `rust_header_order` is passed only by the retained-precision test verifier's transport step, on its projection
     (RR "I4 made at `30f3d1b24a`; RV113's items for ROOT ruled; …", ruling 1). The header then takes
     Rust's `for_source_metadata` order and codes, as TS's does: it has no carrier branch, so a
     `carrier_evidence` member is left to the preview-physics transport metadata check (G7

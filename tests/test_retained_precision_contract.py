@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 
 import pytest
-from core.analysis_runs import retained_precision as rp
+from tests.verifiers import retained_precision as rp
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))

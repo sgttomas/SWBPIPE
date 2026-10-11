@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from core.analysis_runs import retained_precision as rp
+from tests.verifiers import retained_precision as rp
 from core.analysis_runs import preview_physics_evidence as ppe
 from test_retained_precision_contract import _rehash_ref, apply_mutation
 
