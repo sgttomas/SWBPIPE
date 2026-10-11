@@ -16,6 +16,7 @@
  * refused at G1 with RETAINED_PRECISION_RECEIPT_MISMATCH. Hashes bind the supplied
  * statements; they do not establish producer origin (D-U7-6). */
 import { checkedJsonText } from "../../services/hashService";
+import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 
@@ -27,19 +28,10 @@ function unreadable(): RetainedPrecisionError {
   return new RetainedPrecisionError("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH");
 }
 
-function writeJson(value: unknown): string {
-  if (typeof value === "number") return Object.is(value, -0) ? "-0" : JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(writeJson).join(",")}]`;
-  if (value !== null && typeof value === "object") {
-    return `{${Object.entries(value).map(([key, item]) => `${JSON.stringify(key)}:${writeJson(item)}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
 /** JSON text of a checked JSON value (`checkedJsonText`'s profile), with -0 written as -0. */
 export function retainedJsonText(value: unknown): string {
   checkedJsonText(value);
-  return writeJson(value);
+  return jsonTextKeepingNegativeZero(value);
 }
 
 function freeze<T>(value: T): T {

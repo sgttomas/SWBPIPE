@@ -7,14 +7,15 @@
   producer links.
 - Those two are checked against the crates' committed vectors, read from their files: the
   canonical JSON crate's `fixtures/canonical_hash/cases.json` and
-  `fixtures/results/precision_transport_v0_3.json`, and the units crate's witness tables in
-  `core/units/src/lib.rs`. The producer-solved successors' G8 replay checks the verifier's
+  `fixtures/results/precision_transport_v0_3.json`, and the units crate's catalog (bit for bit)
+  and witness tables in `core/units/src/lib.rs`. The producer-solved successors' G8 replay checks the verifier's
   hashes and converted bits against the producer's own.
 """
 import ast
 from copy import deepcopy
 import json
 import math
+import operator
 from pathlib import Path
 import re
 import struct
@@ -162,6 +163,78 @@ def test_units_match_the_crates_committed_witnesses():
             units.convert_quantities_to_canonical([{"id": "bad", "value": value, "unit": "Pa", "dimension": "stress"}])
     with pytest.raises(ValueError, match="UNITS_CONVERSION_REFUSED"):
         units.convert_quantities_to_canonical([{"id": "wrong", "value": 1.0, "unit": "m", "dimension": "stress"}])
+
+
+def _rust_fn(text, signature):
+    """The body of one function in `core/units/src/lib.rs`, by its signature line."""
+    start = text.index(signature)
+    return text[start:text.index("\n    }\n", start) if signature.startswith("    ") else text.index("\n}\n", start)]
+
+
+def _balanced(text, start):
+    """The text inside the parentheses that open at `start`."""
+    depth = 0
+    for index in range(start, len(text)):
+        depth += {"(": 1, ")": -1}.get(text[index], 0)
+        if depth == 0:
+            return text[start + 1:index]
+    raise ValueError("unbalanced")
+
+
+OPERATORS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
+
+
+def _evaluate(expression, constants):
+    """A Rust f64 constant expression: literals, named constants, PI, + - * / and parentheses, in
+    binary64 left to right, as Rust evaluates it."""
+    tree = ast.parse(expression.replace("std::f64::consts::PI", "PI").replace("_", "").strip(), mode="eval")
+    def value(node):
+        if isinstance(node, ast.Expression):
+            return value(node.body)
+        if isinstance(node, ast.Constant) and type(node.value) in (int, float):
+            return float(node.value)
+        if isinstance(node, ast.Name):
+            return math.pi if node.id == "PI" else constants[node.id]
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            return -value(node.operand)
+        if isinstance(node, ast.BinOp) and type(node.op) in OPERATORS:
+            return OPERATORS[type(node.op)](value(node.left), value(node.right))
+        raise ValueError(f"not a constant expression: {expression}")
+    return value(tree)
+
+
+def test_units_catalog_is_the_crates_bit_for_bit():
+    """Every catalog entry (symbol, dimension, factor and offset bits, in the crate's CATALOG order) and every
+    dimension's canonical unit, parsed from `core/units/src/lib.rs`'s `definition()`, `CATALOG`, `as_str()` and
+    `canonical_unit()` and evaluated as Rust evaluates the constant expressions. A one-ulp drift fails here."""
+    text = (ROOT / "core/units/src/lib.rs").read_text(encoding="utf-8")
+    bits = lambda value: struct.pack(">d", value).hex()
+    constants = {}
+    # Names are keyed without "_", as _evaluate drops "_" (Rust's digit separator) from the whole expression.
+    for name, expression in re.findall(r"^pub const ([A-Z0-9_]+): f64 = ([^;]+);", text, re.M):
+        constants[name.replace("_", "")] = _evaluate(expression, constants)
+    names = dict(re.findall(r'Self::(\w+) => "([^"]+)"', _rust_fn(text, "    pub fn as_str(self)")))
+    body = _rust_fn(text, "    pub fn definition(self)")
+    definitions = {}
+    for arm in re.split(r"\n\s*Self::", body)[1:]:
+        unit = arm.split()[0]
+        symbol, dimension = re.search(r'def\(\s*self,\s*"([^"]+)",\s*Dimension::(\w+),', arm).groups()
+        kind = re.search(r"Transform::(linear|affine)\(", arm)
+        arguments = _balanced(arm, kind.end() - 1)
+        parts = [part for part in re.split(r",(?![^(]*\))", arguments) if part.strip()]
+        factor = _evaluate(parts[0], constants)
+        offset = _evaluate(parts[1], constants) if kind.group(1) == "affine" else 0.0
+        definitions[unit] = (symbol, names[dimension], bits(factor), bits(offset))
+    order = re.findall(r"UnitId::(\w+)", text[text.index("const CATALOG"):text.index("];", text.index("const CATALOG"))])
+    crate = [definitions[unit] for unit in order]
+    ours = [(unit.symbol, unit.dimension, bits(unit.factor), bits(unit.offset)) for unit in units.CATALOG]
+    assert len(order) == len(definitions) == 63 and ours == crate
+    canonical = {}
+    for dimensions, unit in re.findall(r"((?:Dimension::\w+\s*\|?\s*)+)=> Some\(UnitId::(\w+)\)", _rust_fn(text, "pub fn canonical_unit(")):
+        for dimension in re.findall(r"Dimension::(\w+)", dimensions):
+            canonical[names[dimension]] = definitions[unit][:2]
+    assert len(canonical) == 29 and canonical == units.CANONICAL
+    assert set(names.values()) == units.DIMENSIONS
 
 
 @pytest.fixture

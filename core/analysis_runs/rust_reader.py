@@ -70,6 +70,9 @@ def read(reader: str, payload: Mapping[str, Any]) -> dict[str, Any]:
         raise RuntimeError(f"RUST-READER-RESPONSE-INVALID: {reader}")
     if not passed:
         error = outcome["error"]
+        if (set(error) != {"gate", "code", "detail"} or not isinstance(error["gate"], str) or not isinstance(error["code"], str)
+                or not (error["detail"] is None or isinstance(error["detail"], str))):
+            raise RuntimeError(f"RUST-READER-RESPONSE-INVALID: {reader}")
         raise ReaderRefusal(error["gate"], error["code"], error["detail"])
     return outcome["validation"]
 

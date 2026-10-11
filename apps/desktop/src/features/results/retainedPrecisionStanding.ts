@@ -19,7 +19,7 @@
  * published absolute bound b of an `absolute_verified` row.
  */
 import { validateRetainedPrecision, validateRetainedPrecisionBytes } from "./retainedPrecisionReader";
-import type { AccuracyClass, RetainedPrecisionError, RetainedPrecisionValidation, RowClassification } from "./retainedPrecisionTypes";
+import { RetainedPrecisionError, type AccuracyClass, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import { ordinaryCaseEligible } from "./numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -77,6 +77,9 @@ function receiptCases(source: MechanicsResult): Json[] {
   return Array.isArray(cases) ? cases : [];
 }
 
+/** The recorded code when the reader could not run (the wasm engine is unavailable or failed). */
+export const RETAINED_PRECISION_READER_UNAVAILABLE = "RETAINED_PRECISION_READER_UNAVAILABLE";
+
 /** Registration after actual direct IPC or a completed known job only
  * (`previewService.validateCapturedSource`). Runs the accepted reader with the
  * captured invocation and records its outcome, validation or first code,
@@ -96,8 +99,10 @@ export async function registerRetainedPrecision(source: MechanicsResult, invocat
     record({ validation, error: null });
     return validation;
   } catch (error) {
-    // The reader throws only RetainedPrecisionError, whose message is its code.
-    record({ validation: null, error: (error as RetainedPrecisionError).message });
+    // A reader refusal records its code. Any other failure (the wasm engine did not load, or
+    // failed other than by reading) records RETAINED_PRECISION_READER_UNAVAILABLE: the
+    // statement was not read, so it stays refused (fail closed) without a reader code.
+    record({ validation: null, error: error instanceof RetainedPrecisionError ? error.code : RETAINED_PRECISION_READER_UNAVAILABLE });
     throw error;
   }
 }

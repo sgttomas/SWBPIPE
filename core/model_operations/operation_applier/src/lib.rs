@@ -875,7 +875,9 @@ pub fn apply_operation(
 
 /// The Rust retained-precision reader (`result_export::retained_precision`)
 /// over JSON text: the desktop's only retained reader, through `wasm_api`
-/// (b7-plan Unit R, R1). `invocation_json` `None` reads the statement unbound.
+/// (b7-plan Unit R, R1). `invocation_json` `None`, or the text `null`, reads
+/// the statement unbound, as `openpipestress-runner read` reads a null
+/// invocation.
 /// Returns the reader's outcome (`retained_precision::outcome_json`) as JSON
 /// text, or the parse error of an input that is not JSON.
 pub fn retained_precision_outcome_json(
@@ -886,7 +888,8 @@ pub fn retained_precision_outcome_json(
     let source = parse_reader_input("source", source_json)?;
     let invocation = invocation_json
         .map(|text| parse_reader_input("invocation", text))
-        .transpose()?;
+        .transpose()?
+        .filter(|invocation| !invocation.is_null());
     Ok(rp::outcome_json(&rp::validate(&source, invocation.as_ref())).to_string())
 }
 

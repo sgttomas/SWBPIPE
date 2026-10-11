@@ -277,8 +277,9 @@ def _is_retained(source: Any) -> bool:
 
 def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
     """The Rust reader's G0-G8 on a successor (`retained_precision::validate`, through
-    `openpipestress-runner read`); a G7 failure keeps the base validator's own text,
-    every other gate its code."""
+    `openpipestress-runner read`). A refusal raises the Rust reader's detail when it
+    carries one (a G7 base failure's text, in Rust's base validator's words), otherwise
+    its code."""
     try:
         return rust_reader.retained_precision(source, invocation)
     except rust_reader.ReaderRefusal as refusal:
@@ -289,8 +290,9 @@ def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
     """F-U6b-2 (B6): the Rust reader's transport checks on a successor
     (`retained_precision::validate_transport_metadata`, through `openpipestress-runner
     read`: G0-G2, then the base header and the base's transport metadata on its
-    projection); never eligible. A G7 failure keeps the base validator's own text,
-    every other gate its code."""
+    projection); never eligible. A refusal raises the Rust reader's detail when it
+    carries one (a G7 base failure's text, in Rust's base validator's words), otherwise
+    its code."""
     try:
         return rust_reader.retained_precision_transport(source)
     except rust_reader.ReaderRefusal as refusal:

@@ -10,19 +10,14 @@ import precisionSparseFixture from "../../../../fixtures/results/precision_conne
 import precisionDenseFixture from "../../../../fixtures/results/precision_connected_ui_mechanics_dense.json?raw";
 import previewSparseFixture from "../../../../fixtures/results/preview_physics_connected_sparse.json?raw";
 import previewDenseFixture from "../../../../fixtures/results/preview_physics_connected_dense.json?raw";
+import { jsonTextKeepingNegativeZero } from "../services/jsonText";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { PreviewSolverMode } from "../services/previewService";
 
 /** The bytes a mocked native solve hands over for a result value (b7-plan R1: the solve commands
- * and jobs hand over serialized bytes): its JSON text, negative zeros kept, unchecked. */
-export function solveBytes(result: unknown): string {
-  if (typeof result === "number") return Object.is(result, -0) ? "-0" : JSON.stringify(result);
-  if (Array.isArray(result)) return `[${result.map(solveBytes).join(",")}]`;
-  if (result !== null && typeof result === "object") {
-    return `{${Object.entries(result).filter(([, item]) => item !== undefined).map(([key, item]) => `${JSON.stringify(key)}:${solveBytes(item)}`).join(",")}}`;
-  }
-  return JSON.stringify(result);
-}
+ * and jobs hand over serialized bytes): its JSON text, negative zeros kept, unchecked. The reader
+ * module writes parsed values with the same writer. */
+export const solveBytes = jsonTextKeepingNegativeZero;
 
 export const NATIVE_MECHANICS_REPLAY_NOTICE = "Unit transport replay of captured producer bytes; NOT actual native UI qualification";
 /** `preview` is the fresh non-exact route (preview-physics-1). `precision` is kept

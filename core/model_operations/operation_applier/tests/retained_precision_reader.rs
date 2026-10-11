@@ -22,6 +22,9 @@ fn the_entry_points_return_the_readers_outcome() {
     let unbound = outcome(retained_precision_outcome_json(&source, None).unwrap());
     assert_eq!(unbound, rp::outcome_json(&rp::validate(&doc["source"], None)));
     assert_eq!(unbound["validation"]["invocation_bound"], false);
+    // The text `null` reads unbound, as an absent invocation (and the runner's null).
+    let null = outcome(retained_precision_outcome_json(&source, Some("null")).unwrap());
+    assert_eq!(null, unbound);
     let transport = outcome(retained_precision_transport_outcome_json(&source).unwrap());
     assert_eq!(transport, rp::outcome_json(&rp::validate_transport_metadata(&doc["source"])));
     assert_eq!(transport["validation"]["classifications"], serde_json::json!([]));

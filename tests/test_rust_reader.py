@@ -39,7 +39,10 @@ def test_a_response_outside_the_verdict_contract_is_never_taken(monkeypatch):
     passed, refused = {"ok": True, "validation": validation}, {"ok": False, "error": refusal}
     for code, stdout in [(0, dict(head, outcome=refused)), (1, dict(head, outcome=passed)),
                          (0, dict(head, outcome=passed, extra=1)), (0, dict(head, outcome=dict(passed, error=refusal))),
-                         (0, dict(head, reader="other", outcome=passed)), (2, dict(head, outcome=passed)), (0, [])]:
+                         (0, dict(head, reader="other", outcome=passed)), (2, dict(head, outcome=passed)), (0, []),
+                         (1, dict(head, outcome={"ok": False, "error": {"gate": "G1"}})),
+                         (1, dict(head, outcome={"ok": False, "error": dict(refusal, code=None)})),
+                         (1, dict(head, outcome={"ok": False, "error": dict(refusal, detail=1)}))]:
         monkeypatch.setattr(rust_reader.subprocess, "run", lambda *args, **kwargs: Completed(code, stdout))
         with pytest.raises(RuntimeError):
             rust_reader.retained_precision({"producer": {}})
