@@ -80,6 +80,7 @@ function browserGlueUrl(): string {
 }
 
 let enginePromise: Promise<WasmOperationEngine> | null = null;
+let loadedEngine: WasmOperationEngine | null = null;
 
 function absenceError(stage: string, detail: string): Error {
   return new Error(
@@ -186,10 +187,21 @@ async function instantiate(): Promise<WasmOperationEngine> {
 /// cached so a later call after `npm run build:wasm` succeeds.
 export function loadWasmEngine(): Promise<WasmOperationEngine> {
   if (!enginePromise) {
-    enginePromise = instantiate().catch((error: unknown) => {
+    enginePromise = instantiate().then((engine) => {
+      loadedEngine = engine;
+      return engine;
+    }, (error: unknown) => {
       enginePromise = null;
       throw error;
     });
   }
   return enginePromise;
+}
+
+/// The engine once `loadWasmEngine` has resolved, else null. R2 (b7-plan Unit
+/// R): the base-route readers' verdicts are synchronous presentation inputs,
+/// so the desktop loads the engine before it renders (`main.tsx`) and a
+/// verdict asked for without it is refused, never computed another way.
+export function loadedWasmEngine(): WasmOperationEngine | null {
+  return loadedEngine;
 }

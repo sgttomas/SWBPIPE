@@ -1,7 +1,8 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { checkedJsonText } from "../../services/hashService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
-import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
+import { hasCurrentSourceContract } from "../results/resultReader";
+import { numericalResultStanding } from "../results/resultStanding";
 import { surfaceOutputRefusal } from "../results/outputPolicy";
 import { retainedPrecisionSummaryLine } from "../results/retainedPrecisionDisclosure";
 import { useEffect, useState } from "react";

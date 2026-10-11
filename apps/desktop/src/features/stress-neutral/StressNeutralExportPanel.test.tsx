@@ -4,7 +4,8 @@ vi.mock("@tauri-apps/api/core",()=>({invoke:vi.fn()}));
 import { buildAnalysisRunV02, modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
 import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
-import {resultSemantics} from '../results/resultSemantics';
+import {readerRowSemantics} from '../results/resultReader';
+const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 import {afterEach,it,expect,vi} from 'vitest';
 import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
@@ -22,7 +23,7 @@ import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/n
 import {buildAnalysisRunV03,sourceBasisReference} from '../../services/analysisRunCompatibility';
 import {checkedJsonText} from '../../services/hashService';
 import {registerRetainedPrecision} from '../results/retainedPrecisionStanding';
-import {numericalResultStanding as successorStanding} from '../results/numericalResultQuality';
+import { numericalResultStanding as successorStanding } from '../results/resultStanding';
 import {validateRetainedPrecision} from '../results/retainedPrecisionReader';
 import {retainedClassDisclosure} from '../results/retainedPrecisionDisclosure';
 import combinationSuccessorSparse from '../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json';

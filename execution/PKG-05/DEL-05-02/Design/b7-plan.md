@@ -118,20 +118,41 @@ A difference outside item 2 stops the deletion.
 
 **Rust, the only product reader.** In `core/reporting/result_export/src/`: `preview_physics_evidence.rs`, `physics_evidence.rs`, `physics_source.rs`, `load_reference.rs`, `load_reference_source.rs`, `source_blocks.rs`, and the dispatch and standing in `semantic_contract.rs` (`for_source`, `for_source_metadata`, `standing_reason`, `rule_binding_refusal`, `class_binding_refusal`, `numerical_use_standing*`, `classification_summary*`, `signature`, `canonical_metadata`). The desktop calls them through the same wasm engine bindings as R1, so PP's `Cargo.lock` does not move.
 
-**TypeScript readers deleted** (under `apps/desktop/src/features/results/`): `previewPhysicsEvidence.ts`, `physicsResultEvidence.ts`, `physicsSourceRecovery.ts`, `loadReferenceEvidence.ts`, `loadReferenceSourceEvidence.ts` and `sourceBlockRecovery.ts`; the route dispatch, standing and downgrade guards in `numericalResultQuality.ts`; and the table lookups in `resultSemantics.ts`. What stays in TypeScript is presentation over the Rust verdict: notice texts (`knownSemanticLimitations.ts`), panels and labels.
+**TypeScript readers deleted (as built, stage D)** (under `apps/desktop/src/features/results/`):
+- `previewPhysicsEvidence.ts`, `physicsResultEvidence.ts`, `physicsSourceRecovery.ts`, `loadReferenceEvidence.ts`, `loadReferenceSourceEvidence.ts`, `sourceBlockRecovery.ts`, and the test-only pressure-1 reader `pressureContractEvidence.ts`;
+- the route dispatch, standing, downgrade guards and table bindings of `numericalResultQuality.ts`, which keeps the route vocabulary (identities, route names, `isRetained*`);
+- the table lookups of `resultSemantics.ts`, which keeps the row labels (family, dimension, category) over Rust's signature.
 
-**Call sites that change** (non-test importers, under `apps/desktop/src/`):
+What stays in TypeScript is presentation over the Rust verdict, and the desktop's session state:
+- notice texts, panels and labels. `knownSemanticLimitations.ts` keeps the source-blocks-1 notice choice, which goes with B4/D1 (b);
+- R1's retained carrier (`retainedPrecisionStanding.ts`) and G4's source-route registrations (`resultStanding.ts`). They hold the captured invocation and read nothing;
+- G3's caller-model check in `previewService.ts`;
+- the analysis-run record builder's row interpretation (`analysisRunCompatibility.ts`, DEL-14-02, as Python's record builder). It reads the pinned table the Rust dispatch binds.
+
+**Call sites (as built).** Every importer listed below reads through two modules:
+- `features/results/resultReader.ts` wraps the four bindings (`readerDispatch`, `readerValidate`, `readerTransport`, `readerRowSemantics`). `sourceContract`, `sourceSemanticBinding`, `currentSemanticContract`, `hasCurrentSourceContract` and `retainedPrecisionDowngrade` present the dispatch;
+- `resultStanding.ts` holds `numericalResultStanding`, the registrations, `retainedSourceRecoveryInvocation` and `sourceRecoveryModeMatches`.
+
+The verdicts are synchronous once the engine is loaded, and `main.tsx` loads it before the first render. Without it, every result reads unsupported (`RESULT_READER_UNAVAILABLE`).
+
+The readers read received text:
+- previewService keeps a native solve's bytes;
+- the bundled browser reference is read from its bytes;
+- a value without received text (a saved record, a packet header, an edited copy, a test value) is written with `jsonTextKeepingNegativeZero`.
+
+The importers:
 - `features/result-export/resultExportAdapter.ts`, `ResultExportPanel.tsx`;
 - `features/stress-neutral/StressNeutralExportPanel.tsx`;
 - `services/analysisRunCompatibility.ts`, `previewService.ts`, `ruleCheckService.ts`;
 - `features/workspace/resultsSessionState.ts`, `workspaceSession.ts`;
 - `features/solve/LoadReferenceStatesBlock.tsx`;
 - `features/comparison/ComparisonPanel.tsx`, `features/report/reportPackageRequest.ts`, `features/handoff/HandoffPanel.tsx`, `features/headless-runner/HeadlessRunnerPanel.tsx`;
-- `features/results/ResultsPanel.tsx`, `HistoricalRunContext.tsx`, `knownSemanticLimitations.ts`, `loadReferenceOutputAvailability.ts`, `outputPolicy.ts`, `resultInterpretation.ts`.
+- `features/results/ResultsPanel.tsx`, `HistoricalRunContext.tsx`, `knownSemanticLimitations.ts`, `loadReferenceOutputAvailability.ts`, `outputPolicy.ts`, `resultInterpretation.ts`, `retainedPrecisionDisclosure.ts`.
 
-**Vitest tests.**
-- **Deleted** (they test the TypeScript readers themselves): `previewPhysicsEvidence.test.ts`, `physicsResultEvidence.parity.test.ts`, `physicsSourceRecovery.test.ts`, `loadReferenceEvidence.parity.test.ts`, `loadReferenceReaders.test.ts`, `loadReferenceReaderCases.test.ts`, `loadReferenceSourceLedger.test.ts`, `sourceBlockRecovery.test.ts`, `numericalResultQuality.test.ts`, `resultSemantics.test.ts`. Their cases move into the shared corpus below.
-- **Re-pointed at the wasm reader:** `physicsSourceIntegration.test.tsx`, `knownSemanticLimitations.test.ts`, `outputPolicy.test.ts`, `features/solve/LoadReferenceStatesBlock.test.tsx`, `features/workspace/{resultsSessionState,loadReference.resultsSessionState}.test.ts`, `features/result-export/{physicsResultExport,resultExportAdapter}.test.ts`, `services/{analysisRunCompatibility,previewService}.test.ts`, `features/stress-neutral/StressNeutralExportPanel.test.tsx`, `features/rule-check/RuleCheckRunPanel.test.tsx`, `features/report/reportPackageRequest.test.ts`, `features/handoff/HandoffPanel.test.tsx`, `features/headless-runner/HeadlessRunnerPanel.test.tsx`, `App.test.tsx`.
+**Vitest tests (as built).**
+- **Deleted** (they test the TypeScript readers themselves): `previewPhysicsEvidence.test.ts`, `physicsResultEvidence.parity.test.ts`, `physicsSourceRecovery.test.ts`, `loadReferenceEvidence.parity.test.ts`, `loadReferenceReaders.test.ts`, `loadReferenceReaderCases.test.ts`, `loadReferenceSourceLedger.test.ts`, `sourceBlockRecovery.test.ts`, `numericalResultQuality.test.ts`, `resultSemantics.test.ts`, and the pressure-1 reader's `pressureContractEvidence.test.ts` and `pressureConnectorEvidence.test.ts`. Their cases are the shared corpus below.
+- **Re-pointed at the wasm reader:** the consumer suites above, and R1's retained suites where they called the deleted TypeScript dispatch. Native replays and fixture readings of physics-source-1 and load-reference-source-1 hand over the fixture bytes.
+- **Added:** `baseReaderWasmEquivalence.test.ts` (item 1 below, kept as the desktop reader's conformance test). It runs over `test-support/baseReaderInputs.ts`, which builds the corpus statements from the corpus files as raw JSON.
 
 **The shared conformance corpus.** The Rust reader and the Python verifier both run, unmodified:
 - the result fixtures `fixtures/results/preview_physics_*.json` (including `preview_physics_tamper_vector.json`) and `physics_*_mechanics_*.json`;
@@ -145,6 +166,28 @@ A difference outside item 2 stops the deletion.
 3. Every desktop gate code (route classification, standing reason, rule-binding refusal, transport refusal, downgrade refusal) gives the same outcome through wasm in the vitest suites above, with only item 2's changes.
 
 A difference outside item 2 stops the deletion.
+
+**Gate results (stage D).**
+1. All 560 statements give the native outcome through wasm, and through `resultReader.ts` reading their received text:
+   - 549 dispatches, 548 reader validations, 73 transports and 9,997 rows (by digest);
+   - the 11 texts no serde Value holds are refused at the text boundary.
+2. Against the TypeScript readers, before deletion, no difference falls outside the declared classes:
+   - route: 549 same;
+   - binding: 493 same, and 1 accepted (the legacy 0.1 result, null where TypeScript throws);
+   - standing: 499 same, 24 declared (code) and 10 declared (detail), and 16 accepted (transported metadata: needs_recompute where TypeScript throws a TypeError);
+   - validations:
+     - preview-physics: 14 same and 17 declared;
+     - physics: 6 same;
+     - physics-source: 94 same, 40 declared, and 1 accepted (the test seam, `lrs/RELABEL-joined-as-physics-source-resealed`);
+     - source-blocks: 12 same and 2 declared;
+     - load-reference: 230 same, 10 declared (detail) and 6 declared (parse);
+     - load-reference-source: 121 same, 1 declared (detail) and 4 declared (parse);
+   - transports: 73 same; rows: 9,997 same.
+3. The consumer suites, base against head, give the same decisions with only item 2's changes:
+   - every consumer test passes at both;
+   - re-pointed expectations take Rust's code where both refuse: preview-physics `ROW_SIGNATURE` and `DANGLING_RESULT_REF`, and physics `INCOMPLETE_STRESS_HEADLINE`;
+   - under G5, a successor whose receipt fails the transport checks reads unsupported. Its standing finding is `SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED`, and R1's registration still records the reader's code;
+   - the bundled browser reference keeps its file's signed zeros.
 
 **Rulings on what the TypeScript readers compute and Rust did not (T3 under the owner's decision, 2026-10-11).**
 - G1: Rust's standing returns the TypeScript standing's findings, its codes in its order, beside `numerical_use_standing_with_context`'s token, which is unchanged.

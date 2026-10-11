@@ -10,8 +10,8 @@ import {
   PRECISION_1_HISTORICAL_SEMANTICS, RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE, SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS,
   isFreshSemanticResult, isRetiredResultId, knownSemanticNotices, resultRowLabel, ruleBindingRefusal, standingReason,
 } from "./knownSemanticLimitations";
-import { sourceBlockStanding, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
-import { sourceContract } from "./numericalResultQuality";
+import { numericalResultStanding } from "./resultStanding";
+import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
 const clone = (value: unknown) => structuredClone(value) as MechanicsResult;
@@ -57,24 +57,21 @@ describe("static fresh-identity set and standing reasons", () => {
     expect(standingReason(clone(connectedSparse))).toBeNull();
   });
   it("derives the mixed source-blocks reason for non-composite source-blocks-1 only", () => {
-    expect(sourceBlocksOrdinaryCaseLegacy(clone(multicase))).toBe(false); // all-selected keeps its standing
     expect(standingReason(clone(multicase))).toBeNull();
     const probe = mixed();
     expect(sourceContract(probe)).toBe("source_blocks");
-    expect(sourceBlocksOrdinaryCaseLegacy(probe)).toBe(true);
     expect(standingReason(probe)).toBe(SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS);
     // A2 10: standing validates first. This relabelled receipt has no validated
     // registration, so it is refused on validation alone; the standing reason
     // is not reached. (No actual producer fixture carries a qualified ordinary
     // case in a non-composite source-blocks-1 envelope, so the validated-mixed
     // path is covered by the receipt derivation above.)
-    const standing = sourceBlockStanding(probe, { load_cases: [] });
-    expect(standing).toEqual({ eligible: false, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] });
+    const standing = numericalResultStanding(probe, { load_cases: [] });
+    expect(standing).toMatchObject({ eligible: false, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] });
     // physics-source-1 legitimately carries ordinary cases under physics-1 semantics.
     const composite = clone(physicsSourceMixed);
     expect(sourceContract(composite)).toBe("physics_source");
     expect((composite.source_block_recovery as any).body.cases.some((c: any) => c.selected_method !== "retained_source_blocks_exact_v1")).toBe(true);
-    expect(sourceBlocksOrdinaryCaseLegacy(composite)).toBe(false);
     expect(standingReason(composite)).toBeNull();
   });
 });
@@ -87,9 +84,8 @@ describe("selected + failed source-blocks-1 (receipt partial)", () => {
     const body = (source.source_block_recovery as any).body;
     body.status = "partial";
     Object.assign(body.cases[1], { outcome: "failed", selected_method: null });
-    expect(sourceBlocksOrdinaryCaseLegacy(source)).toBe(false);
     expect(standingReason(source)).toBeNull();
-    expect(sourceBlockStanding(source, { load_cases: [] }).eligible).toBe(false);
+    expect(numericalResultStanding(source, { load_cases: [] }).eligible).toBe(false);
     expect(knownSemanticNotices(source)).toEqual([{ id: "source-blocks-summary", text: N_SB }]);
   });
 });

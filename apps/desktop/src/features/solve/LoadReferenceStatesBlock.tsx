@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import type { LoadReferenceContractEvidence, LoadReferenceStateRecord, MechanicsResult, PreviewModel } from "../../types";
-import { validateLoadReferenceEvidence } from "../results/loadReferenceEvidence";
+import { readerValidate, sourceContract } from "../results/resultReader";
 import {
   LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, LOAD_REFERENCE_SOURCE_VALIDATION_REQUIRED, loadReferenceSourceStanding,
-  validateLoadReferenceSourceEvidence
-} from "../results/loadReferenceSourceEvidence";
-import { numericalResultStanding, sourceContract } from "../results/numericalResultQuality";
+  numericalResultStanding, validateLoadReferenceSourceEvidence
+} from "../results/resultStanding";
 
 /* Read-only view of the published `contract_evidence.load_reference_states`.
  * Values are shown only after the WP2 reader for the route has admitted the
@@ -28,7 +27,7 @@ function routeOf(result: MechanicsResult | null): Route | null {
 
 function admission(result: MechanicsResult, route: Route): Admission {
   if (route === "load_reference") {
-    try { validateLoadReferenceEvidence(result); return { state: "admitted" }; }
+    try { readerValidate("load-reference", result); return { state: "admitted" }; }
     catch (error) { return { state: "refused", reason: error instanceof Error ? error.message : "SOURCE_LOAD_REFERENCE_MALFORMED" }; }
   }
   const [finding] = loadReferenceSourceStanding(result).findings;

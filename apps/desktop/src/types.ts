@@ -218,8 +218,8 @@ export type AnalysisStateInput = {
 
 /* Published result evidence: `contract_evidence` of load-reference-1 and
  * load-reference-source-1 (schemas/load_reference_state.schema.json
- * LoadReferenceContractEvidence and LoadReferenceStateRecord). Readers:
- * features/results/loadReferenceEvidence.ts, loadReferenceSourceEvidence.ts. */
+ * LoadReferenceContractEvidence and LoadReferenceStateRecord). Readers: the Rust
+ * load-reference readers, through features/results/resultReader.ts. */
 export type LoadReferenceConsumedMaterialPoint = { point_id: string; temperature_k: number | null; E_pa: number; nu: number; retained_G_ignored: boolean };
 export type LoadReferenceLawSegment = { use: "interpolation_sample" | "integration_interval"; lower_index: number; upper_index: number; start_k: number; end_k: number };
 export type LoadReferenceMember = {

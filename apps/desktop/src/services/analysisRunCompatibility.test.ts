@@ -3,7 +3,9 @@ import type { MechanicsResult } from "../types";
 import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference } from "./analysisRunCompatibility";
 import combinationSuccessor from "../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
 import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
-import { sourceContract, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
+import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PRECISION_CONTRACT_SHA256 } from "../test-support/contractBindings";
+import { sourceContract } from "../features/results/resultReader";
 import expectedRecord from "../../../../fixtures/analysis_runs/invented/analysis_run_v0_2.json";
 
 const result: MechanicsResult = {

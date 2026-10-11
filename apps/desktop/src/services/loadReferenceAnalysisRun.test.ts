@@ -12,6 +12,7 @@ import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../types";
 import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "./hashService";
+import { receivedFixture } from "../test-support/receivedText";
 
 const root = resolve(__dirname, "../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
@@ -33,7 +34,7 @@ function normalize(record: Json): Json {
 async function mirror(kind: "load_reference" | "load_reference_source", name: string) {
   const [base, mode] = [name.slice(0, name.lastIndexOf("-")), name.slice(name.lastIndexOf("-") + 1)];
   const folder = kind === "load_reference" ? "load_reference" : "load_reference_source";
-  const raw = json(`fixtures/product_preview/${folder}/${base}-${MODE[mode]}.raw.json`) as MechanicsResult;
+  const raw = receivedFixture<MechanicsResult>(`fixtures/product_preview/${folder}/${base}-${MODE[mode]}.raw.json`);
   const model = json(`fixtures/product_preview/${folder}/${base}.request.json`).model as PreviewModel;
   const carrierName = `${kind}_${name.replace("-", "_")}`;
   const python = json(`fixtures/results/${carrierName}.analysis_run.json`) as AnalysisRunEnvelope;

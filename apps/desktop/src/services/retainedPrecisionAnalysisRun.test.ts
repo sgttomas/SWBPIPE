@@ -22,7 +22,8 @@ import { bindSourceResultDimensions, buildAnalysisRunPreview, runPreviewMechanic
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
-import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../test-support/contractBindings";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const root = resolve(__dirname, "../../../../");
@@ -124,9 +125,10 @@ describe.each(MODES)("%s: the AnalysisRun copies the receipt and validates its e
     const edited = structuredClone(source); edited.results[0].value = 12345;
     await expect(buildAnalysisRunV03(edited, manifestFor(edited), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
     await expect(validateAnalysisRunV03(record, edited, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
-    // A source the checked profile refuses is recorded only after the reader: its own code first.
+    // A source with no JSON text (a lone surrogate) is refused at the text boundary: R2's header dispatch
+    // reads it as unsupported before any record is built (TS: the reader's RETAINED_PRECISION_RECEIPT_MISMATCH).
     const surrogate = structuredClone(source) as Json; surrogate.results[0].metadata.basis = "\ud800";
-    await expect(buildAnalysisRunV03(surrogate, manifestFor(surrogate), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
+    await expect(buildAnalysisRunV03(surrogate, manifestFor(surrogate), undefined, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     // The receipt is never repaired: a recomputed-looking copy is still refused.
     const quality = structuredClone(source) as Json; quality.numerical_quality.status = "checks_passed";
     await expect(buildAnalysisRunV03(quality, manifestFor(quality), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");

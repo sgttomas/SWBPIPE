@@ -22,7 +22,9 @@
  * producer-origin claim (D-U7-6). No product caller delivers an eligible successor
  * before B8, so the admitted panels stay dormant until then (RR decision 3).
  */
-import { numericalResultStanding, sourceContract, type SourceContract } from "./numericalResultQuality";
+import type { SourceContract } from "./numericalResultQuality";
+import { sourceContract } from "./resultReader";
+import { numericalResultStanding } from "./resultStanding";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";

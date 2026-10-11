@@ -1,9 +1,7 @@
-import { validatePhysicsSourceRecovery } from "../features/results/physicsSourceRecovery";
-import { validateSourceBlockRecovery } from "../features/results/sourceBlockRecovery";
-import { sourceContract, hasCurrentSourceContract, isRetainedRoute } from '../features/results/numericalResultQuality';
-import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
-import { validateLoadReferenceEvidence } from '../features/results/loadReferenceEvidence';
-import { validateLoadReferenceSourceEvidence } from '../features/results/loadReferenceSourceEvidence';
+/// <reference types="vite/client" />
+import { isRetainedIdentity, isRetainedRoute } from '../features/results/numericalResultQuality';
+import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceContract } from '../features/results/resultReader';
+import { registerSourceRecovery, sameModelData, validateLoadReferenceSourceEvidence } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
 import type {
@@ -92,6 +90,8 @@ function receiveResultBytes(bytes: unknown): MechanicsResult {
   if (typeof bytes !== "string") throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
   const result = JSON.parse(bytes) as MechanicsResult;
   try { receivedBytes.set(result, { bytes, fingerprint: nativeContentFingerprint(result) }); } catch { /* not checked JSON: no bytes are kept for it */ }
+  // R2: the base-route readers read these bytes too, while the result is unchanged.
+  rememberReceivedText(result, bytes);
   return result;
 }
 /** The producer's exact bytes this result was read from, while the result is unchanged
@@ -135,20 +135,26 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
-    if (sourceContract(source) === "source_blocks") await validateSourceBlockRecovery(source, capture.invocation, capture.callerModel);
-    if (sourceContract(source) === "physics_source") await validatePhysicsSourceRecovery(source, capture.invocation, capture.callerModel);
+    if (sourceContract(source) === "source_blocks" || sourceContract(source) === "physics_source") {
+      // G3 (b7-plan R2): the caller's model is the one dispatched to native; a
+      // normalization between them registers nothing.
+      if (!sameModelData(JSON.parse(checkedJsonText(capture.callerModel)), capture.invocation.request.model)) throw new Error("CALLER_DISPATCH_NORMALIZATION_MISMATCH");
+      await registerSourceRecovery(source, capture.invocation, capture.callerModel);
+    }
     // A preview-physics-1 source registers only when its closed reader checks pass.
-    if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source, capture.invocation.request.model);
+    if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);
     // T1: a load/reference-state source registers only when its closed reader
     // checks pass. The joined reader also records its outcome for standing,
     // which stays needs_recompute (never numerically eligible in T1).
-    if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source, capture.invocation.request.model);
+    if (sourceContract(source) === "load_reference") readerValidate("load-reference", source, capture.invocation.request.model);
     if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
     // U6d: a preview successor registers only after the accepted reader passes with
     // this captured invocation; its outcome is recorded against the exact bytes.
     // U7 slice T: its standing is bound to this live native capture and the current model.
     // The reader reads the producer's bytes as received (b7-plan R1).
-    if (isRetainedRoute(sourceContract(source))) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
+    // A successor identity the header dispatch refuses (its transport checks failed) is still read by
+    // the accepted reader, so its refusal is recorded and no native registration follows.
+    if (isRetainedRoute(sourceContract(source)) || isRetainedIdentity(source.producer?.semantic_contract_id)) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
@@ -666,12 +672,15 @@ async function loadMechanicsFixture(
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
   assertPreviewSolverMode(solverMode);
-  const fixture = solverMode === "sparse_interactive"
-    ? (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json")).default
-    : (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json")).default;
-  // Return a copy so one caller cannot change the imported producer evidence for
-  // subsequent invocations. No header, row, dimension or quality is manufactured.
-  return structuredClone(fixture) as MechanicsResult;
+  const text = solverMode === "sparse_interactive"
+    ? (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json?raw")).default
+    : (await import("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json?raw")).default;
+  // A fresh reading per call, so one caller cannot change the bundled producer evidence
+  // for subsequent invocations. No header, row, dimension or quality is manufactured.
+  // The readers read the bundled bytes as received (b7-plan R2).
+  const result = JSON.parse(text) as MechanicsResult;
+  rememberReceivedText(result, text);
+  return result;
 }
 
 /** Validate the preview-physics-1 evidence and mode evidence of a selected bundled
@@ -692,7 +701,7 @@ export function validateBrowserMechanicsFixture(
   // A genuine blocked producer return can have no execution rows. Preserve that
   // failure as received; it supplies no completed mode/solve evidence to promote.
   if (result.status.mechanics !== "MECHANICS_SOLVED" && result.results.length === 0) {
-    validatePreviewPhysicsEvidence(result, fixtureModel);
+    readerValidate("preview-physics", result, fixtureModel);
     return result;
   }
   const cases = fixtureModel.load_cases.map(item => item.id);
@@ -714,7 +723,7 @@ export function validateBrowserMechanicsFixture(
     throw new Error(`BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH: ${solverMode}`);
   }
   // The preview-physics-1 reader checks the bundled bytes as received.
-  validatePreviewPhysicsEvidence(result, fixtureModel);
+  readerValidate("preview-physics", result, fixtureModel);
   return result;
 }
 

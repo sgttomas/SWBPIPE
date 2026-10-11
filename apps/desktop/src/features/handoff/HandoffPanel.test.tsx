@@ -4,7 +4,8 @@ import resultJson from '../../../../../fixtures/product_preview/invented_demo_re
 import {buildHandoffPackage} from './HandoffPanel';
 import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
-import {PRECISION_CONTRACT_ID,sourceContract} from '../results/numericalResultQuality';
+import { PRECISION_CONTRACT_ID } from '../results/numericalResultQuality';
+import { sourceContract } from '../results/resultReader';
 import type {PreviewModel,MechanicsResult} from '../../types';
 // Historical-format protocol control only, as `precision()` in
 // resultExportAdapter.test.ts: the legacy rows, with or without their received

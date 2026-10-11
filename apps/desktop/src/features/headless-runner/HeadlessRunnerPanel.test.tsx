@@ -3,7 +3,8 @@ import modelJson from '../../../../../fixtures/product_preview/invented_demo_mod
 import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
-import {PRECISION_CONTRACT_ID,sourceContract} from '../results/numericalResultQuality';
+import { PRECISION_CONTRACT_ID } from '../results/numericalResultQuality';
+import { sourceContract } from '../results/resultReader';
 import {buildHeadlessRunnerPacket} from './HeadlessRunnerPanel';
 import type {PreviewModel,MechanicsResult,SolveJobAuditState} from '../../types';
 // Historical-format protocol control only, as `precision()` in

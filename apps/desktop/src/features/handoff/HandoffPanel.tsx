@@ -1,6 +1,5 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
-import { semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, Share2 } from "lucide-react";
 import type {
   AgentProposal,

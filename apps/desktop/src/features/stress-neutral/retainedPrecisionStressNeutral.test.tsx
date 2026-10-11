@@ -22,7 +22,8 @@ import { canonicalSha256HexCheckedV1, checkedJsonText } from "../../services/has
 import { buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
-import { numericalResultStanding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
+import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
+import { numericalResultStanding } from "../results/resultStanding";
 import {
   RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision,
 } from "../results/retainedPrecisionStanding";
@@ -291,7 +292,9 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
     // A receipt that does not bind the source, or none at all.
     const unbound = await tamper(p => { p.retained_precision.receipt_sha256 = "0".repeat(64); });
     await expect(withSource(unbound)).rejects.toThrow("SN-RETAINED-PRECISION-RECEIPT-MISMATCH");
-    await expect(validateStressNeutralExportPacket(unbound)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
+    // R2 (G5): the transport header's dispatch runs the reader's transport checks, so it reads unsupported
+    // (TS: the reader's RETAINED_PRECISION_RECEIPT_MISMATCH).
+    await expect(validateStressNeutralExportPacket(unbound)).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
     const missing = await tamper(p => { delete p.retained_precision; });
     await expect(withSource(missing)).rejects.toThrow("SN-RETAINED-PRECISION-RECEIPT-MISMATCH");
     await expect(validateStressNeutralExportPacket(missing)).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
