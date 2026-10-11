@@ -497,6 +497,35 @@ pricing run and in-build atom evaluation.
   The current production-prefix pin protects that typed boundary.
   Existing true visits and R2 call paths remain; this is a type binding,
   not a fixture-derived multiplicity or an unpriced-site waiver.
+- **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
+  source, the heuristic graph adds private FallbackError methods to outside
+  callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
+  CertifiedRow or CertifiedValue. FallbackError, its impl and these three
+  methods are private within certified_publication. The entire production
+  prefix has no trait, public return, function-pointer or macro escape of
+  that type. The production-prefix SHA256 822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8,
+  three private method bodies and all 16 caller bodies are guarded by
+  `kd5_text_model.py::inspect_fallback_boundary`. A changed receiver,
+  visibility, escape path, body, or missing/duplicate function stops pricing.
+  The exact 17 caller/name pairs are in FALLBACK_OUTSIDE_CALLERS: annulus
+  source_wall_area_scaled, source_bore_area_scaled and source_insulation_area_m2
+  (mul); lib exact_straight_summary_extrema (add) and
+  append_exact_pressure_results (divided); pressure_exact from_radii,
+  lame_at_radius and eigenload_pair (mul); preview render (divided);
+  retained_memory strings, retained_error_text and complete_observations
+  (add); pressure_exact/source_geometry from_od_wall (add and mul),
+  pressure_group_value (mul) and surface_stresses (add); and
+  case_state/temperature exact_kelvin (mul).
+  The new `exclude_targets` mechanism subtracts only the qualified CPP
+  add/mul/divided target from each existing candidate list after any existing
+  replacement rule. Every other candidate and every inside-CPP caller is
+  preserved, including conservative inside candidates. Both the inventory
+  and an actual removed-candidate encounter must hold; an absent target or
+  quiet no-op refuses. Historical revisions without the fallback function
+  add no C5 exclusions and retain their original graph. This changes no
+  rows, cases, counts, source/workspace owners, D1 premise or memory/text
+  limit. The failed b3a2c739 tree remains evidence; corrected contributions
+  and native budget outcomes require the subsequent immutable-head run.
 - **KD5L14–L16 (new fixed/span headers).** The mapped certificate/fallback
   span walk retains positive2l+1 under KD5O10's current-D1 one-interval
   producer. Section maximum coverage walks exactly5 sections. Coefficient

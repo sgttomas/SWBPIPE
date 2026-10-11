@@ -438,6 +438,14 @@ if fnkey("fallback_circular_maximum", _CP):
                 CG_RULES += [{"caller": Resolved(_file + ":" + _key.split(":", 1)[1]), "name": _method, "targets": _keep,
                     "added": "KD5C4", "evidence": "named receiver is usize/f64/i32 intrinsic; private FallbackError has no outward producer or escape, so it cannot be this receiver; real CP fallback_section_errors min/max preserved"}]
 
+# KD5C5: subtract only witnessed private FallbackError candidates from
+# approved outside callers, retaining every other conservative candidate.
+if fnkey("fallback_circular_maximum", _CP):
+    for _rule in _labels_model["inspect_fallback_boundary"](_SNAP):
+        CG_RULES += [{"caller": Resolved(_rule["caller"]), "name": _rule["name"],
+            "exclude_targets": [Resolved(_target) for _target in _rule["exclude_targets"]],
+            "added": "KD5C5", "evidence": "current private FallbackError has no trait/public-return/function-pointer/macro escape; pinned outside receivers are Scaled/Bytes/ExactAccumulator/CertifiedRow/CertifiedValue; subtract only this qualified candidate and preserve all other and inside-CP candidates"}]
+
 # KD5L14-L18: actual fixed arrays, conservative span census, and returning
 # power-transport error. No function or run multiplier is globally capped.
 if fnkey("fallback_circular_maximum", _CP):

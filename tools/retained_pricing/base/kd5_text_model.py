@@ -132,3 +132,69 @@ def inspect_directed_helpers(snapshot):
         if hashlib.sha256(function_body(source, name).encode()).hexdigest() != digest:
             raise ValueError(f"KD5O13: directed helper source changed: {name}; re-review the three-frame slot census")
     return True
+
+# KD5C5: only exact outside-caller candidates into the private non-escaping
+# FallbackError owner are removed; every other resolver candidate is retained.
+FALLBACK_METHOD_PINS = {
+    "add": "6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d",
+    "mul": "b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375",
+    "divided": "42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8",
+}
+FALLBACK_OUTSIDE_CALLERS = (
+    ("annulus_geometry.rs", "source_wall_area_scaled", ("mul",), "19e9559e151064359ff00db6a27c90c64ec619ef465f6dc90d077795850821f7"),
+    ("annulus_geometry.rs", "source_bore_area_scaled", ("mul",), "13e243a2122d8717d5741c8698206bf8dac7d6673e91a5ffa4052252649e8a61"),
+    ("annulus_geometry.rs", "source_insulation_area_m2", ("mul",), "41ec087e427844f47f407ed550d9124e6cfe773e98ab61a99335e08a47a68b41"),
+    ("lib.rs", "exact_straight_summary_extrema", ("add",), "c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1"),
+    ("lib.rs", "append_exact_pressure_results", ("divided",), "c65eecfd90235e5adf464f7149a377ac79ae9474cd99a2933405120b4b9d5f77"),
+    ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
+    ("pressure_exact.rs", "lame_at_radius", ("mul",), "4cc46083ebb6e0a4ae0b1fdd58b9219cefd77f44ac81ca6021b77845c7cded64"),
+    ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
+    ("preview_physics.rs", "render", ("divided",), "f0b438f08cf69cc5a4ecaa58f7fb2d5c6fef5ede0fa2a852ec2751c7a8a227ed"),
+    ("retained_memory.rs", "strings", ("add",), "b34bc5c8a6f6863d21fd93b87baae4f33e47467d1f639086650fe6a22bd1a585"),
+    ("retained_memory.rs", "retained_error_text", ("add",), "f50e721160819efd5fc3c5b4fb3dae56c70989cf4cea9d3dd75f6a546507a666"),
+    ("retained_memory.rs", "complete_observations", ("add",), "8f65af0bdd6c83d559966214eb77b308bea940f917ebb210e70d27e9bfef2fc2"),
+    ("pressure_exact/source_geometry.rs", "from_od_wall", ("add", "mul"), "0c2ac197402cbbfb8ceae54cb1c18acaefbcb1a26f658c11f88b88d33e1e1df9"),
+    ("pressure_exact/source_geometry.rs", "pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
+    ("pressure_exact/source_geometry.rs", "surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
+    ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
+)
+
+def _indented_function(text, name):
+    hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
+    if len(hits) != 1:
+        raise ValueError(f"KD5C5: expected one fn {name}, found {len(hits)}")
+    hit = hits[0]
+    end = re.search(r"^" + re.escape(hit.group(1)) + r"}", text[hit.end():], re.M)
+    if not end:
+        raise ValueError(f"KD5C5: no same-indent end of fn {name}")
+    return text[hit.start():hit.end() + end.end()], text.count("\n", 0, hit.start()) + 1
+
+def inspect_fallback_boundary(snapshot):
+    file = "core/product_physics/src/certified_publication.rs"
+    with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+        source = stream.read().split("#[cfg(test)]", 1)[0]
+    if hashlib.sha256(source.encode()).hexdigest() != PRODUCTION_PINS[file]:
+        raise ValueError("KD5C5: private owner/production/escape boundary changed; re-review the exact target exclusions")
+    if len(re.findall(r"^struct FallbackError \{", source, re.M)) != 1 or len(re.findall(r"^impl FallbackError \{", source, re.M)) != 1:
+        raise ValueError("KD5C5: private struct/impl inventory changed")
+    targets = {}
+    for name, digest in FALLBACK_METHOD_PINS.items():
+        body, line = _indented_function(source, name)
+        if not body.startswith("    fn " + name + "(") or hashlib.sha256(body.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5C5: private method/body changed: {name}")
+        targets[name] = f"{file}:{line}:{name}"
+    inventory = []
+    for relative, name, methods, digest in FALLBACK_OUTSIDE_CALLERS:
+        caller_file = "core/product_physics/src/" + relative
+        with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
+            text = stream.read()
+        body, line = _indented_function(text, name)
+        if hashlib.sha256(body.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5C5: outside caller/receiver body changed: {caller_file}:{name}")
+        if caller_file == file:
+            raise ValueError("KD5C5: an inside-owner caller cannot be excluded")
+        inventory.extend({"caller": f"{caller_file}:{line}:{name}", "name": method,
+                          "exclude_targets": [targets[method]]} for method in methods)
+    if len(inventory) != 17 or len({(r["caller"], r["name"]) for r in inventory}) != 17:
+        raise ValueError("KD5C5: exact outside caller/method inventory changed")
+    return inventory
