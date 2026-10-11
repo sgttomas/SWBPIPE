@@ -20,6 +20,7 @@ use serde_json::{Number, Value};
 use sha2::{Digest, Sha256};
 
 mod atomic_batch;
+mod bend_authoring;
 mod boundary_association;
 mod display_units;
 mod geometry_operations;
@@ -529,10 +530,6 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     dimension: "angle",
                 },
             },
-            FieldRule {
-                field_path: "geometry.bend_plane_orientation",
-                kind: FieldKind::OptionalText,
-            },
             // Branch family.
             FieldRule {
                 field_path: "geometry.branch_header_pipe_ref",
@@ -837,6 +834,20 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
         ],
         _ => &[],
     }
+}
+
+/// A document on the exact pressure route: model 0.3.0 or 0.4.0 declaring
+/// `2.0.0/exact_straight_pressure_v2` (existing documents, still solvable) or
+/// `3.0.0/exact_pressure_v3` (all new authoring).
+pub(crate) fn is_exact_pressure_document(model: &Value) -> bool {
+    matches!(model.get("schema_version").and_then(Value::as_str), Some("0.3.0" | "0.4.0"))
+        && (is_pressure_v3_contract(model)
+            || model.get("pressure_contract")
+                == Some(&serde_json::json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})))
+}
+/// The current pressure contract, `3.0.0/exact_pressure_v3`.
+pub(crate) fn is_pressure_v3_contract(model: &Value) -> bool {
+    model.get("pressure_contract") == Some(&serde_json::json!({"version": "3.0.0", "mode": "exact_pressure_v3"}))
 }
 
 fn collection_for(object_type: &str) -> Option<&'static str> {
@@ -1181,10 +1192,26 @@ fn run_with_context(
         );
     }
 
+    // O5 (T4-I11 D-G): the bend flexibility factor k is user data; an agent
+    // never writes it, through any operation that can.
+    let writes_flexibility = change_kind == "insert_bend_at_corner"
+        || (object_type == "Component"
+            && matches!(field_path.as_str(), "bend_realization" | "modifiers.flexibility_factor_user_value.value"));
+    if writes_flexibility && string_at(intent, &["author_type"]).as_deref() != Some("user") {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED",
+            "blocking",
+            "The bend flexibility factor k is entered by the user; an agent-authored operation cannot write it.".into(),
+            "Enter k yourself in the bend realization or Insert bend at corner form.",
+            vec![target_ref.clone()],
+        );
+    }
+
     let mut geometry_edit = None;
     if matches!(
         change_kind.as_str(),
-        "split_pipe_run" | "transform_pipe_run"
+        "split_pipe_run" | "transform_pipe_run" | "insert_bend_at_corner"
     ) {
         if claimed_model_hash.is_none_or(Value::is_null) {
             checker.schema_blocked = true;
@@ -1197,7 +1224,12 @@ fn run_with_context(
             );
         }
         if !checker.schema_blocked {
-            match geometry_operations::resolve_geometry(model, intent) {
+            let resolved = if change_kind == "insert_bend_at_corner" {
+                bend_authoring::insert_at_corner(model, intent).map(Some)
+            } else {
+                geometry_operations::resolve_geometry(model, intent)
+            };
+            match resolved {
                 Ok(Some(edit)) => { checker.reference_state="passed"; checker.unit_state="passed"; checker.before_state="passed"; geometry_edit=Some(edit); },
                 Ok(None) => checker.push("OP-GEOMETRY-UNRESOLVED", "blocking", "Geometry operation was not resolved.".into(), "Use the declared bounded geometry payload.", vec![target_ref.clone()]),
                 Err(error) => checker.push(error.code,"blocking",error.message,"Correct the explicit geometry payload and resolve affected attachments before retrying.",error.affected_refs),
@@ -1211,6 +1243,7 @@ fn run_with_context(
         ("Support", "configuration") => Some("update_support"),
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
+        ("Component", "bend_realization") => Some("set_field"),
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
@@ -1226,6 +1259,10 @@ fn run_with_context(
             "Refresh the complete model hash before applying the reviewed replacement.",
             vec![target_ref.clone()],
         );
+    }
+    if bend_authoring::owns(&object_type, &field_path) && claimed_model_hash.is_none_or(Value::is_null) {
+        checker.schema_blocked = true;
+        checker.push("OP-BEND-MODEL-HASH-REQUIRED", "blocking", "Bend realization checks the span and its neighbours, so it requires the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
     }
     if pressure_authoring::owns(&object_type, &field_path) && claimed_model_hash.is_none_or(Value::is_null) {
         checker.schema_blocked = true;
@@ -1257,6 +1294,8 @@ fn run_with_context(
         } else if !checker.schema_blocked {
             let resolver = if pressure_authoring::owns(&object_type, &field_path) {
                 pressure_authoring::resolve
+            } else if bend_authoring::owns(&object_type, &field_path) {
+                bend_authoring::resolve
             } else if load_state_authoring::owns(&object_type, &field_path) {
                 load_state_authoring::resolve
             } else {
@@ -2178,6 +2217,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         change_kind,
         "split_pipe_run"
             | "transform_pipe_run"
+            | "insert_bend_at_corner"
             | "set_field"
             | "update_load"
             | "update_support"
@@ -2220,7 +2260,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
-        | "split_pipe_run" | "transform_pipe_run" => "modify",
+        | "split_pipe_run" | "transform_pipe_run" | "insert_bend_at_corner" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -2629,11 +2669,6 @@ fn resolve_bend_creation_geometry(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
-    let plane = geometry
-        .get("bend_plane_orientation")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim();
     let source = geometry
         .get("bend_geometry_source_reference")
         .and_then(Value::as_str)
@@ -2644,7 +2679,6 @@ fn resolve_bend_creation_geometry(
         .and_then(parse_positive_quantity);
     let angle = geometry.get("bend_angle").and_then(parse_positive_quantity);
     if pipe_ref.is_empty()
-        || plane.is_empty()
         || source.is_empty()
         || radius.is_none()
         || angle.is_none()
@@ -2652,7 +2686,7 @@ fn resolve_bend_creation_geometry(
         checker.push(
             "OP-CREATE-BEND-GEOMETRY-INVALID",
             "blocking",
-            "Bend geometry requires non-empty bend_pipe_ref, bend_plane_orientation, bend_geometry_source_reference, and finite positive bend_radius and bend_angle quantities.".to_string(),
+            "Bend geometry requires non-empty bend_pipe_ref and bend_geometry_source_reference, and finite positive bend_radius and bend_angle quantities.".to_string(),
             "Complete every explicit bend geometry field; geometry is never inferred from the viewport symbol.",
             vec![target_ref.to_string()],
         );
@@ -2680,7 +2714,6 @@ fn resolve_bend_creation_geometry(
         "bend_pipe_ref": pipe_ref,
         "bend_radius": { "value": radius.value, "unit": radius.unit },
         "bend_angle": { "value": angle.value, "unit": angle.unit },
-        "bend_plane_orientation": plane,
         "bend_geometry_source_reference": source,
     }))
 }
@@ -12859,7 +12892,6 @@ mod tests {
                 "bend_pipe_ref": "pipe:P-1",
                 "bend_radius": { "value": 0.45, "unit": "m" },
                 "bend_angle": { "value": 90.0, "unit": "deg" },
-                "bend_plane_orientation": "+Z",
                 "bend_geometry_source_reference": "user_entered_component_form"
             },
             "provenance": "user_entered_local_preview"
@@ -12902,6 +12934,8 @@ mod tests {
                 "bend_pipe_ref": " pipe:P-1 ",
                 "bend_radius": { "value": 0.5, "unit": "m" },
                 "bend_angle": { "value": 1.5708, "unit": "rad" },
+                // D-B: the plane comes from the span's y_reference; a
+                // supplied plane note is not canonical bend geometry.
                 "bend_plane_orientation": " +Z ",
                 "bend_geometry_source_reference": " user_form "
             },
@@ -12925,7 +12959,7 @@ mod tests {
         assert_eq!(canonical["label"], json!("User bend with padded input"));
         assert_eq!(canonical["node"], json!("node:N-2"));
         assert_eq!(canonical["geometry"]["bend_pipe_ref"], json!("pipe:P-1"));
-        assert_eq!(canonical["geometry"]["bend_plane_orientation"], json!("+Z"));
+        assert!(canonical["geometry"].get("bend_plane_orientation").is_none());
         assert_eq!(
             canonical["geometry"]["bend_geometry_source_reference"],
             json!("user_form")
@@ -12942,7 +12976,7 @@ mod tests {
             "insert_component_symbol",
             "components",
             "not_present",
-            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:missing","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#,
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:missing","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_geometry_source_reference":"user"},"provenance":"user"}"#,
             "none",
             "dimensionless",
         );
@@ -12952,7 +12986,7 @@ mod tests {
         assert!(missing.applied_model.is_none());
 
         intent["change"]["after"] = json!(
-            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_geometry_source_reference":"user"},"provenance":"user"}"#
         );
         // node:N-1 is a valid endpoint; use a third node to exercise the
         // explicit endpoint relationship rather than mere reference presence.
@@ -12967,7 +13001,7 @@ mod tests {
                 "provenance": "invented_example"
             }));
         intent["change"]["after"] = json!(
-            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-3","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-3","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_geometry_source_reference":"user"},"provenance":"user"}"#
         );
         let disconnected = apply_operation(&disconnected_model, &intent, None);
         assert!(codes(&disconnected).contains(&"OP-COMPONENT-CONNECTIVITY-INVALID"));

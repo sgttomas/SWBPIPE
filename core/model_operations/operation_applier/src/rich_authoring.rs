@@ -600,10 +600,7 @@ fn validate_temperature_points(
     // point's `thermal_expansion_coefficient` is not an interpolation input.
     let load_state =
         model["schema_version"] == open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION;
-    let exact_profile = (model["schema_version"] == "0.3.0" || load_state)
-        && model
-            .pointer("/pressure_contract/mode")
-            .is_some_and(|v| v == "exact_straight_pressure_v2");
+    let exact_profile = crate::is_exact_pressure_document(model);
     let modulus_pair_field = if exact_profile {
         "poisson_ratio"
     } else {

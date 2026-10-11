@@ -135,7 +135,10 @@ pub(crate) fn owns(object_type: &str, path: &str) -> bool {
             | ("Load", "pressure_regions")
     )
 }
-fn validate_regions(model: &Value, value: &Value) -> Result<()> {
+/// `signed`: the document's contract (3.0.0/exact_pressure_v3) admits a
+/// negative pressure, a net external differential. Bends are checked against
+/// the shared arc and tangency definitions (`bend_authoring`).
+fn validate_regions(model: &Value, value: &Value, signed: bool) -> Result<()> {
     let regions = value
         .as_array()
         .ok_or_else(|| err("pressure_regions must be an explicit array"))?;
@@ -162,14 +165,15 @@ fn validate_regions(model: &Value, value: &Value) -> Result<()> {
                 "Explicit internal differential zero-external pressure basis is required",
             ));
         }
-        if quantity(&region["pressure"], Dimension::Stress)? < 0.0 {
-            return Err(err("Pressure must be nonnegative"));
+        if !signed && quantity(&region["pressure"], Dimension::Stress)? < 0.0 {
+            return Err(err("Pressure must be nonnegative unless the document declares 3.0.0/exact_pressure_v3, which admits a signed differential (external-pressure stability and collapse are not assessed)"));
         }
         let pipes = region["member_pipe_ids"]
             .as_array()
             .filter(|p| !p.is_empty())
             .ok_or_else(|| err("Region requires member pipe IDs"))?;
         let mut nodes = HashSet::new();
+        let mut members = Vec::new();
         for id in pipes {
             let id = id
                 .as_str()
@@ -182,7 +186,9 @@ fn validate_regions(model: &Value, value: &Value) -> Result<()> {
             let pipe = entity(model, "pipe_segments", id)?;
             nodes.insert(text(pipe, "from")?);
             nodes.insert(text(pipe, "to")?);
+            members.push(id);
         }
+        crate::bend_authoring::check_region_members(model, &members)?;
         let terminals = region["terminals"]
             .as_array()
             .filter(|t| t.len() == 2)
@@ -229,17 +235,6 @@ pub(crate) fn resolve(
     }
     let current = match object_type {
         "Model" => {
-            // D3 / review B F1: a 0.4.0 model keeps its version; this profile
-            // operation would rewrite it to 0.3.0 and strand the
-            // load/reference-state records, so it is refused on 0.4.0.
-            if model.get("schema_version").and_then(Value::as_str)
-                == Some(open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION)
-            {
-                return Err(RichError {
-                    code: "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED",
-                    message: "pressure_profile cannot change a 0.4.0 model's schema_version or pressure contract; no operation changes the version".into(),
-                });
-            }
             if model.pointer("/project/id").and_then(Value::as_str) != Some(target) {
                 return Err(err("Profile target must be the current project ID"));
             }
@@ -266,19 +261,30 @@ pub(crate) fn resolve(
     let writes = match object_type {
         "Model" => {
             object(&after, PROFILE_KEYS)?;
-            if after["schema_version"] != "0.3.0"
-                || after["pressure_contract"]
-                    != serde_json::json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"})
-            {
-                return Err(err(
-                    "Select explicit model 0.3.0 / exact_straight_pressure_v2 version 2.0.0",
-                ));
+            // All new pressure authoring selects the current contract; a v2
+            // document is upgraded explicitly and never written as v2.
+            if after["pressure_contract"] != serde_json::json!({"version":"3.0.0","mode":"exact_pressure_v3"}) {
+                return Err(RichError {
+                    code: "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED",
+                    message: "New pressure authoring selects 3.0.0/exact_pressure_v3; 2.0.0/exact_straight_pressure_v2 documents stay readable and solvable but are never written".into(),
+                });
+            }
+            // D3 / review B F1: a 0.4.0 model keeps its version (its
+            // load/reference-state records need it); every other document
+            // becomes 0.3.0. Only the contract changes on 0.4.0.
+            let version = model.get("schema_version").and_then(Value::as_str);
+            let load_state = version == Some(open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION);
+            if (load_state && after["schema_version"] != "0.4.0") || (!load_state && after["schema_version"] != "0.3.0") {
+                return Err(RichError {
+                    code: "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED",
+                    message: "pressure_profile keeps a 0.4.0 model's schema_version and writes 0.3.0 for every other document; no operation otherwise changes the version".into(),
+                });
             }
             for case in model["load_cases"]
                 .as_array()
                 .ok_or_else(|| err("Missing load cases"))?
             {
-                validate_regions(model, &case["pressure_regions"])?;
+                validate_regions(model, &case["pressure_regions"], true)?;
                 if case["primitive_loads"]
                     .as_array()
                     .is_some_and(|loads| loads.iter().any(|l| l["category"] == "pressure"))
@@ -300,7 +306,7 @@ pub(crate) fn resolve(
                 .collect()
         }
         _ => {
-            validate_regions(model, &after)?;
+            validate_regions(model, &after, crate::is_pressure_v3_contract(model))?;
             vec![(vec!["pressure_regions".into()], Some(after.clone()))]
         }
     };
