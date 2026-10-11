@@ -89,6 +89,7 @@ import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
+import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -252,7 +253,8 @@ function AppSession() {
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects
+    handleListProjects,
+    replaceProjectPrompt
   } = session.project;
   const {
     uiPreferences, setUiPreferences,
@@ -318,6 +320,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
+      // The replace prompt is modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1051,6 +1055,7 @@ function AppSession() {
           onSelectDiagnostic={handleSelectDiagnostic}
         />
       ) : null}
+      <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>

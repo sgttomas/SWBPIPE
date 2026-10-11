@@ -51,6 +51,28 @@ pub fn native_smoke_plan() -> Result<Value, String> {
     serde_json::from_str(&text).map_err(|error| error.to_string())
 }
 
+/// Another writer saves this stored project, as a second window or process
+/// would: the same model and review context, without the run. It goes through
+/// the product's own persistence functions, so the stored revision (and its
+/// envelope hash) moves exactly as a real save would move it.
+#[tauri::command]
+pub fn native_smoke_external_save(app: AppHandle, project_id: String) -> Result<(), String> {
+    let path = crate::app_store_path(&app)?;
+    let (mut connection, _) = crate::open_project_store(&path)?;
+    let record = crate::load_project(&connection, Some(&project_id))?
+        .ok_or_else(|| format!("{project_id} is not stored"))?;
+    let none = Value::Null;
+    let envelope_hash = crate::computed_project_envelope_hash(
+        &project_id, &record.model, &record.editor_intents, &record.proposal,
+        &record.selected_review_target, &none, &none, &record.model_hash,
+    );
+    crate::upsert_project(
+        &mut connection, &project_id, &record.project_name, &record.model, &record.editor_intents,
+        &record.proposal, &record.selected_review_target, &none, &none, &record.model_hash,
+        &envelope_hash, &record.model_migration_ledger,
+    )
+}
+
 #[tauri::command]
 pub fn native_smoke_log(line: String) {
     eprintln!("[native-smoke] {line}");

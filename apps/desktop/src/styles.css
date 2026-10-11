@@ -4155,3 +4155,18 @@ body { min-width: 760px; min-height: 540px; }
 .engineering-table-info, .compact-table-details { white-space: normal; overflow-wrap: anywhere; max-height: 70vh; overflow: auto; }
 
 .engineering-table-header-window { overflow: clip; }
+
+/* Replace prompt (HELP_HUMAN ruling 2026-10-10): modal over the workspace. */
+.replace-project-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+.replace-project-prompt {
+  max-width: 560px;
+  padding: 16px 20px;
+  background: var(--surface-raised);
+}
