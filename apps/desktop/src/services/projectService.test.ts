@@ -6,6 +6,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import {
   buildBlankLocalModelDocument,
   createLocalProject,
+  findLocalProject,
   evaluateModelDocumentLocal,
   EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION,
   LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
@@ -163,7 +164,8 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(created.summary.unit_round_trip_checked_ref_count).toBe(1);
     expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
-    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
+    // Saves over its own stored snapshot (no envelope hash here); the guard is covered below.
+    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, true);
     expect(saved.model_document_migration?.status).toBe("current");
     expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
     expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
@@ -221,8 +223,10 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
       provenance: "legacy compatibility test"
     }] }];
     const before = JSON.stringify(model);
+    // The round trip saves over its own stored snapshot (no envelope hash here);
+    // the replacement guard itself is covered below.
     await createLocalProject(model);
-    const saved = await saveLocalProject(model);
+    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
     const opened = await openLocalProject(model.project.id);
     expect(JSON.stringify(saved.model)).toBe(before);
     expect(JSON.stringify(opened?.model)).toBe(before);
@@ -231,8 +235,23 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   });
 
   it("refuses to persist documents with refused schema versions", async () => {
-    await expect(createLocalProject(sampleModel("0.9.0"))).rejects.toThrow(/newer_than_supported/);
-    await expect(saveLocalProject(sampleModel("not-semver"))).rejects.toThrow(/unsupported_schema/);
+    await expect(createLocalProject(sampleModel("0.9.0"), [], null, null, null, null, null, null, true)).rejects.toThrow(/newer_than_supported/);
+    await expect(saveLocalProject(sampleModel("not-semver"), [], null, null, null, null, null, null, null, true)).rejects.toThrow(/unsupported_schema/);
+  });
+
+  it("never replaces the stored project without confirmation (HELP_HUMAN ruling 2026-10-10)", async () => {
+    const model = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    await createLocalProject(model, [], null, null, null, null, null, null, true);
+    const stored = await findLocalProject(model.project.id);
+    expect(stored).toMatchObject({ project_id: model.project.id, project_name: model.project.name });
+    await expect(createLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
+    await expect(saveLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, "sha256:not-the-stored-base"))
+      .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
+    // The stored snapshot records no envelope hash: no base can match it.
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, ""))
+      .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
+    expect(await findLocalProject("project:not-stored")).toBeNull();
   });
 
   it("round-trips old ledger bytes and optional transition hash evidence without projecting raw claims", async () => {

@@ -53,11 +53,58 @@ export use their existing routes unchanged.
   Local Project saves it, and the existing persistence normalization still
   applies on save (for example 0.1.0 → 0.2.0 with its ledger record). A refusal,
   a cancelled chooser or a superseded request leaves the session as it was.
-- **Project identity.** Local projects are keyed by `project.id`, as before. If
-  an opened file carries the id of a stored project, New Local Project replaces
-  that project's snapshot and keeps its migration ledger, exactly as saving the
-  bundled demo always has. Nothing prompts first. Whether the product should
-  ask is an open product choice.
+- **Project identity: never a silent replacement.** Local projects are keyed by
+  `project.id`. HELP_HUMAN ruled on 2026-10-10: "the app never silently
+  replaces a stored project". The bundled demo is no exception.
+  - **Save in place.** HELP_HUMAN's confirmation on 2026-10-10: saving the
+    project the session already is (it opened, created or last saved that
+    `project.id`) "is an ordinary save in place and does not prompt". The
+    condition is that "the stored project is still the revision this session
+    last opened or saved". If the store has moved since (another window or
+    process saved that id), "the save prompts like any other replacement".
+  - **The store enforces both.** `create_local_project` and `save_local_project`
+    refuse a write onto a stored id with `PROJECT-ID-EXISTS` unless one of these
+    holds:
+    - `replace_existing`: the user chose Replace;
+    - for Save, `expected_base` equals the stored envelope hash. This is the
+      `project_envelope_hash` value of the revision the session last opened
+      or wrote. The session records it wherever an open or a write lands for
+      it, even when a later action superseded the request, so its own last
+      save always counts as its base. The store already holds this hash, so
+      no new revision field is needed. A row without an envelope hash (for
+      example a legacy row) has no revision to compare, and a save onto it
+      asks.
+
+    A save in place whose base has moved is refused with `PROJECT-BASE-MOVED`.
+    The browser preview's one-snapshot store mirrors this. The check runs after
+    the schema checks and immediately before the upsert, in the same command;
+    the two are not one transaction. Writes from this app are serialized by its
+    project lock.
+  - **The prompt.** On either refusal, the webview asks
+    (`ReplaceProjectPrompt`, a modal alert dialog). It names the stored project
+    and when it was last saved. For a moved base, it says the stored copy was
+    saved after this session opened or saved it.
+    - **Replace "name"** resends the write confirmed. The stored migration
+      ledger is kept, as before.
+    - **Save as a new project** gives the document an id unused in the store:
+      `<id>:copy-<timestamp>`, with `-N` appended if that is taken. Nothing else
+      in the document changes. The session adopts the renamed document with a
+      fresh undo history, so its model hash and the next solve proof's
+      `model_sha256` change with the id. Editor intents, the proposal and the
+      review target are carried over. The run solved under the old id is not,
+      and neither is the old id's migration ledger.
+    - **Cancel** is the default: it has focus, and Escape chooses it. The
+      stored project is kept, and the status line says so.
+  - **Modality.** While the prompt is open, the workspace is `inert`, Tab
+    cycles the prompt's buttons, and menu commands and window shortcuts are
+    ignored. When the prompt closes, focus returns to where it was.
+  - **New Blank.** A New Blank whose time-stamped id is already stored takes a
+    suffixed id, since a new blank has no identity of its own to keep.
+  - **Normalization.** The existing 0.1.0 → 0.2.0 normalization on save is
+    unchanged; B7 removes it.
+  - **Known limit, outside the ruling.** The browser preview (not the desktop
+    app) still holds a single snapshot, so saving a project with a *different*
+    id evicts the previous one.
 - **Display fields are part of the desktop document contract.** A document
   without them is refused by name rather than given defaults (label = id,
   empty lists). Defaults would make the session's document, and its hash,
@@ -120,6 +167,19 @@ It also checks:
 
 - the proof hash against its own JCS hash of each file;
 - each saved model against the opened document;
+- the replace prompt, as named observations. In phase 1:
+  - a second New Local Project of the milestone prompts, and Cancel keeps the
+    stored project;
+  - Save as a new project stores the copy, which differs from the stored
+    original in `project.id` alone, and its solve proof carries the copy's own
+    hash;
+  - the session's own save of the copy saves in place without a prompt;
+  - after another writer saves the copy (a smoke-only command that uses the
+    product's own persistence functions), the session's next save prompts as a
+    moved base, and Cancel keeps the other writer's revision;
+  - Replace writes only after confirmation.
+
+  In phase 2, saving the bundled demo over the stored demo prompts too;
 - that the exported file in Downloads is bound to the solved model's project,
   shows the row count the export panel showed, and accounts for every row of the
   solve.
