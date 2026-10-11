@@ -1622,8 +1622,10 @@ export function useWorkspaceSession() {
     if (!existing) return { outcome: "written", envelope: await write(false) };
     const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
       replacePromptOpenRef.current = true;
+      // Captured before the workspace turns inert, which drops its focus.
+      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setReplaceProjectPrompt({
-        kind, existing, stale,
+        kind, existing, stale, opener,
         choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
       });
     });

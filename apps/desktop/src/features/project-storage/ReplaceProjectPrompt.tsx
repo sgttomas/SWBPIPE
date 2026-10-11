@@ -11,7 +11,7 @@ export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptS
   const cancel = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!prompt) return;
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const opener = prompt.opener;
     cancel.current?.focus();
     const hold = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -38,8 +38,9 @@ export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptS
     window.addEventListener("keydown", hold, true);
     return () => {
       window.removeEventListener("keydown", hold, true);
-      // Focus returns to where it was when the prompt opened.
-      if (opener?.isConnected) opener.focus();
+      // Focus returns to where it was when the prompt opened, once the
+      // workspace is no longer inert.
+      if (opener?.isConnected) requestAnimationFrame(() => opener.focus());
     };
   }, [prompt]);
   if (!prompt) return null;

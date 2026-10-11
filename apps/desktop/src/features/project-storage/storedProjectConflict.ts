@@ -11,6 +11,8 @@ export type ReplaceProjectPromptState = {
   existing: LocalProjectIndexEntry;
   /** The session's own project, saved elsewhere since this session opened or saved it. */
   stale: boolean;
+  /** Where focus was when the prompt opened; it returns there on close. */
+  opener: HTMLElement | null;
   choose: (choice: ReplaceProjectChoice) => void;
 };
 
