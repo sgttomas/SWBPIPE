@@ -6,6 +6,9 @@ environment. Work in `projects/chirality-piping`. Start from the affected
 current technical rulings, and `deliverable.yaml` states dependency conditions.
 Consult `docs/PRD.md` and its technical companions for the requirements involved.
 
+Find the current manuals through the [manual index](../../../docs/alignment-manual/README.md).
+Consult the relevant sections when the work needs them; no full-manual reading is required.
+
 From the repository root:
 
 ```sh

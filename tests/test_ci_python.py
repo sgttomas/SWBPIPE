@@ -39,5 +39,6 @@ def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     assert set(selected('core/model_operations/validation_preview/engine.py')) == base | {
         'tests/test_operation_validation_preview.py',
     }
+    assert set(selected('tools/retained_pricing/lib/linemap_lib.py')) == base | {'tests/test_retained_pricing_tool.py'}
     assert selected('core/gui/pkg02_boundary.py') == sorted(base)
     assert selected('core/units/schema_vocabulary.py') == sorted(base)

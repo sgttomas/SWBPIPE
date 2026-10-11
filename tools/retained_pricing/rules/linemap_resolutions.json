@@ -1,0 +1,9 @@
+{
+ "about": "Reviewed resolutions for keys whose function lost a definition while keeping at least one (the line map reports them 'fewer_definitions' and the run stops). Keyed by the key as written at the basis (2243be380b). 'as': 'deleted' (this key's own definition is the one removed: its rules are pruned) or n (it is the target's n-th definition of that name, 1-based). 'why' names the commit and the code facts. An entry applies only where the map finds fewer definitions for its key.",
+ "keys": {
+  "lib.rs:675:orientation": {
+   "as": "deleted",
+   "why": "FK lib.rs at the basis defines fn orientation in impl FrameElement (604) and impl UserStiffnessElement (675); a601e3706d (T4-U3) deletes UserStiffnessElement with its impl, so where the count falls to 1 the definition left is FrameElement's and this key's is the one gone (DEL-05-02 retained-pricing-rules.md, section A)"
+  }
+ }
+}

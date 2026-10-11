@@ -60,7 +60,7 @@ export function ReplaceProjectPrompt({ prompt }: { prompt: ReplaceProjectPromptS
         </h2>
         <p id="replace-project-detail" data-testid="replace-project-detail">
           {prompt.stale
-            ? <>The stored project {storedProjectDescription(prompt.existing)} was saved after this session opened or saved it. {prompt.kind === "create" ? "Creating" : "Saving"} this project would replace that stored copy.</>
+            ? <>The stored project {storedProjectDescription(prompt.existing)} has been saved since this session last saw it. {prompt.kind === "create" ? "Creating" : "Saving"} this project would replace that stored copy.</>
             : <>{prompt.kind === "create" ? "Creating" : "Saving"} this project would replace the stored project {storedProjectDescription(prompt.existing)}.</>}
         </p>
         <div className="report-actions">

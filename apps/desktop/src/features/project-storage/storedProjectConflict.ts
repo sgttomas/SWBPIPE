@@ -2,13 +2,14 @@
 // project. A save onto a stored `project.id` asks: Replace (names the stored
 // project and when it was last saved), Save as a new project (a new project id;
 // the document is otherwise unchanged), or Cancel, the default.
+import type { StoredProjectEntry } from "../../services/projectService";
 import type { LocalProjectEnvelope, LocalProjectIndexEntry, PreviewModel } from "../../types";
 
 export type ReplaceProjectChoice = "replace" | "save-as-new" | "cancel";
 
 export type ReplaceProjectPromptState = {
   kind: "create" | "save";
-  existing: LocalProjectIndexEntry;
+  existing: StoredProjectEntry;
   /** The session's own project, saved elsewhere since this session opened or saved it. */
   stale: boolean;
   /** Where focus was when the prompt opened; it returns there on close. */
