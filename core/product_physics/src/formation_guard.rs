@@ -32,7 +32,20 @@
 //!   `B > RD(1e-9) q` (exact), `q > 2^10 B` and `q >= 2^-34 S*_moment`, with
 //!   S*_moment the body's coupled moment scale over the case's published
 //!   rows (DESIGN section 4.1.6.1).
+//! - **The arc recovery guard** (O-13, `arc-recovery-guard.md`) reads each
+//!   realized arc end as published from the formed K_c*u: four groups per
+//!   end (bending, torsion, axial, shear), each with FK's certified bound
+//!   (`CertifiedArcRecovery::bound_end_actions`). A group fires when R-b'
+//!   fires on B (B_f + B_u for bending, B_f otherwise) or, HELP_HUMAN's R-2
+//!   for arcs, when B_f > RD(1e-9) q above the floor with no resolution
+//!   conjunct. S* is the body's coupled moment scale for bending and torsion
+//!   and its coupled force scale for axial and shear, over every published
+//!   row including the arcs' (entity rule 2b lifted for guarded arcs).
+//! - **The short-bend rule** (HELP_HUMAN's R-1, option (c)) demotes a case
+//!   that publishes a realized bend whose arc length is below
+//!   `SHORT_BEND_PASSED_RATIO` of its shorter neighbour.
 use super::{Diagnostic, ResultItem, DOF_PER_NODE};
+use open_pipe_stress_frame_kernel::structural::{ArcGroupBound, ArcRowGroup};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
     product_downward, quotient_downward, AssembledForce, FormationRow,
@@ -62,6 +75,8 @@ pub(crate) const NAMED: usize = 6;
 pub(crate) enum Guard {
     LoadRow,
     Recovery,
+    ArcRecovery,
+    ShortBend,
 }
 
 /// One case's finding: the guard, the reason sentence appended to the
@@ -372,17 +387,25 @@ fn action_class(kind: &str, unit: &str) -> Option<(bool, f64)> {
     }
 }
 
-/// S*_moment per body over the case's published rows (DESIGN section
-/// 4.1.6.1): S(force) and S(moment) are the largest |row| of each class in
-/// the body; mo = max(S(moment), L_b S(force)). Rows of `excluded` members
-/// (curved spans, entity rule 2b) and rows whose entity has no body are not
-/// covered.
-pub(crate) fn moment_scales(
+/// A body's coupled scales over the case's published rows (DESIGN section
+/// 4.1.6.1 items 5 and 6): fo = max(S(force), fl(S(moment)/L_b)) and
+/// mo = max(S(moment), fl(L_b S(force))).
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub(crate) struct ActionScales {
+    pub(crate) force: f64,
+    pub(crate) moment: f64,
+}
+
+/// The coupled scales per body: S(force) and S(moment) are the largest |row|
+/// of each class in the body. Rows of `excluded` members (realized arcs
+/// without an arc recovery record, entity rule 2b) and rows whose entity has
+/// no body are not covered.
+pub(crate) fn action_scales(
     results: &[ResultItem],
     body_of_entity: &HashMap<String, usize>,
     excluded: &HashSet<String>,
     bodies: &Bodies,
-) -> HashMap<usize, f64> {
+) -> HashMap<usize, ActionScales> {
     let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
     for row in results {
         let Some((moment, factor)) = action_class(&row.kind, &row.unit) else {
@@ -405,16 +428,29 @@ pub(crate) fn moment_scales(
     maxima
         .into_iter()
         .map(|(body, (force, moment))| {
-            // DESIGN item 6: mo = max(S_mo, fl(L_b S_fo)).
             let extent = bodies.extent(body);
-            let mo = if extent > 0.0 {
-                moment.max(extent * force)
+            let scales = if extent > 0.0 {
+                ActionScales {
+                    force: force.max(moment / extent),
+                    moment: moment.max(extent * force),
+                }
             } else {
-                moment
+                ActionScales { force, moment }
             };
-            (body, mo)
+            (body, scales)
         })
         .collect()
+}
+
+/// B > RD(1e-9) q, decided exactly.
+fn exceeds_criterion(bound: f64, q: f64) -> bool {
+    let mut first = ExactAccumulator::new();
+    first.add(bound).is_ok() && first.add_product(-CRITERION, q).is_ok() && first.signum() > 0
+}
+
+/// q >= 2^-34 S*, with S* >= 2^-988 (DESIGN N-2).
+fn above_floor(q: f64, s_star: f64) -> bool {
+    s_star >= DESIGN_FLOOR_MIN_SCALE && q >= DESIGN_FLOOR * s_star
 }
 
 /// R-b' for one end: true when it fires (a non-finite B fires, fail-closed).
@@ -422,27 +458,49 @@ pub(crate) fn rb_prime_fires(q: f64, bound: f64, s_star_moment: f64) -> bool {
     if !bound.is_finite() {
         return true;
     }
-    // B > RD(1e-9) q, exactly.
-    let mut first = ExactAccumulator::new();
-    let first_clause =
-        first.add(bound).is_ok() && first.add_product(-CRITERION, q).is_ok() && first.signum() > 0;
     let resolved = q > RESOLUTION_FACTOR * bound;
-    let above_floor = s_star_moment >= DESIGN_FLOOR_MIN_SCALE && q >= DESIGN_FLOOR * s_star_moment;
-    first_clause && resolved && above_floor
+    exceeds_criterion(bound, q) && resolved && above_floor(q, s_star_moment)
+}
+
+/// The arc predicate for one end group (O-13 with HELP_HUMAN's R-2): R-b'
+/// on B (B_f + B_u for bending, B_f for the other groups), or B_f above the
+/// criterion and the floor with no resolution conjunct. S* is the moment
+/// scale for bending and torsion and the force scale for axial and shear.
+pub(crate) fn arc_group_fires(
+    group: ArcRowGroup,
+    q: f64,
+    bound: &ArcGroupBound,
+    scales: ActionScales,
+) -> bool {
+    let (b, s_star) = arc_group_operands(group, bound, scales);
+    if !bound.formation.is_finite() {
+        return true;
+    }
+    rb_prime_fires(q, b, s_star)
+        || (exceeds_criterion(bound.formation, q) && above_floor(q, s_star))
+}
+
+/// (B, S*) of one arc group.
+fn arc_group_operands(group: ArcRowGroup, bound: &ArcGroupBound, scales: ActionScales) -> (f64, f64) {
+    match group {
+        ArcRowGroup::Bending => (bound.with_resolution(), scales.moment),
+        ArcRowGroup::Torsion => (bound.formation, scales.moment),
+        ArcRowGroup::Axial | ArcRowGroup::Shear => (bound.formation, scales.force),
+    }
 }
 
 /// The recovery guard's finding for one case, or `None` when no end fires.
 pub(crate) fn recovery_finding(
     records: &[RecoveryRecord],
-    scales: &HashMap<usize, f64>,
+    scales: &HashMap<usize, ActionScales>,
     case_id: &str,
 ) -> Option<FormationFinding> {
     let mut fired = Vec::new();
     for record in records {
         let s_star = record
             .body
-            .and_then(|body| scales.get(&body).copied())
-            .unwrap_or(0.0);
+            .and_then(|body| scales.get(&body))
+            .map_or(0.0, |s| s.moment);
         for (end, (q, bound)) in ["i", "j"].iter().zip(&record.ends) {
             match bound {
                 Ok(bound) => {
@@ -472,6 +530,162 @@ pub(crate) fn recovery_finding(
     })
 }
 
+// -------------------------------------------------------- arc recovery guard
+
+/// One realized arc's ends as published from the formed K_c*u (O-13).
+#[derive(Debug, Clone)]
+pub(crate) struct ArcRecoveryRecord {
+    pub(crate) member: String,
+    pub(crate) body: Option<usize>,
+    /// Per end (i, j) and group (`ArcRowGroup::ALL` order): q of the published
+    /// rows (|N|, hypot(Vy, Vz), |T|, hypot(My, Mz)).
+    pub(crate) q: [[f64; 4]; 2],
+    /// The certified bounds in the same order, or why they are unavailable
+    /// (which fires every group).
+    pub(crate) bounds: Result<[[ArcGroupBound; 4]; 2], String>,
+}
+
+fn arc_unit(group: ArcRowGroup) -> &'static str {
+    match group {
+        ArcRowGroup::Bending | ArcRowGroup::Torsion => "N*m",
+        ArcRowGroup::Axial | ArcRowGroup::Shear => "N",
+    }
+}
+
+/// The arc recovery guard's finding for one case, or `None` when no group
+/// fires.
+pub(crate) fn arc_recovery_finding(
+    records: &[ArcRecoveryRecord],
+    scales: &HashMap<usize, ActionScales>,
+    case_id: &str,
+) -> Option<FormationFinding> {
+    let mut fired = Vec::new();
+    for record in records {
+        let scale = record
+            .body
+            .and_then(|body| scales.get(&body).copied())
+            .unwrap_or_default();
+        let bounds = match &record.bounds {
+            Ok(bounds) => bounds,
+            Err(reason) => {
+                fired.push(format!(
+                    "{}: the formation bound is unavailable ({reason})",
+                    record.member
+                ));
+                continue;
+            }
+        };
+        for (end, name) in ["i", "j"].iter().enumerate() {
+            for (slot, group) in ArcRowGroup::ALL.into_iter().enumerate() {
+                let (q, bound) = (record.q[end][slot], &bounds[end][slot]);
+                if arc_group_fires(group, q, bound, scale) {
+                    let (b, s_star) = arc_group_operands(group, bound, scale);
+                    let unit = arc_unit(group);
+                    fired.push(format!(
+                        "{}.{name}.{}: q={q:e} {unit}, B={b:e} {unit}, B_f={:e} {unit}, S*={s_star:e} {unit}",
+                        record.member,
+                        group.label(),
+                        bound.formation
+                    ));
+                }
+            }
+        }
+    }
+    (!fired.is_empty()).then(|| FormationFinding {
+        guard: Guard::ArcRecovery,
+        sentence: format!(
+            "S11-G recovery guard (R-b', arcs): load case {case_id} is Sensitive because {} realized-arc end group(s) published from the formed K_c*u carry formation noise above the 1e-9 criterion; every value is kept for inspection. Ends: [{}]{}",
+            fired.len(),
+            fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+        ),
+        fired,
+    })
+}
+
+// --------------------------------------------------------- short-bend rule
+
+/// HELP_HUMAN's R-1, option (c) (`arc-recovery-guard.md`, "Short bends"):
+/// below this arc-length ratio to the shorter adjacent member a realized
+/// bend's torsion and shear rows carry the solve's rounding amplified by the
+/// recovery's cancellation, about 13.4 (R phi/L)^-3 on T4's L line, beyond
+/// what B_f can see; a case publishing such a bend is not Passed. The value
+/// is the derived breach ratio 1.22e-2 with a factor 1.88 margin on the error.
+pub(crate) const SHORT_BEND_PASSED_RATIO: f64 = 1.5e-2;
+
+/// One published realized bend that is short against its neighbours.
+#[derive(Debug, Clone)]
+pub(crate) struct ShortBend {
+    pub(crate) component: String,
+    pub(crate) pipe: String,
+    pub(crate) ratio: f64,
+}
+
+/// The short-bend rule's finding for one case, or `None` when no published
+/// bend is below [`SHORT_BEND_PASSED_RATIO`].
+pub(crate) fn short_bend_finding(bends: &[ShortBend], case_id: &str) -> Option<FormationFinding> {
+    let fired: Vec<String> = bends
+        .iter()
+        .filter(|bend| bend.ratio < SHORT_BEND_PASSED_RATIO)
+        .map(|bend| format!("{} (pipe {}): {:.3e}", bend.component, bend.pipe, bend.ratio))
+        .collect();
+    (!fired.is_empty()).then(|| FormationFinding {
+        guard: Guard::ShortBend,
+        sentence: format!(
+            "Short-bend rule: load case {case_id} is Sensitive because {} realized bend(s) are short against their neighbours (arc length / shorter adjacent member length below {SHORT_BEND_PASSED_RATIO:e}): the assembled system's conditioning amplifies the solve's rounding in the bend's recovered torsion and shear beyond the 1e-9 criterion; every value is kept for inspection. Bends: [{}]{}",
+            fired.len(),
+            fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+        ),
+        fired,
+    })
+}
+
+/// The case's recovery-side findings as one: the straight sentence, then the
+/// arc sentence, then the short-bend sentence, separated by one space. A
+/// single finding is returned unchanged (byte for byte).
+pub(crate) fn merge(findings: Vec<FormationFinding>) -> Option<FormationFinding> {
+    let mut findings = findings.into_iter();
+    let mut merged = findings.next()?;
+    for finding in findings {
+        merged.sentence = format!("{} {}", merged.sentence, finding.sentence);
+        merged.fired.extend(finding.fired);
+    }
+    Some(merged)
+}
+
+/// Test view: each case's arc records, scales and arc finding as the call
+/// site formed them, keyed by the model's project id, so a test can check the
+/// guard's decision on a case whose report it leaves unchanged (no-op rule).
+#[cfg(test)]
+pub(crate) mod observed {
+    use super::{ActionScales, ArcRecoveryRecord, FormationFinding};
+    use std::collections::HashMap;
+    use std::sync::Mutex;
+
+    #[derive(Debug, Clone)]
+    pub(crate) struct ArcObservation {
+        pub(crate) project: String,
+        pub(crate) records: Vec<ArcRecoveryRecord>,
+        pub(crate) scales: HashMap<usize, ActionScales>,
+        pub(crate) finding: Option<FormationFinding>,
+    }
+
+    static OBSERVED: Mutex<Vec<ArcObservation>> = Mutex::new(Vec::new());
+
+    pub(crate) fn record(observation: ArcObservation) {
+        OBSERVED.lock().unwrap().push(observation);
+    }
+
+    /// Removes and returns the observations of one project.
+    pub(crate) fn take(project: &str) -> Vec<ArcObservation> {
+        let mut all = OBSERVED.lock().unwrap();
+        let (mine, rest): (Vec<_>, Vec<_>) = all.drain(..).partition(|o| o.project == project);
+        *all = rest;
+        mine
+    }
+}
+
 // ------------------------------------------------------------------ verdict
 
 /// Demotes an integrity diagnostic that is still `CHECKS_PASSED` to
@@ -488,7 +702,7 @@ pub(crate) fn demote(diagnostic: &mut Diagnostic, finding: &FormationFinding) ->
     true
 }
 
-/// R-b' after the recovery loop: demotes the case's integrity diagnostic
+/// After the recovery loop: demotes the case's integrity diagnostic
 /// (found by id) under the no-op rule.
 pub(crate) fn amend_integrity_report(
     diagnostics: &mut [Diagnostic],

@@ -970,3 +970,7 @@ fn large_flexibility_certifies_with_a_small_radius() {
         other => panic!("{other:?}"),
     }
 }
+
+// O-13: the arc recovery certificate (`arc-recovery-guard.md`).
+#[path = "arc_recovery_tests.rs"]
+mod recovery;
