@@ -1,6 +1,6 @@
 # K-D5 member-relative bound and the unified R-b′ predicate (T4-KD5)
 
-Revision 2. It implements HELP_HUMAN's ruling of 2026-10-11, made under the owner's delegation: **option (d), "repair"**, and HELP_HUMAN's later ruling of the same day on all-zero bodies. Revision 0 (68d78411af) derived the bound; revision 1 (5fec6bb9c0) made the unit publish what the bound certifies and folded in the load closure. Revision 2 applies T3's re-review of revision 1 (I1–I8, S6) and T4-RV34's check, and replaces two stand-ins with measurements taken on the product: ε_E (§2.1) and the remainder under the attempt's own matrix (§4.2).
+Revision 3. It implements HELP_HUMAN's ruling of 2026-10-11, made under the owner's delegation: **option (d), "repair"**, and HELP_HUMAN's later ruling of the same day on all-zero bodies. Revision 0 (68d78411af) derived the bound; revision 1 (5fec6bb9c0) made the unit publish what the bound certifies and folded in the load closure. Revision 2 applied T3's re-review of revision 1 (I1–I8, S6) and T4-RV34's check, and replaced two stand-ins with measurements taken on the product: ε_E (§2.1) and the remainder under the attempt's own matrix (§4.2). Revision 3 makes the summand-completeness invariant explicit, qualifies the all-zero explanation by the existing minimum-scale guard, corrects the spring-reaction sign, and source-qualifies the surviving combination producer. The numerical criterion is unchanged.
 
 The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integrity.md)) and R-b′/O-13 ([arc-recovery-guard.md](arc-recovery-guard.md)). It changes no product code. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -19,7 +19,7 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
   The worst judged B/c is 0.032, so the margin is at least 31 (§4.2).
 - **W1's N-5 abandonment (T3's M1).** (d) abandons none of the 2,844 invocations in W1's domain; R-b′ abandons 64 of them today (§4.4).
 - **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Every such case changes last bits. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
-- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive unless every certified row is exactly zero. It carries the notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
+- **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a certified row is nonzero and its coupled force or moment scale reaches the existing 2^-988 guard. The resulting noise-only demotion carries the notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
 - **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). The short-bend rule is removed only with the closure, in the same unit (T3's M3).
 - **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
 
@@ -61,7 +61,11 @@ FK's `FormationSource` gains `loads: Vec<LoadPrimitive>`. Each primitive names t
 - **Input term.** A term with no S11-G formation record: a nodal force or moment, a constant effort, a prescribed displacement value. It enters as its exact binary64 value, which is its intended value.
 - **Formed term.** A term with a formation record. It is replaced by the sum of its primitives' re-formations at p, each added to the row accumulators as the exact split of its Wide2 value. Enclosure radii are carried in ψ (§2).
 
-A formed term whose primitives do not cover it, or a primitive whose re-formation fails (a `WideError` or a failed R-1 precondition), makes the check unavailable: `FormationCheckUnavailable { "load closure: <source> …" }`. Coverage is decided by the ledger's own formation records, not by a hand-kept list.
+A formed term whose primitives do not cover it, or a primitive whose re-formation fails (a `WideError` or a failed R-1 precondition), makes the check unavailable: `FormationCheckUnavailable { "load closure: <source> …" }`. Coverage is decided by the ledger's own formation records, not by a hand-kept list or by whether a term has any primitive.
+
+**Complete summands (HELP_HUMAN's delegated technical ruling, 2026-10-11).** Each formed ledger term has a closure manifest of expected summand identities. The identity is the ledger term's index plus its producer's stable summand identity (family, member or support identity, and ordinal within that producer's authored or factor group). The manifest is established by the producer's complete source/factor-group enumeration, before and independently of collecting the supplied `LoadPrimitive` entries. It is retained with the ledger formation record. The supplied primitives reference these identities; FK compares their identity multiset exactly with the manifest before any residual or recovery evaluation. Missing, duplicate, extra, mismatched-term, and absent-manifest entries make the check unavailable with a named load-closure detail. Input terms have no formation record and may not carry a closure primitive.
+
+The expected identities must never be derived from the supplied primitive vector: doing so would bless a dropped summand. For a grouped pressure term, the manifest enumerates every operand in its producer's factor group, including all pipes meeting the node; dropping one supplied operand leaves the original manifest intact and fails closed. Producer tests independently compare each complete family with its exact reference, and a mutant that drops one of several supplied primitives must fail the closure before publication. Both the manifest and the actual primitive storage are included in re-registration pricing (§6).
 
 **K-D5 without a ledger fails closed.** When the force binding is `Legacy` or `Binary64` (`force_terms` is `None`), there is nothing to close: FK returns `FormationCheckUnavailable { "load closure: no ledger" }`. Today such a case runs K-D5 on the folded force.
 
@@ -213,7 +217,7 @@ So a published maximum cannot be formed from rows other than the ones published 
 - **The scope string stays.** "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate" (PP `retained_product.rs` :2786, RE `physics_evidence.rs` :608, and four other readers) remains true. The coefficients are still binary64 values supplied to the enclosure, now the repaired ones. Their error against the intended system is B, which is separate. Keeping the string leaves the six readers unchanged.
 - **The W1 retained-source maximum** (basis `retained_source_endpoint_normal_max_v1`, `source_receipt::composite_member_maximum`) is unchanged. It is published only for cases routed to retained-source recovery: an ordinary report that is Sensitive, an attempt that errs, or a load-row finding (`needs_source_recovery`). Such a case never carries certified rows.
 
-**Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and as k·(u + w + w₂) for springs. They form two groups per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z).
+**Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and as −k·(u + w + w₂) for springs, preserving the published support-on-pipe sign convention. They form two groups per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z).
 
 Displacement and rotation rows are published unchanged (u). K-D5's per-DOF rule judges them, as today. The bound covers them (the 286 breaching rotation and displacement groups in §4.1), but they are not repaired.
 
@@ -234,12 +238,12 @@ One predicate replaces `rb_prime_fires`, O-13's `arc_group_fires` with its B_u, 
 - `CHECKS_PASSED` becomes `SENSITIVE`;
 - the no-op rule holds, and the load-row sentence stands first (I5 ruling 1).
 
-**All-zero bodies (HELP_HUMAN's ruling).** A body whose true rows are all zero is Sensitive whenever any certified row is nonzero. This follows from A1, under which a true-zero row has ‖m_g‖ ≤ ‖r_g‖ + ‖R_g‖:
+**All-zero bodies (HELP_HUMAN's ruling).** A body whose true rows are all zero is Sensitive whenever a certified row is nonzero and the corresponding coupled scale S* reaches 2^-988. This follows from A1, under which a true-zero row has ‖m_g‖ ≤ ‖r_g‖ + ‖R_g‖:
 
 - B_g = ‖v_g − m_g‖ + ‖r_g‖ + ‖R_g‖ ≥ ‖v_g − m_g‖ + ‖m_g‖ ≥ q_g > RD(1e-9)·q_g whenever q_g > 0;
-- the largest row sets S* and passes the floor.
+- the largest row sets S* and passes the relative floor; the separate S* ≥ 2^-988 guard must also hold.
 
-Only a body whose every certified row is exactly zero (S* = 0) stays Passed, for example a zero-load case with u = 0. The floor is not anchored to the load scale.
+A body whose every certified row is exactly zero (S* = 0) stays Passed, for example a zero-load case with u = 0. A body whose force and moment scales are both below 2^-988 can also stay Passed under the existing guard, even with nonzero noise; this unit does not change that criterion or emit the demotion-only notice there. The floor is not anchored to the load scale.
 
 **The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION`** (info severity, one per load case, emitted after that case's integrity diagnostic). It is an implementation item of this unit, with no criterion change.
 
@@ -260,7 +264,7 @@ Only a body whose every certified row is exactly zero (S* = 0) stays Passed, for
   - "Solely because": a stress-free body beside a loaded body. The stress-free body makes the case Sensitive, and there is no notice.
   - A zero-load case (u = 0) stays Passed with no notice.
 
-**Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`append_combination_results`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that; it is disclosed and listed under open items.
+**Combination rows (RV33 note 10).** Combination rows are binary64 linear combinations of the certified case rows (`preview_physics::append_combination_results` in `PP/src/preview_physics.rs`). The 1e-9 criterion governs case rows. A combination row is not judged against its own q, which under cancellation can be much smaller than its terms. This unit does not change that; it is disclosed and listed under open items.
 
 ### 3.4 The published values change (property)
 
@@ -475,7 +479,7 @@ T3's R2 (Rust-only base readers) commits native outcomes for a shared base corpu
 
 | Row (`base/ordinary_caps.py` and its tree) | Change |
 |---|---|
-| "Ordinary formation check (outer vectors)" | + 2·Xc(ExactAccumulator, F) for s and s₂; + B(8·5F) for the radius vector ψ, w₂, the second right-hand side and the ε_E row and column sums; the per-row allowance replaces the `Vec<f64>` lists; + V(LoadPrimitive, l) |
+| "Ordinary formation check (outer vectors)" | + 2·Xc(ExactAccumulator, F) for s and s₂; + B(8·5F) for the radius vector ψ, w₂, the second right-hand side and the ε_E row and column sums; the per-row allowance replaces the `Vec<f64>` lists; + V(LoadPrimitive, l) and the complete closure manifests with their expected summand identities |
 | "H_formation128 (T06: heap 0)" | Stays 0 only if every re-formation is on the stack: K_int per element for ρ, s, s₂, ε_E and recovery, and load primitives at p, with no `Vec<Element>` cache (S5). A test pins it |
 | StructuralSolution (now priced, S5) | + B(16·N) for w and w₂, + s(MemberBoundInputs), live from the completion through the recovery stage |
 | W2 "evaluate" | It is ×2 over core_total, so it counts the larger formation-check row twice (T3's double count). The tail gains the unscaled member-bound inputs once: + B(16·N) |
@@ -492,9 +496,9 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 **FK `structural/formation_check.rs`:**
 
-- `LoadPrimitive` enum (§1), many per ledger term, and `FormationSource::loads`.
+- `LoadPrimitive` enum (§1), many per ledger term, and `FormationSource::loads`; ledger-held closure manifests with independently enumerated expected summand identities.
 - In `evaluate`:
-  - the closure rule over the ledger's formation records, and the no-ledger failure;
+  - exact closure-manifest/primitive identity-multiset equality over the ledger's formation records, and the no-ledger failure;
   - the radius vector ψ;
   - the s, w₂ and s₂ passes, each element re-formed on the stack;
   - ε_E by the triangle bound over the contribution blocks (§2 step 7);
@@ -562,7 +566,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - for W2, reuse the unscaled attempt's Λ.
 - **The closure:**
   - a formed term without a primitive must fail closed;
-  - a ledger term carrying several primitives, with one dropped, must fail closed;
+  - a ledger term carrying several primitives, with one dropped while its independently enumerated ledger manifest remains intact, must fail closed; duplicates, extras and mismatched term identities must also fail closed;
   - K-D5 with no ledger must fail closed;
   - a ledger value substituted for a primitive (the realistic STD-U wT utm-skew line kills it at 3.8e3·c);
   - each primitive family has a test against an exact reference.
