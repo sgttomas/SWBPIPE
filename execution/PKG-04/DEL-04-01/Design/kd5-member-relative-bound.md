@@ -164,7 +164,7 @@ W2 solves K' = 2^b·K_int and f' = 2^b·f_int, formed at 2^b.
 - s, s₂, ψ, σ and every force-unit row are formed at 2^b.
 - **Closure metadata survives W2.** Today `AssembledForce::force_scaled` drops the numeric S11-G formation records. It must retain and rebind each original term's trusted input-versus-formed classification and independently enumerated expected closure manifest. Numeric-bound omission must never reclassify a formed term as an input. Identities and authored operand bits remain stable, while an explicit exact force exponent b applies to both the expected binding and the supplied primitive. W2 checks the same complete multiset and bindings before its first residual; missing, duplicate, extra and wrong-binding primitives fail closed there as on the ordinary route.
 - Λ′ is computed from the W2 attempt's own gate and contributions: its r̂′, ‖K̃′_s‖₁, scale exponents D′ and ε′_E. No relation to the unscaled attempt's Λ or D is assumed: D′ is not 2^{-b/2}·D for odd b.
-- m_g and R_r are unscaled by 2^-b consistently: m_g by the publication's single rounding (`unscale_for_publication` of the exact value), R_r rounded upward.
+- When recovery uses the scaled member operator A' = 2^b·A and scaled intended loads, m_g and R_r are unscaled by 2^-b consistently: m_g by the publication's single rounding (`unscale_for_publication` of the exact value), R_r rounded upward. Equivalently, the certificate may use the original physical operator A and original physical load primitives directly, retaining the W2 attempt's D' and Λ'·σ'. It then forms physical m_g and R_r = ‖A·D'‖₁·(Λ'·σ') without a force unscaling step. Λ'·σ' alone is never unscaled, and the attempt's exponents remain attached to it after report unscaling.
 
 ### 2.3 Fail closed
 
