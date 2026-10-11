@@ -4,23 +4,64 @@ import { resolve } from "node:path";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
- * The shared retained-precision reader corpus: one logical document stored as ordered snapshot files, each kept
- * under 50 MB (PY's `tests/test_fixture_file_size.py`). A new snapshot is a new file, appended here, in PY's
+ * The shared retained-precision reader corpus: one logical document expanded from ordered compact definitions. A new snapshot is appended here, in PY's
  * `tests/retained_precision_corpus.py` and in RS's `tests/retained_precision_contract.rs`. `cases`, `mutations`
- * and `must_pass` concatenate in file order; any other member appears once or identically in each file. Read from
- * disk, not as `?raw` module imports: the module transform of tens of MB of text exhausts the default heap.
+ * and `must_pass` concatenate in file order; any other member appears once or identically in each file. Read the
+ * definitions from disk; no product producer regenerates the independent frozen values.
  */
 export const RETAINED_PRECISION_CORPUS_FILES = [
   "fixtures/results/retained_precision_cases.json", // 07m + 07n
-  "fixtures/results/retained_precision_cases_07o.json", // 07o (B2), compact JSON
+  "fixtures/results/retained_precision_cases_07o.json", // 07o (B2)
 ] as const;
 const LIST_MEMBERS = new Set(["cases", "mutations", "must_pass"]);
 const PROJECT_ROOT = resolve(__dirname, "../../../../");
 
-export function readRetainedPrecisionCorpus(): Json {
+/** Strict current test storage; every occurrence gets independent containers. */
+export function expandRetainedPrecisionDefinition(document: Json): Json {
+  if (!document || typeof document !== "object" || Array.isArray(document)
+    || Object.keys(document).sort().join(",") !== "format,layout,nodes,root"
+    || document.format !== "retained-precision-corpus-dag/v1"
+    || !["compact", "indent-2"].includes(document.layout) || !Array.isArray(document.nodes)) {
+    throw new Error("Unsupported retained-precision corpus definition");
+  }
+  const nodes = document.nodes as Json[];
+  const reference = (value: Json, upper: number) => Number.isInteger(value) && !Object.is(value, -0) && value >= 0 && value < upper;
+  if (!reference(document.root, nodes.length)) throw new Error("Invalid corpus root");
+  for (let index = 0; index < nodes.length; index += 1) {
+    const node = nodes[index];
+    if (!Array.isArray(node)) {
+      if (node !== null && (!["string", "number", "boolean"].includes(typeof node) || (typeof node === "number" && !Number.isFinite(node)))) {
+        throw new Error("Invalid corpus scalar");
+      }
+      continue;
+    }
+    if (!Number.isInteger(node[0]) || Object.is(node[0], -0) || ![0, 1].includes(node[0]) || !node.slice(1).every(ref => reference(ref, index))) {
+      throw new Error("Corpus references must name earlier nodes");
+    }
+    if (node[0] === 1) {
+      const keys = node.filter((_, i) => i % 2 === 1).map(ref => nodes[ref]);
+      if (node.length % 2 !== 1 || !keys.every(key => typeof key === "string") || new Set(keys).size !== keys.length) {
+        throw new Error("Corpus object keys must be distinct strings");
+      }
+    }
+  }
+  const expand = (index: number): Json => {
+    const node = nodes[index];
+    if (!Array.isArray(node)) return node;
+    if (node[0] === 0) return node.slice(1).map(expand);
+    const entries = [];
+    for (let i = 1; i < node.length; i += 2) entries.push([nodes[node[i]], expand(node[i + 1])]);
+    return Object.fromEntries(entries);
+  };
+  return expand(document.root);
+}
+
+let sharedCorpus: Json;
+function sharedRetainedPrecisionCorpus(): Json {
+  if (sharedCorpus) return sharedCorpus;
   const merged: Record<string, Json> = {};
   for (const name of RETAINED_PRECISION_CORPUS_FILES) {
-    const part: Record<string, Json> = JSON.parse(readFileSync(resolve(PROJECT_ROOT, name), "utf8"));
+    const part: Record<string, Json> = expandRetainedPrecisionDefinition(JSON.parse(readFileSync(resolve(PROJECT_ROOT, name), "utf8")));
     for (const [key, value] of Object.entries(part)) {
       if (LIST_MEMBERS.has(key)) {
         if (!Array.isArray(value)) throw new Error(`${name}: ${key} is not an array`);
@@ -32,5 +73,12 @@ export function readRetainedPrecisionCorpus(): Json {
       }
     }
   }
-  return merged;
+  sharedCorpus = merged;
+  return sharedCorpus;
+}
+
+export function readRetainedPrecisionCorpus(): Json {
+  // Callers historically received fresh mutable trees; preserve their isolation
+  // while parsing and expanding the shared immutable basis only once.
+  return structuredClone(sharedRetainedPrecisionCorpus());
 }

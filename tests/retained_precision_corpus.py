@@ -5,6 +5,7 @@ Each file stays under 50 MB (`test_fixture_file_size.py`): a new snapshot is a n
 `src/test-support/retainedPrecisionCorpus.ts`, never grown into an existing file. `cases`, `mutations`
 and `must_pass` concatenate in file order; any other member appears once or identically in each file.
 """
+import importlib.util
 import json
 from pathlib import Path
 
@@ -15,11 +16,24 @@ CORPUS_FILES = (
 )
 LIST_MEMBERS = ("cases", "mutations", "must_pass")
 
+_STORAGE_SPEC = importlib.util.spec_from_file_location(
+    "retained_precision_corpus_storage", ROOT / "tools/fixtures/retained_precision_corpus.py"
+)
+_STORAGE = importlib.util.module_from_spec(_STORAGE_SPEC)
+_STORAGE_SPEC.loader.exec_module(_STORAGE)
+
+
+def expanded_snapshot_bytes(name):
+    """Historical full bytes, independent of the lossless storage definition."""
+    raw = (ROOT / name).read_bytes()
+    document = json.loads(raw)
+    return _STORAGE.expanded_bytes(document)
+
 
 def load_corpus(files=CORPUS_FILES):
     merged = {}
     for name in files:
-        for key, value in json.loads((ROOT / name).read_text()).items():
+        for key, value in _STORAGE.expand(json.loads((ROOT / name).read_bytes())).items():
             if key in LIST_MEMBERS:
                 assert isinstance(value, list), f"{name}: {key} is not an array"
                 merged.setdefault(key, []).extend(value)

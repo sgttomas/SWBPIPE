@@ -244,7 +244,12 @@ fn base(inputs: &mut Vec<Input>, id: String, source: Value, model: Option<Value>
     });
 }
 
-fn corpus() -> Vec<Input> {
+fn corpus() -> &'static [Input] {
+    static CORPUS: std::sync::OnceLock<Vec<Input>> = std::sync::OnceLock::new();
+    CORPUS.get_or_init(build_corpus)
+}
+
+fn build_corpus() -> Vec<Input> {
     let mut inputs = Vec::new();
     // Result fixtures, each with its model.
     let results: [(&str, Option<&str>); 18] = [
@@ -524,7 +529,7 @@ fn base_reader_outcomes_are_the_committed_corpus_outcomes() {
     if let Ok(dir) = std::env::var("BASE_READER_INPUTS_OUT") {
         std::fs::create_dir_all(&dir).unwrap();
         let mut lines = String::new();
-        for input in &inputs {
+        for input in inputs {
             // Preserve the source JSON texts, including negative zero and unsafe
             // integers; a value-preserving numeric re-serialization gives the
             // same verdict, as the A2 test below checks.

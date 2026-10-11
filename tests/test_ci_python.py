@@ -42,3 +42,43 @@ def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     assert set(selected('tools/retained_pricing/lib/linemap_lib.py')) == base | {'tests/test_retained_pricing_tool.py'}
     assert selected('core/gui/pkg02_boundary.py') == sorted(base)
     assert selected('core/units/schema_vocabulary.py') == sorted(base)
+
+
+
+def test_established_helper_edits_keep_direct_importing_tests():
+    schema = set(selected('tests/schema_validation.py'))
+    assert {'tests/test_schema_validation_helpers.py', 'tests/test_headless_runner_contract.py',
+            'tests/test_report_generator_contract.py', 'tests/test_retained_precision_schema.py'} <= schema
+    assert {'tests/test_retained_precision_schema.py', 'tests/test_stress_neutral_physics_source.py',
+            'tests/test_checked_json_fixture_cache.py'} <= set(selected('tests/checked_json_fixture_cache.py'))
+    for helper in ['tests/retained_precision_corpus.py', 'tools/fixtures/retained_precision_corpus.py']:
+        assert {'tests/test_retained_precision_b3.py', 'tests/test_retained_precision_contract.py',
+                'tests/test_retained_precision_schema.py', 'tests/test_retained_precision_corpus_storage.py'} <= set(selected(helper))
+
+
+def test_known_helper_import_forms_are_selected_without_unrelated_tests():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        project = Path(tmp)
+        tests = project / 'tests'
+        tests.mkdir()
+        for name, body in [('a', 'from schema_validation import validate_instance'),
+                           ('b', 'from tests import schema_validation as validation'),
+                           ('c', 'import retained_precision_corpus as corpus'),
+                           ('d', 'from . import schema_validation'), ('unrelated', 'import unrelated')]:
+            (tests / f'test_{name}.py').write_text(body)
+        assert ci.helper_consumers(project, 'tests/schema_validation.py') == [
+            'tests/test_a.py', 'tests/test_b.py', 'tests/test_d.py']
+        assert ci.helper_consumers(project, 'tests/retained_precision_corpus.py') == ['tests/test_c.py']
+
+
+def test_full_fallback_and_shared_controls_preserve_edited_test_and_broad_families():
+    paths = ['.github/workflows/piping-desktop-e2e.yml', ci.PREFIX + 'tests/test_retained_precision_contract.py']
+    for selection in [{}, {'classification': 'full-fallback'}]:
+        chosen = ci.select(PROJECT, {'event': 'pull_request', 'paths': paths, 'piping_numerical_selection': selection})
+        assert 'tests/test_retained_precision_contract.py' in chosen
+        assert 'tests/product_preview' in chosen
+    chosen = ci.select(PROJECT, {'event': 'pull_request', 'paths': [ci.PREFIX + 'tools/unknown-new-input.py'],
+                               'piping_numerical_selection': {'classification': 'full-fallback'}})
+    assert 'tests/product_preview' in chosen
+    assert 'tests/test_qualification_gate.py' in chosen

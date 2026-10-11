@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 import json
 import sys
 from pathlib import Path
@@ -27,11 +28,35 @@ def _draft202012_validator():
     return Draft202012Validator
 
 
+def _schema_text(schema):
+    """Cache only JSON-shaped schemas; preserve other Python values' validation."""
+    def plain(value):
+        if value is None or type(value) in (bool, int, float, str):
+            return True
+        if type(value) is list:
+            return all(plain(item) for item in value)
+        if type(value) is dict:
+            return all(type(key) is str and plain(item) for key, item in value.items())
+        return False
+    return json.dumps(schema, separators=(",", ":")) if plain(schema) else None
+
+
+@lru_cache(maxsize=128)
+def _checked_schema(text):
+    schema = json.loads(text)
+    _draft202012_validator().check_schema(schema)
+    return schema
+
+
 def validate_schema_document(schema, *, schema_label="schema"):
-    """Validate a schema document with Draft 2020-12."""
+    """Validate each distinct schema content with Draft 2020-12."""
     validator_class = _draft202012_validator()
     try:
-        validator_class.check_schema(schema)
+        text = _schema_text(schema)
+        if text is None:
+            validator_class.check_schema(schema)
+        else:
+            _checked_schema(text)
     except Exception as exc:  # jsonschema raises SchemaError subclasses.
         raise AssertionError(f"{schema_label} is not a valid Draft 2020-12 schema: {exc}") from exc
     return True
@@ -47,33 +72,58 @@ def schema_for_definition(root_schema, definition_name):
     return schema
 
 
-def validate_instance(schema, instance, *, schema_label="schema", instance_label="instance"):
-    """Validate an instance and raise an assertion with compact error paths."""
-    validate_schema_document(schema, schema_label=schema_label)
-    validator_class = _draft202012_validator()
+SCHEMA_DIR = Path(__file__).resolve().parents[1] / "schemas"
+
+
+def _resource_texts():
+    # Read current bytes for the cache key: an edited resource or another root
+    # cannot reuse a validator from the preceding schema content.
+    resources = []
+    for path in SCHEMA_DIR.glob("*.schema.*"):
+        try:
+            resources.append((path.resolve().as_uri(), path.name, path.read_text(encoding="utf-8")))
+        except (OSError, UnicodeError):
+            continue
+    return tuple(resources)
+
+
+@lru_cache(maxsize=32)
+def _registry(resource_texts, base_uri):
     try:
         from referencing import Registry, Resource
         from referencing.jsonschema import DRAFT202012
     except ImportError as exc:
         raise JsonSchemaDependencyMissing(INSTALL_MESSAGE) from exc
-    schema_dir = Path(__file__).resolve().parents[1] / "schemas"
-    base_uri = schema.get("$id", "")
     resources = {}
-    for path in schema_dir.glob("*.schema.*"):
+    for file_uri, name, text in resource_texts:
         try:
-            candidate = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+            candidate = json.loads(text)
+        except ValueError:
             continue  # Only JSON-encoded checked-in schema resources are used.
         resource = Resource.from_contents(candidate, default_specification=DRAFT202012)
-        retrieval_urls = {path.resolve().as_uri(), urljoin(base_uri, path.name)}
+        retrieval_urls = {file_uri, urljoin(base_uri, name)}
         if "$id" in candidate:
             retrieval_urls.add(candidate["$id"])
             retrieval_urls.update(urljoin(uri, candidate["$id"]) for uri in list(retrieval_urls))
         resources.update({uri: resource for uri in retrieval_urls})
     # Immutable per-reference scopes avoid RefResolver's leaked receipt base.
     # The registry has no network retriever; every external resource is local.
-    registry = Registry().with_resources(resources.items())
-    validator = validator_class(schema, registry=registry)
+    return Registry().with_resources(resources.items())
+
+
+@lru_cache(maxsize=128)
+def _instance_validator(text, resource_texts, base_uri):
+    return _draft202012_validator()(_checked_schema(text), registry=_registry(resource_texts, base_uri))
+
+
+def validate_instance(schema, instance, *, schema_label="schema", instance_label="instance"):
+    """Validate every instance, reusing setup for identical schema content."""
+    validate_schema_document(schema, schema_label=schema_label)
+    resource_texts = _resource_texts()
+    base_uri = schema.get("$id", "")
+    text = _schema_text(schema)
+    validator = (_instance_validator(text, resource_texts, base_uri) if text is not None
+                 else _draft202012_validator()(schema, registry=_registry(resource_texts, base_uri)))
     errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
     if errors:
         formatted = "\n".join(_format_error(error) for error in errors[:10])
