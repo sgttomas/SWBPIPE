@@ -543,6 +543,13 @@ struct SaveLocalProjectRequest {
     /// migrated document can write its ledger record (DEC-019).
     #[serde(default)]
     model_document_migration: Value,
+    /// True only when the user chose Replace. See `refuse_unconfirmed_replacement`.
+    #[serde(default)]
+    replace_existing: bool,
+    /// The stored envelope hash value this session last opened or saved, sent
+    /// when the session is that stored project (an ordinary save in place).
+    #[serde(default)]
+    expected_base: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1217,6 +1224,70 @@ fn list_projects(connection: &Connection) -> Result<Vec<LocalProjectIndexEntry>,
         .collect::<Result<Vec<_>, _>>()
         .map_err(|error| error.to_string())?;
     Ok(entries)
+}
+
+fn stored_project_entry(connection: &Connection, project_id: &str) -> Result<Option<LocalProjectIndexEntry>, String> {
+    Ok(list_projects(connection)?.into_iter().find(|entry| entry.project_id == project_id))
+}
+
+/// The stored project's envelope hash value, "" when it records none.
+fn stored_envelope_hash_value(connection: &Connection, project_id: &str) -> Result<String, String> {
+    let text: Option<String> = connection
+        .query_row(
+            "SELECT project_envelope_hash_json FROM local_projects WHERE project_id = ?1",
+            params![project_id],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(|error| error.to_string())?;
+    let hash: Value = text
+        .map(|text| serde_json::from_str(&text).unwrap_or(Value::Null))
+        .unwrap_or(Value::Null);
+    Ok(hash.get("value").and_then(Value::as_str).unwrap_or("").to_string())
+}
+
+/// HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
+/// project. A write onto a stored `project_id` is admitted when
+/// - `replace_existing`: the user chose Replace in the prompt; or
+/// - `expected_base` equals the stored envelope hash: the session is that stored
+///   project, at the revision it last opened or saved (an ordinary save in place).
+/// Otherwise it is refused: `PROJECT-BASE-MOVED` when the session's base is no
+/// longer the stored revision (another window or process saved that id),
+/// `PROJECT-ID-EXISTS` for any other stored project.
+fn refuse_unconfirmed_replacement(
+    connection: &Connection,
+    project_id: &str,
+    replace_existing: bool,
+    expected_base: Option<&str>,
+) -> Result<(), String> {
+    if replace_existing {
+        return Ok(());
+    }
+    let Some(entry) = stored_project_entry(connection, project_id)? else {
+        return Ok(());
+    };
+    let stored = format!(
+        "project `{}` (\"{}\", last saved at unix {})",
+        entry.project_id, entry.project_name, entry.updated_at_unix
+    );
+    match expected_base {
+        // A row without an envelope hash has no revision to compare: it asks.
+        Some(base) if !base.is_empty() && base == stored_envelope_hash_value(connection, project_id)? => Ok(()),
+        Some(_) => Err(format!(
+            "PROJECT-BASE-MOVED: {stored} changed after this session opened or saved it; replacing it needs the user's confirmation."
+        )),
+        None => Err(format!(
+            "PROJECT-ID-EXISTS: {stored} is already stored; replacing it needs the user's confirmation."
+        )),
+    }
+}
+
+/// The stored project with this id, if any, for the replace prompt.
+#[tauri::command]
+fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<LocalProjectIndexEntry>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    stored_project_entry(&connection, &project_id)
 }
 
 fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
@@ -2324,6 +2395,7 @@ fn create_local_project(
     analysis_run: Option<Value>,
     model_hash: Option<Value>,
     project_envelope_hash: Option<Value>,
+    replace_existing: Option<bool>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
@@ -2350,6 +2422,7 @@ fn create_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
+    refuse_unconfirmed_replacement(&connection, &project_id, replace_existing.unwrap_or(false), None)?;
     upsert_project(
         &mut connection,
         &project_id,
@@ -2484,6 +2557,7 @@ fn save_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
+    refuse_unconfirmed_replacement(&connection, &request.project_id, request.replace_existing, request.expected_base.as_deref())?;
     upsert_project(
         &mut connection,
         &request.project_id,
@@ -4783,6 +4857,7 @@ macro_rules! app_invoke_handler {
             create_local_project,
             open_local_project,
             list_local_projects,
+            find_local_project,
             save_local_project,
             sync_native_shell_state,
             validate_rule_pack,
@@ -4822,6 +4897,7 @@ pub fn run() {
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
+        native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -8700,5 +8776,47 @@ mod tests {
         // An unsupported kind is rejected at the metadata-key boundary.
         let unsupported = library_metadata_key("widget").expect_err("unsupported kind must reject");
         assert!(unsupported.contains("widget"));
+    }
+}
+
+#[cfg(test)]
+mod replace_confirmation_tests {
+    use super::*;
+
+    #[test]
+    fn a_stored_project_is_never_replaced_without_confirmation() {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-replace-confirmation-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let (mut connection, _) = open_project_store(&root.join(PROJECT_STORE_FILE)).unwrap();
+        let model = load_preview_model().unwrap();
+        let id = model["project"]["id"].as_str().unwrap().to_string();
+        // Nothing stored yet: a first save needs no confirmation.
+        refuse_unconfirmed_replacement(&connection, &id, false, None).expect("first save");
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        let refused = refuse_unconfirmed_replacement(&connection, &id, false, None).expect_err("unconfirmed replacement");
+        assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{refused}");
+        refuse_unconfirmed_replacement(&connection, &id, true, None).expect("confirmed replacement");
+        refuse_unconfirmed_replacement(&connection, "project:another", false, None).expect("another id");
+        // A save in place is admitted only from the stored revision.
+        let base = json!({"algorithm": "sha256", "value": "sha256:base"});
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+        refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:base")).expect("save in place");
+        let moved = refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:older")).expect_err("stale base");
+        assert!(moved.starts_with("PROJECT-BASE-MOVED: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{moved}");
+        refuse_unconfirmed_replacement(&connection, &id, true, Some("sha256:older")).expect("confirmed over a moved base");
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        assert!(refuse_unconfirmed_replacement(&connection, &id, false, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
+        let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
+        assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));
+        assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());
+        drop(connection);
+        fs::remove_dir_all(&root).unwrap();
     }
 }
