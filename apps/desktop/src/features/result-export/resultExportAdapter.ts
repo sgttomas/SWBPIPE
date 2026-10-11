@@ -1,18 +1,15 @@
 import { refuseSurfaceOutput, refuseSurfaceRoute } from '../results/outputPolicy';
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedRowClassesFromReader } from '../results/retainedPrecisionDisclosure';
-import { physicsSourceModeMatches } from "../results/physicsSourceRecovery";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
-import { sourceBlockModeMatches } from "../results/sourceBlockRecovery";
-import { validatePhysicsEvidence } from "../results/physicsResultEvidence";
-import { validatePreviewPhysicsEvidence } from "../results/previewPhysicsEvidence";
+import { readerRowSemantics, readerValidate, sourceContract, sourceSemanticBinding } from "../results/resultReader";
+import { numericalResultStanding, sourceRecoveryModeMatches } from "../results/resultStanding";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
-import { sourceContract, numericalResultStanding, sourceSemanticBinding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../results/numericalResultQuality';
+import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../results/numericalResultQuality';
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
 import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from '../../services/hashService';
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
 import { bindSourceResultDimensions, hasNativeMechanicsInvocation } from '../../services/previewService';
 import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
-import { canonicalResultMetadata, completeSourceMetadata, resultSemantics } from '../results/resultSemantics';
 // JSON assembly is independent of saved analysis/persistence types. Qualification
 // below owns Current authenticity; the pure projection never authenticates shape.
 export type JsonObject = Record<string, any>;
@@ -61,8 +58,8 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
-  if(route==='physics')validatePhysicsEvidence(source,model);
-  if(route==='preview_physics')validatePreviewPhysicsEvidence(source,model);
+  if(route==='physics')readerValidate('physics',source,model);
+  if(route==='preview_physics')readerValidate('preview-physics',source,model);
   if(route==='source_blocks'||route==='physics_source')await validateRetainedRecoverySource(source);
   if(route==='legacy')rejectLegacyDerivativeMetadata(base.result_envelope);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
@@ -78,12 +75,13 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   e.schema_version=version;e.model_ref=ref('model_payload',source.model_ref);
   const source_origin_ref=ref('source_origin_binding',origin.origin_id);
   const values:JsonObject[]=[],reviews:JsonObject[]=[],disclosures:JsonObject[]=[],annotations:JsonObject[]=[],accounts:JsonObject[]=[],witnesses:JsonObject[]=[];const ids=new Set<string>();
+  const rowSemantics=readerRowSemantics(source);
   for(const [index,row] of source.results.entries()){
     if(!row.id||ids.has(row.id))throw new Error('DUPLICATE_SOURCE_ID');ids.add(row.id);
     if(!Number.isFinite(row.value)||!row.unit||!row.entity_ref)throw new Error('SOURCE_ROW_INVALID');
-    const s=resultSemantics(row,source),category=s?.category??'unknown',dimension=s?.derivative_target_dimension??null,math=s?.source_physical_semantic_dimension??null;
-    const md=canonicalResultMetadata(row,source),mandatory=['force','moment','section_property'].includes(s?.family??'');
-    const reviewMissing=s?.canonical_disposition==='exported_review'&&!completeSourceMetadata(row),physicalMissing=s?.canonical_disposition==='exported_quantity'&&mandatory&&!md;
+    const r=rowSemantics(row),s=r.signature,category=s?.category??'unknown',dimension=s?.derivative_target_dimension??null,math=s?.source_physical_semantic_dimension??null;
+    const md=r.canonical_metadata,mandatory=['force','moment','section_property'].includes(s?.family??'');
+    const reviewMissing=s?.canonical_disposition==='exported_review'&&!r.complete_metadata,physicalMissing=s?.canonical_disposition==='exported_quantity'&&mandatory&&!md;
     // D-U6-2 (Rust `class_disclosure`): an absolute_verified or not_covered row is disclosed, not valued.
     const classDisclosure=retainedClassDisclosure(row.kind,row.unit,classes?.get(row.id));
     const disposition=reviewMissing||physicalMissing||classDisclosure?'disclosed':s?.canonical_disposition??'disclosed';
@@ -134,7 +132,7 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
   if(route!=='legacy'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');}
   if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route)){if(route==='physics')validatePhysicsEvidence(source);if(route==='preview_physics')validatePreviewPhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
+  if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route)){if(route==='physics')readerValidate('physics',source);if(route==='preview_physics')readerValidate('preview-physics',source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");
@@ -146,10 +144,10 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   const rowScope=scope==='received_current_legacy_enriched_carrier'?'received_current_legacy_enriched_row':scope==='received_current_dimension_absent_carrier'?'received_current_dimension_absent_row':scope==='attested_headless_producer_carrier'?'raw_source_row':null;if(!rowScope)throw new Error('ORIGIN_SCOPE');
   requireEqual(origin.received_carrier_checksum,await scopedChecksum(source,scope,origin.received_carrier_checksum.payload_ref),'CARRIER_HASH');
   if(origin.authentic_producer_available)requireEqual(origin.original_producer_checksum,origin.received_carrier_checksum,'PRODUCER_HASH_BINDING');else if(origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
-  const pointers=new Set<string>(),ids=new Set<string>();let wi=0;
+  const pointers=new Set<string>(),ids=new Set<string>();let wi=0;const rowSemantics=readerRowSemantics(source);
   for(const [i,row] of source.results.entries()){
-    const a=accounts[i],ann=annotations[i],s=resultSemantics(row,source),md=canonicalResultMetadata(row,source),dimension=s?.derivative_target_dimension??null,math=s?.source_physical_semantic_dimension??null;
-    let disposition=s?.canonical_disposition??'disclosed';if(disposition==='exported_review'&&!completeSourceMetadata(row)||disposition==='exported_quantity'&&['force','moment','section_property'].includes(s?.family??'')&&!md)disposition='disclosed';
+    const a=accounts[i],ann=annotations[i],r=rowSemantics(row),s=r.signature,md=r.canonical_metadata,dimension=s?.derivative_target_dimension??null,math=s?.source_physical_semantic_dimension??null;
+    let disposition=s?.canonical_disposition??'disclosed';if(disposition==='exported_review'&&!r.complete_metadata||disposition==='exported_quantity'&&['force','moment','section_property'].includes(s?.family??'')&&!md)disposition='disclosed';
     const classDisclosure=retainedClassDisclosure(row.kind,row.unit,classes?.get(row.id));if(classDisclosure)disposition='disclosed';
     if(ids.has(row.id))throw new Error('DUPLICATE_SOURCE_ID');ids.add(row.id);
     requireEqual([a.source_row_index,a.source_result_id,a.source_kind,a.source_field_path,a.disposition],[i,row.id,row.kind,`/results/${i}`,disposition],'SOURCE_ACCOUNTING_IDENTITY');
@@ -220,8 +218,7 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const run=analysisRun.analysis_run;
   requireEqual(run.reproducibility.semantic_contract,sourceSemanticBinding(result),'CURRENT_SEMANTIC_CONTRACT_MISMATCH');
   const solver=inputManifest.manifest.solver_basis;
-  if(sourceContract(result)==='physics_source'&&!physicsSourceModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
-  if(sourceContract(result)==='source_blocks'&&!sourceBlockModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
+  if((sourceContract(result)==='physics_source'||sourceContract(result)==='source_blocks')&&!sourceRecoveryModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
   if(solver.solver_name!==result.producer!.component_name||solver.solver_version!==result.producer!.component_version)throw new Error('CURRENT_PRODUCER_BINDING_MISMATCH');
   requireEqual(run.solver_version,{solver_name:solver.solver_name,solver_version:solver.solver_version,build_ref:{object_type:'ExternalReference',ref:solver.solver_build_ref}},'CURRENT_SOLVER_BINDING_MISMATCH');
   const expectedState=`state:${result.model_ref}:preview`;
@@ -230,9 +227,10 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   if(hashes.length!==1||refs.length!==1||refs[0].object_type!=='InputManifest'||!proofChecksum(hashes[0],'input_manifest','InputManifest',inputManifest.manifest_ref.ref)||hashes[0].value!==inputManifest.manifest_sha256||hashes[0].payload_ref.ref!==inputManifest.manifest_ref.ref||refs[0].ref!==inputManifest.manifest_ref.ref)throw new Error('CURRENT_MANIFEST_BINDING_MISMATCH');
   const presence=result.results.map(x=>Object.hasOwn(x,'dimension'));if(presence.some(Boolean)&&!presence.every(Boolean))throw new Error('MIXED_CARRIER_DIMENSIONS');
   if(presence.some(Boolean)&&result.results.some(row=>typeof row.dimension!=="string"||!row.dimension))throw new Error("INVALID_CARRIER_DIMENSION_DECLARATION");
+  const rowSemantics=readerRowSemantics(result);
   if(isV2)for(const row of result.results){
     if(!Object.hasOwn(row,'dimension'))continue;
-    const semantic=resultSemantics(row,result);
+    const semantic=rowSemantics(row).signature;
     if(semantic&&row.dimension!==semantic.legacy_declared_dimension)throw new Error(`CURRENT_CARRIER_DIMENSION_CONTRADICTION: ${row.id}`);
   }
   const legacy=isV2?null:bindSourceResultDimensions(result); // 0.1 verification only; 0.2 binds the raw received carrier

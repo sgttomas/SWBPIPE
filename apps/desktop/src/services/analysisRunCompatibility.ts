@@ -1,11 +1,17 @@
-import { validatePhysicsSourceTransportMetadata } from "../features/results/physicsSourceRecovery";
-import { validatePhysicsEvidence } from "../features/results/physicsResultEvidence";
-import { validatePreviewPhysicsEvidence } from "../features/results/previewPhysicsEvidence";
-import { validateLoadReferenceEvidence } from "../features/results/loadReferenceEvidence";
-import { validateLoadReferenceSourceEvidence } from "../features/results/loadReferenceSourceEvidence";
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
-import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
-import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract, retainedPrecisionDowngrade, isRetainedRoute } from "../features/results/numericalResultQuality";
+import { isRetainedRoute } from "../features/results/numericalResultQuality";
+import { hasCurrentSourceContract, readerDispatch, readerTransport, readerValidate, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
+import { validateLoadReferenceSourceEvidence } from "../features/results/resultStanding";
+import legacyTable from "../../../../fixtures/results/semantic_contract_v0_2.json";
+import precisionTable from "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json";
+import physicsTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json";
+import physicsSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json";
+import sourceBlocksTable from "../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json";
+import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
+import loadReferenceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json";
+import loadReferenceSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json";
+import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
+import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 
@@ -23,19 +29,54 @@ export const ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN = "ANALYSIS_LEGACY_SOURC
 type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
 const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_location: "analysis_run.compatibility.v0.2", source_license: "project-governed", review_status: "pending", professional_claim: false };
 
+/** The record builder's tables (DEL-14-02, as Python's `compatibility.py` record builder):
+ * the pinned table each binding names, the legacy table without a source. The table is
+ * the one the Rust header dispatch binds (`resultReader.ts`); the record's row
+ * interpretation below is the record contract's own, not the reader's signature. */
+type RecordTable = { rows: Array<{ signature_id: string; kind: string; unit: string; component: string | null; source_basis?: string; category: string; family: string | null; source_physical_semantic_dimension: string | null; derivative_target_dimension: string | null; legacy_declared_dimension: string | null; canonical_disposition: string }> };
+const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
+  [precisionTable.semantic_contract_id]: precisionTable, [physicsTable.semantic_contract_id]: physicsTable,
+  [physicsSourceTable.semantic_contract_id]: physicsSourceTable, [sourceBlocksTable.semantic_contract_id]: sourceBlocksTable,
+  [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable, [loadReferenceTable.semantic_contract_id]: loadReferenceTable,
+  [loadReferenceSourceTable.semantic_contract_id]: loadReferenceSourceTable, [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
+  [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
+} as Record<string, RecordTable>);
+function recordTable(source?: MechanicsResult): RecordTable {
+  if (!source) return legacyTable as RecordTable;
+  const dispatch = readerDispatch(source);
+  if (dispatch.route === "legacy") return legacyTable as RecordTable;
+  const table = dispatch.binding ? RECORD_TABLES[dispatch.binding.id] : undefined;
+  if (!table) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  return table;
+}
+/** A new-method discriminator only; old table signatures omit this field. */
+function sourceBasisMatches(signature: { source_basis?: string }, row: MechanicsResult["results"][number]): boolean {
+  return !("source_basis" in signature) || signature.source_basis === row.metadata?.basis;
+}
+/** The record's interpretation of each row of one source, against that source's table. */
+export function analysisRowSemanticsReader(source?: MechanicsResult): (row: MechanicsResult["results"][number]) => { semantic: RecordTable["rows"][number] | null; findings: string[] } {
+  let contract: RecordTable | null = null, failure: unknown = null;
+  try { contract = recordTable(source); } catch (error) { failure = error; }
+  return row => {
+    if (!contract) throw failure;
+    return analysisRowSemanticsIn(contract, row, source);
+  };
+}
 export function analysisRowSemantics(row: MechanicsResult["results"][number], source?: MechanicsResult) {
-  const contract = semanticContractForSource(source);
+  return analysisRowSemanticsReader(source)(row);
+}
+function analysisRowSemanticsIn(contract: RecordTable, row: MechanicsResult["results"][number], source?: MechanicsResult) {
   const byKind = contract.rows.filter((entry) => entry.kind === row.kind);
   if (!byKind.length) return { semantic: null, findings: ["SOURCE_SIGNATURE_UNKNOWN"] };
   const byUnit = byKind.filter((entry) => entry.unit === row.unit);
   if (!byUnit.length) throw new Error(`SOURCE_UNIT_CONTRADICTION: ${row.kind} / ${row.unit}`);
   const component = row.metadata?.component ?? null;
-  const exact = byUnit.find((entry) => entry.component === component && semanticSourceBasisMatches(entry, row));
+  const exact = byUnit.find((entry) => entry.component === component && sourceBasisMatches(entry, row));
   if (exact) {
     if (row.dimension && exact.legacy_declared_dimension && row.dimension !== exact.legacy_declared_dimension) throw new Error(`ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${row.id}`);
     return { semantic: exact, findings: [] as string[] };
   }
-  const generic = byUnit.find((entry) => entry.component === null && semanticSourceBasisMatches(entry, row));
+  const generic = byUnit.find((entry) => entry.component === null && sourceBasisMatches(entry, row));
   if (generic) {
     if (row.dimension && generic.legacy_declared_dimension && row.dimension !== generic.legacy_declared_dimension) throw new Error(`ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${row.id}`);
     return { semantic: generic, findings: (source ? component !== null : !!component) ? [] : ["OPTIONAL_SOURCE_METADATA_MISSING"] };
@@ -92,14 +133,14 @@ type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "
 /** T1: the load/reference-state readers run before a record is built or
  * validated, as Python `_source_contract` runs them (raw evidence). */
 async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
-  if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source);
+  if (sourceContract(source) === "load_reference") readerValidate("load-reference", source);
   if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
 }
 async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
-  if (sourceContract(result) === "physics") validatePhysicsEvidence(result);
+  if (sourceContract(result) === "physics") readerValidate("physics", result);
   await validateLoadReferenceRoute(result);
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
-  if (sourceContract(result) === "preview_physics") validatePreviewPhysicsEvidence(result);
+  if (sourceContract(result) === "preview_physics") readerValidate("preview-physics", result);
   // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
   if (isRetainedRoute(route)) await validateRetainedPrecision(result);
   if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(result);
@@ -107,8 +148,9 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
   const semanticBinding = route !== "legacy" ? sourceSemanticBinding(result) : { id: "openpipestress_result_semantics_v0_2", sha256: SEMANTIC_CONTRACT_SHA256 };
   const rawResult = structuredClone(result);
+  const interpret = analysisRowSemanticsReader(route !== "legacy" ? result : undefined);
   const resultRefs = await Promise.all(rawResult.results.map(async (row, sourceRowIndex) => {
-    const { semantic, findings } = analysisRowSemantics(row, route !== "legacy" ? result : undefined);
+    const { semantic, findings } = interpret(row);
     return {
       result_ref: { object_type: "Result" as const, ref: row.id }, source_row_index: sourceRowIndex,
       category: semantic?.category ?? "unknown", source_dimension: (semantic?.source_physical_semantic_dimension ?? null) as CanonicalResultDimension | null,
@@ -177,8 +219,8 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
   };
   if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  if (sourceContract(source) === "physics") validatePhysicsEvidence(source);
-  if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source);
+  if (sourceContract(source) === "physics") readerValidate("physics", source);
+  if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source);
   await validateLoadReferenceRoute(source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
@@ -211,8 +253,9 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
   if (!same(run.hashes.filter(h => h.payload_scope === "received_result"), [await checksum("received_result", {object_type:"ResultEnvelope",ref:`result-envelope:${source.run_id}`}, source)])) throw new Error("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
   if (source.results.length !== run.result_refs.length || new Set(source.results.map(r => r.id)).size !== source.results.length) throw new Error("ANALYSIS_ROW_ACCOUNTING_MISMATCH");
+  const interpret = analysisRowSemanticsReader(source);
   for (const [index, row] of source.results.entries()) {
-    const actual = run.result_refs[index], {semantic, findings} = analysisRowSemantics(row, source), ref = {object_type:"Result",ref:row.id};
+    const actual = run.result_refs[index], {semantic, findings} = interpret(row), ref = {object_type:"Result",ref:row.id};
     if (actual.source_row_index !== index || !same(actual.result_ref, ref) || !same(actual.semantic_contract, {...contract,signature_id:semantic?.signature_id ?? null})
       || !same(actual.hash_refs, [await checksum("result_row",ref,row)])) throw new Error("ANALYSIS_ROW_SOURCE_BINDING_MISMATCH");
     if (actual.category !== (semantic?.category ?? "unknown") || actual.source_dimension !== (semantic?.source_physical_semantic_dimension ?? null) || actual.result_family !== (semantic?.family ?? null)
@@ -226,7 +269,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
 export async function validateRetainedRecoverySource(source: MechanicsResult): Promise<void> {
   const route = sourceContract(source);
   if (route !== "source_blocks" && route !== "physics_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (route === "physics_source") await validatePhysicsSourceTransportMetadata(source);
+  if (route === "physics_source") readerTransport("physics-source", source);
   const receipt = source.source_block_recovery as { body: { publication_sha256: string }; receipt_sha256: string };
   if (receipt.receipt_sha256 !== await canonicalSha256HexCheckedV1({ domain: "source_blocks_receipt_v1", payload: receipt.body })) throw new Error("SOURCE_RECOVERY_RECEIPT_HASH");
   const { source_block_recovery: _receipt, ...publication } = source;

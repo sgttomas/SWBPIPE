@@ -18,6 +18,7 @@ import { runPreviewMechanics, hasNativeMechanicsInvocation, retainedNativeMechan
 import { applyModelOperation } from "./operationService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { receivedFixture } from "../test-support/receivedText";
 
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 const root = resolve(__dirname, "../../../../");
@@ -126,7 +127,7 @@ describe("saved load/reference-state results keep the raw hash and the resolved 
     ["fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json", false],
     ["fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json", true],
   ] as const)("%s", async (path, joined) => {
-    const raw = json(path) as MechanicsResult, model = json(path.replace(/-(sparse_interactive|dense_scrutiny)\.raw\.json$/, ".request.json")).model as PreviewModel;
+    const raw = receivedFixture<MechanicsResult>(path), model = json(path.replace(/-(sparse_interactive|dense_scrutiny)\.raw\.json$/, ".request.json")).model as PreviewModel;
     const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: raw.model_ref }, solver_basis: { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:invented" } } };
     const record = await buildAnalysisRunV03(raw, manifest, undefined, modelLoadBasisRefs(model));
     expect(record.analysis_run.hashes.find(h => h.payload_scope === "received_result")!.value).toBe(await canonicalSha256HexCheckedV1(raw));

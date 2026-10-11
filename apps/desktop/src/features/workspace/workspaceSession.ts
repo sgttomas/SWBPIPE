@@ -1,4 +1,4 @@
-import { hasCurrentSourceContract } from "../results/numericalResultQuality";
+import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";

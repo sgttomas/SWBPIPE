@@ -18,7 +18,8 @@
 import { validateRetainedPrecision } from "./retainedPrecisionReader";
 import { decodeBinary64, type RowClassification } from "./retainedPrecisionTypes";
 import { classificationSummary } from "./retainedPrecisionStanding";
-import { isRetainedIdentity, isRetainedRoute, sourceContract } from "./numericalResultQuality";
+import { isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { sourceContract } from "./resultReader";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 /** D-U6-2's two `RowDisclosure` reason codes (Rust `RETAINED_ABSOLUTE_VERIFIED`, `RETAINED_NOT_COVERED`). */

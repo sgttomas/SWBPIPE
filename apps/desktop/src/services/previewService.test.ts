@@ -1,10 +1,14 @@
 import historicalMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
-import sparseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json";
-import denseMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json";
+// The bundled producer results as their bytes read (signed zeros kept), as previewService reads them (b7-plan R2).
+import sparseMechanicsFixtureText from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json?raw";
+import denseMechanicsFixtureText from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json?raw";
+const sparseMechanicsFixture = JSON.parse(sparseMechanicsFixtureText), denseMechanicsFixture = JSON.parse(denseMechanicsFixtureText);
 import inventedPreviewModel from "../../../../fixtures/product_preview/invented_preview_model.json";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../test/nativeMechanicsReplay";
 import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
-import { numericalResultStanding, sourceContract, PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { sourceContract } from "../features/results/resultReader";
+import { numericalResultStanding } from "../features/results/resultStanding";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -487,9 +491,10 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
     // The bundled reference is preview-physics-1, so its reader refuses the
     // changed unit before the kind-semantics check (SOURCE_UNIT_CONTRADICTION,
     // still pinned on a precision-1 source in reportPackageRequest.test.ts).
+    // R2: the Rust reader's code (TS: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID).
     await expect(buildAnalysisRunPreview(result, {
       inputManifest: await manifestFor(result),
-    })).rejects.toThrow("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID");
+    })).rejects.toThrow("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE");
   });
 
   it("blocks an explicit dimension that contradicts exact result kind semantics", async () => {
@@ -806,5 +811,6 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-1 re
   });
   const tampered = await runPreviewMechanics(pair.model, mode);
   expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);
-  expect(numericalResultStanding(tampered, pair.model).findings.join(" ")).toContain("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: dangling result reference");
+  // R2: the Rust reader's code (TS: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: dangling result reference).
+  expect(numericalResultStanding(tampered, pair.model).findings.join(" ")).toContain("SOURCE_PREVIEW_PHYSICS_DANGLING_RESULT_REF");
 });

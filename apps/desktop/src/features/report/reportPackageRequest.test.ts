@@ -11,7 +11,8 @@ import demoModel from "../../../../../fixtures/product_preview/invented_demo_mod
 import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import {resultSemantics} from "../results/resultSemantics";
+import {readerRowSemantics} from "../results/resultReader";
+const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults } from "./reportPackageRequest";
 import { N_P1, N_REPORT } from "../results/knownSemanticLimitations";
 import { buildRenderableReportInput } from "./renderableReportInput";

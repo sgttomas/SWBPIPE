@@ -7,7 +7,7 @@
  *
  * - a private registration: only a completed reader validation, run with the
  *   captured native invocation, is recorded against these exact source bytes
- *   (T1's `loadReferenceSourceEvidence` pattern). A copy, a header, a hash or a
+ *   (the pattern of the joined route's registration, `resultStanding.ts`). A copy, a header, a hash or a
  *   saved record never registers, and any later byte change voids it;
  * - synchronous standing from that registration only (D2 4.9.4; plan 3).
  *   `numerical_quality` never contributes;
@@ -20,7 +20,6 @@
  */
 import { validateRetainedPrecision, validateRetainedPrecisionBytes } from "./retainedPrecisionReader";
 import { RetainedPrecisionError, type AccuracyClass, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
-import { ordinaryCaseEligible } from "./numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -121,6 +120,13 @@ export function retainedPrecisionRegistration(source: MechanicsResult | null | u
   return registered(source)?.outcome ?? null;
 }
 
+/** One `numerical_quality` case's ordinary eligibility by the base rules (Rust
+ * `not_required_cases_ordinarily_eligible`'s predicate), for a `not_required` case. */
+function ordinaryCaseEligible(c: Json, emitted: ReadonlySet<string>): boolean {
+  return !!c && c.structural_status === "passive_model_basis" && c.solve_quality === "checks_passed"
+    && c.model_matrix_fidelity === "represented_equations_retained" && ["not_claimed", "reference_verified"].includes(c.accuracy_evidence)
+    && Array.isArray(c.evidence_refs) && !!c.evidence_refs.length && c.evidence_refs.every((id: unknown) => emitted.has(id as string));
+}
 /** Every case is `selected`, or `not_required` and ordinarily eligible by the
  * base rules, by its receipt index (D2 4.9.4; I66 F-7). Mirrors Rust
  * `not_required_cases_ordinarily_eligible`, including the requirement that every

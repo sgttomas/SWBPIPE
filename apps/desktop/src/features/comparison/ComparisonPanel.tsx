@@ -1,5 +1,5 @@
-import { semanticDimension } from "../results/resultSemantics";
-import { sourceContract } from "../results/numericalResultQuality";
+import { semanticLabels, type RowLabels } from "../results/resultSemantics";
+import { sourceContract } from "../results/resultReader";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { QuantityReadout } from "../display-units";
 import type { MechanicsResult } from "../../types";
@@ -60,9 +60,13 @@ export function ComparisonPanel({
               <span>Location</span>
               <span>Delta</span>
             </div>
-            {visibleDeltas.map((delta) => (
-              <ComparisonRow key={delta.mapping_id} delta={delta} dimension={comparisonDimension(delta, result)} onSelectResult={onSelectResult} />
-            ))}
+            {(() => {
+              // One reading of the source's row semantics for every delta.
+              const labels = result ? semanticLabels(result) : null;
+              return visibleDeltas.map((delta) => (
+                <ComparisonRow key={delta.mapping_id} delta={delta} dimension={comparisonDimension(delta, result, labels)} onSelectResult={onSelectResult} />
+              ));
+            })()}
           </div>
           <small className="report-note" data-testid="comparison-diagnostics">
             {comparison.diagnostics.length} comparison diagnostic{comparison.diagnostics.length === 1 ? "" : "s"}; top{" "}
@@ -148,18 +152,18 @@ function comparisonUnitPolicy(comparison: PreviewComparison): string {
   ].join("; ");
 }
 
-function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | null): string {
+function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | null, labels: RowLabels | null): string {
   const right = result?.results.find((row) => row.id === delta.right_result_id);
   const left = result?.results.find((row) => row.id === delta.left_result_id);
   // Do not borrow metadata from a different result value or conflicting pair.
   if (!right || right.unit !== delta.unit || right.value !== delta.right_value) return "unknown";
   if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
-  if (!result) return "unknown";
+  if (!result || !labels) return "unknown";
   const contract = sourceContract(result);
   if (contract === "legacy") return right.dimension ?? "unknown";
   if (!["precision", "source_blocks", "physics", "physics_source", "preview_physics"].includes(contract)) return "unknown";
-  const rightDimension = semanticDimension(right, result);
-  const leftDimension = left ? semanticDimension(left, result) : null;
+  const rightDimension = labels.dimension(right);
+  const leftDimension = left ? labels.dimension(left) : null;
   if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";
   if ((right.dimension && right.dimension !== rightDimension) || (left.dimension && left.dimension !== leftDimension)) return "unknown";
   return rightDimension;

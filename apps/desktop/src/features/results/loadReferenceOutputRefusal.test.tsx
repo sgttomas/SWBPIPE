@@ -42,6 +42,7 @@ import { OperationLedgerPanel, buildOperationReviewLedger } from "../operations/
 afterEach(() => cleanup());
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
+import { receivedFixture } from "../../test-support/receivedText";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 function desktopModel(requestPath: string): PreviewModel {
@@ -52,7 +53,7 @@ function desktopModel(requestPath: string): PreviewModel {
   return model;
 }
 async function scenario(rawPath: string, requestPath: string) {
-  const result = json(rawPath) as MechanicsResult, model = desktopModel(requestPath);
+  const result = receivedFixture<MechanicsResult>(rawPath), model = desktopModel(requestPath);
   const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-output-refusal" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: result.model_ref }, solver_basis: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:invented" } } };
   const analysisRun = await buildAnalysisRunV03(result, manifest, undefined, modelLoadBasisRefs(model));
   const props = {

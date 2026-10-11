@@ -116,14 +116,18 @@ function cached<T>(sourceJson: string, key: string, read: () => T): T {
 function engine(): WasmOperationEngine | null {
   return loadedWasmEngine();
 }
-/** One binding call: its outcome JSON, or the refusal when the text is not JSON. */
+/** One binding call: its outcome JSON, or the refusal when the text is not JSON. The
+ * engine is loaded (`unavailable` is checked before any reading is cached). */
 function call<T>(read: (e: WasmOperationEngine) => string): Outcome<T> {
-  const e = engine();
-  if (!e) return { ok: false, error: { code: RESULT_READER_UNAVAILABLE, detail: null } };
+  const e = engine()!;
   try { return freeze(JSON.parse(read(e)) as Outcome<T>); } catch (error) {
     if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return { ok: false, error: { code: JSON_PARSE_REJECTED, detail: null } };
     throw error;
   }
+}
+/** Refuses the reading when the engine is not loaded. */
+function unavailable(): void {
+  if (!engine()) throw new ResultReaderError(RESULT_READER_UNAVAILABLE);
 }
 function refuse(outcome: Refusal): never {
   throw new ResultReaderError(outcome.error.code, outcome.error.detail);
@@ -140,9 +144,10 @@ export function readerDispatch(source: unknown, model?: unknown, invocation?: un
   let sourceJson: string, modelJson: string | undefined, invocationJson: string | undefined;
   try { sourceJson = readerSourceText(source); modelJson = optionalText(model); invocationJson = optionalText(invocation); }
   catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
+  const e = engine();
+  // Nothing is read, and nothing is cached, without the engine.
+  if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
   return cached(sourceJson, `dispatch\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`, () => {
-    const e = engine();
-    if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
     try { return freeze(JSON.parse(e.readerDispatchJson(sourceJson, modelJson, invocationJson)) as ReaderDispatch); } catch (error) {
       if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return unsupportedDispatch(JSON_PARSE_REJECTED);
       throw error;
@@ -153,6 +158,7 @@ export function readerDispatch(source: unknown, model?: unknown, invocation?: un
  * readers with their captured invocation). Throws the reader's refusal. */
 export function readerValidate(reader: ReaderName, source: unknown, model?: unknown, invocation?: unknown): ReaderValidation {
   const sourceJson = readerSourceText(source), modelJson = optionalText(model), invocationJson = optionalText(invocation);
+  unavailable();
   const outcome = cached(sourceJson, `validate\u0000${reader}\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`,
     () => call<{ eligible?: boolean; findings?: string[] }>(e => e.readerValidateJson(reader, sourceJson, modelJson, invocationJson)));
   if (!outcome.ok) refuse(outcome);
@@ -163,6 +169,7 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
  * eligible. Throws the reader's refusal. */
 export function readerTransport(reader: TransportReaderName, source: unknown): void {
   const sourceJson = readerSourceText(source);
+  unavailable();
   const outcome = cached(sourceJson, `transport\u0000${reader}`, () => call<object>(e => e.readerTransportJson(reader, sourceJson)));
   if (!outcome.ok) refuse(outcome);
 }
@@ -190,6 +197,7 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
     if (failure) throw failure;
     let text: string;
     try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
+    unavailable();
     const outcome = cached(sourceJson ?? "", `row\u0000${text}`,
       () => call<RowSemantics>(e => e.readerRowSemanticsJson(text, sourceJson)));
     if (!outcome.ok) refuse(outcome);

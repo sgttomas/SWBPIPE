@@ -1,4 +1,4 @@
-import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
+import { semanticFamily } from "../results/resultSemantics";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { Download, Terminal } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel, SolveJobAuditState } from "../../types";

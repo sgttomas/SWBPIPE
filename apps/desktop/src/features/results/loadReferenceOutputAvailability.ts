@@ -23,7 +23,7 @@
  * per-surface decision, which admits an eligible successor there only.
  */
 import { routeOutputRefusal } from "./outputPolicy";
-import { sourceContract } from "./numericalResultQuality";
+import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
 export {

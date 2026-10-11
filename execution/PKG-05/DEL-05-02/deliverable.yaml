@@ -133,12 +133,8 @@ code_paths:
 - core/analysis_runs/load_reference_evidence.py
 - core/analysis_runs/load_reference_source.py
 - core/analysis_runs/source_blocks.py
-- apps/desktop/src/features/results/previewPhysicsEvidence.ts
-- apps/desktop/src/features/results/physicsResultEvidence.ts
-- apps/desktop/src/features/results/physicsSourceRecovery.ts
-- apps/desktop/src/features/results/loadReferenceEvidence.ts
-- apps/desktop/src/features/results/loadReferenceSourceEvidence.ts
-- apps/desktop/src/features/results/sourceBlockRecovery.ts
+- apps/desktop/src/features/results/resultReader.ts
+- apps/desktop/src/features/results/resultStanding.ts
 - apps/desktop/src/features/results/numericalResultQuality.ts
 - apps/desktop/src/features/results/resultSemantics.ts
 - core/product_physics/src/retained_memory.rs
