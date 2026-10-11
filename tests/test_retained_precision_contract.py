@@ -4,6 +4,7 @@ import math
 import struct
 from copy import deepcopy
 from fractions import Fraction
+from functools import lru_cache
 from pathlib import Path
 import sys
 
@@ -12,7 +13,7 @@ from tests.verifiers import retained_precision as rp
 
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-from retained_precision_corpus import CORPUS_FILES, load_corpus  # noqa: E402
+from retained_precision_corpus import CORPUS_FILES, expanded_snapshot_bytes, load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,7 +38,10 @@ def assert_least_upper(result, target):
         assert exact(rp.bits(predecessor)) < target
 
 
+@lru_cache(maxsize=1)
 def corpus():
+    # The checked-in bases are read-only. Every mutation uses deepcopy or
+    # apply_entry/apply_mutation, which copy the source, invocation and edits.
     return load_corpus()
 
 
@@ -1924,7 +1928,8 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
 # Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.
 # ---------------------------------------------------------------------------------------------
-# The corpus files' bytes, in CORPUS_FILES order: the 07m + 07n file, and 07o in its own compact file. Joined
+# Historical expanded corpus bytes, in CORPUS_FILES order: 07m + 07n, then 07o. The lossless v1
+# definitions recover these same bytes before hashing. Joined
 # (`retained_precision_corpus.py`) and written as the single file was (indent 2, ASCII, final newline), they are byte
 # for byte one document (O07_JOINED_SHA256). R1 re-pinned all three: its only change removed every per-reader
 # `typescript` member (92 in the 07m + 07n file, 1 in 07o), each file otherwise the same JSON in the same form
@@ -1947,7 +1952,7 @@ O07_REFUSED_BOUND = ["b2_operand_preparation_failure", "b2_operand_source_unavai
 def test_snapshot_07o_appends_only_and_states_its_bases():
     import hashlib
     assert tuple(O07_SHA256) == CORPUS_FILES[:2]
-    assert {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in O07_SHA256} == O07_SHA256
+    assert {name: hashlib.sha256(expanded_snapshot_bytes(name)).hexdigest() for name in O07_SHA256} == O07_SHA256
     joined = json.dumps(load_corpus(CORPUS_FILES[:2]), indent=2) + "\n"
     assert hashlib.sha256(joined.encode()).hexdigest() == O07_JOINED_SHA256
     c = corpus()
@@ -2005,3 +2010,15 @@ def test_snapshot_07o_must_pass(entry):
     assert not unbound["invocation_bound"] and not unbound["numerical_eligible"] and unbound["classifications"] == fixture["expected_classifications"]
     assert rp.validate_retained_precision_transport(deepcopy(source))["standing"] == "needs_recompute"
 
+
+
+def test_mutation_helpers_leave_cached_corpus_bases_unchanged():
+    fixture = corpus()["cases"][0]
+    before = deepcopy(fixture)
+    source, invocation = apply_entry(fixture, {
+        "edits": [_set(["results", 0, "value"], 123.0)],
+        "invocation_edits": [], "rehash": "all",
+    })
+    assert source != fixture["source"]
+    assert source is not fixture["source"] and invocation is not fixture["invocation"]
+    assert corpus()["cases"][0] == before

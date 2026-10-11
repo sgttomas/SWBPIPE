@@ -135,8 +135,15 @@ def _checked(text):
 
 
 def errors(schema_document, instance):
+    """A failure witness, or none: callers assert validity, not an error census.
+
+    Every carrier branch is still checked. A rejected branch can stop at its
+    first constraint failure instead of traversing and formatting the rest of
+    an already-rejected large receipt.
+    """
     validator = _checked(json.dumps(schema_document, sort_keys=True))
-    return sorted(f"{list(error.absolute_path)}: {error.message}"[:300] for error in validator.iter_errors(instance))
+    error = next(validator.iter_errors(instance), None)
+    return [] if error is None else [f"{list(error.absolute_path)}: {error.message}"[:300]]
 
 
 def valid(schema_document, instance, label="instance"):

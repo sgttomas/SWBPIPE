@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Select Python regression families from the same complete PR diff as Cargo."""
 import argparse
+import ast
 from fnmatch import fnmatchcase
 import json
 from pathlib import Path
@@ -19,6 +20,36 @@ BROAD = BASE + ['tests/product_preview', 'tests/test_operation_validation_previe
                 'tests/test_physical_to_analytical_transform.py'] + sum(FAMILIES.values(), [])
 
 
+HELPER_IMPORTS = {
+    'tests/checked_json_fixture_cache.py': {'checked_json_fixture_cache', 'tests.checked_json_fixture_cache'},
+    'tests/schema_validation.py': {'schema_validation', 'tests.schema_validation'},
+    'tests/retained_precision_corpus.py': {'retained_precision_corpus', 'tests.retained_precision_corpus'},
+    'tools/fixtures/retained_precision_corpus.py': {'retained_precision_corpus', 'tests.retained_precision_corpus'},
+}
+
+
+def helper_consumers(project, helper):
+    """Direct test imports of the established shared test helpers only."""
+    names = HELPER_IMPORTS.get(helper)
+    if names is None:
+        return []
+    consumers = []
+    for source in sorted((project / 'tests').rglob('test_*.py')):
+        imported = set()
+        for node in ast.walk(ast.parse(source.read_text(), filename=str(source))):
+            if isinstance(node, ast.Import):
+                imported.update(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ''
+                imported.add(module)
+                imported.update(module + '.' + alias.name for alias in node.names)
+                if not module:
+                    imported.update(alias.name for alias in node.names)
+        if imported & names:
+            consumers.append(source.relative_to(project).as_posix())
+    return consumers
+
+
 def select(project, plan):
     paths = plan.get('paths', [])
     if plan.get('event') != 'pull_request' or not paths:
@@ -28,8 +59,9 @@ def select(project, plan):
         for path in paths:
             if not path.startswith(PREFIX):
                 patterns.extend(BROAD)
-                break
+                continue
             local = path[len(PREFIX):]
+            patterns.extend(helper_consumers(project, local))
             if local.startswith('core/model_transform/'):
                 patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',
                                  'tests/test_physical_to_analytical_transform.py'])
@@ -53,6 +85,8 @@ def select(project, plan):
             if (local.startswith(('core/serialization/', 'fixtures/canonical_hash/'))
                     or fnmatchcase(local, 'tests/*canonical*.py')):
                 patterns.extend(FAMILIES['canonical'])
+    if plan.get('piping_numerical_selection', {}).get('classification') == 'full-fallback':
+        patterns.extend(BROAD)
     # Resolve globs here so shell expansion cannot silently change selection.
     selected = sorted({p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)})
     if not selected:
@@ -66,7 +100,14 @@ def main():
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[2]
-    selected = select(project, json.loads(args.plan.read_text()))
+    plan = json.loads(args.plan.read_text())
+    root = project.parents[1]
+    sys.path.insert(0, str(root / 'tools/software_workflow'))
+    import hosted_ci
+    hosted_ci.validate_plan(root, plan)
+    if plan.get('modes', {}).get('piping-python') != 'full':
+        raise ValueError('Python runner requires explicit selected coverage')
+    selected = select(project, plan)
     print(json.dumps({'selected': selected}, indent=2), flush=True)
     return 0 if args.dry_run else subprocess.run([sys.executable, '-m', 'pytest', '-q', *selected], cwd=project).returncode
 

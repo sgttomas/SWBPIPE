@@ -5,7 +5,10 @@
 //! the corpus's Rust expectation.
 use open_pipe_stress_result_export::retained_precision as rp;
 use serde_json::{json, Value};
+#[path = "../../../reporting/result_export/tests/support/retained_precision_corpus.rs"]
+mod retained_precision_corpus;
 use std::io::Write;
+use std::sync::OnceLock;
 use std::process::{Command, Stdio};
 
 const CORPUS_FILES: [&str; 2] = [
@@ -25,14 +28,15 @@ const SUCCESSORS: [&str; 10] = [
     include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
 ];
 
-fn cases() -> Vec<Value> {
-    CORPUS_FILES
+fn cases() -> &'static [Value] {
+    static CASES: OnceLock<Vec<Value>> = OnceLock::new();
+    CASES.get_or_init(|| CORPUS_FILES
         .iter()
         .flat_map(|text| {
-            let file: Value = serde_json::from_str(text).unwrap();
+            let file = retained_precision_corpus::expand(serde_json::from_str(text).unwrap());
             file["cases"].as_array().unwrap().clone()
         })
-        .collect()
+        .collect())
 }
 
 /// Run `read <reader>` with `input` on stdin: (exit code, stdout JSON or Null, stderr).
@@ -110,7 +114,7 @@ fn read_three_ways(source: &Value, invocation: &Value) -> [(i32, Value); 3] {
 fn corpus_bases_read_through_the_cli_as_the_reader_and_the_corpus_state() {
     let cases = cases();
     assert_eq!(cases.len(), 45);
-    for case in &cases {
+    for case in cases {
         let [bound, unbound, transport] = read_three_ways(&case["source"], &case["invocation"]);
         let id = &case["id"];
         if case["expected"].get("gate").is_some() {
