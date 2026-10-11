@@ -1,5 +1,6 @@
 """Numerical CI contracts, without executing Cargo or browser tools."""
 import importlib.util
+import io
 from functools import cache
 import hashlib
 import json
@@ -126,6 +127,76 @@ class NumericalTests(unittest.TestCase):
             self.assertIn('profile.test.overflow-checks=true', tests[0])
             self.assertFalse(any(flag in tests[0] for flag in ('--lib', '--test', '--skip')))
 
+    def test_build_only_retains_profiles_without_executing_tests_or_doctests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            source = self.fixture(project)
+            destination = project / 'core/solver/frame_kernel'
+            destination.parent.mkdir(parents=True)
+            source.rename(destination)
+            _, commands = ci.cargo_plan(project)
+            build = ci.build_commands(commands)
+            self.assertEqual(build[0], commands[0])
+            self.assertEqual(len(build), 3)
+            self.assertIn('profile.test.opt-level=2', build[1])
+            self.assertNotIn('--config', build[2])
+            self.assertTrue(all('--no-run' in argv for argv in build[1:]))
+            self.assertTrue(all('--doc' not in argv for argv in build))
+
+    def test_cargo_timing_separates_compile_test_and_ignores_ansi(self):
+        timings = ci.cargo_timings('\x1b[32mFinished `test` profile [unoptimized] target(s) in 1m 02.5s\x1b[0m\n'
+            'test result: ok. 3 passed; finished in 9.75s\n'
+            'test result: ok. 2 passed; finished in 1.25s\n')
+        self.assertEqual(timings, {'compile_seconds': 62.5, 'test_seconds': 11.0})
+
+    def test_build_only_uses_bound_selection_and_preserves_result_export_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            project = root / ci.PROJECT
+            source = self.fixture(project)
+            destination = project / 'core/reporting/result_export'
+            destination.parent.mkdir(parents=True)
+            source.rename(destination)
+            self.fixture(project)
+            selected = {'manifests': ['core/reporting/result_export/Cargo.toml']}
+            plan = {'piping_numerical_selection': selected, 'event': 'pull_request',
+                    'paths': [ci.PROJECT + 'core/new_crate/src/lib.rs']}
+            def compiled(project, commands, evidence, evidence_dir, env):
+                evidence['commands'].append({'compile_seconds': 12.0, 'test_seconds': 0.0, 'elapsed_seconds': 14.0})
+                return 0
+            with patch.object(ci, 'validate_plan'), patch.object(ci, 'execute_commands', return_value=0), \
+                 patch.object(ci, 'execute_cargo', side_effect=compiled) as cargo:
+                self.assertEqual(ci.run(root, plan, root / 'evidence', build_only=True), 0)
+            commands = cargo.call_args.args[1]
+            self.assertEqual(len(commands), 2)
+            self.assertEqual(commands[0][:2], ['cargo', 'fetch'])
+            self.assertIn('--no-run', commands[1])
+            for setting in ('profile.test.opt-level=2', 'profile.test.debug-assertions=true', 'profile.test.overflow-checks=true'):
+                self.assertIn(setting, commands[1])
+            evidence = json.loads((root / 'evidence/numerical.json').read_text())
+            self.assertEqual(evidence['manifests'], selected['manifests'])
+            self.assertEqual(evidence['execution'], 'build-only')
+            self.assertEqual(evidence['timing'], {'compile_seconds': 12.0, 'test_seconds': 0.0, 'elapsed_seconds': 14.0})
+
+    def test_command_keeps_completed_wall_timing_and_cargo_compile_test_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            evidence = {'commands': []}
+            def completed(argv, **kwargs):
+                kwargs['stdout'].write('Finished `test` profile target(s) in 2.0s\n'
+                    'test result: ok. 1 passed; finished in 1.25s\n')
+                return subprocess.CompletedProcess(argv, 0)
+            output = io.StringIO()
+            with patch.object(ci.subprocess, 'run', side_effect=completed), \
+                 patch.object(ci.time, 'perf_counter', side_effect=[10.0, 15.0]), \
+                 patch('sys.stdout', output):
+                self.assertEqual(ci.execute_commands(Path(tmp), [['cargo', 'test']], evidence, Path(tmp)), 0)
+            row = evidence['commands'][0]
+            self.assertEqual(row['elapsed_seconds'], 5.0)
+            self.assertEqual(row['compile_seconds'], 2.0)
+            self.assertEqual(row['test_seconds'], 1.25)
+            self.assertIn('Completed in 5.000s (exit 0): cargo test', output.getvalue())
+
+
     def test_subprocess_failure_is_recorded_and_stops(self):
         with tempfile.TemporaryDirectory() as tmp:
             evidence = {'commands': []}
@@ -179,7 +250,7 @@ class NumericalTests(unittest.TestCase):
         literal = re.compile(r'\s*"((?:\\[\s\S]|[^"\\])*)"\s*,?\s*\)')
         for source in sources:
             body = source.read_text()
-            for include in re.finditer(r'\binclude_(?:str|bytes)!\s*\(', body):
+            for include in re.finditer(r'\binclude_(?:str|bytes)\s*!\s*\(', body):
                 match = literal.match(body, include.end())
                 self.assertIsNotNone(match, f'Unsupported include syntax in {source}: {body[include.start():include.start()+160]}')
                 path = (source.parent / self.rust_path_literal(match.group(1))).resolve()
@@ -506,3 +577,45 @@ class ReachabilitySafetyTests(unittest.TestCase):
                 'reason': 'The executable reads only its user-supplied CLI argument; no repository fixture callers.'}
             self.assertEqual(ci.numerical_selection(project, [reader, unrelated],
                 [ci.PROJECT + 'core/reader/src/lib.rs'], declaration)['classification'], 'reachability')
+
+    def test_spaced_compile_macros_keep_second_reader_of_known_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            known = self.crate(project, 'known_reader')
+            second = self.crate(project, 'second_reader')
+            unrelated = self.crate(project, 'unrelated')
+            fixture = project / 'fixtures/known.json'
+            fixture.parent.mkdir()
+            fixture.write_text('{}')
+            shared = project / 'fixtures/shared.rs'
+            shared.write_text('pub fn shared() {}')
+            for expression, resource in [('include_str ! ("../../../fixtures/known.json");', 'fixtures/known.json'),
+                                         ('include_bytes \n! ("../../../fixtures/known.json");', 'fixtures/known.json'),
+                                         ('include ! ("../../../fixtures/shared.rs");', 'fixtures/shared.rs')]:
+                (project / known.parent / 'src/lib.rs').write_text(f'include_str!("../../../{resource}");')
+                (project / second.parent / 'src/lib.rs').write_text(expression)
+                result = ci.numerical_selection(project, [known, second, unrelated], [ci.PROJECT + resource], EMPTY_READS)
+                self.assertEqual(result['classification'], 'reachability', expression)
+                self.assertEqual(result['manifests'], [known.as_posix(), second.as_posix()])
+            (project / second.parent / 'src/lib.rs').write_text('include_str ! (concat!("../../../fixtures/known.json"));')
+            result = ci.numerical_selection(project, [known, second, unrelated], [ci.PROJECT + 'fixtures/known.json'], EMPTY_READS)
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('Unresolved compiled Rust read', result['fallback_reasons'][0])
+
+    def test_imported_compile_macro_alias_keeps_known_fixture_reader_by_full_fallback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            known = self.crate(project, 'known_reader')
+            second = self.crate(project, 'second_reader')
+            unrelated = self.crate(project, 'unrelated')
+            fixture = project / 'fixtures/known.json'
+            fixture.parent.mkdir()
+            fixture.write_text('{}')
+            (project / known.parent / 'src/lib.rs').write_text('include_str!("../../../fixtures/known.json");')
+            for name in ['include', 'include_str', 'include_bytes']:
+                (project / second.parent / 'src/lib.rs').write_text(
+                    f'use std::{name} as read_fixture; read_fixture!("../../../fixtures/known.json");')
+                result = ci.numerical_selection(project, [known, second, unrelated], [ci.PROJECT + 'fixtures/known.json'], EMPTY_READS)
+                self.assertEqual(result['classification'], 'full-fallback')
+                self.assertEqual(result['manifests'], [known.as_posix(), second.as_posix(), unrelated.as_posix()])
+                self.assertIn('Unresolved compiled Rust macro import', result['fallback_reasons'][0])

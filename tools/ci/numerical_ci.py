@@ -159,6 +159,8 @@ def source_read_dependencies(project, manifests, declarations=None):
             syntax = RUST_STRING.sub(lambda m: ' ' * len(m.group()), code)
             if re.search(r'\buse\s+[^;]*\bfs\s+as\b|\buse\s+[^;]*\bfs\s*::[^;]*\b(?:read(?:_to_string|_dir|_link)?|metadata|symlink_metadata|canonicalize|exists|try_exists|copy|as)\b', syntax):
                 raise ValueError('Unresolved filesystem import in ' + source.relative_to(project).as_posix())
+            if re.search(r'\buse\s+[^;]*\binclude(?:_str|_bytes)?\b[^;]*\bas\b[^;]*;', syntax):
+                raise ValueError('Unresolved compiled Rust macro import in ' + source.relative_to(project).as_posix())
             if re.search(r'\bOpenOptions\b', syntax):
                 raise ValueError('Unresolved filesystem OpenOptions reader in ' + source.relative_to(project).as_posix())
             fs_names = set(re.findall(r'\bfs\s*::\s*(\w+)', syntax))
@@ -175,7 +177,7 @@ def source_read_dependencies(project, manifests, declarations=None):
             if not source.is_relative_to(crate) and re.search(r'\bmod\s+\w+\s*;', syntax):
                 raise ValueError('Unresolved external Rust module tree: ' + local)
             literals = {rust_literal(m.group()) for m in RUST_STRING.finditer(code)}
-            for match in re.finditer(r'\binclude(?:_str|_bytes)?!\s*\(|#\s*\[\s*path\s*=', syntax):
+            for match in re.finditer(r'\binclude(?:_str|_bytes)?\s*!\s*\(|#\s*\[\s*path\s*=', syntax):
                 start = match.end()
                 while start < len(code) and code[start].isspace():
                     start += 1
@@ -433,6 +435,28 @@ def cargo_plan(project, paths=None, selection=None):
     return chosen, fetches + tests
 
 
+def build_commands(commands):
+    """Compile the selected test profiles without executing tests.
+
+    rustdoc has no stable --no-run mode. The ordinary test-profile library
+    compilation supplies its dependencies; omit the separate doctest execution.
+    """
+    return [command + ['--no-run'] if command[:2] == ['cargo', 'test'] else list(command)
+            for command in commands if '--doc' not in command]
+
+
+def cargo_timings(output):
+    """Cargo compilation and harness test time, distinct from command wall time."""
+    text = re.sub(r'\x1b\[[0-9;]*m', '', output)
+    compile_seconds = 0.0
+    for duration in re.findall(r'Finished .* target\(s\) in ([^\n]+)', text):
+        compile_seconds += sum(float(number) * {'m': 60, 's': 1}[unit]
+                               for number, unit in re.findall(r'([0-9.]+)([ms])', duration))
+    test_seconds = sum(float(seconds) for seconds in
+                       re.findall(r'test result: .* finished in ([0-9.]+)s', text))
+    return dict(compile_seconds=round(compile_seconds, 3), test_seconds=round(test_seconds, 3))
+
+
 def execute_commands(project, commands, evidence, evidence_dir, env=None):
     """Public bounded executor also supports a real temporary failing-crate control."""
     for index, argv in enumerate(commands):
@@ -447,6 +471,7 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
         finally:
             row['elapsed_seconds'] = time.perf_counter() - started
         row['exit_code'] = result.returncode
+        row.update(cargo_timings(output.read_text()))
         print(f"Completed in {row['elapsed_seconds']:.3f}s (exit {result.returncode}): " + ' '.join(argv), flush=True)
         row['output_sha256'] = hashlib.sha256(output.read_bytes()).hexdigest()
         if result.returncode:
@@ -454,17 +479,21 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
     return 0
 
 
-def run(root, plan, evidence_dir):
+def run(root, plan, evidence_dir, build_only=False):
     root, evidence_dir = Path(root).resolve(), Path(evidence_dir).resolve()
     evidence_dir.mkdir(parents=True, exist_ok=True)
     evidence = dict(status='failed', head=plan.get('head'), target_base=plan.get('target_base'),
-                    plan=plan, commands=[], manifests=[], plan_validated=False)
+                    plan=plan, commands=[], manifests=[], plan_validated=False,
+                    execution='build-only' if build_only else 'tests')
     code = 1
     try:
         validate_plan(root, plan)
         evidence['plan_validated'] = True
         project = root / PROJECT
         manifests, commands = cargo_plan(project, selection=plan['piping_numerical_selection'])
+        if build_only:
+            commands = build_commands(commands)
+            print('Build-only: compiling selected profiles; no tests execute.', flush=True)
         evidence['manifests'] = [p.as_posix() for p in manifests]
         evidence['input_sha256'] = {p.as_posix(): hashlib.sha256((project / p).read_bytes()).hexdigest()
             for m in manifests for p in (m, m.with_name('Cargo.lock'))}
@@ -483,6 +512,14 @@ def run(root, plan, evidence_dir):
         print(evidence['error'], file=sys.stderr)
     finally:
         evidence['exit_code'] = code
+        totals = {key: round(sum(row.get(key, 0) for row in evidence['commands']), 3)
+                  for key in ('compile_seconds', 'test_seconds', 'elapsed_seconds')}
+        evidence['timing'] = totals
+        message = f"Numerical {evidence['execution']} timing (seconds): {json.dumps(totals)}; status={evidence['status']}"
+        print(message, flush=True)
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+                summary.write(message + '\n')
         (evidence_dir / 'numerical.json').write_text(json.dumps(evidence, indent=2) + '\n')
     return code
 
@@ -502,8 +539,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--plan', required=True)
     parser.add_argument('--evidence-dir', required=True)
+    parser.add_argument('--build-only', action='store_true', help='Compile the selected test profiles without running tests')
     args = parser.parse_args()
-    return run(HERE.parents[3], json.loads(Path(args.plan).read_text()), args.evidence_dir)
+    return run(HERE.parents[3], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only)
 
 
 if __name__ == '__main__':
