@@ -25,6 +25,12 @@ export type WasmOperationEngine = {
   canonicalSha256Hex: (valueJson: string) => string;
   canonicalJsonCheckedV1: (valueJson: string) => string;
   canonicalSha256HexCheckedV1: (valueJson: string) => string;
+  // R1 (b7-plan Unit R): the Rust retained-precision reader, the desktop's
+  // only one. JSON text in; the reader's outcome JSON out
+  // (`retained_precision::outcome_json`). Throws only on input that is not
+  // JSON (WASM-ENGINE-INPUT-JSON-INVALID).
+  validateRetainedPrecisionJson: (sourceJson: string, invocationJson?: string) => string;
+  validateRetainedPrecisionTransportJson: (sourceJson: string) => string;
 };
 
 type GeneratedGlueModule = {
@@ -38,6 +44,8 @@ type GeneratedGlueModule = {
   canonical_sha256_hex: (valueJson: string) => string;
   canonical_json_checked_v1: (valueJson: string) => string;
   canonical_sha256_hex_checked_v1: (valueJson: string) => string;
+  validate_retained_precision_json: (sourceJson: string, invocationJson?: string | null) => string;
+  validate_retained_precision_transport_json: (sourceJson: string) => string;
 };
 
 // The browser specifier is intentionally held in a constant (not an inline
@@ -141,7 +149,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -153,7 +161,9 @@ async function instantiate(): Promise<WasmOperationEngine> {
     canonicalJsonString: glue.canonical_json_string,
     canonicalSha256Hex: glue.canonical_sha256_hex,
     canonicalJsonCheckedV1: glue.canonical_json_checked_v1,
-    canonicalSha256HexCheckedV1: glue.canonical_sha256_hex_checked_v1
+    canonicalSha256HexCheckedV1: glue.canonical_sha256_hex_checked_v1,
+    validateRetainedPrecisionJson: (sourceJson, invocationJson) => glue.validate_retained_precision_json(sourceJson, invocationJson ?? null),
+    validateRetainedPrecisionTransportJson: glue.validate_retained_precision_transport_json
   };
 }
 

@@ -22754,3 +22754,8 @@ mod tests {
         assert!(!metadata.sign_convention.contains("1.08"));
     }
 }
+
+/// The result reader crate, for the desktop's wasm engine
+/// (`core/model_operations/operation_applier`), which reaches it through this
+/// crate so that neither its own nor this crate's dependency set changes.
+pub use open_pipe_stress_result_export as result_export;

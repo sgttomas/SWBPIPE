@@ -873,6 +873,38 @@ pub fn apply_operation(
     run(model, intent, claimed_model_hash, Mode::Apply)
 }
 
+/// The Rust retained-precision reader (`result_export::retained_precision`)
+/// over JSON text: the desktop's only retained reader, through `wasm_api`
+/// (b7-plan Unit R, R1). `invocation_json` `None` reads the statement unbound.
+/// Returns the reader's outcome (`retained_precision::outcome_json`) as JSON
+/// text, or the parse error of an input that is not JSON.
+pub fn retained_precision_outcome_json(
+    source_json: &str,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::retained_precision as rp;
+    let source = parse_reader_input("source", source_json)?;
+    let invocation = invocation_json
+        .map(|text| parse_reader_input("invocation", text))
+        .transpose()?;
+    Ok(rp::outcome_json(&rp::validate(&source, invocation.as_ref())).to_string())
+}
+
+/// The reader's metadata-only transport checks
+/// (`retained_precision::validate_transport_metadata`) over JSON text, with
+/// the outcome as [`retained_precision_outcome_json`] returns it.
+pub fn retained_precision_transport_outcome_json(source_json: &str) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::retained_precision as rp;
+    let source = parse_reader_input("source", source_json)?;
+    Ok(rp::outcome_json(&rp::validate_transport_metadata(&source)).to_string())
+}
+
+fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
+    serde_json::from_str(text).map_err(|error| {
+        format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON: {error}")
+    })
+}
+
 /// JSON-string boundary for the wasm32 browser-engine build (`--features
 /// wasm`; DEC-020 / ADR-0001). The exports accept and return JSON strings so
 /// the JavaScript shim stays a thin transport. Malformed input JSON returns a
@@ -1050,6 +1082,25 @@ mod wasm_api {
         let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
             .map_err(|error| JsError::new(&error))?;
         Ok(super::sha256_hex(&canonical))
+    }
+
+    /// The retained-precision reader on these source bytes, bound to the
+    /// invocation's bytes when one is given (R1: the desktop's only retained
+    /// reader). Returns the outcome JSON; throws only on input that is not JSON.
+    #[wasm_bindgen]
+    pub fn validate_retained_precision_json(
+        source_json: &str,
+        invocation_json: Option<String>,
+    ) -> Result<String, JsError> {
+        super::retained_precision_outcome_json(source_json, invocation_json.as_deref())
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// The reader's metadata-only transport checks on these source bytes.
+    #[wasm_bindgen]
+    pub fn validate_retained_precision_transport_json(source_json: &str) -> Result<String, JsError> {
+        super::retained_precision_transport_outcome_json(source_json)
+            .map_err(|error| JsError::new(&error))
     }
 }
 

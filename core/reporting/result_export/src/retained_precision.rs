@@ -6418,3 +6418,34 @@ mod b2_g0_table_tests {
         unsupported(g0_with(&source, table()));
     }
 }
+
+/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm
+/// engine). A pass is `{"ok":true,"validation":{…}}`: every `Validation` field,
+/// each row's binary64 words as 16 lowercase hex digits, `bound_bits` set only
+/// on an `absolute_verified` row. A refusal is
+/// `{"ok":false,"error":{"gate","code","detail"}}`, with `detail` null when the
+/// reader carries none.
+pub fn outcome_json(outcome: &VResult<Validation>) -> Value {
+    let hex = |bits: u64| Value::from(format!("{bits:016x}"));
+    match outcome {
+        Ok(v) => json!({"ok": true, "validation": {
+            "invocation_bound": v.invocation_bound,
+            "numerical_eligible": v.numerical_eligible,
+            "publication_sha256": v.publication_sha256,
+            "classifications": v.classifications.iter().map(|row| {
+                let (class, bound_bits) = match row.class {
+                    AccuracyClass::RelativeVerified => ("relative_verified", Value::Null),
+                    AccuracyClass::AbsoluteVerified { bound_bits } => ("absolute_verified", hex(bound_bits)),
+                    AccuracyClass::InputDerived => ("input_derived", Value::Null),
+                    AccuracyClass::NonQuantity => ("non_quantity", Value::Null),
+                    AccuracyClass::NotCovered => ("not_covered", Value::Null),
+                };
+                json!({"result_id": row.result_id, "basis_ref": row.basis_ref,
+                    "normalized_bits": hex(row.normalized_bits),
+                    "scale_bits": row.scale_bits.map_or(Value::Null, hex),
+                    "bound_bits": bound_bits, "class": class})
+            }).collect::<Vec<_>>(),
+        }}),
+        Err(e) => json!({"ok": false, "error": {"gate": e.gate, "code": e.code, "detail": e.detail}}),
+    }
+}
