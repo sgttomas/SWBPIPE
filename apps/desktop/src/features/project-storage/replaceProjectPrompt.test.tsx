@@ -200,28 +200,69 @@ describe("saving onto a stored project id asks first", () => {
     expect(saves[1].mechanics_result).toBeNull();
   });
 
-  it("Save Local Project of the bundled demo asks too; a session that is the stored project saves confirmed", async () => {
-    const openedEnvelope = stored({ model: demoModel as unknown as PreviewModel }, "Opened local SQLite project snapshot.");
+  it("Save Local Project: the bundled demo asks; the session's own project saves in place; a moved base asks again", async () => {
+    let storedBase = "sha256:stored-revision-1";
+    const openedEnvelope = {
+      ...stored({ model: demoModel as unknown as PreviewModel }, "Opened local SQLite project snapshot."),
+      project_envelope_hash: { value: storedBase } as LocalProjectEnvelope["project_envelope_hash"]
+    };
     await renderNativeApp((command, args) => {
-      const request = (args as { request?: { replace_existing?: boolean } }).request;
+      const request = (args as { request?: { replace_existing?: boolean; expected_base?: string | null; model: PreviewModel } }).request;
       if (command === "save_local_project") {
-        if (!request?.replace_existing) throw REFUSAL;
-        return stored({ ...(request as unknown as WriteArgs), model: (request as unknown as { model: PreviewModel }).model }, "Saved local SQLite project snapshot.");
+        if (!request!.replace_existing && request!.expected_base !== storedBase) {
+          throw request!.expected_base == null ? REFUSAL : REFUSAL.replace("PROJECT-ID-EXISTS", "PROJECT-BASE-MOVED");
+        }
+        return { ...stored({ model: request!.model }, "Saved local SQLite project snapshot."), project_envelope_hash: { value: storedBase } };
       }
       if (command === "find_local_project") return STORED;
       if (command === "open_local_project") return openedEnvelope;
       throw new Error(`Unexpected command ${command}`);
     });
+    // The bundled demo is not the stored demo: its save asks.
     act(() => nativeMenuCommand("file.save-local"));
     expect(await screen.findByTestId("replace-project-detail")).toHaveTextContent("Saving this project would replace the stored project");
     fireEvent.click(screen.getByTestId("replace-project-cancel"));
     await waitFor(() => expect(message()).toHaveTextContent(keptStoredProjectMessage(STORED)));
+    // Opened from the store, the session is that project: Save is a save in place.
     act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(message()).toHaveTextContent("Opened local SQLite project snapshot."));
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(message()).toHaveTextContent("Saved local SQLite project snapshot."));
-    const saves = invokeMock.mock.calls.filter(([name]) => name === "save_local_project").map(([, args]) => (args as { request: { replace_existing: boolean } }).request.replace_existing);
-    expect(saves).toEqual([false, true]);
     expect(screen.queryByTestId("replace-project-prompt")).not.toBeInTheDocument();
+    // Another window saves that id: the session's base is no longer the stored revision.
+    storedBase = "sha256:stored-revision-2";
+    act(() => nativeMenuCommand("file.save-local"));
+    expect(await screen.findByTestId("replace-project-detail")).toHaveTextContent(
+      `The stored project ${storedProjectDescription(STORED)} was saved after this session opened or saved it.`
+    );
+    fireEvent.click(screen.getByTestId("replace-project-cancel"));
+    await waitFor(() => expect(message()).toHaveTextContent(keptStoredProjectMessage(STORED)));
+    const saves = invokeMock.mock.calls.filter(([name]) => name === "save_local_project")
+      .map(([, args]) => (args as { request: { replace_existing: boolean; expected_base: string | null } }).request);
+    expect(saves.map((request) => [request.replace_existing, request.expected_base])).toEqual([
+      [false, null],
+      [false, "sha256:stored-revision-1"],
+      [false, "sha256:stored-revision-1"]
+    ]);
+  });
+
+  it("is modal: the workspace is inert, and menu commands and shortcuts wait for the answer", async () => {
+    await renderNativeApp((command, args) => {
+      if (command === "create_local_project" && !(args as WriteArgs).replaceExisting) throw REFUSAL;
+      if (command === "find_local_project") return STORED;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    await screen.findByTestId("replace-project-prompt");
+    expect(screen.getByTestId("desktop-preview-shell")).toHaveAttribute("inert");
+    const before = invokeMock.mock.calls.length;
+    act(() => nativeMenuCommand("file.save-local"));
+    fireEvent.keyDown(screen.getByTestId("replace-project-cancel"), { key: "z", metaKey: true });
+    fireEvent.keyDown(screen.getByTestId("replace-project-cancel"), { key: "Tab" });
+    expect(screen.getByTestId("replace-project-save-as-new")).toHaveFocus();
+    expect(invokeMock.mock.calls.slice(before).filter(([name]) => name !== "sync_native_shell_state")).toEqual([]);
+    expect(screen.getByTestId("replace-project-prompt")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("replace-project-cancel"));
+    await waitFor(() => expect(screen.getByTestId("desktop-preview-shell")).not.toHaveAttribute("inert"));
   });
 });

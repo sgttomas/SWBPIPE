@@ -140,7 +140,7 @@
     click(`replace-project-${choice}`);
     await waitFor(`${label}: prompt closed`, () => !byTestId("replace-project-prompt"));
     const wanted = choice === "cancel" ? "Not saved: the stored project"
-      : command === "file.new-local" ? "Created local SQLite project snapshot" : "Saved local SQLite project snapshot";
+      : command === "file.new-local" ? "Created local SQLite project snapshot" : "Saved current project model snapshot";
     prompt.message = await waitFor(`${label}: ${choice}`, () => {
       const now = message();
       if (/^(Create|Save) failed/.test(now)) throw new Error(now);
@@ -150,6 +150,23 @@
     }).finally(() => observer.disconnect());
     await log(`${label}: ${JSON.stringify(prompt)}`);
     return prompt;
+  }
+
+  // Save Local Project of the session's own stored project: a save in place,
+  // with no prompt (HELP_HUMAN, 2026-10-10).
+  async function saveInPlace(label) {
+    const before = message();
+    let prompted = false;
+    await menu("file.save-local");
+    const shown = await waitFor(`${label}: saved in place`, () => {
+      if (byTestId("replace-project-prompt")) { prompted = true; click("replace-project-cancel"); }
+      const now = message();
+      if (/^(Create|Save) failed/.test(now)) throw new Error(now);
+      return now !== before && (now.includes("Saved current project model snapshot") || now.startsWith("Not saved")) ? now : null;
+    });
+    const record = { label, command: "file.save-local", prompted, message: shown };
+    await log(`${label}: ${JSON.stringify(record)}`);
+    return record;
   }
 
   async function replaceFlows(doc, report) {
@@ -163,6 +180,13 @@
     prompt.original_kept_in_tree = Boolean(treeRow(doc.project_id));
     report.prompts.push(prompt);
     report.observations.push({ case: `${doc.case}/copy`, mode: doc.modes[0], ...(await solve(doc.modes[0], `${doc.case}/copy/${doc.modes[0]}`, prompt.new_project_id, doc.probe)) });
+    // The session is now the copy: Save Local Project saves it in place.
+    report.prompts.push(await saveInPlace(`${doc.case}/copy/own-save`));
+    // Another writer saves the copy (smoke-only, through the product's own
+    // persistence functions): this session's base is no longer the stored
+    // revision, so its next save asks; Cancel keeps the other writer's copy.
+    await call("native_smoke_external_save", { projectId: prompt.new_project_id });
+    report.prompts.push(await saveThroughPrompt("file.save-local", "cancel", `${doc.case}/copy/stale-base`));
     // Replace: the reopened file saved over its stored project, with confirmation.
     await openModelDocument(doc.path);
     await waitFor(`${doc.case} reopened from file`, () => treeRow(doc.project_id));

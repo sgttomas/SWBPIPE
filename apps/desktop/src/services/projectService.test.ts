@@ -115,15 +115,14 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   });
 
   it("round-trips create, save, and open with current migration evidence and an empty ledger", async () => {
-    // The sample id is already stored by an earlier case: replacing it is confirmed.
-    const created = await createLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, true);
+    const created = await createLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model_migration_ledger).toEqual([]);
     expect(created.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
     expect(created.summary.unit_round_trip_checked_ref_count).toBe(1);
     expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
-    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, true);
+    const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), [], null, null, null, null, null, null, null, false, created.project_envelope_hash?.value ?? "");
     expect(saved.model_document_migration?.status).toBe("current");
     expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
     expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
@@ -181,8 +180,9 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
       provenance: "legacy compatibility test"
     }] }];
     const before = JSON.stringify(model);
-    await createLocalProject(model, [], null, null, null, null, null, null, true);
-    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
+    // Saving the project just created: a save in place from its stored base.
+    const createdModel = await createLocalProject(model);
+    const saved = await saveLocalProject(model, [], null, null, null, null, null, null, null, false, createdModel.project_envelope_hash?.value ?? "");
     const opened = await openLocalProject(model.project.id);
     expect(JSON.stringify(saved.model)).toBe(before);
     expect(JSON.stringify(opened?.model)).toBe(before);
@@ -202,6 +202,8 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(stored).toMatchObject({ project_id: model.project.id, project_name: model.project.name });
     await expect(createLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
     await expect(saveLocalProject(model)).rejects.toThrow(/^PROJECT-ID-EXISTS: project `/);
+    await expect(saveLocalProject(model, [], null, null, null, null, null, null, null, false, "sha256:not-the-stored-base"))
+      .rejects.toThrow(/^PROJECT-BASE-MOVED: project `/);
     expect(await findLocalProject("project:not-stored")).toBeNull();
   });
 

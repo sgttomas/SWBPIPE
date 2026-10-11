@@ -175,7 +175,13 @@ function checkPrompt(name, prompt, storedName, storedId) {
   check("save as a new project: a new project id", copy?.new_project_id?.startsWith(`${promptCase.project_id}:copy-`) && !copy.original_kept_in_tree, copy?.new_project_id);
   const seen = observation(first, `${promptCase.case}/copy`, promptCase.modes[0]);
   const original = observation(first, promptCase.case, promptCase.modes[0]);
-  check("save as a new project: the solve proof's model hash changed with the id", seen?.proof_model_sha256 && seen.proof_model_sha256 !== original?.proof_model_sha256, seen?.proof_model_sha256);
+  const own = promptFor(first, `${promptCase.case}/copy/own-save`);
+  check("own project, Save Local Project: saved in place without a prompt", own && !own.prompted && own.message?.includes("Saved current project model snapshot"), own?.message);
+  const stale = promptFor(first, `${promptCase.case}/copy/stale-base`);
+  check("own project saved elsewhere since: the save asks, naming the stored copy",
+    stale?.detail?.includes(`was saved after this session opened or saved it`) && stale.detail.includes(`(${copy?.new_project_id}), last saved `), stale?.detail);
+  check("own project saved elsewhere since: Cancel is the default (focused)", stale?.cancel_focused === true);
+  check("own project saved elsewhere since, Cancel: the stored copy is kept", stale?.message?.startsWith("Not saved: the stored project "), stale?.message);
   check("save as a new project: same rows and probed value", seen && original && seen.proof_rows === original.proof_rows && seen.probe_entered === original.probe_entered, `${seen?.proof_rows}; ${seen?.probe_entered}`);
   const replace = promptFor(first, `${promptCase.case}/replace`);
   checkPrompt("save over the stored project", replace, promptCase.document.project.name, promptCase.project_id);
@@ -185,10 +191,14 @@ function checkPrompt(name, prompt, storedName, storedId) {
 // The store under the throwaway HOME holds both projects.
 const storePath = path.join(home, "Library", "Application Support", IDENTIFIER, "openpipestress-projects.sqlite3");
 const stored = {};
+const storedRuns = {};
 if (existsSync(storePath)) {
   const { DatabaseSync } = await import("node:sqlite");
   const db = new DatabaseSync(storePath, { readOnly: true });
-  for (const row of db.prepare("SELECT project_id, model_json FROM local_projects").all()) stored[row.project_id] = JSON.parse(row.model_json);
+  for (const row of db.prepare("SELECT project_id, model_json, mechanics_result_json FROM local_projects").all()) {
+    stored[row.project_id] = JSON.parse(row.model_json);
+    storedRuns[row.project_id] = JSON.parse(row.mechanics_result_json);
+  }
   db.close();
 }
 check("project store isolated under the throwaway HOME", existsSync(storePath), storePath);
@@ -209,10 +219,16 @@ for (const doc of documents) {
   void copyVersion; void fileVersion;
   check("save as a new project: stored under the new id, the document otherwise unchanged",
     copyModel && canonical(copyRest) === canonical(fileRest) && canonical({ ...copyProject, id: fileProject.id }) === canonical(fileProject), copyId);
-  // The session solved the renamed document as saved (the existing save-time
-  // normalization applies), so the proof's hash is the stored copy's.
+  // The session had adopted the first save's normalized document, so the copy is
+  // that document renamed: it differs from the stored original in project.id
+  // alone, and the proof of its solve carries its own hash.
+  const originalModel = stored[promptCase.project_id];
   const copySeen = observation(first, `${promptCase.case}/copy`, promptCase.modes[0]);
-  check("save as a new project: the solve proof's model hash is the stored renamed document's", copyModel && copySeen?.proof_model_sha256 === modelSha256(copyModel), copySeen?.proof_model_sha256);
+  check("save as a new project: the stored copy differs from the stored original in project.id alone",
+    copyModel && originalModel && canonical({ ...copyModel, project: { ...copyModel.project, id: originalModel.project.id } }) === canonical(originalModel), copyId);
+  check("save as a new project: the solve proof's model hash is the copy's, not the original's",
+    copyModel && copySeen?.proof_model_sha256 === modelSha256(copyModel) && modelSha256(copyModel) !== modelSha256(originalModel), copySeen?.proof_model_sha256);
+  check("own project saved elsewhere since, Cancel: the other writer's revision (no run) is what the store holds", copyModel && storedRuns[copyId] === null);
   check("store holds exactly the expected projects", canonical(Object.keys(stored).sort()) === canonical([...documents.map((doc) => doc.project_id), copyId].sort()), Object.keys(stored));
 }
 const downloads = path.join(home, "Downloads");

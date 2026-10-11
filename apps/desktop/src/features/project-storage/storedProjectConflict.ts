@@ -9,6 +9,8 @@ export type ReplaceProjectChoice = "replace" | "save-as-new" | "cancel";
 export type ReplaceProjectPromptState = {
   kind: "create" | "save";
   existing: LocalProjectIndexEntry;
+  /** The session's own project, saved elsewhere since this session opened or saved it. */
+  stale: boolean;
   choose: (choice: ReplaceProjectChoice) => void;
 };
 

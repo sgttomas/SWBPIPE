@@ -562,7 +562,7 @@ export async function createLocalProject(
   replaceExisting = false
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting);
+    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting, null);
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
@@ -590,12 +590,17 @@ export async function createLocalProject(
   });
 }
 
-/** HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored
- * project. The native store refuses an unconfirmed write onto a stored id
- * (`PROJECT-ID-EXISTS`); the browser preview's one-snapshot store does the same. */
-function refuseUnconfirmedBrowserReplacement(projectId: string, replaceExisting: boolean) {
+/** HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
+ * project. Mirrors the native store's `refuse_unconfirmed_replacement`: a write
+ * onto a stored id needs Replace (`replaceExisting`), or `expectedBase` equal to
+ * the stored envelope hash (a save in place from the stored revision). */
+function refuseUnconfirmedBrowserReplacement(projectId: string, replaceExisting: boolean, expectedBase: string | null) {
   if (replaceExisting || browserPreviewSnapshot?.summary.project_id !== projectId) return;
-  throw new Error(`PROJECT-ID-EXISTS: project \`${projectId}\` ("${browserPreviewSnapshot.summary.project_name}", last saved at unix ${browserPreviewSnapshotUpdatedAtUnix}) is already stored; replacing it needs the user's confirmation.`);
+  const stored = `project \`${projectId}\` ("${browserPreviewSnapshot.summary.project_name}", last saved at unix ${browserPreviewSnapshotUpdatedAtUnix})`;
+  if (expectedBase === null) throw new Error(`PROJECT-ID-EXISTS: ${stored} is already stored; replacing it needs the user's confirmation.`);
+  if (expectedBase !== (browserPreviewSnapshot.project_envelope_hash?.value ?? "")) {
+    throw new Error(`PROJECT-BASE-MOVED: ${stored} changed after this session opened or saved it; replacing it needs the user's confirmation.`);
+  }
 }
 
 /** Empty the browser preview's one-snapshot store, as a fresh page load does.
@@ -652,10 +657,11 @@ export async function saveLocalProject(
   modelHash: ModelHashEvidence | null = null,
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
   modelDocumentMigration: ModelDocumentMigrationStatus | null = null,
-  replaceExisting = false
+  replaceExisting = false,
+  expectedBase: string | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting);
+    refuseUnconfirmedBrowserReplacement(model.project.id, replaceExisting, expectedBase);
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
@@ -683,7 +689,8 @@ export async function saveLocalProject(
       model_hash: modelHash,
       project_envelope_hash: projectEnvelopeHash,
       model_document_migration: modelDocumentMigration,
-      replace_existing: replaceExisting
+      replace_existing: replaceExisting,
+      expected_base: expectedBase
     }
   });
 }

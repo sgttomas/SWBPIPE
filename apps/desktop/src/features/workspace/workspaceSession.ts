@@ -250,6 +250,8 @@ export function useWorkspaceSession() {
   const savedBasisSequence = useRef(0);
   // The open replace prompt, if a save onto a stored project id is waiting for the user.
   const [replaceProjectPrompt, setReplaceProjectPrompt] = useState<ReplaceProjectPromptState | null>(null);
+  // While the prompt is open, menu commands and shell accelerators are ignored.
+  const replacePromptOpenRef = useRef(false);
   // Service fulfillment is our observable landed-write order, before canonical
   // verification can complete out of order. This is not a backend commit clock.
   const persistedWriteObservation = useRef(0);
@@ -1587,27 +1589,35 @@ export function useWorkspaceSession() {
     setProjectBusy(false);
   }
 
-  /** HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored
-   * project. A write goes out unconfirmed unless the session already is that
-   * stored project (`confirmed`: Save Local Project of the opened, created or
-   * saved project). If the store refuses it (`PROJECT-ID-EXISTS`), the user is
-   * asked: Replace (retry, confirmed), Save as a new project, or Cancel, the
-   * default. */
+  /** HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
+   * project. Every write goes out unconfirmed. Save Local Project of the
+   * session's own stored project carries its base (the stored envelope hash it
+   * last opened or saved), which the store admits as a save in place while that
+   * is still the stored revision. A refusal (`PROJECT-ID-EXISTS`, or
+   * `PROJECT-BASE-MOVED` when another window or process saved that id since)
+   * asks the user: Replace (retry, confirmed), Save as a new project, or
+   * Cancel, the default. */
   async function writeWithReplaceConfirmation(
     kind: "create" | "save",
     requestModel: PreviewModel,
-    write: (replaceExisting: boolean) => Promise<LocalProjectEnvelope>,
-    confirmed: boolean
+    write: (replaceExisting: boolean) => Promise<LocalProjectEnvelope>
   ): Promise<StoredProjectWrite> {
+    let stale = false;
     try {
-      return { outcome: "written", envelope: await write(confirmed) };
+      return { outcome: "written", envelope: await write(false) };
     } catch (error) {
-      if (confirmed || !String(error).includes("PROJECT-ID-EXISTS")) throw error;
+      const code = /^(?:Error: )?(PROJECT-ID-EXISTS|PROJECT-BASE-MOVED): /.exec(String(error))?.[1];
+      if (!code) throw error;
+      stale = code === "PROJECT-BASE-MOVED";
     }
     const existing = await findLocalProject(requestModel.project.id);
     if (!existing) return { outcome: "written", envelope: await write(false) };
     const choice = await new Promise<ReplaceProjectChoice>((resolve) => {
-      setReplaceProjectPrompt({ kind, existing, choose: (picked) => { setReplaceProjectPrompt(null); resolve(picked); } });
+      replacePromptOpenRef.current = true;
+      setReplaceProjectPrompt({
+        kind, existing, stale,
+        choose: (picked) => { replacePromptOpenRef.current = false; setReplaceProjectPrompt(null); resolve(picked); }
+      });
     });
     if (choice === "cancel") return { outcome: "kept", existing };
     if (choice === "replace") return { outcome: "written", envelope: await write(true) };
@@ -1629,6 +1639,9 @@ export function useWorkspaceSession() {
   function adoptSavedAsNewModel(renamed: PreviewModel) {
     commitModel(renamed);
     preserveAndPruneSelection(renamed);
+    // Undo checkpoints hold the old identity; Save as new starts a fresh history.
+    setUndoStack([]);
+    setRedoStack([]);
     setProjectSummary(null);
     setProjectEnvelopeHash(null);
     setModelMigrationLedger([]);
@@ -1638,6 +1651,8 @@ export function useWorkspaceSession() {
     setRuleCheckAggregate(null);
     setSolveJob(initialSolveJob());
   }
+
+  const SAVE_AS_NEW_SUPERSEDED = "Not saved: the session changed while the replace prompt was open; nothing was written.";
 
   async function handleCreateProject() {
     return createProject(null);
@@ -1697,9 +1712,8 @@ export function useWorkspaceSession() {
           snapshotModelHash,
           envelopeHash,
           replaceExisting
-        ), false);
+        ));
       if (written.outcome === "kept") {
-        if (!stillCurrent()) return;
         setProjectMessage(keptStoredProjectMessage(written.existing));
         setProjectOperation("create_kept_stored_project");
         return;
@@ -1801,6 +1815,9 @@ export function useWorkspaceSession() {
       if (pendingSaveAsNew && stillCurrent()) {
         adoptSavedAsNewModel(pendingSaveAsNew);
         await createProject(pendingSaveAsNew);
+      } else if (pendingSaveAsNew) {
+        setProjectMessage(SAVE_AS_NEW_SUPERSEDED);
+        setProjectOperation("create_superseded");
       }
     }
   }
@@ -2161,10 +2178,11 @@ export function useWorkspaceSession() {
           snapshotModelHash,
           envelopeHash,
           modelDocumentMigration,
-          replaceExisting
-        ), projectSummary?.project_id === requestModel.project.id);
+          replaceExisting,
+          // The session's own stored project: a save in place from this base.
+          projectSummary?.project_id === requestModel.project.id ? projectEnvelopeHash?.value ?? "" : null
+        ));
       if (written.outcome === "kept") {
-        if (!stillCurrent()) return;
         setProjectMessage(keptStoredProjectMessage(written.existing));
         setProjectOperation("save_kept_stored_project");
         return;
@@ -2268,6 +2286,9 @@ export function useWorkspaceSession() {
       if (pendingSaveAsNew && stillCurrent()) {
         adoptSavedAsNewModel(pendingSaveAsNew);
         await saveProject(pendingSaveAsNew);
+      } else if (pendingSaveAsNew) {
+        setProjectMessage(SAVE_AS_NEW_SUPERSEDED);
+        setProjectOperation("save_superseded");
       }
     }
   }
@@ -2480,6 +2501,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
+    if (replacePromptOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -2830,6 +2852,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
+      if (replacePromptOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {

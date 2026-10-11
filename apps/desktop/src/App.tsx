@@ -320,6 +320,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
+      // The replace prompt is modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
