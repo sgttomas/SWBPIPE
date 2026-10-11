@@ -1,18 +1,12 @@
-//! I61 U1 grant 1 (with U2): the private retained-precision serializer.
+//! The private retained-precision serializer.
 //!
-//! Maps one completed, certified, one-case prepared attempt and its typed
-//! ordinary capture (G-b, G-l) to the successor envelope carrying
-//! `retained_precision {body, receipt_sha256}` (C1 §3-4, C2 §5, C3), or to a
-//! typed [`ReceiptFailure`]. In production it is reached only behind the capture permit
-//! (U3, `retained_w1`): D1 Direct calls in the registered build. It never reads diagnostic text
-//! or Debug output: a variant this grant does not translate refuses typed
-//! (`ReceiptCheck::Untranslated`, closed in grant 2 with G-i and D38).
-//!
-//! The experiments' emitter (R/I61/receipt_experiment_02-03) is the reference;
-//! the differences are the closed gaps G-a (fixed product text), G-b, G-c (D6a,
-//! decision 2), G-d, G-e, G-j, G-l, A1 (decision 1), D39 and U2.
-// In production, reached only behind the capture permit (U3): D1 Direct calls in the registered build (G6).
-#![allow(dead_code)]
+//! Maps a W1 transaction's prepared cases (at least one selected and certified) and their
+//! typed ordinary capture (G-b, G-l) to the successor envelope carrying
+//! `retained_precision {body, receipt_sha256}` (C1 §3-4, C2 §5, C3), or to a typed
+//! [`ReceiptFailure`] (`serialize_cases`). In production it is reached only behind the capture
+//! permit (U3, `retained_w1`): D1 Direct calls in the registered build (G6). It never reads
+//! diagnostic text or Debug output: a variant without a closed translation refuses typed
+//! (`ReceiptCheck::Untranslated`).
 use super::retained_product as rp;
 use super::retained_receipt as rr;
 use super::*;
@@ -80,7 +74,7 @@ const MAX_SAFE: u64 = (1 << 53) - 1;
 const LEGACY_CODE: &str = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
 
 /// The typed cause of an abandoned projection (C2 `receipt_failure`). Never
-/// serialized in grant 1: a failure means U3 publishes the ordinary envelope.
+/// serialized: a failure means U3 publishes the ordinary envelope.
 /// [`ReceiptCheck::wire`] maps every variant onto the accepted `check` enum.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ReceiptCheck {
@@ -94,9 +88,9 @@ pub(super) enum ReceiptCheck {
     /// A legacy `rejected` beyond the safe range: only `saturating_add` reaches it.
     SaturationNotExcluded,
     Association,
-    /// Outside grant 1's one-case selected scope (G-j; coexistence; D9b).
+    /// Outside the serializer's scope (G-j; coexistence; D9b).
     Scope,
-    /// A variant whose closed translation is grant 2's (G-i, D38).
+    /// A variant without a closed translation (G-i).
     Untranslated,
 }
 impl ReceiptCheck {
@@ -111,9 +105,9 @@ impl ReceiptCheck {
             Self::WorkCounterRange => "work_counter_range",
             Self::WorkCounterInconsistent => "work_counter_inconsistent",
             Self::SaturationNotExcluded => "saturation_not_excluded",
-            // A candidate outside the one-case invocation it was given is not associated with it.
+            // A candidate outside the invocation it was given is not associated with it.
             Self::Association | Self::Scope => "association",
-            // A payload this grant cannot translate cannot be encoded.
+            // A payload without a closed translation cannot be encoded.
             Self::Untranslated => "encoding",
         }
     }
@@ -130,7 +124,7 @@ fn fail(check: ReceiptCheck, field_path: &'static str) -> ReceiptFailure {
 /// RV82-N7, the precedence: `Enc` keeps every failure it records and returns the
 /// first of them at `finish`. A structural early return (`?` on a Scope,
 /// Association or Untranslated refusal from a later step, such as `legacy_source`,
-/// `successor_envelope` or `material_basis`) takes precedence over failures the
+/// `selected_case_envelope` or `material_basis`) takes precedence over failures the
 /// encoder recorded before it. Either way the cause is typed and maps onto
 /// C1:68's vocabulary; no successor is emitted.
 ///
@@ -764,12 +758,6 @@ fn range_trigger(e: &Enc, trigger: &RangeTrigger) -> Value {
     }
 }
 
-/// G-a with T1 (a): identity, profile, method token, the omitted legacy
-/// disclosure (by its captured id) and the selected-case diagnostic.
-fn successor_envelope(env: &mut Value, route: rp::W1Route, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
-    successor_identity(env, route);
-    selected_case_envelope(env, case_id, omit)
-}
 /// The successor's identity and profile (G-a), set once per successor: the route's (B3b-P, P-9;
 /// the profile's `limitations` stay the base producer's).
 fn successor_identity(env: &mut Value, route: rp::W1Route) {
@@ -867,9 +855,9 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
         Some(rp::InitialSeed::StructuralFailure { error, diagnostic_ref }) => {
             json!({"kind":"structural_failure","error":structural_error(e,error),"diagnostic_ref":diagnostic_ref})
         }
-        // basis_index is not captured in grant 1.
+        // basis_index is not captured.
         Some(rp::InitialSeed::FormationFailure { .. }) => e.untranslated("ordinary_attempts[].initial.formation_failure"),
-        // The not-attempted cause is not captured in grant 1.
+        // The not-attempted cause is not captured.
         None => e.untranslated("ordinary_attempts[].initial.not_attempted"),
     };
     let w2 = match &seed.w2 {
@@ -881,7 +869,7 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
             e.fail(ReceiptCheck::Association, "ordinary_attempts[].w2.report_diagnostic_ref");
             Value::Null
         }
-        // ForceScalingFailure's closed translation is grant 2's.
+        // ForceScalingFailure has no closed translation.
         rp::W2Seed::Failed { .. } => e.untranslated("ordinary_attempts[].w2.failure"),
     };
     if seed.recovery_demoted {
@@ -900,7 +888,7 @@ fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, cases: usi
     let assoc = |p| fail(ReceiptCheck::Association, p);
     for case_index in 0..cases {
         let case = &raw["model"]["load_cases"][case_index];
-        // Grant 1 maps the base selector; a named or temperature basis is wider scope.
+        // Only the base selector is mapped; a named or temperature basis is refused.
         if !case.get("modulus_basis_ref").is_none_or(Value::is_null) || !case.get("modulus_basis_temperature").is_none_or(Value::is_null) {
             return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector"));
         }
@@ -1404,45 +1392,6 @@ fn safe_integers(v: &Value) -> bool {
     }
 }
 
-/// G-j scope shared by every one-case serialization: the actual invocation, one
-/// requested case and no combination, and that case's single ordinary seed.
-fn one_case<'a>(pc: &'a rp::ProductCapture, invocation: &source_receipt::CapturedInvocation)
-    -> Result<(usize, String, &'a rp::OrdinarySeed), ReceiptFailure> {
-    let assoc = |p| fail(ReceiptCheck::Association, p);
-    let scope = |p| fail(ReceiptCheck::Scope, p);
-    if pc.invocation_mode != Some(invocation.mode()) {
-        return Err(assoc("invocation"));
-    }
-    // RV82-S2: the supplied invocation must be the one this capture observed
-    // (its digest), not merely one with the same mode and case id.
-    if pc.invocation_digest.as_deref() != Some(invocation.borrowed_digest().as_str()) {
-        return Err(assoc("invocation"));
-    }
-    let raw = invocation.borrowed_raw();
-    let request_cases = raw["model"]["load_cases"].as_array().ok_or(assoc("cases"))?;
-    let combinations = raw["model"]["combinations"].as_array().map_or(0, Vec::len);
-    if request_cases.len() != 1 || combinations != 0 {
-        return Err(scope("cases"));
-    }
-    let case_index = 0usize;
-    let case_id = request_cases[case_index]["id"].as_str().ok_or(assoc("cases[].basis_ref"))?.to_owned();
-    let [seed] = &pc.ordinary[..] else { return Err(scope("ordinary_attempts")) };
-    if seed.case != case_id {
-        return Err(assoc("ordinary_attempts[].case_id"));
-    }
-    Ok((case_index, case_id, seed))
-}
-/// One recorded native call with one run of this case (G-j).
-fn one_run<'a>(inv: &'a k::RecordedInvocation, case: &k::RecordedCase, case_index: usize) -> Result<&'a k::RunOrigins, ReceiptFailure> {
-    if inv.runs().len() != 1 || inv.calls().len() != 1 || inv.sources().len() != 1 || case.run != 0 {
-        return Err(fail(ReceiptCheck::Scope, "cases[].run"));
-    }
-    let run = &inv.runs()[case.run];
-    if run.id != case.run || !matches!(run.owner, k::NativeOwner::Case(i) if i == case_index) {
-        return Err(fail(ReceiptCheck::Association, "cases[].run.origin"));
-    }
-    Ok(run)
-}
 /// The native records of any kernel outcome and its C1 §4 terminal.
 fn kernel_outcome<'a>(e: &Enc, outcome: &'a k::ExecutionOutcome) -> (&'a [k::AttemptRecord], Value) {
     match outcome {
@@ -1473,14 +1422,6 @@ fn run_value_owned(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], t
         "invocation_before":e.exact(run.work.invocation_before(),"cases[].run.invocation_before"),
         "invocation_increment":e.exact(run.work.invocation_increment(),"cases[].run.invocation_increment"),
         "invocation_after":e.exact(run.work.invocation_after(),"cases[].run.invocation_after")}))
-}
-/// The invocation's calls, groups and builds (C2 §4), and its exact final charge, which
-/// `run`, the last Run, ends at. The kernel names a case owner by its batch ordinal;
-/// `requests[ordinal]` is its request index (B1 SP, PLAN_v2 N-2), so `calls[].owner_refs` name
-/// request indices.
-fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins, requests: &[usize])
-    -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
-    invocation_arrays_mapped(e, inv, run, &OwnerMap { requests, prepared: &[], combinations: &[] })
 }
 /// B2-P (B2-C §2.5's ordinal mapping): the kernel's native owners as authored indices. A
 /// `Case(j)` below the batch's length is batch ordinal j (`requests[j]`); at or above it, the
@@ -1585,14 +1526,6 @@ fn invocation_arrays_mapped(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOr
     }
     Ok((calls, groups, builds, charged))
 }
-/// The ordinary attempt entry (G-b, G-c, G-l) and the case's quality index.
-fn ordinary_value(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value)
-    -> Result<(Value, usize), ReceiptFailure> {
-    // D6a (decision 2): the diagnostics naming the case, once each, in envelope
-    // order, excluding RETAINED_PRECISION_* (a T1 (a) omission is already applied).
-    let [diagnostic_refs] = case_diagnostic_refs(env, &[case_id])?;
-    ordinary_entry(e, env, case_id, case_index, mode, seed, legacy, diagnostic_refs)
-}
 /// One requested case's ordinary attempt entry, with its D6a references already collected.
 #[allow(clippy::too_many_arguments)]
 fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value,
@@ -1610,14 +1543,6 @@ fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: 
     Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),
         "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs}), quality_index))
 }
-/// D6a for each of `case_ids` in one pass over the diagnostics (B1 SP; I82's c² guidance):
-/// per case, the ids of the diagnostics naming it, once each, in envelope order, excluding
-/// RETAINED_PRECISION_*.
-fn case_diagnostic_refs<const N: usize>(env: &Value, case_ids: &[&str; N]) -> Result<[Vec<Value>; N], ReceiptFailure> {
-    let mut refs: [Vec<Value>; N] = std::array::from_fn(|_| Vec::new());
-    case_diagnostic_refs_into(env, case_ids, &mut refs)?;
-    Ok(refs)
-}
 fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Value>]) -> Result<(), ReceiptFailure> {
     for d in env["diagnostics"].as_array().ok_or(fail(ReceiptCheck::Association, "diagnostics"))? {
         if d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_")) {
@@ -1632,16 +1557,9 @@ fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Val
     }
     Ok(())
 }
-/// The body around its members, then the two hashes (C1 §3): publication over the
-/// final envelope without the receipt, then the body.
-#[allow(clippy::too_many_arguments)]
-fn finish(e: Enc, env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
-    sources: Vec<Value>, material: Value, arrays: (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
-    legacy_source_work: Vec<Value>) -> Result<Value, ReceiptFailure> {
-    finish_with(e, env, invocation, charged, execution_order, cases, sources, material, arrays, ordinary, attempts, legacy_source_work, Vec::new(), Vec::new())
-}
-/// `finish` with B2-P's members: `combinations[]` (one per model combination) and
-/// `operand_preparations[]`, present only when non-empty (C-6).
+/// The body around its members, then the two hashes (C1 §3): publication over the final
+/// envelope without the receipt, then the body. B2-P's members: `combinations[]` (one per model
+/// combination) and `operand_preparations[]`, present only when non-empty (C-6).
 #[allow(clippy::too_many_arguments)]
 fn finish_with(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
     sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
@@ -1674,110 +1592,11 @@ fn bind_preparation(source: &mut Value, attempt: &Value, attempt_ref: usize, rou
     Ok(())
 }
 
-/// Serialize one selected, certified, one-case prepared candidate (grant 1).
-/// Returns the successor envelope carrying the `retained_precision` member (PP's
-/// `serde_json::Map` is key-sorted, so it sits between `results` and `status`;
-/// every hash is canonical, so the position is immaterial).
-pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invocation: &source_receipt::CapturedInvocation)
-    -> Result<Value, ReceiptFailure> {
-    serialize_selected_from(candidate, candidate.envelope(), invocation)
-}
-
-/// What the selected serialization reads from a certified candidate.
-pub(super) trait SelectedCandidate {
-    fn capture(&self) -> &rp::ProductCapture;
-    fn certificate(&self) -> &k::CertifiedProductProof;
-    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError>;
-}
-impl SelectedCandidate for rp::PrivatePreparedCandidate {
-    fn capture(&self) -> &rp::ProductCapture { rp::PrivatePreparedCandidate::capture(self) }
-    fn certificate(&self) -> &k::CertifiedProductProof { rp::PrivatePreparedCandidate::certificate(self) }
-    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError> {
-        rp::PrivatePreparedCandidate::typed_trace(self, costs)
-    }
-}
-
-fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
-    -> Result<Value, ReceiptFailure> {
-    let assoc = |p| fail(ReceiptCheck::Association, p);
-    let scope = |p| fail(ReceiptCheck::Scope, p);
-    let e = Enc::default();
-    let mode = invocation.mode();
-    let raw = invocation.borrowed_raw();
-    let pc = candidate.capture();
-    let (case_index, case_id, seed) = one_case(pc, invocation)?;
-    let (inv, case) = pc.native_pair().ok_or(assoc("cases[].run"))?;
-    let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(scope("cases[].status")) };
-    // U2 (RV77-N4): the proof must have started on this selected owner's own solve.
-    let certificate = candidate.certificate();
-    if !certificate.owner_matches(owner) {
-        return Err(assoc("cases[].selection.owner"));
-    }
-    if !certificate.passed() {
-        return Err(assoc("cases[].selection.certificate"));
-    }
-    let run = one_run(inv, case, case_index)?;
-    let mut costs = rr::ProjectionWork::default();
-    let view = candidate.typed_trace(&mut costs).map_err(|_| assoc("product_attempts[]"))?;
-
-    // The successor envelope (G-a; T1 (a)).
-    let mut env = serde_json::to_value(overlaid).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
-    let mut legacy_source_work = Vec::new();
-    let (legacy, omit) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, true)?;
-    successor_envelope(&mut env, pc.route(), &case_id, omit.as_deref())?;
-
-    // Row bindings: the producer's own QuantityId/recipe binding in envelope row order.
-    let rows = pc.bind_rows(overlaid, owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
-    let row_ids: Vec<String> = env["results"].as_array().ok_or(assoc("results"))?.iter()
-        .map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
-    if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
-        return Err(assoc("cases[].selection.absolute_verified"));
-    }
-    let recipes: Vec<k::ProductRecipe> = rows.iter().map(|r| r.recipe).collect();
-
-    // The native run (C1 §1).
-    let (records, terminal) = kernel_outcome(&e, &case.outcome);
-    let run_v = run_value(&e, run, records, terminal, case_index)?;
-    let mut source = case_source(&e, pc, owner.source(), inv, run, case_index, &case_id, &view)?;
-    let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
-    bind_preparation(&mut source, &attempt, 0, pc.route())?;
-    let source_identity = {
-        let mut binding = source.clone();
-        binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
-        domain_hash("retained_precision_source_mp_v2", &binding).ok_or(fail(ReceiptCheck::Encoding, "cases[].source_identity_sha256"))?
-    };
-    let selection_v = selection(&e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
-    let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
-    let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
-        "product_attempt_ref":0,"status":"selected","method":METHOD,"run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity,"selection":selection_v});
-    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run, &[case_index])?;
-    let material = material_basis(&e, pc, raw, 1)?;
-    finish(e, env, invocation, charged, json!([{"kind":"case","index":case_index}]), vec![case_v], vec![source], material,
-        (calls, groups, builds), vec![ordinary], vec![attempt], legacy_source_work)
-}
-
-/// A refused one-case prepared attempt: the three actual refusal owners.
-pub(super) enum Refused<'a> {
-    /// Preparation refused before any native call (`prepare_case`).
-    Preparation(&'a rp::PreparedCaseFailure),
-    /// `solve_native` returned an error: with a recorded Run (non-selected kernel
-    /// outcome), or before any kernel schedule (D38).
-    Native(&'a rp::PreparedCase),
-    /// The candidate was refused after its native stage (proof, facade or capture).
-    Candidate(&'a rp::PreparedCandidateRefusal),
-}
-
 /// The fixed product text of the unavailable-case diagnostic (G-a; D1 §4.1.4: one
 /// info diagnostic per case).
 pub(super) const UNAVAILABLE_CODE: &str = "RETAINED_PRECISION_UNAVAILABLE";
 pub(super) const UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics; the retained_precision receipt records the actual attempt and its typed cause.";
 
-/// G-a for an unavailable case: identity and profile, no method token, the
-/// legacy disclosure kept, and the unavailable diagnostic.
-fn unavailable_envelope(env: &mut Value, route: rp::W1Route, case_id: &str) -> Result<String, ReceiptFailure> {
-    successor_identity(env, route);
-    unavailable_case_envelope(env, case_id)
-}
 /// One unavailable case's part of G-a: its unavailable-case diagnostic (appended); its
 /// legacy disclosure is kept.
 fn unavailable_case_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
@@ -1790,100 +1609,6 @@ fn unavailable_case_envelope(env: &mut Value, case_id: &str) -> Result<String, R
     diags.push(json!({"id":id,"code":UNAVAILABLE_CODE,"severity":"info","message":UNAVAILABLE_MESSAGE,
         "source":"core/product_physics","affected_refs":[case_id]}));
     Ok(id)
-}
-
-/// The C1-C3 unavailable representation of a refused one-case prepared attempt:
-/// the unavailable case (reason by the readers' accepted D4d table), its product
-/// attempt with the typed PublicError, the Run when the kernel recorded one, and
-/// D38's `run:null`/`run_ref:null`/`capture` cause when it failed first.
-///
-/// **Not a publication.** Under T3 (ROOT) a one-case invocation whose case is
-/// unavailable has no successor publication: the caller publishes the ordinary
-/// envelope. The value exists for wider F2a and the reader round, and every
-/// accepted reader refuses it at G3 (no selected case).
-pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_receipt::CapturedInvocation) -> Result<Value, ReceiptFailure> {
-    let assoc = |p| fail(ReceiptCheck::Association, p);
-    let e = Enc::default();
-    let mode = invocation.mode();
-    let raw = invocation.borrowed_raw();
-    let (pc, ordinary_env) = match &refused {
-        Refused::Preparation(f) => (&f.capture, &f.ordinary),
-        Refused::Native(p) => (p.capture(), p.owned_ordinary().ok_or(assoc("envelope"))?),
-        Refused::Candidate(r) => (r.capture(), &r.ordinary),
-    };
-    let (case_index, case_id, seed) = one_case(pc, invocation)?;
-    let selected_owner = pc.native_pair().and_then(|(_, case)| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });
-    // U2 on the failure path: refused proof work and any certificate bind to the
-    // selected owner structurally (before any projection reads them).
-    if let Refused::Candidate(r) = &refused {
-        let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| selected_owner.is_some_and(matches);
-        if r.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) {
-            return Err(assoc("product_attempts[].proof.owner"));
-        }
-        if r.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {
-            return Err(assoc("product_attempts[].proof.owner"));
-        }
-    }
-    let mut costs = rr::ProjectionWork::default();
-    let view = match &refused {
-        Refused::Preparation(f) => f.typed_trace(&mut costs),
-        Refused::Native(p) => p.native_refusal_trace(&mut costs),
-        Refused::Candidate(r) => r.typed_trace(&mut costs),
-    }.map_err(|_| assoc("product_attempts[]"))?;
-    let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc("product_attempts[].result")) };
-    let mut env = serde_json::to_value(ordinary_env).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
-    let mut legacy_source_work = Vec::new();
-    let (legacy, _) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, false)?;
-    let diagnostic_ref = unavailable_envelope(&mut env, pc.route(), &case_id)?;
-    let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
-    let error = public_error(&e, failure, pc);
-    let material = material_basis(&e, pc, raw, 1)?;
-    let (case_v, attempt, sources, arrays, charged, order) = match pc.native_pair() {
-        // D38: no kernel schedule ran, so no Run, run_ref or execution entry.
-        None => {
-            // A source-constructor refusal carries C2's `source_decline` (constructor
-            // counts are not captured typed here; fail closed).
-            if matches!(failure, rr::FailureRef::Preparation { capture: rp::CaptureError::Source(_), .. }) {
-                return Err(fail(ReceiptCheck::Untranslated, "cases[].source_decline"));
-            }
-            if view.prepared_source.is_some() {
-                // A prepared source with no native call: its CaseSource would need identity
-                // bytes the kernel registers only at the call (not decided here; fail closed).
-                return Err(fail(ReceiptCheck::Untranslated, "sources[].kernel_source_sha256"));
-            }
-            let code = ("source_unavailable", "preparation");
-            let attempt = product_attempt(&e, &view, 0, case_index, None, None, json!({"kind":"unavailable","error":error}), pc);
-            let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
-                "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
-                "diagnostic_ref":diagnostic_ref,"run":null,"source_ref":null});
-            (case_v, attempt, Vec::new(), (Vec::new(), Vec::new(), Vec::new()), 0u64, json!([]))
-        }
-        Some((inv, case)) => {
-            let run = one_run(inv, case, case_index)?;
-            let (records, terminal) = kernel_outcome(&e, &case.outcome);
-            let kind = terminal["kind"].as_str().unwrap_or_default().to_owned();
-            let run_v = run_value(&e, run, records, terminal, case_index)?;
-            let source = match selected_owner { Some(owner) => owner.source(), None => view.prepared_source.ok_or(assoc("sources[]"))? };
-            let mut source_v = case_source(&e, pc, source, inv, run, case_index, &case_id, &view)?;
-            // The readers' accepted D4d table (S06): a nonselected Run is the kernel's;
-            // after a selected Run, the facade's.
-            let code = match (error["kind"].as_str(), kind.as_str()) {
-                (Some("preparation"), _) => return Err(assoc("product_attempts[].result")),
-                (_, "selected") => ("facade_certificate".to_owned(), "facade"),
-                (_, other) => (format!("kernel_{other}"), "kernel"),
-            };
-            let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
-            if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
-                bind_preparation(&mut source_v, &attempt, 0, pc.route())?;
-            }
-            let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
-                "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
-                "diagnostic_ref":diagnostic_ref,"run":run_v,"source_ref":run.source});
-            let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run, &[case_index])?;
-            (case_v, attempt, vec![source_v], (calls, groups, builds), charged, json!([{"kind":"case","index":case_index}]))
-        }
-    };
-    finish(e, env, invocation, charged, order, vec![case_v], sources, material, arrays, vec![ordinary], vec![attempt], legacy_source_work)
 }
 
 /// B1 SP (DESIGN_v2 T-11): the successor of an invocation whose transaction has at least one
@@ -1901,8 +1626,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
 ///
 /// The envelope (G-a; T1 (a)): the identity once; each selected case's method token, omitted
 /// legacy disclosure and selected diagnostic, in request order; then each unavailable case's
-/// diagnostic, in request order. At c = 1 these are `serialize_selected_from`'s bytes. Any
-/// refusal abandons the successor (decision 5).
+/// diagnostic, in request order. Any refusal abandons the successor (decision 5).
 pub(super) fn serialize_cases(cases: &mut rp::PreparedCases, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
     -> Result<Value, ReceiptFailure> {
     let rp::PreparedCases { capture, attempts, combinations, operand_preparations, .. } = cases;
@@ -2192,7 +1916,7 @@ fn combination_entry(e: &Enc, combination: &rp::CombinationAttempt, raw: &Value,
             preparations.get(*operand_preparation).ok_or(assoc("combinations[].reason.cause"))?;
             unavailable("combination_unresolved", "preparation", json!({"kind":"operand_preparation_failure","operand_preparation_ref":operand_preparation}))
         }
-        rp::CombinationEnd::PreSource { reason, .. } => unavailable("combination_unresolved", "preparation", combination_reason(e, reason)),
+        rp::CombinationEnd::PreSource { reason } => unavailable("combination_unresolved", "preparation", combination_reason(e, reason)),
         rp::CombinationEnd::Native | rp::CombinationEnd::Frozen(_) | rp::CombinationEnd::Candidate(_) => part.ok_or(assoc("combinations[].run"))?,
         rp::CombinationEnd::Retained => return Err(assoc("combinations[].disposition")),
     };
@@ -2739,7 +2463,8 @@ pub(super) fn test_kernel_terminal(outcome: &k::ExecutionOutcome) -> (usize, Val
 /// Test access to the structural checks RV82-N1 names.
 #[cfg(test)]
 pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
-    successor_envelope(env, rp::W1Route::Preview, case_id, omit)
+    successor_identity(env, rp::W1Route::Preview);
+    selected_case_envelope(env, case_id, omit)
 }
 #[cfg(test)]
 pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (bool, Vec<ReceiptFailure>) {
@@ -2751,13 +2476,16 @@ pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (
 pub(super) fn test_invocation_arrays(inv: &k::RecordedInvocation, run: &k::RunOrigins) -> Result<u64, ReceiptFailure> {
     let e = Enc::default();
     // The one-case call: its one Run's owner is request index 0.
-    let (_, _, _, charged) = invocation_arrays(&e, inv, run, &[0])?;
+    let (_, _, _, charged) = invocation_arrays_mapped(&e, inv, run, &OwnerMap { requests: &[0], prepared: &[], combinations: &[] })?;
     e.finish()?;
     Ok(charged)
 }
 #[cfg(test)]
 pub(super) fn test_ordinary_value(env: &Value, case_id: &str, seed: &rp::OrdinarySeed) -> Result<Value, ReceiptFailure> {
     let e = Enc::default();
-    let (v, _) = ordinary_value(&e, env, case_id, 0, PreviewSolverMode::SparseInteractive, seed, Value::Null)?;
+    let mut refs = [Vec::new()];
+    case_diagnostic_refs_into(env, &[case_id], &mut refs)?;
+    let [refs] = refs;
+    let (v, _) = ordinary_entry(&e, env, case_id, 0, PreviewSolverMode::SparseInteractive, seed, Value::Null, refs)?;
     Ok(v)
 }

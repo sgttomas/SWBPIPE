@@ -27,7 +27,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > ##### PDU-024 Version Integration
 >
 > - Owning material schema remains `schemas/material.schema.yaml`.
-> - Project-carried material data consumes DEL-02-05 model-document version handling, whose accepted current family is `0.2.0`.
+> - Project-carried material data consumes DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
 > - No material fixture migration, material serializer, or new migration status is added by this tranche.
 >
 
@@ -125,7 +125,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### PDU-024 Persistence Integration Boundary
 >
-> When material data is carried in a project model, downstream DEL-02-05 persistence uses the accepted model-document `0.2.0` family and established current/stale/unsupported/newer/failed version checks. This integration evidence does not add a DEL-03-01-owned serializer, migrate the invented material fixture, or close the separately recorded material round-trip persistence deferral.
+> When material data is carried in a project model, downstream DEL-02-05 persistence uses its single current model-document version and current-or-refused version checks (DEL-02-05 CLM-003). This integration evidence does not add a DEL-03-01-owned serializer, migrate the invented material fixture, or close the separately recorded material round-trip persistence deferral.
 >
 
 ### CLM-011 — Requirements
@@ -140,7 +140,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | REQ-03-01-004 | The schema records public/private classification and redistribution status for material library data. | OPS-K-IP-2; OPS-K-PRIV-1; OPS-K-GOV-4 | Schema enums and fixture validation cover privacy and redistribution dispositions. |
 > | REQ-03-01-005 | The schema expresses missing solve-required or rule-check-required material values as explicit diagnostics or completeness findings, not defaults. | OPS-K-DATA-2; AB-00-06 | Fixture contains omitted values, incomplete status, and blocking `MATERIAL_PROPERTY_MISSING` diagnostics. |
 > | REQ-03-01-006 | The schema supports quarantine/escalation status for suspected protected material content. | OPS-K-IP-3 | Schema includes `protected_suspected` redistribution/value states and protected-content diagnostic code. |
-> | REQ-03-01-007 | The schema preserves versioned, provenance-preserving, schema-governed serialization behavior where material data is serialized. | AB-00-04 | Schema validation is present and project-carried material data consumes DEL-02-05's accepted `0.2.0` version contract; a dedicated material serialization round-trip harness remains downstream `TBD`. |
+> | REQ-03-01-007 | The schema preserves versioned, provenance-preserving, schema-governed serialization behavior where material data is serialized. | AB-00-04 | Schema validation is present and project-carried material data consumes DEL-02-05's one-current-version contract (CLM-003; the code keeps `0.2.0`/`0.3.0`/`0.4.0` until B7, DEL-05-02 Design `b7-plan.md`); a dedicated material serialization round-trip harness remains downstream `TBD`. |
 > | REQ-03-01-008 | The deliverable does not treat agent-generated setup text as engineering authority or source data. | OPS-K-AGENT-4 | Fixture provenance labels invented/schema-slot evidence and omits engineering values. |
 > | REQ-03-01-009 | The material property dimension vocabulary stays aligned with accepted PKG-02 dimensions. | DEL-02-01; DEL-02-02; PKG-02 audit finding resolution | `tests/test_material_schema.py` asserts material dimensions are a subset of canonical dimensions and exclude retired aliases. |
 >
@@ -201,7 +201,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 >
 > 1. Validate material records against the DEL-03-01 schema and provenance rules.
 > 2. When material records are carried by a project model, consume DEL-02-05 version-check and migration evidence rather than a local version literal.
-> 3. Preserve explicit stale/unsupported/newer/failed project-version diagnostics and do not rewrite the material fixture as part of model-document compatibility handling.
+> 3. Preserve explicit project-version diagnostics in DEL-02-05 CLM-003's states (`current`, `unsupported_schema`, `newer_than_supported`, named re-author refusal; the code keeps `stale`/`failed` until B7, DEL-05-02 Design `b7-plan.md`) and do not rewrite the material fixture as part of model-document version handling.
 >
 
 ### CLM-017 — Purpose

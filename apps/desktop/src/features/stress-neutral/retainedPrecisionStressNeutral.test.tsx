@@ -33,13 +33,14 @@ import {
 } from "../results/retainedPrecisionDisclosure";
 import { buildStressNeutralExportPacket, strictWitnessDisposition, validateStressNeutralExportPacket, StressNeutralExportPanel } from "./StressNeutralExportPanel";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
+import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisionCorpus";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 afterEach(() => { cleanup(); invokeMock.mockReset(); delete (window as Json).__TAURI_INTERNALS__; });
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const caseFile = json("fixtures/results/retained_precision_carrier_cases.json");
-const corpus = json("fixtures/results/retained_precision_cases.json");
+const corpus = readRetainedPrecisionCorpus();
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 const ABSOLUTE_CODE = "SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-ABSOLUTE-VERIFIED";
 const NOT_COVERED_CODE = "SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED";

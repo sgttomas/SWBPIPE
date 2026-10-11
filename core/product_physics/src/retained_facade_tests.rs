@@ -3148,30 +3148,36 @@ fn b3b_rv123_s2_unavailable_exact_case_binds_def_e() {
         assert_eq!(bytes, pinned, "{label}: pinned");
     }
 }
-/// RV123 S-2 (its R-02 and R-03): the one-case serializer's unavailable branch on the exact route.
-/// m3x's candidate refused after its selected Run (an injected maxima fault) serializes with
-/// physics-retained-1's identity and profile, and its CaseSource's preparation binding with DEF-E's
-/// H.
+/// RV123 S-2 (its R-02 and R-03): the serializer's unavailable branch on the exact route. Case-2
+/// of the two-case m3x, refused after its selected Run (an injected maxima fault) beside the
+/// selected case, serializes with physics-retained-1's identity and profile, and its CaseSource's
+/// preparation binding with DEF-E's H.
 #[test]
-fn b3b_rv123_s2_one_case_unavailable_exact_serializer() {
-    use super::retained_receipt::TraceFault as F;
+fn b3b_rv123_s2_unavailable_exact_case_serializer() {
     use super::retained_wire as wire;
+    let raw = two_case_exact();
     for mode in MODES {
-        let label = format!("one-case unavailable {mode:?}");
-        let (request, capture) = source_receipt::CapturedInvocation::parse(m3x(), mode).unwrap();
-        let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{label}: {:?}", e.capture.error));
-        prepared.test_capture_mut().trace_fault = Some(F::Maxima);
-        prepared.solve_native().unwrap();
-        let refused = match prepared.project_candidate() { Err(refused) => refused, Ok(_) => panic!("{label}: a refusal") };
-        let successor = wire::serialize_unavailable(wire::Refused::Candidate(&refused), &capture).unwrap_or_else(|f| panic!("{label}: {f:?}"));
+        let label = format!("unavailable exact case {mode:?}");
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let mut prepared = match observer.prepare_cases(ordinary, 2, &[0, 1]) { Ok(p) => p, Err(f) => panic!("{label}: {:?}", f.error) };
+        prepared.native();
+        hooks::fail_freeze_of_case(1);
+        prepared.freeze();
+        assert!(hooks::armed_names().is_empty(), "{label}: the fault fired");
+        prepared.dispositions();
+        prepared.combine().unwrap_or_else(|c| panic!("{label}: {}", c.0));
+        let staged = prepared.staged_envelope().unwrap_or_else(|f| panic!("{label}: {}", f.0));
+        let successor = wire::serialize_cases(&mut prepared, &staged, &capture).unwrap_or_else(|f| panic!("{label}: {f:?}"));
         assert_eq!(successor["producer"]["semantic_contract_id"], json!(wire::EXACT_SEMANTIC_ID), "{label}: R-03");
         assert_eq!(successor["formulation_basis"]["profile_id"], json!(wire::EXACT_PROFILE_ID), "{label}");
         let body = &successor["retained_precision"]["body"];
-        assert_eq!(body["cases"][0]["status"], json!("unavailable"), "{label}");
-        assert_eq!(body["cases"][0]["reason"]["code"], json!("facade_certificate"), "{label}");
-        let attempt = &body["product_attempts"][0];
+        let case = &body["cases"][1];
+        assert_eq!((&body["cases"][0]["status"], &case["status"]), (&json!("selected"), &json!("unavailable")), "{label}");
+        assert_eq!(case["reason"]["code"], json!("facade_certificate"), "{label}");
+        let attempt = &body["product_attempts"][case["product_attempt_ref"].as_u64().unwrap() as usize];
         assert_eq!(attempt["definition_id"], json!(wire::EXACT_DEFINITION_ID), "{label}");
-        assert_eq!(body["sources"][0]["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: R-02");
+        let source = &body["sources"][case["source_ref"].as_u64().unwrap() as usize];
+        assert_eq!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: R-02");
     }
 }
 /// RV123 N-2: an unused material on the exact route, with no ν and no basis, is not checked: m3x

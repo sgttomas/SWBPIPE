@@ -62,7 +62,7 @@ use open_pipe_stress_linear_supports::{
 use open_pipe_stress_load_case_algebra::{
     evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction,
     AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
-    CombinationTerm, FindingCode, RangeMode,
+    CombinationTerm, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
     solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
@@ -120,7 +120,7 @@ mod preview_physics;
 mod retained_product;
 mod retained_receipt;
 mod retained_memory;
-// I61 U1: the private serializer (production-unreachable until U3).
+// The private retained-precision serializer (reached only through the W1 transaction).
 mod retained_wire;
 pub use retained_memory::{
     borrowed_request_census, borrowed_value_census, AllowanceStatus, BorrowedRequestFacts,
@@ -865,9 +865,13 @@ struct SourceRecoveryBudget {
     /// 0.4.0 only: the first cause for which a selected join could not
     /// finalize. The captured route then republishes ordinarily.
     load_state_join_failure: Option<String>,
+    /// HELP_HUMAN's ruling 3: the invocation was captured, but its model does
+    /// not join retained-source recovery (`exact_admission::joins_retained_source`);
+    /// each case v2 would route to recovery names the missing join.
+    retained_source_not_joined: bool,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None, retained_source_not_joined: false } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
@@ -885,6 +889,7 @@ impl SourceRecoveryBudget {
             attempts: self.attempts,
             load_state_join_withheld: Some(cause),
             load_state_join_failure: self.load_state_join_failure.clone(),
+            retained_source_not_joined: self.retained_source_not_joined,
         }
     }
     fn record_load_state_join_failure(&mut self, cause: String) {
@@ -1349,6 +1354,113 @@ fn append_integrity_failure(
 ) {
     let code = integrity_failure_code(error);
     diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+}
+
+/// HELP_HUMAN's ruling 3 (`exact_admission::RETAINED_SOURCE_NOT_JOINED`): for
+/// a case of a captured invocation whose model does not join retained-source
+/// recovery and whose ordinary attempt needs recovery, the diagnostic is added
+/// when the case would be retained-source eligible on the captured entry
+/// (main's predicate). Static text; refs name the case.
+fn append_retained_source_not_joined(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    built: &BuiltModel,
+    model: &PreviewModel,
+) {
+    if source_eligible(true, !built.nonlinear_supports.is_empty(), !model.combinations.is_empty()) {
+        diagnostics.push(diag(
+            &format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id)),
+            exact_admission::RETAINED_SOURCE_NOT_JOINED,
+            "info",
+            exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT,
+            vec![case_id.to_string()],
+        ));
+    }
+}
+
+/// HELP_HUMAN's ruling 5 (2026-10-10; DEL-04-01 "Stable small-angle
+/// evaluation"): a refusal by FK's structural pivot screen (`screen_pivot`,
+/// T3's M03-INTEGRITY policy, unchanged) of a model holding a realized bend
+/// that is short against its neighbours names that bend.
+pub(crate) const CURVED_BEND_SHORT: &str = "CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS";
+/// The ratio test: arc length R*phi over the shorter adjacent member's length
+/// below 1e-4. T4-I22 measured the screen's refusal boundary on the L line
+/// (R = 0.2286 m, 3 m / 4 m straights) at R*phi/L of about 5e-5, where the
+/// condensed transverse pivot, about 0.67*(R*phi/L)^3 of the stiff diagonal,
+/// meets the screen's bound of about 8.5e-14; 1e-4 is that boundary with a
+/// factor-of-two margin for the bound's constants (k, operation count), so a
+/// case refused near the boundary is still identified. The diagnostic is only
+/// added to a case the screen has already refused.
+pub(crate) const CURVED_BEND_SHORT_RATIO: f64 = 1e-4;
+/// FK `screen_pivot`'s refusal reason, verbatim (pinned by the L-line tests).
+const PIVOT_SCREEN_REASON: &str = "nonpositive or cancellation-unresolved structural pivot";
+const CURVED_BEND_SHORT_TEXT: &str = "the bend is too short relative to its neighbours for a reliable solution: its arc is stiff against the adjacent members, so the assembled system is ill-conditioned beyond binary64 resolution (a straight chord of the same length behaves identically)";
+
+/// The realized bend with the smallest arc-length ratio to its shorter
+/// adjacent member (a straight's chord length, or a neighbouring bend's arc
+/// length), with that ratio; `None` when no bend has a neighbour.
+fn shortest_bend_against_neighbours(built: &BuiltModel) -> Option<(&CurvedBendMacroBuild, f64)> {
+    let member_length = |index: usize| {
+        built
+            .curved_bend_elements
+            .iter()
+            .find(|bend| bend.pipe_index == index)
+            .map_or_else(
+                || {
+                    let pipe = &built.pipes[index];
+                    let (a, b) = (pipe.node_i.coordinates, pipe.node_j.coordinates);
+                    norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+                },
+                |bend| bend.arc_length,
+            )
+    };
+    built
+        .curved_bend_elements
+        .iter()
+        .filter_map(|bend| {
+            let shorter = built
+                .pipes
+                .iter()
+                .enumerate()
+                .filter(|(index, pipe)| {
+                    *index != bend.pipe_index
+                        && [pipe.node_i.index, pipe.node_j.index]
+                            .iter()
+                            .any(|node| *node == bend.node_i || *node == bend.node_j)
+                })
+                .map(|(index, _)| member_length(index))
+                .min_by(|a, b| a.total_cmp(b))?;
+            Some((bend, bend.arc_length / shorter))
+        })
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+}
+
+/// Ruling 5: after a pivot-screen refusal, one diagnostic per refused case
+/// naming the shortest bend when its ratio is below [`CURVED_BEND_SHORT_RATIO`].
+fn append_short_bend_refusal(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    error: &StructuralError,
+    built: &BuiltModel,
+) {
+    if !matches!(error, StructuralError::NumericallyUnresolved { reason, .. } if *reason == PIVOT_SCREEN_REASON) {
+        return;
+    }
+    let Some((bend, ratio)) = shortest_bend_against_neighbours(built) else {
+        return;
+    };
+    if ratio < CURVED_BEND_SHORT_RATIO {
+        diagnostics.push(diag(
+            &format!("diagnostic:curved-bend-short:{}", stable_suffix(case_id)),
+            CURVED_BEND_SHORT,
+            "blocking",
+            format!(
+                "Load case {case_id}: realized bend {} (pipe {}): arc length / shorter adjacent member length = {ratio:.3e}, below {CURVED_BEND_SHORT_RATIO:e}; {CURVED_BEND_SHORT_TEXT}",
+                bend.component_id, bend.pipe_id
+            ),
+            vec![case_id.to_string(), bend.component_id.clone(), bend.pipe_id.clone()],
+        ));
+    }
 }
 
 // ------------------------------------------------------------ F1b: W2 (range)
@@ -2098,7 +2210,6 @@ struct LoadCaseSolve {
     max_stress: Option<LocatedQuantity>,
     component_stress_modifier_count: usize,
     component_pressure_thrust_load_count: usize,
-    support_force_vectors: HashMap<String, [f64; 3]>,
     preview: Option<preview_physics::CaseRecord>,
 }
 
@@ -2387,7 +2498,9 @@ fn run_linear_static_preview_observed(
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
     // T4-U2a: a v3 invocation is not joined to retained-source recovery.
-    let capture = capture.filter(|_| exact_admission::joins_retained_source(&request.model));
+    let joins = exact_admission::joins_retained_source(&request.model);
+    source_budget.retained_source_not_joined = capture.is_some() && !joins;
+    let capture = capture.filter(|_| joins);
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
@@ -2724,16 +2837,8 @@ fn run_linear_static_preview_observed(
     let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
-    let max_displacement = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
-        maximum_across_cases(&load_case_solves, false)
-    } else {
-        load_case_solves.first().and_then(|solve| solve.max_displacement.clone())
-    };
-    let max_stress = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
-        maximum_across_cases(&load_case_solves, true)
-    } else {
-        load_case_solves.first().and_then(|solve| solve.max_stress.clone())
-    };
+    let max_displacement = maximum_across_cases(&load_case_solves, false);
+    let max_stress = maximum_across_cases(&load_case_solves, true);
     let component_stress_modifier_count = load_case_solves
         .iter()
         .map(|solve| solve.component_stress_modifier_count)
@@ -2747,7 +2852,6 @@ fn run_linear_static_preview_observed(
     let mut exact_cases = Vec::new();
     let mut load_reference_states = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
-    let mut support_vectors_by_case = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
@@ -2763,7 +2867,6 @@ fn run_linear_static_preview_observed(
         }
         let is_default = index == 0;
         let load_case_id = solve.load_case_id.clone();
-        support_vectors_by_case.insert(load_case_id.clone(), solve.support_force_vectors);
         let id_map = solve
             .results
             .iter()
@@ -2799,18 +2902,11 @@ fn run_linear_static_preview_observed(
             results.push(result);
         }
     }
+    // With `preview` None the model is exact (validate_profile refuses its combinations) or a case is
+    // source-selected (source_eligible requires no combinations): there are no combinations to append.
     let preview_gates = match &preview {
         Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),
-        None => {
-            append_combination_results(
-                &model,
-                &rows_by_base_id,
-                &support_vectors_by_case,
-                &mut results,
-                &mut diagnostics,
-            );
-            Vec::new()
-        }
+        None => Vec::new(),
     };
     append_combination_modulus_basis_records(&model, &mut results);
     // H-4: the key is kept; since T4-U3 it counts the curved macro-element rows
@@ -2928,7 +3024,7 @@ fn run_linear_static_preview_observed(
 /// one scoped thread with the permit's reserved stack (STACK_PLAN §1, D-3 = S1):
 /// the single observed ordinary run, G-B (inside the capture), G-C and every W1
 /// phase. A spawn failure runs the unchanged ordinary route on this thread.
-/// The permit is linear (U3 grant 1b): it moves onto the reserved-stack thread and
+/// The permit is linear: it moves onto the reserved-stack thread and
 /// into the observer, and drops with the work, or unrun with it on a spawn failure.
 /// Only D1 Direct calls in the registered dev/test build reach it (M = 4,026,531,840 B, D-7).
 fn permitted_dispatch(
@@ -2970,7 +3066,7 @@ fn on_reserved_stack<T: Send>(bytes: usize, work: impl FnOnce() -> T + Send) -> 
 
 /// Production: the work itself. Test builds: the caller thread's armed fault hooks
 /// (thread-local) move with the work onto the reserved-stack thread, so a committed
-/// fault test cannot pass vacuously there (ROOT's flag on grant 1). Faults that did
+/// fault test cannot pass vacuously there. Faults that did
 /// not fire there are handed back to the caller (RV85 U2): after the work, or as the
 /// unrun work drops on a spawn failure; the caller re-arms them with
 /// `reclaim_handed_back`.
@@ -3042,7 +3138,7 @@ fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
         return None;
     }
     match retained_memory::namespace_branch(model) {
-        Ok(B::Legacy) => Some(retained_product::W1Route::Preview),
+        Ok(B::Preview) => Some(retained_product::W1Route::Preview),
         Ok(B::Exact) => Some(retained_product::W1Route::Exact),
         Err(_) => None,
     }
@@ -3464,8 +3560,10 @@ pub(crate) mod retained_tests_hooks {
         operand_preparation_of_case: Option<usize>,
         combination_call: Option<usize>,
         combination_freeze: bool,
-        /// RV123 S-2: the request index of the case whose freeze refuses (its maxima stage).
-        freeze_of_case: Option<usize>,
+        /// RV123 S-2: the request index of one case and the private driver's trace fault that
+        /// case alone takes: at its preparation (`SourceConstruction`) or its freeze (`Maxima`,
+        /// `ValuesCompletion`).
+        trace_fault_of_case: Option<(usize, super::retained_receipt::TraceFault)>,
         /// B2-P: the serializer's meter-chain check reads the next pair of Calls as unchained.
         meter_chain: bool,
         /// RV123 (B2-P round 2) S-1: the request index of the case whose batch Run reads as
@@ -4335,7 +4433,6 @@ fn solve_load_case_observed(
             max_stress: None,
             component_stress_modifier_count: 0,
             component_pressure_thrust_load_count: 0,
-            support_force_vectors: HashMap::new(),
             preview: None,
         });
     }
@@ -4371,7 +4468,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
         }
@@ -4478,7 +4574,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
         }
@@ -4661,6 +4756,11 @@ fn solve_load_case_observed(
             }
         }
     }
+    // HELP_HUMAN's ruling 3: a case v2's captured entry would route to
+    // retained-source recovery names the join v3 lacks.
+    if source_budget.retained_source_not_joined && needs_source_recovery {
+        append_retained_source_not_joined(diagnostics, &load_case.id, built, model);
+    }
     // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
     if let Some(observer) = product.as_deref_mut() {
         observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
@@ -4764,7 +4864,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
                     }
@@ -4783,6 +4882,7 @@ fn solve_load_case_observed(
                     if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
                         observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
                     }
+                    append_short_bend_refusal(diagnostics, &load_case.id, &error, built);
                     return Ok(LoadCaseSolve {
                 load_state_evidence: None,
                 pressure_evidence: Vec::new(),
@@ -4795,7 +4895,6 @@ fn solve_load_case_observed(
                 max_stress: None,
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
-                support_force_vectors: HashMap::new(),
                 preview: None,
             });
                 }
@@ -4923,7 +5022,6 @@ fn solve_load_case_observed(
                     max_stress: None,
                     component_stress_modifier_count: 0,
                     component_pressure_thrust_load_count: 0,
-                    support_force_vectors: HashMap::new(),
                     preview: None,
                 });
             }
@@ -5072,7 +5170,6 @@ fn solve_load_case_observed(
     // preview-physics-1 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
         .then(preview_physics::CaseRecord::default);
-    let mut support_force_vectors = HashMap::new();
     for support in &model.supports {
         if let Some(index) = node_index(model, &support.node) {
             let mut vector = [0.0; 6];
@@ -5144,7 +5241,6 @@ fn solve_load_case_observed(
             } else {
                 norm3(force_vector[0], force_vector[1], force_vector[2])
             };
-            support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
             if pressure_runtime::is_exact(model) {
                 if let Some(selected) = selected_source.as_mut() {
                     match source_receipt::composite_support_norms(&recovery_input(), selected, &support.id) {
@@ -5951,7 +6047,6 @@ fn solve_load_case_observed(
         max_stress,
         component_stress_modifier_count,
         component_pressure_thrust_load_count,
-        support_force_vectors,
         preview: preview_record,
     })
 }
@@ -13128,158 +13223,6 @@ fn append_combined_vector_magnitude(
     results.push(combined);
 }
 
-fn append_combination_results(
-    model: &PreviewModel,
-    rows_by_base_id: &HashMap<String, HashMap<String, ResultItem>>,
-    support_vectors_by_case: &HashMap<String, HashMap<String, [f64; 3]>>,
-    results: &mut Vec<ResultItem>,
-    diagnostics: &mut Vec<Diagnostic>,
-) {
-    let mut base_ids = rows_by_base_id.keys().cloned().collect::<Vec<_>>();
-    base_ids.sort();
-
-    for combination in &model.combinations {
-        let Some(expression) = CombinationExpression::resolve(combination) else {
-            continue;
-        };
-        for base_id in &base_ids {
-            let Some(source_rows) = rows_by_base_id.get(base_id) else {
-                continue;
-            };
-            let reference_operand_id = expression.reference_operand_id();
-            let Some(reference_row) = source_rows.get(reference_operand_id) else {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-                    "warning",
-                    format!(
-                        "combination source result {base_id} is not available for load case {reference_operand_id}"
-                    ),
-                    vec![combination.id.clone(), reference_operand_id.to_string()],
-                ));
-                continue;
-            };
-            if reference_row.kind == "open_formula_stress_summary" {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "COMBINATION_STRESS_SUMMARY_SKIPPED",
-                    "warning",
-                    "open-formula stress summary rows are not linearly combined in TP-MAC-08; combine inspectable stress component rows instead",
-                    vec![combination.id.clone(), reference_row.id.clone()],
-                ));
-                continue;
-            }
-            if !matches!(expression, CombinationExpression::RangeEnvelope { .. })
-                && matches!(
-                    reference_row.kind.as_str(),
-                    "displacement_magnitude" | "reaction_resultant"
-                )
-            {
-                append_combined_vector_magnitude(
-                    combination,
-                    &expression,
-                    base_id,
-                    reference_row,
-                    rows_by_base_id,
-                    support_vectors_by_case,
-                    results,
-                    diagnostics,
-                );
-                continue;
-            }
-            if is_combination_excluded_result_kind(&reference_row.kind) {
-                continue;
-            }
-            let Some(dimension) = algebra_dimension(reference_row) else {
-                diagnostics.push(combination_diag(
-                    combination,
-                    base_id,
-                    "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
-                    "warning",
-                    "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
-                    vec![combination.id.clone(), reference_row.id.clone()],
-                ));
-                continue;
-            };
-
-            let mut operands = Vec::new();
-            let mut source_result_refs = Vec::new();
-            let mut source_identity_mismatch = false;
-            for operand_id in expression.operand_ids() {
-                let Some(source) = source_rows.get(operand_id) else {
-                    continue;
-                };
-                if !combination_source_identity_matches(reference_row, source) {
-                    source_identity_mismatch = true;
-                    diagnostics.push(combination_diag(
-                        combination,
-                        base_id,
-                        "LOAD_COMBINATION_SOURCE_RESULT_MISMATCH",
-                        "warning",
-                        "combination source rows must match kind, unit, entity, and result metadata",
-                        vec![
-                            combination.id.clone(),
-                            reference_row.id.clone(),
-                            source.id.clone(),
-                        ],
-                    ));
-                    continue;
-                }
-                operands.push(AlgebraOperand::new(
-                    operand_id.to_string(),
-                    operand_id.to_string(),
-                    AlgebraQuantity::new(source.value, dimension)
-                        .expect("result values are finite preview mechanics outputs"),
-                    vec![
-                        AlgebraAnalysisStatus::MechanicsSolved,
-                        AlgebraAnalysisStatus::HumanReviewRequired,
-                    ],
-                ));
-                source_result_refs.push(source.id.clone());
-            }
-            if source_identity_mismatch {
-                continue;
-            }
-            let operand_by_id = operands
-                .iter()
-                .map(|operand| (operand.operand_id.as_str(), operand))
-                .collect::<HashMap<_, _>>();
-            let algebra = expression.evaluate(&operand_by_id);
-            if algebra.is_blocked() {
-                for finding in algebra.findings {
-                    diagnostics.push(combination_diag(
-                        combination,
-                        base_id,
-                        algebra_finding_diagnostic_code(finding.code),
-                        "warning",
-                        finding.message,
-                        vec![combination.id.clone(), finding.subject_id],
-                    ));
-                }
-                continue;
-            }
-            let Some(quantity) = algebra.quantity else {
-                continue;
-            };
-            let mut combined = reference_row.clone();
-            combined.id = qualified_combination_result_id(&combination.id, base_id);
-            combined.value = quantity.value;
-            combined.basis_ref = Some(ResultBasisRef {
-                ref_type: "combination".to_string(),
-                ref_id: combination.id.clone(),
-            });
-            combined.source_result_refs = source_result_refs;
-            if let Some(metadata) = combined.metadata.as_mut() {
-                metadata.basis = expression.result_metadata_basis().to_string();
-                metadata.sign_convention = expression.result_sign_convention();
-            }
-            results.push(combined);
-        }
-    }
-}
-
 fn append_nonlinear_friction_normal_evidence(
     results: &mut Vec<ResultItem>,
     friction_normal_reactions: &[FrictionNormalReaction],
@@ -13332,25 +13275,6 @@ fn append_nonlinear_friction_normal_evidence(
     }
 }
 
-fn is_combination_excluded_result_kind(kind: &str) -> bool {
-    matches!(
-        kind,
-        "nonlinear_support_friction_normal_reaction_input"
-            | "nonlinear_support_friction_normal_reaction_derived"
-            | "nonlinear_support_observed_max_translation_delta"
-            | "nonlinear_support_observed_max_rotation_delta"
-            | "nonlinear_support_observed_max_force_reaction_delta"
-            | "nonlinear_support_observed_max_moment_reaction_delta"
-            | "nonlinear_support_observed_free_dof_force_residual"
-            | "nonlinear_support_observed_free_dof_moment_residual"
-            | "nonlinear_support_free_dof_work_residual"
-            | "linear_solver_mode_basis"
-            | "sparse_live_path_dense_parity_relative_delta"
-            | "modulus_basis_record"
-            | "combination_modulus_basis_record"
-    )
-}
-
 fn combination_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
     reference.kind == candidate.kind
         && reference.unit == candidate.unit
@@ -13366,19 +13290,6 @@ fn algebra_dimension(result: &ResultItem) -> Option<LoadDimension> {
         "N*m" => Some(LoadDimension::Moment),
         "MPa" => Some(LoadDimension::Pressure),
         _ => None,
-    }
-}
-
-fn algebra_finding_diagnostic_code(code: FindingCode) -> &'static str {
-    match code {
-        FindingCode::MissingOperand => "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-        FindingCode::EmptyExpression => "LOAD_COMBINATION_TERMS_EMPTY",
-        FindingCode::NonFiniteFactor => "LOAD_COMBINATION_FACTOR_INVALID",
-        FindingCode::DimensionMismatch => "LOAD_COMBINATION_DIMENSION_MISMATCH",
-        FindingCode::DuplicateOperand => "LOAD_COMBINATION_DUPLICATE_TERM",
-        FindingCode::UnsupportedExpressionShape => "LOAD_COMBINATION_UNSUPPORTED_EXPRESSION",
-        FindingCode::MissingResultState => "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
-        FindingCode::StatusBoundaryViolation => "LOAD_COMBINATION_STATUS_BOUNDARY_VIOLATION",
     }
 }
 
@@ -21721,34 +21632,44 @@ mod tests {
         }
     }
 
+    /// The live engine's combined displacement magnitude (`preview_physics::append_combination_results` calls
+    /// `append_combined_vector_magnitude`, with an empty support map, for a mechanics or subtraction combination's
+    /// `displacement_magnitude` row):
+    /// published from complete signed components, withheld with LOAD_COMBINATION_VECTOR_COMPONENT_MISSING when one
+    /// component row is unavailable in an operand case.
     #[test]
     fn p5_combined_magnitude_withholds_incomplete_vector() {
-        let input = p5_beam_request();
-        let output = run_linear_static_preview(input);
+        let output = run_linear_static_preview(p5_beam_request());
         let case = "load:L-100".to_string();
         let mut rows = HashMap::new();
         for row in output.results {
             rows.insert(row.id.clone(), HashMap::from([(case.clone(), row)]));
         }
-        rows.remove("result:disp:node-N-110:uy");
         let mut model = request().model;
         model.combinations.truncate(1);
         model.combinations[0].terms = vec![PreviewCombinationTerm {
-            load_case: case,
+            load_case: case.clone(),
             factor: 1.0,
         }];
-        let mut results = Vec::new();
-        let mut diagnostics = Vec::new();
-        append_combination_results(
-            &model,
-            &rows,
-            &HashMap::new(),
-            &mut results,
-            &mut diagnostics,
-        );
-        assert!(!results
-            .iter()
-            .any(|r| r.kind == "displacement_magnitude" && r.entity_ref == "node:N-110"));
+        let combination = &model.combinations[0];
+        let expression = CombinationExpression::resolve(combination).expect("a one-term mechanics combination resolves");
+        let base_id = "result:disp:node-N-110";
+        let reference = rows[base_id][&case].clone();
+        assert_eq!((reference.kind.as_str(), reference.entity_ref.as_str()), ("displacement_magnitude", "node:N-110"));
+        let run = |rows: &HashMap<String, HashMap<String, ResultItem>>| {
+            let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
+            append_combined_vector_magnitude(combination, &expression, base_id, &reference, rows, &HashMap::new(), &mut results, &mut diagnostics);
+            (results, diagnostics)
+        };
+        // Control: complete components publish the magnitude (one factor-1 term reproduces the case's own value).
+        let (results, diagnostics) = run(&rows);
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].id, qualified_combination_result_id(&combination.id, base_id));
+        assert!((results[0].value - reference.value).abs() <= 1e-12 * reference.value.abs().max(1.0));
+        rows.remove("result:disp:node-N-110:uy");
+        let (results, diagnostics) = run(&rows);
+        assert!(results.is_empty());
         assert!(diagnostics
             .iter()
             .any(|d| d.code == "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"));

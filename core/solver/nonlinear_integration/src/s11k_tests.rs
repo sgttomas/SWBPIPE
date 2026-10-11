@@ -548,9 +548,9 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
     // K1 (pin extension, ROOT): the defining bodies are blanked by impl block:
     // `impl AssemblyEvidence`'s originals, as before, and
     // `impl SparseAssemblyEvidence`'s pattern siblings of the same names only.
+    // The two `solve`s are `#[cfg(test)]`, so the scan never sees them.
     for header in ADAPTER_IMPLS {
         for defining in [
-            "fn solve(",
             "fn solve_assembled(",
             "fn with_force_terms(",
             "fn solve_assembled_with_formation_check(",

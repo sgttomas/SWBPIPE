@@ -220,9 +220,6 @@ impl SelectedSourceRecovery {
     pub fn members(&self) -> &[MemberRecovery] {
         &self.members
     }
-    pub fn spring_actions(&self) -> &[SpringAction] {
-        &self.springs
-    }
     pub fn support_actions(&self) -> &[SupportActions] {
         &self.supports
     }

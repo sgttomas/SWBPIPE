@@ -1590,7 +1590,7 @@ function pressureContractIs(contract: unknown, version: string, mode: string): b
  * `pressure_contract` absent or JSON null. Anything else (any 0.3.0 model, the retired `legacy_pressure_v1` contract
  * included; `{}`, `false`, `""`, `0` or any contract on 0.1.0 or 0.2.0; 0.4.0) is outside the namespace. B3a's branch L3
  * is dropped (the owner retired that contract product-wide); B3D-10's tightenings stay. */
-function legacyNamespace(model: Obj): boolean {
+function previewNamespace(model: Obj): boolean {
   return (model.schema_version === '0.1.0' || model.schema_version === '0.2.0')
     && (!Object.hasOwn(model, 'pressure_contract') || model.pressure_contract === null);
 }
@@ -1604,8 +1604,8 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
   fail(await hash('source_blocks_invocation_v1', invocation) === b.invocation.value, 'INVOCATION_MISMATCH');
   const request = invocation.request, model = request.model;
   // D31: model 0.1.0 and 0.2.0 on one branch (PP pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded (C1 G8
-  // row, "no 0.4 extension"). D1.3's namespace, type-strict (`legacyNamespace`; B3a's L3 dropped); B3b: the exact route's own branch.
-  fail(model?.project?.id === source.model_ref && (route.exact ? exactNamespace(model) : legacyNamespace(model)), 'INVOCATION_MISMATCH');
+  // row, "no 0.4 extension"). D1.3's namespace, type-strict (`previewNamespace`; B3a's L3 dropped); B3b: the exact route's own branch.
+  fail(model?.project?.id === source.model_ref && (route.exact ? exactNamespace(model) : previewNamespace(model)), 'INVOCATION_MISMATCH');
   // (g), B1's three-reader alignment set (RR "RV113's three returns verified; …", item 2): PP's acceptance, before any
   // PREPARATION check. No reference_configurations member (null included); combinations and components absent or [].
   // B2-C §10.1 G8 invocation (REVISION_01 §4.1 row 12): model combinations are admitted, absent or a list; the receipt's

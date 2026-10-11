@@ -117,3 +117,6 @@ code_paths:
 - core/loads/load_case_algebra/Cargo.toml
 - core/loads/load_case_algebra/README.md
 - core/loads/load_case_algebra/src/lib.rs
+- core/reporting/result_export/src/retained_precision.rs
+- core/analysis_runs/retained_precision.py
+- apps/desktop/src/features/results/retainedPrecision.ts

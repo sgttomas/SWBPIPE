@@ -1,5 +1,4 @@
 //! Private same-run diagnostic adapter. Public entrypoints never construct it.
-#![allow(dead_code)]
 use super::*;
 use super::retained_receipt as trace;
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
@@ -13,11 +12,15 @@ pub(super) enum MaterialSelector {
 pub(super) struct MaterialSelection {
     pub case: String,
     pub material: String,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub material_ordinal: usize,
     pub selected: k::ProductMaterial,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub alpha: Option<f64>,
     pub selector: MaterialSelector,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub point_ids: (String, Option<String>),
+    #[cfg_attr(not(test), allow(dead_code))]
     pub source_alpha: [Option<f64>; 2],
 }
 #[derive(Debug)]
@@ -29,6 +32,9 @@ pub(super) struct BasisRecord {
 #[derive(Debug)]
 pub(super) struct TermIdentity {
     pub original: usize,
+    /// Never read; the layout is a priced atom of the registered memory profile
+    /// (`retained_memory.rs`), so the field changes only with a re-registration.
+    #[allow(dead_code)]
     pub occurrence: usize,
     pub canonical: usize,
     pub id: String,
@@ -120,7 +126,7 @@ pub(super) struct ProductCapture {
     pub adapter: AdapterWork,
     pub invocation_calls: usize,
     pub invocation_mode: Option<PreviewSolverMode>,
-    /// RV82-S2 (I61 U1 grant 2): the actual invocation's identity, its
+    /// RV82-S2: the actual invocation's identity, its
     /// `source_blocks_invocation_v1` digest, so a serializer binds structurally to
     /// the invocation this capture observed (not only to its mode). Untracked by
     /// the adapter arrays (receipt bytes unchanged; counted by U4).
@@ -315,6 +321,7 @@ impl ProductCapture {
         let _ = index;
     }
     /// B1 SP (T-8): the invocation and this case's Run, when the call recorded one.
+    #[cfg(test)]
     pub(super) fn native_pair(&self) -> Option<(&k::RecordedInvocation, &k::RecordedCase)> {
         self.native_invocation.as_ref().zip(self.native.as_ref())
     }
@@ -405,7 +412,10 @@ pub(super) enum InitialSeed {
     /// An actual attempted solve failure; the reference is the diagnostic emitted
     /// for it before any W2, else None.
     StructuralFailure { error: StructuralError, diagnostic_ref: Option<String> },
-    /// A deferred unformed basis (F1b): its formation `NumericalRange`.
+    /// A deferred unformed basis (F1b): its formation `NumericalRange`. Not translated, so
+    /// `error` is never read; `OrdinarySeed`'s layout is a priced atom of the registered memory
+    /// profile (`retained_memory.rs`), so it changes only with a re-registration.
+    #[allow(dead_code)]
     FormationFailure { error: FrameKernelError },
 }
 /// C2 §5 `w2`.
@@ -414,6 +424,9 @@ pub(super) enum W2Seed {
     #[default]
     NotTriggered,
     Published { trigger: RangeTrigger, force_scale_exponent: i32, report_diagnostic_ref: Option<String> },
+    /// Not translated, so its fields are never read; `OrdinarySeed`'s layout is a priced atom
+    /// of the registered memory profile (`retained_memory.rs`).
+    #[allow(dead_code)]
     Failed { trigger: RangeTrigger, failure: ForceScalingFailure, diagnostic_ref: String },
 }
 /// The S11-G load-row finding and the diagnostic that discloses it, if any.
@@ -3932,8 +3945,12 @@ fn prepared_string(adapter:&AdapterWork,capacities:&mut [usize;16],text:&str)->R
     adapter.enter(AdapterEvent::RustCapacityBytes,s.capacity() as u64);adapter.require()?;
     adapter.enter(AdapterEvent::MapWrite,1);adapter.require()?;s.push_str(text);Ok(s)
 }
+/// The association record's fields are read by tests only; its layout is a priced atom of the
+/// registered memory profile (`retained_memory.rs`), so it changes only with a re-registration.
 #[derive(Debug)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(super) struct PreparedAssociation {
+    #[allow(dead_code)]
     pub member:u32,
     /// E, G, A, Iy, Iz, J from the authenticated old PrimitiveSource.
     pub old_source:[u64;6],
@@ -3942,6 +3959,7 @@ pub(super) struct PreparedAssociation {
     /// A, I, J, Z, c returned by the actual closed preparation.
     pub prepared:[u64;5],
 }
+#[cfg(test)]
 pub(super) struct PreparedCase {
     ordinary: Option<MechanicsEnvelope>,
     proof_attempted: bool,
@@ -3953,8 +3971,8 @@ pub(super) struct PreparedCase {
     pub old_operational: Vec<OperationalSpent>,
     pub trace:trace::PreparedTrace,
 }
+#[cfg(test)]
 pub(super) struct PreparedCaseFailure {
-    pub associations: Vec<PreparedAssociation>,
     pub ordinary: MechanicsEnvelope,
     pub capture: ProductCapture,
     pub preparations: Vec<k::PreparedAnnulus>,
@@ -4018,6 +4036,8 @@ impl FrozenCase {
 pub(super) struct RefusedCase {
     pub error: PreparedCandidateError,
     certificate: Option<k::CertifiedProductProof>,
+    /// Never read: the frozen values drop with the refusal.
+    #[allow(dead_code)]
     pub values: Option<k::FrozenProductValues>,
 }
 impl RefusedCase {
@@ -4029,6 +4049,26 @@ impl RefusedCase {
             PreparedCandidateError::Values { proof, .. } | PreparedCandidateError::Abandoned { proof, .. } => Some(proof),
             _ => None,
         }
+    }
+}
+#[cfg(test)]
+impl FrozenCase {
+    /// I61 U2 control: exchange the certified proofs of two frozen cases whose public facts are
+    /// identical, so each carries a proof of a foreign selected owner.
+    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
+        std::mem::swap(&mut self.certificate, &mut other.certificate);
+    }
+}
+#[cfg(test)]
+impl RefusedCase {
+    /// I61 U2 (failure path) control: exchange the refusal causes (and their proof work) of two
+    /// refused cases whose public facts are identical.
+    pub(super) fn test_swap_error(&mut self, other: &mut Self) {
+        std::mem::swap(&mut self.error, &mut other.error);
+    }
+    /// The same for a commit refusal's surviving certified proof.
+    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
+        std::mem::swap(&mut self.certificate, &mut other.certificate);
     }
 }
 /// B1 SP (DESIGN_v2 T-6 to T-11): the invocation's transaction after custody: the one
@@ -4045,10 +4085,13 @@ pub(super) struct PreparedCases {
     /// B2-P (T-10b (i)): the rebuilt sources of `unavailable` operand cases, one per case.
     pub rebuilt: Vec<(usize, k::PreparedCaseSource)>,
 }
-/// B1 SP (DESIGN_v2 T-6): invocation custody failed, so no case was attempted.
+/// B1 SP (DESIGN_v2 T-6): invocation custody failed, so no case was attempted. The facade reads
+/// the ordinary owner only; the private one-case driver (tests) reads the capture and its error.
 pub(super) struct CustodyFailure {
     pub ordinary: MechanicsEnvelope,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub capture: ProductCapture,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub error: CaptureError,
 }
 impl PreparedCases {
@@ -4131,15 +4174,15 @@ impl PreparedCases {
             let scope = capture.case_scope(attempt.request);
             let frozen = capture.with_case(attempt.request, |capture| {
                 let case = capture.native.take();
-                // Test-only (RV123 S-2): this case's freeze refuses at its maxima stage.
+                // Test-only (RV123 S-2): this case's freeze refuses at the armed trace fault.
                 #[cfg(test)]
                 let faulted = crate::retained_tests_hooks::freeze_fault_of_case(attempt.request);
                 #[cfg(test)]
-                if faulted { capture.trace_fault = Some(trace::TraceFault::Maxima); }
+                if faulted.is_some() { capture.trace_fault = faulted; }
                 let frozen = capture.freeze_case(&mut attempt.trace, &mut attempt.overlay_work, &mut attempt.proof_attempted, ordinary, &scope,
                     invocation.as_ref().zip(case.as_ref()));
                 #[cfg(test)]
-                if faulted { capture.trace_fault = None; }
+                if faulted.is_some() { capture.trace_fault = None; }
                 capture.native = case;
                 frozen
             });
@@ -4373,13 +4416,14 @@ impl ProductCapture {
     }
     /// One product attempt (T-7) on the case in the capture's own fields.
     fn prepare_attempt(&mut self,request:usize,attempt:usize)->CaseAttempt {
-        #[cfg(test)] crate::retained_tests_hooks::before_case_preparation(self,request);
+        #[cfg(test)] let faulted=crate::retained_tests_hooks::before_case_preparation(self,request);
         let mut parts=AttemptParts::default();
         let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
         let (prepared,end)=match self.prepare_active_case(&mut trace,&mut parts) {
             Ok(())=>(true,AttemptEnd::Prepared),
             Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(self);(false,AttemptEnd::Preparation)}
         };
+        #[cfg(test)] if faulted {self.trace_fault=None;}
         CaseAttempt{request,attempt,prepared,parts,trace,proof_attempted:false,overlay_work:ScalarWork::default(),end}
     }
     /// B1 SP (DESIGN_v2 T-8; C2 §4): one `CaseBatchCall` through one `RecordedInvocation`
@@ -4440,10 +4484,13 @@ impl ProductCapture {
     }
 }
 impl ProductCapture {
+    #[cfg(test)]
     pub(super) fn prepared_probe() -> Self { Self {prepared_probe:true,..Self::default()} }
     /// B3b-P (P-1): the private driver's observer on `route`.
+    #[cfg(test)]
     pub(super) fn prepared_probe_on(route:W1Route) -> Self { Self {prepared_probe:true,route,..Self::default()} }
     /// U3: the facade's observer, bound to its capture permit for G-B (the preview route).
+    #[cfg(test)]
     pub(super) fn permitted_probe(permit:super::retained_memory::CapturePermit) -> Self {
         Self::permitted_probe_on(permit,W1Route::Preview)
     }
@@ -4453,20 +4500,22 @@ impl ProductCapture {
         Self {prepared_probe:true,permit:Some(permit),route,..Self::default()}
     }
     pub(super) fn late_refusal(&self)->Option<&super::retained_memory::PhaseRefusal> {self.late_refusal.as_ref()}
-    /// The facade's capture permit, owned by this observer (U3 grant 1b: linear), for G-C.
+    /// The facade's capture permit, owned by this observer (linear), for G-C.
     pub(super) fn permit(&self)->Option<&super::retained_memory::CapturePermit> {self.permit.as_ref()}
     /// Preparation over the single actual ordinary run's capture (the private driver and tests):
     /// custody (T-6) and the one product attempt (T-7), through `prepare_cases` with the one
     /// requested case, so that there is one custody prelude (RV109 R3P-9). A custody refusal is
     /// the attempt's preparation failure: its trace enters and fails preparation, with its
     /// snapshot, and the cause is the capture's error.
+    #[cfg(test)]
     pub(super) fn prepare_case(self,ordinary:MechanicsEnvelope)->Result<PreparedCase,PreparedCaseFailure> {self.prepare_owned_case(ordinary)}
+    #[cfg(test)]
     fn prepare_owned_case(self, ordinary:MechanicsEnvelope) -> Result<PreparedCase,PreparedCaseFailure> {
         match self.prepare_cases(ordinary,1,&[0]) {
             Err(CustodyFailure{ordinary,mut capture,error})=>{
                 let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
                 trace.fail_entered();capture.error=Some(error);trace.freeze(&capture);
-                Err(PreparedCaseFailure{associations:Vec::new(),ordinary,capture,preparations:Vec::new(),preparation_work:Vec::new(),
+                Err(PreparedCaseFailure{ordinary,capture,preparations:Vec::new(),preparation_work:Vec::new(),
                     preparation_error:None,old_operational:Vec::new(),trace})
             }
             Ok(PreparedCases{ordinary,capture,mut attempts,..})=>{
@@ -4476,7 +4525,7 @@ impl ProductCapture {
                     Ok(PreparedCase{ordinary:Some(ordinary),proof_attempted:false,overlay_work:ScalarWork::default(),associations,capture,
                         preparations,preparation_work,old_operational,trace})
                 } else {
-                    Err(PreparedCaseFailure{associations,ordinary,capture,preparations,preparation_work,preparation_error,old_operational,trace})
+                    Err(PreparedCaseFailure{ordinary,capture,preparations,preparation_work,preparation_error,old_operational,trace})
                 }
             }
         }
@@ -4587,9 +4636,9 @@ impl ProductCapture {
         Ok(())
     }
 }
+#[cfg(test)]
 impl PreparedCase {
     pub(super) fn capture(&self)->&ProductCapture {&self.capture}
-    #[cfg(test)]
     pub(super) fn test_capture_mut(&mut self)->&mut ProductCapture {&mut self.capture}
     pub(super) fn prepare_observed(request:LinearStaticPreviewRequest,mode:PreviewSolverMode,
         capture:&source_receipt::CapturedInvocation)->Result<Self,PreparedCaseFailure> {
@@ -4600,10 +4649,6 @@ impl PreparedCase {
         observer.prepare_owned_case(ordinary)
     }
     pub(super) fn ordinary(&self)->&MechanicsEnvelope {self.ordinary.as_ref().expect("owned ordinary before attempt")}
-    /// U3 fallback after a native refusal: the untouched ordinary envelope.
-    pub(super) fn into_ordinary(mut self)->MechanicsEnvelope {self.ordinary.take().expect("owned ordinary before attempt")}
-    /// The owned ordinary envelope, if this case still owns it (no panic).
-    pub(super) fn owned_ordinary(&self)->Option<&MechanicsEnvelope> {self.ordinary.as_ref()}
     pub(super) fn solve_native(&mut self) -> Result<(),&CaptureError> {
         if self.trace.stages[trace::Stage::Native as usize]!=trace::StageState::NotEntered {
             return Err(&CaptureError::PreparedAttemptConsumed);
@@ -4625,11 +4670,14 @@ impl PreparedCase {
 // I51 frozen overlay. One ordinary owner remains untouched until the final move.
 const PREPARED_MAX_KEYS:[&str;8]=["station_fraction","span_index","local_fraction","value_lower_pa",
     "value_upper_pa","global_upper_bound_pa","certified_gap_pa","subdivisions"];
-struct PreparedMaximumPatch { evidence_index:usize, row:usize, member:u32, numbers:[serde_json::Number;8] }
+struct PreparedMaximumPatch { evidence_index:usize, #[cfg_attr(not(test), allow(dead_code))] row:usize,
+    #[cfg_attr(not(test), allow(dead_code))] member:u32, numbers:[serde_json::Number;8] }
 /// B3b-P (B3-D §1.4, B3D-4): the exact route's regenerated section evidence of one member in
 /// the owner case's `exact_cases` entry: `pipe_sections[evidence_index]`'s four values.
 const PREPARED_SECTION_KEYS:[&str;4]=["As_m2","I_m4","J_m4","Z_m3"];
-struct PreparedSectionPatch { evidence_index:usize, member:u32, numbers:[serde_json::Number;4] }
+/// `member` is never read; the patch's layout is counted by the adapter (its capacity bytes are
+/// receipt facts), so the field stays.
+struct PreparedSectionPatch { evidence_index:usize, #[allow(dead_code)] member:u32, numbers:[serde_json::Number;4] }
 /// `sections` is empty on the preview route (no allocation, no event).
 struct PreparedPayload { values:k::FrozenProductValues, maxima:Vec<PreparedMaximumPatch>,
     displacement:LocatedQuantity, stress:LocatedQuantity, sections:Vec<PreparedSectionPatch> }
@@ -4700,12 +4748,15 @@ impl<'a> ProductCaseView<'a> {
 #[derive(Debug)]
 pub(super) enum PreparedCandidateError {Capture(CaptureError),Proof(k::ProductProofFailure),
     Values{failure:k::ProductValuesFailure,proof:k::ProductProofFailure},Abandoned{cause:CaptureError,proof:k::ProductProofFailure},Numeric,Observable,G5a}
+#[cfg(test)]
 pub(super) struct PreparedCandidateRefusal {
     pub ordinary:MechanicsEnvelope,prepared:PreparedCase,pub error:PreparedCandidateError,
-    certificate:Option<k::CertifiedProductProof>,pub values:Option<k::FrozenProductValues>,
+    certificate:Option<k::CertifiedProductProof>,
 }
+#[cfg(test)]
 pub(super) struct PrivatePreparedCandidate { envelope:MechanicsEnvelope,prepared:PreparedCase,
     certificate:k::CertifiedProductProof }
+#[cfg(test)]
 impl PrivatePreparedCandidate {
     pub(super) fn envelope(&self)->&MechanicsEnvelope{&self.envelope}
     /// U2: read-only; the serializer binds it to the selected owner structurally.
@@ -4713,16 +4764,11 @@ impl PrivatePreparedCandidate {
     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
     pub(super) fn local_work(&self)->(&ScalarWork,&[PreparedAssociation]){(&self.prepared.overlay_work,&self.prepared.associations)}
 }
+#[cfg(test)]
 impl PreparedCandidateRefusal {
     /// U2 (failure path): read-only; a serialized refusal binds it structurally.
     pub(super) fn certificate(&self)->Option<&k::CertifiedProductProof>{self.certificate.as_ref()}
-    /// The refused proof's own failure work, when a proof was started.
-    pub(super) fn proof_failure(&self)->Option<&k::ProductProofFailure>{
-        match &self.error {PreparedCandidateError::Proof(e)=>Some(e),
-            PreparedCandidateError::Values{proof,..}|PreparedCandidateError::Abandoned{proof,..}=>Some(proof),_=>None}
-    }
     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
-    pub(super) fn local_work(&self)->(&ScalarWork,&[PreparedAssociation]){(&self.prepared.overlay_work,&self.prepared.associations)}
 }
 impl ProductCapture {
     fn bind_observations_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
@@ -4857,6 +4903,7 @@ impl ProductCapture {
         Ok(LocatedQuantity{value,unit:self.adapter.copy(&r.unit)?,location_ref:self.adapter.copy(&r.entity_ref)?,result_ref:self.adapter.copy(&r.id)?})
     }
 }
+#[cfg(test)]
 impl PreparedCase {
     /// The private driver's all-in-one form: freeze, then commit the overlay into
     /// the owned ordinary envelope (unchanged behaviour and bytes).
@@ -4992,6 +5039,7 @@ impl ProductCapture {
         }
     }
 }
+#[cfg(test)]
 impl PreparedCase {
     /// U3 (I51 frozen-candidate split): every private gate, proof and move-plan
     /// check runs (`ProductCapture::freeze_case` over the whole envelope), and the ordinary
@@ -5005,7 +5053,7 @@ impl PreparedCase {
         (self.capture.native_invocation,self.capture.native)=(invocation,case);
         match frozen {
             Ok((payload,certificate))=>Ok(FrozenCandidate{ordinary,payload,prepared:self,certificate}),
-            Err(RefusedCase{error,certificate,values})=>Err(PreparedCandidateRefusal{ordinary,prepared:self,error,certificate,values}),
+            Err(RefusedCase{error,certificate,..})=>Err(PreparedCandidateRefusal{ordinary,prepared:self,error,certificate}),
         }
     }
 }
@@ -5086,8 +5134,10 @@ pub(super) struct StagingFault(pub(super) &'static str);
 /// U3 (I51 frozen-candidate split): a certified, private-gate-passed one-case candidate
 /// whose ordinary envelope is still intact, for the private driver's commit. (The facade
 /// stages its successor from `PreparedCases`, B1 SP T-11.)
+#[cfg(test)]
 pub(super) struct FrozenCandidate { ordinary:MechanicsEnvelope,payload:PreparedPayload,prepared:PreparedCase,
     certificate:k::CertifiedProductProof }
+#[cfg(test)]
 impl FrozenCandidate {
     /// The private driver's commit (unchanged bytes): the overlay moves into the
     /// owned ordinary envelope.
@@ -5113,24 +5163,7 @@ impl PreparedCandidateRefusal {
     }
 }
 #[cfg(test)]
-impl PreparedCandidateRefusal {
-    /// I61 U2 (failure path) control: exchange the refusal causes (and their proof
-    /// work) of two refusals whose public facts are identical.
-    pub(super) fn test_swap_error(&mut self, other: &mut Self) {
-        std::mem::swap(&mut self.error, &mut other.error);
-    }
-    /// The same for a commit refusal's surviving certified proof.
-    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
-        std::mem::swap(&mut self.certificate, &mut other.certificate);
-    }
-}
-#[cfg(test)]
 impl PrivatePreparedCandidate {
-    /// I61 U2 control: exchange the certified proofs of two candidates whose public
-    /// facts are identical, so each carries a proof of a foreign selected owner.
-    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
-        std::mem::swap(&mut self.certificate, &mut other.certificate);
-    }
     pub(super) fn test_reentry(mut self)->(PreparedCandidateRefusal,k::CertifiedProductProof) {
         let counts=self.prepared.capture.adapter.counts.get();
         self.prepared.ordinary=Some(self.envelope);
@@ -5150,6 +5183,7 @@ pub(super) fn i51_overlay_layout() {
 
 // Closed terminal projections borrow the original producing owners. They never
 // reconstruct entered work from successful-vector cardinality or Debug strings.
+#[cfg(test)]
 impl PreparedCaseFailure {
     pub(super) fn typed_trace<'a>(&'a self,costs:&mut trace::ProjectionWork)->Result<trace::PreparedAttemptView<'a>,trace::TraceProjectionError> {
         static ZERO:ScalarWork=ScalarWork{entered:0,checks:0,lost:false};
@@ -5158,12 +5192,14 @@ impl PreparedCaseFailure {
             None,None,None,costs)
     }
 }
+#[cfg(test)]
 impl PreparedCase {
     pub(super) fn native_refusal_trace<'a>(&'a self,costs:&mut trace::ProjectionWork)->Result<trace::PreparedAttemptView<'a>,trace::TraceProjectionError> {
         trace::project(&self.trace,&self.capture,&self.preparation_work,&self.old_operational,&self.overlay_work,
             trace::ResultRef::Unavailable(trace::FailureRef::Native(self.trace.native_error.as_ref().ok_or(trace::TraceProjectionError::MissingFailure)?)),None,None,None,costs)
     }
 }
+#[cfg(test)]
 impl PrivatePreparedCandidate {
     pub(super) fn typed_trace<'a>(&'a self,costs:&mut trace::ProjectionWork)->Result<trace::PreparedAttemptView<'a>,trace::TraceProjectionError> {
         let p=&self.prepared;
@@ -5171,6 +5207,7 @@ impl PrivatePreparedCandidate {
             trace::ResultRef::Ready,Some(self.certificate.work()),None,None,costs)
     }
 }
+#[cfg(test)]
 impl PreparedCandidateRefusal {
     pub(super) fn typed_trace<'a>(&'a self,costs:&mut trace::ProjectionWork)->Result<trace::PreparedAttemptView<'a>,trace::TraceProjectionError> {
         let p=&self.prepared;
@@ -5251,7 +5288,7 @@ pub(super) enum CombinationEnd {
     /// T-10b (iii) 1: a `not_required` operand's preparation was refused (the first such term).
     OperandPreparationFailure { operand_preparation: usize },
     /// T-10b (iii) 2: the Call refused before any source (`pre_source_refusal`).
-    PreSource { stage: k::CombinationStage, reason: k::CombinationReason },
+    PreSource { reason: k::CombinationReason },
     /// T-10b (iii) 3: its Run did not end selected (`combination_unresolved`, phase `kernel`).
     Native,
     /// T-10b (iii) 4: frozen: certified, observables and G5a passed (`retained_selected`).
@@ -5491,10 +5528,10 @@ impl PreparedCases {
         };
         match outcome {
             Err(_) | Ok(k::RecordedKernelCombination::OriginRefusal { .. }) => Err(CombinationCustody("combination custody")),
-            Ok(k::RecordedKernelCombination::PreSourceRefusal { call, stage, reason }) => {
+            Ok(k::RecordedKernelCombination::PreSourceRefusal { call, reason, .. }) => {
                 let combination = &mut self.combinations[k];
                 combination.call = Some(call);
-                combination.end = CombinationEnd::PreSource { stage, reason };
+                combination.end = CombinationEnd::PreSource { reason };
                 Ok(())
             }
             Ok(k::RecordedKernelCombination::WithRun { call, case }) => {
@@ -5678,8 +5715,9 @@ impl ProductCapture {
     /// on its own block: the adapter (`require`, one `LibraryBoundary`); its gate entry not
     /// withheld (T-10a's consistency); the support coverage and guard (`support_observables`, base
     /// G7's `combination_magnitudes`); per model node exactly one displacement magnitude and one
-    /// row of each translation, the magnitude within 64ε·max(|p|, MIN_POSITIVE) of
-    /// hypot(hypot(x,y),z) of them; and no maximum or intensified row. No preview case evidence,
+    /// row of each translation, the magnitude within 64ε·max(|p|, MIN_POSITIVE) of the correctly
+    /// rounded norm of them (PR-N's `norm3`, as the support guard and base G7); and no maximum or
+    /// intensified row. No preview case evidence,
     /// maximum or headline check.
     fn combination_observables(&self, view: ProductCaseView<'_>, combination: &str) -> Result<(), CaptureError> {
         self.adapter.require()?;
@@ -5723,7 +5761,7 @@ impl ProductCapture {
                 found = Some(*r.value);
             }
             let p = found.ok_or("combination magnitude identity")?;
-            if (p - v[0].hypot(v[1]).hypot(v[2])).abs() > 64.0 * f64::EPSILON * p.abs().max(f64::MIN_POSITIVE) {
+            if (p - norm3(v[0], v[1], v[2])).abs() > 64.0 * f64::EPSILON * p.abs().max(f64::MIN_POSITIVE) {
                 return Err("combination magnitude guard".into());
             }
         }
