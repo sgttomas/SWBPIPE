@@ -20,7 +20,7 @@ python3 $P/price.py eval <law-test log> <tree>                   # phases at in-
 ### Reading a profile change
 
 1. **Run the new head.** `run <head>` should complete on all four points with no unmapped loop header and no unclassified argument, and both o10 checks should pass.
-2. **Review the prune.** `summary.json`'s `linemap.pruned` lists every rule the line map dropped, each with its rule. Each one must belong to a function or line the head really deleted. A dropped `site_from`, `site_total`, `edge_per_call` or `loop_total` rule removes a bound, so read the code. `linemap.resolutions_used` lists the reviewed resolutions that applied.
+2. **Review the prune.** `summary.json`'s `linemap.pruned` lists every rule the line map dropped, each with its rule. Each one must belong to a function or line the head really deleted. A dropped `site_from`, `site_total`, `edge_per_call` or `loop_total` rule removes a bound, so read the code. The deleted test is per file: a function moved to another file shows up as deleted, and its rules must be re-keyed to the new file rather than dropped. `linemap.resolutions_used` lists the reviewed resolutions that applied.
 3. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
    - `a_le_b` true (every coefficient no higher) means the registered block still bounds the head, so nothing needs re-registering.
    - Otherwise, regenerate the block with `generate` and re-pin the law tests whose values moved. The law tests are `cargo test --lib profile_` in `core/product_physics`. Their `I65_G5_ATOM` lines feed `eval`.
