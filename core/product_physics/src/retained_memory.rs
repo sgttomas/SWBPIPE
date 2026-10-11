@@ -2531,7 +2531,8 @@ pub(super) struct AdmissionLaw {
 // bound means the derivation missed something: the gate refuses to the ordinary
 // path. The gates cross-check the derivation; they are not the memory bound.
 
-/// G-B facts: the live ordinary owners at the late old-source capture, borrowed,
+/// G-B facts: the validated live structural owners before early source allocation
+/// (or the existing late hook outside early preparation), borrowed,
 /// and the observer's own capture so far (RV84 S-6(c)). B1 SA: G-B reads the case's own
 /// loads from `case`, and the running total Σ_{i≤k} l_i from the capture's
 /// `late_loads_total` (ST's seam, added immediately before G-B at case k).
@@ -2705,7 +2706,7 @@ fn retained_error_text(capture: &crate::retained_product::ProductCapture) -> Byt
         _ => 0,
     };
     // `G5aFailure` holds only `&'static str` and integer facts.
-    let own = Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error));
+    let own = Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error)).add(capture.pending_error_bytes());
     capture.parked_cases().iter().fold(own, |sum, slot| sum.add(text(&slot.error)).add(text(&slot.observable_error)))
 }
 pub(super) fn late_observations(f: &LateFacts<'_>) -> [PhaseObservation; LATE_FACTS] {

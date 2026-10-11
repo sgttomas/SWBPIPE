@@ -140,6 +140,8 @@ pub(super) struct ProductCapture {
     pub normalized_calls: usize,
     pub case_calls: usize,
     pub final_calls: usize,
+    pub terminal_calls: usize,
+    pub terminal: OrdinaryTerminal,
     pub request_materials: bool,
     pub nodes: Vec<(String, [f64; 3])>,
     pub materials: Vec<(String, f64, f64)>,
@@ -197,6 +199,8 @@ pub(super) struct ProductCapture {
     /// order. The capture's per-case fields hold the case being captured (or attempted); a
     /// later case's early hook parks them here. Empty at c = 1, where nothing is parked.
     parked: Vec<CaseSlot>,
+    early_sources: Vec<Option<EarlyCaseSource>>,
+    early_gate_complete: bool,
     /// B3b-P (P-1): the invocation's route, fixed at construction (Preview by default).
     route: W1Route,
     /// B3b-P (P-3): on the exact route, each normalized material's Poisson's ratio, in
@@ -217,6 +221,31 @@ pub(super) struct ProductCapture {
     #[cfg(debug_assertions)]
     lent: Option<usize>,
 }
+/// Source readiness is independent of the actual ordinary attempt's outcome.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub(super) enum OrdinaryTerminal {
+    #[default]
+    MissingOrUnrun,
+    ObservedCompletion,
+    FailedAttempt,
+}
+/// Owned immutable leaves, moved into the actual case capture once. No request or
+/// BuiltModel graph is retained. The extra headers are priced at B7 registration.
+struct EarlyCaseSource {
+    case_id: String,
+    source: Option<k::PrimitiveSource>,
+    members: Vec<MemberIdentity>,
+    terms: Vec<TermIdentity>,
+    supports: Vec<(String, usize)>,
+    spring_map: Vec<SpringIdentity>,
+    support_fixed: Vec<[bool; 6]>,
+    facts: Vec<k::ProductMemberFacts>,
+    operational: Vec<OperationalSpent>,
+    capacities: Vec<(&'static str, usize)>,
+    error: Option<CaptureError>,
+    source_capture_entries: usize,
+}
+
 /// B2-P (C-1): whether a mechanics combination's terms name distinct load cases.
 pub(super) fn distinct_terms(terms: &[(usize, f64)]) -> bool {
     terms.iter().enumerate().all(|(i, (case, _))| terms[..i].iter().all(|(other, _)| other != case))
@@ -258,6 +287,7 @@ per_case_capture! {
     source_capture_entries: usize,
     observation_calls: usize,
     observations: Option<SolverObservations>,
+    terminal: OrdinaryTerminal,
     case_calls: usize,
     members: Vec<MemberIdentity>,
     terms: Vec<TermIdentity>,
@@ -1718,7 +1748,8 @@ impl ProductCapture {
     ) {
         if self.prepared_probe {
             if self.error.is_some() {return;}
-            if let Err(e)=self.prepared_case_seen(model,case) {self.error=Some(e);}
+            if let Err(e)=self.prepared_case_seen(model,case) {self.error=Some(e);return;}
+            self.install_early_source(case);
             return;
         }
         self.case_calls=self.case_calls.checked_add(1).expect("bounded cases");
@@ -1727,32 +1758,38 @@ impl ProductCapture {
     fn capture_case_source(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
         springs:&[SpringEntry], application:&LoadApplication, thermal:&[ThermalElementLoad]) {
+        let unsupported=!application.element_uniform_loads.is_empty() || !application.imposed_displacements.is_empty();
+        let Some(parts)=self.capture_case_structure(model,built,materials,case,restrained,springs,thermal,unsupported) else {return;};
+        self.capture_case_nodal_terms(model,case,application,parts);
+    }
+    fn capture_case_structure(&mut self, model:&PreviewModel, built:&BuiltModel,
+        materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
+        springs:&[SpringEntry], thermal:&[ThermalElementLoad], unsupported:bool) -> Option<k::SourceParts> {
+
         if self.error.is_some() {
-            return;
+            return None;
         }
-        let Some(entries)=self.source_capture_entries.checked_add(1) else {self.fail_count("source capture entries");return;};
-        if let Err(e)=self.capture_entry(AdapterEvent::MapWrite) {self.error=Some(e);return;}
+        let Some(entries)=self.source_capture_entries.checked_add(1) else {self.fail_count("source capture entries");return None;};
+        if let Err(e)=self.capture_entry(AdapterEvent::MapWrite) {self.error=Some(e);return None;}
         self.source_capture_entries=entries;
         // B1 SP (T-2): the prepared probe captures each requested case in its own slot.
         if self.case_calls != 1 || (model.load_cases.len() != 1 && !self.prepared_probe) {
             self.fail("private witness has exactly one actual case");
-            return;
+            return None;
         }
         // B3b-P (P-5; D1.5-exact, DEF-E `scope.materials`): the exact route's base common E/ν only.
         if self.route == W1Route::Exact && load_case_selector(case).is_some() {
             self.fail("exact route: base common E/nu selection only");
-            return;
+            return None;
         }
         if let Err(e) = self.basis_source_case(case) {
             self.error = Some(e);
-            return;
+            return None;
         }
-        if !built.nonlinear_supports.is_empty()
+        if unsupported || !built.nonlinear_supports.is_empty()
             || !built.connectors.is_empty()
             || !built.curved_bend_elements.is_empty()
             || !thermal.is_empty()
-            || !application.element_uniform_loads.is_empty()
-            || !application.imposed_displacements.is_empty()
             || case.equivalent_static.is_some()
             || case
                 .pressure_regions
@@ -1761,11 +1798,11 @@ impl ProductCapture {
             || model.supports.iter().any(|s| s.hanger.is_some())
         {
             self.fail("unsupported producer present");
-            return;
+            return None;
         }
         if !self.adapter.enter(AdapterEvent::LibraryBoundary, 1) {
             self.fail("case capture accounting");
-            return;
+            return None;
         }
         let mut parts = k::SourceParts::default();
         let allocated = (|| -> Result<(), CaptureError> {
@@ -1781,24 +1818,22 @@ impl ProductCapture {
             )?;
             parts.constraints = self.adapter.reserve(restrained.len())?;
             parts.supports = self.adapter.reserve(model.supports.len())?;
-            parts.loads = self.adapter.reserve(application.nodal_loads.len())?;
             self.facts = self.adapter.reserve(model.pipe_segments.len())?;
             self.members = self.adapter.reserve(model.pipe_segments.len())?;
             self.operational = self.adapter.reserve(model.pipe_segments.len())?;
             self.supports = self.adapter.reserve(model.supports.len())?;
-            self.terms = self.adapter.reserve(application.nodal_loads.len())?;
             Ok(())
         })();
         if let Err(e) = allocated {
             self.error = Some(e);
-            return;
+            return None;
         }
         for n in &built.nodes {
             if !self.adapter.enter(AdapterEvent::SourceVisit, 1)
                 || !self.adapter.enter(AdapterEvent::MapWrite, 1)
             {
                 self.fail("built-node accounting");
-                return;
+                return None;
             }
             parts.nodes.push(n.coordinates);
         }
@@ -1810,14 +1845,14 @@ impl ProductCapture {
                 .any(|(a, b)| a.map(f64::to_bits) != b.1.map(f64::to_bits))
         {
             self.fail("normalized node/built identity");
-            return;
+            return None;
         }
         for (i, pipe) in model.pipe_segments.iter().enumerate() {
             if !self.adapter.enter(AdapterEvent::SourceVisit, 1)
                 || !self.adapter.enter(AdapterEvent::ValidationEntry, 1)
             {
                 self.fail("member accounting");
-                return;
+                return None;
             }
             let Some(bi) = built
                 .pipes
@@ -1825,12 +1860,12 @@ impl ProductCapture {
                 .position(|p| self.adapter.same(&p.element_id, &pipe.id))
             else {
                 self.fail("missing built member");
-                return;
+                return None;
             };
             let b = &built.pipes[bi];
             let Some(section) = built.sections.get(&pipe.id) else {
                 self.fail("missing section");
-                return;
+                return None;
             };
             let Some(mi) = self
                 .materials
@@ -1838,20 +1873,20 @@ impl ProductCapture {
                 .position(|m| self.adapter.same(&m.0, &pipe.material))
             else {
                 self.fail("normalized material");
-                return;
+                return None;
             };
             let Some(m) = materials
                 .iter()
                 .find(|m| self.adapter.same(&m.id, &pipe.material))
             else {
                 self.fail("resolved material");
-                return;
+                return None;
             };
             let id = match u32::try_from(i) {
                 Ok(i) => i,
                 Err(_) => {
                     self.fail_count("member count range");
-                    return;
+                    return None;
                 }
             };
             let material =
@@ -1867,7 +1902,7 @@ impl ProductCapture {
                             Some(nu) => k::ProductMaterial::BaseENu { e: self.materials[mi].1, nu },
                             None => {
                                 self.fail("exact material Poisson ratio");
-                                return;
+                                return None;
                             }
                         },
                     }
@@ -1877,7 +1912,7 @@ impl ProductCapture {
                             && self.adapter.same(&s.material, &pipe.material)
                     }) else {
                         self.fail("selection missing");
-                        return;
+                        return None;
                     };
                     s.selected
                 };
@@ -1888,16 +1923,16 @@ impl ProductCapture {
                 || section.torsion_constant.to_bits() != b.section.torsion_constant.to_bits()
             {
                 self.fail("resolved/built K mismatch");
-                return;
+                return None;
             }
             let (Ok(ni), Ok(nj)) = (u32::try_from(b.node_i.index), u32::try_from(b.node_j.index))
             else {
                 self.fail_count("node count range");
-                return;
+                return None;
             };
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
-                return;
+                return None;
             }
             parts.members.push(k::StraightMember {
                 id,
@@ -1913,9 +1948,9 @@ impl ProductCapture {
             });
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
-                return;
+                return None;
             }
-            if !self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<Option<u32>>() as u64){self.fail("operational identity accounting");return;}
+            if !self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<Option<u32>>() as u64){self.fail("operational identity accounting");return None;}
             self.operational.push(evaluate_member_operational(id,
                 [b.node_i.coordinates, b.node_j.coordinates],
                 [
@@ -1927,7 +1962,7 @@ impl ProductCapture {
             ));
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
-                return;
+                return None;
             }
             self.facts.push(k::ProductMemberFacts {
                 member: id,
@@ -1943,7 +1978,7 @@ impl ProductCapture {
             self.adapter.enter(AdapterEvent::LibraryBoundary, 1);
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
-                return;
+                return None;
             }
             self.members.push(MemberIdentity {
                 model: i,
@@ -1955,13 +1990,13 @@ impl ProductCapture {
             for (j, fraction) in [0.25, 0.5, 0.75].into_iter().enumerate() {
                 let Some(station) = id.checked_mul(3).and_then(|v| v.checked_add(j as u32)) else {
                     self.fail_count("station count");
-                    return;
+                    return None;
                 };
                 if !self.adapter.enter(AdapterEvent::SourceVisit, 1)
                     || !self.adapter.enter(AdapterEvent::MapWrite, 1)
                 {
                     self.fail("station-write accounting");
-                    return;
+                    return None;
                 }
                 parts.stations.push(k::Station {
                     id: station,
@@ -1972,20 +2007,20 @@ impl ProductCapture {
         }
         if built.pipes.len() != self.members.len() {
             self.fail("extra built member");
-            return;
+            return None;
         }
         for &g in restrained {
             if !self.adapter.enter(AdapterEvent::SourceVisit, 1) {
                 self.fail("constraint accounting");
-                return;
+                return None;
             }
             if g >= parts.nodes.len() * 6 {
                 self.fail("constraint index");
-                return;
+                return None;
             }
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("constraint-write accounting");
-                return;
+                return None;
             }
             parts.constraints.push(k::Constraint {
                 dof: k::Dof::from_global(g),
@@ -1994,12 +2029,21 @@ impl ProductCapture {
         }
         if let Err(e) = self.capture_supports(model, built, restrained, springs, &mut parts) {
             self.error = Some(e);
-            return;
+            return None;
         }
         if let Err(e) = self.check_support_maps(&parts.supports, &parts.springs, false) {
             self.error = Some(e);
-            return;
+            return None;
         }
+        Some(parts)
+    }
+    fn capture_case_nodal_terms(&mut self, model:&PreviewModel, case:&PreviewLoadCase,
+        application:&LoadApplication, mut parts:k::SourceParts) {
+        if let Err(error) = (|| -> Result<(), CaptureError> {
+            parts.loads = self.adapter.reserve(application.nodal_loads.len())?;
+            self.terms = self.adapter.reserve(application.nodal_loads.len())?;
+            Ok(())
+        })() { self.error=Some(error); return; }
         let mut used = match self.adapter.reserve(case.primitive_loads.len()) {
             Ok(v) => v,
             Err(e) => {
@@ -2105,7 +2149,7 @@ impl ProductCapture {
             ("spring_map", self.spring_map.capacity()),
             ("support_fixed", self.support_fixed.capacity()),
         ];
-    }
+        }
     pub fn finish(&mut self, envelope: &MechanicsEnvelope) {
         self.final_calls = self
             .final_calls
@@ -3852,6 +3896,234 @@ fn load_case_selector(case: &PreviewLoadCase) -> Option<SelectorRef<'_>> {
 // Private prepared-only custody. The actual ordinary inputs remain borrowed at
 // the granted late callsite; no DeferredCaseInputs clone graph or bypass latch.
 impl ProductCapture {
+    pub(super) fn capture_early_sources(&mut self,model:&PreviewModel,built:&BuiltModel,
+        materials:&[MaterialInput],restrained:&[usize],springs:&[SpringEntry],
+        invocation:&source_receipt::CapturedInvocation) {
+        if !self.prepared_probe || self.error.is_some() || !self.early_sources.is_empty() {return;}
+        // The first G-B check precedes even the pending-vector allocation.
+        for (index,case) in model.load_cases.iter().enumerate() {
+            self.late_loads_total=self.late_loads_total.saturating_add(case.primitive_loads.len());
+            if let Some(permit)=self.permit.as_ref() {
+                #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
+                let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
+                if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
+            }
+            if index==0 {
+                // Borrowed raw leaves use the existing unit authority, without another graph.
+                if let Err(error)=self.check_captured_structure(model,materials,invocation) {self.error=Some(error);return;}
+                match self.adapter.reserve(model.load_cases.len()) {
+                    Ok(slots)=>self.early_sources=slots,
+                    Err(error)=>{self.error=Some(error);return;}
+                }
+            }
+            let mut findings=Vec::new();
+            let loads=super::build_load_case_primitive_loads(model,case,&mut findings);
+            let application=prepare_loads(built.nodes.len(),built.pipes.len(),&loads);
+            self.case_calls=1; // one validated input capture; never an ordinary-attempt seed
+            if let Err(error)=self.check_captured_nodal_leaves(model,case,index,invocation) {
+                self.error=Some(error);
+            } else if has_blocking(&findings) || !application.findings.is_empty() {
+                self.fail("early source load validation");
+            } else {
+                self.capture_case_source(model,built,materials,case,restrained,springs,&application,&[]);
+            }
+            if self.case_id.is_empty() {
+                match self.adapter.copy(&case.id) {Ok(id)=>self.case_id=id,Err(error)=>self.error=Some(error)}
+            }
+            let snapshot=EarlyCaseSource{
+                case_id:std::mem::take(&mut self.case_id),source:self.source.take(),
+                members:std::mem::take(&mut self.members),terms:std::mem::take(&mut self.terms),
+                supports:std::mem::take(&mut self.supports),spring_map:std::mem::take(&mut self.spring_map),
+                support_fixed:std::mem::take(&mut self.support_fixed),facts:std::mem::take(&mut self.facts),
+                operational:std::mem::take(&mut self.operational),capacities:std::mem::take(&mut self.capacities),
+                error:self.error.take(),source_capture_entries:std::mem::take(&mut self.source_capture_entries)};
+            self.case_calls=0;
+            self.early_sources.push(Some(snapshot));
+        }
+        self.early_gate_complete=true;
+    }
+    fn captured_quantity(raw:&serde_json::Value,dimension:Dimension)->Result<f64,CaptureError> {
+        let unit=raw["unit"].as_str().ok_or("early captured quantity unit")?;
+        let value=raw["value"].as_f64().ok_or("early captured quantity value")?;
+        let from=unit_by_symbol(unit,dimension).map_err(|_|CaptureError::Association("early captured quantity unit".into()))?;
+        let to=canonical_unit(dimension).ok_or("early captured quantity dimension")?;
+        convert_for_dimension(value,dimension,from,to).map_err(|_|CaptureError::Association("early captured quantity normalization".into()))
+    }
+    fn check_captured_structure(&self,model:&PreviewModel,materials:&[MaterialInput],invocation:&source_receipt::CapturedInvocation)->Result<(),CaptureError> {
+        let raw=invocation.borrowed_raw();let original=&raw["model"];
+        if self.invocation_digest.as_ref()!=Some(invocation.borrowed_digest()) || original["project"]["id"]!=model.project.id {
+            return Err("early captured structural invocation identity".into());
+        }
+        let nodes=original["nodes"].as_array().ok_or("early captured nodes")?;
+        let pipes=original["pipe_segments"].as_array().ok_or("early captured members")?;
+        let supports=original["supports"].as_array().ok_or("early captured supports")?;
+        if nodes.len()!=model.nodes.len() || pipes.len()!=model.pipe_segments.len() || supports.len()!=model.supports.len() {
+            return Err("early captured structural coverage".into());
+        }
+        let length_unit=original["project"]["units"]["length"].as_str().ok_or("early captured node unit")?;
+        let from=unit_by_symbol(length_unit,Dimension::Length).map_err(|_|CaptureError::Association("early captured node unit".into()))?;
+        let to=canonical_unit(Dimension::Length).ok_or("early captured node dimension")?;
+        for (raw,node) in nodes.iter().zip(&model.nodes) {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            if raw["id"]!=node.id {return Err("early captured node identity".into());}
+            for (axis,value) in [("x",node.position.x),("y",node.position.y),("z",node.position.z)] {
+                let original=raw["position"][axis].as_f64().ok_or("early captured node position")?;
+                let expected=convert_for_dimension(original,Dimension::Length,from,to).map_err(|_|CaptureError::Association("early captured node normalization".into()))?;
+                if expected.to_bits()!=value.to_bits() {return Err("early captured node bits".into());}
+            }
+        }
+        for (raw,pipe) in pipes.iter().zip(&model.pipe_segments) {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            if raw["id"]!=pipe.id || raw["from"]!=pipe.from || raw["to"]!=pipe.to || raw["material"]!=pipe.material {
+                return Err("early captured member identity".into());
+            }
+            let y=pipe.y_reference.ok_or("early captured orientation")?;
+            for (axis,value) in [("x",y.x),("y",y.y),("z",y.z)] {
+                if raw["y_reference"][axis].as_f64().is_none_or(|v|v.to_bits()!=value.to_bits()) {return Err("early captured orientation bits".into());}
+            }
+            for (key,value) in [("outside_diameter",pipe.section.outside_diameter.value),("wall_thickness",pipe.section.wall_thickness.value)] {
+                if Self::captured_quantity(&raw["section"][key],Dimension::Length)?.to_bits()!=value.to_bits() {return Err("early captured section bits".into());}
+            }
+            match (&pipe.section.mill_tolerance,raw["section"].get("mill_tolerance").filter(|v|!v.is_null())) {
+                (None,None)=>{},(Some(value),Some(raw)) if Self::captured_quantity(raw,Dimension::Length)?.to_bits()==value.value.to_bits()=>{},
+                _=>return Err("early captured effective-wall input".into()),
+            }
+        }
+        for (raw,support) in supports.iter().zip(&model.supports) {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            if raw["id"]!=support.id || raw["node"]!=support.node || raw["family"].as_str()!=support.family.as_deref()
+                || raw["restraints"].as_array().is_none_or(|r|r.len()!=support.restraints.len() || r.iter().zip(&support.restraints).any(|(a,b)|a!=b)) {
+                return Err("early captured support identity".into());
+            }
+            match (&support.stiffness,raw.get("stiffness").filter(|v|!v.is_null())) {
+                (None,None)=>{},(Some(stiffness),Some(raw))=>{
+                    let dof=parse_dof(&stiffness.dof).map_err(|_|CaptureError::Association("early captured spring DOF".into()))?;
+                    let dimension=if dof.is_translational(){Dimension::LinearStiffness}else{Dimension::RotationalStiffness};
+                    if raw["dof"]!=stiffness.dof || Self::captured_quantity(&raw["value"],dimension)?.to_bits()!=stiffness.value.value.to_bits() {return Err("early captured spring bits".into());}
+                },_=>return Err("early captured spring presence".into()),
+            }
+        }
+        let inputs=raw.get("materials").and_then(serde_json::Value::as_array).filter(|m|!m.is_empty())
+            .or_else(||original["materials"].as_array()).ok_or("early captured materials")?;
+        if inputs.len()!=materials.len() {return Err("early captured material coverage".into());}
+        for (raw,material) in inputs.iter().zip(materials) {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            if raw["id"]!=material.id {return Err("early captured material identity".into());}
+            if !model.pipe_segments.iter().any(|pipe|pipe.material==material.id) {continue;}
+            let e=Self::captured_quantity(&raw["elastic_modulus"],Dimension::Stress)?;
+            let g=if self.route==W1Route::Exact {
+                let nu=Self::captured_quantity(&raw["poisson_ratio"],Dimension::Dimensionless)?;
+                pressure_exact::IsotropicENu::new(e,nu)
+                    .map_err(|_|CaptureError::Association("early captured exact material normalization".into()))?
+                    .shear_modulus_pa()
+            } else {Self::captured_quantity(&raw["shear_modulus"],Dimension::Stress)?};
+            if raw["id"]!=material.id || e.to_bits()!=material.elastic_modulus.value.to_bits()
+                || material.shear_modulus.as_ref().is_none_or(|value|value.value.to_bits()!=g.to_bits()) {
+                return Err("early captured material bits".into());
+            }
+        }
+        Ok(())
+    }
+    fn check_captured_nodal_leaves(&self,model:&PreviewModel,case:&PreviewLoadCase,index:usize,
+        invocation:&source_receipt::CapturedInvocation)->Result<(),CaptureError> {
+        let raw=&invocation.borrowed_raw()["model"];
+        let actual=&raw["load_cases"][index];
+        if self.invocation_digest.as_ref()!=Some(invocation.borrowed_digest())
+            || raw["project"]["id"]!=model.project.id || actual["id"]!=case.id {
+            return Err("early captured invocation/case identity".into());
+        }
+        let leaves=actual["primitive_loads"].as_array().ok_or("early captured nodal leaves")?;
+        if leaves.len()!=case.primitive_loads.len() {return Err("early captured occurrence coverage".into());}
+        for (ordinal,(raw,load)) in leaves.iter().zip(&case.primitive_loads).enumerate() {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            let node=match &load.target {LoadTargetInput::Node{node}=>node,_=>return Err("early captured nodal target".into())};
+            if raw["id"]!=load.id || raw["category"]!=load.category || raw["direction"]!=load.direction
+                || raw["dimension"]!=load.dimension || raw["target"]["type"]!="node" || raw["target"]["node"]!=*node
+                || model.load_cases[index].primitive_loads[ordinal].id!=load.id {
+                return Err("early captured nodal occurrence identity".into());
+            }
+            let dimension=expected_load_dimension(&load.dimension).ok_or("early captured nodal dimension")?;
+            let unit=raw["magnitude"]["unit"].as_str().ok_or("early captured nodal unit")?;
+            let value=raw["magnitude"]["value"].as_f64().ok_or("early captured nodal value")?;
+            let from=unit_by_symbol(unit,dimension).map_err(|_|CaptureError::Association("early captured unit".into()))?;
+            let to=canonical_unit(dimension).ok_or("early captured canonical unit")?;
+            let value=convert_for_dimension(value,dimension,from,to).map_err(|_|CaptureError::Association("early captured normalization".into()))?;
+            if value.to_bits()!=load.magnitude.value.to_bits() || load.magnitude.unit!=to.definition().symbol {
+                return Err("early captured normalized nodal bits".into());
+            }
+        }
+        Ok(())
+    }
+    fn install_early_source(&mut self,case:&PreviewLoadCase) {
+        if !self.early_gate_complete {return;}
+        let Some(slot)=self.early_sources.get_mut(self.parked.len()) else {self.fail("early source case coverage");return;};
+        let Some(input)=slot.take() else {self.fail("early source consumed twice");return;};
+        if input.case_id!=case.id {self.fail("early source case identity");return;}
+        self.source=input.source;self.members=input.members;self.terms=input.terms;
+        self.supports=input.supports;self.spring_map=input.spring_map;self.support_fixed=input.support_fixed;
+        self.facts=input.facts;self.operational=input.operational;self.capacities=input.capacities;
+        self.error=input.error;self.source_capture_entries=input.source_capture_entries;
+    }
+    fn check_early_occurrences(&self,case:&PreviewLoadCase,application:&LoadApplication)->Result<(),CaptureError> {
+        self.adapter.require()?;
+        if self.source.is_none() || self.terms.len()!=application.nodal_loads.len()
+            || self.terms.len()!=case.primitive_loads.len() {return Err("early source occurrence coverage".into());}
+        for term in &self.terms {
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            let load=application.nodal_loads.get(term.occurrence).ok_or("early source occurrence")?;
+            if term.id!=load.load_id || term.bits!=load.value.to_bits() || term.dof!=load.global_dof {
+                return Err("early source occurrence identity/bits".into());
+            }
+        }
+        Ok(())
+    }
+    pub(super) fn settle_ordinary_terminal(&mut self) {
+        self.terminal_calls=self.terminal_calls.saturating_add(1);
+        if self.terminal_calls!=1 {self.fail("ordinary terminal repeated");return;}
+        for index in 0..self.cases_seen() {
+            let (_,observations,id,case_calls,observation_calls)=self.case_observation_state(index);
+            let seed=only_one(self.ordinary.iter().filter(|seed|seed.case==id));
+            let produced=observations.is_some_and(|observed|observed.case==id
+                && observed.parity_produced==observed.parity.is_some()
+                && self.invocation_calls==1 && self.invocation_mode==Some(observed.mode)
+                && case_calls==1 && observation_calls==1)
+                && seed.is_some_and(|seed|seed.initial.is_some());
+            let state=if produced {OrdinaryTerminal::ObservedCompletion}
+            else if observations.is_none() && observation_calls==0
+                && seed.is_some_and(|seed|matches!(seed.initial,Some(InitialSeed::StructuralFailure{..}|InitialSeed::FormationFailure{..}))
+                    && !matches!(seed.w2,W2Seed::Published{..})) {OrdinaryTerminal::FailedAttempt}
+            else {OrdinaryTerminal::MissingOrUnrun};
+            self.with_case(index,|capture|capture.terminal=state);
+        }
+    }
+    pub(super) fn pending_error_bytes(&self)->usize {
+        self.early_sources.iter().filter_map(Option::as_ref).filter_map(|source|match &source.error {
+            Some(CaptureError::Association(text))=>Some(text.capacity()),_=>None}).fold(0usize,usize::saturating_add)
+    }
+    #[cfg(test)]
+    pub(super) fn early_source_count(&self)->usize {self.early_sources.len()}
+    #[cfg(test)]
+    pub(super) fn early_source_layout(&self)->(usize,usize,usize) {
+        (std::mem::size_of::<Option<EarlyCaseSource>>(),self.early_sources.capacity(),
+            self.early_sources.capacity()*std::mem::size_of::<Option<EarlyCaseSource>>())
+    }
+    #[cfg(test)]
+    pub(super) fn source_terminal_at(&self,index:usize)->(bool,OrdinaryTerminal) {
+        match self.parked.get(index) {Some(slot)=>(slot.source.is_some(),slot.terminal),None=>(self.source.is_some(),self.terminal)}
+    }
+    #[cfg(test)]
+    pub(super) fn test_check_captured_structure(&self,model:&PreviewModel,materials:&[MaterialInput],
+        invocation:&source_receipt::CapturedInvocation)->Result<(),CaptureError> {
+        self.check_captured_structure(model,materials,invocation)
+    }
+    #[cfg(test)]
+    pub(super) fn test_refuse_changed_occurrence(&mut self,raw:&serde_json::Value)->Result<(),CaptureError> {
+        let request:LinearStaticPreviewRequest=serde_json::from_value(raw.clone()).unwrap();
+        let case=&request.model.load_cases[0];let mut findings=Vec::new();
+        let loads=super::build_load_case_primitive_loads(&request.model,case,&mut findings);
+        let application=prepare_loads(request.model.nodes.len(),request.model.pipe_segments.len(),&loads);
+        self.check_early_occurrences(case,&application)
+    }
     fn checked_same(&self,a:&str,b:&str)->Result<bool,CaptureError> {
         let same=self.adapter.same(a,b);self.adapter.require()?;Ok(same)
     }
@@ -3916,15 +4188,19 @@ impl ProductCapture {
         if let Err(e)=checked {self.error=Some(e);return;}
         // U3, G-B (I51 COMPOSITION §2): immediately before the late old-source
         // capture. A refusal skips the capture; the ordinary solve is unaffected.
-        if let Some(permit)=self.permit.as_ref() { #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
+        if !self.early_gate_complete { if let Some(permit)=self.permit.as_ref() { #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
             // B1 seam: G-B's running load total, with no adapter event. It saturates (RR "I89's SA
             // verified and ruled…", ruling 2), recording no capture error: G-B then refuses typed on
             // CaseLoadsTotal, with exact bytes and no notice, as for any G-B refusal.
             self.late_loads_total = self.late_loads_total.saturating_add(case.primitive_loads.len());
             let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
             if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
+        }}
+        if self.early_gate_complete {
+            if let Err(error)=self.check_early_occurrences(case,application) {self.error=Some(error);}
+        } else {
+            self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal);
         }
-        self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal);
     }
 }
 fn prepared_reserve<T>(adapter:&AdapterWork,capacities:&mut [usize;16],slot:usize,n:usize)->Result<Vec<T>,CaptureError> {
@@ -4292,6 +4568,7 @@ impl ProductCapture {
             return Err(self.error.take().expect("observed prior capture cause"));
         }
         self.adapter.require()?;
+        if self.terminal_calls!=1 {return Err("missing ordinary terminal custody".into());}
         if !self.prepared_probe || self.final_calls!=1
             || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.native_invocation.is_some()
             || self.parked.iter().any(|slot|slot.native.is_some())

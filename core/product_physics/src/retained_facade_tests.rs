@@ -4224,3 +4224,7 @@ fn b2p_ledger_unavailable_operand_has_no_source() {
         assert!(b.get("operand_preparations").is_none(), "{mode:?}: no operand preparation");
     }
 }
+
+// B4/D1 maintained-source census; separate from the native G10 witness.
+#[path = "w1_source_census_tests.rs"]
+mod w1_source_census_tests;

@@ -2497,11 +2497,25 @@ fn run_linear_static_preview_observed(
     source_budget: &mut SourceRecoveryBudget,
     mut product: Option<&mut retained_product::ProductCapture>,
 ) -> MechanicsEnvelope {
+    let envelope=run_linear_static_preview_observed_inner(request,solver_mode,capture,source_budget,product.as_deref_mut());
+    if let Some(observer)=product {observer.settle_ordinary_terminal();}
+    envelope
+}
+
+fn run_linear_static_preview_observed_inner(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+    mut product: Option<&mut retained_product::ProductCapture>,
+) -> MechanicsEnvelope {
     // T4-U2a: a v3 invocation is not joined to retained-source recovery.
     let joins = exact_admission::joins_retained_source(&request.model);
     source_budget.retained_source_not_joined = capture.is_some() && !joins;
     let capture = capture.filter(|_| joins);
     #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
+    let early_domain=product.is_some() && capture.is_some_and(|captured|
+        retained_memory::assess(captured,&request,retained_memory::Entry::Direct).law().domain.is_none());
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
     let mut materials = if request.materials.is_empty() {
@@ -2654,6 +2668,12 @@ fn run_linear_static_preview_observed(
     // matrix is held across cases or bases. F1b (§4.7, ROOT Q2): on a linear
     // invocation K2a's range refusal is deferred to the basis's cases.
     let linear = built.nonlinear_supports.is_empty();
+    if early_domain {
+        if let Some(observer)=product.as_deref_mut() {
+            observer.capture_early_sources(&model,&built,&materials,&boundary.restrained_dofs,&boundary.springs,
+                capture.expect("early domain requires the original invocation"));
+        }
+    }
     let stiffness = match form_basis_stiffness(&built, &boundary.springs, linear) {
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),

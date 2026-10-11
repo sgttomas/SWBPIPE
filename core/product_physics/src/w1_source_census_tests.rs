@@ -1,0 +1,1003 @@
+//! B4/D1: maintained preview-source controls through the actual W1 private driver.
+//! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+use super::*;
+use open_pipe_stress_result_export::{retained_precision as reader, semantic_contract as sc};
+
+struct Control {
+    name: String,
+    recipe: &'static str,
+    raw: Value,
+    modes: Vec<PreviewSolverMode>,
+}
+fn control(name: &str, recipe: &'static str, raw: Value) -> Control {
+    Control {
+        name: name.into(),
+        recipe,
+        raw,
+        modes: MODES.to_vec(),
+    }
+}
+const INVENTED: &str = "invented_t3_s11g_test_input_not_library_data";
+const S11F_INVENTED: &str = "invented_t3_s11f_test_input_not_library_data";
+const PROV: &str = "invented_t3_f1b_w2_runtime_input_no_library_data";
+const ALL: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+const RV17_COEX: &str = "invented_rv17_f1b_review_input_no_library_data";
+fn pow2(exponent: i32) -> f64 {
+    f64::from_bits(((exponent + 1023) as u64) << 52)
+}
+
+fn s11g_nodal(id: &str, node: &str, direction: &str, value: f64) -> Value {
+    let moment = direction.starts_with('R');
+    json!({"id": id, "category": if moment { "concentrated_moment" } else { "concentrated_force" },
+        "target": {"type": "node", "node": node}, "direction": direction,
+        "magnitude": {"value": value, "unit": if moment { "N*m" } else { "N" }},
+        "dimension": if moment { "moment" } else { "force" }, "provenance": INVENTED})
+}
+
+fn s11g_uniform(id: &str, pipe: &str, direction: &str, value: f64) -> Value {
+    json!({"id": id, "category": "distributed_force", "target": {"type": "element", "pipe": pipe},
+        "direction": direction, "magnitude": {"value": value, "unit": "N/m"},
+        "dimension": "force_per_length", "provenance": INVENTED})
+}
+
+fn s11g_request_of(model: Value) -> Value {
+    json!({"model": model, "materials": []})
+}
+
+fn n05_tip_noise(case_id: &str) -> Value {
+    let w = 1e8_f64;
+    json!({"id": case_id, "label": case_id, "kind": "primitive_user_load", "provenance": INVENTED,
+    "primitive_loads": [
+        s11g_uniform(&format!("{case_id}:w"), "pipe", "global_y", w),
+        s11g_nodal(&format!("{case_id}:uy"), "tip", "global_y", -w),
+        s11g_nodal(&format!("{case_id}:rz"), "tip", "RZ", w / 3.0 + 0.2),
+    ]})
+}
+
+fn n05_request(cases: Vec<Value>) -> Value {
+    let mut model: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+    ))
+    .unwrap();
+    model["load_cases"] = json!(cases);
+    s11g_request_of(model)
+}
+
+fn n05_torques() -> Value {
+    json!({"id": "case", "label": "torques", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [s11g_nodal("tip:0", "tip", "RX", 1e8), s11g_nodal("tip:1", "tip", "RX", 0.3), s11g_nodal("tip:2", "tip", "RX", -1e8)]})
+}
+
+fn with_basis(mut request: Value, case: &str, point: &str, e: f64, g: f64) -> Value {
+    let material = &mut request["model"]["materials"][0];
+    if material.get("temperature_points").is_none() {
+        material["temperature_points"] = json!([]);
+    }
+    material["temperature_points"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({
+        "id": point, "temperature": {"value": 20.0, "unit": "degC"},
+        "elastic_modulus": {"value": e, "unit": "Pa"}, "shear_modulus": {"value": g, "unit": "Pa"},
+        "provenance": INVENTED}));
+    for load_case in request["model"]["load_cases"].as_array_mut().unwrap() {
+        if load_case["id"] == json!(case) {
+            load_case["modulus_basis_ref"] = json!(point);
+        }
+    }
+    request
+}
+
+fn c1_case_b(force: f64, moment: f64) -> Value {
+    json!({"id": "case-b", "label": "case-b", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [s11g_nodal("b:f", "tip", "global_y", force), s11g_nodal("b:m", "tip", "RZ", moment)]})
+}
+
+fn c1_request(force: f64, moment: f64) -> Value {
+    with_basis(
+        n05_request(vec![n05_torques(), c1_case_b(force, moment)]),
+        "case-b",
+        "point:soft",
+        1.0,
+        0.4,
+    )
+}
+
+fn s11f_nodal(id: &str, node: &str, direction: &str, value: f64) -> Value {
+    let moment = direction.starts_with('R');
+    json!({"id": id, "category": if moment { "concentrated_moment" } else { "concentrated_force" },
+        "target": {"type": "node", "node": node}, "direction": direction,
+        "magnitude": {"value": value, "unit": if moment { "N*m" } else { "N" }},
+        "dimension": if moment { "moment" } else { "force" }, "provenance": S11F_INVENTED})
+}
+
+fn s11f_uniform(id: &str, pipe: &str, direction: &str, value: f64) -> Value {
+    json!({"id": id, "category": "distributed_force", "target": {"type": "element", "pipe": pipe},
+        "direction": direction, "magnitude": {"value": value, "unit": "N/m"},
+        "dimension": "force_per_length", "provenance": S11F_INVENTED})
+}
+
+fn n05_with_tip_torques(torques: &[f64]) -> Value {
+    let mut model: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+    ))
+    .unwrap();
+    model["load_cases"][0]["primitive_loads"] = json!(torques
+        .iter()
+        .enumerate()
+        .map(|(i, &t)| s11f_nodal(&format!("tip:{i}"), "tip", "RX", t))
+        .collect::<Vec<_>>());
+    s11g_request_of(model)
+}
+
+fn f1b_nodal(id: &str, node: &str, dof: &str, value: f64) -> Value {
+    if dof.starts_with('R') {
+        json!({"id": id, "category": "concentrated_moment", "target": {"type": "node", "node": node},
+               "direction": dof, "magnitude": {"value": value, "unit": "N*m"}, "dimension": "moment", "provenance": PROV})
+    } else {
+        json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": node},
+               "direction": format!("global_{}", dof[1..].to_lowercase()),
+               "magnitude": {"value": value, "unit": "N"}, "dimension": "force", "provenance": PROV})
+    }
+}
+
+fn f1b_anchor(node: &str, restraints: &[&str]) -> Value {
+    json!({"id": format!("anchor:{node}"), "node": node, "family": "anchor", "restraints": restraints,
+           "provenance": PROV})
+}
+
+fn f1b_frame(
+    id: &str,
+    nodes: &[(&str, [f64; 3])],
+    members: &[(&str, &str, &str)],
+    (od, wall): (f64, f64),
+    (e, g): (f64, f64),
+    supports: Vec<Value>,
+    loads: Vec<Value>,
+) -> Value {
+    json!({"model": {
+        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                            "rule_check": "not_performed_user_rule_inputs_missing",
+                            "professional_acceptance": "not_provided"},
+        "project": {"id": format!("invented:t3-f1b-w2:{id}"),
+                    "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa",
+                              "temperature": "degC", "stress": "Pa"}},
+        "nodes": nodes.iter().map(|(n, p)| json!({"id": n, "position": {"x": p[0], "y": p[1], "z": p[2]}, "provenance": PROV})).collect::<Vec<_>>(),
+        "pipe_segments": members.iter().map(|(m, a, b)| json!({"id": m, "from": a, "to": b, "material": "mat:W2",
+            "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+            "section": {"outside_diameter": {"value": od, "unit": "m"}, "wall_thickness": {"value": wall, "unit": "m"}},
+            "provenance": PROV})).collect::<Vec<_>>(),
+        "materials": [{"id": "mat:W2", "elastic_modulus": {"value": e, "unit": "Pa"},
+                       "shear_modulus": {"value": g, "unit": "Pa"}, "provenance": PROV}],
+        "supports": supports,
+        "load_cases": [{"id": "case", "label": id, "kind": "primitive_user_load",
+                        "primitive_loads": loads, "provenance": PROV}],
+        "combinations": []
+    }, "materials": []})
+}
+
+fn mixed_invocation() -> Value {
+    let mut request = f1b_frame(
+        "mixed",
+        &[("root", [0.0; 3]), ("tip", [2.0, 0.0, 0.0])],
+        &[("pipe", "root", "tip")],
+        (0.2, 0.01),
+        (2.0e11, 8.0e10),
+        vec![
+            f1b_anchor("root", &["UX", "UY", "UZ", "RY", "RZ"]),
+            json!({"id": "soft", "node": "root", "family": "spring", "restraints": ["RX"],
+                   "stiffness": {"dof": "RX", "value": {"value": 0.0001, "unit": "N*m/rad"}}, "provenance": PROV}),
+        ],
+        vec![],
+    );
+    let model = &mut request["model"];
+    model["load_cases"] = json!([
+        {"id": "case:A", "label": "A", "kind": "primitive_user_load",
+         "primitive_loads": [f1b_nodal("torque:a", "tip", "RX", 1e-8)], "provenance": PROV},
+        {"id": "case:B", "label": "B", "kind": "primitive_user_load",
+         "modulus_basis_ref": "temperature-point:tiny",
+         "primitive_loads": [f1b_nodal("torque:b", "tip", "RX", 1e-8)], "provenance": PROV}
+    ]);
+    model["materials"][0]["temperature_points"] = json!([{"id": "temperature-point:tiny",
+        "elastic_modulus": {"value": 2.0e11 * pow2(-1000) * pow2(-50), "unit": "Pa"},
+        "shear_modulus": {"value": 8.0e10, "unit": "Pa"}, "provenance": PROV}]);
+    request
+}
+
+fn rv17_member(
+    project: &str,
+    material: &str,
+    prov: &str,
+    length: f64,
+    (od, wall): (f64, f64),
+    (e, g): (f64, f64),
+    supports: Vec<Value>,
+    loads: Vec<Value>,
+) -> Value {
+    let label = project.rsplit(':').next().unwrap();
+    json!({"model": {
+        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                            "rule_check": "not_performed_user_rule_inputs_missing",
+                            "professional_acceptance": "not_provided"},
+        "project": {"id": project,
+                    "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa",
+                              "temperature": "degC", "stress": "Pa"}},
+        "nodes": [{"id": "N0", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": prov},
+                  {"id": "N1", "position": {"x": length, "y": 0.0, "z": 0.0}, "provenance": prov}],
+        "pipe_segments": [{"id": "M1", "from": "N0", "to": "N1", "material": material,
+                           "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+                           "section": {"outside_diameter": {"value": od, "unit": "m"},
+                                       "wall_thickness": {"value": wall, "unit": "m"}},
+                           "provenance": prov}],
+        "materials": [{"id": material, "elastic_modulus": {"value": e, "unit": "Pa"},
+                       "shear_modulus": {"value": g, "unit": "Pa"}, "provenance": prov}],
+        "supports": supports,
+        "load_cases": [{"id": "case", "label": label, "kind": "primitive_user_load",
+                        "primitive_loads": loads, "provenance": prov}],
+        "combinations": []}, "materials": []})
+}
+
+fn rv17_anchor(node: &str, restraints: &[&str], prov: &str) -> Value {
+    json!({"id": format!("anchor:{node}"), "node": node, "family": "anchor", "restraints": restraints,
+           "provenance": prov})
+}
+
+fn rv17_force(id: &str, dof: &str, value: f64, prov: &str) -> Value {
+    json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": "N1"},
+           "direction": format!("global_{}", dof[1..].to_lowercase()),
+           "magnitude": {"value": value, "unit": "N"}, "dimension": "force", "provenance": prov})
+}
+
+fn coexistence_cx_f() -> Value {
+    let free_ux: Vec<&str> = ALL.iter().copied().filter(|d| *d != "UX").collect();
+    rv17_member(
+        "invented:rv17-coex:CX-F",
+        "mat:C",
+        RV17_COEX,
+        1.0,
+        (0.02, 0.002),
+        (579465463.915025, 222871332.2750096),
+        vec![
+            rv17_anchor("N0", &ALL, RV17_COEX),
+            rv17_anchor("N1", &free_ux, RV17_COEX),
+        ],
+        vec![rv17_force("load:0", "UX", 3.0 * pow2(-1016), RV17_COEX)],
+    )
+}
+
+fn source_budget_request() -> serde_json::Value {
+    let mut model: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+    ))
+    .unwrap();
+    let mut second = model["load_cases"][0].clone();
+    second["id"] = "case:signed-companion".into();
+    second["primitive_loads"][0]["id"] = "torque:signed-companion".into();
+    second["primitive_loads"][0]["magnitude"]["value"] = (-2e-8).into();
+    // The existing summary is normal stress, not an equivalent torsional stress.
+    // Add an independent axial action so the second case truly governs it.
+    second["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(serde_json::json!({
+            "id":"force:axial-companion","category":"concentrated_force","dimension":"force",
+            "direction":"global_x","magnitude":{"value":1000,"unit":"N"},
+            "target":{"type":"node","node":"tip"},
+            "provenance":"invented_source_recovery_multicase_control_no_external_project_data"
+        }));
+    model["load_cases"].as_array_mut().unwrap().push(second);
+    serde_json::json!({"model":model,"materials":[]})
+}
+
+fn controls() -> Vec<Control> {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../fixtures/product_preview/source_blocks");
+    let mut cases = Vec::new();
+    for folder in ["", "ui/"] {
+        for name in ["n05", "n06", "multicase"] {
+            for mode in MODES {
+                let file = format!("{folder}{name}-{}.request.json", mode.as_str());
+                cases.push(Control {
+                    name: format!("committed/{file}"),
+                    recipe: "fixtures/product_preview/source_blocks/*.request.json",
+                    raw: serde_json::from_slice(&std::fs::read(base.join(&file)).unwrap()).unwrap(),
+                    modes: vec![mode],
+                });
+            }
+        }
+    }
+    for mode in MODES {
+        let file = format!("rejected_stress_range/{}.request.json", mode.as_str());
+        cases.push(Control { name: format!("committed/{file}"), recipe: "tests/source_block_recovery.rs::derived_stress_unit_range_cannot_mint_source_qualification", raw: serde_json::from_slice(&std::fs::read(base.join(&file)).unwrap()).unwrap(), modes: vec![mode] });
+    }
+    let original: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+    ))
+    .unwrap();
+    let references: Value = serde_json::from_str(include_str!(
+        "../../../validation/benchmarks/numerical_integrity/fixtures.json"
+    ))
+    .unwrap();
+    for name in ["N05", "N06"] {
+        for sign in [1.0, -1.0] {
+            for rotated in [false, true] {
+                let mut model = original.clone();
+                let scalar = |key: &str| {
+                    references["N"][name][key]
+                        .as_str()
+                        .unwrap()
+                        .parse::<f64>()
+                        .unwrap()
+                };
+                model["supports"][1]["stiffness"]["value"]["value"] =
+                    json!(scalar("spring_RX_Nm_per_rad"));
+                model["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] =
+                    json!(sign * scalar("tip_MX_Nm"));
+                model["project"]["id"] =
+                    json!(format!("invented:source-recovery:{name}:{sign}:{rotated}"));
+                model["nodes"][0]["id"] = json!("independent-root");
+                model["nodes"][1]["id"] = json!("independent-tip");
+                model["pipe_segments"][0]["from"] = json!("independent-root");
+                model["pipe_segments"][0]["to"] = json!("independent-tip");
+                model["pipe_segments"][0]["id"] = json!("independent-member");
+                model["supports"][0]["node"] = json!("independent-root");
+                model["supports"][1]["node"] = json!("independent-root");
+                model["supports"][1]["id"] = json!("independent-spring");
+                model["load_cases"][0]["primitive_loads"][0]["target"]["node"] =
+                    json!("independent-tip");
+                if rotated {
+                    model["nodes"][1]["position"] = json!({"x":0,"y":2,"z":0});
+                    model["pipe_segments"][0]["y_reference"] = json!({"x":0,"y":0,"z":1});
+                    model["supports"][0]["restraints"] = json!(["UY", "UZ", "UX", "RZ", "RX"]);
+                    model["supports"][1]["restraints"] = json!(["RY"]);
+                    model["supports"][1]["stiffness"]["dof"] = json!("RY");
+                    model["load_cases"][0]["primitive_loads"][0]["direction"] = json!("RY");
+                }
+                cases.push(control(&format!("sign_rotation/{name}/{sign}/{rotated}"), "tests/source_block_recovery.rs::retained_source_rotation_member_torque_and_device_action_reach_public_rows", json!({"model":model,"materials":[]})));
+            }
+        }
+    }
+    for force in [1e-150_f64, 1e160_f64] {
+        let mut model = original.clone();
+        model["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(json!({"id":"invented:range-axial-force","category":"concentrated_force","dimension":"force","direction":"global_x","magnitude":{"value":force,"unit":"N"},"target":{"type":"node","node":"tip"},"provenance":"invented_derived_range_control_no_external_project_data"}));
+        cases.push(control(&format!("tiny_range/{force:e}"), "tests/source_block_recovery.rs::actual_source_recovery_scaled_norms_admit_tiny_actions_and_keep_large_json_boundary", json!({"model":model,"materials":[]})));
+    }
+    cases.push(control("F4/cancelling", "src/s11f_tests.rs::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net", n05_with_tip_torques(&[1e8,0.3,-1e8])));
+    cases.push(control("F4/net", "src/s11f_tests.rs::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net", n05_with_tip_torques(&[0.3])));
+    let mut f6 = n05_with_tip_torques(&[1e8, 0.3, -1e8]);
+    let mut b = f6["model"]["load_cases"][0].clone();
+    b["id"] = json!("case-b");
+    for load in b["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("b:{}", load["id"].as_str().unwrap()));
+    }
+    b["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(s11f_uniform("udl:b", "pipe", "global_y", 10.0));
+    f6["model"]["load_cases"].as_array_mut().unwrap().push(b);
+    cases.push(control(
+        "F6/partial",
+        "src/s11f_tests.rs::f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads",
+        f6,
+    ));
+    cases.push(control(
+        "source_budget/multicase",
+        "src/source_budget_tests.rs::request",
+        source_budget_request(),
+    ));
+    cases.push(control(
+        "N05/two_case",
+        "src/retained_facade_tests.rs::n05_two_cases",
+        n05_two_cases(),
+    ));
+    cases.push(control(
+        "F1b/mixed",
+        "tests/f1b_w2_runtime.rs::mixed_invocation",
+        mixed_invocation(),
+    ));
+    cases.push(control(
+        "CX-F",
+        "tests/f1b_w2_runtime.rs::coexistence_cx_f",
+        coexistence_cx_f(),
+    ));
+    cases.push(control(
+        "T18",
+        "src/s11g_tests.rs::t18_path2_invocation_is_not_refused",
+        n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
+    ));
+    cases.push(control(
+        "T19",
+        "src/s11g_tests.rs::t19_path1_load_row_variant_is_not_refused",
+        with_basis(
+            n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
+            "case-b",
+            "point:soft",
+            1.0,
+            0.4,
+        ),
+    ));
+    cases.push(control(
+        "T20/refused",
+        "src/s11g_tests.rs::t20_characterization_rb_prime_residual_c1",
+        c1_request(1.0, 1e-7),
+    ));
+    cases.push(control(
+        "T20/control",
+        "src/s11g_tests.rs::t20_characterization_rb_prime_residual_c1",
+        c1_request(1.0, 0.5),
+    ));
+    cases
+}
+
+#[test]
+fn b4_w1_source_census() {
+    let (mut trials, mut refused, mut unselected, mut selected_cases, mut covered, mut losses) =
+        (0usize, 0usize, 0usize, 0usize, 0usize, Vec::new());
+    for c in controls() {
+        for mode in c.modes {
+            trials += 1;
+            let label = format!("{} {}", c.name, mode.as_str());
+            let baseline = match run_linear_static_preview_value_with_mode(c.raw.clone(), mode) {
+                Ok(envelope) => serde_json::to_value(envelope).unwrap(),
+                Err(error) => {
+                    refused += 1;
+                    eprintln!(
+                        "B4_W1_CENSUS {}",
+                        json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"baseline_refusal":error})
+                    );
+                    continue;
+                }
+            };
+            let selected: Vec<Value> = baseline["source_block_recovery"]["body"]["cases"]
+                .as_array()
+                .map(Vec::as_slice)
+                .unwrap_or(&[])
+                .iter()
+                .filter(|case| case["selected_method"] == "retained_source_blocks_exact_v1")
+                .map(|case| case["basis_ref"].clone())
+                .collect();
+            if selected.is_empty() {
+                unselected += 1;
+                eprintln!(
+                    "B4_W1_CENSUS {}",
+                    json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"baseline_selected":[],"baseline_status":baseline["status"]["mechanics"]})
+                );
+                continue;
+            }
+            selected_cases += selected.len();
+            let invocation = json!({"request":c.raw,"solver_mode":mode.as_str()});
+            let (request, capture) =
+                source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
+            let refs: Vec<Value> = request
+                .model
+                .load_cases
+                .iter()
+                .map(|case| json!({"ref_type":"load_case","ref_id":case.id}))
+                .collect();
+            let baseline_standing =
+                sc::numerical_use_standing_with_context(&baseline, &refs, Some(&invocation));
+            let baseline_check = match baseline["producer"]["semantic_contract_id"].as_str() {
+                Some(open_pipe_stress_result_export::source_blocks::CONTRACT_ID) => {
+                    open_pipe_stress_result_export::source_blocks::validate(
+                        &baseline,
+                        Some(&invocation),
+                    )
+                }
+                Some(sc::PHYSICS_SOURCE_ID) => {
+                    open_pipe_stress_result_export::physics_source::validate(
+                        &baseline,
+                        Some(&invocation),
+                    )
+                }
+                _ => sc::for_source(&baseline).map(|_| false),
+            };
+            let domain =
+                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
+                    .law()
+                    .domain;
+            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
+            // The actual legacy attempt is denied before observer capture, without editing returned bytes.
+            let mut budget = SourceRecoveryBudget {
+                per_case_limit: 0,
+                ..Default::default()
+            };
+            let mut ordinary = run_linear_static_preview_observed(
+                request,
+                mode,
+                Some(&capture),
+                &mut budget,
+                Some(&mut observer),
+            );
+            assert!(
+                ordinary.source_block_recovery.is_none(),
+                "{label}: legacy selection was not suppressed"
+            );
+            ordinary.diagnostics.shrink_to_fit();
+            let (_, successor) = retained_w1(observer, ordinary, &capture);
+            let mut details = Vec::new();
+            let (outcome, w1_standing) = match successor {
+                Err(error) => (json!({"fallback":format!("{error:?}")}), "unsupported"),
+                Ok(successor) => {
+                    let source = successor.value();
+                    let validation = reader::validate(source, Some(&invocation));
+                    let standing =
+                        sc::numerical_use_standing_with_context(source, &refs, Some(&invocation));
+                    for basis in &selected {
+                        let case = source["retained_precision"]["body"]["cases"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|case| case["basis_ref"] == *basis);
+                        let classes = validation
+                            .as_ref()
+                            .ok()
+                            .map(|v| {
+                                v.classifications
+                                    .iter()
+                                    .filter(|row| row.basis_ref == *basis)
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default();
+                        let baseline_case = baseline["source_block_recovery"]["body"]["cases"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|case| case["basis_ref"] == *basis)
+                            .unwrap();
+                        let baseline_qualified = baseline_case["rows"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .filter(|row| {
+                                matches!(
+                                    row["treatment"].as_str(),
+                                    Some("qualified_projection" | "checked_derived")
+                                )
+                            })
+                            .collect::<Vec<_>>();
+                        let mut treatment_classes = [0usize; 6];
+                        let mut baseline_withheld = Vec::new();
+                        for treatment in &baseline_qualified {
+                            let class = classes.iter().find(|row| {
+                                row.result_id == treatment["result_id"].as_str().unwrap()
+                            });
+                            let index = match class.map(|row| &row.class) {
+                                Some(reader::AccuracyClass::RelativeVerified) => 0,
+                                Some(reader::AccuracyClass::AbsoluteVerified { .. }) => 1,
+                                Some(reader::AccuracyClass::InputDerived) => 2,
+                                Some(reader::AccuracyClass::NonQuantity) => 3,
+                                Some(reader::AccuracyClass::NotCovered) => 4,
+                                None => 5,
+                            };
+                            treatment_classes[index] += 1;
+                            // This records the reader's existing binding classes, without reclassifying them.
+                            if index == 1 || index >= 4 {
+                                baseline_withheld.push(json!({"result_id":treatment["result_id"],"w1_class":class.map(|row|format!("{:?}",row.class))}));
+                            }
+                        }
+                        let summary = validation
+                            .as_ref()
+                            .ok()
+                            .map(|v| sc::classification_summary_from(v, source, &refs))
+                            .unwrap_or_default();
+                        let binding_summary = summary
+                            .iter()
+                            .find(|entry| entry["case_id"] == basis["ref_id"]);
+                        let mut counts = [0usize; 5];
+                        for row in &classes {
+                            counts[match row.class {
+                                reader::AccuracyClass::RelativeVerified => 0,
+                                reader::AccuracyClass::AbsoluteVerified { .. } => 1,
+                                reader::AccuracyClass::InputDerived => 2,
+                                reader::AccuracyClass::NonQuantity => 3,
+                                reader::AccuracyClass::NotCovered => 4,
+                            }] += 1;
+                        }
+                        let retains = case.is_some_and(|case| case["status"] == "selected")
+                            && validation.is_ok()
+                            && domain.is_none()
+                            && !(baseline_standing == "numerically_eligible"
+                                && standing != "numerically_eligible");
+                        if retains {
+                            covered += 1;
+                        } else {
+                            losses.push(format!("{label} {}", basis["ref_id"]));
+                        }
+                        details.push(json!({"basis_ref":basis,"w1_case_status":case.map(|case|case["status"].clone()),"classes":{"relative_verified":counts[0],"absolute_verified":counts[1],"input_derived":counts[2],"non_quantity":counts[3],"not_covered":counts[4]},"retained_same_or_better_standing":retains,
+                            "binding_summary":binding_summary,"baseline_qualified_rows":baseline_qualified.len(),
+                            "baseline_qualified_w1_classes":{"relative_verified":treatment_classes[0],"absolute_verified":treatment_classes[1],"input_derived":treatment_classes[2],"non_quantity":treatment_classes[3],"not_covered":treatment_classes[4],"absent":treatment_classes[5]},
+                            "baseline_qualified_withheld":baseline_withheld}));
+                    }
+                    (
+                        match validation {
+                            Ok(v) => {
+                                json!({"reader_pass":true,"invocation_bound":v.invocation_bound,"numerical_eligible":v.numerical_eligible})
+                            }
+                            Err(error) => json!({"reader_pass":false,"error":format!("{error:?}")}),
+                        },
+                        standing,
+                    )
+                }
+            };
+            if details.is_empty() {
+                for basis in &selected {
+                    losses.push(format!("{label} {}", basis["ref_id"]));
+                    details
+                        .push(json!({"basis_ref":basis,"retained_same_or_better_standing":false}));
+                }
+            }
+            eprintln!(
+                "B4_W1_CENSUS {}",
+                json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"request_sha256":sha(serde_json::to_string(&c.raw).unwrap().as_bytes()),"baseline_identity":baseline["producer"]["semantic_contract_id"],"baseline_reader":format!("{baseline_check:?}"),"baseline_standing":baseline_standing,"domain_refusal":domain.map(|d|format!("{d:?}")),"w1":outcome,"w1_standing":w1_standing,"cases":details})
+            );
+        }
+    }
+    eprintln!(
+        "B4_W1_CENSUS_SUMMARY {}",
+        json!({"trials":trials,"baseline_refused":refused,"baseline_unselected":unselected,"baseline_selected_cases":selected_cases,"covered_same_or_better":covered,"losses":losses})
+    );
+    assert!(
+        losses.is_empty(),
+        "B4/D1 census found {} capability losses; see per-control evidence",
+        losses.len()
+    );
+}
+
+#[test]
+fn b4_w1_n06_cxf_capture_errors() {
+    for c in controls().into_iter().filter(|c| {
+        c.name == "CX-F"
+            || c.name == "committed/n06-sparse_interactive.request.json"
+            || c.name == "committed/n06-dense_scrutiny.request.json"
+    }) {
+        for mode in c.modes {
+            let invocation = json!({"request":c.raw,"solver_mode":mode.as_str()});
+            let (request, capture) =
+                source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
+            let domain =
+                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
+                    .law()
+                    .domain;
+            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
+            let mut budget = SourceRecoveryBudget {
+                per_case_limit: 0,
+                ..Default::default()
+            };
+            let mut ordinary = run_linear_static_preview_observed(
+                request,
+                mode,
+                Some(&capture),
+                &mut budget,
+                Some(&mut observer),
+            );
+            assert!(ordinary.source_block_recovery.is_none());
+            let before = json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),
+                "domain_refusal":domain.map(|d|format!("{d:?}")),"ordinary_status":ordinary.status.mechanics,
+                "ordinary_quality":format!("{:?}",ordinary.numerical_quality),
+                "capture_error":observer.error.as_ref().map(|e|format!("{e:?}")),
+                "observation_calls":observer.observation_calls,"observations_present":observer.observations.is_some(),
+                "late_calls":observer.prepared_late_calls,"source_capture_entries":observer.source_capture_entries,
+                "source_present":observer.source.is_some(),"cases_seen":observer.cases_seen(),
+                "initial_w2_seeds":format!("{:?}",observer.ordinary),"native_present":observer.native.is_some(),
+                "final_calls":observer.final_calls});
+            eprintln!("B4_W1_CAPTURE_BEFORE {}", before);
+            ordinary.diagnostics.shrink_to_fit();
+            let (_, successor) = retained_w1(observer, ordinary, &capture);
+            let outcome = match successor {
+                Err(error) => json!({"fallback":format!("{error:?}")}),
+                Ok(successor) => {
+                    json!({"reader":format!("{:?}",reader::validate(successor.value(),Some(&invocation)))})
+                }
+            };
+            eprintln!(
+                "B4_W1_CAPTURE_AFTER {}",
+                json!({"control":c.name,"mode":mode.as_str(),"w1":outcome})
+            );
+        }
+    }
+}
+
+fn early_observed(
+    raw: &Value,
+    mode: PreviewSolverMode,
+    installed: bool,
+) -> (
+    source_receipt::CapturedInvocation,
+    rp::ProductCapture,
+    MechanicsEnvelope,
+) {
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let route = w1_route(&request.model).unwrap_or(rp::W1Route::Preview);
+    let mut observer = rp::ProductCapture::prepared_probe_on(route);
+    let mut budget = SourceRecoveryBudget {
+        per_case_limit: 0,
+        ..Default::default()
+    };
+    let ordinary = run_linear_static_preview_observed(
+        request,
+        mode,
+        Some(&capture),
+        &mut budget,
+        if installed { Some(&mut observer) } else { None },
+    );
+    (capture, observer, ordinary)
+}
+
+#[test]
+fn b4_early_failed_inputs_are_ready_with_genuine_terminal_and_no_rescue() {
+    for c in controls().into_iter().filter(|c| {
+        c.name == "CX-F"
+            || c.name == "committed/n06-sparse_interactive.request.json"
+            || c.name == "committed/n06-dense_scrutiny.request.json"
+    }) {
+        for mode in c.modes {
+            let (_, _, plain) = early_observed(&c.raw, mode, false);
+            let (capture, observer, ordinary) = early_observed(&c.raw, mode, true);
+            assert_eq!(
+                serde_json::to_vec(&ordinary).unwrap(),
+                serde_json::to_vec(&plain).unwrap()
+            );
+            assert!(retained_memory::ordinary_solve_attempted(&observer, 1));
+            assert_eq!(observer.terminal_calls, 1);
+            assert_eq!(observer.terminal, rp::OrdinaryTerminal::FailedAttempt);
+            assert!(observer.source.is_some());
+            assert!(observer.error.is_none());
+            assert_eq!(observer.source_capture_entries, 1);
+            assert_eq!(observer.early_source_count(), 1);
+            assert_eq!(
+                observer.source.as_ref().unwrap().loads().len(),
+                c.raw["model"]["load_cases"][0]["primitive_loads"]
+                    .as_array()
+                    .unwrap()
+                    .len()
+            );
+            for term in observer.source.as_ref().unwrap().loads() {
+                let raw = &c.raw["model"]["load_cases"][0]["primitive_loads"][0];
+                assert_eq!(term.source_id, raw["id"].as_str().unwrap());
+                assert_eq!(
+                    term.value.to_bits(),
+                    raw["magnitude"]["value"].as_f64().unwrap().to_bits()
+                );
+            }
+            assert_eq!(
+                (
+                    observer.observation_calls,
+                    observer.prepared_late_calls,
+                    observer.final_calls
+                ),
+                (0, 0, 0)
+            );
+            assert!(observer.native.is_none());
+            assert!(observer.observations.is_none());
+            eprintln!(
+                "B4_EARLY_PREPARATION {}",
+                json!({"control":c.name,"mode":mode.as_str(),"terminal":format!("{:?}",observer.terminal),"source_ready":true,"layout":observer.early_source_layout()})
+            );
+            let (_, successor) = retained_w1(observer, ordinary, &capture);
+            assert_eq!(successor.err(), Some(W1Fallback::Preparation));
+        }
+    }
+}
+
+#[test]
+fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
+    let single: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+    ))
+    .unwrap();
+    let partial = controls()
+        .into_iter()
+        .find(|c| c.name == "F6/partial")
+        .unwrap()
+        .raw;
+    for raw in [single, n05_two_cases(), partial] {
+        for mode in MODES {
+            let (_, _, plain) = early_observed(&raw, mode, false);
+            let (_, observer, ordinary) = early_observed(&raw, mode, true);
+            assert_eq!(
+                serde_json::to_vec(&ordinary).unwrap(),
+                serde_json::to_vec(&plain).unwrap()
+            );
+            assert_eq!(observer.terminal_calls, 1);
+            for case in 0..observer.cases_seen() {
+                assert_eq!(
+                    observer.source_terminal_at(case).1,
+                    rp::OrdinaryTerminal::ObservedCompletion
+                );
+            }
+            let (request, capture) =
+                source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            let admitted =
+                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
+                    .law()
+                    .domain
+                    .is_none();
+            if admitted {
+                assert_eq!(
+                    observer.early_source_count(),
+                    raw["model"]["load_cases"].as_array().unwrap().len()
+                );
+                for case in 0..observer.cases_seen() {
+                    assert!(observer.source_terminal_at(case).0);
+                }
+                assert!(observer.error.is_none());
+            } else {
+                assert_eq!(observer.early_source_count(), 0);
+            }
+        }
+    }
+}
+
+#[test]
+fn b4_early_invalid_unrun_missing_and_repeated_capture_refuse() {
+    let raw: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+    ))
+    .unwrap();
+    for mode in MODES {
+        let mut invalid = raw.clone();
+        invalid["model"]["load_cases"][0]["primitive_loads"][0]["target"]["node"] =
+            json!("not-a-node");
+        let (_, _, plain) = early_observed(&invalid, mode, false);
+        let (_, observer, ordinary) = early_observed(&invalid, mode, true);
+        assert_eq!(
+            serde_json::to_vec(&ordinary).unwrap(),
+            serde_json::to_vec(&plain).unwrap()
+        );
+        assert!(!retained_memory::ordinary_solve_attempted(&observer, 1));
+        assert!(observer.source.is_none());
+        assert_eq!(observer.terminal, rp::OrdinaryTerminal::MissingOrUnrun);
+        let mut unrun = raw.clone();
+        unrun["model"]["supports"] = json!([]);
+        let (_, observer, _) = early_observed(&unrun, mode, true);
+        assert!(!retained_memory::ordinary_solve_attempted(&observer, 1));
+        assert_eq!(observer.early_source_count(), 0);
+        let (_, mut observer, ordinary) = early_observed(&raw, mode, true);
+        observer.observations = None;
+        assert!(
+            observer.prepare_case(ordinary).is_err(),
+            "missing successful observation remains refused"
+        );
+        let (_, mut observer, _) = early_observed(&raw, mode, true);
+        observer.settle_ordinary_terminal();
+        assert_eq!(observer.terminal_calls, 2);
+        assert!(observer.error.is_some());
+        let (_, mut observer, _) = early_observed(&raw, mode, true);
+        let mut changed = raw.clone();
+        changed["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(2e-8);
+        assert!(observer.test_refuse_changed_occurrence(&changed).is_err());
+    }
+}
+
+#[test]
+fn b4_early_failed_terminal_keeps_dn_exclusions() {
+    let raw = coexistence_cx_f();
+    for error in [
+        StructuralError::InvalidInput("invented invalid input".into()),
+        StructuralError::Asymmetric {
+            row: 0,
+            col: 1,
+            relative_skew: 1.0,
+        },
+        StructuralError::Mechanism {
+            direction: vec![0.0; 12],
+        },
+    ] {
+        let (capture, mut observer, ordinary) =
+            early_observed(&raw, PreviewSolverMode::SparseInteractive, true);
+        observer.ordinary[0].initial = Some(rp::InitialSeed::StructuralFailure {
+            error,
+            diagnostic_ref: None,
+        });
+        observer.ordinary[0].w2 = rp::W2Seed::NotTriggered;
+        let (_, successor) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(successor.err(), Some(W1Fallback::NoTriggeredCase));
+    }
+}
+
+#[test]
+fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() {
+    let raw: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+    ))
+    .unwrap();
+    for mode in MODES {
+        for mutation in 0..3 {
+            let (mut request, capture) =
+                source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            match mutation {
+                0 => {
+                    request.model.load_cases[0].primitive_loads[0]
+                        .magnitude
+                        .value = 2e-8
+                }
+                1 => request.model.nodes[1].position.x = 3.0,
+                _ => {
+                    request.model.supports[1]
+                        .stiffness
+                        .as_mut()
+                        .unwrap()
+                        .value
+                        .value = 0.0002
+                }
+            }
+            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
+            let mut budget = SourceRecoveryBudget {
+                per_case_limit: 0,
+                ..Default::default()
+            };
+            let ordinary = run_linear_static_preview_observed(
+                request,
+                mode,
+                Some(&capture),
+                &mut budget,
+                Some(&mut observer),
+            );
+            assert!(observer.source.is_none(), "captured mutation {mutation}");
+            assert!(observer.error.is_some());
+            assert!(observer.prepare_case(ordinary).is_err());
+        }
+        let unit_raw: Value = serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/physics_source/n05_units.request.json"
+        ))
+        .unwrap();
+        let (_, _, plain) = early_observed(&unit_raw, mode, false);
+        let (_, observer, ordinary) = early_observed(&unit_raw, mode, true);
+        assert_eq!(
+            serde_json::to_vec(&ordinary).unwrap(),
+            serde_json::to_vec(&plain).unwrap()
+        );
+        assert!(
+            observer.source.is_some(),
+            "maintained exact-route unit control: {:?}",
+            observer.error
+        );
+        assert!(observer.error.is_none());
+    }
+}
+
+
+#[test]
+fn b4_early_exact_material_binding_uses_authoritative_subnormal_words() {
+    let baseline: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/physics_source/n05_units.request.json"
+    ))
+    .unwrap();
+    for (nu, authoritative_bits, direct_bits) in [
+        (-0.25, 0x000a_aaaa_aaaa_aaaau64, 0x000a_aaaa_aaaa_aaab),
+        (-0.4, 0x000d_5555_5555_5556, 0x000d_5555_5555_5555),
+    ] {
+        for mode in MODES {
+            let mut raw = baseline.clone();
+            raw["model"]["materials"][0]["elastic_modulus"] =
+                json!({"value": f64::MIN_POSITIVE, "unit": "Pa"});
+            raw["model"]["materials"][0]["poisson_ratio"] =
+                json!({"value": nu, "unit": "1"});
+            let (request, capture) =
+                source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
+            let mut model = request.model;
+            let mut materials = model.materials.clone();
+            let mut diagnostics = Vec::new();
+            normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+            pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+            assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+            assert_eq!(materials[0].elastic_modulus.value.to_bits(), f64::MIN_POSITIVE.to_bits());
+            let g = materials[0].shear_modulus.as_ref().unwrap().value;
+            assert_eq!(g.to_bits(), authoritative_bits);
+            assert_eq!((f64::MIN_POSITIVE / (2.0 * (1.0 + nu))).to_bits(), direct_bits);
+            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Exact);
+            observer.invocation(Some(&capture), mode);
+            assert!(observer
+                .test_check_captured_structure(&model, &materials, &capture)
+                .is_ok(), "unchanged normalized leaves must bind exactly");
+            // Structural identity does not widen the independent retained exact-source gate.
+            assert!(observer.exact_material_nu(&materials[0]).is_err());
+            materials[0].shear_modulus.as_mut().unwrap().value = f64::from_bits(direct_bits);
+            assert!(observer
+                .test_check_captured_structure(&model, &materials, &capture)
+                .is_err(), "one-ulp normalization tamper must refuse");
+        }
+    }
+}
