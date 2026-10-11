@@ -6103,7 +6103,8 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             )?;
             let (lower, upper) = (number(&x["value_lower_pa"]), number(&x["value_upper_pa"]));
             demand(
-                lower.zip(upper).is_some_and(|(l, h)| l >= 0.0 && l <= h),
+                lower.zip(upper).is_some_and(|(l, h)| l >= 0.0 && l <= h)
+                    && upper == number(&x["global_upper_bound_pa"]),
                 "extrema bounds",
             )?;
             extrema_ids.push(text(&x["result_id"]));

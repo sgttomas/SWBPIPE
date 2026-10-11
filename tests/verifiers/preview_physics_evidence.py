@@ -185,6 +185,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
             _require(_integer(extremum["span_index"]) and extremum["span_index"] >= 0 and _integer(extremum["subdivisions"]) and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1, "extrema fractions")
             _require(0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"], "extrema bounds")
+            _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
         _require(len(set(pipes)) == len(pipes) and not set(pipes) & (set(coverage["unavailable_pipe_ids"]) | set(coverage["outside_domain_pipe_ids"])), "extrema member partition")
         for measure in case["intensified_measures"]:

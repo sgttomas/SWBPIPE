@@ -472,6 +472,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 lower >= 0.0
                     && lower <= value
                     && value <= upper
+                    && upper == number(&extrema["global_upper_bound_pa"])?
                     && value == lower + 0.5 * (upper - lower),
                 "EXTREMA_BOUNDS",
             )?;
