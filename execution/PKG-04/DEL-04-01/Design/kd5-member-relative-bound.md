@@ -20,19 +20,19 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 - **W1's N-5 abandonment (T3's M1).** (d) abandons none of the 2,844 invocations in W1's domain; R-b′ abandons 64 of them today (§4.4).
 - **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Nonzero evaluation cases generally change last bits; zero-load and exact-result cases can retain identical member bytes. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
 - **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a nonzero certified group passes both the existing S* ≥ 2^-988 guard and the relative floor q̂ ≥ 2^-34·S*. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
-- **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). The short-bend rule is removed only with the closure, in the same unit (T3's M3).
+- **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). Main/K-D5 has no O-13 geometric short-bend rule to delete. Batch 4 removes that rule from its unmerged U2/O-13 code only after rebasing onto and verifying this closed-recovery path; M3 is checked on the final integrated U2 producer (§4.3).
 - **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
 
 ## The rulings and what they supersede
 
-**HELP_HUMAN, 2026-10-11 (under the owner's delegation), option (d).** Publish the certified member rows recovered at p (the intended recovery m_g at u + w + w₂, rounded to binary64), with T3's full load closure folded into D5C-1, so that K-D5 certifies one intended system. The 1e-9 criterion and its 2^-34·S* floor stay, with no interim criterion change. Every formed load term is covered, and B ≥ err is shown on all 90,734 breaching groups. "Certified" means against K-D5's intended system. The published values change: this is stated as a property, and the SP-1/SP-4 blast radius is declared before any re-pin (§3.4, §6). The residual demotion rate and M1's W1-abandonment rate are reported (§4). The short-bend rule is removed only after the closure lands, in the same unit (M3). The nonlinear-support route fails closed with a named, disclosed reason (§5). Re-registration is priced with `tools/retained_pricing/` (§6).
+**HELP_HUMAN, 2026-10-11 (under the owner's delegation), option (d).** Publish the certified member rows recovered at p (the intended recovery m_g at u + w + w₂, rounded to binary64), with T3's full load closure folded into D5C-1, so that K-D5 certifies one intended system. The 1e-9 criterion and its 2^-34·S* floor stay, with no interim criterion change. Every formed load term is covered, and B ≥ err is shown on all 90,734 breaching groups. "Certified" means against K-D5's intended system. The published values change: this is stated as a property, and the SP-1/SP-4 blast radius is declared before any re-pin (§3.4, §6). The residual demotion rate and M1's W1-abandonment rate are reported (§4). The short-bend rule is removed only after the closure is available and verified on the affected admitted path (M3). The recovered branch split means main/K-D5 has no such O-13 rule; its removal belongs to the final batch-4 U2 integration on the verified closure. The nonlinear-support route fails closed with a named, disclosed reason (§5). Re-registration is priced with `tools/retained_pricing/` (§6).
 
 **HELP_HUMAN, 2026-10-11, all-zero bodies.** The floor stays. The reason given is that keeping the criterion carries less risk of false conclusions, while anchoring the floor to the load scale could certify unchecked small-but-meaningful rows. The unit adds a named notice with no criterion change (§3.3).
 
 **Superseded by this unit.** HELP_HUMAN's ruling supersedes "my short-bend thresholds (ruling 5, plus the withdrawn (c) limit)" and "the t15b 1e-4 rad acceptance", and asks that they be named "in the DEL-04-01 Design as superseded by this unit". They are:
 
 1. The Passed and Sensitive thresholds of "Short stiff bends" ([curved-numerical-integrity.md](curved-numerical-integrity.md)): Passed at 6.6e-3 and Sensitive from about 6e-3 down to 5e-5. They become outcomes of the solver's own gate (r̂ < √ε) and of the unified predicate. The pivot-screen refusal and `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` below 1e-4 stay.
-2. The withdrawn option (c) limit: O-13's `SHORT_BEND_PASSED_RATIO` = 1.6e-2 with the short-bend rule (`short_bend_finding`, `ShortBend`) on `codex/piping-t4-o13-20261010`. It is removed after the closure, in this unit (§4.3).
+2. The withdrawn option (c) limit: O-13's `SHORT_BEND_PASSED_RATIO` = 1.6e-2 with the short-bend rule (`short_bend_finding`, `ShortBend`) on `codex/piping-t4-o13-20261010`. It is removed in batch 4 after integrating and verifying this unit's closure (§4.3); it is absent on main/K-D5.
 3. The t15b acceptance at 1e-4 rad ("guard and K-D5 margin from φ = 1e-4 rad", pinned by `t15b_certified_arcs_pass_at_utm_and_small_angles`). A small arc's verdict is now the unified predicate's outcome on its certified rows. t15b is re-pinned to that outcome, predicted Passed.
 
 Both Design files name these supersessions with the same quotations.
@@ -87,7 +87,7 @@ Producers are in PP `lib.rs` unless named.
 | Connector reference loads (T4-U3 q_ref) | `add_connector_reference_loads` | DEL-04-07 | `ConnectorReference{connector, q_ref}`: `connector_matrix`·q_ref | 2^-120 level |
 | W2 force-scaled terms | F1b/K2b | DEL-04-07 | The same primitives at 2^b, which is an exact scaling | as above |
 
-**One ε.** ε is the resolved total eigenstrain of the load state: thermal α·ΔT plus fit and cold-spring strain on the 0.4.0 route. It is formed once at p from its primitives, and that one value feeds the straight, arc and pressure primitives of the case.
+**One ε.** ε is the resolved total eigenstrain of the load state: thermal α·ΔT plus fit and cold-spring strain on the 0.4.0 route. It is formed once at p from its primitives, and that one value feeds the straight, arc and pressure primitives of the case. A producer may omit a source-known exactly zero contribution, but may not omit a formed contribution solely because its binary64 fold is zero. In particular, a thermal/fit cancellation whose p re-formation is nonzero retains a zero-valued binary64 formed eigenload and its complete closure metadata: the ordinary force bits stay unchanged while the intended load enters the closed residual. A regression pins this cancellation boundary.
 
 Under the effective-force pressure model the nodal pressure terms net to zero at bend ends in the intended system. Re-formed at p, they do net. Today their binary64 residue enters ρ as if intended.
 
@@ -218,7 +218,7 @@ So a published maximum cannot be formed from rows other than the ones published 
 - **The scope string stays.** "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate" (PP `retained_product.rs` :2786, RE `physics_evidence.rs` :608, and four other readers) remains true. The coefficients are still binary64 values supplied to the enclosure, now the repaired ones. Their error against the intended system is B, which is separate. Keeping the string leaves the six readers unchanged.
 - **The W1 retained-source maximum** (basis `retained_source_endpoint_normal_max_v1`, `source_receipt::composite_member_maximum`) is unchanged. It is published only for cases routed to retained-source recovery: an ordinary report that is Sensitive, an attempt that errs, or a load-row finding (`needs_source_recovery`). Such a case never carries certified rows.
 
-**Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and as −k·(u + w + w₂) for springs, preserving the published support-on-pipe sign convention. They form two groups per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z).
+**Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and as −k·(u + w + w₂) for springs, preserving the published support-on-pipe sign convention. They form two groups per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z). For a reaction assembled from several element blocks, a stack-only streaming triangle upper bound Σ_e ‖A_re·D‖₁ may replace the assembled-row norm. It is conservative; its effect on tightness is measured in the implementation's demotion counts. Every sum is rounded upward and excludes prescribed columns.
 
 Displacement and rotation rows are published unchanged (u). K-D5's per-DOF rule judges them, as today. The bound covers them (the 286 breaching rotation and displacement groups in §4.1), but they are not repaired.
 
@@ -366,7 +366,7 @@ The closed bound is applied to today's published rows v (I43): B_c = ‖v − m_
 - Today it is Sensitive by the short-bend rule, with breaches of 1.10 (sparse) and 1.75 (dense) × c.
 - Under (d) with the closure it publishes Passed, with repaired rows at err/c = 1.03e-7 and B/c = 1.03e-7 in both modes.
 
-So the short-bend rule is removed in the same unit as the closure and after it. On every evaluated set, no case moves from Sensitive to Passed with a breach.
+So the final U2/O-13 batch removes its short-bend rule only on the integrated, verified closure. Main/K-D5 has no O-13 geometric rule to remove. On every evaluated set, no case moves from Sensitive to Passed with a breach.
 
 ### 4.4 W1's N-5 abandonment (T3's M1)
 
@@ -468,7 +468,7 @@ T3's R2 (Rust-only base readers) commits native outcomes for a shared base corpu
 **Other pins.**
 
 - S11-G: `rb_prime_clauses_at_their_boundaries`, `t11`, `t12`, `t13`, `t13b`, `t20` and `ruling1_both_guards_fire_and_the_load_row_sentence_stands`.
-- O-13's `arc_recovery` P1–P8 and G1–G6. The short-bend tests are deleted.
+- O-13's `arc_recovery` P1–P8 and G1–G6. The unmerged U2/O-13 short-bend tests are replaced during batch-4 integration on the verified closure.
 - `t15b`, re-pinned to its outcome.
 - F1b's W2 and K2a reach tests that read R-b′'s sentence.
 - The S11-F site table (`s11f_site_test` rule 6 and FK's `s11_site_table`): every new function that forms a load at p, and the recovery at p, is a force site.
@@ -530,7 +530,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 - The governing maximum, its extrema and the stress summaries are formed from the repaired actions (§3.2).
 - No `CHECKS_PASSED` without `member_bound`; the nonlinear route fails closed (§5).
 - The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3).
-- The short-bend rule is removed. `bend_neighbour_ratios` stays for the refusal.
+- The O-13 short-bend rule on the U2 branch is removed during batch-4 integration only after the closed-recovery path is verified. Main/K-D5 has no such rule. `bend_neighbour_ratios` stays for the refusal.
 - The linear `FormulationBasis` gains the limitation and scope sentences.
 
 **PP `formation_guard.rs`:**
@@ -570,6 +570,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - a ledger term carrying several primitives, with one dropped while its independently enumerated ledger manifest remains intact, must fail closed; duplicates, extras, mismatched term identities and wrong operand bindings must also fail closed, in ordinary and W2 routes;
   - K-D5 with no ledger must fail closed;
   - a ledger value substituted for a primitive (the realistic STD-U wT utm-skew line kills it at 3.8e3·c);
+  - a binary64-zero thermal/fit fold with nonzero p strain retains its formed term and is pinned;
   - each primitive family has a test against an exact reference; a W2 formed-load case asserts preserved classification and complete scaled closure, and the drop-one-of-many mutant is killed on that route too.
 - **Repair:**
   - publishing v instead of fl(m_g);
