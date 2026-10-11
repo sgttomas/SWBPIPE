@@ -987,8 +987,63 @@ fn project_id_from_model(model: &Value) -> String {
         .to_string()
 }
 
+/// Write one project row and its search row (unguarded). Used by tests, the
+/// packaged self-test and the smoke harness; the app's commands write through
+/// `guarded_upsert_project`.
 fn upsert_project(
     connection: &mut Connection,
+    project_id: &str,
+    project_name: &str,
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+    project_envelope_hash: &Value,
+    model_migration_ledger: &Value,
+) -> Result<(), String> {
+    let transaction = connection
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())?;
+    write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
+        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
+    transaction.commit().map_err(|error| error.to_string())
+}
+
+/// The app's write path (HELP_HUMAN rulings 2026-10-10). The replacement check
+/// and the write are one `BEGIN IMMEDIATE` transaction: the store's write lock
+/// is taken before the check reads, so two writers (two windows or processes)
+/// cannot both pass the check for the same id; the second waits, then sees the
+/// first's row and is refused.
+fn guarded_upsert_project(
+    connection: &mut Connection,
+    replace_existing: bool,
+    expected_base: Option<&str>,
+    project_id: &str,
+    project_name: &str,
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+    project_envelope_hash: &Value,
+    model_migration_ledger: &Value,
+) -> Result<(), String> {
+    let transaction = connection
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .map_err(|error| error.to_string())?;
+    refuse_unconfirmed_replacement(&transaction, project_id, replace_existing, expected_base)?;
+    write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
+        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
+    transaction.commit().map_err(|error| error.to_string())
+}
+
+fn write_project_rows(
+    transaction: &rusqlite::Transaction<'_>,
     project_id: &str,
     project_name: &str,
     model: &Value,
@@ -1020,9 +1075,6 @@ fn upsert_project(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
     let now = now_unix_seconds()?;
-    let transaction = connection
-        .transaction()
-        .map_err(|error| error.to_string())?;
     transaction
         .execute(
             "
@@ -1072,7 +1124,7 @@ fn upsert_project(
             params![project_id, project_name, search_text],
         )
         .map_err(|error| error.to_string())?;
-    transaction.commit().map_err(|error| error.to_string())
+    Ok(())
 }
 
 struct StoredProjectRecord {
@@ -2422,9 +2474,10 @@ fn create_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    refuse_unconfirmed_replacement(&connection, &project_id, replace_existing.unwrap_or(false), None)?;
-    upsert_project(
+    guarded_upsert_project(
         &mut connection,
+        replace_existing.unwrap_or(false),
+        None,
         &project_id,
         &project_name,
         &model,
@@ -2557,9 +2610,10 @@ fn save_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    refuse_unconfirmed_replacement(&connection, &request.project_id, request.replace_existing, request.expected_base.as_deref())?;
-    upsert_project(
+    guarded_upsert_project(
         &mut connection,
+        request.replace_existing,
+        request.expected_base.as_deref(),
         &request.project_id,
         &request.project_name,
         &model,
@@ -8782,6 +8836,72 @@ mod tests {
 #[cfg(test)]
 mod replace_confirmation_tests {
     use super::*;
+
+    fn scratch_store(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-{label}-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let store = root.join(PROJECT_STORE_FILE);
+        drop(open_project_store(&store).unwrap());
+        store
+    }
+
+    fn unconfirmed_write(store: &Path, id: &str, name: &str) -> Result<(), String> {
+        let (mut connection, _) = open_project_store(store)?;
+        let model = json!({"project": {"id": id}});
+        guarded_upsert_project(&mut connection, false, None, id, name, &model, &json!([]), &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([]))
+    }
+
+    /// Writer A holds the store's write lock between its check and its write.
+    /// Writer B, a second connection as another window or process would hold,
+    /// cannot run its check meanwhile: it waits, then sees A's row and is refused.
+    /// (With the check outside the transaction, B's check would read the empty
+    /// store while A held the lock, and B would then overwrite A's project.)
+    #[test]
+    fn a_second_writer_cannot_pass_the_check_while_the_first_is_writing() {
+        let store = scratch_store("check-and-write");
+        let id = "project:invented-race";
+        let (mut first, _) = open_project_store(&store).unwrap();
+        let transaction = first.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).unwrap();
+        refuse_unconfirmed_replacement(&transaction, id, false, None).expect("A: nothing stored yet");
+        let second_store = store.clone();
+        let second = std::thread::spawn(move || unconfirmed_write(&second_store, id, "Writer B"));
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        assert!(!second.is_finished(), "B must wait for A's write lock before it can check");
+        write_project_rows(&transaction, id, "Writer A", &json!({"project": {"id": id}}), &json!([]), &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+        transaction.commit().unwrap();
+        let refused = second.join().unwrap().expect_err("B is refused");
+        assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-race` (\"Writer A\""), "{refused}");
+        let (connection, _) = open_project_store(&store).unwrap();
+        assert_eq!(stored_project_entry(&connection, id).unwrap().unwrap().project_name, "Writer A");
+        fs::remove_dir_all(store.parent().unwrap()).unwrap();
+    }
+
+    /// Two writers race for the same new id: exactly one writes; the other is refused.
+    #[test]
+    fn two_concurrent_writers_to_the_same_new_id_never_both_write() {
+        for round in 0..20 {
+            let store = scratch_store("concurrent-writers");
+            let id = format!("project:invented-race-{round}");
+            let barrier = Arc::new(std::sync::Barrier::new(2));
+            let writers: Vec<_> = ["Writer A", "Writer B"].into_iter().map(|name| {
+                let (store, id, barrier) = (store.clone(), id.clone(), Arc::clone(&barrier));
+                std::thread::spawn(move || { barrier.wait(); unconfirmed_write(&store, &id, name).map(|()| name) })
+            }).collect();
+            let results: Vec<_> = writers.into_iter().map(|writer| writer.join().unwrap()).collect();
+            let written: Vec<_> = results.iter().filter_map(|result| result.as_ref().ok().copied()).collect();
+            assert_eq!(written.len(), 1, "round {round}: {results:?}");
+            assert!(results.iter().any(|result| matches!(result, Err(error) if error.starts_with("PROJECT-ID-EXISTS"))), "round {round}: {results:?}");
+            let (connection, _) = open_project_store(&store).unwrap();
+            assert_eq!(stored_project_entry(&connection, &id).unwrap().unwrap().project_name, written[0]);
+            fs::remove_dir_all(store.parent().unwrap()).unwrap();
+        }
+    }
 
     #[test]
     fn a_stored_project_is_never_replaced_without_confirmation() {

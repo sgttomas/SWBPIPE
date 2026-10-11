@@ -12,6 +12,7 @@ import {
   LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
   modelDocumentVersionCheckDiagnostic,
   modelDocumentVersionCheckStatus,
+  listLocalProjects,
   openLocalProject,
   saveLocalProject,
   SUPPORTED_MODEL_SCHEMA_VERSION
@@ -105,7 +106,9 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const created = await createLocalProject(model);
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model.schema_version).toBe("0.3.0");
-    await saveLocalProject(model);
+    // Saves over its own stored snapshot (no envelope hash here), confirmed; the
+    // replacement guard is covered below (HELP_HUMAN ruling 2026-10-10, #1252).
+    await saveLocalProject(model, [], null, null, null, null, null, null, null, true);
     expect((await openLocalProject(model.project.id))?.model.schema_version).toBe("0.3.0");
   });
 
@@ -237,6 +240,20 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   it("refuses to persist documents with refused schema versions", async () => {
     await expect(createLocalProject(sampleModel("0.9.0"), [], null, null, null, null, null, null, true)).rejects.toThrow(/newer_than_supported/);
     await expect(saveLocalProject(sampleModel("not-semver"), [], null, null, null, null, null, null, null, true)).rejects.toThrow(/unsupported_schema/);
+  });
+
+  it("keeps every project it is given: saving one id never discards another (HELP_HUMAN 2026-10-10)", async () => {
+    const first = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    const second = { ...sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), project: { ...first.project, id: "project:invented-second", name: "Invented second" } };
+    await createLocalProject(first);
+    await createLocalProject(second);
+    expect((await listLocalProjects()).map((entry) => entry.project_id)).toEqual(["project:invented-second", first.project.id]);
+    expect((await openLocalProject(first.project.id))?.model.project.id).toBe(first.project.id);
+    expect((await openLocalProject())?.model.project.id).toBe("project:invented-second");
+    // A later write to the first makes it the most recent; the second is still stored.
+    await saveLocalProject(first, [], null, null, null, null, null, null, null, true);
+    expect((await openLocalProject())?.model.project.id).toBe(first.project.id);
+    expect(await findLocalProject("project:invented-second")).toMatchObject({ project_name: "Invented second" });
   });
 
   it("never replaces the stored project without confirmation (HELP_HUMAN ruling 2026-10-10)", async () => {

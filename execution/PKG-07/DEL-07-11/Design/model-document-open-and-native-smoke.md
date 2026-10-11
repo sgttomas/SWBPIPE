@@ -76,10 +76,13 @@ export use their existing routes unchanged.
       asks.
 
     A save in place whose base has moved is refused with `PROJECT-BASE-MOVED`.
-    The browser preview's one-snapshot store mirrors this. The check runs after
-    the schema checks and immediately before the upsert, in the same command;
-    the two are not one transaction. Writes from this app are serialized by its
-    project lock.
+    The check runs after the schema checks. The check and the write are one
+    `BEGIN IMMEDIATE` transaction (`guarded_upsert_project`): the store's write
+    lock is taken before the check reads. A second writer, such as another
+    window or process, therefore waits, then sees the first writer's row and is
+    refused. It cannot pass the check and then overwrite. Two concurrent-writer
+    tests cover this, and both fail if the check runs outside the transaction.
+    The browser preview's store mirrors the rule.
   - **The prompt.** On either refusal, the webview asks
     (`ReplaceProjectPrompt`, a modal alert dialog). It names the stored project
     and when it was last saved. For a moved base, it says the stored copy was
@@ -102,9 +105,15 @@ export use their existing routes unchanged.
     suffixed id, since a new blank has no identity of its own to keep.
   - **Normalization.** The existing 0.1.0 → 0.2.0 normalization on save is
     unchanged; B7 removes it.
-  - **Known limit, outside the ruling.** The browser preview (not the desktop
-    app) still holds a single snapshot, so saving a project with a *different*
-    id evicts the previous one.
+  - **Browser preview store.** It keeps one snapshot per project id, as the
+    native store does, so saving one project never discards another. This was
+    HELP_HUMAN's direction of 2026-10-10. The multi-project store was chosen
+    over a prompt before a discard, because a single-project preview was never
+    a deliberate product limit. Open without an id opens the most recently
+    written project.
+  - **Known limit, recorded.** If `project.id` is edited during an in-flight
+    save and then edited back, the session's recorded base can lag, and the
+    next save asks as a moved base. This errs toward asking.
 - **Display fields are part of the desktop document contract.** A document
   without them is refused by name rather than given defaults (label = id,
   empty lists). Defaults would make the session's document, and its hash,
