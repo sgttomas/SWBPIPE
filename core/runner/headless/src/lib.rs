@@ -7,6 +7,7 @@
 //! or code-compliance claims.
 
 pub mod benchmark_binding;
+pub mod reader_binding;
 pub mod redaction_binding;
 pub mod result_envelope_binding;
 #[cfg(test)]

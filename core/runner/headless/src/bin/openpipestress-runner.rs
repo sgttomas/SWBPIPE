@@ -10,6 +10,7 @@ use std::process::ExitCode;
 
 use open_pipe_stress_headless_runner::{
     benchmark_binding::{self, SuiteRunReport},
+    reader_binding,
     redaction_binding::control_local_private,
     run_preview_model_value_with_mode_and_rule_check, validate_request, validate_result,
     Diagnostic, JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult,
@@ -132,7 +133,12 @@ struct ReportPackageMemberProjection {
 }
 
 fn main() -> ExitCode {
-    let args = match parse_args(std::env::args().skip(1)) {
+    let mut argv = std::env::args().skip(1).peekable();
+    if argv.peek().map(String::as_str) == Some("read") {
+        argv.next();
+        return read_main(argv);
+    }
+    let args = match parse_args(argv) {
         Ok(args) => args,
         Err(message) => {
             eprintln!("{message}");
@@ -174,6 +180,65 @@ fn main() -> ExitCode {
     } else {
         code
     })
+}
+
+/// `read <reader> [--input <path>|-]`: one product reader's verdict as JSON on
+/// stdout. Exit 0 when the reader passed the statement, 1 when it refused it,
+/// and 2 when the invocation or input is unusable (the reader did not run).
+fn read_main(args: impl Iterator<Item = String>) -> ExitCode {
+    let (reader, input_path) = match parse_read_args(args) {
+        Ok(parsed) => parsed,
+        Err(message) => {
+            eprintln!("{message}");
+            eprintln!("{}", usage());
+            return ExitCode::from(2);
+        }
+    };
+    let input = match read_input(input_path.as_deref()) {
+        Ok(input) => input,
+        Err(message) => {
+            eprintln!("{message}");
+            return ExitCode::from(2);
+        }
+    };
+    match reader_binding::read(&reader, &input) {
+        Ok((code, verdict)) => {
+            println!("{verdict}");
+            ExitCode::from(code)
+        }
+        Err(message) => {
+            eprintln!("openpipestress-runner: {message}");
+            ExitCode::from(2)
+        }
+    }
+}
+
+fn parse_read_args<I>(args: I) -> Result<(String, Option<String>), String>
+where
+    I: IntoIterator<Item = String>,
+{
+    let mut iter = args.into_iter();
+    let reader = iter
+        .next()
+        .filter(|reader| !reader.starts_with('-'))
+        .ok_or("openpipestress-runner: read requires a reader")?;
+    let mut input_path = None;
+    while let Some(arg) = iter.next() {
+        match arg.as_str() {
+            "--input" if input_path.is_none() => {
+                input_path = Some(
+                    iter.next()
+                        .ok_or("openpipestress-runner: --input requires a path or -")?,
+                );
+            }
+            _ => {
+                return Err(format!(
+                    "openpipestress-runner: unsupported read argument {arg}"
+                ))
+            }
+        }
+    }
+    Ok((reader, input_path))
 }
 
 fn parse_args<I>(args: I) -> Result<CliArgs, String>
@@ -235,7 +300,7 @@ where
 }
 
 fn usage() -> &'static str {
-    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]"
+    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner read <retained-precision|retained-precision-transport> [--input <reader-input.json>|-]"
 }
 
 fn read_input(input_path: Option<&str>) -> Result<String, String> {
@@ -1138,6 +1203,38 @@ mod tests {
             assert!(raw.diagnostics.iter().any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"
                 && d.affected_refs == ["case", "load:zero-pressure"]));
         }
+    }
+
+    #[test]
+    fn read_takes_one_reader_and_an_optional_input_and_usage_names_every_reader() {
+        let parse = |args: &[&str]| parse_read_args(args.iter().map(|arg| arg.to_string()));
+        assert_eq!(
+            parse(&["retained-precision"]).unwrap(),
+            ("retained-precision".to_string(), None)
+        );
+        assert_eq!(
+            parse(&["retained-precision-transport", "--input", "-"]).unwrap(),
+            (
+                "retained-precision-transport".to_string(),
+                Some("-".to_string())
+            )
+        );
+        for args in [
+            vec![],
+            vec!["--input", "-"],
+            vec!["retained-precision", "--input"],
+            vec!["retained-precision", "--input", "a", "--input", "b"],
+            vec!["retained-precision", "--output", "out.json"],
+            vec!["retained-precision", "--solver-mode", "dense_scrutiny"],
+        ] {
+            assert!(parse(&args).is_err(), "{args:?}");
+        }
+        let readers = reader_binding::READERS
+            .iter()
+            .map(|reader| reader.name)
+            .collect::<Vec<_>>()
+            .join("|");
+        assert!(usage().contains(&format!("openpipestress-runner read <{readers}>")));
     }
 
     #[test]
