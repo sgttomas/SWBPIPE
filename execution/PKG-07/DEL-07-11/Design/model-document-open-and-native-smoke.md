@@ -65,7 +65,9 @@ export use their existing routes unchanged.
   - **The store enforces both.** `create_local_project` and `save_local_project`
     refuse a write onto a stored id with `PROJECT-ID-EXISTS` unless one of these
     holds:
-    - `replace_existing`: the user chose Replace;
+    - `confirmed_revision` equals the stored revision: the user chose Replace
+      in a prompt that showed exactly that revision, meaning its envelope hash
+      and last-saved time (`find_local_project` returns it with the entry);
     - for Save, `expected_base` equals the stored envelope hash. This is the
       `project_envelope_hash` value of the revision the session last opened
       or wrote. The session records it wherever an open or a write lands for
@@ -75,20 +77,26 @@ export use their existing routes unchanged.
       example a legacy row) has no revision to compare, and a save onto it
       asks.
 
-    A save in place whose base has moved is refused with `PROJECT-BASE-MOVED`.
-    The check runs after the schema checks. The check and the write are one
-    `BEGIN IMMEDIATE` transaction (`guarded_upsert_project`): the store's write
-    lock is taken before the check reads. A second writer, such as another
-    window or process, therefore waits, then sees the first writer's row and is
-    refused. It cannot pass the check and then overwrite. Two concurrent-writer
-    tests cover this, and both fail if the check runs outside the transaction.
-    The browser preview's store mirrors the rule.
+    A save in place whose base has moved, or a Replace of a revision that has
+    since been saved over, is refused with `PROJECT-BASE-MOVED`. The app then
+    asks again about the revision now stored, so a revision nobody was shown is
+    never replaced.
+
+    The command opens one `BEGIN IMMEDIATE` transaction before it prepares the
+    write (schema checks, migration ledger, hashes) and keeps it through the
+    check (`guarded_write_project_rows`) and the commit. The store's write lock
+    is therefore held from the first read. A second writer, such as another
+    window or process, waits on the lock (a 5 s busy timeout), then sees the
+    first writer's row and is refused. If the wait times out, its save fails
+    visibly and writes nothing. Two concurrent-writer tests cover this, and
+    both fail if the check runs outside the transaction. The browser preview's
+    store mirrors the rule.
   - **The prompt.** On either refusal, the webview asks
     (`ReplaceProjectPrompt`, a modal alert dialog). It names the stored project
-    and when it was last saved. For a moved base, it says the stored copy was
-    saved after this session opened or saved it.
-    - **Replace "name"** resends the write confirmed. The stored migration
-      ledger is kept, as before.
+    and when it was last saved. For a moved base, it says the stored copy has
+    been saved since this session last saw it.
+    - **Replace "name"** resends the write, confirming the revision shown. The
+      stored migration ledger is kept, as before.
     - **Save as a new project** gives the document an id unused in the store:
       `<id>:copy-<timestamp>`, with `-N` appended if that is taken. Nothing else
       in the document changes. The session adopts the renamed document with a
@@ -110,7 +118,9 @@ export use their existing routes unchanged.
     HELP_HUMAN's direction of 2026-10-10. The multi-project store was chosen
     over a prompt before a discard, because a single-project preview was never
     a deliberate product limit. Open without an id opens the most recently
-    written project.
+    written project. The native store orders by last-saved time at one-second
+    resolution, then by id, so within one second native and browser can pick
+    different projects.
   - **Known limit, recorded.** If `project.id` is edited during an in-flight
     save and then edited back, the session's recorded base can lag, and the
     next save asks as a moved base. This errs toward asking.

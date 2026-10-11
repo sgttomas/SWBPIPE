@@ -543,9 +543,10 @@ struct SaveLocalProjectRequest {
     /// migrated document can write its ledger record (DEC-019).
     #[serde(default)]
     model_document_migration: Value,
-    /// True only when the user chose Replace. See `refuse_unconfirmed_replacement`.
+    /// The stored revision the user chose to Replace in the prompt, if any.
+    /// See `refuse_unconfirmed_replacement`.
     #[serde(default)]
-    replace_existing: bool,
+    confirmed_revision: Option<String>,
     /// The stored envelope hash value this session last opened or saved, sent
     /// when the session is that stored project (an ordinary save in place).
     #[serde(default)]
@@ -870,6 +871,11 @@ fn store_user_version(connection: &Connection) -> Result<i64, String> {
 
 fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence), String> {
     let connection = Connection::open(path).map_err(|error| error.to_string())?;
+    // A second writer waits this long for the store's write lock, then fails
+    // visibly ("database is locked") rather than writing.
+    connection
+        .busy_timeout(std::time::Duration::from_secs(5))
+        .map_err(|error| error.to_string())?;
     let migration = apply_store_migrations(&connection)?;
     Ok((connection, migration))
 }
@@ -989,7 +995,7 @@ fn project_id_from_model(model: &Value) -> String {
 
 /// Write one project row and its search row (unguarded). Used by tests, the
 /// packaged self-test and the smoke harness; the app's commands write through
-/// `guarded_upsert_project`.
+/// `guarded_write_project_rows` on their own `BEGIN IMMEDIATE` transaction.
 fn upsert_project(
     connection: &mut Connection,
     project_id: &str,
@@ -1004,22 +1010,20 @@ fn upsert_project(
     project_envelope_hash: &Value,
     model_migration_ledger: &Value,
 ) -> Result<(), String> {
-    let transaction = connection
-        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-        .map_err(|error| error.to_string())?;
+    let transaction = immediate_transaction(connection)?;
     write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
         mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
     transaction.commit().map_err(|error| error.to_string())
 }
 
-/// The app's write path (HELP_HUMAN rulings 2026-10-10). The replacement check
-/// and the write are one `BEGIN IMMEDIATE` transaction: the store's write lock
-/// is taken before the check reads, so two writers (two windows or processes)
-/// cannot both pass the check for the same id; the second waits, then sees the
-/// first's row and is refused.
-fn guarded_upsert_project(
-    connection: &mut Connection,
-    replace_existing: bool,
+/// The replacement check and the write, on a transaction the caller opened
+/// with `BEGIN IMMEDIATE` (HELP_HUMAN rulings 2026-10-10). The store's write lock
+/// is held from before the caller's preparation reads through the check and the
+/// write, so two writers (two windows or processes) cannot both pass the check
+/// for the same id: the second waits, then sees the first's row and is refused.
+fn guarded_write_project_rows(
+    transaction: &rusqlite::Transaction<'_>,
+    confirmed_revision: Option<&str>,
     expected_base: Option<&str>,
     project_id: &str,
     project_name: &str,
@@ -1033,13 +1037,15 @@ fn guarded_upsert_project(
     project_envelope_hash: &Value,
     model_migration_ledger: &Value,
 ) -> Result<(), String> {
-    let transaction = connection
+    refuse_unconfirmed_replacement(transaction, project_id, confirmed_revision, expected_base)?;
+    write_project_rows(transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
+        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger)
+}
+
+fn immediate_transaction(connection: &mut Connection) -> Result<rusqlite::Transaction<'_>, String> {
+    connection
         .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-        .map_err(|error| error.to_string())?;
-    refuse_unconfirmed_replacement(&transaction, project_id, replace_existing, expected_base)?;
-    write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
-        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
-    transaction.commit().map_err(|error| error.to_string())
+        .map_err(|error| error.to_string())
 }
 
 fn write_project_rows(
@@ -1298,23 +1304,28 @@ fn stored_envelope_hash_value(connection: &Connection, project_id: &str) -> Resu
     Ok(hash.get("value").and_then(Value::as_str).unwrap_or("").to_string())
 }
 
+/// The stored revision of a project as the replace prompt shows it: its
+/// envelope hash and its last-saved time. A Replace confirms exactly this.
+fn stored_revision(connection: &Connection, entry: &LocalProjectIndexEntry) -> Result<String, String> {
+    Ok(format!("{}@{}", stored_envelope_hash_value(connection, &entry.project_id)?, entry.updated_at_unix))
+}
+
 /// HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
 /// project. A write onto a stored `project_id` is admitted when
-/// - `replace_existing`: the user chose Replace in the prompt; or
+/// - `confirmed_revision` equals the stored revision: the user chose Replace in
+///   a prompt that showed this revision; or
 /// - `expected_base` equals the stored envelope hash: the session is that stored
 ///   project, at the revision it last opened or saved (an ordinary save in place).
-/// Otherwise it is refused: `PROJECT-BASE-MOVED` when the session's base is no
-/// longer the stored revision (another window or process saved that id),
-/// `PROJECT-ID-EXISTS` for any other stored project.
+/// Otherwise it is refused: `PROJECT-BASE-MOVED` when the revision the user or
+/// the session last saw is no longer the stored one (another window or process
+/// saved that id since), `PROJECT-ID-EXISTS` for any other stored project.
+/// Callers run it inside the write's `BEGIN IMMEDIATE` transaction.
 fn refuse_unconfirmed_replacement(
     connection: &Connection,
     project_id: &str,
-    replace_existing: bool,
+    confirmed_revision: Option<&str>,
     expected_base: Option<&str>,
 ) -> Result<(), String> {
-    if replace_existing {
-        return Ok(());
-    }
     let Some(entry) = stored_project_entry(connection, project_id)? else {
         return Ok(());
     };
@@ -1322,6 +1333,15 @@ fn refuse_unconfirmed_replacement(
         "project `{}` (\"{}\", last saved at unix {})",
         entry.project_id, entry.project_name, entry.updated_at_unix
     );
+    if let Some(confirmed) = confirmed_revision {
+        return if confirmed == stored_revision(connection, &entry)? {
+            Ok(())
+        } else {
+            Err(format!(
+                "PROJECT-BASE-MOVED: {stored} changed after the replace prompt showed it; replacing it needs the user's confirmation."
+            ))
+        };
+    }
     match expected_base {
         // A row without an envelope hash has no revision to compare: it asks.
         Some(base) if !base.is_empty() && base == stored_envelope_hash_value(connection, project_id)? => Ok(()),
@@ -1334,12 +1354,22 @@ fn refuse_unconfirmed_replacement(
     }
 }
 
-/// The stored project with this id, if any, for the replace prompt.
+#[derive(Debug, Serialize)]
+struct StoredProjectEntry {
+    #[serde(flatten)]
+    entry: LocalProjectIndexEntry,
+    /// What a Replace of this project confirms (`stored_revision`).
+    revision: String,
+}
+
+/// The stored project with this id, if any, and its revision, for the replace prompt.
 #[tauri::command]
-fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<LocalProjectIndexEntry>, String> {
+fn find_local_project(app: AppHandle, project_id: String) -> Result<Option<StoredProjectEntry>, String> {
     let path = app_store_path(&app)?;
     let (connection, _migration) = open_project_store(&path)?;
-    stored_project_entry(&connection, &project_id)
+    stored_project_entry(&connection, &project_id)?
+        .map(|entry| Ok(StoredProjectEntry { revision: stored_revision(&connection, &entry)?, entry }))
+        .transpose()
 }
 
 fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
@@ -2447,10 +2477,12 @@ fn create_local_project(
     analysis_run: Option<Value>,
     model_hash: Option<Value>,
     project_envelope_hash: Option<Value>,
-    replace_existing: Option<bool>,
+    confirmed_revision: Option<String>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
+    // One write transaction from the preparation's reads to the commit.
+    let transaction = immediate_transaction(&mut connection)?;
     let project_id = project_id_from_model(&model);
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
@@ -2462,7 +2494,7 @@ fn create_local_project(
     let received_project_envelope_hash = project_envelope_hash.unwrap_or(Value::Null);
     let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
         prepare_project_persistence_tuple(
-        &connection,
+        &transaction,
         &project_id,
         model,
         &Value::Null,
@@ -2474,9 +2506,9 @@ fn create_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    guarded_upsert_project(
-        &mut connection,
-        replace_existing.unwrap_or(false),
+    guarded_write_project_rows(
+        &transaction,
+        confirmed_revision.as_deref(),
         None,
         &project_id,
         &project_name,
@@ -2490,6 +2522,7 @@ fn create_local_project(
         &project_envelope_hash,
         &model_migration_ledger,
     )?;
+    transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             project_id,
@@ -2588,6 +2621,8 @@ fn save_local_project(
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
+    // One write transaction from the preparation's reads to the commit.
+    let transaction = immediate_transaction(&mut connection)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
     let proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
@@ -2598,7 +2633,7 @@ fn save_local_project(
     let received_project_envelope_hash = request.project_envelope_hash;
     let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
         prepare_project_persistence_tuple(
-        &connection,
+        &transaction,
         &request.project_id,
         request.model,
         &request.model_document_migration,
@@ -2610,9 +2645,9 @@ fn save_local_project(
         received_model_hash,
         received_project_envelope_hash,
     )?;
-    guarded_upsert_project(
-        &mut connection,
-        request.replace_existing,
+    guarded_write_project_rows(
+        &transaction,
+        request.confirmed_revision.as_deref(),
         request.expected_base.as_deref(),
         &request.project_id,
         &request.project_name,
@@ -2626,6 +2661,7 @@ fn save_local_project(
         &project_envelope_hash,
         &model_migration_ledger,
     )?;
+    transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             request.project_id,
@@ -8852,8 +8888,11 @@ mod replace_confirmation_tests {
     fn unconfirmed_write(store: &Path, id: &str, name: &str) -> Result<(), String> {
         let (mut connection, _) = open_project_store(store)?;
         let model = json!({"project": {"id": id}});
-        guarded_upsert_project(&mut connection, false, None, id, name, &model, &json!([]), &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([]))
+        // As the commands do: one immediate transaction around check and write.
+        let transaction = immediate_transaction(&mut connection)?;
+        guarded_write_project_rows(&transaction, None, None, id, name, &model, &json!([]), &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([]))?;
+        transaction.commit().map_err(|error| error.to_string())
     }
 
     /// Writer A holds the store's write lock between its check and its write.
@@ -8867,7 +8906,7 @@ mod replace_confirmation_tests {
         let id = "project:invented-race";
         let (mut first, _) = open_project_store(&store).unwrap();
         let transaction = first.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).unwrap();
-        refuse_unconfirmed_replacement(&transaction, id, false, None).expect("A: nothing stored yet");
+        refuse_unconfirmed_replacement(&transaction, id, None, None).expect("A: nothing stored yet");
         let second_store = store.clone();
         let second = std::thread::spawn(move || unconfirmed_write(&second_store, id, "Writer B"));
         std::thread::sleep(std::time::Duration::from_millis(300));
@@ -8915,24 +8954,32 @@ mod replace_confirmation_tests {
         let model = load_preview_model().unwrap();
         let id = model["project"]["id"].as_str().unwrap().to_string();
         // Nothing stored yet: a first save needs no confirmation.
-        refuse_unconfirmed_replacement(&connection, &id, false, None).expect("first save");
+        refuse_unconfirmed_replacement(&connection, &id, None, None).expect("first save");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
-        let refused = refuse_unconfirmed_replacement(&connection, &id, false, None).expect_err("unconfirmed replacement");
+        let refused = refuse_unconfirmed_replacement(&connection, &id, None, None).expect_err("unconfirmed replacement");
         assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{refused}");
-        refuse_unconfirmed_replacement(&connection, &id, true, None).expect("confirmed replacement");
-        refuse_unconfirmed_replacement(&connection, "project:another", false, None).expect("another id");
+        let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
+        let shown = stored_revision(&connection, &entry).unwrap();
+        refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect("Replace of the revision shown");
+        refuse_unconfirmed_replacement(&connection, "project:another", None, None).expect("another id");
         // A save in place is admitted only from the stored revision.
         let base = json!({"algorithm": "sha256", "value": "sha256:base"});
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
-        refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:base")).expect("save in place");
-        let moved = refuse_unconfirmed_replacement(&connection, &id, false, Some("sha256:older")).expect_err("stale base");
+        refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:base")).expect("save in place");
+        let moved = refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:older")).expect_err("stale base");
         assert!(moved.starts_with("PROJECT-BASE-MOVED: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{moved}");
-        refuse_unconfirmed_replacement(&connection, &id, true, Some("sha256:older")).expect("confirmed over a moved base");
+        // A Replace confirms the revision the prompt showed; one saved since is not confirmed.
+        let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
+        let current = stored_revision(&connection, &entry).unwrap();
+        assert_eq!(current, format!("sha256:base@{}", entry.updated_at_unix));
+        refuse_unconfirmed_replacement(&connection, &id, Some(&current), Some("sha256:older")).expect("Replace of the shown revision");
+        let replaced_unseen = refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect_err("revision saved after the prompt");
+        assert!(replaced_unseen.starts_with("PROJECT-BASE-MOVED") && replaced_unseen.contains("after the replace prompt showed it"), "{replaced_unseen}");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
-        assert!(refuse_unconfirmed_replacement(&connection, &id, false, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
+        assert!(refuse_unconfirmed_replacement(&connection, &id, None, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
         let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
         assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));
         assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());
