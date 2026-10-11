@@ -2,6 +2,7 @@
  * edit, and rule binding (T1 WP2). Unit transport replay of committed producer
  * bytes through mocked IPC; NOT a native UI qualification witness. */
 import { act, renderHook } from "@testing-library/react";
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
@@ -31,7 +32,7 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
     if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`unexpected ${command}`);
     expect(args.solverMode).toBe(mode);
     expect(args.model).toEqual(model);
-    return structuredClone(original);
+    return solveBytes(original);
   });
   const source = await runPreviewMechanics(model, mode);
   const manifestFor = (m: PreviewModel) => buildCurrentSessionInputManifest({ model: m, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:load-reference-unit-transport-replay", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });
@@ -77,7 +78,7 @@ describe("load-reference-1 Current and its invalidation by a 0.4.0 edit", () => 
     const tampered = json("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json");
     tampered.contract_evidence.load_reference_states[0].members[0].fit_strain = 0.5; // invented tamper
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(async () => structuredClone(tampered));
+    invokeMock.mockImplementation(async () => solveBytes(tampered));
     const source = await runPreviewMechanics(model, "sparse_interactive");
     expect(source).toEqual(tampered); // preserved for inspection
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(false);

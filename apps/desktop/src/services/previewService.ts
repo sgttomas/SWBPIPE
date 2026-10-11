@@ -56,10 +56,10 @@ export async function runPreviewMechanics(
     throw await browserSolveUnavailable(model);
   }
   const capture = captureNativeInvocation(model, solverMode);
-  const result = await invoke<MechanicsResult>(
+  const result = receiveResultBytes(await invoke<string>(
     "run_preview_mechanics_with_solver_mode",
     model ? { model: capture?.invocation.request.model ?? model, solverMode } : { solverMode },
-  );
+  ));
   await validateCapturedSource(result, capture);
   return result; // Preserve received producer data; legacy projection is explicit.
 
@@ -83,6 +83,24 @@ type CapturedNativeInvocation = {
 };
 type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceFingerprint: string };
 const nativeSourceInvocations = new WeakMap<MechanicsResult, NativeSourceRegistration>();
+const receivedBytes = new WeakMap<MechanicsResult, { bytes: string; fingerprint: string }>();
+
+/** b7-plan R1, "Exact bytes to the desktop": the native solve commands and jobs hand
+ * over the producer's exact serialized bytes, never a re-encoded value. The result is
+ * read from them once, and they are kept beside it. */
+function receiveResultBytes(bytes: unknown): MechanicsResult {
+  if (typeof bytes !== "string") throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
+  const result = JSON.parse(bytes) as MechanicsResult;
+  try { receivedBytes.set(result, { bytes, fingerprint: nativeContentFingerprint(result) }); } catch { /* not checked JSON: no bytes are kept for it */ }
+  return result;
+}
+/** The producer's exact bytes this result was read from, while the result is unchanged
+ * since; null for any other result (a copy, a saved or edited one). Query only. */
+export function receivedResultBytes(result: MechanicsResult | null | undefined): string | null {
+  const received = result ? receivedBytes.get(result) : undefined;
+  if (!received) return null;
+  try { return nativeContentFingerprint(result) === received.fingerprint ? received.bytes : null; } catch { return null; }
+}
 const jobInvocations = new Map<string, CapturedNativeInvocation>();
 
 // Private equality witness only, not another public hash/canonicalization profile.
@@ -129,7 +147,8 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // U6d: a preview successor registers only after the accepted reader passes with
     // this captured invocation; its outcome is recorded against the exact bytes.
     // U7 slice T: its standing is bound to this live native capture and the current model.
-    if (isRetainedRoute(sourceContract(source))) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel));
+    // The reader reads the producer's bytes as received (b7-plan R1).
+    if (isRetainedRoute(sourceContract(source))) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
@@ -211,10 +230,14 @@ export async function startPreviewMechanicsJob(
   return { mode: "backend_job", ...receipt };
 }
 
+/** The job status as the native side reports it: a completed job's result is the producer's bytes. */
+type NativeSolveJobStatus = Omit<BackendSolveJobStatus, "result"> & { result: string | null };
+
 export async function pollPreviewMechanicsJob(
   jobId: string,
 ): Promise<BackendSolveJobStatus> {
-  const status = await invoke<BackendSolveJobStatus>("poll_preview_mechanics_job", { jobId });
+  const native = await invoke<NativeSolveJobStatus>("poll_preview_mechanics_job", { jobId });
+  const status: BackendSolveJobStatus = { ...native, result: native.result == null ? null : receiveResultBytes(native.result) };
   const capture = jobInvocations.get(jobId) ?? null;
   if (status.job_id !== jobId) {
     if (capture) capture.invalidated = true;

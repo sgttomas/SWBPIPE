@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import rejectedRaw0Text from '../../../../../fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json?raw';
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import rejectedRequest0Text from '../../../../../fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json?raw';
 import rejectedRaw1Text from '../../../../../fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json?raw';
 import rejectedRequest1Text from '../../../../../fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json?raw';
@@ -195,7 +196,7 @@ async function sessionCurrent({raw,request,mode,callerModel}:{raw:unknown;reques
    if(!isDeepStrictEqual({model:args.model,materials:[]},request)||args.solverMode!==mode)throw new Error('REPLAY_REQUEST_MISMATCH');
    starts.push(args);return {job_id:jobId,backend_cancellation_token:`${jobId}:token`,state:'queued',cancellation_scope:scope};
   }
-  if(command==='poll_preview_mechanics_job'&&args?.jobId===jobId)return {job_id:jobId,state:'completed',cancellation_requested:false,cancellation_status:'not_requested',cancellation_scope:scope,result:structuredClone(raw),error_message:null};
+  if(command==='poll_preview_mechanics_job'&&args?.jobId===jobId)return {job_id:jobId,state:'completed',cancellation_requested:false,cancellation_status:'not_requested',cancellation_scope:scope,result:solveBytes(raw),error_message:null};
   if(command==='run_rule_checks')return {aggregate_status:'RULE_INPUTS_INCOMPLETE',checks:[]};
   throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
  });
@@ -213,7 +214,7 @@ function ieeeBits(value:number) {const view=new DataView(new ArrayBuffer(8));vie
 describe('actual invocation boundary using mocked IPC and genuine received fixtures', () => {
   it.each(genuinePairs)('$name registers only the actual native response path',async ({raw,request,mode})=>{
     nativeHost();const model=structuredClone(request.model) as PreviewModel;
-    vi.mocked(invoke).mockResolvedValueOnce(structuredClone(raw));
+    vi.mocked(invoke).mockResolvedValueOnce(solveBytes(raw));
     const source=await runPreviewMechanics(model,mode);
     expect(hasNativeMechanicsInvocation(source,model,mode)).toBe(true);
     expect(retainedNativeMechanicsInvocation(source,model)).toEqual({request,solver_mode:mode});
@@ -228,14 +229,14 @@ describe('actual invocation boundary using mocked IPC and genuine received fixtu
     const {raw,request,mode}=genuinePairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;
     vi.mocked(invoke).mockResolvedValueOnce({job_id:'known',backend_cancellation_token:'token',state:'queued',cancellation_scope:'job'});
     await startPreviewMechanicsJob(model,mode);
-    vi.mocked(invoke).mockResolvedValueOnce({job_id:'known',state:'completed',result:structuredClone(raw)});
+    vi.mocked(invoke).mockResolvedValueOnce({job_id:'known',state:'completed',result:solveBytes(raw)});
     const done=await pollPreviewMechanicsJob('known');expect(hasNativeMechanicsInvocation(done.result,model,mode)).toBe(true);
-    vi.mocked(invoke).mockResolvedValueOnce({job_id:'unknown',state:'completed',result:structuredClone(raw)});
+    vi.mocked(invoke).mockResolvedValueOnce({job_id:'unknown',state:'completed',result:solveBytes(raw)});
     const unknown=await pollPreviewMechanicsJob('unknown');expect(hasNativeMechanicsInvocation(unknown.result,model)).toBe(false);
-    vi.mocked(invoke).mockResolvedValueOnce({job_id:'other',state:'completed',result:structuredClone(raw)});
+    vi.mocked(invoke).mockResolvedValueOnce({job_id:'other',state:'completed',result:solveBytes(raw)});
     await expect(pollPreviewMechanicsJob('expected')).rejects.toThrow('SOLVE-JOB-IDENTITY-MISMATCH');
     vi.mocked(invoke).mockResolvedValueOnce({job_id:'failed',backend_cancellation_token:'token',state:'queued',cancellation_scope:'job'});
-    await startPreviewMechanicsJob(model,mode);vi.mocked(invoke).mockResolvedValueOnce({job_id:'failed',state:'failed',result:structuredClone(raw)});
+    await startPreviewMechanicsJob(model,mode);vi.mocked(invoke).mockResolvedValueOnce({job_id:'failed',state:'failed',result:solveBytes(raw)});
     const failed=await pollPreviewMechanicsJob('failed');expect(hasNativeMechanicsInvocation(failed.result,model)).toBe(false);
   });
   it('browser references never establish fresh Current provenance',async ()=>{
@@ -352,7 +353,7 @@ it('accepted cancellation during async receipt validation prevents native regist
  const {raw,request,mode}=genuinePairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;
  vi.mocked(invoke).mockResolvedValueOnce({job_id:'cancel-race',backend_cancellation_token:'token',state:'queued',cancellation_scope:'job'});
  await startPreviewMechanicsJob(model,mode);
- vi.mocked(invoke).mockResolvedValueOnce({job_id:'cancel-race',state:'completed',result:structuredClone(raw)}).mockResolvedValueOnce({job_id:'cancel-race',accepted:true});
+ vi.mocked(invoke).mockResolvedValueOnce({job_id:'cancel-race',state:'completed',result:solveBytes(raw)}).mockResolvedValueOnce({job_id:'cancel-race',accepted:true});
  const pending=pollPreviewMechanicsJob('cancel-race');await Promise.resolve();await cancelPreviewMechanicsJob('cancel-race','token');
  const done=await pending;expect(hasNativeMechanicsInvocation(done.result,model,mode)).toBe(false);
 });
@@ -402,7 +403,7 @@ it.each(rejectedStressPairs)('refuses the genuine known-bad $mode MPa publicatio
  const source=structuredClone(raw) as MechanicsResult;expect((source.source_block_recovery as any).body.status).toBe('qualified');
  await expect(validateSourceBlockRecovery(source,{request,solver_mode:mode})).rejects.toThrow('SOURCE_BLOCKS_STRESS_MPA_RANGE');
  expect(numericalResultStanding(source,request.model as PreviewModel).eligible).toBe(false);
- nativeHost();vi.mocked(invoke).mockResolvedValueOnce(structuredClone(raw));const received=await runPreviewMechanics(request.model as PreviewModel,mode);
+ nativeHost();vi.mocked(invoke).mockResolvedValueOnce(solveBytes(raw));const received=await runPreviewMechanics(request.model as PreviewModel,mode);
  expect(received).toEqual(raw);expect(hasNativeMechanicsInvocation(received,request.model as PreviewModel)).toBe(false);
 });
 
@@ -412,10 +413,10 @@ describe('FE02 caller representation and serialized invocation binding',()=>{
   model.nodes[0].position.x=-0;
   let source: MechanicsResult;
   if(route==='direct'){
-   vi.mocked(invoke).mockResolvedValueOnce(structuredClone(raw));source=await runPreviewMechanics(model,mode);
+   vi.mocked(invoke).mockResolvedValueOnce(solveBytes(raw));source=await runPreviewMechanics(model,mode);
   }else{
    vi.mocked(invoke).mockResolvedValueOnce({job_id:'fe02',backend_cancellation_token:'token',state:'queued',cancellation_scope:'job'});
-   await startPreviewMechanicsJob(model,mode);vi.mocked(invoke).mockResolvedValueOnce({job_id:'fe02',state:'completed',result:structuredClone(raw)});
+   await startPreviewMechanicsJob(model,mode);vi.mocked(invoke).mockResolvedValueOnce({job_id:'fe02',state:'completed',result:solveBytes(raw)});
    source=(await pollPreviewMechanicsJob('fe02')).result!;
   }
   const sent=(vi.mocked(invoke).mock.calls[0][1] as {model:PreviewModel}).model;
@@ -446,7 +447,7 @@ describe('FE02 caller representation and serialized invocation binding',()=>{
  });
  it.each(['caller_zero','caller_value','dispatch_zero','source_zero'] as const)('rejects %s mutation after successful caller normalization',async change=>{
   const {raw,request,mode}=uiPairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;model.nodes[0].position.x=-0;
-  vi.mocked(invoke).mockResolvedValueOnce(structuredClone(raw));const source=await runPreviewMechanics(model,mode);
+  vi.mocked(invoke).mockResolvedValueOnce(solveBytes(raw));const source=await runPreviewMechanics(model,mode);
   expect(numericalResultStanding(source,model).eligible).toBe(true);const sent=(vi.mocked(invoke).mock.calls[0][1] as {model:PreviewModel}).model;
   if(change==='caller_zero')model.nodes[0].position.x=0;
   if(change==='caller_value')model.nodes[0].position.x=0.125;
@@ -459,7 +460,7 @@ describe('FE02 caller representation and serialized invocation binding',()=>{
  it('refuses a caller edited while IPC is pending and an unobserved caller alias',async()=>{
   const {raw,request,mode}=uiPairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;model.nodes[0].position.x=-0;
   let resolve!: (value:MechanicsResult)=>void;vi.mocked(invoke).mockReturnValueOnce(new Promise<MechanicsResult>(r=>{resolve=r;}));
-  const pending=runPreviewMechanics(model,mode);model.nodes[0].position.x=0;resolve(structuredClone(raw));const source=await pending;
+  const pending=runPreviewMechanics(model,mode);model.nodes[0].position.x=0;resolve(solveBytes(raw));const source=await pending;
   expect(hasNativeMechanicsInvocation(source,model)).toBe(false);expect(sourceBlockStanding(source,model).eligible).toBe(false);
   const unsupported=structuredClone(request.model) as PreviewModel;unsupported.nodes[0].position.x=1;
   await expect(validateSourceBlockRecovery(structuredClone(raw),{request,solver_mode:mode},unsupported)).rejects.toThrow('CALLER_DISPATCH_NORMALIZATION_MISMATCH');

@@ -18,7 +18,7 @@
  * extrema intervals (RV86 limits); the only bound named is the receipt's
  * published absolute bound b of an `absolute_verified` row.
  */
-import { validateRetainedPrecision } from "./retainedPrecisionReader";
+import { validateRetainedPrecision, validateRetainedPrecisionBytes } from "./retainedPrecisionReader";
 import type { AccuracyClass, RetainedPrecisionError, RetainedPrecisionValidation, RowClassification } from "./retainedPrecisionTypes";
 import { ordinaryCaseEligible } from "./numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
@@ -83,14 +83,16 @@ function receiptCases(source: MechanicsResult): Json[] {
  * against the exact bytes it validated. A refusal is rethrown after it is
  * recorded, so the caller does not register the native invocation.
  * `live` is the native capture's liveness for these bytes; only previewService
- * passes it. Without it the registration can never stand eligible (U7 slice T). */
-export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown, live: LiveNativeCapture | null = null): Promise<RetainedPrecisionValidation> {
+ * passes it. Without it the registration can never stand eligible (U7 slice T).
+ * `sourceBytes`, when given, are the producer's bytes `source` was read from: the
+ * reader then reads those bytes (b7-plan R1, "Exact bytes to the desktop"). */
+export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown, live: LiveNativeCapture | null = null, sourceBytes: string | null = null): Promise<RetainedPrecisionValidation> {
   // Captured before the reader's first await, as the reader snapshots its inputs.
   // Bytes outside the checked JSON profile never register (the reader refuses them).
   const sourcePrint = fingerprint(source), captured = structuredClone(invocation);
   const record = (outcome: Outcome) => { if (sourcePrint) registrations.set(source, { source: sourcePrint, invocation: captured, outcome, live }); };
   try {
-    const validation = await validateRetainedPrecision(source, invocation);
+    const validation = sourceBytes === null ? await validateRetainedPrecision(source, invocation) : await validateRetainedPrecisionBytes(sourceBytes, invocation);
     record({ validation, error: null });
     return validation;
   } catch (error) {

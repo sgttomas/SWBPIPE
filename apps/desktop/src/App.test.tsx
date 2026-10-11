@@ -4,7 +4,7 @@ import historicalMechanicsFixture from "../../../fixtures/product_preview/invent
 import refusedPreviewModel from "../../../fixtures/product_preview/invented_preview_model.json";
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "./test/nativeMechanicsReplay";
 import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
@@ -738,7 +738,7 @@ describe("SWBPIPE desktop preview", () => {
         cancellation_requested: false,
         cancellation_status: "not_requested",
         cancellation_scope: "invented_test_checkpoint",
-        result: oldResult,
+        result: solveBytes(oldResult),
         error_message: null,
       });
       await Promise.resolve();
@@ -14709,7 +14709,7 @@ describe("workflow current and historical result boundaries", () => {
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "load_preview_model") return Promise.resolve(structuredClone(model));
       if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
-      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result: output, error_message: null });
+      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result: solveBytes(output), error_message: null });
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};

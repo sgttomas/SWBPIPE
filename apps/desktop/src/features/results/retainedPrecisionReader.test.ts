@@ -19,8 +19,8 @@ describe("the desktop's retained reader module carries bytes to the Rust reader 
     expect(Object.is(JSON.parse(retainedJsonText(value)).b[1], -0)).toBe(true);
   });
   it("reads exact bytes and a parsed value alike, frozen, with the standing the eligibility implies", async () => {
-    const doc = JSON.parse(text) as Json, invocation = JSON.stringify(doc.invocation);
-    const fromBytes = await validateRetainedPrecisionBytes(JSON.stringify(doc.source), invocation);
+    const doc = JSON.parse(text) as Json;
+    const fromBytes = await validateRetainedPrecisionBytes(JSON.stringify(doc.source), doc.invocation);
     const fromValue = await validateRetainedPrecision(doc.source, doc.invocation);
     expect(fromValue).toStrictEqual(fromBytes);
     expect([fromValue.invocation_bound, fromValue.numerical_eligible, fromValue.standing]).toEqual([true, true, "eligible"]);
@@ -40,6 +40,6 @@ describe("the desktop's retained reader module carries bytes to the Rust reader 
     expect(await refusal(() => validateRetainedPrecision({ a: 2 ** 60 }))).toEqual(G1);
     expect(await refusal(() => validateRetainedPrecisionTransport({ a: undefined }))).toEqual(G1);
     expect(await refusal(() => validateRetainedPrecisionBytes("{"))).toEqual(G1);
-    expect(await refusal(() => validateRetainedPrecisionBytes(text, "[1,"))).toEqual(G1);
+    expect(await refusal(() => validateRetainedPrecisionBytes(text, { a: Number.POSITIVE_INFINITY }))).toEqual(G1);
   });
 });

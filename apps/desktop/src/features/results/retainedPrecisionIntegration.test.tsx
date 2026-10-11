@@ -18,6 +18,7 @@
  * returns the reader's own frozen result unchanged.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -28,19 +29,20 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 const u7 = vi.hoisted(() => ({ simulate: false, held: false, notCovered: null as string | null, noAbsolute: false }));
 vi.mock("./retainedPrecisionReader", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./retainedPrecisionReader")>();
+  const simulated = (validation: Awaited<ReturnType<typeof actual.validateRetainedPrecision>>) => {
+    // The pre-U7 reader (its flag false): the same gates and classes, never eligible.
+    if (u7.held) return Object.freeze({ ...validation, numerical_eligible: false, standing: "needs_recompute" as const });
+    if (!u7.simulate || !validation.invocation_bound) return validation;
+    return Object.freeze({
+      ...validation, numerical_eligible: true, standing: "eligible" as const,
+      classifications: validation.classifications.map(row => row.result_id === u7.notCovered ? { ...row, class: "not_covered" as const, scale_bits: null, bound_bits: null }
+        : u7.noAbsolute && row.class === "absolute_verified" ? { ...row, class: "relative_verified" as const, bound_bits: null } : row),
+    });
+  };
   return {
     ...actual,
-    validateRetainedPrecision: async (source: unknown, invocation?: unknown) => {
-      const validation = await actual.validateRetainedPrecision(source, invocation);
-      // The pre-U7 reader (its flag false): the same gates and classes, never eligible.
-      if (u7.held) return Object.freeze({ ...validation, numerical_eligible: false, standing: "needs_recompute" as const });
-      if (!u7.simulate || !validation.invocation_bound) return validation;
-      return Object.freeze({
-        ...validation, numerical_eligible: true, standing: "eligible" as const,
-        classifications: validation.classifications.map(row => row.result_id === u7.notCovered ? { ...row, class: "not_covered" as const, scale_bits: null, bound_bits: null }
-          : u7.noAbsolute && row.class === "absolute_verified" ? { ...row, class: "relative_verified" as const, bound_bits: null } : row),
-      });
-    },
+    validateRetainedPrecision: async (source: unknown, invocation?: unknown) => simulated(await actual.validateRetainedPrecision(source, invocation)),
+    validateRetainedPrecisionBytes: async (sourceJson: string, invocation?: unknown) => simulated(await actual.validateRetainedPrecisionBytes(sourceJson, invocation)),
   };
 });
 // U7 slice T (RV91 N-5): test-only stand-ins for the two T6 panels' refusal points,
@@ -180,7 +182,7 @@ async function deliverDirect(source: MechanicsResult, model: PreviewModel | null
   invokeMock.mockImplementation(async (command: string, args: Json) => {
     expect(command).toBe("run_preview_mechanics_with_solver_mode");
     expect(args.solverMode).toBe(mode);
-    return structuredClone(source);
+    return solveBytes(source);
   });
   return runPreviewMechanics(model, mode);
 }
@@ -195,7 +197,7 @@ async function deliverJob(source: MechanicsResult, model: PreviewModel, mode: Pr
     }
     expect(command).toBe("poll_preview_mechanics_job");
     expect(args.jobId).toBe(jobId);
-    return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification", result: structuredClone(source), error_message: null };
+    return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification", result: solveBytes(source), error_message: null };
   });
   await startPreviewMechanicsJob(model, mode);
   return (await pollPreviewMechanicsJob(jobId)).result!;
@@ -323,7 +325,8 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
 
   it("bytes outside the checked profile never register, even after a later repair", async () => {
     const { source, model } = milestone(mode);
-    const unchecked = structuredClone(source); unchecked.results[3].value = NaN;
+    // JSON bytes cannot carry NaN; an integer beyond 2^53 is JSON outside the checked profile.
+    const unchecked = structuredClone(source); unchecked.results[3].value = 2 ** 60;
     const received = await deliverDirect(unchecked, model, mode);
     expect(retainedPrecisionRegistration(received)).toBeNull();
     received.results[3].value = source.results[3].value;
@@ -843,7 +846,7 @@ describe.each(MODES)("%s: standing is bound to the live native capture and the c
     const jobId = `unit-transport-replay:retained:cancel:${++jobSequence}`;
     invokeMock.mockImplementation(async (command: string) => {
       if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: jobId, backend_cancellation_token: "t", state: "queued", cancellation_scope: "unit" };
-      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit", result: structuredClone(source), error_message: null };
+      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit", result: solveBytes(source), error_message: null };
       expect(command).toBe("cancel_preview_mechanics_job");
       return { job_id: jobId, accepted: true, cancellation_status: "accepted", job_state: "completed", cancellation_scope: "unit", cancellation_success_claimed: false };
     });

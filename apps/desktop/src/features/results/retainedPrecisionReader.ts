@@ -3,8 +3,8 @@
  * through `loadWasmEngine`. This module carries JSON text to it and its outcome back; it
  * reads no receipt itself.
  *
- * - `validateRetainedPrecisionBytes` reads the exact bytes the caller holds (a source
- *   received from the native solver).
+ * - `validateRetainedPrecisionBytes` reads the exact source bytes the caller holds (a
+ *   source received from the native solver).
  * - `validateRetainedPrecision` and `validateRetainedPrecisionTransport` read a parsed
  *   value, written as JSON text that keeps its negative zeros: `JSON.stringify` writes -0
  *   as 0, and the reader refuses a -0 in a receipt (G2), so dropping the sign would read
@@ -76,22 +76,21 @@ async function run(read: () => string): Promise<RetainedPrecisionValidation> {
   return readOutcome(outcome);
 }
 
-/** The reader on these exact source bytes, bound to the invocation's bytes when given. */
-export async function validateRetainedPrecisionBytes(sourceJson: string, invocationJson?: string): Promise<RetainedPrecisionValidation> {
+/** The reader (G0-G8) on these exact source bytes, bound to the invocation when one is
+ * given. The invocation is written to text before the first await, so later caller edits
+ * cannot alter what is read. */
+export async function validateRetainedPrecisionBytes(sourceJson: string, invocation?: unknown): Promise<RetainedPrecisionValidation> {
+  let invocationJson: string | undefined;
+  try { invocationJson = invocation == null ? undefined : retainedJsonText(invocation); } catch { throw unreadable(); }
   const engine = await loadWasmEngine();
   return run(() => engine.validateRetainedPrecisionJson(sourceJson, invocationJson));
 }
 
-/** The reader (G0-G8) on a parsed statement, bound to the invocation when one is given.
- * Both are written to text before the first await, so later caller edits cannot alter
- * what is read. */
+/** The reader (G0-G8) on a parsed statement, bound to the invocation when one is given. */
 export async function validateRetainedPrecision(source: unknown, invocation?: unknown): Promise<RetainedPrecisionValidation> {
-  let sourceJson: string, invocationJson: string | undefined;
-  try {
-    sourceJson = retainedJsonText(source);
-    invocationJson = invocation == null ? undefined : retainedJsonText(invocation);
-  } catch { throw unreadable(); }
-  return validateRetainedPrecisionBytes(sourceJson, invocationJson);
+  let sourceJson: string;
+  try { sourceJson = retainedJsonText(source); } catch { throw unreadable(); }
+  return validateRetainedPrecisionBytes(sourceJson, invocation);
 }
 
 /** The reader's metadata-only transport checks (G0-G2 and the base's transport metadata

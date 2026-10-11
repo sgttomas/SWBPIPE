@@ -1,4 +1,5 @@
 import { act, render, renderHook, waitFor, within } from "@testing-library/react";
+import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -47,7 +48,7 @@ async function recordedProducerSession() {
     }
     if (command === "poll_preview_mechanics_job" && isDeepStrictEqual(args, { jobId })) {
       return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested",
-        cancellation_scope: scope, result: structuredClone(sourceFixture), error_message: null };
+        cancellation_scope: scope, result: solveBytes(sourceFixture), error_message: null };
     }
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
