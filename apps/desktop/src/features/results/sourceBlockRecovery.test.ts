@@ -459,7 +459,7 @@ describe('FE02 caller representation and serialized invocation binding',()=>{
  });
  it('refuses a caller edited while IPC is pending and an unobserved caller alias',async()=>{
   const {raw,request,mode}=uiPairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;model.nodes[0].position.x=-0;
-  let resolve!: (value:MechanicsResult)=>void;vi.mocked(invoke).mockReturnValueOnce(new Promise<MechanicsResult>(r=>{resolve=r;}));
+  let resolve!: (value:string)=>void;vi.mocked(invoke).mockReturnValueOnce(new Promise<string>(r=>{resolve=r;}));
   const pending=runPreviewMechanics(model,mode);model.nodes[0].position.x=0;resolve(solveBytes(raw));const source=await pending;
   expect(hasNativeMechanicsInvocation(source,model)).toBe(false);expect(sourceBlockStanding(source,model).eligible).toBe(false);
   const unsupported=structuredClone(request.model) as PreviewModel;unsupported.nodes[0].position.x=1;
