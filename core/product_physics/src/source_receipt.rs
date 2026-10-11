@@ -70,6 +70,7 @@ enum ReceiptPolicy {
     SourceBlocks,
     PhysicsSource,
     LoadReferenceSource,
+    PressureSource,
 }
 impl ReceiptPolicy {
     fn composite(self) -> bool {
@@ -80,6 +81,7 @@ impl ReceiptPolicy {
             Self::SourceBlocks => SEMANTIC_ID,
             Self::PhysicsSource => COMPOSITE_SEMANTIC_ID,
             Self::LoadReferenceSource => LOAD_REFERENCE_SOURCE_SEMANTIC_ID,
+            Self::PressureSource => exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID,
         }
     }
     fn name(self) -> &'static str {
@@ -87,14 +89,72 @@ impl ReceiptPolicy {
             Self::SourceBlocks => "SOURCE-BLOCKS-1",
             Self::PhysicsSource => "PHYSICS-SOURCE-1",
             Self::LoadReferenceSource => "LOAD-REFERENCE-SOURCE-1",
+            Self::PressureSource => "PRESSURE-SOURCE-1",
         }
     }
     fn case_evidence_domain(self) -> &'static str {
         match self {
             Self::LoadReferenceSource => "load_reference_source_case_evidence_v1",
+            Self::PressureSource => "pressure_source_case_evidence_v1",
             _ => "physics_source_case_evidence_v1",
         }
     }
+}
+
+/// One composite source namespace selected from the actual model contract.
+/// v3 uses the same identity/policy/domain on 0.3.0 and 0.4.0; the latter's
+/// resolved-case ownership is still checked separately by the source pipeline.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum CompositeSourceContext {
+    PhysicsSource,
+    LoadReferenceSource,
+    PressureSource,
+}
+impl CompositeSourceContext {
+    pub(super) fn for_model(model: &PreviewModel) -> Result<Self, ReceiptError> {
+        match exact_admission::ExactContract::of(model) {
+            Some(exact_admission::ExactContract::PressureV3) => Ok(Self::PressureSource),
+            Some(exact_admission::ExactContract::StraightV2) => Ok(
+                if case_state::is_load_state(model) { Self::LoadReferenceSource } else { Self::PhysicsSource }
+            ),
+            None => Err(bad("composite source requires an actual exact contract")),
+        }
+    }
+    fn receipt_policy(self) -> ReceiptPolicy {
+        match self {
+            Self::PhysicsSource => ReceiptPolicy::PhysicsSource,
+            Self::LoadReferenceSource => ReceiptPolicy::LoadReferenceSource,
+            Self::PressureSource => ReceiptPolicy::PressureSource,
+        }
+    }
+    pub(super) fn semantic_id(self) -> &'static str { self.receipt_policy().semantic_id() }
+    pub(super) fn policy_name(self) -> &'static str { self.receipt_policy().name() }
+    pub(super) fn case_evidence_domain(self) -> &'static str { self.receipt_policy().case_evidence_domain() }
+    pub(super) const fn exact_contract(self) -> exact_admission::ExactContract {
+        match self {
+            Self::PressureSource => exact_admission::ExactContract::PressureV3,
+            Self::PhysicsSource | Self::LoadReferenceSource => exact_admission::ExactContract::StraightV2,
+        }
+    }
+    pub(super) const fn profile_mode(self) -> &'static str { self.exact_contract().mode() }
+    pub(super) const fn profile_id(self) -> &'static str {
+        match self {
+            Self::PhysicsSource => "exact_straight_pressure_v2",
+            Self::LoadReferenceSource => case_state::LOAD_STATE_SOURCE_PROFILE_ID,
+            Self::PressureSource => exact_admission::PRESSURE_PROFILE_ID,
+        }
+    }
+}
+
+/// Validate the publication label against the independently selected policy.
+/// This keeps the existing finalizer check at its existing reservation boundary.
+fn validate_publication_identity(publication: &Value, policy: ReceiptPolicy) -> Result<(), ReceiptError> {
+    if publication.get("source_block_recovery").is_some()
+        || publication["producer"]["semantic_contract_id"] != policy.semantic_id()
+    {
+        return Err(bad("publication must have source identity and omit receipt"));
+    }
+    Ok(())
 }
 
 /// Captures the actual raw request before parsing. No parsed/hash constructor.
@@ -136,6 +196,10 @@ impl CapturedInvocation {
     }
     fn requested(&self) -> Result<LinearStaticPreviewRequest, ReceiptError> {
         serde_json::from_value(self.raw.clone()).map_err(|e| bad(e.to_string()))
+    }
+    /// Context from captured request bytes only; no envelope label is an input.
+    pub(super) fn composite_context(&self) -> Result<CompositeSourceContext, ReceiptError> {
+        CompositeSourceContext::for_model(&self.requested()?.model)
     }
     /// Reconstruct only the actual product normalization/material selection. Raw
     /// custody/hashing remains the preparse Value, never these typed objects.
@@ -854,11 +918,7 @@ impl FinalizedSourceBlockReceipt {
         invocation_budget: &mut SourceRecoveryBudget,
     ) -> Result<Self, ReceiptError> {
         // The captured invocation, not the envelope label, selects the policy.
-        let policy = if case_state::is_load_state(&capture.requested()?.model) {
-            ReceiptPolicy::LoadReferenceSource
-        } else {
-            ReceiptPolicy::PhysicsSource
-        };
+        let policy = capture.composite_context()?.receipt_policy();
         Self::finalize_for(capture, envelope, cases, invocation_budget, policy)
     }
     fn finalize_for(
@@ -952,13 +1012,7 @@ impl FinalizedSourceBlockReceipt {
             composite::validate_publication(capture, envelope, &cases)?;
         }
         let publication = serialized(envelope)?;
-        if publication.get("source_block_recovery").is_some()
-            || envelope.producer.semantic_contract_id != policy.semantic_id()
-        {
-            return Err(bad(
-                "publication must have source identity and omit receipt",
-            ));
-        }
+        validate_publication_identity(&publication, policy)?;
         let request = capture.requested()?;
         if request.model.project.id != envelope.model_ref
             || cases.is_empty()
@@ -1119,3 +1173,7 @@ mod load_state_join_tests;
 mod load_state_tests;
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+#[path = "source_receipt/pressure_source_context_tests.rs"]
+mod pressure_source_context_tests;

@@ -583,11 +583,6 @@ fn prepare_sources(
     }
     // Presence is the producer inventory: a zero-valued pressure region is
     // still unsupported. Exact source cases require an explicitly empty list.
-    if !super::exact_admission::joins_retained_source(input.model) {
-        return Err(unsupported(
-            "3.0.0/exact_pressure_v3 is not joined to retained-source recovery",
-        ));
-    }
     if super::pressure_runtime::is_exact(input.model) {
         if !input
             .load_case
@@ -1606,6 +1601,8 @@ pub(super) fn solve(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::LinearStaticPreviewRequest;
+    use serde_json::{json, Value};
     struct Fixture {
         model: PreviewModel,
         built: BuiltModel,
@@ -1827,6 +1824,59 @@ mod tests {
             },
         )
         .unwrap_err();
+        assert_eq!(failure.stage, "source closure");
+        assert_eq!(failure.work.charged, 0);
+        assert!(failure.work.rejected > 0);
+        assert_eq!(failure.error, RecoveryError::Exact(exact::Error::Budget));
+    }
+
+    fn pressure_source_fixture(v3: bool) -> Fixture {
+        let mut raw: Value = serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/physics_source/n05.request.json"
+        )).unwrap();
+        if v3 {
+            raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
+        }
+        let request: LinearStaticPreviewRequest = serde_json::from_value(raw).unwrap();
+        let mut model = request.model;
+        let mut diagnostics = Vec::new();
+        let mut materials = model.materials.clone();
+        super::super::pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        assert!(!super::super::has_blocking(&diagnostics), "{diagnostics:?}");
+        model.materials = materials;
+        Fixture::new(model)
+    }
+
+    #[test]
+    fn pressure_source_empty_inventory_prepares_without_the_old_v3_gate() {
+        for v3 in [false, true] {
+            let fixture = pressure_source_fixture(v3);
+            let prepared = prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default()));
+            assert!(prepared.is_ok(), "v3={v3}: {:?}", prepared.err());
+        }
+    }
+
+    #[test]
+    fn pressure_source_preparation_declines_every_present_pressure_region() {
+        const EMPTY_REQUIRED: &str = "exact source recovery requires explicitly empty pressure regions";
+        for v3 in [false, true] {
+            for pressure in [0.0, 1.0, -1.0] {
+                let mut fixture = pressure_source_fixture(v3);
+                fixture.model.load_cases[0].pressure_regions = Some(vec![serde_json::from_value(json!({
+                    "id":"invented:source-family-region", "pressure":{"value":pressure,"unit":"Pa"}
+                })).unwrap()]);
+                assert_eq!(prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err(), Some(RecoveryError::Unsupported(EMPTY_REQUIRED)));
+            }
+            let mut fixture = pressure_source_fixture(v3);
+            fixture.model.load_cases[0].pressure_regions = None;
+            assert_eq!(prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err(), Some(RecoveryError::Unsupported(EMPTY_REQUIRED)));
+        }
+    }
+
+    #[test]
+    fn pressure_source_denied_attempt_keeps_the_existing_work_boundary() {
+        let fixture = pressure_source_fixture(true);
+        let failure = solve(fixture.input(), exact::Limits { operations: 0, ..exact::Limits::default() }).unwrap_err();
         assert_eq!(failure.stage, "source closure");
         assert_eq!(failure.work.charged, 0);
         assert!(failure.work.rejected > 0);
