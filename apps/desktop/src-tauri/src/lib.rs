@@ -1306,8 +1306,29 @@ fn stored_envelope_hash_value(connection: &Connection, project_id: &str) -> Resu
 
 /// The stored revision of a project as the replace prompt shows it: its
 /// envelope hash and its last-saved time. A Replace confirms exactly this.
+/// The stored row's content fingerprint is part of the revision, so two writes
+/// in one second differ unless they stored identical bytes, which loses nothing.
+/// FNV-1a 64 (a fixed, stable function), not a security hash.
 fn stored_revision(connection: &Connection, entry: &LocalProjectIndexEntry) -> Result<String, String> {
-    Ok(format!("{}@{}", stored_envelope_hash_value(connection, &entry.project_id)?, entry.updated_at_unix))
+    let row: String = connection
+        .query_row(
+            "SELECT model_json || char(31) || editor_intents_json || char(31) || proposal_json || char(31) ||
+                    selected_review_target_json || char(31) || mechanics_result_json || char(31) ||
+                    analysis_run_json || char(31) || model_hash_json || char(31) ||
+                    project_envelope_hash_json || char(31) || model_migration_ledger_json
+             FROM local_projects WHERE project_id = ?1",
+            params![entry.project_id],
+            |row| row.get(0),
+        )
+        .map_err(|error| error.to_string())?;
+    let fingerprint = row.bytes().fold(0xcbf2_9ce4_8422_2325_u64, |hash, byte| {
+        (hash ^ u64::from(byte)).wrapping_mul(0x0000_0100_0000_01b3)
+    });
+    Ok(format!(
+        "{}@{}@{fingerprint:016x}",
+        stored_envelope_hash_value(connection, &entry.project_id)?,
+        entry.updated_at_unix
+    ))
 }
 
 /// HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
@@ -2468,6 +2489,7 @@ fn prepare_project_persistence_tuple(
 
 #[tauri::command]
 fn create_local_project(
+
     app: AppHandle,
     model: Value,
     editor_intents: Option<Value>,
@@ -2479,7 +2501,24 @@ fn create_local_project(
     project_envelope_hash: Option<Value>,
     confirmed_revision: Option<String>,
 ) -> Result<LocalProjectEnvelope, String> {
-    let path = app_store_path(&app)?;
+    create_project_in_store(app_store_path(&app)?, model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash, project_envelope_hash, confirmed_revision)
+}
+
+/// `create_local_project` on a given store: one `BEGIN IMMEDIATE` transaction
+/// from the preparation's reads through the replacement check, the write and
+/// the commit (HELP_HUMAN rulings 2026-10-10). The race tests call this path.
+fn create_project_in_store(
+    path: PathBuf,
+    model: Value,
+    editor_intents: Option<Value>,
+    proposal: Option<Value>,
+    selected_review_target: Option<Value>,
+    mechanics_result: Option<Value>,
+    analysis_run: Option<Value>,
+    model_hash: Option<Value>,
+    project_envelope_hash: Option<Value>,
+    confirmed_revision: Option<String>,
+) -> Result<LocalProjectEnvelope, String> {
     let (mut connection, migration) = open_project_store(&path)?;
     // One write transaction from the preparation's reads to the commit.
     let transaction = immediate_transaction(&mut connection)?;
@@ -2619,7 +2658,12 @@ fn save_local_project(
     app: AppHandle,
     request: SaveLocalProjectRequest,
 ) -> Result<LocalProjectEnvelope, String> {
-    let path = app_store_path(&app)?;
+    save_project_in_store(app_store_path(&app)?, request)
+}
+
+/// `save_local_project` on a given store, with the same single transaction as
+/// `create_project_in_store`.
+fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Result<LocalProjectEnvelope, String> {
     let (mut connection, migration) = open_project_store(&path)?;
     // One write transaction from the preparation's reads to the commit.
     let transaction = immediate_transaction(&mut connection)?;
@@ -8885,14 +8929,25 @@ mod replace_confirmation_tests {
         store
     }
 
-    fn unconfirmed_write(store: &Path, id: &str, name: &str) -> Result<(), String> {
-        let (mut connection, _) = open_project_store(store)?;
-        let model = json!({"project": {"id": id}});
-        // As the commands do: one immediate transaction around check and write.
-        let transaction = immediate_transaction(&mut connection)?;
-        guarded_write_project_rows(&transaction, None, None, id, name, &model, &json!([]), &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([]))?;
-        transaction.commit().map_err(|error| error.to_string())
+    fn invented_model(id: &str, name: &str) -> Value {
+        let mut model = load_preview_model().unwrap();
+        model["project"]["id"] = json!(id);
+        model["project"]["name"] = json!(name);
+        model
+    }
+
+    /// An unconfirmed write through the commands' own store path, alternating
+    /// create and save as the two writers' commands.
+    fn unconfirmed_write(store: &Path, id: &str, name: &str, save: bool) -> Result<(), String> {
+        let model = invented_model(id, name);
+        if save {
+            let request: SaveLocalProjectRequest = serde_json::from_value(json!({
+                "project_id": id, "project_name": name, "model": model
+            })).unwrap();
+            save_project_in_store(store.to_path_buf(), request).map(|_| ())
+        } else {
+            create_project_in_store(store.to_path_buf(), model, None, None, None, None, None, None, None, None).map(|_| ())
+        }
     }
 
     /// Writer A holds the store's write lock between its check and its write.
@@ -8908,10 +8963,10 @@ mod replace_confirmation_tests {
         let transaction = first.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).unwrap();
         refuse_unconfirmed_replacement(&transaction, id, None, None).expect("A: nothing stored yet");
         let second_store = store.clone();
-        let second = std::thread::spawn(move || unconfirmed_write(&second_store, id, "Writer B"));
+        let second = std::thread::spawn(move || unconfirmed_write(&second_store, id, "Writer B", false));
         std::thread::sleep(std::time::Duration::from_millis(300));
         assert!(!second.is_finished(), "B must wait for A's write lock before it can check");
-        write_project_rows(&transaction, id, "Writer A", &json!({"project": {"id": id}}), &json!([]), &Value::Null,
+        write_project_rows(&transaction, id, "Writer A", &invented_model(id, "Writer A"), &json!([]), &Value::Null,
             &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
         transaction.commit().unwrap();
         let refused = second.join().unwrap().expect_err("B is refused");
@@ -8928,9 +8983,9 @@ mod replace_confirmation_tests {
             let store = scratch_store("concurrent-writers");
             let id = format!("project:invented-race-{round}");
             let barrier = Arc::new(std::sync::Barrier::new(2));
-            let writers: Vec<_> = ["Writer A", "Writer B"].into_iter().map(|name| {
+            let writers: Vec<_> = [("Writer A", false), ("Writer B", round % 2 == 1)].into_iter().map(|(name, save)| {
                 let (store, id, barrier) = (store.clone(), id.clone(), Arc::clone(&barrier));
-                std::thread::spawn(move || { barrier.wait(); unconfirmed_write(&store, &id, name).map(|()| name) })
+                std::thread::spawn(move || { barrier.wait(); unconfirmed_write(&store, &id, name, save).map(|()| name) })
             }).collect();
             let results: Vec<_> = writers.into_iter().map(|writer| writer.join().unwrap()).collect();
             let written: Vec<_> = results.iter().filter_map(|result| result.as_ref().ok().copied()).collect();
@@ -8973,7 +9028,16 @@ mod replace_confirmation_tests {
         // A Replace confirms the revision the prompt showed; one saved since is not confirmed.
         let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
         let current = stored_revision(&connection, &entry).unwrap();
-        assert_eq!(current, format!("sha256:base@{}", entry.updated_at_unix));
+        assert!(current.starts_with(&format!("sha256:base@{}@", entry.updated_at_unix)), "{current}");
+        // Two different writes in the same second have different revisions (the
+        // row fingerprint), even without an envelope hash.
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!(["edited"]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+        let after_edit = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
+        assert_ne!(after_edit, current);
+        upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+        let current = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
         refuse_unconfirmed_replacement(&connection, &id, Some(&current), Some("sha256:older")).expect("Replace of the shown revision");
         let replaced_unseen = refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect_err("revision saved after the prompt");
         assert!(replaced_unseen.starts_with("PROJECT-BASE-MOVED") && replaced_unseen.contains("after the replace prompt showed it"), "{replaced_unseen}");

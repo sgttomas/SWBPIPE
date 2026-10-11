@@ -66,8 +66,10 @@ export use their existing routes unchanged.
     refuse a write onto a stored id with `PROJECT-ID-EXISTS` unless one of these
     holds:
     - `confirmed_revision` equals the stored revision: the user chose Replace
-      in a prompt that showed exactly that revision, meaning its envelope hash
-      and last-saved time (`find_local_project` returns it with the entry);
+      in a prompt that showed exactly that revision. A revision is the
+      envelope hash, the last-saved time and a fingerprint of the stored row,
+      so two different writes in one second differ. `find_local_project`
+      returns the revision with the entry.
     - for Save, `expected_base` equals the stored envelope hash. This is the
       `project_envelope_hash` value of the revision the session last opened
       or wrote. The session records it wherever an open or a write lands for
@@ -82,14 +84,17 @@ export use their existing routes unchanged.
     asks again about the revision now stored, so a revision nobody was shown is
     never replaced.
 
-    The command opens one `BEGIN IMMEDIATE` transaction before it prepares the
-    write (schema checks, migration ledger, hashes) and keeps it through the
-    check (`guarded_write_project_rows`) and the commit. The store's write lock
+    `create_project_in_store` and `save_project_in_store` (the Tauri commands
+    are thin wrappers around them) each open one `BEGIN IMMEDIATE`
+    transaction before preparing the write (schema checks, migration ledger,
+    hashes). They keep it through the check (`guarded_write_project_rows`)
+    and the commit. The store's write lock
     is therefore held from the first read. A second writer, such as another
     window or process, waits on the lock (a 5 s busy timeout), then sees the
     first writer's row and is refused. If the wait times out, its save fails
-    visibly and writes nothing. Two concurrent-writer tests cover this, and
-    both fail if the check runs outside the transaction. The browser preview's
+    visibly and writes nothing. Two concurrent-writer tests drive those same
+    functions. Both fail if the check runs outside the transaction, or if the
+    commands use a deferred transaction. The browser preview's
     store mirrors the rule.
   - **The prompt.** On either refusal, the webview asks
     (`ReplaceProjectPrompt`, a modal alert dialog). It names the stored project
