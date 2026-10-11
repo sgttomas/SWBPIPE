@@ -83,12 +83,25 @@ DIRECTED_HELPER_PINS = {
     "quotient_downward": "718019f27189b9ed7cebbf4375c4924c8824d5352fb4b6024137f8dd12ae2cc3",
 }
 
+# Known original wrappers are identical at basis2243be380b, registered
+# B3 and U2 snapshots. Comparator absence alone is never a history proof.
+LEGACY_DIRECTED_WRAPPER_PINS = {
+    "product_upward": "06d0575424d34adb6055e8b4b42375e4a675e0b58d0c87c851c093d2b850f3ae",
+    "product_downward": "301ada5902141c20c00d5aa4503f03e7fc4005980ec299c224a85ae98881e037",
+    "quotient_downward": "153d1a54be95416eb09f59fbc635aac1a3e90653fa4c805d3b1e9a297544b198",
+}
+
 def inspect_directed_helpers(snapshot):
     file = "core/solver/frame_kernel/src/load_ledger.rs"
     with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
         source = stream.read()
     if "fn compare_nonnegative_product(" not in source:
-        return False  # historical original helper/model, no new workspace
+        for name, digest in LEGACY_DIRECTED_WRAPPER_PINS.items():
+            if hashlib.sha256(function_body(source, name).encode()).hexdigest() != digest:
+                raise ValueError(f"KD5O13: comparator absent but {name} is not a pinned original wrapper; refusing historical zero pricing")
+        if re.search(r"^fn\s+nonnegative_parts\b", source, re.M):
+            raise ValueError("KD5O13: comparator absent with new decomposition helper; refusing historical zero pricing")
+        return False  # known original wrapper bodies, not name absence
     for name, digest in DIRECTED_HELPER_PINS.items():
         if hashlib.sha256(function_body(source, name).encode()).hexdigest() != digest:
             raise ValueError(f"KD5O13: directed helper source changed: {name}; re-review the three-frame slot census")

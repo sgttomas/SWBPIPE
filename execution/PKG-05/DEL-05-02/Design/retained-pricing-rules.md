@@ -468,6 +468,12 @@ pricing run and in-build atom evaluation.
   S11-G/formation and late guard consumers without relying on PP fallback
   KD5O12 or certificate-caller KD5O11 allowances. Existing case/replay
   multipliers, M/text limits and all earlier positives remain unchanged.
-  Original historical helper bodies receive no new charge; a changed new
-  helper body stops for a renewed source/slot review. Native profile and
-  whole-stack claims remain pending the final immutable source evaluation.
+  Historical helper bodies receive no new charge only after all three
+  wrapper bodies match their pinned originals (identical at basis2243be380b,
+  registered B3 and U2 snapshots), and no new nonnegative_parts helper
+  remains. Comparator-name absence alone never selects historical pricing.
+  Renaming or removing the new comparator changes the wrapper bodies and
+  fails closed; a changed original wrapper is also rejected. All five new
+  helper bodies remain individually pinned for the positive608-B branch.
+  A changed source stops for a renewed source/slot review. Native profile
+  and whole-stack claims remain pending final immutable source evaluation.
