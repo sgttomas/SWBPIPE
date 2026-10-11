@@ -1756,7 +1756,7 @@ fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String
 }
 
 fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
-    solve_preview_mechanics_with_mode(model_payload, PreviewSolverMode::default())
+    solve_preview_mechanics_value_with_mode(model_payload, PreviewSolverMode::default())
 }
 
 fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolverMode, String> {
@@ -1769,10 +1769,9 @@ fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolve
 
 /// The producer's exact serialized bytes for the desktop's solve request
 /// (`{"model": <model>, "materials": []}`): what the solve commands and jobs hand
-/// the desktop, which reads, registers and exports these bytes (b7-plan R1, "Exact
-/// bytes to the desktop"). Never `serde_json::to_value` of the envelope: without
-/// `preserve_order` its object keys re-encode sorted.
-fn solve_preview_mechanics_bytes(
+/// the desktop, which reads its result and registers it from these bytes (b7-plan
+/// R1, "Exact bytes to the desktop"), never a re-encoded value.
+fn solve_preview_mechanics_with_mode(
     model_payload: Value,
     solver_mode: PreviewSolverMode,
 ) -> Result<String, String> {
@@ -1782,11 +1781,11 @@ fn solve_preview_mechanics_bytes(
 }
 
 /// The same solve read as a value, for the native self-tests that inspect it.
-fn solve_preview_mechanics_with_mode(
+fn solve_preview_mechanics_value_with_mode(
     model_payload: Value,
     solver_mode: PreviewSolverMode,
 ) -> Result<Value, String> {
-    serde_json::from_str(&solve_preview_mechanics_bytes(model_payload, solver_mode)?)
+    serde_json::from_str(&solve_preview_mechanics_with_mode(model_payload, solver_mode)?)
         .map_err(|error| error.to_string())
 }
 
@@ -1797,7 +1796,7 @@ fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
 
 #[tauri::command]
 fn run_preview_mechanics(model: Option<Value>) -> Result<String, String> {
-    solve_preview_mechanics_bytes(resolve_solve_model_payload(model)?, PreviewSolverMode::default())
+    solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, PreviewSolverMode::default())
 }
 
 #[tauri::command]
@@ -1806,7 +1805,7 @@ fn run_preview_mechanics_with_solver_mode(
     solver_mode: Option<String>,
 ) -> Result<String, String> {
     let mode = parse_preview_solver_mode(solver_mode)?;
-    solve_preview_mechanics_bytes(resolve_solve_model_payload(model)?, mode)
+    solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, mode)
 }
 
 const SOLVE_JOB_CANCELLATION_SCOPE: &str = "cooperative_checkpoints_not_preemptive";
@@ -1919,7 +1918,7 @@ fn execute_solve_job(
         record.state = "running".to_string();
     }
     let outcome =
-        model_payload.and_then(|payload| solve_preview_mechanics_bytes(payload, solver_mode));
+        model_payload.and_then(|payload| solve_preview_mechanics_with_mode(payload, solver_mode));
     publish_solve_outcome(jobs, job_id, outcome);
 }
 
@@ -5375,7 +5374,7 @@ mod tests {
         request["model"]["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/source-blocks-1");
             assert_eq!(solved["source_block_recovery"]["body"]["status"], "qualified");
             let invocation = json!({"request":request,"solver_mode":mode.as_str()});
@@ -5400,7 +5399,7 @@ mod tests {
         )).unwrap();
         model["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let source = solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/physics-1");
             let row = source["results"].as_array().unwrap().iter().find(|r|
@@ -7404,7 +7403,7 @@ mod tests {
         publish_solve_outcome(
             &registry.jobs,
             &receipt.job_id,
-            solve_preview_mechanics_bytes(load_preview_model().expect("bundled demo loads"), PreviewSolverMode::default()),
+            solve_preview_mechanics_with_mode(load_preview_model().expect("bundled demo loads"), PreviewSolverMode::default()),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -7510,7 +7509,7 @@ mod tests {
         assert_eq!(resolve_solve_model_payload(Some(model.clone())).expect("supplied payload"), model);
         assert!(resolve_solve_model_payload(None).is_err(), "no implicit model");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-            let solved = solve_preview_mechanics_with_mode(model.clone(), mode).expect("default model solves");
+            let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("default model solves");
             assert_bundled_demo_solved(&solved);
             assert_eq!(
                 solved["producer"]["semantic_contract_id"],
