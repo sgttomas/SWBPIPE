@@ -1,11 +1,12 @@
 """Selection/transport/scalar/structure integration with synthetic observations.
 
 The observations are constructed from authored reference data. These tests do
-not invoke or stand in for a solver or the owned physical-consistency helper.
+not invoke or stand in for a solver or the owned physical-consistency reader.
 """
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import subprocess
@@ -160,8 +161,9 @@ class PhysicsIntegrationTests(unittest.TestCase):
 class PhysicsProcessCompositionTests(unittest.TestCase):
     """Real supervised processes with deliberately synthetic solver/reader stubs.
 
-    Only the closed reader dependency constants/origin are patched for this test.
-    Transport dispatch, byte custody, isolated helper invocation, selected target
+    Only the closed reader dependency constants/origin and the reader executable
+    (OPENPIPESTRESS_RUNNER_BIN, a stub answering `read physics`) are patched for this test.
+    Transport dispatch, byte custody, reader process capture, selected target
     binding, scalar comparison and all ten structural checks execute normally.
     This cannot qualify a solver or the production physical validator.
     """
@@ -172,7 +174,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
         self.package = fixture_package(self, self.root/'fixture-package')
         self.source = self.root/'synthetic-reader'
         data = {
-            physics.MODULE: b'def validate_physics_evidence(source):\n    if source.get("test_force_reader_refusal"): raise ValueError("synthetic reader refusal")\n',
+            physics.MODULE: b'// synthetic reader source binding; the stub reader below answers\n',
             physics.TABLE: (PROJECT/'validation/qualification/fixtures/ordinary_physics_1_semantics.json').read_bytes(),
             physics.UNITS: b'// explicit synthetic test authority; no production claim\n',
         }
@@ -181,7 +183,14 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
             path=self.source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(content)
         review=self.source/'test-review.txt';review.write_text('Synthetic stub test fixture; not an independent review.\n')
         self.binding=self.root/'synthetic-binding.json'
-        self.binding.write_text(json.dumps({'format':'openpipestress.ordinary_physics_consistency_binding/1',
+        self.reader=self.root/'synthetic-reader-runner'
+        self.reader.write_text('#!'+sys.executable+'\nimport json,sys\nsource=json.load(sys.stdin)["source"]\n'
+            'ok=not source.get("test_force_reader_refusal")\n'
+            'outcome={"ok":True} if ok else {"ok":False,"error":{"code":"SOURCE_PHYSICS_SYNTHETIC_REFUSAL","detail":None}}\n'
+            'print(json.dumps({"artifact":"openpipestress.result_reader_verdict","schema_version":"1.0.0","reader":sys.argv[2],"outcome":outcome}))\n'
+            'sys.exit(0 if ok else 1)\n')
+        self.reader.chmod(0o700)
+        self.binding.write_text(json.dumps({'format':physics.BINDING_FORMAT,
             'status':'reviewed_candidate','contract_id':physics.CONTRACT,'entrypoint':'validate_physics_evidence',
             'files':[{'path':name,'sha256':digest} for name,digest in self.dependencies.items()],
             'review_basis':[{'path':'test-review.txt','sha256':hashlib.sha256(review.read_bytes()).hexdigest()}]}))
@@ -208,7 +217,8 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
         if mutate_manifest:
             manifest=json.loads(selection.read_text());mutate_manifest(manifest);selection.write_text(json.dumps(manifest))
         out=self.root/f'output-{self.count}'
-        with patch.object(physics,'DEPENDENCIES',self.dependencies), patch.object(physics,'project_root',return_value=self.source):
+        with patch.object(physics,'DEPENDENCIES',self.dependencies), patch.object(physics,'project_root',return_value=self.source), \
+                patch.dict(os.environ,{'OPENPIPESTRESS_RUNNER_BIN':str(self.reader)}):
             result=gate.run_selection(selection,self.executable,PROJECT,out)
         return result,out
 
@@ -221,9 +231,9 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
             self.assertEqual(result['summary']['section_subchecks']['matched'],18)
             for case in result['cases']:
                 self.assertEqual(case['process']['command'][1:],['solve','--input','-','--solver-mode',mode,'--explicit-local-private-intent'])
-                self.assertTrue(case['physical_consistency']['response']['isolation']['isolated'])
+                self.assertEqual(case['physical_consistency']['response']['verdict'],'consistent')
                 self.assertEqual(case['custody_at_publication'],'checked')
-                self.assertEqual(case['physical_consistency']['process']['command'][1:3],['-I','-S'])
+                self.assertEqual(case['physical_consistency']['process']['command'],[str(self.reader),'read','physics'])
             self.assertEqual(json.loads((out/'ledger.json').read_text()),result)
 
     def test_reader_refusal_retains_all_obligations(self):
@@ -247,7 +257,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
             self.assertIn('submitted_inventory',result)
 
     def test_retained_reader_or_original_target_tampering_cannot_pass(self):
-        changes=["Path('../physics-reader-basis/core/analysis_runs/physics_evidence.py').write_text('changed')",
+        changes=["Path('../physics-reader-basis/core/reporting/result_export/src/physics_evidence.rs').write_text('changed')",
                  "Path('../case-0000.original-reference.json').write_text('{}')"]
         for code in changes:
             result,_=self.run_composition(child_extra=code)

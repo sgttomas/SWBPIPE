@@ -607,16 +607,16 @@ def run_selection(manifest_path: Path, executable: Path, source_root: Path, outp
                 if physical_binding:
                     observation = physics.consistency_observation(mechanics, physical_binding, output_dir / f'case-{index:04}-physics-reader')
                     case_ledger['physical_consistency'] = observation
-                    helper_process = observation['process']
+                    reader_process = observation['process']
                     for stream_name in ('stdout', 'stderr'):
                         case_artifacts[case['id']].append({'role': 'physics_reader_' + stream_name,
                             'path': f'case-{index:04}-physics-reader/{stream_name}.bin',
-                            'sha256': helper_process[stream_name + '_sha256'], 'byte_length': helper_process[stream_name + '_bytes'],
-                            'byte_limit': helper_process['output_limit_bytes_per_stream']})
-                    helper_input = (output_dir / f'case-{index:04}-physics-reader/stdin.bin')
-                    helper_size = helper_process['stdin_bytes_delivered']
-                    helper_bytes = read_captured_bytes(helper_input, helper_process['stdin_sha256'], helper_size, MAX_INPUT_BYTES)
-                    case_artifacts[case['id']].append(artifact_binding('physics_reader_input', f'case-{index:04}-physics-reader/stdin.bin', helper_bytes))
+                            'sha256': reader_process[stream_name + '_sha256'], 'byte_length': reader_process[stream_name + '_bytes'],
+                            'byte_limit': reader_process['output_limit_bytes_per_stream']})
+                    reader_input = (output_dir / f'case-{index:04}-physics-reader/stdin.bin')
+                    reader_size = reader_process['stdin_bytes_delivered']
+                    reader_bytes = read_captured_bytes(reader_input, reader_process['stdin_sha256'], reader_size, MAX_INPUT_BYTES)
+                    case_artifacts[case['id']].append(artifact_binding('physics_reader_input', f'case-{index:04}-physics-reader/stdin.bin', reader_bytes))
                     from tools.validation.qualification_physics_structure import check_first_static_structure
                     indexed = {row['id']: row for row in rows}
                     coverage = all(item['assertion']['selector']['id'] in indexed and selector_matches(indexed[item['assertion']['selector']['id']], item['assertion']['selector']) for item in prepared['selected'])
