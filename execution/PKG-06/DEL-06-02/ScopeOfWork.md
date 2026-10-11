@@ -30,7 +30,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > ##### PDU-024 Version Integration
 >
 > - Project-carried evaluator inputs consume DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
-> - Version-check diagnostics remain the established current/stale/unsupported/newer/failed vocabulary.
+> - Version-check diagnostics use DEL-02-05 CLM-003's states (`current`, `unsupported_schema`, `newer_than_supported`, named re-author refusal); the code keeps `stale`/`failed` until B7 (DEL-05-02 Design, `b7-plan.md`).
 > - No expression grammar, binding namespace, evaluator library, rule-pack fixture, or migration tooling is added.
 >
 
@@ -220,7 +220,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > 1. Validate evaluator inputs under the existing binding, unit, sandbox, and diagnostic contract.
 > 2. For inputs carried in a project model, consume DEL-02-05 version-check/migration evidence rather than a local current-version literal.
-> 3. Preserve stale/unsupported/newer/failed project-version diagnostics; do not alter evaluator grammar, binding namespaces, or fixtures in response to model-document version handling.
+> 3. Preserve project-version diagnostics in DEL-02-05 CLM-003's states (the code keeps `stale`/`failed` until B7); do not alter evaluator grammar, binding namespaces, or fixtures in response to model-document version handling.
 >
 
 ### CLM-021 — Purpose
