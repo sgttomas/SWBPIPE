@@ -174,11 +174,9 @@ impl AssemblyEvidence {
         symmetry_basis(&self.edges)
     }
 
-    /// The `&[f64]` linear solve (C3-detect when `with_force_terms` is set).
-    /// S11-F narrowed it to `pub(crate)`: the product calls the typed
-    /// `solve_assembled`, and no caller outside this crate remains. Its
-    /// callers are this crate's tests.
-    #[cfg_attr(not(test), allow(dead_code))]
+    /// The `&[f64]` linear solve (C3-detect when `with_force_terms` is set), for this crate's
+    /// tests; the product calls the typed `solve_assembled`.
+    #[cfg(test)]
     pub(crate) fn solve(
         &self,
         k: &[Vec<f64>],
@@ -743,8 +741,8 @@ impl SparseAssemblyEvidence {
     }
 
     /// The pattern-taking sibling of the crate's `&[f64]` `solve` (C3-detect
-    /// when `with_force_terms` is set). Its callers are this crate's tests.
-    #[cfg_attr(not(test), allow(dead_code))]
+    /// when `with_force_terms` is set), for this crate's tests.
+    #[cfg(test)]
     pub(crate) fn solve(
         &self,
         k: &SparseStiffness,
@@ -1363,7 +1361,6 @@ pub(crate) enum W4Body {
 }
 
 /// K5: why a mixed body is not assessed by W4 (the matrix gate still runs).
-#[allow(dead_code)] // F2a API: the reason carrier; read by tests today.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum W4Unqualified {
     /// A user element that is no tie (Q5(a)): `element` indexes the users.

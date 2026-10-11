@@ -565,7 +565,7 @@ pub(super) mod caps {
 }
 
 /// The clause that refused, by DOMAIN.md §1's numbering. Read by U3's facade
-/// (grant 2, the public notice mapping) and the tests.
+/// (the public notice mapping) and the tests.
 #[cfg_attr(not(test), allow(dead_code))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum D1Clause {
@@ -802,8 +802,8 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
 /// `PressureContract`, as any other contract outside L and E.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum NamespaceBranch {
-    /// L: schema 0.1.0 or 0.2.0, no pressure contract.
-    Legacy,
+    /// L, the pressure-free preview route: schema 0.1.0 or 0.2.0, no pressure contract.
+    Preview,
     /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
     /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
@@ -816,7 +816,7 @@ fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &st
 /// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
 pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
     match (m.schema_version.as_str(), &m.pressure_contract) {
-        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Legacy),
+        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Preview),
         ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
         ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),
@@ -2946,7 +2946,7 @@ pub(super) struct PhaseBudgets {
     /// B-10: new allocations by a `W1Fallback` value.
     pub(super) fallback_new_allocations: u32,
 }
-/// B-6 for grant 1b's exact reservation (`ReservedNotice::reserve`): one
+/// B-6 for the notice's exact reservation (`ReservedNotice::reserve`): one
 /// diagnostic slot; the id (`format!`, at most twice its 30 + id + 12 bytes);
 /// the code, severity and source; the 196-byte message reservation; one case-id
 /// reference (its Vec slot and its String).
@@ -3072,7 +3072,7 @@ impl RetainedAdmissionReport {
     }
 }
 
-/// Linear (U3 grant 1b): neither `Clone` nor `Copy`. The facade moves it onto the
+/// Linear: neither `Clone` nor `Copy`. The facade moves it onto the
 /// reserved-stack thread and into the observer, which uses it for G-B and G-C.
 pub(super) struct CapturePermit {
     _profile: &'static RegisteredProfile,

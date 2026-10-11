@@ -1,5 +1,8 @@
 mod atomic_report_package_save;
+mod model_document_file;
 mod model_document_migration;
+#[cfg(feature = "native-smoke")]
+mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 
@@ -343,23 +346,26 @@ async fn save_report_package(
     })
 }
 
-fn fixture_path(file_name: &str) -> Result<PathBuf, String> {
-    let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
-    let candidates = [
-        cwd.join("../../fixtures/product_preview").join(file_name),
-        cwd.join("../../../fixtures/product_preview")
-            .join(file_name),
-        cwd.join("fixtures/product_preview").join(file_name),
-    ];
-    candidates
-        .into_iter()
-        .find(|path| path.exists())
-        .ok_or_else(|| format!("preview fixture not found: {file_name}"))
+/// The bundled invented demo model and its design knowledge, compiled into the
+/// binary (F-PIP-1: invented bundled fixtures only). The app starts on the demo;
+/// any other model document reaches the session through `open_model_document_file`.
+const BUNDLED_DEMO_MODEL: &str =
+    include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
+const BUNDLED_DESIGN_KNOWLEDGE: &str =
+    include_str!("../../../../fixtures/product_preview/invented_design_knowledge.json");
+
+fn bundled_document(text: &str) -> Result<Value, String> {
+    serde_json::from_str(text).map_err(|error| error.to_string())
 }
 
+/// Test-only reader for committed fixtures, resolved from this crate's manifest
+/// directory rather than the process working directory.
+#[cfg(test)]
 fn read_fixture(file_name: &str) -> Result<Value, String> {
-    let path = fixture_path(file_name)?;
-    let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../fixtures/product_preview")
+        .join(file_name);
+    let text = fs::read_to_string(&path).map_err(|error| format!("{}: {error}", path.display()))?;
     serde_json::from_str(&text).map_err(|error| error.to_string())
 }
 
@@ -1536,12 +1542,43 @@ fn render_calculation_report(input: Value) -> Result<Value, String> {
 /// refused joint), which the product solves.
 #[tauri::command]
 fn load_preview_model() -> Result<Value, String> {
-    read_fixture("invented_demo_model.json")
+    bundled_document(BUNDLED_DEMO_MODEL)
 }
 
 #[tauri::command]
 fn load_design_knowledge() -> Result<Value, String> {
-    read_fixture("invented_design_knowledge.json")
+    bundled_document(BUNDLED_DESIGN_KNOWLEDGE)
+}
+
+/// File > Open Model Document…: the user chooses a model document file; it is
+/// read, parsed and checked (`model_document_file`), and returned unchanged or
+/// refused with named diagnostics. The webview checks the desktop document shape
+/// before the session adopts it. Async so the blocking chooser stays off the main
+/// thread (as `save_report_package`).
+#[tauri::command]
+async fn open_model_document_file(app: AppHandle) -> Result<model_document_file::ModelDocumentOpenOutcome, String> {
+    let Some(path) = choose_model_document_path(&app)? else {
+        return Ok(model_document_file::ModelDocumentOpenOutcome::Cancelled);
+    };
+    tauri::async_runtime::spawn_blocking(move || model_document_file::read_model_document_file(&path))
+        .await
+        .map_err(|error| error.to_string())
+}
+
+fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let Some(selected) = app
+        .dialog()
+        .file()
+        .add_filter("SWBPIPE model document", &["json"])
+        .blocking_pick_file()
+    else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
 fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
@@ -1565,11 +1602,9 @@ fn solve_preview_mechanics_with_mode(
         .map_err(|error| error.to_string())
 }
 
+/// A solve always carries the session's model document; there is no implicit model.
 fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
-    match model {
-        Some(value) => Ok(value),
-        None => read_fixture("invented_demo_model.json"),
-    }
+    model.ok_or_else(|| "PREVIEW-SOLVE-MODEL-REQUIRED: a solve carries the session's model document.".to_string())
 }
 
 #[tauri::command]
@@ -1946,10 +1981,11 @@ fn sample_agent_proposal(
     mechanics_result: Option<Value>,
     selected_target: Option<SelectedReviewTarget>,
 ) -> Result<Value, String> {
-    let result = match mechanics_result {
-        Some(value) => value,
-        None => run_preview_mechanics(None)?,
-    };
+    // The sample proposal reviews a result the session already has; it never
+    // solves an implicit model.
+    let result = mechanics_result.ok_or_else(|| {
+        "PREVIEW-SOLVE-MODEL-REQUIRED: the sample proposal needs the session's mechanics result.".to_string()
+    })?;
     Ok(build_sample_agent_proposal(result, selected_target))
 }
 
@@ -4020,6 +4056,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
     for (id, value) in [
         ("file.new-local", !state.project_busy),
         ("file.new-blank", !state.project_busy),
+        ("file.open-model", !state.project_busy),
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
         ("file.list-local", !state.project_busy),
@@ -4174,6 +4211,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("file.new-local", "New Local Project")
         .text("file.new-blank", "New Blank Project")
         .separator()
+        .text("file.open-model", "Open Model Document…")
         .text("file.open-local", "Open Local Project…")
         .text("file.list-local", "List Local Projects")
         .separator()
@@ -4720,19 +4758,13 @@ async fn save_local_result_json(
     .map_err(|_| native_result_download::SaveError::worker())?
 }
 
-pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_dialog::init())
-        .manage(SolveJobRegistry::default())
-        .manage(native_result_download::SaveAdmission::default())
-        .menu(|handle| build_app_menu(handle))
-        .on_menu_event(|app, event| {
-            restore_native_check_item_after_activation(app, &event.id().0);
-            dispatch_native_menu_command(app, &event.id().0);
-        })
-        .invoke_handler(tauri::generate_handler![
+/// The app's commands; the `native-smoke` build appends the harness's own.
+macro_rules! app_invoke_handler {
+    ($($extra:path),* $(,)?) => {
+        tauri::generate_handler![
             load_preview_model,
             load_design_knowledge,
+            open_model_document_file,
             run_preview_mechanics,
             run_preview_mechanics_with_solver_mode,
             start_preview_mechanics_job,
@@ -4767,8 +4799,32 @@ pub fn run() {
             delete_local_library,
             render_calculation_report,
             save_report_package,
-            save_local_result_json
-        ])
+            save_local_result_json $(, $extra)*
+        ]
+    };
+}
+
+pub fn run() {
+    let builder = tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .manage(SolveJobRegistry::default())
+        .manage(native_result_download::SaveAdmission::default())
+        .menu(|handle| build_app_menu(handle))
+        .on_menu_event(|app, event| {
+            restore_native_check_item_after_activation(app, &event.id().0);
+            dispatch_native_menu_command(app, &event.id().0);
+        });
+    #[cfg(not(feature = "native-smoke"))]
+    let builder = builder.invoke_handler(app_invoke_handler!());
+    #[cfg(feature = "native-smoke")]
+    let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
+        native_smoke::native_smoke_choose,
+        native_smoke::native_smoke_menu,
+        native_smoke::native_smoke_plan,
+        native_smoke::native_smoke_log,
+        native_smoke::native_smoke_finish,
+    ));
+    builder
         .run(tauri::generate_context!())
         .expect("error while running SWBPIPE");
 }
@@ -5314,7 +5370,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-local", "file.save-local", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
@@ -6851,7 +6907,7 @@ mod tests {
         );
         // The default payload is the bundled demo, which solves.
         assert_bundled_demo_solved(
-            &solve_preview_mechanics(resolve_solve_model_payload(None).expect("bundled demo loads"))
+            &solve_preview_mechanics(load_preview_model().expect("bundled demo loads"))
                 .expect("bundled demo solves"),
         );
 
@@ -6872,8 +6928,12 @@ mod tests {
 
     #[test]
     fn run_preview_mechanics_uses_supplied_model_payload() {
-        // Without a payload the command solves the bundled demo.
-        assert_bundled_demo_solved(&run_preview_mechanics(None).expect("bundled demo solves"));
+        // A solve always carries a model; there is no implicit model.
+        let refused = run_preview_mechanics(None).expect_err("a solve without a model is refused");
+        assert!(refused.starts_with("PREVIEW-SOLVE-MODEL-REQUIRED"), "{refused}");
+        assert_bundled_demo_solved(
+            &run_preview_mechanics(Some(load_preview_model().expect("bundled demo loads"))).expect("bundled demo solves"),
+        );
         let mut model = derived_invented_model();
         model["project"]["id"] = json!("project:edited-solve-command");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
@@ -7027,7 +7087,7 @@ mod tests {
         execute_solve_job(
             &registry.jobs,
             &receipt.job_id,
-            resolve_solve_model_payload(None),
+            load_preview_model(),
             PreviewSolverMode::default(),
         );
 
@@ -7063,7 +7123,7 @@ mod tests {
         publish_solve_outcome(
             &registry.jobs,
             &receipt.job_id,
-            solve_preview_mechanics(resolve_solve_model_payload(None).expect("fixture loads")),
+            solve_preview_mechanics(load_preview_model().expect("bundled demo loads")),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -7166,7 +7226,8 @@ mod tests {
     fn default_session_model_solves_in_both_modes() {
         let model = load_preview_model().expect("default session model loads");
         assert_eq!(model["project"]["id"], json!("project:invented-demo-loop-01"));
-        assert_eq!(resolve_solve_model_payload(None).expect("default payload loads"), model);
+        assert_eq!(resolve_solve_model_payload(Some(model.clone())).expect("supplied payload"), model);
+        assert!(resolve_solve_model_payload(None).is_err(), "no implicit model");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = solve_preview_mechanics_with_mode(model.clone(), mode).expect("default model solves");
             assert_bundled_demo_solved(&solved);
@@ -7175,7 +7236,7 @@ mod tests {
                 json!("openpipestress.result_semantics/0.3.0/preview-physics-1")
             );
         }
-        assert_bundled_demo_solved(&run_preview_mechanics(None).expect("default solve command"));
+        assert_bundled_demo_solved(&run_preview_mechanics(Some(model)).expect("default solve command"));
     }
 
     fn fixture_inspector_intent(before: &str, after: &str) -> Value {

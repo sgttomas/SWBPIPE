@@ -10,6 +10,7 @@ export type MenuId = "file" | "edit" | "view" | "insert" | "analyze";
 export type MenuCommandId =
   | "file.new-local"
   | "file.new-blank"
+  | "file.open-model"
   | "file.open-local"
   | "file.list-local"
   | "file.save-local"
@@ -46,6 +47,7 @@ export type MenuItemSpec =
 const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "file.new-local",
   "file.new-blank",
+  "file.open-model",
   "file.open-local",
   "file.list-local",
   "file.save-local",

@@ -1,6 +1,6 @@
 # Section bases and shear model
 
-The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents. Until v2 retires, `2.0.0/exact_straight_pressure_v2` keeps its current single basis and Euler–Bernoulli model, byte-identical (H-1 and v2 retirement, DEL-04-07 Design). The pressure-free formats keep theirs.
+The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents. `2.0.0/exact_straight_pressure_v2`, until B7b deletes it, and pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design).
 
 ## D-5: section bases (T4-U6)
 

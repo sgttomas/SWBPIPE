@@ -39,12 +39,12 @@ Every persisted project envelope must include:
 - `schema_version`: semantic version for this persistence envelope.
 - `project`: project identity, declared unit-system reference, canonical model payload, rule-pack references when present, provenance manifest when present, and private-data marker.
 - `hash`: canonicalization and checksum metadata for the project payload and hash manifest.
-- `migration`: current, stale, unsupported, migrated, failed, newer-than-supported, or `TBD` migration state.
+- `migration`: the document's version status. The contract (DEL-02-05 CLM-003) has `current`, `unsupported_schema`, `newer_than_supported` and a named re-author refusal for an older version. The schema enum still also lists stale, migrated, failed and `TBD` until B7a removes them (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`).
 
 Optional but expected fields include `document_kind`, `physical_container`, `round_trip_manifest`, and `diagnostics`.
 `validation_profile` records the required validation gates, and
 `service_operations` records the application-service operation contract for
-create/open/save/validate/version-check/migrate behavior.
+create/open/save/validate/version-check behavior; its `migrate` entry remains in the schema until B7a.
 
 ## Deterministic Serialization
 
@@ -84,25 +84,26 @@ classification, and verification metadata. The persistence implementation must
 diagnose missing, moved, stale, private, or hash-mismatched external files
 instead of copying them silently or normalizing away the discrepancy.
 
-## Migration Status
+## Version Status
 
-The persistence envelope records migration state separately from model content:
+The owner decided on 2026-10-10 that each format keeps only its current
+version ("as you recommended, no-compatibility principle carries"). The
+persistence envelope records the model document's version status separately
+from model content (DEL-02-05 CLM-003):
 
-- `current`: source and target schema versions match supported persistence behavior.
-- `migration_needed`: the project is stale and requires migration before being treated as current.
-- `migrated`: a migration has produced the target schema version.
-- `unsupported_schema`: the project cannot be opened without a future migration path.
-- `failed`: migration was attempted and failed with diagnostics.
-- `newer_than_supported`: the project was created by a newer schema than this implementation supports.
-- `TBD`: the exact migration state cannot yet be classified.
+- `current`: the document is the one current model-document version.
+- `unsupported_schema`: the version is missing or not semver.
+- `newer_than_supported`: the document was created by a newer schema than this implementation supports.
+- an older version is refused by name with a diagnostic that says to re-author it.
 
-DB migrations and product schema migrations are separate concerns. A SQLite
-store migration may change local tables, indexes, projections, or sidecar
-metadata without changing the schema-governed canonical project payload. A
-product schema migration changes the canonical envelope/model payload contract
-and must preserve hash evidence and diagnostics. Unsupported, stale, failed, or
-newer-than-supported cases must produce structured diagnostics rather than
-silent coercion.
+There is no product-schema migration. Until B7 removes it, the code still
+classifies 0.1.0 as stale and migrates it in memory to 0.2.0, with `migrated`
+and `failed` states (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`).
+
+DB migrations of the local SQLite store are a separate concern: they may
+change local tables, indexes, projections, or sidecar metadata without
+changing the schema-governed canonical project payload. Every refusal must
+produce structured diagnostics rather than silent coercion.
 
 ## Private Data Handling
 
@@ -117,11 +118,11 @@ If protected or proprietary content is suspected, persistence validation must em
 Persistence operations are application-service boundaries:
 
 - Create project: accepts project identity, unit-system reference, storage/private-data policy, and optional template reference; returns a versioned envelope or diagnostics and may initialize a local SQLite project store.
-- Open project: accepts a project artifact reference; returns parsed canonical payload, schema/version result, DB migration status, product schema migration status, validation diagnostics, and hash evidence where available.
+- Open project: accepts a project artifact reference; returns parsed canonical payload, schema/version result, DB migration status, product schema version status, validation diagnostics, and hash evidence where available.
 - Save project: accepts a validated envelope and target artifact reference; writes canonical JSON/JCS-compatible payload bytes into the local SQLite store and returns hash/manifest evidence plus diagnostics.
 - Validate project: checks schema shape, model schema delegation, unit metadata, provenance, rule-pack references, private-data markers, protected-content boundary, and professional-boundary language.
-- Version check: classifies current, stale, unsupported, failed, newer-than-supported, or `TBD` migration state.
-- Migrate project: returns a migrated envelope/store state or structured failure diagnostics, with DB migration and product schema migration results recorded separately.
+- Version check: classifies `current`, `unsupported_schema`, `newer_than_supported`, or the named re-author refusal.
+- There is no product-schema migrate operation (the code keeps one until B7a); SQLite store migrations stay internal to open and are reported as DB migration status.
 
 Adapters and plugins may translate import/export formats, but they must not
 open the SQLite store directly, receive raw SQLite handles, issue SQL, depend
@@ -167,6 +168,6 @@ store.
 
 ## Remaining TBDs
 
-- Migration rollback semantics and user-facing recovery wording.
+- SQLite store-migration rollback semantics and user-facing recovery wording.
 - Dependency/library choices for canonical JSON/JCS serialization.
-- Final diagnostic code namespace and user-facing migration wording.
+- Final diagnostic code namespace and user-facing version-refusal wording.

@@ -36,13 +36,13 @@ function model040(): PreviewModel {
 const loadStateKeys = (model: PreviewModel) => text({ references: model.reference_configurations, laws: model.materials?.map(m => m.expansion_laws), states: model.load_cases.map(c => c.analysis_state) });
 
 describe("0.4.0 documents in the browser persistence mirror", () => {
-  it("mirrors native: 0.4.0 is current and retained as authored; 0.4.1 and 0.3.0 keep their prior refusals", () => {
+  it("mirrors native: 0.4.0 is current and retained as authored; 0.4.1 is refused and 0.3.0 is the explicit pressure namespace", () => {
     const status = evaluateModelDocumentLocal(model040());
     expect(status).toMatchObject({ status: "current", source_schema_version: "0.4.0", target_schema_version: LOAD_REFERENCE_MODEL_SCHEMA_VERSION, product_schema_migration_status: "current", persistence_state: "stored_document_current", applied_migration_ids: [] });
     expect(status.detail).toBe("Explicit model 0.4.0 is retained without migration or upgrade; load/reference-state records, pressure-profile inputs and solve eligibility are validated separately.");
     expect(modelDocumentVersionCheckStatus(model040())).toBe("current");
     expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.4.1" }).status).toBe("newer_than_supported");
-    expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.3.0" }).status).toBe("newer_than_supported");
+    expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.3.0" })).toMatchObject({ status: "current", target_schema_version: "0.3.0" });
   });
 
   it("round-trips the model, the raw result and its AnalysisRun byte-exactly through create, save and open", async () => {

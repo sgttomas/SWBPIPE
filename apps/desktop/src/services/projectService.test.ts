@@ -7,6 +7,8 @@ import {
   buildBlankLocalModelDocument,
   createLocalProject,
   evaluateModelDocumentLocal,
+  EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION,
+  LOAD_REFERENCE_MODEL_SCHEMA_VERSION,
   modelDocumentVersionCheckDiagnostic,
   modelDocumentVersionCheckStatus,
   openLocalProject,
@@ -72,8 +74,48 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(opened?.model_document_migration?.status).toBe("migrated");
   });
 
+  // Each version the native evaluation handles (model_document_migration.rs
+  // `evaluate_model_document` with the published chain), with its native outcome.
+  it.each([
+    ["0.1.0", "migrated", SUPPORTED_MODEL_SCHEMA_VERSION, "in_memory_only_not_yet_saved", ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"]],
+    ["0.2.0", "current", SUPPORTED_MODEL_SCHEMA_VERSION, "stored_document_current", []],
+    ["0.3.0", "current", EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION, "stored_document_current", []],
+    ["0.4.0", "current", LOAD_REFERENCE_MODEL_SCHEMA_VERSION, "stored_document_current", []]
+  ])("mirrors native for %s: %s, target %s", (version, status, target, persistence, applied) => {
+    const model = sampleModel(version);
+    const before = JSON.stringify(model);
+    const evaluated = evaluateModelDocumentLocal(model);
+    expect(evaluated).toMatchObject({
+      status,
+      product_schema_migration_status: status,
+      source_schema_version: version,
+      target_schema_version: target,
+      persistence_state: persistence,
+      applied_migration_ids: applied
+    });
+    expect(modelDocumentVersionCheckStatus(model)).toBe(status === "current" ? "current" : "stale");
+    expect(JSON.stringify(model)).toBe(before);
+  });
+
+  it("mirrors native: the explicit 0.3.0 profile opens and saves in the browser as authored", async () => {
+    const model = sampleModel(EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION);
+    const status = evaluateModelDocumentLocal(model);
+    expect(status.detail).toBe("Explicit model 0.3.0 is retained without migration; pressure-profile inputs and solve eligibility are validated separately.");
+    const created = await createLocalProject(model);
+    expect(created.model_document_migration?.status).toBe("current");
+    expect(created.model.schema_version).toBe("0.3.0");
+    await saveLocalProject(model);
+    expect((await openLocalProject(model.project.id))?.model.schema_version).toBe("0.3.0");
+  });
+
+  it.each(["0.2.1", "0.3.1", "0.4.1", "0.5.0", "1.0.0"])("mirrors native: %s is newer than supported", (version) => {
+    const evaluated = evaluateModelDocumentLocal(sampleModel(version));
+    expect(evaluated.status).toBe("newer_than_supported");
+    expect(evaluated.detail).toBe(`Model document schema_version ${version} is newer than the legacy migration target 0.2.0 and does not match the separately supported explicit 0.3.0 or 0.4.0; refusing to open for editing (no down-migration).`);
+  });
+
   it("refuses newer-than-supported and invalid versions without coercion", () => {
-    const newer = evaluateModelDocumentLocal(sampleModel("0.3.0"));
+    const newer = evaluateModelDocumentLocal(sampleModel("0.3.1"));
     expect(newer.status).toBe("newer_than_supported");
     expect(newer.detail).toContain("no down-migration");
 
@@ -91,7 +133,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "stale")).toBe("stale");
     expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "migration_needed")).toBe("stale");
     expect(modelDocumentVersionCheckStatus(sampleModel("0.0.1"))).toBe("unsupported_schema");
-    expect(modelDocumentVersionCheckStatus(sampleModel("0.3.0"))).toBe("newer_than_supported");
+    expect(modelDocumentVersionCheckStatus(sampleModel("0.3.1"))).toBe("newer_than_supported");
     expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "failed")).toBe("failed");
 
     expect(modelDocumentVersionCheckDiagnostic("current")).toBeNull();
