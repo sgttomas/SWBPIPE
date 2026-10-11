@@ -37,7 +37,7 @@ atoms = {
     "Text(err)": 2 * ERR,
     "Text(sym)": 2 * ct["report_literal_max_bytes"],
     "Text(audit_error)": 2 * ERR,
-    "Text(formation_detail)": 2 * (ERR + 21),
+    "Text(formation_detail)": 2 * ct["parts"].get("formation_detail_content", ERR + 21),
     "Text(recovery_finding)": 1022 + 2 * (16 * F_len + 2 * msg_int) + 8 * 24,
     "D": tb["D_diagnostics"],
     "D_env": tbe["D_diagnostics"],

@@ -255,7 +255,8 @@ _CP = PP_ + "certified_publication.rs"
 if fnkey("member", _CP):
     O10_ID_AUDIT += [(site("member", _CP, 'let prefix = format!("member:', full=True), {"pipe.element_id.len()": NUM_, "pipe.element_id": IN})]
     for _fn, _text, _values in [
-        ("group", "location: location.into()", {"location": ST, "kind": ST}),
+        ("group", "location: location.into()", {"location": ST}),
+        ("group", "kind: kind.into()", {"kind": ST}),
         ("member_record", "member: member.into()", {"member": IN}),
         ("support_record", "member: support.into()", {"support": IN}),
         ("unavailable_record", "member: entity.into()", {"entity": IN}),
@@ -263,3 +264,140 @@ if fnkey("member", _CP):
     ]:
         if fnkey(_fn, _CP):
             O10_ID_AUDIT += [(site(_fn, _CP, _text, full=True), _values)]
+
+
+# KD5C1: the public condition-estimator wrapper retains its trait-method
+# edge. Move the basis rule by source name instead of pruning the renamed
+# still-live method (estimate_rcond -> estimate_condition).
+def _fn_n(name, f, ordinal, count):
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().splitlines()
+    hits = [i + 1 for i, line in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", line)]
+    if len(hits) != count:
+        raise SystemExit(f"KD5C1: {f} fn {name}: expected {count} definitions, found {len(hits)}")
+    return Resolved(f"{f}:{hits[ordinal - 1]}:{name}")
+_ST = FK_ + "structural.rs"
+if fnkey("estimate_condition", _ST):
+    _caller, _target, _name = _fn_n("estimate_rcond", _ST, 1, 1), _fn_n("estimate_condition", _ST, 1, 1), "estimate_condition"
+else:
+    _caller, _target, _name = _fn_n("estimate_rcond", _ST, 1, 2), _fn_n("estimate_rcond", _ST, 2, 2), "estimate_rcond"
+CG_RULES = list(globals().get("CG_RULES", [])) + [{"caller": _caller, "name": _name, "targets": [_target],
+    "added": "KD5C1", "evidence": "the public estimate_rcond delegates to ConditionMatrix's method; exact named definitions, no call bound removed"}]
+
+# KD5C2: four source-changed audit keys move out of the basis line table.
+# Re-add the original site/argument class on historical code and the actual
+# replacement site on unified code. The retired record copy is superseded
+# by certified_publication's record constructors (KD5A1).
+_FG = PP_ + "formation_guard.rs"
+if fnkey("member_group_fires", _FG):
+    for _text in ['"{}.{}.{}: q={:e}', '"{}.{}.{}: the member bound is unavailable']:
+        O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"record.member": IN, "group.location": ST, "group.kind": ST})]
+else:
+    for _text in ['"{}.{end}: q={q:e}', '"{}.{end}: the formation bound is unavailable']:
+        O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"record.member": IN})]
+if not fnkey("member_record", _CP):
+    O10_ID_AUDIT += [(site("solve_load_case_observed", PP_ + "lib.rs", "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
+O10_ID_AUDIT += [(site("check", FK_ + "structural/formation_check.rs", "family.clone()", full=True), {"family": ST})]
+
+
+if fnkey("member_group_fires", _FG):
+    O10_LOOPS_LAST += [
+        ("for p in &source.loads", "0", O10 + "KD5L3: D1/W1 excludes load-state; source_factor returns None unless is_load_state; nodal uses push input and no load primitive", ["structural/formation_check.rs:load_closure"]),
+        ("for (i, (term, record)) in terms.iter().zip(records).enumerate()", "l", O10 + "KD5L4: exactly one trusted closure record per nodal ledger term, <= l", ["structural/formation_check.rs:load_closure"]),
+        ("for (j, expected) in manifest.iter().enumerate()", "0", O10 + "KD5L5: every D1 nodal record is input (formed=false); no manifest is installed; loop only after formed guard", ["structural/formation_check.rs:load_closure"]),
+        ('for (location, rows) in locations.into_iter().chain( [" ", " ", " ", " ", " "] .iter() .zip(effective.sections.iter()) .map(|(l, r)| (*l, r.as_slice())), )', "7", O10 + "KD5L6: two end rows plus five fixed CertifiedMemberRecovery sections", ["certified_publication.rs:member_record"]),
+        ("iter:station_resultants.iter().enumerate().map", "3", O10 + "KD5L7: quarter_1, midspan and quarter_3 station rows, exactly three", ["lib.rs:solve_load_case_observed"]),
+        ("iter:diagnostics.iter().position", "D", O10 + "KD5L8: one scan bounded by the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:solve_load_case_observed"]),
+        ("for rows in &member.sections", "5", O10 + "KD5L9: CertifiedMemberRecovery sections is [..;5]", ["lib.rs:solve_load_case_observed"]),
+        ("iter:exact.closure_sources[group_index].iter().enumerate().map", "0", O10 + "KD5L10: D1.5 requires absent/empty pressure regions, so no assembled pressure group or closure_source summand", ["lib.rs:push_exact_pressure_operands"]),
+        ("for (i, term) in ledger.terms().iter().enumerate()", "l", O10 + "KD5L11: one input term per admitted nodal primitive, <= l", ["structural/formation_check.rs:evaluate"]),
+        ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", O10 + "KD5L12: supplied load primitive list is empty by KD5L3", ["structural/formation_check.rs:evaluate"]),
+    ]
+    O10_ARGS_FIRST += [{"re": r"^route$", "max": 128, "why": O10 + "KD5A3: unavailable-route sentence selects 'on this route' or 'on the nonlinear-support route', static <=128"}]
+    for _text in ['format!("diagnostic:stress-free-within-numerical-precision:', 'format!("Load case {case_id}: every member', 'vec![case_id.to_string()]']:
+        O10_ID_AUDIT += [(site("stress_free_notice", _FG, _text, full=True), {"case_id": IN})]
+    _CL = PP_ + "certified_loads.rs"
+    O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
+        (site("summand", _CL, "source: source.into()", full=True), {"source": CP}),
+        (site("solve_load_case_observed", PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
+        (site("finish_source_groups", PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+    ]
+    _LL = FK_ + "load_ledger.rs"
+    CG_RULES += [{"caller": Resolved(_LL + ":" + fnkey("force_scaled", _LL).split(":",1)[1]), "name": "force_scaled",
+        "targets": [Resolved(FK_ + "structural/formation_check.rs:" + fnkey("force_scaled", FK_ + "structural/formation_check.rs").split(":",1)[1])],
+        "added": "KD5C3", "evidence": "AssembledForce::force_scaled maps its Vec<LoadPrimitive> with p.force_scaled; this is LoadPrimitive's method, never recursive AssembledForce::force_scaled"}]
+else:
+    for _text, _values in [("map.insert(pipe.element_id.clone()", {"pipe.element_id": IN}), ("map.insert(node.id.clone()", {"node.id": IN}), ("map.insert(support.id.clone()", {"support.id": IN})]:
+        O10_ID_AUDIT += [(site("formation_entity_bodies", PP_ + "lib.rs", _text, full=True), _values)]
+
+if fnkey("member_group_fires", _FG):
+    for _text in ['format!("{}: absent manifest", term.source)', '"{}: missing summands"', '"{}: missing, duplicate or extra summand"']:
+        O10_ID_AUDIT += [(site("load_closure", FK_ + "structural/formation_check.rs", _text, full=True, row="format!("), {"term.source": IN})]
+
+if fnkey("member_group_fires", _FG):
+    O10_LOOPS_LAST += [("iter:group.terms.iter().map", "0", O10 + "KD5L13: finish_source_groups receives pressure factor groups from region traversal; D1.5 has no pressure region, hence no group term", ["pressure_runtime.rs:finish_source_groups"])]
+
+
+# KD5T2: actual exhaustive fixed-label/text bounds, source-pinned inventory.
+if fnkey("member_group_fires", _FG):
+    import runpy as _pricing_runpy
+    _labels_model = _pricing_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "kd5_text_model.py"))
+    _fixed = _labels_model["inspect"](_SNAP)
+    _label = {"bytes": _fixed["label_bytes"], "source": "KD5T2: exhaustive source-pinned constructor label inventory"}
+    O10_ID_AUDIT += [(site("group", _CP, "location: location.into()", full=True), {"location": _label}),
+        (site("group", _CP, "kind: kind.into()", full=True), {"kind": _label})]
+    for _text in ['"{}.{}.{}: q={:e}', '"{}.{}.{}: the member bound is unavailable']:
+        O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"group.location": _label, "group.kind": _label})]
+    O10_ARGS_FIRST = [{"re": r"^route$", "max": _fixed["route_bytes"], "why": "KD5T2: exhaustive source-pinned static route strings"}] + O10_ARGS_FIRST
+
+
+# KD5A5: these `s` bindings are text, not the inherited f64_display s.
+if fnkey("member_group_fires", _FG):
+    _FC = FK_ + "structural/formation_check.rs"
+    for _text, _bytes, _why in [
+        ('Self::Shape(s) => format!("formation source: {s}")', 128, "private Failure::Shape holds a fixed source/shape literal <=128 B"),
+        ('Self::Closure(s) => format!("load closure: {s}")', 8352, "max(D1 load id128+ordinary suffix40,load id128+reformation prefix14+error Debug8192) <=8352"),
+        ('Self::Second(s) => format!("second solve: {s}")', 8213, "inner subtract/correction failure detail <= existing error8192 +longest inner prefix21; no nested Second from those helpers"),
+    ]:
+        O10_ID_AUDIT += [(site("detail", _FC, _text, full=True), {"s": {"bytes": _bytes, "source": "KD5A5: " + _why}})]
+
+# KD5A6: Failure::Unavailable's &str converts into an owned String.
+if fnkey("member_group_fires", _FG):
+    O10_ID_AUDIT += [(site("detail", FK_ + "structural/formation_check.rs", "Self::Unavailable(s) => (*s).into()", full=True),
+                     {"(*s)": {"bytes": 128, "source": "KD5A6: private Failure::Unavailable uses contraction/Neumann/non-finite Lambda sigma literals, all <=128 B; pinned evaluate body"}})]
+
+# KD5M1/M2: positive per-invocation caps. Each alternative is still charged.
+if fnkey("member_group_fires", _FG):
+    import hashlib as _pricing_hashlib
+    _FC = FK_ + "structural/formation_check.rs"
+    _invocation_pins = {
+        "detail": "ae006b02fed244b2e77686378bdb17b87c442a1d4873add6f4b2129d3be1bc0f",
+        "check": "d957e111325987e36b41a68b522de7b2dd1cd671493b2709f1e7ee3a4b1acd4d",
+        "evaluate": "4233fd8c95e578130216b2125cb2aa1d506fac5e114d556ec6c3a1ca01b141d4",
+        "load_closure": "57481954c41488f9490f91070b4094e33fee8e12dad1acf61a05e686b9eb7275",
+    }
+    _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
+    _invocation_bodies = {}
+    for _name, _digest in _invocation_pins.items():
+        _start = int(fnkey(_name, _FC).split(":")[1]) - 1
+        _indent = len(_fc_lines[_start]) - len(_fc_lines[_start].lstrip())
+        _end = next(i for i in range(_start + 1, len(_fc_lines)) if _fc_lines[i].rstrip() == " " * _indent + "}")
+        _body = "".join(_fc_lines[_start:_end + 1]).rstrip("\n")
+        if _pricing_hashlib.sha256(_body.encode()).hexdigest() != _digest:
+            raise SystemExit(f"KD5M1/M2: source pin changed: {_FC}:{_name}; re-review per-invocation control flow")
+        _invocation_bodies[_name] = (_start, _end)
+    for _name, _from, _per, _expected, _why in [
+        ("detail", "check", "2", 7, "KD5M1: at most one inner Second detail and one outer detail per check/evaluate invocation; first-error returns prevent another inner detail; charge each exclusive allocation alternative separately"),
+        ("load_closure", "load_closure", "1", 15, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately"),
+    ]:
+        _start, _end = _invocation_bodies[_name]
+        _sites = [Resolved(_FC.split("/src/")[-1] + f":{i + 1}") for i in range(_start, _end + 1)
+                  if "format!(" in _fc_lines[i] or ".into()" in _fc_lines[i]]
+        if len(_sites) != _expected:
+            raise SystemExit(f"KD5M1/M2: {_name} allocation inventory changed: {_sites}")
+        O10_SITE_FROM += [(_site, {"from": [fnkey(_from, _FC)], "per": _per, "why": O10 + _why + "; preserves the full reached ordinary/W2/case/replay source-function multiplier"}) for _site in _sites]
+
+# KD5T3: positive cap only at the closed private StressFinding subject copy.
+if fnkey("member_group_fires", _FG):
+    _stress_subject = _labels_model["inspect_stress_subjects"](_SNAP)
+    LEX_SITE_SIZE += [(Resolved("stress_recovery/src/lib.rs:" + str(_stress_subject["line"])),
+        {"class": 128, "why": "KD5T3: production source-pinned private StressFinding::new/helper call tree has17 fixed ASCII subjects, max22UTF8 B; retain existing audit128 and full multiplicity; no type-wide subject or message narrowing"})]

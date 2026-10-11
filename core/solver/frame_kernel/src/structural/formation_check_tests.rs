@@ -1677,12 +1677,6 @@ fn kd5_full_attempt_bound_keeps_w2_physical_remainder_invariant() {
                     "b={exponent}: R={physical_remainder}, base={base}"
                 );
             }
-            if exponent == 6 {
-                assert!(
-                    physical_remainder * 2.0f64.powi(-exponent) < base / 2.0,
-                    "standalone LambdaSigma unscale mutant must underbound"
-                );
-            }
         } else {
             baseline = Some(physical_remainder);
         }
@@ -2280,4 +2274,89 @@ fn kd5_nodal_source_factor_reforms_exact_product_and_binds_its_source_and_dof() 
             );
         }
     }
+}
+
+#[test]
+fn kd5_positive_w2_lambda_sigma_unscale_mutant_underbounds_actual_reference_error() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    // The public even-b admission and actual prepared Cholesky/gate algorithm
+    // are used. K_int=3, f_int=1 have independent truth u*=1/3. The affine
+    // force row A*u-f with physical A=3 has intended truth exactly zero.
+    // There are no load enclosure radii; the third residual is nonzero.
+    let exponent = 14;
+    let scale = crate::ForceScale::new(exponent).unwrap();
+    let original = input_ledger(&[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+    let force = original.force_scaled(scale).unwrap();
+    let stiffness = 3.0 * 2.0f64.powi(exponent);
+    let mut k = vec![vec![0.0; 6]; 6];
+    k[0][0] = stiffness;
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: stiffness,
+    }];
+    let prescribed: Vec<_> = (1..6).map(|i| (i, 0.0)).collect();
+    let source = FormationSource {
+        node_count: 1,
+        springs: vec![(0, stiffness)],
+        ..FormationSource::default()
+    };
+    let checked =
+        StructuralSystem::assembled(&k, &force, &[0], &prescribed, Some(&contributions), None)
+            .with_formation_source(&source);
+    let scaled_solution = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+    // Exercise the actual force-unscale entry too: a production mutant that
+    // scales LambdaSigma alone here must fail the independent error comparison.
+    let solution =
+        super::super::unscale_structural_solution(scaled_solution, scale, &original).solution;
+    assert_eq!(solution.report.quality, SolveQuality::Passed);
+    let bound = solution.member_bound.as_ref().unwrap();
+    // Independent exact accumulator evaluation of the intended row. In
+    // particular this must not become zero by rounding corrected u first.
+    let mut reference_error = ExactAccumulator::new();
+    reference_error.add(-1.0).unwrap();
+    for value in [solution.displacements[0], bound.w[0], bound.w2[0]] {
+        reference_error.add_product(3.0, value).unwrap();
+    }
+    assert!(!reference_error.is_zero());
+    let actual = reference_error.round().unwrap().abs();
+    assert!(actual > 0.0);
+    // Independent p256 solve and corrected-row evaluation agree with the exact
+    // dyadic residual, well beyond the precision of the tested f64 bounds.
+    let mut arithmetic = WideContext::<4>::new(256).unwrap();
+    let one = Wide::<4>::from_f64(1.0).unwrap();
+    let three = Wide::<4>::from_f64(3.0).unwrap();
+    let truth = arithmetic.div(&one, &three).unwrap();
+    let mut corrected = Wide::<4>::from_f64(solution.displacements[0]).unwrap();
+    for value in [bound.w[0], bound.w2[0]] {
+        corrected = arithmetic
+            .add(&corrected, &Wide::<4>::from_f64(value).unwrap())
+            .unwrap();
+    }
+    let displacement_error = arithmetic.sub(&corrected, &truth).unwrap();
+    let error = arithmetic.mul(&three, &displacement_error).unwrap().abs();
+    let measured = Wide::<4>::from_f64(actual).unwrap();
+    let reference_difference = arithmetic.sub(&error, &measured).unwrap().abs();
+    assert!(reference_difference
+        .cmp_value(&measured.mul_pow2(-80).unwrap())
+        .is_lt());
+    let operator_norm = scale_up(3.0, bound.exponents[0]);
+    let correct = mul_up(operator_norm, bound.lambda_sigma);
+    let mutant = mul_up(operator_norm, scale_up(bound.lambda_sigma, -exponent));
+    assert!(
+        Wide::<4>::from_f64(correct)
+            .unwrap()
+            .cmp_value(&error)
+            .is_ge(),
+        "the actual member remainder must enclose the intended row error"
+    );
+    assert!(
+        Wide::<4>::from_f64(mutant)
+            .unwrap()
+            .cmp_value(&error)
+            .is_lt(),
+        "standalone LambdaSigma unscaling underbounds the actual nonzero intended error"
+    );
+    eprintln!("positive W2 b={exponent}: actual={actual:e}, R={correct:e}, mutant={mutant:e}, R/actual={}, mutant/actual={}",correct/actual,mutant/actual);
 }

@@ -109,7 +109,10 @@ _fg = open(os.path.join(proot, "core/product_physics/src/formation_guard.rs"), e
 if "fn member_group_fires(" in _fg:
     # KD5T1: member id, owned location and owned kind, plus the literal
     # unavailable wrapper and the existing error-display class.
-    F_len = max(3 * ident + 64 + 3 * F64D, 3 * ident + 64 + ERR)
+    from kd5_text_model import inspect as _kd5_text_inventory
+    _kd5 = _kd5_text_inventory(proot)
+    F_len = max(ident + 2 * _kd5["label_bytes"] + _kd5["item_numeric_literal"] + 2 * F64D,
+                ident + 2 * _kd5["label_bytes"] + _kd5["item_unavailable_literal"] + ERR)
 
 J_len = 6 * F_len + 2 * 5
 C_len = 11 + 20
@@ -118,7 +121,7 @@ S_len = 221 + ident + 20 + J_len + C_len                 # guard sentence (I54 R
 # O-13 adds at most three findings. Each has six named fired items and
 # <=600 literal bytes, an identifier and an item count; two join spaces.
 if "fn member_group_fires(" in _fg:
-    S_len = 600 + ident + U + J_len + C_len
+    S_len = _kd5["sentence_literal"] + ident + U + J_len + C_len
 elif "fn arc_recovery_finding(" in _fg:
     S_len = 3 * (600 + ident + U + J_len + C_len) + 2
 
@@ -146,6 +149,7 @@ out = {
     },
     "parts": {"pivot": pivot, "residual_row": resid, "contribution_rounding_fixed": cr_fixed,
               "contribution_rounding_total": cr_total, "formation_check_line": formation_check_line,
-              "range_line": range_line, "F_len": F_len, "S_len": S_len, "joined": joined},
+              "range_line": range_line, "F_len": F_len, "S_len": S_len, "joined": joined,
+              "formation_detail_content": 8366 if "fn member_group_fires(" in _fg else ERR + 21},
 }
 print(json.dumps(out, indent=1))

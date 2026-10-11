@@ -399,3 +399,503 @@ fn final_scaled_sum_publishes_without_an_overflowing_intermediate() {
     reference.add_product(value, 1e-6).unwrap();
     assert_eq!(summary.published, reference.round().unwrap());
 }
+
+#[test]
+fn published_magnitude_has_a_separate_error_against_independent_sqrt2() {
+    use super::super::retained::wide::multi::WideContext;
+    let one = CertifiedRow::finish(Ball::exact(Wide2::ONE), 0.0, 1.0).unwrap();
+    let rows = [one, one, CertifiedRow::ZERO];
+    let vector = certified_group(&rows).unwrap();
+    assert_eq!(vector.bound, 0.0);
+    let magnitude = certified_magnitude(&rows).unwrap();
+    let scalar = CertifiedGroup::magnitude(&rows).unwrap();
+    let mut reference = WideContext::<8>::new(512).unwrap();
+    let exact_root = reference
+        .sqrt(&super::super::retained::wide::Wide::<8>::from_f64(2.0).unwrap())
+        .unwrap();
+    let published = Wide2::from_f64(magnitude.published).unwrap().widen::<8>();
+    let difference = reference.sub(&published, &exact_root).unwrap();
+    let error = difference.to_binary64().value().unwrap().abs();
+    assert!(error > vector.bound);
+    assert!(scalar.bound >= error.next_up());
+    assert_eq!(scalar.q, magnitude.published);
+    assert!(scalar.comparison_available());
+}
+#[test]
+fn finite_components_with_out_of_range_group_norm_are_unavailable_statistics() {
+    let row = |fraction| {
+        CertifiedRow::finish(
+            Ball::exact(Wide2::from_f64(fraction * f64::MAX).unwrap()),
+            0.0,
+            1.0,
+        )
+        .unwrap()
+    };
+    let inside = [row(0.7), row(0.7)];
+    let group = certified_group(&inside).unwrap();
+    assert!(group.comparison_available());
+    let outside = [row(0.8), row(0.8)];
+    let group = certified_group(&outside).unwrap();
+    assert!(outside.iter().all(|row| row.published.is_finite()));
+    assert!(!group.comparison_available());
+    assert!(group.q.is_infinite() && group.q_hat.is_infinite());
+    assert_eq!(group.bound, 0.0); // The unavailable norm is independent of row error.
+}
+
+mod independent_loaded_arc {
+    use super::super::super::retained::wide::{multi::WideContext, Wide};
+    use super::super::super::retained::wide_sum::ExactWideSum;
+    use super::*;
+    type Ref = Wide<8>;
+    fn lift(x: f64) -> Ref {
+        Ref::from_f64(x).unwrap()
+    }
+    fn dot(c: &mut WideContext<8>, x: &[Ref; 3], y: &[Ref; 3]) -> Ref {
+        let mut s = ExactWideSum::new();
+        for k in 0..3 {
+            let p = c.mul(&x[k], &y[k]).unwrap();
+            s.add_wide(&p, false).unwrap();
+        }
+        s.round(c).unwrap()
+    }
+    fn cross(c: &mut WideContext<8>, x: &[Ref; 3], y: &[Ref; 3]) -> [Ref; 3] {
+        std::array::from_fn(|k| {
+            let i = (k + 1) % 3;
+            let j = (k + 2) % 3;
+            let a = c.mul(&x[i], &y[j]).unwrap();
+            let b = c.mul(&x[j], &y[i]).unwrap();
+            c.sub(&a, &b).unwrap()
+        })
+    }
+    fn normalized(c: &mut WideContext<8>, v: [Ref; 3]) -> [Ref; 3] {
+        let sq = dot(c, &v, &v);
+        let n = c.sqrt(&sq).unwrap();
+        v.map(|x| c.div(&x, &n).unwrap())
+    }
+    // Independent 512-bit Taylor references. Four half-angle reductions put
+    // atan's argument below 1/16; 160 terms leave truncation below 2^-1280.
+    fn atan(c: &mut WideContext<8>, mut x: Ref) -> Ref {
+        for _ in 0..4 {
+            let xx = c.mul(&x, &x).unwrap();
+            let one = c.add(&Ref::ONE, &xx).unwrap();
+            let r = c.sqrt(&one).unwrap();
+            let d = c.add(&Ref::ONE, &r).unwrap();
+            x = c.div(&x, &d).unwrap();
+        }
+        let xx = c.mul(&x, &x).unwrap().neg();
+        let mut term = x;
+        let mut sum = ExactWideSum::new();
+        sum.add_wide(&term, false).unwrap();
+        for n in 1..160 {
+            term = c.mul(&term, &xx).unwrap();
+            let divisor = lift((2 * n + 1) as f64);
+            let t = c.div(&term, &divisor).unwrap();
+            sum.add_wide(&t, false).unwrap();
+        }
+        let value = sum.round(c).unwrap();
+        value.mul_pow2(4).unwrap()
+    }
+    fn trig(c: &mut WideContext<8>, x: Ref) -> (Ref, Ref) {
+        let xx = c.mul(&x, &x).unwrap().neg();
+        let mut s = x;
+        let mut co = Ref::ONE;
+        let mut st = x;
+        let mut ct = Ref::ONE;
+        for n in 1..160 {
+            let v = c.mul(&st, &xx).unwrap();
+            st = c.div(&v, &lift((2 * n * (2 * n + 1)) as f64)).unwrap();
+            s = c.add(&s, &st).unwrap();
+            let v = c.mul(&ct, &xx).unwrap();
+            ct = c.div(&v, &lift(((2 * n - 1) * 2 * n) as f64)).unwrap();
+            co = c.add(&co, &ct).unwrap();
+        }
+        (s, co)
+    }
+    fn error_up(c: &mut WideContext<8>, published: f64, reference: Ref) -> f64 {
+        let d = c.sub(&lift(published), &reference).unwrap();
+        let e = d.to_binary64().value().unwrap().abs();
+        if e == 0.0 {
+            0.0
+        } else {
+            e.next_up()
+        }
+    }
+    #[test]
+    fn loaded_arc_ends_and_all_stations_enclose_independent_reference() {
+        const TEXT: &str =
+            include_str!("../../../../../validation/references/t4_i9/arc_load_references.txt");
+        let lines: Vec<_> = TEXT.lines().collect();
+        let at = lines
+            .iter()
+            .position(|l| *l == "case angle 60 deg")
+            .unwrap();
+        let hex = |t: &str| f64::from_bits(u64::from_str_radix(t, 16).unwrap());
+        let args: Vec<f64> = lines[at + 2]
+            .strip_prefix("args ")
+            .unwrap()
+            .split_whitespace()
+            .map(hex)
+            .collect();
+        let arc = CurvedFormation {
+            node_i: 0,
+            node_j: 1,
+            coordinates_i: [args[0], args[1], args[2]],
+            coordinates_j: [args[3], args[4], args[5]],
+            radius: args[6],
+            y_reference: [args[7], args[8], args[9]],
+            elastic_modulus: args[10],
+            shear_modulus: args[11],
+            area: args[12],
+            second_moment: args[13],
+            torsion_constant: args[14],
+            in_plane_flexibility_factor: args[15],
+            out_of_plane_flexibility_factor: args[16],
+        };
+        let intensity = [args[17], args[18], args[19]];
+        let span = FrameElement::new(
+            FrameNode::new(0, arc.coordinates_i).unwrap(),
+            FrameNode::new(1, arc.coordinates_j).unwrap(),
+            FrameSection::new(
+                arc.elastic_modulus,
+                arc.shear_modulus,
+                arc.area,
+                arc.second_moment,
+                arc.second_moment,
+                arc.torsion_constant,
+            )
+            .unwrap(),
+            arc.y_reference,
+        )
+        .unwrap();
+        let primitives: Vec<_> = (0..12)
+            .map(|row| LoadPrimitive {
+                term_index: row,
+                identity: LoadSummandIdentity {
+                    family: "uniform_curved".into(),
+                    source: "independent-loaded-arc".into(),
+                    ordinal: row,
+                },
+                local_row: row,
+                formula: LoadFormula::UniformCurved {
+                    arc,
+                    intensity: IntensityPrimitive::Authored(intensity),
+                },
+                force_scale_exponent: 0,
+            })
+            .collect();
+        let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+        let mut u = [0.0; 12];
+        u[6] = 2.0_f64.powi(-12);
+        u[8] = 2.0_f64.powi(-15);
+        u[10] = -2.0_f64.powi(-17);
+        let mut bound = bound(12);
+        bound.w[8] = 2.0_f64.powi(-37);
+        bound.w2[8] = 2.0_f64.powi(-62);
+        let result = certify_arc_recovery(&arc, &span, &loads, &u, &bound).unwrap();
+        let mut wide = WideArith::new(128).unwrap();
+        let matrix = curved_matrix(&mut wide, &arc).unwrap();
+        let (axes, _) = chord_axes(
+            &mut wide,
+            arc.coordinates_i,
+            arc.coordinates_j,
+            arc.y_reference,
+        )
+        .unwrap();
+        let mut c = WideContext::<8>::new(512).unwrap();
+        let mut global = [Ref::ZERO; 12];
+        let mut reference_error = 0.0_f64;
+        for r in 0..12 {
+            let mut sum = ExactWideSum::new();
+            for k in 0..12 {
+                for value in [u[k], bound.w[k], bound.w2[k]] {
+                    let p = c.mul(&matrix[r][k].widen::<8>(), &lift(value)).unwrap();
+                    sum.add_wide(&p, false).unwrap();
+                }
+            }
+            let fields: Vec<_> = lines[at + 3 + r].split_whitespace().collect();
+            for word in &fields[2..6] {
+                sum.add_binary64(hex(word), true).unwrap();
+            }
+            reference_error = reference_error.max(hex(fields[6]));
+            global[r] = sum.round(&mut c).unwrap();
+        }
+        for block in 0..4 {
+            let g = [
+                global[3 * block],
+                global[3 * block + 1],
+                global[3 * block + 2],
+            ];
+            for axis in 0..3 {
+                let ax = axes[axis].map(|v| v.widen::<8>());
+                let reference = dot(&mut c, &ax, &g);
+                let row = result.ends[3 * block + axis];
+                assert!(
+                    error_up(&mut c, row.published, reference)
+                        <= add_up(row.bound(), reference_error * 4.0),
+                    "end block{block} axis{axis}"
+                );
+            }
+        }
+        // Geometry and section equilibrium are computed independently at512:
+        // no arc Ball geometry, p128 trig, row operator or recovery helper.
+        let d = std::array::from_fn(|k| {
+            c.sub(&lift(arc.coordinates_j[k]), &lift(arc.coordinates_i[k]))
+                .unwrap()
+        });
+        let d2 = dot(&mut c, &d, &d);
+        let length = c.sqrt(&d2).unwrap();
+        let radius = lift(arc.radius);
+        let diameter = radius.mul_pow2(1).unwrap();
+        let sh = c.div(&length, &diameter).unwrap();
+        let ss = c.mul(&sh, &sh).unwrap();
+        let one_minus = c.sub(&Ref::ONE, &ss).unwrap();
+        let ch = c.sqrt(&one_minus).unwrap();
+        let t = c.div(&sh, &ch).unwrap();
+        let phi = atan(&mut c, t).mul_pow2(1).unwrap();
+        let (se, ce) = trig(&mut c, phi);
+        let dh = normalized(&mut c, d);
+        let yr = arc.y_reference.map(lift);
+        let projection = dot(&mut c, &yr, &dh);
+        let nr = std::array::from_fn(|k| {
+            let along = c.mul(&projection, &dh[k]).unwrap();
+            c.sub(&yr[k], &along).unwrap()
+        });
+        let nh = normalized(&mut c, nr);
+        let ex = std::array::from_fn(|k| {
+            let a = c.mul(&ch, &nh[k]).unwrap();
+            let b = c.mul(&sh, &dh[k]).unwrap();
+            c.sub(&a, &b).unwrap()
+        });
+        let ey = std::array::from_fn(|k| {
+            let a = c.mul(&ch, &dh[k]).unwrap();
+            let b = c.mul(&sh, &nh[k]).unwrap();
+            c.add(&a, &b).unwrap()
+        });
+        let ez = cross(&mut c, &nh, &dh);
+        let center = [ex, ey, ez];
+        let fg = [global[6], global[7], global[8]];
+        let mg = [global[9], global[10], global[11]];
+        let tipf = center.map(|axis| dot(&mut c, &axis, &fg));
+        let tipm = center.map(|axis| dot(&mut c, &axis, &mg));
+        let wg = intensity.map(lift);
+        let w = center.map(|axis| dot(&mut c, &axis, &wg));
+        for (location, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
+            let theta = c.mul(&phi, &lift(fraction)).unwrap();
+            let remaining = c.sub(&phi, &theta).unwrap();
+            let (sin, cos) = trig(&mut c, theta);
+            let dc = c.sub(&ce, &cos).unwrap();
+            let ds = c.sub(&se, &sin).unwrap();
+            let arm = [
+                c.mul(&radius, &dc).unwrap(),
+                c.mul(&radius, &ds).unwrap(),
+                Ref::ZERO,
+            ];
+            let r2 = c.mul(&radius, &radius).unwrap();
+            let rc = c.mul(&remaining, &cos).unwrap();
+            let rs = c.mul(&remaining, &sin).unwrap();
+            let dx = c.sub(&ds, &rc).unwrap();
+            let dy = c.sub(&dc.neg(), &rs).unwrap();
+            let distarm = [
+                c.mul(&r2, &dx).unwrap(),
+                c.mul(&r2, &dy).unwrap(),
+                Ref::ZERO,
+            ];
+            let transfer = cross(&mut c, &arm, &tipf);
+            let distributed = cross(&mut c, &distarm, &w);
+            let loaded_length = c.mul(&radius, &remaining).unwrap();
+            let force = std::array::from_fn(|k| {
+                let term = c.mul(&loaded_length, &w[k]).unwrap();
+                c.add(&tipf[k], &term).unwrap()
+            });
+            let moment = std::array::from_fn(|k| {
+                let a = c.add(&tipm[k], &transfer[k]).unwrap();
+                c.add(&a, &distributed[k]).unwrap()
+            });
+            let section_axes = [
+                [sin.neg(), cos, Ref::ZERO],
+                [cos.neg(), sin.neg(), Ref::ZERO],
+                [Ref::ZERO, Ref::ZERO, Ref::ONE],
+            ];
+            for block in 0..2 {
+                let vector = if block == 0 { force } else { moment };
+                for axis in 0..3 {
+                    let reference = dot(&mut c, &section_axes[axis], &vector);
+                    let row = result.sections[location][3 * block + axis];
+                    assert!(
+                        error_up(&mut c, row.published, reference)
+                            <= add_up(row.bound(), reference_error * 16.0),
+                        "station{fraction} block{block} axis{axis},error={} B={}",
+                        error_up(&mut c, row.published, reference),
+                        row.bound()
+                    );
+                }
+            }
+        }
+    }
+}
+
+fn uniform_primitives(
+    frame: &FrameElement,
+    intensity: [f64; 3],
+    start_fraction: f64,
+    end_fraction: f64,
+) -> Vec<LoadPrimitive> {
+    (0..12)
+        .map(|row| LoadPrimitive {
+            term_index: row,
+            identity: LoadSummandIdentity {
+                family: "uniform_straight".into(),
+                source: "source-control".into(),
+                ordinal: row,
+            },
+            local_row: row,
+            formula: LoadFormula::UniformStraight {
+                frame: frame.clone(),
+                intensity: IntensityPrimitive::Authored(intensity),
+                start_fraction,
+                end_fraction,
+            },
+            force_scale_exponent: 0,
+        })
+        .collect()
+}
+#[test]
+fn source_bernstein_controls_match_exact_uniform_statics_and_fixed_sections() {
+    let frame = frame();
+    let primitives = uniform_primitives(&frame, [0.0, -6.0, 0.0], 0.0, 1.0);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let u = [0.0; 12];
+    let bound = bound(12);
+    let spans = certify_straight_stress_spans(&frame, &loads, &u, &bound, 2.0, 4.0, None).unwrap();
+    assert_eq!(spans.len(), 1);
+    for (coefficient, truth) in spans[0].bending_z.into_iter().zip([-0.5, 1.0, -0.5]) {
+        assert!(coefficient.lower <= truth && coefficient.upper >= truth);
+    }
+    let member = certify_straight_recovery(&frame, &loads, &u, &bound).unwrap();
+    for (s, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
+        let section = certify_straight_section(&frame, &loads, &u, &bound, fraction).unwrap();
+        for r in 0..6 {
+            assert_eq!(section[r].published, member.sections[s][r].published);
+            assert_eq!(section[r].radius, member.sections[s][r].radius);
+        }
+    }
+    assert!(spans[0].publication_radius_pa.is_finite() && spans[0].publication_radius_pa > 0.0);
+}
+#[test]
+fn partial_span_controls_keep_the_three_exact_polynomials_and_both_boundary_sides() {
+    let frame = frame();
+    let primitives = uniform_primitives(&frame, [0.0, -6.0, 0.0], 0.25, 0.75);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let spans =
+        certify_straight_stress_spans(&frame, &loads, &[0.0; 12], &bound(12), 2.0, 1.0, None)
+            .unwrap();
+    assert_eq!(
+        spans.iter().map(|s| (s.start, s.end)).collect::<Vec<_>>(),
+        vec![(0.0, 0.25), (0.25, 0.75), (0.75, 1.0)]
+    );
+    let truths = [
+        [-1.375, -0.625, 0.125],
+        [0.125, 1.625, 0.125],
+        [0.125, -0.625, -1.375],
+    ];
+    for (span, truths) in spans.iter().zip(truths) {
+        for (coefficient, truth) in span.bending_z.iter().zip(truths) {
+            assert!(
+                coefficient.lower <= truth && coefficient.upper >= truth,
+                "{span:?}, truth{truth}"
+            );
+        }
+    }
+    for adjacent in spans.windows(2) {
+        let left = adjacent[0].bending_z[2];
+        let right = adjacent[1].bending_z[0];
+        assert!(left.lower <= right.upper && right.lower <= left.upper);
+    }
+}
+#[test]
+fn source_controls_use_the_corrections_and_exclude_the_solution_remainder() {
+    let frame = frame();
+    let loads = CertifiedMemberLoads::default();
+    let mut u = [0.0; 12];
+    u[6] = 1e16;
+    let mut first = bound(12);
+    first.w[6] = -1e16;
+    first.w2[6] = 1.0;
+    let a = certify_straight_stress_spans(&frame, &loads, &u, &first, 2.0, 4.0, None).unwrap();
+    for coefficient in a[0].axial {
+        assert!(coefficient.lower <= 4.0 && coefficient.upper >= 4.0);
+    }
+    let mut second = first.clone();
+    second.lambda_sigma = 1e100;
+    second.exponents.fill(300);
+    let b = certify_straight_stress_spans(&frame, &loads, &u, &second, 2.0, 4.0, None).unwrap();
+    assert_eq!(a[0].axial, b[0].axial);
+    assert_eq!(a[0].bending_y, b[0].bending_y);
+    assert_eq!(a[0].publication_radius_pa, b[0].publication_radius_pa);
+}
+#[test]
+fn source_controls_preserve_zero_and_hold_the_same_pressure_wall_increment() {
+    let frame = frame();
+    let loads = CertifiedMemberLoads::default();
+    let u = [0.0; 12];
+    let bound = bound(12);
+    let zero = certify_straight_stress_spans(&frame, &loads, &u, &bound, 2.0, 4.0, None).unwrap();
+    assert_eq!(zero[0].publication_radius_pa, 0.0);
+    assert!(zero[0]
+        .axial
+        .iter()
+        .chain(&zero[0].bending_y)
+        .chain(&zero[0].bending_z)
+        .all(|b| b.lower == 0.0 && b.upper == 0.0));
+    let fluid = certified_pressure_area_product(4.0, 2.0, 0.5).unwrap();
+    let increment = fluid.product(CertifiedValue::exact(0.5).unwrap()).unwrap();
+    let pressure =
+        certify_straight_stress_spans(&frame, &loads, &u, &bound, 2.0, 4.0, Some(increment))
+            .unwrap();
+    let wall = CertifiedRow::ZERO
+        .add_value(increment)
+        .unwrap()
+        .divided(2.0)
+        .unwrap();
+    for coefficient in pressure[0].axial {
+        assert!(coefficient.lower <= wall.published && coefficient.upper >= wall.published);
+    }
+}
+#[test]
+fn exact_catalog_division_differs_from_a_binary64_reciprocal_and_is_enclosed() {
+    let mut witness = None;
+    for n in 1..1000 {
+        let value = 1.0 + (n as f64) / 1024.0;
+        let row =
+            CertifiedRow::finish(Ball::exact(Wide2::from_f64(value).unwrap()), 0.0, value).unwrap();
+        let divided = row.divided(1_000_000.0).unwrap().published;
+        let multiplied = row.scaled(1e-6).unwrap().published;
+        if divided != multiplied {
+            witness = Some((value, divided, multiplied));
+            break;
+        }
+    }
+    let (value, divided, multiplied) = witness.expect("rational unit witness");
+    assert_ne!(divided, multiplied);
+    // Check the exact rational rounding cell using fixed-grid products:
+    // divided*1e6 brackets value to within the derived transport radius.
+    let transport = mpa_publication_transport(value).unwrap();
+    let mut residual = ExactAccumulator::new();
+    residual.add_product(divided, 1_000_000.0).unwrap();
+    residual.add(-value).unwrap();
+    assert!(residual.round().unwrap().abs() <= transport);
+}
+
+#[test]
+fn source_control_resource_atoms_are_in_build_type_sizes() {
+    let sizes = certified_stress_control_sizes();
+    assert_eq!(
+        sizes.span,
+        std::mem::size_of::<CertifiedStraightStressSpan>()
+    );
+    assert_eq!(
+        sizes.context,
+        std::mem::size_of::<StraightRecoveryContext>()
+    );
+    eprintln!("source_control_resource_atoms={sizes:?}");
+}

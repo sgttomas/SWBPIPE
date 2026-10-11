@@ -261,8 +261,8 @@ fn extrema_evidence(pipe_id: &str, result_id: &str, m: &CertifiedStressMaximum) 
         "station_fraction":m.station,"span_index":m.span_index,"local_fraction":m.local_fraction,
         "value_lower_pa":m.value_lower,"value_upper_pa":m.value_upper,"global_upper_bound_pa":m.upper_bound,
         "certified_gap_pa":m.certified_gap,"subdivisions":m.subdivisions,
-        "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64",
-        "enclosure_scope":"supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"})
+        "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64_enclosures",
+        "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"})
 }
 
 /// One intensified-measure association of a component with a pipe end.
@@ -471,9 +471,12 @@ fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec
                 ));
             }
             Some(Ok(maximum)) => {
-                let value = maximum.value_lower + 0.5 * (maximum.value_upper - maximum.value_lower);
+                let public_upper=maximum.upper_bound;
+                let value=maximum.value_lower+0.5*(public_upper-maximum.value_lower);
                 let row = maximum_row(case_id, &member.pipe_id, value);
-                out.extrema.push(extrema_evidence(&member.pipe_id, &row.id, maximum));
+                let mut evidence=extrema_evidence(&member.pipe_id,&row.id,maximum);
+                evidence["value_upper_pa"]=serde_json::json!(maximum.upper_bound);
+                out.extrema.push(evidence);
                 if out.case_max.as_ref().is_none_or(|q| value > q.value || (value == q.value && member.pipe_id < q.location_ref)) {
                     out.case_max = Some(LocatedQuantity { value, unit: "Pa".to_string(), location_ref: member.pipe_id.clone(), result_ref: row.id.clone() });
                 }

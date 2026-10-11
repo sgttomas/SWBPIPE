@@ -24,6 +24,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _snapshot = os.environ.get("RP_SNAPSHOT")
 _fc_path = os.path.join(_snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs") if _snapshot else None
 KD5 = bool(_fc_path and os.path.exists(_fc_path) and "pub struct MemberBoundInputs" in open(_fc_path, encoding="utf-8").read())
+# KD5O13: inspect the exact private helper bodies before charging their
+# new three-frame staging. Historical snapshots keep their original model.
+_directed_helper_workspace = X()
+if _snapshot:
+    from kd5_text_model import inspect_directed_helpers as _inspect_directed_helpers
+    if _inspect_directed_helpers(_snapshot):
+        _directed_helper_workspace = s("DirectedHelperWorkspace")
 
 if which == "caps":
     from g3lib import g4_caps as _gc
@@ -209,6 +216,8 @@ def typed_core(mode):
         fresh_sums = s("Vec<Expansion>") * N + s("Expansion") * (N * N) + B(8 * Ps + Bf(d))
     # common to both modes
     out["Condition/refinement basic vectors"] = B(40 * F + 8 * (6 * F + N))
+    if _directed_helper_workspace:
+        out["Directed product/quotient helper staging (KD5O13)"] = _directed_helper_workspace
     report = (B(4 * F) + Xc("PivotEvidence", F) + V("ResidualRow", F) * 2 + Xc("ContributionRounding", Z)
               + B(8 * (2 * C + Z)) + tx("sym"))
     fidelity = V("LoadFidelityRow", N) + s("String") * l + B(l * ID) + tx("audit_error")
@@ -283,29 +292,76 @@ def w2(mode, core_total, report, fidelity):
     return evaluate + unscale + tail + B(16 * N) + Xc("(usize,f64)", sp), tail_mov
 
 # ---------------- Ordinary recovery (BOUND :75; ADDENDUM stress, guard maps, records) ----
-# KD5O6: seven locations/four member groups, two support groups. Each
-# record push-builds its own groups; summing PushCap(28), PushCap(2)
-# retains every per-record backing. Labels are static <=128 B each;
+# KD5O6: seven locations/four member groups. The repaired support
+# constructor retains force/moment vectors and separately published
+# magnitudes (four evaluands, two physical families). Historical KD5
+# snapshots before that constructor retain two groups. Each record
+# push-builds its own groups; the per-record PushCap retains all backing.
+# Labels are static <=128 B each;
 # bound Err children use the existing 8192-B error-content class.
 _recovery_count = m + g if KD5 else m
-_recovery_groups = (s("RecoveryGroup") * (pushcap(28) * m + pushcap(2) * g)
-                    + B((28 * m + 2 * g) * (2 * ID + textcap(8192)))
-                    + V("String", 28 * m + 2 * g)) if KD5 else X()
+_cp_path = os.path.join(_snapshot, "core/product_physics/src/certified_publication.rs") if KD5 else None
+_support_groups = 4 if _cp_path and '"support_force_magnitude"' in open(_cp_path, encoding="utf-8").read() else 2
+_recovery_evaluands = 28 * m + _support_groups * g
+_recovery_groups = (s("RecoveryGroup") * (pushcap(28) * m + pushcap(_support_groups) * g)
+                    + B(_recovery_evaluands * (2 * ID + textcap(8192)))
+                    + V("String", _recovery_evaluands)
+                    + V("(String,[f64;2])", g) + B(g * ID) + s("Vec")) if KD5 else X()
+if KD5:
+    # KD5O8: price the recovery's separately constructed FormationSource
+    # explicitly, preserving the prior assembly/check copy allowances.
+    _recovery_groups += Xc("FrameElement", m) + Xc("(usize,f64)", sp) + s("Vec") * 6
+# KD5O11: PP caller owners and return/move slots, separate from the
+# kernel-only coefficient workspace. Retain the sum of disjoint slot
+# alternatives; no compiler reuse or move elision is presumed.
+_pp_certified_callers = (
+    s("CertifiedMemberOption") * 2
+    + s("CertifiedMemberRecoveryResult") * 2
+    + s("CertifiedMemberRecovery") * 4
+    + s("CertifiedMemberRecoveryPairResult") * 2
+    + s("CertifiedSupportRows") * 2
+    + s("CertifiedSupportResult") + s("CertifiedSupportOption")
+    + s("CertifiedRow") * 16 + s("CertifiedGroup") * 2
+) if KD5 else X()
 J = 17 + max(8, 2 * 57)
 stress_children = s("AnalysisStatus") * 8 + s("StressFinding") * 4 + B(4 * J)
 add("Straight member recovery (+ stress supplement)", "OrdinaryRecovery",
     B(96 + 160) + s("StationResultants") * 4 + B(8 * N)
     + HashReq("(String,[f64;6])", g) + B(g * ID) + Xc("SupportVector", g) + B(g * ID)
-    + V("MemberRecord", m) + B(m * ID) + V("RecoveryRecord", _recovery_count) + B(_recovery_count * ID) + _recovery_groups
+    + V("MemberRecord", m) + B(m * ID) + V("RecoveryRecord", _recovery_count) + B(_recovery_count * ID) + _recovery_groups + _pp_certified_callers
     + tx("err") * (2 * m + 1) + tx("err") * m
     + s("(&str,StressRecoveryResult)") * 3 + stress_children * 6 + s("AnalysisStatus") + B(64 + 16 + 160),
     B(32) + s("AnalysisStatus") * 8 + s("StressFinding") * 2 + B(max(8, 2 * 57)))
 q = m + n + g
 add("Formation-guard late maps and RecoveryFinding", "OrdinaryRecovery",
-    HashReq("(String,usize)", q) + B(q * ID) + HashReq("(usize,(f64,f64))", b) + HashReq("(usize,f64)", b)
-    + tx("recovery_finding"))
+    HashReq("(String,usize)", q) + B(q * ID) + HashReq("(usize,(f64,f64))", b) + HashReq("(usize,(f64,f64))" if KD5 else "(usize,f64)", b)
+    + tx("recovery_finding") + _directed_helper_workspace)
+_coefficient_spans = X()
+if KD5 and "certify_straight_stress_spans(" in open(_cp_path, encoding="utf-8").read():
+    # KD5O10: current D1 admits no formed primitive/source (KD5O3),
+    # hence the actual boundary list is 0/1 and has one span. Retain
+    # the positive conservative 2l+1 allowance, without importing a
+    # general source_count<=l law into an extended B7 domain. FK
+    # with_capacity is exact; PP Result collect is conservatively push-grown.
+    # The FK input and PP output coexist while mapping; no in-place reuse.
+    # Summing the earlier boundary backing is conservative over both peaks.
+    _span_count = 2 * l + 1
+    _coefficient_spans = (Xc("CertifiedStraightStressSpan", _span_count)
+                          + V("EnclosedQuadraticStressSpan", _span_count)
+                          + B(8 * (2 * l + 2)) + s("Vec") * 3
+                          + s("CertifiedStressControlWorkspace"))
+_fallback_workspace = X()
+if KD5 and "fn fallback_circular_maximum(" in open(_cp_path, encoding="utf-8").read():
+    import re as _pricing_re
+    _fallback_source = open(_cp_path, encoding="utf-8").read()
+    if not _pricing_re.search(r"struct FallbackError\s*\{\s*magnitude: f64,\s*error: f64,\s*\}", _fallback_source):
+        raise SystemExit("KD5O12: fallback arithmetic value layout changed; re-review replay workspace")
+    _exact_sum_source = open(os.path.join(_snapshot, "core/solver/frame_kernel/src/exact_sum.rs"), encoding="utf-8").read()
+    if not _pricing_re.search(r"const LIMBS: usize\s*=\s*68;", _exact_sum_source):
+        raise SystemExit("KD5O12: exact-product magnitude grid changed; re-review replay scratch buffers")
+    _fallback_workspace = s("FallbackReplayWorkspace")
 add("Ordinary scalar maximum (one helper at a time)", "Maximum",
-    B(16) + s("QuadraticStressSpan") * 4 + s("Node_SR") * 262_144 + tx("err"),
+    B(16) + s("QuadraticStressSpan") * 4 + _coefficient_spans + _fallback_workspace + s("Node_SR") * 262_144 + tx("err"),
     s("Node_SR") * (393_216 - 262_144))
 
 # ---------------- Old case staging (BOUND :77-78) -------------------------------------------

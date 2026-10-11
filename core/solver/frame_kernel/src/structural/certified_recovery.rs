@@ -249,6 +249,24 @@ impl CertifiedRow {
         );
         Self::finish(value, remainder, absolute_scale)
     }
+    /// Integer unit conversions divide before the final publication, including
+    /// a sum whose unconverted midpoint is outside binary64.
+    pub fn sum_divided(self, other: Self, denominator: f64) -> Result<Self, RecoveryFailure> {
+        let mut b = Balls::new()?;
+        let divisor = b.lift(denominator)?;
+        let left = b.div(self.value, divisor, "scaled sum divisor")?;
+        let right = b.div(other.value, divisor, "scaled sum divisor")?;
+        let value = b.add(left, right)?;
+        let remainder = add_up(
+            div_up(self.remainder, denominator.abs()),
+            div_up(other.remainder, denominator.abs()),
+        );
+        let absolute_scale = add_up(
+            div_up(self.absolute_scale, denominator.abs()),
+            div_up(other.absolute_scale, denominator.abs()),
+        );
+        Self::finish(value, remainder, absolute_scale)
+    }
     /// Wall axial action N_eff+pAi: the pressure product is formed at p.
     pub fn add_value(self, value: CertifiedValue) -> Result<Self, RecoveryFailure> {
         let out = Balls::new()?.add(self.value, value.ball)?;
@@ -265,11 +283,30 @@ impl CertifiedRow {
 
 #[derive(Debug, Clone, Copy)]
 pub struct CertifiedGroup {
+    /// A nonfinite group norm is unavailable comparison metadata, even when
+    /// every component is finite. The caller must fail the judgment closed.
     pub q: f64,
     pub q_hat: f64,
     pub bound: f64,
     pub absolute_scale: f64,
 }
+impl CertifiedGroup {
+    pub fn comparison_available(&self) -> bool {
+        self.q.is_finite()
+            && self.q >= 0.0
+            && self.q_hat.is_finite()
+            && self.q_hat >= self.q
+            && self.bound.is_finite()
+            && self.bound >= 0.0
+    }
+    /// The separately published magnitude has its own scalar rounding gap
+    /// and square-root evaluation radius, in addition to the vector remainder.
+    pub fn magnitude(rows: &[CertifiedRow]) -> Result<Self, RecoveryFailure> {
+        let magnitude = certified_magnitude(rows)?;
+        certified_group(&[magnitude])
+    }
+}
+
 fn norm_up(values: impl IntoIterator<Item = f64>) -> f64 {
     let mut norm = 0.0;
     for v in values {
@@ -564,6 +601,17 @@ fn evaluate_row<const N: usize>(
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
+    evaluate_row_inner(operator, map, load, load_scale, u, bound, true)
+}
+fn evaluate_row_inner<const N: usize>(
+    operator: &[Ball; N],
+    map: &[usize; N],
+    load: Ball,
+    load_scale: f64,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+    include_remainder: bool,
+) -> Result<CertifiedRow, RecoveryFailure> {
     let mut sum = ExactAccumulator::new();
     let mut radius = 0.0;
     let mut scale = 0.0;
@@ -586,7 +634,7 @@ fn evaluate_row<const N: usize>(
         radius = add_up(radius, mul_up(coefficient.r, xu));
         let ku = add_up(abs_up(&coefficient.m)?, coefficient.r);
         scale = add_up(scale, mul_up(ku, xu));
-        if bound.exponents[i] != i32::MIN {
+        if include_remainder && bound.exponents[i] != i32::MIN {
             norm = add_up(norm, scale_up(ku, bound.exponents[i]));
         }
     }
@@ -594,7 +642,11 @@ fn evaluate_row<const N: usize>(
     scale = add_up(scale, load_scale);
     CertifiedRow::finish(
         sum_ball(&sum, radius)?,
-        mul_up(norm, bound.lambda_sigma),
+        if include_remainder {
+            mul_up(norm, bound.lambda_sigma)
+        } else {
+            0.0
+        },
         scale,
     )
 }
@@ -613,12 +665,18 @@ fn evaluate_ends(
     Ok(out)
 }
 
-pub fn certify_straight_recovery(
+struct StraightRecoveryContext {
+    axes: [[Wide2; 3]; 3],
+    length: Wide2,
+    operator: Operator,
+    equivalent: [Ball; 12],
+    equivalent_scale: [f64; 12],
+    map: [usize; 12],
+}
+fn straight_context(
     frame: &FrameElement,
     loads: &CertifiedMemberLoads,
-    u: &[f64],
-    bound: &MemberBoundInputs,
-) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+) -> Result<StraightRecoveryContext, RecoveryFailure> {
     let mut a = WideArith::new(128)?;
     let matrix = frame_matrix(&mut a, frame)?;
     let (axes, length) = chord_axes(
@@ -630,83 +688,147 @@ pub fn certify_straight_recovery(
     let operator = local_operator(&matrix, &axes)?;
     let (equivalent, equivalent_scale) = local_loads(loads, &axes)?;
     let map = element_dof_map(frame.node_i.index, frame.node_j.index);
-    let ends = evaluate_ends(&operator, &map, &equivalent, &equivalent_scale, u, bound)?;
-    let mut sections = [[CertifiedRow::ZERO; 6]; 5];
+    Ok(StraightRecoveryContext {
+        axes,
+        length,
+        operator,
+        equivalent,
+        equivalent_scale,
+        map,
+    })
+}
+fn straight_section_rows(
+    ctx: &StraightRecoveryContext,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+    fraction: Ball,
+    include_remainder: bool,
+) -> Result<[CertifiedRow; 6], RecoveryFailure> {
+    if fraction.m.cmp_value(&Wide2::ZERO).is_lt() || fraction.m.cmp_value(&Wide2::ONE).is_gt() {
+        return Err(shape("straight section fraction"));
+    }
     let mut b = Balls::new()?;
-    for (s, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
-        let distance = b.mul(Ball::exact(length), b.lift(fraction)?)?;
-        let mut op = [[Ball::ZERO; 12]; 6];
-        let mut eq = [Ball::ZERO; 6];
-        let mut es = [0.0; 6];
-        for r in 0..6 {
-            for c in 0..12 {
-                op[r][c] = operator[r][c].neg();
-            }
-            eq[r] = equivalent[r].neg();
-            es[r] = equivalent_scale[r];
+    let operator = &ctx.operator;
+    let equivalent = &ctx.equivalent;
+    let equivalent_scale = &ctx.equivalent_scale;
+    let axes = &ctx.axes;
+    let length = ctx.length;
+    let map = ctx.map;
+    let distance = b.mul(Ball::exact(length), fraction)?;
+    let mut op = [[Ball::ZERO; 12]; 6];
+    let mut eq = [Ball::ZERO; 6];
+    let mut es = [0.0; 6];
+    for r in 0..6 {
+        for c in 0..12 {
+            op[r][c] = operator[r][c].neg();
         }
-        for (moment, shear, sign) in [(4, 2, -1.0), (5, 1, 1.0)] {
-            for c in 0..12 {
-                let term = b.mul(distance, operator[shear][c])?;
-                op[moment][c] = if sign < 0.0 {
-                    b.sub(op[moment][c], term)?
-                } else {
-                    b.add(op[moment][c], term)?
-                };
-            }
-            es[moment] = add_up(
-                es[moment],
-                mul_up(
-                    add_up(abs_up(&distance.m)?, distance.r),
-                    equivalent_scale[shear],
-                ),
-            );
-            let term = b.mul(distance, equivalent[shear])?;
-            eq[moment] = if sign < 0.0 {
-                b.sub(eq[moment], term)?
+        eq[r] = equivalent[r].neg();
+        es[r] = equivalent_scale[r];
+    }
+    for (moment, shear, sign) in [(4, 2, -1.0), (5, 1, 1.0)] {
+        for c in 0..12 {
+            let term = b.mul(distance, operator[shear][c])?;
+            op[moment][c] = if sign < 0.0 {
+                b.sub(op[moment][c], term)?
             } else {
-                b.add(eq[moment], term)?
+                b.add(op[moment][c], term)?
             };
         }
-        for load in loads.uniform_loads() {
-            let load = load?;
-            let end = fraction.min(load.end_fraction);
-            if end <= load.start_fraction {
-                continue;
-            }
-            let start = b.mul(Ball::exact(length), b.lift(load.start_fraction)?)?;
-            let active_end = b.mul(Ball::exact(length), b.lift(end)?)?;
-            let active = b.sub(active_end, start)?;
-            let ea = b.mul(active_end, active_end)?;
-            let sa = b.mul(start, start)?;
-            let diff = b.sub(ea, sa)?;
-            let half = b.half(diff)?;
-            let da = b.mul(distance, active)?;
-            let lever = b.sub(da, half)?;
-            let mut intensity = [Ball::ZERO; 3];
-            for r in 0..3 {
-                for c in 0..3 {
-                    let term = b.mul(Ball::exact(axes[r][c]), load.intensity[c])?;
-                    intensity[r] = b.add(intensity[r], term)?;
-                }
-            }
-            for r in 0..3 {
-                let term = b.mul(intensity[r], active)?;
-                eq[r] = b.add(eq[r], term)?;
-                es[r] = add_up(es[r], add_up(abs_up(&term.m)?, term.r));
-            }
-            let my = b.mul(intensity[2], lever)?;
-            eq[4] = b.add(eq[4], my)?;
-            es[4] = add_up(es[4], add_up(abs_up(&my.m)?, my.r));
-            let mz = b.mul(intensity[1], lever)?;
-            eq[5] = b.sub(eq[5], mz)?;
-            es[5] = add_up(es[5], add_up(abs_up(&mz.m)?, mz.r));
+        es[moment] = add_up(
+            es[moment],
+            mul_up(
+                add_up(abs_up(&distance.m)?, distance.r),
+                equivalent_scale[shear],
+            ),
+        );
+        let term = b.mul(distance, equivalent[shear])?;
+        eq[moment] = if sign < 0.0 {
+            b.sub(eq[moment], term)?
+        } else {
+            b.add(eq[moment], term)?
+        };
+    }
+    for load in loads.uniform_loads() {
+        let load = load?;
+        let end_value = b.lift(load.end_fraction)?;
+        let end = if fraction.m.cmp_value(&end_value.m).is_gt() {
+            end_value
+        } else {
+            fraction
+        };
+        if !end.m.cmp_value(&b.lift(load.start_fraction)?.m).is_gt() {
+            continue;
         }
-        for r in 0..6 {
-            sections[s][r] = evaluate_row(&op[r], &map, eq[r], es[r], u, bound)?;
+        let start = b.mul(Ball::exact(length), b.lift(load.start_fraction)?)?;
+        let active_end = b.mul(Ball::exact(length), end)?;
+        let active = b.sub(active_end, start)?;
+        let ea = b.mul(active_end, active_end)?;
+        let sa = b.mul(start, start)?;
+        let diff = b.sub(ea, sa)?;
+        let half = b.half(diff)?;
+        let da = b.mul(distance, active)?;
+        let lever = b.sub(da, half)?;
+        let mut intensity = [Ball::ZERO; 3];
+        for r in 0..3 {
+            for c in 0..3 {
+                let term = b.mul(Ball::exact(axes[r][c]), load.intensity[c])?;
+                intensity[r] = b.add(intensity[r], term)?;
+            }
         }
+        for r in 0..3 {
+            let term = b.mul(intensity[r], active)?;
+            eq[r] = b.add(eq[r], term)?;
+            es[r] = add_up(es[r], add_up(abs_up(&term.m)?, term.r));
+        }
+        let my = b.mul(intensity[2], lever)?;
+        eq[4] = b.add(eq[4], my)?;
+        es[4] = add_up(es[4], add_up(abs_up(&my.m)?, my.r));
+        let mz = b.mul(intensity[1], lever)?;
+        eq[5] = b.sub(eq[5], mz)?;
+        es[5] = add_up(es[5], add_up(abs_up(&mz.m)?, mz.r));
+    }
+
+    let mut out = [CertifiedRow::ZERO; 6];
+    for r in 0..6 {
+        out[r] = evaluate_row_inner(&op[r], &map, eq[r], es[r], u, bound, include_remainder)?;
+    }
+    Ok(out)
+}
+pub fn certify_straight_recovery(
+    frame: &FrameElement,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+    let ctx = straight_context(frame, loads)?;
+    let ends = evaluate_ends(
+        &ctx.operator,
+        &ctx.map,
+        &ctx.equivalent,
+        &ctx.equivalent_scale,
+        u,
+        bound,
+    )?;
+    let mut sections = [[CertifiedRow::ZERO; 6]; 5];
+    let b = Balls::new()?;
+    for (s, &fraction) in CERTIFIED_SECTION_FRACTIONS.iter().enumerate() {
+        sections[s] = straight_section_rows(&ctx, loads, u, bound, b.lift(fraction)?, true)?;
     }
     Ok(CertifiedMemberRecovery { ends, sections })
+}
+/// An arbitrary section uses the identical intended row operator/load recipe
+/// as the fixed five locations. Uniform-span boundaries have continuous action
+/// values; each adjacent interval retains its own derivative polynomial.
+pub fn certify_straight_section(
+    frame: &FrameElement,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+    fraction: f64,
+) -> Result<[CertifiedRow; 6], RecoveryFailure> {
+    let ctx = straight_context(frame, loads)?;
+    straight_section_rows(&ctx, loads, u, bound, Balls::new()?.lift(fraction)?, true)
 }
 
 /// Pressure pAi from the authored annulus, at the same p as the load closure.
@@ -1140,3 +1262,425 @@ pub fn certify_spring_reaction(
 #[cfg(test)]
 #[path = "certified_recovery_tests.rs"]
 mod tests;
+
+/// Directed bounds of a Bernstein stress coefficient (Pa). They transport the
+/// source/evaluation ball, not the displacement remainder against u*.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CertifiedCoefficientBounds {
+    pub lower: f64,
+    pub upper: f64,
+}
+/// One independently supplied closed statics interval. Adjacent intervals keep
+/// their own degree-2 polynomial; uniform-load intensity jumps do not imply an
+/// action jump. The allowance below covers repaired public samples separately.
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedStraightStressSpan {
+    pub start: f64,
+    pub end: f64,
+    pub axial: [CertifiedCoefficientBounds; 3],
+    pub bending_y: [CertifiedCoefficientBounds; 3],
+    pub bending_z: [CertifiedCoefficientBounds; 3],
+    pub publication_radius_pa: f64,
+}
+fn coefficient_bounds(value: Ball) -> Result<CertifiedCoefficientBounds, RecoveryFailure> {
+    if value.m.is_zero() && value.r == 0.0 {
+        return Ok(CertifiedCoefficientBounds {
+            lower: 0.0,
+            upper: 0.0,
+        });
+    }
+    let split = value.m.split_binary64()?;
+    let radius = if split.truncated_below_min_subnormal() {
+        add_up(value.r, TINY)
+    } else {
+        value.r
+    };
+    let mut lower = ExactAccumulator::new();
+    let mut upper = ExactAccumulator::new();
+    for &part in split.terms() {
+        lower.add(part).map_err(sum_error)?;
+        upper.add(part).map_err(sum_error)?;
+    }
+    lower.add(-radius).map_err(sum_error)?;
+    upper.add(radius).map_err(sum_error)?;
+    let lower = lower.round().map_err(sum_error)?.next_down();
+    let upper = upper.round().map_err(sum_error)?.next_up();
+    if !lower.is_finite() || !upper.is_finite() {
+        return Err(shape("stress coefficient transport range"));
+    }
+    Ok(CertifiedCoefficientBounds { lower, upper })
+}
+fn positive(value: Ball) -> Ball {
+    Ball {
+        m: value.m.abs(),
+        r: value.r,
+    }
+}
+/// Positive arithmetic majorant of the actual section recipe. Every operand's
+/// magnitude/radius is replaced by a uniform upper operand and every +/- by +.
+/// L1/L2 radii are monotone in these nonnegative operands. The returned radius
+/// therefore bounds the p128 evaluation error at every section, without using R
+/// and without sampling an observed row delta. Exact-sum split losses are added
+/// separately because the positive-product path does not itself split K.
+fn straight_section_evaluation_envelopes(
+    ctx: &StraightRecoveryContext,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<[Ball; 6], RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let lu = abs_up(&ctx.length)?;
+    let distance = Ball {
+        m: ctx.length,
+        r: mul_up(2.0, mul_up(U, lu)),
+    };
+    let active = Ball {
+        m: ctx.length,
+        r: add_up(add_up(distance.r, distance.r), mul_up(U, lu)),
+    };
+    let ea = b.mul(distance, distance)?;
+    let ends = b.add(ea, ea)?;
+    let half = b.half(ends)?;
+    let da = b.mul(distance, active)?;
+    let lever = b.add(da, half)?;
+    let mut eq: [Ball; 6] = ctx.equivalent[..6]
+        .try_into()
+        .map_err(|_| shape("section envelope load"))?;
+    for value in &mut eq {
+        *value = positive(*value);
+    }
+    for (moment, shear) in [(4, 2), (5, 1)] {
+        let term = b.mul(distance, positive(ctx.equivalent[shear]))?;
+        eq[moment] = b.add(eq[moment], term)?;
+    }
+    for load in loads.uniform_loads() {
+        let load = load?;
+        let mut intensity = [Ball::ZERO; 3];
+        for r in 0..3 {
+            for c in 0..3 {
+                let term = b.mul(
+                    Ball::exact(ctx.axes[r][c].abs()),
+                    positive(load.intensity[c]),
+                )?;
+                intensity[r] = b.add(intensity[r], term)?;
+            }
+        }
+        for r in 0..3 {
+            let term = b.mul(intensity[r], active)?;
+            eq[r] = b.add(eq[r], term)?;
+        }
+        let my = b.mul(intensity[2], lever)?;
+        eq[4] = b.add(eq[4], my)?;
+        let mz = b.mul(intensity[1], lever)?;
+        eq[5] = b.add(eq[5], mz)?;
+    }
+    let mut out = [Ball::ZERO; 6];
+    for r in 0..6 {
+        let mut sum = Ball::ZERO;
+        let mut split_allowance = 0.0;
+        for c in 0..12 {
+            let i = ctx.map[c];
+            if i >= u.len() || i >= bound.w.len() || i >= bound.w2.len() {
+                return Err(shape("section envelope DOF"));
+            }
+            let mut coefficient = positive(ctx.operator[r][c]);
+            let shear = if r == 4 {
+                Some(2)
+            } else if r == 5 {
+                Some(1)
+            } else {
+                None
+            };
+            if let Some(shear) = shear {
+                let term = b.mul(distance, positive(ctx.operator[shear][c]))?;
+                coefficient = b.add(coefficient, term)?;
+            }
+            let x = positive(corrected_ball(u[i], bound.w[i], bound.w2[i])?);
+            let term = b.mul(coefficient, x)?;
+            sum = b.add(sum, term)?;
+            for value in [u[i], bound.w[i], bound.w2[i]] {
+                split_allowance = add_up(split_allowance, mul_up(TINY, value.abs()));
+            }
+        }
+        sum = b.add(sum, eq[r])?;
+        sum.r = add_up(sum.r, split_allowance);
+        if !eq[r].m.is_zero() {
+            sum.r = add_up(sum.r, TINY);
+        }
+        sum.r = finite(sum.r, "section evaluation envelope")?;
+        out[r] = sum;
+    }
+    Ok(out)
+}
+/// Upper error of exact-catalog MPa publication and a later Pa conversion.
+/// For |z|<=T, RN(z/1e6) contributes u64*T+1e6*Tiny. RN(y*1e6)
+/// followed by one unconditional next_up contributes at most
+/// 4*u64*(T+first)+4*Tiny (including subnormal grids). Zero stays exact.
+fn mpa_publication_transport(t: f64) -> Result<f64, RecoveryFailure> {
+    if t == 0.0 {
+        return Ok(0.0);
+    }
+    let u64 = f64::from_bits(970_u64 << 52);
+    let first = add_up(mul_up(u64, t), mul_up(1_000_000.0, TINY));
+    let second = add_up(mul_up(4.0 * u64, add_up(t, first)), 4.0 * TINY);
+    finite(add_up(first, second), "MPa publication transport")
+}
+/// Source Bernstein controls from the same intended K, corrected displacement
+/// and raw uniform primitives as the repaired row recipe. No binary64 end
+/// action or binary64 statics coefficient is lifted into this construction.
+/// `axial_increment` is the constant positive j-side wall-force increment (the
+/// pressure consumer supplies 2nu*pAi formed by the same at-p pressure law).
+///
+/// Transport concerns the repaired at-p polynomial/publication only: R is
+/// deliberately absent. The ordinary L1 and circular norm maximum consumers
+/// share these coefficients but retain their distinct objective functions.
+pub fn certify_straight_stress_spans(
+    frame: &FrameElement,
+    loads: &CertifiedMemberLoads,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+    area: f64,
+    section_modulus: f64,
+    axial_increment: Option<CertifiedValue>,
+) -> Result<Vec<CertifiedStraightStressSpan>, RecoveryFailure> {
+    if !(area > 0.0 && area.is_finite() && section_modulus > 0.0 && section_modulus.is_finite()) {
+        return Err(shape("stress coefficient section"));
+    }
+    let ctx = straight_context(frame, loads)?;
+    let source_count = loads
+        .primitives
+        .iter()
+        .filter(|p| {
+            p.local_row == 0
+                && p.identity.source.starts_with(loads.source_prefix)
+                && member_pair(&p.formula)
+                    .is_some_and(|(i, j)| same_pair(loads.node_i, loads.node_j, i, j))
+                && matches!(p.formula, LoadFormula::UniformStraight { .. })
+        })
+        .count();
+    let mut boundaries = Vec::with_capacity(2 * source_count + 2);
+    boundaries.extend([0.0, 1.0]);
+    for p in loads.primitives.iter().filter(|p| {
+        p.local_row == 0
+            && p.identity.source.starts_with(loads.source_prefix)
+            && member_pair(&p.formula)
+                .is_some_and(|(i, j)| same_pair(loads.node_i, loads.node_j, i, j))
+    }) {
+        if let LoadFormula::UniformStraight {
+            start_fraction,
+            end_fraction,
+            ..
+        } = &p.formula
+        {
+            boundaries.extend([*start_fraction, *end_fraction]);
+        }
+    }
+    boundaries.sort_by(f64::total_cmp);
+    boundaries.dedup();
+    if boundaries
+        .iter()
+        .any(|v| !v.is_finite() || *v < 0.0 || *v > 1.0)
+    {
+        return Err(shape("stress coefficient span"));
+    }
+    let mut b = Balls::new()?;
+    let mut envelope = straight_section_evaluation_envelopes(&ctx, loads, u, bound)?;
+    if let Some(increment) = axial_increment {
+        envelope[0] = b.add(envelope[0], positive(increment.ball))?;
+    }
+    let stress_envelope = [
+        b.div(envelope[0], b.lift(area)?, "coefficient area")?,
+        b.div(
+            envelope[4],
+            b.lift(section_modulus)?,
+            "coefficient section modulus",
+        )?,
+        b.div(
+            envelope[5],
+            b.lift(section_modulus)?,
+            "coefficient section modulus",
+        )?,
+    ];
+    let evaluation_radius = stress_envelope
+        .iter()
+        .fold(0.0, |r, value| add_up(r, value.r));
+    let mut out = Vec::with_capacity(boundaries.len() - 1);
+    for interval in boundaries.windows(2) {
+        let start = interval[0];
+        let end = interval[1];
+        if start >= end {
+            continue;
+        }
+        let fs = b.lift(start)?;
+        let fe = b.lift(end)?;
+        let sum = b.add(fs, fe)?;
+        let fm = b.half(sum)?;
+        let points = [
+            straight_section_rows(&ctx, loads, u, bound, fs, false)?,
+            straight_section_rows(&ctx, loads, u, bound, fm, false)?,
+            straight_section_rows(&ctx, loads, u, bound, fe, false)?,
+        ];
+        let mut controls = [[Ball::ZERO; 3]; 3];
+        for (component, row) in [0, 4, 5].into_iter().enumerate() {
+            let divisor = if row == 0 { area } else { section_modulus };
+            let mut values = points.map(|point| point[row].value);
+            if row == 0 {
+                if let Some(increment) = axial_increment {
+                    for value in &mut values {
+                        *value = b.add(*value, increment.ball)?;
+                    }
+                }
+            }
+            for value in &mut values {
+                *value = b.div(*value, b.lift(divisor)?, "stress coefficient divisor")?;
+            }
+            let ends = b.add(values[0], values[2])?;
+            let half = b.half(ends)?;
+            let twice = b.pow2(values[1], 1)?;
+            controls[component] = [values[0], b.sub(twice, half)?, values[2]];
+        }
+        let mut enclosures = [[CertifiedCoefficientBounds {
+            lower: 0.0,
+            upper: 0.0,
+        }; 3]; 3];
+        let mut l1_scale = 0.0;
+        for component in 0..3 {
+            let mut maximum = 0.0_f64;
+            for coefficient in 0..3 {
+                enclosures[component][coefficient] =
+                    coefficient_bounds(controls[component][coefficient])?;
+                let v = enclosures[component][coefficient];
+                maximum = maximum.max(v.lower.abs()).max(v.upper.abs());
+            }
+            l1_scale = add_up(l1_scale, maximum);
+        }
+        l1_scale = finite(l1_scale, "stress polynomial range")?;
+        // Following the row recipe, a stress/normal-summary/MPa evaluation has
+        // at most16 rounded p128 operations (three section-factor divisions,
+        // up to six norm operations, up to three sums, three unit divisions).
+        // gamma16 <=32u because16u<1/2. Absolute sums/L1 and Euclidean norms
+        // are 1-Lipschitz in the sum of component errors.
+        let at_p_scale = add_up(l1_scale, evaluation_radius);
+        let extra = add_up(evaluation_radius, mul_up(32.0 * U, at_p_scale));
+        let publication_radius_pa = finite(
+            add_up(extra, mpa_publication_transport(add_up(l1_scale, extra))?),
+            "stress publication radius",
+        )?;
+        out.push(CertifiedStraightStressSpan {
+            start,
+            end,
+            axial: enclosures[0],
+            bending_y: enclosures[1],
+            bending_z: enclosures[2],
+            publication_radius_pa,
+        });
+    }
+    Ok(out)
+}
+
+/// Build-specific resource atoms for retained-pricing's stack/transport model.
+/// These are type sizes, not a measurement of a compiler-selected frame. The
+/// pricer combines live constructor and evaluation stages from their source.
+#[derive(Debug, Clone, Copy)]
+pub struct CertifiedStressControlSizes {
+    pub span: usize,
+    pub context: usize,
+    pub wide_matrix: usize,
+    pub local_operator: usize,
+    pub section_operator: usize,
+    pub point_rows: usize,
+    pub exact_accumulator: usize,
+    pub ball: usize,
+    pub wide: usize,
+    pub arithmetic: usize,
+    pub constructor_workspace_upper: usize,
+    pub evaluation_workspace_upper: usize,
+    pub workspace_upper: usize,
+}
+pub const fn certified_stress_control_sizes() -> CertifiedStressControlSizes {
+    // Recoverable current-D1 workspace census (no member uniform sources).
+    // Kernel-only: PP's retained two42-row certificates/support6-row array,
+    // source/mapped Vec backing and all PP caller frames are separate charges.
+    // No recursive source evaluation occurs on this admitted call tree.
+    //
+    // Constructor call tree / separately charged arrays:
+    // straight_context -> frame_matrix -> chord_axes/lift3/sub3/norm3/dot3/
+    // scale3/cross3, then rotate; and local_operator/local_loads -> Balls.
+    // Two Context slots cover caller+return/move. Four Wide matrices cover
+    // constructor result, frame K, rotate output and returned-matrix staging.
+    // Two Ball operators cover local_operator output+return staging.
+    // Wide scratch names include frame axes,length,em,gm,l2,l3,ea,axial,gj,
+    // torsion; coefficient closure ei,t12,t6,t4,t2 and returned arrays;
+    // z12/z6/z4/z2/y12/y6/y4/y2; bz/by and their array-iterator/pattern copies;
+    // rotate temp,s,t; chord d,length,ex,yr,projection,yc,t,ym,ey,ez;
+    // vector-helper return arrays/products and arithmetic-result move slots.
+    // Their deliberately retained union is bounded by256 Wide slots, including
+    // geometry helpers whose actual lifetimes precede bending/rotate staging.
+    //
+    // Evaluation call tree / separately charged arrays:
+    // certify_straight_stress_spans -> straight_section_evaluation_envelopes
+    // or straight_section_rows -> evaluate_row_inner -> corrected_ball ->
+    // sum_ball; then CertifiedRow::finish/coefficient_bounds and transport.
+    // One Context remains live; two3x6 Row arrays cover control points+move
+    // staging; two6x12 Ball operators cover section op+array initialization.
+    // Eight ExactAccumulator slots exceed the complete named sum inventory:
+    // row sum, corrected sum, coefficient lower/upper sums, and their move
+    // slots. Eight68-limb magnitudes cover nested net/project/subtract scratch.
+    //
+    // Remaining Ball-equivalent slot census (matrices/point arrays excluded):
+    // main builder<=64 (envelope6,stress3,controls9,values3,fs/fe/fm/sum,
+    // increment/options and argument/return moves); context/local loads<=64
+    // (equivalent12,out12,product/axis lift and moves); section builder<=96
+    // (eq6,intensity3,load3,fraction/end/start/active/squares/lever/terms,
+    // section output/moves); row/corrected/sum/finish<=64; positive envelope
+    // <=96 (eq6,out6,intensity3,load3,scalar envelopes/coefficient/x/term);
+    // coefficient transport<=16; shared Ball lemmas<=64 (lift/exact/neg,
+    // add/sub/mul/div/half/pow2/sqrt arguments/results); empty D1 iterator and
+    // Option machinery<=16. Total<=480, charged1024 to include leaf-arithmetic
+    // fixed buffers and composite scalar Row moves (ceil(Row/Ball) slots).
+    //
+    // Scalars/indices/iterator headers: retain the union of the constructor,
+    // control/section/envelope loops, row/split/projection loops, and fixed
+    // arithmetic leaf frames;256 pointer/f64-sized slots bound it. Arithmetic
+    // contexts coexist only in constructor or builder/section/row/projection
+    // chains (<=6), charged16. Wide leaves use fixed<=4-limb scratch; exact-sum
+    // leaves use the separately charged68-limb buffers, not dynamic arrays.
+    // Stable-sort/allocator/system-library stack is not a kernel arithmetic
+    // frame; current D1 sorts only[0,1]. Extended-domain scratch is audited by
+    // its owning pricing scope before promotion. This is a source upper bound,
+    // not an inference from type-size equality or compiler stack measurement.
+    let scalars = 1024 * std::mem::size_of::<Ball>()
+        + 256 * std::mem::size_of::<usize>()
+        + 256 * std::mem::size_of::<Wide2>()
+        + 16 * std::mem::size_of::<WideArith>();
+    let exact = 8 * std::mem::size_of::<ExactAccumulator>() + 8 * std::mem::size_of::<[u64; 68]>();
+    let constructor = 2 * std::mem::size_of::<StraightRecoveryContext>()
+        + 4 * std::mem::size_of::<[[Wide2; 12]; 12]>()
+        + 2 * std::mem::size_of::<Operator>()
+        + scalars
+        + exact;
+    let evaluation = std::mem::size_of::<StraightRecoveryContext>()
+        + 2 * std::mem::size_of::<[[CertifiedRow; 6]; 3]>()
+        + 2 * std::mem::size_of::<[[Ball; 12]; 6]>()
+        + scalars
+        + exact;
+    CertifiedStressControlSizes {
+        span: std::mem::size_of::<CertifiedStraightStressSpan>(),
+        context: std::mem::size_of::<StraightRecoveryContext>(),
+        wide_matrix: std::mem::size_of::<[[Wide2; 12]; 12]>(),
+        local_operator: std::mem::size_of::<Operator>(),
+        section_operator: std::mem::size_of::<[[Ball; 12]; 6]>(),
+        point_rows: std::mem::size_of::<[[CertifiedRow; 6]; 3]>(),
+        exact_accumulator: std::mem::size_of::<ExactAccumulator>(),
+        ball: std::mem::size_of::<Ball>(),
+        wide: std::mem::size_of::<Wide2>(),
+        arithmetic: std::mem::size_of::<WideArith>(),
+        constructor_workspace_upper: constructor,
+        evaluation_workspace_upper: evaluation,
+        workspace_upper: if constructor > evaluation {
+            constructor
+        } else {
+            evaluation
+        },
+    }
+}

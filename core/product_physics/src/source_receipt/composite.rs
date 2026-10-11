@@ -660,7 +660,8 @@ fn validate_physics_rows(
             return Err(bad("physical maximum range"));
         }
         if !source_selected
-            && (e["coefficient_basis"] != "j_side_section_equilibrium_binary64"
+            && (e["coefficient_basis"] != "j_side_section_equilibrium_binary64_enclosures"
+                || e["enclosure_scope"] != "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                 || e["approximation"] != "piecewise_quadratic_straight_section_statics")
         {
             return Err(bad("ordinary physical maximum method"));

@@ -217,9 +217,17 @@ ASSUMED.update({
 
 
 # KD5 illustrative layouts only; g5_profile binds actual in-build sizes.
-ASSUMED.update({"s(MemberBoundInputs)": 80, "s(LoadClosureRecord)": 32,
-                "s(LoadPrimitive)": 512, "s(LoadClosureEntry)": 80,
-                "s(RecoveryGroup)": 120})
+import os as _pricing_os
+_pricing_snapshot = _pricing_os.environ.get("RP_SNAPSHOT")
+_pricing_fc = _pricing_os.path.join(_pricing_snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs") if _pricing_snapshot else None
+if _pricing_fc and _pricing_os.path.exists(_pricing_fc) and "pub struct MemberBoundInputs" in open(_pricing_fc, encoding="utf-8").read():
+    ASSUMED.update({"s(MemberBoundInputs)": 80, "s(LoadClosureRecord)": 32,
+                    "s(LoadPrimitive)": 512, "s(LoadClosureEntry)": 80,
+                    "s(RecoveryGroup)": 120, "s((String,[f64;2]))": 40,
+                    "s(CertifiedMemberOption)": 3368, "s(CertifiedMemberRecovery)": 3360,
+                    "s(CertifiedMemberRecoveryResult)": 3376, "s(CertifiedMemberRecoveryPairResult)": 6736,
+                    "s(CertifiedSupportRows)": 480, "s(CertifiedSupportResult)": 496,
+                    "s(CertifiedSupportOption)": 488, "s(CertifiedRow)": 80, "s(CertifiedGroup)": 32})
 
 # ---- G4: cap overrides for the sensitivity table (G4_CAPS='{"m": 16, ...}') -----------------
 def g4_caps():
@@ -240,3 +248,15 @@ def g4_caps():
              Q=7 * n + 30 * m + s_ + min(N, r) + 2 * g)
     c.update(Pall=c["c"] * c["P"])                     # I82: every row of the c-case envelope
     return c
+
+_pricing_cp = _pricing_os.path.join(_pricing_snapshot, "core/product_physics/src/certified_publication.rs") if _pricing_snapshot else None
+if _pricing_cp and _pricing_os.path.exists(_pricing_cp) and "certify_straight_stress_spans(" in open(_pricing_cp, encoding="utf-8").read():
+    ASSUMED.update({"s(CertifiedStraightStressSpan)": 168, "s(EnclosedQuadraticStressSpan)": 160,
+                    "s(CertifiedStressControlWorkspace)": 108608})
+
+if _pricing_cp and _pricing_os.path.exists(_pricing_cp) and "fn fallback_circular_maximum(" in open(_pricing_cp, encoding="utf-8").read():
+    ASSUMED["s(FallbackReplayWorkspace)"] = 13696
+
+_pricing_ledger = _pricing_os.path.join(_pricing_snapshot, "core/solver/frame_kernel/src/load_ledger.rs") if _pricing_snapshot else None
+if _pricing_ledger and _pricing_os.path.exists(_pricing_ledger) and "fn compare_nonnegative_product(" in open(_pricing_ledger, encoding="utf-8").read():
+    ASSUMED["s(DirectedHelperWorkspace)"] = 608

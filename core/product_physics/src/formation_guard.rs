@@ -334,6 +334,9 @@ pub(crate) struct RecoveryGroup {
     pub(crate) kind: String,
     pub(crate) moment: bool,
     pub(crate) q: f64,
+    /// Exact squared norm of the actual published components is at most B².
+    /// Arithmetic unavailability is false; RN norm equality is insufficient.
+    pub(crate) zero_compatible: bool,
     pub(crate) q_hat: f64,
     pub(crate) bound: Result<f64, String>,
     pub(crate) absolute_scale: f64,
@@ -446,14 +449,22 @@ pub(crate) fn moment_scales(
         .collect()
 }
 
-/// Exact member-relative decision. No resolution conjunct is permitted.
-pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) -> bool {
-    if !bound.is_finite() { return true; }
+/// Exact finite member-relative decision. Invalid or unrepresentable
+/// comparison inputs are unavailable, never a silent non-firing group.
+pub(crate) fn member_group_decision(q: f64, q_hat: f64, bound: f64, s_star: f64) -> Result<bool, &'static str> {
+    for (value,reason) in [(q,"nonfinite published group norm"),(q_hat,"nonfinite certified group magnitude"),(bound,"nonfinite member bound"),(s_star,"nonfinite body action scale")] {
+        if !value.is_finite() { return Err(reason); }
+    }
+    if q < 0.0 || q_hat < q || bound < 0.0 || s_star < 0.0 { return Err("invalid member comparison inputs"); }
     let mut comparison = ExactAccumulator::new();
-    let exceeds = comparison.add(bound).is_ok()
-        && comparison.add_product(-CRITERION, q).is_ok()
-        && comparison.signum() > 0;
-    exceeds && s_star >= DESIGN_FLOOR_MIN_SCALE && q_hat >= DESIGN_FLOOR * s_star
+    comparison.add(bound).map_err(|_| "exact member comparison range")?;
+    comparison.add_product(-CRITERION, q).map_err(|_| "exact member comparison range")?;
+    Ok(comparison.signum() > 0 && s_star >= DESIGN_FLOOR_MIN_SCALE && q_hat >= DESIGN_FLOOR * s_star)
+}
+
+/// Boolean interface used by controls; unavailable comparisons fail closed.
+pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) -> bool {
+    member_group_decision(q,q_hat,bound,s_star).unwrap_or(true)
 }
 
 /// Unified finding over all member locations, wall rows and support groups.
@@ -468,22 +479,36 @@ pub(crate) fn recovery_finding(
         for group in &record.groups {
             let scale = if group.moment { scales.1 } else { scales.0 };
             match &group.bound {
-                Ok(bound) if member_group_fires(group.q, group.q_hat, *bound, scale) => fired.push(format!(
-                    "{}.{}.{}: q={:e}, B={bound:e}", record.member, group.location, group.kind, group.q)),
+                Ok(bound) => match member_group_decision(group.q,group.q_hat,*bound,scale) {
+                    Ok(true) => fired.push(format!("{}.{}.{}: q={:e}, B={bound:e}",record.member,group.location,group.kind,group.q)),
+                    Ok(false) => {},
+                    Err(reason) => fired.push(format!("{}.{}.{}: member comparison unavailable ({reason})",record.member,group.location,group.kind)),
+                },
                 Err(reason) => fired.push(format!("{}.{}.{}: the member bound is unavailable ({reason})", record.member, group.location, group.kind)),
-                _ => {},
             }
         }
     }
     (!fired.is_empty()).then(|| FormationFinding {
         guard: Guard::Recovery,
         sentence: format!(
-            "S11-G recovery guard (R-b'): load case {case_id} is Sensitive because {} member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion; every value is kept for inspection. Groups: [{}]{}",
+            "S11-G recovery guard (R-b'): load case {case_id} is Sensitive because {} member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [{}]{}",
             fired.len(), fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
             if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
         ),
         fired,
     })
+}
+
+/// Notice evidence only: compare Σ(v_i²) <= B² without forming a rounded
+/// norm or product. The accumulator covers the full binary64 product range.
+pub(crate) fn notice_zero_compatible(values:impl IntoIterator<Item=f64>,bound:f64)->bool {
+    if !bound.is_finite() || bound<0.0 {return false;}
+    let mut squared=ExactAccumulator::new();
+    for value in values {
+        if !value.is_finite() || squared.add_product(value,value).is_err() {return false;}
+    }
+    if squared.add_product(-bound,bound).is_err() {return false;}
+    squared.signum()<=0
 }
 
 /// Caller supplies conditions 1 and 2 (§3.3); this checks every group in
@@ -494,10 +519,23 @@ pub(crate) fn stress_free_notice(records: &[RecoveryRecord], case_id: &str) -> O
     let mut moment = 0.0_f64;
     for group in records.iter().flat_map(|record| &record.groups) {
         let bound = group.bound.as_ref().ok()?;
-        if !bound.is_finite() || !group.q_hat.is_finite() || !group.absolute_scale.is_finite()
+        // Cancellation-scale smallness alone cannot distinguish a tiny
+        // resolved load from a zero-compatible row. This notice-only check
+        // leaves the integrity predicate and its relative criterion unchanged.
+        if !group.zero_compatible || !bound.is_finite() || *bound < 0.0 || !group.q.is_finite() || group.q < 0.0 || group.q > *bound
+            || !group.q_hat.is_finite() || group.q_hat < group.q || !group.absolute_scale.is_finite() || group.absolute_scale < 0.0
             || group.q_hat > product_downward(DESIGN_FLOOR, group.absolute_scale) {
             return None; }
-        let upper = if group.q == 0.0 && *bound == 0.0 { 0.0 } else { (group.q + bound).next_up() };
+        // q is correctly rounded for the one-, two- and three-component
+        // product groups. next_up(q) encloses its exact norm; exact squared
+        // zero compatibility also bounds that norm by B. Take the tighter
+        // bound, then add B exactly and round upward once. An unavailable or
+        // infinite upper suppresses information rather than emitting +inf.
+        let norm_upper=if group.q==0.0 {0.0} else {group.q.next_up().min(*bound)};
+        let mut sum=ExactAccumulator::new();sum.add(norm_upper).ok()?;sum.add(*bound).ok()?;
+        let rounded=sum.round().ok()?;sum.add(-rounded).ok()?;
+        let upper=if sum.signum()>0 {rounded.next_up()} else {rounded};
+        if !upper.is_finite() {return None;}
         if group.moment { moment = moment.max(upper); } else { force = force.max(upper); }
     }
     Some(super::diag(

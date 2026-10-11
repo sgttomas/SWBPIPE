@@ -254,6 +254,15 @@ fn assert_contract(v: &Value) {
             let row = results(v).iter().find(|r| r["id"] == e["result_id"]).expect("extrema row");
             let (lo, hi, val) = (num(&e["value_lower_pa"]), num(&e["value_upper_pa"]), num(&row["value"]));
             assert!(lo <= val && val <= hi && val == lo + 0.5 * (hi - lo));
+            // SP4: compare the exact catalog conversion of every public
+            // normal-stress station component with the reported enclosure.
+            // No tolerance or rounded Pa product can hide a one-ULP gap.
+            for stress in results(v).iter().filter(|stress| stress["entity_ref"]==e["pipe_id"] && basis(stress)==("load_case",case) && matches!(stress["kind"].as_str(),Some("element_local_axial_normal_stress"|"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"))) {
+                assert_eq!(stress["unit"],"MPa");
+                let mut comparison=open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+                comparison.add_product(num(&stress["value"]).abs(),1_000_000.0).unwrap();comparison.add(-hi).unwrap();
+                assert!(comparison.signum()<=0,"public normal-stress station {} in {case} exceeds reported value_upper_pa={hi:.17e}",stress["id"]);
+            }
             assert!(covered.insert(e["pipe_id"].as_str().unwrap()));
         }
         let cov = &c["stress_maximum_coverage"];

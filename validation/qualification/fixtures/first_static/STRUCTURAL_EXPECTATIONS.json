@@ -35,7 +35,7 @@
     {
       "id": "normal_maximum_evidence",
       "namespace": "contract_evidence.exact_cases[case].pipe_stress_extrema",
-      "require": "One pipe/case/result-ID binding, complete coverage/no unavailable members, coefficient_basis=j_side_section_equilibrium_binary64 and coefficient-only enclosure scope; finite ordered bound interval contains published maximum, consistent interval/gap fields. Keep coefficient formation/solve uncertainty separate from enclosure."
+      "require": "One pipe/case/result-ID binding, complete coverage/no unavailable members, coefficient_basis=j_side_section_equilibrium_binary64_enclosures and the supplied-binary64 coefficient-enclosure scope; finite ordered global bound interval contains the published midpoint, with consistent interval/gap fields. The witness location is approximate; solution error is separate."
     },
     {
       "id": "governing_location",
