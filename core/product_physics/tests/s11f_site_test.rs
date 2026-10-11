@@ -380,11 +380,6 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "SA/structural_adapter.rs",
-        "solve",
-        "the pub(crate) `&[f64]` solve (C3-detect when bound)",
-    ),
-    (
-        "SA/structural_adapter.rs",
         "scrutinize_gaps",
         "T5's in-loop scrutiny (E14 friction, allow-listed)",
     ),

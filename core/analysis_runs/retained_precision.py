@@ -1621,7 +1621,7 @@ def _pressure_contract_is(model, expected):
     return type(value) is dict and value.keys() == expected.keys() and all(value[k] == expected[k] for k in expected)
 
 
-def _legacy_namespace(model):
+def _preview_namespace(model):
     """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, schema 0.1.0 or
     0.2.0 with `pressure_contract` absent or JSON null. Anything else is refused: any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
@@ -1681,7 +1681,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     # exact route a combination is ruling 4's expected refusal).
     # B2-C §10.1 G8 invocation (REVISION_01 §4.1 #12): on the preview route model combinations are admitted, the entries
     # being the invocation's in order, id and expression. The exact route still admits none (B3b; RR "PR-B1 cut …", 2).
-    need((_exact_namespace(model) if exact else _legacy_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
+    need((_exact_namespace(model) if exact else _preview_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))

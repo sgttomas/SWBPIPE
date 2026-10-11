@@ -1,5 +1,4 @@
 //! Two bounded, private certificate operations. No product caller or work tariff.
-#![allow(dead_code)] // Isolated arithmetic slice; integration is separately gated.
 
 use super::super::adaptive::{next_up, AttemptStop};
 use super::super::wide::multi::{AttemptWork, WideContext};

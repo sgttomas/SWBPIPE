@@ -4587,7 +4587,7 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
 /// included; `{}`, `false`, any contract on 0.1.0 or 0.2.0; 0.4.0) is outside
 /// the namespace. B3a's branch L3 is dropped (the owner retired that contract
 /// product-wide); B3D-10's tightenings stay.
-fn legacy_namespace(model: &Value) -> bool {
+fn preview_namespace(model: &Value) -> bool {
     matches!(model["schema_version"].as_str(), Some("0.1.0" | "0.2.0"))
         && model["pressure_contract"].is_null()
 }
@@ -4620,7 +4620,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
         // D1.3's namespace, type-strict (B3-D REVISION_01 §3, N-4; B3a's L3
         // dropped); B3b: the exact route's own branch.
-        if route.exact { exact_namespace(model) } else { legacy_namespace(model) }
+        if route.exact { exact_namespace(model) } else { preview_namespace(model) }
             // B1's alignment set, item 2 (g), PP's acceptance: no
             // `reference_configurations` member (null included); `components`
             // absent or []; `combinations` absent or an array (N-3 branch point

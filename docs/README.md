@@ -1,5 +1,9 @@
 # SWBPIPE documentation
 
+[SWBPIPE thesis](thesis/README.md) develops the reasons for this engineering
+design environment and its place in the Chirality approach. It is explanatory
+research; the PRD and adopted product documents retain their authority.
+
 SWBPIPE computes open, auditable piping mechanics. The responsible engineer
 supplies the governing data and accepts engineering reliance.
 

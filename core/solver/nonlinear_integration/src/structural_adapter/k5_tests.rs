@@ -898,7 +898,7 @@ fn k5_w4_entry_is_named_only_in_the_four_selected_bodies() {
             let call = body.find("constrained_geometry(").unwrap();
             assert!(body.find("if !selected").unwrap() < call, "{header} {name}");
         }
-        for name in ["solve", "solve_assembled", "solve_force_scaled"] {
+        for name in ["solve_assembled", "solve_force_scaled"] {
             let body = body_in_impl(&code, header, name);
             assert_eq!(tokens(body, "constrained_geometry"), 0, "{header} {name}");
             assert_eq!(
