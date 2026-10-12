@@ -135,7 +135,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
-            value="receiving the model document and holding its result (natively and in the app); the ordinary solve itself is unpriced, so no byte bound is claimed for it"
+            value="receiving the model document (request intake) only; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget; the ordinary solve itself is unpriced, so no byte bound is claimed for it"
           />
           <PoolLine
             label="Memory pool"

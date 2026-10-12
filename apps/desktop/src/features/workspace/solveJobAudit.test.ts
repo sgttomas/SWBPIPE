@@ -45,7 +45,7 @@ describe("solve-job audit resource record", () => {
     const job = startSolveJob(model, receipt);
     expect(job.state).toBe("queued");
     expect(job.resource).toEqual({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, pool_bytes: 48 * GiB, route_pricing: "ordinary_unpriced", ingress_reserved_bytes: 3 * 1024 ** 2, queue_reason: null, refusal: null });
-    expect(job.events.at(-1)!.message).toContain("per-invocation budget 12 GiB (bounds model intake and result custody); pool 48 GiB; model intake reserved 3 MiB; route ordinary_unpriced (no byte bound is claimed for the solve itself)");
+    expect(job.events.at(-1)!.message).toContain("per-invocation budget 12 GiB (bounds the model intake only); pool 48 GiB; model intake reserved 3 MiB; route ordinary_unpriced (no byte bound is claimed for the solve itself)");
     // A queued job can be cancelled.
     expect(requestSolveCancellation(job).state).toBe("cancelling");
   });

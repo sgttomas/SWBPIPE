@@ -10,9 +10,13 @@
 //! `raw_value`, `unbounded_depth`; not `preserve_order`, not
 //! `arbitrary_precision`), the parser's scratch buffer, one reallocation
 //! transient, the float parser's bignum transients, an error allocation and the
-//! native solve request wrapper ([`native_request`]). Every allocation is
-//! priced by its allocation envelope ([`allocation_envelope`]), which does not
-//! depend on the allocator's size-class table.
+//! native solve request wrapper ([`native_request`]). The bound is over
+//! *requested* allocations: it is at least the peak, over the parse, of the
+//! sum of [`allocation_envelope`] of every live requested size (a
+//! reallocation counts its old and new sizes together). It does not depend on
+//! the allocator's size-class table, and it is not a bound on the allocator's
+//! `malloc_size` of the blocks it hands back: see [`allocation_envelope`] for
+//! what the envelope covers and the cached-block slack it does not.
 //!
 //! The prescan itself does not allocate: it walks the bytes once with a
 //! fixed-size stack of per-container counters.
@@ -34,8 +38,8 @@ const BTREE_MIN_NON_ROOT_ENTRIES: u64 = 5;
 /// (and re-parses): refused at ingress.
 const RAW_VALUE_TOKEN: &[u8] = b"$serde_json::private::RawValue";
 /// Transient bignum allocations of serde_json's `float_roundtrip` (lexical)
-/// slow path while one float is parsed. Measured peak on adversarial
-/// hard-to-round floats is recorded by `ingress_bound_covers_measured_materialization`.
+/// slow path while one float is parsed; the priced peak on adversarial
+/// hard-to-round floats is checked by `float_allowance_covers_hard_float_parsing`.
 pub(crate) const FLOAT_PARSE_ALLOWANCE_BYTES: u64 = 16_384;
 /// A serde_json error (`Box<ErrorImpl>`), allocated only if the parse fails.
 const ERROR_ALLOWANCE_BYTES: u64 = 1_024;
@@ -48,19 +52,38 @@ const SCRATCH_ESCAPE_SLACK: u64 = 4;
 /// significand (20 digits) and one leading zero.
 const SCRATCH_NUMBER_SLACK: u64 = 21;
 
-/// The usable bytes the allocator may hand back for a request of `size` bytes.
+/// The price of one requested allocation of `size` bytes:
+/// max(16, next_power_of_two(size)), 0 for 0, `None` when the next power of
+/// two overflows (the caller refuses the input). For s > 8 it is < 2s.
 ///
-/// Assumption: the system allocator rounds a request of s >= 1 bytes to at
-/// most the next power of two, and never below 16 bytes. This holds for
-/// every class of macOS 26 xzone malloc (measured: 257 -> 320, 728 -> 768,
-/// 1008 -> 1024, 4097 -> 5120, 32769 -> 49152, 131073 -> 147456; large
-/// allocations are 16 KiB-page rounded) and for the legacy libmalloc
-/// tiny/small/large classes, and is checked against `malloc_size` of every
-/// live allocation by `ingress_bound_covers_measured_materialization`. It is
-/// deliberately independent of the class table, which differs between
-/// allocator generations. Looseness: for s > 8 the envelope is < 2s, so it is
-/// < 2x any real class (every class is >= its request). `None` when the next
-/// power of two overflows (the caller refuses the input).
+/// What it covers, for a requested size s >= 1:
+/// - A fresh allocation's usable size. The system allocator rounds a fresh
+///   request to at most the next power of two and never below 16 bytes. On
+///   macOS 26 xzone malloc, requests up to 32 KiB come from fixed size classes
+///   (measured: 257 -> 320, 728 -> 768, 1008 -> 1024, 4097 -> 5120,
+///   16385 -> 20480) and larger requests are page-granular (16 KiB pages:
+///   32769 -> 49152, 131073 -> 147456); the legacy libmalloc tiny/small/large
+///   classes satisfy it too. Checked by
+///   `allocation_envelope_covers_this_hosts_malloc_size`.
+/// - The pages any allocation can make resident. A size-class block (s <= 32
+///   KiB here) never exceeds its class, whether fresh or reused. A
+///   page-granular block is page-aligned, so the program touching its s
+///   requested bytes (a reallocation copies at most that many) makes at most
+///   round_up(s, P) bytes resident, P = 16 KiB. For every s >= P,
+///   round_up(s, P) <= envelope(s): the envelope is a power of two not below
+///   max(s, P), hence a multiple of P that is not below s, and round_up(s, P)
+///   is the least such multiple. (A 4 KiB page only tightens this. For s < P
+///   the inequality can fail, e.g. s = 100, but those requests are served from
+///   size classes.) Checked by
+///   `envelope_covers_the_resident_pages_of_page_granular_blocks`.
+///
+/// Not covered: `malloc_size` of a reused block. A page-granular request may
+/// be served from an already-held cached free block larger than its envelope
+/// (observed: a `Vec` reallocation to 4 MiB returned a 7,847,936 B block
+/// after a ~7.8 MB buffer was freed). That slack is memory the process
+/// already held, not new demand; only the touched pages above become
+/// resident. The ingress bound therefore prices requested sizes, not
+/// `malloc_size`.
 pub(crate) fn allocation_envelope(size: u64) -> Option<u64> {
     match size {
         0 => Some(0),
@@ -484,9 +507,12 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
 
 #[cfg(test)]
 pub(crate) mod counting {
-    //! Per-thread allocation accounting for the ingress bound tests: tracks the
-    //! live requested bytes, the live bytes priced by `allocation_envelope`
-    //! and (macOS) the live real usable sizes reported by `malloc_size`.
+    //! Per-thread allocation accounting for the ingress bound tests: the live
+    //! requested bytes and the live bytes priced by `allocation_envelope` of
+    //! each requested size. A moving or in-place reallocation counts its old
+    //! and new sizes as live together at that instant. Only requested sizes
+    //! are counted, so the measure is deterministic: it does not depend on the
+    //! heap's history (which blocks the allocator reuses) or on other threads.
     use std::alloc::{GlobalAlloc, Layout, System};
     use std::cell::Cell;
 
@@ -498,27 +524,11 @@ pub(crate) mod counting {
         static PEAK: Cell<i64> = const { Cell::new(0) };
         static LIVE_PRICED: Cell<i64> = const { Cell::new(0) };
         static PEAK_PRICED: Cell<i64> = const { Cell::new(0) };
-        static LIVE_REAL: Cell<i64> = const { Cell::new(0) };
-        static PEAK_REAL: Cell<i64> = const { Cell::new(0) };
         static ALLOCATIONS: Cell<u64> = const { Cell::new(0) };
     }
 
     fn price(size: usize) -> i64 {
         super::allocation_envelope(size as u64).unwrap_or(u64::MAX) as i64
-    }
-
-    /// The allocator's real usable size of a live block (0 where unknown).
-    fn usable(ptr: *mut u8) -> i64 {
-        #[cfg(target_os = "macos")]
-        {
-            // SAFETY: `ptr` is a live block returned by the system allocator.
-            (unsafe { libc::malloc_size(ptr as *const libc::c_void) }) as i64
-        }
-        #[cfg(not(target_os = "macos"))]
-        {
-            let _ = ptr;
-            0
-        }
     }
 
     fn active() -> bool {
@@ -546,18 +556,11 @@ pub(crate) mod counting {
         bump(&LIVE_PRICED, &PEAK_PRICED, priced(added), priced(removed));
     }
 
-    fn record_real(added: i64, removed: i64) {
-        if active() {
-            bump(&LIVE_REAL, &PEAK_REAL, added, removed);
-        }
-    }
-
     unsafe impl GlobalAlloc for CountingAllocator {
         unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
             let ptr = unsafe { System.alloc(layout) };
             if !ptr.is_null() {
                 record(layout.size(), 0, true);
-                record_real(usable(ptr), 0);
             }
             ptr
         }
@@ -565,30 +568,18 @@ pub(crate) mod counting {
             let ptr = unsafe { System.alloc_zeroed(layout) };
             if !ptr.is_null() {
                 record(layout.size(), 0, true);
-                record_real(usable(ptr), 0);
             }
             ptr
         }
         unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-            let real = usable(ptr);
             unsafe { System.dealloc(ptr, layout) };
             record(0, layout.size(), false);
-            record_real(0, real);
         }
         unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
-            let old_real = usable(ptr);
             let new = unsafe { System.realloc(ptr, layout, new_size) };
             if !new.is_null() {
-                // Priced: old and new buffers are both counted live across the move.
+                // The old and new requested sizes are both live across the move.
                 record(new_size, layout.size(), true);
-                // Real: a moved block coexisted with the old one; an in-place
-                // resize changes the live size by the difference.
-                let new_real = usable(new);
-                if new == ptr {
-                    record_real(new_real.saturating_sub(old_real).max(0), old_real.saturating_sub(new_real).max(0));
-                } else {
-                    record_real(new_real, old_real);
-                }
             }
             new
         }
@@ -597,15 +588,14 @@ pub(crate) mod counting {
     #[derive(Debug, Clone, Copy)]
     pub struct Measured {
         pub peak_requested: u64,
+        /// Peak of the live sum of `allocation_envelope(requested size)`.
         pub peak_priced: u64,
-        /// Peak live `malloc_size` total (macOS; 0 elsewhere).
-        pub peak_real: u64,
         pub allocations: u64,
     }
 
     /// Runs `f` with this thread's accounting active from zero.
     pub fn measure<T>(f: impl FnOnce() -> T) -> (T, Measured) {
-        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED, &LIVE_REAL, &PEAK_REAL] {
+        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED] {
             cell.with(|c| c.set(0));
         }
         ALLOCATIONS.with(|c| c.set(0));
@@ -615,7 +605,6 @@ pub(crate) mod counting {
         let measured = Measured {
             peak_requested: PEAK.with(Cell::get).max(0) as u64,
             peak_priced: PEAK_PRICED.with(Cell::get).max(0) as u64,
-            peak_real: PEAK_REAL.with(Cell::get).max(0) as u64,
             allocations: ALLOCATIONS.with(Cell::get),
         };
         (out, measured)
@@ -705,7 +694,7 @@ mod tests {
         assert_eq!(allocation_envelope(1), Some(16));
         assert_eq!(allocation_envelope(16), Some(16));
         assert_eq!(allocation_envelope(17), Some(32));
-        // At or above every measured macOS 26 xzone class.
+        // At or above every measured fresh macOS 26 xzone class.
         for (request, xzone_class) in [(257u64, 320u64), (728, 768), (1008, 1024), (4097, 5120), (32_769, 49_152), (131_073, 147_456)] {
             assert!(allocation_envelope(request).unwrap() >= xzone_class, "{request}");
         }
@@ -719,14 +708,27 @@ mod tests {
         assert_eq!(IngressBound { raw_len: u64::MAX, materialization_bytes: 0 }.lease_bytes(), None);
     }
 
-    /// The allocator's real usable sizes, checked directly on this host.
+    /// Fresh-allocation class table, checked directly on this host's
+    /// allocator. Single-threaded within itself; it allocates and frees one
+    /// block at a time.
+    ///
+    /// The `malloc_size <= envelope` check is limited to requests up to 32 KiB,
+    /// which xzone serves from fixed size classes: a class block reports its
+    /// class whether it is fresh or reused, so the check does not depend on the
+    /// process's heap history or on concurrently running tests. Above 32 KiB
+    /// blocks are page-granular and come from the large allocator, whose cache
+    /// can hand back an already-held larger block that another test (or an
+    /// earlier step of this one) freed; `malloc_size` of such a block can
+    /// exceed the envelope (see [`allocation_envelope`]), so only fresh sizes
+    /// would satisfy it and freshness cannot be arranged under parallel tests.
+    /// Page-granular sizes are covered by
+    /// `envelope_covers_the_resident_pages_of_page_granular_blocks` instead.
     #[cfg(target_os = "macos")]
     #[test]
     fn allocation_envelope_covers_this_hosts_malloc_size() {
+        const SIZE_CLASS_LIMIT: usize = 32 * 1024;
         let mut loosest = 0.0f64;
-        let mut sizes: Vec<usize> = (1..=70_000).collect();
-        sizes.extend((70_000..=4 << 20).step_by(4_093));
-        for size in sizes {
+        for size in 1..=SIZE_CLASS_LIMIT {
             // SAFETY: plain malloc/free of a non-zero size; the block is unused.
             let real = unsafe {
                 let ptr = libc::malloc(size);
@@ -736,11 +738,60 @@ mod tests {
                 real as u64
             };
             let envelope = allocation_envelope(size as u64).unwrap();
+            assert!(real >= size as u64, "{size}: malloc_size {real}");
             assert!(real <= envelope, "{size}: malloc_size {real} exceeds envelope {envelope}");
             loosest = loosest.max(envelope as f64 / real as f64);
         }
         assert!(loosest <= 2.0, "loosest envelope/malloc_size {loosest:.3}");
-        eprintln!("loosest envelope / malloc_size over sampled requests: {loosest:.4}");
+        eprintln!("loosest envelope / malloc_size over size-class requests: {loosest:.4}");
+    }
+
+    /// Page-granular requests: every block (fresh or a reused cached one) is
+    /// page-aligned and whole pages, so touching its s requested bytes makes at
+    /// most round_up(s, page) bytes resident, and that is within the
+    /// envelope for every s >= the page size. The alignment checks are
+    /// properties of every block the large allocator returns, so they do not
+    /// depend on heap history; the inequality is arithmetic.
+    #[test]
+    fn envelope_covers_the_resident_pages_of_page_granular_blocks() {
+        const PAGE: u64 = 16 * 1024;
+        let round_up = |s: u64| s.div_ceil(PAGE) * PAGE;
+        // Exhaustive over [P, 2^24], then around every power of two up to 2^63.
+        for s in PAGE..=(1 << 24) {
+            assert!(round_up(s) <= allocation_envelope(s).unwrap(), "{s}");
+        }
+        for shift in 14..=63u32 {
+            let p = 1u64 << shift;
+            for s in [p - 1, p, p + 1] {
+                if s >= PAGE {
+                    if let Some(envelope) = allocation_envelope(s) {
+                        assert!(s.div_ceil(PAGE) * PAGE <= envelope, "{s}");
+                    }
+                }
+            }
+        }
+        // Below the page the inequality fails; those requests use size classes.
+        assert!(round_up(100) > allocation_envelope(100).unwrap());
+        #[cfg(target_os = "macos")]
+        {
+            // SAFETY: sysconf has no preconditions.
+            let page = unsafe { libc::sysconf(libc::_SC_PAGESIZE) } as u64;
+            assert!(page <= PAGE && PAGE.is_multiple_of(page), "page size {page}");
+            let mut sizes: Vec<usize> = (32 * 1024 + 1..=96 * 1024).step_by(509).collect();
+            sizes.extend((96 * 1024..=8 << 20).step_by(40_009));
+            for size in sizes {
+                // SAFETY: plain malloc/free of a non-zero size; the block is unused.
+                let (address, real) = unsafe {
+                    let ptr = libc::malloc(size);
+                    assert!(!ptr.is_null());
+                    let real = libc::malloc_size(ptr);
+                    libc::free(ptr);
+                    (ptr as usize as u64, real as u64)
+                };
+                assert_eq!(address % page, 0, "{size}: block not page-aligned");
+                assert!(real >= size as u64 && real % page == 0, "{size}: malloc_size {real}");
+            }
+        }
     }
 
     #[test]
@@ -797,11 +848,12 @@ mod tests {
         assert!(serde_json::from_slice::<Value>(nested(128, "[", "]", "").as_bytes()).is_err(), "the parser's own limit is active");
     }
 
+    /// The bound covers the peak live sum of `allocation_envelope` of every
+    /// requested size during materialization (reallocations count old + new),
+    /// measured by the counting allocator. The measure counts requested sizes
+    /// only, so it is deterministic and independent of heap history.
     #[test]
     fn ingress_bound_covers_measured_materialization() {
-        // On macOS the bound is checked against the real live usable sizes
-        // (`malloc_size`); elsewhere against the envelope-priced peak.
-        let real = cfg!(target_os = "macos");
         let mut tightest = f64::MAX;
         let mut loosest = 0.0f64;
         let mut loosest_name = String::new();
@@ -823,26 +875,12 @@ mod tests {
                 bound.materialization_bytes
             );
             assert!(measured.peak_requested <= measured.peak_priced, "{name}");
-            if real {
-                assert!(measured.peak_real > 0 || measured.allocations == 0, "{name}: malloc_size recorded");
-                assert!(
-                    measured.peak_real <= bound.materialization_bytes,
-                    "{name}: real malloc_size peak {} exceeds bound {}",
-                    measured.peak_real,
-                    bound.materialization_bytes
-                );
-            }
-            let peak = if real { measured.peak_real } else { measured.peak_priced };
-            let ratio = bound.materialization_bytes as f64 / peak.max(1) as f64;
+            let ratio = bound.materialization_bytes as f64 / measured.peak_priced.max(1) as f64;
             report.push(format!(
-                "{name}: bound {} real peak {} priced peak {} requested peak {} bound/{} {ratio:.3}",
-                bound.materialization_bytes,
-                measured.peak_real,
-                measured.peak_priced,
-                measured.peak_requested,
-                if real { "real" } else { "priced" },
+                "{name}: bound {} priced peak {} requested peak {} bound/priced {ratio:.3}",
+                bound.materialization_bytes, measured.peak_priced, measured.peak_requested,
             ));
-            if peak >= 64 * 1024 {
+            if measured.peak_priced >= 64 * 1024 {
                 // Not absurdly loose where the content dominates the fixed allowances.
                 assert!(ratio < 3.0, "{name}: ratio {ratio:.3}");
                 tightest = tightest.min(ratio);
@@ -853,7 +891,7 @@ mod tests {
             }
         }
         eprintln!("{}", report.join("\n"));
-        eprintln!("content-dominated bound/peak: tightest {tightest:.3}, loosest {loosest:.3} ({loosest_name})");
+        eprintln!("content-dominated bound/priced peak: tightest {tightest:.3}, loosest {loosest:.3} ({loosest_name})");
     }
 
     #[test]
@@ -874,13 +912,10 @@ mod tests {
             let bound = prescan(text.as_bytes()).unwrap().materialization_bytes;
             let (_, measured) = measure(|| serde_json::from_str::<Value>(&text).map(drop).map_err(drop));
             assert!(measured.peak_priced <= bound, "{text}: {measured:?} > {bound}");
-            if cfg!(target_os = "macos") {
-                assert!(measured.peak_real <= bound, "{text}: real {measured:?} > {bound}");
-            }
             // How much of the float allowance this parse needed beyond everything else priced.
             let used = measured.peak_priced.saturating_sub(bound - FLOAT_PARSE_ALLOWANCE_BYTES);
             largest_used = largest_used.max(used);
-            eprintln!("float of {} chars: priced peak {} real peak {} bound {}", text.len(), measured.peak_priced, measured.peak_real, bound);
+            eprintln!("float of {} chars: priced peak {} bound {}", text.len(), measured.peak_priced, bound);
         }
         eprintln!("largest share of the float allowance used: {largest_used} of {FLOAT_PARSE_ALLOWANCE_BYTES} bytes");
     }

@@ -6,7 +6,10 @@
 //!    ([`crate::ingress::prescan`]); an ingress lease of the raw body's
 //!    allocation envelope plus the materialization bound is
 //!    admitted against the per-invocation budget and the pool *before*
-//!    `serde_json::from_slice` materializes the model.
+//!    `serde_json::from_slice` materializes the model. The per-invocation
+//!    budget bounds this ingress lease only: the solve stage reserves nothing,
+//!    and result and custody leases are bounded by the pool, a fresh host
+//!    headroom verdict and the retention/custody count limits, not by it.
 //! 2. Queue: the admitted input and its lease move into the worker, which
 //!    waits (state `queued`, with the current reason visible to polls) for the
 //!    exclusive unpriced ordinary-solve slot.
@@ -18,9 +21,12 @@
 //!    taken. A start is refused early while retention is already full.
 //! 5. Handoff: taking the result grows its lease to 2R (handoff copy overlap),
 //!    moves the bytes out without cloning, and keeps the 2R custody lease until
-//!    the webview disposes its copy. A freshly loaded webview holds no copy, so
+//!    the webview disposes its copy. A freshly loaded webview holds no copy and
+//!    knows none of the previous page's jobs, so
 //!    [`SolveJobRegistry::dispose_all_results`] then releases every retained
-//!    result and custody lease (never a queued or running job's owners).
+//!    result and custody lease and abandons every queued or running job
+//!    (cooperative cancellation: it never publishes a result). It never
+//!    releases a live job's owners itself; the worker drops them.
 //!
 //! Locks: the registry lock may be held while taking the pool lock (lease
 //! drop/grow); the pool never calls back into the registry under its lock.
@@ -44,6 +50,17 @@ pub(crate) const SOLVER_MODE_HEADER: &str = "x-swbpipe-solver-mode";
 const ROUTE_PRICING: &str = "ordinary_unpriced";
 const CANCELLED_BEFORE_START: &str = "cancelled_before_solver_start";
 const CANCELLED_AT_PUBLICATION: &str = "cancelled_before_result_publication_result_discarded";
+/// A live job abandoned by [`SolveJobRegistry::dispose_all_results`] (page reload).
+const ABANDONED_AWAITING: &str = "abandoned_by_session_reset_awaiting_cooperative_checkpoint";
+const ABANDONED_BEFORE_START: &str = "abandoned_by_session_reset_before_solver_start";
+const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discarded";
+
+/// Where a cancelled job stopped.
+#[derive(Clone, Copy)]
+enum CancelPoint {
+    BeforeStart,
+    AtPublication,
+}
 
 /// The ordinary solve: model document and mode to the producer's exact bytes.
 pub(crate) type SolveFn = Arc<dyn Fn(Value, PreviewSolverMode) -> Result<String, String> + Send + Sync>;
@@ -80,6 +97,7 @@ impl JobState {
 /// The resource terms a job was admitted under.
 #[derive(Clone, Debug, Serialize)]
 pub(crate) struct JobResource {
+    /// The per-invocation budget at admission; it capped the ingress lease only.
     pub invocation_budget_bytes: u64,
     pub pool_bytes: u64,
     pub route_pricing: &'static str,
@@ -131,17 +149,22 @@ pub(crate) struct SolveResultDisposal {
     pub delivered: bool,
 }
 
-/// What [`SolveJobRegistry::dispose_all_results`] released.
+/// What [`SolveJobRegistry::dispose_all_results`] released and abandoned.
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 pub(crate) struct SolveResultsDisposal {
     /// Records whose retained result and/or custody lease was released.
     pub released_results: usize,
     pub released_bytes: u64,
+    /// Queued or running jobs newly marked abandoned (cancellation requested);
+    /// their leases are released when their workers drop them.
+    pub abandoned_jobs: usize,
 }
 
-/// The bytes a result buffer actually occupies: on macOS the allocator's
-/// usable size of the block (the desktop uses the system allocator), elsewhere
-/// the allocation envelope of its capacity.
+/// The bytes a result lease reserves for a result buffer: on macOS the
+/// allocator's usable size of the block (the desktop uses the system
+/// allocator), elsewhere the allocation envelope of its capacity. A reused
+/// cached block can report more than the buffer can make resident; reserving
+/// it over-prices, never under-prices.
 fn result_allocation_bytes(result: &String) -> u64 {
     let capacity = result.capacity() as u64;
     let envelope = ingress::allocation_envelope(capacity).unwrap_or(u64::MAX);
@@ -188,6 +211,8 @@ struct SolveJobRecord {
     cancellation_token: String,
     state: JobState,
     cancellation_requested: bool,
+    /// Cancellation requested by a session reset rather than by a token holder.
+    abandoned: bool,
     cancellation_status: String,
     queue_reason: Option<ResourceRefusal>,
     error_message: Option<String>,
@@ -404,6 +429,7 @@ impl SolveJobRegistry {
                     cancellation_token: token.clone(),
                     state: JobState::Queued,
                     cancellation_requested: false,
+                    abandoned: false,
                     cancellation_status: "not_requested".into(),
                     queue_reason: None,
                     error_message: None,
@@ -478,8 +504,14 @@ impl SolveJobRegistry {
         table.prune();
     }
 
-    fn finish_cancelled(&self, job_id: &str, status: &str, error: Option<String>) {
+    fn finish_cancelled(&self, job_id: &str, point: CancelPoint, error: Option<String>) {
         self.finish(job_id, |record| {
+            let status = match (point, record.abandoned) {
+                (CancelPoint::BeforeStart, false) => CANCELLED_BEFORE_START,
+                (CancelPoint::AtPublication, false) => CANCELLED_AT_PUBLICATION,
+                (CancelPoint::BeforeStart, true) => ABANDONED_BEFORE_START,
+                (CancelPoint::AtPublication, true) => ABANDONED_AT_PUBLICATION,
+            };
             record.state = JobState::Cancelled;
             record.cancellation_status = status.to_string();
             record.error_message = error;
@@ -495,14 +527,14 @@ impl SolveJobRegistry {
             Ok(slot) => slot,
             Err(WaitOutcome::Cancelled) => {
                 drop(input.take());
-                self.finish_cancelled(&job_id, CANCELLED_BEFORE_START, None);
+                self.finish_cancelled(&job_id, CancelPoint::BeforeStart, None);
                 return;
             }
         };
         if !self.mark_running(&job_id) {
             drop(input.take());
             drop(slot);
-            self.finish_cancelled(&job_id, CANCELLED_BEFORE_START, None);
+            self.finish_cancelled(&job_id, CancelPoint::BeforeStart, None);
             return;
         }
         let Some(AdmittedInput { model, lease }) = input.take() else { return };
@@ -529,7 +561,7 @@ impl SolveJobRegistry {
             Ok(Err(error)) => {
                 drop(slot);
                 if self.cancellation_requested(&job_id) {
-                    self.finish_cancelled(&job_id, CANCELLED_AT_PUBLICATION, Some(error));
+                    self.finish_cancelled(&job_id, CancelPoint::AtPublication, Some(error));
                 } else {
                     self.finish(&job_id, |record| {
                         record.state = JobState::Failed;
@@ -545,7 +577,7 @@ impl SolveJobRegistry {
         if self.cancellation_requested(job_id) {
             drop(result);
             drop(slot);
-            self.finish_cancelled(job_id, CANCELLED_AT_PUBLICATION, None);
+            self.finish_cancelled(job_id, CancelPoint::AtPublication, None);
             return;
         }
         // Shrink the buffer (up to 2x its length after serialization) to fit,
@@ -572,7 +604,7 @@ impl SolveJobRegistry {
             drop(table);
             drop(result);
             drop(lease);
-            self.finish_cancelled(job_id, CANCELLED_AT_PUBLICATION, None);
+            self.finish_cancelled(job_id, CancelPoint::AtPublication, None);
             return;
         }
         if retained >= MAX_RETAINED_RESULTS {
@@ -668,14 +700,30 @@ impl SolveJobRegistry {
         Ok(receipt)
     }
 
-    /// Releases every retained-but-untaken result and every webview custody
-    /// lease: called when a freshly loaded webview provably holds no result
-    /// copy. Queued and running jobs are untouched (their owners are live in
-    /// their workers); their results publish and are retained as usual.
+    /// Session reset, called when a freshly loaded webview provably holds no
+    /// result copy and no handle on the previous page's jobs. Releases every
+    /// retained-but-untaken result and every webview custody lease, and
+    /// abandons every queued or running job: cancellation is requested (status
+    /// `abandoned_by_session_reset_*`), so a queued job exits without solving
+    /// and a running one discards its result at publication instead of filling
+    /// retention nobody can take. A live job's owners (input lease, solve slot)
+    /// are not released here; its worker drops them, then marks it cancelled.
+    /// Publication re-checks cancellation under this registry lock, so no
+    /// abandoned job can publish after this returns.
     pub(crate) fn dispose_all_results(&self) -> SolveResultsDisposal {
         let mut table = self.table();
         let mut released = Vec::new();
-        for record in table.records.values_mut().filter(|r| r.state.terminal()) {
+        let mut abandoned_jobs = 0;
+        for record in table.records.values_mut() {
+            if !record.state.terminal() {
+                if !record.abandoned {
+                    record.abandoned = true;
+                    record.cancellation_requested = true;
+                    record.cancellation_status = ABANDONED_AWAITING.into();
+                    abandoned_jobs += 1;
+                }
+                continue;
+            }
             let result = record.result.take();
             let lease = record.result_lease.take();
             if result.is_some() || lease.is_some() {
@@ -685,9 +733,13 @@ impl SolveJobRegistry {
         let receipt = SolveResultsDisposal {
             released_results: released.len(),
             released_bytes: released.iter().filter_map(|(_, lease)| lease.as_ref()).map(Lease::bytes).sum(),
+            abandoned_jobs,
         };
         drop(released);
         table.prune();
+        if abandoned_jobs > 0 {
+            self.pool.wake_waiters();
+        }
         receipt
     }
 
@@ -713,9 +765,12 @@ impl SolveJobRegistry {
                 format!("request_after_terminal_state_{}_no_cancellation_performed", record.state.as_str());
             return Ok(out);
         }
-        // Cancellation releases nothing itself; the worker's owners drop.
+        // Cancellation releases nothing itself; the worker's owners drop. An
+        // abandoned job is already cancelling and keeps its abandonment status.
         record.cancellation_requested = true;
-        record.cancellation_status = "cancellation_requested_awaiting_cooperative_checkpoint".into();
+        if !record.abandoned {
+            record.cancellation_status = "cancellation_requested_awaiting_cooperative_checkpoint".into();
+        }
         let out = receipt(record, true);
         self.pool.wake_waiters();
         Ok(out)
@@ -1044,7 +1099,7 @@ mod tests {
     }
 
     #[test]
-    fn dispose_all_releases_retained_and_custody_but_spares_live_jobs() {
+    fn dispose_all_releases_retained_and_custody_and_abandons_live_jobs() {
         let host = ScriptedHost::normal();
         let (registry, gate) = gated_registry(&host);
         // Two retained results; one of them taken into custody.
@@ -1061,31 +1116,87 @@ mod tests {
         let running = registry.start(MODEL, None).unwrap();
         started(&gate);
         let queued = registry.start(MODEL, None).unwrap();
-        let live_ingress = running.resource.ingress_reserved_bytes + queued.resource.ingress_reserved_bytes;
         let held = registry.pool().reserved(LeasePurpose::Result) + registry.pool().reserved(LeasePurpose::Custody);
         assert!(held > 0);
 
         let disposal = registry.dispose_all_results();
-        assert_eq!(disposal, SolveResultsDisposal { released_results: 2, released_bytes: held });
+        assert_eq!(disposal, SolveResultsDisposal { released_results: 2, released_bytes: held, abandoned_jobs: 2 });
+        let wire = serde_json::to_value(&disposal).unwrap();
+        assert_eq!(wire, serde_json::json!({"released_results": 2, "released_bytes": held, "abandoned_jobs": 2}));
         assert_eq!(registry.pool().reserved(LeasePurpose::Result) + registry.pool().reserved(LeasePurpose::Custody), 0);
-        assert_eq!(registry.pool().reserved(LeasePurpose::Ingress), live_ingress, "live jobs keep their leases");
-        let status = registry.pool_status();
-        assert_eq!((status.retained_results, status.webview_custody_results), (0, 0));
-        assert_eq!((status.running_jobs, status.queued_jobs), (1, 1));
         for job in &done {
             let after = registry.status(job).unwrap();
             assert!(!after.result_available && after.state == "completed");
         }
-        assert_eq!(registry.dispose_all_results(), SolveResultsDisposal { released_results: 0, released_bytes: 0 });
 
-        // The live jobs still complete and are retained as usual.
+        // The queued job exits without solving; its lease is gone once it shows cancelled.
+        let status = wait_terminal(&registry, &queued.job_id);
+        assert_eq!((status.state, status.cancellation_status.as_str()), ("cancelled", ABANDONED_BEFORE_START));
+        assert!(status.cancellation_requested && !status.result_available);
+        assert_eq!(registry.pool().reserved(LeasePurpose::Ingress), running.resource.ingress_reserved_bytes);
+
+        // The running job keeps its lease and the slot until its worker finishes.
+        let status = registry.status(&running.job_id).unwrap();
+        assert_eq!((status.state, status.cancellation_status.as_str()), ("running", ABANDONED_AWAITING));
+        assert!(status.cancellation_requested);
+        std::thread::sleep(Duration::from_millis(20));
+        assert_eq!(registry.status(&running.job_id).unwrap().state, "running");
+        assert_eq!(registry.pool().reserved(LeasePurpose::Ingress), running.resource.ingress_reserved_bytes);
+        assert!(registry.pool().unpriced_solve_running());
+        // A token-holder's cancel does not overwrite the abandonment.
+        let cancel = registry.cancel(&running.job_id, &running.backend_cancellation_token).unwrap();
+        assert_eq!(cancel.cancellation_status, ABANDONED_AWAITING);
+        // A second reset counts nothing new.
+        assert_eq!(registry.dispose_all_results(), SolveResultsDisposal { released_results: 0, released_bytes: 0, abandoned_jobs: 0 });
+
         gate.release.send(Ok("{\"r\":2}".into())).unwrap();
+        let status = wait_terminal(&registry, &running.job_id);
+        assert_eq!((status.state, status.cancellation_status.as_str()), ("cancelled", ABANDONED_AT_PUBLICATION));
+        assert!(!status.result_available && status.result_bytes.is_none());
+        assert_eq!(registry.pool().reserved_total(), 0);
+        assert!(!registry.pool().unpriced_solve_running());
+        assert_eq!(gate.calls.load(Ordering::SeqCst), 3, "the queued job never started the solver");
+        let pool = registry.pool_status();
+        assert_eq!((pool.retained_results, pool.webview_custody_results, pool.running_jobs, pool.queued_jobs), (0, 0, 0, 0));
+
+        // The new page's starts are not refused for retention.
+        let fresh = registry.start(MODEL, None).unwrap();
         started(&gate);
         gate.release.send(Ok("{\"r\":3}".into())).unwrap();
-        for job in [&running.job_id, &queued.job_id] {
-            assert!(wait_terminal(&registry, job).result_available);
+        assert!(wait_terminal(&registry, &fresh.job_id).result_available);
+        let retained = registry.pool().reserved(LeasePurpose::Result);
+        assert_eq!(
+            registry.dispose_all_results(),
+            SolveResultsDisposal { released_results: 1, released_bytes: retained, abandoned_jobs: 0 }
+        );
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    #[test]
+    fn dispose_all_keeps_a_full_queue_from_filling_retention() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated_registry(&host);
+        // The old page: one running and a full queue, enough to fill retention.
+        let first = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        let mut old: Vec<_> = vec![first.job_id];
+        old.extend((0..MAX_QUEUED_JOBS).map(|_| registry.start(MODEL, None).unwrap().job_id));
+        assert_eq!(registry.dispose_all_results().abandoned_jobs, MAX_QUEUED_JOBS + 1);
+        gate.release.send(Ok("{\"r\":1}".into())).unwrap();
+        for job in &old {
+            let status = wait_terminal(&registry, job);
+            assert_eq!(status.state, "cancelled", "{status:?}");
+            assert!(status.cancellation_status.starts_with("abandoned_by_session_reset"));
         }
-        assert_eq!(registry.dispose_all_results().released_results, 2);
+        assert_eq!(gate.calls.load(Ordering::SeqCst), 1, "abandoned queued jobs never solved");
+        assert_eq!(registry.pool().reserved_total(), 0);
+        assert_eq!(registry.pool_status().retained_results, 0);
+        // The new page can start and retain as usual.
+        let fresh = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        gate.release.send(Ok("{\"r\":2}".into())).unwrap();
+        assert_eq!(wait_terminal(&registry, &fresh.job_id).state, "completed");
+        registry.dispose_result(&fresh.job_id).unwrap();
         assert_eq!(registry.pool().reserved_total(), 0);
     }
 

@@ -726,9 +726,6 @@
         },
         "retained_precision": {
           "$ref": "retained_precision_mp_v2.schema.json"
-        },
-        "execution_resources": {
-          "$ref": "#/$defs/ExecutionResources"
         }
       },
       "oneOf": [
@@ -1207,37 +1204,6 @@
           }
         }
       ]
-    },
-    "ExecutionResources": {
-      "description": "DEL-04-07: the native desktop memory grant a completed run executed under, as the native host reported it. The per-invocation budget bounds request intake and native result custody; the ordinary route is unpriced, so no byte bound is claimed for the solve itself. Optional: absent from records that predate it and from producers without a memory pool.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "invocation_budget_bytes",
-        "pool_bytes",
-        "route_pricing",
-        "ingress_reserved_bytes"
-      ],
-      "properties": {
-        "invocation_budget_bytes": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        },
-        "pool_bytes": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        },
-        "route_pricing": {
-          "const": "ordinary_unpriced"
-        },
-        "ingress_reserved_bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        }
-      }
     },
     "Provenance": {
       "type": "object",

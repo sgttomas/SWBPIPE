@@ -3,6 +3,23 @@ import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+// This file verifies the memory-pool session path (queue reasons, typed
+// refusals, grant recording and native custody), not the preview-physics
+// reader: that reader's verdict and the standing read from it are held
+// passing here, as LoadReferenceStatesBlock.joinedGuard.test.tsx holds its
+// standing, so the cases do not depend on which bundled reader build is
+// present. The reader's own verdicts are covered by the reader suites.
+vi.mock("../results/resultReader", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../results/resultReader")>();
+  return {
+    ...actual,
+    readerValidate: (...args: Parameters<typeof actual.readerValidate>) => args[0] === "preview-physics" ? {} : actual.readerValidate(...args),
+  };
+});
+vi.mock("../results/resultStanding", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../results/resultStanding")>();
+  return { ...actual, numericalResultStanding: () => ({ contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }) };
+});
 import modelFixture from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
@@ -61,7 +78,7 @@ function renderSolvePanel(state: WorkspaceSession) {
 
 const commands = () => invokeMock.mock.calls.map(([command]) => command as string);
 
-it("shows the native queue reason while the job waits, then records the grant with the completed run", async () => {
+it("shows the native queue reason while the job waits, then records the grant in the completed run's solve-job record", async () => {
   let release!: () => void;
   const released = new Promise<void>((resolve) => { release = resolve; });
   let polls = 0;
@@ -94,18 +111,21 @@ it("shows the native queue reason while the job waits, then records the grant wi
   // model document; it is read through the browser download route here.
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
   const panel = renderSolvePanel(result.current);
-  expect(within(panel.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("intake/custody budget=12 GiB; pool=12 GiB; route=ordinary_unpriced (solve not bounded by the budget); refusal=none");
+  expect(within(panel.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("intake budget=12 GiB; pool=12 GiB; route=ordinary_unpriced (solve not bounded by the budget); refusal=none");
   fireEvent.click(within(panel.container).getByTestId("solve-job-export-link-local-private-intent"));
   const href = within(panel.container).getByTestId("solve-job-export-link").getAttribute("href")!;
   const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
-  expect(packet.resource).toMatchObject({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced", ordinary_route_byte_bound_claimed: false, refusal: null });
-  expect(JSON.stringify(result.current.model.model)).not.toMatch(/budget|pool_bytes/);
-  // The run's analysis record carries the same grant (DEL-04-07), under its record checksum.
-  const record = result.current.results.analysisRun!;
-  expect(record.analysis_run.execution_resources).toEqual({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced", ingress_reserved_bytes: done.resource.ingress_reserved_bytes });
   expect(done.resource.ingress_reserved_bytes).toEqual(expect.any(Number));
+  expect(packet.resource).toMatchObject({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced",
+    ingress_reserved_bytes: done.resource.ingress_reserved_bytes, ordinary_route_byte_bound_claimed: false, refusal: null });
+  // The export names the run it audits, so the grant is recoverable for that run.
+  const record = result.current.results.analysisRun!;
+  expect(packet.analysis_run_ref).toEqual({ object_type: "AnalysisRun", ref: record.analysis_run.run_id });
+  expect(JSON.stringify(result.current.model.model)).not.toMatch(/budget|pool_bytes|ordinary_unpriced/);
+  // The persisted, checksummed analysis record carries no host-dependent member:
+  // the budget, pool and pricing stay in the solve-job record only.
+  expect(JSON.stringify(record)).not.toMatch(/invocation_budget_bytes|pool_bytes|ordinary_unpriced|execution_resources/);
   expect(await verifyAnalysisRunRecord(record)).toBe("match");
-  expect(JSON.stringify(result.current.model.model)).not.toMatch(/execution_resources|ordinary_unpriced/);
 });
 
 it("records a refused terminal job as a typed refusal with its budget, takes nothing and publishes no result", async () => {
@@ -253,13 +273,13 @@ it("releases a completed job's result when the take fails for a reason other tha
   expect(transport.custody()).toEqual([]);
 });
 
-it("keeps the run's recorded grant when a rule-check aggregate revises its analysis record", async () => {
+it("keeps the run's solve-job grant, and adds none to the record, when a rule-check aggregate revises its analysis record", async () => {
   const { result } = await session();
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.analysisRun).not.toBeNull());
   const first = result.current.results.analysisRun!;
-  const grant = first.analysis_run.execution_resources;
-  expect(grant).toMatchObject({ invocation_budget_bytes: 12 * GiB, route_pricing: "ordinary_unpriced" });
+  const grant = result.current.results.solveJob.resource;
+  expect(grant).toMatchObject({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, route_pricing: "ordinary_unpriced" });
   const { projectSessionGeneration, uiModelRevision } = result.current.model;
   await act(async () => {
     await result.current.results.handleRuleCheckAggregate("USER_RULE_CHECKED", {
@@ -270,7 +290,8 @@ it("keeps the run's recorded grant when a rule-check aggregate revises its analy
   await waitFor(() => expect(result.current.results.analysisRun).not.toBe(first));
   const revised = result.current.results.analysisRun!;
   expect(revised.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
-  expect(revised.analysis_run.execution_resources).toEqual(grant);
+  expect(result.current.results.solveJob.resource).toEqual(grant);
+  expect(JSON.stringify(revised)).not.toMatch(/invocation_budget_bytes|pool_bytes|ordinary_unpriced|execution_resources/);
   expect(await verifyAnalysisRunRecord(revised)).toBe("match");
 });
 

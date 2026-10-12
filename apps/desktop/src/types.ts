@@ -666,11 +666,6 @@ export type AnalysisRunEnvelope = {
     /** U6d: the successor's complete receipt, copied whole and checked for equality (C1:162). */
     retained_precision?: unknown;
     contract_evidence?: Record<string, unknown>;
-    /** DEL-04-07: the native memory grant this run executed under, as reported.
-     * Written by the desktop for every completed solve; absent from records that
-     * predate it and from producers without a memory pool (headless). Never part
-     * of the model document. */
-    execution_resources?: AnalysisRunExecutionResources;
     run_id: string;
     run_name: string;
     run_kind: string;
@@ -783,14 +778,10 @@ export type ResourceRefusal =
   | { kind: "custody_full"; delivered: number; limit: number }
   | { kind: "solve_slot_busy" };
 
-/** The analysis-run record's copy of the solve job's grant (DEL-04-07): the
- * per-invocation budget and pool in force, the request intake reserved, and
- * the ordinary route's pricing (unpriced: no byte bound is claimed for the
- * solve itself). */
-export type AnalysisRunExecutionResources = SolveResourceGrant;
-
-/** The resources the native host granted one solve job. The ordinary route is
- * unpriced: no byte bound is claimed for the solve itself. */
+/** The resources the native host granted one solve job, recorded in its
+ * solve-job audit record (never in the model document or the analysis run).
+ * The per-invocation budget bounds only the request intake; the ordinary route
+ * is unpriced: no byte bound is claimed for the solve itself. */
 export type SolveResourceGrant = {
   invocation_budget_bytes: number;
   pool_bytes: number;

@@ -460,19 +460,21 @@ export async function abandonPreviewMechanicsJob(jobId: string, cancellationToke
 }
 
 /** What `dispose_all_preview_mechanics_results` reported releasing. */
-export type NativeCustodyReset = { released_results: number; released_bytes: number };
+export type NativeCustodyReset = { released_results: number; released_bytes: number; abandoned_jobs: number };
 
 /** Releases every result the native host retains or counts as held by this
- * webview, untaken or delivered. Only meaningful when no result is held: a
+ * webview, untaken or delivered, and abandons every queued or running job (they
+ * end cancelled without publishing; their owners release when the worker
+ * finishes). Only meaningful when no result is held: a
  * fresh webview holds none, so the session calls it once at start. Best
  * effort: null when unavailable or unreadable; never throws. */
 export async function disposeAllPreviewMechanicsResults(): Promise<NativeCustodyReset | null> {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return null;
   try {
     const reported = await invoke<Record<string, unknown>>("dispose_all_preview_mechanics_results");
-    const results = reported?.released_results, bytes = reported?.released_bytes;
-    return Number.isSafeInteger(results) && Number.isSafeInteger(bytes)
-      ? { released_results: results as number, released_bytes: bytes as number }
+    const results = reported?.released_results, bytes = reported?.released_bytes, abandoned = reported?.abandoned_jobs;
+    return Number.isSafeInteger(results) && Number.isSafeInteger(bytes) && Number.isSafeInteger(abandoned)
+      ? { released_results: results as number, released_bytes: bytes as number, abandoned_jobs: abandoned as number }
       : null;
   } catch {
     return null;
@@ -559,21 +561,15 @@ export async function buildAnalysisRunPreview(
   {
     inputManifest,
     ruleCheckAggregate,
-    executionResources,
   }: {
     inputManifest: CurrentSessionInputManifestEvidence;
     ruleCheckAggregate?: string | null;
-    /** DEL-04-07: the native grant the solve ran under, recorded in the run
-     * (outside the model document). The session's fresh solve always supplies
-     * it; a revision of an earlier record carries over exactly what that record
-     * held; omitted, the record carries no execution-resources member. */
-    executionResources?: SolveResourceGrant | null;
   },
 ): Promise<AnalysisRunEnvelope> {
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload), executionResources);
+  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
 }
 
 export function bindSourceResultDimensions(

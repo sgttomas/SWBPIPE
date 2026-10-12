@@ -65,8 +65,7 @@ import type {
   ModelHashEvidence,
   ProjectEnvelopeHashEvidence,
   PreviewModel,
-  SolveJobAuditState,
-  SolveResourceGrant
+  SolveJobAuditState
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
@@ -877,7 +876,6 @@ export function useWorkspaceSession() {
         }
       }
       let output: MechanicsResult;
-      let terminalResource: SolveResourceGrant | null = null;
       if (startReceipt.mode === "backend_job") {
         const visibleJobId = startedJob.job_id;
         const terminal = await awaitBackendSolveJob(startReceipt.job_id, (status) => {
@@ -885,7 +883,6 @@ export function useWorkspaceSession() {
           if (!solveRunGate.current.isCurrent(runGeneration)) return;
           setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
         });
-        terminalResource = terminal.resource;
         // A completed job's result awaits a take; any other terminal job retains none.
         if (terminal.job_id === startReceipt.job_id) {
           if (terminal.state === "completed") unsettledJob.completed = true;
@@ -948,14 +945,8 @@ export function useWorkspaceSession() {
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
-      // DEL-04-07: the run records the native grant it executed under.
-      const executionResources = terminalResource ?? startReceipt.resource;
-      if (!executionResources) {
-        throw new Error("SOLVE-RESOURCE-GRANT-MISSING: the native host reported no readable resource grant for this completed job.");
-      }
       const runRecord = await buildAnalysisRunPreview(output, {
-        inputManifest: manifest,
-        executionResources
+        inputManifest: manifest
       });
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1044,10 +1035,6 @@ export function useWorkspaceSession() {
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
     const capturedManifest = inputManifest;
-    // The revised record keeps exactly the grant the solve-time record holds.
-    const capturedResources = analysisRun?.analysis_run.run_id === capturedResult.run_id
-      ? analysisRun.analysis_run.execution_resources ?? null
-      : null;
     const capturedModelRevision = modelRevision.current;
     const capturedSolveGeneration = solveRunGate.current.current();
     const stillCurrent = () =>
@@ -1061,8 +1048,7 @@ export function useWorkspaceSession() {
     try {
       const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
           inputManifest: capturedManifest,
-          ruleCheckAggregate: aggregate,
-          executionResources: capturedResources
+          ruleCheckAggregate: aggregate
       });
       if (!stillCurrent()) return;
       setAnalysisRun(revisedRecord);

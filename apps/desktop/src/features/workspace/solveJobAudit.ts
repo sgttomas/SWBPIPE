@@ -56,7 +56,7 @@ function refusedResource(current: SolveJobResourceRecord, refusal: ResourceRefus
 
 function grantSummary(grant: SolveResourceGrant | null): string {
   return grant
-    ? `per-invocation budget ${formatBytes(grant.invocation_budget_bytes)} (bounds model intake and result custody); pool ${formatBytes(grant.pool_bytes)}; model intake reserved ${formatBytes(grant.ingress_reserved_bytes)}; route ordinary_unpriced (no byte bound is claimed for the solve itself)`
+    ? `per-invocation budget ${formatBytes(grant.invocation_budget_bytes)} (bounds the model intake only); pool ${formatBytes(grant.pool_bytes)}; model intake reserved ${formatBytes(grant.ingress_reserved_bytes)}; route ordinary_unpriced (no byte bound is claimed for the solve itself)`
     : "the native host reported no resource grant";
 }
 

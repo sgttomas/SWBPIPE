@@ -119,7 +119,7 @@ export function createSolveJobTransport(
         released_bytes += new TextEncoder().encode(job.bytes).byteLength;
       }
       disposeAllCalls += 1;
-      return { released_results, released_bytes };
+      return { released_results, released_bytes, abandoned_jobs: 0 };
     }
     if (!handles(command)) throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
     const request = args as { jobId?: unknown; cancellationToken?: unknown } | undefined;

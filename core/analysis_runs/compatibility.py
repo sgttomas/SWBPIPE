@@ -77,24 +77,6 @@ def analysis_record_projection(envelope: Mapping[str, Any]) -> dict[str, Any]:
     return projected
 
 
-ANALYSIS_EXECUTION_RESOURCES_INVALID = "ANALYSIS_EXECUTION_RESOURCES_INVALID"
-_EXECUTION_RESOURCE_KEYS = frozenset({"invocation_budget_bytes", "pool_bytes", "route_pricing", "ingress_reserved_bytes"})
-_MAX_SAFE_INTEGER = 2**53 - 1
-
-
-def _execution_resources(value: Any) -> dict[str, Any]:
-    """DEL-04-07 (TS twin `readExecutionResources`): the native desktop memory grant
-    a completed run executed under, exactly these four fields. The budget bounds
-    request intake and native result custody; the ordinary route is unpriced."""
-    def count(item: Any, minimum: int) -> bool:
-        return type(item) is int and minimum <= item <= _MAX_SAFE_INTEGER
-    if (not isinstance(value, Mapping) or set(value) != _EXECUTION_RESOURCE_KEYS
-            or not count(value["invocation_budget_bytes"], 1) or not count(value["pool_bytes"], 1)
-            or not count(value["ingress_reserved_bytes"], 0) or value["route_pricing"] != "ordinary_unpriced"):
-        raise ValueError(ANALYSIS_EXECUTION_RESOURCES_INVALID)
-    return {key: value[key] for key in ("invocation_budget_bytes", "pool_bytes", "route_pricing", "ingress_reserved_bytes")}
-
-
 def _build_analysis_run(
     mechanics_result: Mapping[str, Any], *, input_manifest_ref: Mapping[str, str], input_manifest_hash: str,
     input_manifest: Mapping[str, Any] | None = None,
@@ -104,13 +86,7 @@ def _build_analysis_run(
     solver_build_ref: Mapping[str, str] | None = None, settings_ref: Mapping[str, str] | None = None,
     unit_system_ref: Mapping[str, str] | None = None,
     record_version: str = "0.2.0",
-    execution_resources: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    # The 0.2 record has no execution-resources member; a 0.3 record carries one
-    # only when its producer ran under the native desktop memory pool.
-    if execution_resources is not None and record_version != "0.3.0":
-        raise ValueError(ANALYSIS_EXECUTION_RESOURCES_INVALID)
-    resources = _execution_resources(execution_resources) if execution_resources is not None else None
     received = deepcopy(dict(mechanics_result))
     if record_version == "0.2.0":
         if any(key in received for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery", "retained_precision")) or _has_retained_rows(received):
@@ -200,9 +176,6 @@ def _build_analysis_run(
     # C1:162; D2 4.9.6: the successor's AnalysisRun carries its complete receipt (B3b: either successor).
     if contract_id in RETAINED_CONTRACTS:
         envelope["analysis_run"]["retained_precision"] = deepcopy(received["retained_precision"])
-    # DEL-04-07: the memory grant the run executed under, covered by the record checksum.
-    if resources is not None:
-        envelope["analysis_run"]["execution_resources"] = resources
     envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
     return envelope
 
@@ -568,9 +541,6 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
             raise ValueError(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH)
     elif "retained_precision" in run:
         raise ValueError(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
-    # DEL-04-07: optional (records that predate it, or a producer without a pool); exact when present.
-    if "execution_resources" in run:
-        _execution_resources(run["execution_resources"])
     if run.get("diagnostics") != [{"source_annotation": deepcopy(item)} for item in source.get("diagnostics", [])]:
         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
     statuses = run.get("analysis_status")

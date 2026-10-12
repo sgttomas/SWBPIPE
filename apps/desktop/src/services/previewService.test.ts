@@ -765,7 +765,7 @@ describe("session-start release of earlier native custody", () => {
     // No start reaches the native host before the release completes.
     expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results"]);
     finishReset();
-    expect(await first).toEqual({ released_results: 0, released_bytes: 0 });
+    expect(await first).toEqual({ released_results: 0, released_bytes: 0, abandoned_jobs: 0 });
     await starting;
     void beginSessionResultCustodyReset();
     expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results", "start_preview_mechanics_job"]);

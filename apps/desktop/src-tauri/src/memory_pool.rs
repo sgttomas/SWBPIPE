@@ -8,6 +8,11 @@
 //! acknowledgement and never exceeds physical capacity. Acknowledgement never
 //! bypasses headroom, pressure or qualification refusals.
 //!
+//! What the per-invocation budget bounds today: only a start's ingress lease
+//! (the raw body plus its materialization). The unpriced solve stage reserves
+//! nothing; result and custody leases are bounded by the pool, a fresh
+//! headroom verdict and the retention/custody count limits, not by the budget.
+//!
 //! Every priced admission is atomic: under one lock it checks capacity, the
 //! pool's remaining bytes, a fresh host sample (age, pressure, headroom) and
 //! records the reservation, so racing admissions serialize and cannot both
@@ -24,7 +29,8 @@ use serde::Serialize;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
-/// The owner-authorized, qualified per-invocation budget: 12 GiB.
+/// The owner-authorized, qualified per-invocation budget: 12 GiB. It caps a
+/// start's ingress lease; it does not bound result retention or custody.
 pub(crate) const QUALIFIED_INVOCATION_BUDGET_BYTES: u64 = 12_884_901_888;
 /// A host sample older than this cannot admit work.
 pub(crate) const HEADROOM_SAMPLE_MAX_AGE: Duration = Duration::from_secs(1);

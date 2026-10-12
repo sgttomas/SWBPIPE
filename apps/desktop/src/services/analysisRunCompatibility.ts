@@ -12,7 +12,7 @@ import loadReferenceTable from "../../../../fixtures/results/semantic_contract_v
 import loadReferenceSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json";
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
-import type { AnalysisRunEnvelope, AnalysisRunExecutionResources, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
+import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 
 export const ANALYSIS_RUN_V02 = "0.2.0";
@@ -125,21 +125,9 @@ export async function buildAnalysisRunV02(result: MechanicsResult, inputManifest
   if (retainedPrecisionDowngrade(result)) throw new Error(ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN);
   return buildAnalysisRecord(result, inputManifest, "legacy", ruleCheckStatus, loadBasisRefs);
 }
-export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[], executionResources?: AnalysisRunExecutionResources | null): Promise<AnalysisRunEnvelope> {
+export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs, executionResources ?? null);
-}
-
-export const ANALYSIS_EXECUTION_RESOURCES_INVALID = "ANALYSIS_EXECUTION_RESOURCES_INVALID";
-const EXECUTION_RESOURCE_KEYS = ["invocation_budget_bytes", "pool_bytes", "route_pricing", "ingress_reserved_bytes"];
-/** DEL-04-07 (Python twin `_execution_resources`): the run's memory grant as
- * the native host reported it, exactly these four fields; refused otherwise. */
-export function readExecutionResources(value: unknown): AnalysisRunExecutionResources {
-  const v = value as Record<string, unknown>;
-  const count = (x: unknown, min: number) => typeof x === "number" && Number.isSafeInteger(x) && x >= min;
-  if (!v || typeof v !== "object" || Array.isArray(v) || Object.keys(v).sort().join("\0") !== EXECUTION_RESOURCE_KEYS.slice().sort().join("\0")
-    || !count(v.invocation_budget_bytes, 1) || !count(v.pool_bytes, 1) || !count(v.ingress_reserved_bytes, 0) || v.route_pricing !== "ordinary_unpriced") throw new Error(ANALYSIS_EXECUTION_RESOURCES_INVALID);
-  return { invocation_budget_bytes: v.invocation_budget_bytes as number, pool_bytes: v.pool_bytes as number, route_pricing: "ordinary_unpriced", ingress_reserved_bytes: v.ingress_reserved_bytes as number };
+  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
 type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
 /** T1: the load/reference-state readers run before a record is built or
@@ -148,9 +136,7 @@ async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void
   if (sourceContract(source) === "load_reference") readerValidate("load-reference", source);
   if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
 }
-async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[], executionResources: AnalysisRunExecutionResources | null = null): Promise<AnalysisRunEnvelope> {
-  // The 0.2 record has no execution-resources member.
-  const resources = executionResources === null ? null : route === "legacy" ? (() => { throw new Error(ANALYSIS_EXECUTION_RESOURCES_INVALID); })() : readExecutionResources(executionResources);
+async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (sourceContract(result) === "physics") readerValidate("physics", result);
   await validateLoadReferenceRoute(result);
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
@@ -210,8 +196,6 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   if (route === "source_blocks" || route === "physics_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
   // U6d (C1:162; D2 4.9.6): the complete receipt is copied whole, never recomputed or repaired.
   if (isRetainedRoute(route)) record.analysis_run.retained_precision = structuredClone(result.retained_precision);
-  // DEL-04-07: the memory grant the run executed under, covered by the record checksum.
-  if (resources) record.analysis_run.execution_resources = resources;
   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
   if (route !== "legacy") await validateAnalysisRunV03(record, result, loadBasisRefs);
   return record;
@@ -256,8 +240,6 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     await validateRetainedPrecision(source);
     if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   } else if (Object.hasOwn(run, "retained_precision")) throw new Error(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
-  // DEL-04-07: optional (records that predate it, or a producer without a pool); exact when present.
-  if (Object.hasOwn(run, "execution_resources")) readExecutionResources(run.execution_resources);
   if (!same(run.diagnostics, source.diagnostics.map(source_annotation => ({ source_annotation })))) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
   const statuses = run.analysis_status;

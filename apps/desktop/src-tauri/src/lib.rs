@@ -1849,9 +1849,12 @@ fn dispose_preview_mechanics_result(
     state.dispose_result(&job_id)
 }
 
-/// Releases every retained-but-untaken result and every webview custody lease.
-/// The frontend calls it on page load, when a fresh webview provably holds no
-/// result copy. Queued and running jobs are untouched.
+/// Session reset: releases every retained-but-untaken result and every webview
+/// custody lease, and abandons every queued or running job (cooperative
+/// cancellation; it never publishes a result, and its worker releases its
+/// owners). The frontend calls it on page load, when a fresh webview provably
+/// holds no result copy and no handle on the previous page's jobs. Returns
+/// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
 fn dispose_all_preview_mechanics_results(state: tauri::State<'_, SolveJobRegistry>) -> SolveResultsDisposal {
     state.dispose_all_results()
