@@ -773,7 +773,9 @@ fn every_family_clause_refuses_with_its_fact() {
     let case = |field: &'static str, value: Value| move |r: &mut Value| r["model"]["load_cases"][0][field] = value.clone();
     assert_eq!(with(&case("pressure_regions", json!([]))), family(C::Case, F::PressureRegions));
     assert_eq!(with(&case("equivalent_static", json!({}))), family(C::Case, F::EquivalentStatic));
-    assert_eq!(with(&case("modulus_basis_ref", json!("T0"))), family(C::Case, F::ModulusBasisRef));
+    // B7a (b) Widen domain, stage 1: a named-point basis is inside D1.5 on branch L; a solve
+    // temperature still refuses.
+    assert_eq!(with(&case("modulus_basis_ref", json!("T0"))), None);
     assert_eq!(with(&case("modulus_basis_temperature", json!({"value": 20.0, "unit": "degC"}))), family(C::Case, F::ModulusBasisTemperature));
     assert_eq!(with(&case("analysis_state", Value::Null)), family(C::Case, F::AnalysisState));
     let support = |field: &'static str, value: Value| move |r: &mut Value| r["model"]["supports"][1][field] = value.clone();
@@ -784,7 +786,32 @@ fn every_family_clause_refuses_with_its_fact() {
         assert_eq!(with(&support("family", json!(family_name))), None, "{family_name}");
     }
     let load = |field: &'static str, value: Value| move |r: &mut Value| r["model"]["load_cases"][0]["primitive_loads"][2][field] = value.clone();
-    assert_eq!(with(&load("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadTarget));
+    // B7a (b) Widen domain, stage 1: on branch L a full-span uniform member load, an element
+    // `distributed_force` in `force_per_length` along a global axis, is inside D1.7; any other
+    // element form refuses by its fact, and so does the deterministic self-weight id.
+    let element = |direction: &'static str| move |r: &mut Value| {
+        r["model"]["load_cases"][0]["primitive_loads"][2] = json!({"id": "udl", "category": "distributed_force",
+            "target": {"type": "element", "pipe": "M1"}, "direction": direction,
+            "magnitude": {"value": 10.0, "unit": "N/m"}, "dimension": "force_per_length"});
+    };
+    for direction in ["global_x", "global_y", "global_z"] {
+        assert_eq!(with(&element(direction)), None, "{direction}");
+    }
+    for direction in ["RX", "UY", "local_y", "global_y "] {
+        assert_eq!(with(&element(direction)), family(C::Loads, F::LoadDirection), "{direction}");
+    }
+    assert_eq!(with(&load("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadDimension), "a concentrated element load");
+    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["dimension"] = json!("force"); }),
+        family(C::Loads, F::LoadDimension));
+    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["category"] = json!("weight"); }),
+        family(C::Loads, F::LoadDimension));
+    let case_id = milestone()["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
+    let self_weight = format!("load:self-weight:{}:{case_id}:2:M1", case_id.len());
+    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["id"] = json!(self_weight); }),
+        family(C::Loads, F::GeneratedLoadIdentity));
+    for near in [format!("{self_weight}x"), format!("load:self-weight:{}:{case_id}:3:M1", case_id.len()), "load:self-weight:".to_owned()] {
+        assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["id"] = json!(near); }), None, "{near}");
+    }
     assert_eq!(with(&load("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension));
     assert_eq!(with(&load("dimension", json!("force"))), None);
     // D1.10, after D1.9: an object provenance, with or without leading ASCII whitespace.
@@ -805,18 +832,17 @@ fn every_family_clause_refuses_with_its_fact() {
     for (field, value, fact) in [
         ("pressure_regions", json!([]), F::PressureRegions),
         ("equivalent_static", json!({}), F::EquivalentStatic),
-        ("modulus_basis_ref", json!("T0"), F::ModulusBasisRef),
         ("modulus_basis_temperature", json!({"value": 20.0, "unit": "degC"}), F::ModulusBasisTemperature),
         ("analysis_state", Value::Null, F::AnalysisState),
     ] {
         assert_eq!(with(&on_last(field, value)), family(C::Case, fact), "D1.5 on case {last}: {field}");
     }
+    assert_eq!(with(&on_last("modulus_basis_ref", json!("T0"))), None, "B7a (b): a named point on case {last}");
     let load_on_last = |field: &'static str, value: Value| move |r: &mut Value| {
         *r = with_cases(r.clone(), caps::LOAD_CASES);
         r["model"]["load_cases"][last]["primitive_loads"][2][field] = value.clone();
     };
-    assert_eq!(with(&load_on_last("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadTarget), "D1.7 on case {last}");
-    assert_eq!(with(&load_on_last("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
+    assert_eq!(with(&load_on_last("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");    assert_eq!(with(&load_on_last("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
     assert_eq!(with(&load_on_last("provenance", json!("{"))), family(C::Provenance, F::ObjectProvenance), "D1.10 on case {last}");
     // D1.8 restates D1.4 (straight members only when no components exist).
     assert!(include_str!("retained_memory.rs").contains("return refuse(C::Members, F::Components);"));
@@ -2631,6 +2657,10 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
             "pressure_basis": "gauge", "pressure": {"value": 0.0, "unit": "Pa"}}])), family(C::Case, F::PressureRegions), "case {case}: one region");
         assert_eq!(with(&|r| r["model"]["load_cases"][case]["pressure_regions"] = Value::Null), family(C::Case, F::PressureRegions), "case {case}: null");
         assert_eq!(with(&|r| r["model"]["load_cases"][case]["modulus_basis_ref"] = json!("T0")), family(C::Case, F::ModulusBasisRef), "case {case}: a point basis");
+        // B7a (b) Widen domain, stage 1, is branch L only: a member load stays outside branch E.
+        assert_eq!(with(&|r| r["model"]["load_cases"][case]["primitive_loads"][0] = json!({"id": "udl", "category": "distributed_force",
+            "target": {"type": "element", "pipe": "M1"}, "direction": "global_y", "magnitude": {"value": 10.0, "unit": "N/m"},
+            "dimension": "force_per_length"})), family(C::Loads, F::LoadTarget), "case {case}: a member load");
     }
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "combination", "basis": "mechanics", "terms": [{"load_case": "case-1", "factor": 1.0}]}])),
         family(C::Invocation, F::Combinations), "ruling 4: no combination on the exact route");

@@ -133,8 +133,24 @@ fn fail(check: ReceiptCheck, field_path: &'static str) -> ReceiptFailure {
 #[derive(Default)]
 struct Enc {
     failures: RefCell<Vec<ReceiptFailure>>,
+    /// B7a (b) Widen domain (RV125 N-2): each requested case's `material_bases` index
+    /// (`case_bases`), set once per serialization; empty where only the base basis exists.
+    basis_refs: Vec<usize>,
 }
 impl Enc {
+    /// A requested case's `material_basis_ref` (0, the base basis, when none was set).
+    fn basis_ref(&self, case_index: usize) -> Value {
+        if self.basis_refs.is_empty() {
+            return json!(0);
+        }
+        match self.basis_refs.get(case_index) {
+            Some(index) => json!(index),
+            None => {
+                self.fail(ReceiptCheck::Association, "material_basis_ref");
+                Value::Null
+            }
+        }
+    }
     fn fail(&self, check: ReceiptCheck, path: &'static str) {
         self.failures.borrow_mut().push(fail(check, path));
     }
@@ -839,7 +855,7 @@ fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work
 }
 
 /// G-b (C2 §5): `initial`, `w2` and `formation` from the typed seed.
-fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
+fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed, case_index: usize) -> (Value, Value, Value) {
     let initial = match &seed.initial {
         Some(rp::InitialSeed::Report { code, report_diagnostic_ref }) => {
             let outcome = match code.as_str() {
@@ -855,8 +871,12 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
         Some(rp::InitialSeed::StructuralFailure { error, diagnostic_ref }) => {
             json!({"kind":"structural_failure","error":structural_error(e,error),"diagnostic_ref":diagnostic_ref})
         }
-        // basis_index is not captured.
-        Some(rp::InitialSeed::FormationFailure { .. }) => e.untranslated("ordinary_attempts[].initial.formation_failure"),
+        // B7a (b) Widen domain (RV125 N-2): a deferred unformed basis is the case's own material
+        // basis, so its index is the case's `material_basis_ref`.
+        Some(rp::InitialSeed::FormationFailure { error: FrameKernelError::NumericalRange { name } }) => {
+            json!({"kind":"formation_failure","error":{"tag":"numerical_range","name":name},"basis_index":e.basis_ref(case_index)})
+        }
+        Some(rp::InitialSeed::FormationFailure { .. }) => e.unencodable("ordinary_attempts[].initial.formation_failure"),
         // The not-attempted cause is not captured.
         None => e.untranslated("ordinary_attempts[].initial.not_attempted"),
     };
@@ -882,43 +902,87 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
     (initial, w2, formation)
 }
 
-/// The one material basis (D1.5) of the requested cases `0..cases` (B1 SP: every case's base
-/// selector; at c = 1 the one case).
-fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, cases: usize) -> Result<Value, ReceiptFailure> {
-    let assoc = |p| fail(ReceiptCheck::Association, p);
+/// One requested case's basis selector as the receipt names it: `{"kind":"base"}` or, B7a (b)
+/// Widen domain, `{"kind":"named","id"}`. A temperature selector is refused (D1.5 keeps it out).
+fn case_selector(case: &Value) -> Result<Value, ReceiptFailure> {
+    if !case.get("modulus_basis_temperature").is_none_or(Value::is_null) {
+        return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector"));
+    }
+    Ok(match case.get("modulus_basis_ref").filter(|v| !v.is_null()) {
+        Some(id) if id.is_string() => json!({"kind":"named","id":id}),
+        Some(_) => return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector")),
+        None => json!({"kind":"base"}),
+    })
+}
+/// Each requested case's material basis index: one basis per distinct selector, numbered in
+/// the order the request's cases first name it (RS G8's own order).
+fn case_bases(raw: &Value, cases: usize) -> Result<(Vec<Value>, Vec<usize>), ReceiptFailure> {
+    let (mut selectors, mut of_case) = (Vec::new(), Vec::with_capacity(cases));
     for case_index in 0..cases {
-        let case = &raw["model"]["load_cases"][case_index];
-        // Only the base selector is mapped; a named or temperature basis is refused.
-        if !case.get("modulus_basis_ref").is_none_or(Value::is_null) || !case.get("modulus_basis_temperature").is_none_or(Value::is_null) {
-            return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector"));
-        }
+        let selector = case_selector(&raw["model"]["load_cases"][case_index])?;
+        let index = match selectors.iter().position(|s| *s == selector) {
+            Some(index) => index,
+            None => {
+                selectors.push(selector);
+                selectors.len() - 1
+            }
+        };
+        of_case.push(index);
     }
-    if !capture.selections.is_empty() || capture.basis_record.is_some() {
-        return Err(fail(ReceiptCheck::Untranslated, "material_bases[].materials[].selection"));
-    }
+    Ok((selectors, of_case))
+}
+/// The requested cases' material bases (D1.5): one per distinct selector (B7a (b) Widen domain;
+/// RV125 N-2), each with its cases. A named basis's materials carry the point's selected E and G
+/// from that basis's own custody (`ProductCapture::bases`).
+fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, cases: usize) -> Result<Vec<Value>, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    let (selectors, of_case) = case_bases(raw, cases)?;
     let inputs = match raw.get("materials").and_then(Value::as_array).filter(|m| !m.is_empty()) {
         Some(m) => m,
         None => raw["model"]["materials"].as_array().ok_or(assoc("material_bases[].materials"))?,
     };
-    let mut used: Vec<usize> = capture.members.iter().map(|m| m.material).collect();
-    used.sort_unstable();
-    used.dedup();
-    let mut materials = Vec::with_capacity(used.len());
-    for i in used {
-        let (id, modulus, shear) = capture.materials.get(i).ok_or(assoc("material_bases[].materials[].input_index"))?;
-        let input = inputs.get(i).ok_or(assoc("material_bases[].materials[].input_index"))?;
-        if input["id"].as_str() != Some(id.as_str()) {
-            return Err(assoc("material_bases[].materials[].id"));
-        }
-        const P: &str = "material_bases[].materials[]";
-        let shear_origin = match capture.route() {
-            rp::W1Route::Preview => explicit_g_origin(input)?,
-            rp::W1Route::Exact => derived_e_nu_origin(e, capture, i)?,
+    // The materials the model's members use, in material order (every case's members are the
+    // model's; a member-load case builds no source to read them from).
+    let pipes = raw["model"]["pipe_segments"].as_array().ok_or(assoc("material_bases[].materials"))?;
+    let used: Vec<usize> = (0..capture.materials.len())
+        .filter(|&i| pipes.iter().any(|p| p["material"].as_str() == Some(capture.materials[i].0.as_str())))
+        .collect();
+    let mut bases = Vec::with_capacity(selectors.len());
+    for (index, selector) in selectors.into_iter().enumerate() {
+        let case_indices: Vec<usize> = (0..cases).filter(|&c| of_case[c] == index).collect();
+        let custody = match &selector["id"] {
+            Value::String(id) => Some(capture.bases.iter().find(|b| matches!(&b.selector, rp::MaterialSelector::Point(p) if p == id))
+                .ok_or(assoc("material_bases[].materials[].selection"))?),
+            _ => None,
         };
-        materials.push(json!({"input_index":i,"id":id,"elastic_modulus":e.bits(*modulus,P),"shear_modulus":e.bits(*shear,P),
-            "shear_origin":shear_origin,"selection":{"kind":"base"}}));
+        let mut materials = Vec::with_capacity(used.len());
+        for &i in &used {
+            let (id, modulus, shear) = capture.materials.get(i).ok_or(assoc("material_bases[].materials[].input_index"))?;
+            let input = inputs.get(i).ok_or(assoc("material_bases[].materials[].input_index"))?;
+            if input["id"].as_str() != Some(id.as_str()) {
+                return Err(assoc("material_bases[].materials[].id"));
+            }
+            const P: &str = "material_bases[].materials[]";
+            let shear_origin = match capture.route() {
+                rp::W1Route::Preview => explicit_g_origin(input)?,
+                rp::W1Route::Exact => derived_e_nu_origin(e, capture, i)?,
+            };
+            let (modulus, shear, selection) = match custody {
+                None => (*modulus, *shear, json!({"kind":"base"})),
+                Some(custody) => {
+                    let s = custody.selections.iter().find(|s| s.material == *id).ok_or(assoc("material_bases[].materials[].selection"))?;
+                    match s.selected {
+                        k::ProductMaterial::Point { e: em, g, .. } => (em, g, json!({"kind":"named_point","point_id":selector["id"]})),
+                        _ => return Err(fail(ReceiptCheck::Untranslated, "material_bases[].materials[].selection")),
+                    }
+                }
+            };
+            materials.push(json!({"input_index":i,"id":id,"elastic_modulus":e.bits(modulus,P),"shear_modulus":e.bits(shear,P),
+                "shear_origin":shear_origin,"selection":selection}));
+        }
+        bases.push(json!({"index":index,"selector":selector,"materials":materials,"case_indices":case_indices}));
     }
-    Ok(json!({"index":0,"selector":{"kind":"base"},"materials":materials,"case_indices":(0..cases).collect::<Vec<_>>()}))
+    Ok(bases)
 }
 /// The preview route's shear origin: an explicit G is the request's own member; a derived E/ν
 /// basis there is wider scope.
@@ -1026,7 +1090,7 @@ fn case_source_at(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSo
             "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
                 "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
     }
-    Ok(json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
+    Ok(json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":e.basis_ref(case_index),
         "kernel_source_sha256":sha_hex(&origin.identity),"stiffness_sha256":sha_hex(&origin.stiffness),
         "id_maps":{"nodes":nodes,"members":members,"springs":springs,"support_ids":support_ids},"body_membership":body_membership,
         "layout":layout,"stations":stations,"supports":supports,"constraints":constraints,"nodal_terms":nodal_terms,"section_terms":section_terms,
@@ -1333,7 +1397,7 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_
     for (n, s) in names.iter().zip(view.stages.iter()) {
         stages_v.insert((*n).into(), stage_name(e, *s));
     }
-    json!({"id":id,"definition_id":route_wire(capture.route()).definition_id,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
+    json!({"id":id,"definition_id":route_wire(capture.route()).definition_id,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":e.basis_ref(case_index),
         "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
         "adapter":adapter_value(e,view.adapter),
         "operational":operational_value(e,view.old_coverage,view.operational_old,view.operational_new),
@@ -1536,12 +1600,12 @@ fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: 
         let found: Vec<usize> = q.iter().enumerate().filter(|(_, x)| x["basis_ref"]["ref_id"] == json!(case_id)).map(|(i, _)| i).collect();
         if let &[i] = found.as_slice() { Some(i) } else { None }
     }).ok_or(assoc("cases[].ordinary.quality_binding"))?;
-    let (initial, w2, formation) = ordinary_members(e, seed);
+    let (initial, w2, formation) = ordinary_members(e, seed, case_index);
     // C2 §5: the report's outcome is the case's unchanged assessed quality.
     if initial["kind"] == "report" && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != initial["outcome"] {
         return Err(assoc("ordinary_attempts[].initial.outcome"));
     }
-    Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),
+    Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":e.basis_ref(case_index),"requested_mode":mode.as_str(),
         "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs}), quality_index))
 }
 fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Value>]) -> Result<(), ReceiptFailure> {
@@ -1563,14 +1627,14 @@ fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Val
 /// combination) and `operand_preparations[]`, present only when non-empty (C-6).
 #[allow(clippy::too_many_arguments)]
 fn finish_with(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
-    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
+    sources: Vec<Value>, material: Vec<Value>, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
     legacy_source_work: Vec<Value>, combinations: Vec<Value>, operand_preparations: Vec<Value>) -> Result<Value, ReceiptFailure> {
     let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
         "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
         "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
         "publication_sha256":"",
         "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":execution_order},
-        "cases":cases,"combinations":combinations,"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
+        "cases":cases,"combinations":combinations,"sources":sources,"material_bases":material,"calls":calls,"groups":groups,"builds":builds,
         "ordinary_attempts":ordinary,"product_attempts":attempts,"legacy_source_work":legacy_source_work});
     if !operand_preparations.is_empty() {
         body["operand_preparations"] = json!(operand_preparations);
@@ -1653,9 +1717,10 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation) -> Result<Value, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     let scope = |p| fail(ReceiptCheck::Scope, p);
-    let e = Enc::default();
     let mode = invocation.mode();
     let raw = invocation.borrowed_raw();
+    let request_count = raw["model"]["load_cases"].as_array().map_or(0, Vec::len);
+    let e = Enc { basis_refs: case_bases(raw, request_count)?.1, ..Enc::default() };
     // G-j: the invocation this capture observed (RV82-S2), its requested cases, one ordinary
     // seed per case, in request order, and (B2-P) one record per model combination.
     if pc.invocation_mode != Some(mode) || pc.invocation_digest.as_deref() != Some(invocation.borrowed_digest().as_str()) {
@@ -1944,7 +2009,7 @@ fn serialize_operand_preparation(e: &Enc, pc: &rp::ProductCapture, record: &rp::
         json!({"kind":"refused","error":{"kind":"preparation","capture":capture_error(e,capture),"section":record.parts.preparation_error.as_ref().map(|s|section_error(e,s))}})
     };
     let record_v = json!({"id":record.id,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":record.owner},"ordinary_attempt_ref":record.owner,
-        "material_basis_ref":0,"purpose":"combination_operand","requested_by":record.requested_by,"source_ref":record.source,"result":result,
+        "material_basis_ref":e.basis_ref(record.owner),"purpose":"combination_operand","requested_by":record.requested_by,"source_ref":record.source,"result":result,
         "stage":if prepared {"completed"} else {"failed"},"preparation":{"members":members},"adapter":adapter_value(e, adapter),
         "operational":operational_value(e, record.trace.old_coverage, old, new)});
     let Some(source_id) = record.source.filter(|_| prepared) else { return Ok((record_v, None)) };
@@ -2060,7 +2125,7 @@ fn serialize_combination_attempt(e: &Enc, pc: &rp::ProductCapture, combination: 
         stages_v.insert((*n).into(), stage_name(e, *s));
     }
     let attempt_v = json!({"id":attempt_id,"definition_id":COMBINATION_DEFINITION_ID,"owner_ref":{"kind":"combination","index":combination.index},
-        "material_basis_ref":0,"source_ref":run.source,"run_ref":case.run,"result":result,"stages":stages_v,"proof":proof_trace(e,&view,pc),
+        "material_basis_ref":e.basis_ref(pc.combinations.get(combination.index).and_then(|c| c.terms.first()).map_or(0, |t| t.0)),"source_ref":run.source,"run_ref":case.run,"result":result,"stages":stages_v,"proof":proof_trace(e,&view,pc),
         "adapter":adapter_value(e,view.adapter),"overlay_work":scalar(view.overlay_work),"g5a_work":scalar(view.g5a_work)});
     Ok((attempt_v, (run.source, source_v), part))
 }

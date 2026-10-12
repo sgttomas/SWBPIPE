@@ -1256,8 +1256,8 @@ fn actual_resolver_selection_ordinals_and_validity_are_captured_without_replay()
             Some(&mut observer),
         )
         .unwrap();
-        assert_eq!(observer.selections.len(), 1);
-        let selection = &observer.selections[0];
+        assert_eq!(observer.test_selections().len(), 1);
+        let selection = &observer.test_selections()[0];
         assert_eq!(selection.material_ordinal, 0);
         match selection.selected {
             k::ProductMaterial::Point { ordinal, e, g } => {
@@ -1302,7 +1302,7 @@ fn actual_resolver_selection_ordinals_and_validity_are_captured_without_replay()
                 Some(&mut rejected)
             )
             .is_none());
-            assert!(rejected.selections.is_empty());
+            assert!(rejected.test_selections().is_empty());
         }
     }
 }
@@ -1664,7 +1664,7 @@ fn i47_selected_specimen(interpolated: bool, loaded: bool) -> serde_json::Value 
     raw
 }
 fn i47_selection_json(o: &ProductCapture) -> serde_json::Value {
-    let s = &o.selections[0];
+    let s = &o.test_selections()[0];
     let h = |v: f64| format!("{:016x}", v.to_bits());
     let values = match s.selected {
         k::ProductMaterial::Point { ordinal, e, g } => {
@@ -1690,8 +1690,8 @@ fn i47_selection_json(o: &ProductCapture) -> serde_json::Value {
     serde_json::json!({"case":s.case,"material":s.material,"material_ordinal":s.material_ordinal,"point_ids":s.point_ids,"selector":format!("{:?}",s.selector),"alpha":s.alpha.map(h),"source_alpha":s.source_alpha.map(|v|v.map(h)),"values":values,"base":o.materials.iter().map(|(id,e,g)|serde_json::json!({"id":id,"e":h(*e),"g":h(*g)})).collect::<Vec<_>>()})
 }
 fn i47_assert_selected(o: &ProductCapture, interpolated: bool) {
-    assert_eq!(o.selections.len(), 1);
-    let s = &o.selections[0];
+    assert_eq!(o.test_selections().len(), 1);
+    let s = &o.test_selections()[0];
     assert_eq!(s.material_ordinal, 0);
     assert_eq!(s.material, "material:invented-dec092");
     assert_eq!(s.case, o.case_id);
@@ -1819,7 +1819,7 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
         println!("I47_SELECTION {}", i47_selection_json(&o));
         println!(
             "I47_BASIS_CAPTURE {}",
-            serde_json::json!({"case":o.basis_record.as_ref().unwrap().case,"text":o.basis_record.as_ref().unwrap().text,"calls":o.basis_record_calls,"expected":o.basis_expected})
+            serde_json::json!({"case":o.test_basis_record().unwrap().case,"text":o.test_basis_record().unwrap().text,"calls":o.test_basis_record_calls(),"expected":o.basis_expected})
         );
         println!("I47_ANCILLARY {}", serde_json::to_string(&e).unwrap());
         println!(
@@ -1954,12 +1954,12 @@ fn i47_actual_selection_and_resolver_validity_controls() {
     let (different, selected) = observed(wrong_point.clone());
     assert_eq!(different.status.mechanics, "MECHANICS_SOLVED");
     println!("I47_WRONG_POINT_BOUNDARY {:?}", selected.error);
-    let k::ProductMaterial::Point { ordinal, e, g } = selected.selections[0].selected else {
+    let k::ProductMaterial::Point { ordinal, e, g } = selected.test_selections()[0].selected else {
         panic!()
     };
     assert_eq!(ordinal, 1);
     assert_eq!(
-        selected.selections[0].point_ids.0,
+        selected.test_selections()[0].point_ids.0,
         "temperature-point:lower"
     );
     assert_eq!((e, g), (200000000000.00003, 60000000000.00001));
@@ -2007,7 +2007,7 @@ fn i47_actual_selection_and_resolver_validity_controls() {
         }
         let (refused, o) = observed(invalid.clone());
         assert_ne!(refused.status.mechanics, "MECHANICS_SOLVED");
-        assert!(o.selections.is_empty());
+        assert!(o.test_selections().is_empty());
         assert!(o.native_pair().is_none());
         assert_eq!(o.normalized_calls, 1);
         assert_eq!(o.case_calls, 0);
@@ -2024,7 +2024,7 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
     let (e, mut o) = observed(i47_selected_specimen(false, true));
     assert!(o.error.is_none());
     assert!(o.basis_expected);
-    assert_eq!(o.basis_record_calls, 1);
+    assert_eq!(o.test_basis_record_calls(), 1);
     let (invocation, case) = o.take_native().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
@@ -2036,7 +2036,7 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
         .unwrap();
     assert_eq!(
         e.results[index].metadata.as_ref().unwrap().basis,
-        o.basis_record.as_ref().unwrap().text
+        o.test_basis_record().unwrap().text
     );
     for (i, row) in e.results.iter().enumerate() {
         if matches!(
@@ -2108,15 +2108,15 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
     let mut missing = e.clone();
     missing.results.remove(index);
     assert!(o.bind_rows(&missing, owner).is_err());
-    let capture = o.basis_record.take().unwrap();
+    let capture = o.bases[0].record.take().unwrap();
     assert!(o.bind_rows(&e, owner).is_err());
-    o.basis_record_calls = 0;
+    o.bases[0].record_calls = 0;
     assert!(
         o.bind_rows(&missing, owner).is_err(),
         "missing both cannot waive selection"
     );
-    o.basis_record = Some(capture);
-    o.basis_record_calls = 1;
+    o.bases[0].record = Some(capture);
+    o.bases[0].record_calls = 1;
     o.bind_rows(&e, owner).unwrap();
     for new_id in [false, true] {
         let mut changed = e.clone();
@@ -2169,7 +2169,7 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
         "association"
     );
     let (mut base, mut b) = observed(specimen(true));
-    assert!(!b.basis_expected && b.basis_record.is_none() && b.basis_record_calls == 0);
+    assert!(!b.basis_expected && b.bases.is_empty() && b.basis.is_none());
     let bc = b.native.as_ref().unwrap();
     let k::ExecutionOutcome::Selected(bo) = &bc.outcome else {
         panic!()
@@ -2177,13 +2177,13 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
     base.results.push(e.results[index].clone());
     assert!(b.bind_rows(&base, bo).is_err());
     base.results.pop();
-    b.basis_record = o.basis_record.take();
-    b.basis_record_calls = 1;
+    b.bases = std::mem::take(&mut o.bases);
+    b.basis = Some(0); // RV125 N-2: a base case bound to a basis
     assert!(
         b.bind_rows(&base, bo).is_err(),
         "base with unexpected capture"
     );
-    o.basis_record = b.basis_record.take();
+    o.bases = std::mem::take(&mut b.bases);
 
     let (other, _) = observed(i47_selected_specimen(true, true));
     let mut wrong_selection = e.clone();
@@ -2208,24 +2208,28 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
     .unwrap();
     let case = &request.model.load_cases[0];
     let (_, mut o) = observed(raw.clone());
-    let text = o.basis_record.as_ref().unwrap().text.clone();
+    let text = o.test_basis_record().unwrap().text.clone();
     let before = o.adapter.counts.get();
     o.successful_basis_record(case, &text);
     assert!(o
-        .error
+        .basis_error
         .as_ref()
         .unwrap()
         .to_string()
         .contains("duplicate successful"));
-    assert_eq!(o.basis_record_calls, 2);
+    assert_eq!(o.test_basis_record_calls(), 2);
     let after = o.adapter.counts.get();
     assert_eq!(
         after[E::SourceVisit as usize],
         before[E::SourceVisit as usize] + 1
     );
+    // B7a (b) (RV125 N-2): the record's entry plus one point-selector comparison (its entry and
+    // the adapter's `same`) per basis custody up to the case's own.
+    let comparisons = o.bases.iter().position(|b| matches!(&b.selector,
+        super::retained_product::MaterialSelector::Point(p) if Some(p) == case.modulus_basis_ref.as_ref())).unwrap() + 1;
     assert_eq!(
         after[E::ValidationEntry as usize],
-        before[E::ValidationEntry as usize] + 1
+        before[E::ValidationEntry as usize] + 1 + 2 * comparisons as u64
     );
     assert_eq!(
         after[E::MapWrite as usize],
@@ -2235,16 +2239,16 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
         after[E::RequestedCopyBytes as usize],
         before[E::RequestedCopyBytes as usize]
     );
-    let first = format!("{:?}", o.error);
+    let first = format!("{:?}", o.basis_error);
     o.successful_basis_record(case, "ignored");
-    assert_eq!(format!("{:?}", o.error), first);
+    assert_eq!(format!("{:?}", o.basis_error), first);
     assert_eq!(o.adapter.counts.get(), after);
     // Synthetic fresh hook owner made from actual selections; no resolver replay and
     // never used as an actual invocation witness. Exercise individual new hook exits.
     let fresh = || {
         let (_, mut x) = observed(raw.clone());
-        x.basis_record = None;
-        x.basis_record_calls = 0;
+        x.bases[0].record = None;
+        x.bases[0].record_calls = 0;
         x.adapter = AdapterWork::default();
         x
     };
@@ -2252,13 +2256,13 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
     let mut foreign_case = case.clone();
     foreign_case.id = "case:foreign".into();
     foreign.successful_basis_record(&foreign_case, &text);
-    assert!(matches!(foreign.error, Some(CaptureError::Association(_))));
-    assert!(foreign.basis_record.is_none());
+    assert!(matches!(foreign.basis_error, Some(CaptureError::Association(_))));
+    assert!(foreign.test_basis_record().is_none());
     let mut mismatch = fresh();
     let mut wrong_selector = case.clone();
     wrong_selector.modulus_basis_ref = Some("temperature-point:lower".into());
     mismatch.successful_basis_record(&wrong_selector, &text);
-    assert!(mismatch.error.is_some());
+    assert!(mismatch.basis_error.is_some());
     for event in [
         E::ValidationEntry,
         E::SourceVisit,
@@ -2275,11 +2279,11 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
         x.adapter.counts.set(counts);
         x.successful_basis_record(case, &text);
         assert!(
-            matches!(x.error,Some(CaptureError::Accounting(AdapterFault::Overflow(e))) if e==event),
+            matches!(x.basis_error,Some(CaptureError::Accounting(AdapterFault::Overflow(e))) if e==event),
             "{event:?}: {:?}",
-            x.error
+            x.basis_error
         );
-        assert!(x.basis_record.is_none());
+        assert!(x.test_basis_record().is_none());
         assert_eq!(x.adapter.counts.get()[event as usize], u64::MAX);
         let prefix = x.adapter.counts.get();
         x.successful_basis_record(case, &text);
@@ -2287,16 +2291,16 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
         println!("I47_HOOK_ACCOUNTING {event:?} {prefix:?}");
     }
     let mut count = fresh();
-    count.basis_record_calls = usize::MAX;
+    count.bases[0].record_calls = usize::MAX;
     count.successful_basis_record(case, &text);
     assert!(matches!(
-        count.error,
+        count.basis_error,
         Some(CaptureError::CountRange("basis record calls"))
     ));
     assert_eq!(count.adapter.counts.get()[E::MapWrite as usize], 0);
     let mut good = fresh();
     good.successful_basis_record(case, &text);
-    assert!(good.error.is_none());
+    assert!(good.basis_error.is_none());
     let expected_bytes =
         (case.id.len() + case.modulus_basis_ref.as_ref().unwrap().len() + text.len()) as u64;
     assert_eq!(good.adapter.counts.get()[E::AllocationRequest as usize], 3);
@@ -2306,9 +2310,9 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
     );
     assert_eq!(
         good.adapter.counts.get()[E::RustCapacityBytes as usize],
-        (good.basis_record.as_ref().unwrap().case.capacity()
-            + good.basis_record.as_ref().unwrap().text.capacity()
-            + match &good.basis_record.as_ref().unwrap().selector {
+        (good.test_basis_record().unwrap().case.capacity()
+            + good.test_basis_record().unwrap().text.capacity()
+            + match &good.test_basis_record().unwrap().selector {
                 super::retained_product::MaterialSelector::Point(s) => s.capacity(),
                 _ => 0,
             }) as u64
@@ -2333,14 +2337,14 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
         .push(pipe);
     let (refused, partial) = observed(invalid.clone());
     assert_ne!(refused.status.mechanics, "MECHANICS_SOLVED");
-    assert_eq!(partial.selections.len(), 1);
-    assert!(partial.basis_record.is_none());
-    assert_eq!(partial.basis_record_calls, 0);
+    assert_eq!(partial.test_selections().len(), 1);
+    assert!(partial.test_basis_record().is_none());
+    assert_eq!(partial.test_basis_record_calls(), 0);
     assert_eq!(partial.case_calls, 0);
     assert_eq!(partial.final_calls, 0);
     println!(
         "I47_AGGREGATE_REFUSAL {}",
-        serde_json::json!({"request":invalid,"envelope":refused,"selections":partial.selections.len(),"basis_calls":partial.basis_record_calls,"adapter":format!("{:?}",partial.adapter)})
+        serde_json::json!({"request":invalid,"envelope":refused,"selections":partial.test_selections().len(),"basis_calls":partial.test_basis_record_calls(),"adapter":format!("{:?}",partial.adapter)})
     );
 }
 

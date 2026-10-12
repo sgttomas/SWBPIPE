@@ -656,6 +656,10 @@ pub(super) enum FamilyFact {
     SupportFamily,
     LoadTarget,
     LoadDimension,
+    /// B7a (b): an element load along anything but a global axis.
+    LoadDirection,
+    /// B7a (b): an element load whose id has the deterministic self-weight form.
+    GeneratedLoadIdentity,
     ObjectProvenance,
 }
 /// The fact a cap row (D1.9, D1.11) bounds.
@@ -822,6 +826,33 @@ pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranc
         _ => Err(FamilyFact::SchemaVersion),
     }
 }
+/// Whether `id` is `load:self-weight:{case.len()}:{case}:{pipe.len()}:{pipe}`, the deterministic
+/// identity `self_weight::inspect_applied_self_weight` treats as generated. Allocation-free.
+fn self_weight_form(id: &str, case: &str, pipe: &str) -> bool {
+    fn take<'a>(rest: &'a str, part: &str) -> Option<&'a str> {
+        rest.strip_prefix(part)
+    }
+    fn take_len(rest: &str, n: usize) -> Option<&str> {
+        let mut digits = [0u8; 20];
+        let (mut i, mut v) = (digits.len(), n);
+        loop {
+            i -= 1;
+            digits[i] = b'0' + (v % 10) as u8;
+            v /= 10;
+            if v == 0 {
+                break;
+            }
+        }
+        rest.strip_prefix(std::str::from_utf8(&digits[i..]).ok()?)
+    }
+    (|| {
+        let rest = take(id, "load:self-weight:")?;
+        let rest = take(take(take_len(rest, case.len())?, ":")?, case)?;
+        let rest = take(take(take_len(take(rest, ":")?, pipe.len())?, ":")?, pipe)?;
+        Some(rest.is_empty())
+    })()
+    .unwrap_or(false)
+}
 /// D1.3–D1.8 over the borrowed typed request (DOMAIN.md §1, G2_AMENDMENTS §3).
 fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionRefusal> {
     use crate::Authored;
@@ -892,7 +923,9 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         if case.equivalent_static.is_some() {
             return refuse(C::Case, F::EquivalentStatic);
         }
-        if case.modulus_basis_ref.is_some() {
+        // B7a (b) Widen domain, stage 1: a named-point basis on branch L, per case (the custody is
+        // per basis and per case); branch E keeps DEF-E's base common E/ν only.
+        if case.modulus_basis_ref.is_some() && exact {
             return refuse(C::Case, F::ModulusBasisRef);
         }
         if case.modulus_basis_temperature.is_some() {
@@ -916,13 +949,34 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
             }
         }
     }
-    // D1.7: nodal force and moment primitives only, in every case (B1 SA).
-    for load in m.load_cases.iter().flat_map(|case| &case.primitive_loads) {
-        if !matches!(load.target, crate::LoadTargetInput::Node { .. }) {
-            return refuse(C::Loads, F::LoadTarget);
-        }
-        if !matches!(load.dimension.as_str(), "force" | "moment") {
-            return refuse(C::Loads, F::LoadDimension);
+    // D1.7: nodal force and moment primitives, in every case (B1 SA). B7a (b) Widen domain,
+    // stage 1: on branch L also a full-span uniform member load, an element-targeted
+    // `distributed_force` in `force_per_length` along a global axis (the preview model's only
+    // element form). Its case publishes `unavailable` until the W1 member-load certification
+    // unit; an id of the deterministic self-weight form stays outside (D1.10's premise).
+    for case in &m.load_cases {
+        for load in &case.primitive_loads {
+            match &load.target {
+                crate::LoadTargetInput::Node { .. } => {
+                    if !matches!(load.dimension.as_str(), "force" | "moment") {
+                        return refuse(C::Loads, F::LoadDimension);
+                    }
+                }
+                crate::LoadTargetInput::Element { pipe } => {
+                    if exact {
+                        return refuse(C::Loads, F::LoadTarget);
+                    }
+                    if load.category != "distributed_force" || load.dimension != "force_per_length" {
+                        return refuse(C::Loads, F::LoadDimension);
+                    }
+                    if !matches!(load.direction.as_str(), "global_x" | "global_y" | "global_z") {
+                        return refuse(C::Loads, F::LoadDirection);
+                    }
+                    if self_weight_form(&load.id, &case.id, pipe) {
+                        return refuse(C::Loads, F::GeneratedLoadIdentity);
+                    }
+                }
+            }
         }
     }
     // D1.8: straight members only. With no components (D1.4) every pipe segment
