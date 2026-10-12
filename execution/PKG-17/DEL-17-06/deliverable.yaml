@@ -148,4 +148,4 @@ code_paths:
 - core/handoff/stress_neutral/
 - core/handoff/stress_neutral/package.py
 - schemas/stress_neutral_export.schema.json
-- schemas/stress_neutral_export.v0.1.schema.json
+- schemas/stress_neutral_export.v0.3.schema.json

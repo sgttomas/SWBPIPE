@@ -137,7 +137,7 @@
       "items": {
         "allOf": [
           {
-            "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ResultRow"
+            "$ref": "#/$defs/ResultRow"
           },
           {
             "properties": {
@@ -150,7 +150,7 @@
       }
     },
     "unit_system_disclosure": {
-      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/UnitSystemDisclosure"
+      "$ref": "#/$defs/UnitSystemDisclosure"
     },
     "unit_preservation_witnesses": {
       "type": "array",
@@ -161,13 +161,13 @@
     "stable_id_map": {
       "type": "array",
       "items": {
-        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/StableIdMapEntry"
+        "$ref": "#/$defs/StableIdMapEntry"
       }
     },
     "loss_report": {
       "type": "array",
       "items": {
-        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/LossReportEntry"
+        "$ref": "#/$defs/LossReportEntry"
       }
     },
     "validation_report": {
@@ -180,13 +180,13 @@
       }
     },
     "privacy": {
-      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/Privacy"
+      "$ref": "#/$defs/Privacy"
     },
     "provenance": {
       "$ref": "#/$defs/Provenance"
     },
     "professional_boundary": {
-      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ProfessionalBoundary"
+      "$ref": "#/$defs/ProfessionalBoundary"
     },
     "package_checksum": {
       "allOf": [
@@ -2765,7 +2765,7 @@
     "PreviewPhysicsContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Closed preview-physics-1 statement (T0R S1 §5): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
+      "description": "Closed preview-physics-1 statement (T0R S1 \u00a75): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
       "required": [
         "preview_cases",
         "combination_gates"
@@ -3049,6 +3049,367 @@
               }
             ]
           }
+        }
+      }
+    },
+    "ResultRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "canonical_ref",
+        "row_kind",
+        "result_family",
+        "load_case_ref",
+        "station_ref",
+        "component_ref",
+        "value",
+        "unit",
+        "dimension",
+        "source_result_ref",
+        "correlation_status",
+        "provenance"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "row_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result_family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "load_case_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "station_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "component_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "dimension": {
+          "type": "string"
+        },
+        "source_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "correlation_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/NormalizationProvenance"
+        }
+      }
+    },
+    "UnitSystemDisclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_system_ref",
+        "source_model_ref",
+        "storage_convention",
+        "model_units",
+        "result_units",
+        "target_export_units",
+        "conversion_policy",
+        "conversion_performed",
+        "conversion_scope",
+        "decision_basis_refs",
+        "protected_content_included",
+        "private_payload_included",
+        "provenance"
+      ],
+      "properties": {
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "storage_convention": {
+          "const": "entered_units_preserved"
+        },
+        "model_units": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "result_units": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "target_export_units": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "conversion_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversion_performed": {
+          "type": "boolean"
+        },
+        "conversion_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "decision_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "protected_content_included": {
+          "const": false
+        },
+        "private_payload_included": {
+          "const": false
+        },
+        "provenance": {
+          "$ref": "#/$defs/NormalizationProvenance"
+        }
+      }
+    },
+    "StableIdMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_ref",
+        "export_ref",
+        "mapping_status",
+        "loss_category",
+        "provenance"
+      ],
+      "properties": {
+        "canonical_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "export_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "mapping_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "loss_category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/NormalizationProvenance"
+        }
+      }
+    },
+    "LossReportEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "affected_refs",
+        "target_artifact_ref",
+        "reason",
+        "source_basis_ref",
+        "downstream_implication",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "loss_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "exported",
+            "omitted",
+            "approximated",
+            "delegated",
+            "unsupported",
+            "tbd"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "target_artifact_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "downstream_implication": {
+          "type": "string",
+          "minLength": 1
+        },
+        "human_review_required": {
+          "type": "boolean"
+        },
+        "provenance": {
+          "$ref": "#/$defs/NormalizationProvenance"
+        }
+      }
+    },
+    "Privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "local_only": {
+          "type": "boolean"
+        },
+        "telemetry_allowed": {
+          "type": "boolean"
+        },
+        "private_payload_embedded": {
+          "type": "boolean"
+        },
+        "protected_payload_embedded": {
+          "type": "boolean"
+        },
+        "commercial_tool_payload_embedded": {
+          "type": "boolean"
+        },
+        "redaction_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_review",
+        "supports_regression_comparison_input",
+        "supports_downstream_tooling",
+        "software_makes_release_claim",
+        "software_makes_external_compatibility_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "type": "boolean"
+        },
+        "supports_review": {
+          "type": "boolean"
+        },
+        "supports_regression_comparison_input": {
+          "type": "boolean"
+        },
+        "supports_downstream_tooling": {
+          "type": "boolean"
+        },
+        "software_makes_release_claim": {
+          "const": false
+        },
+        "software_makes_external_compatibility_claim": {
+          "const": false
+        },
+        "software_makes_solver_validation_claim": {
+          "const": false
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        }
+      }
+    },
+    "NormalizationProvenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }

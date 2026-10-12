@@ -66,7 +66,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | Source model reference | Required source identity/version/reference binding; field evidence is in `schemas/stress_neutral_export.v0.3.schema.json` and its producers. Actual source fidelity remains required. |
 > | Source model hash basis | Required explicit source hash/payload-scope evidence. Preserve received source checksums separately from computed members/package projections under 0.3.0. |
 > | Analysis-run reference | Required source analysis-run and load/solver basis where applicable; inspect the 0.3 schema and producers alongside DEL-14-02's analysis record 0.3. Actual producer completeness is not inferred. |
-> | Package member path references | Required member inventory bound by manifest; concrete source evidence is `core/handoff/stress_neutral/package_v0_3.py` with the 0.3 schema. Both 0.3 builders (Python and the desktop's `StressNeutralExportPanel.tsx`) still project from the 0.1 builder; B7a replaces them with native 0.3 builders and deletes the 0.1 and 0.2 code (DEL-05-02 Design, `b7-plan.md`). |
+> | Package member path references | Required member inventory bound by manifest; concrete source evidence is `core/handoff/stress_neutral/package.py` with the 0.3 schema. The Python builder in that module and the desktop builder in `StressNeutralExportPanel.tsx` construct current 0.3 directly; B7a removes the 0.1 and 0.2 construction (DEL-05-02 Design, `b7-plan.md`). |
 > | Unit and dimensional metadata | Required explicit units/dimensions and diagnostics. Versioned schemas and producer column definitions carry current field evidence; missing or incompatible unit behavior remains a conformance check. |
 > | Stable ID preservation | Required direct or sidecar canonical identity; versioned package schemas carry `stable_id_map` evidence. Demonstrate round-trip correlation and omissions against actual output. |
 > | Diagnostics and boundary notes | Required so review consumers can see limitations, unresolved assumptions, warnings, and non-authoritative status. |
@@ -97,7 +97,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 
 > ##### Future Detail Slots
 >
-> The original Phase A slots are historical setup provenance. Current construction is `schemas/stress_neutral_export.v0.3.schema.json`, with producer evidence in `core/handoff/stress_neutral/package_v0_3.py`. The durable content obligations below remain; schema/producer presence does not establish runtime or rights clearance.
+> The original Phase A slots are historical setup provenance. Current construction is `schemas/stress_neutral_export.v0.3.schema.json`, with producer evidence in `core/handoff/stress_neutral/package.py`. The durable content obligations below remain; schema/producer presence does not establish runtime or rights clearance.
 >
 > | Slot | Future content | Current disposition | Source basis |
 > |---|---|---|---|
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > |---|---|---|
 > | JSON Schema 2020-12 | Baseline for future public JSON schemas/interchange contracts. | Applicable architecture basis; no schema file is created in this Phase A task. |
 > | Declared deterministic JSON hash basis | Stress-neutral 0.3.0 JSON member and package checksums use checked `openpipestress_jcs_ijson_v1`; CSV normalized-text hashes and received-source checksum evidence remain separately identified. The 0.1 sorted-compact label belongs only to refused 0.1 packages. | Owner decision 2026-10-10; D-67; exact non-current payload partitioning remains `TBD`. |
-> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; layout evidence is in `schemas/stress_neutral_export.v0.3.schema.json` and `core/handoff/stress_neutral/package_v0_3.py`. Verify actual output identity, units, diagnostics, references and member layout against 0.3.0. |
+> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; layout evidence is in `schemas/stress_neutral_export.v0.3.schema.json` and `core/handoff/stress_neutral/package.py`. Verify actual output identity, units, diagnostics, references and member layout against 0.3.0. |
 > | DEL-17-02 common export contract | Governs export package, profile, stable ID map, manifest, and loss-report behavior. | Required upstream contract for DEL-17-06. |
 > | IP and data-boundary policy | Governs public/private/protected data use and contribution review. | Required for fixtures, examples, reports, and exported artifacts. |
 >
@@ -306,7 +306,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > For authorized maintenance or extension of the stress-neutral package, use this `ScopeOfWork.md` and the selected version contract; keep work within the active brief. Existing versioned reference producers are evidence, not proof of product integration.
 >
 > 1. Re-read DEL-17-01 and DEL-17-02 before defining support claims, package contracts, stable-ID behavior, manifest content, or loss-report behavior.
-> 2. Inspect the 0.3 schema and `core/handoff/stress_neutral/package_v0_3.py` for fields, member paths, object layouts and CSV columns. Modify those interfaces only within authorized scope; do not relabel bytes of refused older versions or infer a schema change from reference output.
+> 2. Inspect the 0.3 schema and `core/handoff/stress_neutral/package.py` for fields, member paths, object layouts and CSV columns. Modify those interfaces only within authorized scope; do not relabel bytes of refused older versions or infer a schema change from reference output.
 > 3. Implement writer behavior against the common package/profile/ID-map/manifest/loss-report contract and the result export envelope boundary.
 > 4. Create invented or rights-cleared fixtures only after recording provenance, redistribution status, and protected-content review evidence.
 > 5. Validate CSV and JSON outputs for shared identity, unit/dimensional metadata, source model/run references, manifest basis, loss-report content, diagnostics, and boundary notices.

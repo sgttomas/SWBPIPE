@@ -333,10 +333,10 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
 
 
 def stress_neutral_package(source):
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from tests.test_stress_neutral_physics_source import arguments
     record = analysis_record(source)
-    return sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record))
+    return sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
 
 
 def as_successor_package(packet, receipt):
@@ -353,7 +353,7 @@ def as_successor_package(packet, receipt):
 def test_stress_neutral_successor_branch_is_transport_shape_only(mode):
     """The branch admits the transported receipt's shape; the packager itself still
     refuses the successor (SN-SOURCE-METHOD-UNSUPPORTED), so T6's refusal stands."""
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     source = milestone(mode)
     base = stress_neutral_package(projected(source))
     check("stress_neutral_export.schema.json", base, True, "base preview package")

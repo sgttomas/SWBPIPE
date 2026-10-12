@@ -634,17 +634,17 @@ def test_07j_not_required_case_omitted_or_reordered_is_not_current():
 @pytest.mark.parametrize("mode", MODES)
 def test_stress_neutral_packager_still_refuses_the_successor(mode):
     """T6's refusal stands (D2 4.9.6; C1:162): schema support is shape only."""
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from tests.test_stress_neutral_physics_source import arguments
     source, _ = milestone(mode)
     record = build(source)
-    raises("SN-SOURCE-METHOD-UNSUPPORTED", lambda: sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record)))
+    raises("SN-SOURCE-METHOD-UNSUPPORTED", lambda: sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record)))
     base = projected(source)
     base_record = build(base)
-    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=base, analysis_record=base_record, **arguments(base, base_record))
+    packet = sn.build_stress_neutral_export_package(source_envelope=base, analysis_record=base_record, **arguments(base, base_record))
     packet.update(producer=dict(packet["producer"], semantic_contract_id=SUCC), retained_precision=deepcopy(source["retained_precision"]),
                   semantic_contract={"id": SUCC, "sha256": c.PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256})
-    raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", sn.validate_stress_neutral_export_package_v0_3, packet)
+    raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", sn.validate_stress_neutral_export_package, packet)
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -794,16 +794,16 @@ def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(m
     """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
     package view. An unhashable enum is refused with the base header code, a ValueError; before, a
     TypeError escaped it."""
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from tests.test_stress_neutral_physics_source import arguments
     source, _ = milestone(mode)
     base = projected(source)
     record = build(base)
-    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=base, analysis_record=record, **arguments(base, record))
-    assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, deepcopy(packet)) == "ok"
+    packet = sn.build_stress_neutral_export_package(source_envelope=base, analysis_record=record, **arguments(base, record))
+    assert value_error_only(sn.validate_stress_neutral_export_package, deepcopy(packet)) == "ok"
     for path, code in N1_FIELDS:
         for value in N1_UNHASHABLE:
-            assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, n1_edit(packet, path, value)) == code, (path, value)
+            assert value_error_only(sn.validate_stress_neutral_export_package, n1_edit(packet, path, value)) == code, (path, value)
 
 
 @pytest.mark.parametrize("mode", MODES)

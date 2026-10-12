@@ -895,7 +895,7 @@ def test_rule_binding_refuses_all_selected_source_blocks_summary_only():
 # ---- stress-neutral packaging (N-A: no new document or manifest field) ----
 
 def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from test_stress_neutral_physics_source import arguments
     source = envelope()
     # One arc member row exercises the arc vocabulary in the packaged annotations.
@@ -903,27 +903,27 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     source["results"].append({"id": "result:stress:pipe:P1:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
     validate_preview_physics_evidence(source)
     analysis = build(source)
-    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=analysis, **arguments(source, analysis))
+    packet = sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=analysis, **arguments(source, analysis))
     assert packet["semantic_contract"] == {"id": PREVIEW_PHYSICS_CONTRACT_ID, "sha256": PREVIEW_PHYSICS_CONTRACT_SHA256}
     assert packet["contract_evidence"] == source["contract_evidence"]
     assert "source_block_recovery" not in packet
     validate_instance(json.loads((PROJECT / "schemas/stress_neutral_export.schema.json").read_text()), packet, instance_label="preview stress-neutral package")
     physics_raw = json.loads((PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
     physics_analysis = build(physics_raw)
-    physics_packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=physics_raw, analysis_record=physics_analysis, **arguments(physics_raw, physics_analysis))
+    physics_packet = sn.build_stress_neutral_export_package(source_envelope=physics_raw, analysis_record=physics_analysis, **arguments(physics_raw, physics_analysis))
     assert set(packet) == set(physics_packet)
     assert set(packet["manifest"]) == set(physics_packet["manifest"])
     assert packet["manifest"]["boundary_notes"] == physics_packet["manifest"]["boundary_notes"]
-    written = sn.write_materialized_members_v0_3(packet, tmp_path)
+    written = sn.write_materialized_members(packet, tmp_path)
     assert len(written) == 9
-    assert sn.read_materialized_members_v0_3(tmp_path, source_envelope=source, analysis_record=analysis) == packet
+    assert sn.read_materialized_members(tmp_path, source_envelope=source, analysis_record=analysis) == packet
     arc = next(item for item in packet["source_annotations"] if item["source_result_id"] == "result:stress:pipe:P1:end-i:axial-arc")
     assert arc["source_row"]["metadata"]["basis"] == "nominal_straight_beam_formula_on_arc_resultants"
     witness = {row["result_id"] for row in packet["unit_preservation_witnesses"]}
     assert "result:stress:pipe:P1:end-i:axial-arc" in witness
     tampered = deepcopy(packet); tampered["contract_evidence"]["combination_gates"][0]["withheld"] = True
     with pytest.raises(ValueError):
-        sn.validate_stress_neutral_export_package_v0_3(tampered)
+        sn.validate_stress_neutral_export_package(tampered)
 
 
 # ---- actual producer fixtures ----
@@ -939,7 +939,7 @@ def actual(path):
 
 @pytest.mark.parametrize("path", ACTUAL, ids=lambda p: p.stem)
 def test_actual_producer_output_reads_records_and_packages(path):
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from test_stress_neutral_physics_source import arguments
     source = actual(path)
     original = deepcopy(source)
@@ -952,7 +952,7 @@ def test_actual_producer_output_reads_records_and_packages(path):
     assert all(ref["interpretation"]["status"] != "unavailable" for ref in record["analysis_run"]["result_refs"] if ref["category"] == "physical_quantity")
     assert standing_reason(source) is None
     assert numerical_use_standing(source, bases(source)) == ("numerically_eligible" if source["numerical_quality"]["status"] == "checks_passed" else "needs_recompute")
-    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record))
+    packet = sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
     validate_instance(json.loads((PROJECT / "schemas/stress_neutral_export.schema.json").read_text()), packet, instance_label=path.stem)
     assert source == original
 
