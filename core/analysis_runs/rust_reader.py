@@ -41,11 +41,11 @@ CLASSIFICATION_SUMMARY = "classification-summary"
 RULE_BINDING = "rule-binding"
 ROW_SEMANTICS = "row-semantics"
 # The desktop's route names (`reader_verdict::ROUTES`); a refused header reads unsupported.
-ROUTES = frozenset({"legacy", "precision", "physics", "source_blocks", "physics_source", "preview_physics", "load_reference",
+ROUTES = frozenset({"legacy", "precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
                     "load_reference_source", "retained_preview_physics", "retained_physics"})
 UNSUPPORTED = "unsupported"
 # Each base route's reader; its transport checks are `<reader>-transport`.
-ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source",
+ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
                  "source_blocks": "source-blocks", "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
 STANDING_TOKENS = frozenset({"numerically_eligible", "needs_recompute", "unsupported"})
 # The runner's diagnostic, exit 2, for input its JSON parser refuses.
@@ -183,7 +183,7 @@ def validate(reader: str, source: Any, *, model: Any = None, invocation: Any = N
     if reader not in ROUTE_READERS.values():
         raise ValueError(f"RUST-READER-UNKNOWN: {reader}")
     members = {"preview-physics": set(), "physics": set(), "load-reference": set(), "load-reference-source": {"eligible"},
-               "physics-source": {"eligible", "findings"}, "source-blocks": {"eligible", "findings"}}[reader]
+               "physics-source": {"eligible", "findings"}, "pressure-source": {"eligible", "findings"}, "source-blocks": {"eligible", "findings"}}[reader]
     outcome = _base(reader, _optional({"source": source}, model=model, invocation=invocation), members)
     if "eligible" in members and not isinstance(outcome["eligible"], bool):
         raise _invalid(reader)

@@ -5,7 +5,7 @@
  * displays them. G4: as R1's retained carrier (`retainedPrecisionStanding.ts`), the
  * desktop keeps the source routes' registrations: a completed validation of these exact
  * bytes with the native invocation previewService captured (source-blocks-1,
- * physics-source-1), or a completed reading of these exact bytes (load-reference-source-1).
+ * physics-source-1, pressure-source-1), or a completed reading of these exact bytes (load-reference-source-1).
  * A registration reads nothing: it holds the invocation, and the standing of a
  * registered source is Rust's with that invocation. A copy, a header, a hash or a saved
  * record never registers, and any later byte change voids it. G3 (the caller's model is
@@ -39,14 +39,15 @@ function textOf(value: unknown): string | null {
 }
 
 /* -------------------------------------------------------------------------- *
- * G4: source-blocks-1 and physics-source-1
+ * G4: source-blocks-1, physics-source-1 and pressure-source-1
  * -------------------------------------------------------------------------- */
 type SourceRegistration = {
-  route: "source_blocks" | "physics_source";
+  route: "source_blocks" | "physics_source" | "pressure_source";
   sourceText: string;
   invocation: SourceRecoveryInvocation;
   callerModel?: PreviewModel;
   callerSnapshot?: PreviewModel;
+  live?: (model: unknown) => boolean;
 };
 const sourceRegistrations = new WeakMap<object, SourceRegistration>();
 
@@ -55,16 +56,18 @@ const sourceRegistrations = new WeakMap<object, SourceRegistration>();
  * source's route validates these bytes with the captured invocation, and only a pass
  * registers. A refusal clears any earlier registration and is thrown. `callerModel` is
  * the caller's model the invocation was captured from; a later edit of it voids the
- * registration. */
-export async function registerSourceRecovery(source: MechanicsResult, invocation: SourceRecoveryInvocation, callerModel?: PreviewModel): Promise<ReaderValidation> {
+ * registration. `live`, when supplied by previewService, keeps the invocation
+ * unusable until final native registration succeeds and while that capture is live.
+ * Direct registrations without this guard retain their existing behavior. */
+export async function registerSourceRecovery(source: MechanicsResult, invocation: SourceRecoveryInvocation, callerModel?: PreviewModel, live?: (model: unknown) => boolean): Promise<ReaderValidation> {
   sourceRegistrations.delete(source);
   const route = readerDispatch(source).route;
-  if (route !== "source_blocks" && route !== "physics_source") throw new ResultReaderError(route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT");
+  if (route !== "source_blocks" && route !== "physics_source" && route !== "pressure_source") throw new ResultReaderError(route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT");
   const sourceText = readerSourceText(source);
   const captured = structuredClone(invocation);
   const callerSnapshot = callerModel ? structuredClone(callerModel) : undefined;
-  const validation = readerValidate(route === "physics_source" ? "physics-source" : "source-blocks", source, undefined, captured);
-  sourceRegistrations.set(source, { route, sourceText, invocation: captured, callerModel, callerSnapshot });
+  const validation = readerValidate(route === "pressure_source" ? "pressure-source" : route === "physics_source" ? "physics-source" : "source-blocks", source, undefined, captured);
+  sourceRegistrations.set(source, { route, sourceText, invocation: captured, callerModel, callerSnapshot, live });
   return validation;
 }
 /** The registered invocation of these exact bytes for this model, or null: the bytes
@@ -73,6 +76,9 @@ export async function registerSourceRecovery(source: MechanicsResult, invocation
 function registeredInvocation(source: MechanicsResult, model: Pick<PreviewModel, "load_cases"> | null | undefined, route: SourceContract): SourceRecoveryInvocation | null {
   const registration = sourceRegistrations.get(source);
   if (!registration || registration.route !== route || !model) return null;
+  // The reader can pass before previewService finishes its awaited hash and
+  // final capture checks. Its invocation is usable only with live native custody.
+  try { if (registration.live && registration.live(model) !== true) return null; } catch { return null; }
   if (textOf(source) !== registration.sourceText || textOf(model) === null) return null;
   if (registration.callerModel && (textOf(registration.callerModel) === null || !sameModelData(registration.callerModel, registration.callerSnapshot))) return null;
   const captured = (registration.invocation.request as { model: PreviewModel }).model;
@@ -82,7 +88,7 @@ function registeredInvocation(source: MechanicsResult, model: Pick<PreviewModel,
  * argument; null unless the standing with it is eligible. */
 export function retainedSourceRecoveryInvocation(source: MechanicsResult, model: PreviewModel): SourceRecoveryInvocation | null {
   const route = readerDispatch(source).route;
-  if (route !== "source_blocks" && route !== "physics_source") return null;
+  if (route !== "source_blocks" && route !== "physics_source" && route !== "pressure_source") return null;
   const invocation = registeredInvocation(source, model, route);
   return invocation && readerDispatch(source, model, invocation).standing.eligible ? structuredClone(invocation) : null;
 }
@@ -131,7 +137,7 @@ function presented(standing: ReaderStanding): NumericalStanding {
  * registered reader validation with the live native capture. */
 export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
   const route = readerDispatch(source).route;
-  if (route === "source_blocks" || route === "physics_source") {
+  if (route === "source_blocks" || route === "physics_source" || route === "pressure_source") {
     return presented(readerDispatch(source, model, registeredInvocation(source, model, route) ?? undefined).standing);
   }
   if (route === "load_reference_source") return { contract: route, status: "needs_recompute", eligible: false, findings: loadReferenceSourceStanding(source).findings };

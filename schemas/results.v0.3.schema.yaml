@@ -961,6 +961,7 @@
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
+                "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
@@ -987,6 +988,7 @@
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
+                "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
@@ -1008,6 +1010,7 @@
               "enum": [
                 "product_preview_mechanics_v1",
                 "exact_straight_pressure_v2",
+                "exact_pressure_v3",
                 "resolved_straight_load_state_v1",
                 "resolved_straight_load_state_source_v1",
                 "product_preview_retained_w1a_v2",
@@ -1130,6 +1133,9 @@
             },
             {
               "$ref": "#/$defs/LoadReferenceSourceContractEvidence"
+            },
+            {
+              "$ref": "#/$defs/PressureSourceContractEvidence"
             }
           ]
         },
@@ -1143,6 +1149,9 @@
             },
             {
               "$ref": "#/$defs/LoadReferenceSourceRecovery"
+            },
+            {
+              "$ref": "#/$defs/PressureSourceRecovery"
             }
           ]
         },
@@ -1394,6 +1403,73 @@
             },
             "contract_evidence": {
               "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/PhysicsSourceResultSet"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "required": [
+            "source_block_recovery",
+            "contract_evidence"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "exact_pressure_v3"
+                }
+              }
+            },
+            "source_block_recovery": {
+              "$ref": "#/$defs/PressureSourceRecovery"
+            },
+            "contract_evidence": {
+              "$ref": "#/$defs/PressureSourceContractEvidence"
             },
             "result_sets": {
               "items": {
@@ -1743,7 +1819,7 @@
                     "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
                     "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
                     "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-                    "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
+                    "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
                     "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
                   ]
                 }
@@ -3095,11 +3171,10 @@
                       "const": "piecewise_quadratic_straight_section_statics"
                     },
                     "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64"
+                      "const": "j_side_section_equilibrium_binary64_enclosures"
                     },
                     "enclosure_scope": {
-                      "type": "string",
-                      "minLength": 1
+                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                     }
                   }
                 }
@@ -3500,7 +3575,7 @@
     "PreviewPhysicsContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Closed preview-physics-1 statement (T0R S1 \u00a75): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
+      "description": "Closed preview-physics-1 statement (T0R S1 §5): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
       "required": [
         "preview_cases",
         "combination_gates"
@@ -3587,10 +3662,10 @@
                       "const": "piecewise_quadratic_straight_section_statics"
                     },
                     "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64"
+                      "const": "j_side_section_equilibrium_binary64_enclosures"
                     },
                     "enclosure_scope": {
-                      "const": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"
+                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                     }
                   }
                 }
@@ -4243,11 +4318,10 @@
                     "const": "piecewise_quadratic_straight_section_statics"
                   },
                   "coefficient_basis": {
-                    "const": "j_side_section_equilibrium_binary64"
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
                   },
                   "enclosure_scope": {
-                    "type": "string",
-                    "minLength": 1
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                   }
                 }
               },
@@ -4538,11 +4612,10 @@
                     "const": "piecewise_quadratic_straight_section_statics"
                   },
                   "coefficient_basis": {
-                    "const": "j_side_section_equilibrium_binary64"
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
                   },
                   "enclosure_scope": {
-                    "type": "string",
-                    "minLength": 1
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                   }
                 }
               }
@@ -4782,6 +4855,12 @@
           }
         }
       ]
+    },
+    "PressureSourceRecovery": {
+      "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_receipt"
+    },
+    "PressureSourceContractEvidence": {
+      "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_physical_evidence"
     }
   }
 }

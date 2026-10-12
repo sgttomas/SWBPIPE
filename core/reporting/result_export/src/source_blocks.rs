@@ -85,23 +85,34 @@ fn schema_scalar_equal(value: &Value, expected: &Value) -> bool {
     }
 }
 pub(crate) fn shape_in(v: &Value, s: &Value, root: &Value) -> bool {
+    shape_in_resources(v, s, root, &[])
+}
+/// Closed local shapes plus explicitly supplied repository resources. Unknown
+/// names and missing fragments fail closed; no loading, network or inference.
+pub(crate) fn shape_in_resources(v: &Value, s: &Value, root: &Value, resources: &[(&str, &Value)]) -> bool {
     if let Some(reference) = s["$ref"].as_str() {
-        return root
-            .pointer(reference.trim_start_matches('#'))
-            .is_some_and(|target| shape_in(v, target, root));
+        let (target_root, pointer) = if let Some(pointer) = reference.strip_prefix('#') {
+            (root, pointer)
+        } else {
+            let Some((name, pointer)) = reference.split_once('#') else { return false };
+            let Some((_, resource)) = resources.iter().find(|(key, _)| *key == name) else { return false };
+            (*resource, pointer)
+        };
+        return target_root.pointer(pointer)
+            .is_some_and(|target| shape_in_resources(v, target, target_root, resources));
     }
     if let Some(branches) = s["anyOf"].as_array() {
-        if !branches.iter().any(|s| shape_in(v, s, root)) {
+        if !branches.iter().any(|s| shape_in_resources(v, s, root, resources)) {
             return false;
         }
     }
     if let Some(branches) = s["oneOf"].as_array() {
-        if branches.iter().filter(|s| shape_in(v, s, root)).count() != 1 {
+        if branches.iter().filter(|s| shape_in_resources(v, s, root, resources)).count() != 1 {
             return false;
         }
     }
     if let Some(branches) = s["allOf"].as_array() {
-        if !branches.iter().all(|s| shape_in(v, s, root)) {
+        if !branches.iter().all(|s| shape_in_resources(v, s, root, resources)) {
             return false;
         }
     }
@@ -109,7 +120,7 @@ pub(crate) fn shape_in(v: &Value, s: &Value, root: &Value) -> bool {
         return types.iter().any(|kind| {
             let mut branch = s.clone();
             branch["type"] = kind.clone();
-            shape_in(v, &branch, root)
+            shape_in_resources(v, &branch, root, resources)
         });
     }
     if let Some(constant) = s.get("const") {
@@ -147,12 +158,12 @@ pub(crate) fn shape_in(v: &Value, s: &Value, root: &Value) -> bool {
             }) && (s["additionalProperties"] != false
                 || o.keys().all(|k| properties.contains_key(k)))
                 && o.iter()
-                    .all(|(k, v)| properties.get(k).is_none_or(|s| shape_in(v, s, root)))
+                    .all(|(k, v)| properties.get(k).is_none_or(|s| shape_in_resources(v, s, root, resources)))
         }
         Some("array") => v.as_array().is_some_and(|a| {
             a.len() >= s["minItems"].as_u64().unwrap_or(0) as usize
                 && a.len() <= s["maxItems"].as_u64().unwrap_or(16384) as usize
-                && a.iter().all(|v| shape_in(v, &s["items"], root))
+                && a.iter().all(|v| shape_in_resources(v, &s["items"], root, resources))
         }),
         Some("string") => v.as_str().is_some_and(|t| {
             t.chars().count() >= s["minLength"].as_u64().unwrap_or(0) as usize
@@ -700,10 +711,18 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
 }
 /// Explicit method context; never alters received bytes to fit another contract.
 pub(crate) fn validate_in(
-    source: &Value,
-    actual_invocation: Option<&Value>,
-    composite: bool,
+    source: &Value, actual_invocation: Option<&Value>, composite: bool,
 ) -> Result<bool, String> {
+    validate_source_contract_in(source, actual_invocation, composite.then_some(crate::physics_source::SourceContract::PhysicsV2))
+}
+pub(crate) fn validate_source_contract_in(
+    source: &Value, actual_invocation: Option<&Value>, contract: Option<crate::physics_source::SourceContract>,
+) -> Result<bool, String> {
+    let composite = contract.is_some();
+    if let Some(contract) = contract {
+        if let Some(invocation) = actual_invocation { contract.check_invocation(invocation)?; }
+        contract.check_received(source)?;
+    }
     require!(
         keys(
             source,
@@ -734,18 +753,14 @@ pub(crate) fn validate_in(
     require!(
         source["schema_version"] == "0.2.0"
             && source["producer"]
-                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":if composite {crate::physics_source::CONTRACT_ID} else {CONTRACT_ID}}),
+                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":contract.map_or(CONTRACT_ID, |c| c.identity())}),
         "PRODUCER"
     );
     let formulation = &source["formulation_basis"];
     require!(
         keys(formulation, &["profile_id", "limitations"])
             && formulation["profile_id"]
-                == if composite {
-                    crate::physics_source::PROFILE
-                } else {
-                    "product_preview_mechanics_v1"
-                }
+                == contract.map_or("product_preview_mechanics_v1", |c| c.profile())
             && formulation["limitations"]
                 .as_array()
                 .is_some_and(|a| !a.is_empty()
@@ -754,7 +769,7 @@ pub(crate) fn validate_in(
     );
     let receipt = &source["source_block_recovery"];
     if composite {
-        crate::physics_source::validate_receipt_shape(receipt)?;
+        crate::physics_source::validate_receipt_shape_in(receipt, contract.unwrap())?;
     } else {
         validate_receipt_shape(receipt)?;
     }
@@ -1210,7 +1225,7 @@ pub(crate) fn validate_in(
             supports(case, &raw, ps, model, composite)?;
             required_affine(case, &raw, ps, model, composite)?;
             if composite {
-                crate::physics_source::validate_source_case(source, case, actual_invocation)?;
+                crate::physics_source::validate_source_case_in(source, case, actual_invocation, contract.unwrap())?;
             }
         } else {
             require!(
@@ -1912,5 +1927,40 @@ mod rv95_n5_integer_tests {
                 "{key}"
             );
         }
+    }
+}
+
+
+#[cfg(test)]
+mod explicit_resource_tests {
+    use super::{shape_in, shape_in_resources};
+    use serde_json::json;
+
+    #[test]
+    fn explicit_resource_shapes_are_closed_and_resolve_in_the_resource_root() {
+        let root = json!({"$defs":{"Quantity":{"const":"wrong local root"}}});
+        let resource = json!({"$defs":{
+            "Quantity":{"type":"number"},
+            "Record":{"type":"object","additionalProperties":false,"required":["value"],
+                "properties":{"value":{"$ref":"#/$defs/Quantity"}}}
+        }});
+        let shape = json!({"$ref":"load_reference_state.schema.json#/$defs/Record"});
+        let value = json!({"value":2.0});
+        assert!(!shape_in(&value, &shape, &root));
+        assert!(shape_in_resources(&value, &shape, &root, &[("load_reference_state.schema.json", &resource)]));
+        assert!(!shape_in_resources(&json!({"value":2.0,"extra":0}), &shape, &root, &[("load_reference_state.schema.json", &resource)]));
+        assert!(!shape_in_resources(&json!({"value":"2"}), &shape, &root, &[("load_reference_state.schema.json", &resource)]));
+        assert!(!shape_in_resources(&value, &shape, &root, &[("different.schema.json", &resource)]));
+        let missing = json!({"$ref":"load_reference_state.schema.json#/$defs/Missing"});
+        assert!(!shape_in_resources(&value, &missing, &root, &[("load_reference_state.schema.json", &resource)]));
+        let discovery = json!({"$ref":"https://example.invalid/schema.json#/$defs/Record"});
+        assert!(!shape_in_resources(&value, &discovery, &root, &[("load_reference_state.schema.json", &resource)]));
+        let nested = json!({"type":"array","items":{"type":"object","additionalProperties":false,
+            "required":["records"],"properties":{"records":{"type":"array","items":shape}}}});
+        let nested_value = json!([{"records":[{"value":2.0}]}]);
+        assert!(shape_in_resources(&nested_value, &nested, &root, &[("load_reference_state.schema.json", &resource)]));
+        assert!(!shape_in_resources(&nested_value, &nested, &root, &[]));
+        let missing_nested = json!({"type":"array","items":missing});
+        assert!(!shape_in_resources(&json!([value]), &missing_nested, &root, &[("load_reference_state.schema.json", &resource)]));
     }
 }

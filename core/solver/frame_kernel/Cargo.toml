@@ -9,6 +9,7 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
+open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
 
 [features]
 # V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run

@@ -84,6 +84,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_correct_norm"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_curved_bend"
 version = "0.1.0"
 dependencies = [
@@ -93,6 +97,9 @@ dependencies = [
 [[package]]
 name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_correct_norm",
+]
 
 [[package]]
 name = "open_pipe_stress_linear_supports"
@@ -130,6 +137,7 @@ name = "open_pipe_stress_result_export"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
+ "open_pipe_stress_correct_norm",
  "open_pipe_stress_units",
  "serde_json",
  "sha2",

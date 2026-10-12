@@ -1758,11 +1758,10 @@
                           "const": "piecewise_quadratic_straight_section_statics"
                         },
                         "coefficient_basis": {
-                          "const": "j_side_section_equilibrium_binary64"
+                          "const": "j_side_section_equilibrium_binary64_enclosures"
                         },
                         "enclosure_scope": {
-                          "type": "string",
-                          "minLength": 1
+                          "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                         }
                       }
                     },
@@ -2053,11 +2052,10 @@
                           "const": "piecewise_quadratic_straight_section_statics"
                         },
                         "coefficient_basis": {
-                          "const": "j_side_section_equilibrium_binary64"
+                          "const": "j_side_section_equilibrium_binary64_enclosures"
                         },
                         "enclosure_scope": {
-                          "type": "string",
-                          "minLength": 1
+                          "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                         }
                       }
                     }
@@ -2227,6 +2225,564 @@
           }
         }
       }
+    },
+    "pressure_source_receipt": {
+      "description": "Closed PRESSURE-SOURCE-1 receipt. Hashes, captured contract, case evidence and publication binding require the explicit v3 reader.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "receipt_sha256"
+      ],
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/pressure_source_receipt_body"
+        },
+        "receipt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "pressure_source_receipt_body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_version",
+        "policy",
+        "status",
+        "invocation",
+        "publication_sha256",
+        "cases",
+        "envelope_observation_result_ids",
+        "invocation_work"
+      ],
+      "properties": {
+        "receipt_version": {
+          "$ref": "#/$defs/receipt_body/properties/receipt_version"
+        },
+        "policy": {
+          "const": "PRESSURE-SOURCE-1"
+        },
+        "status": {
+          "$ref": "#/$defs/receipt_body/properties/status"
+        },
+        "invocation": {
+          "$ref": "#/$defs/receipt_body/properties/invocation"
+        },
+        "publication_sha256": {
+          "$ref": "#/$defs/receipt_body/properties/publication_sha256"
+        },
+        "cases": {
+          "$ref": "#/$defs/receipt_body/properties/cases"
+        },
+        "envelope_observation_result_ids": {
+          "$ref": "#/$defs/receipt_body/properties/envelope_observation_result_ids"
+        },
+        "invocation_work": {
+          "$ref": "#/$defs/receipt_body/properties/invocation_work"
+        }
+      }
+    },
+    "pressure_source_pressure_region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "region_id",
+        "profile_mode",
+        "profile_version",
+        "pressure_basis",
+        "p_pa",
+        "external_pressure_increment_pa",
+        "member_pipe_ids",
+        "geometry",
+        "materials",
+        "terminals",
+        "applied_loads",
+        "approximation",
+        "provenance",
+        "geometry_representation_guard",
+        "result_ids"
+      ],
+      "properties": {
+        "load_case_id": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/load_case_id"
+        },
+        "region_id": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/region_id"
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "profile_version": {
+          "const": "3.0.0"
+        },
+        "pressure_basis": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/pressure_basis"
+        },
+        "p_pa": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/p_pa"
+        },
+        "external_pressure_increment_pa": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/external_pressure_increment_pa"
+        },
+        "member_pipe_ids": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/member_pipe_ids"
+        },
+        "geometry": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/geometry"
+        },
+        "materials": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/materials"
+        },
+        "terminals": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/terminals"
+        },
+        "applied_loads": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/applied_loads"
+        },
+        "approximation": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/approximation"
+        },
+        "provenance": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/provenance"
+        },
+        "geometry_representation_guard": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/geometry_representation_guard"
+        },
+        "result_ids": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/result_ids"
+        }
+      }
+    },
+    "pressure_source_exact_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pipe_materials",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pressure_rhs_assembly",
+        "recovery_method"
+      ],
+      "properties": {
+        "load_case_id": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/load_case_id"
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "material_basis": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/material_basis"
+        },
+        "pipe_materials": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pipe_materials"
+        },
+        "pipe_sections": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pipe_sections"
+        },
+        "pipe_stress_extrema": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pipe_stress_extrema"
+        },
+        "stress_maximum_coverage": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/stress_maximum_coverage"
+        },
+        "pressure_rhs_assembly": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pressure_rhs_assembly"
+        },
+        "recovery_method": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/recovery_method"
+        }
+      }
+    },
+    "pressure_source_ordinary_evidence": {
+      "description": "Direct 0.3 exact pressure-source evidence; retained receipts select only cases with an explicitly empty pressure inventory.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pressure_source_pressure_region"
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pressure_source_exact_case"
+          }
+        }
+      }
+    },
+    "pressure_source_resolved_pressure_region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "region_id",
+        "profile_mode",
+        "profile_version",
+        "pressure_basis",
+        "p_pa",
+        "external_pressure_increment_pa",
+        "member_pipe_ids",
+        "geometry",
+        "materials",
+        "terminals",
+        "applied_loads",
+        "approximation",
+        "provenance",
+        "geometry_representation_guard",
+        "result_ids"
+      ],
+      "properties": {
+        "load_case_id": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/load_case_id"
+        },
+        "region_id": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/region_id"
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "profile_version": {
+          "const": "3.0.0"
+        },
+        "pressure_basis": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/pressure_basis"
+        },
+        "p_pa": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/p_pa"
+        },
+        "external_pressure_increment_pa": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/external_pressure_increment_pa"
+        },
+        "member_pipe_ids": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/member_pipe_ids"
+        },
+        "geometry": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/geometry"
+        },
+        "materials": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferencePressureEvidence/properties/materials"
+        },
+        "terminals": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/terminals"
+        },
+        "applied_loads": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/applied_loads"
+        },
+        "approximation": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/approximation"
+        },
+        "provenance": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/provenance"
+        },
+        "geometry_representation_guard": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/geometry_representation_guard"
+        },
+        "result_ids": {
+          "$ref": "#/$defs/physical_evidence/properties/pressure/items/properties/result_ids"
+        }
+      }
+    },
+    "pressure_source_resolved_exact_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pipe_materials",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pressure_rhs_assembly",
+        "recovery_method"
+      ],
+      "properties": {
+        "load_case_id": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/load_case_id"
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "material_basis": {
+          "const": "resolved_per_member_load_reference_state_v1"
+        },
+        "pipe_materials": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/LoadReferencePipeMaterial"
+          }
+        },
+        "pipe_sections": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pipe_sections"
+        },
+        "pipe_stress_extrema": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pipe_stress_extrema"
+        },
+        "stress_maximum_coverage": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/stress_maximum_coverage"
+        },
+        "pressure_rhs_assembly": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/pressure_rhs_assembly"
+        },
+        "recovery_method": {
+          "$ref": "#/$defs/physical_evidence/properties/exact_cases/items/properties/recovery_method"
+        }
+      }
+    },
+    "pressure_source_state_record": {
+      "description": "Received resolved state for the direct v3 join. Selected retained responses and ordinary companions share existing load-state shapes; admission does not independently rederive the resolved state.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "contract",
+        "profile",
+        "reference_configuration_id",
+        "provenance",
+        "reference_geometry",
+        "history",
+        "solve",
+        "source_recovery",
+        "members",
+        "support_components",
+        "contributions",
+        "excluded_sources"
+      ],
+      "properties": {
+        "load_case_id": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/load_case_id"
+        },
+        "contract": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/contract"
+        },
+        "profile": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/profile"
+        },
+        "reference_configuration_id": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/reference_configuration_id"
+        },
+        "provenance": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/provenance"
+        },
+        "reference_geometry": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/reference_geometry"
+        },
+        "history": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/history"
+        },
+        "solve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested_mode",
+            "recovery_method",
+            "boundary",
+            "eigenload"
+          ],
+          "properties": {
+            "requested_mode": {
+              "enum": [
+                "sparse_interactive",
+                "dense_scrutiny"
+              ]
+            },
+            "recovery_method": {
+              "enum": [
+                "ordinary_sparse_structural_v1",
+                "ordinary_dense_structural_v1",
+                "retained_source_blocks_exact_v1"
+              ]
+            },
+            "boundary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "eigenload": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "sparse_interactive"
+                },
+                "recovery_method": {
+                  "const": "ordinary_sparse_structural_v1"
+                }
+              }
+            },
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "dense_scrutiny"
+                },
+                "recovery_method": {
+                  "const": "ordinary_dense_structural_v1"
+                }
+              }
+            },
+            {
+              "properties": {
+                "recovery_method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            }
+          ]
+        },
+        "source_recovery": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "code"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_joined"
+                },
+                "code": {
+                  "const": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "method"
+              ],
+              "properties": {
+                "status": {
+                  "const": "selected"
+                },
+                "method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/members"
+        },
+        "support_components": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/support_components"
+        },
+        "contributions": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/contributions"
+        },
+        "excluded_sources": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord/properties/excluded_sources"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "solve": {
+              "properties": {
+                "recovery_method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            },
+            "source_recovery": {
+              "properties": {
+                "status": {
+                  "const": "selected"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "solve": {
+              "properties": {
+                "recovery_method": {
+                  "enum": [
+                    "ordinary_sparse_structural_v1",
+                    "ordinary_dense_structural_v1"
+                  ]
+                }
+              }
+            },
+            "source_recovery": {
+              "properties": {
+                "status": {
+                  "const": "not_joined"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pressure_source_resolved_evidence": {
+      "description": "Direct 0.4 pressure-source evidence, including received load/reference states. No v2 projection or hash resealing is permitted; T1 numerical ineligibility remains.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases",
+        "load_reference_states"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pressure_source_resolved_pressure_region"
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pressure_source_resolved_exact_case"
+          }
+        },
+        "load_reference_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pressure_source_state_record"
+          }
+        }
+      }
+    },
+    "pressure_source_physical_evidence": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/pressure_source_ordinary_evidence"
+        },
+        {
+          "$ref": "#/$defs/pressure_source_resolved_evidence"
+        }
+      ]
     }
   }
 }

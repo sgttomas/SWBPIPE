@@ -16,7 +16,16 @@
 //! defects in two accumulators (net and self-equilibrated), with no binary64
 //! intermediate before the guard's decision.
 use crate::exact_sum::{ExactAccumulator, SumError};
+use crate::structural::{LoadClosureEntry, LoadPrimitive};
 use std::fmt;
+
+/// Trusted formed/input classification survives omission of numeric S11-G records.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct LoadClosureRecord {
+    pub formed: bool,
+    pub manifest: Option<Vec<LoadClosureEntry>>,
+    pub force_scale_exponent: i32,
+}
 
 /// One contribution as the producer formed it (S11 section 4.2 granularity).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -111,6 +120,8 @@ struct FormationRecord {
 pub struct LoadLedger {
     terms: Vec<ForceTerm>,
     formations: Vec<Option<FormationRecord>>,
+    closures: Vec<LoadClosureRecord>,
+    loads: Vec<LoadPrimitive>,
 }
 
 // Exactly the derived output of today's single-field struct (S11-G N-6).
@@ -135,6 +146,7 @@ impl LoadLedger {
             kind: ForceTermKind::Term(value),
         });
         self.formations.push(None);
+        self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one load-proportional product, kept exact.
@@ -145,6 +157,7 @@ impl LoadLedger {
             kind: ForceTermKind::Product(a, b),
         });
         self.formations.push(None);
+        self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one rounded formed term with its formation record (S11-G).
@@ -179,7 +192,33 @@ impl LoadLedger {
         self.attach(formation, operand_bound, self_equilibrated);
     }
 
+    pub fn term_count(&self) -> usize {
+        self.terms.len()
+    }
+
+    /// Install the complete source-enumerated manifest before attaching supplied primitives.
+    pub fn set_closure_manifest(
+        &mut self,
+        term_index: usize,
+        expected: Vec<LoadClosureEntry>,
+    ) -> bool {
+        match self.closures.get_mut(term_index) {
+            Some(record) if record.formed => {
+                record.manifest = Some(expected);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    pub fn attach_load_primitive(&mut self, primitive: LoadPrimitive) {
+        self.loads.push(primitive);
+    }
+
     fn attach(&mut self, formation: Formation, operand_bound: f64, self_equilibrated: bool) {
+        if let Some(record) = self.closures.last_mut() {
+            record.formed = true;
+        }
         if let Some(slot) = self.formations.last_mut() {
             *slot = Some(FormationRecord {
                 formation,
@@ -231,6 +270,8 @@ impl LoadLedger {
             by_dof,
             evidence,
             formations: self.formations,
+            closures: self.closures,
+            loads: self.loads,
         })
     }
 }
@@ -242,6 +283,8 @@ pub struct AssembledForce {
     by_dof: Vec<Vec<usize>>,
     evidence: LedgerEvidence,
     formations: Vec<Option<FormationRecord>>,
+    closures: Vec<LoadClosureRecord>,
+    loads: Vec<LoadPrimitive>,
 }
 
 // Exactly the derived output of today's four fields; the S11-G formation
@@ -258,6 +301,13 @@ impl fmt::Debug for AssembledForce {
 }
 
 impl AssembledForce {
+    pub fn load_primitives(&self) -> &[LoadPrimitive] {
+        &self.loads
+    }
+    pub fn closure_records(&self) -> &[LoadClosureRecord] {
+        &self.closures
+    }
+
     pub fn values(&self) -> &[f64] {
         &self.values
     }
@@ -332,8 +382,10 @@ impl AssembledForce {
     ///   (as `LoadLedger::finish` rounds it), with the same underflow evidence.
     /// - Sources, DOFs and the per-DOF term order are unchanged. Nothing is
     ///   pushed to a ledger. The S11-G formation records are not carried: the
-    ///   kernel's solve never reads them (they serve the product's guard,
-    ///   which reads the unscaled force).
+    ///   numeric bounds serve the product's guard, which reads the unscaled
+    ///   force. Trusted formed classification and complete closure manifests
+    ///   survive independently, rebound with the exact force exponent, as do
+    ///   every supplied primitive's authored operands.
     pub fn force_scaled(
         &self,
         scale: crate::ForceScale,
@@ -363,6 +415,32 @@ impl AssembledForce {
             values,
             by_dof: self.by_dof.clone(),
             formations: vec![None; terms.len()],
+            closures: self
+                .closures
+                .iter()
+                .map(|record| {
+                    let mut record = record.clone();
+                    record.force_scale_exponent = record
+                        .force_scale_exponent
+                        .checked_add(scale.exponent())
+                        .ok_or(failed.clone())?;
+                    if let Some(entries) = record.manifest.as_mut() {
+                        for entry in entries {
+                            let exponent = entry.operand_bits.last_mut().ok_or(failed.clone())?;
+                            let value = (*exponent as i64)
+                                .checked_add(i64::from(scale.exponent()))
+                                .ok_or(failed.clone())?;
+                            *exponent = value as u64;
+                        }
+                    }
+                    Ok(record)
+                })
+                .collect::<Result<Vec<_>, crate::structural::ForceScaleReason>>()?,
+            loads: self
+                .loads
+                .iter()
+                .map(|p| p.force_scaled(scale.exponent()).ok_or(failed.clone()))
+                .collect::<Result<Vec<_>, _>>()?,
             terms,
             evidence,
         })
@@ -460,33 +538,92 @@ pub fn magnitude_downward(accumulator: &ExactAccumulator) -> Result<f64, SumErro
     })
 }
 
+/// Exact significand and its binary exponent for a finite nonnegative value.
+/// Every value is significand * 2^exponent; subnormals use the same Tiny grid.
+fn nonnegative_parts(value: f64) -> (u64, i32) {
+    let bits = value.to_bits();
+    let biased = ((bits >> 52) & 0x7ff) as i32;
+    let fraction = bits & ((1_u64 << 52) - 1);
+    if biased == 0 {
+        (fraction, -1074)
+    } else {
+        (fraction | (1_u64 << 52), biased - 1075)
+    }
+}
+
+/// Compares the exact dyadic product with a finite nonnegative reference.
+/// Each significand has at most 53 bits, so the product has at most 106.
+/// Unequal leading exponents decide the order before any shift. If equal,
+/// aligning their least-bit exponents makes both aligned integers no wider
+/// than the wider original significand (at most 106 bits). No residual is
+/// rounded to binary64, including when the reference itself is normal.
+fn compare_nonnegative_product(a: f64, b: f64, reference: f64) -> std::cmp::Ordering {
+    let (sa, ea) = nonnegative_parts(a);
+    let (sb, eb) = nonnegative_parts(b);
+    let (sr, er) = nonnegative_parts(reference);
+    let product = u128::from(sa) * u128::from(sb);
+    let reference = u128::from(sr);
+    if product == 0 || reference == 0 {
+        return product.cmp(&reference);
+    }
+    let ep = ea + eb;
+    let hp = ep + (127 - product.leading_zeros()) as i32;
+    let hr = er + (127 - reference.leading_zeros()) as i32;
+    let order = hp.cmp(&hr);
+    if !order.is_eq() {
+        return order;
+    }
+    let common = ep.min(er);
+    let sp = (ep - common) as u32;
+    let sr = (er - common) as u32;
+    debug_assert!(sp < 128 && sr < 128);
+    (product << sp).cmp(&(reference << sr))
+}
+
 /// `a * b` for nonnegative finite operands, rounded upward.
+/// Exact dyadic comparison preserves already-correct nearest results. An FMA
+/// residual can round a nonzero error below half Tiny to zero, even for a
+/// normal product; it therefore cannot establish the rounding direction.
 pub fn product_upward(a: f64, b: f64) -> f64 {
     let p = a * b;
-    if p.is_finite() && a.mul_add(b, -p) > 0.0 {
+    if !a.is_finite() || !b.is_finite() || a < 0.0 || b < 0.0 || !p.is_finite() {
+        return p;
+    }
+    if compare_nonnegative_product(a, b, p).is_gt() {
         p.next_up()
-    } else if p == 0.0 && a != 0.0 && b != 0.0 {
-        // Underflow below the smallest subnormal.
-        f64::from_bits(1)
     } else {
         p
     }
 }
 
 /// `a * b` for nonnegative finite operands, rounded downward.
+/// Finite-input overflow rounds down to MAX, not positive infinity.
 pub fn product_downward(a: f64, b: f64) -> f64 {
     let p = a * b;
-    if p.is_finite() && a.mul_add(b, -p) < 0.0 {
+    if !a.is_finite() || !b.is_finite() || a < 0.0 || b < 0.0 {
+        return p;
+    }
+    if p == f64::INFINITY {
+        return f64::MAX;
+    }
+    if compare_nonnegative_product(a, b, p).is_lt() {
         p.next_down().max(0.0)
     } else {
         p
     }
 }
 
-/// `a / b` for nonnegative finite `a` and positive `b`, rounded downward.
+/// `a / b` for nonnegative finite `a` and positive finite `b`, rounded downward.
+/// Compare q*b with a exactly; the same sub-half-Tiny FMA loss occurs here.
 pub fn quotient_downward(a: f64, b: f64) -> f64 {
     let q = a / b;
-    if q.is_finite() && q.mul_add(b, -a) > 0.0 {
+    if !a.is_finite() || !b.is_finite() || a < 0.0 || b <= 0.0 {
+        return q;
+    }
+    if q == f64::INFINITY {
+        return f64::MAX;
+    }
+    if compare_nonnegative_product(q, b, a).is_gt() {
         q.next_down().max(0.0)
     } else {
         q
@@ -1042,6 +1179,142 @@ mod tests {
         assert_eq!(product_downward(0.1, 3.0), (0.1_f64 * 3.0).next_down());
         assert_eq!(product_upward(0.1, 3.0), 0.1_f64 * 3.0);
         assert!(quotient_downward(1.0, 3.0) * 3.0 <= 1.0);
+    }
+
+    fn directed_product_control(a: f64, b: f64, up: f64, down: f64) {
+        assert_eq!(
+            product_upward(a, b).to_bits(),
+            up.to_bits(),
+            "up({a:e},{b:e})"
+        );
+        assert_eq!(
+            product_downward(a, b).to_bits(),
+            down.to_bits(),
+            "down({a:e},{b:e})"
+        );
+        for (result, upper) in [(up, true), (down, false)] {
+            if result.is_finite() {
+                let mut difference = ExactAccumulator::new();
+                difference.add(result).unwrap();
+                difference.add_product(-a, b).unwrap();
+                assert!(if upper {
+                    difference.signum() >= 0
+                } else {
+                    difference.signum() <= 0
+                });
+                let adjacent = if upper {
+                    result.next_down()
+                } else {
+                    result.next_up()
+                };
+                if adjacent.is_finite() {
+                    let mut difference = ExactAccumulator::new();
+                    difference.add(adjacent).unwrap();
+                    difference.add_product(-a, b).unwrap();
+                    assert!(if upper {
+                        difference.signum() < 0
+                    } else {
+                        difference.signum() > 0
+                    });
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn s11g_directed_products_cover_sub_half_tiny_and_normal_residuals() {
+        let tiny = f64::from_bits(1);
+        for (factor, up, down) in [
+            (0.25, 1, 0),
+            (0.5, 1, 0),
+            (0.75, 1, 0),
+            (1.25, 2, 1),
+            (1.5, 2, 1),
+            (1.75, 2, 1),
+            (2.0, 2, 2),
+            (2.5, 3, 2),
+        ] {
+            directed_product_control(factor, tiny, f64::from_bits(up), f64::from_bits(down));
+            directed_product_control(tiny, factor, f64::from_bits(up), f64::from_bits(down));
+        }
+        directed_product_control(tiny, tiny, tiny, 0.0);
+        // Products k*Tiny*(quarter/4) have exact integer-quarter grid truth.
+        for k in 1..=32_u64 {
+            for quarter in 1..=15_u64 {
+                let numerator = k * quarter;
+                directed_product_control(
+                    f64::from_bits(k),
+                    quarter as f64 / 4.0,
+                    f64::from_bits((numerator + 3) / 4),
+                    f64::from_bits(numerator / 4),
+                );
+            }
+        }
+        // Normal RN p still loses a residual of 2^-1126 in the FMA. The
+        // exact product is MIN+2Tiny+2^-1126, so its ceil is MIN+3Tiny.
+        let a = f64::MIN_POSITIVE.next_up();
+        let b = 1.0_f64.next_up();
+        let p = a * b;
+        assert_eq!(p.to_bits(), f64::MIN_POSITIVE.to_bits() + 2);
+        assert_eq!(a.mul_add(b, -p), 0.0);
+        directed_product_control(a, b, f64::from_bits(p.to_bits() + 1), p);
+        // The mirrored normal-result product is MIN-2^-1126 and its floor
+        // is the largest subnormal, although the FMA residual is negative zero.
+        let b = 1.0 - 2.0f64.powi(-52);
+        let p = a * b;
+        assert_eq!(p, f64::MIN_POSITIVE);
+        assert_eq!(a.mul_add(b, -p), 0.0);
+        directed_product_control(a, b, p, p.next_down());
+        directed_product_control(0.0, f64::MAX, 0.0, 0.0);
+        directed_product_control(f64::MAX, 1.0, f64::MAX, f64::MAX);
+        directed_product_control(f64::MAX, 2.0, f64::INFINITY, f64::MAX);
+        let p = 0.1_f64 * 3.0;
+        directed_product_control(0.1, 3.0, p, p.next_down());
+    }
+
+    fn directed_quotient_control(a: f64, b: f64, expected: f64) {
+        let result = quotient_downward(a, b);
+        assert_eq!(
+            result.to_bits(),
+            expected.to_bits(),
+            "quotient({a:e},{b:e})"
+        );
+        let mut difference = ExactAccumulator::new();
+        difference.add_product(result, b).unwrap();
+        difference.add(-a).unwrap();
+        assert!(difference.signum() <= 0);
+        let adjacent = result.next_up();
+        if adjacent.is_finite() {
+            let mut difference = ExactAccumulator::new();
+            difference.add_product(adjacent, b).unwrap();
+            difference.add(-a).unwrap();
+            assert!(difference.signum() > 0);
+        }
+    }
+
+    #[test]
+    fn s11g_directed_quotients_cover_the_same_lost_residual() {
+        let tiny = f64::from_bits(1);
+        let q = tiny / 1.25;
+        assert_eq!(q, tiny);
+        assert_eq!(q.mul_add(1.25, -tiny), 0.0);
+        directed_quotient_control(tiny, 1.25, 0.0);
+        directed_quotient_control(2.0 * tiny, 1.25, tiny);
+        directed_quotient_control(3.0 * tiny, 1.25, 2.0 * tiny);
+        directed_quotient_control(tiny, 0.75, tiny);
+        directed_quotient_control(tiny, tiny, 1.0);
+        // q is normal while q*b-a is positive 2^-1126 and rounds to zero.
+        let a = f64::from_bits(f64::MIN_POSITIVE.to_bits() + 2);
+        let b = 1.0_f64.next_up();
+        let q = a / b;
+        assert_eq!(q, f64::MIN_POSITIVE.next_up());
+        assert_eq!(q.mul_add(b, -a), 0.0);
+        directed_quotient_control(a, b, f64::MIN_POSITIVE);
+        directed_quotient_control(0.0, 1.25, 0.0);
+        directed_quotient_control(f64::MAX, 1.0, f64::MAX);
+        directed_quotient_control(f64::MAX, 0.5, f64::MAX);
+        directed_quotient_control(1.0, 3.0, 1.0 / 3.0);
+        directed_quotient_control(1.0, 0.1, 10.0_f64.next_down());
     }
 
     #[test]

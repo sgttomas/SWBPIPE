@@ -5,8 +5,86 @@ use super::super::{
     SolveQuality, StructuralSystem, SymmetryEvidence,
 };
 use super::*;
-use crate::load_ledger::ForceTermKind;
+
 use crate::{FrameNode, FrameSection, Matrix12};
+
+fn input_ledger(values: &[f64]) -> crate::load_ledger::AssembledForce {
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    for (dof, &value) in values.iter().enumerate() {
+        ledger.push("test input", dof, value);
+    }
+    ledger.finish(values.len()).unwrap()
+}
+/// Preserve the frozen represented matrix while supplying today's required typed ledger/block trace.
+fn closed_test_solve(
+    system: StructuralSystem<'_>,
+    source: &FormationSource,
+) -> super::super::StructuralSolution {
+    use super::super::StiffnessContribution;
+    let force = input_ledger(system.force);
+    let mut contributions = Vec::new();
+    let endpoints = source
+        .frames
+        .iter()
+        .map(|e| (e.node_i.index, e.node_j.index))
+        .chain(
+            source
+                .connectors
+                .iter()
+                .map(|e| (e.node_i().index, e.node_j().index)),
+        )
+        .chain(source.curved.iter().map(|e| (e.node_i, e.node_j)));
+    for (ni, nj) in endpoints {
+        let map = element_dof_map(ni, nj);
+        for r in 0..12 {
+            for c in 0..12 {
+                let mut value = system.stiffness[map[r]][map[c]];
+                if r == c {
+                    for &(dof, k) in &source.springs {
+                        if dof == map[r] {
+                            value -= k;
+                        }
+                    }
+                }
+                contributions.push(StiffnessContribution {
+                    row: map[r],
+                    col: map[c],
+                    value,
+                });
+            }
+        }
+    }
+    for &(dof, value) in &source.springs {
+        contributions.push(StiffnessContribution {
+            row: dof,
+            col: dof,
+            value,
+        });
+    }
+    if contributions.is_empty() {
+        for (r, row) in system.stiffness.iter().enumerate() {
+            for (c, &value) in row.iter().enumerate() {
+                if value != 0.0 {
+                    contributions.push(StiffnessContribution {
+                        row: r,
+                        col: c,
+                        value,
+                    });
+                }
+            }
+        }
+    }
+    let checked = StructuralSystem::assembled(
+        system.stiffness,
+        &force,
+        system.free_dofs,
+        system.prescribed,
+        Some(&contributions),
+        system.symmetry,
+    )
+    .with_formation_source(source);
+    super::super::solve_formation_checked_structural_dense(&checked).unwrap()
+}
 
 fn round(w: &Wide2) -> f64 {
     let mut acc = ExactAccumulator::new();
@@ -201,23 +279,47 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
     let factor = factor_structural_cholesky(&prepared).unwrap();
     let solution = super::super::finish_structural(&factor).unwrap();
     assert_eq!(solution.displacements, vec![0.0; 6]);
-    assert_eq!(solution.report.quality, SolveQuality::Passed);
-    let term = |v: f64| ForceTerm {
-        source: "ledger".into(),
-        dof: 0,
-        kind: ForceTermKind::Term(v),
+    assert_eq!(solution.report.quality, SolveQuality::Sensitive);
+    assert!(
+        matches!(solution.formation_check.as_ref().unwrap().reason,FormationCheckReason::FormationCheckUnavailable{ref detail} if detail=="load closure: no ledger")
+    );
+    let make = |last: Option<f64>| {
+        let mut l = crate::load_ledger::LoadLedger::new();
+        l.push("ledger", 0, 1e80);
+        l.push("ledger", 0, -1e80);
+        if let Some(v) = last {
+            l.push("ledger", 0, v);
+        }
+        l.finish(6).unwrap()
     };
-    let differing = [term(1e80), term(-1e80), term(1.0)];
-    let cancelling = [term(1e80), term(-1e80)];
+    let differing = make(Some(1.0));
+    let cancelling = make(None);
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: 2.0,
+    }];
+    let system = StructuralSystem {
+        contributions: Some(&contributions),
+        ..system
+    };
+    let condition =
+        super::super::ConditionMatrix::estimate_condition(prepared.matrix(), &|r| factor.solve(r))
+            .unwrap();
+
     let solve = |r: &[f64]| factor.solve(r);
     let fired = check(
         &system,
         &source,
-        Some(&differing[..]),
+        Some(&differing),
         prepared.scale_exponents(),
         &solution.displacements,
+        condition,
+        &|i, j| k[i][j],
+        &|r, c| prepared.matrix()[r][c],
         &solve,
     )
+    .0
     .expect("zero-scale clause");
     assert_eq!(fired.reason, FormationCheckReason::Estimate);
     assert_eq!(fired.global_dof, Some(0));
@@ -229,11 +331,15 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
         check(
             &system,
             &source,
-            Some(&cancelling[..]),
+            Some(&cancelling),
             prepared.scale_exponents(),
             &solution.displacements,
+            condition,
+            &|i, j| k[i][j],
+            &|r, c| prepared.matrix()[r][c],
             &solve
-        ),
+        )
+        .0,
         None
     );
 }
@@ -253,18 +359,16 @@ fn kd5_unavailable_family_and_wide_error_fail_closed_and_never_err() {
             symmetry: None,
         };
         let plain = solve_structural_dense(&system).unwrap();
-        let checked = system.with_formation_source(source);
-        let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        let result = closed_test_solve(system, source);
         (plain, result)
     };
     // Precondition: the exact spring re-forms and the case stays Passed.
     let (plain, result) = make(&source);
     assert_eq!(plain.report.quality, SolveQuality::Passed);
     assert_eq!(result.formation_check, None);
-    assert_eq!(
-        format!("{:?}", plain.report),
-        format!("{:?}", result.report)
-    );
+    assert_eq!(plain.displacements, result.displacements);
+    assert_eq!(plain.report.quality, result.report.quality);
+    assert!(result.member_bound.is_some());
     // A listed family the check cannot re-form demotes (D5C-2).
     source.unavailable.push("seeded_family".into());
     let (plain, result) = make(&source);
@@ -350,8 +454,7 @@ fn kd5_curved_arctangent_domain_errors_fail_closed() {
         // Precondition: the ordinary solve publishes Passed.
         let plain = solve_structural_dense(&system()).unwrap();
         assert_eq!(plain.report.quality, SolveQuality::Passed, "{label}");
-        let checked = system().with_formation_source(&source);
-        let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        let result = closed_test_solve(system(), &source);
         assert_eq!(result.report.quality, SolveQuality::Sensitive, "{label}");
         assert_eq!(result.displacements, plain.displacements, "{label}");
         match result.formation_check.unwrap().reason {
@@ -492,18 +595,16 @@ fn kd5_connector_case_is_not_demoted_and_its_perturbed_matrix_is() {
             };
             let plain = solve_structural_dense(&system).unwrap();
             assert_eq!(plain.report.quality, SolveQuality::Passed, "X0 {x0}");
-            let checked = system.with_formation_source(&source);
-            let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+            let result = closed_test_solve(system, &source);
             if perturbed {
                 assert_eq!(result.report.quality, SolveQuality::Sensitive, "X0 {x0}");
                 let check = result.formation_check.unwrap();
                 assert_eq!(check.reason, FormationCheckReason::Estimate, "X0 {x0}");
             } else {
                 assert_eq!(result.formation_check, None, "X0 {x0}");
-                assert_eq!(
-                    format!("{:?}", plain.report),
-                    format!("{:?}", result.report)
-                );
+                assert_eq!(plain.displacements, result.displacements);
+                assert_eq!(plain.report.quality, result.report.quality);
+                assert!(result.member_bound.is_some());
             }
         }
     }
@@ -569,8 +670,7 @@ fn kd5_long_nearly_straight_bend_at_the_floor_does_not_demote() {
         };
         let plain = solve_structural_dense(&system()).unwrap();
         assert_eq!(plain.report.quality, SolveQuality::Passed, "phi {nominal}");
-        let checked = system().with_formation_source(&source);
-        let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        let result = closed_test_solve(system(), &source);
         assert_eq!(result.formation_check, None, "phi {nominal}");
         assert_eq!(result.report.quality, SolveQuality::Passed, "phi {nominal}");
     }
@@ -665,8 +765,7 @@ fn kd5_k2_formula_chord_system_demotes_against_the_actual_chord() {
         };
         let plain = solve_structural_dense(&system()).unwrap();
         assert_eq!(plain.report.quality, SolveQuality::Passed, "{label}");
-        let checked = system().with_formation_source(&source);
-        let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        let result = closed_test_solve(system(), &source);
         assert_eq!(result.report.quality, SolveQuality::Sensitive, "{label}");
         assert_eq!(result.displacements, plain.displacements, "{label}");
         let record = result.formation_check.expect("demoted");
@@ -748,3 +847,1516 @@ const L30_PHI_2E_9: [[f64; 12]; 12] = [
     [0.0, 0.0, -31188.28007478408, -218317.96068914892, 234085.30460687942, 0.0, 0.0, 0.0, 31188.28007478408, -249506.24043261228, 576209.9807551856, 0.0],
     [-18006.389581443244, 31188.37955134882, 0.0, 0.0, 0.0, 360131.2378535583, 18006.389581443244, -31188.37955134882, 0.0, 0.0, 0.0, 720262.4757071197],
 ];
+
+fn axial_frame() -> FrameElement {
+    FrameElement::new(
+        FrameNode::new(0, [0.0; 3]).unwrap(),
+        FrameNode::new(1, [4.0, 0.0, 0.0]).unwrap(),
+        FrameSection::new(8.0, 4.0, 2.0, 1.0, 1.0, 2.0).unwrap(),
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+fn primitive(formula: LoadFormula, row: usize, ordinal: usize) -> LoadPrimitive {
+    LoadPrimitive {
+        term_index: 0,
+        identity: LoadSummandIdentity {
+            family: "family".into(),
+            source: "member".into(),
+            ordinal,
+        },
+        local_row: row,
+        formula,
+        force_scale_exponent: 0,
+    }
+}
+#[test]
+fn kd5_closed_manifest_kills_missing_duplicate_extra_wrong_binding_and_input_on_ordinary_and_w2() {
+    let recipe = LoadFormula::UniformStraight {
+        frame: axial_frame(),
+        intensity: IntensityPrimitive::Authored([1.0, 0.0, 0.0]),
+        start_fraction: 0.0,
+        end_fraction: 1.0,
+    };
+    // Expected identities come from complete source enumeration, before supplied entries.
+    let expected: Vec<_> = (0..2)
+        .map(|ordinal| primitive(recipe.clone(), 0, ordinal).closure_entry())
+        .collect();
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "group",
+        0,
+        4.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    assert!(ledger.set_closure_manifest(0, expected));
+    for ordinal in 0..2 {
+        ledger.attach_load_primitive(primitive(recipe.clone(), 0, ordinal));
+    }
+    let force = ledger.finish(12).unwrap();
+    for exponent in [-3, 0, 3] {
+        let scale = crate::ForceScale { exponent };
+        let scaled = force.force_scaled(scale).unwrap();
+        assert_eq!(scaled.closure_records()[0].formed, true);
+        assert!(!scaled.has_formation_records() || exponent == 0); // numeric records are deliberately omitted.
+        let source = FormationSource {
+            node_count: 2,
+            loads: scaled.load_primitives().to_vec(),
+            ..FormationSource::default()
+        };
+        load_closure(&source, &scaled).unwrap();
+        let mut mutants = Vec::new();
+        let mut p = source.clone();
+        p.loads.pop();
+        mutants.push(p);
+        let mut p = source.clone();
+        p.loads[1] = p.loads[0].clone();
+        mutants.push(p);
+        let mut p = source.clone();
+        p.loads.push(p.loads[0].clone());
+        mutants.push(p);
+        let mut p = source.clone();
+        p.loads[0].local_row = 1;
+        mutants.push(p);
+        let mut p = source.clone();
+        p.loads[0].term_index = 1;
+        mutants.push(p);
+        let mut p = source.clone();
+        p.loads[0].force_scale_exponent += 1;
+        mutants.push(p);
+        let mut p = source.clone();
+        if let LoadFormula::UniformStraight { intensity, .. } = &mut p.loads[0].formula {
+            *intensity = IntensityPrimitive::Authored([2.0, 0.0, 0.0]);
+        }
+        mutants.push(p);
+        for mutant in mutants {
+            assert!(matches!(
+                load_closure(&mutant, &scaled),
+                Err(Failure::Closure(_))
+            ));
+        }
+    }
+    let input = input_ledger(&[0.0; 12]);
+    let source = FormationSource {
+        node_count: 2,
+        loads: force.load_primitives().to_vec(),
+        ..FormationSource::default()
+    };
+    assert!(matches!(
+        load_closure(&source, &input),
+        Err(Failure::Closure(_))
+    ));
+    let mut absent = crate::load_ledger::LoadLedger::new();
+    absent.push_formed(
+        "no manifest",
+        0,
+        1.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    assert!(matches!(
+        load_closure(&FormationSource::default(), &absent.finish(12).unwrap()),
+        Err(Failure::Closure(_))
+    ));
+}
+#[test]
+fn kd5_load_families_reform_source_values_and_scaling_without_forming_on_the_heap() {
+    let f = axial_frame();
+    let thermal = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::ConstantAlphaInterval {
+            coefficient_per_kelvin: 0.125,
+            temperature_change_kelvin: 2.0,
+        },
+        fit: FitPrimitive::EngineeringStrain { strain: 0.5 },
+    };
+    // ε_total=.5+.25+.5*.25=.875, EA=16 => thrust14, all exact dyadics.
+    let cases = [
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::Authored([1.0, 0.0, 0.0]),
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            2.0,
+        ),
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::Product {
+                    factors: vec![2.0, 0.25],
+                    direction: [1.0, 0.0, 0.0],
+                },
+                start_fraction: 0.0,
+                end_fraction: 0.5,
+            },
+            0,
+            0.75,
+        ),
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::Wind {
+                    pressure: 2.0,
+                    shape_factor: 0.5,
+                    outer_diameter: 2.0,
+                    insulation_thickness: 0.5,
+                    direction: [1.0, 0.0, 0.0],
+                },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            6.0,
+        ),
+        (
+            LoadFormula::FreeStrainStraight {
+                frame: f,
+                strain: thermal,
+            },
+            6,
+            14.0,
+        ),
+    ];
+    for (formula, row, exact) in cases {
+        let p = primitive(formula, row, 0);
+        let (values, radius) = load_reformation(&p).unwrap();
+        assert_eq!(round(&values[row]), exact);
+        assert!(radius[row].is_finite() && radius[row] >= 0.0);
+        for exponent in [-3, 3] {
+            let scaled = p.force_scaled(exponent).unwrap();
+            let (v, r) = load_reformation(&scaled).unwrap();
+            assert_eq!(round(&v[row]), exact * 2.0f64.powi(exponent));
+            assert!(r[row] >= radius[row] * 2.0f64.powi(exponent));
+        }
+    }
+    // The library's Wide arithmetic and all element/load vectors are stack only.
+    let source = include_str!("formation_check.rs");
+    let reform = &source[source.find("fn intended_stiffness_pass").unwrap()
+        ..source.find("fn subtract_action").unwrap()];
+    assert!(!reform.contains("Vec<Element>"));
+    assert!(!reform.contains("collect"));
+    let reform = &source
+        [source.find("fn load_reformation").unwrap()..source.find("fn pressure_force").unwrap()];
+    assert!(!reform.contains("Vec"));
+    assert!(!reform.contains("collect"));
+}
+#[test]
+fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed() {
+    let force = input_ledger(&[2.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+    let (k, source) = spring_system(force.values());
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: 2.0,
+    }];
+    let prescribed = [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0), (5, 0.0)];
+    let system = StructuralSystem {
+        stiffness: &k,
+        force: force.values(),
+        free_dofs: &[0],
+        prescribed: &prescribed,
+        contributions: Some(&contributions),
+        symmetry: None,
+    };
+    let u = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    let solve = |rhs: &[f64]| Ok(vec![rhs[0] / 2.0]);
+    let (finding, bound) = check(
+        &system,
+        &source,
+        Some(&force),
+        &[0],
+        &u,
+        (1.0, 0.5, 2.0),
+        &|i, j| k[i][j],
+        &|_, _| 2.0,
+        &solve,
+    );
+    assert!(finding.is_none());
+    let bound = bound.unwrap();
+    assert_eq!(bound.w, vec![0.0; 6]);
+    assert_eq!(bound.w2, vec![0.0; 6]);
+    assert_eq!(bound.lambda_sigma, 0.0);
+    assert_eq!(bound.exponents[1], i32::MIN);
+    let (finding, _) = check(
+        &system,
+        &source,
+        None,
+        &[0],
+        &u,
+        (1.0, 0.5, 2.0),
+        &|i, j| k[i][j],
+        &|_, _| 2.0,
+        &solve,
+    );
+    assert!(
+        matches!(finding.unwrap().reason,FormationCheckReason::FormationCheckUnavailable{detail}if detail=="load closure: no ledger")
+    );
+    let mut changed = crate::load_ledger::LoadLedger::new();
+    changed.push("held", 0, 2.0);
+    changed.push("small", 0, 2.0f64.powi(-40));
+    let changed = changed.finish(6).unwrap();
+    for contraction in [false, true] {
+        let count = std::cell::Cell::new(0);
+        let faulty = |rhs: &[f64]| {
+            let call = count.get();
+            count.set(call + 1);
+            if call == 0 {
+                Ok(vec![rhs[0] / 2.0 + 2.0f64.powi(-40)])
+            } else if contraction {
+                Ok(vec![rhs[0] * 2.0f64.powi(30)])
+            } else {
+                Err(StructuralError::InvalidInput("seeded second solve"))
+            }
+        };
+        let (finding, bound) = check(
+            &system,
+            &source,
+            Some(&changed),
+            &[0],
+            &u,
+            (1.0, 0.5, 2.0),
+            &|i, j| k[i][j],
+            &|_, _| 2.0,
+            &faulty,
+        );
+        assert!(bound.is_none());
+        let FormationCheckReason::FormationCheckUnavailable { detail } = finding.unwrap().reason
+        else {
+            panic!("unavailable expected")
+        };
+        assert!(
+            detail.contains(if contraction {
+                "contraction"
+            } else {
+                "second solve"
+            }),
+            "{detail}"
+        );
+        assert_eq!(count.get(), 2);
+    }
+    let (finding, bound) = check(
+        &system,
+        &source,
+        Some(&force),
+        &[0],
+        &u,
+        (1.0, 1.0, 3.0),
+        &|i, j| if i == j && i == 0 { 3.0 } else { 0.0 },
+        &|_, _| 3.0,
+        &solve,
+    );
+    assert!(bound.is_none());
+    assert!(
+        matches!(finding.unwrap().reason,FormationCheckReason::FormationCheckUnavailable{detail}if detail=="Neumann")
+    );
+}
+#[test]
+fn kd5_epsilon_triangle_includes_formation_assembly_projection_and_both_norms() {
+    let f = axial_frame();
+    let global = f.global_stiffness().unwrap();
+    let map = element_dof_map(0, 1);
+    let mut contributions = Vec::new();
+    for r in 0..12 {
+        for c in 0..12 {
+            contributions.push(super::super::StiffnessContribution {
+                row: map[r],
+                col: map[c],
+                value: global[r][c],
+            });
+        }
+    }
+    let source = FormationSource {
+        node_count: 2,
+        frames: vec![f],
+        ..FormationSource::default()
+    };
+    let free = [0, 6, 1];
+    let mut index = vec![None; 12];
+    for (r, &i) in free.iter().enumerate() {
+        index[i] = Some(r);
+    }
+    let system = StructuralSystem {
+        stiffness: &[],
+        force: &[0.0; 12],
+        free_dofs: &free,
+        prescribed: &[],
+        contributions: Some(&contributions),
+        symmetry: None,
+    };
+    // Added stored assembly shift2 and nonsymmetric projection3 at (0,6) give
+    // triangle5, though their signed net is1. Other row entries make the row
+    // norm differ from the column norm. Test both independently and the triangle.
+    let assembled = |i: usize, j: usize| global[i][j] + if i == 0 && j == 6 { 2.0 } else { 0.0 };
+    let projected = |r: usize, c: usize| {
+        assembled(free[r], free[c])
+            + if r == 0 && c == 1 {
+                3.0
+            } else if r == 0 && c == 2 {
+                4.0
+            } else {
+                0.0
+            }
+    };
+    let eps = epsilon_e(&system, &source, &index, &[0, 0, 0], &assembled, &projected).unwrap();
+    assert!(eps >= 9.0 && eps < 9.0 + 1e-12, "{eps}");
+}
+
+#[test]
+fn kd5_pi_families_enclose_independent_256_bit_reference() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    // Independently computed by Decimal Machin's identity 16atan(1/5)-4atan(1/239)
+    // at 100 digits, rounded to the p256 grid. Its error is below 2^-254.
+    let pi = Wide::<4>::from_parts(
+        false,
+        1,
+        [
+            0x020bbea63b139b22,
+            0x29024e088a67cc74,
+            0xc4c6628b80dc1cd1,
+            0xc90fdaa22168c234,
+        ],
+    )
+    .unwrap();
+    let mut a = WideContext::<4>::new(256).unwrap();
+    let m = MassPrimitive {
+        outer_diameter: 2.0,
+        wall_thickness: 0.5,
+        mill_tolerance: 0.0,
+        pipe_density: 2.0,
+        contents_density: 1.0,
+        insulation_thickness: 0.25,
+        insulation_density: 0.5,
+    };
+    let f = axial_frame();
+    let cases = [
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::SelfWeight {
+                    mass: m,
+                    gravity: [2.0, 0.0, 0.0],
+                },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            8.125,
+        ),
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::Seismic {
+                    mass: m,
+                    coefficient: 0.5,
+                    gravity: 2.0,
+                    direction: [1.0, 0.0, 0.0],
+                },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            4.0625,
+        ),
+        (
+            LoadFormula::PressureOperand {
+                geometry: PressureGeometry::Straight { frame: f },
+                pressure: 2.0,
+                outer_diameter: 2.0,
+                wall_thickness: 0.5,
+                coefficient: PressureCoefficient::Poisson {
+                    poisson_ratio: 0.125,
+                    sign: -2.0,
+                },
+                direction: PressureDirection::Chord { axis: 0 },
+            },
+            0,
+            -0.125,
+        ),
+        (
+            LoadFormula::PressureOperand {
+                geometry: PressureGeometry::Straight { frame: f },
+                pressure: 2.0,
+                outer_diameter: 2.0,
+                wall_thickness: 0.5,
+                coefficient: PressureCoefficient::Constant(1.0),
+                direction: PressureDirection::Chord { axis: 0 },
+            },
+            0,
+            0.5,
+        ),
+    ];
+    for (formula, row, factor) in cases {
+        let (value, radius) = load_reformation(&primitive(formula, row, 0)).unwrap();
+        let reference = a.mul(&pi, &Wide::<4>::from_f64(factor).unwrap()).unwrap();
+        let error = a.sub(&value[row].widen::<4>(), &reference).unwrap().abs();
+        let bound = Wide::<4>::from_f64(radius[row]).unwrap();
+        assert!(
+            error.cmp_value(&bound).is_le(),
+            "factor {factor}: {error:?} > {bound:?}"
+        );
+        assert!(radius[row] < 1e-30);
+    }
+}
+fn quarter_arc() -> CurvedFormation {
+    CurvedFormation {
+        node_i: 0,
+        node_j: 1,
+        coordinates_i: [1.0, 0.0, 0.0],
+        coordinates_j: [0.0, 1.0, 0.0],
+        radius: 1.0,
+        y_reference: [1.0, 1.0, 0.0],
+        elastic_modulus: 8.0,
+        shear_modulus: 4.0,
+        area: 2.0,
+        second_moment: 1.0,
+        torsion_constant: 2.0,
+        in_plane_flexibility_factor: 1.0,
+        out_of_plane_flexibility_factor: 1.0,
+    }
+}
+#[test]
+fn kd5_curved_load_family_encloses_independent_resultant_and_free_strain_uses_same_matrix() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    let arc = quarter_arc();
+    let mut a = WideContext::<4>::new(256).unwrap();
+    let pi = Wide::<4>::from_parts(
+        false,
+        1,
+        [
+            0x020bbea63b139b22,
+            0x29024e088a67cc74,
+            0xc4c6628b80dc1cd1,
+            0xc90fdaa22168c234,
+        ],
+    )
+    .unwrap();
+    let (value, radius) = load_reformation(&primitive(
+        LoadFormula::UniformCurved {
+            arc,
+            intensity: IntensityPrimitive::Authored([0.0, -1.0, 0.0]),
+        },
+        0,
+        0,
+    ))
+    .unwrap();
+    let total = a
+        .add(&value[1].widen::<4>(), &value[7].widen::<4>())
+        .unwrap();
+    let target = pi.mul_pow2(-1).unwrap().neg();
+    let error = a.sub(&total, &target).unwrap().abs();
+    let bound = Wide::<4>::from_f64(add_up(radius[1], radius[7])).unwrap();
+    assert!(error.cmp_value(&bound).is_le());
+    let moment0 = a
+        .add(&value[5].widen::<4>(), &value[11].widen::<4>())
+        .unwrap();
+    let moment1 = a.add(&moment0, &value[1].widen::<4>()).unwrap();
+    let moment = a.sub(&moment1, &value[6].widen::<4>()).unwrap();
+    let target = Wide::<4>::from_f64(-1.0).unwrap();
+    let error = a.sub(&moment, &target).unwrap().abs();
+    let bound = Wide::<4>::from_f64(add_up(
+        add_up(radius[5], radius[11]),
+        add_up(radius[1], radius[6]),
+    ))
+    .unwrap();
+    assert!(error.cmp_value(&bound).is_le());
+    let strain = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::ExplicitIntervalStrain { strain: 0.25 },
+        fit: FitPrimitive::None,
+    };
+    let (value, radius) = load_reformation(&primitive(
+        LoadFormula::FreeStrainCurved {
+            arc,
+            strain,
+            column: None,
+        },
+        0,
+        0,
+    ))
+    .unwrap();
+    let mut arith = WideArith::new(128).unwrap();
+    let k = curved_matrix(&mut arith, &arc).unwrap();
+    for r in 0..12 {
+        let col6 = a
+            .mul(&k[r][6].widen::<4>(), &Wide::<4>::from_f64(-0.25).unwrap())
+            .unwrap();
+        let col7 = a
+            .mul(&k[r][7].widen::<4>(), &Wide::<4>::from_f64(0.25).unwrap())
+            .unwrap();
+        let reference = a.add(&col6, &col7).unwrap();
+        let error = a.sub(&value[r].widen::<4>(), &reference).unwrap().abs();
+        assert!(error
+            .cmp_value(&Wide::<4>::from_f64(radius[r]).unwrap())
+            .is_le());
+    }
+}
+#[test]
+fn kd5_connector_reference_and_thermal_laws_have_exact_family_controls() {
+    use crate::connector::{ConnectorAttachment, ScaledWorkMatrix};
+    let f = axial_frame();
+    let mut upper = [0.0; 21];
+    let mut at = 0;
+    for r in 0..6 {
+        for c in r..6 {
+            upper[at] = if r == c { 8.0 } else { 0.0 };
+            at += 1;
+        }
+    }
+    let c = ObjectiveConnector::new(
+        f.node_i,
+        f.node_j,
+        ConnectorAttachment::global([0.0; 3]),
+        ConnectorAttachment::global([0.0; 3]),
+        [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        ScaledWorkMatrix {
+            upper_triangle: upper,
+            translation_scale: 1.0,
+        },
+        [0.25, 0.0, 0.0, 0.0, 0.0, 0.0],
+    )
+    .unwrap();
+    let (v, r) = load_reformation(&primitive(
+        LoadFormula::ConnectorReference { connector: c },
+        0,
+        0,
+    ))
+    .unwrap();
+    assert_eq!(round(&v[0]), -2.0);
+    assert_eq!(round(&v[6]), 2.0);
+    assert!(r.iter().all(|v| v.is_finite()));
+    let points = vec![
+        ThermalPointPrimitive {
+            temperature_kelvin: 0.0,
+            value: 0.25,
+        },
+        ThermalPointPrimitive {
+            temperature_kelvin: 2.0,
+            value: 0.25,
+        },
+    ];
+    for (law, exact) in [
+        (
+            ExpansionLawPrimitive::EngineeringSecant {
+                datum_kelvin: 0.0,
+                data: CoefficientPrimitive::Constant(0.25),
+            },
+            0.5,
+        ),
+        (
+            ExpansionLawPrimitive::EngineeringSecant {
+                datum_kelvin: 0.0,
+                data: CoefficientPrimitive::Table(points.clone()),
+            },
+            0.5,
+        ),
+        (
+            ExpansionLawPrimitive::DifferentialPerDatumLength {
+                datum_kelvin: 0.0,
+                points: points.clone(),
+            },
+            0.5,
+        ),
+        (
+            ExpansionLawPrimitive::EngineeringDilation {
+                datum_kelvin: 0.0,
+                points: vec![
+                    ThermalPointPrimitive {
+                        temperature_kelvin: 0.0,
+                        value: 0.0,
+                    },
+                    ThermalPointPrimitive {
+                        temperature_kelvin: 2.0,
+                        value: 0.5,
+                    },
+                ],
+            },
+            0.5,
+        ),
+    ] {
+        let strain = EigenstrainPrimitive {
+            thermal: ThermalPrimitive::FreeLengthState {
+                installation_kelvin: 0.0,
+                operating_kelvin: 2.0,
+                law,
+            },
+            fit: FitPrimitive::None,
+        };
+        let (v, _) = load_reformation(&primitive(
+            LoadFormula::FreeStrainStraight { frame: f, strain },
+            6,
+            0,
+        ))
+        .unwrap();
+        assert_eq!(round(&v[6]), 16.0 * exact);
+    }
+    let strain = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChange {
+            change_m: 1.0,
+            reference_length_m: 4.0,
+        },
+    };
+    let (v, _) = load_reformation(&primitive(
+        LoadFormula::FreeStrainStraight { frame: f, strain },
+        6,
+        0,
+    ))
+    .unwrap();
+    assert_eq!(round(&v[6]), 4.0);
+}
+#[test]
+fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
+    let formula = LoadFormula::UniformStraight {
+        frame: axial_frame(),
+        intensity: IntensityPrimitive::Authored([1.0, 0.0, 0.0]),
+        start_fraction: 0.0,
+        end_fraction: 1.0,
+    };
+    let p = primitive(formula, 0, 0);
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "uniform",
+        0,
+        2.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    ledger.set_closure_manifest(0, vec![p.closure_entry()]);
+    ledger.attach_load_primitive(p);
+    let force = ledger.finish(12).unwrap();
+    let source = FormationSource {
+        node_count: 2,
+        loads: force.load_primitives().to_vec(),
+        springs: vec![(0, 2.0)],
+        ..FormationSource::default()
+    };
+    let mut k = vec![vec![0.0; 12]; 12];
+    k[0][0] = 2.0;
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: 2.0,
+    }];
+    let prescribed: Vec<_> = (1..12).map(|i| (i, 0.0)).collect();
+    let mut u = [0.0; 12];
+    u[0] = 1.0;
+    let system = StructuralSystem {
+        stiffness: &k,
+        force: force.values(),
+        free_dofs: &[0],
+        prescribed: &prescribed,
+        contributions: Some(&contributions),
+        symmetry: None,
+    };
+    let (finding, bound) = check(
+        &system,
+        &source,
+        Some(&force),
+        &[0],
+        &u,
+        (1.0, 0.5, 2.0),
+        &|i, j| k[i][j],
+        &|_, _| 2.0,
+        &|rhs| Ok(vec![rhs[0] / 2.0]),
+    );
+    assert!(finding.is_none());
+    let bound = bound.unwrap();
+    assert!(bound.w.iter().chain(&bound.w2).all(|v| *v == 0.0));
+    assert!(bound.lambda_sigma > 0.0);
+    let f = axial_frame();
+    let k: Vec<_> = f
+        .global_stiffness()
+        .unwrap()
+        .into_iter()
+        .map(|r| r.to_vec())
+        .collect();
+    let mut prescribed: Vec<_> = (0..12).map(|i| (i, 0.0)).collect();
+    prescribed[11].1 = 0.125;
+    let source = FormationSource {
+        node_count: 2,
+        frames: vec![f],
+        ..FormationSource::default()
+    };
+    let system = StructuralSystem {
+        stiffness: &k,
+        force: &[0.0; 12],
+        free_dofs: &[],
+        prescribed: &prescribed,
+        contributions: None,
+        symmetry: None,
+    };
+    let solution = closed_test_solve(system, &source);
+    assert_eq!(solution.report.quality, SolveQuality::Passed);
+    let bound = solution.member_bound.unwrap();
+    assert_eq!(bound.exponents, vec![i32::MIN; 12]);
+    assert_eq!(bound.lambda_sigma, 0.0);
+    assert!(bound.w.iter().chain(&bound.w2).all(|v| *v == 0.0));
+}
+
+#[test]
+fn kd5_full_attempt_bound_keeps_w2_physical_remainder_invariant() {
+    let recipe = LoadFormula::UniformStraight {
+        frame: axial_frame(),
+        intensity: IntensityPrimitive::Authored([1.0, 0.0, 0.0]),
+        start_fraction: 0.0,
+        end_fraction: 1.0,
+    };
+    let p = primitive(recipe, 0, 0);
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "uniform",
+        0,
+        2.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    ledger.set_closure_manifest(0, vec![p.closure_entry()]);
+    ledger.attach_load_primitive(p);
+    let force = ledger.finish(12).unwrap();
+    let prescribed: Vec<_> = (1..12).map(|i| (i, 0.0)).collect();
+    let mut baseline: Option<f64> = None;
+    // Public W2 admits only even exponents. Odd controls below exercise the
+    // lower-level algebra with an internal scale, without widening admission.
+    for exponent in [0, -6, 6, -3, 3] {
+        let scale = crate::ForceScale { exponent };
+        let force = force.force_scaled(scale).unwrap();
+        let stiffness = 2.0 * 2.0f64.powi(exponent);
+        let mut k = vec![vec![0.0; 12]; 12];
+        k[0][0] = stiffness;
+        let contributions = [super::super::StiffnessContribution {
+            row: 0,
+            col: 0,
+            value: stiffness,
+        }];
+        let source = FormationSource {
+            node_count: 2,
+            loads: force.load_primitives().to_vec(),
+            springs: vec![(0, stiffness)],
+            ..FormationSource::default()
+        };
+        let checked =
+            StructuralSystem::assembled(&k, &force, &[0], &prescribed, Some(&contributions), None)
+                .with_formation_source(&source);
+        let solution = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        assert_eq!(
+            solution.report.quality,
+            SolveQuality::Passed,
+            "b={exponent}"
+        );
+        let bound = solution.member_bound.as_ref().unwrap();
+        let mut corrected = ExactAccumulator::new();
+        corrected.add(solution.displacements[0]).unwrap();
+        corrected.add(bound.w[0]).unwrap();
+        corrected.add(bound.w2[0]).unwrap();
+        assert_eq!(corrected.round().unwrap(), 1.0, "b={exponent}");
+        let physical_remainder = mul_up(scale_up(2.0, bound.exponents[0]), bound.lambda_sigma);
+        let scaled_remainder = mul_up(
+            scale_up(2.0, exponent + bound.exponents[0]),
+            bound.lambda_sigma,
+        );
+        let unscaled_remainder = scale_up(scaled_remainder, -exponent);
+        assert!(
+            (physical_remainder / unscaled_remainder - 1.0).abs() < 1e-14,
+            "b={exponent}: physical and scaled-A remainder laws"
+        );
+        assert!(physical_remainder > 0.0);
+        if let Some(base) = baseline {
+            // Even exponents retain this fixture's factor arithmetic. Odd
+            // attempts can have a tighter s2; no cross-attempt Lambda law is assumed.
+            if exponent.rem_euclid(2) == 0 {
+                assert!(
+                    (physical_remainder / base - 1.0).abs() < 1e-12,
+                    "b={exponent}: R={physical_remainder}, base={base}"
+                );
+            }
+        } else {
+            baseline = Some(physical_remainder);
+        }
+        let before = bound.clone();
+        let published = super::super::unscale_structural_solution(
+            solution,
+            scale,
+            &input_ledger(&[2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        );
+        assert_eq!(published.solution.member_bound.unwrap(), before);
+    }
+}
+#[test]
+fn kd5_logarithmic_strain_encloses_independent_p256_series() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    let points = vec![
+        ThermalPointPrimitive {
+            temperature_kelvin: 0.0,
+            value: 0.25,
+        },
+        ThermalPointPrimitive {
+            temperature_kelvin: 2.0,
+            value: 0.25,
+        },
+    ];
+    let strain = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::FreeLengthState {
+            installation_kelvin: 0.0,
+            operating_kelvin: 2.0,
+            law: ExpansionLawPrimitive::LogarithmicPerCurrentLength {
+                datum_kelvin: 0.0,
+                points,
+            },
+        },
+        fit: FitPrimitive::None,
+    };
+    let (value, radius) = load_reformation(&primitive(
+        LoadFormula::FreeStrainStraight {
+            frame: axial_frame(),
+            strain,
+        },
+        6,
+        0,
+    ))
+    .unwrap();
+    let mut a = WideContext::<4>::new(256).unwrap();
+    let one = Wide::<4>::from_f64(1.0).unwrap();
+    let x = Wide::<4>::from_f64(0.5).unwrap();
+    let mut term = one;
+    let mut sum = one;
+    for n in 1..=100 {
+        let product = a.mul(&term, &x).unwrap();
+        term = a
+            .div(&product, &Wide::<4>::from_f64(n as f64).unwrap())
+            .unwrap();
+        sum = a.add(&sum, &term).unwrap();
+    }
+    let strain = a.sub(&sum, &one).unwrap();
+    let reference = a.mul(&strain, &Wide::<4>::from_f64(16.0).unwrap()).unwrap();
+    let error = a.sub(&value[6].widen::<4>(), &reference).unwrap().abs();
+    assert!(error
+        .cmp_value(&Wide::<4>::from_f64(radius[6]).unwrap())
+        .is_le());
+    assert!(radius[6] < 1e-30);
+}
+
+#[test]
+fn kd5_sparse_and_dense_closed_source_and_drop_one_use_the_same_boundary() {
+    use super::super::{
+        factor_sparse_structural_profile, finish_sparse_structural,
+        prepare_formation_checked_sparse_structural, SparseStiffness, SparseStructuralSystem,
+    };
+    let f = axial_frame();
+    let recipe = LoadFormula::UniformStraight {
+        frame: f,
+        intensity: IntensityPrimitive::Authored([0.5, 0.0, 0.0]),
+        start_fraction: 0.0,
+        end_fraction: 1.0,
+    };
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "group",
+        0,
+        2.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    let mut expected = Vec::new();
+    for ordinal in 0..2 {
+        expected.push(primitive(recipe.clone(), 0, ordinal).closure_entry());
+    }
+    ledger.set_closure_manifest(0, expected);
+    for ordinal in 0..2 {
+        ledger.attach_load_primitive(primitive(recipe.clone(), 0, ordinal));
+    }
+    let force = ledger.finish(12).unwrap();
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: 2.0,
+    }];
+    let sparse = SparseStiffness::from_contributions(12, &contributions).unwrap();
+    let dense = sparse.to_dense();
+    let prescribed: Vec<_> = (1..12).map(|i| (i, 0.0)).collect();
+    for drop_one in [false, true] {
+        let mut source = FormationSource {
+            node_count: 2,
+            loads: force.load_primitives().to_vec(),
+            springs: vec![(0, 2.0)],
+            ..FormationSource::default()
+        };
+        if drop_one {
+            source.loads.pop();
+        }
+        let checked = StructuralSystem::assembled(
+            &dense,
+            &force,
+            &[0],
+            &prescribed,
+            Some(&contributions),
+            None,
+        )
+        .with_formation_source(&source);
+        let d = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+        let checked = SparseStructuralSystem::assembled(
+            &sparse,
+            &force,
+            &[0],
+            &prescribed,
+            Some(&contributions),
+            None,
+        )
+        .with_formation_source(&source);
+        let prepared = prepare_formation_checked_sparse_structural(&checked).unwrap();
+        let factor = factor_sparse_structural_profile(&prepared, &[0], &[0]).unwrap();
+        let s = finish_sparse_structural(&factor).unwrap();
+        assert!((d.displacements[0] - s.displacements[0]).abs() <= f64::EPSILON);
+        assert_eq!(d.report.quality, s.report.quality);
+        if drop_one {
+            assert_eq!(
+                d.formation_check.as_ref().unwrap().reason,
+                s.formation_check.as_ref().unwrap().reason
+            );
+            assert!(d.member_bound.is_none() && s.member_bound.is_none());
+        } else {
+            for result in [&d, &s] {
+                let bound = result.member_bound.as_ref().unwrap();
+                let mut corrected = ExactAccumulator::new();
+                corrected.add(result.displacements[0]).unwrap();
+                corrected.add(bound.w[0]).unwrap();
+                corrected.add(bound.w2[0]).unwrap();
+                assert_eq!(corrected.round().unwrap(), 1.0);
+                assert!(bound.lambda_sigma.is_finite());
+            }
+        }
+        assert_eq!(
+            d.report.quality,
+            if drop_one {
+                SolveQuality::Sensitive
+            } else {
+                SolveQuality::Passed
+            }
+        );
+    }
+}
+
+#[test]
+fn kd5_curved_pressure_families_enclose_independent_p256_operands() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    let arc = quarter_arc();
+    let pi = Wide::<4>::from_parts(
+        false,
+        1,
+        [
+            0x020bbea63b139b22,
+            0x29024e088a67cc74,
+            0xc4c6628b80dc1cd1,
+            0xc90fdaa22168c234,
+        ],
+    )
+    .unwrap();
+    let mut a = WideContext::<4>::new(256).unwrap();
+    let two = Wide::<4>::from_f64(2.0).unwrap();
+    let root = a.sqrt(&two).unwrap();
+    let halfpi = pi.mul_pow2(-1).unwrap();
+    for (direction, reference) in [
+        (
+            PressureDirection::Chord { axis: 0 },
+            a.div(&halfpi, &root).unwrap().neg(),
+        ),
+        (
+            PressureDirection::Tangent {
+                end_j: false,
+                axis: 0,
+            },
+            Wide::<4>::from_f64(0.0).unwrap(),
+        ),
+        (
+            PressureDirection::Tangent {
+                end_j: true,
+                axis: 0,
+            },
+            halfpi.neg(),
+        ),
+    ] {
+        let formula = LoadFormula::PressureOperand {
+            geometry: PressureGeometry::Curved { arc },
+            pressure: 2.0,
+            outer_diameter: 2.0,
+            wall_thickness: 0.5,
+            coefficient: PressureCoefficient::Constant(1.0),
+            direction,
+        };
+        let (v, r) = load_reformation(&primitive(formula, 0, 0)).unwrap();
+        let error = a.sub(&v[0].widen::<4>(), &reference).unwrap().abs();
+        assert!(error.cmp_value(&Wide::<4>::from_f64(r[0]).unwrap()).is_le());
+    }
+    let (v, r) = load_reformation(&primitive(
+        LoadFormula::PressureFreeStrainCurved {
+            arc,
+            pressure: 2.0,
+            outer_diameter: 2.0,
+            wall_thickness: 0.5,
+            poisson_ratio: 0.125,
+            column: None,
+        },
+        0,
+        0,
+    ))
+    .unwrap();
+    let factor = Wide::<4>::from_f64(3.0 / 128.0).unwrap();
+    let eps = a.mul(&pi, &factor).unwrap();
+    let mut arith = WideArith::new(128).unwrap();
+    let k = curved_matrix(&mut arith, &arc).unwrap();
+    for row in 0..12 {
+        let left = a.mul(&k[row][6].widen::<4>(), &eps.neg()).unwrap();
+        let right = a.mul(&k[row][7].widen::<4>(), &eps).unwrap();
+        let reference = a.add(&left, &right).unwrap();
+        let error = a.sub(&v[row].widen::<4>(), &reference).unwrap().abs();
+        assert!(error
+            .cmp_value(&Wide::<4>::from_f64(r[row]).unwrap())
+            .is_le());
+    }
+}
+#[test]
+fn kd5_all_prescribed_formed_load_reformation_failure_is_named() {
+    let f = axial_frame();
+    let formula = LoadFormula::UniformStraight {
+        frame: f,
+        intensity: IntensityPrimitive::Authored([1.0, 0.0, 0.0]),
+        start_fraction: 1.0,
+        end_fraction: 0.0,
+    };
+    let p = primitive(formula, 0, 0);
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "bad prescribed uniform",
+        0,
+        0.0,
+        crate::load_ledger::Formation::CannotBound,
+        0.0,
+        false,
+    );
+    ledger.set_closure_manifest(0, vec![p.closure_entry()]);
+    ledger.attach_load_primitive(p);
+    let force = ledger.finish(12).unwrap();
+    let source = FormationSource {
+        node_count: 2,
+        loads: force.load_primitives().to_vec(),
+        ..FormationSource::default()
+    };
+    let prescribed: Vec<_> = (0..12).map(|i| (i, 0.0)).collect();
+    let system = StructuralSystem {
+        stiffness: &[],
+        force: force.values(),
+        free_dofs: &[],
+        prescribed: &prescribed,
+        contributions: Some(&[]),
+        symmetry: None,
+    };
+    let (finding, bound) = check(
+        &system,
+        &source,
+        Some(&force),
+        &[],
+        &[0.0; 12],
+        (1.0, 0.0, 0.0),
+        &|_, _| 0.0,
+        &|_, _| 0.0,
+        &|_| Ok(Vec::new()),
+    );
+    assert!(bound.is_none());
+    assert!(
+        matches!(finding.unwrap().reason,FormationCheckReason::FormationCheckUnavailable{detail}if detail.contains("load closure: bad prescribed uniform: reformation"))
+    );
+}
+
+#[test]
+fn kd5_fit_reference_lengths_are_reformed_from_raw_straight_and_curved_geometry() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    let mut ref_arith = WideContext::<4>::new(256).unwrap();
+    let change = Wide::<4>::from_f64(0.125).unwrap();
+    let points = ([7.3e6, 500000.0, 20.0], [7.3e6 + 1.0, 500001.0, 21.0]);
+    let length = ref_arith.sqrt(&Wide::<4>::from_f64(3.0).unwrap()).unwrap();
+    let reference = ref_arith.div(&change, &length).unwrap();
+    let straight = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChangeStraight {
+            change_m: 0.125,
+            coordinates_i: points.0,
+            coordinates_j: points.1,
+        },
+    };
+    let mut balls = Balls::new().unwrap();
+    let result = eigenstrain_reformation(&mut balls, &straight).unwrap();
+    let error = ref_arith
+        .sub(&result.m.widen::<4>(), &reference)
+        .unwrap()
+        .abs();
+    assert!(error
+        .cmp_value(&Wide::<4>::from_f64(result.r).unwrap())
+        .is_le());
+    assert!(result.r < 1e-30);
+    // A binary64 lift of the derived sqrt(3) loses real source bits and is
+    // detectably outside the raw geometry enclosure.
+    let held = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChange {
+            change_m: 0.125,
+            reference_length_m: 3.0f64.sqrt(),
+        },
+    };
+    let held = eigenstrain_reformation(&mut Balls::new().unwrap(), &held).unwrap();
+    let error = ref_arith
+        .sub(&held.m.widen::<4>(), &reference)
+        .unwrap()
+        .abs();
+    assert!(error
+        .cmp_value(&Wide::<4>::from_f64(result.r).unwrap())
+        .is_gt());
+    let pi = Wide::<4>::from_parts(
+        false,
+        1,
+        [
+            0x020bbea63b139b22,
+            0x29024e088a67cc74,
+            0xc4c6628b80dc1cd1,
+            0xc90fdaa22168c234,
+        ],
+    )
+    .unwrap();
+    let arc = quarter_arc();
+    let reference = ref_arith.div(&change, &pi.mul_pow2(-1).unwrap()).unwrap();
+    let curved = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChangeCurved {
+            change_m: 0.125,
+            arc,
+        },
+    };
+    let result = eigenstrain_reformation(&mut Balls::new().unwrap(), &curved).unwrap();
+    let error = ref_arith
+        .sub(&result.m.widen::<4>(), &reference)
+        .unwrap()
+        .abs();
+    assert!(error
+        .cmp_value(&Wide::<4>::from_f64(result.r).unwrap())
+        .is_le());
+    assert!(result.r < 1e-30);
+    let held = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChange {
+            change_m: 0.125,
+            reference_length_m: std::f64::consts::FRAC_PI_2,
+        },
+    };
+    let held = eigenstrain_reformation(&mut Balls::new().unwrap(), &held).unwrap();
+    let error = ref_arith
+        .sub(&held.m.widen::<4>(), &reference)
+        .unwrap()
+        .abs();
+    assert!(error
+        .cmp_value(&Wide::<4>::from_f64(result.r).unwrap())
+        .is_gt());
+    // Midpoint uses exactly the K_int geometry path and its length at p128.
+    let mut arith = WideArith::new(128).unwrap();
+    let geometry = curved_geometry_values(&mut arith, &arc).unwrap();
+    let length = arith.mul(&geometry.radius, &geometry.phi).unwrap();
+    let expected = arith
+        .div(&Wide2::from_f64(0.125).unwrap(), &length)
+        .unwrap();
+    assert_eq!(result.m, expected);
+}
+#[test]
+fn kd5_fit_wrong_raw_geometry_binding_refuses_on_ordinary_and_w2() {
+    let frame = axial_frame();
+    let recipes = [
+        LoadFormula::FreeStrainStraight {
+            frame,
+            strain: EigenstrainPrimitive {
+                thermal: ThermalPrimitive::UnchangedReference,
+                fit: FitPrimitive::NaturalLengthChangeStraight {
+                    change_m: 0.125,
+                    coordinates_i: frame.node_i.coordinates,
+                    coordinates_j: frame.node_j.coordinates,
+                },
+            },
+        },
+        LoadFormula::FreeStrainCurved {
+            arc: quarter_arc(),
+            strain: EigenstrainPrimitive {
+                thermal: ThermalPrimitive::UnchangedReference,
+                fit: FitPrimitive::NaturalLengthChangeCurved {
+                    change_m: 0.125,
+                    arc: quarter_arc(),
+                },
+            },
+            column: None,
+        },
+    ];
+    for recipe in recipes {
+        let p = primitive(recipe, 0, 0);
+        let mut ledger = crate::load_ledger::LoadLedger::new();
+        ledger.push_formed(
+            "raw fit",
+            0,
+            0.0,
+            crate::load_ledger::Formation::CannotBound,
+            0.0,
+            true,
+        );
+        ledger.set_closure_manifest(0, vec![p.closure_entry()]);
+        ledger.attach_load_primitive(p);
+        let original = ledger.finish(12).unwrap();
+        for exponent in [0, 6] {
+            let force = original
+                .force_scaled(crate::ForceScale::new(exponent).unwrap())
+                .unwrap();
+            let mut source = FormationSource {
+                node_count: 2,
+                loads: force.load_primitives().to_vec(),
+                ..FormationSource::default()
+            };
+            load_closure(&source, &force).unwrap();
+            let strain = match &mut source.loads[0].formula {
+                LoadFormula::FreeStrainStraight { strain, .. }
+                | LoadFormula::FreeStrainCurved { strain, .. } => strain,
+                _ => unreachable!(),
+            };
+            match &mut strain.fit {
+                FitPrimitive::NaturalLengthChangeStraight { coordinates_j, .. } => {
+                    coordinates_j[0] = coordinates_j[0].next_up()
+                }
+                FitPrimitive::NaturalLengthChangeCurved { arc, .. } => {
+                    arc.radius = arc.radius.next_up()
+                }
+                _ => unreachable!(),
+            };
+            assert!(
+                matches!(load_closure(&source,&force),Err(Failure::Closure(detail))if detail.contains("wrong operand binding"))
+            );
+        }
+    }
+}
+
+#[test]
+fn kd5_raw_eigenstrain_zero_query_rejects_binary64_cancellation_and_enclosure_noise() {
+    let step = 2.0f64.powi(-52);
+    let alpha = 1.0 + step;
+    let dt = 1.0 - step;
+    let fit = -0.5;
+    let folded_thermal = alpha * dt;
+    let mut ordinary = ExactAccumulator::new();
+    ordinary.add(fit).unwrap();
+    ordinary.add(folded_thermal).unwrap();
+    ordinary.add_product(fit, folded_thermal).unwrap();
+    assert_eq!(ordinary.round().unwrap(), 0.0);
+    let raw = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::ConstantAlphaInterval {
+            coefficient_per_kelvin: alpha,
+            temperature_change_kelvin: dt,
+        },
+        fit: FitPrimitive::EngineeringStrain { strain: fit },
+    };
+    let intended = eigenstrain_reformation(&mut Balls::new().unwrap(), &raw).unwrap();
+    assert_eq!(intended.m, Wide2::from_f64(-2.0f64.powi(-105)).unwrap());
+    assert!(!eigenstrain_is_exact_zero(&raw));
+    // All terms in the reference polynomial are independent exact binary64
+    // products/sums: (1+h)(1-h)/2-1/2 = -h²/2 = -2^-105.
+    let mut reference = ExactAccumulator::new();
+    reference.add(-2.0f64.powi(-105)).unwrap();
+    for &term in intended.m.split_binary64().unwrap().terms() {
+        reference.add(-term).unwrap();
+    }
+    assert!(reference.is_zero());
+    let raw = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::ExplicitIntervalStrain { strain: 1.0 },
+        fit: FitPrimitive::EngineeringStrain { strain: -0.5 },
+    };
+    let intended = eigenstrain_reformation(&mut Balls::new().unwrap(), &raw).unwrap();
+    assert!(intended.m.is_zero() && intended.r > 0.0);
+    assert!(!eigenstrain_is_exact_zero(&raw));
+    for fit in [
+        FitPrimitive::None,
+        FitPrimitive::EngineeringStrain { strain: 0.0 },
+        FitPrimitive::NaturalLengthChangeStraight {
+            change_m: 0.0,
+            coordinates_i: [0.0; 3],
+            coordinates_j: [1.0, 1.0, 1.0],
+        },
+        FitPrimitive::NaturalLengthChangeCurved {
+            change_m: 0.0,
+            arc: quarter_arc(),
+        },
+    ] {
+        let raw = EigenstrainPrimitive {
+            thermal: ThermalPrimitive::UnchangedReference,
+            fit,
+        };
+        assert!(eigenstrain_is_exact_zero(&raw));
+    }
+    let raw = EigenstrainPrimitive {
+        thermal: ThermalPrimitive::UnchangedReference,
+        fit: FitPrimitive::NaturalLengthChange {
+            change_m: 0.0,
+            reference_length_m: 0.0,
+        },
+    };
+    assert!(!eigenstrain_is_exact_zero(&raw));
+}
+#[test]
+fn kd5_nodal_source_factor_reforms_exact_product_and_binds_its_source_and_dof() {
+    let step = 2.0f64.powi(-52);
+    let magnitude = 1.0 + step;
+    let factor = 1.0 - step;
+    let formula = LoadFormula::NodalProduct {
+        global_dof: 10,
+        magnitude,
+        factor,
+    };
+    let p = primitive(formula, 4, 0);
+    let (value, radius) = load_reformation(&p).unwrap();
+    let mut reference = ExactAccumulator::new();
+    reference.add_product(magnitude, factor).unwrap();
+    for &term in value[4].split_binary64().unwrap().terms() {
+        reference.add(-term).unwrap();
+    }
+    assert!(reference.is_zero());
+    assert!(!value[4].cmp_value(&Wide2::ONE).is_eq());
+    assert!(radius[4].is_finite());
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    ledger.push_formed(
+        "factored nodal source",
+        10,
+        magnitude * factor,
+        crate::load_ledger::Formation::RoundedProduct {
+            k: 1.0,
+            a: magnitude,
+            b: factor,
+        },
+        0.0,
+        false,
+    );
+    ledger.set_closure_manifest(0, vec![p.closure_entry()]);
+    ledger.attach_load_primitive(p);
+    let original = ledger.finish(12).unwrap();
+    for exponent in [0, 6] {
+        let force = original
+            .force_scaled(crate::ForceScale::new(exponent).unwrap())
+            .unwrap();
+        let source = FormationSource {
+            node_count: 2,
+            loads: force.load_primitives().to_vec(),
+            ..FormationSource::default()
+        };
+        load_closure(&source, &force).unwrap();
+        for wrong_dof in [false, true] {
+            let mut mutant = source.clone();
+            if let LoadFormula::NodalProduct {
+                global_dof, factor, ..
+            } = &mut mutant.loads[0].formula
+            {
+                if wrong_dof {
+                    *global_dof = 9;
+                } else {
+                    *factor = factor.next_up();
+                }
+            }
+            assert!(
+                matches!(load_closure(&mutant,&force),Err(Failure::Closure(detail))if detail.contains(if wrong_dof{"nodal source DOF binding"}else{"wrong operand binding"}))
+            );
+        }
+    }
+}
+
+#[test]
+fn kd5_positive_w2_lambda_sigma_unscale_mutant_underbounds_actual_reference_error() {
+    use super::super::retained::wide::multi::WideContext;
+    use super::super::retained::wide::Wide;
+    // The public even-b admission and actual prepared Cholesky/gate algorithm
+    // are used. K_int=3, f_int=1 have independent truth u*=1/3. The affine
+    // force row A*u-f with physical A=3 has intended truth exactly zero.
+    // There are no load enclosure radii; the third residual is nonzero.
+    let exponent = 14;
+    let scale = crate::ForceScale::new(exponent).unwrap();
+    let original = input_ledger(&[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+    let force = original.force_scaled(scale).unwrap();
+    let stiffness = 3.0 * 2.0f64.powi(exponent);
+    let mut k = vec![vec![0.0; 6]; 6];
+    k[0][0] = stiffness;
+    let contributions = [super::super::StiffnessContribution {
+        row: 0,
+        col: 0,
+        value: stiffness,
+    }];
+    let prescribed: Vec<_> = (1..6).map(|i| (i, 0.0)).collect();
+    let source = FormationSource {
+        node_count: 1,
+        springs: vec![(0, stiffness)],
+        ..FormationSource::default()
+    };
+    let checked =
+        StructuralSystem::assembled(&k, &force, &[0], &prescribed, Some(&contributions), None)
+            .with_formation_source(&source);
+    let scaled_solution = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+    // Exercise the actual force-unscale entry too: a production mutant that
+    // scales LambdaSigma alone here must fail the independent error comparison.
+    let solution =
+        super::super::unscale_structural_solution(scaled_solution, scale, &original).solution;
+    assert_eq!(solution.report.quality, SolveQuality::Passed);
+    let bound = solution.member_bound.as_ref().unwrap();
+    // Independent exact accumulator evaluation of the intended row. In
+    // particular this must not become zero by rounding corrected u first.
+    let mut reference_error = ExactAccumulator::new();
+    reference_error.add(-1.0).unwrap();
+    for value in [solution.displacements[0], bound.w[0], bound.w2[0]] {
+        reference_error.add_product(3.0, value).unwrap();
+    }
+    assert!(!reference_error.is_zero());
+    let actual = reference_error.round().unwrap().abs();
+    assert!(actual > 0.0);
+    // Independent p256 solve and corrected-row evaluation agree with the exact
+    // dyadic residual, well beyond the precision of the tested f64 bounds.
+    let mut arithmetic = WideContext::<4>::new(256).unwrap();
+    let one = Wide::<4>::from_f64(1.0).unwrap();
+    let three = Wide::<4>::from_f64(3.0).unwrap();
+    let truth = arithmetic.div(&one, &three).unwrap();
+    let mut corrected = Wide::<4>::from_f64(solution.displacements[0]).unwrap();
+    for value in [bound.w[0], bound.w2[0]] {
+        corrected = arithmetic
+            .add(&corrected, &Wide::<4>::from_f64(value).unwrap())
+            .unwrap();
+    }
+    let displacement_error = arithmetic.sub(&corrected, &truth).unwrap();
+    let error = arithmetic.mul(&three, &displacement_error).unwrap().abs();
+    let measured = Wide::<4>::from_f64(actual).unwrap();
+    let reference_difference = arithmetic.sub(&error, &measured).unwrap().abs();
+    assert!(reference_difference
+        .cmp_value(&measured.mul_pow2(-80).unwrap())
+        .is_lt());
+    let operator_norm = scale_up(3.0, bound.exponents[0]);
+    let correct = mul_up(operator_norm, bound.lambda_sigma);
+    let mutant = mul_up(operator_norm, scale_up(bound.lambda_sigma, -exponent));
+    assert!(
+        Wide::<4>::from_f64(correct)
+            .unwrap()
+            .cmp_value(&error)
+            .is_ge(),
+        "the actual member remainder must enclose the intended row error"
+    );
+    assert!(
+        Wide::<4>::from_f64(mutant)
+            .unwrap()
+            .cmp_value(&error)
+            .is_lt(),
+        "standalone LambdaSigma unscaling underbounds the actual nonzero intended error"
+    );
+    eprintln!("positive W2 b={exponent}: actual={actual:e}, R={correct:e}, mutant={mutant:e}, R/actual={}, mutant/actual={}",correct/actual,mutant/actual);
+}

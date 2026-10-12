@@ -298,6 +298,246 @@ fn sha256_matches_the_sha2_dependency() {
     assert_eq!(build_identity::sha256(b"abc")[..4], [0xba, 0x78, 0x16, 0xbf]);
 }
 
+const PRESSURE_SOURCE_BINDING_INPUT: &str =
+    "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
+
+fn reader_include_required(path: &str) -> bool {
+    path != PRESSURE_SOURCE_BINDING_INPUT
+}
+#[derive(Clone, Copy)]
+struct AuditedTestRegion {
+    first_item: &'static str,
+    complete_suffix_sha256: &'static str,
+    production_resume: Option<&'static str>,
+}
+
+fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
+    [
+        (include_str!("../../reporting/result_export/src/retained_precision.rs"), Some(AuditedTestRegion {
+            first_item: "#[cfg(test)]\nmod b3b_table_binding_tests {",
+            complete_suffix_sha256: "0ef82991ef8faaefb24938fc0c0bc7c5d900e473061bb67d5313bae66b8a5b70",
+            // Only the preceding closed test region is excluded. These two
+            // trailing public functions are production and remain inspected.
+            production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
+        })),
+        (include_str!("../../reporting/result_export/src/physics_source.rs"), Some(AuditedTestRegion {
+            first_item: "#[cfg(test)]\nmod review_repair_tests {",
+            complete_suffix_sha256: "a88a6e171b399851e9c3506dd127438c8c4bfddcab2d0792db23e6c59ba4fc6d",
+            production_resume: None,
+        })),
+        (include_str!("../../reporting/result_export/src/semantic_contract.rs"), None),
+        (include_str!("../../reporting/result_export/src/source_blocks.rs"), Some(AuditedTestRegion {
+            first_item: "#[cfg(test)]\nmod norm_tests {",
+            complete_suffix_sha256: "2fd78506b4a4b8a9634d8663d2f96576a91ccf7a92daa0c5d12ee13f181810f8",
+            production_resume: None,
+        })),
+        (include_str!("../../reporting/result_export/src/reader_verdict.rs"), None),
+    ]
+}
+
+/// Fail closed on any changed or unknown test region. The exact current
+/// boundaries and complete suffix bytes have been audited independently; this
+/// is not a parser or a general rule for discarding cfg(test) text.
+fn audited_reader_production(source: &str, region: Option<AuditedTestRegion>) -> Result<String, &'static str> {
+    use sha2::{Digest, Sha256};
+    let Some(region) = region else {
+        return if source.contains("#[cfg(test)]") { Err("UNKNOWN_TEST_MARKER") } else { Ok(source.into()) };
+    };
+    if source.matches(region.first_item).count() != 1 {
+        return Err("MISSING_OR_AMBIGUOUS_TEST_BOUNDARY");
+    }
+    let start = source.find(region.first_item).unwrap();
+    if start != 0 && source.as_bytes()[start-1] != b'\n' {
+        return Err("TEST_BOUNDARY_NOT_ITEM_LINE");
+    }
+    if source.find("#[cfg(test)]") != Some(start) {
+        return Err("EARLIER_TEST_MARKER");
+    }
+    let suffix = &source[start..];
+    // Hash the entire suffix before excluding anything, including production
+    // after the retained reader's test region. Appended production cannot hide.
+    if format!("{:x}", Sha256::digest(suffix.as_bytes())) != region.complete_suffix_sha256 {
+        return Err("CHANGED_AUDITED_SUFFIX");
+    }
+    let resume = match region.production_resume {
+        Some(anchor) => {
+            if suffix.matches(anchor).count() != 1 { return Err("MISSING_OR_AMBIGUOUS_PRODUCTION_RESUME"); }
+            start + suffix.find(anchor).unwrap()
+        }
+        None => source.len(),
+    };
+    Ok(format!("{}{}", &source[..start], &source[resume..]))
+}
+fn actual_reader_include(reader: &str, input: &str) -> bool {
+    let target = format!("../../{input}");
+    let compact: String = reader.chars().filter(|c| !c.is_ascii_whitespace()).collect();
+    ["include_str!", "include_bytes!"].iter()
+        .any(|kind| compact.contains(&format!("{kind}(\"{target}\"")))
+}
+
+/// The full registration law and the focused pre-registration check share this
+/// guard. Only the exact appended binding path is exempt from resident includes.
+fn assert_reviewed_reader_input_bindings() {
+    const ORIGINAL: [&str; 17] = [
+        "Cargo.lock",
+        "../../schemas/physics_source_recovery.schema.json",
+        "../../schemas/retained_precision_mp_v2.schema.json",
+        "../../fixtures/results/retained_precision_prepared_ordinary_v1.json",
+        "../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+        "../../fixtures/results/semantic_contract_v0_2.json",
+        "../../fixtures/results/semantic_contract_v0_3_precision_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_physics_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_load_reference_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+        "../../schemas/source_block_recovery.schema.json",
+        "../../fixtures/results/retained_precision_prepared_combination_v1.json",
+        "../../fixtures/results/retained_precision_prepared_exact_v1.json",
+        "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
+    ];
+    assert_eq!(&build_identity::REVIEWED_INPUTS[..17], &ORIGINAL);
+    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 18);
+    assert_eq!(build_identity::REVIEWED_INPUTS[17], PRESSURE_SOURCE_BINDING_INPUT);
+    let audited = audited_reader_sources();
+    let sources: Vec<_> = audited[..4].iter().map(|(source, region)|
+        audited_reader_production(source, *region).expect("reader test region changed: re-audit before exclusion")
+    ).collect();
+    let reader = sources.concat();
+    let mut exemptions = 0;
+    for (index, path) in build_identity::REVIEWED_INPUTS.iter().enumerate().skip(1) {
+        let name = path.rsplit('/').next().unwrap();
+        if reader_include_required(path) {
+            // Preserve every earlier include obligation and require its actual
+            // source-qualified production macro, rather than a filename mention.
+            assert!(reader.contains(&format!("{name}\"")), "{name} is an included input of the reader");
+            assert!(actual_reader_include(&reader, path), "{path} is a production reader include");
+        } else {
+            exemptions += 1;
+            assert_eq!(index, 17);
+            assert!(!actual_reader_include(&reader, path), "the binding is nonresident");
+        }
+    }
+    assert_eq!(exemptions, 1);
+    let semantic = &sources[2];
+    let verifier = semantic.split("pub fn verify_pressure_source_table(").nth(1).unwrap()
+        .split("pub fn physics_source_contract(").next().unwrap();
+    for required in ["Sha256::digest(bytes)", "PRESSURE_SOURCE_TABLE_SHA256",
+        "serde_json::from_slice(bytes)", "table[\"rows\"] != physics_source_contract()[\"rows\"]",
+        "table[\"canonical_metadata_vocabulary\"] != physics_source_contract()[\"canonical_metadata_vocabulary\"]"] {
+        assert!(verifier.contains(required), "binding verifier must retain {required}");
+    }
+    for forbidden in ["include_str!", "include_bytes!", "OnceLock", "get_or_init"] {
+        assert!(!verifier.contains(forbidden), "binding verifier creates no resident table: {forbidden}");
+    }
+    let metadata = semantic.split("pub fn for_source_metadata(").nth(1).unwrap();
+    assert!(metadata.contains("Some(PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID) => physics_source_contract(),"));
+    let signature = sources[3].split("fn signature(").nth(1).unwrap().split("pub fn ").next().unwrap();
+    assert!(signature.contains("crate::semantic_contract::physics_source_contract()"));
+    let verdict = audited_reader_production(audited[4].0, audited[4].1).expect("verdict has no test region");
+    assert!(!actual_reader_include(&verdict, PRESSURE_SOURCE_BINDING_INPUT));
+    let findings = verdict.split("pub fn source_findings(").nth(1).unwrap().split("pub fn ").next().unwrap();
+    assert!(findings.contains("if composite { sc::physics_source_contract() }"));
+}
+
+#[test]
+fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
+    fn refuses(source: &str, region: Option<AuditedTestRegion>, expected: &str) {
+        match audited_reader_production(source, region) {
+            Err(error) => assert_eq!(error, expected),
+            Ok(_) => panic!("guard unexpectedly accepted control expecting {expected}"),
+        }
+    }
+    const LATE_PRODUCTION: &str = "\nconst LATE_REVIEWED_TABLE: &str = include_str!(\"../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\");\n";
+    let mut unchanged = 0;
+    let mut refused = 0;
+    let mut visible = 0;
+    for (source, region) in audited_reader_sources() {
+        let production = audited_reader_production(source, region).unwrap();
+        unchanged += 1;
+        if let Some(region) = region {
+            let start = source.find(region.first_item).unwrap();
+            let (prefix, suffix) = source.split_at(start);
+            assert!(production.starts_with(prefix));
+            for inserted in ["// #[cfg(test)] in a comment\n",
+                "const EARLY_MARKER: &str = \"#[cfg(test)]\";\n",
+                "#[cfg(test)]\nmod early_test_module {}\n"] {
+                refuses(&format!("{prefix}{inserted}{suffix}"), Some(region), "EARLIER_TEST_MARKER");
+                refused += 1;
+            }
+            // Commenting the known attribute makes its module ungated. A text
+            // occurrence at the same boundary must not pass the item-line check.
+            refuses(&format!("{prefix}// {suffix}"), Some(region), "TEST_BOUNDARY_NOT_ITEM_LINE");
+            refused += 1;
+            let missing = source.replacen(region.first_item, "#[cfg(not(test))]\nmod changed_test_module {", 1);
+            refuses(&missing, Some(region), "MISSING_OR_AMBIGUOUS_TEST_BOUNDARY"); refused += 1;
+            let ambiguous = format!("{prefix}{}\n}}\n{suffix}", region.first_item);
+            refuses(&ambiguous, Some(region), "MISSING_OR_AMBIGUOUS_TEST_BOUNDARY"); refused += 1;
+            refuses(&format!("{source}\n// altered audited suffix\n"), Some(region), "CHANGED_AUDITED_SUFFIX"); refused += 1;
+            refuses(&format!("{source}{LATE_PRODUCTION}"), Some(region), "CHANGED_AUDITED_SUFFIX"); refused += 1;
+            if let Some(anchor) = region.production_resume {
+                // These are actual ungated production callers, following the
+                // audited tests in the current retained reader; neither is hidden.
+                assert!(production.contains("pub fn outcome_json("));
+                assert!(production.contains("pub fn validate_preview_physics_transport_metadata("));
+                let after_tests = source.replacen(anchor, &format!("{LATE_PRODUCTION}{anchor}"), 1);
+                refuses(&after_tests, Some(region), "CHANGED_AUDITED_SUFFIX"); refused += 1;
+            } else {
+                assert_eq!(production.len(), prefix.len());
+            }
+        } else {
+            assert!(production == source, "marker-free source remains complete production");
+            for inserted in ["// #[cfg(test)] in a comment\n",
+                "const EARLY_MARKER: &str = \"#[cfg(test)]\";\n"] {
+                refuses(&format!("{source}{inserted}"), None, "UNKNOWN_TEST_MARKER"); refused += 1;
+            }
+            let appended = audited_reader_production(&format!("{source}{LATE_PRODUCTION}"), None).unwrap();
+            assert!(actual_reader_include(&appended, PRESSURE_SOURCE_BINDING_INPUT), "late production remains visible to the real include guard");
+            visible += 1;
+        }
+    }
+    assert_eq!((unchanged, refused, visible), (5, 29, 2));
+    println!("reviewed_reader_guard_controls=5unchanged,29refused,2visible_late_production");
+}
+
+#[test]
+fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract as sc};
+    use sha2::{Digest, Sha256};
+    assert_reviewed_reader_input_bindings();
+    // A same-basename or similar family path does not acquire this exemption.
+    for path in ["../../schemas/semantic_contract_v0_3_pressure_source_1.json",
+        "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
+        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"] {
+        assert!(reader_include_required(path));
+    }
+    let bytes = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
+    assert_eq!(format!("{:x}", Sha256::digest(bytes)), sc::PRESSURE_SOURCE_TABLE_SHA256);
+    let table = sc::verify_pressure_source_table(bytes).unwrap();
+    assert_eq!(table["rows"], sc::physics_source_contract()["rows"]);
+    assert_eq!(table["canonical_metadata_vocabulary"], sc::physics_source_contract()["canonical_metadata_vocabulary"]);
+    assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":sc::PRESSURE_SOURCE_ID,"sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
+    let mut edited = bytes.to_vec(); edited.push(b'\n');
+    assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
+    let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
+    let tokens: Vec<_> = compiled.split(';').collect();
+    assert_eq!(tokens.len(), 19);
+    assert_eq!(tokens[0], "v1");
+    assert_eq!(tokens[18], format!("{PRESSURE_SOURCE_BINDING_INPUT}={}",sc::PRESSURE_SOURCE_TABLE_SHA256));
+    let digests = [Some([7; 32]); 18];
+    let read = build_identity::encode_reviewed_inputs(&digests);
+    let (prefix, last) = read.rsplit_once(';').unwrap();
+    assert_eq!(last.len()+1, 134);
+    let mut unavailable = digests; unavailable[17] = None;
+    let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
+    assert_eq!(unavailable.len()-prefix.len(), 81);
+    assert_eq!(unavailable.rsplit_once(';').unwrap().0, prefix);
+    // Removing the current eighteenth token cannot bind a current registration.
+    assert!(!bindings_hold(true, Some(&read), prefix, &READER_LAYOUTS, &READER_LAYOUTS));
+    println!("pressure_source_binding_inputs=18,available_append=134,unavailable_append=81");
+}
+
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
@@ -306,7 +546,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // XTABLE appended (B3D-18; I93 REVISION_01 §1.4). SQ2's registration (B2/B3) re-derived all
     // 17 from the statics at 2243be380b, the code the profile was priced on: equal to J1's
     // interim registration, so no hash moved.
-    const REVIEWED: [&str; 17] = [
+    const REVIEWED: [&str; 18] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
         "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
@@ -324,9 +564,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
         "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
         "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
+        // B7's independently reviewed nonresident binding; prior pins remain unchanged.
+        "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 17] = [
+    let files: [&[u8]; 18] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
@@ -344,12 +586,13 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(17).enumerate() {
+    for (i, token) in tokens.by_ref().take(18).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -357,19 +600,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     }
     assert_eq!(tokens.next(), None);
     println!("I65_G5_REVIEWED_INPUTS {compiled}");
-    // Each reviewed static is the reader's own input: result_export names it, J1's three
-    // appended statics included (RV122 N-2: RS packages DEF-C, DEF-E and XTABLE as DEF-O).
-    let reader = [
-        include_str!("../../reporting/result_export/src/retained_precision.rs"),
-        include_str!("../../reporting/result_export/src/physics_source.rs"),
-        include_str!("../../reporting/result_export/src/semantic_contract.rs"),
-        include_str!("../../reporting/result_export/src/source_blocks.rs"),
-    ]
-    .concat();
-    for path in &build_identity::REVIEWED_INPUTS[1..] {
-        let name = path.rsplit('/').next().unwrap();
-        assert!(reader.contains(&format!("{name}\"")), "{name} is an include_str! input of the reader");
-    }
+    assert_reviewed_reader_input_bindings();
 }
 
 #[test]
@@ -1481,17 +1712,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 17]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 18]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..17 {
-        let mut digests = [Some([7u8; 32]); 17];
+    for i in 0..18 {
+        let mut digests = [Some([7u8; 32]); 18];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 17]);
+    let none = build_identity::encode_reviewed_inputs(&[None; 18]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");

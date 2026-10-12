@@ -10,7 +10,7 @@
 //! a, b, c) and writes `CORRECT_NORM_ORACLE_OUT` (the bits of norm3(a, b, c),
 //! then of norm2(a, b), per triple), for the verifier to check exactly.
 
-use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
+use open_pipe_stress_correct_norm::{norm2, norm3};
 use std::io::{BufReader, BufWriter, Read, Write};
 
 const VECTORS: &str = include_str!("correct_norm_vectors.txt");

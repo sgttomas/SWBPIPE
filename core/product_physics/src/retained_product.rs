@@ -2826,8 +2826,8 @@ impl ProductCapture {
                     return Err("extrema finite".into());
                 }
             }
-            if x["approximation"]!="piecewise_quadratic_straight_section_statics"||x["coefficient_basis"]!="j_side_section_equilibrium_binary64"
-                ||x["enclosure_scope"]!="supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate" {return Err("extrema scope".into());}
+            if x["approximation"]!="piecewise_quadratic_straight_section_statics"||x["coefficient_basis"]!="j_side_section_equilibrium_binary64_enclosures"
+                ||x["enclosure_scope"]!="supplied_binary64_polynomial_coefficient_enclosures; solution error is separate" {return Err("extrema scope".into());}
             if extrema[..index]
                 .iter()
                 .any(|a| a["pipe_id"] == x["pipe_id"] || a["result_id"] == x["result_id"])

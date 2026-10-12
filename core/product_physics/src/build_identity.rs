@@ -132,9 +132,10 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 }
 
 // ---- D-6's reviewed inputs (RR "U4 G4: the margin rule trips") ----------------
-// The reviewed-lock record binds 17 inputs by SHA-256: the PP lock, the precommit
-// reader's 13 `include_str!` statics, and J1's three appended statics (DEF-C, DEF-E,
-// XTABLE; I93 REVISION_01 §1.4). build.rs hashes them (no build-dependency:
+// The reviewed-lock record binds 18 inputs by SHA-256: the original PP lock,
+// precommit reader statics and J1 appended statics retain their 17 positions
+// (I93 REVISION_01 §1.4); B7 appends one nonresident pressure-source binding
+// table. build.rs hashes them (no build-dependency:
 // the digest below is self-contained) and emits one line,
 // `OPS_RETAINED_REVIEWED_INPUTS=v1;<path>=<hex>;…`, in `REVIEWED_INPUTS` order,
 // with `unavailable` for any input it cannot read. A registered profile records
@@ -144,9 +145,10 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS";
 /// The reviewed inputs, relative to this package's manifest directory: the PP
-/// lock, then the reader's statics in G4's ORIGINS.json order.
+/// lock, then the reader's statics in G4's ORIGINS.json order, followed by B7's
+/// source-qualified nonresident binding table.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUTS: [&str; 17] = [
+pub(crate) const REVIEWED_INPUTS: [&str; 18] = [
     "Cargo.lock",
     "../../schemas/physics_source_recovery.schema.json",
     "../../schemas/retained_precision_mp_v2.schema.json",
@@ -167,11 +169,13 @@ pub(crate) const REVIEWED_INPUTS: [&str; 17] = [
     "../../fixtures/results/retained_precision_prepared_combination_v1.json",
     "../../fixtures/results/retained_precision_prepared_exact_v1.json",
     "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
+    // B7 D2/D3: append the nonresident binding; rows remain physics_source_contract().
+    "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).
 #[allow(dead_code)]
-pub(crate) fn encode_reviewed_inputs(digests: &[Option<[u8; 32]>; 17]) -> String {
+pub(crate) fn encode_reviewed_inputs(digests: &[Option<[u8; 32]>; 18]) -> String {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut out = String::from(IDENTITY_VERSION);
     for (path, digest) in REVIEWED_INPUTS.iter().zip(digests.iter()) {

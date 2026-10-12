@@ -83,7 +83,10 @@ pub(crate) const LIMITATIONS: [&str; 7] = [
 pub(crate) fn formulation_basis() -> FormulationBasis {
     FormulationBasis {
         profile_id: "product_preview_mechanics_v1".to_string(),
-        limitations: LIMITATIONS.iter().map(|s| s.to_string()).collect(),
+        limitations: LIMITATIONS.iter().map(|s| s.to_string()).chain([
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+        ]).collect(),
     }
 }
 
@@ -117,6 +120,7 @@ pub(crate) struct MemberRecord {
     /// j-side section-cut resultants at end_i and end_j.
     pub end_resultants: [[f64; 6]; 2],
     pub section_modulus: f64,
+    pub certified_end_bending: Option<[open_pipe_stress_frame_kernel::structural::CertifiedRow;2]>,
 }
 
 /// Side record of one solved ordinary case.
@@ -124,6 +128,7 @@ pub(crate) struct MemberRecord {
 pub(crate) struct CaseRecord {
     /// Per model support with a node: the device-law six-vector from the case loop.
     pub support_vectors: Vec<(String, [f64; 6])>,
+    pub certified_support_norms: Vec<(String,[f64;2])>,
     pub members: Vec<MemberRecord>,
 }
 
@@ -256,8 +261,8 @@ fn extrema_evidence(pipe_id: &str, result_id: &str, m: &CertifiedStressMaximum) 
         "station_fraction":m.station,"span_index":m.span_index,"local_fraction":m.local_fraction,
         "value_lower_pa":m.value_lower,"value_upper_pa":m.value_upper,"global_upper_bound_pa":m.upper_bound,
         "certified_gap_pa":m.certified_gap,"subdivisions":m.subdivisions,
-        "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64",
-        "enclosure_scope":"supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"})
+        "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64_enclosures",
+        "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"})
 }
 
 /// One intensified-measure association of a component with a pipe end.
@@ -466,9 +471,12 @@ fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec
                 ));
             }
             Some(Ok(maximum)) => {
-                let value = maximum.value_lower + 0.5 * (maximum.value_upper - maximum.value_lower);
+                let public_upper=maximum.upper_bound;
+                let value=maximum.value_lower+0.5*(public_upper-maximum.value_lower);
                 let row = maximum_row(case_id, &member.pipe_id, value);
-                out.extrema.push(extrema_evidence(&member.pipe_id, &row.id, maximum));
+                let mut evidence=extrema_evidence(&member.pipe_id,&row.id,maximum);
+                evidence["value_upper_pa"]=serde_json::json!(maximum.upper_bound);
+                out.extrema.push(evidence);
                 if out.case_max.as_ref().is_none_or(|q| value > q.value || (value == q.value && member.pipe_id < q.location_ref)) {
                     out.case_max = Some(LocatedQuantity { value, unit: "Pa".to_string(), location_ref: member.pipe_id.clone(), result_ref: row.id.clone() });
                 }
@@ -516,6 +524,9 @@ pub(crate) fn render(
                     let support = model.supports.iter().find(|s| &s.id == support_id).unwrap();
                     let mut rows = Vec::new();
                     append_signed_support_results(&mut rows, load_case, support, *vector);
+                    if let Some((_,norms)) = record.certified_support_norms.iter().find(|(id,_)| id == support_id) {
+                        rows[6].value = norms[0]; rows[7].value = norms[1];
+                    }
                     support_rows.insert(support_id.clone(), rows);
                     attributed.push(serde_json::json!(support_id));
                 }
@@ -587,7 +598,12 @@ pub(crate) fn render(
                 for association in associations(model, node, &member.pipe_id) {
                     let resultants = member.end_resultants[end_index];
                     let (my, mz) = (resultants[4], resultants[5]);
-                    let value = association.sif * (norm2(my, mz) / member.section_modulus);
+                    let value = if let Some(bending) = &member.certified_end_bending {
+                        match bending[end_index].divided(member.section_modulus).and_then(|row| row.scaled(association.sif)) {
+                            Ok(row) => row.published,
+                            Err(error) => { diagnostics.push(diag(&format!("diagnostic:certified-intensified:{}:{location}",member.pipe_id),"ELEMENT_FORCE_RECOVERY_FAILED","blocking",format!("certified intensified stress unavailable: {error:?}"),vec![member.pipe_id.clone(),case_id.clone()])); continue; }
+                        }
+                    } else { association.sif * (norm2(my, mz) / member.section_modulus) };
                     let endpoint = endpoint_id_location(location);
                     let base_id = format!(
                         "result:intensified-bending:{}:{}:{endpoint}",
@@ -1027,7 +1043,7 @@ mod tests {
     }
 
     fn straight(pipe: &str, maximum: Result<CertifiedStressMaximum, String>) -> MemberRecord {
-        MemberRecord { pipe_id: pipe.into(), arc: false, maximum: Some(maximum), end_resultants: [[0.0; 6]; 2], section_modulus: 1.0 }
+        MemberRecord { pipe_id: pipe.into(), arc: false, maximum: Some(maximum), end_resultants: [[0.0; 6]; 2], section_modulus: 1.0, certified_end_bending:None }
     }
     fn certified(value: f64) -> CertifiedStressMaximum {
         CertifiedStressMaximum { span_index: 0, local_fraction: 0.0, station: 0.0, value_lower: value, value_upper: value, upper_bound: value, certified_gap: 0.0, subdivisions: 0 }
@@ -1042,7 +1058,7 @@ mod tests {
             straight("pipe:b", Ok(certified(5.0))),
             straight("pipe:a", Ok(certified(5.0))),
             straight("pipe:c", Err("enclosure failed".into())),
-            MemberRecord { pipe_id: "pipe:arc".into(), arc: true, maximum: None, end_resultants: [[0.0; 6]; 2], section_modulus: 1.0 },
+            MemberRecord { pipe_id: "pipe:arc".into(), arc: true, maximum: None, end_resultants: [[0.0; 6]; 2], section_modulus: 1.0, certified_end_bending:None },
         ];
         let out = render_members("case:1", &members, &mut diagnostics);
         assert_eq!(out.unavailable, vec!["pipe:c".to_string()]);
@@ -1082,7 +1098,7 @@ mod tests {
         .unwrap();
         assert_eq!(table["semantic_contract_id"], ID);
         let frozen: Vec<&str> = table["supported_profile_limitations"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
-        assert_eq!(frozen, LIMITATIONS.to_vec());
+        assert_eq!(frozen, formulation_basis().limitations);
         let retired: Vec<&str> = table["retired_source_kinds"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
         assert_eq!(retired, RETIRED_KINDS.to_vec());
         let linear: Vec<&str> = table["combination_policy"]["linear_state_kinds"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();

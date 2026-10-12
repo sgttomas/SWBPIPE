@@ -5,6 +5,8 @@
  * `resultStanding.ts`); nothing here reads a statement. */
 export const PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1";
 export const PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1";
+/** J1/J3: the v3 retained-source identity, shared by 0.3.0 and 0.4.0 inputs. */
+export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 export const PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 export const SOURCE_BLOCKS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1";
@@ -31,7 +33,7 @@ export function isRetainedRoute(route: string): route is "retained_preview_physi
 export const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
 /** The desktop's route names, one per readable identity (Rust `reader_verdict::ROUTES`),
  * and `unsupported` for a statement the header dispatch refuses. */
-export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics" | "unsupported";
+export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics" | "unsupported";
 /** TS's standing status for each carrier token of the successor (RV92 N-8: carriers
  * compare the token; this mapping is pinned separately). TS has no `unsupported`
  * status: a refused statement reads `needs_recompute` with the reader's code. */

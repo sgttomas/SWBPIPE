@@ -50,7 +50,7 @@ pub fn assess_rigid_body(
             return Err(StructuralError::Range("relative coordinates"));
         }
         // I109: correctly rounded norms (platform-independent), not libm `hypot`.
-        length = length.max(crate::correct_norm::norm3(r[0], r[1], r[2]));
+        length = length.max(open_pipe_stress_correct_norm::norm3(r[0], r[1], r[2]));
         relative.push(r);
     }
     if !length.is_finite() {
@@ -106,7 +106,7 @@ pub fn assess_rigid_body(
                     continue;
                 }
                 let zeta = (beta - alpha) / (2.0 * cross);
-                let t = zeta.signum() / (zeta.abs() + crate::correct_norm::norm2(zeta, 1.0));
+                let t = zeta.signum() / (zeta.abs() + open_pipe_stress_correct_norm::norm2(zeta, 1.0));
                 let t = if zeta == 0.0 { 1.0 } else { t };
                 let c = 1.0 / (1.0 + t * t).sqrt();
                 let s = c * t;

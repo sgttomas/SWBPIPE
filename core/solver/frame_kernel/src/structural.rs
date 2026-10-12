@@ -3,6 +3,7 @@
 pub mod exact_boundary;
 mod formation_check;
 mod arc_certificate;
+mod certified_recovery;
 mod retained;
 /// W1a's public surface: T3 K4 `RETURN.md` §16's export list, with ROOT's
 /// rulings on K6b's A0 and V-K's Q8. `retained` stays private; no product
@@ -63,10 +64,16 @@ mod sparse;
 pub mod retained_resource;
 
 pub use formation_check::{
-    CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,
+    CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, MemberBoundInputs,
+    LoadPrimitive, LoadFormula, LoadSummandIdentity, LoadClosureEntry, IntensityPrimitive, MassPrimitive,
+    eigenstrain_is_exact_zero, EigenstrainPrimitive, ThermalPrimitive, FitPrimitive, ExpansionLawPrimitive, CoefficientPrimitive, ThermalPointPrimitive,
+    PressureGeometry, PressureDirection, PressureCoefficient, FORMATION_CRITERION,
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
+pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_support_reaction, certify_spring_reaction};
+// O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
+pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{
     assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
     finish_sparse_structural, prepare_assembled_sparse_structural,
@@ -383,6 +390,9 @@ pub struct StructuralSolution {
     /// The D-5 formation check's record (K-D5); `Some` only when it demoted
     /// the case from Passed to Sensitive. Never part of `StructuralReport`.
     pub formation_check: Option<FormationCheck>,
+    /// Recovery inputs from the closed intended system, present only after K-D5 passes.
+    /// Attempt exponents and LambdaSigma keep their basis through W2 publication.
+    pub member_bound: Option<MemberBoundInputs>,
 }
 #[derive(Debug)]
 pub struct PreparedSystem<'s> {
@@ -448,11 +458,13 @@ trait Represented {
     fn formation_check<F>(
         &self,
         source: &FormationSource,
-        terms: Option<&[ForceTerm]>,
+        ledger: Option<&AssembledForce>,
+        condition: (f64,f64,f64),
+        projected: &impl Fn(usize,usize)->f64,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
-    ) -> Option<FormationCheck>
+    ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
 }
@@ -509,15 +521,17 @@ impl Represented for StructuralSystem<'_> {
     fn formation_check<F>(
         &self,
         source: &FormationSource,
-        terms: Option<&[ForceTerm]>,
+        ledger: Option<&AssembledForce>,
+        condition: (f64,f64,f64),
+        projected: &impl Fn(usize,usize)->f64,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
-    ) -> Option<FormationCheck>
+    ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        formation_check::check(self, source, terms, scale_exponents, u, solve)
+        formation_check::check(self, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness[i][j], projected, solve)
     }
 }
 /// K1: what the completion reads from a prepared system, dense or sparse.
@@ -526,9 +540,10 @@ trait PreparedGate {
     /// for dense, the matrix is n by n).
     fn gate_shape_matches(&self, n: usize) -> bool;
     /// The Hager-Higham estimate on the prepared matrix with this solve.
-    fn gate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    fn gate_condition<F>(&self, solve: &F) -> Result<(f64,f64,f64), StructuralError>
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
+    fn gate_value(&self,r:usize,c:usize)->f64;
     fn gate_rhs(&self) -> &[f64];
     fn gate_scale_exponents(&self) -> &[i32];
     fn gate_binding(&self) -> ForceBinding<'_>;
@@ -543,12 +558,13 @@ impl PreparedGate for PreparedSystem<'_> {
     fn gate_shape_matches(&self, n: usize) -> bool {
         self.matrix.len() == n && self.rhs.len() == n && self.scale_exponents.len() == n
     }
-    fn gate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    fn gate_condition<F>(&self, solve: &F) -> Result<(f64,f64,f64), StructuralError>
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        estimate_rcond(&self.matrix, solve)
+        ConditionMatrix::estimate_condition(&self.matrix[..], solve)
     }
+    fn gate_value(&self,r:usize,c:usize)->f64 {self.matrix[r][c]}
     fn gate_rhs(&self) -> &[f64] {
         &self.rhs
     }
@@ -1583,7 +1599,7 @@ pub fn estimate_rcond<F>(a: &[Vec<f64>], solve: &F) -> Result<f64, StructuralErr
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
 {
-    ConditionMatrix::estimate_rcond(a, solve)
+    ConditionMatrix::estimate_condition(a, solve).map(|v|v.0)
 }
 /// K1: the matrix the condition estimate reads, dense or sparse. The estimate
 /// itself (`estimate_rcond` below, the body of the public function above) is
@@ -1595,7 +1611,7 @@ trait ConditionMatrix {
     /// Column `j`'s entries in ascending row order. Zeros may be left out:
     /// they add nothing to the column's 1-norm.
     fn column(&self, j: usize) -> impl Iterator<Item = f64> + '_;
-    fn estimate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    fn estimate_condition<F>(&self, solve: &F) -> Result<(f64,f64,f64), StructuralError>
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
@@ -1604,7 +1620,7 @@ trait ConditionMatrix {
             return Err(StructuralError::InvalidInput("condition matrix"));
         }
         if n == 0 {
-            return Ok(1.0);
+            return Ok((1.0,0.0,0.0));
         }
         let mut norm: f64 = 0.0;
         for j in 0..n {
@@ -1672,7 +1688,8 @@ trait ConditionMatrix {
                 None,
             ));
         }
-        Ok(rcond.min(1.0))
+        let rcond=rcond.min(1.0);
+        Ok((rcond,1.0/(rcond*norm),norm))
     }
 }
 impl ConditionMatrix for [Vec<f64>] {
@@ -1711,7 +1728,8 @@ where
     if !prepared.gate_shape_matches(n) {
         return Err(StructuralError::InvalidInput("prepared dimensions"));
     }
-    let rcond = prepared.gate_rcond(&solve)?;
+    let condition = prepared.gate_condition(&solve)?;
+    let rcond = condition.0;
     let (relative_perturbation, load_perturbation) = prepared.gate_assembly();
     let amplification = (relative_perturbation + load_perturbation) / rcond;
     if !amplification.is_finite() || amplification >= 1.0 {
@@ -1766,15 +1784,17 @@ where
             // K-D5 (D1 §4.3.1): a case that would publish Passed is demoted to
             // Sensitive when the formation check's estimate exceeds the
             // criterion or the check cannot re-form it. Values never change.
-            let formation_check = match prepared.gate_formation() {
+            let (formation_check,member_bound) = match prepared.gate_formation() {
                 Some(source) if !ordinary_sensitive => equations.formation_check(
                     source,
-                    force_binding.audit_terms(),
+                    force_binding.assembled(),
+                    condition,
+                    &|r,c|prepared.gate_value(r,c),
                     scale_exponents,
                     &u,
                     &solve,
                 ),
-                _ => None,
+                _ => (None,None),
             };
             let (symmetry_projection_performed, maximum_scaled_skew, symmetry_basis) =
                 prepared.gate_symmetry();
@@ -1782,6 +1802,7 @@ where
                 displacements: u,
                 load_fidelity: load_fidelity.clone(),
                 formation_check: formation_check.clone(),
+                member_bound,
                 report: StructuralReport {
                     policy: POLICY,
                     quality: if ordinary_sensitive || formation_check.is_some() {
@@ -2618,7 +2639,9 @@ fn unscale_residual_row(
 /// - Load-fidelity rows: the exact net and the actual force bits are those of
 ///   the unscaled ledger's terms and values (the audit's ratios are
 ///   scale-free).
-/// - The formation-check record is in displacement units: unchanged.
+/// - The formation-check record and both corrections are in displacement units: unchanged.
+/// - Member-bound inputs retain the attempt's D and LambdaSigma. Physical recovery
+///   uses ||A_physical D|| * LambdaSigma, so no standalone unscale is applied.
 ///
 /// With b = 0 the solution is returned unchanged.
 pub fn unscale_structural_solution(

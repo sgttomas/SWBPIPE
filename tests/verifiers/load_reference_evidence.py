@@ -31,7 +31,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 PROFILE = "resolved_straight_load_state_v1"
 TABLE_SHA256 = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
 TABLE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_3_load_reference_1.json"
-TRANSPORT_SCHEMA_SHA256 = "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65"
+TRANSPORT_SCHEMA_SHA256 = "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
@@ -49,6 +49,7 @@ JOINED = "joined"
 # T4-U3: the pressure-1 0.4.0 pre-pass; as LOAD_REFERENCE, except that
 # connector records are left to the inherited physics pass under v3.
 PRESSURE = "pressure"
+PRESSURE_JOINED = "pressure_joined"
 REGION_TEMPERATURE_BASIS = "resolved_member_state"
 G_BASIS = "E/[2(1+nu)] from the selected pair"
 COMPOSITION = "lambda_fit*lambda_thermal-1"
@@ -320,7 +321,7 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     transport schema (not applied: the frozen schema admits only not-joined
     records), S7 (``recovery_method``), S10 (a selected record), S10b and S13.
     """
-    joined = method == JOINED
+    joined = method in (JOINED, PRESSURE_JOINED)
     # S1 foreign method namespaces.
     if joined:
         _require(not isinstance(source, Mapping) or "carrier_evidence" not in source, "FOREIGN_METHOD_EVIDENCE")
@@ -478,7 +479,7 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     pair = (solve["requested_mode"], solve["recovery_method"])
     # The joined method also admits the selected retained-source response in
     # either requested mode (ADDENDUM_2 section 5.3).
-    selected = method == JOINED and _eq(solve["recovery_method"], EXACT_METHOD)
+    selected = method in (JOINED, PRESSURE_JOINED) and _eq(solve["recovery_method"], EXACT_METHOD)
     _require(
         all(isinstance(item, str) for item in pair)
         and (pair in {("sparse_interactive", "ordinary_sparse_structural_v1"), ("dense_scrutiny", "ordinary_dense_structural_v1")}

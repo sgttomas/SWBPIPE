@@ -8,7 +8,7 @@
 //! rounded norm the product uses, verified against an exact oracle (I109, RV126).
 //! Every model goes through the captured value entry the desktop uses. Criterion:
 //! |observed - expected| <= 1e-9 * max(|expected|, zero scale). No new tolerance.
-use open_pipe_stress_frame_kernel::correct_norm::norm2;
+use open_pipe_stress_correct_norm::norm2;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -254,6 +254,15 @@ fn assert_contract(v: &Value) {
             let row = results(v).iter().find(|r| r["id"] == e["result_id"]).expect("extrema row");
             let (lo, hi, val) = (num(&e["value_lower_pa"]), num(&e["value_upper_pa"]), num(&row["value"]));
             assert!(lo <= val && val <= hi && val == lo + 0.5 * (hi - lo));
+            // SP4: compare the exact catalog conversion of every public
+            // normal-stress station component with the reported enclosure.
+            // No tolerance or rounded Pa product can hide a one-ULP gap.
+            for stress in results(v).iter().filter(|stress| stress["entity_ref"]==e["pipe_id"] && basis(stress)==("load_case",case) && matches!(stress["kind"].as_str(),Some("element_local_axial_normal_stress"|"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"))) {
+                assert_eq!(stress["unit"],"MPa");
+                let mut comparison=open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+                comparison.add_product(num(&stress["value"]).abs(),1_000_000.0).unwrap();comparison.add(-hi).unwrap();
+                assert!(comparison.signum()<=0,"public normal-stress station {} in {case} exceeds reported value_upper_pa={hi:.17e}",stress["id"]);
+            }
             assert!(covered.insert(e["pipe_id"].as_str().unwrap()));
         }
         let cov = &c["stress_maximum_coverage"];
@@ -279,9 +288,11 @@ fn assert_contract(v: &Value) {
         }
         for m in c["intensified_measures"].as_array().unwrap() {
             let row = results(v).iter().find(|r| r["id"] == m["result_id"]).expect("intensified row");
-            // The product's i * (|(My, Mz)| / Z), with its correctly rounded norm (I109): exact on every platform.
+            // Certified case stress is formed at p before publication. The
+            // independently supplied action identity stays within the existing
+            // 1e-9 criterion; it need not equal a binary64 recomputation.
             let expected = num(&m["sif"]) * (norm2(num(&m["bending_moment_y_n_m"]), num(&m["bending_moment_z_n_m"])) / num(&m["section_modulus_m3"]));
-            assert_eq!(num(&row["value"]), expected);
+            close(num(&row["value"]),expected,1e-300,"certified intensified measure");
         }
     }
     let has_max = results(v).iter().any(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2");
@@ -1022,7 +1033,9 @@ fn blocked_envelope_carries_empty_preview_evidence() {
     assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE");
     assert_eq!(v["contract_evidence"], json!({"preview_cases": [], "combination_gates": []}));
     assert_eq!(v["formulation_basis"]["profile_id"], "product_preview_mechanics_v1");
-    assert_eq!(v["formulation_basis"]["limitations"].as_array().unwrap().len(), 7);
+    let limitations=v["formulation_basis"]["limitations"].as_array().unwrap();
+    assert!(limitations.iter().any(|text|text.as_str().unwrap().contains("recovered at 128-bit precision")));
+    assert!(limitations.iter().any(|text|text.as_str().unwrap().contains("re-formed system")));
 }
 
 fn invented_demo_without_pressure() -> Value {

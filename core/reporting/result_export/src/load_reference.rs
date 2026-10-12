@@ -35,6 +35,8 @@ pub(crate) enum Method {
     /// `LoadReference` except that connector records are left to the
     /// inherited physics pass under the v3 contract.
     Pressure,
+    /// pressure-source-1: joined 0.4 evidence is read directly under v3.
+    PressureJoined,
 }
 
 pub const RECORD_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
@@ -53,7 +55,7 @@ pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65";
+    "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -393,7 +395,7 @@ pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check
 /// frozen schema admits only not-joined records), S7 (`recovery_method`), S10
 /// (a selected record), S10b and S13 (the selected diagnostic).
 pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
-    let joined = method == Method::Joined;
+    let joined = matches!(method, Method::Joined | Method::PressureJoined);
     // S1 foreign method namespaces.
     if joined {
         require(
@@ -715,7 +717,7 @@ fn validate_record(
     )?;
     // The joined method also admits the selected retained-source response
     // in either requested mode (ADDENDUM_2 section 5.3).
-    let selected = method == Method::Joined && solve["recovery_method"] == EXACT_METHOD;
+    let selected = matches!(method, Method::Joined | Method::PressureJoined) && solve["recovery_method"] == EXACT_METHOD;
     require(
         (matches!(
             (

@@ -1,6 +1,8 @@
 //! Bounded global enclosure of |a| + sqrt(b²+c²) for supplied quadratic stress
-//! fields. The degree-two Bernstein coefficients are interpreted as exact f64
-//! values; statics/solution/coefficient-derivation error is the caller's concern.
+//! fields. The original API interprets the degree-two Bernstein coefficients as
+//! exact f64 values. The enclosed API takes independently established bounds on
+//! those coefficients; statics/solution/coefficient-derivation error is otherwise
+//! the caller's concern.
 //! Ordinary IEEE-754 operations with gradual underflow and correctly rounded
 //! sqrt are required; no fast-math/reassociation or flush-to-zero is permitted.
 
@@ -17,6 +19,48 @@ pub struct QuadraticStressSpan {
     pub axial: [f64; 3],
     pub bending_y: [f64; 3],
     pub bending_z: [f64; 3],
+}
+
+/// An independently established closed enclosure of one Bernstein coefficient.
+/// Values and bounds are in Pa. The caller includes all coefficient derivation
+/// and publication transport that this enclosure is meant to cover; solution
+/// error outside the supplied polynomial is not inferred by this engine.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct StressCoefficientBounds {
+    pub lower: f64,
+    pub upper: f64,
+}
+impl StressCoefficientBounds {
+    pub fn exact(value: f64) -> Self {
+        Self {
+            lower: value,
+            upper: value,
+        }
+    }
+}
+
+/// Degree-two Bernstein coefficient enclosures for one closed statics interval.
+/// Each enclosure contains the corresponding control of the same polynomial;
+/// the three controls are not unrelated point samples. Supply both sides of a
+/// load jump as separate spans, as for `QuadraticStressSpan`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct EnclosedQuadraticStressSpan {
+    pub start: f64,
+    pub end: f64,
+    pub axial: [StressCoefficientBounds; 3],
+    pub bending_y: [StressCoefficientBounds; 3],
+    pub bending_z: [StressCoefficientBounds; 3],
+}
+impl From<QuadraticStressSpan> for EnclosedQuadraticStressSpan {
+    fn from(span: QuadraticStressSpan) -> Self {
+        Self {
+            start: span.start,
+            end: span.end,
+            axial: span.axial.map(StressCoefficientBounds::exact),
+            bending_y: span.bending_y.map(StressCoefficientBounds::exact),
+            bending_z: span.bending_z.map(StressCoefficientBounds::exact),
+        }
+    }
 }
 
 /// Approximate maximizing witness with a certified global value enclosure.
@@ -52,6 +96,9 @@ pub enum ExtremaError {
     NonFiniteCoefficient {
         span_index: usize,
     },
+    InvalidCoefficientEnclosure {
+        span_index: usize,
+    },
     UnrepresentableBound {
         span_index: usize,
     },
@@ -77,6 +124,31 @@ pub fn bound_piecewise_elastic_maximum(
     spans: &[QuadraticStressSpan],
 ) -> Result<CertifiedStressMaximum, ExtremaError> {
     bound_with_limits(spans, MAX_SUBDIVISIONS, MAX_DEPTH)
+}
+
+/// Bound `|axial| + hypot(bending_y, bending_z)` for coefficient enclosures.
+/// The same gap, work limits, witness semantics and domain responsibilities as
+/// `bound_piecewise_elastic_maximum` apply. A coefficient uncertainty that cannot
+/// satisfy that gap returns a named unresolved result, rather than a wider gap.
+pub fn bound_piecewise_enclosed_elastic_maximum(
+    spans: &[EnclosedQuadraticStressSpan],
+) -> Result<CertifiedStressMaximum, ExtremaError> {
+    bound_enclosed_with_limits(spans, Objective::Circular, MAX_SUBDIVISIONS, MAX_DEPTH)
+}
+
+/// Bound `|axial| + |bending_y| + |bending_z|`, the maximum over all eight signed
+/// component sums. This preview law is distinct from the circular elastic law;
+/// it uses the same coefficient enclosure and numerical gap requirements.
+pub fn bound_piecewise_enclosed_l1_maximum(
+    spans: &[EnclosedQuadraticStressSpan],
+) -> Result<CertifiedStressMaximum, ExtremaError> {
+    bound_enclosed_with_limits(spans, Objective::L1, MAX_SUBDIVISIONS, MAX_DEPTH)
+}
+
+#[derive(Clone, Copy)]
+enum Objective {
+    Circular,
+    L1,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -107,6 +179,46 @@ impl Interval {
 }
 type VectorBounds = [Interval; 3];
 type Controls = [VectorBounds; 3];
+
+// Adapters do not allocate a second span vector and do not alter Node's stride.
+trait StressSpan {
+    fn start(&self) -> f64;
+    fn end(&self) -> f64;
+    fn controls(&self) -> Controls;
+}
+impl StressSpan for QuadraticStressSpan {
+    fn start(&self) -> f64 {
+        self.start
+    }
+    fn end(&self) -> f64 {
+        self.end
+    }
+    fn controls(&self) -> Controls {
+        std::array::from_fn(|j| {
+            [
+                Interval::exact(self.axial[j]),
+                Interval::exact(self.bending_y[j]),
+                Interval::exact(self.bending_z[j]),
+            ]
+        })
+    }
+}
+impl StressSpan for EnclosedQuadraticStressSpan {
+    fn start(&self) -> f64 {
+        self.start
+    }
+    fn end(&self) -> f64 {
+        self.end
+    }
+    fn controls(&self) -> Controls {
+        std::array::from_fn(|j| {
+            [self.axial[j], self.bending_y[j], self.bending_z[j]].map(|b| Interval {
+                lo: b.lower,
+                hi: b.upper,
+            })
+        })
+    }
+}
 
 /// U4 G5 part 2 (T14): the heap node's in-build stride, exported for the product's
 /// retained-memory profile (the type stays private).
@@ -147,35 +259,48 @@ fn bound_with_limits(
     split_limit: usize,
     depth_limit: u32,
 ) -> Result<CertifiedStressMaximum, ExtremaError> {
+    bound_spans_with_limits(spans, Objective::Circular, split_limit, depth_limit)
+}
+
+fn bound_enclosed_with_limits(
+    spans: &[EnclosedQuadraticStressSpan],
+    objective: Objective,
+    split_limit: usize,
+    depth_limit: u32,
+) -> Result<CertifiedStressMaximum, ExtremaError> {
+    bound_spans_with_limits(spans, objective, split_limit, depth_limit)
+}
+
+fn bound_spans_with_limits<S: StressSpan>(
+    spans: &[S],
+    metric: Objective,
+    split_limit: usize,
+    depth_limit: u32,
+) -> Result<CertifiedStressMaximum, ExtremaError> {
     if spans.is_empty() {
         return Err(ExtremaError::EmptyInput);
     }
     let mut heap = BinaryHeap::new();
     let mut best: Option<CertifiedStressMaximum> = None;
     for (i, span) in spans.iter().enumerate() {
-        if !span.start.is_finite() || !span.end.is_finite() || span.start >= span.end {
+        if !span.start().is_finite() || !span.end().is_finite() || span.start() >= span.end() {
             return Err(ExtremaError::InvalidSpan { span_index: i });
         }
-        if !span
-            .axial
+        let controls = span.controls();
+        if controls
             .iter()
-            .chain(&span.bending_y)
-            .chain(&span.bending_z)
-            .all(|v| v.is_finite())
+            .flatten()
+            .any(|v| !v.lo.is_finite() || !v.hi.is_finite())
         {
             return Err(ExtremaError::NonFiniteCoefficient { span_index: i });
         }
-        let controls: Controls = std::array::from_fn(|j| {
-            [
-                Interval::exact(span.axial[j]),
-                Interval::exact(span.bending_y[j]),
-                Interval::exact(span.bending_z[j]),
-            ]
-        });
-        consider(&mut best, spans, i, 0.0, controls[0])?;
-        consider(&mut best, spans, i, 1.0, controls[2])?;
+        if controls.iter().flatten().any(|v| v.lo > v.hi) {
+            return Err(ExtremaError::InvalidCoefficientEnclosure { span_index: i });
+        }
+        consider(&mut best, spans, i, 0.0, controls[0], metric)?;
+        consider(&mut best, spans, i, 1.0, controls[2], metric)?;
         heap.push(Node {
-            upper: control_upper(controls, i)?,
+            upper: control_upper(controls, i, metric)?,
             controls,
             span: i,
             lo: 0.0,
@@ -222,14 +347,14 @@ fn bound_with_limits(
         let p01 = average_vector(node.controls[0], node.controls[1]);
         let p12 = average_vector(node.controls[1], node.controls[2]);
         let middle = average_vector(p01, p12);
-        consider(&mut best, spans, node.span, midpoint, middle)?;
+        consider(&mut best, spans, node.span, midpoint, middle, metric)?;
         for (controls, lo, hi) in [
             ([node.controls[0], p01, middle], node.lo, midpoint),
             ([middle, p12, node.controls[2]], midpoint, node.hi),
         ] {
             // A child is contained in its parent; intersect two independently
             // valid bounds to avoid outward-rounding drift growing the upper bound.
-            let upper = control_upper(controls, node.span)?.min(node.upper);
+            let upper = control_upper(controls, node.span, metric)?.min(node.upper);
             if upper > best.as_ref().unwrap().value_lower {
                 heap.push(Node {
                     controls,
@@ -245,27 +370,28 @@ fn bound_with_limits(
     }
 }
 
-fn consider(
+fn consider<S: StressSpan>(
     best: &mut Option<CertifiedStressMaximum>,
-    spans: &[QuadraticStressSpan],
+    spans: &[S],
     span_index: usize,
     fraction: f64,
     point: VectorBounds,
+    metric: Objective,
 ) -> Result<(), ExtremaError> {
-    let value = objective(point, span_index)?;
+    let value = objective(point, span_index, metric)?;
     if best.as_ref().is_none_or(|b| {
         value.lo > b.value_lower
             || (value.lo == b.value_lower
                 && (span_index < b.span_index
                     || (span_index == b.span_index && fraction < b.local_fraction)))
     }) {
-        let s = spans[span_index];
+        let s = &spans[span_index];
         let station = if fraction == 0.0 {
-            s.start
+            s.start()
         } else if fraction == 1.0 {
-            s.end
+            s.end()
         } else {
-            (s.start * (1.0 - fraction) + s.end * fraction).clamp(s.start, s.end)
+            (s.start() * (1.0 - fraction) + s.end() * fraction).clamp(s.start(), s.end())
         };
         if !station.is_finite() {
             return Err(ExtremaError::UnrepresentableBound { span_index });
@@ -284,15 +410,19 @@ fn consider(
     Ok(())
 }
 
-fn control_upper(controls: Controls, span: usize) -> Result<f64, ExtremaError> {
+fn control_upper(controls: Controls, span: usize, metric: Objective) -> Result<f64, ExtremaError> {
     let mut upper: f64 = 0.0;
     for point in controls {
-        upper = upper.max(objective(point, span)?.hi);
+        upper = upper.max(objective(point, span, metric)?.hi);
     }
     Ok(upper)
 }
 
-fn objective(point: VectorBounds, span_index: usize) -> Result<Interval, ExtremaError> {
+fn objective(
+    point: VectorBounds,
+    span_index: usize,
+    metric: Objective,
+) -> Result<Interval, ExtremaError> {
     if point
         .iter()
         .any(|x| !x.lo.is_finite() || !x.hi.is_finite() || x.lo > x.hi)
@@ -300,8 +430,13 @@ fn objective(point: VectorBounds, span_index: usize) -> Result<Interval, Extrema
         return Err(ExtremaError::UnrepresentableBound { span_index });
     }
     let [a, b, c] = point.map(Interval::absolute);
-    let norm_lo = norm_bound(b.lo, c.lo, false);
-    let norm_hi = norm_bound(b.hi, c.hi, true);
+    let (norm_lo, norm_hi) = match metric {
+        Objective::Circular => (norm_bound(b.lo, c.lo, false), norm_bound(b.hi, c.hi, true)),
+        Objective::L1 => (
+            nonnegative_add(b.lo, c.lo, false),
+            nonnegative_add(b.hi, c.hi, true),
+        ),
+    };
     let lo = nonnegative_add(a.lo, norm_lo, false);
     let hi = nonnegative_add(a.hi, norm_hi, true);
     if !hi.is_finite() || !lo.is_finite() || lo > hi {
@@ -529,5 +664,113 @@ mod tests {
         assert!(average_up(0.0, tiny) >= tiny);
         assert_eq!(average_down(f64::MAX, f64::MAX), f64::MAX);
         assert_eq!(average_up(0.0, 0.0), 0.0);
+    }
+    #[test]
+    fn zero_width_coefficient_enclosures_preserve_the_exact_api_result() {
+        for s in [
+            x1(),
+            span([-2e6; 3], [3e6; 3], [4e6; 3]),
+            span([0.0; 3], [0.0, 2.0, 0.0], [0.0; 3]),
+        ] {
+            assert_eq!(
+                bound_piecewise_enclosed_elastic_maximum(&[s.into()]),
+                bound_piecewise_elastic_maximum(&[s]),
+            );
+        }
+    }
+    #[test]
+    fn coefficient_uncertainty_survives_the_interior_peak_subdivision() {
+        // The upper member of this independently enclosed family is
+        // b(u) = 2*(2+2^-41)*u*(1-u), with maximum 1+2^-42 at u=1/2.
+        // Discarding the control transport would certify the different peak 1.
+        let s = span([0.0; 3], [0.0, 2.0, 0.0], [0.0; 3]);
+        let mut enclosed = EnclosedQuadraticStressSpan::from(s);
+        enclosed.bending_y[1].upper += 2.0_f64.powi(-41);
+        let r = bound_piecewise_enclosed_elastic_maximum(&[enclosed]).unwrap();
+        encloses(r, 1.0 + 2.0_f64.powi(-42));
+        assert_eq!(r.local_fraction, 0.5);
+        assert!(r.upper_bound > bound_piecewise_elastic_maximum(&[s]).unwrap().upper_bound);
+        assert!(r.value_lower <= 1.0);
+        assert!(r.value_upper >= 1.0 + 2.0_f64.powi(-42));
+    }
+    #[test]
+    fn constant_half_ulp_control_transport_is_not_rounded_away() {
+        // The intended constant can be the exact dyadic 1+2^-53, which rounds
+        // to 1 in binary64. These adjacent endpoints enclose that value.
+        let mut s = EnclosedQuadraticStressSpan::from(span([1.0; 3], [0.0; 3], [0.0; 3]));
+        s.axial = [StressCoefficientBounds {
+            lower: 1.0,
+            upper: 1.0_f64.next_up(),
+        }; 3];
+        let r = bound_piecewise_enclosed_elastic_maximum(&[s]).unwrap();
+        assert_eq!(r.value_lower, 1.0);
+        assert_eq!(r.upper_bound, 1.0_f64.next_up());
+        assert_eq!(r.subdivisions, 0);
+    }
+    #[test]
+    fn l1_preview_and_circular_elastic_laws_keep_distinct_interior_maxima() {
+        let enclosed = EnclosedQuadraticStressSpan::from(x1());
+        let l1 = bound_piecewise_enclosed_l1_maximum(&[enclosed]).unwrap();
+        // b+c = 5e6*u - 4e6*u^2, maximum 25e6/16 at u=5/8.
+        encloses(l1, 25e6 / 16.0);
+        assert_eq!(l1.local_fraction, 5.0 / 8.0);
+        let circular = bound_piecewise_enclosed_elastic_maximum(&[enclosed]).unwrap();
+        encloses(circular, 1e6 * (71.0 + 8.0 * 2_f64.sqrt()).sqrt() / 8.0);
+        assert!(l1.value_lower > circular.upper_bound);
+        let reversed = EnclosedQuadraticStressSpan::from(span([-2.0; 3], [-3.0; 3], [-4.0; 3]));
+        encloses(
+            bound_piecewise_enclosed_l1_maximum(&[reversed]).unwrap(),
+            9.0,
+        );
+        encloses(
+            bound_piecewise_enclosed_elastic_maximum(&[reversed]).unwrap(),
+            7.0,
+        );
+    }
+    #[test]
+    fn irreducible_coefficient_uncertainty_keeps_the_gap_and_named_failure() {
+        let mut s = EnclosedQuadraticStressSpan::from(span([1.0; 3], [0.0; 3], [0.0; 3]));
+        s.axial = [StressCoefficientBounds {
+            lower: 1.0,
+            upper: 1.001,
+        }; 3];
+        for metric in [Objective::Circular, Objective::L1] {
+            let ExtremaError::Unresolved { best, reason } =
+                bound_enclosed_with_limits(&[s], metric, 2, 48).unwrap_err()
+            else {
+                panic!("coefficient uncertainty must not relax the gap")
+            };
+            assert_eq!(reason, UnresolvedReason::SubdivisionLimit);
+            assert_eq!(best.subdivisions, 2);
+            assert_eq!(best.value_lower, 1.0);
+            assert_eq!(best.upper_bound, 1.001);
+            assert!(best.certified_gap > 1e-12 + 1e-12 * best.value_lower);
+        }
+    }
+    #[test]
+    fn invalid_coefficient_enclosures_fail_closed_before_subdivision() {
+        let mut s = EnclosedQuadraticStressSpan::from(x1());
+        s.axial[1] = StressCoefficientBounds {
+            lower: 1.0,
+            upper: 0.0,
+        };
+        assert_eq!(
+            bound_piecewise_enclosed_elastic_maximum(&[s]),
+            Err(ExtremaError::InvalidCoefficientEnclosure { span_index: 0 })
+        );
+        s.axial[1] = StressCoefficientBounds {
+            lower: 0.0,
+            upper: f64::INFINITY,
+        };
+        assert_eq!(
+            bound_piecewise_enclosed_elastic_maximum(&[s]),
+            Err(ExtremaError::NonFiniteCoefficient { span_index: 0 })
+        );
+        eprintln!(
+            "extrema coefficient strides: exact={}, enclosed={}, node={}",
+            std::mem::size_of::<QuadraticStressSpan>(),
+            std::mem::size_of::<EnclosedQuadraticStressSpan>(),
+            NODE_STRIDE
+        );
     }
 }

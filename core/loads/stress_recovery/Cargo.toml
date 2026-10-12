@@ -9,5 +9,6 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
+open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
 open_pipe_stress_primitive_loads = { path = "../primitive_loads" }
 open_pipe_stress_straight_pipe = { path = "../../solver/straight_pipe" }

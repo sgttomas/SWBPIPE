@@ -344,14 +344,6 @@
    "evidence": "lib.rs:1489 force: AssembledForce / ledger values accessors in load_ledger.rs"
   },
   {
-   "caller": "core/solver/frame_kernel/src/structural.rs:1577:estimate_rcond",
-   "name": "estimate_rcond",
-   "targets": [
-    "core/solver/frame_kernel/src/structural.rs:1593:estimate_rcond"
-   ],
-   "evidence": "structural.rs:1577 ConditionMatrix::estimate_rcond(a, solve): trait method at :1589"
-  },
-  {
    "caller": "core/solver/frame_kernel/src/structural.rs:2378:fmt",
    "name": "fmt",
    "targets": [

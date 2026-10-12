@@ -27,6 +27,10 @@ import { sourceContract } from "./resultReader";
 import { numericalResultStanding } from "./resultStanding";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
+/** J3/D6: pressure-source export waits for U2's native/source export support.
+ * This policy adds no numerical standing and does not enable ordinary pressure-1. */
+export const PRESSURE_1_EXPORT_NOT_AVAILABLE = "PRESSURE_1_EXPORT_NOT_AVAILABLE";
+export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_1_EXPORT_NOT_AVAILABLE}: Output of pressure-source-1 is not yet available on the desktop; it awaits T4-U2's export support. The result remains readable here.`;
 export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";
 export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
 export const LOAD_REFERENCE_OUTPUT_REFUSAL = `${LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE}: ${N_LOAD_REFERENCE_OUTPUT}`;
@@ -73,6 +77,7 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
   physics: UNGATED,
   source_blocks: UNGATED,
   physics_source: UNGATED,
+  pressure_source: Object.freeze({ gate: "per_surface", reason: PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
   preview_physics: UNGATED,
   // Each surface refuses an unsupported statement through its own contract check.
   unsupported: UNGATED,

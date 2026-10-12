@@ -28,6 +28,9 @@ use super::{FormulationBasis, PreviewComponent, PreviewModel, PreviewSupport};
 /// publishes under, on 0.3.0 and 0.4.0 documents alike (H-1).
 pub(crate) const PRESSURE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/pressure-1";
+/// The captured v3 contract's retained-source publication, on both model versions.
+pub(crate) const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str =
+    "openpipestress.result_semantics/0.3.0/pressure-source-1";
 /// The formulation profile of every `pressure-1` envelope.
 pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
 
@@ -87,16 +90,47 @@ impl ExactContract {
 /// and collapse are not assessed. A 0.4.0 document adds the load/reference
 /// state method's statements; a model with an objective connector (T4-U3)
 /// then adds the connector law's statement.
+#[cfg(test)]
 pub(crate) fn pressure_v3_formulation_basis(load_state: bool, connectors: bool) -> FormulationBasis {
+    pressure_v3_formulation_basis_in(load_state, connectors, None)
+}
+
+/// The v3 join's formulation text. `selected` names the publication, not whether
+/// a model is in the source family: an unselected envelope remains pressure-1.
+/// The test-only baseline helper above preserves the held pre-join text.
+pub(crate) fn pressure_v3_formulation_basis_with_source(
+    load_state: bool,
+    connectors: bool,
+    selected: bool,
+) -> FormulationBasis {
+    pressure_v3_formulation_basis_in(load_state, connectors, Some(selected))
+}
+
+fn pressure_v3_formulation_basis_in(
+    load_state: bool,
+    connectors: bool,
+    selected: Option<bool>,
+) -> FormulationBasis {
+    // Whole static strings: neither identity nor limitations are substituted at run time.
+    let identity = if selected == Some(true) {
+        "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+    } else {
+        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+    };
+    let source = match selected {
+        None => "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+        Some(false) => "No corrosion-allowance input or shear-deformation selection is provided. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; 0.4.0 includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+        Some(true) => "No corrosion-allowance input or shear-deformation selection is provided. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; 0.4.0 includes resolved eigenloads and prescribed motions. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+    };
     let mut limitations = vec![
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.".to_string(),
+        identity.to_string(),
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.".to_string(),
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.".to_string(),
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.".to_string(),
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.".to_string(),
         "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.".to_string(),
-        "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.".to_string(),
-        "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.".to_string(),
+        "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.".to_string(),
+        source.to_string(),
     ];
     if load_state {
         limitations.extend([
@@ -112,28 +146,6 @@ pub(crate) fn pressure_v3_formulation_basis(load_state: bool, connectors: bool) 
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
-
-/// Whether a model's cases may join retained-source recovery (and its
-/// receipts). v3 is not joined: its `pressure-1` identity has no retained-source
-/// counterpart, so a v3 invocation publishes ordinary structural recovery only.
-pub(crate) fn joins_retained_source(model: &PreviewModel) -> bool {
-    ExactContract::of(model) != Some(ExactContract::PressureV3)
-}
-
-/// HELP_HUMAN's ruling 3 (2026-10-10; DEL-04-07 Design, SP-1(b)): a v3 case
-/// that a v2 document would route to retained-source recovery names the
-/// missing join. Emitted (severity `info`, refs naming the case) on a captured
-/// invocation whose model does not join retained-source recovery
-/// ([`joins_retained_source`]), for each case that is retained-source eligible
-/// (no nonlinear support, no combination) and whose ordinary attempt needs
-/// recovery (Sensitive, refused, or a load-row finding): exactly the cases v2's
-/// captured entry would attempt. It appears whether the case then publishes or
-/// is left `MODEL_INCOMPLETE`. The typed entry never attempts retained-source
-/// recovery under either contract, so it carries no such diagnostic.
-pub(crate) const RETAINED_SOURCE_NOT_JOINED: &str =
-    "EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED";
-/// The diagnostic's text, held whole as one static (T3 O-10: no run-time text).
-pub(crate) const RETAINED_SOURCE_NOT_JOINED_TEXT: &str = "retained-source recovery is not joined for 3.0.0/exact_pressure_v3: this case's ordinary attempt needed recovery, which 2.0.0/exact_straight_pressure_v2 would attempt on this entry, and only the ordinary structural route is published";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

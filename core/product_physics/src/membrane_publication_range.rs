@@ -149,7 +149,7 @@ fn original_subnormal_wall_force_direct_publisher_preserves_membrane() {
     let mut diagnostics = Vec::new();
     append_exact_pressure_results(
         &mut rows, &mut diagnostics, case, PIPE, state, &wall_actions,
-        Some(&mechanical_actions), &built.pipes[0], &[],
+        Some(&mechanical_actions), &built.pipes[0], &[], None, None,
     );
     assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
     assert!(rows.iter().all(|r| r.value.is_finite()));

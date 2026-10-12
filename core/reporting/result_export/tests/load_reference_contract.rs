@@ -297,7 +297,7 @@ fn frozen_inputs_table_and_schema_are_pinned() {
     assert!(lr::transport_schema().is_ok());
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65"
+        "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
     );
 }
 

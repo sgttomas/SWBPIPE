@@ -62,7 +62,7 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
             'pipe_sections': [section],
             'pipe_stress_extrema': [{'pipe_id': 'pipe', 'result_id': structure.MAXIMUM_ID,
                 'approximation': 'piecewise_quadratic_straight_section_statics',
-                'coefficient_basis': 'j_side_section_equilibrium_binary64', 'enclosure_scope': structure.ENCLOSURE,
+                'coefficient_basis': 'j_side_section_equilibrium_binary64_enclosures', 'enclosure_scope': structure.ENCLOSURE,
                 'value_lower_pa': maximum, 'value_upper_pa': maximum, 'global_upper_bound_pa': maximum,
                 'certified_gap_pa': 0.0, 'station_fraction': 0.0, 'local_fraction': 0.0,
                 'span_index': 0, 'subdivisions': 0}],

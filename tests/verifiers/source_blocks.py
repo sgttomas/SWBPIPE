@@ -49,22 +49,34 @@ def _require(condition: Any, code: str) -> None:
         raise ValueError("SOURCE_BLOCKS_" + code)
 
 
-def _shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any] = SCHEMA) -> bool:
+def _shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any] = SCHEMA, *, resources: Mapping[str, Mapping[str, Any]] | None = None) -> bool:
     """Only the closed, checked-in receipt schema vocabulary is interpreted."""
     if "$ref" in schema:
-        return _shape(value, root["$defs"][schema["$ref"].removeprefix("#/$defs/")], root)
-    if "anyOf" in schema and not any(_shape(value, branch, root) for branch in schema["anyOf"]):
+        reference = schema["$ref"]
+        if not isinstance(reference, str): return False
+        resource, mark, fragment = reference.partition("#")
+        target_root = root if not resource else (resources or {}).get(resource)
+        if not isinstance(target_root, Mapping) or (mark and fragment and not fragment.startswith("/")): return False
+        target: Any = target_root
+        for token in fragment.removeprefix("/").split("/") if fragment else []:
+            if re.search(r"~(?![01])", token): return False
+            key = token.replace("~1", "/").replace("~0", "~")
+            if isinstance(target, Mapping) and key in target: target = target[key]
+            elif isinstance(target, list) and key.isascii() and key.isdigit() and (key == "0" or not key.startswith("0")) and int(key) < len(target): target = target[int(key)]
+            else: return False
+        return isinstance(target, Mapping) and _shape(value, target, target_root, resources=resources)
+    if "anyOf" in schema and not any(_shape(value, branch, root, resources=resources) for branch in schema["anyOf"]):
         return False
-    if "oneOf" in schema and sum(_shape(value, branch, root) for branch in schema["oneOf"]) != 1:
+    if "oneOf" in schema and sum(_shape(value, branch, root, resources=resources) for branch in schema["oneOf"]) != 1:
         return False
-    if "allOf" in schema and not all(_shape(value, branch, root) for branch in schema["allOf"]):
+    if "allOf" in schema and not all(_shape(value, branch, root, resources=resources) for branch in schema["allOf"]):
         return False
     if "const" in schema and (value != schema["const"] or (type(value) is bool) != (type(schema["const"]) is bool)):
         return False
     if "enum" in schema and not any(value == allowed and (type(value) is bool) == (type(allowed) is bool) for allowed in schema["enum"]):
         return False
     kind = schema.get("type", "object" if "properties" in schema else "array" if "items" in schema else None)
-    if isinstance(kind, list): return any(_shape(value, {**schema, "type": item}, root) for item in kind)
+    if isinstance(kind, list): return any(_shape(value, {**schema, "type": item}, root, resources=resources) for item in kind)
     if kind == "null": return value is None
     if kind == "boolean": return type(value) is bool
     if kind == "object":
@@ -72,9 +84,9 @@ def _shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any] = SCHE
         properties = schema.get("properties", {})
         if not set(schema.get("required", [])) <= set(value): return False
         if schema.get("additionalProperties") is False and not set(value) <= set(properties): return False
-        return all(_shape(item, properties[key], root) for key, item in value.items() if key in properties)
+        return all(_shape(item, properties[key], root, resources=resources) for key, item in value.items() if key in properties)
     if kind == "array":
-        return type(value) is list and schema.get("minItems", 0) <= len(value) <= schema.get("maxItems", 16384) and all(_shape(item, schema["items"], root) for item in value)
+        return type(value) is list and schema.get("minItems", 0) <= len(value) <= schema.get("maxItems", 16384) and all(_shape(item, schema["items"], root, resources=resources) for item in value)
     if kind == "string":
         return type(value) is str and len(value) >= schema.get("minLength", 0) and ("pattern" not in schema or re.fullmatch(schema["pattern"], value) is not None)
     if kind in {"number", "integer"}:

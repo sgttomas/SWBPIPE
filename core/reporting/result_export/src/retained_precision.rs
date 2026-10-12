@@ -6084,9 +6084,9 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                 nonempty(&x["pipe_id"])
                     && nonempty(&x["result_id"])
                     && x["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64"
+                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
                     && x["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
                 "extrema identity or basis",
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
@@ -6112,7 +6112,8 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             )?;
             let (lower, upper) = (number(&x["value_lower_pa"]), number(&x["value_upper_pa"]));
             demand(
-                lower.zip(upper).is_some_and(|(l, h)| l >= 0.0 && l <= h),
+                lower.zip(upper).is_some_and(|(l, h)| l >= 0.0 && l <= h)
+                    && upper == number(&x["global_upper_bound_pa"]),
                 "extrema bounds",
             )?;
             extrema_ids.push(text(&x["result_id"]));
@@ -6270,14 +6271,26 @@ mod b3b_table_binding_tests {
     }
 }
 
+#[cfg(test)]
+#[path = "../tests/support/retained_precision_corpus.rs"]
+mod retained_precision_corpus_storage;
+
+#[cfg(test)]
+fn shared_test_corpus() -> &'static Value {
+    static CORPUS: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    CORPUS.get_or_init(|| retained_precision_corpus_storage::expand(serde_json::from_str(
+        include_str!("../../../../fixtures/results/retained_precision_cases.json")
+    ).unwrap()))
+}
+
 /// I61 U6e (snapshot 07g): reader-local pins for RV79-N1 (D37's expected table is
 /// the corpus's, derived from native source, never this reader's) and RV80-N2
 /// (`integral_receipt` touches only the receipt).
 #[cfg(test)]
 mod u6e_reader_round_tests {
     use super::*;
-    fn corpus() -> Value {
-        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
+    fn corpus() -> &'static Value {
+        shared_test_corpus()
     }
 
     #[test]
@@ -6339,10 +6352,7 @@ mod u6e_reader_round_tests {
 mod b2_g0_table_tests {
     use super::*;
     fn receipt() -> Value {
-        let corpus: Value = serde_json::from_str(include_str!(
-            "../../../../fixtures/results/retained_precision_cases.json"
-        ))
-        .unwrap();
+        let corpus = shared_test_corpus();
         corpus["cases"]
             .as_array()
             .unwrap()

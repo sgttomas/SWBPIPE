@@ -630,25 +630,21 @@ fn m18_threshold_constant_is_rounded_down() {
 /// above noise with B/q > 1e-6, or below the floor). q = 1 and S*_moment = 1
 /// put the floor clause on the firing side throughout.
 #[test]
-fn rb_prime_clauses_at_their_boundaries() {
-    use formation_guard::{rb_prime_fires, CRITERION};
-    // First clause, B > RD(1e-9) q exactly: equality is silent, one step above fires.
-    assert!(!rb_prime_fires(1.0, CRITERION, 1.0));
-    assert!(rb_prime_fires(1.0, CRITERION.next_up(), 1.0));
-    // A B/q between 1e-9 and 1e-6 fires (X7 moves the threshold to 1e-6).
-    assert!(rb_prime_fires(1.0, 2e-9, 1.0));
-    assert!(rb_prime_fires(1.0, 5e-7, 1.0));
-    // Resolution clause, q > 2^10 B: q at 2^10 B is unresolved and silent (X4 drops it).
-    let at_noise = 1.0 / 1024.0;
-    assert!(!rb_prime_fires(1.0, at_noise, 1.0));
-    assert!(rb_prime_fires(1.0, at_noise.next_down(), 1.0));
-    assert!(!rb_prime_fires(1.0, 0.5, 1.0));
-    // Floor clause, q >= 2^-34 S*: at the floor it fires, one step below it is silent.
-    let floor_scale = 2f64.powi(34);
-    assert!(rb_prime_fires(1.0, 1e-6, floor_scale));
-    assert!(!rb_prime_fires(1.0, 1e-6, floor_scale.next_up()));
-    // A non-finite B fires (fail-closed).
-    assert!(rb_prime_fires(1.0, f64::INFINITY, 1.0));
+fn member_group_clauses_at_their_boundaries() {
+    use formation_guard::{member_group_fires as fires, CRITERION};
+    assert!(!fires(1.0,1.0,CRITERION,1.0));
+    assert!(fires(1.0,1.0,CRITERION.next_up(),1.0));
+    // Repair removes the former resolution conjunct, including noise-level q.
+    assert!(fires(1.0,1.0,0.5,1.0));
+    let scale = 2f64.powi(34);
+    assert!(fires(1.0,1.0,1e-6,scale));
+    assert!(!fires(1.0,1.0,1e-6,scale.next_up()));
+    // Gross error can shrink published q: q_hat is the floor operand.
+    assert!(fires(0.0,1.0,1e-6,scale));
+    assert!(fires(0.0,0.0,f64::INFINITY,0.0));
+    let minimum = 2f64.powi(-988);
+    assert!(fires(minimum,minimum,minimum,minimum));
+    assert!(!fires(minimum,minimum,minimum,minimum.next_down()));
 }
 
 /// RV4-S2 (D21-1; kills RV-M1): the second test decides |A_net| + 12B >

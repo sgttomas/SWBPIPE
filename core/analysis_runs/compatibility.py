@@ -169,9 +169,9 @@ def _build_analysis_run(
             "provenance": provenance,
         },
     }
-    if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+    if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         envelope["analysis_run"]["source_block_recovery"] = deepcopy(received["source_block_recovery"])
-    if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+    if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         envelope["analysis_run"]["contract_evidence"] = deepcopy(received["contract_evidence"])
     # C1:162; D2 4.9.6: the successor's AnalysisRun carries its complete receipt (B3b: either successor).
     if contract_id in RETAINED_CONTRACTS:
@@ -208,6 +208,11 @@ _SOURCE_BLOCKS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_
 PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
 PHYSICS_SOURCE_CONTRACT_SHA256 = "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
 _PHYSICS_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_source_1.json")
+# The v3 join binds its reviewed table; rows are interpreted lazily per record,
+# as every DEL-14-02 table is. No additional resident row table is held here.
+PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61"
+_PRESSURE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_source_1.json")
 # Resolved load/reference-state method: one table, one profile; the AnalysisRun
 # record mirrors physics-1 and carries no contract_evidence.
 LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
@@ -245,13 +250,13 @@ RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 # Static fresh-publication identities (S1 §10); no route predicate. T1 added its
 # load-reference identities here on activation.
-FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                 # T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
                                 LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
                                 # U6b (D-U6-6): membership is not standing.
                                 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
 # Every current-record identity, which the 0.3 AnalysisRun builder and validator admit.
-CURRENT_RECORD_CONTRACT_IDS = frozenset({PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+CURRENT_RECORD_CONTRACT_IDS = frozenset({PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
 PRECISION_1_HISTORICAL_SEMANTICS = "PRECISION_1_HISTORICAL_SEMANTICS"
@@ -267,6 +272,7 @@ _TABLES = {PRECISION_CONTRACT_ID: (PRECISION_CONTRACT_SHA256, _PRECISION_CONTRAC
            PHYSICS_CONTRACT_ID: (PHYSICS_CONTRACT_SHA256, _PHYSICS_CONTRACT_PATH),
            SOURCE_BLOCKS_CONTRACT_ID: (SOURCE_BLOCKS_CONTRACT_SHA256, _SOURCE_BLOCKS_CONTRACT_PATH),
            PHYSICS_SOURCE_CONTRACT_ID: (PHYSICS_SOURCE_CONTRACT_SHA256, _PHYSICS_SOURCE_CONTRACT_PATH),
+           PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESSURE_SOURCE_CONTRACT_PATH),
            PREVIEW_PHYSICS_CONTRACT_ID: (PREVIEW_PHYSICS_CONTRACT_SHA256, _PREVIEW_PHYSICS_CONTRACT_PATH),
            LOAD_REFERENCE_CONTRACT_ID: (LOAD_REFERENCE_CONTRACT_SHA256, _LOAD_REFERENCE_CONTRACT_PATH),
            LOAD_REFERENCE_SOURCE_CONTRACT_ID: (LOAD_REFERENCE_SOURCE_CONTRACT_SHA256, _LOAD_REFERENCE_SOURCE_CONTRACT_PATH),
@@ -526,12 +532,12 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     if contract_id not in CURRENT_RECORD_CONTRACT_IDS or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
-    if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+    if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
     elif "source_block_recovery" in run:
         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
-    if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+    if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         if not _same_canonical(run.get("contract_evidence"), source["contract_evidence"]):
             raise ValueError("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH")
     elif "contract_evidence" in run:
