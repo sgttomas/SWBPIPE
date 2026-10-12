@@ -6,7 +6,7 @@ The owner clarified on 2026-10-11: the product may use up to 12 GiB on its targe
 
 The 64 GiB development allowance is separate. The original host's slot wrapper already implements that grant with four lock slots, a 52 GiB T3 start threshold, at least 30% system free memory and the running memory guard's 22% free-memory backstop. It does not select a 64 GiB product profile.
 
-This is the decision-22 design study requested by the owner. The 12 GiB profile can be qualified independently of the adaptive host implementation below. Machine scaling is intended scope; the proposed 75% policy is a recommendation, not an already implemented or owner-selected formula.
+The owner adopted the shared-pool policy below on 2026-10-11: a nominal pool of 75% of physical RAM, a qualified 12 GiB per-invocation default and explicit larger qualified budgets on larger machines, subject to available headroom and ownership reservations. The adaptive host implementation is not yet present. The 12 GiB qualification is independent of that implementation.
 
 ## What the current bound means
 
@@ -21,18 +21,20 @@ The 271 native layout atoms from C8 source `11cb56f3ea36046d6a79b8ae3377a7b91e3b
 | Option | Effect | Limitation |
 |---|---|---|
 | Scale each invocation's M with machine capacity | A proposed 75% default gives 12/24/48 GiB on 16/32/64 GiB machines. | Independent jobs can each claim the same memory. It needs a shared reservation system before parallel use. |
-| Scale a shared pool, keep a qualified per-invocation default | The same pool sizes permit more concurrent qualified work; the proposed per-invocation default is the authorized 12 GiB qualification target. Larger per-invocation budgets are explicit qualified choices within that pool. | Requires ownership accounting for workers, completed results and handoff copies. It does not enlarge the numerical domain. |
+| Scale a shared pool, keep a qualified per-invocation default | The same pool sizes permit more concurrent qualified work; the selected per-invocation default is the authorized 12 GiB profile. Larger per-invocation budgets are explicit qualified choices within that pool. | Requires ownership accounting for workers, completed results and handoff copies. It does not enlarge the numerical domain. |
 
-- PROPOSAL: Scale a shared Rust-owned pool first
+- PROPOSAL: Scale a shared Rust-owned pool first (owner-adopted design)
   - Evidence: `retained_memory.rs::{RegisteredProfile, build_status, cap_priced_maximum, admission_bound, admit}`; `apps/desktop/src-tauri/src/lib.rs::{execute_solve_job, publish_solve_outcome, poll_preview_mechanics_job}` and its job registry/thread creation.
   - Change: Use a nominal aggregate pool of floor(3 * physical_memory / 4), with checked integer arithmetic. After the current 12 GiB target passes qualification, use it as the per-invocation default. Offer a lower user budget and, after qualification, larger per-invocation choices within the pool. Require both an aggregate reservation and a fresh conservative host-headroom verdict before starting heavy work. Unknown capacity/headroom or pressure warning/critical conditions prevent a new adaptive admission.
   - Why: Matches the 16 GiB base target while allowing larger machines to run more work without assigning the same bytes to several jobs.
   - Risk: The numerical route available to an invocation can depend on configured budget, host load and competing reservations. Larger domain caps require their own qualification; a larger pool is not that qualification.
-  - Status: PROPOSED
+  - Status: APPLIED — governing policy selected; runtime implementation remains pending
 
 The current desktop uses the shared non-retained facade, starts independent worker threads, stores completed results in a registry with no pruning, and clones result strings when polled. A lease released at worker exit would omit stored results and poll/IPC copies. Introduce one atomic lease acquisition before the owners it covers are allocated; transfer or resize the lease to the completed-result owner, reserve handoff-copy overlap, and release only when those owners actually drop. Webview custody needs an explicit acknowledgement/disposal boundary and its own byte bound; an IPC return does not prove those copies disappeared. The same ledger covers synchronous commands, already-deserialized queued inputs and asynchronous jobs. An ingress byte limit/reservation must precede native Value materialization; acquiring a worker-start lease cannot retroactively cover allocations made by Tauri deserialization. Bound pending inputs separately while queued. Bound result retention with explicit disposal/eviction behavior. Cancellation cannot release a lease until the worker and its owned buffers finish; currently it is observed before execution and publication. Failed/panicking starts need the same RAII release law. `native_result_download.rs::SavePermit` supplies an existing Drop pattern, but its boolean save lock is not memory accounting.
 
 The pure Rust core should consume an immutable byte limit and expose its qualified required bytes/profile identity; it should not discover the machine or silently rewrite caps. Keep budget policy outside the model payload. The native host supplies capacity/headroom and owns the aggregate lease. Integrate through the existing job/service boundary; retained desktop activation B8 remains owner-held, and this study does not switch the desktop onto the retained facade. Distinguish an ordinary retained-method refusal from an aggregate resource refusal: the current dispatcher falls back to ordinary execution after retained refusal, so pool/headroom refusal must be handled before that dispatcher. It queues or returns a typed resource-unavailable result; it must not escape the pool through an unbounded ordinary fallback or silently change the requested solver mode.
+
+An ordinary-route lease needs a whole-invocation bound over its existing supported domain. The retained D1 bound cannot price requests outside D1 or impose its 32-node cap on ordinary execution. Existing dense/sparse 6 GiB checks are component estimates, not that whole-product proof. Adaptive integration must preserve current ordinary capability while establishing its input, solver, output and handoff bounds; it cannot claim safety by silently shrinking the supported model family.
 
 ## Platform evidence and qualification
 
@@ -42,9 +44,9 @@ Qualify the authorized 12 GiB target first, reusing unchanged numerical evidence
 
 The supported-machine statement should distinguish a 16 GiB base target from a guarantee under arbitrary competing workloads. Show the selected per-invocation budget, aggregate pool, queued work and reason for a resource refusal. Warn before a user requests a pool above the recommended machine fraction; acknowledgement cannot bypass a known insufficient-headroom or qualification refusal. A changing host load may change retained availability. Ordinary fallback after a method refusal remains possible only within its own admitted resource lease; it must not change the numerical predicates or fabricate a retained result. Release identity selection remains with B7's qualified build and the owner's release act.
 
-MISSING: verified conservative byte-headroom provider; aggregate/job-result lifetime implementation; target-specific adaptive qualification.
+MISSING: verified conservative byte-headroom provider; ordinary whole-invocation lease bounds; aggregate/input/job-result lifetime implementation; target-specific adaptive qualification.
 
-NEEDS_HUMAN_RULING: exact default fraction and any user override above the recommended pool remain proposed; the 12 GiB base qualification and 64 GiB development allowance are authorized.
+NEEDS_HUMAN_RULING: none for this selected policy. A change to its budget model, numerical domain or other reserved condition requires the corresponding owner decision.
 
 DEPENDENCY_NOTES: desktop job/result ownership must be bounded before claiming safe parallel scaling; larger numerical domains need their own qualification, and B8 retained desktop activation remains owner-held.
 
