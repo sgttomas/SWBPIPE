@@ -534,3 +534,75 @@ C7_INPUT_METADATA = [(site(_name, _c7_audit_file, _borrowed if _c7_audit_borrowe
                      for _name, _owned, _borrowed, _audit in _c7_audit_sites]
 if not _c7_audit_borrowed:
     O10_ID_AUDIT += C7_INPUT_METADATA
+
+
+# ---- The pressure-source join (b7-plan; Design retained-pricing-rules.md §J). Each rule applies only where the
+# join's code exists, so earlier revisions price as before.
+
+# JN1: frame_kernel's correct_norm module moved, byte-identical, into the open_pipe_stress_correct_norm crate (price.py
+# scans it and adds each dependent crate's edge). A crate-qualified `open_pipe_stress_correct_norm::normN(` keeps only
+# its last qualifier, so by name it would also reach frame_kernel's same-crate private `final_case.rs:norm2` and
+# `formation_check.rs:norm3`. Each frame_kernel caller is bound to the crate's function it names, as
+# `crate::correct_norm::normN(` resolved before the move; every other candidate keeps its by-name resolution.
+_CN = "core/numerics/correct_norm/src/lib.rs"
+if _os.path.exists(_os.path.join(_SNAP, _CN)):
+    _JN1 = {
+        (FK_ + "rigid_body.rs", "assess_rigid_body"): {
+            "open_pipe_stress_correct_norm::norm3(r[0], r[1], r[2])": "norm3",
+            "open_pipe_stress_correct_norm::norm2(zeta, 1.0)": "norm2"},
+        (FK_ + "structural/certified_recovery.rs", "norm_up"): {
+            "open_pipe_stress_correct_norm::norm2(norm, v)": "norm2"},
+        (FK_ + "structural/certified_recovery.rs", "certified_group"): {
+            "open_pipe_stress_correct_norm::norm2(a.published, b.published)": "norm2",
+            "open_pipe_stress_correct_norm::norm3(a.published, b.published, c.published)": "norm3",
+            "open_pipe_stress_correct_norm::norm2(midpoint_norm, v)": "norm2"},
+        (FK_ + "structural/retained/product_certificate/final_case.rs", "support_hypot"): {
+            "open_pipe_stress_correct_norm::norm3(v[0],v[1],v[2])": "norm3"},
+    }
+    _jn1_found = []
+    for _d, _, _fs in _os.walk(_os.path.join(_SNAP, FK_)):
+        for _f in sorted(_fs):
+            if _f.endswith(".rs") and "test" not in _f and "/tests" not in _d:
+                _p = _os.path.join(_d, _f)
+                _jn1_found += [(_os.path.relpath(_p, _SNAP), _l.strip()) for _l in open(_p, encoding="utf-8") if "open_pipe_stress_correct_norm::" in _l]
+    if len(_jn1_found) != sum(len(_v) for _v in _JN1.values()):
+        raise SystemExit(f"JN1: frame_kernel's crate-qualified correct_norm call inventory changed; re-review: {_jn1_found}")
+    for (_file, _caller), _calls in _JN1.items():
+        for _text in _calls:
+            site(_caller, _file, _text)  # exactly once inside the caller, else stop
+        for _name in sorted(set(_calls.values())):
+            CG_RULES += [{"caller": _fn_n(_caller, _file, 1, 1), "name": _name, "targets": [_fn_n(_name, _CN, 1, 1)],
+                "added": "JN1", "evidence": "the crate-qualified call names open_pipe_stress_correct_norm's pub fn (frame_kernel's former "
+                "correct_norm module, moved unchanged); the same-crate private final_case.rs:norm2/formation_check.rs:norm3 are not that path"}]
+
+# J1: the join's PRESSURE_SOURCE_ID arm of for_source (physics_source::validate_in under SourceContract::PressureV3).
+# for_source's only D1 caller is retained_precision::validate's G7 on project(source), which sets
+# producer.semantic_contract_id to route.base_id, one of two literals (preview-physics-1 on route L, physics-1 on
+# route E; retained_precision.rs ROUTE base_id). So the arm is never taken: R1's and G4 (T17)'s argument for the
+# sibling arms.
+_SC = RE_ + "semantic_contract.rs"
+if fnkey("for_source", _SC) and fnkey("validate_in", RE_ + "physics_source.rs"):
+    site("for_source", _SC, "Some(PRESSURE_SOURCE_ID) =>")
+    _rp = open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()
+    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != ["openpipestress.result_semantics/0.3.0/physics-1",
+                                                           "openpipestress.result_semantics/0.3.0/preview-physics-1"] \
+            or 'projected["producer"]["semantic_contract_id"] = json!(route.base_id);' not in _rp:
+        raise SystemExit("J1: retained_precision's G7 projection no longer pins the two base identities; re-review")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("for_source", _SC), fnkey("validate_in", RE_ + "physics_source.rs"),
+        O10 + "J1: the precommit reader validates project(successor), whose producer.semantic_contract_id is the route's "
+        "base id (preview-physics-1 on route L, physics-1 on route E; retained_precision project()), never pressure-source-1, "
+        "so for_source never takes the PRESSURE_SOURCE_ID arm; R1's argument")]
+
+# J2: `attempted.push(request, id)` in lib.rs CaseSet::attempted passes the loop's pattern binding `(&request, &id)`, not
+# a function; the by-name function-as-value scan picks the join's `fn request()` in source_recovery/j7_t4_consequences.rs,
+# a private fn of a `#[cfg(test)]` child module of source_recovery, which lib.rs cannot name. Only that one edge is
+# zeroed (the value scan's edges bypass callgraph exclusions); attempted's other edges stay.
+_J7T = PP_ + "source_recovery/j7_t4_consequences.rs"
+if _os.path.exists(_os.path.join(_SNAP, _J7T)) and fnkey("attempted", PP_ + "lib.rs"):
+    site("attempted", PP_ + "lib.rs", "attempted.push(request, id)")
+    if "#[cfg(test)]\n#[path = \"source_recovery/j7_t4_consequences.rs\"]\nmod j7_t4_consequences;" not in \
+            open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read():
+        raise SystemExit("J2: j7_t4_consequences is no longer a #[cfg(test)] module; re-review")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("attempted", PP_ + "lib.rs"), fnkey("request", _J7T),
+        O10 + "J2: `request` in `attempted.push(request, id)` is attempted's for-pattern binding `(&request, &id)`; "
+        "j7_t4_consequences::request is a private fn of a #[cfg(test)] module, not nameable from lib.rs")]
