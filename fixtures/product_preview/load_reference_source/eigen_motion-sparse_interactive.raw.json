@@ -3522,11 +3522,11 @@
         "publication_charged": 276912
       },
       "policy": "LOAD-REFERENCE-SOURCE-1",
-      "publication_sha256": "e661a3e62d468078339af707f04bbd74de55ca53738bcff0d23f3dc836a64ca5",
+      "publication_sha256": "3062b7d724a2c80472933a9b29cd494608216b2e33bf00d9636400bd90bea007",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "c347c41b08b5233932500c9625ab0c62e14482b426f13a0a07d26f26cac1918a"
+    "receipt_sha256": "514aea221a4ec0bf0e7d5380b74a8de48904c7154cc08fcf55b5d8ec8aa748b9"
   },
   "formulation_basis": {
     "profile_id": "resolved_straight_load_state_source_v1",
@@ -3536,7 +3536,9 @@
       "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
       "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
       "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.",
-      "A case whose ordinary attempt is sensitive or rejected publishes its selected retained-source exact response when the resolved case closes on the retained source (eigen element loads, member pairs and prescribed motions included) and no pressure region is present; every other case publishes checked ordinary structural recovery. A finalized receipt binds every case. No code compliance or professional acceptance is produced."
+      "A case whose ordinary attempt is sensitive or rejected publishes its selected retained-source exact response when the resolved case closes on the retained source (eigen element loads, member pairs and prescribed motions included) and no pressure region is present; every other case publishes checked ordinary structural recovery. A finalized receipt binds every case. No code compliance or professional acceptance is produced.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",

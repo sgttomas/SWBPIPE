@@ -36,18 +36,18 @@
         "pipe_stress_extrema": [
           {
             "approximation": "piecewise_quadratic_straight_section_statics",
-            "certified_gap_pa": 0.0,
-            "coefficient_basis": "j_side_section_equilibrium_binary64",
-            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-            "global_upper_bound_pa": 4545454.545454542,
+            "certified_gap_pa": 7.45058059692383e-9,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 4545454.545454549,
             "local_fraction": 0.0,
             "pipe_id": "pipe:fixture-span",
             "result_id": "result:elastic-maximum:20:case:closed-pressure:17:pipe:fixture-span",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
-            "value_lower_pa": 4545454.545454542,
-            "value_upper_pa": 4545454.545454542
+            "value_lower_pa": 4545454.545454541,
+            "value_upper_pa": 4545454.545454549
           }
         ],
         "pressure_rhs_assembly": {
@@ -211,18 +211,18 @@
         "pipe_stress_extrema": [
           {
             "approximation": "piecewise_quadratic_straight_section_statics",
-            "certified_gap_pa": 5.2154064178466803e-8,
-            "coefficient_basis": "j_side_section_equilibrium_binary64",
-            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-            "global_upper_bound_pa": 41354908.754657,
+            "certified_gap_pa": 1.3411045074462893e-7,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 41354908.75465703,
             "local_fraction": 0.0,
             "pipe_id": "pipe:fixture-span",
             "result_id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
-            "value_lower_pa": 41354908.75465695,
-            "value_upper_pa": 41354908.754657
+            "value_lower_pa": 41354908.754656896,
+            "value_upper_pa": 41354908.75465703
           }
         ],
         "pressure_rhs_assembly": {
@@ -500,8 +500,10 @@
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-      "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
-      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",
@@ -528,7 +530,7 @@
       "result_ref": "result:loadcase:case-six-component-load:disp:node-fixture-tip"
     },
     "max_open_formula_stress": {
-      "value": 41354908.75465697,
+      "value": 41354908.75465696,
       "unit": "Pa",
       "location_ref": "pipe:fixture-span",
       "result_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
@@ -794,7 +796,7 @@
     {
       "id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Fx",
       "kind": "support_reaction_component_v2",
-      "value": 8.185452315956354e-12,
+      "value": 3.3703774026776627e-34,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -902,7 +904,7 @@
     {
       "id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:force_magnitude",
       "kind": "support_reaction_force_magnitude_v2",
-      "value": 8.185452315956354e-12,
+      "value": 3.3703774026776627e-34,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -1118,7 +1120,7 @@
     {
       "id": "result:force:pipe-fixture-span:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1136,7 +1138,7 @@
     {
       "id": "result:force:pipe-fixture-span:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1154,7 +1156,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1172,7 +1174,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1190,7 +1192,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1208,7 +1210,7 @@
     {
       "id": "result:force:pipe-fixture-span:midspan:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1226,7 +1228,7 @@
     {
       "id": "result:force:pipe-fixture-span:midspan:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1244,7 +1246,7 @@
     {
       "id": "result:moment:pipe-fixture-span:midspan:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1262,7 +1264,7 @@
     {
       "id": "result:moment:pipe-fixture-span:midspan:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1280,7 +1282,7 @@
     {
       "id": "result:moment:pipe-fixture-span:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1298,7 +1300,7 @@
     {
       "id": "result:force:pipe-fixture-span:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1316,7 +1318,7 @@
     {
       "id": "result:force:pipe-fixture-span:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1334,7 +1336,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1352,7 +1354,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1370,7 +1372,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1388,7 +1390,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1406,7 +1408,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1424,7 +1426,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1442,7 +1444,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1460,7 +1462,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1478,7 +1480,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1496,7 +1498,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1514,7 +1516,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1532,7 +1534,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1550,7 +1552,7 @@
     {
       "id": "result:stress:pipe-fixture-span:midspan:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1568,7 +1570,7 @@
     {
       "id": "result:stress:pipe-fixture-span:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1586,7 +1588,7 @@
     {
       "id": "result:stress:pipe-fixture-span:midspan:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1604,7 +1606,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1622,7 +1624,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1640,7 +1642,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1658,7 +1660,7 @@
     {
       "id": "result:elastic-maximum:20:case:closed-pressure:17:pipe:fixture-span",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1676,7 +1678,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:wall_axial_end_action",
       "kind": "pipe_wall_endpoint_action_v2",
-      "value": -15707.963267948955,
+      "value": -15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1694,7 +1696,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:wall_axial_end_action",
       "kind": "pipe_wall_endpoint_action_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1712,7 +1714,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:wall_axial_force",
       "kind": "pipe_wall_axial_force_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1730,7 +1732,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:effective_axial_force",
       "kind": "pipe_effective_axial_force_v2",
-      "value": -8.352340225402632e-12,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1748,7 +1750,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:axial_membrane_stress",
       "kind": "pipe_axial_membrane_stress_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1838,7 +1840,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:wall_axial_force",
       "kind": "pipe_wall_axial_force_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1856,7 +1858,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:effective_axial_force",
       "kind": "pipe_effective_axial_force_v2",
-      "value": -8.352340225402632e-12,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1874,7 +1876,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:axial_membrane_stress",
       "kind": "pipe_axial_membrane_stress_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1964,7 +1966,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:wall_axial_force",
       "kind": "pipe_wall_axial_force_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1982,7 +1984,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:effective_axial_force",
       "kind": "pipe_effective_axial_force_v2",
-      "value": -8.352340225402632e-12,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2000,7 +2002,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:axial_membrane_stress",
       "kind": "pipe_axial_membrane_stress_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2090,7 +2092,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:wall_axial_force",
       "kind": "pipe_wall_axial_force_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2108,7 +2110,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:effective_axial_force",
       "kind": "pipe_effective_axial_force_v2",
-      "value": -8.352340225402632e-12,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2126,7 +2128,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:axial_membrane_stress",
       "kind": "pipe_axial_membrane_stress_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2216,7 +2218,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:wall_axial_force",
       "kind": "pipe_wall_axial_force_v2",
-      "value": 15707.963267948955,
+      "value": 15707.963267948964,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2234,7 +2236,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:effective_axial_force",
       "kind": "pipe_effective_axial_force_v2",
-      "value": -8.352340225402632e-12,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2252,7 +2254,7 @@
     {
       "id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:axial_membrane_stress",
       "kind": "pipe_axial_membrane_stress_v2",
-      "value": 4545454.545454542,
+      "value": 4545454.545454545,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2616,7 +2618,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
       "kind": "support_reaction_component_v2",
-      "value": -2000.0000000000018,
+      "value": -2000.0,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2634,7 +2636,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
       "kind": "support_reaction_component_v2",
-      "value": 3000.000000000002,
+      "value": 3000.0,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2670,7 +2672,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
       "kind": "support_reaction_component_v2",
-      "value": -2500.000000000001,
+      "value": -2500.0,
       "unit": "N*m",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2688,7 +2690,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
       "kind": "support_reaction_component_v2",
-      "value": -2600.0000000000014,
+      "value": -2600.0,
       "unit": "N*m",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2706,7 +2708,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
       "kind": "support_reaction_force_magnitude_v2",
-      "value": 3741.657386773944,
+      "value": 3741.657386773941,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2724,7 +2726,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
       "kind": "support_reaction_moment_magnitude_v2",
-      "value": 3629.049462324813,
+      "value": 3629.049462324811,
       "unit": "N*m",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -2778,7 +2780,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -2000.0000000000018,
+      "value": -2000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2796,7 +2798,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 2000.0000000000018,
+      "value": 2000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2814,7 +2816,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": 3000.000000000002,
+      "value": 3000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2832,7 +2834,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:shear-z:end-j",
       "kind": "element_local_shear_force_z",
-      "value": -3000.000000000002,
+      "value": -3000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2886,7 +2888,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -2500.000000000001,
+      "value": -2500.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2904,7 +2906,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": -500.00000000000045,
+      "value": -500.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2922,7 +2924,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -2600.0000000000014,
+      "value": -2600.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2940,7 +2942,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 599.9999999999991,
+      "value": 600.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2976,7 +2978,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 2000.0000000000018,
+      "value": 2000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -2994,7 +2996,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -3000.000000000002,
+      "value": -3000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3030,7 +3032,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 1750.0000000000005,
+      "value": 1750.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3048,7 +3050,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 2100.000000000001,
+      "value": 2100.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3084,7 +3086,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:midspan:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 2000.0000000000018,
+      "value": 2000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3102,7 +3104,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:midspan:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -3000.000000000002,
+      "value": -3000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3156,7 +3158,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 1600.0000000000005,
+      "value": 1600.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3192,7 +3194,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 2000.0000000000018,
+      "value": 2000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3210,7 +3212,7 @@
     {
       "id": "result:loadcase:case-six-component-load:force:pipe-fixture-span:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -3000.000000000002,
+      "value": -3000.0,
       "unit": "N",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3246,7 +3248,7 @@
     {
       "id": "result:loadcase:case-six-component-load:moment:pipe-fixture-span:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 249.99999999999955,
+      "value": 250.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3300,7 +3302,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 28.462881029847164,
+      "value": 28.462881029847154,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3318,7 +3320,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 29.601396271041054,
+      "value": 29.60139627104104,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3372,7 +3374,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -5.6925762059694405,
+      "value": -5.692576205969431,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3390,7 +3392,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 6.8310914471633115,
+      "value": 6.831091447163317,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3444,7 +3446,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 19.92401672089301,
+      "value": 19.924016720893007,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3462,7 +3464,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 23.908820065071616,
+      "value": 23.90882006507161,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3534,7 +3536,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 18.216243859102182,
+      "value": 18.21624385910218,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3588,7 +3590,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.84628810298471,
+      "value": 2.8462881029847154,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3606,7 +3608,7 @@
     {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 12.523667653132746,
+      "value": 12.523667653132748,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -3642,7 +3644,7 @@
     {
       "id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
-      "value": 41354908.75465697,
+      "value": 41354908.75465696,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {

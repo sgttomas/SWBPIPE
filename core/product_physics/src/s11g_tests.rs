@@ -1698,14 +1698,14 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// R-b's two clauses hold at end i (the design's precondition, asserted);
 /// R-b' is silent there anyway, below its floor.
 ///
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) changes three
-/// declared things on this already-Sensitive case and nothing else: the two
-/// linear limitation sentences, the current maximum declaration literals, and
-/// the fallback maximum's enclosure (its arithmetic transport widens it; the
-/// new enclosure contains main's). Every diagnostic, numerical-quality entry
-/// and result row stays byte-identical to the committed file. The committed
-/// raw file is main's output, consumed by result_export's suites, and is
-/// regenerated there.
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) changed three
+/// declared things on this already-Sensitive case against main's bytes: the
+/// two linear limitation sentences, the current maximum declaration literals,
+/// and the fallback maximum's enclosure (its arithmetic transport widens it;
+/// the new enclosure contains main's). Every diagnostic, numerical-quality
+/// entry and result row stayed byte-identical. The committed raw file, which
+/// result_export's suites and the base reader corpus consume, is regenerated
+/// from this producer, so the check is now byte identity with it.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     let request: Value = serde_json::from_str(include_str!(
@@ -1733,44 +1733,23 @@ fn t13_committed_fallback_uz_is_byte_identical() {
             "{mode:?}: precondition, R-b holds at end i: {ends:?}"
         );
         let text = format!("{}\n", serde_json::to_string_pretty(&envelope).unwrap());
-        let mut current: Value = serde_json::from_str(&text).unwrap();
-        let main: Value = serde_json::from_str(committed).unwrap();
-        for key in ["diagnostics", "numerical_quality", "results", "status", "producer"] {
-            assert_eq!(current[key], main[key], "{mode:?}: {key} changed");
+        // The current maximum declaration (§3.2) and the §3.4 sentences.
+        let current: Value = serde_json::from_str(&text).unwrap();
+        for x in current["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap() {
+            assert_eq!(x["coefficient_basis"], json!("j_side_section_equilibrium_binary64_enclosures"));
+            assert_eq!(x["enclosure_scope"], json!("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"));
+            assert_eq!(x["value_upper_pa"], x["global_upper_bound_pa"], "{mode:?}");
         }
-        // The two §3.4 sentences are appended to main's limitations.
-        let limitations = current["formulation_basis"]["limitations"].as_array().unwrap().clone();
-        let base = main["formulation_basis"]["limitations"].as_array().unwrap();
-        assert_eq!(&limitations[..base.len()], &base[..], "{mode:?}");
+        let limitations = current["formulation_basis"]["limitations"].as_array().unwrap();
         assert_eq!(
-            limitations[base.len()..].to_vec(),
+            limitations[limitations.len() - 2..].to_vec(),
             preview_physics::formulation_basis().limitations[preview_physics::LIMITATIONS.len()..]
                 .iter()
                 .map(|t| json!(t))
                 .collect::<Vec<_>>(),
             "{mode:?}"
         );
-        current["formulation_basis"]["limitations"] = main["formulation_basis"]["limitations"].clone();
-        // The maximum: current declarations, and an enclosure that contains main's.
-        let extrema = current["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]
-            .as_array_mut()
-            .unwrap();
-        let main_extrema = main["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]
-            .as_array()
-            .unwrap();
-        assert_eq!(extrema.len(), main_extrema.len());
-        for (x, m) in extrema.iter_mut().zip(main_extrema) {
-            assert_eq!(x["coefficient_basis"], json!("j_side_section_equilibrium_binary64_enclosures"));
-            assert_eq!(x["enclosure_scope"], json!("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"));
-            let f = |v: &Value, k: &str| v[k].as_f64().unwrap();
-            assert!(f(x, "value_lower_pa") <= f(m, "value_lower_pa"), "{mode:?}");
-            assert!(f(x, "value_upper_pa") >= f(m, "value_upper_pa"), "{mode:?}");
-            assert_eq!(f(x, "value_upper_pa"), f(x, "global_upper_bound_pa"), "{mode:?}");
-            for k in ["coefficient_basis", "enclosure_scope", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa"] {
-                x[k] = m[k].clone();
-            }
-        }
-        assert_eq!(current, main, "{mode:?}: an undeclared change");
+        assert!(text == committed, "{mode:?}: the producer's bytes differ from the committed raw file");
     }
 }
 
