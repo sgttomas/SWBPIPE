@@ -60,7 +60,9 @@ def inspect(snapshot):
         consumer = stream.read()
     for name, digest in LIB_PINS.items():
         body, _ = HELPERS["_indented_function"](consumer, name)
-        if hashlib.sha256(body.encode()).hexdigest() != digest:
+        # The join's re-reviewed solve_load_case_observed (kd5_text_model.JOIN_REVIEWED)
+        # removes only the not-joined diagnostic call; no attempt/clone consumer moves.
+        if not HELPERS["accepted"](LIB, name, hashlib.sha256(body.encode()).hexdigest(), digest):
             raise ValueError("KD5C6: attempt/clone consumer changed: " + name)
     sites = []
     tokens = {"format": "format!(", "to_string": ".to_string(", "into_text": ".into("}

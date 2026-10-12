@@ -315,7 +315,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
     [
         (include_str!("../../reporting/result_export/src/retained_precision.rs"), Some(AuditedTestRegion {
             first_item: "#[cfg(test)]\nmod b3b_table_binding_tests {",
-            complete_suffix_sha256: "0ef82991ef8faaefb24938fc0c0bc7c5d900e473061bb67d5313bae66b8a5b70",
+            // Re-audited on the K-D5 merge: the suffix gained only K-D5's closed
+            // `c7_prescribed_key_controls` test module after the trailing
+            // production functions; it has no include and stays inspected.
+            complete_suffix_sha256: "3cfdd9e4f67ecceac4f4de1bd50fd1a2d02c6356042f72861ba3e378875c4b51",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),

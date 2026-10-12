@@ -11,6 +11,29 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 
 PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab2a378f57eb1922c84ab006f9d58f04bf5c37c3b553bed0f6fc910cf507e034', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
+# Join re-reviewed alternatives (the pressure-source join merged with K-D5). Each
+# differs from its K-D5-reviewed pin only as stated; the K-D5 value stays
+# accepted so the registered revision still prices. Keys: (file, function or
+# None for the file-level pin).
+JOIN_REVIEWED = {
+    # Production prefix: only the four norm2/norm3 call paths, crate::correct_norm
+    # -> the shared open_pipe_stress_correct_norm crate (the same functions).
+    ("core/solver/frame_kernel/src/structural/certified_recovery.rs", None):
+        "ae7855ec7bd9432018b09be40f25281f0bd13254e966eb51e232444592cbb483",
+    # Only the removed not-joined diagnostic call; route strings, record labels
+    # and attempt/clone consumers are unchanged.
+    ("core/product_physics/src/lib.rs", "solve_load_case_observed"):
+        "afa68f9aca96d5df206e0367776520e933777ceda87cb30a377029e6139cce52",
+    # Non-test source: only the removed `#[path]` correct_norm module; the closed
+    # StressFinding subject producer and its one copy site are unchanged.
+    ("core/loads/stress_recovery/src/lib.rs", None):
+        "7df37b7604d7f201a265a2d4d6d0772c8e31b757ff1130d17ce8a17df70b87ff",
+}
+
+def accepted(file, name, actual, pinned):
+    """The K-D5-reviewed digest, or the join's re-reviewed alternative for that key."""
+    return actual == pinned or JOIN_REVIEWED.get((file, name)) == actual
+
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
     if len(hits) != 1:
@@ -33,14 +56,14 @@ def inspect(snapshot):
     for file, digest in PRODUCTION_PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read().split("#[cfg(test)]", 1)[0]
-        if hashlib.sha256(source.encode()).hexdigest() != digest:
+        if not accepted(file, None, hashlib.sha256(source.encode()).hexdigest(), digest):
             raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
     for file, functions in PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read()
         for name, digest in functions.items():
             body = function_body(source, name)
-            if hashlib.sha256(body.encode()).hexdigest() != digest:
+            if not accepted(file, name, hashlib.sha256(body.encode()).hexdigest(), digest):
                 raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
             bodies[name] = body
     constructors = ("member_record", "support_record", "unavailable_record", "connector_record")
@@ -91,7 +114,7 @@ def inspect_stress_subjects(snapshot):
     file = "core/loads/stress_recovery/src/lib.rs"
     with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
         source = stream.read().split("#[cfg(test)]", 1)[0]
-    if hashlib.sha256(source.encode()).hexdigest() != STRESS_SUBJECT_SOURCE_PIN:
+    if not accepted(file, None, hashlib.sha256(source.encode()).hexdigest(), STRESS_SUBJECT_SOURCE_PIN):
         raise ValueError("KD5T3: stress subject producer/forwarding source changed; re-review the closed caller inventory")
     sites = [i + 1 for i, line in enumerate(source.splitlines()) if "subject_id: subject_id.into()," in line]
     if len(sites) != 1:
@@ -157,7 +180,12 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("pressure_exact/source_geometry.rs", "pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
     ("pressure_exact/source_geometry.rs", "surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
     ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
+    # The join's J7 census (#[cfg(test)] only): both `.mul(` receivers are the
+    # validation crate's exact rational `Exact` (`e`, and `r1_exact::tolerance`'s
+    # result), whose own `Exact::mul` is called; never FallbackError::mul.
+    ("source_recovery/j7_rf_census.rs", "method_row_holds", ("mul",), "0b2cf6a2031afa16a70e0842301a52b87b88cdcf60c61a5dc83b1f0788d407b8"),
 )
+JOIN_ONLY_CALLER_FILES = {"source_recovery/j7_rf_census.rs"}
 
 def _indented_function(text, name):
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -184,8 +212,15 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError(f"KD5C5: private method/body changed: {name}")
         targets[name] = f"{file}:{line}:{name}"
     inventory = []
+    expected = 17
     for relative, name, methods, digest in FALLBACK_OUTSIDE_CALLERS:
         caller_file = "core/product_physics/src/" + relative
+        if relative in JOIN_ONLY_CALLER_FILES:
+            # A join-only caller is bound only where the join's file exists; a
+            # K-D5 snapshot keeps its exact original 17-pair inventory.
+            if not os.path.exists(os.path.join(snapshot, caller_file)):
+                continue
+            expected += len(methods)
         with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
             text = stream.read()
         body, line = _indented_function(text, name)
@@ -195,6 +230,6 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError("KD5C5: an inside-owner caller cannot be excluded")
         inventory.extend({"caller": f"{caller_file}:{line}:{name}", "name": method,
                           "exclude_targets": [targets[method]]} for method in methods)
-    if len(inventory) != 17 or len({(r["caller"], r["name"]) for r in inventory}) != 17:
+    if len(inventory) != expected or len({(r["caller"], r["name"]) for r in inventory}) != expected:
         raise ValueError("KD5C5: exact outside caller/method inventory changed")
     return inventory
