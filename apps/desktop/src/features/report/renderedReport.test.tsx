@@ -108,9 +108,10 @@ function inventedResult(): MechanicsResult {
   } as unknown as MechanicsResult;
 }
 
+/** An invented record of the one current analysis-run version (0.3.0), hand-built for render coverage. */
 function inventedRun(): AnalysisRunEnvelope {
   return {
-    schema_version: "0.1.0",
+    schema_version: "0.3.0",
     deliverable_id: "DEL-14-02",
     package_id: "PKG-14",
     scope_item: "SOW-072",
@@ -150,7 +151,7 @@ function inventedRun(): AnalysisRunEnvelope {
           algorithm: "sha256",
           canonicalization: "rfc8785_jcs",
           payload_ref: { object_type: "ResultEnvelope", ref: "result-envelope:run:render-test-001" },
-          payload_scope: "result_envelope",
+          payload_scope: "received_result",
           value: "invented-result-envelope-hash"
         }
       ],

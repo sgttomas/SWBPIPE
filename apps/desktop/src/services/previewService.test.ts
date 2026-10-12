@@ -5,7 +5,6 @@ import denseMechanicsFixtureText from "../../../../fixtures/product_preview/inve
 const sparseMechanicsFixture = JSON.parse(sparseMechanicsFixtureText), denseMechanicsFixture = JSON.parse(denseMechanicsFixtureText);
 import inventedPreviewModel from "../../../../fixtures/product_preview/invented_preview_model.json";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../test/nativeMechanicsReplay";
-import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
 import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding } from "../features/results/resultStanding";
@@ -132,7 +131,6 @@ describe("previewService explicit reference inspection and browser refusal", () 
 
   it("preserves the historical-format carrier's nonlinear evidence without calling it a fresh solve", async () => {
     const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
-    const run = await buildAnalysisRunV02(result, await manifestFor(result));
 
     expect(
       result.results.find(
@@ -217,12 +215,6 @@ describe("previewService explicit reference inspection and browser refusal", () 
         (item) => item.code === "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       ),
     ).toBe(true);
-    expect(
-      run.analysis_run.result_refs.find(
-        (item) =>
-          item.result_ref.ref === "result:nonlinear-support:iteration-count",
-      )?.result_family,
-    ).toBeNull();
   });
 
   it("throws the specific edited-model backend error before creating a raw result", async () => {

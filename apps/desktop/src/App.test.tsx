@@ -9,7 +9,7 @@ import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } fr
 import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
-import { analysisRowSemantics, buildAnalysisRunV02, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
+import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
 import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
@@ -14299,15 +14299,22 @@ describe("persistent modeling workspace", () => {
 async function workflowStoredEnvelope() {
   const model = await loadPreviewModel();
   const envelope = inventedOpenEnvelope(model);
+  // A saved run with a current (0.3.0) record: the demo carrier's rows under a
+  // synthetic precision-1 header (a header-only route), as saved history only.
   const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
-  result.model_ref = envelope.model.project.id;
+  Object.assign(result, {
+    schema_version: "0.2.0", model_ref: envelope.model.project.id,
+    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: "openpipestress.result_semantics/0.3.0/precision-1" },
+    numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] },
+    formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic saved-history fixture only"] },
+  });
   const inputManifest = await buildCurrentSessionInputManifest({
     model: envelope.model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
+    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
     active_rule_packs: [], external_assets: []
   });
   envelope.mechanics_result = result;
-  envelope.analysis_run = await buildAnalysisRunV02(result, inputManifest);
+  envelope.analysis_run = await buildAnalysisRunV03(result, inputManifest);
   // Deliberately inconsistent saved hash stays evidence, never fresh identity.
   envelope.model_hash = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: envelope.model.project.id, value: `sha256:${"f".repeat(64)}`, hash_status: "computed_local_preview" };
   return envelope;

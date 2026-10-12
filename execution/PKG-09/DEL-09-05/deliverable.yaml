@@ -152,7 +152,7 @@ code_paths:
 checks:
 - tests/security
 - tests/security/test_secret_private_library_handling.py
-- tests/test_analysis_run_records.py
+- tests/test_analysis_run_compatibility.py
 - tests/test_analysis_status_schema.py
 - tests/test_calculation_witness.py
 - tests/test_headless_runner_contract.py

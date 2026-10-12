@@ -111,35 +111,26 @@ test("recorded reference sources retain the original row, quantity, unit and dia
   // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
 });
 
-test("pure recorded-source projections retain quantity and comparison unit oracles", async ({ page }) => {
+test("the pure recorded-source projection retains quantity unit oracles", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   // This calls a pure projection in isolation. It neither registers a source nor
-  // puts a result/analysis record into the App's Current state or export route.
+  // puts a result into the App's Current state or export route. A historical
+  // carrier has no analysis record (one current record version), so no comparison
+  // is built from it.
   const projection = await page.evaluate(async ({ model, result }) => {
     const modulePath = "/src/features/native-package/NativePackagePanel.tsx";
     const servicePath = "/src/services/previewService.ts";
-    const analysisPath = "/src/services/analysisRunCompatibility.ts";
-    const manifestPath = "/src/services/inputManifestService.ts";
     const { buildUnitPreservationEvidence } = await import(/* @vite-ignore */ modulePath);
-    const { buildPreviewComparison, hasNativeMechanicsInvocation } = await import(/* @vite-ignore */ servicePath);
-    const { buildAnalysisRunV02 } = await import(/* @vite-ignore */ analysisPath);
-    const { buildCurrentSessionInputManifest } = await import(/* @vite-ignore */ manifestPath);
+    const { hasNativeMechanicsInvocation } = await import(/* @vite-ignore */ servicePath);
     const before = JSON.stringify({ model, result });
     const evidence = buildUnitPreservationEvidence({ model, result });
-    const manifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: "reference-only-projection", solver_version: "unavailable", solver_build_ref: "unavailable-preserved-history", solver_mode: "recorded_reference", settings: {} }, active_rule_packs: [], external_assets: [] });
-    const analysisRun = await buildAnalysisRunV02(result, manifest);
-    const comparison = buildPreviewComparison({ result, analysisRun });
-    return { summary: evidence.summary, conversion: evidence.conversion_performed, comparison: comparison.unit_policy_evidence, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
+    return { summary: evidence.summary, conversion: evidence.conversion_performed, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
   }, { model: demoModel, result: historicalSource });
   expect(projection.summary.project_unit_declaration_count).toBe(6);
   expect(projection.summary.model_quantity_witness_count).toBe(40);
   expect(projection.summary.result_quantity_witness_count).toBe(514);
   expect(projection.conversion).toBe(false);
-  // The demo's mechanics combination is withheld for its nonlinear supports: no rows to compare.
-  expect(projection.comparison.matched_result_units).toEqual([]);
-  expect(projection.comparison.conversion_performed).toBe(false);
-  expect(projection.comparison.tolerance_status).toBe("not_tolerance_checked");
   expect(projection.registered).toBe(false);
   expect(projection.unchanged).toBe(true);
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);

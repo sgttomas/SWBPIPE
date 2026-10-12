@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult } from "../types";
-import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference, validateRetainedRecoverySource } from "./analysisRunCompatibility";
+import { ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference, validateRetainedRecoverySource } from "./analysisRunCompatibility";
 import combinationSuccessor from "../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
 import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
 import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
@@ -8,7 +8,7 @@ import { PRECISION_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import { sourceContract } from "../features/results/resultReader";
 import sourceBlocks from "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
-import expectedRecord from "../../../../fixtures/analysis_runs/invented/analysis_run_v0_2.json";
+import historicalResult from "../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
 
 const result: MechanicsResult = {
   schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "run:test", model_ref: "model:test",
@@ -17,26 +17,21 @@ const result: MechanicsResult = {
 };
 const manifest = { manifest_ref: { object_type: "InputManifest" as const, ref: "input-manifest:test" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: "model:test" }, solver_basis: { solver_name: "solver", solver_version: "0.1.0", solver_build_ref: "build:test" } } };
 
-describe("analysis record 0.2", () => {
-  it("preserves raw rows and binds immutable rule revisions", async () => {
-    const before = structuredClone(result);
-    const first = await buildAnalysisRunV02(result, manifest);
-    const revised = await buildAnalysisRunV02(result, manifest, "USER_RULE_CHECKED");
-    expect(result).toEqual(before);
-    expect(first.schema_version).toBe("0.2.0");
-    expect(first.analysis_run.result_refs).toHaveLength(1);
-    expect(first.analysis_run.analysis_status).not.toContain("NOT_PROVIDED");
-    expect(first.analysis_run.solver_version).toEqual({ solver_name: "solver", solver_version: "0.1.0", build_ref: { object_type: "ExternalReference", ref: "build:test" } });
-    expect(first.analysis_run.hashes.find((row) => row.payload_scope === "received_result")?.value).toBe(revised.analysis_run.hashes.find((row) => row.payload_scope === "received_result")?.value);
-    expect(first.analysis_run.hashes.find((row) => row.payload_scope === "analysis_run_record")?.value).not.toBe(revised.analysis_run.hashes.find((row) => row.payload_scope === "analysis_run_record")?.value);
-    expect(await verifyAnalysisRunRecord(first)).toBe("match");
+describe("analysis record versions", () => {
+  it.each(["0.1.0", "0.2.0"])("refuses a saved %s record by name: re-run the analysis", async version => {
+    const record = { schema_version: version, analysis_run: { run_id: "run:test", hashes: [] } } as never;
+    await expect(verifyAnalysisRunRecord(record)).rejects.toThrow(`${ANALYSIS_RUN_SCHEMA_VERSION_RETIRED}: analysis-run ${version} is no longer read; re-run the analysis`);
   });
 
-  it("matches the language-neutral Python fixture byte for byte", async () => {
-    const withBasis = structuredClone(result);
-    withBasis.results[0].basis_ref = { ref_type: "load_case", ref_id: "load:test" };
-    expect(await buildAnalysisRunV02(withBasis, manifest)).toEqual(expectedRecord);
-    expect(await verifyAnalysisRunRecord(expectedRecord as never)).toBe("match");
+  it("refuses an unknown record version", async () => {
+    await expect(verifyAnalysisRunRecord({ schema_version: "0.9.0", analysis_run: { run_id: "run:test", hashes: [] } } as never)).rejects.toThrow("ANALYSIS-RUN-SCHEMA-VERSION-UNSUPPORTED: 0.9.0");
+  });
+
+  it("never records a historical result, in any version", async () => {
+    const historical = structuredClone(historicalResult) as unknown as MechanicsResult;
+    const before = JSON.stringify(historical);
+    await expect(buildAnalysisRunV03(historical, { ...manifest, manifest: { ...manifest.manifest, model_basis: { model_ref: historical.model_ref } } })).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+    expect(JSON.stringify(historical)).toBe(before);
   });
 
   it("rejects unsupported JavaScript shapes before transport", () => {
@@ -70,7 +65,6 @@ it("binds the exact precision semantic contract and rejects unknown raw headers"
   precisionManifest.manifest.solver_basis.solver_name = raw.producer.component_name; precisionManifest.manifest.solver_basis.solver_version = raw.producer.component_version;
   const record = await buildAnalysisRunV03(raw, precisionManifest);
   expect(record.schema_version).toBe("0.3.0");
-  await expect(buildAnalysisRunV02(raw, manifest)).rejects.toThrow("HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED");
   expect(record.analysis_run.reproducibility.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
   expect(await verifyAnalysisRunRecord(record)).toBe("match");
   for (const modelState of [
@@ -92,19 +86,6 @@ it("binds the exact precision semantic contract and rejects unknown raw headers"
     bad.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(bad));
     expect(await verifyAnalysisRunRecord(bad)).toBe("match");
     await expect(validateAnalysisRunV03(bad, raw)).rejects.toThrow("ANALYSIS_");
-  }
-});
-
-it("historical construction rejects every present falsy precision metadata field", async () => {
-  for (const version of ["0.1.0", "0.2.0"]) {
-    for (const key of ["producer", "numerical_quality", "formulation_basis"]) {
-      for (const value of [null, false, 0, ""]) {
-        const contradictory = Object.assign(structuredClone(result), { schema_version: version, [key]: value });
-        const before = JSON.stringify(contradictory);
-        await expect(buildAnalysisRunV02(contradictory, manifest)).rejects.toThrow("HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED");
-        expect(JSON.stringify(contradictory)).toBe(before);
-      }
-    }
   }
 });
 

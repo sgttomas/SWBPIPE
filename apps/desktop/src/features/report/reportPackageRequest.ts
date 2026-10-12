@@ -96,27 +96,21 @@ function requireSha256(label: string, value: string): void {
 function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, inputManifest: CurrentSessionInputManifestEvidence) {
   const manifestSolver = inputManifest.manifest.solver_basis;
   const recordedSolver = analysisRun.analysis_run.solver_version;
-  const precision = analysisRun.schema_version === "0.3.0";
-  if (!precision && (!(result.schema_version === "0.1.0" || result.schema_version === "0.2.0") ||
-    ["producer", "numerical_quality", "formulation_basis", "source_block_recovery"].some(key => Object.hasOwn(result, key)))) {
-    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
-  }
-  // Legacy 0.1 records may lack a solver-version field; the verified manifest
-  // still supplies recorded identity. Strict records must carry both records.
-  if ((!recordedSolver && analysisRun.schema_version !== "0.1.0") ||
+  // Only a current (0.3.0) record reaches here; it must carry its recorded identity.
+  if (!recordedSolver ||
     (recordedSolver && (recordedSolver.solver_name !== manifestSolver.solver_name ||
       recordedSolver.solver_version !== manifestSolver.solver_version ||
       recordedSolver.build_ref?.ref !== manifestSolver.solver_build_ref))) {
     throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: analysis record and verified manifest differ.");
   }
-  if (precision && (sourceContract(result) !== "precision" ||
+  if (sourceContract(result) !== "precision" ||
     result.producer!.component_name !== manifestSolver.solver_name ||
-    result.producer!.component_version !== manifestSolver.solver_version)) {
+    result.producer!.component_version !== manifestSolver.solver_version) {
     throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: recorded identity differs from the received producer.");
   }
   return {
-    solver_name: precision ? result.producer!.component_name : manifestSolver.solver_name,
-    solver_version: precision ? result.producer!.component_version : manifestSolver.solver_version,
+    solver_name: result.producer!.component_name,
+    solver_version: result.producer!.component_version,
     solver_build_ref: manifestSolver.solver_build_ref
   };
 }

@@ -128,9 +128,8 @@ fn export_severity(severity: &str) -> export::DiagnosticSeverity {
     }
 }
 
-/// Deterministic diagnostic-class mapping for solve diagnostics, following
-/// the existing `core/analysis_runs/records.py::_diagnostic_class` precedent
-/// extended with the nonlinear class.
+/// Deterministic diagnostic-class mapping for solve diagnostics (the mapping
+/// the retired 0.1 analysis-run builder used), extended with the nonlinear class.
 fn export_diagnostic_class(code: &str, severity: &str) -> export::DiagnosticClass {
     if code.contains("RULE") {
         if severity == "blocking" {

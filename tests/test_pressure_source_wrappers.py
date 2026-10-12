@@ -140,11 +140,7 @@ def test_pressure_reader_response_shape_and_binding_fail_closed(controlled_rust)
         c._source_contract(invented_source())
 
 
-def test_current_pressure_record_copies_both_namespaces_and_does_not_take_legacy_path(controlled_rust, monkeypatch):
-    def legacy_forbidden(*args, **kwargs):
-        raise AssertionError("Pressure source must select the current record")
-
-    monkeypatch.setattr(c, "build_analysis_run_v0_2", legacy_forbidden)
+def test_current_pressure_record_copies_both_namespaces(controlled_rust):
     source = invented_source()
     before = deepcopy(source)
     record = build_record(source)

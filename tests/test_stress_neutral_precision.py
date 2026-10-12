@@ -3,7 +3,7 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import pytest
-from core.analysis_runs.compatibility import build_analysis_run_v0_3, build_analysis_run_v0_2, validate_analysis_run_v0_3, verify_analysis_run_record
+from core.analysis_runs.compatibility import build_analysis_run_v0_3, validate_analysis_run_v0_3, verify_analysis_run_record
 from core.handoff.stress_neutral.package import (
     build_stress_neutral_export_package, validate_stress_neutral_export_package,
     materialized_members, package_projection, source_row_projection,
@@ -56,7 +56,6 @@ def test_new_source_analysis_and_neutral_share_exact_values_and_hashes(tmp_path)
     for version in ('0.1.0', '0.2.0'):
         old_packet = deepcopy(packet); old_packet['schema_version'] = version
         with pytest.raises(ValueError,match='SN-VERSION-UNSUPPORTED'): validate_stress_neutral_export_package(old_packet)
-    with pytest.raises(ValueError,match='DOWNGRADE'):build_analysis_run_v0_2(raw,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
 
 def test_rehashed_metadata_and_source_mismatch_are_not_authenticated():
     raw,analysis,args=prepare();packet=build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**args)

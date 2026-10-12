@@ -9,7 +9,8 @@ import { buildCurrentSessionInputManifest } from "../../services/inputManifestSe
 import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
-import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {readerRowSemantics} from "../results/resultReader";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
@@ -18,38 +19,17 @@ import { N_P1, N_REPORT } from "../results/knownSemanticLimitations";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
-// T0R: the report package refuses every fresh identity until T6 (owner-accepted
-// outage, N-REPORT) and precision-1 is historical only (N-P1); the gate is asserted
-// below. The assembly, binding and refusal checks stay reachable through the
-// public path for a historical legacy (0.1.0, no producer) carrier with a 0.2
-// analysis run (`legacySession()`), and the strict 0.3.0 branch T6 will reuse is
-// exercised below the gate with the historical precision-1 session as data
-// (`assembleReportPackageRequestBelowAvailabilityGate`, a test-only seam).
-
-// Unit transport simulation: the bundled demo's historical-format (0.1.0) carrier
-// is returned through mocked native IPC for the demo model, so the production
-// registrar binds it to the actual captured request. NOT a live solve or native
-// UI witness; it only keeps the legacy report-package path under test.
+// The report package refuses every fresh identity (N-REPORT) and precision-1 is
+// historical only (N-P1); the gate is asserted below. Analysis runs keep one
+// current version (0.3.0), so no historical carrier can be recorded: the assembly,
+// binding and refusal checks are exercised below the gate with the registered
+// precision-1 session as data (`assembleReportPackageRequestBelowAvailabilityGate`,
+// a test-only seam).
+const assembleBelowGate = assembleReportPackageRequestBelowAvailabilityGate;
 const loadDemoModel = async () => structuredClone(demoModel) as PreviewModel;
-async function legacySession(solverBuildRef = "open_pipe_stress_product_physics@0.1.0") {
-  const model = await loadDemoModel();
-  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async (command: string) => {
-    if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`LEGACY_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
-    return solveBytes(historicalResult);
-  });
-  const result = await runPreviewMechanics(model) as MechanicsResult;
-  const inputManifest = await buildCurrentSessionInputManifest({
-    model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: solverBuildRef, solver_mode: "sparse_interactive", settings: {} },
-    active_rule_packs: [], external_assets: []
-  });
-  const analysisRun = await buildAnalysisRunV02(result, inputManifest);
-  return { model, result, inputManifest, analysisRun };
-}
 
 // Actual captured full-UI pair through unit IPC replay, NOT native UI qualification.
-async function currentSession(profile: "precision" | "physics" | "preview" = "precision") {
+async function currentSession(profile: "precision" | "physics" | "preview" = "precision", solverBuildRef = "open_pipe_stress_product_physics@0.2.0") {
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createNativeMechanicsReplay({ profile }).invoke);
@@ -59,7 +39,7 @@ async function currentSession(profile: "precision" | "physics" | "preview" = "pr
     solver: {
       solver_name: "open_pipe_stress_product_physics",
       solver_version: "0.2.0",
-      solver_build_ref: "open_pipe_stress_product_physics@0.2.0",
+      solver_build_ref: solverBuildRef,
       solver_mode: "sparse_interactive",
       settings: {
         nonlinear_iteration_policy:
@@ -76,18 +56,24 @@ async function currentSession(profile: "precision" | "physics" | "preview" = "pr
   return { model, result, inputManifest, analysisRun };
 }
 
-// Historical projection compatibility only: no fresh solve is requested for
-// the provenance-edited model. The received legacy carrier's rows stand for the
-// given model's record (its model_ref is bound to that model); nothing else changes.
-async function legacyProvenanceSession(model: PreviewModel) {
-  const result = structuredClone(historicalResult) as MechanicsResult;
-  result.model_ref = model.project.id;
+// Pure projection only: no fresh solve is requested for the given model. The demo
+// carrier's rows under a synthetic precision-1 header (a header-only route) stand for
+// the given model's received result (its model_ref is bound to that model), with a
+// current 0.3.0 record; nothing else changes.
+async function syntheticPrecisionSession(model: PreviewModel) {
+  const result = structuredClone(historicalResult) as unknown as MechanicsResult;
+  Object.assign(result, {
+    schema_version: "0.2.0", model_ref: model.project.id,
+    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID },
+    numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] },
+    formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic report-projection fixture only"] },
+  });
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
+    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
     active_rule_packs: [], external_assets: []
   });
-  const analysisRun = await buildAnalysisRunV02(result, inputManifest);
+  const analysisRun = await buildAnalysisRunV03(result, inputManifest);
   return { model, result, inputManifest, analysisRun };
 }
 
@@ -102,7 +88,7 @@ describe("report-package current-session request", () => {
     );
     expect(missingComponent).toBeDefined();
     missingComponent!.provenance = "";
-    const { model, result, inputManifest, analysisRun } = await legacyProvenanceSession(
+    const { model, result, inputManifest, analysisRun } = await syntheticPrecisionSession(
       modelWithMissingProvenance
     );
     const manifestComponent = inputManifest.manifest.model_basis.model_payload.components.find(
@@ -117,9 +103,10 @@ describe("report-package current-session request", () => {
     });
 
     const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null });
-    const historicalIdentity = { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" };
-    expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: historicalIdentity.solver_name, solver_version: historicalIdentity.solver_version, build_ref: { ref: historicalIdentity.solver_build_ref } });
-    expect(result).toEqual({ ...historicalResult, model_ref: model.project.id });
+    const recordedIdentity = inputManifest.manifest.solver_basis;
+    expect(analysisRun.schema_version).toBe("0.3.0");
+    expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: recordedIdentity.solver_name, solver_version: recordedIdentity.solver_version, build_ref: { ref: recordedIdentity.solver_build_ref } });
+    expect(result.results).toEqual(historicalResult.results);
     const sections = projected.report_sections;
     const presentId = componentProvenanceProjection.present_component.value.value_id;
     const missingId = componentProvenanceProjection.missing_component.value.value_id;
@@ -151,13 +138,13 @@ describe("report-package current-session request", () => {
 
   it("maps the actual manifest, source dimensions, private copies, and DEL-08-06 records without mutating sources", async () => {
     const { model, result, inputManifest, analysisRun } =
-      await legacySession();
+      await currentSession("precision");
     const comparison = buildPreviewComparison({ result, analysisRun });
     const modelSnapshot = structuredClone(model);
     const resultSnapshot = structuredClone(result);
     const runSnapshot = structuredClone(analysisRun);
 
-    const request = await buildReportPackageRequest({
+    const request = await assembleBelowGate({
       model,
       result,
       analysisRun,
@@ -167,15 +154,12 @@ describe("report-package current-session request", () => {
       ruleCheckAggregate: null
     });
 
-    // A legacy carrier has no producer header: the verified manifest supplies the recorded identity.
-    expect(result.producer).toBeUndefined();
-    const sourceIdentity = { solver_name: inputManifest.manifest.solver_basis.solver_name, solver_version: inputManifest.manifest.solver_basis.solver_version, solver_build_ref: inputManifest.manifest.solver_basis.solver_build_ref };
-    expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" });
+    // The received producer header and the verified manifest supply the recorded identity.
+    const sourceIdentity = { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: inputManifest.manifest.solver_basis.solver_build_ref };
+    expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" });
     expect(request.result_envelopes[0]).toMatchObject(sourceIdentity);
     expect(request.audit_manifest.solver_version).toEqual(sourceIdentity);
-    expect(result.schema_version).toBe("0.1.0");
-    expect(analysisRun.schema_version).toBe("0.2.0");
-    expect(result.results.every(row => row.dimension === undefined)).toBe(true);
+    expect(analysisRun.schema_version).toBe("0.3.0");
     const dimensions = request.result_envelopes[0].result_sets.flatMap(set => set.values).map(value => value.dimension);
     expect(dimensions).toEqual(expect.arrayContaining(["force", "moment"]));
     expect(request.export_profile_id).toBe("desktop_local_private_report_package_1");
@@ -222,7 +206,7 @@ describe("report-package current-session request", () => {
   });
 
   it("preserves historical fixture component and hanger input oracles as an unqualified projection", async () => {
-    const session = await legacyProvenanceSession(await loadDemoModel());
+    const session = await syntheticPrecisionSession(await loadDemoModel());
     const before = JSON.stringify(session);
     const projection = projectReceivedReportResults(session.result, session.analysisRun);
     const report = await buildRenderableReportInput({ ...session, projectSummary: null });
@@ -262,7 +246,7 @@ describe("report-package current-session request", () => {
   });
 
   it("blocks a same-ID model whose canonical payload differs from the verified manifest", async () => {
-    const { model, result, inputManifest, analysisRun } = await legacySession();
+    const { model, result, inputManifest, analysisRun } = await currentSession("precision");
     const changedModel = structuredClone(model);
     changedModel.project.description = `${changedModel.project.description} changed after manifest`;
 
@@ -271,7 +255,7 @@ describe("report-package current-session request", () => {
       await canonicalSha256Hex(inputManifest.manifest.model_basis.model_payload)
     );
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model: changedModel,
         result,
         analysisRun,
@@ -284,7 +268,7 @@ describe("report-package current-session request", () => {
   });
 
   it("accepts canonically equal model payloads with reordered object keys", async () => {
-    const { model, result, inputManifest, analysisRun } = await legacySession();
+    const { model, result, inputManifest, analysisRun } = await currentSession("precision");
     const reorderedModel = structuredClone(model);
     reorderedModel.project.units = Object.fromEntries(
       Object.entries(reorderedModel.project.units).reverse()
@@ -293,7 +277,7 @@ describe("report-package current-session request", () => {
 
     expect(JSON.stringify(reorderedModel)).not.toBe(JSON.stringify(model));
     expect(await canonicalSha256Hex(reorderedModel)).toBe(canonicalModelHash);
-    const request = await buildReportPackageRequest({
+    const request = await assembleBelowGate({
       model: reorderedModel,
       result,
       analysisRun,
@@ -307,11 +291,10 @@ describe("report-package current-session request", () => {
   });
 
   it("blocks every non-null rule-check aggregate before assembly", async () => {
-    const { model, result, inputManifest } = await legacySession();
-    const analysisRun = await buildAnalysisRunV02(result, inputManifest, "RULE_INPUTS_INCOMPLETE");
+    const { model, result, inputManifest, analysisRun } = await currentSession("precision");
 
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model,
         result,
         analysisRun,
@@ -338,7 +321,7 @@ describe("report-package current-session request", () => {
 
   it("blocks a source dimension that contradicts exact result kind semantics", async () => {
     const { model, result, inputManifest, analysisRun } =
-      await legacySession();
+      await currentSession("precision");
     const mismatched = structuredClone(analysisRun);
     const target = mismatched.analysis_run.result_refs.find(
       (item) =>
@@ -352,7 +335,7 @@ describe("report-package current-session request", () => {
     target!.source_dimension = "stress";
 
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model,
         result,
         analysisRun: mismatched,
@@ -366,12 +349,12 @@ describe("report-package current-session request", () => {
 
   it("blocks missing or mismatched manifest evidence and malformed SHA-256 before assembly", async () => {
     const { model, result, inputManifest, analysisRun } =
-      await legacySession();
+      await currentSession("precision");
     const missing = structuredClone(analysisRun);
     missing.analysis_run.reproducibility.input_manifest_refs = [];
     missing.analysis_run.reproducibility.input_manifest_hashes = [];
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model,
         result,
         analysisRun: missing,
@@ -385,7 +368,7 @@ describe("report-package current-session request", () => {
     const malformed = structuredClone(analysisRun);
     malformed.analysis_run.hashes[0].value = "A".repeat(64);
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model,
         result,
         analysisRun: malformed,
@@ -399,7 +382,7 @@ describe("report-package current-session request", () => {
     const mismatched = structuredClone(inputManifest);
     mismatched.manifest.model_basis.model_ref = "project:different";
     await expect(
-      buildReportPackageRequest({
+      assembleBelowGate({
         model,
         result,
         analysisRun,
@@ -417,7 +400,7 @@ describe("report-package current-session request", () => {
       const wrongIdentity = structuredClone(inputManifest);
       wrongIdentity.manifest_ref.ref = ref;
       await expect(
-        buildReportPackageRequest({
+        assembleBelowGate({
           model,
           result,
           analysisRun,
@@ -430,27 +413,27 @@ describe("report-package current-session request", () => {
     }
   });
   it("rejects future analysis versions and missing current received-result hashes", async () => {
-    const session = await legacySession();
+    const session = await currentSession("precision");
     const future = structuredClone(session.analysisRun);
     future.schema_version = "0.4.0";
-    await expect(buildReportPackageRequest({ ...session, analysisRun: future, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    await expect(assembleBelowGate({ ...session, analysisRun: future, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
       .rejects.toThrow("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
     const futureSource = structuredClone(session.result);
     futureSource.schema_version = "0.4.0";
-    await expect(buildReportPackageRequest({ ...session, result: futureSource, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    await expect(assembleBelowGate({ ...session, result: futureSource, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
       .rejects.toThrow("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
     const missing = structuredClone(session.analysisRun);
     missing.analysis_run.hashes = missing.analysis_run.hashes.filter(hash => hash.payload_scope !== "received_result");
-    await expect(buildReportPackageRequest({ ...session, analysisRun: missing, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    await expect(assembleBelowGate({ ...session, analysisRun: missing, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
       .rejects.toThrow("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE");
   });
 
   it("discloses a synthetic unknown row on the unqualified historical projection without inferring force from N", async () => {
-    const { model, result, inputManifest } = await legacyProvenanceSession(await loadDemoModel());
+    const { model, result, inputManifest } = await syntheticPrecisionSession(await loadDemoModel());
     const annotated = structuredClone(result);
     const unknownId = "result:test:unregistered-source";
     annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });
-    const analysisRun = await buildAnalysisRunV02(annotated, inputManifest);
+    const analysisRun = await buildAnalysisRunV03(annotated, inputManifest);
     const before = JSON.stringify(annotated);
     const projection = projectReceivedReportResults(annotated, analysisRun);
     expect(projection.resultSets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);
@@ -459,12 +442,12 @@ describe("report-package current-session request", () => {
   });
 
   it.each(["solver_name", "solver_version", "build_ref"] as const)("rejects recorded %s that differs from the verified manifest", async field => {
-    const session = await legacySession();
+    const session = await currentSession("precision");
     const analysisRun = structuredClone(session.analysisRun);
     const solver = analysisRun.analysis_run.solver_version!;
     if (field === "build_ref") solver.build_ref.ref = "build:conflicting-record";
     else solver[field] = "conflicting-record";
-    await expect(buildReportPackageRequest({ ...session, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    await expect(assembleBelowGate({ ...session, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
       .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
   });
 
@@ -499,8 +482,8 @@ describe("report-package current-session request", () => {
 
   it("preserves a consistent recorded build reference without inventing one from producer version", async () => {
     const recordedBuild = "build:captured-historical-product-physics";
-    const session = await legacySession(recordedBuild);
-    const request = await buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null });
+    const session = await currentSession("precision", recordedBuild);
+    const request = await assembleBelowGate({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null });
     expect(request.result_envelopes[0].solver_build_ref).toBe(recordedBuild);
     expect(request.audit_manifest.solver_version.solver_build_ref).toBe(recordedBuild);
     expect(request.audit_manifest.solver_version.solver_version).toBe(session.inputManifest.manifest.solver_basis.solver_version);
@@ -510,9 +493,9 @@ describe("report-package current-session request", () => {
 
 
 it("refuses an imported or cloned source even when its manifest and analysis hashes match", async () => {
-  const session = await legacySession();
+  const session = await currentSession("precision");
   const clone = structuredClone(session.result), before = JSON.stringify(clone);
-  await expect(buildReportPackageRequest({ ...session, result: clone, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+  await expect(assembleBelowGate({ ...session, result: clone, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
     .rejects.toThrow("REPORT-PACKAGE-NATIVE-INVOCATION-REQUIRED");
   expect(JSON.stringify(clone)).toBe(before);
 });

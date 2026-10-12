@@ -49,7 +49,8 @@ def test_history_never_becomes_current_from_source_or_input_authenticity():
     old=deepcopy(raw);old['schema_version']='0.1.0'
     for key in ['producer','numerical_quality','formulation_basis']:del old[key]
     assert numerical_use_standing(old,[BASIS])=='needs_recompute'
-    assert build(old)['analysis_run']['reproducibility']['semantic_contract']['id']=='openpipestress_result_semantics_v0_2'
+    # A historical result is never recorded: analysis runs keep one current version (E1).
+    with pytest.raises(ValueError,match='^ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH$'):build(old)
     quality=raw['numerical_quality'];quality['status']='checks_passed'
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     quality['cases']=[{'basis_ref':BASIS,'structural_status':'passive_model_basis','solve_quality':'checks_passed','model_matrix_fidelity':'represented_equations_retained','accuracy_evidence':'not_claimed','evidence_refs':['result:rotation']}]

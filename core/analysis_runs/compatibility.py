@@ -1,6 +1,8 @@
-"""Versioned analysis-record compatibility and strict 0.2 construction.
+"""The analysis-run record builder and validator (DEL-14-02): 0.3.0 only.
 
-The analysis-run record builder and validator (DEL-14-02). Every reading of a result
+One current record version is kept (b7-plan E1). A saved 0.1.0 or 0.2.0 record is
+refused by name (`ANALYSIS_RUN_SCHEMA_VERSION_RETIRED`; re-run the analysis), and a
+result that no current record contract reads is refused for recording. Every reading of a result
 statement here is the Rust product reader's verdict (b7-plan R1, R2), taken through
 `rust_reader` (`openpipestress-runner read`): the header dispatch and each route's reader
 (`_source_contract`), standing, classification summary and rule binding. Nothing here
@@ -17,19 +19,22 @@ from typing import Any, Callable, Mapping
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
 from . import rust_reader
 
-SCHEMA_VERSION = "0.2.0"
+SCHEMA_VERSION = "0.3.0"
+# Analysis-run versions that are no longer read or written; refused by name.
+RETIRED_SCHEMA_VERSIONS = frozenset({"0.1.0", "0.2.0"})
+ANALYSIS_RUN_SCHEMA_VERSION_RETIRED = "ANALYSIS_RUN_SCHEMA_VERSION_RETIRED"
 PROFILE = "openpipestress_jcs_ijson_v1"
 SEMANTIC_CONTRACT_SHA256 = "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
 SEMANTIC_CONTRACT_ID = "openpipestress_result_semantics_v0_2"
 _CONTRACT_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_2.json"
 
 
-def _semantic_rows(path: Path = _CONTRACT_PATH) -> list[dict[str, Any]]:
+def _semantic_rows(path: Path) -> list[dict[str, Any]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     return payload["rows"]
 
 
-def _semantic(row: Mapping[str, Any], path: Path = _CONTRACT_PATH) -> tuple[dict[str, Any] | None, list[str]]:
+def _semantic(row: Mapping[str, Any], path: Path) -> tuple[dict[str, Any] | None, list[str]]:
     kind = str(row.get("kind", ""))
     unit = str(row.get("unit", ""))
     candidates = [entry for entry in _semantic_rows(path) if entry["kind"] == kind]
@@ -85,20 +90,11 @@ def _build_analysis_run(
     solver_name: str = "unavailable:not-supplied", solver_version: str = "unavailable:not-supplied",
     solver_build_ref: Mapping[str, str] | None = None, settings_ref: Mapping[str, str] | None = None,
     unit_system_ref: Mapping[str, str] | None = None,
-    record_version: str = "0.2.0",
 ) -> dict[str, Any]:
     received = deepcopy(dict(mechanics_result))
-    if record_version == "0.2.0":
-        if any(key in received for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery", "retained_precision")) or _has_retained_rows(received):
-            raise ValueError("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
-        source_version = received.get("schema_version")
-        if type(source_version) is not str or source_version not in ("0.1.0", "0.2.0"):
-            raise ValueError("ANALYSIS_LEGACY_SOURCE_VERSION_UNSUPPORTED")
-        contract_id, contract_hash, contract_path = SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
-    else:
-        contract_id, contract_hash, contract_path = _source_contract(received)
-        if contract_id not in CURRENT_RECORD_CONTRACT_IDS:
-            raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
+    contract_id, contract_hash, contract_path = _source_contract(received)
+    if contract_id not in CURRENT_RECORD_CONTRACT_IDS:
+        raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run_id = str(received.get("run_id", "run:unknown"))
     rows = [deepcopy(dict(row)) for row in received.get("results", []) if isinstance(row, Mapping)]
     refs = []
@@ -149,13 +145,13 @@ def _build_analysis_run(
         if key not in seen_basis:
             seen_basis.add(key)
             load_basis_refs.append({"object_type": object_type, "ref": str(basis.get("ref_id"))})
-    provenance = {"source_name": f"OpenPipeStress analysis record {record_version[:-2]}", "source_location": f"analysis_run.compatibility.v{record_version[:-2]}", "source_license": "project-governed", "review_status": "pending", "professional_claim": False}
+    provenance = {"source_name": "OpenPipeStress analysis record 0.3", "source_location": "analysis_run.compatibility.v0.3", "source_license": "project-governed", "review_status": "pending", "professional_claim": False}
     determinism_notes = (["created_at_unavailable"] if created_at is None else []) + (["model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"] if manifest is not None else ["input_manifest_payload_unavailable_solver_settings_unit_basis_not_independently_verified"])
     for row in refs:
         row["provenance"] = deepcopy(provenance)
     envelope: dict[str, Any] = {
-        "schema_version": record_version, "deliverable_id": "DEL-14-02", "package_id": "PKG-14", "scope_item": "SOW-072", "objectives": ["OBJ-016"],
-        "run_contract_status": {"record_contract": "strict_analysis_run_v0_3" if record_version == "0.3.0" else "strict_analysis_run_v0_2", "result_binding": "received_mechanics_result", "external_validation_boundary": "reference_only_not_determined_by_software"},
+        "schema_version": SCHEMA_VERSION, "deliverable_id": "DEL-14-02", "package_id": "PKG-14", "scope_item": "SOW-072", "objectives": ["OBJ-016"],
+        "run_contract_status": {"record_contract": "strict_analysis_run_v0_3", "result_binding": "received_mechanics_result", "external_validation_boundary": "reference_only_not_determined_by_software"},
         "analysis_run": {
             "run_id": run_id, "run_name": f"{run_id} analysis record", "run_kind": "mechanics_solve", "created_at": created_at,
             "model_state_ref": {"object_type": "ModelState", "ref": f"state:{received.get('model_ref', 'unknown')}:preview"},
@@ -182,9 +178,9 @@ def _build_analysis_run(
 
 def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> str:
     version = envelope.get("schema_version")
-    if version not in {SCHEMA_VERSION, "0.3.0"}:
-        if version == "0.1.0":
-            return "unverifiable"
+    if version != SCHEMA_VERSION:
+        if isinstance(version, str) and version in RETIRED_SCHEMA_VERSIONS:
+            raise ValueError(f"{ANALYSIS_RUN_SCHEMA_VERSION_RETIRED}: analysis-run {version} is no longer read; re-run the analysis to record a current {SCHEMA_VERSION} analysis run")
         raise ValueError(f"ANALYSIS-RUN-SCHEMA-VERSION-UNSUPPORTED: {version}")
     matches = [row for row in envelope["analysis_run"]["hashes"] if row.get("payload_scope") == "analysis_run_record"]
     if len(matches) != 1:
@@ -277,13 +273,6 @@ _TABLES = {PRECISION_CONTRACT_ID: (PRECISION_CONTRACT_SHA256, _PRECISION_CONTRAC
            LOAD_REFERENCE_CONTRACT_ID: (LOAD_REFERENCE_CONTRACT_SHA256, _LOAD_REFERENCE_CONTRACT_PATH),
            LOAD_REFERENCE_SOURCE_CONTRACT_ID: (LOAD_REFERENCE_SOURCE_CONTRACT_SHA256, _LOAD_REFERENCE_SOURCE_CONTRACT_PATH),
            **RETAINED_CONTRACTS}
-
-
-def _has_retained_rows(source: Any) -> bool:
-    """F-5 (C1 G6): some raw row carries the W1 method token. The legacy 0.2
-    builder refuses such a source before any reading."""
-    rows = source.get("results") if isinstance(source, Mapping) else None
-    return isinstance(rows, list) and any(isinstance(row, Mapping) and row.get("recovery_method") == RETAINED_METHOD for row in rows)
 
 
 def _same_canonical(a: Any, b: Any) -> bool:
@@ -435,14 +424,6 @@ def rule_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any]) ->
     return rust_reader.rule_binding(envelope, row)
 
 
-def build_analysis_run_v0_2(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
-    """Explicit historical construction; includes original synthetic fixture meanings.
-
-    Excluded from current source dispatch and refuses precision metadata.
-    """
-    return _build_analysis_run(mechanics_result, record_version="0.2.0", **kwargs)
-
-
 RULE_STATUSES = {"RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"}
 
 
@@ -496,7 +477,8 @@ def _expected_load_basis(source: Mapping[str, Any], expected_basis_refs: list[Ma
 
 def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_basis_refs: list[Mapping[str, str]] | None = None, **kwargs: Any) -> dict[str, Any]:
     """Strict source-bound 0.3 record; optional basis is independent evidence."""
-    _source_contract(mechanics_result)
+    if _source_contract(mechanics_result)[0] not in CURRENT_RECORD_CONTRACT_IDS:
+        raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     _validate_source_reference_fields(mechanics_result)
     producer = mechanics_result["producer"]
     kwargs.setdefault("solver_name", producer["component_name"])
@@ -509,7 +491,7 @@ def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_bas
     if not isinstance(effective_rule, str) or effective_rule not in RULE_STATUSES:
         raise ValueError("ANALYSIS_RULE_STATUS_INVALID")
     kwargs["rule_check_status"] = effective_rule
-    record = _build_analysis_run(mechanics_result, record_version="0.3.0", **kwargs)
+    record = _build_analysis_run(mechanics_result, **kwargs)
     record["analysis_run"]["load_basis_refs"] = _expected_load_basis(mechanics_result, expected_basis_refs)
     hash_fn = kwargs.get("hash_fn", canonical_sha256_checked_v1)
     record["analysis_run"]["hashes"][0]["value"] = hash_fn(analysis_record_projection(record))
@@ -518,8 +500,10 @@ def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_bas
 
 
 def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
-    contract, _, _ = _source_contract(mechanics_result)
-    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract in CURRENT_RECORD_CONTRACT_IDS else build_analysis_run_v0_2(mechanics_result, **kwargs)
+    """The current (0.3.0) record; a result no current record contract reads is
+    refused (`ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH`), never recorded in an
+    older format."""
+    return build_analysis_run_v0_3(mechanics_result, **kwargs)
 
 
 def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None) -> None:

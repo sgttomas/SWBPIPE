@@ -175,7 +175,6 @@ needs:
   evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - core/analysis_runs/compatibility.py
-- core/analysis_runs/records.py
 - schemas/analysis_run.schema.json
 - schemas/results.schema.yaml
 checks:

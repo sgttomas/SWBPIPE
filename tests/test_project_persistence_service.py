@@ -222,20 +222,14 @@ def state_record_hash_from(envelope):
     raise AssertionError("No model_state_record hash found in run history.")
 
 
-def test_run_history_preserves_distinct_v02_revisions_with_repeated_run_id():
-    from core.analysis_runs.compatibility import build_analysis_run_v0_2
+def test_run_history_preserves_distinct_record_revisions_with_repeated_run_id():
+    from core.analysis_runs.compatibility import build_analysis_run
 
-    mechanics = {
-        "schema_version": "0.2.0",
-        "run_id": "run:repeated",
-        "model_ref": "model:repeated",
-        "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"},
-        "results": [{"id": "result:repeated", "kind": "displacement_magnitude", "unit": "mm", "value": 1.0}],
-        "diagnostics": [],
-    }
+    mechanics = json.loads((ROOT / "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json").read_text())
     manifest_ref = {"object_type": "InputManifest", "ref": "input-manifest:repeated"}
-    first = build_analysis_run_v0_2(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64)
-    revised = build_analysis_run_v0_2(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64, rule_check_status="USER_RULE_CHECKED")
+    first = build_analysis_run(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64)
+    revised = build_analysis_run(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64, rule_check_status="USER_RULE_CHECKED")
+    run_id = mechanics["run_id"]
     envelope = build_project_persistence_envelope(
         project_id="project:repeated",
         project_name="Repeated analysis revision fixture",
@@ -247,7 +241,7 @@ def test_run_history_preserves_distinct_v02_revisions_with_repeated_run_id():
     )
     history = envelope["project"]["run_history"]
     assert history["analysis_run_records"] == [first, revised]
-    assert [item["ref"] for item in history["analysis_run_refs"]] == ["run:repeated", "run:repeated"]
+    assert [item["ref"] for item in history["analysis_run_refs"]] == [run_id, run_id]
     identities = [item["hash"]["value"] for item in history["analysis_run_refs"]]
     assert len(set(identities)) == 2
     assert identities == [item["value"] for item in history["hash_manifest"] if item["payload_scope"] == "analysis_run_record"]

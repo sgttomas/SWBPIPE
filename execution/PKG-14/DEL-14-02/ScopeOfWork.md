@@ -91,7 +91,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > 5. Preserve the hash contract of analysis record 0.3.0 (checked `openpipestress_jcs_ijson_v1`; input manifest `rfc8785_jcs`). Preserve payload scope, record revision and received checksums independently. Refuse older records by name; never relabel or re-hash their bytes.
 > 6. Preserve professional-boundary and protected/private-data controls in schema shape, diagnostics, tests, and examples.
 >
-> Implementation evidence: `schemas/analysis_run.v0.3.schema.json` (the current contract), `core/analysis_runs/records.py`, `core/analysis_runs/compatibility.py`, and the analysis-run contract/compatibility tests. The dispatcher's 0.1, legacy-desktop 0.1 and 0.2 members, `core/analysis_runs/legacy.py` and the desktop's legacy digests remain in code until B7a removes them (DEL-05-02 Design, `b7-plan.md`). Under the owner's one-reader decision (2026-10-10: "move to one product reader in Rust"; "All readers."), `compatibility.py`'s reader half becomes a test-only Python verifier, and its record builder takes source verdicts from the Rust reader (unit R in the same Design). These source artifacts do not establish product persistence completion or a new passing test result.
+> Implementation evidence: `schemas/analysis_run.v0.3.schema.json` (the current contract; the dispatcher admits only 0.3.0), `core/analysis_runs/compatibility.py`, and the analysis-run contract/compatibility tests. B7a removed the 0.1, legacy-desktop 0.1 and 0.2 schemas, the 0.1 and 0.2 builders, `core/analysis_runs/legacy.py` and the desktop's legacy digests (DEL-05-02 Design, `b7-plan.md`); a saved older record is refused by name (`ANALYSIS_RUN_SCHEMA_VERSION_RETIRED`, re-run). Under the owner's one-reader decision (2026-10-10: "move to one product reader in Rust"; "All readers."), `compatibility.py`'s reader half becomes a test-only Python verifier, and its record builder takes source verdicts from the Rust reader (unit R in the same Design). These source artifacts do not establish product persistence completion or a new passing test result.
 >
 
 ### CLM-007 — References
@@ -229,8 +229,8 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Deliverable identity and scope | Available: DEL-14-02, SOW-072, OBJ-016 | `_CONTEXT.md`; registers |
 > | Approved dependency evidence | Available as local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance) in `Dependencies.csv` | `_DEPENDENCIES.md`; `Dependencies.csv` |
 > | Architecture basis constraints | Available in `_CONTEXT.md`; exact package-specific implementation choices remain decision-gated | `_CONTEXT.md` |
-> | Field-level schema design | The 0.3 schema exists | `schemas/analysis_run.v0.3.schema.json` is the current contract; the dispatcher still admits 0.1, legacy-desktop 0.1 and 0.2 until B7a removes them; new interfaces require their own scope. |
-> | Implementation code and tests | Reference/compatibility evidence exists | `core/analysis_runs/records.py`, `compatibility.py` and the analysis-run contract/compatibility tests; product persistence and producer conformance are separate. |
+> | Field-level schema design | The 0.3 schema exists | `schemas/analysis_run.v0.3.schema.json` is the current contract and the dispatcher admits only it; new interfaces require their own scope. |
+> | Implementation code and tests | Reference/compatibility evidence exists | `core/analysis_runs/compatibility.py` and the analysis-run contract/compatibility tests; product persistence and producer conformance are separate. |
 >
 
 ### CLM-019 — Steps
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 
 > ##### Examples
 >
-> Analysis-run schemas, `core/analysis_runs/records.py`, `core/analysis_runs/compatibility.py` and `tests/test_analysis_run_compatibility.py` carry constructed contract examples and fixtures. Presence is implementation evidence, not a fixture rights clearance; public examples still require invented or otherwise redistribution-cleared provenance.
+> Analysis-run schemas, `core/analysis_runs/compatibility.py` and `tests/test_analysis_run_compatibility.py` carry constructed contract examples and fixtures. Presence is implementation evidence, not a fixture rights clearance; public examples still require invented or otherwise redistribution-cleared provenance.
 >
 
 ### CLM-029 — Conflict Table (for human ruling)
@@ -360,4 +360,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 
 - **DEL-14-02:1** — R5 continuation delivery task: Complete analysis-run producer/persistence conformance to analysis record 0.3.0: preserve diagnostics, units, record-revision identity and exact source/run basis; refuse older records by name without relabeling their bytes (CLM-006/011/018; AC-001).
 - **DEL-14-02:2** — Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
-- **DEL-14-02:3** — Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The current foundation is analysis record 0.3 under checked profile `openpipestress_jcs_ijson_v1`, with immutable rule-check revisions; the 0.1 profiles and the 0.2 record are refused by name once B7a removes them (owner, 2026-10-10). Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.
+- **DEL-14-02:3** — Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The current foundation is analysis record 0.3 under checked profile `openpipestress_jcs_ijson_v1`, with immutable rule-check revisions; the 0.1 profiles and the 0.2 record are refused by name (owner, 2026-10-10; removed in B7a). Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.

@@ -511,14 +511,11 @@ def test_downgrades_are_refused(mode):
         one["results"][index]["recovery_method"] = method
         assert dispatch(one) == ("ok" if method == "other_method" else c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN), index
         assert c.numerical_use_standing(one, refs) == ("needs_recompute" if method == "other_method" else "unsupported"), index
-    # A base record carrying a receipt is refused; the legacy 0.2 builder refuses one too.
+    # A base record carrying a receipt is refused.
     record = build(base)
     c.validate_analysis_run_v0_3(record, base)
     record["analysis_run"]["retained_precision"] = deepcopy(source["retained_precision"])
     raises(c.ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, c.validate_analysis_run_v0_3, record, base)
-    legacy = {"schema_version": "0.2.0", "run_id": "run:legacy", "model_ref": base["model_ref"], "results": [], "diagnostics": [],
-              "retained_precision": deepcopy(source["retained_precision"])}
-    raises("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN", lambda s: c.build_analysis_run_v0_2(s, input_manifest_ref={"object_type": "InputManifest", "ref": "m"}, input_manifest_hash="1" * 64), legacy)
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -647,26 +644,13 @@ def test_stress_neutral_packager_still_refuses_the_successor(mode):
     raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", sn.validate_stress_neutral_export_package, packet)
 
 
-@pytest.mark.parametrize("mode", MODES)
-def test_legacy_record_wrapper_refuses_a_receipt(mode):
-    """D-U6-9: the historical 0.1.0 wrapper cannot carry a receipt."""
-    from core.analysis_runs.records import build_preview_analysis_run_envelope
-    source, _ = milestone(mode)
-    raises("ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", build_preview_analysis_run_envelope, source)
-    # The wrapper's own preview input still builds; the same input carrying a
-    # receipt member (even an empty one) is refused before anything is recorded.
-    preview = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json").read_text())
-    assert build_preview_analysis_run_envelope(preview)["schema_version"] == "0.1.0"
-    for receipt in (deepcopy(source["retained_precision"]), None):
-        raises("ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", build_preview_analysis_run_envelope, dict(preview, retained_precision=receipt))
-
-
 def test_legacy_sources_with_a_token_row_are_refused_on_every_python_path():
     """RV88 U6b S-1: a legacy 0.1.0 source with the W1 token on one row (the last)
-    is refused by the raw dispatch, standing, the AnalysisRun router, the explicit
-    0.2 constructor and the 0.1.0 wrapper, as Rust and TS refuse it. The header-only
-    transport dispatch reads no rows, as Rust's for_source_metadata."""
-    from core.analysis_runs.records import build_preview_analysis_run_envelope
+    is refused by the raw dispatch, standing and the AnalysisRun builder, as Rust
+    and TS refuse it. Without the token it is still never recorded: analysis runs
+    keep one current version, and no current record contract reads the 0.1.0 result
+    format (b7-plan E1). The header-only transport dispatch reads no rows, as Rust's
+    for_source_metadata."""
     legacy = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json").read_text())
     assert legacy["schema_version"] == "0.1.0"
     manifest = {"input_manifest_ref": {"object_type": "InputManifest", "ref": "manifest:u6b"}, "input_manifest_hash": "1" * 64}
@@ -677,14 +661,10 @@ def test_legacy_sources_with_a_token_row_are_refused_on_every_python_path():
             raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, c._source_contract, token)
             assert c.numerical_use_standing(token, []) == "unsupported"
             raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, lambda s: c.build_analysis_run(s, **manifest), token)
-            raises("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN", lambda s: c.build_analysis_run_v0_2(s, **manifest), token)
-            raises("ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", build_preview_analysis_run_envelope, token)
         else:
             assert c._source_contract(token)[0] == c.SEMANTIC_CONTRACT_ID
             assert c.numerical_use_standing(token, []) == "needs_recompute"
-            assert c.build_analysis_run(token, **manifest)["schema_version"] == "0.2.0"
-            assert c.build_analysis_run_v0_2(token, **manifest)["schema_version"] == "0.2.0"
-            assert build_preview_analysis_run_envelope(token)["schema_version"] == "0.1.0"
+            raises("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", lambda s: c.build_analysis_run(s, **manifest), token)
         assert c._source_contract(token, check_receipt=False)[0] == c.SEMANTIC_CONTRACT_ID
     # A legacy receipt member, empty or null, is refused before the version branch.
     for receipt in ({}, None):

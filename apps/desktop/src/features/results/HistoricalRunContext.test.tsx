@@ -1,128 +1,80 @@
-import { buildAnalysisRunV02 } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED } from "../../services/analysisRunCompatibility";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
-import { bindSourceResultDimensions, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import historicalModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { PRECISION_CONTRACT_ID } from "./numericalResultQuality";
 import type { LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../types";
-import legacyPythonRecord from "../../../../../fixtures/analysis_runs/invented/legacy_python_v0_1.json";
 
-async function savedEnvelope(nativeRowsWithoutDimensions = false) {
-  // Historical tests bind immutable old fixtures, not the prospective Current demo route.
+/** A saved run with a current (0.3.0) analysis record. Its received result is a
+ * synthetic precision-1 statement over the demo carrier's rows: a header-only
+ * route whose record needs no producer evidence, so these tests exercise the
+ * saved-run integrity checks only. */
+async function savedEnvelope() {
   const model = structuredClone(historicalModel) as unknown as PreviewModel;
-  const mechanics_result = bindSourceResultDimensions(structuredClone(historicalResult) as unknown as MechanicsResult);
-  if (nativeRowsWithoutDimensions) {
-    for (const row of mechanics_result.results) delete row.dimension;
-  }
-  const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
-  const analysis_run = await buildAnalysisRunV02(mechanics_result, inputManifest);
+  const mechanics_result = structuredClone(historicalResult) as unknown as MechanicsResult;
+  Object.assign(mechanics_result, {
+    schema_version: "0.2.0",
+    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID },
+    numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] },
+    formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic historical-run fixture only"] },
+  });
+  const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: mechanics_result.producer!.component_name, solver_version: mechanics_result.producer!.component_version, solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
+  const analysis_run = await buildAnalysisRunV03(mechanics_result, inputManifest);
   const model_hash = await computeModelHash(model);
   const payload = { model, mechanics_result, analysis_run, model_hash, editor_intents: [], proposal: null, selected_review_target: null };
   const project_envelope_hash = await computeProjectEnvelopeHash(payload);
   return { ...payload, project_envelope_hash } as unknown as LocalProjectEnvelope;
 }
 
-async function legacyDigest(value: unknown) {
-  const sort = (item: any): any => Array.isArray(item) ? item.map(sort) : item && typeof item === "object" ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b)).map(([key, child]) => [key, sort(child)])) : item;
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(sort(value))));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-async function legacySavedEnvelope() {
-  const saved = await savedEnvelope(true);
-  const received = saved.mechanics_result!;
-  const enriched = bindSourceResultDimensions(received);
-  const inputManifest = await buildCurrentSessionInputManifest({ model: saved.model, solver: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
-  const loadBasisRefs = Array.from(new Map(enriched.results.flatMap((row) => row.basis_ref ? [[`${row.basis_ref.ref_type}:${row.basis_ref.ref_id}`, { object_type: row.basis_ref.ref_type === "combination" ? "Combination" : "LoadCase", ref: row.basis_ref.ref_id }]] : [])).values());
-  const resultRefs = await Promise.all(enriched.results.slice().sort((a, b) => a.id.localeCompare(b.id)).map(async (row) => ({ result_ref: { object_type: "Result", ref: row.id }, result_family: "legacy", source_dimension: row.dimension, hash_refs: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: { object_type: "Result", ref: row.id }, payload_scope: "result_value", value: await legacyDigest(row) }], privacy_classification: "invented_public_example" })));
-  const recordPayload = { run_id: received.run_id, model_ref: received.model_ref, status: received.status, load_basis_refs: loadBasisRefs, result_ids: enriched.results.map((row) => row.id).sort(), diagnostic_ids: enriched.diagnostics.map((item) => item.id ?? "diagnostic:unknown").sort(), input_manifest_ref: inputManifest.manifest_ref, input_manifest_sha256: inputManifest.manifest_sha256, result_dimensions: enriched.results.map((row) => ({ result_id: row.id, dimension: row.dimension })).sort((a, b) => a.result_id.localeCompare(b.result_id)) };
-  saved.analysis_run = { schema_version: "0.1.0", deliverable_id: "DEL-14-02", package_id: "PKG-14", scope_item: "SOW-072", objectives: ["OBJ-016"], run_contract_status: {record_contract:"schema_first_analysis_run_records",model_state_binding:"schemas/model_state.schema.json",result_binding:"schemas/results.schema.yaml",physical_project_container:"TBD",external_validation_boundary:"reference_only_not_determined_by_software"}, analysis_run: { run_id: received.run_id, run_name: `${received.run_id} preview mechanics run`, run_kind: "mechanics_solve", model_state_ref: { object_type: "ModelState", ref: `state:${received.model_ref}:preview` }, load_basis_refs: loadBasisRefs, result_refs: resultRefs, hashes: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: { object_type: "AnalysisRun", ref: received.run_id }, payload_scope: "analysis_run_record", value: await legacyDigest(recordPayload) }, { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${received.run_id}` }, payload_scope: "result_envelope", value: await legacyDigest(enriched) }], analysis_status: ["HUMAN_REVIEW_REQUIRED", received.status.mechanics, received.status.rule_check].sort(), reproducibility: { input_manifest_refs: [inputManifest.manifest_ref], input_manifest_hashes: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: inputManifest.manifest_ref, payload_scope: "input_manifest", value: inputManifest.manifest_sha256 }],determinism_notes:["analysis run binds the exact current-session input-manifest ref and SHA-256","source result dimensions are explicit declarations, not inferred from unit text"],unresolved_tbd:["physical project container","release-grade solver build provenance"] }, immutability_policy: {run_record_is_read_only:true,mutation_policy:"changes_create_new_analysis_run",new_run_required_for_change:true,hash_invalidates_external_acceptance:true}, professional_boundary: { human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false } } } as any;
+async function rehash(saved: LocalProjectEnvelope) {
   saved.project_envelope_hash = await computeProjectEnvelopeHash({ model: saved.model, editor_intents: saved.editor_intents ?? [], proposal: saved.proposal ?? null, selected_review_target: saved.selected_review_target ?? null, mechanics_result: saved.mechanics_result, analysis_run: saved.analysis_run, model_hash: saved.model_hash });
   return saved;
 }
 
 describe("transient HistoricalRunContext integrity", () => {
-  it("verifies exact known desktop 0.1 preimages without rewriting received evidence", async () => {
-    const saved = await legacySavedEnvelope();
+  it.each(["0.1.0", "0.2.0"])("refuses a saved %s analysis record by name and verifies none of its claims", async version => {
+    const saved = await savedEnvelope();
+    saved.analysis_run!.schema_version = version;
+    await rehash(saved);
     const before = JSON.stringify(saved);
     const context = await buildHistoricalRunContext(saved);
-    expect(context!.findings).not.toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_MISMATCH", "HISTORICAL_ANALYSIS_HASH_MISMATCH", "HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE", "HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE"]));
+    expect(context!.findings).toContain(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
+    expect(context!.findings).not.toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_MISMATCH"]));
+    expect(context!.findings).not.toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+    expect(context!.findings).not.toContain("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
+    // The saved evidence stays readable and unchanged; only a re-run records a current run.
+    expect(context!.analysisRun).toBe(saved.analysis_run);
+    expect(context!.mechanicsResult).toBe(saved.mechanics_result);
     expect(JSON.stringify(saved)).toBe(before);
   });
 
-  it("reports a changed desktop 0.1 claim as mismatch and ambiguous preimage as unverifiable", async () => {
-    const tampered = await legacySavedEnvelope();
-    tampered.analysis_run!.analysis_run.hashes.find((hash) => hash.payload_scope === "result_envelope")!.value = "0".repeat(64);
-    const tamperedBefore = JSON.stringify(tampered);
-    expect((await buildHistoricalRunContext(tampered))!.findings).toContain("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect((await buildHistoricalRunContext(tampered))!.findings).not.toContain("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(JSON.stringify(tampered)).toBe(tamperedBefore);
-    const ambiguous = await legacySavedEnvelope();
-    ambiguous.mechanics_result!.results[0].kind = "unknown_legacy_kind";
-    const ambiguousBefore = JSON.stringify(ambiguous);
-    const findings = (await buildHistoricalRunContext(ambiguous))!.findings;
-    expect(findings).toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE", "HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE"]));
-    expect(JSON.stringify(ambiguous)).toBe(ambiguousBefore);
-  });
-  it("keeps legacy desktop record and result checksum failures scoped", async () => {
-    const recordTampered = await legacySavedEnvelope();
-    recordTampered.analysis_run!.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value = "0".repeat(64);
-    const recordFindings = (await buildHistoricalRunContext(recordTampered))!.findings;
-    expect(recordFindings).toContain("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(recordFindings).not.toContain("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    const rowTampered = await legacySavedEnvelope();
-    rowTampered.analysis_run!.analysis_run.result_refs[0].hash_refs[0].value = "0".repeat(64);
-    const rowFindings = (await buildHistoricalRunContext(rowTampered))!.findings;
-    expect(rowFindings).toContain("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(rowFindings).not.toContain("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-  });
-  it("does not misclassify a full Python 0.1 record as the abbreviated desktop profile", async () => {
+  it("names an unknown saved record version as unsupported", async () => {
     const saved = await savedEnvelope();
-    saved.analysis_run = structuredClone(legacyPythonRecord) as any;
-    saved.mechanics_result = { schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "run:legacy-python", model_ref: "model:legacy-python", status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE" }, summary: {}, results: [{ id: "result:legacy-python", entity_ref: "node:legacy", kind: "displacement_magnitude", value: 1, unit: "mm", dimension: "length" }], diagnostics: [] } as any;
-    const before = JSON.stringify(saved);
-    const findings = (await buildHistoricalRunContext(saved))!.findings;
-    expect(findings).toContain("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(findings).not.toContain("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(findings).not.toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
-    expect(findings).not.toContain("HISTORICAL_RESULT_HASH_MISMATCH");
-    expect(JSON.stringify(saved)).toBe(before);
+    saved.analysis_run!.schema_version = "0.9.0";
+    const findings = (await buildHistoricalRunContext(await rehash(saved)))!.findings;
+    expect(findings).toContain("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
+    expect(findings).not.toContain(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
   });
-  it("requires complete nested Python 0.1 profile evidence before record verification", async () => {
+
+  it("verifies a current record and reports a changed record claim", async () => {
     const saved = await savedEnvelope();
-    saved.analysis_run = structuredClone(legacyPythonRecord) as any;
-    delete (saved.analysis_run!.analysis_run.solver_version as any).build_ref;
-    saved.mechanics_result = { schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "run:legacy-python", model_ref: "model:legacy-python", status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE" }, summary: {}, results: [{ id: "result:legacy-python", entity_ref: "node:legacy", kind: "displacement_magnitude", value: 1, unit: "mm", dimension: "length" }], diagnostics: [] } as any;
+    expect(saved.analysis_run!.schema_version).toBe("0.3.0");
     const findings = (await buildHistoricalRunContext(saved))!.findings;
-    expect(findings).toContain("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(findings).not.toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+    expect(findings).not.toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_MISMATCH", "HISTORICAL_ANALYSIS_HASH_MISMATCH", "HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE", ANALYSIS_RUN_SCHEMA_VERSION_RETIRED]));
+    const tampered = await savedEnvelope();
+    tampered.analysis_run!.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value = "0".repeat(64);
+    const tamperedFindings = (await buildHistoricalRunContext(await rehash(tampered)))!.findings;
+    expect(tamperedFindings).toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+    expect(tamperedFindings).not.toContain("HISTORICAL_RESULT_HASH_MISMATCH");
   });
-  it("keeps locale-sensitive desktop 0.1 replay explicitly unverifiable", async () => {
-    expect(await legacyDigest({ z: 1, "ä": 2 })).toBe("aebaf850cdb107bb9d7d528ee0c02528804edaac037352a39fb8ddef450fd003");
-    const saved = await legacySavedEnvelope();
-    saved.mechanics_result!.results[0].metadata = { z: 1, "ä": 2 } as any;
-    saved.analysis_run!.analysis_run.result_refs[0].hash_refs[0].value = "7832a5d6150a56da1a4f0c8fa00c26a7350389b0fc8696707cd2abbbd32be0c1";
-    const findings = (await buildHistoricalRunContext(saved))!.findings;
-    expect(findings).toContain("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
-    expect(findings).not.toContain("HISTORICAL_RESULT_HASH_MISMATCH");
-  });
-  it("rejects malformed and hybrid desktop profile discriminators before verification", async () => {
-    for (const mutate of [
-      (saved: LocalProjectEnvelope) => { delete (saved.analysis_run!.analysis_run as any).professional_boundary; },
-      (saved: LocalProjectEnvelope) => { (saved.analysis_run!.analysis_run as any).created_at = null; },
-    ]) {
-      const saved = await legacySavedEnvelope(); mutate(saved);
-      const findings = (await buildHistoricalRunContext(saved))!.findings;
-      expect(findings).toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE", "HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE"]));
-      expect(findings).not.toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_MISMATCH", "HISTORICAL_ANALYSIS_HASH_MISMATCH"]));
-    }
-  });
-  it("matches the existing bound analysis hash for native-shaped raw rows without changing saved evidence", async () => {
-    const saved = await savedEnvelope(true);
-    expect(saved.mechanics_result!.results.every((row) => !("dimension" in row))).toBe(true);
+
+  it("matches the bound received-result hash without changing saved evidence", async () => {
+    const saved = await savedEnvelope();
     const storedResultHash = saved.analysis_run!.analysis_run.hashes.find((hash) => hash.payload_scope === "received_result")!.value;
     expect(await canonicalSha256HexCheckedV1(saved.mechanics_result)).toBe(storedResultHash);
     const before = JSON.stringify(saved);
@@ -137,31 +89,15 @@ describe("transient HistoricalRunContext integrity", () => {
     expect(context!.envelopeHash).toBe(saved.project_envelope_hash);
     expect(context).not.toHaveProperty("inputManifest");
     expect(JSON.stringify(saved)).toBe(before);
-    expect(context!.mechanicsResult!.results.every((row) => !("dimension" in row))).toBe(true);
   });
 
-  it("still reports a real changed result value against the bound native-shaped analysis hash", async () => {
-    const saved = await savedEnvelope(true);
+  it("still reports a real changed result value against the bound received-result hash", async () => {
+    const saved = await savedEnvelope();
     saved.mechanics_result!.results.find((row) => row.kind === "element_local_axial_force")!.value += 1;
     const before = JSON.stringify(saved);
     const context = await buildHistoricalRunContext(saved);
     expect(context!.findings).toContain("HISTORICAL_RESULT_HASH_MISMATCH");
     expect(context!.findings).not.toContain("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
-    expect(JSON.stringify(saved)).toBe(before);
-  });
-
-  it("retains an incorrect explicit dimension and reports the changed received carrier", async () => {
-    const saved = await savedEnvelope(true);
-    const row = saved.mechanics_result!.results.find((item) => item.kind === "element_local_axial_force")!;
-    row.dimension = "stress";
-    const inputManifest = await buildCurrentSessionInputManifest({ model: saved.model, solver: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
-    await expect(buildAnalysisRunV02(saved.mechanics_result!, inputManifest)).rejects.toThrow("ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH");
-    const before = JSON.stringify(saved);
-    const context = await buildHistoricalRunContext(saved);
-    expect(context!.findings).toContain("HISTORICAL_RESULT_HASH_MISMATCH");
-    expect(context!.findings).not.toContain("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
-    expect(context!.mechanicsResult).toBe(saved.mechanics_result);
-    expect(row.dimension).toBe("stress");
     expect(JSON.stringify(saved)).toBe(before);
   });
 
@@ -242,7 +178,7 @@ describe("transient HistoricalRunContext integrity", () => {
 
 it("keeps unsupported raw0.2 readable history and unqualified without rewriting evidence", async () => {
  const saved = await savedEnvelope();
- saved.mechanics_result!.schema_version = "0.2.0";
+ for (const header of ["producer", "numerical_quality", "formulation_basis"]) delete (saved.mechanics_result as unknown as Record<string, unknown>)[header];
  const before = JSON.stringify(saved.mechanics_result);
  const context = await buildHistoricalRunContext(saved);
  expect(context?.mechanicsResult).not.toBeNull();
@@ -260,14 +196,6 @@ it("retains contradictory null-header historical bytes and hash claims while wit
   expect(context?.findings).toContain("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
   expect(JSON.stringify(saved)).toBe(before);
 });
-
-it("keeps the historical enriched and dimension-absent fixture variants distinct", async () => {
-  const enriched = await savedEnvelope(false);
-  const absent = await savedEnvelope(true);
-  expect(enriched.mechanics_result!.results.every(row => Object.hasOwn(row, "dimension"))).toBe(true);
-  expect(absent.mechanics_result!.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
-});
-
 
 afterEach(cleanup);
 describe("bundled reference inspection", () => {
