@@ -62,7 +62,7 @@ TABLE_SHA256 = '2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1
 # deliberately whenever the verifier changes. The unit authority is bound
 # read-only, as for physics-1.
 MODULE = 'tests/verifiers/pressure_1.py'
-VERIFIER_SHA256 = 'b648809fca9d7b372d8659ccea0006d95c5c21a9211d63b2f6663ccb8289165d'
+VERIFIER_SHA256 = '0a0192ee3cf6a9d039ad40d4c452520bd13059a59d1aeff15611a099aae07aa5'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: VERIFIER_SHA256,

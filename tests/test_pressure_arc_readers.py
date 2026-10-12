@@ -10,8 +10,8 @@ import json
 from pathlib import Path
 
 import pytest
-from core.analysis_runs.load_reference_evidence import validate_load_reference_evidence
-from core.analysis_runs.physics_evidence import validate_physics_evidence
+from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
+from tests.verifiers.physics_evidence import validate_physics_evidence
 from tests.verifiers.pressure_1 import (
     CONTRACT_ID as PRESSURE_ID, V2_READ_AS_V3, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )

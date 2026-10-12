@@ -47,7 +47,7 @@ async function queued(click: () => void, queue: ReturnType<typeof vi.fn>): Promi
 }
 
 describe("the L line authored on the desktop (T4-U2)", () => {
-  it("is authored from its corner through the panels, equals the applier's document and is refused by name after its solve", async () => {
+  it("is authored from its corner through the panels, equals the applier's document and solves through the native job path", async () => {
     // Material E/nu (an existing rich form; queued directly here).
     const keys = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
     const projection = (m: Json) => Object.fromEntries(keys.filter(k => m[k] !== undefined).map(k => [k, m[k]]));
@@ -104,7 +104,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
         expect(args.model).toEqual(expected);
         return { job_id: "job:l-line", backend_cancellation_token: "job:l-line:token", state: "queued", cancellation_scope: "unit_test" };
       }
-      if (command === "poll_preview_mechanics_job") return { job_id: "job:l-line", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_test", result: structuredClone(pressure1), error_message: null };
+      if (command === "poll_preview_mechanics_job") return { job_id: "job:l-line", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_test", result: JSON.stringify(pressure1), error_message: null };
       throw new Error(`unexpected command ${command}`);
     });
     const receipt = await startPreviewMechanicsJob(model, "sparse_interactive");

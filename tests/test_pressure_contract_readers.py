@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 import pytest
+from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import (
     _source_contract, build_analysis_run_v0_3, numerical_use_standing,
 )
@@ -73,7 +74,8 @@ def test_python_product_paths_take_the_rust_refusal_of_pressure_1(label, envelop
         with pytest.raises(ValueError, match=PRESSURE_1_REFUSAL):
             read(deepcopy(envelope))
     bases = [case["basis_ref"] for case in envelope["numerical_quality"]["cases"]]
-    assert numerical_use_standing(deepcopy(envelope), bases) == "unsupported"
+    # The standing is the Rust reader's own verdict (b7-plan R2), which reads pressure-1.
+    assert numerical_use_standing(deepcopy(envelope), bases) == rust_reader.standing(deepcopy(envelope), bases, None)["token"]
     # The v2 product readers do not read v3 evidence (their closed v2 checks refuse it).
     with pytest.raises(ValueError):
         v2_product_reader(deepcopy(envelope))

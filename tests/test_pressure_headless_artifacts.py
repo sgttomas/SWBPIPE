@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import _source_contract, build_analysis_run_v0_3, numerical_use_standing
 from schema_validation import envelope_branches, validate_instance
 from tests.verifiers.pressure_1 import CONTRACT_ID as PRESSURE_CONTRACT_ID, verify_source
@@ -76,7 +77,8 @@ def test_actual_pressure_1_document_selects_its_branch_and_the_verifier_admits_i
         with pytest.raises(ValueError, match=PRESSURE_1_REFUSAL):
             read(raw)
     bases = [case["basis_ref"] for case in raw["numerical_quality"]["cases"]]
-    assert numerical_use_standing(raw, bases) == "unsupported"
+    # The standing is the Rust reader's own verdict (b7-plan R2), which reads pressure-1.
+    assert numerical_use_standing(raw, bases) == rust_reader.standing(raw, bases, None)["token"]
 
 
 def test_artifact_folder_holds_exactly_the_expected_cases():
