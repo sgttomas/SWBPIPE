@@ -407,9 +407,10 @@ fn controls() -> Vec<Control> {
         "src/s11g_tests.rs::t18_path2_invocation_is_not_refused",
         n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
     ));
+    // T19's construction before K-D5 (G = 0.4 Pa), kept as a control.
     cases.push(control(
-        "T19",
-        "src/s11g_tests.rs::t19_path1_load_row_variant_is_not_refused",
+        "T19/pre-K-D5",
+        "src/s11g_tests.rs::t19_path1_load_row_variant_is_not_refused (before K-D5)",
         with_basis(
             n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
             "case-b",
@@ -417,6 +418,36 @@ fn controls() -> Vec<Control> {
             1.0,
             0.4,
         ),
+    ));
+    // K-D5's W1 routing (HELP_HUMAN, 2026-10-12, agreed on T3's behalf): these cases now demote
+    // at the solve, and the captured entry attempts retained-source recovery on them. The
+    // recipes are the tests' own requests.
+    cases.push(control(
+        "T19",
+        "src/s11g_tests.rs::t19_request",
+        crate::s11g_tests::t19_request(),
+    ));
+    cases.push(control(
+        "T1/F1a-UDL-W1e8",
+        "src/s11g_tests.rs::t1_udl_w1e8_is_demoted_on_both_entries_and_modes; src/f1a_tests.rs::f1a_non_demoted_cases_carry_no_d5_line",
+        crate::s11g_tests::rf_request("RF-CANCEL-UDL-W1e8"),
+    ));
+    cases.push(control(
+        "T2/UDL-W1e80",
+        "src/s11g_tests.rs::t2_udl_w1e80_is_demoted_on_the_typed_entry",
+        crate::s11g_tests::rf_request("RF-CANCEL-UDL-W1e80"),
+    ));
+    for delta_t in [69.806, 0.69806] {
+        cases.push(control(
+            &format!("T6b/{delta_t}"),
+            "src/s11g_tests.rs::t6b_floor_never_hides_a_net_defect",
+            crate::s11g_tests::db1(delta_t),
+        ));
+    }
+    cases.push(control(
+        "F1a/UDL-W1e8-soft-branch",
+        "src/f1a_tests.rs::udl_w1e8_with_soft_branch",
+        crate::f1a_tests::udl_w1e8_with_soft_branch(),
     ));
     cases.push(control(
         "T20/refused",

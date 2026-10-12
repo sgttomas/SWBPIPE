@@ -505,7 +505,7 @@ fn rf_cancel_data() -> Value {
     serde_json::from_str(include_str!("../tests/fixtures/s11f/rf_cancel_cases.json")).unwrap()
 }
 
-fn rf_request(id: &str) -> Value {
+pub(crate) fn rf_request(id: &str) -> Value {
     rf_cancel_data()["cases"]
         .as_array()
         .unwrap()
@@ -1447,7 +1447,7 @@ fn t6a_collinear_runs_are_silent_with_the_floor() {
 /// (S0-S1, L = 3) and B (S1-S2, L = 2) carry uniform global-y loads q_A and
 /// q_B; C (S3-S1) and D (S1-S4) carry the same temperature interval (thermal
 /// axial load N each, meeting and cancelling at S1); a nodal 1e-3 N at S1.UY.
-fn db1(delta_t: f64) -> Value {
+pub(crate) fn db1(delta_t: f64) -> Value {
     let mut model = preview_model("db1");
     model["nodes"] = json!([
         node("S0", 0.0, 0.0, 0.0),
@@ -2687,7 +2687,7 @@ fn t18_path2_invocation_is_not_refused() {
 /// still fires there (the soft-branch pattern of T22 and F1a; a branch
 /// member would couple more than two free DOFs, which the retained exact
 /// context refuses for case A).
-fn t19_request() -> Value {
+pub(crate) fn t19_request() -> Value {
     let mut case_b = n05_tip_noise("case-b");
     case_b["primitive_loads"]
         .as_array_mut()
