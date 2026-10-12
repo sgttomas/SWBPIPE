@@ -654,8 +654,11 @@ fn current_fixture(control: &Control) {
         control.invocation["request"]
     );
 }
+/// MJ9's kill: every nonexcluded leaf over all 24 twins and each work counter
+/// as an exact integer. It also keeps the committed v3 twins and the J2 reader
+/// corpus current.
 #[test]
-fn pressure_source_twins_have_only_d5_differences_and_current_reader_corpus() {
+fn pressure_source_twins_have_only_d5_differences() {
     let mut entries = Vec::new();
     let mut controls = Vec::new();
     for family in [Family::Physics03, Family::LoadReference04] {
@@ -924,12 +927,141 @@ fn pressure_source_reader_corpus_native_reads_every_statement_unchanged() {
         check_corpus_entry(entry);
     }
 }
+/// MJ2's kill. Genuine n06 v3 twins on 0.3 and 0.4, in both modes, carry case
+/// commitments equal to an independent hash of the exact case payload under
+/// `pressure_source_case_evidence_v1` (`check_control`), never the v2 domain's.
+/// A wrong-domain commitment with resealed outer hashes fails raw and transport.
 #[test]
 fn pressure_source_case_commitments_use_the_v3_domain() {
+    for family in [Family::Physics03, Family::LoadReference04] {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let control = check_control(family, "n06", mode);
+            let source = &control.joined.source;
+            for (index, case) in source["source_block_recovery"]["body"]["cases"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .enumerate()
+            {
+                let payload = case_payload(source, index);
+                assert_eq!(
+                    case["physical_evidence_sha256"],
+                    domain_commitment("pressure_source_case_evidence_v1", &payload)
+                );
+                assert_ne!(
+                    case["physical_evidence_sha256"],
+                    domain_commitment("physics_source_case_evidence_v1", &payload)
+                );
+            }
+        }
+    }
     named_corpus_controls("MJ2-wrong-domain");
 }
+/// The top-level production functions of a Rust source, comment lines removed.
+fn top_level_functions(text: &str) -> Vec<(String, String)> {
+    let mut functions: Vec<(String, String)> = Vec::new();
+    for line in text.lines() {
+        let header = ["fn ", "pub fn ", "pub(crate) fn ", "pub(super) fn "]
+            .iter()
+            .find_map(|prefix| line.strip_prefix(prefix));
+        if let Some(rest) = header {
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
+            functions.push((name, String::new()));
+        }
+        if let Some((_, body)) = functions.last_mut() {
+            if !line.trim_start().starts_with("//") {
+                body.push_str(line);
+                body.push('\n');
+            }
+        }
+    }
+    functions
+}
+/// MJ4's source-qualified guard. Every reader function that dispatches
+/// `Method::PressureJoined` or calls the direct v3 load-state check reads the
+/// received evidence; none calls the v2 projection/reseal path, and that path's
+/// callers remain the v2 joined reader's own (`validate`,
+/// `physics_source_projection`). Verifying incoming hashes before a shim does
+/// not satisfy this guard.
+fn pressure_joined_dispatch_has_no_v2_projection_or_reseal() {
+    const READERS: [(&str, &str); 4] = [
+        (
+            "load_reference_source.rs",
+            include_str!("../../../reporting/result_export/src/load_reference_source.rs"),
+        ),
+        (
+            "physics_source.rs",
+            include_str!("../../../reporting/result_export/src/physics_source.rs"),
+        ),
+        (
+            "physics_evidence.rs",
+            include_str!("../../../reporting/result_export/src/physics_evidence.rs"),
+        ),
+        (
+            "load_reference.rs",
+            include_str!("../../../reporting/result_export/src/load_reference.rs"),
+        ),
+    ];
+    let mut direct = std::collections::BTreeSet::new();
+    for (file, text) in READERS {
+        for (name, body) in top_level_functions(text) {
+            if body.contains("Method::PressureJoined")
+                || body.contains("validate_pressure_source_evidence(")
+            {
+                for forbidden in [
+                    "project(",
+                    "project_load_reference(",
+                    "physics_source_projection(",
+                    "reseal",
+                ] {
+                    assert!(
+                        !body.contains(forbidden),
+                        "{file}:{name} dispatches the direct v3 join but contains {forbidden}"
+                    );
+                }
+                direct.insert(format!("{file}:{name}"));
+            }
+        }
+    }
+    for required in [
+        "load_reference_source.rs:validate_pressure_source_evidence",
+        "physics_source.rs:validate_in",
+        "physics_source.rs:validate_transport_metadata_in",
+    ] {
+        assert!(direct.contains(required), "{required} is a direct dispatch site");
+    }
+    let projection_callers: std::collections::BTreeSet<_> = top_level_functions(READERS[0].1)
+        .into_iter()
+        .filter(|(_, body)| {
+            let call = body.split_once('\n').map_or("", |(_, rest)| rest);
+            call.match_indices("project(").any(|(at, _)| {
+                !call[..at].ends_with(|c: char| c.is_alphanumeric() || c == '_' || c == ':')
+            })
+        })
+        .map(|(name, _)| name)
+        .collect();
+    assert_eq!(
+        projection_callers,
+        ["physics_source_projection".to_owned(), "validate".to_owned()]
+            .into_iter()
+            .collect(),
+        "the v2 projection/reseal path is reached only from the v2 joined reader"
+    );
+}
+/// MJ4's kill. Genuine eigen_motion, mixed and n06 v3 twins pass raw and
+/// transport checks with v3 commitments; a stale receipt hash and a coherently
+/// resealed changed publication commitment take their named outcomes (corpus);
+/// and the source-qualified guard above excludes every v2 projection/reseal
+/// call from the direct `Method::PressureJoined` dispatch.
 #[test]
 fn v3_load_state_join_reads_received_v3_evidence_directly() {
+    pressure_joined_dispatch_has_no_v2_projection_or_reseal();
     named_corpus_controls("load_reference_source:");
     named_corpus_controls("MJ4-publication-binding");
 }

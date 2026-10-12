@@ -457,8 +457,9 @@ fn pressure_source_private_reservation_inputs_confirm_all_twins_complete_express
     }
     assert_eq!(twins,24);
 }
+/// MJ1's kill, at the private finalizer.
 #[test]
-fn receipt_policy_is_bound_to_captured_contract_at_the_private_finalizer() {
+fn receipt_policy_is_bound_to_captured_contract() {
     for family in ["physics_source","load_reference_source"] {
         for v3 in [false,true] {
             for contradictory in [false,true] {
