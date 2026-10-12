@@ -579,7 +579,7 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "4ccf01fe2c414864483299b092f724248589ff4105861ece5a962ba1f7cde0fa";
+const TABLE_HASH: &str = "ed1fc7fca562f26365157141f54c450cbfaf2ef65e689d37ff54086b70510357";
 /// The exact successor's table (XTABLE) and its inherited physics-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
@@ -6794,8 +6794,8 @@ mod b4_failed_ordinary_tests {
             assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
         }
     }
-    /// N06's successors read like CX-F's: G1-G8 pass below the held G0 pin and the case is
-    /// eligible with its invocation; G0 itself refuses until the D3 re-registration.
+    /// N06's successors read like CX-F's: G1-G8 pass and the case is eligible with its
+    /// invocation; with the table pins on the current bytes, the full reader gives the same.
     #[test]
     fn n06_congruence_successors_pass_g1_to_g8_and_are_eligible() {
         let cases = cases_of(N06_FIXTURE);
@@ -6806,8 +6806,7 @@ mod b4_failed_ordinary_tests {
             let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
             assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
             assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
-            let e = validate(&s, Some(&inv)).unwrap_err();
-            assert_eq!((e.gate, e.code.as_str()), ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"), "{mode}");
+            assert_eq!(validate(&s, Some(&inv)), Ok(v), "{mode}");
         }
     }
     /// DEF-O's lanes.congruence admits one further correction on the annular_source lane only:

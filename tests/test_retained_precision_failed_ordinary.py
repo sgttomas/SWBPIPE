@@ -166,16 +166,14 @@ def test_blocking_diagnostic_and_w2_mutations_refuse_by_name(index):
 
 
 # b7-plan "N06 absorbed-spring certificate extension": N06's successors, certified with the congruence radius
-# and one further annular_source correction, read below G0 like CX-F's.
+# and one further annular_source correction, read like CX-F's, through G0 with the current table pins.
 @pytest.mark.parametrize("index", range(4))
 def test_n06_congruence_successor_passes_g1_to_g8_and_is_eligible(index):
     source, invocation = _cases(N06_FIXTURE)[index]
     assert _below_g0(source, None)["numerical_eligible"] is False
     result = _below_g0(source, invocation)
     assert result["invocation_bound"] and result["numerical_eligible"]
-    with pytest.raises(rp.RetainedPrecisionError) as error:
-        rp.validate_retained_precision(source, invocation)
-    assert (error.value.gate, error.value.code) == ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    assert rp.validate_retained_precision(source, invocation) == result
 
 
 @pytest.mark.parametrize("index", range(4))
