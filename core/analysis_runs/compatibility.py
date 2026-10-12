@@ -196,45 +196,45 @@ PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
 _PRECISION_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_precision_1.json")
 PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-PHYSICS_CONTRACT_SHA256 = "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+PHYSICS_CONTRACT_SHA256 = "48c1899917e59a58d288ee06326f94278449fca403543c23b817a25bd65cb510"
 _PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_1.json")
 SOURCE_BLOCKS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 SOURCE_BLOCKS_CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
 _SOURCE_BLOCKS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_source_blocks_1.json")
 PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PHYSICS_SOURCE_CONTRACT_SHA256 = "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+PHYSICS_SOURCE_CONTRACT_SHA256 = "662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"
 _PHYSICS_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_source_1.json")
 # The v3 join binds its reviewed table; rows are interpreted lazily per record,
 # as every DEL-14-02 table is. No additional resident row table is held here.
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_CONTRACT_SHA256 = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771"
 _PRESSURE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_source_1.json")
 # Resolved load/reference-state method: one table, one profile; the AnalysisRun
 # record mirrors physics-1 and carries no contract_evidence.
 LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+LOAD_REFERENCE_CONTRACT_SHA256 = "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf"
 _LOAD_REFERENCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_1.json")
 LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1"
 # Joined load/reference-state method (retained-source receipt required): one
 # table, one profile, one receipt policy. The AnalysisRun record mirrors
 # physics-source-1 and carries source_block_recovery and contract_evidence.
 LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
+LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"
 _LOAD_REFERENCE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_source_1.json")
 LOAD_REFERENCE_SOURCE_PROFILE = "resolved_straight_load_state_source_v1"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "9aaab7bf3f4cc3623c7ba94a045df040f01b14d818dc5230eca00c17c844d028"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_1.json")
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ed1fc7fca562f26365157141f54c450cbfaf2ef65e689d37ff54086b70510357"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_retained_1.json")
 # B3b (B3-D §2, §6.1): the exact successor over physics-1. As the preview successor, its statements are checked
 # only by the accepted reader, which dispatches on this identity, and its standing comes only from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a"
 _PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_retained_1.json")
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}

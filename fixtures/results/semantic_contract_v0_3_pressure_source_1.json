@@ -1245,11 +1245,7 @@
     "component_version": "0.2.0"
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence_and_source_block_recovery",
-  "reserved_inactive_successors": [
-    "openpipestress.result_semantics/0.3.0/reactions-1",
-    "openpipestress.result_semantics/0.3.0/stress-1",
-    "openpipestress.result_semantics/0.3.0/precision-2"
-  ],
+  "reserved_inactive_successors": [],
   "formulation_profile_id": "exact_pressure_v3",
   "contract_evidence_policy": "closed_physical_case_evidence_for_exact_pressure_v3_and_load_reference_state_on_0_4_0_cross_bound_to_actual_invocation_and_source_receipt_v1",
   "supported_profile_limitations": [
@@ -1263,7 +1259,7 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+      "sha256": "662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"
     }
   ],
   "source_block_policy": "PRESSURE-SOURCE-1",

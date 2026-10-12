@@ -44,7 +44,7 @@ FROZEN = {
     "fixtures/product_preview/load_reference/pressure.request.json": "52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69",
     "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
     "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
-    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
+    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf",
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]
@@ -169,7 +169,8 @@ def test_frozen_inputs_and_table_identity():
     assert table["semantic_contract_id"] == LOAD_REFERENCE_CONTRACT_ID and table["formulation_profile_id"] == LOAD_REFERENCE_PROFILE
     # Result rows use the physics-1 signatures unchanged.
     assert table["rows"] == physics["rows"] and table["canonical_metadata_vocabulary"] == physics["canonical_metadata_vocabulary"]
-    assert "openpipestress.result_semantics/0.3.0/load-reference-source-1" in table["reserved_inactive_successors"]
+    # B5: published identities and the unused names are not reserved; pressure-1 leaves in B7b.
+    assert table["reserved_inactive_successors"] == ["openpipestress.result_semantics/0.3.0/pressure-1"]
 
 
 @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])

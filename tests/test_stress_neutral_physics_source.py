@@ -10,6 +10,7 @@ import csv
 import io
 import json
 import math
+import os
 import struct
 from pathlib import Path
 
@@ -513,5 +514,9 @@ def test_current_native_builder_matches_committed_package_file_bytes_on_identica
     analysis = json.loads((PROJECT / f"fixtures/results/{name}.analysis_run.json").read_text())
     packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
     file_bytes = (json.dumps(packet, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8")
-    assert file_bytes == (PROJECT / f"fixtures/results/{name}.stress_neutral.json").read_bytes()
+    path = PROJECT / f"fixtures/results/{name}.stress_neutral.json"
+    # Regenerated only when a bound input moves (a table pin, the analysis record); never to silence a builder change.
+    if os.environ.get("STRESS_NEUTRAL_WRITE_FIXTURES") == "1":
+        path.write_bytes(file_bytes)
+    assert file_bytes == path.read_bytes()
     assert list(sn.materialized_members(packet)) == sn.MEMBERS
