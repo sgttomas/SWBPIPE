@@ -37,6 +37,8 @@ mod s11g_tests;
 mod source_budget_tests;
 #[cfg(test)]
 mod kd5_pressure_closure_tests;
+#[cfg(test)]
+mod kd5_nonlinear_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -71,6 +73,9 @@ use open_pipe_stress_load_case_algebra::{
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
     solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
     ForceScalingOutcome, SparseAssemblyEvidence, StrictGapEvidence,
+};
+use open_pipe_stress_nonlinear_integration::confirmation::{
+    confirm_converged_state, Confirmation,
 };
 use open_pipe_stress_nonlinear_integration::{
     eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
@@ -1180,6 +1185,16 @@ fn append_integrity_report(
         );
     }
 }
+
+/// DEL-04-01 kd5-nonlinear-active-set.md §2.4: the fail-closed sentence of a
+/// nonlinear case whose converged support state is not established.
+fn nonlinear_not_established_sentence(reason: &str) -> String {
+    format!("the converged support state is not established at 128-bit precision ({reason}); member rows are binary64 recoveries")
+}
+
+/// DEL-04-01 kd5-nonlinear-active-set.md §3.3: the evidence line of a Passed
+/// nonlinear case.
+const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; displacements and residual rows are the iteration's own.";
 
 /// F1a: K-D5's `FormationCheck` record as one evidence line of the integrity
 /// diagnostic (D5C-3; the record is never part of `StructuralReport`).
@@ -5089,7 +5104,7 @@ fn solve_load_case_observed(
             vec![load_case.id.clone()],
         ));
     }
-    let selected_nonlinear = append_nonlinear_support_loop_results(
+    let (selected_nonlinear, confirmation) = match append_nonlinear_support_loop_results(
         &mut results,
         diagnostics,
         model,
@@ -5099,7 +5114,11 @@ fn solve_load_case_observed(
         load_case,
         solver_mode,
         spring_entries,
-    );
+        load_row_finding.is_none(),
+    ) {
+        Some((solve, confirmation)) => (Some(solve), confirmation),
+        None => (None, None),
+    };
     if !built.nonlinear_supports.is_empty() {
         match &selected_nonlinear {
             Some(solve) if solve.converged => displacements = solve.displacements.clone(),
@@ -5200,13 +5219,32 @@ fn solve_load_case_observed(
     // not the structural report that preceded the load-row demotion.
     let pre_guard_passed = diagnostics.iter().find(|d| d.id == integrity_diagnostic_id(&load_case.id)).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED");
     let member_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
+    // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
+    // the certified rows of its confirmed converged state (Stage B).
+    let confirmed = match &confirmation {
+        Some(Confirmation::Established(state)) if pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty() => Some(state.as_ref()),
+        _ => None,
+    };
+    let member_bound = member_bound.or(confirmed.map(|state| &state.member_bound));
     if member_bound.is_none() {
-        let route = if built.nonlinear_supports.is_empty() { "on this route" } else { "on the nonlinear-support route" };
-        let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery,
-            sentence: format!("the member-relative formation check is not available {route}; member rows are binary64 recoveries"), fired: Vec::new() };
+        let sentence = if built.nonlinear_supports.is_empty() {
+            "the member-relative formation check is not available on this route; member rows are binary64 recoveries".to_string()
+        } else {
+            nonlinear_not_established_sentence(match &confirmation {
+                Some(Confirmation::NotEstablished { reason }) => reason,
+                _ => "confirmation attempt: not run",
+            })
+        };
+        let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery, sentence, fired: Vec::new() };
         formation_guard::amend_integrity_report(diagnostics, &integrity_diagnostic_id(&load_case.id), &finding);
+    } else if confirmed.is_some() {
+        if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_diagnostic_id(&load_case.id)) {
+            record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message);
+        }
     }
-    let certified_source = member_bound.map(|_| certified_publication::source(built, &force, spring_entries));
+    let certified_force = confirmed.map_or(&force, |state| &state.force);
+    let certified_nonlinear = confirmed.map(|state| &state.supports);
+    let certified_source = member_bound.map(|_| certified_publication::source(built, certified_force, spring_entries));
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
     // U3: legacy pressure thrust is retired; the published summary count stays 0.
@@ -5346,7 +5384,7 @@ fn solve_load_case_observed(
                 }
             }
             let certified_support = match (member_bound, certified_source.as_ref()) {
-                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,source,&force,&displacements,bound) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,source,certified_force,&displacements,bound,certified_nonlinear) {
                     Ok(rows) => {
                         vector = rows.map(|row| row.published);
                         match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows) {
@@ -6342,7 +6380,8 @@ fn append_nonlinear_support_loop_results(
     load_case: &PreviewLoadCase,
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
-) -> Option<NonlinearFrameSolveResult> {
+    confirm: bool,
+) -> Option<(NonlinearFrameSolveResult, Option<Confirmation>)> {
     if built.nonlinear_supports.is_empty() {
         return None;
     }
@@ -6405,11 +6444,42 @@ fn append_nonlinear_support_loop_results(
         &springs,
     ) {
         Ok(solve) => {
+            let mut confirmation = None;
             if solve.converged {
                 match open_pipe_stress_nonlinear_integration::product_selected_state_is_qualified(
                     &input, &springs, &solve,
                 ) {
-                    Ok(true) => {}
+                    Ok(true) => {
+                        // DEL-04-01 kd5-nonlinear-active-set.md §2.4 item 1: the
+                        // confirmation runs on a qualified non-gap state whose
+                        // last report is Passed and that has no load-row finding.
+                        let gap = built.nonlinear_supports.iter().any(|support| {
+                            matches!(support.behavior, NonlinearSupportBehavior::Gap { .. })
+                        });
+                        let passed = solve.iterations.last().is_some_and(|iteration| {
+                            iteration.structural_report.quality == SolveQuality::Passed
+                        });
+                        if confirm && passed && !gap {
+                            let curved_sources = built
+                                .curved_bend_elements
+                                .iter()
+                                .map(|e| e.macro_element)
+                                .collect::<Vec<_>>();
+                            confirmation = Some(
+                                confirm_converged_state(
+                                    &input,
+                                    &springs,
+                                    &solve,
+                                    force,
+                                    &curved_sources,
+                                    solver_mode.nonlinear_mode(),
+                                )
+                                .unwrap_or_else(|error| Confirmation::NotEstablished {
+                                    reason: format!("confirmation attempt: {error}"),
+                                }),
+                            );
+                        }
+                    }
                     Ok(false)
                         if matches!(
                             open_pipe_stress_nonlinear_integration::product_unsupported_gap_state_is_inspectable(
@@ -6498,11 +6568,20 @@ fn append_nonlinear_support_loop_results(
                     solver_mode,
                 );
             }
+            // §3.1: a confirmed state publishes each nonlinear support's
+            // certified slot row and the certified source reaction of each
+            // derived normal; otherwise the loop's reported reactions.
+            let mut published_reactions = solve.reactions.clone();
+            if let Some(Confirmation::Established(state)) = &confirmation {
+                for row in state.supports.values().chain(state.derived_normals.values()) {
+                    published_reactions[row.global_dof] = row.row.published;
+                }
+            }
             append_nonlinear_friction_normal_evidence(
                 results,
                 &built.nonlinear_friction_normal_reactions,
                 &built.nonlinear_derived_friction_normal_reactions,
-                &solve.reactions,
+                &published_reactions,
                 &solve.policy_ref,
                 solver_mode,
             );
@@ -6571,7 +6650,7 @@ fn append_nonlinear_support_loop_results(
                     results,
                     &format!("result:nonlinear-support:{suffix}:{dof}-reaction"),
                     "nonlinear_support_final_reaction",
-                    solve.reactions[global],
+                    published_reactions[global],
                     reaction_unit,
                     &support.support_id,
                     "nonlinear_support_final_reaction",
@@ -6627,7 +6706,7 @@ fn append_nonlinear_support_loop_results(
                 ),
                 vec![load_case.id.clone(), "DEC-046".to_string()],
             ));
-            Some(solve)
+            Some((solve, confirmation))
         }
         Err(error) => {
             if let NonlinearIntegrationError::Structural(structural) = &error {
@@ -14515,25 +14594,9 @@ mod tests {
         let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
     }
 
-    #[test]
-    fn kd5_eight_committed_nonlinear_case_modes_have_named_sensitive_reason() {
-        let models=[include_str!("../../../fixtures/product_preview/invented_demo_model.json"),include_str!("../tests/fixtures/preview_physics_invented_model.json")];
-        let mut checked=0;
-        for model in models {
-            for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-                let model:serde_json::Value=serde_json::from_str(model).unwrap();
-                let output=run_linear_static_preview_value_with_mode(serde_json::json!({"model":model}),mode).unwrap();
-                assert_eq!(output.status.mechanics,"MECHANICS_SOLVED","{:?}",output.diagnostics);
-                for case in ["load:L-100","load:L-200"] {
-                    let diagnostic=output.diagnostics.iter().find(|diagnostic|diagnostic.id==integrity_diagnostic_id(case)).unwrap();
-                    assert_eq!(diagnostic.code,"NUMERICAL_INTEGRITY_SENSITIVE","{}",diagnostic.message);
-                    assert!(diagnostic.message.contains("the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries"));
-                    checked+=1;
-                }
-            }
-        }
-        assert_eq!(checked,8);
-    }
+    // kd5_eight_committed_nonlinear_case_modes_have_named_sensitive_reason is
+    // re-pinned to Passed (DEL-04-01 kd5-nonlinear-active-set.md section 5) in
+    // kd5_nonlinear_tests::kd5_eight_committed_nonlinear_case_modes_pass_with_the_confirmation.
 
     #[test]
     fn kd5_fit_geometry_and_zero_rounded_arc_sources_are_complete() {
@@ -14813,13 +14876,18 @@ mod tests {
 
     }
 
+    /// Re-pinned to the measured outcome (DEL-04-01 kd5-nonlinear-active-set.md
+    /// section 5): the sticking explicit-normal model's converged state is
+    /// confirmed, so it publishes Passed with the evidence line instead of the
+    /// retired nonlinear-route sentence.
     #[test]
     fn kd5_nonlinear_route_named_fail_closed_in_both_modes() {
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
             let output=run_linear_static_preview_with_mode(friction_preview_request(),mode);
             let diagnostic=output.diagnostics.iter().find(|d| d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
-            assert_ne!(diagnostic.code,"NUMERICAL_INTEGRITY_CHECKS_PASSED");
-            if diagnostic.code=="NUMERICAL_INTEGRITY_SENSITIVE" { assert!(diagnostic.message.contains("member-relative formation check is not available on the nonlinear-support route")); }
+            assert_eq!(diagnostic.code,"NUMERICAL_INTEGRITY_CHECKS_PASSED","{}",diagnostic.message);
+            assert!(diagnostic.message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE));
+            assert!(!diagnostic.message.contains("on the nonlinear-support route"));
         }
     }
 

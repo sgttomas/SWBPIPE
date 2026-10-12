@@ -570,6 +570,13 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
             code.replace_range(range, "{");
         }
     }
+    // R2 (DEL-04-01 kd5-nonlinear-active-set.md, 2026-10-12): the nonlinear
+    // route's single confirmation entry prepares the converged state's system
+    // exactly as `solve_assembled` does; it is an exact variant, defined once,
+    // in `impl AssemblyEvidence` only, and its body is blanked the same way.
+    assert_eq!(code.matches(CONFIRMATION_ENTRY).count(), 1);
+    let range = body_in_impl(&code, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
+    code.replace_range(range, "{");
     for required in ["fn solve_binary64(", "fn solve_structural_sparse_binary64("] {
         assert!(code.contains(required), "missing legacy variant {required}");
     }
@@ -1164,7 +1171,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     let modules = non_test_modules(&manifest.join("src"));
     let names: Vec<&str> = modules.iter().map(|(n, _)| n.as_str()).collect();
     // The walk reaches the known modules and none of the test modules.
-    for known in ["lib.rs", "product_equilibrium.rs", "structural_adapter.rs"] {
+    for known in ["lib.rs", "product_equilibrium.rs", "structural_adapter.rs", "confirmation.rs"] {
         assert!(names.contains(&known), "{known} not reached: {names:?}");
     }
     assert!(!names
@@ -1195,7 +1202,12 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
         // only; it is defined once in each adapter impl and nowhere else.
         let blanked;
         let code = if sa {
-            blanked = k2b_blank_formation_siblings(code);
+            // R2: the confirmation entry's body holds the nonlinear route's
+            // formation plumbing; it is blanked like the K2b sibling.
+            let mut confirmation_blanked = k2b_blank_formation_siblings(code);
+            let range = body_in_impl(&confirmation_blanked, ADAPTER_IMPLS[0], CONFIRMATION_ENTRY);
+            confirmation_blanked.replace_range(range, "{");
+            blanked = confirmation_blanked;
             &blanked
         } else {
             code
@@ -1222,6 +1234,9 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     }
     // product_physics: the one product call, inside solve_preview_reduced_system.
     let product = non_test_modules(&manifest.join("../../product_physics/src"));
+    // R2: exactly one confirmation entry, after convergence, never in the loop.
+    let violations = r2_confirmation_entry_violations(&modules, &product);
+    assert!(violations.is_empty(), "{violations:?}");
     assert!(product.iter().any(|(n, _)| n == "lib.rs"));
     let mut calls = 0;
     for (name, code) in &product {
@@ -1261,7 +1276,13 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     let case_body=function_body(product_lib,"fn solve_load_case_observed(");
     let compact=case_body.split_whitespace().collect::<String>();
     assert!(compact.contains("letmember_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
-    assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,&force,spring_entries));"));
+    // R2 (§3.1): the nonlinear route's member bound is the confirmed state's
+    // Stage B, present only for an established confirmation of a nonlinear
+    // case, and its recovery view takes Stage B's force.
+    assert!(compact.contains("letconfirmed=match&confirmation{Some(Confirmation::Established(state))ifpre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty()=>Some(state.as_ref()),_=>None,};"));
+    assert!(compact.contains("letmember_bound=member_bound.or(confirmed.map(|state|&state.member_bound));"));
+    assert!(compact.contains("letcertified_force=confirmed.map_or(&force,|state|&state.force);"));
+    assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,certified_force,spring_entries));"));
     assert_eq!(product.iter().map(|(_,code)|code.matches("certified_publication::source(").count()).sum::<usize>(),1);
     let (_,recovery)=product.iter().find(|(name,_)|name=="certified_publication.rs").unwrap();
     let view=function_body(recovery,"fn source(").split_whitespace().collect::<String>();
@@ -1628,6 +1649,135 @@ fn k2b_blank_formation_siblings(code: &str) -> String {
         code.replace_range(range, "{");
     }
     code
+}
+
+/// R2 (DEL-04-01 kd5-nonlinear-active-set.md, HELP_HUMAN 2026-10-12): the
+/// nonlinear route's single formation-check entry.
+const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
+
+/// R2's re-scope of `kd5_nonlinear_sources_name_no_formation_check_entry_point`:
+/// no formation-check entry inside the nonlinear iteration, and exactly one
+/// source-qualified confirmation entry after convergence.
+/// - The adapter defines `confirm_with_formation_check` once, in
+///   `impl AssemblyEvidence`, and never calls it.
+/// - `confirmation.rs` calls it exactly once, in `fn confirm_with_applied(`,
+///   which is called once, from `fn confirm_converged_state(`.
+/// - No other non-test module of this crate (the loop's `lib.rs` included)
+///   names the entry, `confirm_with_applied` or `confirm_converged_state`.
+/// - product_physics calls `confirm_converged_state` exactly once, inside
+///   `fn append_nonlinear_support_loop_results(`, after the loop's call.
+fn r2_confirmation_entry_violations(
+    modules: &[(String, String)],
+    product: &[(String, String)],
+) -> Vec<String> {
+    let mut out = Vec::new();
+    let count = |code: &str, token: &str| token_indices(code, token).len();
+    for (name, code) in modules {
+        match name.as_str() {
+            "structural_adapter.rs" => {
+                if count(code, CONFIRMATION_ENTRY) != 1
+                    || code.matches("fn confirm_with_formation_check(").count() != 1
+                    || !function_body(code, ADAPTER_IMPLS[0])
+                        .contains("fn confirm_with_formation_check(")
+                {
+                    out.push(format!("{name}: the confirmation entry is defined once, in impl AssemblyEvidence, and never called"));
+                }
+            }
+            "confirmation.rs" => {
+                let body = function_body(code, "fn confirm_with_applied(");
+                if count(code, CONFIRMATION_ENTRY) != 1
+                    || body.matches(".confirm_with_formation_check(").count() != 1
+                {
+                    out.push(format!("{name}: exactly one confirmation entry, in confirm_with_applied"));
+                }
+                let outer = function_body(code, "fn confirm_converged_state(");
+                if count(code, "confirm_with_applied") != 2
+                    || outer.matches("confirm_with_applied(").count() != 1
+                {
+                    out.push(format!("{name}: confirm_with_applied is reached only from confirm_converged_state"));
+                }
+                if count(code, "confirm_converged_state") != 1 {
+                    out.push(format!("{name}: confirm_converged_state is defined once and not called here"));
+                }
+            }
+            _ => {
+                for token in [CONFIRMATION_ENTRY, "confirm_with_applied", "confirm_converged_state"] {
+                    if count(code, token) != 0 {
+                        out.push(format!("{name} names {token}: a formation-check entry inside the nonlinear iteration"));
+                    }
+                }
+            }
+        }
+    }
+    let mut calls = 0;
+    for (name, code) in product {
+        let here = code.matches("confirm_converged_state(").count();
+        if here == 0 {
+            continue;
+        }
+        calls += here;
+        let body = function_body(code, "fn append_nonlinear_support_loop_results(");
+        let in_helper = body.matches("confirm_converged_state(").count();
+        let loop_call = body.find("solve_active_set_frame_with_mode_and_springs_assembled(");
+        let entry = body.find("confirm_converged_state(");
+        if name != "lib.rs"
+            || in_helper != here
+            || !matches!((loop_call, entry), (Some(a), Some(b)) if a < b)
+        {
+            out.push(format!("{name}: confirm_converged_state is called once, in the nonlinear helper, after the loop"));
+        }
+    }
+    if calls != 1 {
+        out.push(format!("product_physics calls confirm_converged_state {calls} times"));
+    }
+    out
+}
+
+/// R2's kept mutant: a second confirmation entry, or an entry inside the
+/// loop, fails the re-scoped pin.
+#[test]
+fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let modules = non_test_modules(&manifest.join("src"));
+    let product = non_test_modules(&manifest.join("../../product_physics/src"));
+    assert!(r2_confirmation_entry_violations(&modules, &product).is_empty());
+    let mutate = |file: &str, from: &str, to: &str| {
+        let mut out = modules.clone();
+        let (_, code) = out.iter_mut().find(|(n, _)| n == file).unwrap();
+        assert!(code.contains(from), "{file}: {from}");
+        *code = code.replacen(from, to, 1);
+        out
+    };
+    // A second entry in the confirmation module.
+    let second = mutate(
+        "confirmation.rs",
+        "let attempt = evidence.confirm_with_formation_check(",
+        "let _ = evidence.confirm_with_formation_check(); let attempt = evidence.confirm_with_formation_check(",
+    );
+    assert!(!r2_confirmation_entry_violations(&second, &product).is_empty());
+    // An entry inside the loop's iteration.
+    let in_loop = mutate(
+        "lib.rs",
+        "let trial_states = build_trial_states(",
+        "let _ = confirmation::confirm_converged_state(); let trial_states = build_trial_states(",
+    );
+    assert!(!r2_confirmation_entry_violations(&in_loop, &product).is_empty());
+    // A direct adapter call from the loop.
+    let direct = mutate(
+        "lib.rs",
+        "let trial_states = build_trial_states(",
+        "let _ = assembly.confirm_with_formation_check(); let trial_states = build_trial_states(",
+    );
+    assert!(!r2_confirmation_entry_violations(&direct, &product).is_empty());
+    // A product call before the loop has converged.
+    let mut early = product.clone();
+    let (_, code) = early.iter_mut().find(|(n, _)| n == "lib.rs").unwrap();
+    *code = code.replacen(
+        "match solve_active_set_frame_with_mode_and_springs_assembled(",
+        "let _ = confirm_converged_state(); match solve_active_set_frame_with_mode_and_springs_assembled(",
+        1,
+    );
+    assert!(!r2_confirmation_entry_violations(&modules, &early).is_empty());
 }
 
 /// K2b: the force-scaled entries are defined in the structural adapter only
