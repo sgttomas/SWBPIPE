@@ -178,6 +178,15 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
     }
 }
 
+/// The owner-approved J1 text amendment (b7-plan, 2026-10-12): the held
+/// pre-join limitation [7] and its joined, unselected replacement.
+const HELD_LIMITATION_7: &str = "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+const JOINED_LIMITATION_7: &str = "No corrosion-allowance input or shear-deformation selection is provided. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; 0.4.0 includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+
+/// The regenerated v3 reader corpora are unselected pressure-1 publications:
+/// each equals the joined unselected basis exactly. The held pre-join helper
+/// differs from it only at limitation [7], by exactly the approved OLD/CURRENT
+/// pair; the selected basis names the source publication.
 #[test]
 fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
     for (text, connectors) in [
@@ -194,10 +203,25 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
         for case in corpus["cases"].as_array().unwrap() {
             let load_state = case["document_schema_version"] == "0.4.0";
             let held = exact_admission::pressure_v3_formulation_basis(load_state, connectors);
-            assert_eq!(
-                serialized(&held).unwrap(),
-                case["envelope"]["formulation_basis"]
+            let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
+                load_state, connectors, false,
             );
+            // The producer (`formulation_basis_for_model_with_source`) appends
+            // K-D5's two route-independent certified-recovery statements.
+            let published = &case["envelope"]["formulation_basis"];
+            assert_eq!(published["profile_id"], unselected.profile_id);
+            let published: Vec<String> =
+                serde_json::from_value(published["limitations"].clone()).unwrap();
+            let (prefix, tail) = published.split_at(unselected.limitations.len());
+            assert_eq!(prefix, unselected.limitations.as_slice());
+            assert_eq!(tail.len(), 2);
+            assert!(tail[0].starts_with("Member actions, section actions, stresses and support reactions"));
+            assert!(tail[1].starts_with("The recovery is checked against the formation check's re-formed system"));
+            assert_eq!(held.limitations[7], HELD_LIMITATION_7);
+            assert_eq!(unselected.limitations[7], JOINED_LIMITATION_7);
+            let mut amended = held.limitations.clone();
+            amended[7] = JOINED_LIMITATION_7.to_string();
+            assert_eq!(amended, unselected.limitations);
             for selected in [false, true] {
                 let joined = exact_admission::pressure_v3_formulation_basis_with_source(
                     load_state, connectors, selected,
