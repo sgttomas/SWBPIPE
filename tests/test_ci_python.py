@@ -82,3 +82,10 @@ def test_full_fallback_and_shared_controls_preserve_edited_test_and_broad_famili
                                'piping_numerical_selection': {'classification': 'full-fallback'}})
     assert 'tests/product_preview' in chosen
     assert 'tests/test_qualification_gate.py' in chosen
+
+
+def test_j7_rf_census_generator_inputs_select_the_fixture_currency_check():
+    for path in sorted(ci.J7_RF_CENSUS_INPUTS):
+        assert ci.J7_RF_CENSUS_TEST in selected(path), path
+        assert (PROJECT / path).is_file(), path
+    assert ci.J7_RF_CENSUS_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
