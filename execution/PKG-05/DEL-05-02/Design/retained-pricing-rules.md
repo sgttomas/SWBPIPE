@@ -91,7 +91,13 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 These additions close the new header and argument inventory. They do not
 zero a newly reached branch. D1 still admits no components and no pressure-v3
 namespace (§B P1–P3); true array and collection bounds are used even when the
-chain conservatively reaches an arc helper.
+chain conservatively reaches an arc helper. One exception: the chain charges a
+named closure's body sites once per enclosing call, so the text rows of the
+`append` closure in `append_arc_pressure_results` (called 2 + 3·|sections| ≤ 17
+times per call) are charged at the call's multiplicity, not up to 17 times it.
+This is safe on D1, which forms no realized bend and no exact-pressure state, so
+the closure is unreachable; a domain that admits them must charge the closure
+per call first.
 
 | Label | Rule and code argument |
 |---|---|
