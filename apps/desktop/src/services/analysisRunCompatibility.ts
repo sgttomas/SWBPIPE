@@ -128,6 +128,8 @@ export async function buildAnalysisRunV02(result: MechanicsResult, inputManifest
 }
 export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  // pressure-1 is read (its own Rust route) but has no 0.3 AnalysisRun record, as in Python's builder.
+  if (sourceContract(result) === "pressure") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
 type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";

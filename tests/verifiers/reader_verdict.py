@@ -17,7 +17,10 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
   `SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE`. Preview-physics-1's TypeScript reader ignores its model.
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
   TypeScript header's checks (each source route's receipt shape, the evidence object the load-reference
-  routes need, no evidence on precision-1, no identity outside the desktop's routes).
+  and pressure routes need, no evidence on precision-1, no identity outside these routes).
+- pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its own route, read here by the
+  independent `pressure_1` verifier with G2's model checks and the ordinary standing; it has no transport
+  reader, so a transported pressure-1 statement is refused by name.
 
 Outcomes have the Rust entries' shape: `{"ok": true, ...}` or `{"ok": false, "error": {"code", "detail"}}`.
 The readers themselves are this package's verifiers. Tests only; no product import, no process.
@@ -32,10 +35,10 @@ from typing import Any
 from . import compatibility as c
 from . import load_reference_evidence as lr
 from . import load_reference_source as lrs
-from . import physics_evidence, physics_source, preview_physics_evidence, source_blocks
+from . import physics_evidence, physics_source, preview_physics_evidence, pressure_1, source_blocks
 
 ROUTES = ("legacy", "precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
-          "load_reference_source", "retained_preview_physics", "retained_physics")
+          "load_reference_source", "pressure", "retained_preview_physics", "retained_physics")
 UNSUPPORTED = "unsupported"
 SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
 SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED = "SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"
@@ -43,22 +46,26 @@ LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE = "LOAD_REFERENCE_SOURCE_NOT_NUME
 RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
+PRESSURE_CONTRACT_SHA256 = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
-                 "source_blocks": "source-blocks", "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
+                 "source_blocks": "source-blocks", "load_reference": "load-reference", "load_reference_source": "load-reference-source",
+                 "pressure": "pressure"}
 _IDENTITY_ROUTES = {c.PRECISION_CONTRACT_ID: "precision", c.PHYSICS_CONTRACT_ID: "physics", c.SOURCE_BLOCKS_CONTRACT_ID: "source_blocks",
                     c.PHYSICS_SOURCE_CONTRACT_ID: "physics_source", c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
                     c.LOAD_REFERENCE_CONTRACT_ID: "load_reference", c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: "load_reference_source",
                     c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: "retained_preview_physics", c.PHYSICS_RETAINED_CONTRACT_ID: "retained_physics"}
-_BINDINGS = {route: identity for identity, route in _IDENTITY_ROUTES.items()}
+_BINDINGS = {**{route: identity for identity, route in _IDENTITY_ROUTES.items()}, "pressure": PRESSURE_CONTRACT_ID}
 _SHA256 = {c.PRECISION_CONTRACT_ID: c.PRECISION_CONTRACT_SHA256, c.PHYSICS_CONTRACT_ID: c.PHYSICS_CONTRACT_SHA256,
            c.SOURCE_BLOCKS_CONTRACT_ID: c.SOURCE_BLOCKS_CONTRACT_SHA256, c.PHYSICS_SOURCE_CONTRACT_ID: c.PHYSICS_SOURCE_CONTRACT_SHA256, c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256,
            c.PREVIEW_PHYSICS_CONTRACT_ID: c.PREVIEW_PHYSICS_CONTRACT_SHA256, c.LOAD_REFERENCE_CONTRACT_ID: c.LOAD_REFERENCE_CONTRACT_SHA256,
            c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c.LOAD_REFERENCE_SOURCE_CONTRACT_SHA256,
-           **{identity: pinned[0] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
+           PRESSURE_CONTRACT_ID: PRESSURE_CONTRACT_SHA256, **{identity: pinned[0] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
 _TABLE_PATHS = {c.PRECISION_CONTRACT_ID: c._PRECISION_CONTRACT_PATH, c.PHYSICS_CONTRACT_ID: c._PHYSICS_CONTRACT_PATH,
                 c.SOURCE_BLOCKS_CONTRACT_ID: c._SOURCE_BLOCKS_CONTRACT_PATH, c.PHYSICS_SOURCE_CONTRACT_ID: c._PHYSICS_SOURCE_CONTRACT_PATH, c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH,
                 c.PREVIEW_PHYSICS_CONTRACT_ID: c._PREVIEW_PHYSICS_CONTRACT_PATH, c.LOAD_REFERENCE_CONTRACT_ID: c._LOAD_REFERENCE_CONTRACT_PATH,
                 c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c._LOAD_REFERENCE_SOURCE_CONTRACT_PATH,
+                PRESSURE_CONTRACT_ID: c._CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_1.json"),
                 **{identity: pinned[1] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
 _QUALITY_STATUSES = ("not_assessed", "checks_passed", "sensitive", "unresolved", "failed")
 _SUPPORT_KINDS = {"support_reaction_component_v2", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
@@ -196,7 +203,7 @@ def route(source: Any) -> str:
             physics_source.validate_receipt_shape(receipt, source_contract=physics_source.SourceContract.PRESSURE_V3)
         if name == "source_blocks":
             source_blocks.validate_receipt_shape(receipt)
-        if name in ("load_reference", "load_reference_source") and not evidence_object:
+        if name in ("load_reference", "load_reference_source", "pressure") and not evidence_object:
             raise Refused(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         if name == "load_reference_source":
             _joined_receipt_shape(receipt)
@@ -204,8 +211,6 @@ def route(source: Any) -> str:
         raise
     except ValueError as error:
         raise Refused(str(error)) from error
-    if name == "pressure":
-        raise Refused(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
     return name
 
 
@@ -265,6 +270,11 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 except Refused as error:
                     raise Refused(f"{lr._code('PHYSICS_EVIDENCE')}: {error}") from error
             return {"ok": True}
+        if reader == "pressure":
+            pressure_1.validate_pressure_evidence(source)
+            if model is not None:
+                physics_model_checks(source, model)
+            return {"ok": True}
         if reader == "load-reference-source":
             return {"ok": True, "eligible": lrs.validate_load_reference_source_evidence(source)}
         if reader in ("physics-source", "pressure-source", "source-blocks"):
@@ -283,6 +293,8 @@ def transport(reader: str, source: Any) -> dict[str, Any]:
               "physics-source": physics_source.validate_transport_metadata,
               "pressure-source": lambda source: physics_source.validate_transport_metadata(source, source_contract=physics_source.SourceContract.PRESSURE_V3), "load-reference": lr.validate_load_reference_transport_metadata,
               "load-reference-source": lrs.validate_load_reference_source_transport_metadata}
+    if reader == "pressure":
+        return _refusal(PRESSURE_TRANSPORT_UNSUPPORTED)
     if reader not in checks:
         return _refusal(f"READER_UNKNOWN: {reader}")
     try:
@@ -425,7 +437,7 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
                 findings.append(error.code)
         return done(findings)
     elif name != UNSUPPORTED:
-        reader = {"physics": "physics", "load_reference": "load-reference", "preview_physics": "preview-physics"}.get(name)
+        reader = {"physics": "physics", "load_reference": "load-reference", "preview_physics": "preview-physics", "pressure": "pressure"}.get(name)
         if reader is not None:
             outcome = validate(reader, source, model, None)
             if outcome["ok"] is not True:

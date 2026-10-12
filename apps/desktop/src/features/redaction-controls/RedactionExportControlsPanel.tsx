@@ -1,3 +1,4 @@
+import { isExactPressureContract } from "../pressure-authoring/pressureContract";
 // DEL-12-02 app-side binding (TP-E4-REDACTION-001): user-facing redaction and
 // export-control workflow. The panel classifies a metadata-only export
 // representation of the CURRENT user-entered model through the TypeScript
@@ -265,7 +266,7 @@ export function buildExportRepresentation(model: PreviewModel): Record<string, u
     field_id: material.id,
     field_class: "material",
     ...privacyMetadataFor("material", material.provenance),
-    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus ? `${material.shear_modulus.value} ${material.shear_modulus.unit}` : model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "not authored (derived from selected E and nu)" : "not authored"}`
+    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus ? `${material.shear_modulus.value} ${material.shear_modulus.unit}` : isExactPressureContract(model) ? "not authored (derived from selected E and nu)" : "not authored"}`
   }));
 
   const components: ExportItem[] = model.components.map((component) => ({

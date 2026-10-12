@@ -382,10 +382,11 @@ fn rb_view(request: &Value, envelope: &MechanicsEnvelope, case: &str) -> Vec<End
         .map(|b| b.pipe_id.clone())
         .collect();
     let owned: Vec<ResultItem> = rows.iter().map(|r| (*r).clone()).collect();
-    let scales = formation_guard::moment_scales(
+    // O-13: every published arc is guarded, so its rows are in S* (2b lifted).
+    let scales = formation_guard::action_scales(
         &owned,
         &formation_entity_bodies(&model, &built, &bodies),
-        &curved,
+        &HashSet::new(),
         &bodies,
     );
     let moment = |member: &str, component: &str, location: &str| {
@@ -408,8 +409,8 @@ fn rb_view(request: &Value, envelope: &MechanicsEnvelope, case: &str) -> Vec<End
         let bounds = pipe.bending_formation_bound(&u).unwrap();
         let s_star = bodies
             .body_of_node(pipe.node_i.index)
-            .and_then(|b| scales.get(&b).copied())
-            .unwrap_or(0.0);
+            .and_then(|b| scales.get(&b))
+            .map_or(0.0, |s| s.moment);
         for (index, (end, location)) in [("i", "end_i"), ("j", "end_j")].into_iter().enumerate() {
             let (Some(y), Some(z)) = (
                 moment(&pipe.element_id, "bending_moment_y", location),
@@ -2047,8 +2048,11 @@ fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
 
 /// T15b (DESIGN_R01 §5 with T4-RV8 C-1): certified arcs publish Passed at
 /// ordinary and UTM origins, from 90° to 5°, at k = 1 and 2, under an
-/// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad
-/// (the acceptance floor; Passed now that the load vector is stable).
+/// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad.
+/// Re-pinned to the unified member predicate's outcome on the certified
+/// rows (DEL-04-01 `kd5-member-relative-bound.md`, "Superseded by this unit"
+/// item 3: the t15b 1e-4 rad acceptance is superseded; predicted and
+/// measured Passed, with the short-bend rule removed).
 #[test]
 fn t15b_certified_arcs_pass_at_utm_and_small_angles() {
     let mut cases = Vec::new();
@@ -3375,3 +3379,6 @@ fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
 
 // HELP_HUMAN's ruling 5 (T4): short stiff bends.
 mod short_bend;
+
+// O-13's arc tests under K-D5's unified predicate (the short-bend rule removed).
+mod arc_recovery;

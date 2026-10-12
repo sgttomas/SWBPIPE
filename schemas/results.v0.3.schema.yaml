@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/results.v0.3.schema.yaml",
   "title": "Precision-preserving derivative result export 0.3",
-  "description": "Source-bound precision-1, physics-1, source-blocks-1 and physics-source-1 semantics; method-specific evidence retained without engineering qualification.",
+  "description": "Source-bound precision-1, physics-1, source-blocks-1, physics-source-1 and pressure-1 semantics; method-specific evidence retained without engineering qualification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -869,6 +869,9 @@
               },
               {
                 "$ref": "#/$defs/PreviewPhysicsResultSet"
+              },
+              {
+                "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureResultSet"
               }
             ]
           }
@@ -965,6 +968,7 @@
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                "openpipestress.result_semantics/0.3.0/pressure-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -992,6 +996,7 @@
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-1",
                 "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+                "openpipestress.result_semantics/0.3.0/pressure-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -1010,9 +1015,9 @@
               "enum": [
                 "product_preview_mechanics_v1",
                 "exact_straight_pressure_v2",
-                "exact_pressure_v3",
                 "resolved_straight_load_state_v1",
                 "resolved_straight_load_state_source_v1",
+                "exact_pressure_v3",
                 "product_preview_retained_w1a_v2",
                 "exact_straight_retained_w1a_v2"
               ]
@@ -1127,6 +1132,9 @@
             },
             {
               "$ref": "#/$defs/PreviewPhysicsContractEvidence"
+            },
+            {
+              "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureContractEvidence"
             },
             {
               "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"
@@ -1728,6 +1736,9 @@
               }
             }
           ]
+        },
+        {
+          "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureResultEnvelope"
         },
         {
           "required": [

@@ -3,7 +3,7 @@
 //! desktop Current adapter own qualification; payload shape never proves origin.
 use crate::retained_precision::AccuracyClass;
 use crate::semantic_contract::{
-    canonical_metadata_in, complete_metadata, for_source, retained_row_classes, signature_in,
+    canonical_metadata_for, complete_metadata, for_source, retained_row_classes, signature_for,
     PHYSICS_RETAINED_ID, PREVIEW_PHYSICS_RETAINED_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN,
 };
 use open_pipe_stress_canonical_json::canonical_json;
@@ -26,17 +26,6 @@ fn is_successor(source: &Value) -> bool {
 /// receipt's published `fl-up(2^-64 S*)`, in the SI unit the message names; the
 /// receipt travels with the document. No other claim (no stop-rule bound, no
 /// extrema enclosure) is made.
-/// T4-U2a: a solved `pressure-1` (`3.0.0/exact_pressure_v3`) envelope has no
-/// export document yet; the results 0.3 export schema gains its branch with
-/// T4-U2. Refused by name before any table or binding check.
-pub const PRESSURE_1_EXPORT_NOT_AVAILABLE: &str = "PRESSURE_1_EXPORT_NOT_AVAILABLE: \
-pressure-1 (3.0.0/exact_pressure_v3) result export is not yet available; it arrives with T4-U2";
-fn refuse_pressure_1_export(source: &Value) -> Result<(), String> {
-    if matches!(source["producer"]["semantic_contract_id"].as_str(), Some(crate::semantic_contract::PRESSURE_ID | crate::semantic_contract::PRESSURE_SOURCE_ID)) {
-        return Err(PRESSURE_1_EXPORT_NOT_AVAILABLE.into());
-    }
-    Ok(())
-}
 pub const RETAINED_ABSOLUTE_VERIFIED: &str = "retained_precision_absolute_verified";
 pub const RETAINED_NOT_COVERED: &str = "retained_precision_not_covered";
 pub const RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH: &str =
@@ -130,7 +119,6 @@ pub fn derive_document(
     origin: Value,
     request: Option<&Value>,
 ) -> Result<Value, String> {
-    refuse_pressure_1_export(source)?;
     let (table, version) = for_source(source)?;
     let classes = retained_row_classes(source)?;
     guard_json(model)?;
@@ -169,6 +157,8 @@ pub fn derive_document(
                     | crate::semantic_contract::PHYSICS_SOURCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
+                    | crate::semantic_contract::PRESSURE_ID
+                    | crate::semantic_contract::PRESSURE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
                     | PREVIEW_PHYSICS_RETAINED_ID
                     | PHYSICS_RETAINED_ID
@@ -176,11 +166,14 @@ pub fn derive_document(
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();
         }
+        // b7-plan MJ8: pressure-source-1's received v3 receipt travels whole,
+        // as the other source identities' receipts do (D6 lapsed with T4-U2).
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
             Some(
                 crate::source_blocks::CONTRACT_ID
                     | crate::semantic_contract::PHYSICS_SOURCE_ID
+                    | crate::semantic_contract::PRESSURE_SOURCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
             )
         ) {
@@ -241,7 +234,8 @@ pub fn derive_document(
             .filter(|s| !s.is_empty())
             .ok_or("SOURCE_UNIT_MISSING")?;
         let kind = row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;
-        let s = signature_in(table, row)?;
+        let signature = signature_for(source, table, row)?;
+        let s = signature.as_ref();
         let category = s.map(|s| s["category"].clone()).unwrap_or(json!("unknown"));
         let dimension = s
             .map(|s| s["derivative_target_dimension"].clone())
@@ -252,7 +246,7 @@ pub fn derive_document(
         let disposition = s
             .map(|s| s["canonical_disposition"].as_str().unwrap())
             .unwrap_or("disclosed");
-        let metadata = canonical_metadata_in(table, row);
+        let metadata = canonical_metadata_for(source, table, row);
         let family = s.map(|s| s["family"].clone()).unwrap_or(Value::Null);
         let mandatory = matches!(
             family.as_str(),
@@ -402,7 +396,6 @@ pub fn derive_document(
 /// Independent structural/value/hash accounting check. Strict whole schema is
 /// additionally exercised by the version-dispatched schema validation gate.
 pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
-    refuse_pressure_1_export(source)?;
     guard_json(doc)?;
     guard_json(source)?;
     let (table, version) = for_source(source)?;
@@ -412,6 +405,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         Some(
             crate::source_blocks::CONTRACT_ID
                 | crate::semantic_contract::PHYSICS_SOURCE_ID
+                | crate::semantic_contract::PRESSURE_SOURCE_ID
                 | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
         )
     ) {
@@ -564,8 +558,9 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             return Err("TARGET_DUPLICATE".into());
         }
         let target = doc.pointer(path).ok_or("TARGET_POINTER_UNRESOLVED")?;
-        let s = signature_in(table, row)?;
-        let md = canonical_metadata_in(table, row);
+        let signature = signature_for(source, table, row)?;
+        let s = signature.as_ref();
+        let md = canonical_metadata_for(source, table, row);
         let family = s.map(|s| s["family"].clone()).unwrap_or(Value::Null);
         let category = s.map(|s| s["category"].clone()).unwrap_or(json!("unknown"));
         let mut disposition = s

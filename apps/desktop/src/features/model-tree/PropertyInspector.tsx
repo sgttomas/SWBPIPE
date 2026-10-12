@@ -2,6 +2,7 @@ import { CompactSelect } from "../workspace/CompactSelect";
 import { QuantityReadout } from "../display-units";
 import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
+import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
@@ -26,6 +27,7 @@ import {
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -128,14 +130,6 @@ export function PropertyInspector({
     "force",
     componentDraft.forceUnit || model.project.units.force || "TBD"
   );
-  const componentAreaUnitOptions = unitOptions(unitCatalogRoute, "area", "m^2");
-  const componentMovementUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
-  const componentLinearStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", "N/m");
-  const componentRotationalStiffnessUnitOptions = unitOptions(
-    unitCatalogRoute,
-    "rotational_stiffness",
-    "N*m/rad"
-  );
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
     .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
@@ -173,6 +167,7 @@ export function PropertyInspector({
   const componentCreateIntent = isComponentDraftValid(model, componentDraft, queuedIntents)
     ? buildCreateComponentIntent({
         draft: componentDraft,
+        model,
         sourceRef: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
         sourceRole: "gui_editor",
         unitValidation: componentUnitValidation(componentDraft, unitCatalogRoute)
@@ -564,6 +559,7 @@ export function PropertyInspector({
         </details>
       ) : null}
       <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <BendAuthoringForms getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
@@ -873,7 +869,6 @@ export function PropertyInspector({
               <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
               <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
               <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
-              <ComponentTextInput label="Plane orientation" testId="create-component-plane" value={componentDraft.bendPlaneOrientation} onChange={(value) => updateComponentDraft("bendPlaneOrientation", value)} />
             </>
           ) : null}
           {componentDraft.kind === "tee" ? (
@@ -888,22 +883,7 @@ export function PropertyInspector({
             </>
           ) : null}
           {componentDraft.kind === "expansion_joint" ? (
-            <>
-              <ComponentTextInput label="Effective area" testId="create-component-effective-area" value={componentDraft.effectiveArea} onChange={(value) => updateComponentDraft("effectiveArea", value)} />
-              <ComponentUnitSelect label="Effective area unit" testId="create-component-area-unit" value={componentDraft.areaUnit} options={componentAreaUnitOptions} onChange={(value) => updateComponentDraft("areaUnit", value)} />
-              <ComponentTextInput label="Movement limit" testId="create-component-movement-limit" value={componentDraft.movementLimit} onChange={(value) => updateComponentDraft("movementLimit", value)} />
-              <ComponentUnitSelect label="Movement limit unit" testId="create-component-movement-unit" value={componentDraft.movementUnit} options={componentMovementUnitOptions} onChange={(value) => updateComponentDraft("movementUnit", value)} />
-              <ComponentTextInput label="Hardware reference" testId="create-component-hardware-ref" value={componentDraft.hardwareReference} onChange={(value) => updateComponentDraft("hardwareReference", value)} />
-              <ComponentTextInput label="Manufacturer reference" testId="create-component-manufacturer-ref" value={componentDraft.manufacturerReference} onChange={(value) => updateComponentDraft("manufacturerReference", value)} />
-              <ComponentTextInput label="Pressure thrust reference" testId="create-component-pressure-thrust-ref" value={componentDraft.pressureThrustReference} onChange={(value) => updateComponentDraft("pressureThrustReference", value)} />
-              <ComponentTextInput label="Axial stiffness" testId="create-component-axial-stiffness" value={componentDraft.axialStiffness} onChange={(value) => updateComponentDraft("axialStiffness", value)} />
-              <ComponentTextInput label="Lateral stiffness" testId="create-component-lateral-stiffness" value={componentDraft.lateralStiffness} onChange={(value) => updateComponentDraft("lateralStiffness", value)} />
-              <ComponentUnitSelect label="Linear stiffness unit" testId="create-component-linear-stiffness-unit" value={componentDraft.linearStiffnessUnit} options={componentLinearStiffnessUnitOptions} onChange={(value) => updateComponentDraft("linearStiffnessUnit", value)} />
-              <ComponentTextInput label="Angular stiffness" testId="create-component-angular-stiffness" value={componentDraft.angularStiffness} onChange={(value) => updateComponentDraft("angularStiffness", value)} />
-              <ComponentTextInput label="Torsional stiffness" testId="create-component-torsional-stiffness" value={componentDraft.torsionalStiffness} onChange={(value) => updateComponentDraft("torsionalStiffness", value)} />
-              <ComponentUnitSelect label="Rotational stiffness unit" testId="create-component-rotational-stiffness-unit" value={componentDraft.rotationalStiffnessUnit} options={componentRotationalStiffnessUnitOptions} onChange={(value) => updateComponentDraft("rotationalStiffnessUnit", value)} />
-              <ComponentTextInput label="Stiffness source reference" testId="create-component-stiffness-source" value={componentDraft.stiffnessSourceReference} onChange={(value) => updateComponentDraft("stiffnessSourceReference", value)} />
-            </>
+            <ConnectorDraftFields model={model} draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
           ) : null}
           {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
             <>
@@ -1393,7 +1373,6 @@ function requiredFlagsForSelection(
       const geometryComplete = Boolean(
         geometry?.bend_radius &&
         geometry.bend_angle &&
-        geometry.bend_plane_orientation?.trim() &&
         geometry.bend_geometry_source_reference?.trim()
       );
       const modifiersComplete = Boolean(
@@ -1785,15 +1764,6 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           component.geometry?.bend_angle?.unit ?? model.project.units.angle ?? "rad",
           "set_field",
           true
-        ),
-        scalarField(
-          "Bend plane",
-          "geometry.bend_plane_orientation",
-          component.geometry?.bend_plane_orientation ?? "TBD",
-          "Component",
-          "dimensionless",
-          "none",
-          "user-entered bend plane orientation"
         ),
         scalarField(
           "Bend pipe",
@@ -2473,17 +2443,8 @@ function materialDraftUnitValidationStatus(draft: MaterialDraft, route: UnitCata
 }
 
 function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute | null): string {
-  if (draft.kind === "expansion_joint") {
-    const area = propertyUnitValidationStatus(route, draft.areaUnit, "area");
-    const movement = propertyUnitValidationStatus(route, draft.movementUnit, "length");
-    const linearStiffness = propertyUnitValidationStatus(route, draft.linearStiffnessUnit, "linear_stiffness");
-    const rotationalStiffness = propertyUnitValidationStatus(
-      route,
-      draft.rotationalStiffnessUnit,
-      "rotational_stiffness"
-    );
-    return `area=${area}; movement=${movement}; linear_stiffness=${linearStiffness}; rotational_stiffness=${rotationalStiffness}`;
-  }
+  // The connector's quantities carry their own units, checked by the engine.
+  if (draft.kind === "expansion_joint") return "connector_quantities_carry_explicit_units";
   const length = propertyUnitValidationStatus(route, draft.lengthUnit, "length");
   if (draft.kind === "bend" || draft.kind === "tee") {
     const angle = propertyUnitValidationStatus(route, draft.angleUnit, "angle");

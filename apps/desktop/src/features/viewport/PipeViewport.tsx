@@ -22,6 +22,7 @@ import type {
   PreviewModel,
   Vec3
 } from "../../types";
+import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -721,14 +722,6 @@ export function PipeViewport({
     unitCatalogRoute,
     "force",
     componentDraft.forceUnit || model.project.units.force || "TBD"
-  );
-  const componentAreaUnitOptions = unitOptions(unitCatalogRoute, "area", "m^2");
-  const componentMovementUnitOptions = unitOptions(unitCatalogRoute, "length", defaultLengthUnit);
-  const componentLinearStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", "N/m");
-  const componentRotationalStiffnessUnitOptions = unitOptions(
-    unitCatalogRoute,
-    "rotational_stiffness",
-    "N*m/rad"
   );
   useEffect(() => {
     let cancelled = false;
@@ -1612,6 +1605,7 @@ export function PipeViewport({
     if (!componentDraftValid) return;
     const intent = buildCreateComponentIntent({
       draft: componentDraft,
+      model,
       sourceRef: "apps/desktop/src/features/viewport/PipeViewport.tsx",
       sourceRole: "viewport_editor",
       sequence: queuedIntents.length + localIntents.length + 1,
@@ -2873,7 +2867,6 @@ export function PipeViewport({
                 <ViewportComponentUnitSelect label="Radius unit" testId="viewport-create-component-radius-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
                 <ViewportComponentTextInput label="Angle" testId="viewport-create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
                 <ViewportComponentUnitSelect label="Angle unit" testId="viewport-create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
-                <ViewportComponentTextInput label="Plane orientation" testId="viewport-create-component-plane" value={componentDraft.bendPlaneOrientation} onChange={(value) => updateComponentDraft("bendPlaneOrientation", value)} />
               </>
             ) : null}
             {componentDraft.kind === "tee" ? (
@@ -2888,22 +2881,7 @@ export function PipeViewport({
               </>
             ) : null}
             {componentDraft.kind === "expansion_joint" ? (
-              <>
-                <ViewportComponentTextInput label="Effective area" testId="viewport-create-component-effective-area" value={componentDraft.effectiveArea} onChange={(value) => updateComponentDraft("effectiveArea", value)} />
-                <ViewportComponentUnitSelect label="Effective area unit" testId="viewport-create-component-area-unit" value={componentDraft.areaUnit} options={componentAreaUnitOptions} onChange={(value) => updateComponentDraft("areaUnit", value)} />
-                <ViewportComponentTextInput label="Movement limit" testId="viewport-create-component-movement-limit" value={componentDraft.movementLimit} onChange={(value) => updateComponentDraft("movementLimit", value)} />
-                <ViewportComponentUnitSelect label="Movement limit unit" testId="viewport-create-component-movement-unit" value={componentDraft.movementUnit} options={componentMovementUnitOptions} onChange={(value) => updateComponentDraft("movementUnit", value)} />
-                <ViewportComponentTextInput label="Hardware reference" testId="viewport-create-component-hardware-ref" value={componentDraft.hardwareReference} onChange={(value) => updateComponentDraft("hardwareReference", value)} />
-                <ViewportComponentTextInput label="Manufacturer reference" testId="viewport-create-component-manufacturer-ref" value={componentDraft.manufacturerReference} onChange={(value) => updateComponentDraft("manufacturerReference", value)} />
-                <ViewportComponentTextInput label="Pressure thrust reference" testId="viewport-create-component-pressure-thrust-ref" value={componentDraft.pressureThrustReference} onChange={(value) => updateComponentDraft("pressureThrustReference", value)} />
-                <ViewportComponentTextInput label="Axial stiffness" testId="viewport-create-component-axial-stiffness" value={componentDraft.axialStiffness} onChange={(value) => updateComponentDraft("axialStiffness", value)} />
-                <ViewportComponentTextInput label="Lateral stiffness" testId="viewport-create-component-lateral-stiffness" value={componentDraft.lateralStiffness} onChange={(value) => updateComponentDraft("lateralStiffness", value)} />
-                <ViewportComponentUnitSelect label="Linear stiffness unit" testId="viewport-create-component-linear-stiffness-unit" value={componentDraft.linearStiffnessUnit} options={componentLinearStiffnessUnitOptions} onChange={(value) => updateComponentDraft("linearStiffnessUnit", value)} />
-                <ViewportComponentTextInput label="Angular stiffness" testId="viewport-create-component-angular-stiffness" value={componentDraft.angularStiffness} onChange={(value) => updateComponentDraft("angularStiffness", value)} />
-                <ViewportComponentTextInput label="Torsional stiffness" testId="viewport-create-component-torsional-stiffness" value={componentDraft.torsionalStiffness} onChange={(value) => updateComponentDraft("torsionalStiffness", value)} />
-                <ViewportComponentUnitSelect label="Rotational stiffness unit" testId="viewport-create-component-rotational-stiffness-unit" value={componentDraft.rotationalStiffnessUnit} options={componentRotationalStiffnessUnitOptions} onChange={(value) => updateComponentDraft("rotationalStiffnessUnit", value)} />
-                <ViewportComponentTextInput label="Stiffness source reference" testId="viewport-create-component-stiffness-source" value={componentDraft.stiffnessSourceReference} onChange={(value) => updateComponentDraft("stiffnessSourceReference", value)} />
-              </>
+              <ConnectorDraftFields model={model} draft={componentDraft} prefix="viewport-create" TextInput={ViewportComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
             ) : null}
             {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
               <>
@@ -3185,17 +3163,8 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
 }
 
 function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute | null): string {
-  if (draft.kind === "expansion_joint") {
-    const area = unitDimensionValidationStatus(route, draft.areaUnit, "area");
-    const movement = unitDimensionValidationStatus(route, draft.movementUnit, "length");
-    const linearStiffness = unitDimensionValidationStatus(route, draft.linearStiffnessUnit, "linear_stiffness");
-    const rotationalStiffness = unitDimensionValidationStatus(
-      route,
-      draft.rotationalStiffnessUnit,
-      "rotational_stiffness"
-    );
-    return `area=${area}; movement=${movement}; linear_stiffness=${linearStiffness}; rotational_stiffness=${rotationalStiffness}`;
-  }
+  // The connector's quantities carry their own units, checked by the engine.
+  if (draft.kind === "expansion_joint") return "connector_quantities_carry_explicit_units";
   const length = unitDimensionValidationStatus(route, draft.lengthUnit, "length");
   if (draft.kind === "bend" || draft.kind === "tee") {
     const angle = unitDimensionValidationStatus(route, draft.angleUnit, "angle");

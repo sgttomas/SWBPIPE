@@ -99,6 +99,30 @@ pub(super) fn pressure_adjustment(
     }
     Ok(out)
 }
+/// T4-U2 (H-2) on a realized arc: the wall force N_w = N_el + pAi at both
+/// end cuts and the three stations, with pAi formed at p and each row
+/// rounded once (K-D5 Design section 3.2, pipe-wall rows); S = N_el is the
+/// elastic recovery itself. The wall end actions lie along the arc's end
+/// tangents: -N_w(cut_i) at end i and +N_w(cut_j) at end j (exact negation),
+/// so the wall end groups judge the published tangent end actions, not the
+/// chord-frame end rows.
+pub(super) fn arc_pressure_wall(
+    recovery: &CertifiedMemberRecovery,
+    state: &pressure_runtime::ExactPressurePipeState,
+) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+    let fluid = certified_pressure_area_product(
+        state.pressure.pressure_pa(),
+        state.annulus.outside_diameter_m(),
+        state.annulus.effective_wall_thickness_m(),
+    )?;
+    let mut out = recovery.clone();
+    for section in &mut out.sections {
+        section[0] = section[0].add_value(fluid)?;
+    }
+    out.ends[0] = out.sections[0][0].scaled(-1.0)?;
+    out.ends[6] = out.sections[4][0];
+    Ok(out)
+}
 fn group(
     location: &str,
     kind: &str,
@@ -1179,6 +1203,7 @@ mod fallback_transport_tests {
             annulus,
             pressure,
             material,
+            arc: None,
             eigenload_pair: [0.0, 0.0],
         };
         let area = annulus.wall_area_m2();

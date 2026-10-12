@@ -20,7 +20,7 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 - **W1's N-5 abandonment (T3's M1).** (d) abandons none of the 2,844 invocations in W1's domain; R-b′ abandons 64 of them today (§4.4).
 - **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Nonzero evaluation cases generally change last bits; zero-load and exact-result cases can retain identical member bytes. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
 - **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a nonzero certified group passes both the existing S* ≥ 2^-988 guard and the relative floor q̂ ≥ 2^-34·S*. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
-- **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). Main/K-D5 has no O-13 geometric short-bend rule to delete. Batch 4 removes that rule from its unmerged U2/O-13 code only after rebasing onto and verifying this closed-recovery path; M3 is checked on the final integrated U2 producer (§4.3).
+- **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). Main/K-D5 has no O-13 geometric short-bend rule to delete. Batch 4 removed that rule from the integrated U2/O-13 code after M3 on the final integrated producer verified this closed-recovery path (§4.3).
 - **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
 
 ## The rulings and what they supersede
@@ -37,8 +37,8 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 **Superseded by this unit.** HELP_HUMAN's ruling supersedes "my short-bend thresholds (ruling 5, plus the withdrawn (c) limit)" and "the t15b 1e-4 rad acceptance", and asks that they be named "in the DEL-04-01 Design as superseded by this unit". They are:
 
 1. The Passed and Sensitive thresholds of "Short stiff bends" ([curved-numerical-integrity.md](curved-numerical-integrity.md)): Passed at 6.6e-3 and Sensitive from about 6e-3 down to 5e-5. They become outcomes of the solver's own gate (r̂ < √ε) and of the unified predicate. The pivot-screen refusal and `CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS` below 1e-4 stay.
-2. The withdrawn option (c) limit: O-13's `SHORT_BEND_PASSED_RATIO` = 1.6e-2 with the short-bend rule (`short_bend_finding`, `ShortBend`) on `codex/piping-t4-o13-20261010`. It is removed in batch 4 after integrating and verifying this unit's closure (§4.3); it is absent on main/K-D5.
-3. The t15b acceptance at 1e-4 rad ("guard and K-D5 margin from φ = 1e-4 rad", pinned by `t15b_certified_arcs_pass_at_utm_and_small_angles`). A small arc's verdict is now the unified predicate's outcome on its certified rows. t15b is re-pinned to that outcome, predicted Passed.
+2. The withdrawn option (c) limit: O-13's `SHORT_BEND_PASSED_RATIO` = 1.6e-2 with the short-bend rule (`short_bend_finding`, `ShortBend`) on `codex/piping-t4-o13-20261010`. Batch 4 removed it after integrating and verifying this unit's closure (§4.3); it is absent on main/K-D5.
+3. The t15b acceptance at 1e-4 rad ("guard and K-D5 margin from φ = 1e-4 rad", pinned by `t15b_certified_arcs_pass_at_utm_and_small_angles`). A small arc's verdict is now the unified predicate's outcome on its certified rows. t15b is re-pinned to that outcome, predicted and measured Passed.
 
 Both Design files name these supersessions with the same quotations.
 
@@ -390,6 +390,8 @@ The closed bound is applied to today's published rows v (I43): B_c = ‖v − m_
 
 So the final U2/O-13 batch removes its short-bend rule only on the integrated, verified closure. Main/K-D5 has no O-13 geometric rule to remove. On every evaluated set, no case moves from Sensitive to Passed with a breach.
 
+**M3 on the integrated producer (batch 4, measured).** On the integrated batch-4 producer (both modes, typed and captured entries; the reviewed `compare_current.py` against RV30's exact Decimal reference), T3's M3 case `B|L|1-4|t96|R1|rho0.016|k5|wTp|utm73-skew` publishes Passed without the rule, with worst judged member-group err/c 1.5e-7 (pipe-wall rows 3.6e-7, at the input-representation level of p·A_i) and certified worst B/c 9.5e-8 (a pipe-wall group); with the rule it was Sensitive. Over RV30 (90,240 case-modes), realistic (1,968), RV29 (212) and W1 (5,688), removing the rule moves 14,418, 84, 28 and 0 case-modes from Sensitive to Passed (RV30: 8,182 pressure-free and 6,236 wTp, every one in RV30's short-bend family), with 0 judged member, section, support or stress breaches on any Passed case, 0 strict `max_station_checks` coverage failures and 0 typed/captured disagreements; no case moves the other way. The RV30 short-bend family (14,418 case-modes) is Passed throughout, with 0 fail-closed. The only judged breaches on Passed cases are the displacement and rotation noise groups of section 4.1 (RV30 224 case-modes, 508 groups; W1 212), every one within 1e-9 of its body's published displacement or rotation scale (worst 0.35). The rule is removed on that evidence; O-13's tests on its cases (R-1's 5° and 8° L lines against T4-I34's exact f*, the cases either side of the former limit and the UTM 4° line) are re-pinned to the unified outcome, Passed.
+
 ### 4.4 W1's N-5 abandonment (T3's M1)
 
 **The mechanism.**
@@ -561,7 +563,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 - The governing maximum, its extrema and the stress summaries are formed from the repaired actions (§3.2).
 - No `CHECKS_PASSED` without `member_bound`; the nonlinear route fails closed (§5).
 - The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3).
-- The O-13 short-bend rule on the U2 branch is removed during batch-4 integration only after the closed-recovery path is verified. Main/K-D5 has no such rule. `bend_neighbour_ratios` stays for the refusal.
+- The O-13 short-bend rule on the U2 branch was removed during batch-4 integration after the closed-recovery path was verified (§4.3, M3). Main/K-D5 has no such rule. `bend_neighbour_ratios` stays for the refusal.
 - The linear `FormulationBasis` gains the limitation and scope sentences.
 
 **PP `formation_guard.rs`:**
@@ -569,7 +571,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 - `member_group_fires(q, q_floor, B, S*)` replaces `rb_prime_fires` and `arc_group_fires`.
 - One `RecoveryRecord` shape: member or support, body, and per location and group (q, q̂, B, a), or the unavailable reason.
 - One finding sentence, and the notice predicate.
-- During batch-4 U2 integration, its unmerged `short_bend_finding`, `ShortBend`, `SHORT_BEND_PASSED_RATIO` and `RESOLUTION_FACTOR` are removed only after verified closed recovery; these are absent on main/K-D5.
+- During batch-4 U2 integration, its unmerged `short_bend_finding`, `ShortBend`, `SHORT_BEND_PASSED_RATIO`, the finding merge and `RESOLUTION_FACTOR` were removed after verified closed recovery (§4.3, M3); these are absent on main/K-D5.
 
 **Readers.** Schema shape and fields stay. Current maximum coefficient-basis and enclosure-scope literals change together in every current producer, Rust reader, schema and verifier (§3.2), with synchronized semantic text and regenerated corpora/pins. No reader retains an old-literal alternative. Public maximum bounds and midpoint meanings are checked against the same global enclosure; witness location remains approximate. The numerical criteria and gap stay.
 

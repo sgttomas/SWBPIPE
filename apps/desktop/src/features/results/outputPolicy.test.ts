@@ -17,7 +17,7 @@ import { type SourceContract } from "./numericalResultQuality";
 import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import {
-  LOAD_REFERENCE_OUTPUT_REFUSAL, PRESSURE_1_EXPORT_NOT_AVAILABLE, PRESSURE_SOURCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES,
+  LOAD_REFERENCE_OUTPUT_REFUSAL, PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE, PRESSURE_SOURCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL,
   RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL, routeOutputPolicy, routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
 } from "./outputPolicy";
 import { loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
@@ -49,7 +49,7 @@ async function eligible(mode: PreviewSolverMode) {
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
 
 /** Every SourceContract value, tied to the type in both directions by `tsc`. */
-const ROUTES: Record<SourceContract, true> = { legacy: true, precision: true, physics: true, source_blocks: true, physics_source: true, pressure_source: true, preview_physics: true, load_reference: true, load_reference_source: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
+const ROUTES: Record<SourceContract, true> = { legacy: true, precision: true, physics: true, source_blocks: true, physics_source: true, pressure_source: true, preview_physics: true, load_reference: true, load_reference_source: true, pressure: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
 /** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
 const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
@@ -65,6 +65,11 @@ describe("the output policy (T6S-3)", () => {
       expect(Object.keys(policy.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
       expect(Object.values(policy.surfaces).every(decision => decision === "refused")).toBe(true);
     }
+    // pressure-1: readable through the Rust reader's own route; every surface refuses it by its own reason.
+    const pressure = OUTPUT_POLICY.pressure as Json;
+    expect([pressure.gate, pressure.reason]).toStrictEqual(["per_surface", PRESSURE_1_OUTPUT_REFUSAL]);
+    expect(Object.keys(pressure.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
+    expect(Object.values(pressure.surfaces).every(decision => decision === "refused")).toBe(true);
     const successor = OUTPUT_POLICY.retained_preview_physics as Json;
     expect([successor.gate, successor.reason]).toStrictEqual(["per_surface", RETAINED_PRECISION_OUTPUT_REFUSAL]);
     expect(Object.keys(successor.surfaces).sort()).toStrictEqual([...OUTPUT_SURFACES].sort());
@@ -98,14 +103,13 @@ describe("the output policy (T6S-3)", () => {
       expect(surfaceOutputRefusal(exact, model, surface)).toBe(admitted ? `${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}` : RETAINED_PHYSICS_OUTPUT_REFUSAL);
     }
   });
-  it("D6 keeps pressure-source refused by name before any eligibility decision", () => {
+  it("D6/MJ8 refuses pressure-source desktop output by name before any eligibility decision, as pressure-1", () => {
     for (const surface of OUTPUT_SURFACES) {
       expect(routeSurfaceDecision("pressure_source", surface)).toStrictEqual({ decision: "refused", reason: PRESSURE_SOURCE_OUTPUT_REFUSAL });
     }
-    expect(PRESSURE_SOURCE_OUTPUT_REFUSAL.startsWith(`${PRESSURE_1_EXPORT_NOT_AVAILABLE}:`)).toBe(true);
+    expect(PRESSURE_SOURCE_OUTPUT_REFUSAL.startsWith(`${PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE}: Output of pressure-source-1 results`)).toBe(true);
     expect(Object.values((OUTPUT_POLICY.pressure_source as Json).surfaces).every(decision => decision === "refused")).toBe(true);
-    // Ordinary pressure-1 has no new desktop output entry in this change.
-    expect(routeOutputPolicy("pressure")).toBeNull();
+    expect((OUTPUT_POLICY.pressure as Json).reason).toBe(PRESSURE_1_OUTPUT_REFUSAL);
   });
   it("fails closed for a route or a surface without an entry", () => {
     expect(routeOutputPolicy("physics_retained")).toBeNull();
