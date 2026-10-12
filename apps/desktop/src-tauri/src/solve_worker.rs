@@ -11,33 +11,47 @@
 //! - Parent -> child, once: the request header `SWRQ`, then u64 mode
 //!   (0 sparse_interactive, 1 dense_scrutiny), u64 initial grant, u64 maximum
 //!   grant (the per-invocation budget), u64 process reserve, u64 raw length L,
-//!   then L raw model bytes (UTF-8 JSON). The child reads all of it before its
-//!   cap is armed, so no growth exchange can interleave with the request.
-//! - Child -> parent: 20-byte frames ([`crate::worker_alloc::FRAME_BYTES`]):
-//!   `GROW {requested_grant, phys_footprint}` (answered `GRNT {grant}` or
-//!   `DENY`), `CAPX {needed_grant, max_grant}` or `RFSD {requested, grant}`
-//!   (a final refusal, then exit [`WORKER_CAP_EXIT`]), `RSLT {R,
-//!   lifetime_max_footprint}` + R bytes (the producer's exact bytes),
-//!   `FAIL {n}` + n bytes (n <= 64 KiB).
+//!   then L raw model bytes (UTF-8 JSON). The child closes every inherited fd
+//!   but stdio and its control pair, and reads all of the request before its
+//!   cap is armed, so no growth exchange can interleave with it.
+//! - 28-byte frames ([`crate::worker_alloc::FRAME_BYTES`]): a 4-byte tag and
+//!   three u64 fields (unused ones 0). Child -> parent:
+//!   `GROW {requested_grant, needed_grant, phys_footprint}` (requested is the
+//!   doubling step, needed = counted heap + reserve; answered by
+//!   `GRNT {grant >= needed}` or `DENY`), `CAPX {needed_grant, max_grant}` or
+//!   `RFSD {needed_grant, grant}` (a final refusal, then exit
+//!   [`WORKER_CAP_EXIT`]), `RSLT {R, lifetime_max_footprint}` + R bytes (the
+//!   producer's exact bytes), `FAIL {n}` + n bytes (n <= 64 KiB).
 //!
 //! The grant (a [`LeasePurpose::Worker`] lease) starts at the process reserve
 //! plus the request's ingress bound, rounded up to 1 MiB, and grows on demand
 //! by atomic pool admissions with a fresh headroom verdict, never above the
 //! budget; the child's allocator is capped at grant - reserve
-//! ([`crate::worker_alloc`]). The measured physical footprint (the larger of
-//! the child's report and the parent's own reading) is a growth need as well:
-//! a growth step asks for at least footprint + reserve, so memory the count
-//! does not see (allocator-retained freed blocks, metadata, stacks) is
-//! reserved too. Only a footprint whose reservation would exceed the budget
-//! refuses the job (`worker_footprint_exceeded`); a pool or headroom refusal
-//! of the step is `worker_growth_refused`.
+//! ([`crate::worker_alloc`]). Each growth tries the doubling step, then (if
+//! refused) the minimal need, each an atomic admission; only a refused
+//! minimal need ends the job (`worker_growth_refused`, whose
+//! `requested_bytes` is that minimal need).
 //!
-//! Residual: the footprint is measured at growth exchanges and at the result,
-//! not continuously, so between exchanges it can briefly exceed the grant (by
-//! memory the count does not see). At the result frame the parent reads the
-//! worker's lifetime-maximum footprint (which covers those moments), records
-//! it as the job's `worker_peak_footprint_bytes` and refuses the result if it
-//! exceeded the budget.
+//! The measured physical footprint (the larger of the child's report and the
+//! parent's own reading) is a need as well, so memory the count does not see
+//! (allocator-retained freed blocks, metadata, stacks, mappings) is reserved
+//! too: at a growth exchange the lease grows to cover footprint + reserve
+//! (capped at the budget), and while no frame arrives the supervisor polls
+//! the footprint every [`FOOTPRINT_POLL_INTERVAL`] and grows the lease the
+//! same way when the footprint exceeds it (a refusal kills the worker:
+//! `worker_growth_refused`). A footprint above the budget kills the worker
+//! and ends the job `worker_footprint_exceeded`. The lease the pool holds can
+//! therefore run ahead of the grant the child knows; the child's heap cap
+//! follows only its own grant.
+//!
+//! Residual: the footprint is sampled, not continuous. Memory outside the
+//! counted heap can exceed the lease (or the budget) for at most one poll
+//! interval (200 ms) plus the time to measure and kill; the counted heap
+//! itself never exceeds its cap. The result is also not polled while its
+//! bytes are read (the worker has finished computing). At the result frame
+//! the parent reads the worker's lifetime-maximum footprint, which covers
+//! every moment, records it as the job's `worker_peak_footprint_bytes` and
+//! refuses the result if it exceeded the budget.
 //!
 //! A result of R bytes must not exceed the grant; its result lease is
 //! acquired while the grant is still held, the bytes are read into an
@@ -45,7 +59,7 @@
 //! reaped is the grant released. A kill (cancellation, session reset, refusal
 //! or protocol violation) targets the child only while it is unreaped.
 
-use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResourceRefusal};
+use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResidencyProbe, ResourceRefusal};
 use crate::worker_alloc::{
     decode_frame, encode_frame, resident_envelope, FRAME_BYTES, TAG_CAP_EXCEEDED, TAG_DENIED, TAG_ERROR, TAG_GRANTED,
     TAG_GROW, TAG_REFUSED, TAG_RESULT,
@@ -65,7 +79,8 @@ pub const WORKER_FLAG: &str = "--swbpipe-solve-worker";
 /// thread stacks, allocator metadata and freed blocks the allocator keeps.
 /// Measured by `process_reserve_covers_a_real_workers_measured_footprint`
 /// (idle and post-solve `phys_footprint` of this crate's binary in worker
-/// mode) and enforced at every growth exchange.
+/// mode) and on the release app binary; a footprint beyond it is not
+/// assumed away but reserved (growth exchanges and polling) or refused.
 pub(crate) const PROCESS_RESERVE_BYTES: u64 = 64 << 20;
 /// Grants are whole MiB.
 pub(crate) const GRANT_GRANULE_BYTES: u64 = 1 << 20;
@@ -137,6 +152,7 @@ pub fn run_solve_worker() -> i32 {
         let Some((control_in, control_out)) = take_channel(in_fd, out_fd) else {
             return WORKER_PROTOCOL_EXIT;
         };
+        close_inherited_fds(&[control_in, control_out]);
         crate::worker_alloc::enable(control_in, control_out);
         let mut header = [0u8; REQUEST_BYTES];
         if !crate::worker_alloc::read_request(&mut header) {
@@ -236,6 +252,34 @@ fn take_channel(in_fd: i32, out_fd: i32) -> Option<(i32, i32)> {
     }
 }
 
+/// The highest fd number [`close_inherited_fds`] closes (exclusive), when the
+/// soft RLIMIT_NOFILE is larger or unlimited.
+#[cfg(unix)]
+const MAX_FD_SCAN: libc::rlim_t = 65_536;
+
+/// Closes every fd other than 0-2 and `keep`, before the request is read: a
+/// worker holds no descriptor it was not given (another worker's pipe end, a
+/// file the app had open). macOS has no closefrom, so every fd below the soft
+/// RLIMIT_NOFILE (at most [`MAX_FD_SCAN`]) is closed; EBADF is ignored.
+#[cfg(unix)]
+fn close_inherited_fds(keep: &[i32]) {
+    let mut limit = libc::rlimit { rlim_cur: 0, rlim_max: 0 };
+    // SAFETY: `limit` is a valid out-parameter.
+    let soft = if unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limit) } == 0 {
+        limit.rlim_cur.min(MAX_FD_SCAN)
+    } else {
+        MAX_FD_SCAN
+    };
+    for fd in 3..i32::try_from(soft).unwrap_or(i32::MAX) {
+        if !keep.contains(&fd) {
+            // SAFETY: closing an fd this process may hold; nothing else uses it yet.
+            unsafe {
+                libc::close(fd);
+            }
+        }
+    }
+}
+
 fn workload(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<String, String> {
     #[cfg(test)]
     if let Some(workload) = tests::scripted_workload() {
@@ -309,8 +353,29 @@ impl WorkerControl {
     fn killed(&self) -> bool {
         self.state.lock().unwrap_or_else(PoisonError::into_inner).killed
     }
+}
 
-    #[cfg(test)]
+impl ResidencyProbe for WorkerControl {
+    /// Measured under the control lock, so a reaped worker (whose pid could be
+    /// reused) is never measured.
+    fn realized_bytes(&self) -> Option<u64> {
+        let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        if state.reaped {
+            return None;
+        }
+        #[cfg(target_os = "macos")]
+        {
+            crate::worker_alloc::pid_realized_bytes(self.pid)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            None
+        }
+    }
+}
+
+#[cfg(test)]
+impl WorkerControl {
     pub(crate) fn pid(&self) -> i32 {
         self.pid
     }
@@ -453,11 +518,56 @@ fn protocol(message: impl std::fmt::Display) -> WorkerOutcome {
     WorkerOutcome::Failed(format!("SOLVE_WORKER_PROTOCOL: {message}"))
 }
 
+/// How often the supervisor measures a worker's physical footprint while no
+/// frame arrives: the bound on how long memory outside the counted heap can
+/// exceed the grant (or the budget) unnoticed.
+pub(crate) const FOOTPRINT_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_millis(200);
+
+/// Grows the worker's lease to `preferred` (the doubling step) or, if that is
+/// refused, to `minimal` (the need); each try is one atomic admission with a
+/// fresh headroom verdict. Returns the new lease bytes, or the refusal of the
+/// minimal need.
+fn grow_grant(grant: &mut Lease, preferred: u64, minimal: u64) -> Result<u64, ResourceRefusal> {
+    if minimal <= grant.bytes() {
+        return Ok(grant.bytes());
+    }
+    if preferred > minimal && grant.grow_to(preferred).is_ok() {
+        return Ok(preferred);
+    }
+    grant.grow_to(minimal).map(|()| minimal)
+}
+
+#[cfg(unix)]
+enum Readiness {
+    Readable,
+    Timeout,
+}
+
+/// Waits up to `timeout` for the worker's output (a frame, EOF or an error).
+#[cfg(unix)]
+fn wait_readable(stdout: &ChildStdout, timeout: std::time::Duration) -> Readiness {
+    use std::os::fd::AsRawFd;
+    let mut descriptor = libc::pollfd { fd: stdout.as_raw_fd(), events: libc::POLLIN, revents: 0 };
+    let millis = i32::try_from(timeout.as_millis()).unwrap_or(i32::MAX);
+    // SAFETY: one valid pollfd for the duration of the call.
+    let rc = unsafe { libc::poll(&mut descriptor, 1, millis) };
+    // Ready, EOF/error (revents) or a failed poll: the read decides.
+    if rc == 0 {
+        Readiness::Timeout
+    } else {
+        Readiness::Readable
+    }
+}
+
 /// Runs one worker under `grant` (already admitted) and serves its frames
 /// until it ends. `input` is the raw model bytes and the lease covering this
 /// process's copy of them; both are dropped once sent. The worker is reaped
 /// before this returns (and while unwinding); the caller releases `grant`
 /// afterwards.
+///
+/// The lease (the pool's grant) can run ahead of the grant the child knows:
+/// footprint growth (at a growth exchange or a poll) reserves memory outside
+/// the counted heap without raising the child's heap cap.
 pub(crate) fn supervise(
     terms: &WorkerTerms<'_>,
     grant: &mut Lease,
@@ -469,13 +579,17 @@ pub(crate) fn supervise(
         Err(error) => return WorkerOutcome::Failed(format!("PREVIEW-SOLVE-WORKER-START-FAILED: {error}")),
     };
     let control = Arc::clone(&process.control);
+    // The pool measures this worker afresh at every admission (0 once reaped).
+    grant.set_residency_probe(Some(Arc::clone(&control) as Arc<dyn ResidencyProbe>));
     if !hooks.attach(Arc::clone(&control)) {
         control.kill();
     }
     let (raw, ingress) = input;
+    // The grant the child knows (its heap cap is this less the reserve).
+    let mut child_grant = grant.bytes();
     let request = Request {
         mode: terms.mode,
-        initial_grant: grant.bytes(),
+        initial_grant: child_grant,
         max_grant: terms.max_grant,
         reserve: terms.reserve,
         raw_len: raw.len() as u64,
@@ -493,42 +607,84 @@ pub(crate) fn supervise(
     let mut completed: Option<(Vec<u8>, Lease)> = None;
     let mut error: Option<String> = None;
     let mut frame = [0u8; FRAME_BYTES];
-    while process.stdout.read_exact(&mut frame).is_ok() {
+    loop {
         let end = |outcome: WorkerOutcome| {
             control.kill();
             Some(outcome)
         };
+        #[cfg(unix)]
+        if let Readiness::Timeout = wait_readable(&process.stdout, FOOTPRINT_POLL_INTERVAL) {
+            // Memory outside the counted heap, between exchanges.
+            let footprint = measured_footprint(control.pid);
+            if footprint == 0 || refusal.is_some() {
+                continue;
+            }
+            hooks.footprint_observed(footprint);
+            let current = grant.bytes();
+            if footprint > terms.max_grant {
+                verdict = end(WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded {
+                    grant_bytes: current,
+                    footprint_bytes: footprint,
+                }));
+                break;
+            }
+            if footprint > current {
+                let minimal = terms.max_grant.min(footprint.saturating_add(terms.reserve));
+                let preferred = terms.max_grant.min(minimal.max(current.saturating_mul(2)));
+                match grow_grant(grant, preferred, minimal) {
+                    Ok(bytes) if bytes != current => hooks.grant_changed(bytes),
+                    Ok(_) => {}
+                    Err(cause) => {
+                        verdict = end(WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused {
+                            granted_bytes: current,
+                            requested_bytes: minimal,
+                            cause: Box::new(cause),
+                        }));
+                        break;
+                    }
+                }
+            }
+            continue;
+        }
+        if process.stdout.read_exact(&mut frame).is_err() {
+            break;
+        }
         match decode_frame(&frame) {
-            (TAG_GROW, requested, reported_footprint) => {
-                let current = grant.bytes();
-                if requested <= current || requested > terms.max_grant {
+            (TAG_GROW, requested, needed, reported_footprint) => {
+                if needed <= child_grant || needed > requested || requested > terms.max_grant {
                     verdict = end(protocol(format_args!(
-                        "growth to {requested} bytes is outside ({current}, {}]",
+                        "growth to {needed}..={requested} bytes from {child_grant} is outside the budget of {}",
                         terms.max_grant
                     )));
                     break;
                 }
+                let current = grant.bytes();
                 let footprint = reported_footprint.max(measured_footprint(control.pid));
                 hooks.footprint_observed(footprint);
-                // The footprint is a need: the new grant also reserves it plus the reserve.
-                let footprint_need = footprint.saturating_add(terms.reserve);
-                let reply = if footprint_need > terms.max_grant {
+                let reply = if footprint > terms.max_grant {
                     refusal = Some(ResourceRefusal::WorkerFootprintExceeded { grant_bytes: current, footprint_bytes: footprint });
-                    encode_frame(TAG_DENIED, 0, 0)
+                    encode_frame(TAG_DENIED, 0, 0, 0)
                 } else {
-                    let target = requested.max(footprint_need);
-                    match grant.grow_worker_to(target, footprint) {
-                        Ok(()) => {
-                            hooks.grant_changed(target);
-                            encode_frame(TAG_GRANTED, target, 0)
+                    // The footprint is a need too: the lease also covers it plus the reserve.
+                    let footprint_need = terms.max_grant.min(footprint.saturating_add(terms.reserve));
+                    let minimal = needed.max(footprint_need);
+                    match grow_grant(grant, requested.max(footprint_need), minimal) {
+                        Ok(bytes) => {
+                            if bytes != current {
+                                hooks.grant_changed(bytes);
+                            }
+                            // The child's heap grows to the doubling step if the
+                            // lease covers it, else to its need.
+                            child_grant = if bytes >= requested.max(footprint_need) { requested } else { needed };
+                            encode_frame(TAG_GRANTED, child_grant, 0, 0)
                         }
                         Err(cause) => {
                             refusal = Some(ResourceRefusal::WorkerGrowthRefused {
                                 granted_bytes: current,
-                                requested_bytes: target,
+                                requested_bytes: minimal,
                                 cause: Box::new(cause),
                             });
-                            encode_frame(TAG_DENIED, 0, 0)
+                            encode_frame(TAG_DENIED, 0, 0, 0)
                         }
                     }
                 };
@@ -536,11 +692,11 @@ pub(crate) fn supervise(
                     let _ = stdin.write_all(&reply).and_then(|()| stdin.flush());
                 }
             }
-            (TAG_CAP_EXCEEDED, needed, _) => {
+            (TAG_CAP_EXCEEDED, needed, _, _) => {
                 refusal = Some(ResourceRefusal::WorkerCapExceeded { cap_bytes: terms.max_grant, requested_bytes: needed });
             }
-            (TAG_REFUSED, _, _) if refusal.is_some() => {}
-            (TAG_RESULT, length, reported_peak) => {
+            (TAG_REFUSED, _, _, _) if refusal.is_some() => {}
+            (TAG_RESULT, length, reported_peak, _) => {
                 let current = grant.bytes();
                 if length > current {
                     verdict = end(protocol(format_args!(
@@ -550,8 +706,8 @@ pub(crate) fn supervise(
                 }
                 // Before anything is released: the worker's real high-water
                 // footprint. Above the grant it is recorded (the grant covered
-                // less than reality between exchanges); above the budget the
-                // solve did not fit and its result is refused.
+                // less than reality for at most a poll interval); above the
+                // budget the solve did not fit and its result is refused.
                 let peak = reported_peak.max(measured_lifetime_max_footprint(control.pid));
                 hooks.footprint_observed(peak);
                 if peak > terms.max_grant {
@@ -585,7 +741,7 @@ pub(crate) fn supervise(
                 completed = Some((result, lease));
                 break;
             }
-            (TAG_ERROR, length, _) => {
+            (TAG_ERROR, length, _, _) => {
                 if length > MAX_ERROR_FRAME_BYTES {
                     verdict = end(protocol(format_args!("an error frame of {length} bytes")));
                     break;
@@ -598,13 +754,14 @@ pub(crate) fn supervise(
                 error = Some(String::from_utf8_lossy(&message).into_owned());
                 break;
             }
-            (tag, _, _) => {
+            (tag, _, _, _) => {
                 verdict = end(protocol(format_args!("unexpected frame {:?}", String::from_utf8_lossy(&tag))));
                 break;
             }
         }
     }
     let status = process.reap();
+    grant.set_residency_probe(None);
     if let Some(outcome) = verdict {
         return outcome;
     }
@@ -646,16 +803,18 @@ pub(crate) mod test_support {
     pub(crate) struct TestLauncher {
         pub workload: Option<String>,
         pub env: Vec<(String, String)>,
+        /// An extra fd (a copy of /dev/null) the worker inherits, as a leaked descriptor would be.
+        pub inherited_fd: Option<i32>,
     }
 
     impl TestLauncher {
         /// The real ordinary solve.
         pub(crate) fn solve() -> Arc<Self> {
-            Arc::new(Self { workload: None, env: Vec::new() })
+            Arc::new(Self { workload: None, env: Vec::new(), inherited_fd: None })
         }
 
         pub(crate) fn scripted(workload: impl Into<String>) -> Arc<Self> {
-            Arc::new(Self { workload: Some(workload.into()), env: Vec::new() })
+            Arc::new(Self { workload: Some(workload.into()), env: Vec::new(), inherited_fd: None })
         }
 
         pub(crate) fn with_env(mut self, key: &str, value: impl Into<String>) -> Self {
@@ -674,12 +833,18 @@ pub(crate) mod test_support {
             for (key, value) in &self.env {
                 command.env(key, value);
             }
+            let inherited = self.inherited_fd;
             // SAFETY: only dup2 (async-signal-safe, allocation-free) runs after fork;
             // stdio is already in place (stdout = pipe, stderr = /dev/null).
             unsafe {
-                command.pre_exec(|| {
+                command.pre_exec(move || {
                     if libc::dup2(1, 3) < 0 || libc::dup2(2, 1) < 0 {
                         return Err(std::io::Error::last_os_error());
+                    }
+                    if let Some(fd) = inherited {
+                        if libc::dup2(2, fd) < 0 {
+                            return Err(std::io::Error::last_os_error());
+                        }
                     }
                     Ok(())
                 });
@@ -883,6 +1048,35 @@ pub(crate) mod tests {
                 crate::worker_alloc::send_frame(TAG_RESULT, arg(0), 0, &[]);
                 sleep_forever()
             }
+            // Grows memory outside the counted heap (anonymous mappings, touched)
+            // in `arg0`-byte steps to `arg1` bytes, `arg2` ms apart, then holds
+            // it for `arg3` ms: only polling sees it.
+            #[cfg(unix)]
+            "uncounted" => {
+                let (step, total) = (arg(0) as usize, arg(1) as usize);
+                let mut mapped = 0;
+                while mapped < total {
+                    // SAFETY: an anonymous private mapping of `step` bytes, touched page by page (kept until exit).
+                    unsafe {
+                        let map = libc::mmap(std::ptr::null_mut(), step, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
+                        assert_ne!(map, libc::MAP_FAILED);
+                        for offset in (0..step).step_by(4096) {
+                            *(map as *mut u8).add(offset) = 1;
+                        }
+                    }
+                    mapped += step;
+                    std::thread::sleep(Duration::from_millis(arg(2)));
+                }
+                std::thread::sleep(Duration::from_millis(arg(3)));
+                Ok(mapped.to_string())
+            }
+            // The fds open in the worker.
+            #[cfg(unix)]
+            "fds" => {
+                // SAFETY: F_GETFD only probes whether the fd is open.
+                let open: Vec<i32> = (0..1024).filter(|fd| unsafe { libc::fcntl(*fd, libc::F_GETFD) } != -1).collect();
+                Ok(format!("{open:?}"))
+            }
             "oversized_error" => {
                 crate::worker_alloc::send_frame(TAG_ERROR, MAX_ERROR_FRAME_BYTES + 1, 0, &[]);
                 sleep_forever()
@@ -977,6 +1171,13 @@ pub(crate) mod tests {
 
     // --- parent-side harness ---------------------------------------------
 
+    #[derive(Debug, Clone, Copy)]
+    enum Event {
+        /// A footprint observation and the lease in force at that moment.
+        Footprint { grant: u64, footprint: u64 },
+        Grant(u64),
+    }
+
     struct Hooks {
         attached: Option<Arc<WorkerControl>>,
         cancelled: Arc<std::sync::atomic::AtomicBool>,
@@ -984,6 +1185,7 @@ pub(crate) mod tests {
         /// The grant in force when each footprint was observed.
         current: u64,
         observed: Vec<(u64, u64)>,
+        events: Vec<Event>,
     }
 
     impl SupervisorHooks for Hooks {
@@ -997,9 +1199,11 @@ pub(crate) mod tests {
         fn grant_changed(&mut self, grant_bytes: u64) {
             self.grants.lock().unwrap().push(grant_bytes);
             self.current = grant_bytes;
+            self.events.push(Event::Grant(grant_bytes));
         }
         fn footprint_observed(&mut self, footprint_bytes: u64) {
             self.observed.push((self.current, footprint_bytes));
+            self.events.push(Event::Footprint { grant: self.current, footprint: footprint_bytes });
         }
     }
 
@@ -1008,7 +1212,19 @@ pub(crate) mod tests {
         grants: Vec<u64>,
         /// (grant in force, footprint) per observation; the last is the result's lifetime peak.
         observed: Vec<(u64, u64)>,
+        events: Vec<Event>,
         pid: Option<i32>,
+    }
+
+    impl Run {
+        /// Whether a footprint above the lease was followed at once by a
+        /// growth covering it plus the reserve (capped at the budget).
+        fn grew_to_cover_a_footprint_above_the_grant(&self, reserve: u64, budget: u64) -> bool {
+            self.events.windows(2).any(|pair| {
+                matches!(pair, [Event::Footprint { grant, footprint }, Event::Grant(new)]
+                    if footprint > grant && *new >= budget.min(footprint + reserve))
+            })
+        }
     }
 
     fn pool() -> Arc<MemoryPool> {
@@ -1021,7 +1237,14 @@ pub(crate) mod tests {
         let start = initial_grant(reserve, crate::ingress::prescan(body).unwrap().lease_bytes().unwrap()).unwrap();
         let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
         let ingress = pool.acquire(crate::ingress::allocation_envelope(body.len() as u64).unwrap(), LeasePurpose::Ingress).unwrap();
-        let mut hooks = Hooks { attached: None, cancelled: Default::default(), grants: Default::default(), current: start, observed: Vec::new() };
+        let mut hooks = Hooks {
+            attached: None,
+            cancelled: Default::default(),
+            grants: Default::default(),
+            current: start,
+            observed: Vec::new(),
+            events: Vec::new(),
+        };
         let terms = WorkerTerms { pool, launcher, mode: PreviewSolverMode::SparseInteractive, max_grant, reserve };
         let outcome = supervise(&terms, &mut grant, (body.to_vec(), ingress), &mut hooks);
         assert_eq!(pool.reserved(LeasePurpose::Ingress), 0, "the raw copy's lease dropped once sent");
@@ -1029,7 +1252,7 @@ pub(crate) mod tests {
         drop(grant);
         assert_eq!(pool.running_workers(), 0);
         let grants = hooks.grants.lock().unwrap().clone();
-        Run { outcome, grants, observed: hooks.observed, pid: hooks.attached.map(|c| c.pid()) }
+        Run { outcome, grants, observed: hooks.observed, events: hooks.events, pid: hooks.attached.map(|c| c.pid()) }
     }
 
     fn assert_reaped(pid: Option<i32>) {
@@ -1070,6 +1293,7 @@ pub(crate) mod tests {
             grants: Default::default(),
             current: PROCESS_RESERVE_BYTES + MIB,
             observed: Vec::new(),
+            events: Vec::new(),
         };
         let terms = WorkerTerms { pool, launcher: &*launcher, mode, max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
         match supervise(&terms, &mut grant, (BODY.to_vec(), ingress), &mut hooks) {
@@ -1215,19 +1439,21 @@ pub(crate) mod tests {
             }
             other => panic!("{other:?}"),
         }
-        // Headroom covering the grant but not grant + result: the result lease
-        // is refused (a 512 KiB result fits the starting heap cap, so no growth).
+        // A pool with room for the grant but not grant + result: the result
+        // lease is refused (a 512 KiB result fits the starting heap cap, so no growth).
         let start = initial_grant(PROCESS_RESERVE_BYTES, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
-        host.set(|s| s.headroom_bytes = Some(start + 256 * 1024));
+        let ingress = crate::ingress::allocation_envelope(BODY.len() as u64).unwrap();
+        let blocker = pool.acquire(12 * GIB - start - ingress - 256 * 1024, LeasePurpose::Custody).unwrap();
         let run = super::tests::run(&pool, &*TestLauncher::scripted(format!("result:{}", 512 * 1024)), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
-        assert!(matches!(run.outcome, WorkerOutcome::Refused(ResourceRefusal::HeadroomInsufficient { .. })), "{:?}", run.outcome);
+        assert!(matches!(run.outcome, WorkerOutcome::Refused(ResourceRefusal::PoolExhausted { .. })), "{:?}", run.outcome);
         assert_reaped(run.pid);
+        drop(blocker);
         assert_eq!(pool.reserved_total(), 0);
     }
 
     /// Memory resident outside the counted heap (a stand-in for allocator
     /// overhead) is a growth need: the grant grows to cover footprint + reserve
-    /// and the job completes; beyond the budget it is refused.
+    /// and the job completes; a footprint beyond the budget is refused.
     #[cfg(target_os = "macos")]
     #[test]
     fn memory_outside_the_count_is_a_growth_need_and_refused_only_beyond_the_budget() {
@@ -1238,23 +1464,20 @@ pub(crate) mod tests {
         let launcher = TestLauncher::scripted(format!("footprint:{}:{}", 48 * MIB, 2 * MIB));
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
         assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == b"2097152"), "{:?}", run.outcome);
-        let (grant_before, footprint) = run.observed[0];
-        assert_eq!(grant_before, start);
-        assert!(footprint > 48 * MIB && footprint > start, "{footprint}");
-        assert!(run.grants[0] >= footprint + reserve, "the grant covers footprint + reserve: {:?}", run.grants);
+        assert!(run.grew_to_cover_a_footprint_above_the_grant(reserve, 12 * GIB), "{:?}", run.events);
+        assert!(*run.grants.last().unwrap() >= 48 * MIB + reserve);
         assert_reaped(run.pid);
         drop(run);
-        // A budget the footprint + reserve does not fit: refused, typed.
-        let budget = reserve + 40 * MIB;
+        // A budget the footprint itself does not fit: refused, typed.
+        let budget = reserve + 24 * MIB;
         let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
-                assert_eq!(grant_bytes, start);
-                assert!(footprint_bytes > 48 * MIB && footprint_bytes + reserve > budget, "{footprint_bytes}");
+                assert!(grant_bytes >= start && grant_bytes <= budget);
+                assert!(footprint_bytes > 48 * MIB && footprint_bytes > budget, "{footprint_bytes}");
             }
             other => panic!("{other:?}"),
         }
-        assert!(run.grants.is_empty());
         assert_eq!(pool.reserved_total(), 0);
         assert_reaped(run.pid);
     }
@@ -1270,14 +1493,96 @@ pub(crate) mod tests {
         let launcher = TestLauncher::scripted(format!("retained:{}:{}", 24 * MIB, 40 * MIB));
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
         assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == br#"{"filled":41943040}"#), "{:?}", run.outcome);
-        eprintln!("retained scenario: grants {:?} observed (grant, footprint) {:?}", run.grants, run.observed);
-        let above = run.observed.iter().position(|(grant, footprint)| footprint > grant);
-        let step = above.expect("the retained blocks pushed the footprint above the grant at a growth exchange");
-        assert!(step < run.grants.len(), "observed at a growth exchange, not only at the result");
-        assert!(run.grants[step] >= run.observed[step].1 + reserve, "that growth covered footprint + reserve");
+        eprintln!("retained scenario: events {:?}", run.events);
+        assert!(
+            run.grew_to_cover_a_footprint_above_the_grant(reserve, 12 * GIB),
+            "the retained blocks pushed the footprint above the grant and a growth covered it: {:?}",
+            run.events
+        );
         assert_reaped(run.pid);
         drop(run);
         assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Review S2: memory that grows outside the counted heap without any
+    /// growth exchange is found by the supervisor's footprint polling: within
+    /// the budget the grant grows to cover it; beyond the budget the worker is
+    /// killed and the job refused.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn polling_detects_uncounted_growth_grows_within_the_budget_and_refuses_beyond_it() {
+        let pool = pool();
+        let reserve = 16 * MIB;
+        let start = initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
+        let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:800", 8 * MIB, 48 * MIB));
+        let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == b"50331648"), "{:?}", run.outcome);
+        assert!(run.grew_to_cover_a_footprint_above_the_grant(reserve, 12 * GIB), "{:?}", run.events);
+        assert!(*run.grants.last().unwrap() >= 48 * MIB, "the lease covers the uncounted memory: {:?}", run.grants);
+        assert_reaped(run.pid);
+        drop(run);
+        // Beyond the budget: found by a poll, killed, refused.
+        let budget = reserve + 24 * MIB;
+        let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:5000", 8 * MIB, 64 * MIB));
+        let started = std::time::Instant::now();
+        let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
+                assert!(grant_bytes >= start && grant_bytes <= budget);
+                assert!(footprint_bytes > budget, "{footprint_bytes}");
+            }
+            other => panic!("{other:?}"),
+        }
+        assert!(started.elapsed() < Duration::from_secs(4), "killed by a poll, not at the end of its 5 s hold");
+        assert_eq!(pool.reserved_total(), 0);
+        assert_reaped(run.pid);
+    }
+
+    /// Review S1: a refused doubling step falls back to the minimal need (one
+    /// more atomic admission); only if that is refused does the job end, and
+    /// the refusal reports the minimal need.
+    #[test]
+    fn growth_falls_back_to_the_minimal_need_before_refusing() {
+        let start = initial_grant(PROCESS_RESERVE_BYTES, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
+        // Headroom covers the starting grant and a few MiB more, not its doubling.
+        let host = ScriptedHost::with(Some(16 * GIB), Some(start + 16 * MIB), PressureLevel::Normal);
+        let pool = MemoryPool::with_wait_tick(host, Duration::from_millis(5));
+        let launcher = TestLauncher::scripted(format!("alloc_steps:{}:{}", 2 * MIB, 2 * MIB));
+        let run = run(&pool, &*launcher, BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { .. }), "{:?}", run.outcome);
+        // The minimal need: the counted heap (> 2 MiB) plus the reserve, below the doubling.
+        assert!(!run.grants.is_empty() && run.grants[0] < 2 * start && run.grants[0] > PROCESS_RESERVE_BYTES + 2 * MIB, "{:?}", run.grants);
+        assert_reaped(run.pid);
+        drop(run);
+        // A pool with 1 MiB to spare: the doubling and the need are both refused.
+        let pool = super::tests::pool();
+        let ingress = crate::ingress::allocation_envelope(BODY.len() as u64).unwrap();
+        let blocker = pool.acquire(12 * GIB - start - ingress - MIB, LeasePurpose::Custody).unwrap();
+        let run = super::tests::run(&pool, &*launcher, BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused { granted_bytes, requested_bytes, cause }) => {
+                assert_eq!(granted_bytes, start);
+                assert!(requested_bytes > PROCESS_RESERVE_BYTES + 2 * MIB && requested_bytes < 2 * start, "the minimal need: {requested_bytes}");
+                assert!(matches!(*cause, ResourceRefusal::PoolExhausted { .. }), "{cause:?}");
+            }
+            other => panic!("{other:?}"),
+        }
+        assert_reaped(run.pid);
+        drop(blocker);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Review N1: a worker closes every fd it inherited except stdio and its
+    /// control pair before reading the request.
+    #[test]
+    fn a_worker_holds_no_inherited_fds() {
+        let pool = pool();
+        let launcher = Arc::new(TestLauncher { inherited_fd: Some(9), ..(*TestLauncher::scripted("fds")).clone() });
+        let run = run(&pool, &*launcher, BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result, .. } = &run.outcome else { panic!("{:?}", run.outcome) };
+        let open: Vec<i32> = serde_json::from_slice(result).unwrap();
+        assert_eq!(open.len(), 5, "stdio and the control pair only: {open:?}");
+        assert!(open.starts_with(&[0, 1, 2]) && !open.contains(&9), "{open:?}");
     }
 
     /// At the result frame the lifetime-maximum footprint is checked before
@@ -1293,7 +1598,10 @@ pub(crate) mod tests {
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
         assert!(matches!(run.outcome, WorkerOutcome::Completed { .. }), "{:?}", run.outcome);
         let (grant, peak) = *run.observed.last().unwrap();
-        assert!(grant == start && peak > 32 * MIB && peak > grant, "recorded above the grant: {peak}");
+        assert!(peak > 32 * MIB, "{peak}");
+        if run.grants.is_empty() {
+            assert!(grant == start && peak > grant, "recorded above the grant: {peak}");
+        }
         drop(run);
         // The budget equals the starting grant: the peak exceeded it, so the result is refused.
         let run = super::tests::run(&pool, &*launcher, BODY, start, reserve);

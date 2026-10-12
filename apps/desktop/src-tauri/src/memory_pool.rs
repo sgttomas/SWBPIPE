@@ -23,12 +23,17 @@
 //! consume the same pool bytes or headroom. A [`Lease`] releases exactly once
 //! when dropped, including during unwinding.
 //!
-//! Worker growth is the one admission whose headroom verdict credits measured
-//! residency: each worker lease's last reported physical footprint (at most
-//! its bytes) is already resident or compressed, so it is not also required
-//! from the free queue. Every other admission double counts all reservations.
+//! Residency credit: a running worker's pages that are already resident were
+//! taken from the free queue when they were touched, so the headroom verdict
+//! need not require them again. At every admission, under the pool lock, each
+//! live worker lease is measured afresh through its [`ResidencyProbe`]
+//! (min(resident size, physical footprint) of the worker process; compressed
+//! pages are not credited because they occupy no free page) and credited at
+//! most its lease bytes; a lease without a probe, a reaped worker or a failed
+//! reading is credited 0. Every other reservation is double counted.
 
 use serde::Serialize;
+use std::collections::BTreeMap;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
@@ -92,6 +97,21 @@ impl HostSample {
     }
 }
 
+/// A fresh reading of the bytes a running worker already holds resident (and
+/// so no longer needs from the free queue); `None` if it cannot be measured or
+/// the worker has been reaped. Called under the pool lock; must not take the
+/// pool lock.
+pub(crate) trait ResidencyProbe: Send + Sync + std::fmt::Debug {
+    fn realized_bytes(&self) -> Option<u64>;
+}
+
+/// A live worker lease's ledger entry.
+#[derive(Debug)]
+struct WorkerEntry {
+    bytes: u64,
+    probe: Option<Arc<dyn ResidencyProbe>>,
+}
+
 /// The host's memory reader; the pool samples it inside its critical section.
 pub(crate) trait HostMemory: Send + Sync {
     fn sample(&self) -> HostSample;
@@ -121,11 +141,12 @@ pub(crate) enum ResourceRefusal {
     CustodyFull { delivered: usize, limit: usize },
     /// The solve needed a worker grant above the per-invocation budget.
     WorkerCapExceeded { cap_bytes: u64, requested_bytes: u64 },
-    /// A growth step of a running worker's grant was refused; the job ended.
+    /// A running worker's growth was refused at its minimal need
+    /// (`requested_bytes`, after the doubling step was also refused); the job ended.
     WorkerGrowthRefused { granted_bytes: u64, requested_bytes: u64, cause: Box<ResourceRefusal> },
-    /// The worker's measured physical footprint, with the process reserve,
-    /// needs more than the per-invocation budget (at a growth exchange), or
-    /// its lifetime-maximum footprint exceeded the budget (at the result).
+    /// The worker's measured physical footprint (at a growth exchange or a
+    /// poll), or its lifetime maximum (at the result), exceeded the
+    /// per-invocation budget.
     WorkerFootprintExceeded { grant_bytes: u64, footprint_bytes: u64 },
     /// Running solve workers are at the process-count bound; the job waits.
     WorkerLimitReached { running: usize, limit: usize },
@@ -152,12 +173,11 @@ struct PoolState {
     above_recommended_acknowledged: bool,
     defaults_applied: bool,
     reserved: [u64; 4],
-    /// Live worker leases (one per worker process not yet reaped).
-    worker_leases: usize,
+    /// Live worker leases by id (one per worker process not yet reaped).
+    workers: BTreeMap<u64, WorkerEntry>,
+    next_worker_id: u64,
     /// The bound on live worker leases ([`max_running_workers`]).
     max_running_workers: usize,
-    /// Sum over worker leases of min(last reported footprint, bytes).
-    worker_footprint_credit: u64,
     /// Bumped on every release or wake so a waiter does not miss a change.
     generation: u64,
     last_refusal: Option<ResourceRefusal>,
@@ -166,6 +186,15 @@ struct PoolState {
 impl PoolState {
     fn reserved_total(&self) -> u64 {
         self.reserved.iter().fold(0u64, |sum, v| sum.saturating_add(*v))
+    }
+
+    /// Fresh residency credit: the sum over live worker leases of
+    /// min(measured realized bytes, lease bytes); unmeasurable leases give 0.
+    fn resident_credit(&self) -> u64 {
+        self.workers
+            .values()
+            .map(|entry| entry.probe.as_ref().and_then(|probe| probe.realized_bytes()).unwrap_or(0).min(entry.bytes))
+            .fold(0u64, u64::saturating_add)
     }
 
     /// Records a known capacity; the first one applies the default policy.
@@ -306,9 +335,7 @@ impl MemoryPool {
     }
 
     /// The atomic verdict for `bytes` more reserved bytes, under the lock.
-    /// `resident_credit` (worker growth only) is the reserved bytes already
-    /// measured resident, which the free queue need not cover again.
-    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64, resident_credit: u64) -> Result<(), ResourceRefusal> {
+    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64) -> Result<(), ResourceRefusal> {
         let sample = self.host.sample();
         state.observe(&sample);
         if sample.capacity_bytes.is_none() {
@@ -327,8 +354,9 @@ impl MemoryPool {
         let available = sample.headroom_bytes.ok_or(ResourceRefusal::HeadroomUnknown)?;
         // Deliberately conservative double counting: bytes already reserved may
         // not yet be resident, so the host's headroom must cover them as well
-        // as the new request (less any reserved bytes measured resident).
-        let required = bytes.saturating_add(reserved.saturating_sub(resident_credit));
+        // as the new request, less what running workers are measured (now) to
+        // hold resident already.
+        let required = bytes.saturating_add(reserved.saturating_sub(state.resident_credit()));
         if available < required {
             return Err(ResourceRefusal::HeadroomInsufficient { required_bytes: required, available_bytes: available });
         }
@@ -343,33 +371,43 @@ impl MemoryPool {
 
     fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
         let limit = state.max_running_workers;
-        let verdict = if purpose == LeasePurpose::Worker && state.worker_leases >= limit {
-            Err(ResourceRefusal::WorkerLimitReached { running: state.worker_leases, limit })
+        let verdict = if purpose == LeasePurpose::Worker && state.workers.len() >= limit {
+            Err(ResourceRefusal::WorkerLimitReached { running: state.workers.len(), limit })
         } else {
-            self.admit_bytes_locked(state, bytes, 0)
+            self.admit_bytes_locked(state, bytes)
         };
         if let Err(refusal) = verdict {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
         state.reserved[purpose as usize] += bytes;
-        if purpose == LeasePurpose::Worker {
-            state.worker_leases += 1;
-        }
-        Ok(Lease { pool: Arc::clone(self), bytes, purpose, footprint_credit: 0 })
+        let worker_id = (purpose == LeasePurpose::Worker).then(|| {
+            let id = state.next_worker_id;
+            state.next_worker_id += 1;
+            state.workers.insert(id, WorkerEntry { bytes, probe: None });
+            id
+        });
+        Ok(Lease { pool: Arc::clone(self), bytes, purpose, worker_id })
     }
 
-    /// Releases `bytes` of `purpose` (and `credit` of the worker footprint
-    /// credit); `ends_worker` when a worker lease is dropped.
-    fn release(&self, purpose: LeasePurpose, bytes: u64, credit: u64, ends_worker: bool) {
+    /// Releases `bytes` of `purpose`; a worker lease's entry is updated to
+    /// `remaining` bytes, or removed when the lease ends.
+    fn release(&self, purpose: LeasePurpose, bytes: u64, worker: Option<(u64, Option<u64>)>) {
         let held = {
             let mut state = self.lock();
             let slot = &mut state.reserved[purpose as usize];
             let held = *slot;
             *slot = slot.saturating_sub(bytes);
-            state.worker_footprint_credit = state.worker_footprint_credit.saturating_sub(credit);
-            if ends_worker {
-                state.worker_leases = state.worker_leases.saturating_sub(1);
+            match worker {
+                Some((id, Some(remaining))) => {
+                    if let Some(entry) = state.workers.get_mut(&id) {
+                        entry.bytes = remaining;
+                    }
+                }
+                Some((id, None)) => {
+                    state.workers.remove(&id);
+                }
+                None => {}
             }
             self.notify(&mut state);
             held
@@ -484,7 +522,7 @@ impl MemoryPool {
                 custody: state.reserved[LeasePurpose::Custody as usize],
                 worker: state.reserved[LeasePurpose::Worker as usize],
             },
-            running_workers: state.worker_leases,
+            running_workers: state.workers.len(),
             queued_jobs: jobs.queued,
             running_jobs: jobs.running,
             retained_results: jobs.retained,
@@ -525,7 +563,7 @@ impl MemoryPool {
 
     #[cfg(test)]
     pub(crate) fn running_workers(&self) -> usize {
-        self.lock().worker_leases
+        self.lock().workers.len()
     }
 }
 
@@ -536,9 +574,8 @@ pub(crate) struct Lease {
     pool: Arc<MemoryPool>,
     bytes: u64,
     purpose: LeasePurpose,
-    /// Worker leases: min(last reported footprint, bytes), counted in the
-    /// pool's `worker_footprint_credit`.
-    footprint_credit: u64,
+    /// A worker lease's entry in the pool's worker ledger.
+    worker_id: Option<u64>,
 }
 
 impl Lease {
@@ -559,38 +596,25 @@ impl Lease {
         }
         let delta = new_bytes - self.bytes;
         let mut state = self.pool.lock();
-        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, 0) {
+        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
         state.reserved[self.purpose as usize] += delta;
+        if let Some(entry) = self.worker_id.and_then(|id| state.workers.get_mut(&id)) {
+            entry.bytes = new_bytes;
+        }
         self.bytes = new_bytes;
         Ok(())
     }
 
-    /// A running worker's growth step: records its measured physical
-    /// footprint (credited up to the lease's bytes as already resident across
-    /// all worker leases), then admits the delta with the same atomic verdict
-    /// as `acquire`, the headroom requirement being the delta plus every
-    /// reservation's unrealized bytes. A refusal keeps the existing grant.
-    pub(crate) fn grow_worker_to(&mut self, new_bytes: u64, footprint_bytes: u64) -> Result<(), ResourceRefusal> {
-        debug_assert_eq!(self.purpose, LeasePurpose::Worker);
-        let mut state = self.pool.lock();
-        let credit = footprint_bytes.min(self.bytes);
-        state.worker_footprint_credit = state.worker_footprint_credit.saturating_sub(self.footprint_credit).saturating_add(credit);
-        self.footprint_credit = credit;
-        if new_bytes <= self.bytes {
-            return Ok(());
+    /// Attaches (or, with `None`, detaches) the residency probe of the worker
+    /// process this lease covers; only worker leases have one.
+    pub(crate) fn set_residency_probe(&mut self, probe: Option<Arc<dyn ResidencyProbe>>) {
+        let Some(id) = self.worker_id else { return };
+        if let Some(entry) = self.pool.lock().workers.get_mut(&id) {
+            entry.probe = probe;
         }
-        let delta = new_bytes - self.bytes;
-        let resident = state.worker_footprint_credit;
-        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, resident) {
-            state.last_refusal = Some(refusal.clone());
-            return Err(refusal);
-        }
-        state.reserved[self.purpose as usize] += delta;
-        self.bytes = new_bytes;
-        Ok(())
     }
 
     /// Releases down to `new_bytes`; never fails.
@@ -600,10 +624,7 @@ impl Lease {
         }
         let delta = self.bytes - new_bytes;
         self.bytes = new_bytes;
-        let credit = self.footprint_credit.min(new_bytes);
-        let credit_released = self.footprint_credit - credit;
-        self.footprint_credit = credit;
-        self.pool.release(self.purpose, delta, credit_released, false);
+        self.pool.release(self.purpose, delta, self.worker_id.map(|id| (id, Some(new_bytes))));
     }
 
     /// Moves the reserved bytes to another purpose without releasing them.
@@ -622,7 +643,7 @@ impl Lease {
 
 impl Drop for Lease {
     fn drop(&mut self) {
-        self.pool.release(self.purpose, self.bytes, self.footprint_credit, self.purpose == LeasePurpose::Worker);
+        self.pool.release(self.purpose, self.bytes, self.worker_id.map(|id| (id, None)));
     }
 }
 
@@ -846,13 +867,14 @@ mod tests {
         let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
             let _lease = unwinding.acquire(GIB, LeasePurpose::Ingress).unwrap();
             let mut worker = unwinding.acquire(GIB, LeasePurpose::Worker).unwrap();
-            worker.grow_worker_to(2 * GIB, GIB / 2).unwrap();
+            worker.set_residency_probe(Some(ScriptedProbe::new(Some(GIB / 2))));
+            worker.grow_to(2 * GIB).unwrap();
             panic!("solve panicked");
         }));
         assert!(panicked.is_err());
         assert_eq!(pool.reserved_total(), 0);
         assert_eq!(pool.running_workers(), 0);
-        assert_eq!(credit(&pool), 0);
+        assert!(pool.lock().workers.is_empty());
     }
 
     #[test]
@@ -949,8 +971,23 @@ mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    fn credit(pool: &MemoryPool) -> u64 {
-        pool.lock().worker_footprint_credit
+    /// An injectable residency reading.
+    #[derive(Debug)]
+    struct ScriptedProbe(Mutex<Option<u64>>);
+
+    impl ScriptedProbe {
+        fn new(bytes: Option<u64>) -> Arc<Self> {
+            Arc::new(Self(Mutex::new(bytes)))
+        }
+        fn set(&self, bytes: Option<u64>) {
+            *self.0.lock().unwrap() = bytes;
+        }
+    }
+
+    impl ResidencyProbe for ScriptedProbe {
+        fn realized_bytes(&self) -> Option<u64> {
+            *self.0.lock().unwrap()
+        }
     }
 
     #[test]
@@ -985,40 +1022,51 @@ mod tests {
         );
     }
 
-    /// Worker growth credits each worker lease's measured footprint (at most
-    /// its bytes) against the double-counted reservations; other admissions
-    /// never do.
+    /// Review B1 regression: residency credit is measured afresh at every
+    /// admission. After worker A's resident memory drops, a second worker's
+    /// growth that a stale credit would admit is refused. The credit never
+    /// exceeds a lease's bytes, and an unmeasurable or detached worker gets none.
     #[test]
-    fn worker_growth_credits_measured_footprint_only_up_to_each_lease() {
+    fn residency_credit_is_measured_fresh_at_every_admission() {
         let host = ScriptedHost::with(Some(64 * GIB), Some(10 * GIB), PressureLevel::Normal);
         let pool = pool(&host);
         pool.set_max_running_workers(4);
+        let (probe_a, probe_b) = (ScriptedProbe::new(Some(3 * GIB)), ScriptedProbe::new(Some(0)));
         let mut a = pool.acquire(4 * GIB, LeasePurpose::Worker).unwrap();
         let mut b = pool.acquire(4 * GIB, LeasePurpose::Worker).unwrap();
         assert_eq!(pool.status(JobCounts::default()).running_workers, 2);
-        // Without credit: 2 GiB + 8 GiB reserved = 10 GiB fits; 3 GiB does not.
+        // Before any probe is attached nothing is credited: 3 + 8 > 10.
         assert_eq!(
-            a.grow_worker_to(7 * GIB, 0).unwrap_err(),
+            b.grow_to(7 * GIB).unwrap_err(),
             ResourceRefusal::HeadroomInsufficient { required_bytes: 11 * GIB, available_bytes: 10 * GIB }
         );
-        // a reports 3 GiB resident: 3 GiB + (8 - 3) GiB = 8 GiB fits.
-        a.grow_worker_to(7 * GIB, 3 * GIB).unwrap();
-        assert_eq!(a.bytes(), 7 * GIB);
-        // A footprint above the lease credits only the lease's bytes: b reports
-        // 9 GiB of a 4 GiB lease; required = 4 + (11 - 3 - 4) = 8 GiB.
-        b.grow_worker_to(8 * GIB, 9 * GIB).unwrap();
-        assert_eq!(credit(&pool), 7 * GIB);
-        // A non-worker admission gets no credit: 15 GiB reserved > 10 GiB headroom.
-        assert!(matches!(pool.acquire(1, LeasePurpose::Result).unwrap_err(), ResourceRefusal::HeadroomInsufficient { .. }));
-        // A refused growth keeps the grant and the recorded credit.
-        assert!(a.grow_worker_to(20 * GIB, 7 * GIB).is_err());
-        assert_eq!((a.bytes(), credit(&pool)), (7 * GIB, 11 * GIB));
-        a.shrink_to(GIB);
-        assert_eq!(credit(&pool), 5 * GIB, "credit never exceeds the lease");
-        drop(a);
-        assert_eq!((credit(&pool), pool.running_workers()), (4 * GIB, 1));
-        drop(b);
-        assert_eq!((pool.reserved_total(), credit(&pool), pool.running_workers()), (0, 0, 0));
+        a.set_residency_probe(Some(probe_a.clone()));
+        b.set_residency_probe(Some(probe_b.clone()));
+        // A holds 3 GiB resident: 3 + 8 - 3 = 8 GiB fits.
+        b.grow_to(7 * GIB).unwrap();
+        // A frees its memory: its credit is gone at the next admission (a stale
+        // credit would admit 1 + 11 - 3 = 9 GiB).
+        probe_a.set(Some(0));
+        assert_eq!(
+            b.grow_to(8 * GIB).unwrap_err(),
+            ResourceRefusal::HeadroomInsufficient { required_bytes: 12 * GIB, available_bytes: 10 * GIB }
+        );
+        assert_eq!(b.bytes(), 7 * GIB, "a refused growth keeps the grant");
+        // A reading above the lease credits only the lease's bytes: 1 + 11 - 4 = 8.
+        probe_a.set(Some(9 * GIB));
+        b.grow_to(8 * GIB).unwrap();
+        // Every admission path gets the same fresh credit: 1 + 12 - 4 = 9 fits.
+        let result = pool.acquire(GIB, LeasePurpose::Result).unwrap();
+        // A failed reading credits 0: 1 + 13 > 10.
+        probe_a.set(None);
+        assert!(matches!(pool.acquire(GIB, LeasePurpose::Result).unwrap_err(), ResourceRefusal::HeadroomInsufficient { .. }));
+        // So does a detached probe (a reaped worker).
+        probe_a.set(Some(4 * GIB));
+        a.set_residency_probe(None);
+        assert!(matches!(pool.acquire(GIB, LeasePurpose::Result).unwrap_err(), ResourceRefusal::HeadroomInsufficient { .. }));
+        drop((a, b, result));
+        assert_eq!((pool.reserved_total(), pool.running_workers()), (0, 0));
+        assert!(pool.lock().workers.is_empty());
     }
 
     #[test]

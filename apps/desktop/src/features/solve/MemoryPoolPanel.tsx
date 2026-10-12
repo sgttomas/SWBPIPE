@@ -136,7 +136,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
-            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget"
+            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the free memory macOS reports at that moment, is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget"
           />
           <PoolLine
             label="Memory pool"

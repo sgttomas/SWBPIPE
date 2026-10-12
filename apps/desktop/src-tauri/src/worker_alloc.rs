@@ -58,10 +58,11 @@ pub(crate) const WORKER_CAP_EXIT: i32 = 86;
 /// Worker exit code after a broken control channel or protocol violation.
 pub(crate) const WORKER_PROTOCOL_EXIT: i32 = 87;
 
-/// Control frames: a 4-byte tag and two little-endian u64 fields; result and
-/// error frames are followed by `a` body bytes.
-pub(crate) const FRAME_BYTES: usize = 20;
-/// Child -> parent: `a` = requested grant, `b` = the child's phys_footprint.
+/// Control frames: a 4-byte tag and three little-endian u64 fields (a, b, c;
+/// unused fields are 0); result and error frames are followed by `a` body bytes.
+pub(crate) const FRAME_BYTES: usize = 28;
+/// Child -> parent: `a` = requested grant (the doubling step), `b` = the
+/// minimal grant it needs (counted heap + reserve), `c` = its phys_footprint.
 pub(crate) const TAG_GROW: [u8; 4] = *b"GROW";
 /// Child -> parent: the need exceeds the budget; `a` = needed grant, `b` = maximum grant.
 pub(crate) const TAG_CAP_EXCEEDED: [u8; 4] = *b"CAPX";
@@ -72,25 +73,25 @@ pub(crate) const TAG_REFUSED: [u8; 4] = *b"RFSD";
 pub(crate) const TAG_RESULT: [u8; 4] = *b"RSLT";
 /// Child -> parent: `a` = error length, then that many UTF-8 bytes.
 pub(crate) const TAG_ERROR: [u8; 4] = *b"FAIL";
-/// Parent -> child: `a` = the new grant.
+/// Parent -> child: `a` = the new grant (at least the minimal need).
 pub(crate) const TAG_GRANTED: [u8; 4] = *b"GRNT";
 /// Parent -> child: the growth was refused.
 pub(crate) const TAG_DENIED: [u8; 4] = *b"DENY";
 
-pub(crate) fn encode_frame(tag: [u8; 4], a: u64, b: u64) -> [u8; FRAME_BYTES] {
+pub(crate) fn encode_frame(tag: [u8; 4], a: u64, b: u64, c: u64) -> [u8; FRAME_BYTES] {
     let mut frame = [0u8; FRAME_BYTES];
     frame[..4].copy_from_slice(&tag);
     frame[4..12].copy_from_slice(&a.to_le_bytes());
-    frame[12..].copy_from_slice(&b.to_le_bytes());
+    frame[12..20].copy_from_slice(&b.to_le_bytes());
+    frame[20..].copy_from_slice(&c.to_le_bytes());
     frame
 }
 
-pub(crate) fn decode_frame(frame: &[u8; FRAME_BYTES]) -> ([u8; 4], u64, u64) {
+pub(crate) fn decode_frame(frame: &[u8; FRAME_BYTES]) -> ([u8; 4], u64, u64, u64) {
     let mut tag = [0u8; 4];
     tag.copy_from_slice(&frame[..4]);
-    let a = u64::from_le_bytes(frame[4..12].try_into().unwrap_or([0; 8]));
-    let b = u64::from_le_bytes(frame[12..].try_into().unwrap_or([0; 8]));
-    (tag, a, b)
+    let field = |at: usize| u64::from_le_bytes(frame[at..at + 8].try_into().unwrap_or([0; 8]));
+    (tag, field(4), field(12), field(20))
 }
 
 static ENABLED: AtomicBool = AtomicBool::new(false);
@@ -222,6 +223,24 @@ pub(crate) fn pid_lifetime_max_footprint(pid: i32) -> u64 {
     unsafe { info.assume_init() }.ri_lifetime_max_phys_footprint
 }
 
+/// What process `pid` holds resident and private, bounded above:
+/// min(resident size, physical footprint). The resident size includes shared
+/// pages (not taken from the free queue for this process) and the footprint
+/// includes compressed pages (which occupy no free page until decompressed);
+/// each over-states, so the smaller is used. `None` if the read fails.
+#[cfg(target_os = "macos")]
+pub(crate) fn pid_realized_bytes(pid: i32) -> Option<u64> {
+    let mut info = std::mem::MaybeUninit::<libc::rusage_info_v0>::zeroed();
+    // SAFETY: `info` is a writable rusage_info_v0, the struct RUSAGE_INFO_V0 fills.
+    let rc = unsafe { libc::proc_pid_rusage(pid, libc::RUSAGE_INFO_V0, info.as_mut_ptr().cast()) };
+    if rc != 0 {
+        return None;
+    }
+    // SAFETY: zeroed is a valid value and the kernel filled it on success.
+    let info = unsafe { info.assume_init() };
+    Some(info.ri_resident_size.min(info.ri_phys_footprint))
+}
+
 /// This process's lifetime-maximum physical footprint, or 0 where unavailable.
 pub(crate) fn lifetime_max_footprint() -> u64 {
     #[cfg(target_os = "macos")]
@@ -277,7 +296,7 @@ pub(crate) fn send_frame(tag: [u8; 4], a: u64, b: u64, body: &[u8]) -> bool {
     {
         let _guard = ChannelGuard::take();
         let fd = CONTROL_OUT.load(Ordering::SeqCst);
-        write_all_fd(fd, &encode_frame(tag, a, b)) && write_all_fd(fd, body)
+        write_all_fd(fd, &encode_frame(tag, a, b, 0)) && write_all_fd(fd, body)
     }
     #[cfg(not(unix))]
     {
@@ -305,7 +324,7 @@ pub(crate) fn read_request(buffer: &mut [u8]) -> bool {
 fn refuse_and_exit(tag: [u8; 4], a: u64, b: u64) -> ! {
     #[cfg(unix)]
     {
-        let _ = write_all_fd(CONTROL_OUT.load(Ordering::SeqCst), &encode_frame(tag, a, b));
+        let _ = write_all_fd(CONTROL_OUT.load(Ordering::SeqCst), &encode_frame(tag, a, b, 0));
     }
     #[cfg(not(unix))]
     let _ = (tag, a, b);
@@ -343,7 +362,7 @@ fn grow_or_exit() {
         #[cfg(unix)]
         {
             let out = CONTROL_OUT.load(Ordering::Relaxed);
-            if !write_all_fd(out, &encode_frame(TAG_GROW, requested, footprint)) {
+            if !write_all_fd(out, &encode_frame(TAG_GROW, requested, needed_grant, footprint)) {
                 exit_now(WORKER_PROTOCOL_EXIT);
             }
             let mut reply = [0u8; FRAME_BYTES];
@@ -351,11 +370,11 @@ fn grow_or_exit() {
                 exit_now(WORKER_PROTOCOL_EXIT);
             }
             match decode_frame(&reply) {
-                (TAG_GRANTED, granted, _) if granted > grant && granted <= max_grant => {
+                (TAG_GRANTED, granted, _, _) if granted >= needed_grant && granted <= max_grant => {
                     GRANT.store(granted, Ordering::Release);
                     HEAP_CAP.store(granted.saturating_sub(reserve), Ordering::Release);
                 }
-                (TAG_DENIED, _, _) => refuse_and_exit(TAG_REFUSED, requested, grant),
+                (TAG_DENIED, _, _, _) => refuse_and_exit(TAG_REFUSED, needed_grant, grant),
                 _ => exit_now(WORKER_PROTOCOL_EXIT),
             }
         }
@@ -487,8 +506,8 @@ mod tests {
 
     #[test]
     fn frames_round_trip() {
-        let frame = encode_frame(TAG_GROW, 1 << 40, 7);
-        assert_eq!(decode_frame(&frame), (TAG_GROW, 1 << 40, 7));
+        let frame = encode_frame(TAG_GROW, 1 << 40, 7, u64::MAX);
+        assert_eq!(decode_frame(&frame), (TAG_GROW, 1 << 40, 7, u64::MAX));
         assert_eq!(&frame[..4], b"GROW");
     }
 

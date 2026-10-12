@@ -63,7 +63,7 @@ describe("the memory pool panel", () => {
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
     expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
     // The budget bounds the request intake and each ordinary solve's worker, not held results.
-    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget");
+    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the free memory macOS reports at that moment, is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget");
     expect(screen.getByTestId("memory-pool-status").textContent).not.toMatch(/qualified up to|guarantee/i);
     expect(line("memory-pool-size")).toBe("48 GiB; recommended 48 GiB for 64 GiB physical memory");
     expect(line("memory-pool-reserved")).toBe("18.5 GiB (model intake 512 MiB, solve workers 6 GiB, results 0 MiB, results held by the app 12 GiB)");
