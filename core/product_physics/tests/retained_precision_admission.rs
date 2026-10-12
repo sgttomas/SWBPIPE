@@ -232,12 +232,14 @@ fn legacy_native_and_typed_call_graphs_cannot_acquire_retained_admission() {
     ] {
         assert!(!dispatch.contains(forbidden));
     }
+    // The desktop solves only in its capped worker (DEL-04-07), through the ordinary facade.
     let native = include_str!("../../../apps/desktop/src-tauri/src/lib.rs");
+    let worker = include_str!("../../../apps/desktop/src-tauri/src/solve_worker.rs");
     assert!(native.contains("run_linear_static_preview_value_with_mode(request, solver_mode)"));
-    assert!(native.contains(
-        "model_payload.and_then(|payload| solve_preview_mechanics_with_mode(payload, solver_mode))"
-    ));
-    assert!(!native.contains("with_retained_direct") && !native.contains("with_retained_headless"));
+    assert!(worker.contains("crate::solve_preview_mechanics_with_mode(model, mode)"));
+    for source in [native, worker] {
+        assert!(!source.contains("with_retained_direct") && !source.contains("with_retained_headless"));
+    }
     let typed: LinearStaticPreviewRequest = serde_json::from_value(ordinary()).unwrap();
     let output = run_linear_static_preview_with_mode(typed, PreviewSolverMode::SparseInteractive);
     assert!(serde_json::to_value(output)
