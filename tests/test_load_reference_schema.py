@@ -30,6 +30,7 @@ LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 LR_SHA = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
 LR_PROFILE = "resolved_straight_load_state_v1"
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PHYSICS_SHA = "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
 PHYSICS_PROFILE = "exact_straight_pressure_v2"
 LR_EVIDENCE_REF = {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}
@@ -605,6 +606,8 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     assert ids == ["openpipestress.result_semantics/0.3.0/precision-1", PHYSICS_ID,
                    "openpipestress.result_semantics/0.3.0/source-blocks-1",
                    "openpipestress.result_semantics/0.3.0/physics-source-1",
+                   # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1.
+                   PRESSURE_SOURCE_ID,
                    "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
                    "openpipestress.result_semantics/0.3.0/load-reference-source-1",
                    # T3's F2a preview successor follows T1's branches (C1:162; U6c).
@@ -614,23 +617,30 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     lr = ids.index(LR_ID)
     evidence = results["properties"]["contract_evidence"]["anyOf"]
     assert evidence.count(LR_EVIDENCE_REF) == 1
-    assert evidence.index(LR_EVIDENCE_REF) == len(evidence) - 2, "LR evidence follows main's evidence kinds"
+    # LR evidence follows main's evidence kinds; LRS's and the pressure-source join's follow it.
+    assert evidence.index(LR_EVIDENCE_REF) == len(evidence) - 3, "LR evidence follows main's evidence kinds"
+    assert evidence[-1] == {"$ref": "#/$defs/PressureSourceContractEvidence"}
     assert results["oneOf"][lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
     assert results["oneOf"][lr]["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LR_PROFILE}
     run = schema("analysis_run.v0.3.schema.json")["$defs"]
     contracts = run["SemanticContract"]["oneOf"]
-    assert [branch["properties"]["id"]["const"] for branch in contracts] == ids
-    assert contracts[lr] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
+    # The run's contract registry appends pressure-source-1 after the existing identities.
+    registry = [identifier for identifier in ids if identifier != PRESSURE_SOURCE_ID] + [PRESSURE_SOURCE_ID]
+    assert [branch["properties"]["id"]["const"] for branch in contracts] == registry
+    assert contracts[registry.index(LR_ID)] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
     assert len(run["AnalysisRun"]["oneOf"]) == len(ids)
     assert run["AnalysisRun"]["oneOf"][lr]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
                                                                {"required": ["contract_evidence"]},
                                                                {"required": ["retained_precision"]}]}
     package = schema("stress_neutral_export.v0.3.schema.json")
     package_ids = [branch["properties"]["semantic_contract"]["properties"]["id"]["const"] for branch in package["oneOf"]]
-    assert package_ids == ids
-    assert package["oneOf"][lr]["properties"]["semantic_contract"]["properties"] == {
+    # pressure-source-1 export is refused by name (b7-plan D6): no package branch.
+    export_ids = [identifier for identifier in ids if identifier != PRESSURE_SOURCE_ID]
+    assert package_ids == export_ids
+    package_lr = export_ids.index(LR_ID)
+    assert package["oneOf"][package_lr]["properties"]["semantic_contract"]["properties"] == {
         "id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}
-    assert package["oneOf"][lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+    assert package["oneOf"][package_lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
 
 
 def _results_document(source, contract_id):

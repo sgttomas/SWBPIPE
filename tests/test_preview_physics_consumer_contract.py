@@ -14,7 +14,7 @@ import pytest
 
 from core.analysis_runs.compatibility import (
     FRESH_CONTRACT_IDS, PRECISION_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256,
-    PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, _source_contract,
+    PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, _source_contract,
     LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
     build_analysis_run, is_fresh_contract_id, numerical_use_standing, rule_binding_refusal,
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
@@ -160,8 +160,9 @@ def test_table_identity_and_registry():
     assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
     # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
+    # b7-plan's pressure-source join: plus pressure-source-1.
     assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
-                                  LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
+                                  PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
     assert not is_fresh_contract_id(PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
 
 
@@ -222,7 +223,8 @@ def test_preview_metadata_vocabulary_is_scoped_to_its_branch():
         validate_instance(schema_for_definition(schema, "ResultMetadata"), arc)
     intensified = meta("equal_factor_intensified_bending_stress", "pipe_section", "end_j", "user_sif_times_member_section_bending_stress_v1")
     validate_instance(schema_for_definition(schema, "PreviewPhysicsResultMetadata"), intensified)
-    branch = schema["$defs"]["ResultEnvelope"]["oneOf"][4]
+    branch = next(branch for branch in schema["$defs"]["ResultEnvelope"]["oneOf"]
+                  if branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] == PREVIEW_PHYSICS_CONTRACT_ID)
     assert branch["properties"]["formulation_basis"]["properties"]["limitations"] == {"const": LIMITATIONS}
     assert branch["properties"]["result_sets"]["items"] == {"$ref": "#/$defs/PreviewPhysicsResultSet"}
 
