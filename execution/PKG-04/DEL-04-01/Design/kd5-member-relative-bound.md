@@ -445,13 +445,14 @@ The same rule, with "on this route", covers any other route that would publish P
 
 That is 10 integrity diagnostics. The desktop demo's cases show Sensitive.
 
-**The next T4 unit: K-D5 on the converged active set.** At convergence the selected state solves a linear system: K plus the active supports' stiffness or constraint rows, with the closed and gapped supports fixed.
+**The next T4 unit: K-D5 on the converged active set.** Its governing design is [kd5-nonlinear-active-set.md](kd5-nonlinear-active-set.md). That design covers:
 
-- Build its `FormationCheckedSystem`, with active support springs as springs, active gaps as prescribed or eliminated rows, and friction as its linearized state.
-- Run K-D5 and (d) unchanged on it.
-- Add one condition: the active set is certified. Each inactive support's gap, and each active support's contact force, must have the right sign with margin above its own bound (a ball on the support reaction rows). Otherwise the case fails closed with a named reason.
+- the state's intended system, including the friction coupling;
+- the confirmation attempt;
+- the active-set certificate and its named fail-closed reasons;
+- publication, W1 and pricing, cost and the predicted moves.
 
-The cost and the W1 relation (the route is outside D1) belong to that unit.
+The fail-closed rule above stands until that unit is implemented. After that it applies only where that design's ruling R1 keeps a case off the unit (gap-bearing cases).
 
 ## 6. The declared blast radius, pins and pricing (SP-1, SP-4; T3's I1)
 
