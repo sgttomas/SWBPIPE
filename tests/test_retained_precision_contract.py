@@ -790,7 +790,7 @@ def test_snapshot_07m_g7_header_slice():
     assert [m["id"] for m in corpus()["mutations"][286:294]] == B6_07M_IDS
     _slice_outcomes(286, 294, {"G7 SOURCE_NUMERICAL_CASE_INVALID": 4, "G7 SOURCE_NUMERICAL_QUALITY_INVALID": 1,
                                "G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED": 1, "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED": 1,
-                               "G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN": 1})
+                               "G7 SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN": 1})
 
 
 def test_class2_ordinary_before_association_d17():
@@ -1719,17 +1719,17 @@ def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
     probes = {
         "h_carrier_present": ([I4P_CARRIER], I4P_INVALID, "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
         "h_carrier_and_quality_defect": ([I4P_CARRIER, quality], ("G2", "SOURCE_NUMERICAL_QUALITY_INVALID"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
-        "h_carrier_and_recovery": ([I4P_CARRIER, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        "h_carrier_and_recovery": ([I4P_CARRIER, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
         "n6_carrier_evidence_with_case_defect": ([I4P_CARRIER, case], ("G2", "SOURCE_NUMERICAL_CASE_INVALID"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
-        "h_recovery_and_evidence_null": ([I4P_RECOVERY, I4P_EVIDENCE_NULL], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
-        "n6_contract_evidence_null_and_source_block_recovery": ([I4P_EVIDENCE_NULL, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
+        "h_recovery_and_evidence_null": ([I4P_RECOVERY, I4P_EVIDENCE_NULL], ("G2", "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
+        "n6_contract_evidence_null_and_source_block_recovery": ([I4P_EVIDENCE_NULL, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
     }
     got = {name: _i4p_three(O_BASE, edits)[0] for name, (edits, _, _) in probes.items()}
     assert got == {name: (("G7", raw), ("G7", raw), transport) for name, (_, transport, raw) in probes.items()}
     # The carrier member alone reaches the metadata check's namespace demand.
     assert _i4p_three(O_BASE, [I4P_CARRIER])[1][2] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
     # Each member alone keeps its own gate and code; the unedited base is admitted, never eligible.
-    assert _i4p_three(O_BASE, [I4P_RECOVERY])[0][2] == ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+    assert _i4p_three(O_BASE, [I4P_RECOVERY])[0][2] == ("G2", "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     assert _i4p_three(O_BASE, [I4P_EVIDENCE_NULL])[0][2] == ("G2", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
     assert _i4p_three(O_BASE, [])[0][2] == I4P_NEEDS
     # The successor's transport dispatch is the reader's transport step: its text is the reader's detail.
@@ -1742,7 +1742,7 @@ def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
     carrier, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_CARRIER], "rehash": "all"})
     pair, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_RECOVERY, I4P_EVIDENCE_NULL], "rehash": "all"})
     assert dispatch(carrier) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
-    assert dispatch(pair) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+    assert dispatch(pair) == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
     # A preview-physics-1 statement's own transport dispatch: the verifier keeps Python's order; the product
     # takes the Rust reader's (b7-plan R2's declared class): G5's carrier refusal, and Rust's header order.
     from tests.verifiers import compatibility as verifier
@@ -1755,7 +1755,7 @@ def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
     assert verified(_i4p_projected(carrier)) == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
     assert verified(_i4p_projected(pair)) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
     assert dispatch(_i4p_projected(carrier)) == "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
-    assert dispatch(_i4p_projected(pair)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+    assert dispatch(_i4p_projected(pair)) == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
 
 
 def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets():

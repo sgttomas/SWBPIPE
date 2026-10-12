@@ -282,7 +282,7 @@
      "value": "resolved_straight_load_state_v1"
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
    "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
    "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
@@ -296,7 +296,7 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
    "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
   },
   {

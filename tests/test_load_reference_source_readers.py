@@ -275,8 +275,8 @@ def test_existing_readers_refuse_every_joined_envelope_under_their_own_labels():
         as_lr = deepcopy(raw)
         as_lr["producer"]["semantic_contract_id"] = LOAD_REFERENCE_CONTRACT_ID
         as_lr["formulation_basis"]["profile_id"] = "resolved_straight_load_state_v1"
-        assert outcome(lambda: verifier._source_contract(as_lr)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
-        assert outcome(lambda: _source_contract(as_lr)) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+        assert outcome(lambda: verifier._source_contract(as_lr)) == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
+        assert outcome(lambda: _source_contract(as_lr)) == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
         as_ps = deepcopy(raw)
         as_ps["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/physics-source-1"
         as_ps["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"

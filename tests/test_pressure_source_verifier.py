@@ -78,13 +78,13 @@ def test_pressure_source_receipt_downgrade_is_refused_on_raw_header_and_transpor
     source = v2()
     source["producer"]["semantic_contract_id"] = physical.PRESSURE_ID
     source["formulation_basis"]["profile_id"] = ps.PRESSURE_PROFILE
-    with pytest.raises(ValueError, match="SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"):
+    with pytest.raises(ValueError, match="SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"):
         c._source_contract(source)
-    with pytest.raises(ValueError, match="SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"):
+    with pytest.raises(ValueError, match="SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"):
         c._source_contract(source, check_receipt=False)
-    with pytest.raises(ValueError, match="SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"):
+    with pytest.raises(ValueError, match="SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"):
         ps.validate_transport_metadata(source, source_contract=ps.SourceContract.PRESSURE_V3)
-    assert verdict.dispatch(source)["error"]["code"] == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+    assert verdict.dispatch(source)["error"]["code"] == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
 
 
 def test_v2_selected_source_admission_and_standing_stay_unchanged():

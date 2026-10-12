@@ -491,9 +491,9 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         &downgraded,
         invocation,
         "pressure-source",
-        Some("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"),
-        Some("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"),
-        DispatchDisposition::HeaderRefused("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"),
+        Some("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"),
+        Some("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"),
+        DispatchDisposition::HeaderRefused("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"),
     ));
     let mut budget = source.clone();
     budget["source_block_recovery"]["body"]["invocation_work"]["charged"] = json!(

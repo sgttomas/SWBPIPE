@@ -15551,7 +15551,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -15559,7 +15559,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -15581,7 +15581,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -15589,7 +15589,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -19499,7 +19499,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -19507,7 +19507,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
             "MECHANICS_NOT_SOLVED"
           ],
           "route": "unsupported",
@@ -20398,7 +20398,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -20406,7 +20406,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -20435,7 +20435,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -20443,7 +20443,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",

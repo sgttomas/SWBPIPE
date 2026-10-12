@@ -186,7 +186,7 @@ pub fn derive_document(
         ) {
             e["source_block_recovery"] = source["source_block_recovery"].clone();
         } else if e.get("source_block_recovery").is_some() {
-            return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+            return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
         }
         // D2 4.9.7: the successor's receipt travels with the document, whole.
         // A receipt on any other identity's document is refused by the
@@ -422,7 +422,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         .get("source_block_recovery")
         .is_some()
     {
-        return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+        return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
     }
     // D2 4.9.7: the copied receipt equals the source's, whole; no other
     // identity's document carries one.

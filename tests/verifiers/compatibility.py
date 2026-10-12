@@ -247,7 +247,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     # The joined receipt cannot be downgraded to ordinary pressure-1, including
     # transport statements. This is a source-qualified exception only.
     if producer == {"component_name":"open_pipe_stress_product_physics", "component_version":"0.2.0", "semantic_contract_id":"openpipestress.result_semantics/0.3.0/pressure-1"} and "source_block_recovery" in source:
-        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     pressure_source = producer["semantic_contract_id"] == PRESSURE_SOURCE_CONTRACT_ID
@@ -262,13 +262,13 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     recovery_forbidden = producer["semantic_contract_id"] not in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source
     if rust_header_order and recovery_forbidden:
         # Ruling 1: Rust's order, the recovery member before the evidence demand.
-        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if not physics and not preview and not load_reference and not joined and source.get("contract_evidence") is not None:
         raise ValueError("SOURCE_PHYSICS_CONTRACT_MISMATCH")
     if preview and not isinstance(source.get("contract_evidence"), Mapping):
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
     if recovery_forbidden:
-        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     quality = source.get("numerical_quality")
     if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or not isinstance(quality.get("status"), str) or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
         # RV108 N1: each enum membership test refuses a non-string value first. A list- or

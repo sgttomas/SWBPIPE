@@ -112,7 +112,7 @@ def test_pressure_raw_and_transport_table_binding_is_reviewed_without_parsing_ro
 @pytest.mark.parametrize("reader,check_receipt", [("pressure-source", True), ("pressure-source-transport", False)])
 def test_pressure_wrapper_propagates_rust_refusal_without_a_fallback(controlled_rust, reader, check_receipt):
     outcomes, _ = controlled_rust
-    code = "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+    code = "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
     outcomes[reader] = {"ok": False, "error": {"code": code, "detail": None}}
     with pytest.raises(ValueError, match=code):
         c._source_contract(invented_source(), check_receipt=check_receipt)

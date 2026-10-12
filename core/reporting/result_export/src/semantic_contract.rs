@@ -416,7 +416,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 && p["semantic_contract_id"] != LOAD_REFERENCE_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
             {
-                return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+                return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
             }
             if p["semantic_contract_id"] == PREVIEW_PHYSICS_ID
                 && !source.get("contract_evidence").is_some_and(Value::is_object)

@@ -520,7 +520,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
     elif "source_block_recovery" in run:
-        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         if not _same_canonical(run.get("contract_evidence"), source["contract_evidence"]):
             raise ValueError("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH")

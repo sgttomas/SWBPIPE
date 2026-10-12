@@ -130,7 +130,7 @@ def _metadata_header(source: Any) -> str:
     if identity in {c.LOAD_REFERENCE_CONTRACT_ID, c.LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "carrier_evidence" in source:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if identity not in {c.SOURCE_BLOCKS_CONTRACT_ID, c.PHYSICS_SOURCE_CONTRACT_ID, c.PRESSURE_SOURCE_CONTRACT_ID, c.LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source:
-        raise Refused("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise Refused("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if identity == c.PREVIEW_PHYSICS_CONTRACT_ID and not isinstance(source.get("contract_evidence"), Mapping):
         raise Refused("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
     if identity in (c.PHYSICS_SOURCE_CONTRACT_ID, c.PRESSURE_SOURCE_CONTRACT_ID):
@@ -385,7 +385,7 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name = route(source)
     except Refused as error:
         code = str(error)
-        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", physics_evidence.V3_READ_AS_V2, physics_evidence.V2_READ_AS_V3} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
+        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN", physics_evidence.V3_READ_AS_V2, physics_evidence.V2_READ_AS_V3} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         name = UNSUPPORTED
     def done(findings: list[str]) -> dict[str, Any]:
         eligible = not findings

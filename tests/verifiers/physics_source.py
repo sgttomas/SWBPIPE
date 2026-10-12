@@ -91,7 +91,7 @@ class SourceContract(Enum):
         profile = _get(_get(source, "formulation_basis"), "profile_id")
         evidence = _get(source, "contract_evidence")
         if self is SourceContract.PRESSURE_V3 and header == physical.PRESSURE_ID and isinstance(source, Mapping) and "source_block_recovery" in source:
-            raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+            raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
         cases, regions = _get(evidence, "exact_cases"), _get(evidence, "pressure")
         names_other = header == other.CONTRACT_ID or profile == other.PROFILE
         names_other |= self is SourceContract.PRESSURE_V3 and header == "openpipestress.result_semantics/0.3.0/load-reference-source-1"

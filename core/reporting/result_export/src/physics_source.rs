@@ -62,7 +62,7 @@ impl SourceContract {
         let evidence = &source["contract_evidence"];
         if self == Self::PressureV3 && *header == crate::semantic_contract::PRESSURE_ID
             && source.get("source_block_recovery").is_some() {
-            return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+            return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
         }
         let names_other = *header == other.identity()
             || (self == Self::PressureV3 && *header == crate::load_reference_source::CONTRACT_ID)

@@ -1128,7 +1128,7 @@
      "value": {}
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
    "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
@@ -1144,7 +1144,7 @@
      }
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
    "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {

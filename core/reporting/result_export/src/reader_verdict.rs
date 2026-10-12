@@ -391,7 +391,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         Ok((route, _)) => route,
         Err(code) => {
             findings.push(
-                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
             );
             UNSUPPORTED
         }

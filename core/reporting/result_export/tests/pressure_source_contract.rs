@@ -64,10 +64,10 @@ fn pressure_source_receipt_cannot_downgrade_to_pressure_1() {
     let mut source = v2();
     source["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_ID);
     source["formulation_basis"]["profile_id"] = json!(ps::PRESSURE_PROFILE);
-    assert_eq!(sc::for_source_metadata(&source).unwrap_err(), "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN");
-    assert_eq!(sc::for_source(&source).unwrap_err(), "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN");
-    assert_eq!(ps::validate_transport_metadata_in(&source, ps::SourceContract::PressureV3).unwrap_err(), "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN");
-    assert_eq!(reader_verdict::dispatch(&source, None, None)["error"]["code"], "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN");
+    assert_eq!(sc::for_source_metadata(&source).unwrap_err(), "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN");
+    assert_eq!(sc::for_source(&source).unwrap_err(), "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN");
+    assert_eq!(ps::validate_transport_metadata_in(&source, ps::SourceContract::PressureV3).unwrap_err(), "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN");
+    assert_eq!(reader_verdict::dispatch(&source, None, None)["error"]["code"], "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN");
 }
 
 #[test]
