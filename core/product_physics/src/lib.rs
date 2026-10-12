@@ -2807,6 +2807,15 @@ fn run_linear_static_preview_observed_inner(
         };
         let (_, basis_materials, basis_built, basis_stiffness, basis_record) =
             &basis_solve_states[state_index];
+        // B7a (b) Widen domain (RV125 N-2): a selector case's early W1 capture at its basis state,
+        // with the basis-resolved materials and model, before its ordinary solve (a blocked
+        // basis has already returned the blocked envelope).
+        if early_domain {
+            if let (Some(observer), Some(captured)) = (product.as_deref_mut(), capture) {
+                observer.capture_basis_early_source(&model, basis_built, basis_materials, load_case,
+                    &boundary.restrained_dofs, &boundary.springs, captured);
+            }
+        }
         match solve_load_case_observed(
             &model,
             basis_built,

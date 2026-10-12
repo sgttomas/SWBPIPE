@@ -599,6 +599,29 @@ def test_ordinary_pass_d6():
         _raises(lambda: rp._g5_ordinary(bad, bad["cases"], diags, q), "G5", "ATTEMPT_MISMATCH")
 
 
+def test_b7a_formation_failure_names_its_own_basis():
+    """B7a (b), stage 1 (review F2): a formation failure's `basis_index` is the failing case's own material
+    basis. On 07j's two-case statement, case 1's initial made a formation failure is admitted with its basis
+    (one base basis, then two bases with case 1 on the second); an out-of-range index, and another case's
+    basis, are refused at G5. Rust's `b7a_formation_failure_names_its_own_basis` is the same table."""
+    source = _cases()[P_BASE]["source"]
+
+    def ordinary(split, basis_index):
+        body = deepcopy(source["retained_precision"]["body"])
+        if split:
+            named = dict(deepcopy(body["material_bases"][0]), index=1, selector={"kind": "named", "id": "P1"}, case_indices=[1])
+            body["material_bases"][0]["case_indices"] = [0]
+            body["material_bases"].append(named)
+            body["ordinary_attempts"][1]["material_basis_ref"] = 1
+        body["ordinary_attempts"][1]["initial"] = {"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b7a"}, "basis_index": basis_index}
+        return lambda: rp._g5_ordinary(body, body["cases"], source["diagnostics"], source["numerical_quality"]["cases"])
+
+    ordinary(False, 0)()
+    ordinary(True, 1)()
+    for split, index in ((False, 7), (True, 2), (True, 0), (False, "0")):
+        _raises(ordinary(split, index), "G5", "ATTEMPT_MISMATCH")
+
+
 def test_g4_retained_diagnostic_names_one_requested_case_d7():
     fixture = _cases()[O_BASE]
     extra = deepcopy(next(d for d in fixture["source"]["diagnostics"] if d["code"] == "RETAINED_PRECISION_SELECTED"))

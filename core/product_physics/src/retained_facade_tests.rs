@@ -4048,20 +4048,16 @@ fn b2p_direct(witnesses: Vec<(&'static str, Value)>) {
     }
 }
 
-/// RV125 N-2 (a forward constraint on lane P): the capture's modulus-basis custody
-/// (`selections`, `basis_record`, `basis_record_calls`, `basis_expected`) is the invocation's,
-/// not a case's. No B2-P or B3b-P path admits a material selector at c ≥ 2, so it stays there:
-/// - on the Direct entry, G-A refuses a selector on any case (D1.5, `ModulusBasisRef`): no W1,
-///   one run, the plain bytes;
-/// - on the private driver (no G-A), the preview route's capture refuses it, so no successor
-///   reaches precommit: a selector on case 0 fails the custody (`Preparation`), and one on case 1
-///   only fails every attempted case's freeze (`Candidate`). The exact route refuses any
-///   selector (P-5).
+/// RV125 N-2, met by B7a (b) Widen domain, stage 1: the capture's modulus-basis custody is per
+/// basis (`bases`) and each case binds its own (`basis_expected`, `basis`), so G-A admits a
+/// named-point selector on any case of branch L (D1.5), and on the private driver neither the
+/// custody (`Preparation`) nor any attempted case's freeze (`Candidate`) refuses it: W1 reaches
+/// precommit, whose only refusal while B7a's table-byte pins are held is G0's. The exact route
+/// still refuses any selector (P-5; `b3b_exact_capture_refuses_a_selected_basis`).
 ///
 /// Pinned for c = 2 without and with a combination, a point basis on either case or both.
 #[test]
-fn b2p_selectors_at_two_cases_are_refused() {
-    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+fn b2p_selectors_at_two_cases_bind_their_own_basis() {
     let mut no_combination = b2p_two_cases();
     no_combination["model"]["combinations"] = json!([]);
     for (base, raw) in [("c = 2", no_combination), ("c = 2, z = 1", b2p_two_cases())] {
@@ -4078,20 +4074,14 @@ fn b2p_selectors_at_two_cases_are_refused() {
                 let plain_value: Value = serde_json::from_slice(&plain).unwrap();
                 assert_eq!(plain_value["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}: the ordinary route solves it");
                 assert_eq!(plain_value["results"].as_array().unwrap().iter().filter(|r| r["kind"] == "modulus_basis_record").count(), selected.len(), "{label}");
-                // The Direct entry: G-A refuses (D1.5), whatever the build.
-                let (output, counts) = direct(&raw, mode);
-                assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Case, FamilyFact::ModulusBasisRef)), "{label}");
-                assert!(output.retained().is_none(), "{label}: no W1");
-                assert_eq!(counts, ONE_RUN, "{label}");
-                assert_eq!(published(output), plain, "{label}: the plain bytes");
-                // The private driver: the capture's custody refuses, so no successor.
+                // G-A's domain admits it (D1.5 on branch L).
+                let (request, captured_invocation) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+                assert_eq!(super::retained_memory::assess(&captured_invocation, &request, super::retained_memory::Entry::Direct).law().domain,
+                    None, "{label}");
+                // The private driver: custody and freeze pass; precommit is reached.
                 let (capture, observer, ordinary) = observed(mode, &raw);
-                let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
-                // A selector on case 0 fails the custody (`Preparation`); on case 1 only, every
-                // attempted case's freeze refuses (`Candidate`).
-                let expected = if selected.contains(&0) { W1Fallback::Preparation } else { W1Fallback::Candidate };
-                assert_eq!(retained.err(), Some(expected), "{label}");
-                assert!(captured.is_none(), "{label}: no successor reaches precommit");
+                let ((_, retained), _, _) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+                assert!(matches!(&retained, Ok(_) | Err(W1Fallback::Precommit { gate: "G0", .. })), "{label}: {:?}", retained.err());
             }
         }
     }

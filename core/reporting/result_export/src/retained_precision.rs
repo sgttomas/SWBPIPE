@@ -5737,6 +5737,17 @@ fn g5_ordinary(source: &Value) -> VResult {
             )
             .is_ok_and(|mb| list(&mb["case_indices"]).iter().any(|x| u(x) == i as u64)),
         )?;
+        // B7a (b), stage 1: a formation failure names the basis whose stiffness
+        // failed to form, which is the failing case's own basis: its basis_index
+        // resolves and equals the attempt's material_basis_ref. PY `_g5_ordinary`
+        // applies the same rule.
+        if o["initial"]["kind"] == "formation_failure" {
+            let index = &o["initial"]["basis_index"];
+            fail(
+                at(&b["material_bases"], index, "G5", "ATTEMPT_MISMATCH").is_ok()
+                    && uint(index) == uint(&o["material_basis_ref"]),
+            )?;
+        }
         // D6a (checkpoint-A ruling): the untyped diagnostic_refs are unique and
         // resolve. Typed references below must be listed and name the case (C2:166).
         let mut refs = BTreeSet::new();

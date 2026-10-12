@@ -1060,8 +1060,12 @@ fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
                     observer.early_source_count(),
                     raw["model"]["load_cases"].as_array().unwrap().len()
                 );
+                // B7a (b), stage 1: a member-load case (F6/partial's case-b) builds no source.
                 for case in 0..observer.cases_seen() {
-                    assert!(observer.source_terminal_at(case).0);
+                    let member_loads = observer.member_loads_basis_at(case).0;
+                    let loads = &raw["model"]["load_cases"][case]["primitive_loads"];
+                    assert_eq!(member_loads, loads.as_array().unwrap().iter().any(|l| l["target"]["type"] == "element"));
+                    assert_eq!(observer.source_terminal_at(case).0, !member_loads);
                 }
                 assert!(observer.error.is_none());
             } else {
@@ -1242,3 +1246,7 @@ fn b4_early_exact_material_binding_uses_authoritative_subnormal_words() {
         }
     }
 }
+
+// B7a (b) Widen domain, stage 1: per-case basis custody and member-load cases.
+#[path = "w1_domain_stage1_tests.rs"]
+mod w1_domain_stage1_tests;

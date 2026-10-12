@@ -29,6 +29,18 @@ pub(super) struct BasisRecord {
     pub selector: MaterialSelector,
     pub text: String,
 }
+/// B7a (b) Widen domain (RV125 N-2): one modulus basis's custody: its selector, the resolver's
+/// selections for it and its one successful basis record.
+#[derive(Debug)]
+pub(super) struct BasisCustody {
+    pub selector: MaterialSelector,
+    pub selections: Vec<MaterialSelection>,
+    pub record: Option<BasisRecord>,
+    pub record_calls: usize,
+}
+/// B7a (b) Widen domain, stage 1: the named cause of a case with full-span uniform member loads
+/// (its attempt ends at preparation; the W1 member-load certification unit is a follow-on).
+pub(super) const MEMBER_LOAD_CAUSE: &str = "source family: full-span uniform member loads await the W1 member-load certification unit";
 #[derive(Debug)]
 pub(super) struct TermIdentity {
     pub original: usize,
@@ -145,11 +157,23 @@ pub(super) struct ProductCapture {
     pub request_materials: bool,
     pub nodes: Vec<(String, [f64; 3])>,
     pub materials: Vec<(String, f64, f64)>,
-    pub selections: Vec<MaterialSelection>,
-    pub basis_record: Option<BasisRecord>,
-    pub basis_record_calls: usize,
-    /// Set from the actual source case, independently of successful text capture.
+    /// B7a (b) Widen domain (RV125 N-2): the invocation's modulus-basis custody, one entry per
+    /// distinct selector, in the order the resolver first selected it. The resolver selects a
+    /// basis once, for the first case that names it, before that case is entered; later cases
+    /// reuse it with no hook, so the custody is per basis and each case binds to its own.
+    pub bases: Vec<BasisCustody>,
+    /// A selection or basis-record hook's failure. The hooks fire before their case is entered,
+    /// so the failure is the invocation's, refused at custody.
+    pub basis_error: Option<CaptureError>,
+    /// Per case: whether the case names a selector, set from the actual source case,
+    /// independently of successful text capture.
     pub basis_expected: bool,
+    /// Per case: the index in `bases` of the case's own basis custody (`None` for a base case).
+    pub basis: Option<usize>,
+    /// Per case (B7a (b), stage 1): the case carries full-span uniform member loads, which wait
+    /// for the W1 member-load certification unit. Its source is not captured, its attempt ends at
+    /// preparation with `MEMBER_LOAD_CAUSE`, and its own capture never refuses the invocation.
+    pub member_loads: bool,
     pub members: Vec<MemberIdentity>,
     pub terms: Vec<TermIdentity>,
     pub supports: Vec<(String, usize)>,
@@ -269,6 +293,20 @@ struct EarlyCaseSource {
     capacities: Vec<(&'static str, usize)>,
     error: Option<CaptureError>,
     source_capture_entries: usize,
+    basis_expected: bool,
+    basis: Option<usize>,
+    member_loads: bool,
+    /// B7a (b): a selector case's slot before its basis state is built. Its source is captured
+    /// there (`capture_basis_early_source`), with the basis-resolved materials and model.
+    pending_basis: bool,
+}
+impl EarlyCaseSource {
+    fn pending() -> Self {
+        Self { case_id: String::new(), source: None, members: Vec::new(), terms: Vec::new(), supports: Vec::new(),
+            spring_map: Vec::new(), support_fixed: Vec::new(), facts: Vec::new(), operational: Vec::new(),
+            capacities: Vec::new(), error: None, source_capture_entries: 0, basis_expected: false, basis: None,
+            member_loads: false, pending_basis: true }
+    }
 }
 
 /// B2-P (C-1): whether a mechanics combination's terms name distinct load cases.
@@ -336,6 +374,9 @@ per_case_capture! {
     source_correction_calls: Option<k::WorkTotal>,
     work: String,
     capacities: Vec<(&'static str, usize)>,
+    basis_expected: bool,
+    basis: Option<usize>,
+    member_loads: bool,
 }
 impl ProductCapture {
     /// B1 SP (T-2): the number of requested cases this capture has seen: the parked ones,
@@ -836,12 +877,12 @@ impl ProductCapture {
         if !self.adapter.enter(AdapterEvent::SourceVisit, 1)
             || !self.adapter.enter(AdapterEvent::ValidationEntry, 1)
         {
-            self.fail("selection accounting");
+            self.basis_fail("selection accounting".into());
             return;
         }
         let Some(material_ordinal) = materials.iter().position(|m| std::ptr::eq(m, material))
         else {
-            self.fail("material pointer");
+            self.basis_fail("material pointer".into());
             return;
         };
         let selected = match ordinals {
@@ -864,7 +905,7 @@ impl ProductCapture {
                 }
             }
             None => {
-                self.fail("missing selected point provenance");
+                self.basis_fail("missing selected point provenance".into());
                 return;
             }
         };
@@ -892,22 +933,29 @@ impl ProductCapture {
         let (selector, point_ids, source_alpha) = match provenance {
             Ok(v) => v,
             Err(e) => {
-                self.error = Some(e);
+                self.basis_fail(e);
                 return;
             }
         };
-        if let Err(e) = self.adapter.push_room(&mut self.selections) {
-            self.error = Some(e);
+        let index = match self.custody_for(case) {
+            Ok(index) => index,
+            Err(e) => {
+                self.basis_fail(e);
+                return;
+            }
+        };
+        if let Err(e) = self.adapter.push_room(&mut self.bases[index].selections) {
+            self.basis_fail(e);
             return;
         }
         if !self.adapter.enter(AdapterEvent::MapWrite, 1)
             || !self.adapter.enter(AdapterEvent::LibraryBoundary, 2)
         {
-            self.fail("selection accounting");
+            self.basis_fail("selection accounting".into());
             return;
         }
         // // Existing String clone boundaries; their implementation cost is unqualified.
-        self.selections.push(MaterialSelection {
+        self.bases[index].selections.push(MaterialSelection {
             case: case.id.clone(),
             material: material.id.clone(),
             material_ordinal,
@@ -921,45 +969,97 @@ impl ProductCapture {
     /// Observe only the actual successful aggregate resolver return, before case_source.
     /// This owned text is a presence-record warrant, never a numerical source law.
     pub fn successful_basis_record(&mut self, case: &PreviewLoadCase, text: &str) {
-        if self.error.is_some() {
+        if self.basis_error.is_some() {
             return;
         }
-        let result = (|| -> Result<BasisRecord, CaptureError> {
+        let result = (|| -> Result<(usize, BasisRecord), CaptureError> {
             self.adapter.enter(AdapterEvent::SourceVisit, 1);
             self.adapter.enter(AdapterEvent::ValidationEntry, 1);
             self.adapter.require()?;
-            let calls = self
-                .basis_record_calls
+            // The record follows its selections: its custody already exists.
+            let index = self.custody_of(case)?.ok_or("missing selected basis source")?;
+            let calls = self.bases[index]
+                .record_calls
                 .checked_add(1)
                 .ok_or(CaptureError::CountRange("basis record calls"))?;
             self.adapter.enter(AdapterEvent::MapWrite, 1);
             self.adapter.require()?;
-            self.basis_record_calls = calls;
-            if calls != 1 || self.basis_record.is_some() {
+            self.bases[index].record_calls = calls;
+            if calls != 1 || self.bases[index].record.is_some() {
                 return Err("duplicate successful basis record".into());
             }
-            self.validate_selected_case(case)?;
+            self.validate_selected_case(index, case)?;
+            // The record is made by the case that resolved the basis (its selections' case).
+            let resolving = self.adapter.same(&self.bases[index].selections[0].case, &case.id);
+            self.adapter.require()?;
+            if !resolving {
+                return Err("basis record source case/selector".into());
+            }
             let selector = match load_case_selector(case) {
                 Some(SelectorRef::Point(id)) => MaterialSelector::Point(self.adapter.copy(id)?),
                 Some(SelectorRef::Temperature(bits)) => MaterialSelector::Temperature(bits),
                 None => return Err("unexpected base basis record".into()),
             };
-            Ok(BasisRecord {
+            Ok((index, BasisRecord {
                 case: self.adapter.copy(&case.id)?,
                 selector,
                 text: self.adapter.copy(text)?,
-            })
+            }))
         })();
         match result {
-            Ok(record) => {
+            Ok((index, record)) => {
                 if self.adapter.enter(AdapterEvent::MapWrite, 1) {
-                    self.basis_record = Some(record);
+                    self.bases[index].record = Some(record);
                 } else {
-                    self.fail("basis record write accounting");
+                    self.basis_fail("basis record write accounting".into());
                 }
             }
-            Err(e) => self.error = Some(e),
+            Err(e) => self.basis_fail(e),
         }
+    }
+    /// Test access (the c = 1 witnesses): the first basis custody's selections, record and calls.
+    #[cfg(test)]
+    pub(super) fn test_selections(&self) -> &[MaterialSelection] {
+        self.bases.first().map_or(&[], |b| &b.selections)
+    }
+    #[cfg(test)]
+    pub(super) fn test_basis_record(&self) -> Option<&BasisRecord> {
+        self.bases.first().and_then(|b| b.record.as_ref())
+    }
+    #[cfg(test)]
+    pub(super) fn test_basis_record_calls(&self) -> usize {
+        self.bases.first().map_or(0, |b| b.record_calls)
+    }
+    /// A selection or basis-record hook's failure: the invocation's (the first is kept).
+    fn basis_fail(&mut self, error: CaptureError) {
+        if self.basis_error.is_none() {
+            self.basis_error = Some(error);
+        }
+    }
+    /// The index of the custody whose selector is `case`'s, if any.
+    fn custody_of(&self, case: &PreviewLoadCase) -> Result<Option<usize>, CaptureError> {
+        for (index, custody) in self.bases.iter().enumerate() {
+            if self.selector_matches(&custody.selector, case)? {
+                return Ok(Some(index));
+            }
+        }
+        Ok(None)
+    }
+    /// The custody of `case`'s selector, created (through the adapter) when the resolver selects
+    /// that basis for the first time.
+    fn custody_for(&mut self, case: &PreviewLoadCase) -> Result<usize, CaptureError> {
+        if let Some(index) = self.custody_of(case)? {
+            return Ok(index);
+        }
+        let selector = match load_case_selector(case) {
+            Some(SelectorRef::Point(id)) => MaterialSelector::Point(self.adapter.copy(id)?),
+            Some(SelectorRef::Temperature(bits)) => MaterialSelector::Temperature(bits),
+            None => return Err("selected selector".into()),
+        };
+        self.adapter.push_room(&mut self.bases)?;
+        self.capture_entry(AdapterEvent::MapWrite)?;
+        self.bases.push(BasisCustody { selector, selections: Vec::new(), record: None, record_calls: 0 });
+        Ok(self.bases.len() - 1)
     }
     fn selector_matches(
         &self,
@@ -976,16 +1076,23 @@ impl ProductCapture {
         self.adapter.require()?;
         Ok(matches)
     }
-    fn validate_selected_case(&self, case: &PreviewLoadCase) -> Result<(), CaptureError> {
+    /// Basis custody `index`'s selections: present, each recorded for `case`'s selector, and all
+    /// by the one resolving case (the first case that named the basis).
+    fn validate_selected_case(&self, index: usize, case: &PreviewLoadCase) -> Result<(), CaptureError> {
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
         self.adapter.require()?;
-        if load_case_selector(case).is_none() || self.selections.is_empty() {
+        let custody = self.bases.get(index).ok_or("missing selected basis source")?;
+        if load_case_selector(case).is_none() || custody.selections.is_empty() {
             return Err("missing selected basis source".into());
         }
-        for selection in &self.selections {
+        if !self.selector_matches(&custody.selector, case)? {
+            return Err("basis record source case/selector".into());
+        }
+        let resolving = &custody.selections[0].case;
+        for selection in &custody.selections {
             self.adapter.enter(AdapterEvent::SourceVisit, 1);
             self.adapter.require()?;
-            let same_case = self.adapter.same(&selection.case, &case.id);
+            let same_case = self.adapter.same(&selection.case, resolving);
             self.adapter.require()?;
             if !same_case || !self.selector_matches(&selection.selector, case)? {
                 return Err("basis record source case/selector".into());
@@ -993,36 +1100,50 @@ impl ProductCapture {
         }
         Ok(())
     }
+    /// Binds the case being captured to its own basis custody (RV125 N-2): a selector case to
+    /// its selector's custody, with its selections and its one successful record (made by the
+    /// basis's resolving case); a base case to none.
     fn basis_source_case(&mut self, case: &PreviewLoadCase) -> Result<(), CaptureError> {
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
         self.adapter.enter(AdapterEvent::MapWrite, 1);
         self.adapter.require()?;
-        self.basis_expected = load_case_selector(case).is_some();
-        match (self.basis_expected, &self.basis_record) {
-            (false, None) if self.basis_record_calls == 0 => Ok(()),
-            (true, Some(record)) if self.basis_record_calls == 1 => {
-                self.validate_selected_case(case)?;
-                let same_case = self.adapter.same(&record.case, &case.id);
-                self.adapter.require()?;
-                if !same_case || !self.selector_matches(&record.selector, case)? {
-                    return Err("basis record producing case/selector".into());
-                }
-                Ok(())
-            }
-            _ => Err("basis record source presence".into()),
+        if let Some(error) = &self.basis_error {
+            return Err(error.clone());
         }
+        self.basis_expected = load_case_selector(case).is_some();
+        self.basis = None;
+        if !self.basis_expected {
+            return Ok(());
+        }
+        let index = self.custody_of(case)?.ok_or("basis record source presence")?;
+        let custody = &self.bases[index];
+        let Some(record) = custody.record.as_ref().filter(|_| custody.record_calls == 1) else {
+            return Err("basis record source presence".into());
+        };
+        self.validate_selected_case(index, case)?;
+        let same_case = self.adapter.same(&record.case, &custody.selections[0].case);
+        self.adapter.require()?;
+        if !same_case || !self.selector_matches(&record.selector, case)? {
+            return Err("basis record producing case/selector".into());
+        }
+        self.basis = Some(index);
+        Ok(())
     }
-    fn validate_modulus_record(&self, row: &ResultItem) -> Result<(), CaptureError> {
+    /// The case's own bound basis custody and its record, when the case names a selector.
+    fn bound_basis(&self) -> Option<(&BasisCustody, &BasisRecord)> {
+        let custody = self.bases.get(self.basis?)?;
+        Some((custody, custody.record.as_ref()?))
+    }
+    /// The case's own modulus row. `qualified` marks a requested case after the first, whose row
+    /// id the envelope qualifies with its case (B1 SP; lib.rs `qualified_load_case_result_id`).
+    fn validate_modulus_record(&self, row: &ResultItem, qualified: bool) -> Result<(), CaptureError> {
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
         self.adapter.require()?;
-        let record = self
-            .basis_record
-            .as_ref()
-            .ok_or("missing successful basis record")?;
+        let (custody, record) = self.bound_basis().ok_or("missing successful basis record")?;
         let metadata = row.metadata.as_ref().ok_or("modulus record metadata")?;
         let basis = row.basis_ref.as_ref().ok_or("modulus record case basis")?;
         if !self.basis_expected
-            || self.basis_record_calls != 1
+            || custody.record_calls != 1
             || row.value.to_bits() != 1.0f64.to_bits()
             || !row.source_result_refs.is_empty()
         {
@@ -1031,8 +1152,10 @@ impl ProductCapture {
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Existing fixed-id formatting; internals unqualified.
         self.adapter.require()?;
         let id = format!("result:modulus-basis:{}", stable_suffix(&self.case_id));
-        let matches = self.adapter.same(&record.case, &self.case_id)
-            && self.adapter.same(&row.kind, "modulus_basis_record")
+        let id = if qualified { qualified_load_case_result_id(&self.case_id, &id) } else { id };
+        // The record is its basis's (a reused basis's record names its resolving case); the row
+        // is this case's own.
+        let matches = self.adapter.same(&row.kind, "modulus_basis_record")
             && self.adapter.same(&row.id, &id)
             && self.adapter.same(&row.unit, "record")
             && self.adapter.same(&row.entity_ref, &self.case_id)
@@ -1783,9 +1906,57 @@ impl ProductCapture {
     fn capture_case_source(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
         springs:&[SpringEntry], application:&LoadApplication, thermal:&[ThermalElementLoad]) {
+        // B7a (b) Widen domain, stage 1: full-span uniform member loads on the preview route mark
+        // the case instead of refusing the invocation (DEF-O's nodal source family is unchanged).
+        if self.route == W1Route::Preview && !application.element_uniform_loads.is_empty()
+            && application.imposed_displacements.is_empty() {
+            self.capture_member_load_case(model,built,case,thermal);
+            return;
+        }
         let unsupported=!application.element_uniform_loads.is_empty() || !application.imposed_displacements.is_empty();
         let Some(parts)=self.capture_case_structure(model,built,materials,case,restrained,springs,thermal,unsupported) else {return;};
         self.capture_case_nodal_terms(model,case,application,parts);
+    }
+    /// B7a (b) Widen domain, stage 1: a case with full-span uniform member loads. Its capture keeps
+    /// `capture_case_structure`'s scope checks and binds the case's own basis, then marks the case
+    /// (`member_loads`) and builds no source: its attempt ends at preparation with
+    /// `MEMBER_LOAD_CAUSE` until the W1 member-load certification unit.
+    fn capture_member_load_case(&mut self, model:&PreviewModel, built:&BuiltModel, case:&PreviewLoadCase,
+        thermal:&[ThermalElementLoad]) {
+        if self.error.is_some() {
+            return;
+        }
+        let Some(entries)=self.source_capture_entries.checked_add(1) else {self.fail_count("source capture entries");return;};
+        if let Err(e)=self.capture_entry(AdapterEvent::MapWrite) {self.error=Some(e);return;}
+        self.source_capture_entries=entries;
+        if self.case_calls != 1 || (model.load_cases.len() != 1 && !self.prepared_probe) {
+            self.fail("private witness has exactly one actual case");
+            return;
+        }
+        if let Err(e) = self.basis_source_case(case) {
+            self.error = Some(e);
+            return;
+        }
+        if !built.nonlinear_supports.is_empty() || !built.connectors.is_empty() || !built.curved_bend_elements.is_empty()
+            || !thermal.is_empty() || case.equivalent_static.is_some()
+            || case.pressure_regions.as_ref().is_some_and(|v| !v.is_empty())
+            || model.supports.iter().any(|s| s.hanger.is_some())
+        {
+            self.fail("unsupported producer present");
+            return;
+        }
+        match self.adapter.copy(&case.id) {
+            Ok(id) => self.case_id = id,
+            Err(e) => {
+                self.error = Some(e);
+                return;
+            }
+        }
+        if let Err(e) = self.capture_entry(AdapterEvent::MapWrite) {
+            self.error = Some(e);
+            return;
+        }
+        self.member_loads = true;
     }
     fn capture_case_structure(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
@@ -1932,10 +2103,10 @@ impl ProductCapture {
                         },
                     }
                 } else {
-                    let Some(s) = self.selections.iter().find(|s| {
-                        self.adapter.same(&s.case, &case.id)
-                            && self.adapter.same(&s.material, &pipe.material)
-                    }) else {
+                    // RV125 N-2: the case's own basis custody (bound by `basis_source_case`).
+                    let Some(s) = self.bound_basis().and_then(|(custody, _)| custody.selections.iter().find(|s| {
+                        self.adapter.same(&s.material, &pipe.material)
+                    })) else {
                         self.fail("selection missing");
                         return None;
                     };
@@ -2166,7 +2337,7 @@ impl ProductCapture {
         self.capacities = vec![
             ("nodes", self.nodes.capacity()),
             ("materials", self.materials.capacity()),
-            ("selections", self.selections.capacity()),
+            ("selections", self.bound_basis().map_or(0, |(custody, _)| custody.selections.capacity())),
             ("members", self.members.capacity()),
             ("terms", self.terms.capacity()),
             ("facts", self.facts.capacity()),
@@ -2200,10 +2371,11 @@ impl ProductCapture {
         }
         if self.prepared_probe {
             // B1 SP (T-2): every case seen, parked or not, completed its own late hook.
+            // B7a (b), stage 1: a member-load case has no source, and nothing else.
             if self.prepared_late_calls!=1 || !self.prepared_source_permit
-                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none()
+                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none()==!self.member_loads
                 || self.parked.iter().any(|slot|slot.prepared_late_calls!=1 || !slot.prepared_source_permit
-                    || !slot.prepared_one_case_seen || slot.source_capture_entries!=1 || slot.source.is_none()) {
+                    || !slot.prepared_one_case_seen || slot.source_capture_entries!=1 || slot.source.is_none()==!slot.member_loads) {
                 self.fail("missing successful prepared late source hook");return;
             }
             let bound=if self.parked.is_empty() {self.bind_observations(envelope)} else {self.bind_observations_by_case(envelope)};
@@ -2310,8 +2482,9 @@ impl ProductCapture {
         }
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
         self.adapter.require()?;
-        if self.basis_expected != self.basis_record.is_some()
-            || self.basis_record_calls != usize::from(self.basis_expected)
+        // RV125 N-2: the case's own binding; other cases' bases are theirs.
+        if self.basis_expected != self.bound_basis().is_some_and(|(custody, _)| custody.record_calls == 1)
+            || self.basis_expected != self.basis.is_some()
         {
             return Err("basis record capture presence".into());
         }
@@ -2361,7 +2534,7 @@ impl ProductCapture {
                 if modulus_basis || !self.basis_expected {
                     return Err("modulus record coverage".into());
                 }
-                self.validate_modulus_record(r)?;
+                self.validate_modulus_record(r, view.scope.qualified)?;
                 modulus_basis = true;
                 (
                     k::ProductRecipe::ModulusBasisRecord,
@@ -3959,31 +4132,70 @@ impl ProductCapture {
                     Err(error)=>{self.error=Some(error);return;}
                 }
             }
-            let mut findings=Vec::new();
-            let loads=super::build_load_case_primitive_loads(model,case,&mut findings);
-            let application=prepare_loads(built.nodes.len(),built.pipes.len(),&loads);
-            self.case_calls=1; // one validated input capture; never an ordinary-attempt seed
-            if let Err(error)=self.check_captured_nodal_leaves(model,case,index,invocation) {
-                self.error=Some(error);
-            } else if has_blocking(&findings) || !application.findings.is_empty() {
-                self.fail("early source load validation");
+            // B7a (b) Widen domain (RV125 N-2): a selector case is captured at its basis state
+            // (`capture_basis_early_source`), with the basis-resolved materials and model.
+            let snapshot=if load_case_selector(case).is_some() {
+                EarlyCaseSource::pending()
             } else {
-                self.capture_case_source(model,built,materials,case,restrained,springs,&application,&[]);
-            }
-            if self.case_id.is_empty() {
-                match self.adapter.copy(&case.id) {Ok(id)=>self.case_id=id,Err(error)=>self.error=Some(error)}
-            }
-            let snapshot=EarlyCaseSource{
-                case_id:std::mem::take(&mut self.case_id),source:self.source.take(),
-                members:std::mem::take(&mut self.members),terms:std::mem::take(&mut self.terms),
-                supports:std::mem::take(&mut self.supports),spring_map:std::mem::take(&mut self.spring_map),
-                support_fixed:std::mem::take(&mut self.support_fixed),facts:std::mem::take(&mut self.facts),
-                operational:std::mem::take(&mut self.operational),capacities:std::mem::take(&mut self.capacities),
-                error:self.error.take(),source_capture_entries:std::mem::take(&mut self.source_capture_entries)};
-            self.case_calls=0;
+                self.early_case_snapshot(model,built,materials,case,index,restrained,springs,invocation)
+            };
             self.early_sources.push(Some(snapshot));
         }
         self.early_gate_complete=true;
+    }
+    /// One case's validated early capture, moved out of the capture's per-case fields.
+    #[allow(clippy::too_many_arguments)]
+    fn early_case_snapshot(&mut self,model:&PreviewModel,built:&BuiltModel,materials:&[MaterialInput],
+        case:&PreviewLoadCase,index:usize,restrained:&[usize],springs:&[SpringEntry],
+        invocation:&source_receipt::CapturedInvocation)->EarlyCaseSource {
+        let mut findings=Vec::new();
+        let loads=super::build_load_case_primitive_loads(model,case,&mut findings);
+        let application=prepare_loads(built.nodes.len(),built.pipes.len(),&loads);
+        self.case_calls=1; // one validated input capture; never an ordinary-attempt seed
+        // B7a (b), stage 1: a member-load case builds no source, so only a nodal-only case's
+        // leaves are bound to the captured invocation here.
+        let nodal_only=case.primitive_loads.iter().all(|load|matches!(load.target,LoadTargetInput::Node{..}));
+        if let Err(error)=if nodal_only {self.check_captured_nodal_leaves(model,case,index,invocation)} else {Ok(())} {
+            self.error=Some(error);
+        } else if has_blocking(&findings) || !application.findings.is_empty() {
+            self.fail("early source load validation");
+        } else {
+            self.capture_case_source(model,built,materials,case,restrained,springs,&application,&[]);
+        }
+        if self.case_id.is_empty() {
+            match self.adapter.copy(&case.id) {Ok(id)=>self.case_id=id,Err(error)=>self.error=Some(error)}
+        }
+        let snapshot=EarlyCaseSource{
+            case_id:std::mem::take(&mut self.case_id),source:self.source.take(),
+            members:std::mem::take(&mut self.members),terms:std::mem::take(&mut self.terms),
+            supports:std::mem::take(&mut self.supports),spring_map:std::mem::take(&mut self.spring_map),
+            support_fixed:std::mem::take(&mut self.support_fixed),facts:std::mem::take(&mut self.facts),
+            operational:std::mem::take(&mut self.operational),capacities:std::mem::take(&mut self.capacities),
+            error:self.error.take(),source_capture_entries:std::mem::take(&mut self.source_capture_entries),
+            basis_expected:std::mem::take(&mut self.basis_expected),basis:self.basis.take(),
+            member_loads:std::mem::take(&mut self.member_loads),pending_basis:false};
+        self.case_calls=0;
+        snapshot
+    }
+    /// B7a (b) Widen domain (RV125 N-2): a selector case's early capture at its basis state, in
+    /// the case loop after the basis's resolution and model and before that case's ordinary
+    /// solve. The capture's per-case fields (which may hold an earlier entered case) are set
+    /// aside while the case is captured, so no case reads or writes another's.
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn capture_basis_early_source(&mut self,model:&PreviewModel,built:&BuiltModel,
+        materials:&[MaterialInput],case:&PreviewLoadCase,restrained:&[usize],springs:&[SpringEntry],
+        invocation:&source_receipt::CapturedInvocation) {
+        if !self.prepared_probe || !self.early_gate_complete || self.late_refusal.is_some() {return;}
+        let Some(index)=model.load_cases.iter().position(|c|std::ptr::eq(c,case)) else {self.basis_fail("early basis case identity".into());return;};
+        if !self.early_sources.get(index).is_some_and(|slot|slot.as_ref().is_some_and(|s|s.pending_basis)) {
+            self.basis_fail("early basis source pending".into());
+            return;
+        }
+        let mut aside=CaseSlot::default();
+        self.swap_case(&mut aside);
+        let snapshot=self.early_case_snapshot(model,built,materials,case,index,restrained,springs,invocation);
+        self.swap_case(&mut aside);
+        self.early_sources[index]=Some(snapshot);
     }
     fn captured_quantity(raw:&serde_json::Value,dimension:Dimension)->Result<f64,CaptureError> {
         let unit=raw["unit"].as_str().ok_or("early captured quantity unit")?;
@@ -4101,14 +4313,24 @@ impl ProductCapture {
         if !self.early_gate_complete {return;}
         let Some(slot)=self.early_sources.get_mut(self.parked.len()) else {self.fail("early source case coverage");return;};
         let Some(input)=slot.take() else {self.fail("early source consumed twice");return;};
+        if input.pending_basis {self.fail("early basis source pending");return;}
         if input.case_id!=case.id {self.fail("early source case identity");return;}
         self.source=input.source;self.members=input.members;self.terms=input.terms;
         self.supports=input.supports;self.spring_map=input.spring_map;self.support_fixed=input.support_fixed;
         self.facts=input.facts;self.operational=input.operational;self.capacities=input.capacities;
         self.error=input.error;self.source_capture_entries=input.source_capture_entries;
+        self.basis_expected=input.basis_expected;self.basis=input.basis;self.member_loads=input.member_loads;
     }
     fn check_early_occurrences(&self,case:&PreviewLoadCase,application:&LoadApplication)->Result<(),CaptureError> {
         self.adapter.require()?;
+        // B7a (b), stage 1: a member-load case built no source; its late hook re-observes only
+        // that the actual application still carries its member loads.
+        if self.member_loads {
+            if self.source.is_some() || application.element_uniform_loads.is_empty() {
+                return Err("early member-load case coverage".into());
+            }
+            return Ok(());
+        }
         if self.source.is_none() || self.terms.len()!=application.nodal_loads.len()
             || self.terms.len()!=case.primitive_loads.len() {return Err("early source occurrence coverage".into());}
         for term in &self.terms {
@@ -4160,7 +4382,7 @@ impl ProductCapture {
         if requested!=1 || self.cases_seen()!=1 || attempted!=[0] {
             return Err("failed ordinary case scope".into());
         }
-        if !self.combinations.is_empty() || self.basis_expected || self.basis_record.is_some() {
+        if !self.combinations.is_empty() || self.basis_expected || !self.bases.is_empty() {
             return Err("failed ordinary formation scope".into());
         }
         if self.observations.is_some() || self.observation_calls!=0 || self.invocation_calls!=1
@@ -4334,6 +4556,28 @@ impl ProductCapture {
     pub(super) fn source_terminal_at(&self,index:usize)->(bool,OrdinaryTerminal) {
         match self.parked.get(index) {Some(slot)=>(slot.source.is_some(),slot.terminal),None=>(self.source.is_some(),self.terminal)}
     }
+    /// Test access (B7a (b), stage 1, review F3c): case `index`'s captured source members'
+    /// (E, G), so a selector case's early source is seen at its own basis state.
+    #[cfg(test)]
+    pub(super) fn source_moduli_at(&self,index:usize)->Option<Vec<(f64,f64)>> {
+        let source=match self.parked.get(index) {Some(slot)=>slot.source.as_ref(),None=>self.source.as_ref()};
+        source.map(|s|s.members().iter().map(|m|(m.elastic_modulus,m.shear_modulus)).collect())
+    }
+    /// Test access (B7a (b), stage 1): installing a selector case's slot whose basis-state capture
+    /// never ran.
+    #[cfg(test)]
+    pub(super) fn test_install_pending(&mut self,case:&PreviewLoadCase)->Result<(),CaptureError> {
+        self.early_gate_complete=true;
+        self.early_sources=vec![Some(EarlyCaseSource::pending())];
+        self.install_early_source(case);
+        self.error.take().map_or(Ok(()),Err)
+    }
+    /// Test access (B7a (b), stage 1): whether request case `index` is a member-load case and
+    /// its own basis binding (`basis_expected`, `basis`).
+    #[cfg(test)]
+    pub(super) fn member_loads_basis_at(&self,index:usize)->(bool,bool,Option<usize>) {
+        match self.parked.get(index) {Some(slot)=>(slot.member_loads,slot.basis_expected,slot.basis),None=>(self.member_loads,self.basis_expected,self.basis)}
+    }
     #[cfg(test)]
     pub(super) fn test_check_captured_structure(&self,model:&PreviewModel,materials:&[MaterialInput],
         invocation:&source_receipt::CapturedInvocation)->Result<(),CaptureError> {
@@ -4343,6 +4587,16 @@ impl ProductCapture {
     pub(super) fn test_refuse_changed_occurrence(&mut self,raw:&serde_json::Value)->Result<(),CaptureError> {
         let request:LinearStaticPreviewRequest=serde_json::from_value(raw.clone()).unwrap();
         let case=&request.model.load_cases[0];let mut findings=Vec::new();
+        let loads=super::build_load_case_primitive_loads(&request.model,case,&mut findings);
+        let application=prepare_loads(request.model.nodes.len(),request.model.pipe_segments.len(),&loads);
+        self.check_early_occurrences(case,&application)
+    }
+    /// Test access (B7a (b), stage 1, review F3d): the late re-observation of the capture's
+    /// current case against `raw`'s case `index`, as the prepared late hook runs it.
+    #[cfg(test)]
+    pub(super) fn test_recheck_occurrences(&mut self,raw:&serde_json::Value,index:usize)->Result<(),CaptureError> {
+        let request:LinearStaticPreviewRequest=serde_json::from_value(raw.clone()).unwrap();
+        let case=&request.model.load_cases[index];let mut findings=Vec::new();
         let loads=super::build_load_case_primitive_loads(&request.model,case,&mut findings);
         let application=prepare_loads(request.model.nodes.len(),request.model.pipe_segments.len(),&loads);
         self.check_early_occurrences(case,&application)
@@ -4791,6 +5045,10 @@ impl ProductCapture {
     /// At c = 1 this is the old one-case prelude, with the same adapter events; the one-case
     /// `prepare_case` runs it too (RV109 R3P-9).
     fn prepared_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<(),CaptureError> {
+        // RV125 N-2: a basis hook's failure is the invocation's.
+        if let Some(error)=self.basis_error.take() {
+            return Err(error);
+        }
         if let Some(slot)=self.parked.iter_mut().find(|slot|slot.error.is_some()) {
             return Err(slot.error.take().expect("observed prior case cause"));
         }
@@ -4937,7 +5195,10 @@ impl ProductCapture {
         #[cfg(test)] let faulted=crate::retained_tests_hooks::before_case_preparation(self,request);
         let mut parts=AttemptParts::default();
         let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
-        let (prepared,end)=match self.prepare_active_case(&mut trace,&mut parts) {
+        // B7a (b), stage 1: a member-load case ends at preparation by its named cause.
+        let active=if self.member_loads {Err(CaptureError::Association(MEMBER_LOAD_CAUSE.into()))}
+            else {self.prepare_active_case(&mut trace,&mut parts)};
+        let (prepared,end)=match active {
             Ok(())=>(true,AttemptEnd::Prepared),
             Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(self);(false,AttemptEnd::Preparation)}
         };
