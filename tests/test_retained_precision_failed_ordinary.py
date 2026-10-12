@@ -1,8 +1,9 @@
 """B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings"): the independent verifier's
-requested-mode basis, admitted blocking diagnostic and closed W2 refusal, read below G0.
+requested-mode basis, admitted blocking diagnostic and closed W2 refusal.
 
-The producer asserts that the fixture is its own output. G0 refuses these statements until the
-packaged table pins move at B7a's D3 re-registration (ruling (6)); `test_pending_g0` pins that.
+The producer asserts that the fixture is its own published output. Since the table pins follow the
+reviewed table bytes (ruling (6)) the full verifier, G0 first, reads it as eligible; the mutation tests
+read the later gates directly.
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."""
 import json
 import math

@@ -6059,8 +6059,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
 }
 /// G1-G8, in order, of a statement whose G0 (identity, packaged tables, definitions and bound
 /// receipt values) has passed. `validate` is its only production caller; reader-local tests
-/// also reach the later gates through it while the packaged table pins are held for B7a's D3
-/// re-registration (b7-plan "Failed-ordinary successor rulings" (6)).
+/// also reach the later gates through it directly.
 fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Route) -> VResult<Validation> {
     g1(source, true, route)?;
     g2(source)?;

@@ -2762,8 +2762,7 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
 def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, state=None):
     """G1-G8, in order, of a statement whose G0 (identity, packaged tables, definitions and bound receipt
     values) has passed. `_validate_draft` is its only production caller; verifier tests also reach the later
-    gates through it while the packaged table pins are held for B7a's D3 re-registration (b7-plan
-    "Failed-ordinary successor rulings" (6))."""
+    gates through it directly."""
     state={"gate":"G1","phase":["G5a"]} if state is None else state
     try:
         state["gate"]="G1";_need(_shape(receipt,schema) and (not raw or (type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]))),state["gate"],"RECEIPT_MISMATCH")

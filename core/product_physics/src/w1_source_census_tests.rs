@@ -518,12 +518,13 @@ fn b4_w1_source_census() {
             ordinary.diagnostics.shrink_to_fit();
             let (_, successor) = retained_w1(observer, ordinary, &capture);
             // Each lost case's cause class: the D1 domain (W1 never starts on the Direct entry),
-            // the held packaged table-byte pin at precommit G0 (b7-plan ruling (6)), or the W1 stage.
+            // a packaged table-pin refusal at precommit G0 (held until ruling (6)'s move; none
+            // since), or the W1 stage. The census asserts that no case is lost.
             let cause = if domain.is_some() {
                 "d1_domain".to_string()
             } else {
                 match &successor {
-                    Err(W1Fallback::Precommit { gate: "G0", code }) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => "held_g0_table_pin".to_string(),
+                    Err(W1Fallback::Precommit { gate: "G0", code }) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => "g0_table_pin".to_string(),
                     Err(other) => format!("w1_{other:?}"),
                     Ok(_) => "reader_or_standing".to_string(),
                 }
@@ -659,18 +660,45 @@ fn b4_w1_source_census() {
     );
 }
 
-/// The committed failed-ordinary successor fixture, read by the Rust reader's and the Python
-/// verifier's below-G0 tests while the table pins are held (b7-plan ruling (6)).
+/// The committed failed-ordinary successor fixture, the producer's published bytes, read by the
+/// Rust reader's and the Python verifier's tests (b7-plan ruling (6): the table pins now follow the
+/// reviewed table bytes, so these validate from G0).
 const FAILED_ORDINARY_FIXTURE: &str = "fixtures/results/retained_precision_failed_ordinary_cxf.json";
+
+/// The published state (b7-plan ruling (6): the packaged table pins moved to the reviewed table
+/// bytes). W1 returns the untouched ordinary owner beside its successor; the successor is the copy
+/// precommit received; and the full Rust reader, G0 first, accepts it with the invocation as
+/// bound and numerically eligible.
+fn published_successor(
+    label: &str,
+    raw: &Value,
+    mode: PreviewSolverMode,
+    plain: &MechanicsEnvelope,
+    (ordinary, result): (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>),
+    precommit: Option<Value>,
+) -> Value {
+    assert_eq!(serde_json::to_vec(&ordinary).unwrap(), serde_json::to_vec(plain).unwrap(),
+        "{label}: ordinary bytes beside the successor");
+    let s = match result {
+        Ok(successor) => successor.value().clone(),
+        Err(fallback) => panic!("{label}: W1 fell back: {fallback:?}"),
+    };
+    assert_eq!(precommit.as_ref(), Some(&s), "{label}: the published successor is precommit's copy");
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let v = reader::validate(&s, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: reader: {e:?}"));
+    assert!(v.invocation_bound && v.numerical_eligible, "{label}: bound and eligible");
+    s
+}
 
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings"): CX-F's ordinary attempt fails
 /// genuinely (a range trigger that W2's orchestrator refused with ScaledEvaluation). W1 builds the
 /// typed row manifest from the captured maps, freezes the selected retained owner, serializes the
-/// successor (rulings (1)-(5)) and stops only at precommit's G0, where the packaged table-byte pin
-/// is held for D3. The fallback is the untouched blocked envelope with its unavailable notice.
-/// The serialized successors are the committed fixture, byte for byte.
+/// successor (rulings (1)-(5)) and publishes it: since ruling (6)'s pin move precommit's G0 accepts
+/// the table, and the full reader finds the successor bound and eligible. Until the move this test
+/// pinned the held-pin G0 refusal with the blocked fallback. The published successors are the
+/// committed fixture, byte for byte.
 #[test]
-fn b4_failed_ordinary_cxf_freezes_and_stops_only_at_the_held_g0_pin() {
+fn b4_failed_ordinary_cxf_publishes_an_eligible_successor() {
     let raw = coexistence_cx_f();
     let mut fixture = Vec::new();
     for mode in MODES {
@@ -679,18 +707,12 @@ fn b4_failed_ordinary_cxf_freezes_and_stops_only_at_the_held_g0_pin() {
         let (capture, observer, ordinary) = early_observed(&raw, mode, true);
         assert_eq!(serde_json::to_vec(&ordinary).unwrap(), serde_json::to_vec(&plain).unwrap(), "{label}: ordinary bytes");
         assert_eq!(observer.terminal, rp::OrdinaryTerminal::FailedAttempt, "{label}");
-        let ((fallback, result), _, successor) =
+        let (returned, _, precommit) =
             retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
-        assert_eq!(result.err(), Some(W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }),
-            "{label}: the held table-byte pin is the only refusal");
-        // The fallback: the blocked envelope's bytes, then the reserved unavailable notice.
-        let (fallback, plain) = (serde_json::to_value(&fallback).unwrap(), serde_json::to_value(&plain).unwrap());
-        let mut prefix = fallback.clone();
-        let notice = prefix["diagnostics"].as_array_mut().unwrap().pop().unwrap();
-        assert_eq!(prefix, plain, "{label}: blocked fallback");
-        assert_eq!(notice["code"], json!("RETAINED_PRECISION_UNAVAILABLE"), "{label}");
-        let s = successor.expect("the serialized successor reached precommit");
-        // Ruling (1): solved only as a successor; the blocked fallback stays MODEL_INCOMPLETE.
+        let s = published_successor(label, &raw, mode, &plain, returned, precommit);
+        let plain = serde_json::to_value(&plain).unwrap();
+        // Ruling (1): solved only as a successor; the ordinary envelope stays MODEL_INCOMPLETE.
+        assert_ne!(plain["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}: the ordinary attempt failed");
         assert_eq!(s["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}");
         let rows = s["results"].as_array().unwrap();
         let requested: Vec<&Value> = rows.iter().filter(|r| r["kind"] == json!(rp::REQUESTED_MODE_KIND)).collect();
@@ -732,8 +754,8 @@ fn b4_failed_ordinary_cxf_freezes_and_stops_only_at_the_held_g0_pin() {
 }
 
 /// The committed N06 failed-ordinary successor fixture (b7-plan "N06 absorbed-spring certificate
-/// extension"): two of the twelve N06 census trials in both modes, read below G0 by the Rust
-/// reader's and the Python verifier's tests while the table pins are held.
+/// extension"): two of the twelve N06 census trials in both modes, the producer's published bytes,
+/// read from G0 by the Rust reader's and the Python verifier's tests (ruling (6)'s pin move).
 const N06_FIXTURE: &str = "fixtures/results/retained_precision_failed_ordinary_n06.json";
 const N06_FIXTURE_CONTROLS: [&str; 3] = ["committed/n06-sparse_interactive.request.json",
     "committed/n06-dense_scrutiny.request.json", "sign_rotation/N06/-1/true"];
@@ -742,9 +764,10 @@ const N06_FIXTURE_CONTROLS: [&str; 3] = ["committed/n06-sparse_interactive.reque
 /// about 2.2e18). Custody and the typed manifest hold and the native Run is selected. DEF-O's
 /// annular_source lane fails the existing contraction condition (alpha >= 1 in block 0); under
 /// b7-plan's "N06 absorbed-spring certificate extension" that block takes the congruence radius
-/// and one further correction, the proof freezes, and W1 stops only at precommit's held G0 pin,
-/// as CX-F does. Before the extension this test pinned the alpha refusal (W1Fallback::Candidate);
-/// the expectation moved because the governed extension certifies this class.
+/// and one further correction, the proof freezes, and W1 publishes the successor, which the full
+/// reader finds bound and eligible, as CX-F's. Before the extension this test pinned the alpha
+/// refusal (W1Fallback::Candidate), and until ruling (6)'s pin move the held-pin G0 refusal; each
+/// expectation moved with the governed change that removed its cause.
 #[test]
 fn b4_failed_ordinary_n06_freezes_under_the_congruence_extension() {
     let mut fixture = Vec::new();
@@ -765,14 +788,13 @@ fn b4_failed_ordinary_n06_freezes_under_the_congruence_extension() {
                 rp::AttemptEnd::Candidate(refused) => panic!("{label}: {:?}", refused.error),
                 _ => panic!("{label}: expected a frozen certificate"),
             }
-            let (_, _, plain) = early_observed(&c.raw, mode, false);
-            let plain = serde_json::to_value(&plain).unwrap();
+            let (_, _, plain_envelope) = early_observed(&c.raw, mode, false);
+            let plain = serde_json::to_value(&plain_envelope).unwrap();
             let (capture, observer, ordinary) = early_observed(&c.raw, mode, true);
-            let ((_, result), _, successor) =
+            assert_eq!(serde_json::to_vec(&ordinary).unwrap(), serde_json::to_vec(&plain_envelope).unwrap(), "{label}: ordinary bytes");
+            let (returned, _, precommit) =
                 retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
-            assert_eq!(result.err(), Some(W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }),
-                "{label}: the held table-byte pin is the only refusal");
-            let s = successor.expect("the serialized successor reached precommit");
+            let s = published_successor(&label, &c.raw, mode, &plain_envelope, returned, precommit);
             assert_eq!(s["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}");
             assert_eq!(s["retained_precision"]["body"]["cases"][0]["status"], json!("selected"), "{label}");
             let requested: Vec<&Value> = s["results"].as_array().unwrap().iter().filter(|r| r["kind"] == json!(rp::REQUESTED_MODE_KIND)).collect();
@@ -1011,13 +1033,16 @@ fn b4_early_failed_inputs_are_ready_with_genuine_terminal_and_no_rescue() {
                 json!({"control":c.name,"mode":mode.as_str(),"terminal":format!("{:?}",observer.terminal),"source_ready":true,"layout":observer.early_source_layout()})
             );
             // Before the failed-ordinary extension custody refused these at Preparation. The
-            // governed extension (b7-plan "Failed-ordinary successor rulings") now carries them past
-            // custody, and both CX-F and N06 (under the N06 absorbed-spring certificate extension)
-            // reach precommit's held G0 pin. Early readiness alone still creates no attempt (above)
-            // and no successor.
-            let (_, successor) = retained_w1(observer, ordinary, &capture);
-            let expected = W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() };
-            assert_eq!(successor.err(), Some(expected));
+            // governed extension (b7-plan "Failed-ordinary successor rulings") carries them past
+            // custody; both CX-F and N06 (under the N06 absorbed-spring certificate extension)
+            // freeze; and since ruling (6)'s pin move, which ended the held-pin G0 refusal this
+            // pinned, W1 publishes an eligible successor. Early readiness alone created no attempt
+            // (above): the successor comes from W1's own stages.
+            let label = format!("{} {}", c.name, mode.as_str());
+            let (returned, _, precommit) =
+                retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            let s = published_successor(&label, &c.raw, mode, &plain, returned, precommit);
+            assert_eq!(s["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}");
         }
     }
 }
