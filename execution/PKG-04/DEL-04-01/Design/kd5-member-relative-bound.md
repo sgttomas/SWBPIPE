@@ -487,7 +487,7 @@ T3's R2 (Rust-only base readers) commits native outcomes for a shared base corpu
 - FK `formation_check_tests` (`kd5_*`), for the closure, ε_E and the second correction.
 - `retained_wire_tests` and the retained façade's N-5 tests are unchanged (N-5 stays). Their pinned hashes move as listed above.
 
-**Pricing (registered profile; `tools/retained_pricing`, `price.py run <head>`).** Re-registration is pre-approved within M = 10.5 GiB (11,274,289,152 B) and the 5 % rule. Each change below is small at the D1 caps (n = m = g = 32, F = N = 192), against the 8.1 % (dense) and 9.6 % (sparse) of TAV_W that the 0.9 M rule leaves for text error. The tool's run on the implementing head gives the numbers.
+**Pricing (registered profile; `tools/retained_pricing`, `price.py run <head>`).** The owner selected M = 12 GiB (12,884,901,888 B) for current K-D5 build qualification. Re-registration retains the 0.9 M margin, the 5 % TEXT reserve and all positive source/layout/caller charges at the unchanged D1 caps (n = m = g = 32, F = N = 192). Qualification uses the actual implementing source, complete TEXT chain and native layout values; a passing budget does not replace the numerical or interface warrants. Machine-dependent scaling remains separate owner-directed design.
 
 | Row (`base/ordinary_caps.py` and its tree) | Change |
 |---|---|

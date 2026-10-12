@@ -35,7 +35,7 @@ HELP_HUMAN, 2026-10-10, on the v3 retained-source join: D1, D2 (inside B7, no co
 - *The corpus* is:
   - `fixtures/results/retained_precision_cases.json` (07m/07n: 26 bases, 534 mutations, 78 must-pass);
   - `retained_precision_cases_07o.json` (19 bases, 69 mutations, 19 must-pass).
-- *Re-registration* follows **D3**. It is approved on the join head and on the B7 heads if M stays 10.5 GiB (11,274,289,152 bytes) and the 5 % text budget holds. Otherwise it returns to HELP_HUMAN for a ruling. Any change of M or of the budget model is decision 22, which the owner holds.
+- *Re-registration* follows **D3**. The owner selected M = 12 GiB (12,884,901,888 bytes) for current product build qualification. Re-registration on the join and B7 heads must retain the 0.9 M margin and 5 % TEXT reserve and re-audit their actual source and resource changes. Machine-dependent scaling is separate owner-directed design; this registration does not implement it. Further changes to M or the budget model remain decision 22 with the owner.
 
 ## Unit R: one product reader
 

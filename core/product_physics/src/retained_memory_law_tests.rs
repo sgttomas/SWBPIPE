@@ -9,8 +9,8 @@ use serde_json::json;
 
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
-/// M (D-7): 10.5 GiB, ROOT's R6a ruling on B1's G5 (provisional; final at R6b).
-const M: u64 = 11_274_289_152;
+/// The owner-selected current product budget: 12 GiB.
+const M: u64 = 12_884_901_888;
 /// The 0.9 M margin rule's limit, ⌊0.9 M⌋ (`profile_laws_hold_in_this_build` pins its value).
 const MARGIN: u64 = 9 * M / 10;
 /// B2-A: the combination facts of a request with no combination.
@@ -301,14 +301,11 @@ fn sha256_matches_the_sha2_dependency() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc, with
-    // SCHEMA and PTABLE as B2-C selected them (`abf3225c…`, `b2b4a54d…`), then DEF-C, DEF-E and
-    // XTABLE appended (B3D-18; I93 REVISION_01 §1.4). SQ2's registration (B2/B3) re-derived all
-    // 17 from the statics at 2243be380b, the code the profile was priced on: equal to J1's
-    // interim registration, so no hash moved.
+    // The 17 current inputs at the K-D5/C8 source basis, in the unchanged
+    // REVIEWED_INPUTS order; all digests remain checked against actual bytes.
     const REVIEWED: [&str; 17] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
-        "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
+        "28c1560596444de7dd5228d5d0c81c3801ee7d1c0ceb66cbb471c856d5bd1123",
         "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
         "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
         "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
@@ -317,7 +314,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
         "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
         "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337",
-        "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a",
+        "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c",
         "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
         "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
         "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
@@ -377,7 +374,7 @@ fn the_registered_profile_is_the_only_permit_source() {
     // G6: exactly one production profile, registered by reviewed change (decision 7: no test permit).
     assert_eq!(REGISTERED_PROFILES.len(), 1);
     assert_eq!(REGISTERED_PROFILES[0].identity, super::law_tests::PINNED_RECORD_IDENTITY, "the qualified build is the pinned record's");
-    assert_eq!(REGISTERED_PROFILES[0].threshold_bytes, 11_274_289_152, "M = 10.5 GiB (R6a)");
+    assert_eq!(REGISTERED_PROFILES[0].threshold_bytes, M, "current product M = 12 GiB");
     let source = include_str!("retained_memory.rs");
     let production = &source[..source.find("#[cfg(test)]\n#[path = \"retained_memory_law_tests.rs\"]").unwrap()];
     assert_eq!(production.matches("RegisteredProfile {").count(), 2, "the definition and the one registered entry: no other literal");
@@ -983,27 +980,17 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // SQ2 G5 (B2/B3): the registered profile is the maximum over routes L and E; the text closure's
-    // diagnostics are route E's (the exact route at c = 3: D 51,938, D_env 23,877; route L keeps
-    // B1 SQ's D_env 22,911, with D 41,773).
-    // O-10 (T4 batch 2, rulings 3 and 5): two new diagnostic sites per case, D 51,938 -> 51,944 and
-    // D_env 23,877 -> 23,883, Text(diag_env) +21,087.
-    // T4 batch 3 (ff5347ff98): U3's K-D5 formation diagnostic text is 776 B longer (I18's declared
-    // M03 text) at each of route E's 9 largest diagnostic slots: Text(diag_env) +6,984; D and D_env
-    // are unchanged.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 185_049_622, "the text closure at C_eq = 3, maximum over routes (SQ2 G5: D 51,944, D_env 23,883; T4 batch 3)");
+    // Current K-D5/C8 TEXT closure at C_eq = 3, maximum over the L/E routes.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 192_862_564, "current K-D5/C8 text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
-    // The atoms' values in the profile regenerated at C_eq = 3 (SQ2 G5; I89's value pins): L_PUB is
-    // U3's (2,599,962 -> 2,599,357: U3's removed legacy pressure text, as RV132's regenerated tree
-    // has it), and D_env route E's (22,911 -> 23,877: the exact route's diagnostics).
-    // T4 batch 3: L_PUB +776 (2,599,357 -> 2,600,133), the longer K-D5 diagnostic text.
+    // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_600_133, 2_330, 16_384, 23_883, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3 (O-10: D_env +6; T4 batch 3: L_PUB +776)");
+        (2_600_699, 2_330, 16_384, 23_886, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1224,54 +1211,16 @@ fn profile_in_build_record() {
     for (m, phases) in [phases_sparse(&ATOM_VALUES), phases_dense(&ATOM_VALUES)].iter().enumerate() {
         assert_eq!(phases.map(|(req, mov)| req.unwrap() + mov.unwrap()), PINNED_RECORD[m], "mode {m}");
     }
-    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][2], 2)), Some((PINNED_RECORD[1][2], 2))), "W3 is the maximum in both modes");
+    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][5], 5)), Some((PINNED_RECORD[1][5], 5))), "X1 is the maximum in both modes");
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The pinned record (W1, W2, W3, W4, W5, X1, X2), sparse then dense, in that build.
-/// B1 SQ: regenerated at C = 3 on B1's code (G5, with RV112 N-5's reservations; RETURN.md).
-/// U3 (piping T3, I110 round 3): regenerated after the legacy pressure fields left
-/// `StressComponents` (two `Option<f64>`) and `DerivedSection` (`membrane_radius`): every
-/// phase is 800 bytes lower in both modes (9 x 32 + 64 x 8); no binding, form or phase changed.
-/// SQ2 G5/G6 (B2 combinations and B3b's exact route): regenerated at 2243be380b as the
-/// coefficient-wise maximum of route L (D1.3's legacy/preview branch with combinations, worst
-/// shape c = 3, z = 0; the typed forms at C_eq = 3) and route E (the 0.3.0 exact route at c = 3).
-/// Against U3's record, each phase (both modes) moves by three named changes:
-/// - U3's own TEXT (RV132's regenerated tree on U3's code; the earlier re-pin moved only layouts):
-///   W1 −293,576,124, W2 −293,576,124, W3 −308,249,794, W4 −308,249,794, W5 −294,623,984,
-///   X1 −299,676,144, X2 −286,050,334;
-/// - route L's B2/B3 TEXT at z = 0 (the combination-qualified result ids in
-///   `validate_final_metadata`, `append_combination_modulus_basis_records`, the combination row
-///   binders and RS's combination gates): +73,662,990 in W1–W5, +10,665,812 in X1–X2;
-/// - route E's exact route and the maximum over routes (exact materials, sections and physics
-///   evidence in the staged copy, the successor and source recovery): the remainder, W1 +4,187,280,
-///   W2 +4,187,280, W3 +189,558,050, W4 +184,354,254, W5 +25,597,019, X1 +965,976,686,
-///   X2 +814,006,448.
-/// W3 stays the maximum in both modes.
-/// O-10 (T4's batch 2 at e9cc7e3f5f, re-run by SQ2's chain): against the registered record, both
-/// modes, W1 +104,426, W2 +104,426, W3 +532,148, W4 +499,680, W5 +179,133, X1 +403,573, X2 +127,454:
-/// - +22,694 in every phase: U2a's v3 identity texts, priced by Agent 0's ruling (+23,920), and U1's
-///   shorter curved-bend Display text (−1,226);
-/// - the rest, HELP_HUMAN's rulings 3 and 5 (W1 +81,732, W2 +81,732, W3 +509,454, W4 +476,986,
-///   W5 +156,439, X1 +380,879, X2 +104,760): two new diagnostics per case,
-///   `append_retained_source_not_joined` (+15,450 B of TEXT) and `append_short_bend_refusal`
-///   (+28,086), with their ids through `integrity_diagnostic_id`, `stable_suffix` and the reader's
-///   `identity` and evidence validation; D and D_env +6, so Text(diag_env) +21,087 and the typed
-///   forms' diagnostic slots (STAGED, SUCC, T16, T17, T25) rise with them.
-/// T4 batch 3 (U3 on batch 2, ff5347ff98; the retained pricing tool, U3's connector rules in
-/// DEL-05-02's retained-pricing-rules.md section B): against batch 2's record, both modes, W1
-/// −2,978,180, W2 −2,978,180, W3 −2,875,748, W4 −2,875,748, W5 −2,971,196, X1 −2,882,732, X2
-/// −2,978,180. TEXT falls 2,987,522 B on route L and 2,987,216 B on route E: FK formation_check's
-/// unavailable/check text −3,017,280 and `solve_load_case_observed` −19,920; I18's longer K-D5
-/// diagnostic text (+776 B per site) +41,904 (`append_integrity_report`, `demote`); the v3 basis
-/// clause and connector limitation +6,700; the connector Display +1,842; route E's
-/// `require_connector` +306 (rule E5). The longer K-D5 text also raises Text(diag_env) +6,984,
-/// L_PUB +776, Text(recovery_finding) +3,104 and Text(sym) +2, and with them the typed forms'
-/// diagnostic slots (STAGED, SUCC, T16, T17, T25), so the profile is re-registered although every
-/// phase falls.
+/// The archive-derived K-D5/C8 record at 11cb56f3: requested plus moving
+/// bytes without R, for the qualified build above. Each phase keeps its actual
+/// positive layout, source and TEXT charges; X1 is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [4_850_720_982, 5_174_152_944, 9_686_194_148, 9_465_772_307, 5_766_618_474, 9_520_974_181, 5_559_622_224],
-    [4_909_852_326, 5_233_284_288, 9_745_325_492, 9_524_903_651, 5_825_749_818, 9_580_105_525, 5_618_753_568],
+    [4_827_523_437, 5_150_955_399, 9_772_445_231, 9_552_007_524, 5_751_261_049, 9_833_797_530, 5_770_869_765],
+    [4_886_654_781, 5_210_086_743, 9_831_576_575, 9_611_138_868, 5_810_392_393, 9_892_928_874, 5_830_001_109],
 ];
 
 #[test]
@@ -1360,19 +1309,30 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 23_883, "D_env at C_eq = 3: route E's (SQ2 G5; O-10 at T4 batch 2: +6, the two new diagnostics)");
+    assert_eq!(caps.complete[3], 23_886, "current K-D5/C8 D_env at C_eq = 3");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
-    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (16, 6, 0));
+    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (22, 6, 0));
     assert_eq!(profile::ESTIMATES, 0, "G6 closed every Estimate");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::SparseInteractive), Ok(profile::SPARSE.unwrap().0), "priced in-build");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");
     // The in-build maximum is within the 0.9 M margin rule in both modes (RR "U4 G3 verified").
     let r = RESERVED_STACK_BYTES as u64;
-    assert_eq!((M, MARGIN), (11_274_289_152, 10_146_860_236), "M = 10.5 GiB (R6a) and ⌊0.9 M⌋");
+    assert_eq!((M, MARGIN), (12_884_901_888, 11_596_411_699), "M = 12 GiB and ⌊0.9 M⌋");
     for (bytes, _) in [profile::SPARSE.unwrap(), profile::DENSE.unwrap()] {
         assert!(bytes + r <= MARGIN, "{} above 0.9 M", bytes + r);
+    }
+    // Qualification keeps the existing 5% reserve in every phase, including X1/X2.
+    // Round the required reserve upward to whole bytes; never round down a requirement.
+    for phases in [profile::phases_sparse(&profile::ATOM_VALUES), profile::phases_dense(&profile::ATOM_VALUES)] {
+        for (phase, (requested, moving)) in phases.iter().enumerate() {
+            let text_form = if phase < 5 { profile::F_TAV_W } else { profile::F_TAV_X };
+            let text = profile::form(&profile::FORMS[text_form], &profile::ATOM_VALUES).unwrap();
+            let reserve = text.checked_add(19).unwrap() / 20;
+            let required = requested.unwrap().checked_add(moving.unwrap()).unwrap().checked_add(r).unwrap();
+            assert!(required.checked_add(reserve).unwrap() <= MARGIN, "{} exceeds the 5% TEXT reserve", profile::PHASE_NAMES[phase]);
+        }
     }
     assert!(profile::DENSE.unwrap().0 >= profile::SPARSE.unwrap().0, "the dense parity tail");
 }

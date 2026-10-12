@@ -29,7 +29,7 @@ Keep PP's Cargo.lock and priced layouts unchanged (`MemberRecord`, `RecoveryReco
 - Rule R1 (`edge_zero for_source → validate_pressure_evidence`) is accepted, and the v3 identity text (+23,920 B) is priced.
 - The batch-3 rule whose callee `UserStiffnessElement::orientation` is deleted is dropped.
 - T3's manager adjudicates L1–L3 and the connector text-argument classification, with an independent check.
-- T3 re-runs SQ2 and the TEXT chain on T4's batch heads. Re-registration is approved if M stays 10.5 GiB and the 5 % text-budget rule holds; anything else returns to HELP_HUMAN.
+- T3 re-runs SQ2 and the TEXT chain on T4's batch heads. The owner clarified on 2026-10-11 that qualification may use up to 12 GiB on the 16 GiB base machine; 10.5 GiB was the earlier selected profile. Re-registration retains the 0.9 M margin and 5 % text-budget rule. Larger-machine scaling and safe parallel reservations are developed in [the memory-budget study](memory-budget-decision.md); the separate 64 GiB development-host allowance does not select a product profile.
 
 Sources: [NUM frozen rulings: pressure retirement, U3 and U5](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md); [T4 frozen rulings: D-1–D-4, H-1–H-4 and SP-1](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md).
 

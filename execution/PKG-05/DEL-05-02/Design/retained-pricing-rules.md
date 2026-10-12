@@ -4,6 +4,8 @@ The registered memory profile (`core/product_physics/src/retained_memory.rs`, it
 
 Line numbers are those at the head named in each section. The tool resolves every key by name, or by the site's own text inside a named function, at the snapshot it prices.
 
+**Current qualification budget.** The owner selected M = 12 GiB (12,884,901,888 B). Keep the 0.9 M margin and require at least 5 % of the phase's applicable TAV_W or TAV_X as remaining TEXT reserve, rounded upward to whole bytes. Existing model counts, all positive owner/backing charges and source refusal guards remain in force. Qualification binds the K-D5/C8 profile to its actual source and native values; the old 10.5 GiB declaration is superseded for this registration. The 64 GiB testing-host ceiling is not a product threshold. Machine-dependent scaling needs its separate resource/concurrency design before implementation.
+
 ## A. Rulings applied to T4's batch 1 heads
 
 These are Agent 0's rulings. Heads: `c2f1db4814`, `8388da7a8c`, `666cb30520`.

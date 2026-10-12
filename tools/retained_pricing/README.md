@@ -1,6 +1,8 @@
 # Retained pricing
 
-This tool prices the retained route's memory at a revision. It also writes the registered profile, the GENERATED PROFILE block in `core/product_physics/src/retained_memory.rs`.
+This tool prices the retained route's memory at a revision and generates the GENERATED PROFILE block in `core/product_physics/src/retained_memory.rs`. Registration separately binds the actual build, reviewed inputs, layouts and selected threshold.
+
+The base chain's `g4_caps.py` keeps the historical illustrative `M = 4_026_531_840`: `tree.M`, `fraction_of_M`, `margin_rule_0.9M` and `fits_M` use illustrative layout strides and are not native budget qualification. `run` exit 0 establishes pricing completeness. `generate` replaces only the generated block and preserves `REGISTERED_PROFILES.threshold_bytes`; it does not select or register M. `eval` (`lib/tree_eval.py`) uses supplied native atoms to evaluate forms/phases without applying a budget. Current qualification uses the source-selected registered threshold and the native law tests' checks of all phases, R, the 0.9 margin and the upward-rounded 5% TAV_W/TAV_X reserve.
 
 It is SQ2's TEXT and cap-priced chain under the O-10 rules, in one Python command (standard library only). The reasons for the rules it adds by name are in DEL-05-02's [retained-pricing-rules.md](../../execution/PKG-05/DEL-05-02/Design/retained-pricing-rules.md). Use this tool, not earlier copies of the chain.
 
