@@ -5,9 +5,9 @@
  * authors (`fixtures/model_operations/pressure_v3_l_line_authoring.json`,
  * pinned by `operation_applier/tests/l_line_authoring.rs`). Its solve through
  * the native job path returns pressure-1. The desktop reads results only through
- * the Rust reader's verdict (b7-plan R2), whose header dispatch names no
- * pressure-1 route: the result reads as unsupported, is never eligible and
- * lists no rows as current. All data are invented. */
+ * the Rust reader's verdict (b7-plan R2): pressure-1 has its own route there,
+ * read by the product reader with the ordinary standing, and every output
+ * surface refuses it by name. All data are invented. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -22,7 +22,8 @@ import { startPreviewMechanicsJob } from "../../services/previewService";
 import { awaitBackendSolveJob } from "../workspace/solveJobAudit";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
-import { sourceContract } from "../results/resultReader";
+import { readerDispatch, sourceContract } from "../results/resultReader";
+import { OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL, surfaceRouteRefusal } from "../results/outputPolicy";
 import { numericalResultStanding } from "../results/resultStanding";
 import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
 
@@ -113,12 +114,16 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     expect(terminal.state).toBe("completed");
   });
 
-  it("reads a pressure-1 result as unsupported through the Rust reader (b7-plan R2)", () => {
-    expect(sourceContract(pressure1)).toBe("unsupported");
+  it("reads a pressure-1 result through the Rust reader's pressure route, with its standing and no output (b7-plan R2)", () => {
+    expect(sourceContract(pressure1)).toBe("pressure");
+    const dispatch = readerDispatch(pressure1, expected);
+    expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-1");
     const standing = numericalResultStanding(pressure1, expected);
-    expect(standing.eligible).toBe(false);
+    expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
+    expect(standing.eligible).toBe(true);
+    for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface)).toBe(PRESSURE_1_OUTPUT_REFUSAL);
     render(<ResultsPanel result={pressure1} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={vi.fn()} />);
-    expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent("Unsupported numerical contract; historical values only. Needs recompute.");
+    expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
     cleanup();
     render(<KnownSemanticNotices result={pressure1} testIdPrefix="results" />);
   });

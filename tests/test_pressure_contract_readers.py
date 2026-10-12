@@ -6,8 +6,10 @@ only product reader). The independent verifier (``tests/verifiers/pressure_1.py`
 admits v3 straight families with signed p_pa, refuses v2 evidence offered as
 pressure-1 and pressure-1 evidence under a v2 identity by name, and refuses
 unknown identities. Python product paths take the Rust reader's verdict (b7-plan
-R2), whose header dispatch refuses pressure-1 outside the base routes; the v2
-verifiers do not read v3 evidence.
+R2) through its pressure route: a raw statement is read, a transported one is
+refused by name (there is no pressure-1 transport reader), and no 0.3
+AnalysisRun record is built from pressure-1; the v2 verifiers do not read v3
+evidence.
 """
 import ast
 from copy import deepcopy
@@ -17,7 +19,7 @@ from pathlib import Path
 import pytest
 from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import (
-    _source_contract, build_analysis_run_v0_3, numerical_use_standing,
+    PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3, numerical_use_standing,
 )
 from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
 from tests.verifiers.physics_evidence import validate_physics_evidence
@@ -30,10 +32,9 @@ PROJECT = Path(__file__).resolve().parents[1]
 CORPUS = json.loads((PROJECT / "fixtures/results/pressure_v3_straight_reader_corpus.json").read_text())
 CASES = [(case["label"], case["envelope"]) for case in CORPUS["cases"]]
 VERIFIER = PROJECT / "tests/verifiers/pressure_1.py"
-# b7-plan R2: Python product paths read through the Rust verdict
-# (`reader_verdict::route`), which names no pressure-1 route. T4-U2's interim
-# Python-side name (until R2) is retired with it.
-PRESSURE_1_REFUSAL = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+# b7-plan R2: Python product paths read through the Rust verdict, whose
+# `pressure` route reads raw pressure-1 and refuses a transported one by name.
+PRESSURE_TRANSPORT_REFUSAL = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 
 
 def load_state(envelope):
@@ -68,14 +69,22 @@ def test_verifier_and_dispatch_admit_the_corpus(label, envelope):
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
-def test_python_product_paths_take_the_rust_refusal_of_pressure_1(label, envelope):
-    for read in (_source_contract, lambda e: _source_contract(e, check_receipt=False),
-                 lambda e: build_analysis_run_v0_3(e, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:x"}, input_manifest_hash="1" * 64)):
-        with pytest.raises(ValueError, match=PRESSURE_1_REFUSAL):
-            read(deepcopy(envelope))
+def test_python_product_paths_take_the_rust_verdict_of_pressure_1(label, envelope):
+    contract_id, sha256, _ = _source_contract(deepcopy(envelope))
+    assert (contract_id, sha256) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)
+    with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_REFUSAL):
+        _source_contract(deepcopy(envelope), check_receipt=False)
+    with pytest.raises(ValueError, match="ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH"):
+        build_analysis_run_v0_3(deepcopy(envelope), input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:x"}, input_manifest_hash="1" * 64)
     bases = [case["basis_ref"] for case in envelope["numerical_quality"]["cases"]]
-    # The standing is the Rust reader's own verdict (b7-plan R2), which reads pressure-1.
+    # One verdict and one standing: the Rust reader's pressure route.
     assert numerical_use_standing(deepcopy(envelope), bases) == rust_reader.standing(deepcopy(envelope), bases, None)["token"]
+    model = {"load_cases": [{"id": basis["ref_id"]} for basis in bases]}
+    dispatch = rust_reader.dispatch(deepcopy(envelope), model)
+    assert (dispatch["ok"], dispatch["route"], dispatch["binding"]) == (True, "pressure", {"id": PRESSURE_CONTRACT_ID, "sha256": PRESSURE_CONTRACT_SHA256})
+    assert dispatch["standing"]["route"] == "pressure"
+    assert dispatch["standing"]["eligible"] == (envelope["numerical_quality"]["status"] == "checks_passed")
+    assert rust_reader.validate("pressure", deepcopy(envelope), model=model) == {"ok": True}
     # The v2 product readers do not read v3 evidence (their closed v2 checks refuse it).
     with pytest.raises(ValueError):
         v2_product_reader(deepcopy(envelope))

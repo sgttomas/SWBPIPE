@@ -63,7 +63,7 @@ it("offers only exact_pressure_v3, upgrades a v2 document explicitly and keeps a
 it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the signed-pressure hint and the tangency rule (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
   render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
-  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; the desktop does not read pressure-1 results\)/)).toBeInTheDocument();
+  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; pressure-1 results are read with their standing, and no desktop output is offered for them\)/)).toBeInTheDocument();
   expect(screen.queryByText(/solves are refused/)).toBeNull();
   expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();

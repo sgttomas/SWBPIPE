@@ -3,11 +3,12 @@
 The Rust reader (``core/reporting/result_export``: ``physics_evidence``,
 ``arc_evidence``, ``connector_evidence``, ``load_reference``) is the only
 product reader of ``openpipestress.result_semantics/0.3.0/pressure-1`` (owner,
-2026-10-10: "move to one product reader in Rust"; "All readers."). This module
-checks the same publications independently, for the shared corpora tests and
-the VP-STATIC ``exact_pressure_1`` gate only. Python product paths refuse
-pressure-1 by name (``PRESSURE_1_RESULT_NOT_READABLE_IN_PYTHON_PRODUCT_PATH``)
-until T3's unit R2 gives them the Rust reader's verdict.
+2026-10-10: "move to one product reader in Rust"; "All readers."). The
+desktop, Python product paths and the VP-STATIC ``exact_pressure_1`` gate take
+that reader's verdict (``reader_verdict``'s ``pressure`` route, through
+``openpipestress-runner read pressure``). This module checks the same
+publications independently, for the shared corpora tests and the test-only
+reader-verdict verifier only.
 
 Independence: standard-library imports only. It imports no product module and
 no producer crate, neither directly nor through the subprocess bridges
@@ -151,7 +152,7 @@ def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
 def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     """Raw pressure-1 evidence. A 0.4.0 envelope carries ``load_reference_states``
     and takes the load/reference-state pre-pass first; a 0.3.0 envelope takes the
-    physics checks directly. The VP-STATIC helper's fixed entry."""
+    physics checks directly."""
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
@@ -721,7 +722,7 @@ def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]
         if type(value) is not str or len(value) < schema.get("minLength", 0):
             return False
         if "pattern" in schema:
-            import re  # deferred: the raw path (the VP-STATIC helper's entry) never needs it
+            import re  # deferred: the raw path never needs it
             return re.fullmatch(schema["pattern"], value) is not None
         return True
     if kind in {"number", "integer"}:

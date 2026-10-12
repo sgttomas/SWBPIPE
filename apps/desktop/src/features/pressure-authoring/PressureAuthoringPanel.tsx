@@ -74,7 +74,7 @@ export function pressureModeText(model: RichFormProps["model"]): string {
   const reauthor = `re-authored to ${PRESSURE_V3.mode}`;
   if (contract) {
     if (contract.version === "2.0.0" && contract.mode === "exact_straight_pressure_v2") return `${contract.mode} (straight pipe only; still solvable; select ${PRESSURE_V3.mode} to upgrade it)`;
-    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; the desktop does not read pressure-1 results)`;
+    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; pressure-1 results are read with their standing, and no desktop output is offered for them)`;
     const declared = `${contract.version}/${contract.mode}`;
     if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is ${reauthor})`;
     return `${declared} (unsupported; solves are refused until the model is ${reauthor})`;

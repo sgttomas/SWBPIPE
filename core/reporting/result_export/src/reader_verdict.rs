@@ -14,6 +14,11 @@
 //! - G5: one header dispatch, the superset of both languages' (`route`): the
 //!   TypeScript header's receipt-shape, evidence-presence and namespace checks
 //!   around `for_source_metadata`, whose retained transport reading stays.
+//! - pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its
+//!   own route, `pressure`, read by `validate_pressure_evidence` (the only
+//!   product reader of `3.0.0/exact_pressure_v3`), with G2's model checks and
+//!   the ordinary standing, so the desktop, Python product paths and the
+//!   VP-STATIC `exact_pressure_1` gate take one verdict and one standing.
 //!
 //! No existing reader, table or published byte changes. Every function here is
 //! reachable only from these callers.
@@ -25,7 +30,7 @@ use crate::semantic_contract as sc;
 use serde_json::{json, Value};
 
 /// The desktop's route names (its `SourceContract`), one per readable identity.
-pub const ROUTES: [&str; 10] = [
+pub const ROUTES: [&str; 11] = [
     "legacy",
     "precision",
     "physics",
@@ -34,6 +39,7 @@ pub const ROUTES: [&str; 10] = [
     "preview_physics",
     "load_reference",
     "load_reference_source",
+    "pressure",
     "retained_preview_physics",
     "retained_physics",
 ];
@@ -46,10 +52,13 @@ pub const LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE: &str =
     "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1";
 pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE";
+/// pressure-1 has no transport (metadata-only) reader: a transported
+/// pressure-1 statement is refused by this name, never admitted unchecked.
+pub const PRESSURE_TRANSPORT_UNSUPPORTED: &str = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED";
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
 /// `binding_hashes_are_the_table_files` checks them). Legacy has none.
-const BINDINGS: [(&str, &str, &str); 9] = [
+const BINDINGS: [(&str, &str, &str); 10] = [
     ("precision", sc::PRECISION_ID, "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"),
     ("physics", sc::PHYSICS_ID, "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"),
     ("source_blocks", crate::source_blocks::CONTRACT_ID, "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"),
@@ -57,6 +66,7 @@ const BINDINGS: [(&str, &str, &str); 9] = [
     ("preview_physics", sc::PREVIEW_PHYSICS_ID, "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"),
     ("load_reference", sc::LOAD_REFERENCE_ID, "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"),
     ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"),
+    ("pressure", sc::PRESSURE_ID, "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"),
     ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "7cff3e9fe0c29a5b34d1762662e71ad58f00bb2993e9a3f1893323c0d64161e0"),
     ("retained_physics", sc::PHYSICS_RETAINED_ID, "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"),
 ];
@@ -83,8 +93,8 @@ fn present(value: Option<&Value>) -> Option<&Value> {
 /// guard (a receipt member or a W1 row token off the successor), a carrier
 /// namespace, `for_source_metadata` (with its retained transport reading), then
 /// the TypeScript header's checks: each source route's receipt shape, the evidence
-/// object the load-reference routes require, no evidence on precision-1, and no
-/// identity outside the desktop's routes (pressure-1).
+/// object the load-reference and pressure routes require, no evidence on
+/// precision-1, and no identity outside these routes.
 pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     sc::forbid_retained_member(source)?;
     sc::forbid_retained_rows(source)?;
@@ -126,6 +136,12 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
             }
             crate::load_reference_source::validate_receipt_shape(receipt)?;
             "load_reference_source"
+        }
+        Some(sc::PRESSURE_ID) => {
+            if !evidence_object {
+                return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
+            }
+            "pressure"
         }
         Some(sc::PREVIEW_PHYSICS_RETAINED_ID) => "retained_preview_physics",
         Some(sc::PHYSICS_RETAINED_ID) => "retained_physics",
@@ -193,7 +209,7 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
 }
 
 /// The readers by name: `(reader, source, model, invocation)` to an outcome.
-pub const READERS: [&str; 7] = [
+pub const READERS: [&str; 8] = [
     "preview-physics",
     "physics",
     "physics-source",
@@ -201,6 +217,7 @@ pub const READERS: [&str; 7] = [
     "source-recovery",
     "load-reference",
     "load-reference-source",
+    "pressure",
 ];
 
 /// One reader's raw validation. `model` (G2) reaches the physics and
@@ -226,6 +243,11 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                 physics_model_checks(&crate::load_reference::project(source), m)
                     .map_err(|e| format!("SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: {e}"))
             })
+        })),
+        // pressure-1: its reader (0.3.0 and 0.4.0), then G2's model checks,
+        // which read only the cases, members, connectors and support rows.
+        "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
+            model.map_or(Ok(()), |m| physics_model_checks(source, m))
         })),
         "load-reference-source" => match sc::validate_load_reference_source_evidence(source) {
             Ok(eligible) => json!({"ok": true, "eligible": eligible}),
@@ -282,6 +304,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
         "source-blocks" => crate::source_blocks::validate_transport_metadata(source),
         "load-reference" => sc::validate_load_reference_transport_metadata(source),
         "load-reference-source" => sc::validate_load_reference_source_transport_metadata(source),
+        "pressure" => Err(PRESSURE_TRANSPORT_UNSUPPORTED.into()),
         other => Err(format!("READER_UNKNOWN: {other}")),
     };
     match result {
@@ -433,6 +456,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
             let checked = match route {
                 "physics" => Some(validate("physics", source, model, None)),
                 "load_reference" => Some(validate("load-reference", source, model, None)),
+                "pressure" => Some(validate("pressure", source, model, None)),
                 "preview_physics" => Some(validate("preview-physics", source, model, None)),
                 _ => None,
             };

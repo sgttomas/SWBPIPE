@@ -194,9 +194,12 @@ with `max(absolute, relative*max(|observed|, |expected|))`.
 
 1. Generate the cases with `--write`.
 2. Name an admitted package and a reviewed reader binding,
-   `openpipestress.exact_pressure_consistency_binding/1`. The binding lists
-   the adapter's four `DEPENDENCIES`, and its entry is
-   `validate_pressure_evidence`.
+   `openpipestress.exact_pressure_consistency_binding/2`. The binding lists
+   the adapter's three `DEPENDENCIES` (the Rust reader's source, the
+   pressure-1 table and the unit authority), and its entry is
+   `validate_pressure_evidence`. The verdict is the Rust product reader's,
+   taken from the explicitly built `openpipestress-runner read pressure` named
+   by `OPENPIPESTRESS_RUNNER_BIN`.
 3. Run once per mode.
 4. Set `--output-limit-bytes` to at least 16 MiB. The largest CLI output
    observed is 12.8 MB, a 0.4.0 U-loop in dense mode.

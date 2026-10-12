@@ -5,10 +5,10 @@ case's raw producer envelope and canonical export document when
 ``HEADLESS_PRESSURE_OUTPUT_DIR`` is set. These tests read them: the document
 validates against the results 0.3 schema on the pressure-1 branch only; the
 test-only verifier admits the raw envelope and its transported statements;
-and every Python product path refuses it by name (the Rust reader is the only
-product reader, so no Python AnalysisRun record is built from pressure-1 until
-T3's unit R2). They skip only when the variable is unset and must be run with
-it set. All inputs are invented.
+and Python product paths take the Rust reader's pressure route: the raw
+envelope is read, a transported statement is refused by name and no 0.3
+AnalysisRun record is built from pressure-1. They skip only when the variable
+is unset and must be run with it set. All inputs are invented.
 """
 from __future__ import annotations
 
@@ -19,13 +19,13 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs import rust_reader
-from core.analysis_runs.compatibility import _source_contract, build_analysis_run_v0_3, numerical_use_standing
+from core.analysis_runs.compatibility import PRESSURE_CONTRACT_ID as PRODUCT_PRESSURE_ID, _source_contract, build_analysis_run_v0_3, numerical_use_standing
 from schema_validation import envelope_branches, validate_instance
 from tests.verifiers.pressure_1 import CONTRACT_ID as PRESSURE_CONTRACT_ID, verify_source
 
-# b7-plan R2: Python product paths read through the Rust verdict, which names
-# no pressure-1 route (T4-U2's interim Python-side name is retired with R2).
-PRESSURE_1_REFUSAL = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+# b7-plan R2: Python product paths read through the Rust verdict's pressure
+# route, which has no transport reader.
+PRESSURE_TRANSPORT_REFUSAL = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 
 PROJECT = Path(__file__).resolve().parents[1]
 STEMS = ["arc-u2-l-anch-ptw-k2-0-3-0", "arc-u2-l-anch-ptw-k2-0-4-0", "arc-u2-l-kink-anch-p-k2-0-3-0",
@@ -72,10 +72,11 @@ def test_actual_pressure_1_document_selects_its_branch_and_the_verifier_admits_i
         assert envelope[key] == raw[key], key
     verify_source(raw)
     verify_source(raw, raw=False)
-    for read in (_source_contract, lambda e: _source_contract(e, check_receipt=False),
-                 lambda e: build_analysis_run_v0_3(e, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:{name}"}, input_manifest_hash="1" * 64)):
-        with pytest.raises(ValueError, match=PRESSURE_1_REFUSAL):
-            read(raw)
+    assert _source_contract(raw)[0] == PRODUCT_PRESSURE_ID
+    with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_REFUSAL):
+        _source_contract(raw, check_receipt=False)
+    with pytest.raises(ValueError, match="ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH"):
+        build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:{name}"}, input_manifest_hash="1" * 64)
     bases = [case["basis_ref"] for case in raw["numerical_quality"]["cases"]]
     # The standing is the Rust reader's own verdict (b7-plan R2), which reads pressure-1.
     assert numerical_use_standing(raw, bases) == rust_reader.standing(raw, bases, None)["token"]

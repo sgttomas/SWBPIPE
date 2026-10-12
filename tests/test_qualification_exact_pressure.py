@@ -7,8 +7,10 @@ ControlledExport wrapper: the T4-I7 L line (``U2-L-ANCH-PTW-K2``) on 0.3.0
 whose documents are the package's own generated requests. They are scored
 against the generated package (analytical values from the frozen T4-I7
 references), admitted here with a synthetic test-only stub; no product solver
-or runner binary is executed. The owned reader, the test-only pressure-1
-verifier, genuinely runs in its isolated helper.
+or runner binary is executed. The owned reader genuinely runs against the
+committed raws: the Rust product reader through the explicitly built
+``openpipestress-runner read pressure`` named by OPENPIPESTRESS_RUNNER_BIN (the
+test session builds it), as the physics-1 and load-reference-1 gates take theirs.
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -25,7 +27,6 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
 from tools.validation import qualification_exact_pressure as ep
 from tools.validation import qualification_physics as physics
-from tools.validation import qualification_exact_pressure_helper as helper
 from tools.validation.qualification_process import sha256_bytes
 
 PACKAGE = 'validation/qualification/fixtures/exact_pressure'
@@ -172,19 +173,20 @@ def arc_row(raw, kind, location='midspan'):
 
 
 class PinTests(unittest.TestCase):
-    def test_reader_pins_are_the_verifier_table_and_unit_pins(self):
-        # The owned reader is the test-only verifier, never a product module.
-        self.assertEqual(ep.MODULE, 'tests/verifiers/pressure_1.py')
-        self.assertEqual(ep.DEPENDENCIES, {ep.MODULE: ep.VERIFIER_SHA256, ep.TABLE: ep.TABLE_SHA256,
+    def test_reader_pins_are_the_rust_reader_table_and_unit_pins(self):
+        # The owned reader is the Rust product reader (its pressure route), never the test-only verifier.
+        self.assertEqual((ep.MODULE, ep.READER, ep.ENTRYPOINT),
+                         ('core/reporting/result_export/src/physics_evidence.rs', 'pressure', 'validate_pressure_evidence'))
+        self.assertIn('pub fn validate_pressure_evidence(', (PROJECT / ep.MODULE).read_text())
+        self.assertEqual(ep.DEPENDENCIES, {ep.MODULE: ep.MODULE_SHA256, ep.TABLE: ep.TABLE_SHA256,
                                            physics.UNITS: physics.DEPENDENCIES[physics.UNITS]})
         for path, digest in ep.DEPENDENCIES.items():
             self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
         table = json.loads((PROJECT / ep.TABLE).read_text())
         self.assertEqual((table['semantic_contract_id'], table['formulation_profile_id']), (ep.CONTRACT, ep.PROFILE))
 
-    def test_helper_and_generator_share_the_adapter_identities(self):
-        self.assertEqual((helper.FORMAT, helper.CONTRACT, helper.ENTRYPOINT), (ep.BINDING_FORMAT, ep.CONTRACT, ep.ENTRYPOINT))
-        self.assertEqual(helper.PATHS, set(ep.DEPENDENCIES))
+    def test_generator_shares_the_adapter_identities(self):
+        self.assertEqual(ep.BINDING_FORMAT, 'openpipestress.exact_pressure_consistency_binding/2')
         self.assertEqual((generator.MANIFEST_FORMAT, generator.CONTRACT, generator.TABLE), (ep.MANIFEST_FORMAT, ep.CONTRACT, ep.TABLE))
         self.assertEqual(set(generator.MODES), set(ep.MODES))
         self.assertEqual(generator.TERMINAL_FAMILY, ep.TERMINAL_FAMILY)
@@ -388,6 +390,32 @@ class BindingAndReaderTests(unittest.TestCase):
         reader = check(case, 'owned_reader_consistency')
         self.assertEqual(reader['state'], 'failed')
         self.assertEqual(case['reader_consistency']['response']['verdict'], 'refused')
+        self.assertEqual(case['reader_consistency']['response']['reader'], ep.READER)
+
+    def test_reader_verdict_is_the_runners_and_bound(self):
+        """The verdict is the Rust reader's, through `openpipestress-runner read pressure`; the binding's selected
+        sources are checked before the reader runs, and a foreign identity never reaches it."""
+        fixture = Fixture(self, 'sparse_interactive', ['U2-L-ANCH-PTW-K2@0.3.0'])
+        binding_path = fixture.root / 'binding-direct.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        binding = ep.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+        raw = raw_for('U2-L-ANCH-PTW-K2@0.3.0', 'sparse_interactive')
+        observed = ep.consistency_observation(raw, binding, fixture.root / 'reader-consistent')
+        self.assertEqual((observed['response']['verdict'], observed['response']['reader']), ('consistent', ep.READER))
+        self.assertEqual(json.loads((fixture.root / 'reader-consistent/stdin.bin').read_bytes()), {'source': raw})
+        (fixture.candidate / ep.MODULE).write_text('changed')
+        with self.assertRaisesRegex(ValueError, 'bound bytes differ'):
+            ep.consistency_observation(raw, binding, fixture.root / 'reader-changed')
+        self.assertFalse((fixture.root / 'reader-changed').exists())
+        shutil.copyfile(PROJECT / ep.MODULE, fixture.candidate / ep.MODULE)
+        foreign = dict(raw, producer=dict(raw['producer'], semantic_contract_id='openpipestress.result_semantics/0.3.0/physics-1'))
+        with self.assertRaisesRegex(ValueError, 'raw/producer dispatch mismatch'):
+            ep.consistency_observation(foreign, binding, fixture.root / 'reader-foreign')
+        broken = deepcopy(raw)
+        broken['contract_evidence']['pressure'][0]['tangency_tolerance_rad'] = 2e-3
+        refused = ep.consistency_observation(broken, binding, fixture.root / 'reader-refused')
+        self.assertEqual(refused['response']['verdict'], 'refused')
+        self.assertTrue(refused['response']['reason'])
 
 
 class TransportRefusalTests(unittest.TestCase):

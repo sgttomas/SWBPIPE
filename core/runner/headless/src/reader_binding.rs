@@ -149,6 +149,7 @@ pub const READERS: &[Reader] = &[
     base!("source-recovery", &[]),
     base!("load-reference", &["model"]),
     base!("load-reference-source", &[]),
+    base!("pressure", &["model"]),
     // `reader_verdict::transport`: `{"source": <statement>}`.
     transport!("preview-physics"),
     transport!("physics"),
@@ -156,6 +157,7 @@ pub const READERS: &[Reader] = &[
     transport!("source-blocks"),
     transport!("load-reference"),
     transport!("load-reference-source"),
+    transport!("pressure"),
     // `reader_verdict::row_semantics`: `{"row", "source"?}`.
     Reader {
         name: "row-semantics",

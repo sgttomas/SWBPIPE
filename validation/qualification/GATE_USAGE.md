@@ -139,7 +139,9 @@ are also byte-bound and retained. The reader input is a derived parsed snapshot,
 distinct from the original runner stdout bytes. Its verdict establishes internal
 physical consistency only; actual process provenance and analytical comparisons
 remain separate evidence. The load-reference-1 adapter takes `read
-load-reference` the same way (binding version 2).
+load-reference` the same way (binding version 2), and the exact_pressure_1
+adapter takes `read pressure`, the Rust reader's pressure-1 route
+(`validate_pressure_evidence`; `openpipestress.exact_pressure_consistency_binding/2`).
 
 The ten structural checks cover transport/mode, input binding, ordinary contract,
 case/material/section, numerical standing, complete unique scalar coverage,
