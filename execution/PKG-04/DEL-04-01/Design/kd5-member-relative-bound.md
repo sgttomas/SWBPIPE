@@ -509,13 +509,13 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 **Runtime (RV34; measured at implementation).** Each element is re-formed at p in five passes instead of one: ρ, s, s₂, ε_E and recovery. The memory pricing does not cover time.
 
-- Realistic set, per case-mode against the baseline: median 5.6×, p90 9.4×, maximum 10.6× (median 1.19 ms → 7.71 ms).
-- D1-cap models: the all-fixed model 10.5–17.5×; the model that is Sensitive at the structural gate about 1.02×.
-- Attribution:
-  - `certify_support_reaction` re-forms every element matrix at p for each restrained DOF before testing adjacency: 84 % of the D1 samples.
-  - On the realistic set, `certified_publication::member` takes about 40 %. Its `load_reformation` re-forms the arc certificate for each `UniformCurved` primitive (12 per load), and `evaluate`'s ρ pass repeats it.
-- These were measured before the recovery's member loads entered its exact sums as separate addends (§3.1). Straight section rows are now formed one at a time, keeping the priced stress-control stack census, so each row re-forms the member's uniform intensities. On a self-weight member this is 25 instead of 5 intensity re-formations, about 140 µs of a 756 µs straight recovery (release build). D1 members carry no uniform sources.
-- An adjacency-first reaction loop and per-member reuse of re-formed loads are numerically identical refinements; they are an open item.
+- **Adjacency-first reaction loop (made).** `certify_support_reaction` now tests whether an element's DOF map contains the reaction DOF before it forms that element's matrix at p. It skips non-adjacent elements; the contributing elements, their order and their arithmetic are unchanged, and nothing is allocated. Before the change it formed every element matrix for each restrained DOF, which took 84 % of the D1 samples. The change is numerically identical on genuine outputs: release runners at the parent revision and at the change produced byte-identical records, including the complete public JSON, for all 98,108 case-mode-entry records of the realistic set, RV29, W1 and every RV30 chunk (families A–D and the short-bend family).
+- Measured after the change (release build, exclusive host, typed and captured entries, both modes, median of two interleaved passes), against the pre-K-D5 main baseline:
+  - realistic set, per case-mode: median 5.3×, p90 9.2×, maximum 10.2× (median 1.18 ms → 7.49 ms). Before the change it was median 5.7×, p90 9.7×, maximum 10.6× (7.79 ms); the change alone is a median 0.95× and 0.94× in total time;
+  - D1-cap models: the all-fixed model 2.4–3.3× (55–66 ms against 276–286 ms before the change, which was 10.4–16.8×); the model that is Sensitive at the structural gate about 1.0×.
+- Remaining attribution: on the realistic set `certified_publication::member` took about 40 % before the change. Its `load_reformation` re-forms the arc certificate for each `UniformCurved` primitive (12 per load), and `evaluate`'s ρ pass repeats it.
+- Straight section rows are formed one at a time, keeping the priced stress-control stack census, so each row re-forms the member's uniform intensities. On a self-weight member this is 25 instead of 5 intensity re-formations, about 140 µs of a 756 µs straight recovery (release build). D1 members carry no uniform sources.
+- Per-member reuse of re-formed loads is a numerically identical refinement that is not made; it is an open item.
 
 ## 7. Implementation plan
 
@@ -634,7 +634,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 - **Combination rows** are not judged against their own q (§3.3).
 - **The load-row guard** no longer guards any certified row (§4.2). Retiring it changes W1's routing into retained-source recovery and needs T3's agreement. Its availability cost is 6 RV30 case-modes and 0 realistic.
-- **Runtime** (§6, measured): an adjacency-first `certify_support_reaction` loop and per-member reuse of re-formed loads are numerically identical refinements, not yet made.
+- **Runtime** (§6, measured): per-member reuse of re-formed loads is a numerically identical refinement, not yet made. The adjacency-first reaction loop is made.
 - **D5C-1 on constructed bodies** (§4.2), pending HELP_HUMAN/T3 ruling:
   - the availability effect on T6a's two skew uniformly heated runs (Passed → Sensitive on coordinate-residue rotations);
   - the routing change: formed-load defects now judged at the solve send the captured entry into retained-source recovery (T19's original construction charges work; T1 gains `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`).
