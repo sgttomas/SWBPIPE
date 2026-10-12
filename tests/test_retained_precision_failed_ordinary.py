@@ -68,12 +68,13 @@ def test_failed_ordinary_successor_passes_g1_to_g8_and_is_eligible(index):
 
 
 @pytest.mark.parametrize("index", range(2))
-def test_pending_g0(index):
-    # Becomes the eligible assertion when the D3 re-registration moves TABLE_HASH and its mirrors.
+def test_failed_ordinary_successor_passes_g0_with_the_current_table_pins(index):
+    # Ruling (6): TABLE_HASH follows the reviewed current table bytes, so the full verifier
+    # (G0 first) gives the same eligible reading as the gates below G0.
     source, invocation = _cases()[index]
-    with pytest.raises(rp.RetainedPrecisionError) as error:
-        rp.validate_retained_precision(source, invocation)
-    assert (error.value.gate, error.value.code) == ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    result = rp.validate_retained_precision(source, invocation)
+    assert result["invocation_bound"] and result["numerical_eligible"]
+    assert result == _below_g0(source, invocation)
 
 
 @pytest.mark.parametrize("index", range(2))
