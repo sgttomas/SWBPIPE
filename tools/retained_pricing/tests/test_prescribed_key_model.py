@@ -69,7 +69,7 @@ def _audit_namespace():
     definitions=[node for node in ast.parse(code).body
                  if isinstance(node,ast.FunctionDef) and node.name in {'fnkey','site'}]
     exec(compile(ast.Module(body=definitions,type_ignores=[]),str(rulefile),'exec'),namespace)
-    exec(compile(code[code.index('# C7A1:'):],str(rulefile),'exec'),namespace)
+    exec(compile(code[code.index('# C7A1:'):code.index('# ---- The pressure-source join')],str(rulefile),'exec'),namespace)
     return namespace
 
 

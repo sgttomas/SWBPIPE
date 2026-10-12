@@ -11,7 +11,7 @@ LIB = "core/product_physics/src/lib.rs"
 CPP_FILE_PIN = "b54ebf46abd9290f284df00a55aca2622c8f46285dffcc965605bb82295751c3"
 CPP_PREFIX_PIN = "ea24eab4d5898581839a7e755374de943bb310513064c6d2b102c8ee1381bf71"
 PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
-LIB_PINS = {'solve_load_case_observed': '435591f55f5b186cb6296a221e746079cd84f0162d57a7235080f07622945284', 'exact_straight_summary_extrema': 'c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1'}
+LIB_PINS = {'solve_load_case_observed': 'a01de27aeb2fd5d156a185171de1bc27a5ff94e1aa512fa16b375c1341e706f2', 'exact_straight_summary_extrema': 'c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")
@@ -60,9 +60,7 @@ def inspect(snapshot):
         consumer = stream.read()
     for name, digest in LIB_PINS.items():
         body, _ = HELPERS["_indented_function"](consumer, name)
-        # The join's re-reviewed solve_load_case_observed (kd5_text_model.JOIN_REVIEWED)
-        # removes only the not-joined diagnostic call; no attempt/clone consumer moves.
-        if not HELPERS["accepted"](LIB, name, hashlib.sha256(body.encode()).hexdigest(), digest):
+        if hashlib.sha256(body.encode()).hexdigest() != digest:
             raise ValueError("KD5C6: attempt/clone consumer changed: " + name)
     sites = []
     tokens = {"format": "format!(", "to_string": ".to_string(", "into_text": ".into("}

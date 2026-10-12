@@ -666,3 +666,99 @@ if _os.path.exists(_os.path.join(_SNAP, _J7T)) and fnkey("attempted", PP_ + "lib
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("attempted", PP_ + "lib.rs"), fnkey("request", _J7T),
         O10 + "J2: `request` in `attempted.push(request, id)` is attempted's for-pattern binding `(&request, &id)`; "
         "j7_t4_consequences::request is a private fn of a #[cfg(test)] module, not nameable from lib.rs")]
+
+# J3 (test code): source_recovery/j7_rf_census.rs is the J7 RF census, a child module that source_recovery.rs declares only
+# under #[cfg(test)]; the template inventory's name filter does not see it as test code. Its format sites whose arguments
+# have no class (Debug of diagnostic-code vectors, findings and failures; census labels and the expected-file writer) are
+# sized 0 as O-10 J's multiplicity-0 sites: no site_zero, so the chain still computes each site's multiplicity and
+# o10_check.py fails the run if any is ever positive or no longer present.
+_J7C = PP_ + "source_recovery/j7_rf_census.rs"
+if _os.path.exists(_os.path.join(_SNAP, _J7C)):
+    if "#[cfg(test)]\n#[path = \"source_recovery/j7_rf_census.rs\"]\nmod j7_rf_census;" not in \
+            open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read():
+        raise SystemExit("J3: j7_rf_census is no longer a #[cfg(test)] module; re-review")
+    _J3W = (O10 + "J3 (test code, multiplicity 0): source_recovery.rs declares j7_rf_census only under #[cfg(test)]; "
+            "size 0 with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
+    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(site(_fn, _J7C, _t, row=_row), 0, _J3W) for _fn, _t, _row in (
+        ("actual", 'format!("normalization/admission: {:?}", blocking(&diagnostics))', None),
+        ("actual", '.ok_or_else(|| format!("model build: {:?}", blocking(&diagnostics)))?', None),
+        ("actual", 'return Err(format!("model build: {:?}", blocking(&diagnostics)));', None),
+        ("actual", 'format!("actual boundary: {:?}", boundary.findings)', None),
+        ("actual", 'format!("actual loads: {:?}", blocking(&diagnostics))', None),
+        ("method_row_holds", 'format!("spring:{node}:{ordinal}")', None),
+        ("leaf_diff", 'format!("{path}/{k}")', None),
+        ("method_value", 'format!("{:?}", f.helper_stage)', None),
+        ("method_value", 'format!("{:?}", f.error)', None),
+        ("public_value", 'format!("{}: {}", d["code"].as_str().unwrap(), d["message"].as_str().unwrap())', None),
+        ("census_entry", 'did not produce a selected response: {f:?}")', None),
+        ("j7_rf_census_expected_write", 'sha(INPUTS.as_bytes()), REFERENCES_SHA256, lines.join(",\\n")', "format!("))]
+    # Two of these sites also hold an identifier placeholder (`node`, `path`), so the chain still evaluates their format;
+    # their other arguments get honest classes (unused at multiplicity 0).
+    _j7c = open(_os.path.join(_SNAP, _J7C), encoding="utf-8").read()
+    if 'const REFERENCES_SHA256: &str = "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9";' not in _j7c:
+        raise SystemExit("J3: the census's pinned references.json changed; re-measure its longest reference key")
+    O10_ID_AUDIT = O10_ID_AUDIT + [
+        (site("method_row_holds", _J7C, 'format!("spring:{node}:{ordinal}")', full=True),
+         {"ordinal": {"bytes": 13, "source": O10 + "J3: a '.'-part of a reference key r[0] of references.json (sha 7b176dbb..., "
+                      "pinned and asserted by the census); its longest key is 13 B"}}),
+        (site("leaf_diff", _J7C, 'format!("{path}/{k}")', full=True),
+         {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
+                "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
+    ]
+
+# J4: the v3 formulation basis's first and selection limitations are `identity.to_string()` and `source.to_string()`,
+# each a whole &'static str chosen from literals in pressure_v3_formulation_basis_in (2 identity texts; 3 source texts by
+# `selected`). Each is bounded by its longest literal, read at the snapshot (the raw literal's length bounds the decoded one).
+_EA = PP_ + "exact_admission.rs"
+if fnkey("pressure_v3_formulation_basis_in", _EA):
+    _ea = open(_os.path.join(_SNAP, _EA), encoding="utf-8").read()
+    def _j4_literals(start, count):
+        i = _ea.index(start); j = _ea.index("\n    };", i)
+        lits = _re.findall(r'"((?:[^"\\]|\\.)*)"', _ea[i:j])
+        if len(lits) != count or _ea.count(start) != 1:
+            raise SystemExit(f"J4: {start!r} no longer selects exactly {count} literals; re-review")
+        return max(len(l.encode()) for l in lits)
+    _J4I, _J4S = _j4_literals("let identity = if selected == Some(true) {", 2), _j4_literals("let source = match selected {", 3)
+    O10_ID_AUDIT = O10_ID_AUDIT + [
+        (site("pressure_v3_formulation_basis_in", _EA, "identity.to_string(),", full=True),
+         {"identity": {"bytes": _J4I, "source": O10 + "J4: the longer of the two static identity literals"}}),
+        (site("pressure_v3_formulation_basis_in", _EA, "source.to_string(),", full=True),
+         {"source": {"bytes": _J4S, "source": O10 + "J4: the longest of the three static source-selection literals"}}),
+    ]
+
+# J5: validate_physics_evidence_in calls load_reference::prepass only under `if resolved`, where `resolved = composite &&
+# contract == PressureContract::PressureV3 && ...`. The one call passing composite = true is physics_source::validate_in
+# (physics_source.rs), which is unreached on both routes (its only reached caller's edge, for_source -> validate_in, is J1's
+# zero; G4 (T17) for its PhysicsV2 sibling). Every other call passes composite = false (physics_evidence.rs
+# validate_physics_evidence and validate_pressure_evidence, load_reference.rs validate), so the edge is never taken.
+_PE = RE_ + "physics_evidence.rs"
+if fnkey("validate_physics_evidence_in", _PE) and fnkey("prepass", RE_ + "load_reference.rs"):
+    _pe_txt = open(_os.path.join(_SNAP, _PE), encoding="utf-8").read()
+    if not _re.search(r"let resolved = composite && contract == PressureContract::PressureV3\s*\n\s*&& evidence\.get\(\"load_reference_states\"\)\.is_some\(\);\s*\n\s*if resolved \{\s*\n(\s*//[^\n]*\n)*\s*crate::load_reference::prepass\(", _pe_txt) \
+            or _pe_txt.count("crate::load_reference::prepass(") != 1:
+        raise SystemExit("J5: validate_physics_evidence_in's prepass call is no longer only under `resolved`; re-review")
+    _j5_calls = []
+    for _d, _, _fs in _os.walk(_os.path.join(_SNAP, RE_)):
+        for _f in sorted(_fs):
+            if _f.endswith(".rs"):
+                _src = open(_os.path.join(_d, _f), encoding="utf-8").read()
+                _j5_calls += [(_f, _m) for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
+    if sorted((_f, _m[1]) for _f, _m in _j5_calls) != [("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
+                                                       ("physics_evidence.rs", "false"), ("physics_source.rs", "true")]:
+        raise SystemExit(f"J5: validate_physics_evidence_in's call inventory changed; re-review: {_j5_calls}")
+    site("validate_in", RE_ + "physics_source.rs", "crate::physics_evidence::validate_physics_evidence_in(source, true, contract.pressure())?;")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate_physics_evidence_in", _PE), fnkey("prepass", RE_ + "load_reference.rs"),
+        O10 + "J5: prepass is called only when resolved (composite && PressureV3 && load_reference_states); the only composite "
+        "caller is physics_source::validate_in, unreached on both routes (J1; G4 (T17)); every reached caller passes composite = false")]
+
+# J6: the join moved shape_in's body, unchanged but for an explicit `resources` list consulted for a non-local `$ref`, into
+# shape_in_resources; shape_in now only delegates with no resources. The registered review of shape_in's bounded self-
+# recursion (loop_bounds recursion_reviewed: multiplicity 0 on D1, the source-block shape check is not on the D1 path; text
+# only on its error path) applies to the function that now recurses. Its callers on the graph are shape_in (whose D1 reach
+# was only through prepass, J5) and physics_source's receipt and transport-metadata checks (unreached).
+_SBK = RE_ + "source_blocks.rs"
+if fnkey("shape_in_resources", _SBK):
+    site("shape_in", _SBK, "shape_in_resources(v, s, root, &[])")
+    site("shape_in_resources", _SBK, ".is_some_and(|target| shape_in_resources(v, target, target_root, resources));")
+    O10_RECURSION_REVIEWED = [(fnkey("shape_in_resources", _SBK), "J6: shape_in's reviewed recursion moved here with its body; "
+        "multiplicity 0 on D1 (the source-block shape check is not on the D1 path; J5); text only on its error path")]

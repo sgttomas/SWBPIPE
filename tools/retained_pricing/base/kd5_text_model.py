@@ -7,32 +7,19 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '435591f55f5b186cb6296a221e746079cd84f0162d57a7235080f07622945284'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'a01de27aeb2fd5d156a185171de1bc27a5ff94e1aa512fa16b375c1341e706f2'}}
 
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'ea24eab4d5898581839a7e755374de943bb310513064c6d2b102c8ee1381bf71', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab2a378f57eb1922c84ab006f9d58f04bf5c37c3b553bed0f6fc910cf507e034', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'ea24eab4d5898581839a7e755374de943bb310513064c6d2b102c8ee1381bf71', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ae7855ec7bd9432018b09be40f25281f0bd13254e966eb51e232444592cbb483', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
-# Join re-reviewed alternatives (the pressure-source join merged with K-D5). Each
-# differs from its K-D5-reviewed pin only as stated; the K-D5 value stays
-# accepted so the registered revision still prices. Keys: (file, function or
-# None for the file-level pin).
-JOIN_REVIEWED = {
-    # Production prefix: only the four norm2/norm3 call paths, crate::correct_norm
-    # -> the shared open_pipe_stress_correct_norm crate (the same functions).
-    ("core/solver/frame_kernel/src/structural/certified_recovery.rs", None):
-        "ae7855ec7bd9432018b09be40f25281f0bd13254e966eb51e232444592cbb483",
-    # Only the removed not-joined diagnostic call; route strings, record labels
-    # and attempt/clone consumers are unchanged.
-    ("core/product_physics/src/lib.rs", "solve_load_case_observed"):
-        "afa68f9aca96d5df206e0367776520e933777ceda87cb30a377029e6139cce52",
-    # Non-test source: only the removed `#[path]` correct_norm module; the closed
-    # StressFinding subject producer and its one copy site are unchanged.
-    ("core/loads/stress_recovery/src/lib.rs", None):
-        "7df37b7604d7f201a265a2d4d6d0772c8e31b757ff1130d17ce8a17df70b87ff",
-}
-
-def accepted(file, name, actual, pinned):
-    """The K-D5-reviewed digest, or the join's re-reviewed alternative for that key."""
-    return actual == pinned or JOIN_REVIEWED.get((file, name)) == actual
+# The pressure-source join (on batch 4) re-reviewed three pins against
+# batch 4's bytes (retained-pricing-rules.md §J, JP1): certified_recovery.rs's
+# production prefix differs only in its four norm2/norm3 call paths
+# (crate::correct_norm -> open_pipe_stress_correct_norm, the same functions);
+# solve_load_case_observed only in the removed not-joined diagnostic call
+# (route strings, record labels and attempt/clone consumers unchanged); and
+# stress_recovery's non-test source only in the removed `#[path]` correct_norm
+# module (the closed StressFinding subject producer and its one copy site are
+# unchanged).
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -56,14 +43,14 @@ def inspect(snapshot):
     for file, digest in PRODUCTION_PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read().split("#[cfg(test)]", 1)[0]
-        if not accepted(file, None, hashlib.sha256(source.encode()).hexdigest(), digest):
+        if hashlib.sha256(source.encode()).hexdigest() != digest:
             raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
     for file, functions in PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read()
         for name, digest in functions.items():
             body = function_body(source, name)
-            if not accepted(file, name, hashlib.sha256(body.encode()).hexdigest(), digest):
+            if hashlib.sha256(body.encode()).hexdigest() != digest:
                 raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
             bodies[name] = body
     constructors = ("member_record", "support_record", "unavailable_record", "connector_record")
@@ -104,7 +91,7 @@ def inspect(snapshot):
 
 # KD5T3: this is one closed private constructor's allocation site, not
 # a type-wide claim about the public StressFinding.subject_id field.
-STRESS_SUBJECT_SOURCE_PIN = "4526e43a3dca37a265516ad5556a07efb9f25693fca6ee8e065a8211637c47c1"
+STRESS_SUBJECT_SOURCE_PIN = "7df37b7604d7f201a265a2d4d6d0772c8e31b757ff1130d17ce8a17df70b87ff"
 STRESS_SUBJECTS = ("analysis_status", "area", "axial_force", "axial_normal_range",
     "bending_moment_y", "bending_moment_z", "bending_normal_y_range", "bending_normal_z_range",
     "first_state", "second_state", "section_modulus_y", "section_modulus_z",
@@ -114,7 +101,7 @@ def inspect_stress_subjects(snapshot):
     file = "core/loads/stress_recovery/src/lib.rs"
     with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
         source = stream.read().split("#[cfg(test)]", 1)[0]
-    if not accepted(file, None, hashlib.sha256(source.encode()).hexdigest(), STRESS_SUBJECT_SOURCE_PIN):
+    if hashlib.sha256(source.encode()).hexdigest() != STRESS_SUBJECT_SOURCE_PIN:
         raise ValueError("KD5T3: stress subject producer/forwarding source changed; re-review the closed caller inventory")
     sites = [i + 1 for i, line in enumerate(source.splitlines()) if "subject_id: subject_id.into()," in line]
     if len(sites) != 1:
@@ -185,7 +172,6 @@ FALLBACK_OUTSIDE_CALLERS = (
     # result), whose own `Exact::mul` is called; never FallbackError::mul.
     ("source_recovery/j7_rf_census.rs", "method_row_holds", ("mul",), "0b2cf6a2031afa16a70e0842301a52b87b88cdcf60c61a5dc83b1f0788d407b8"),
 )
-JOIN_ONLY_CALLER_FILES = {"source_recovery/j7_rf_census.rs"}
 # KD5C5b (T4 batch 4, U2 H-2): the realized-arc pressure callers. Their
 # receivers are FK's CertifiedRow (`wall_row.divided`) and Scaled
 # (`fluid.mul`, `Scaled::from_f64(..).mul`), never the private FallbackError.
@@ -220,7 +206,8 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError(f"KD5C5: private method/body changed: {name}")
         targets[name] = f"{file}:{line}:{name}"
     inventory = []
-    callers, expected = FALLBACK_OUTSIDE_CALLERS, 17
+    # 17 K-D5 pairs and the join's J7 census caller.
+    callers, expected = FALLBACK_OUTSIDE_CALLERS, 18
     bend_pressure = os.path.join(snapshot, "core/product_physics/src/bend_pressure.rs")
     if os.path.exists(bend_pressure):
         with open(bend_pressure, encoding="utf-8") as stream:
@@ -228,12 +215,6 @@ def inspect_fallback_boundary(snapshot):
                 callers, expected = callers + FALLBACK_OUTSIDE_CALLERS_U2, expected + len(FALLBACK_OUTSIDE_CALLERS_U2)
     for relative, name, methods, digest in callers:
         caller_file = "core/product_physics/src/" + relative
-        if relative in JOIN_ONLY_CALLER_FILES:
-            # A join-only caller is bound only where the join's file exists; a
-            # K-D5 snapshot keeps its exact original 17-pair inventory.
-            if not os.path.exists(os.path.join(snapshot, caller_file)):
-                continue
-            expected += len(methods)
         with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
             text = stream.read()
         body, line = _indented_function(text, name)
