@@ -7,9 +7,9 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': '5a16ba3e4680f456ec998edbad20ef80a7fdf3edb0c85665bafac61dfb0c19b0', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '4b96ef49a3ab5494bc79c3425adaf5b67e1fe072a1043653ba040c37f15871db'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '435591f55f5b186cb6296a221e746079cd84f0162d57a7235080f07622945284'}}
 
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab2a378f57eb1922c84ab006f9d58f04bf5c37c3b553bed0f6fc910cf507e034', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'ea24eab4d5898581839a7e755374de943bb310513064c6d2b102c8ee1381bf71', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab2a378f57eb1922c84ab006f9d58f04bf5c37c3b553bed0f6fc910cf507e034', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -158,6 +158,14 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("pressure_exact/source_geometry.rs", "surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
     ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
 )
+# KD5C5b (T4 batch 4, U2 H-2): the realized-arc pressure callers. Their
+# receivers are FK's CertifiedRow (`wall_row.divided`) and Scaled
+# (`fluid.mul`, `Scaled::from_f64(..).mul`), never the private FallbackError.
+# Only a snapshot whose bend_pressure.rs defines the arc pressure rows has them.
+FALLBACK_OUTSIDE_CALLERS_U2 = (
+    ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "bbd3035a888811f15632e2c6bdaf72ba3ec2fcacecd33c1d07920a44f36cb280"),
+    ("pressure_exact/source_geometry.rs", "arc_pressure_strain", ("mul",), "db9c1caeb47d37a3864bfb926a41cc37c6a6a713ae1c7c99b3d823fdb30ffd4a"),
+)
 
 def _indented_function(text, name):
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -184,7 +192,13 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError(f"KD5C5: private method/body changed: {name}")
         targets[name] = f"{file}:{line}:{name}"
     inventory = []
-    for relative, name, methods, digest in FALLBACK_OUTSIDE_CALLERS:
+    callers, expected = FALLBACK_OUTSIDE_CALLERS, 17
+    bend_pressure = os.path.join(snapshot, "core/product_physics/src/bend_pressure.rs")
+    if os.path.exists(bend_pressure):
+        with open(bend_pressure, encoding="utf-8") as stream:
+            if re.search(r"^pub\(super\) fn append_arc_pressure_results\(", stream.read(), re.M):
+                callers, expected = callers + FALLBACK_OUTSIDE_CALLERS_U2, expected + len(FALLBACK_OUTSIDE_CALLERS_U2)
+    for relative, name, methods, digest in callers:
         caller_file = "core/product_physics/src/" + relative
         with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
             text = stream.read()
@@ -195,6 +209,6 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError("KD5C5: an inside-owner caller cannot be excluded")
         inventory.extend({"caller": f"{caller_file}:{line}:{name}", "name": method,
                           "exclude_targets": [targets[method]]} for method in methods)
-    if len(inventory) != 17 or len({(r["caller"], r["name"]) for r in inventory}) != 17:
+    if len(inventory) != expected or len({(r["caller"], r["name"]) for r in inventory}) != expected:
         raise ValueError("KD5C5: exact outside caller/method inventory changed")
     return inventory
