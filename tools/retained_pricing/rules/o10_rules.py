@@ -492,3 +492,29 @@ if fnkey("append_stress_mpa", _CP):
         (site("recovery_finding", _FG, '"{}.{}.{}: member comparison unavailable', full=True, row="format!("), {"record.member": IN}),
     ]
     O10_ARGS_FIRST += [{"re": "^located$", "max": 128, "why": "KD5A7: endpoint/station location rewrites preserve caller's fixed≤128-B token"}]
+
+# C7A1: move only the five replaced owned-key audit lines to source-bound
+# name keys. Borrowed input metadata is resolved without an allocation row.
+import runpy as _c7_audit_runpy
+_c7_audit_model = _c7_audit_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "prescribed_key_model.py"))
+_c7_audit_borrowed = _c7_audit_model["borrowed"](_SNAP)
+_c7_audit_file = RE_ + "retained_precision.rs"
+_c7_audit_sites = [
+    ("numeric_owner", "prescribed.insert((text(&n[\"id\"]).into(), text(&d[\"dof\"][\"component\"]).into()));",
+     "prescribed.insert((text(&n[\"id\"]), text(&d[\"dof\"][\"component\"])));",
+     {"text(&d[\"\"][\"\"])": {"bytes": 128, "source": "IN128"}, "text(&n[\"\"])": {"bytes": 128, "source": "IN128"}}),
+    ("numeric_owner", "prescribed.contains(&(text(&r[\"entity_ref\"]).into(), c.into()))",
+     "prescribed.contains(&(text(&r[\"entity_ref\"]), c))",
+     {"text(&r[\"\"])": {"bytes": 1024, "source": "RES"}}),
+    ("g5c", "text(&d[\"node_id\"]).to_string(),", "text(&d[\"node_id\"]),",
+     {"text(&d[\"\"])": {"bytes": 128, "source": "IN128"}}),
+    ("g5c", "text(&d[\"component\"]).to_string(),", "text(&d[\"component\"]),",
+     {"text(&d[\"\"])": {"bytes": 128, "source": "STATIC"}}),
+    ("g5c", ".contains(&(text(&row[\"entity_ref\"]).into(), d.into()))",
+     ".contains(&(text(&row[\"entity_ref\"]), d))",
+     {"text(&row[\"\"])": {"bytes": 1024, "source": "RES"}}),
+]
+C7_INPUT_METADATA = [(site(_name, _c7_audit_file, _borrowed if _c7_audit_borrowed else _owned, full=True), _audit)
+                     for _name, _owned, _borrowed, _audit in _c7_audit_sites]
+if not _c7_audit_borrowed:
+    O10_ID_AUDIT += C7_INPUT_METADATA

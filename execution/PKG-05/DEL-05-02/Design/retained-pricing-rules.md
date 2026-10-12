@@ -635,3 +635,17 @@ not a node-size subtraction from the existing648B owned-key atom. The private
 NumericCase field-sum is SourceUpper, with the isolated168B witness. Current
 source still requires independent proposal scrutiny and immutable full pricing
 and fresh native confirmation before any registration.
+
+C7A1 migrates exactly the five replaced basis audit keys3635/3644/4329/4330/4346
+from text_args.g4.json to function-qualified O10_ID_AUDIT sites. The reviewed
+owned/borrowed source distinction selects exact constructor/query text under
+the existing owner/count pins. Both representations retain original IN128
+constraint/selection node IDs, STATIC128 selection components and RES1024
+result entity IDs. Current borrowed lines resolve these same source-bound
+input metadata definitions, without placing nonallocating sites in the G6
+allocation id_audit inventory. Only exact pinned owned syntax emits the five
+allocation audits. Actual template/LEX inventory and the unchanged G6 consumer
+check this distinction; no fake allocation or zero rule is added. This migration
+changes no multiplicity, visit,
+byte class, source backing, arithmetic or positive owner. Known-owned audit
+tables remain equivalent; line replacement is neither deletion nor a zero rule.

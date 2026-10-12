@@ -1,5 +1,5 @@
 """C7 scoped source and positive-owner proposal controls; no run-artifact inputs."""
-import ast, hashlib, os, runpy
+import ast, collections, hashlib, json, os, re, runpy, subprocess, sys
 from pathlib import Path
 import pytest
 
@@ -59,3 +59,77 @@ def test_existing_sets_and_global_ownership_not_changed():
     assert '"s((String,String))": sz("(String, String)")' in native
     assert '"Node((String,String),())": node("(String, String)", "()")' in native
     ast.parse(native)
+
+
+def _audit_namespace():
+    rulefile=PRICING/'rules/o10_rules.py'
+    code=rulefile.read_text()
+    namespace={'_os':os,'_re':re,'_SNAP':str(SOURCE),'__file__':str(rulefile),
+               'Resolved':str,'RE_':'core/reporting/result_export/src/','O10_ID_AUDIT':[]}
+    definitions=[node for node in ast.parse(code).body
+                 if isinstance(node,ast.FunctionDef) and node.name in {'fnkey','site'}]
+    exec(compile(ast.Module(body=definitions,type_ignores=[]),str(rulefile),'exec'),namespace)
+    exec(compile(code[code.index('# C7A1:'):],str(rulefile),'exec'),namespace)
+    return namespace
+
+
+def test_five_replaced_audits_resolve_with_original_classes():
+    namespace=_audit_namespace()
+    audits=namespace['C7_INPUT_METADATA']
+    assert namespace['O10_ID_AUDIT']==([] if MODEL['borrowed'](SOURCE) else audits)
+    assert len(audits)==5 and len({key for key,_ in audits})==5
+    assert [audit for _,audit in audits]==[
+      {'text(&d[""][""])':{'bytes':128,'source':'IN128'},'text(&n[""])':{'bytes':128,'source':'IN128'}},
+      {'text(&r[""])':{'bytes':1024,'source':'RES'}},
+      {'text(&d[""])':{'bytes':128,'source':'IN128'}},
+      {'text(&d[""])':{'bytes':128,'source':'STATIC'}},
+      {'text(&row[""])':{'bytes':1024,'source':'RES'}}]
+    source=(SOURCE/MODEL['FILE']).read_text().splitlines()
+    for (key,_),(name,owned,borrowed,_) in zip(audits,namespace['_c7_audit_sites']):
+        file,line=key.rsplit(':',1)
+        assert file==MODEL['FILE']
+        assert (borrowed if MODEL['borrowed'](SOURCE) else owned) in source[int(line)-1]
+        body,_=MODEL['HELPERS']['_indented_function'](chr(10).join(source),name)
+        assert source[int(line)-1] in body
+    base=json.loads((PRICING/'base/text_args.g4.json').read_text())
+    assert all(MODEL['FILE']+':'+str(n) not in base['id_audit'] for n in (3635,3644,4329,4330,4346))
+
+
+def test_actual_g6_allocation_inventory_accepts_the_disposition(tmp_path):
+    source=(SOURCE/MODEL['FILE']).read_text()
+    graph={'edges':{},'spans':{}}
+    for name in ('numeric_owner','g5c'):
+        body,line=MODEL['HELPERS']['_indented_function'](source,name)
+        key=MODEL['FILE']+':'+str(line)+':'+name
+        graph['edges'][key]=[]
+        start=source.index(body)
+        graph['spans'][key]=[MODEL['FILE'],start,start+len(body)]
+    edges=tmp_path/'edges.json';edges.write_text(json.dumps(graph))
+    lex=tmp_path/'lexicon.json'
+    subprocess.run([sys.executable,str(PRICING/'base/text_lexicon.py'),str(SOURCE),
+                    str(edges),','.join(graph['edges']),str(lex)],check=True,capture_output=True,text=True)
+    inv=json.loads(subprocess.check_output([sys.executable,str(PRICING/'base/template_inventory.py'),
+                    '.',MODEL['FILE']],cwd=SOURCE,text=True))
+    lexical=json.loads(lex.read_text())['rows']
+    consumer=(PRICING/'base/text_budget.py').read_text()
+    functions=[node for node in ast.parse(consumer).body
+               if isinstance(node,ast.FunctionDef) and node.name in {'short','audit_key'}]
+    begin=consumer.index('# G6 repair (RV87 SF-2): a site-keyed')
+    end=consumer.index('# G7: a cycle',begin)
+    def check(audits):
+        ns={'re':re,'collections':collections,'inv':inv,'LEX':lexical,
+            'TA':{'id_audit':dict(audits)},'ID_AUDIT':dict(audits),
+            'unclassified':collections.defaultdict(int)}
+        exec(compile(ast.Module(body=functions,type_ignores=[]),'actual G6 functions','exec'),ns)
+        exec(compile(consumer[begin:end],'actual G6 inventory consumer','exec'),ns)
+        return dict(ns['unclassified'])
+    namespace=_audit_namespace()
+    assert check(namespace['O10_ID_AUDIT'])=={}
+    if MODEL['borrowed'](SOURCE):
+        # The previously proposed allocation rows are positively rejected by
+        # the actual consumer and actual source inventories, not hidden by zero.
+        stale=check(namespace['C7_INPUT_METADATA'])
+        assert sum(v for (kind,_),v in stale.items() if kind=='stale-key')==5
+        assert sum(v for (kind,_),v in stale.items() if kind=='stale-audit-entry')==6
+    else:
+        assert len(namespace['O10_ID_AUDIT'])==5
