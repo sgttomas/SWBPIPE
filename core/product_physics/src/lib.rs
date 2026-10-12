@@ -4135,9 +4135,17 @@ fn case_force_ledger(
     ledger
 }
 
-/// The retained-source replay's case force (S11 section 4.5): the same live
-/// producer functions as `solve_load_case` (nodal loads, then T1's eigen
-/// equivalents), through the ledger. Retained scope admits no other producer.
+/// The retained-source replay's case force (S11 section 4.5), through the
+/// ledger: nodal loads, then T1's eigen equivalents by the live
+/// `add_thermal_equivalent_loads`. The live ledger's nodal producer is
+/// `certified_loads::nodal` (K-D5, DEL-04-01 kd5-member-relative-bound.md
+/// §1), which pushes the same value per load: a plain input term for an
+/// unscaled authored load, and for a load-source-factored load a formed
+/// RoundedProduct term carrying its closure summand. The replay uses
+/// `push_nodal_loads`, which pushes every nodal load as a plain term with no
+/// closure metadata, so its values agree bit for bit with the live ledger's
+/// while it never feeds K-D5's closure. Retained scope admits no other
+/// producer.
 pub(crate) fn nodal_and_eigen_case_force(
     application: &LoadApplication,
     eigen: &[ThermalElementLoad],

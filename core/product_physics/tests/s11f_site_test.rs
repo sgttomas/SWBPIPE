@@ -2,9 +2,11 @@
 //! rules 1-8; RV1-N1, RV1-N6 and the sparse_direct item).
 //!
 //! It reads the product facade (`PP`, `source_recovery`, `source_receipt` and
-//! its non-test submodules, `pressure_runtime`, `self_weight`), the kernel
-//! seams (`FK`, `SA`, `nonlinear_integration`, `sparse_direct/structural.rs`)
-//! and, for rule 8, `SP`, `CB` and `load_case_algebra`. Every check runs on
+//! its non-test submodules, `pressure_runtime`, `self_weight`, and K-D5's
+//! `certified_loads` and `certified_publication`), the kernel seams (`FK`,
+//! including K-D5's `formation_check` and `certified_recovery`, `SA`,
+//! `nonlinear_integration`, `sparse_direct/structural.rs`) and, for rule 8,
+//! `SP`, `CB` and `load_case_algebra`. Every check runs on
 //! lexed source (comments removed, string and char literal contents blanked)
 //! with `#[cfg(test)]` items blanked, so a commented or quoted call is not a
 //! call. Each allow-list and constant below is exact: an unlisted hit fails,
@@ -84,6 +86,17 @@ const PRODUCT: &[Source] = &[
         name: "PP/formation_guard.rs",
         text: include_str!("../src/formation_guard.rs"),
     },
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3, 6): the product's
+    // load-closure producers and its certified recovery publication. Appended
+    // so the indices above are unchanged.
+    Source {
+        name: "PP/certified_loads.rs",
+        text: include_str!("../src/certified_loads.rs"),
+    },
+    Source {
+        name: "PP/certified_publication.rs",
+        text: include_str!("../src/certified_publication.rs"),
+    },
 ];
 
 const KERNEL: &[Source] = &[
@@ -128,6 +141,13 @@ const KERNEL: &[Source] = &[
     Source {
         name: "FK/structural/sparse.rs",
         text: include_str!("../../solver/frame_kernel/src/structural/sparse.rs"),
+    },
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3, 6): the certified
+    // recovery at p reads the ledger's classification and re-forms the load
+    // primitives; appended so the indices above are unchanged.
+    Source {
+        name: "FK/structural/certified_recovery.rs",
+        text: include_str!("../../solver/frame_kernel/src/structural/certified_recovery.rs"),
     },
 ];
 
@@ -216,8 +236,10 @@ const FORBIDDEN_PRODUCT_CALLS: &[&str] = &[
     "AssemblyEvidence::solve(",
 ];
 
-/// Rule 5: the functions that push into a `LoadLedger` are exactly the
-/// section 4.2 producers (plus T1's retained-source fold check, section 4.5).
+/// Rule 5: the functions that write into a `LoadLedger` (a push, or K-D5's
+/// closure manifest and supplied primitives, directly or by forwarding a
+/// ledger parameter) are exactly the section 4.2 producers (plus T1's
+/// retained-source fold check, section 4.5, and K-D5's closure writers).
 const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "push_nodal_loads", "nodal loads: one term per load"),
     ("PP/lib.rs", "add_uniform_element_loads", "straight and curved uniform equivalents: one term per (load, DOF)"),
@@ -228,6 +250,12 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "add_connector_reference_loads", "T4-U3 (S13): each connector's +B^T K q_ref, one formed term per nonzero DOF"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
     ("PP/source_recovery.rs", "close_load_state", "T1 site (section 4.5): the retained eigen terms, the same terms the product pushes"),
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
+    // producer and the closure metadata writers. `push_nodal_loads` above now
+    // serves only the retained-source replay (`nodal_and_eigen_case_force`).
+    ("PP/certified_loads.rs", "nodal", "live nodal producer (`case_force_ledger`): an unscaled authored load is a plain input term; a load-source-factored load is a formed RoundedProduct term with its NodalProduct summand"),
+    ("PP/certified_loads.rs", "attach", "closure metadata (§1 complete summands): installs the term's source-enumerated manifest, then attaches the supplied primitives; pushes no term"),
+    ("PP/certified_loads.rs", "attach_last", "closure metadata: `attach` on the last pushed term (forwards its ledger)"),
 ];
 
 /// Rule 6: the functions of `FK`, `SA`, `nonlinear_integration` and
@@ -482,6 +510,101 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "force_scale_census",
         "K2b: reads each ledger term's exponent for the b-rule's census; read-only",
     ),
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1-3, 6): every function
+    // that forms a load at p, binds its closure, or recovers at p from the
+    // ledger's classification and primitives. None reads a folded ledger value
+    // (`rule_6b_kd5_takes_no_folded_ledger_value`).
+    (
+        "FK/load_ledger.rs",
+        "set_closure_manifest",
+        "K-D5 §1: stores a formed term's source-enumerated manifest; refuses an input term",
+    ),
+    (
+        "FK/load_ledger.rs",
+        "attach_load_primitive",
+        "K-D5 §1: stores one supplied primitive; the manifest comparison happens in FK's load_closure",
+    ),
+    ("FK/load_ledger.rs", "load_primitives", "K-D5: read-only accessor of the supplied primitives"),
+    ("FK/load_ledger.rs", "closure_records", "K-D5: read-only accessor of the trusted input/formed classification and manifests"),
+    (
+        "FK/structural/formation_check.rs",
+        "load_closure",
+        "K-D5 §1: compares each formed term's manifest with its supplied primitive multiset and bindings (terms and records read for classification and identity only); fails closed",
+    ),
+    (
+        "FK/structural/formation_check.rs",
+        "load_reformation",
+        "K-D5 §1: re-forms one primitive's 12 element rows at p from its binary64 operands (with its stack helpers uniform_straight_balls, curved_strain_balls and pressure_force, which take geometry and balls only); no ledger value",
+    ),
+    ("FK/structural/formation_check.rs", "intensity_reformation", "K-D5 §1: a uniform primitive's intensity at p"),
+    ("FK/structural/formation_check.rs", "intensity_balls", "K-D5 §1: authored, self-weight, product, seismic and wind intensities at p"),
+    ("FK/structural/formation_check.rs", "mass_reformation", "K-D5 §1: self-weight mass per length at p from the section's authored operands"),
+    ("FK/structural/formation_check.rs", "eigenstrain_reformation", "K-D5 §1: the resolved total eigenstrain at p from its thermal and fit primitives"),
+    ("FK/structural/formation_check.rs", "eigenstrain_is_exact_zero", "K-D5 §1 replaced-span source zero: raw exact-zero test of a primitive; read-only"),
+    ("FK/structural/formation_check.rs", "table_value", "K-D5 §1: a tabulated thermal measure at p"),
+    ("FK/structural/formation_check.rs", "table_integral", "K-D5 §1: a tabulated thermal integral at p"),
+    ("FK/structural/formation_check.rs", "closure_entry", "K-D5 §1: a primitive's identity and exact operand binding; read-only"),
+    ("FK/structural/formation_check.rs", "intensity_binding", "K-D5 §1: exact operand bits of an intensity; read-only"),
+    ("FK/structural/formation_check.rs", "mass_binding", "K-D5 §1: exact operand bits of a mass primitive; read-only"),
+    ("FK/structural/formation_check.rs", "points_binding", "K-D5 §1: exact operand bits of a thermal table; read-only"),
+    ("FK/structural/formation_check.rs", "strain_binding", "K-D5 §1: exact operand bits of an eigenstrain; read-only"),
+    (
+        "FK/structural/certified_recovery.rs",
+        "from_primitives",
+        "K-D5 §3.1: unqualified member-load constructor (delegates to from_member_primitives)",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "from_member_primitives",
+        "K-D5 §3.1: the member's intended end loads, each primitive re-formed at p and added to its row's exact sum",
+    ),
+    ("FK/structural/certified_recovery.rs", "member_pair", "K-D5 §3.1: a primitive's member nodes; read-only"),
+    ("FK/structural/certified_recovery.rs", "uniform_loads", "K-D5 §3.1: each uniform primitive's intensity re-formed at p for the station transfer"),
+    ("FK/structural/certified_recovery.rs", "local_loads", "K-D5 §3.1: the member's intended end loads in its chord frame"),
+    ("FK/structural/certified_recovery.rs", "straight_context", "K-D5 §3.1: straight recovery context (K_int,m and the chord-frame loads)"),
+    ("FK/structural/certified_recovery.rs", "straight_section_rows", "K-D5 §3.1: section rows at p; each load contribution is its own exact addend"),
+    ("FK/structural/certified_recovery.rs", "straight_section_evaluation_envelopes", "K-D5 §3.2: positive majorant of the section recipe's evaluation error"),
+    ("FK/structural/certified_recovery.rs", "certify_straight_recovery", "K-D5 §3.1: straight end and station rows at u + w + w2"),
+    ("FK/structural/certified_recovery.rs", "certify_straight_section", "K-D5 §3.1: one straight section by the same recipe"),
+    ("FK/structural/certified_recovery.rs", "certify_straight_stress_spans", "K-D5 §3.2: Bernstein stress controls from the certified recovery and the raw uniform primitives"),
+    ("FK/structural/certified_recovery.rs", "certify_arc_recovery", "K-D5 §3.1: arc end and station rows through K_int,arc"),
+    ("FK/structural/certified_recovery.rs", "certify_connector_recovery", "K-D5 §3.1: connector rows through connector_matrix"),
+    (
+        "FK/structural/certified_recovery.rs",
+        "certify_support_reaction",
+        "K-D5 §3.2: restrained reaction K_int,r (u + w + w2) - f_int,r; a formed term enters as its re-formed primitives, an input term as its exact binary64 value (term.accumulate), each its own exact addend",
+    ),
+    (
+        "SA/structural_adapter.rs",
+        "solve_assembled_with_formation_check",
+        "K-D5 §1: attaches the ledger's supplied primitives to FormationSource::loads; read-only",
+    ),
+    (
+        "SA/structural_adapter.rs",
+        "solve_force_scaled_with_formation_check",
+        "K-D5 §2.2: the W2 entry; attaches the primitives (rescaled with their terms by force_scaled) to FormationSource::loads; read-only",
+    ),
+    ("PP/certified_loads.rs", "constant_alpha", "K-D5 §1: a constant-alpha eigenstrain primitive from its authored operands"),
+    ("PP/certified_loads.rs", "eigenstrain", "K-D5 §1: the resolved eigenstrain primitive from the case's thermal and fit inputs"),
+    ("PP/certified_loads.rs", "member_eigenstrain", "K-D5 §1: binds a natural-length fit to its member's raw geometry"),
+    ("PP/certified_loads.rs", "intensity", "K-D5 §1: a uniform load's intensity primitive (authored, source-factored or generated)"),
+    ("PP/certified_loads.rs", "mass", "K-D5 §1: self-weight mass primitive from the section's authored operands"),
+    ("PP/certified_loads.rs", "summand", "K-D5 §1: one source-enumerated summand identity and formula"),
+    (
+        "PP/certified_publication.rs",
+        "source",
+        "K-D5 §3: the recovery's FormationSource, with the ledger's supplied primitives; read-only",
+    ),
+    (
+        "PP/certified_publication.rs",
+        "member",
+        "K-D5 §3.1: one member's certified rows from its re-formed primitives; read-only",
+    ),
+    (
+        "PP/certified_publication.rs",
+        "straight_stress_spans",
+        "K-D5 §3.2: certified stress controls from the member's re-formed primitives; read-only",
+    ),
 ];
 const FORCE_TOKENS: &[&str] = &[
     ".force[",
@@ -493,6 +616,14 @@ const FORCE_TOKENS: &[&str] = &[
     "ForceRows::",
     "force_rows",
     "force.terms()",
+    // K-D5: the ledger bound under its own name, the closure metadata, the
+    // re-formation of a load at p and an input term's exact entry.
+    "ledger.values()",
+    "ledger.terms()",
+    ".closure_records()",
+    ".load_primitives()",
+    "load_reformation(",
+    "term.accumulate(",
 ];
 
 /// Rule 8 (R3-3, R3B-5, RV1-N1): every accumulation of the rule-8 shapes in
@@ -1037,15 +1168,78 @@ fn ledger_pushes(item: &Item) -> usize {
             receivers.insert(name);
         }
     }
+    let parameters = parameter_ledgers(sig);
     receivers
         .iter()
         .map(|r| {
-            calls(&item.body, &format!("{r}.push(")).count()
-                + calls(&item.body, &format!("{r}.push_product(")).count()
-                + calls(&item.body, &format!("{r}.push_formed(")).count()
-                + calls(&item.body, &format!("{r}.push_formed_product(")).count()
+            let direct: usize = LEDGER_WRITES
+                .iter()
+                .map(|w| calls(&item.body, &format!("{r}.{w}(")).count())
+                .sum();
+            // K-D5 (attach_last): a function handed a ledger that passes that
+            // ledger on, as a bare argument, writes into it through its callee.
+            // A locally created ledger handed to the producers is the case
+            // force's assembly, not a producer.
+            let forwarded = if parameters.contains(r) {
+                forwarded_receiver(&item.body, r)
+            } else {
+                0
+            };
+            direct + forwarded
         })
         .sum()
+}
+
+/// Every `&mut self` writer of `FK/load_ledger.rs`'s `LoadLedger`: the four
+/// pushes and K-D5's closure metadata (manifest and supplied primitives).
+const LEDGER_WRITES: &[&str] = &[
+    "push",
+    "push_product",
+    "push_formed",
+    "push_formed_product",
+    "set_closure_manifest",
+    "attach_load_primitive",
+];
+
+/// The `&mut LoadLedger` parameter names of a signature.
+fn parameter_ledgers(sig: &str) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
+    for (at, _) in sig.match_indices("&mut LoadLedger") {
+        let before = sig[..at].trim_end().trim_end_matches(':').trim_end();
+        let name: String = before
+            .chars()
+            .rev()
+            .take_while(|c| c.is_alphanumeric() || *c == '_')
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect();
+        if !name.is_empty() {
+            out.insert(name);
+        }
+    }
+    out
+}
+
+/// Bare uses of `receiver` as a call argument (`f(ledger, ...)`, `f(x,
+/// ledger)`, `&mut *ledger`), not as a method receiver.
+fn forwarded_receiver(body: &str, receiver: &str) -> usize {
+    calls(body, receiver)
+        .filter(|&at| {
+            let after = body[at + receiver.len()..].trim_start();
+            let before = body[..at].trim_end();
+            let before = before
+                .strip_suffix("&mut *")
+                .or_else(|| before.strip_suffix("&mut"))
+                .unwrap_or(before)
+                .trim_end();
+            let ident_end = !body[at + receiver.len()..]
+                .starts_with(|c: char| c.is_alphanumeric() || c == '_');
+            ident_end
+                && (before.ends_with('(') || before.ends_with(','))
+                && (after.starts_with(',') || after.starts_with(')'))
+        })
+        .count()
 }
 
 fn all_sources() -> impl Iterator<Item = &'static Source> {
@@ -1176,7 +1370,13 @@ fn rule_5_the_ledger_producers_are_exactly_the_section_4_2_list() {
         .iter()
         .map(|(f, n, _)| (f.to_string(), n.to_string()))
         .collect();
-    assert_eq!(actual, expected, "rule 5 producer list");
+    assert_eq!(
+        actual,
+        expected,
+        "rule 5 producer list; unlisted {:?}; stale {:?}",
+        actual.difference(&expected).collect::<Vec<_>>(),
+        expected.difference(&actual).collect::<Vec<_>>()
+    );
     // Section 4.2 granularity where the push kind matters (M5): the curved
     // thermal producer pushes exact products K_rc * fl(eps * chord_c), never
     // a pre-summed row value; the exact-pressure producer pushes each group
@@ -1194,12 +1394,43 @@ fn rule_5_the_ledger_producers_are_exactly_the_section_4_2_list() {
     assert!(!pressure.body.contains("assembled_loads"));
 }
 
+/// Rule 6 also reads K-D5's product-side load and recovery files (DEL-04-01
+/// kd5-member-relative-bound.md §6: every function that forms a load at p,
+/// and the recovery at p, is a force site).
+const RULE6_PRODUCT_FILES: &[&str] = &["PP/certified_loads.rs", "PP/certified_publication.rs"];
+
+/// Rule 6, K-D5: a function whose parameters or return type name a load
+/// primitive or its closure metadata forms, binds or re-forms a load at p
+/// even where its body names no ledger binding. (`AssembledForce` alone in a
+/// signature is a pass-through, judged by the body tokens above.)
+const FORCE_SIGNATURE_TOKENS: &[&str] = &[
+    "LoadPrimitive",
+    "LoadFormula",
+    "LoadClosure",
+    "IntensityPrimitive",
+    "MassPrimitive",
+    "EigenstrainPrimitive",
+    "ThermalPointPrimitive",
+    "CertifiedMemberLoads",
+    "CertifiedUniformLoad",
+];
+
+fn force_site(item: &Item) -> bool {
+    FORCE_TOKENS.iter().any(|t| item.body.contains(t))
+        || FORCE_SIGNATURE_TOKENS
+            .iter()
+            .any(|t| calls(&item.signature, t).next().is_some())
+}
+
 #[test]
 fn rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites() {
     let mut actual = BTreeSet::new();
-    for source in KERNEL {
+    let product = PRODUCT
+        .iter()
+        .filter(|s| RULE6_PRODUCT_FILES.contains(&s.name));
+    for source in KERNEL.iter().chain(product) {
         for item in items(&code_of(source.text)) {
-            if FORCE_TOKENS.iter().any(|t| item.body.contains(t)) {
+            if force_site(&item) {
                 actual.insert((source.name.to_string(), item.name));
             }
         }
@@ -1208,7 +1439,65 @@ fn rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites() {
         .iter()
         .map(|(f, n, _)| (f.to_string(), n.to_string()))
         .collect();
-    assert_eq!(actual, expected, "rule 6 force-function list");
+    assert_eq!(
+        actual,
+        expected,
+        "rule 6 force-function list; unlisted {:?}; stale {:?}",
+        actual.difference(&expected).collect::<Vec<_>>(),
+        expected.difference(&actual).collect::<Vec<_>>()
+    );
+}
+
+/// Rule 6b, K-D5 (DEL-04-01 kd5-member-relative-bound.md §1, "No ledger value
+/// of a formed load term enters any of them"): K-D5's residual, closure and
+/// recovery files never read the ledger's folded binary64 values. A formed
+/// term enters only as its re-formed primitives and an input term only as its
+/// own exact term (`term.accumulate`). Exact: no function may match.
+const KD5_FILES: &[&str] = &[
+    "FK/structural/formation_check.rs",
+    "FK/structural/certified_recovery.rs",
+    "PP/certified_loads.rs",
+    "PP/certified_publication.rs",
+];
+
+/// Folded-value reads: `values()`, an indexed or element read of a force or
+/// ledger, the `ForceRows` binding, or any `.force.` use other than its
+/// length.
+fn folded_value_reads(body: &str) -> usize {
+    let tokens = [
+        "values()",
+        ".force[",
+        "force.get(",
+        "ledger.get(",
+        "force.iter(",
+        "ledger.iter(",
+        "ForceRows",
+        "force_rows",
+    ];
+    tokens.iter().map(|t| body.matches(t).count()).sum::<usize>()
+        + body.matches(".force.").count()
+        - body.matches(".force.len()").count()
+}
+
+#[test]
+fn rule_6b_kd5_takes_no_folded_ledger_value() {
+    let mut hits = Vec::new();
+    for source in all_sources().filter(|s| KD5_FILES.contains(&s.name)) {
+        for item in items(&code_of(source.text)) {
+            if folded_value_reads(&item.body) > 0 {
+                hits.push(format!("{}: {}", source.name, item.name));
+            }
+        }
+    }
+    assert_eq!(
+        all_sources().filter(|s| KD5_FILES.contains(&s.name)).count(),
+        KD5_FILES.len()
+    );
+    assert!(
+        hits.is_empty(),
+        "K-D5 reads a folded ledger value:\n{}",
+        hits.join("\n")
+    );
 }
 
 /// sparse_direct (carried item): no typed sibling is needed. SA's typed
@@ -1322,6 +1611,24 @@ fn scanner_self_checks() {
     let found = items(&code);
     assert_eq!(ledger_pushes(&found[0]), 1);
     assert_eq!(ledger_pushes(&found[1]), 1);
+    // K-D5: closure writers count, a forwarded ledger parameter counts, and a
+    // local ledger handed to producers does not.
+    let code = code_of(
+        "fn g(ledger: &mut LoadLedger) { attach(ledger, ledger.term_count() - 1, s); }\nfn h(ledger: &mut LoadLedger) { ledger.set_closure_manifest(0, e); ledger.attach_load_primitive(p); }\nfn k() { let mut ledger = LoadLedger::new(); producer(&mut ledger, 1); ledger.finish(3) }",
+    );
+    let found = items(&code);
+    assert_eq!(ledger_pushes(&found[0]), 1);
+    assert_eq!(ledger_pushes(&found[1]), 2);
+    assert_eq!(ledger_pushes(&found[2]), 0);
+    // Rule 6: a load-primitive signature is a site; rule 6b sees folded reads
+    // but not a length.
+    let code = code_of(
+        "fn m(p: &LoadPrimitive) -> u8 { 0 }\nfn n(ledger: &AssembledForce) { let _ = ledger.values(); }\nfn o(system: &S) { let n = system.force.len(); }",
+    );
+    let found = items(&code);
+    assert!(force_site(&found[0]));
+    assert_eq!(folded_value_reads(&found[1].body), 1);
+    assert_eq!(folded_value_reads(&found[2].body), 0);
     // Rule 8 counts RV1-N1's self-assignment folds.
     let counts = scan(
         "fn f(a: &mut [f64], t: &[f64]) { a[0] = a[0] + t[0]; let b = checked_value(b - t[1])?; }",
@@ -1464,6 +1771,39 @@ fn t8_every_case_force_producer_is_classified() {
             }
         }
     }
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
+    // producer is mixed. An unscaled authored load is a plain input term; a
+    // load-source-factored load is a formed RoundedProduct term (not
+    // self-equilibrated) carrying its NodalProduct summand, and only that
+    // branch attaches closure metadata.
+    let certified = code_of(PRODUCT[11].text);
+    assert_eq!(PRODUCT[11].name, "PP/certified_loads.rs");
+    let nodal = items(&certified)
+        .into_iter()
+        .find(|i| i.name == "nodal")
+        .expect("certified_loads::nodal");
+    assert_eq!(calls(&nodal.body, "ledger.push(").count(), 1);
+    assert_eq!(calls(&nodal.body, "ledger.push_product(").count(), 0);
+    let formed = call_arguments(&nodal.body, "ledger.push_formed(");
+    assert_eq!(formed.len(), 1);
+    assert!(formed[0].contains("Formation::RoundedProduct"), "{}", formed[0]);
+    assert_eq!(last_argument(&formed[0]), "false");
+    assert!(nodal.body.contains("LoadFormula::NodalProduct"));
+    let factored = nodal.body.find("source_factor(").expect("factor branch");
+    let plain = nodal.body.find("ledger.push(").unwrap();
+    let else_at = nodal.body[factored..].find("} else {").map(|k| k + factored).unwrap();
+    assert!(nodal.body.find("ledger.push_formed(").unwrap() < else_at && else_at < plain);
+    assert!(nodal.body[..else_at].contains("attach_last("));
+    assert!(!nodal.body[else_at..].contains("attach"));
+    // The live ledger takes its nodal loads from it; `push_nodal_loads` (an
+    // input producer) remains only for the retained-source replay.
+    let ledger_body = &pp_items
+        .iter()
+        .find(|i| i.name == "case_force_ledger")
+        .unwrap()
+        .body;
+    assert!(ledger_body.contains("certified_loads::nodal("));
+    assert!(!ledger_body.contains("push_nodal_loads("));
     // Formed pushes occur nowhere else in the product or the kernel seams.
     let mut formed_sites = BTreeSet::new();
     for source in PRODUCT.iter().chain(KERNEL) {
@@ -1479,6 +1819,7 @@ fn t8_every_case_force_producer_is_classified() {
         .iter()
         .filter(|s| s.3.is_some())
         .map(|s| ("PP/lib.rs".to_string(), s.0.to_string()))
+        .chain([("PP/certified_loads.rs".to_string(), "nodal".to_string())])
         .collect();
     assert_eq!(formed_sites, expected, "formed push sites");
 }
