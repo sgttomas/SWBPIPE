@@ -5,51 +5,64 @@ status: current_index
 created: 2026-04-30
 ---
 
-# SWBPIPE Agentic Development Docs
+# SWBPIPE
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
-
-The central project stance is:
+SWBPIPE is a code-neutral piping design engine and stress-model authoring
+workbench. It computes open, auditable piping mechanics. The responsible
+engineer supplies the governing data and accepts engineering reliance.
 
 > **Open the mechanics; protect the standards; empower the engineer.**
 
-This package is written from the perspective of `SOFTWARE_DECOMP`: it converts the product intent and PRD into a structured, flat package/deliverable decomposition suitable for downstream agent execution.
+## Start here
 
-## Document map
+- [Development entry](loop/LOOP_INIT.md): current work, project fences and check selection.
+- [Documentation index](docs/README.md): product contracts, user/developer guides and validation references.
+- [Build and release instructions](docs/BUILD_AND_RELEASE.md): source setup, checks and packaging.
+- [Root agent instructions](../../AGENTS.md): shared repository roles and working conventions.
 
-| File | Role | Use |
-|---|---|---|
-| `INIT.md` | Bootstrap | Required reading order and agent startup constraints; maintained only at the repository root. |
-| `AGENTS.md` | Agent index | Project-specific use of Chirality agent roles. |
-| `INTENT.md` | Directional intent | Why this product exists and what must remain true. |
-| `PRD.md` | Product requirements | Product capabilities, users, non-goals, and release strategy. |
-| `DIRECTIVE.md` | Founding directive | Design philosophy, professional boundary, stop rules, and scope constraints. |
-| `TYPES.md` | Vocabulary and identity | Canonical terms, IDs, statuses, and software/piping domain types. |
-| `CONTRACT.md` | Invariant catalog | Binding project invariants for legal/data boundary, solver, rule packs, reports, and agents. |
-| `SPEC.md` | Technical specification | Architecture, schemas, solver mechanics, GUI, reports, V&V, and agentic execution mechanics. |
-| `IP_AND_DATA_BOUNDARY.md` | Data/IP policy | Public/private data rules, contributor certification, provenance, and quarantine policy. |
-| `VALIDATION_STRATEGY.md` | Verification and validation | Benchmark and release-quality strategy. |
-| `_Decomposition/SOFTWARE_DECOMP.md` | Working surface | SSOW, objectives, packages, deliverables, scope ledger summary, telemetry, open issues. |
-| `_Registers/ScopeLedger.csv` | Authoritative companion register | Machine-readable scope-to-package/deliverable mapping. |
-| `_Registers/Deliverables.csv` | Authoritative companion register | Machine-readable deliverable catalog. |
-| `_Registers/ContextBudgetQA.csv` | Authoritative companion register | Context-envelope and sizing audit. |
+Product commitments are in the [PRD](docs/PRD.md), its companions and the
+current deliverable contracts. Source development and passing checks do not
+establish an engineering approval or product release.
 
-## Status
+## Layout
 
-This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. SWBPIPE computes open, auditable piping mechanics.
+| Path | Contents |
+|---|---|
+| [core/](core/) | Engineering implementation in Python and Rust |
+| [apps/](apps/) | Application and authoring interfaces |
+| [api/](api/), [schemas/](schemas/) | Application boundaries and structured formats |
+| [tests/](tests/), [fixtures/](fixtures/) | Maintained tests and invented fixtures |
+| [validation/](validation/) | Numerical references and qualification support |
+| [tools/](tools/) | Build, checking and release-preparation tools |
+| [docs/](docs/) | Product basis, guides, theory and validation strategy |
+| [execution/](execution/) | ScopeOfWork, Design and dependency conditions |
 
-## How agents should use this package
+## Work on a deliverable
 
-1. Start from `init/dev-loop-init-prompt.md` → `loop/LOOP_INIT.md`, which binds the development loop to the shared workflows and manuals; `AGENTS.md` holds the project constraints and fences. `execution/_Coordination/_COORDINATION.md` remains the ruled-record surface (current target stage).
-2. Use `docs/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
-3. Use `docs/_Registers/*.csv` for machine-checkable mappings.
-4. Treat every deliverable as bounded: no agent may expand scope silently.
-5. Unknown values become `TBD`; suspected protected data is quarantined and escalated.
-6. Generated outputs remain drafts until a human accepts them at the appropriate gate.
+Enter through the [development loop](loop/LOOP_INIT.md) and locate the affected
+`execution/PKG-nn/DEL-nn-nn/` folder. `ScopeOfWork.md` states commitments and
+acceptance criteria, `Design/` holds technical detail, and `deliverable.yaml`
+states dependency conditions and code/check pointers.
 
-## Foundational references used to create this package
+From the Chirality repository root, query the relevant inputs and consumers:
 
-- Conversation intent captured in `INTENT.md`.
-- Product requirements captured in `PRD.md`.
-- Chirality bootstrap and agent framework examples supplied by the user.
-- M. W. Kellogg, *Design of Piping Systems* (1956), as a historical technical reference for classical piping flexibility analysis.
+```sh
+python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-nn-nn
+```
+
+Replace `DEL-nn-nn` with the affected deliverable ID. The
+[deliverables tool guide](../../tools/deliverables/README.md) covers impact,
+changed-path and dependency queries. Registered implementation checks are in
+[software-workflow.json](software-workflow.json); the loop and
+[CI strategy](docs/CI_STRATEGY.md) explain how to select them.
+
+Earlier decomposition registers, lifecycle procedures and agent-run records
+remain recoverable through Git and archive tags. Use current deliverable
+contracts for forward work.
+
+## License and professional boundaries
+
+See the [MIT License](LICENSE.md), [IP and data boundary](docs/IP_AND_DATA_BOUNDARY.md),
+[professional boundary](docs/PROFESSIONAL_BOUNDARY.md) and
+[validation strategy](docs/VALIDATION_STRATEGY.md). Product claims retain their
+stated scope and qualification limits.
