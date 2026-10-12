@@ -1,194 +1,163 @@
 # K-D5 on the converged active set (T4 nonlinear K-D5)
 
-Revision 0. This is the governing design for the T4 unit that the owner's steer names "nonlinear K-D5" ("T4: K-D5 option (d), then U2/O-13, nonlinear K-D5 and U4/U5/U6/U8."). It replaces the sketch in [kd5-member-relative-bound.md](kd5-member-relative-bound.md) §5 ("The next T4 unit: K-D5 on the converged active set"). It applies K-D5 and option (d) unchanged to the linear system that the nonlinear-support loop's converged state solves. It adds one decision: an **active-set certificate**. It changes no product code. The 1e-9 criterion, the 2^-34·S* floor and the 2^-988 guard are unchanged. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Revision 1. Revision 0 (9c150de821) is the governing design for the T4 unit that the owner's steer names "nonlinear K-D5" ("T4: K-D5 option (d), then U2/O-13, nonlinear K-D5 and U4/U5/U6/U8."); it replaced the sketch in [kd5-member-relative-bound.md](kd5-member-relative-bound.md) §5. Revision 1 applies HELP_HUMAN's rulings R1–R5 of 2026-10-12 and the T4 manager's rulings of the same day (see "The rulings"), folds in the independent design review of revision 0 (findings B1, I1–I5 and M1–M6), and fixes the implementation's choices: one shared confirmation factor, the influence solve as an unjudged K-D5 evaluation, the Stage-A ball published as a binary64 midpoint with a widened radius, k = 1 only, and the order of the named reasons. The 1e-9 criterion, the 2^-34·S* floor, the 2^-988 guard, the notice and the maximum declarations are unchanged. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-"Certified" has the meaning of kd5 §1: certified against this unit's intended system, under A1 (kd5 §2).
+"Certified" has the meaning of kd5 §1: certified against this unit's intended system, under A1 (kd5 §2). It is a technical term of this Design and of K-D5; product text does not use it (§3.3).
 
 **Result.**
 
-- **One intended system per converged state (§1).** The state is the loop's final support states. Active unilateral supports and sticking friction supports are prescribed rows; inactive supports are free rows with no term; sliding friction supports are free rows that carry a friction force.
-  - An explicit-normal sliding force is a formed load term, re-formed exactly at p.
-  - A derived-normal sliding force couples to a support reaction, so the system is the loop's affine Coulomb coupling. It is certified by a small exact correction (Stage A, §1.4). The loop's own coupling misses the friction law by 3.6e-10 (sparse) to 1.4e-9 (dense) of the force on the committed models (§5). That is at the criterion, so the loop's binary64 force is never published as certified.
-- **The confirmation attempt (§1.5).** One formation-checked factorization of the state's matrix supplies K-D5's factor, Λ and ε_E. K-D5 is then evaluated at the loop's own final displacement u, so published displacements are unchanged. The loop itself is unchanged (S11-K's `solve_binary64` stays).
-- **The active-set certificate (§2).** Every support's deciding quantity gets a certified ball from the same corrected displacement u + w + w₂: the contact reaction, the separation, the stick margin μN − |R_t|, the slip sign and the derived normal. Each must have the state's sign strictly, with the whole ball on that side. If all conditions hold, the exact solution of the state's intended system satisfies every contact and Coulomb condition strictly. The published state is then a solution of the intended contact problem with exactly that active set. Uniqueness is a model property for frictionless supports and is not claimed with friction (§2.3).
-- **Fail closed (§2.4).** Each failure is a named reason in one sentence. The case is `NUMERICAL_INTEGRITY_SENSITIVE`, and its rows stay today's binary64 loop rows.
-- **Publication (§3).** A Passed nonlinear case publishes (d)'s certified member, stress and support rows. It adds certified rows for the nonlinear supports, and the certified friction force. Displacements and loop-evidence rows are unchanged. The unified predicate, the notice and the maximum declarations apply unchanged.
-- **Gap supports (§1.2, R1).** The intended system and certificate cover gaps. Revision 0 keeps gap-bearing cases on their present `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` branches, byte for byte, until HELP_HUMAN rules on R1.
-- **W1 and pricing (§4).** Five independent refusals in code mean W1 and retained-source recovery never see a nonlinear case. The retained route's behaviour is unchanged. The static pricing chain reaches the nonlinear helper, so the TEXT chain and O-10 rules are re-run.
-- **Predicted moves (§5).** The 8 committed case-modes move from Sensitive to Passed, in 5 committed outputs (10 integrity diagnostics). The prediction rests on a probe in which the state's auxiliary symmetric system, run through today's linear producer, is Passed in both modes on both models. Other probe results:
-  - certified-margin quantities are 10^2 N and mm-scale;
-  - the coupling gain is |c·g| = 1.1e-3;
-  - the friction force row moves to the mode-independent coupled-law value (3.6e-10 sparse, 1.4e-9 dense, relative).
+- **One intended system per converged state (§1).** The state is the loop's final support states. Active unilateral supports and sticking friction supports are prescribed rows; inactive supports are free rows with no term; sliding friction supports with μ > 0 are free rows that carry a friction force. Translational and rotational one-way and lift-off supports are covered alike (moment family, separations in rad). Rotational friction is refused at validation.
+  - An explicit-normal sliding force is a formed load term, re-formed exactly at p as −dir·μ·|N|.
+  - A derived-normal sliding force couples to a base restraint's reaction. With one such support (k = 1) it is certified by a small exact correction (Stage A, §1.4). k > 1 fails closed by name.
+- **The confirmation attempt (§1.5).** Exactly one formation-checked factorization of the state's matrix after convergence (R2). Its gate, factor, scale exponents D, ε_E and Λ serve every K-D5 evaluation of the unit. K-D5 is evaluated at the loop's own final displacement u, so published displacements are unchanged. The loop is unchanged (S11-K's `solve_binary64` stays in every iteration).
+- **The active-set certificate (§2).** Every support's deciding quantity gets a certified ball from Stage B's corrected displacement u + w + w₂: the contact reaction, the separation, the stick margin μN − |R_t|, the slip sign and the derived normal. Each must have the state's sign strictly, with the whole ball on that side. Weakly active supports fail closed (R3).
+- **Fail closed (§2.4).** Each failure is a named reason, decided in a fixed order. The case is `NUMERICAL_INTEGRITY_SENSITIVE`, and its rows stay today's binary64 loop rows.
+- **Publication (§3).** A Passed nonlinear case publishes (d)'s certified member, stress and support rows, certified rows for the nonlinear supports (R4: the sliding force moves to the certified coupled value; inactive supports become exact +0; active and sticking reactions become certified), and the unchanged loop displacements and evidence rows.
+- **Gap supports (R1).** Gap-bearing cases keep their present non-passing `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` branches byte for byte; NGR02 containment applies now. No confirmation runs on them.
+- **W1 and pricing (§4).** Four refusals in code mean W1 and retained-source recovery never see a nonlinear case; the exact route refuses nonlinear supports too. The retained route's behaviour is unchanged. The static pricing chain reaches the nonlinear helper, so the TEXT chain and O-10 rules are re-run.
+- **Declared moves (§5).** The 8 committed case-modes move from Sensitive to Passed, in 5 committed outputs (10 integrity diagnostics), together with the desktop demo standing. Their nonlinear support rows move as R4 declares.
+
+## The rulings (2026-10-12) and what they settle
+
+**HELP_HUMAN, under the owner's delegation:**
+
+- **R2, selection on the nonlinear route.** The owner's steer "T4: K-D5 option (d), then U2/O-13, nonlinear K-D5 and U4/U5/U6/U8", together with kd5 §5's named next unit, supersedes the earlier ROOT ruling (nonlinear invocations are never formation-checked) for exactly one confirmation factorization at the converged active set. The iteration loop stays unchecked. T3's source pin `kd5_nonlinear_sources_name_no_formation_check_entry_point` is re-scoped to: no formation-check entry inside the nonlinear iteration, and exactly one source-qualified confirmation entry after convergence. A mutant that adds a second entry or an in-loop entry is kept (§6).
+- **R4, published friction force (property).** The published sliding-friction force moves to the certified coupled value. It is a stated property, declared like kd5 §3.4, with its blast radius declared before re-pinning (§3.4, §5). The criterion is unchanged. The other changed nonlinear rows are declared with it: inactive supports become exact +0 instead of binary64 residual noise, and active and sticking reactions become certified recoveries.
+- **R5, claims wording.** Accepted subject to the claim fence. "Certified" keeps its K-D5 technical sense (against K-D5's intended system). Every surface sentence is checked against `docs/claims_registry.md` (F-PIP-2; claims taxonomy per DEC-081); product sentences use "established" and "confirmed", never "certified" (§3.3). Uniqueness is stated only for frictionless states (§2.3).
+- **R1, gap supports.** Gaps keep their current non-passing branches; NGR02 containment applies now. This is revision 0's G1. G2 remains a later option.
+- **R3, weakly active supports.** They fail closed, with no tolerance.
+
+**The T4 manager:**
+
+- **Rotational friction** is refused by name at validation (`NONLINEAR_ROTATIONAL_FRICTION_UNSUPPORTED`, blocking). It is unit-inconsistent: μ·N, a force, would be applied as a moment.
+- **A derived friction normal whose source is not a base-restrained DOF** fails closed by name before Stage A. Admission is unchanged.
+- **Coupled derived-normal friction with k > 1** fails closed by name for now. All committed cases have k = 1. The Rump verified solve of revision 0's A-4 is dropped from this unit and recorded as a later extension (Open items).
 
 ## The steer and what this unit supersedes
 
 - **Owner's steer (2026-10-12).** "T4: K-D5 option (d), then U2/O-13, nonlinear K-D5 and U4/U5/U6/U8."
-- **kd5 §5's sketch** (HELP_HUMAN's ruling of 2026-10-11, option (d)) is replaced by this design. The sketch's fail-closed rule for the nonlinear-support route stays in force until this unit is implemented. After that, it applies only to gap-bearing cases while R1 keeps them on their present branches; those branches never publish `CHECKS_PASSED`.
-- **"ROOT's ruling" on selection.** The adapter's doc comment says: "`selected` is false for an invocation with any nonlinear support: ROOT's ruling that such a case is never selected." kd5 §5 says: "no `FormationCheckedSystem` is built when nonlinear supports exist (ROOT's ruling)". This unit supersedes that ruling for one new **confirmation attempt** after convergence. The loop's iterations keep ROOT's option (c) on the S11-K stop report: the unchanged `solve_binary64`. T3's source pin `kd5_nonlinear_sources_name_no_formation_check_entry_point` (T3 D1 §4.3.1 callers, mutation 32) must be re-scoped with T3 (R2).
-- **The sentence retired.** "the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries" (kd5 §5). The generic §2.3 rule (no `CHECKS_PASSED` without `member_bound`, "on this route") stays.
+- **kd5 §5's sketch** (HELP_HUMAN's ruling of 2026-10-11, option (d)) is replaced by this design. Its fail-closed rule for the nonlinear-support route is retired: on a nonlinear case the only no-`member_bound` sentence is this unit's §2.4 sentence. Gap-bearing cases keep their `RECOVERY_BASIS_UNQUALIFIED` branches, which never publish `CHECKS_PASSED`, so the rule's other variant ("on this route") stays for the other routes only.
+- **"ROOT's ruling" on selection** (the adapter's doc comment: "`selected` is false for an invocation with any nonlinear support"; kd5 §5: "no `FormationCheckedSystem` is built when nonlinear supports exist") is superseded by R2 for the single confirmation attempt. The linear route's `selected` flag is unchanged; the confirmation has its own entry (§1.5, §7).
+- **The sentence retired.** "the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries" (kd5 §5).
 
 ## 0. The route today (facts from code at a881a65631)
 
-- **Owners.**
-  - DEL-04-04 owns the classifier (`core/solver/nonlinear_supports`, unchanged by this unit).
-  - DEL-04-04 and DEL-04-07 own the loop (`core/solver/nonlinear_integration`).
-  - DEL-04-07 owns the PP integration (`core/product_physics/src/lib.rs`).
-  - DEL-04-01 owns FK (`core/solver/frame_kernel`).
-  - No Design file exists for the nonlinear route; this file is its K-D5 design.
-- **Support kinds and states** (`nonlinear_supports` `classify_support_state`, DEC-067). A support acts on one translational DOF d. In every condition, r = (K·u − f)_d is the support-on-pipe force. The rules below apply when the state is unchanged at convergence.
-  - **One-way and lift-off, sense +** (`active_when`/`contact_when` = positive reaction). Engaged stays active iff r > 0. Released becomes active iff u_d < 0.
+- **Owners.** DEL-04-04 owns the classifier (`core/solver/nonlinear_supports`, unchanged by this unit). DEL-04-04 and DEL-04-07 own the loop (`core/solver/nonlinear_integration`, NI). DEL-04-07 owns the PP integration (`core/product_physics/src/lib.rs`). DEL-04-01 owns FK (`core/solver/frame_kernel`). No Design file exists for the nonlinear route; this file is its K-D5 design.
+- **Support kinds and states** (`nonlinear_supports` `classify_support_state`, DEC-067). A support acts on one DOF d, translational or rotational. r = (K·u − f)_d is the support-on-pipe force, or moment at a rotational DOF.
+  - **One-way and lift-off, sense +.** Engaged stays active iff r > 0. Released becomes active iff u_d < 0.
   - **Sense −.** Engaged stays active iff r < 0. Released becomes active iff u_d > 0.
-  - **Gap, closes in +** (clearance g ≥ 0). Engaged stays closed iff r ≤ 0. Open closes iff u_d ≥ g.
-  - **Gap, closes in −.** Engaged stays closed iff r ≥ 0. Open closes iff u_d ≤ −g.
-  - **Friction** (one tangential DOF; coefficient μ ≥ 0; normal N either explicit, the input `normal_reaction`, or derived as |R_n| from a *linear* restraint DOF n).
-    - N ≤ 0 means inactive.
-    - Otherwise the support sticks when |r_t| ≤ μ|N|.
-    - A sliding support stays sliding iff u_t ≠ 0 and its applied force and reported reaction both oppose u_t (`resolve_sliding_friction_states`).
-- **The linearized state** (`active_boundary`, `prescribed_displacement_for_state`). Active one-way and lift-off supports, and sticking friction supports, are prescribed 0. An active gap is prescribed +g or −g. Inactive and sliding supports are free.
-  - Sliding applies F = −dir·μ·|N| at the friction DOF. dir is the previous iterate's slip sign.
-  - For a derived normal, F solves the affine coupling F = c·R_n(F) with c = −dir·μ·β, where β is the normal's sign. The loop solves this coupling from base and unit-load reaction influences (`solve_iteration_with_sliding_friction_evidence`).
-  - The stiffness K includes ground springs. Connectors are refused on this route. Realized arcs enter as `from_macro_element` slots, which are re-formable.
-  - The loop's force is the ledger's `AssembledForce`, checked bit for bit (`solve_active_set_frame_with_mode_and_springs_assembled`). The case's closure manifests and primitives therefore exist.
-- **Convergence and qualification.** The governed residual is the state-change count. A converged result passes `product_selected_state_is_qualified`:
-  - zero changes and contact branches admissible;
-  - the classifier reproduces the final state from the final iterate;
-  - M03 original-equation equilibrium passes.
-
-  Each iteration's solve is `AssemblyEvidence::solve_binary64`, with no formation check.
-- **Gap scrutiny.** `scrutinize_gaps` runs an exact-rational strict-gap proof for gap-only straight-frame bodies (`Qualified`) and is otherwise `Unsupported`. **Every** gap-bearing converged case publishes `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (`lib.rs`, both branches). The NGR02 containment tests (`tests/represented_gap_publication.rs`) pin the nonpassing publication. A gap case therefore never reaches `CHECKS_PASSED`.
-- **Publication today.**
-  - A converged non-gap case publishes `append_integrity_report` from the last iteration's `StructuralReport` and product-equilibrium report. kd5 §5's sentence then demotes a would-be `CHECKS_PASSED` to Sensitive.
-  - Member rows are binary64 recoveries from the loop's u. Support rows come from the loop's reactions K·u − f.
-  - Combinations of a nonlinear model are withheld (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`).
+  - **Gap, closes in + (clearance g ≥ 0).** Engaged stays closed iff r ≤ 0. Open closes iff u_d ≥ g. Closes in −: engaged iff r ≥ 0; open closes iff u_d ≤ −g.
+  - **Friction** (one tangential DOF; μ ≥ 0; N explicit (`normal_reaction`) or derived as |R_n| from a linear support DOF n). N ≤ 0 means inactive. Otherwise the raw classifier returns Sticking when |r_t| ≤ μ|N|, including the boundary |r_t| = μN. A sliding support stays sliding only through `resolve_sliding_friction_states` (NI lib.rs:1559–1658): u_t ≠ 0 and, for μN > 0, its applied force and reported reaction both oppose u_t; for μN = 0, no applied force and u_t ≠ 0.
+- **Rotational supports (review B1).** Validation refuses only rotational gaps (`validation.rs`, `NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED`). `build_nonlinear_supports` admits one-way, lift-off and friction supports on any DOF, and PP publishes their rows in N·m and rad (lib.rs, the per-support state, displacement and reaction rows). Rotational one-way and lift-off supports are covered by this unit in the moment family. Rotational friction is refused at validation from this unit on (manager's ruling).
+- **Derived normal sources (review I2).** `derived_friction_normal_source` requires a linear (non-nonlinear) support record with a restraint on the named translational DOF. A spring-family support declares its acting axis as a restraint (`validation.rs`, `SUPPORT_SPRING_AXIS_CONFLICT`) but is not a rigid restraint, so the source DOF can be a free DOF carrying a spring. Admission is unchanged; the confirmation fails closed on such a source (§2.4).
+- **μ = 0 (review I3).** The loop drops zero forces (`if force != 0.0`, lib.rs:1359 and 1487) and excludes μ = 0 from the derived coupling (lib.rs:1368). A sliding support with μ = 0 stays sliding when u_t ≠ 0 and no force is applied (lib.rs:1623–1631).
+- **The linearized state** (`active_boundary`, `prescribed_displacement_for_state`). Active one-way and lift-off supports and sticking friction supports are prescribed 0. An active gap is prescribed ±g. Inactive and sliding supports are free.
+  - Sliding applies F = −dir·μ·|N| at the friction DOF, dir being the previous iterate's slip sign. A derived F solves the affine coupling F = c·R_n(F), c = −dir·μ·β, from base and unit-load reaction influences (`solve_iteration_with_sliding_friction_evidence`). Those coupling solves are hard-coded `DenseScrutiny` in both modes (lib.rs:1382–1388, 1415–1421), so φ⁰ is mode-independent. The final solve uses the requested mode.
+  - The reported reaction vector is `reported_reactions`: fl(K·u − f − φ⁰) + φ⁰ (lib.rs:1505, 1731–1741). At a sliding DOF it is φ⁰ plus the binary64 residual of that free row.
+  - K includes ground springs. Connectors are refused on this route. Realized arcs enter as `from_macro_element` slots, which are re-formable.
+  - The loop's force is the ledger's `AssembledForce`, checked bit for bit (`solve_active_set_frame_with_mode_and_springs_assembled`).
+- **Prescribed values (review M1).** The loop prescribes every base-restrained DOF at 0. Imposed displacements cannot reach this route: legacy `imposed_displacement` is refused on the preview route, and the 0.4.0 load-state route is exact-route only, where nonlinear supports are refused. The confirmation still checks the published u against the state's prescribed map bit for bit (§2.4).
+- **Convergence and qualification.** The governed residual is the state-change count. A converged result passes `product_selected_state_is_qualified`: zero changes and contact branches admissible; the classifier reproduces the non-friction final states from the final iterate; M03 original-equation equilibrium passes. Each iteration's solve is `AssemblyEvidence::solve_binary64`, with no formation check. A case that does not converge, or fails qualification, publishes `SOLVER_SYSTEM_BLOCKED` (or the integrity failure) and never reaches the confirmation (PP `append_nonlinear_support_loop_results`, and the `selected-state-unavailable` return in `solve_load_case_observed`).
+- **Gap scrutiny.** Every gap-bearing converged case publishes `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (both branches). The NGR02 containment tests pin it.
+- **Publication today.** A converged non-gap case publishes `append_integrity_report` from the last iteration's `StructuralReport` and its product-equilibrium report (PP `solve_load_case_observed`, the nonlinear branch). kd5 §5's sentence then demotes a would-be `CHECKS_PASSED` to Sensitive. Member rows are binary64 recoveries from the loop's u. Support rows come from the loop's reported reactions. Combinations of a nonlinear model are withheld.
 
 ## 1. The intended system at the converged active set
 
 ### 1.1 Notation
 
-- S is the set of nonlinear supports, with s at DOF d_s, and σ_s is s's final state (`final_states`).
-- B is the base prescribed set: linear restraints and imposed displacements, with their values, as today.
-- A = {s : σ_s ∈ {Active, Sticking}} is the active set. Each s ∈ A has a prescribed value p_s:
-  - 0 for one-way, lift-off and sticking friction;
-  - +g_s for a gap that closes in +, and −g_s for one that closes in −.
-- L = {s friction : σ_s = Sliding} is the sliding set, split into L_e (explicit normal) and L_d (derived normal). k = |L_d|.
+- S is the set of nonlinear supports, s at DOF d_s, σ_s its final state (`final_states`).
+- B is the base prescribed set: the linear restraints, every value 0 (§0, M1).
+- A = {s : σ_s ∈ {Active, Sticking}}, each with prescribed value p_s: 0 for one-way, lift-off and sticking friction (±g for gaps, not run under R1).
+- L = {s friction : σ_s = Sliding, μ_s > 0} is the sliding set, split into L_e (explicit normal) and L_d (derived normal). k = |L_d|. A sliding support with μ = 0 carries no force and is not in L (review I3).
 - I = {s : σ_s = Inactive}.
-- C = B ∪ {d_s : s ∈ A} is the constrained set, with values u_C. F is the free set.
-- K_int and f_int are K-D5's p = 128 re-formations (kd5 §1): frames, realized arcs and springs; the ledger's input and formed terms through the closure. No connectors exist on this route.
+- C = B ∪ {d_s : s ∈ A}, with values u_C. F is the free set.
+- K_int and f_int are K-D5's p = 128 re-formations (kd5 §1). No connectors exist on this route.
+- dir_s, for s ∈ L, is the sign opposite the loop's final applied force at d_s; the closure checks it against the sign of the loop's final u_t (§1.6). For a μ = 0 sliding support, dir_s is the sign of the loop's final u_t.
 
 ### 1.2 Per support kind
 
 | Support, state | Row treatment | Term added | Closure class |
 |---|---|---|---|
-| Linear restraint, imposed displacement | prescribed, as today | none | input (u_C) |
+| Linear restraint | prescribed 0, as today | none | input (u_C) |
 | Ground spring | stiffness (`FormationSource::springs`) | none | stiffness primitive |
-| One-way or lift-off, Active | prescribed, u_d = 0 | none | input (prescribed 0) |
+| One-way or lift-off (translational or rotational), Active | prescribed, u_d = 0 | none | input |
 | One-way or lift-off, Inactive | free | none | none |
-| Gap, Active (closed) | prescribed, u_d = ±g (binary64 g, exact) | none | input (prescribed ±g) |
-| Gap, Inactive (open) | free | none | none |
-| Friction, Sticking | prescribed, u_t = 0 | none | input (prescribed 0) |
+| Gap | not run (R1) | — | — |
+| Friction, Sticking | prescribed, u_t = 0 | none | input |
 | Friction, Inactive | free | none | none |
-| Friction, Sliding, explicit normal | free | φ_s = −dir_s·μ_s·\|N_s\| at d_s | **formed**: `SlidingFrictionExplicit` |
-| Friction, Sliding, derived normal | free | φ_s from the coupling (§1.3) at d_s | **formed**: `SlidingFrictionCoupled` (Stage B); **input** φ⁰_s (Stage A) |
-| Friction state `Active` | not a friction state | none | fail closed (§2.4) |
-
-Gaps are fully specified here. Whether gap-bearing cases run the unit is R1 (§8).
+| Friction, Sliding, μ = 0 | free | none | none |
+| Friction, Sliding, μ > 0, explicit normal | free | φ_s = −dir_s·μ_s·\|N_s\| at d_s | **formed**: `SlidingFrictionExplicit` |
+| Friction, Sliding, μ > 0, derived normal (k = 1) | free | φ_s from the coupling (§1.3) at d_s | **formed**: `SlidingFrictionCoupled` (Stage B); **input** φ⁰_s (Stage A) |
+| Friction state `Active` | not a friction state | — | fail closed (§2.4) |
+| Rotational friction | refused at validation | — | — |
 
 ### 1.3 The intended system
 
-With the state fixed, the friction law is linear in u. For s ∈ L_d with source DOF n_s:
+For s ∈ L_d with source DOF n_s ∈ B (required; §2.4), R_n(u) = K_int,n·u − f_int,n is the source restraint's support-on-pipe reaction, and
 
-  R_n(u) = K_int,n·u − f_int,n
+  φ_s = c_s·R_{n_s}(u),  c_s = −dir_s·μ_s·β_s,  β_s = sign R_{n_s}(u*),
 
-This is the source restraint's support-on-pipe reaction. n_s ∈ C, and no friction force acts at n_s.
-
-  φ_s = c_s·R_{n_s}(u),  c_s = −dir_s·μ_s·β_s,  β_s = sign R_{n_s}(u*)
-
-so that φ_s = −dir_s·μ_s·|R_{n_s}(u*)|. dir_s is the loop's final slip direction. β_s is certified in §2.
-
-The intended system of the state is:
+so that φ_s = −dir_s·μ_s·|R_{n_s}(u*)|. β_s is certified in §2. The intended system of the state is
 
   K_int,FF·u_F = f_int,F − K_int,FC·u_C + Σ_{s∈L_e} φ_s·e_{d_s} + Σ_{s∈L_d} c_s·R_{n_s}(u)·e_{d_s} .
 
-- With k = 0 it is symmetric. It is K-D5's linear problem with the extra formed terms φ_s, s ∈ L_e. Each φ_s is the exact product of the binary64 inputs μ_s and N_s with an exact sign. It fits a Wide2 at p, so its re-formation has radius 0.
-- With k > 0 the coupling makes the free-row matrix nonsymmetric: K_FF − E·C·K_{N,F}. Here E = [e_{d_s}] and K_{N,F} holds the source rows' free columns. K-D5's symmetric gate and Λ do not cover a nonsymmetric matrix. The coupling cannot be folded into ε_E either: μ·‖K_n‖ ≫ 2^-36·‖K̃_s‖₁, so the Neumann condition would fail. It is therefore solved exactly through the symmetric system (§1.4).
+- With k = 0 it is symmetric: K-D5's linear problem with extra formed terms. Each explicit φ_s is the exact product of the binary64 inputs μ_s and N_s with an exact sign. It fits a Wide2 at p, so its re-formation has radius 0. It is not fl(μ·N).
+- With k = 1 the coupling makes the free-row matrix nonsymmetric. It is solved exactly through the symmetric system (§1.4).
 
-### 1.4 The coupled friction force (Stage A, k > 0)
+### 1.4 The coupled friction force (Stage A, k = 1)
 
-Let ũ(φ) be the exact solution of the **symmetric** system with the derived forces fixed at φ ∈ ℝ^k. All other terms are as in §1.3. Let z_j = K_int,FF⁻¹·e_{d_j}, and G_ij = K_int,{n_i},F·z_j. These quantities are exactly related:
+Let ũ(φ) be the exact solution of the symmetric system with the derived force fixed at φ, z = K_int,FF⁻¹·e_d (z_C = 0) and g = K_int,n,F·z. Exactly, R_n(ũ(φ)) = R_n(ũ(φ⁰)) + g·(φ − φ⁰), so the coupled force φ* satisfies
 
-  ũ(φ) = ũ(φ⁰) + Σ_j (φ_j − φ⁰_j)·z_j ,   R_n(ũ(φ)) = R_n(ũ(φ⁰)) + G·(φ − φ⁰) ,
-
-so the coupled force φ* satisfies
-
-  M·(φ* − φ⁰) = b,   M = I − C·G,   b = C·R_n(ũ(φ⁰)) − φ⁰ .
+  M·(φ* − φ⁰) = b,  M = 1 − c·g,  b = c·R_n(ũ(φ⁰)) − φ⁰ .
 
 φ⁰ is the loop's final applied force: binary64, exact as an input.
 
-**Stage A.**
+1. **A-1.** K-D5 on the symmetric system with φ⁰ as an **input term**, evaluated at the loop's u, judged by D5C-1. `certify_support_reaction` at n gives a ball N⁰ ∋ R_n(ũ(φ⁰)).
+2. **A-2 (the influence solve).** K-D5 on the unit system (force e_d as an input term, every prescribed value 0), evaluated at z = 0. Its w is the factor's solve of e_d and w₂ its correction; the identity e = w + w₂ + K⁻¹·s₂ holds at any evaluation point, so z ∈ w + w₂ ± (kd5 §2's remainder). `certify_support_reaction` at n on that system gives the ball g. D5C-1 does not apply: nothing of this system is published, and its per-row rule would judge every nonzero w against a zero displacement. Contraction, second solve, Λσ finite and Neumann apply.
+3. **A-3.** β := the sign of N⁰, which must exclude 0; otherwise "support <id>: friction normal not established".
+4. **A-4.** δ = b/M in ball arithmetic; 0 ∉ M is required, and every ball must be finite. Otherwise "friction coupling not established".
+5. **A-5.** φ* ∈ φ⁰ + δ, a ball (m, r) at p. It is published as the binary64 midpoint v = fl(m) with the widened radius r' = r + |v − m|, rounded upward. The ball (v, r') contains φ*.
 
-1. **A-1.** Evaluate K-D5 (§1.5) on the symmetric system with φ⁰ as **input terms**, at the loop's u. The certified reaction recovery (`certify_support_reaction`) at each n_i gives a ball N⁰_i ∋ R_{n_i}(ũ(φ⁰)).
-2. **A-2.** For each j, solve z̃_j with the confirmation factor, in the same scaled form as w. Form the exact residual e_{d_j} − K_int·z̃_j at p, and correct twice as kd5 §2 steps 2–6 do: w_z, w₂z, then σ_z. The contraction and second-solve rules apply.
-   - G_ij ∈ K_int,{n_i},F·(z̃_j + w_z + w₂z) ± ‖K_int,{n_i},F·D‖₁·Λ·σ_z.
-   - The midpoint is evaluated at p in ball arithmetic. The radius uses the same triangle form as `certify_support_reaction`, with no load terms.
-3. **A-3.** C needs β, and β_i := sign of the ball N⁰_i, which must exclude 0. Otherwise the case fails closed with "friction normal not certified".
-4. **A-4. Verified solve.**
-   - **k = 1.** δ = b/M in ball arithmetic, and 0 ∉ M is required.
-   - **k > 1.** Use Rump's verified-linear-system theorem (Rump, "Verification methods: Rigorous results using floating-point arithmetic", *Acta Numerica* 19, 2010, §10). Take R ≈ mid(M)⁻¹ in binary64 and x̃ = R·mid(b). If ‖I − R·M‖_∞ ≤ θ < 1 over the whole ball M, every M in it is nonsingular, and |δ − x̃| ≤ ‖R·(b − M·x̃)‖_∞ / (1 − θ). All norms are upward.
-   - Failure is "friction coupling not certified".
-5. **A-5.** φ*_j ∈ φ⁰_j + δ_j. The midpoint is a Wide2 at p, and the radius r_j is upward.
+**Stage B.** K-D5 at the loop's u on the system whose derived force is the **formed** term `SlidingFrictionCoupled`, which re-forms as the ball (v, r'). The radius enters ψ at row d, as kd5 §2 step 1 carries load enclosure radii. Stage B's bound therefore covers the exact solution u* of §1.3's coupled system. Its `MemberBoundInputs` are those the certified recovery and §2 use.
 
-**Stage B.** Evaluate K-D5 at the loop's u on the system whose derived forces are the **formed** terms `SlidingFrictionCoupled`. Each re-forms as the Stage-A ball (midpoint φ*_mid,j, radius r_j). The radius enters ψ at row d_j, exactly as kd5 §2 step 1 carries load enclosure radii. Stage B's u* is then the exact solution of §1.3's coupled system, because the true coupled force lies in the ball. Its w, w₂ and Λσ are the `MemberBoundInputs` that the certified recovery and §2 use.
-
-With k = 0 there is only Stage B.
-
-On the committed models the coupling gain is c·g = −1.1e-3, so M ≈ 1.0011 (§5).
+With k = 0 there is only Stage B. With k > 1 the case fails closed before Stage A.
 
 ### 1.5 The confirmation attempt
 
-After convergence and the unchanged qualification, the nonlinear crate makes one **confirmation attempt** on the state's system: K (the loop's assembled stiffness) and the state's boundary C with values u_C.
+After convergence and the unchanged qualification, NI's `confirm_converged_state` makes the unit's only formation-checked factorization, through the adapter's single entry `AssemblyEvidence::confirm_with_formation_check`:
 
-- **The force.** The gate runs once, with the Stage-A force when k > 0 and the Stage-B force when k = 0. Its own solution is discarded. Each K-D5 evaluation (Stage A, the influence solves, Stage B) takes its own `AssembledForce` and `FormationSource`.
-  - The Stage-B force is the case's ledger plus one formed term per sliding support. The term's binary64 value is fl(φ*_mid) for derived normals and fl(φ) for explicit normals. Its closure manifest is enumerated from the converged state's sliding supports (§1.6).
-  - The Stage-A force is the ledger plus the explicit formed terms and the φ⁰ input terms.
-- **The gate.** It runs through the formation-checked gate (`prepare_formation_checked_structural`, or its sparse sibling by mode). It uses the loop's `AssemblyEvidence`, the macro elements as `curved_sources`, and the case's `FormationSource`. Its factor, scale exponents D, gate (r̂, est, ‖K̃_s‖₁), ε_E and Λ are the attempt's own (kd5 §2). They are shared by Stage A, the influence solves and Stage B.
-- **K-D5 is evaluated at the loop's final u, not at the attempt's own solution.** The identity e = u* − u = w + w₂ + K⁻¹·s₂* holds for any u. The factor affects only tightness and the contraction (kd5 §2). FK gains an evaluation-at-supplied-u entry for this (§7).
-  - The published displacements are therefore the loop's, byte for byte.
-  - The loop's evidence rows (free-DOF residuals, deltas, per-support displacement) describe the same u.
-  - D5C-1's per-DOF rule judges the loop's u.
-  - u must equal u_C bit for bit at every constrained DOF. Otherwise the case fails closed with "prescribed row mismatch".
-- **Every kd5 §2.3 fail-closed rule applies to the attempt** (Neumann, contraction, second solve, Λσ finite, load closure, no ledger), and kd5 §2.2 does not arise: the route has no W2.
-- An attempt that the gate refuses, or reports `Sensitive`, fails closed with "confirmation attempt" and the gate's reason.
-- The loop is not changed. Its iterations keep `solve_binary64` (S11-K, ROOT option (c)). Its evidence and its qualification are unchanged.
+- **The gate.** The loop's assembled stiffness K (incl. springs and arcs), the state's boundary C with values u_C, the loop's `AssemblyEvidence`, and the force of Stage B (k = 0) or of Stage A (k = 1). It is prepared and gated exactly as the linear route's typed solve (`prepare_assembled_structural`), factored by mode (dense Cholesky, or the profile LDLᵀ in sparse mode) and finished by `finish_confirmation`. A refused or `Sensitive` gate fails closed: "confirmation attempt: …". The gate's own solution is discarded.
+- **The evaluations.** `ConfirmationAttempt::evaluate_at(system, u, judged)` runs kd5 §2 (closure, ρ, w, s, w₂, s₂, σ, ε_E, Λ) on any system with the factor's stiffness, free map and contributions, at a supplied u, with the factor's solves, scale exponents, prepared matrix and Hager estimate. ε_E is formed once per attempt and reused. The unit runs at most three evaluations: Stage A (judged), the influence system (unjudged, at 0) and Stage B (judged). Every kd5 §2.3 fail-closed rule applies to each; kd5 §2.2 does not arise (no W2 on this route).
+- **K-D5 is evaluated at the loop's final u, not at the gate's own solution.** The identity e = u* − u = w + w₂ + K⁻¹·s₂* holds for any u. The published displacements are therefore the loop's, byte for byte; the loop's evidence rows describe the same u; D5C-1's per-DOF rule judges it.
+- **The loop is not changed.** Its iterations keep `solve_binary64` (S11-K, ROOT option (c)). Its evidence and qualification are unchanged. The confirmation calls no retained or W1 code.
 
 ### 1.6 Load closure: what the route adds
 
-The ledger's terms keep kd5 §1's classes and manifests unchanged. The route adds only:
+The ledger's terms keep kd5 §1's classes and manifests. The route appends terms after the ledger's own (`AssembledForce::with_appended`, which re-nets every DOF exactly), so every original term keeps its index:
 
-| Term | Where | Class | Primitive and re-formation at p | Manifest identity and binding |
+| Term | Where | Class | Primitive and re-formation at p | Manifest binding |
 |---|---|---|---|---|
-| Explicit-normal sliding force | Stage B (and Stage A as a fixed term) | formed | `SlidingFrictionExplicit{support, dof, μ, N, dir}`: −dir·μ·\|N\| exactly | support id, ordinal 0; bits of μ and N, dir and the DOF |
-| Derived-normal sliding force, Stage A | Stage A only | input | φ⁰: the loop's binary64 applied force | none (input) |
-| Derived-normal sliding force, Stage B | Stage B | formed | `SlidingFrictionCoupled{support, dof, μ, dir, β, source dof, φ*_mid, r}`: the Stage-A ball | support id, ordinal 0; bits of μ, dir, β, the source DOF, and the Stage-A record identity |
-| Unit right-hand side e_{d_j} | influence solves | input | exact 1 | none |
-| Prescribed values 0, ±g | boundary | input | as K_fc·u_c today | none |
+| Explicit-normal sliding force | Stage A and Stage B | formed | `SlidingFrictionExplicit{global_dof, coefficient, normal, direction}`: −dir·μ·\|N\| exactly, radius 0 | identity (`nonlinear_sliding_friction`, support id, 0); bits of DOF, μ, N, dir |
+| Derived-normal sliding force, Stage A | Stage A | input | φ⁰ | none |
+| Derived-normal sliding force, Stage B | Stage B | formed | `SlidingFrictionCoupled{global_dof, coefficient, direction, beta, source_dof, midpoint, radius}`: the ball (v, r') | identity as above; bits of DOF, μ, dir, β, source DOF, v and r' |
+| Unit right-hand side e_d | influence system | input | exact 1 | none |
+| Prescribed values 0 | boundary | input | as K_fc·u_c today | none |
 
-- **The expected manifest.** It is enumerated from `final_states` ∩ friction ∩ `Sliding` independently of the supplied primitives (kd5 §1's complete-summands rule). A missing, duplicate or extra friction primitive fails closed: "load closure: nonlinear sliding friction …".
-- **Stage A's input class.** The Stage-A system is an auxiliary system that is certified exactly at its own input φ⁰. φ⁰ is never published, and it is not a ledger value of a formed term of the published system.
+- **The expected manifest** is enumerated from `final_states` ∩ friction ∩ `Sliding` ∩ μ > 0, with the support's own μ and normal input, and dir from the sign of the loop's final u_t, independently of the supplied primitives (kd5 §1's complete-summands rule). The primitive takes dir from the loop's final applied force. A missing, duplicate, extra or mismatched friction primitive fails closed through the closure: "formation check: … load closure: …".
+- **Stage A's input class.** The Stage-A system is an auxiliary system certified exactly at its own input φ⁰. φ⁰ is never published.
 
 ## 2. The active-set certificate
 
 ### 2.1 Balls
 
-All balls come from Stage B's `MemberBoundInputs` (w, w₂, exponents, Λσ). The midpoint m is evaluated at p, and the radius ρ is upward. lower = m − ρ and upper = m + ρ are decided by exact comparison of the Wide2 midpoint with the binary64 radius, never by rounding.
+All balls come from Stage B's `MemberBoundInputs` (w, w₂, exponents, Λσ) and its source and force. The midpoint m is evaluated at p and the radius ρ (evaluation radius plus remainder) is upward. A sign condition is decided by exact comparison of the Wide2 midpoint with the binary64 radius, never by rounding.
 
-- **Displacement at a free DOF d:** m = u_d + w_d + w₂,d, an exact sum of three binary64 values, and ρ = 2^{exp_d}·Λσ. This is kd5's remainder with A_r = e_dᵀ, so ‖A_r·D‖₁ = 2^{exp_d}.
-- **Reaction at a constrained DOF d:** `certify_support_reaction(d)`: K_int,d·(u + w + w₂) + K_int,dC·u_C − f_int,d. The ball is m with ρ = r + R (the evaluation radius and the remainder).
-  - A ground spring k at d is part of K_int's diagonal. Equilibrium at d is K_pipe·u − f = r_c + r_k with r_k = −k·u_d, so (K_int·u − f)_d = r_c: the row is the nonlinear support's own contact force.
-  - This is also the loop's reported reaction, since its K includes the springs.
-- **Sliding friction force:** φ*_j's Stage-A ball (derived normal), or the exact φ (explicit normal, ρ = 0).
-- **Derived normal:** the reaction ball at n_s.
+- **Displacement or rotation at a free DOF d:** m = u_d + w_d + w₂,d (an exact sum), ρ = 2^{exp_d}·Λσ (`certify_displacement`).
+- **Reaction at a constrained DOF d:** `certify_support_reaction(d)`: K_int,d·(u + w + w₂) − f_int,d, ρ = r + R. A ground spring at d is part of K_int's diagonal, so the row is the nonlinear support's own contact force (or moment), which is also the loop's reported reaction.
+- **Sliding friction force:** the Stage-A ball (v, r') (derived), or the exact φ (explicit, ρ = 0).
+- **Derived normal:** the reaction ball at n.
 
-### 2.2 Pass conditions (strict, with the whole ball on the state's side)
+### 2.2 Pass conditions (strict, the whole ball on the state's side)
 
 | Support, state | Condition |
 |---|---|
@@ -196,304 +165,214 @@ All balls come from Stage B's `MemberBoundInputs` (w, w₂, exponents, Λσ). Th
 | One-way or lift-off, sense +, Inactive | lower(u_d) > 0 |
 | One-way or lift-off, sense −, Active | upper(r_d) < 0 |
 | One-way or lift-off, sense −, Inactive | upper(u_d) < 0 |
-| Gap closing in +, Active (u_d = g) | upper(r_d) < 0 |
-| Gap closing in +, Inactive | upper(u_d) < g |
-| Gap closing in −, Active (u_d = −g) | lower(r_d) > 0 |
-| Gap closing in −, Inactive | lower(u_d) > −g |
-| Friction, explicit N, Inactive | N ≤ 0 (an input decision; no numerical condition) |
+| Gap (kept for G2; not run under R1) | closes in +: Active upper(r_d) < 0, Inactive upper(u_d) < g; closes in −: Active lower(r_d) > 0, Inactive lower(u_d) > −g |
+| Friction, explicit N, Inactive | N ≤ 0 (an input decision) |
 | Friction, explicit N, Sticking | N > 0 and μ·N > \|m_t\| + ρ_t |
-| Friction, explicit N, Sliding | N > 0 and slip sign: dir = +1 needs lower(u_t) > 0; dir = −1 needs upper(u_t) < 0 |
-| Friction, derived, Inactive | not certifiable (needs R_n = 0 exactly): fail closed |
+| Friction, explicit N, Sliding, μ > 0 | N > 0 and the slip sign: dir = +1 needs lower(u_t) > 0; dir = −1 needs upper(u_t) < 0 |
+| Friction, Sliding, μ = 0 (either normal) | 0 ∉ u_t ball, with the sign of the loop's u_t; no β |
+| Friction, derived, Inactive | not established (needs R_n = 0 exactly): fail closed |
 | Friction, derived, Sticking | 0 ∉ R_n ball and μ·(\|m_n\| − ρ_n) > \|m_t\| + ρ_t |
-| Friction, derived, Sliding | 0 ∉ R_n ball, sign = β_s from Stage A, and the slip sign as above |
+| Friction, derived, Sliding, μ > 0 | 0 ∉ R_n ball, sign = β from Stage A, and the slip sign |
 
-- The stick inequality is decided exactly. μ·(|m_n| − ρ_n) is formed downward and |m_t| + ρ_t upward.
-- With μ = 0, sticking fails by construction; sliding needs only the slip sign, as the loop does.
-- The classifier's non-strict boundaries are each the strict condition's closure, so every passing state also passes the classifier: engaged gap r ≤ 0, released one-way u ≥ 0, and stick |r_t| ≤ μN.
+- The stick inequality is decided with directed binary64 arithmetic: |m_n| is rounded downward, ρ_n subtracted downward, the product with μ formed downward; |m_t| + ρ_t is formed upward. The comparison is strict.
+- With μ = 0, sticking fails by construction.
+- **Weakly active supports (R3).** A support at zero reaction and zero separation, or exactly at stick capacity, has a ball touching the boundary and fails closed. No tolerance is added.
+- The classifier's non-strict boundaries are each the strict condition's closure (engaged one-way r > 0 is already strict; released u ≥ 0; stick |r_t| ≤ μN).
 
 ### 2.3 What is certified
 
-**Claim (under A1).** Let u* be the exact solution of §1.3's intended system for the published state. Suppose every condition of §2.2 holds and K-D5 passes on the confirmation attempt. Then:
+**Claim (under A1).** Let u* be the exact solution of §1.3's intended system for the published state. If every condition of §2.2 holds and K-D5 passes on every evaluation of the confirmation attempt, then:
 
 1. every active unilateral support bears on the pipe with its admissible sign, strictly;
-2. every inactive unilateral support is strictly separated: for a gap, strictly inside its clearance;
+2. every inactive unilateral support is strictly separated;
 3. every sticking friction support carries |R_t| < μN, strictly;
-4. every sliding friction support slips with sign dir, strictly, against a force of magnitude μN, exactly.
+4. every sliding friction support with μ > 0 slips with sign dir, strictly, against a force of magnitude μN exactly; a μ = 0 sliding support slips with a nonzero displacement.
 
-So u* together with the state satisfies the intended contact and Coulomb conditions with strict complementarity. The classifier, applied to u*, returns the published state for every support. The published active set is therefore the true active set of the solution u*.
+So u* with the state satisfies the intended contact and Coulomb conditions with strict complementarity. For every non-friction support the classifier, applied to u*, returns the published state. For friction supports the raw classifier returns Sticking at the boundary |r_t| = μN; sliding is the state that `resolve_sliding_friction_states` keeps when the applied force and the reported reaction oppose u_t ≠ 0 (review M4). Conditions 3 and 4 are the strict forms of those two rules at u*, so the loop's own friction resolution, applied at u*, keeps the published friction states.
 
-**Argument.** Under A1 each ball encloses its exact value at u*:
+**Argument.** Under A1 each ball encloses its exact value at u*: displacements and reactions by kd5 §2's bound; the friction force by Stage A's enclosure, which Stage B carries in ψ; the derived normal by the reaction bound. Each condition puts the whole ball on the required side. For a derived sliding support, φ* = c·R_n(u*) holds exactly by §1.3–1.4, and the Stage-B ball at n certifies sign R_n(u*) = β, so φ* = −dir·μ·|R_n(u*)| opposes the certified slip.
 
-- displacements and reactions by kd5 §2's bound (e = w + w₂ + K⁻¹·s₂*, |A_r·K⁻¹·s₂*| ≤ ‖A_r·D‖₁·Λ·σ);
-- the friction force by Stage A's verified enclosure, which Stage B carries in ψ;
-- the derived normal by the same reaction bound.
+**Uniqueness (R5).**
 
-Each condition puts the whole ball on the required side, so the exact value is there too. For a sliding support, φ* = −dir·μ·|R_n(u*)| holds exactly by the construction of §1.3–1.4, and β is certified by the sign of R_n(u*). The force therefore opposes the certified slip.
-
-**Uniqueness.**
-
-- **Frictionless states.** These have no friction support, or only inactive friction supports with explicit N ≤ 0. The intended problem is then the minimization of ½uᵀKu − fᵀu over the base-prescribed set with linear inequality constraints. For the exact-element model, K is positive semidefinite (elastic strain energy), so the problem is convex and every point satisfying the complementarity conditions (KKT point) is a global minimizer. Let v be another minimizer. Strict complementarity forces every active constraint to stay tight at v. (v − u*)ᵀK(v − u*) = 0 on the active subspace, where the state's reduced matrix is nonsingular, and therefore v = u*.
-  - This is a property of the exact-element model. Positive semidefiniteness of the p-rounded K_int is not separately certified, so uniqueness is stated, not certified.
-- **States with active friction.** No uniqueness is claimed. Static Coulomb friction can admit several consistent states. The certificate establishes that the published state is one of them, in DEC-067's path-independent model.
+- **Frictionless states** (no friction support, or only inactive explicit-normal friction supports). The intended problem minimizes ½uᵀKu − fᵀu over the base-prescribed set with linear inequality constraints. For the exact-element model K is positive semidefinite, so every KKT point is a global minimizer; strict complementarity and the state's nonsingular reduced matrix make u* the unique one. This is a property of the exact-element model; positive semidefiniteness of the p-rounded K_int is not separately certified, so uniqueness is stated, not certified.
+- **States with active friction.** No uniqueness is claimed. Static Coulomb friction can admit several consistent states; the certificate establishes that the published state is one of them, in DEC-067's path-independent model.
 
 ### 2.4 Fail closed
 
-The case is `NUMERICAL_INTEGRITY_SENSITIVE` with one sentence, and nothing is refused. Reasons are checked in this order, and the first reason class that fails is reported. Per-support items name at most six supports in support-id order, each no longer than kd5's per-item bound.
+The case is `NUMERICAL_INTEGRITY_SENSITIVE` with one sentence; nothing is refused. Reasons are checked in this order and the first failing reason is reported. Decisions that need no factorization come first.
 
-1. `confirmation attempt: <the gate's refusal or Sensitive reason>`.
-2. `formation check: <kd5's rendered record>`. This is any kd5 §2.3 unavailability on Stage A, an influence solve or Stage B, or a D5C-1 demotion on Stage B.
-3. `prescribed row mismatch`.
-4. `friction coupling not certified` (§1.4 A-4, or a nonfinite ball).
-5. Per support:
-   - `support <id>: contact force sign not certified` (active unilateral);
-   - `support <id>: separation not certified` (inactive one-way or lift-off);
-   - `support <id>: gap clearance not certified` (inactive gap);
-   - `support <id>: stick capacity not certified`;
-   - `support <id>: slip direction not certified`;
-   - `support <id>: friction normal not certified` (derived ball contains 0, β mismatch, or derived Inactive);
-   - `support <id>: friction state active has no certificate`.
+1. **Not run.** A gap-bearing case (R1), a case whose last iteration's report is not Passed, and a case with a load-row finding never run the confirmation: their standing is today's (the load-row sentence stands first; kd5 §3.3's no-op rule).
+2. `prescribed row mismatch`: the loop's u differs from u_C, bit for bit, at a constrained DOF.
+3. Preconditions, per support in support-id order:
+   - `support <id>: shares its DOF with another restraint` (two nonlinear supports, or a nonlinear support and a base restraint, on one DOF; review M5);
+   - `support <id>: friction state active has no confirmation`;
+   - `support <id>: friction normal source is not a base restraint` (manager's ruling; review I2);
+   then `coupled friction with <k> derived-normal sliding supports is not supported` (k > 1).
+4. `confirmation attempt: <the gate's refusal or Sensitive>`.
+5. `formation check: <stage>: <kd5's rendered detail>` for any kd5 §2.3 unavailability or D5C-1 demotion on Stage A, the influence system or Stage B (closure failures included).
+6. `friction coupling not established` (0 ∈ M, a nonfinite ball).
+7. Per support, in support-id order, at most six named: `support <id>: contact force sign not established` (active unilateral); `separation not established` (inactive unilateral); `stick capacity not established`; `slip direction not established`; `friction normal not established` (derived ball contains 0, β mismatch, derived Inactive, or explicit Inactive with N > 0). A nonfinite ball fails its condition and is reported under the same name.
 
-**Sentence (draft; claims lint at implementation):**
+Rotational friction never reaches this list: it is refused at validation. A non-converged or unqualified case never reaches it either (§0).
 
-> "the converged support state is not certified (<reason>); member rows are binary64 recoveries"
+**Sentence (product text, claims-checked):**
 
-**Consequence.**
+> "the converged support state is not established at 128-bit precision (<reason>); member rows are binary64 recoveries"
 
-- The case keeps today's integrity diagnostic: the last iteration's report and product-equilibrium evidence, demoted by `formation_guard::amend_integrity_report` with this sentence.
-- It keeps today's binary64 loop rows and routing, byte for byte except the sentence. No notice is emitted.
-- These are decided before publication, in the nonlinear crate and FK. They never reach W1 (§4).
+**Consequence.** The case keeps today's integrity diagnostic (the last iteration's report and product-equilibrium evidence), demoted by `formation_guard::amend_integrity_report` with this sentence, and today's binary64 loop rows and routing, byte for byte except the sentence. No notice is emitted. These cases never reach W1 (§4).
 
 ## 3. Publication
 
 ### 3.1 A Passed nonlinear case
 
-A case is pre-guard Passed on this route when all of these hold:
+A nonlinear case is pre-guard Passed when the last iteration's report is Passed with its product-equilibrium evidence (today's `CHECKS_PASSED`), there is no load-row finding, the confirmation runs, every evaluation passes and §2.2 holds. `member_bound` is then Stage B's.
 
-- the confirmation attempt's gate is Passed;
-- K-D5 passes on Stage B (and on Stage A and the influence solves);
-- §2.2 holds;
-- there is no load-row finding.
-
-`member_bound` is then Stage B's. The integrity diagnostic is today's, built from the last iteration's report with its product-equilibrium evidence. The confirmation attempt's formation-check record is added as its `formation_check` line, as on the linear route.
+**The Passed diagnostic (review M6)** is today's: the last loop iteration's `StructuralReport` with its product-equilibrium report. As on the linear route, a passing K-D5 evaluation adds no `formation_check` line; the confirmation gate's own report is not published. One evidence line is appended (§3.3).
 
 | Rows | Published as |
 |---|---|
 | Displacements and rotations, all DOFs | the loop's u, unchanged; judged by D5C-1 |
-| Member, section and station actions, stresses, pipe-wall rows, governing maximum and extrema | (d)'s certified recoveries at u + w + w₂ of Stage B (kd5 §3) |
-| Linear supports and springs | (d)'s certified rows |
-| Nonlinear support, Active or Sticking | certified reaction at d_s, fl(m), in its slot; the other five components exact +0 |
-| Nonlinear support, Sliding | fl(φ*_mid) (derived) or fl(φ) (explicit; bit-identical to the loop's value); B = \|v − m\| + r |
-| Nonlinear support, Inactive | +0, B = 0 |
+| Member, section and station actions, stresses, pipe-wall rows, governing maximum and extrema | (d)'s certified recoveries at u + w + w₂ of Stage B (kd5 §3); member loads carry no friction term, so they are those of the case ledger |
+| Linear supports and springs | (d)'s certified rows, from Stage B's source and force |
+| Nonlinear support, Active or Sticking | the certified reaction at d_s, fl(m), in its slot; the other five components exact +0 |
+| Nonlinear support, Sliding, μ > 0 | v = fl(φ*) of the Stage-A ball (derived; B = r'), or fl(φ) (explicit; B = \|fl(φ) − φ\|) |
+| Nonlinear support, Inactive, or Sliding with μ = 0 | +0, B = 0 |
 | `nonlinear_support_final_reaction` | the same published value as that support's component |
-| `nonlinear_support_friction_normal_reaction_derived` | fl(\|m_n\|) of the source's certified reaction, which equals \|its published component\| |
+| `nonlinear_support_friction_normal_reaction_derived` | \|v\| of the source restraint's published certified component |
 | explicit `friction_normal_reaction` row | unchanged (input) |
 | `nonlinear_support_final_displacement`, state codes, iteration count, final residual count, converged flag, delta and free-DOF residual observation rows | unchanged loop evidence |
 
-- **Groups.** Each nonlinear support is a support group of its body, in the force family (kd5 §3.2). It has its component vector and its separately published scalar magnitude. The friction-normal row is not a separate group; it is the source support's row.
-- **The predicate.** kd5 §3.3's unified predicate runs unchanged over all groups. A demotion keeps the certified rows, as in (d).
-- **The notice.** `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` runs unchanged. Condition 3 includes the nonlinear support groups. An inactive support's zero group is zero-compatible, with a = 0 and B = 0.
-- **The maximum.** The maximum declarations are kd5 §3.2's: the certified basis on Passed cases, and the fallback replay otherwise.
-- **Combinations.** Combinations of nonlinear models stay withheld.
+- **The explicit-normal sliding row (review I1).** fl(φ) equals the loop's applied force bit for bit, but today's published row is the reported reaction fl(K·u − f − φ⁰)_t + φ⁰, which adds the binary64 residual of the free row. The certified row therefore differs from today's by that residual.
+- **Groups.** Each nonlinear support is a support group of its body in the force or moment family by its DOF (kd5 §3.2), with its component vector and its separately published scalar magnitude. The friction-normal row is the source restraint's row.
+- **The predicate, the notice and the maximum** run unchanged over all groups (kd5 §3.2–3.3). An inactive support's zero group is zero-compatible, with a = 0 and B = 0. A demotion keeps the certified rows, as in (d).
+- **Combinations** of nonlinear models stay withheld.
 
 ### 3.2 Criterion
 
-The 1e-9 criterion, RD(1e-9), the floor q̂ ≥ 2^-34·S* and the 2^-988 guard are unchanged. No criterion change is needed. The strict margins in §2.2 are sign conditions on certified balls, not tolerances.
+The 1e-9 criterion, RD(1e-9), the floor q̂ ≥ 2^-34·S* and the 2^-988 guard are unchanged. The strict margins in §2.2 are sign conditions on certified balls, not tolerances.
 
-### 3.3 Text (drafts; claims lint at implementation)
+### 3.3 Text (claims-checked against `docs/claims_registry.md`)
 
-- **The §2.4 sentence.**
-- **Limitation sentence**, for the formulation basis of runs with nonlinear supports, beside kd5 §3.4's sentences:
+- **The §2.4 sentence**, and its reasons, use "established"; no product text says "certified" (R5).
+- **The Passed evidence line**, appended to the integrity diagnostic of a Passed nonlinear case:
 
-  > "On a load case with nonlinear supports reported NUMERICAL_INTEGRITY_CHECKS_PASSED, member actions, stresses and support reactions are recovered at 128-bit precision from a formation-checked solve of the converged support state, each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state to within its bound; displacements and the iteration's residual rows are the iteration's own."
+  > "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; displacements and residual rows are the iteration's own."
 
+- **No formulation-basis change.** Revision 0 drafted a limitation sentence for runs with nonlinear supports. The `FormulationBasis.limitations` lists are schema constants, so a run-dependent sentence would change every reader of the profile. kd5 §3.4's two sentences already state what a Passed nonlinear case publishes (rows recovered at 128-bit precision from the formation check's corrected displacement; displacements are the solve's own), so the case-specific statement goes in the evidence line above instead.
 - **Retired:** the nonlinear-route variant of kd5 §2.3's sentence. Its `route` literal (pricing rule KD5A3) becomes the single "on this route".
+
+### 3.4 The published values change (property, R4)
+
+**Property.** On a load case with nonlinear supports published `NUMERICAL_INTEGRITY_CHECKS_PASSED`, member rows and support reactions, including the nonlinear support rows, are certified recoveries of the converged state's intended system. They are not binary64 recomputations from the published displacements, nor the loop's reported reactions.
+
+- The sliding-friction force is the certified coupled value (derived normal) or the exact product −dir·μ·|N| rounded once (explicit normal). On the committed models it moves by the loop's coupling miss plus the free-row residual, at most about 1.4e-9 relative (§5), and becomes the same in both modes.
+- Inactive nonlinear support rows become exact +0 instead of binary64 residual noise.
+- Active and sticking reactions become certified recoveries.
+- Blast radius: §5.
 
 ## 4. W1, pricing and runtime
 
-**W1 never sees a nonlinear case.** Five independent refusals in code at this head:
+**W1 never sees a nonlinear case.** Four W1-side refusals in code: PP `source_eligible(captured, nonlinear, combinations)` is false for nonlinear invocations (no retained-source attempt, no N-5 path); `source_recovery.rs` refuses the "nonlinear/contact source family"; `retained_memory.rs` D1.6 refuses `support.nonlinear`; `retained_product.rs` W1 refuses any built model with nonlinear supports. Separately, the exact pressure route refuses nonlinear supports (`exact_admission`); that is an exact-route refusal, not a W1 one (review M2). Nothing must happen in W1, and no fail-closed reason here routes to retained-source recovery. The confirmation calls no retained or W1 code.
 
-1. PP `source_eligible(captured, nonlinear, combinations)` is false for nonlinear invocations. No retained-source attempt and no N-5 path exist.
-2. `source_recovery.rs` refuses the "nonlinear/contact source family".
-3. `retained_memory.rs` D1.6 refuses `support.nonlinear` (`F::Nonlinear`).
-4. `retained_product.rs` W1 refuses any built model with nonlinear supports.
-5. The exact pressure route refuses nonlinear supports (`exact_admission`).
+**Pricing.** The retained route's behaviour is unchanged. The static TEXT and cap chain still reaches shared code, and `solve_load_case_observed` reaches the nonlinear helper.
 
-Consequences:
-
-- Nothing must happen in W1. N-5 cannot fire, and no fail-closed reason here can route to retained-source recovery.
-- The confirmation code must call no retained or W1 code.
-
-**Pricing.** The retained route's behaviour is unchanged. The static TEXT and cap chain still reaches shared code (rule L3 already prices `structural_adapter.rs new` in this crate), and `solve_load_case_observed` reaches the nonlinear helper. Requirements:
-
-- Place the confirmation and certificate behind the existing early return of `append_nonlinear_support_loop_results` (no nonlinear supports → return). Under D1.6 their loops then have computed multiplicity 0. They need O-10 rules of the J kind: computed multiplicity, a guard that fails on positive multiplicity, and honest classes.
-- Each new text site gets a class: the §2.4 sentence and the support id ≤ 128 B.
+- The confirmation and certificate sit behind the existing early return of `append_nonlinear_support_loop_results` (no nonlinear supports → return). Under D1.6 their loops have computed multiplicity 0; they need O-10 rules of the J kind (computed multiplicity, a guard that fails on positive multiplicity, honest classes).
+- **Outside the helper (review M3).** The publication changes in `solve_load_case_observed` (the nonlinear `member_bound` and its Stage-B force, the evidence line) and in `certified_publication::support` (the nonlinear slot) are reached by the static chain on every invocation. Their multiplicity is argued from the same D1.6 premise: each new branch is entered only when the built model has nonlinear supports (`built.nonlinear_supports` non-empty, or a confirmed state, which exists only then), so under D1.6 each has computed multiplicity 0 and holds no new allocation.
+- Each new text site gets a class: the §2.4 sentence with its reason (support id ≤ 128 B) and the evidence line.
 - KD5A3's route literal changes.
-- Run `price.py run <head>`, then `compare`, then `generate`. Predicted: no positive row changes except TEXT; the implementation measures it. Re-registration stays under the owner's M = 12 GiB with kd5 §6's margins.
+- `price.py run <head>`, then `compare`, then `generate`; re-registration stays under the owner's M = 12 GiB with kd5 §6's margins.
 
-**Runtime cost model.** Notation: T_f is one gate and factorization; T_s one right-hand-side solve; T_p one K-D5 re-formation pass over all elements at p.
+**Runtime cost model.** T_f is one gate and factorization; T_s one right-hand-side solve; T_p one K-D5 re-formation pass over all elements at p. Today a converged case costs about I·(T_f + T_s) plus I·(k + 1) dense coupling solves. The unit adds T_f + 4·T_s (gate and Hager estimate) + T_ε (ε_E, once) and per evaluation 3·T_p + 2·T_s, for one (k = 0) or three (k = 1) evaluations, plus the adjacency-limited reaction and displacement balls. The implementation measures it (§5).
 
-- Today a converged case costs about I·(T_f + T_s), with I iterations, plus I·(k + 1) dense solves for derived friction, plus the strict-gap exact work.
-- The unit adds:
+## 5. Committed outputs and declared moves
 
-  T_f + T_s + 5·T_p                         (confirmation, Stage B: ρ, s, s₂, ε_E, recovery)
-  + [k > 0]·(3·T_p + k·(T_s + 3·T_p) + recoveries of k reactions)   (Stage A)
+**Probe** (revision 0's head a881a65631, release build, `openpipestress-runner solve` in both modes; evidence in `WT/scratch/t4m/nlkd5-design/`). The converged state's auxiliary symmetric system (NL-140 as a linear UY restraint; NL-130-FRIC's force as a nodal Z force equal to the loop's force) publishes `NUMERICAL_INTEGRITY_CHECKS_PASSED` through today's linear producer with K-D5 and (d), in both modes, on both models. Its coupling gain is c·g = −1.11e-3.
 
-  Stage A's three passes are its ρ, s and s₂; ε_E and the factor are shared, and reaction recoveries are adjacency-limited.
-- **Measured anchors.** On the linear route K-D5 costs a median 5.3× a linear case (kd5 §6). On a release build on a shared host (median of 7 whole-process runs, startup included), the committed demo model takes 21 ms today. Its linear proxy (§5), which adds K-D5 and also solves the combination, takes 33 ms.
-- **Predicted.** About 2.5–4× today's case solve time on the committed models (I = 2, k = 1). The implementation measures it on an exclusive host, as kd5 §6 did.
-
-## 5. Committed outputs and predictions
-
-**Probe** (this design's head a881a65631, release build, `openpipestress-runner solve` in both modes). Evidence is in `WT/scratch/t4m/nlkd5-design/` (`proxy.py`, `show.py` and outputs).
-
-- **The proxy.** It is the converged state's **auxiliary symmetric system** as an ordinary linear model:
-  - NL-140 (one-way, Active) becomes a linear UY restraint;
-  - NL-130-FRIC (sliding, derived normal from S-130 UY) becomes a nodal Z force equal to the loop's φ⁰.
-- **Proxy result.** Today's linear producer with K-D5 and (d) publishes `NUMERICAL_INTEGRITY_CHECKS_PASSED` for both cases, in both modes, on both models. A second proxy with the force removed gives g = ∂R_n/∂φ = 0.1110 and c·g = −1.11e-3.
-
-| Model (both identical in structure and loads) | Mode | Case | NL-140 reaction (N) | S-130 \|R_n\| (N; signed −) | u_t (mm) | loop φ⁰ (N) | (μ\|R_n\| − φ⁰)/φ⁰ |
+| Model (both identical in structure and loads) | Mode | Case | NL-140 reaction (N) | S-130 \|R_n\| (N; signed −) | u_t (mm) | published NL-130-FRIC row today (N) | (μ\|R_n\| − row)/row |
 |---|---|---|---|---|---|---|---|
 | demo and `preview_physics_invented` | sparse | L-100 | −297.627 | 52.373 | −6.6439 | 0.52373282006 | −3.57e-10 |
 | | sparse | L-200 | −98.813 | 26.187 | −3.3220 | 0.26186641003 | −3.57e-10 |
 | | dense | L-100 | −297.627 | 52.373 | −6.6439 | 0.52373281913 | +1.42e-9 |
 | | dense | L-200 | −98.813 | 26.187 | −3.3220 | 0.26186640956 | +1.42e-9 |
 
-- **Margins** are of order 10^2 N, 10 N and mm. kd5's measured bounds on such cases are of order 1e-12 relative or less. Every §2.2 condition is therefore predicted to hold:
-  - NL-140 is sense −, Active, so upper(r) < 0 is needed;
-  - R_n excludes 0;
-  - u_t < 0 with dir = −1.
-- **The loop's friction law misses** by a load-independent 3.6e-10 (sparse) and 1.4e-9 (dense) of the force. This is consistent with binary64 solve error in the derived normal between the loop's coupling solves and its final solve. The dense miss is above the 1e-9 criterion on the friction support's own row.
-  - Publishing φ⁰ as certified would be wrong. Stage A is required.
-  - Stage A moves the published force to φ* ≈ μ|R_n(u*)|, which is mode-independent to rounding.
+- **What the friction column is (review I1).** It is today's published reported reaction fl(K·u − f − φ⁰)_t + φ⁰, not φ⁰. φ⁰ itself is mode-independent (§0); the two modes differ by the free row's binary64 residual, quantized at 2^-31 N on these models (one or two quanta). The relative miss against μ|R_n| combines that residual with the loop's coupling miss. Revision 0 attributed the whole miss to the coupling; that was wrong. The mode-independent φ⁰ and its own miss are measured at implementation.
+- **R4's rationale, restated.** Neither the published row nor φ⁰ is the coupled-law value of the published state to within the criterion's scale on the friction row, and the row depends on the mode. The certified value is mode-independent to its bound. Publishing φ⁰ instead (Stage A skipped) is a mutant that only an exact reference can kill: F-2 (§6). The demo cannot, since its miss is not known exactly.
+- **Margins** are of order 10^2 N, 10 N and mm, against kd5 bounds of order 1e-12 relative. NL-140 is sense −, Active (upper(r) < 0); R_n excludes 0; u_t < 0 with dir = −1.
 
-**Predicted moves (both models, both cases, both modes: 8 case-modes).**
+**Declared moves (both models, both cases, both modes: 8 case-modes), declared before re-pinning.**
 
-- `NUMERICAL_INTEGRITY_SENSITIVE` becomes `NUMERICAL_INTEGRITY_CHECKS_PASSED`, and the nonlinear-route sentence is removed.
+- `NUMERICAL_INTEGRITY_SENSITIVE` becomes `NUMERICAL_INTEGRITY_CHECKS_PASSED`; the nonlinear-route sentence is replaced by the evidence line (§3.3).
 - Member, stress and support rows become certified: mostly last bits; S-130 and NL-140 reactions change at the level of the loop's solve error.
-- The friction force row moves by −3.6e-10 (sparse) or +1.4e-9 (dense) relative, to the same value in both modes.
+- The NL-130-FRIC row moves to the certified coupled value, the same in both modes; the `nonlinear_support_final_reaction` row of each nonlinear support equals its component; the derived-normal row equals |S-130 UY|'s certified component.
 - Maximum metadata moves per kd5 §3.2. Displacements, state codes and loop-evidence rows are byte-identical. No notice is emitted (the cases are loaded).
 
-**Committed outputs (5; 10 integrity diagnostics; from kd5 §5):**
+**Committed outputs (5; 10 integrity diagnostics):** `fixtures/product_preview/invented_demo_result_preview_physics_1_{sparse,dense}.json`, `fixtures/product_preview/invented_demo_result_legacy_0_1.json`, `fixtures/results/preview_physics_invented_{sparse,dense}.json`. Every other committed nonlinear output is enumerated by the implementation's regeneration and listed with its standing in §9. The desktop demo's cases show Passed: its native-smoke expectation and desktop tests that pin the demo standing move with it. Under R1, gap outputs and `represented_gap_publication.rs` are byte-identical. The historical witness files under `validation/witness/` carry no integrity codes and do not move.
 
-- `fixtures/product_preview/invented_demo_result_preview_physics_1_{sparse,dense}.json`;
-- `fixtures/product_preview/invented_demo_result_legacy_0_1.json`;
-- `fixtures/results/preview_physics_invented_{sparse,dense}.json`.
-
-The desktop demo's cases show Passed. Under R1's G1, gap outputs and `represented_gap_publication.rs` are byte-identical. The historical witness files under `validation/witness/` carry no integrity codes and do not move. Every other committed nonlinear output is enumerated by the implementation's regeneration.
-
-**Pins that move:**
-
-- PP `kd5_eight_committed_nonlinear_case_modes_have_named_sensitive_reason` (re-pinned to Passed);
-- PP `kd5_nonlinear_route_named_fail_closed_in_both_modes` (re-pinned to the measured outcome of its sticking explicit-normal model);
-- the comment in RE `preview_physics_contract.rs` `numerical_standing_progression_on_a_fresh_identity`;
-- NI `s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point` (R2);
-- pricing KD5A3;
-- every PP nonlinear-route integrity assertion: 16 helper uses and `friction_reversal_stop_release_runtime.rs`, enumerated at implementation;
-- the committed outputs above.
+**Pins that move:** PP `kd5_eight_committed_nonlinear_case_modes_have_named_sensitive_reason` (re-pinned to Passed); PP `kd5_nonlinear_route_named_fail_closed_in_both_modes` (re-pinned to the measured outcome); the comment in RE `preview_physics_contract.rs`; NI `s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point` (R2); pricing KD5A3; every PP nonlinear-route integrity assertion that read the retired sentence; the committed outputs above.
 
 ## 6. Evidence plan
 
-**Independent references** (invented models only; LOOP_INIT's independent basis; no product code as an oracle). A new `validation/references/kd5_nonlinear/` holds a generator, a request bound by SHA-256 and an oracle, following `kd5_member_bound`'s pattern.
+**Independent references** (invented models only; no product code as an oracle). `validation/references/kd5_nonlinear/` holds a generator that forms each Euler–Bernoulli 12×12 frame element in exact rationals from the request's binary64 leaves (Przemieniecki, *Theory of Matrix Structural Analysis*; McGuire, Gallagher and Ziemian, *Matrix Structural Analysis*), assembles, enumerates the support states (each sliding support in both slip senses) and solves each state exactly (`fractions`). It records every state that satisfies all DEC-067 conditions strictly, with its exact rows. The models are axis-aligned with power-of-two lengths, so every element entry and every direction cosine is exact at p and the exact-element system is the p-rounded intended system; the premise allowance of revision 0 is not needed. Each request and oracle is bound by SHA-256, and the PP consumer checks the request binding and the actual normalized section leaves (kd5 §3.3 pattern).
 
-- **Generator.** The generator forms each Euler–Bernoulli 12×12 frame element itself, in exact rationals, from the request's binary64 leaves. Sources: Przemieniecki, *Theory of Matrix Structural Analysis*; McGuire, Gallagher and Ziemian, *Matrix Structural Analysis*. FK's frame is Euler–Bernoulli (`local_stiffness`). The generator then assembles and solves exactly (`fractions`).
-- **Contact problem.** It solves the contact problem by enumerating support states and keeping the state whose exact solution satisfies every DEC-067 condition. It records that exactly one state qualifies, and its exact margins.
-- **What the PP consumer checks.** It checks the request binding and the actual normalized leaves (kd5 §3.3 pattern). It then asserts:
-  - the published state equals the oracle's;
-  - every published member and support row satisfies |v − v_ref| ≤ B;
-  - the friction row is within B of the exact −dir·μ·|R_n|;
-  - Passed, or the named reason for the controls.
-- **Premise.** The exact-element reference differs from the p-rounded intended system by ~2^-120 relative (kd5 §1's premise). That is negligible against B.
+- **Friction non-uniqueness.** When several states qualify, the oracle lists them all; the PP test requires the published state to be one of them and compares the rows with that state's exact solution.
+- **What the PP consumer checks:** the published state; every published member and support group within its B of the exact value (‖v − v_ref‖ ≤ B); the friction row within B of the exact −dir·μ·|R_n|; Passed, or the named reason for the controls.
 
 | Id | Model (invented) | Checks |
 |---|---|---|
-| G-1 | Anchored straight cantilever along a skew axis, tip gap on the transverse DOF (closes in −, clearance g), tip load −P. Closed form: open u = −PL³/(3EI); closed u = −g, contact force P − 3EIg/L³, root moment 3EIg/L² | open and closed cases certified (G2) or certificate-level (G1); a near-degenerate load with P·L³/(3EI) − g inside the ball fails closed with "gap clearance not certified" or "contact force sign not certified" |
-| F-1 | Anchored cantilever along X; tip linear UY restraint (normal source) and friction on UX with derived normal; tip loads P_y, P_x. Decoupled (g = 0): R_n = −P_y exactly; stick if \|P_x\| < μ\|P_y\|; slide u_x = (P_x − sign(P_x)·μ\|P_y\|)·L/(EA) | stick and slide certified; near-boundary \|P_x\| ≈ μ\|P_y\| fails closed with "stick capacity not certified"; explicit-normal twin |
-| F-2 | L-frame: anchored X leg, vertical Z leg, top shoe with linear UZ restraint (normal source) and friction on UX, μ = 0.5. Strong coupling (\|c·g\| of order 0.1, reported by the generator) | Stage A's verified solve; published friction force within B of the exact coupled force; both modes give the same certified force |
-| U-1 | One-way support lifted (Inactive) and pressed (Active) on a short L line | separation and contact sign; a zero-load control (u_d = 0, r = 0 exactly) fails closed (weakly active) |
+| G-1 | Anchored cantilever with a tip gap (both closed and open loads) | R1 containment control: `RECOVERY_BASIS_UNQUALIFIED`, no confirmation, byte-identical rows |
+| F-1 | Anchored cantilever along X; tip linear UY restraint (normal source) and friction on UX with derived normal; tip loads P_y, P_x. Decoupled (g = 0): R_n = −P_y; stick iff \|P_x\| < μ\|P_y\|; slide u_x = (P_x − sign(P_x)·μ\|P_y\|)·L/(EA) | stick and slide certified, P_y of each sign; near-boundary \|P_x\| ≈ μ\|P_y\| fails closed ("stick capacity"); explicit-normal twin with μ·N inexact in binary64; μ = 0 sliding control |
+| F-2 | L-frame: anchored X leg, vertical Z leg, top restraint UZ (normal source) and friction on UX, μ = 0.5; strong coupling (\|c·g\| reported by the generator) | Stage A; the published friction force within B of the exact coupled force in both modes |
+| U-1 | One-way support on an L line, lifted (Inactive) and pressed (Active); a twin with a parallel spring on the same DOF; a zero-load control (u_d = 0, r = 0 exactly) | separation and contact sign; spring included in the contact force; the zero-load control fails closed (R3) |
 
-The committed demo models are natural positives (Passed in both modes, §5); their proxies stand as the reference shape.
+The committed demo models are natural positives (Passed in both modes).
 
-**Mutants that must be killed** (each by a named test):
+**Mutants that must be killed** (each by a named test, §9):
 
-- **Certificate.**
-  - Midpoint-only comparison (radius dropped). Killed by G-1, F-1 and U-1 near-degenerate controls whose margin lies in (0, ρ).
-  - `≥` in place of `>`. Killed by U-1's exact-zero control.
-  - Gap direction swapped. Killed by G-1 closed.
-  - Reaction sign convention reversed. Killed by U-1 Active and the demo's NL-140.
-  - A spring at d excluded from the contact force. Killed by a gap-plus-spring control.
-  - Derived N signed instead of |R_n|, or β not checked. Killed by F-1 with P_y of each sign.
-  - Stick capacity without ρ_n or ρ_t. Killed by F-1 near-boundary.
-  - Slip sign not checked. Killed by a certificate-function unit test with synthetic balls.
-- **Coupling.**
-  - Publishing φ⁰ (Stage A skipped). Killed by the demo in dense mode (1.4e-9 > c on the friction row) and by F-2.
-  - (I − C·G)⁻¹ dropped (φ* = C·N⁰). Killed by F-2: the error is |c·g|·|δ| against a bound at rounding level.
-  - Stage-A radius missing from ψ, or G's radius dropped. Killed by a unit test against a constructed ball case.
-  - k > 1 without the θ < 1 check. Killed by a unit test with a singular M ball.
-- **Confirmation.**
-  - K-D5 evaluated at the attempt's own solution instead of the loop's u. Killed by displacement bytes pinned equal to the loop's.
-  - The last iteration's report used as the factor's record. Killed by a source pin and a test whose confirmation gate differs.
-  - `selected = false`. Killed by a Passed assertion.
-  - Prescribed-row mismatch not detected. Killed by a unit test.
-- **Publication.**
-  - Nonlinear support rows not certified, or an inactive row nonzero. Killed by the demo and U-1.
-  - `nonlinear_support_final_reaction` differing from the component. Killed by an equality pin.
-  - Loop-evidence rows altered. Killed by byte pins.
-- **Fail closed.** Each §2.4 reason has a demoting test with its named sentence, and the rows are byte-identical to today's.
-- **Scope.** Under G1, every gap test and output is byte-identical. W1: a source pin shows the confirmation module calls no retained code.
+- **Certificate.** Midpoint-only comparison (radius dropped); `≥` in place of `>` (U-1's exact-zero control); reaction sign convention reversed (U-1 Active and the demo's NL-140); a spring at d excluded from the contact force (U-1's parallel-spring twin); derived N signed instead of |R_n|, or β not checked (F-1 with P_y of each sign); stick capacity without ρ_n or ρ_t, and an inexact (rounded-to-nearest) stick comparison (F-1 near-boundary and a synthetic-ball unit test); slip sign not checked (synthetic-ball unit test); deciding from the loop's binary64 trial values instead of the balls (synthetic balls whose midpoint has the right sign but whose radius straddles 0).
+- **Coupling.** Publishing φ⁰ (Stage A skipped) and (1 − c·g)⁻¹ dropped (F-2); the Stage-A radius missing from ψ, or g's radius dropped (unit test on a constructed ball case); k > 1 not refused (unit test); using Stage A's bound inputs for §2.2 or publication (F-2).
+- **Closure.** Missing, duplicate, extra or wrong-binding friction primitive (NI unit tests on the manifest and the closure); the explicit force re-formed from fl(μN) instead of the exact μ·N (FK re-formation test with μN inexact, and F-1's explicit twin).
+- **Confirmation.** K-D5 evaluated at the gate's own solution (displacement bytes pinned equal to the loop's); the influence system judged by D5C-1 (the demo fails closed under it); `prescribed row mismatch` not detected (unit test); a second formation-check entry or an in-loop entry (the re-scoped source pin and its mutant).
+- **Publication.** Nonlinear rows not certified, or an inactive row nonzero (demo, U-1); `nonlinear_support_final_reaction` differing from the component (equality pin); loop-evidence rows altered (byte pins).
+- **Controls.** n ∉ B (a spring-family source), rotational friction (validation refusal), μ = 0 sliding, k > 1, and each §2.4 reason with its sentence and byte-identical rows.
+- **Scope.** Under R1 every gap test and output is byte-identical. W1: a source pin shows the confirmation calls no retained code.
 
-**Re-run unchanged:** FK `formation_check_tests` (`kd5_*`), PP `s11g_tests`, the kd5 sets (realistic, RV29, W1, RV30) on the linear route. They must be byte-identical: this unit changes no linear-route code path.
+**Re-run unchanged:** FK `formation_check_tests` (`kd5_*`), PP `s11g_tests` and the kd5 sets on the linear route. This unit changes no linear-route arithmetic.
 
 ## 7. Implementation plan
 
-**FK `structural/formation_check.rs`, `certified_recovery.rs` (DEL-04-01):**
+**FK (DEL-04-01).**
 
-- `LoadFormula::SlidingFrictionExplicit` and `SlidingFrictionCoupled`, with re-formation (exact and ball) and closure identities (§1.6). Producer-side manifests are enumerated by the nonlinear crate.
-- An evaluation of a formation-checked attempt at a supplied u. It runs ρ, w, s, w₂, s₂, σ and Λ with the attempt's factor, and returns `MemberBoundInputs` or `FormationCheckUnavailable`. ε_E and Λ are computed once per attempt.
-- A certified unit response for e_d: z̃, w_z, w₂z, σ_z with the same rules.
-- `certify_displacement(d, u, bound)`. `certify_support_reaction` is reused unchanged.
-- Separate formation-checked attempts per right-hand side are acceptable instead of a shared factor. Each then carries its own D, Λ and ε_E, and quantities from different attempts are combined only through their balls.
+- `formation_check.rs`: `LoadFormula::SlidingFrictionExplicit` and `SlidingFrictionCoupled`, with bindings, nodal DOF binding in the closure, and re-formation (exact product; ball). `evaluate` gains `judged` (D5C-1 on or off) and a per-attempt ε_E cache.
+- `structural.rs`: `finish_confirmation(&PositiveFactor) -> (StructuralSolution, ConfirmationAttempt)`; `ConfirmationAttempt::evaluate_at(&FormationCheckedSystem, u, judged)`, which requires the factor's stiffness, free map and contributions.
+- `certified_recovery.rs`: `certify_displacement(dof, u, bound)`; `CertifiedRow::enclosure`, exact sign and stick comparisons (`lower_above`, `upper_below`, `stick_margin_positive`); `CertifiedValue::into_row`.
+- `load_ledger.rs`: `AssembledForce::with_appended(LoadLedger)`.
 
-**NI `nonlinear_integration` (DEL-04-04 and DEL-04-07):**
+**NI (DEL-04-04, DEL-04-07).**
 
-- `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> ConfirmedState { formation_check, member_bound, friction: Vec<CertifiedFriction>, finding: Option<ActiveSetFinding> }`. It covers Stage A, Stage B and the pure §2.2 predicate `active_set_certificate(...)`, which is unit-testable on synthetic balls.
-- The k×k verified solve.
-- The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
-- The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry, and `confirm_converged_state` contains exactly one.
+- `structural_adapter.rs`: `AssemblyEvidence::confirm_with_formation_check`, the route's single formation-check entry, which prepares, factors, finishes and hands an evaluation context to its caller.
+- `confirmation.rs`: `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> Confirmation`, with the preconditions, the manifest, Stage A, the influence evaluation, Stage B, and the pure predicate `active_set_certificate`, unit-testable on synthetic balls. The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
+- The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry; `confirm_converged_state` contains exactly one call to the confirmation entry; the product calls `confirm_converged_state` once, inside the nonlinear helper.
 
-**PP `lib.rs` (DEL-04-07):**
+**PP (DEL-04-07).**
 
-- After qualification (inside the nonlinear helper's non-empty branch), call the confirmation for non-gap states (G1).
-- On Passed: build `member_bound` from Stage B and append the formation-check line, then run (d)'s recovery loop with the loop's u. Extend `certified_publication::support` to nonlinear supports (§3.1). Publish the nonlinear scalar rows from the same values.
-- Otherwise: apply the §2.4 sentence and keep today's rows.
-- Remove the nonlinear variant of the no-`member_bound` sentence. Add the limitation sentence.
+- Validation refuses rotational friction.
+- After qualification (inside the nonlinear helper's non-empty branch), call the confirmation for non-gap states whose last report is Passed with no load-row finding (§2.4 item 1).
+- On Passed: `member_bound` and the Stage-B force from the confirmation; (d)'s recovery loop with the loop's u; `certified_publication::support` gains the nonlinear slot; the nonlinear scalar rows publish the same values; the evidence line.
+- Otherwise: the §2.4 sentence, today's rows.
 
-**Dependency conditions.** DEL-04-07's need on DEL-04-01 gains the friction primitives, the supplied-u evaluation and the unit response. The implementing PR updates the condition text. DEL-04-04's classifier is unchanged.
+**Dependency conditions.** DEL-04-07's need on DEL-04-01 gains the friction primitives, the confirmation attempt with its supplied-u evaluation, and the displacement ball. The implementing change updates the condition text. DEL-04-04's classifier is unchanged.
 
-**Measured by the implementation, not assumed:**
+## 8. Rulings
 
-- the margins and B/c on the 8 case-modes and on G-1, F-1, F-2 and U-1;
-- the friction-row move;
-- runtime (§4);
-- the pricing comparison;
-- the fail-closed rate on every committed and test nonlinear model.
+All of revision 0's R1–R5 are ruled (see "The rulings"). None is a criterion change. Remaining owner choices: G2 for gaps (a later unit); a tolerance for weakly active supports (not proposed).
 
-## 8. Rulings needed
+## 9. Measured at implementation
 
-HELP_HUMAN holds technical delegation; criteria remain the owner's. None of these is a criterion change.
-
-- **R1. Gap supports.**
-  - **G1 (this revision's default):** gap-bearing cases keep both `RECOVERY_BASIS_UNQUALIFIED` branches and the NGR02 containment unchanged. Consequence: no gap case can be Passed, and no gap output moves.
-  - **G2:** gap-bearing cases run the confirmation. K-D5 is evaluated at the published u (the selected exact-ratio projection on `Qualified`, the loop's u on `Unsupported`), and §2.2's gap rows apply. A certified case publishes `CHECKS_PASSED` with certified rows, replacing the containment that "mixed recovery remains numerically unresolved". Consequence: the NGR02 tests and every converged gap output move; G-1 becomes a publication test.
-  - Recommendation: G1 now, G2 as a follow-on after the non-gap evidence, because G2 changes a separately contained publication.
-- **R2. Selection on the nonlinear route.** Confirm that the owner's steer supersedes "ROOT's ruling" (nonlinear invocations are never selected) for the single confirmation attempt, with the loop's binary64 solves unchanged. T3's agreement is needed to re-scope its source pin (T3 D1 §4.3.1, mutation 32). Without R2 the unit cannot proceed, and kd5 §5's fail-closed rule stands.
-- **R3. Weakly active supports.** These are supports at zero reaction and zero separation, or exactly at stick capacity.
-  - Default: fail closed, which is fail-safe.
-  - The alternative, accepting a state within a bounded perturbation of a degenerate one, would add a tolerance. That is the owner's choice and is not proposed.
-- **R4. Published friction force (property).** On a Passed case it is the certified coupled-law force, not the loop's binary64 value. On the committed models it moves by up to 1.4e-9 relative and becomes mode-independent. Accept as a property, as kd5 §3.4's repair was.
-- **R5. Claims wording.** Existence is certified. Uniqueness is stated for frictionless states as a model property and is not claimed with friction (§2.3). Accept this wording for surface text through `docs/claims_registry.md`.
+Recorded by the implementing change: the margins and B/c on the 8 case-modes and on F-1, F-2 and U-1; φ⁰'s own coupling miss and the friction-row move; runtime; the pricing comparison; the fail-closed rate on every committed and test nonlinear model; the mutant table.
 
 ## Open items
 
-- **The loop's own coupling precision.** It misses the friction law by up to 1.4e-9 relative, which is a loop-side numerical issue. This unit makes publication independent of it. Improving the loop is outside this unit and DEC-046's convergence policy is unchanged.
+- **k > 1** (several coupled derived-normal sliding supports) fails closed. A later extension can certify it with Rump's verified-linear-system theorem (Rump, "Verification methods: Rigorous results using floating-point arithmetic", *Acta Numerica* 19, 2010, §10), as revision 0's A-4 sketched.
+- **G2 for gaps** remains open (R1).
+- **The loop's own coupling precision** is a loop-side numerical issue; publication no longer depends on it. DEC-046's convergence policy is unchanged.
 - **The nonlinear route has no Design file of its own** (DEL-04-04 has no `Design/`). This file is the route's K-D5 design.
-- **Explicit-normal sliding with N ≤ 0** cannot occur, because the classifier makes it Inactive. It is noted for completeness.
