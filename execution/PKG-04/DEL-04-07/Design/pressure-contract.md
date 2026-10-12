@@ -16,6 +16,8 @@ Pressure on the current exact route is limited to straight pipe and linear suppo
 - **v2 retirement:** T3's B7b deletes `2.0.0/exact_straight_pressure_v2` (its contract, admission branch, the readers' v2 acceptance, fixtures and the SP-1 twin tests); a v2 document is then refused by name, with no migration code (DEL-05-02 Design, `b7-plan.md`).
 - **H-2:** retain the pre-cancelled ledger and add member-owned bend `K_b·u_free(ε_p) − c_b` and joint `p(Ae−Ai)` terms. One implementation owns the assembly. T4-U5 must independently compare representation (A), including JR's tie-force double-count control.
 
+**Batch-4 M3 dependency.** The seven RV31/RV32 repairs and 135 independent checks bind U2 source `98dba87714262722a78a534ad5921a188e5ff44f`. Existing FK primitive-law controls establish their re-formed operand and matrix laws; the M3 numbers in [DEL-04-01 Design §4.3](../../DEL-04-01/Design/kd5-member-relative-bound.md) are emulation evidence. These warrants do not establish the final integrated producer. After the K-D5 source seal, batch 4 must bind every grouped Poisson, terminal-cap, bend-cap and kink constituent to independently enumerated curved/tangent closure manifests, and `PressureFreeStrainCurved` to the same `K_int,arc` and raw `(1−2ν)pAi/(EA)` law. Final repaired section cuts and wall publication must preserve `Nw=N_el+pAi`, `S=N_el`, including end-tangent actions, stations and the separate wall bound. `ShortBend` removal remains conditional on actual final-producer closure and M3/reference controls in both modes, including drop-one-of-many checks; `bend_neighbour_ratios` remains for pivot refusal.
+
 ## T3 coexistence and B7
 
 **The v3 retained-source join (D7, HELP_HUMAN 2026-10-10).** Every v3 family or basis a T4 unit admits (realized bends in T4-U2, dual-basis sections in T4-U6, Timoshenko in T4-U8) is declined by name in `prepare_sources` unless that unit extends the source method; otherwise a selected case's composite evidence fails finalization and the case loses its publication. The join itself, `pressure-source-1`, is planned in DEL-05-02 Design.
@@ -42,7 +44,7 @@ Sources: [NUM frozen rulings: pressure retirement, U3 and U5](https://github.com
 
 ## T4-U2 as implemented
 
-This records what the code does on T4-U2's integrated head (batch 4: T4-U2 with T4-U3 and O-13); it is not an acceptance claim.
+This records what the code does at T4-U2 source `98dba87714262722a78a534ad5921a188e5ff44f` (T4-U2 with T4-U3 and O-13). Final integration with K-D5 remains subject to the batch-4 M3 dependency above; this is not an acceptance claim.
 
 - **Realized bends under v3 (D-2).** `3.0.0/exact_pressure_v3` admits realized curved bends carrying the user's k; a region span over a geometry-only (chord) bend is refused with a realization message and the bend stays pressure-free. v2 is unchanged.
 - **Ledger (H-2).** Straight members keep the pre-cancelled ledger (SP-1). Each arc owns K_b·u_free(ε_p) − c_b, with ε_p = (1−2ν)pAi/(E·As) formed in Scaled arithmetic and c_b its end caps along the end tangents. A region changes direction only at realized bends: a bend-end direction change θ ≤ α_tan = 1e-3 rad is carried exactly by the kink remainder pAi(t_in − t_out); a larger θ is a mitre, refused (`PRESSURE_REGION_MITRE_UNSUPPORTED`) until T4-U7, and a straight–straight kink is `PRESSURE_REGION_NONCOLLINEAR`.
