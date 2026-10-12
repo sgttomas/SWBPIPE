@@ -1961,10 +1961,12 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # two linear limitation sentences, the producer-solved and hook bases are the current producer's
 # successors (CHECKS_PASSED cases' certified rows), the derived synthetic bases take those changes, and
 # two mutations' embedded copies follow their bases (was 28ae62bf…, 32718045… and joined b8f89d25…; the
-# full earlier files stay at tag archive/piping-retained-corpus-20261011 and in Git history).
-O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "9f7cbdabba37ec42f73f03e5420b22182f8e6a156ab6d419a81cf271bcbf7c3e",
+# full earlier files stay at tag archive/piping-retained-corpus-20261011 and in Git history). B7a's B6 re-pinned
+# the 07m + 07n file and the join: its only change renames one expected code (SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN
+# to SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN), the same string node (was 9f7cbdab… and joined 1445190d…).
+O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "16d60c5b568ee178aaafc01dabee85cc77fdf9b9a4d9b207209631bed16c857e",
               "fixtures/results/retained_precision_cases_07o.json": "420ba602a841f965f3be4dc16a031e10906aedf0926a53459de959955eceb6ad"}
-O07_JOINED_SHA256 = "1445190dfd888b07677fc70101612bfb2722e00392cbaf261bbcce37c229ee9a"
+O07_JOINED_SHA256 = "8782c9d8d4d3ec33324d86279bf0e9e432b128e00e5bfbababe468edc7246d2d"
 O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
     f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
     "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]
