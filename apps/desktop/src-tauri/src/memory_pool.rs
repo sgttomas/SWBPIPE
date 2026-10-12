@@ -8,10 +8,14 @@
 //! acknowledgement and never exceeds physical capacity. Acknowledgement never
 //! bypasses headroom, pressure or qualification refusals.
 //!
-//! What the per-invocation budget bounds today: only a start's ingress lease
-//! (the raw body plus its materialization). The unpriced solve stage reserves
-//! nothing; result and custody leases are bounded by the pool, a fresh
-//! headroom verdict and the retention/custody count limits, not by the budget.
+//! What the per-invocation budget bounds: each ordinary solve's worker grant
+//! (owner decision 2026-10-12, "(c) Capped worker process"). The solve runs in
+//! a local child process whose allocator is capped at its grant; the grant
+//! starts at the worker's process reserve plus the request's ingress bound and
+//! grows on demand, each step an atomic admission with a fresh headroom
+//! verdict, never above the budget (`crate::solve_worker`). Result and custody
+//! leases are bounded by the pool, a fresh headroom verdict and the
+//! retention/custody count limits, not by the budget.
 //!
 //! Every priced admission is atomic: under one lock it checks capacity, the
 //! pool's remaining bytes, a fresh host sample (age, pressure, headroom) and
@@ -19,24 +23,36 @@
 //! consume the same pool bytes or headroom. A [`Lease`] releases exactly once
 //! when dropped, including during unwinding.
 //!
-//! The ordinary solve route has no sound whole-invocation byte bound yet (a
-//! reserved owner choice), so its solve stage is unpriced: it runs under an
-//! exclusive [`UnpricedSolveSlot`] that reserves no bytes and is admitted only
-//! with known capacity, a fresh sample, known headroom and normal pressure. No
-//! adaptive concurrency is claimed for unpriced work.
+//! Worker growth is the one admission whose headroom verdict credits measured
+//! residency: each worker lease's last reported physical footprint (at most
+//! its bytes) is already resident or compressed, so it is not also required
+//! from the free queue. Every other admission double counts all reservations.
 
 use serde::Serialize;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
-/// The owner-authorized, qualified per-invocation budget: 12 GiB. It caps a
-/// start's ingress lease; it does not bound result retention or custody.
+/// The owner-authorized, qualified per-invocation budget: 12 GiB. It caps each
+/// ordinary solve's worker grant; it does not bound result retention or custody.
 pub(crate) const QUALIFIED_INVOCATION_BUDGET_BYTES: u64 = 12_884_901_888;
 /// A host sample older than this cannot admit work.
 pub(crate) const HEADROOM_SAMPLE_MAX_AGE: Duration = Duration::from_secs(1);
-/// How often a queued unpriced solve re-samples the host while waiting.
-pub(crate) const UNPRICED_WAIT_TICK: Duration = Duration::from_millis(200);
-/// Jobs holding an admitted input while waiting for the solve slot.
+/// How often a queued job re-samples the host while waiting for its grant.
+pub(crate) const ADMISSION_WAIT_TICK: Duration = Duration::from_millis(200);
+/// The default bound on concurrently running solve worker processes, when
+/// the host's parallelism cannot be read.
+pub(crate) const FALLBACK_MAX_RUNNING_WORKERS: usize = 4;
+
+/// The bound on concurrently running solve worker processes: the host's
+/// available parallelism (fallback 4). A process-count safety bound, not a
+/// memory policy: memory is bounded by the pool and each worker's grant; this
+/// keeps the number of child processes (and their fixed per-process costs)
+/// proportionate to the cores that can run them. Jobs beyond it wait in the
+/// queue (`worker_limit_reached`), within the unchanged queue bound.
+pub(crate) fn max_running_workers() -> usize {
+    std::thread::available_parallelism().map_or(FALLBACK_MAX_RUNNING_WORKERS, std::num::NonZeroUsize::get)
+}
+/// Jobs holding an admitted input while waiting for their worker grant.
 pub(crate) const MAX_QUEUED_JOBS: usize = 4;
 /// Native results published and not yet taken by the webview.
 pub(crate) const MAX_RETAINED_RESULTS: usize = 4;
@@ -103,7 +119,16 @@ pub(crate) enum ResourceRefusal {
     QueueFull { queued: usize, limit: usize },
     RetentionFull { retained: usize, limit: usize },
     CustodyFull { delivered: usize, limit: usize },
-    SolveSlotBusy,
+    /// The solve needed a worker grant above the per-invocation budget.
+    WorkerCapExceeded { cap_bytes: u64, requested_bytes: u64 },
+    /// A growth step of a running worker's grant was refused; the job ended.
+    WorkerGrowthRefused { granted_bytes: u64, requested_bytes: u64, cause: Box<ResourceRefusal> },
+    /// The worker's measured physical footprint, with the process reserve,
+    /// needs more than the per-invocation budget (at a growth exchange), or
+    /// its lifetime-maximum footprint exceeded the budget (at the result).
+    WorkerFootprintExceeded { grant_bytes: u64, footprint_bytes: u64 },
+    /// Running solve workers are at the process-count bound; the job waits.
+    WorkerLimitReached { running: usize, limit: usize },
 }
 
 /// What a lease's bytes cover.
@@ -115,6 +140,8 @@ pub(crate) enum LeasePurpose {
     Result = 1,
     /// A delivered result: the handoff copy overlap and the webview's copy until disposed.
     Custody = 2,
+    /// A running solve worker's grant (its whole process, capped).
+    Worker = 3,
 }
 
 #[derive(Debug, Default)]
@@ -124,8 +151,13 @@ struct PoolState {
     invocation_budget_bytes: u64,
     above_recommended_acknowledged: bool,
     defaults_applied: bool,
-    reserved: [u64; 3],
-    unpriced_solve_running: bool,
+    reserved: [u64; 4],
+    /// Live worker leases (one per worker process not yet reaped).
+    worker_leases: usize,
+    /// The bound on live worker leases ([`max_running_workers`]).
+    max_running_workers: usize,
+    /// Sum over worker leases of min(last reported footprint, bytes).
+    worker_footprint_credit: u64,
     /// Bumped on every release or wake so a waiter does not miss a change.
     generation: u64,
     last_refusal: Option<ResourceRefusal>,
@@ -178,6 +210,7 @@ pub(crate) struct ReservedByPurpose {
     pub ingress: u64,
     pub result: u64,
     pub custody: u64,
+    pub worker: u64,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -193,6 +226,7 @@ pub(crate) struct PoolLimits {
     pub max_retained_results: usize,
     pub max_webview_custody_results: usize,
     pub max_terminal_records: usize,
+    pub max_running_workers: usize,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -205,7 +239,7 @@ pub(crate) struct PoolStatus {
     pub qualified_invocation_budget_bytes: u64,
     pub reserved_bytes: u64,
     pub reserved_by_purpose: ReservedByPurpose,
-    pub unpriced_solve_running: bool,
+    pub running_workers: usize,
     pub queued_jobs: usize,
     pub running_jobs: usize,
     pub retained_results: usize,
@@ -216,7 +250,7 @@ pub(crate) struct PoolStatus {
     pub last_refusal: Option<ResourceRefusal>,
 }
 
-/// Why a wait for the unpriced solve slot ended without admission.
+/// Why a wait for an admission ended without one.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum WaitOutcome {
     Cancelled,
@@ -241,11 +275,11 @@ impl MemoryPool {
     /// leaves the pool at 0 (every priced admission refuses `capacity_unknown`)
     /// until a later sample establishes it.
     pub(crate) fn new(host: Arc<dyn HostMemory>) -> Arc<Self> {
-        Self::with_wait_tick(host, UNPRICED_WAIT_TICK)
+        Self::with_wait_tick(host, ADMISSION_WAIT_TICK)
     }
 
     pub(crate) fn with_wait_tick(host: Arc<dyn HostMemory>, wait_tick: Duration) -> Arc<Self> {
-        let mut state = PoolState::default();
+        let mut state = PoolState { max_running_workers: max_running_workers(), ..PoolState::default() };
         state.observe(&host.sample());
         Arc::new(Self { host, state: Mutex::new(state), changed: Condvar::new(), wait_tick })
     }
@@ -272,7 +306,9 @@ impl MemoryPool {
     }
 
     /// The atomic verdict for `bytes` more reserved bytes, under the lock.
-    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64) -> Result<(), ResourceRefusal> {
+    /// `resident_credit` (worker growth only) is the reserved bytes already
+    /// measured resident, which the free queue need not cover again.
+    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64, resident_credit: u64) -> Result<(), ResourceRefusal> {
         let sample = self.host.sample();
         state.observe(&sample);
         if sample.capacity_bytes.is_none() {
@@ -291,8 +327,8 @@ impl MemoryPool {
         let available = sample.headroom_bytes.ok_or(ResourceRefusal::HeadroomUnknown)?;
         // Deliberately conservative double counting: bytes already reserved may
         // not yet be resident, so the host's headroom must cover them as well
-        // as the new request.
-        let required = bytes.saturating_add(reserved);
+        // as the new request (less any reserved bytes measured resident).
+        let required = bytes.saturating_add(reserved.saturating_sub(resident_credit));
         if available < required {
             return Err(ResourceRefusal::HeadroomInsufficient { required_bytes: required, available_bytes: available });
         }
@@ -302,20 +338,39 @@ impl MemoryPool {
     /// Admits and records `bytes` for `purpose` in one critical section.
     pub(crate) fn acquire(self: &Arc<Self>, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
         let mut state = self.lock();
-        if let Err(refusal) = self.admit_bytes_locked(&mut state, bytes) {
+        self.acquire_locked(&mut state, bytes, purpose)
+    }
+
+    fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
+        let limit = state.max_running_workers;
+        let verdict = if purpose == LeasePurpose::Worker && state.worker_leases >= limit {
+            Err(ResourceRefusal::WorkerLimitReached { running: state.worker_leases, limit })
+        } else {
+            self.admit_bytes_locked(state, bytes, 0)
+        };
+        if let Err(refusal) = verdict {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
         state.reserved[purpose as usize] += bytes;
-        Ok(Lease { pool: Arc::clone(self), bytes, purpose })
+        if purpose == LeasePurpose::Worker {
+            state.worker_leases += 1;
+        }
+        Ok(Lease { pool: Arc::clone(self), bytes, purpose, footprint_credit: 0 })
     }
 
-    fn release(&self, purpose: LeasePurpose, bytes: u64) {
+    /// Releases `bytes` of `purpose` (and `credit` of the worker footprint
+    /// credit); `ends_worker` when a worker lease is dropped.
+    fn release(&self, purpose: LeasePurpose, bytes: u64, credit: u64, ends_worker: bool) {
         let held = {
             let mut state = self.lock();
             let slot = &mut state.reserved[purpose as usize];
             let held = *slot;
             *slot = slot.saturating_sub(bytes);
+            state.worker_footprint_credit = state.worker_footprint_credit.saturating_sub(credit);
+            if ends_worker {
+                state.worker_leases = state.worker_leases.saturating_sub(1);
+            }
             self.notify(&mut state);
             held
         };
@@ -323,50 +378,26 @@ impl MemoryPool {
         debug_assert!(held >= bytes, "a lease releases only what it reserved");
     }
 
-    fn admit_unpriced_locked(&self, state: &mut PoolState) -> Result<(), ResourceRefusal> {
-        if state.unpriced_solve_running {
-            return Err(ResourceRefusal::SolveSlotBusy);
-        }
-        let sample = self.host.sample();
-        state.observe(&sample);
-        if sample.capacity_bytes.is_none() {
-            return Err(ResourceRefusal::CapacityUnknown);
-        }
-        check_fresh(&sample)?;
-        check_pressure(&sample)?;
-        if sample.headroom_bytes.is_none() {
-            return Err(ResourceRefusal::HeadroomUnknown);
-        }
-        state.unpriced_solve_running = true;
-        Ok(())
-    }
-
-    /// Admits the one unpriced ordinary solve now, or refuses with the reason.
-    #[cfg_attr(not(test), allow(dead_code))]
-    pub(crate) fn try_begin_unpriced_solve(self: &Arc<Self>) -> Result<UnpricedSolveSlot, ResourceRefusal> {
-        let mut state = self.lock();
-        self.admit_unpriced_locked(&mut state)?;
-        Ok(UnpricedSolveSlot { pool: Arc::clone(self) })
-    }
-
-    /// Waits until the unpriced solve slot is admitted or `cancelled()` holds.
+    /// Waits until `bytes` for `purpose` are admitted or `cancelled()` holds.
     /// Each refusal while waiting is reported through `on_queued`. Neither
     /// callback runs under the pool lock (callers may take their own locks).
-    pub(crate) fn wait_unpriced_solve(
+    pub(crate) fn wait_acquire(
         self: &Arc<Self>,
+        bytes: u64,
+        purpose: LeasePurpose,
         cancelled: &dyn Fn() -> bool,
         on_queued: &mut dyn FnMut(&ResourceRefusal),
-    ) -> Result<UnpricedSolveSlot, WaitOutcome> {
+    ) -> Result<Lease, WaitOutcome> {
         loop {
             if cancelled() {
                 return Err(WaitOutcome::Cancelled);
             }
             let (verdict, generation) = {
                 let mut state = self.lock();
-                (self.admit_unpriced_locked(&mut state), state.generation)
+                (self.acquire_locked(&mut state, bytes, purpose), state.generation)
             };
             match verdict {
-                Ok(()) => return Ok(UnpricedSolveSlot { pool: Arc::clone(self) }),
+                Ok(lease) => return Ok(lease),
                 Err(reason) => on_queued(&reason),
             }
             let state = self.lock();
@@ -451,8 +482,9 @@ impl MemoryPool {
                 ingress: state.reserved[LeasePurpose::Ingress as usize],
                 result: state.reserved[LeasePurpose::Result as usize],
                 custody: state.reserved[LeasePurpose::Custody as usize],
+                worker: state.reserved[LeasePurpose::Worker as usize],
             },
-            unpriced_solve_running: state.unpriced_solve_running,
+            running_workers: state.worker_leases,
             queued_jobs: jobs.queued,
             running_jobs: jobs.running,
             retained_results: jobs.retained,
@@ -462,12 +494,13 @@ impl MemoryPool {
                 pressure: sample.pressure,
                 sample_age_ms: Some(u64::try_from(sample.age().as_millis()).unwrap_or(u64::MAX)),
             },
-            ordinary_route_pricing: "unpriced",
+            ordinary_route_pricing: "worker_capped",
             limits: PoolLimits {
                 max_queued_jobs: MAX_QUEUED_JOBS,
                 max_retained_results: MAX_RETAINED_RESULTS,
                 max_webview_custody_results: MAX_WEBVIEW_CUSTODY_RESULTS,
                 max_terminal_records: MAX_TERMINAL_RECORDS,
+                max_running_workers: state.max_running_workers,
             },
             last_refusal: state.last_refusal.clone(),
         }
@@ -484,8 +517,15 @@ impl MemoryPool {
     }
 
     #[cfg(test)]
-    pub(crate) fn unpriced_solve_running(&self) -> bool {
-        self.lock().unpriced_solve_running
+    pub(crate) fn set_max_running_workers(&self, limit: usize) {
+        let mut state = self.lock();
+        state.max_running_workers = limit;
+        self.notify(&mut state);
+    }
+
+    #[cfg(test)]
+    pub(crate) fn running_workers(&self) -> usize {
+        self.lock().worker_leases
     }
 }
 
@@ -496,6 +536,9 @@ pub(crate) struct Lease {
     pool: Arc<MemoryPool>,
     bytes: u64,
     purpose: LeasePurpose,
+    /// Worker leases: min(last reported footprint, bytes), counted in the
+    /// pool's `worker_footprint_credit`.
+    footprint_credit: u64,
 }
 
 impl Lease {
@@ -516,7 +559,32 @@ impl Lease {
         }
         let delta = new_bytes - self.bytes;
         let mut state = self.pool.lock();
-        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta) {
+        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, 0) {
+            state.last_refusal = Some(refusal.clone());
+            return Err(refusal);
+        }
+        state.reserved[self.purpose as usize] += delta;
+        self.bytes = new_bytes;
+        Ok(())
+    }
+
+    /// A running worker's growth step: records its measured physical
+    /// footprint (credited up to the lease's bytes as already resident across
+    /// all worker leases), then admits the delta with the same atomic verdict
+    /// as `acquire`, the headroom requirement being the delta plus every
+    /// reservation's unrealized bytes. A refusal keeps the existing grant.
+    pub(crate) fn grow_worker_to(&mut self, new_bytes: u64, footprint_bytes: u64) -> Result<(), ResourceRefusal> {
+        debug_assert_eq!(self.purpose, LeasePurpose::Worker);
+        let mut state = self.pool.lock();
+        let credit = footprint_bytes.min(self.bytes);
+        state.worker_footprint_credit = state.worker_footprint_credit.saturating_sub(self.footprint_credit).saturating_add(credit);
+        self.footprint_credit = credit;
+        if new_bytes <= self.bytes {
+            return Ok(());
+        }
+        let delta = new_bytes - self.bytes;
+        let resident = state.worker_footprint_credit;
+        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, resident) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
@@ -532,14 +600,19 @@ impl Lease {
         }
         let delta = self.bytes - new_bytes;
         self.bytes = new_bytes;
-        self.pool.release(self.purpose, delta);
+        let credit = self.footprint_credit.min(new_bytes);
+        let credit_released = self.footprint_credit - credit;
+        self.footprint_credit = credit;
+        self.pool.release(self.purpose, delta, credit_released, false);
     }
 
     /// Moves the reserved bytes to another purpose without releasing them.
+    /// Worker leases never change purpose.
     pub(crate) fn set_purpose(&mut self, purpose: LeasePurpose) {
         if purpose == self.purpose {
             return;
         }
+        debug_assert!(purpose != LeasePurpose::Worker && self.purpose != LeasePurpose::Worker);
         let mut state = self.pool.lock();
         state.reserved[self.purpose as usize] -= self.bytes;
         state.reserved[purpose as usize] += self.bytes;
@@ -549,21 +622,7 @@ impl Lease {
 
 impl Drop for Lease {
     fn drop(&mut self) {
-        self.pool.release(self.purpose, self.bytes);
-    }
-}
-
-/// The exclusive unpriced ordinary-solve slot; released on drop.
-#[derive(Debug)]
-pub(crate) struct UnpricedSolveSlot {
-    pool: Arc<MemoryPool>,
-}
-
-impl Drop for UnpricedSolveSlot {
-    fn drop(&mut self) {
-        let mut state = self.pool.lock();
-        state.unpriced_solve_running = false;
-        self.pool.notify(&mut state);
+        self.pool.release(self.purpose, self.bytes, self.footprint_credit, self.purpose == LeasePurpose::Worker);
     }
 }
 
@@ -656,7 +715,7 @@ mod tests {
         let unknown = pool(&host);
         assert_eq!(unknown.settings(), (0, 0));
         assert_eq!(unknown.acquire(1, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::CapacityUnknown);
-        assert_eq!(unknown.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::CapacityUnknown);
+        assert_eq!(unknown.acquire(1, LeasePurpose::Worker).unwrap_err(), ResourceRefusal::CapacityUnknown);
         // A later known capacity applies the defaults once.
         host.set(|s| s.capacity_bytes = Some(16 * GIB));
         assert!(unknown.acquire(1, LeasePurpose::Ingress).is_ok());
@@ -719,14 +778,14 @@ mod tests {
         let host = ScriptedHost::with(Some(16 * GIB), None, PressureLevel::Normal);
         let pool = pool(&host);
         assert_eq!(pool.acquire(GIB, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::HeadroomUnknown);
-        assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::HeadroomUnknown);
+        assert_eq!(pool.acquire(GIB, LeasePurpose::Worker).unwrap_err(), ResourceRefusal::HeadroomUnknown);
 
         host.set(|s| {
             s.headroom_bytes = Some(8 * GIB);
             s.age = Duration::from_secs(5);
         });
         assert!(matches!(pool.acquire(GIB, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::HeadroomStale { age_ms } if age_ms >= 5000));
-        assert!(matches!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::HeadroomStale { .. }));
+        assert!(matches!(pool.acquire(GIB, LeasePurpose::Worker).unwrap_err(), ResourceRefusal::HeadroomStale { .. }));
 
         host.set(|s| {
             s.age = Duration::ZERO;
@@ -750,12 +809,12 @@ mod tests {
         for level in [PressureLevel::Warning, PressureLevel::Critical] {
             host.set(|s| s.pressure = level);
             assert_eq!(pool.acquire(1, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::PressureElevated { level });
-            assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::PressureElevated { level });
+            assert_eq!(pool.acquire(1, LeasePurpose::Worker).unwrap_err(), ResourceRefusal::PressureElevated { level });
         }
         // An unreadable pressure level is its own refusal, not an elevated level.
         host.set(|s| s.pressure = PressureLevel::Unknown);
         assert_eq!(pool.acquire(1, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::PressureUnknown);
-        assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::PressureUnknown);
+        assert_eq!(pool.acquire(1, LeasePurpose::Worker).unwrap_err(), ResourceRefusal::PressureUnknown);
         host.set(|s| s.pressure = PressureLevel::Normal);
         let lease = pool.acquire(1, LeasePurpose::Ingress).unwrap();
         // Elevated pressure refuses new admission without touching existing leases.
@@ -786,12 +845,14 @@ mod tests {
         let unwinding = pool.clone();
         let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
             let _lease = unwinding.acquire(GIB, LeasePurpose::Ingress).unwrap();
-            let _slot = unwinding.try_begin_unpriced_solve().unwrap();
+            let mut worker = unwinding.acquire(GIB, LeasePurpose::Worker).unwrap();
+            worker.grow_worker_to(2 * GIB, GIB / 2).unwrap();
             panic!("solve panicked");
         }));
         assert!(panicked.is_err());
         assert_eq!(pool.reserved_total(), 0);
-        assert!(!pool.unpriced_solve_running());
+        assert_eq!(pool.running_workers(), 0);
+        assert_eq!(credit(&pool), 0);
     }
 
     #[test]
@@ -850,32 +911,33 @@ mod tests {
     }
 
     #[test]
-    fn unpriced_slot_is_exclusive_and_waits_for_release_or_cancel() {
+    fn wait_acquire_queues_until_admitted_or_cancelled() {
         let host = ScriptedHost::normal();
         let pool = pool(&host);
-        let slot = pool.try_begin_unpriced_solve().unwrap();
-        assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::SolveSlotBusy);
-        assert_eq!(pool.reserved_total(), 0, "the unpriced slot reserves no bytes");
-
+        pool.set_max_running_workers(4);
+        pool.configure(4 * GIB, 4 * GIB, false).unwrap();
+        let held = pool.acquire(3 * GIB, LeasePurpose::Worker).unwrap();
+        assert_eq!(pool.running_workers(), 1);
         let waiter = pool.clone();
         let handle = std::thread::spawn(move || {
             let mut reasons = Vec::new();
-            let slot = waiter.wait_unpriced_solve(&|| false, &mut |r| reasons.push(r.clone()));
-            (slot.is_ok(), reasons)
+            let lease = waiter.wait_acquire(2 * GIB, LeasePurpose::Worker, &|| false, &mut |r| reasons.push(r.clone()));
+            (lease.map(|l| l.bytes()), reasons)
         });
         std::thread::sleep(Duration::from_millis(30));
-        drop(slot);
+        assert_eq!(pool.reserved_total(), 3 * GIB, "the waiter reserved nothing while refused");
+        drop(held);
         let (admitted, reasons) = handle.join().unwrap();
-        assert!(admitted);
-        assert!(reasons.iter().all(|r| *r == ResourceRefusal::SolveSlotBusy) && !reasons.is_empty());
-        assert!(!pool.unpriced_solve_running(), "the waiter's slot dropped");
+        assert_eq!(admitted, Ok(2 * GIB));
+        assert!(!reasons.is_empty() && reasons.iter().all(|r| matches!(r, ResourceRefusal::PoolExhausted { .. })));
+        assert_eq!((pool.reserved_total(), pool.running_workers()), (0, 0), "the waiter's lease dropped");
 
         host.set(|s| s.pressure = PressureLevel::Warning);
         let cancel = Arc::new(std::sync::atomic::AtomicBool::new(false));
         let (waiter, flag) = (pool.clone(), cancel.clone());
         let handle = std::thread::spawn(move || {
             let mut last = None;
-            let outcome = waiter.wait_unpriced_solve(&|| flag.load(std::sync::atomic::Ordering::SeqCst), &mut |r| last = Some(r.clone()));
+            let outcome = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| flag.load(std::sync::atomic::Ordering::SeqCst), &mut |r| last = Some(r.clone()));
             (outcome.map(drop), last)
         });
         std::thread::sleep(Duration::from_millis(30));
@@ -884,13 +946,102 @@ mod tests {
         let (outcome, last) = handle.join().unwrap();
         assert_eq!(outcome, Err(WaitOutcome::Cancelled));
         assert_eq!(last, Some(ResourceRefusal::PressureElevated { level: PressureLevel::Warning }));
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    fn credit(pool: &MemoryPool) -> u64 {
+        pool.lock().worker_footprint_credit
+    }
+
+    #[test]
+    fn running_workers_are_bounded_by_the_process_count_limit() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        assert_eq!(pool.status(JobCounts::default()).limits.max_running_workers, max_running_workers());
+        assert!(max_running_workers() >= 1);
+        pool.set_max_running_workers(2);
+        let a = pool.acquire(GIB, LeasePurpose::Worker).unwrap();
+        let _b = pool.acquire(GIB, LeasePurpose::Worker).unwrap();
+        assert_eq!(
+            pool.acquire(GIB, LeasePurpose::Worker).unwrap_err(),
+            ResourceRefusal::WorkerLimitReached { running: 2, limit: 2 }
+        );
+        // Other purposes are not process-bounded.
+        drop(pool.acquire(GIB, LeasePurpose::Result).unwrap());
+        let waiter = pool.clone();
+        let handle = std::thread::spawn(move || {
+            let mut reasons = Vec::new();
+            let lease = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| false, &mut |r| reasons.push(r.clone()));
+            (lease.map(|l| l.bytes()), reasons)
+        });
+        std::thread::sleep(Duration::from_millis(30));
+        drop(a);
+        let (admitted, reasons) = handle.join().unwrap();
+        assert_eq!(admitted, Ok(GIB));
+        assert!(!reasons.is_empty() && reasons.iter().all(|r| *r == ResourceRefusal::WorkerLimitReached { running: 2, limit: 2 }));
+        assert_eq!(
+            serde_json::to_value(ResourceRefusal::WorkerLimitReached { running: 2, limit: 2 }).unwrap(),
+            serde_json::json!({"kind":"worker_limit_reached","running":2,"limit":2})
+        );
+    }
+
+    /// Worker growth credits each worker lease's measured footprint (at most
+    /// its bytes) against the double-counted reservations; other admissions
+    /// never do.
+    #[test]
+    fn worker_growth_credits_measured_footprint_only_up_to_each_lease() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(10 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.set_max_running_workers(4);
+        let mut a = pool.acquire(4 * GIB, LeasePurpose::Worker).unwrap();
+        let mut b = pool.acquire(4 * GIB, LeasePurpose::Worker).unwrap();
+        assert_eq!(pool.status(JobCounts::default()).running_workers, 2);
+        // Without credit: 2 GiB + 8 GiB reserved = 10 GiB fits; 3 GiB does not.
+        assert_eq!(
+            a.grow_worker_to(7 * GIB, 0).unwrap_err(),
+            ResourceRefusal::HeadroomInsufficient { required_bytes: 11 * GIB, available_bytes: 10 * GIB }
+        );
+        // a reports 3 GiB resident: 3 GiB + (8 - 3) GiB = 8 GiB fits.
+        a.grow_worker_to(7 * GIB, 3 * GIB).unwrap();
+        assert_eq!(a.bytes(), 7 * GIB);
+        // A footprint above the lease credits only the lease's bytes: b reports
+        // 9 GiB of a 4 GiB lease; required = 4 + (11 - 3 - 4) = 8 GiB.
+        b.grow_worker_to(8 * GIB, 9 * GIB).unwrap();
+        assert_eq!(credit(&pool), 7 * GIB);
+        // A non-worker admission gets no credit: 15 GiB reserved > 10 GiB headroom.
+        assert!(matches!(pool.acquire(1, LeasePurpose::Result).unwrap_err(), ResourceRefusal::HeadroomInsufficient { .. }));
+        // A refused growth keeps the grant and the recorded credit.
+        assert!(a.grow_worker_to(20 * GIB, 7 * GIB).is_err());
+        assert_eq!((a.bytes(), credit(&pool)), (7 * GIB, 11 * GIB));
+        a.shrink_to(GIB);
+        assert_eq!(credit(&pool), 5 * GIB, "credit never exceeds the lease");
+        drop(a);
+        assert_eq!((credit(&pool), pool.running_workers()), (4 * GIB, 1));
+        drop(b);
+        assert_eq!((pool.reserved_total(), credit(&pool), pool.running_workers()), (0, 0, 0));
     }
 
     #[test]
     fn refusals_and_status_serialize_with_stable_names() {
         let refusal = serde_json::to_value(ResourceRefusal::PressureElevated { level: PressureLevel::Warning }).unwrap();
         assert_eq!(refusal, serde_json::json!({"kind":"pressure_elevated","level":"warning"}));
-        assert_eq!(serde_json::to_value(ResourceRefusal::SolveSlotBusy).unwrap(), serde_json::json!({"kind":"solve_slot_busy"}));
+        assert_eq!(
+            serde_json::to_value(ResourceRefusal::WorkerGrowthRefused {
+                granted_bytes: 2,
+                requested_bytes: 4,
+                cause: Box::new(ResourceRefusal::PressureUnknown)
+            })
+            .unwrap(),
+            serde_json::json!({"kind":"worker_growth_refused","granted_bytes":2,"requested_bytes":4,"cause":{"kind":"pressure_unknown"}})
+        );
+        assert_eq!(
+            serde_json::to_value(ResourceRefusal::WorkerCapExceeded { cap_bytes: 1, requested_bytes: 2 }).unwrap(),
+            serde_json::json!({"kind":"worker_cap_exceeded","cap_bytes":1,"requested_bytes":2})
+        );
+        assert_eq!(
+            serde_json::to_value(ResourceRefusal::WorkerFootprintExceeded { grant_bytes: 1, footprint_bytes: 2 }).unwrap(),
+            serde_json::json!({"kind":"worker_footprint_exceeded","grant_bytes":1,"footprint_bytes":2})
+        );
         assert_eq!(serde_json::to_value(ResourceRefusal::PressureUnknown).unwrap(), serde_json::json!({"kind":"pressure_unknown"}));
         assert_eq!(
             serde_json::to_value(ResourceRefusal::PoolAboveRecommendedUnacknowledged { pool_bytes: 2, recommended_bytes: 1 }).unwrap(),
@@ -900,15 +1051,17 @@ mod tests {
         let status = serde_json::to_value(pool(&host).status(JobCounts { queued: 1, running: 1, retained: 0, custody: 2 })).unwrap();
         for key in [
             "capacity_bytes", "recommended_pool_bytes", "pool_bytes", "pool_above_recommended", "invocation_budget_bytes",
-            "qualified_invocation_budget_bytes", "reserved_bytes", "reserved_by_purpose", "unpriced_solve_running",
+            "qualified_invocation_budget_bytes", "reserved_bytes", "reserved_by_purpose", "running_workers",
             "queued_jobs", "running_jobs", "retained_results", "webview_custody_results", "headroom",
             "ordinary_route_pricing", "last_refusal",
         ] {
             assert!(status.get(key).is_some(), "{key}");
         }
-        assert_eq!(status["ordinary_route_pricing"], "unpriced");
+        assert_eq!(status["ordinary_route_pricing"], "worker_capped");
+        assert!(status.get("unpriced_solve_running").is_none());
         assert_eq!(status["headroom"]["pressure"], "normal");
-        assert_eq!(status["reserved_by_purpose"], serde_json::json!({"ingress":0,"result":0,"custody":0}));
+        assert_eq!(status["reserved_by_purpose"], serde_json::json!({"ingress":0,"result":0,"custody":0,"worker":0}));
+        assert_eq!(status["running_workers"], 0);
         assert_eq!(status["webview_custody_results"], 2);
     }
 }

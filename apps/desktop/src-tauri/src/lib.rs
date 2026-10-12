@@ -9,6 +9,10 @@ mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 mod solve_jobs;
+mod solve_worker;
+mod worker_alloc;
+
+pub use solve_worker::{run_solve_worker, WORKER_FLAG as SOLVE_WORKER_FLAG};
 
 use model_document_migration::{
     evaluate_model_document, migration_ledger_record, model_document_migrations,
@@ -1801,7 +1805,8 @@ use solve_jobs::{
 /// raw UTF-8 JSON of the model document (`Uint8Array`/`ArrayBuffer`, sent as
 /// `application/octet-stream`); header `x-swbpipe-solver-mode` selects
 /// `sparse_interactive` or `dense_scrutiny` (absent: the default). The body is
-/// prescanned and its ingress lease admitted before any `Value` exists. A JSON
+/// prescanned and its ingress lease admitted before it is copied; the model is
+/// materialized and solved only in the job's capped worker process. A JSON
 /// body is refused: Tauri would already have materialized it unpriced.
 #[tauri::command]
 async fn start_preview_mechanics_job(
@@ -1850,9 +1855,9 @@ fn dispose_preview_mechanics_result(
 }
 
 /// Session reset: releases every retained-but-untaken result and every webview
-/// custody lease, and abandons every queued or running job (cooperative
-/// cancellation; it never publishes a result, and its worker releases its
-/// owners). The frontend calls it on page load, when a fresh webview provably
+/// custody lease, and abandons every queued or running job (a running job's
+/// worker process is killed; it never publishes a result, and its supervisor
+/// releases its owners after reaping the worker). The frontend calls it on page load, when a fresh webview provably
 /// holds no result copy and no handle on the previous page's jobs. Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
@@ -6944,7 +6949,7 @@ mod tests {
             let bytes = solve_preview_mechanics_with_mode(model.clone(), PreviewSolverMode::from_wire(mode).unwrap()).unwrap();
             let sha = open_pipe_stress_operation_applier::sha256_hex(&bytes);
             assert_eq!((bytes.len(), sha.as_str()), (len, digest), "{mode}: the ordinary solve's bytes are the producer's");
-            // The job path (raw ingress, unpriced slot, take) hands over the same bytes.
+            // The job path (raw ingress, capped worker process, take) hands over the same bytes.
             let (status, taken) = solve_jobs::test_support::run_job(&model, Some(mode));
             assert_eq!(status.state, "completed", "{mode}");
             assert_eq!(taken.as_deref(), Some(bytes.as_str()), "{mode}: the job's bytes");
@@ -6979,8 +6984,8 @@ mod tests {
         assert_eq!(status.state, "completed");
         assert!(!status.cancellation_requested);
         assert_eq!(status.cancellation_status, "not_requested");
-        assert_eq!(status.cancellation_scope, "cooperative_checkpoints_not_preemptive");
-        assert_eq!(status.resource.route_pricing, "ordinary_unpriced");
+        assert_eq!(status.cancellation_scope, "worker_process_terminated");
+        assert_eq!(status.resource.route_pricing, "ordinary_worker_capped");
         let result: Value = serde_json::from_str(&taken.expect("completed job publishes a result")).unwrap();
         assert!(!result["results"].as_array().expect("result rows present").is_empty());
         assert_eq!(status.error_message, None);
@@ -7119,8 +7124,8 @@ mod tests {
     #[test]
     fn solve_job_cancelled_before_execution_never_starts_the_solver() {
         let registry = solve_jobs::test_support::real_registry(memory_pool::test_host::ScriptedHost::normal());
-        // Another unpriced solve holds the slot, so the job stays queued.
-        let held = registry.pool().try_begin_unpriced_solve().expect("slot");
+        // Other reservations fill the pool, so the job stays queued.
+        let held = hold_the_pool(&registry);
         let body = serde_json::to_vec(&load_preview_model().expect("bundled demo loads")).unwrap();
         let receipt = registry.start(&body, None).expect("job starts");
         assert_eq!(receipt.state, "queued");
@@ -7160,7 +7165,7 @@ mod tests {
     #[test]
     fn solve_job_cancellation_with_invalid_token_is_rejected_and_does_not_flag_the_job() {
         let registry = solve_jobs::test_support::real_registry(memory_pool::test_host::ScriptedHost::normal());
-        let held = registry.pool().try_begin_unpriced_solve().expect("slot");
+        let held = hold_the_pool(&registry);
         let receipt = registry.start(&serde_json::to_vec(&derived_invented_model()).unwrap(), None).expect("job starts");
 
         let cancel = registry.cancel(&receipt.job_id, "wrong-token").expect("cancel receipt");
@@ -7184,6 +7189,13 @@ mod tests {
         assert_eq!(taken, None);
         assert!(!status.result_available);
         assert!(status.error_message.is_some());
+    }
+
+    /// Reserves the pool but for room for a start's ingress lease (and not
+    /// for a worker grant), so a job stays queued until the lease drops.
+    fn hold_the_pool(registry: &solve_jobs::SolveJobRegistry) -> memory_pool::Lease {
+        let pool_bytes = registry.pool_status().pool_bytes;
+        registry.pool().acquire(pool_bytes - (1 << 20), memory_pool::LeasePurpose::Ingress).expect("the pool is free")
     }
 
     // PP's derived pressure-free, joint-free invented model. The bundled default

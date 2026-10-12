@@ -513,10 +513,7 @@ pub(crate) mod counting {
     //! and new sizes as live together at that instant. Only requested sizes
     //! are counted, so the measure is deterministic: it does not depend on the
     //! heap's history (which blocks the allocator reuses) or on other threads.
-    use std::alloc::{GlobalAlloc, Layout, System};
     use std::cell::Cell;
-
-    pub struct CountingAllocator;
 
     thread_local! {
         static ACTIVE: Cell<bool> = const { Cell::new(false) };
@@ -544,7 +541,8 @@ pub(crate) mod counting {
         });
     }
 
-    fn record(added: usize, removed: usize, counts_as_allocation: bool) {
+    /// Called by the process allocator ([`crate::worker_alloc::CappedAllocator`]).
+    pub(crate) fn record(added: usize, removed: usize, counts_as_allocation: bool) {
         if !active() {
             return;
         }
@@ -554,35 +552,6 @@ pub(crate) mod counting {
         bump(&LIVE, &PEAK, added as i64, removed as i64);
         let priced = |size: usize| if size > 0 { price(size) } else { 0 };
         bump(&LIVE_PRICED, &PEAK_PRICED, priced(added), priced(removed));
-    }
-
-    unsafe impl GlobalAlloc for CountingAllocator {
-        unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-            let ptr = unsafe { System.alloc(layout) };
-            if !ptr.is_null() {
-                record(layout.size(), 0, true);
-            }
-            ptr
-        }
-        unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-            let ptr = unsafe { System.alloc_zeroed(layout) };
-            if !ptr.is_null() {
-                record(layout.size(), 0, true);
-            }
-            ptr
-        }
-        unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-            unsafe { System.dealloc(ptr, layout) };
-            record(0, layout.size(), false);
-        }
-        unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
-            let new = unsafe { System.realloc(ptr, layout, new_size) };
-            if !new.is_null() {
-                // The old and new requested sizes are both live across the move.
-                record(new_size, layout.size(), true);
-            }
-            new
-        }
     }
 
     #[derive(Debug, Clone, Copy)]
@@ -610,10 +579,6 @@ pub(crate) mod counting {
         (out, measured)
     }
 }
-
-#[cfg(test)]
-#[global_allocator]
-static COUNTING_ALLOCATOR: counting::CountingAllocator = counting::CountingAllocator;
 
 #[cfg(test)]
 mod tests {
