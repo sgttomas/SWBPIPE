@@ -15,6 +15,8 @@ from pathlib import Path
 
 import pytest
 
+from checked_json_fixture_cache import checked_json_fixture_cache
+
 from core.analysis_runs.compatibility import (
     _source_contract, build_analysis_run_v0_3, PHYSICS_CONTRACT_ID,
     SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
@@ -56,13 +58,13 @@ def arguments(raw, analysis):
 
 @lru_cache(maxsize=None)
 def captured(path):
-    raw = json.loads(Path(path).read_text())
-    before = deepcopy(raw)
-    analysis = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:pure-projection-test"}, input_manifest_hash="1" * 64)
-    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
-    assert raw == before
-    return raw, analysis, packet
-
+    with checked_json_fixture_cache():
+        raw = json.loads(Path(path).read_text())
+        before = deepcopy(raw)
+        analysis = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:pure-projection-test"}, input_manifest_hash="1" * 64)
+        packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
+        assert raw == before
+        return raw, analysis, packet
 
 @pytest.mark.parametrize("path", ACTUAL_PATHS, ids=lambda path: path.stem)
 def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp_path):

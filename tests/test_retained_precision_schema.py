@@ -7,6 +7,8 @@ import sys
 import jsonschema
 import pytest
 
+from checked_json_fixture_cache import checked_json_fixture_cache
+
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 from retained_precision_corpus import load_corpus  # noqa: E402
@@ -267,7 +269,8 @@ def foreign(path, member):
 
 def analysis_record(source):
     from core.analysis_runs.compatibility import build_analysis_run
-    return build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:u6c-schema"}, input_manifest_hash="1" * 64)
+    with checked_json_fixture_cache():
+        return build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:u6c-schema"}, input_manifest_hash="1" * 64)
 
 
 def as_successor_record(record, receipt):
@@ -335,8 +338,9 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
 def stress_neutral_package(source):
     from core.handoff.stress_neutral import package as sn
     from tests.test_stress_neutral_physics_source import arguments
-    record = analysis_record(source)
-    return sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
+    with checked_json_fixture_cache():
+        record = analysis_record(source)
+        return sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
 
 
 def as_successor_package(packet, receipt):
