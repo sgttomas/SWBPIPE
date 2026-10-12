@@ -1546,13 +1546,14 @@ fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_ro
         }
     }
     println!("B2K_CERTIFIED {certified:?}");
-    // RV121 RK-4: the observed certification pattern, pinned. C2, C3, C6, C7 and
-    // C9 certify every row; C1, C4 and C5 each lose two MPa bending rows and C8
-    // one, to DEF-O's projection rounding (the net cases above fail the same rows).
-    let lost: &[&str] = &["z7.I.1", "z7.17.1"];
+    // The owner-approved stress-only SI-first H changes the current pattern:
+    // C1, C4 and C5 retain one sharper-only MPa bending refusal at z7.17.1;
+    // their z7.I.1 and C8's z7.J.1 now pass all four unchanged predicates.
+    // The printed exact enclosures and the net cases above establish that this
+    // is a projection consequence, with unchanged source truth and criteria.
+    let lost: &[&str] = &["z7.17.1"];
     let expected: Vec<(&str, Vec<String>)> = B2K_ALL.iter().map(|&name| (name, match name {
         "C1" | "C4" | "C5" => lost.iter().map(|k| k.to_string()).collect(),
-        "C8" => vec!["z7.J.1".to_string()],
         _ => Vec::new() })).collect();
     assert_eq!(failing, expected);
 }
@@ -1726,4 +1727,98 @@ fn b2k_rn64_norm3_agrees_with_the_oracle_vectors() {
         ties += usize::from(expected.is_some_and(|e| e & 1 == 0) && x & 0xfff != 0);
     }
     assert!(ties > 0);
+}
+
+
+#[test]
+fn w1_si_first_stress_rounding_keeps_nonstress_raw_words() {
+    use super::super::super::wide::multi::Binary64Outcome as B;
+    let interval=Enclosure {lo:lift(f64::from_bits(0x40f8000000000001)).unwrap(),
+        hi:lift(f64::from_bits(0x40f8000000000002)).unwrap()};
+    // Exact dyadic midpoint: ties-to-even SI word ends in 2. Independently
+    // rounded midpoint/1e6 ends ...455; SI-first publication ends ...456.
+    for (unit,word,trace_word,scalars) in [
+        (ProductUnit::Megapascal,0x3fb92a737110e456,0x40f8000000000002,1),
+        // Length is deliberately the prior wide-scale projection, not SI-first.
+        (ProductUnit::Millimetre,0x4197700000000001,0x4197700000000001,0),
+        (ProductUnit::NewtonMetre,0x40f8000000000002,0x40f8000000000002,0),
+        (ProductUnit::Pascal,0x40f8000000000002,0x40f8000000000002,0)] {
+        let mut work=ProductCertificateSpent::new(&[]);
+        work.projection_outcomes=work.prepared_reserve(5,1).unwrap();
+        let value=project_hull(interval,unit,17,&mut work).unwrap();
+        assert_eq!(value.to_bits(),word);
+        assert_eq!(work.projection_conversions.exact(),Ok(1));
+        assert_eq!(work.scalar_operations.exact(),Ok(scalars));
+        assert!(matches!(work.projection_outcomes.as_slice(),[(17,B::Normal(v))] if v.to_bits()==trace_word));
+        if unit==ProductUnit::Megapascal {
+            // The final gate normalizes the actual published value, not the trace.
+            assert_eq!(work.normalize(unit,value).unwrap().to_bits(),0x40f8000000000002);
+            assert_eq!(work.scalar_operations.exact(),Ok(2));
+        }
+        println!("W1_STRESS_PROJECTION unit={unit:?} raw={word:016x} outcome={trace_word:016x} publication_scalar_operations={scalars} conversion_count=1 capacity_bytes={}",work.prepared_capacities[5]);
+    }
+}
+#[test]
+fn w1_si_first_stress_retains_si_class_before_publication() {
+    use super::super::super::wide::multi::Binary64Outcome as B;
+    for negative in [false,true] {
+        for (base,expected) in [(lift(1.).unwrap(),0),(lift(f64::from_bits(1)).unwrap(),1),
+            (shift(&Endpoint::ONE,-1076).unwrap(),2),(shift(&Endpoint::ONE,1024).unwrap(),3)] {
+            let x=if negative {base.neg()} else {base};
+            let mut work=ProductCertificateSpent::new(&[]);
+            work.projection_outcomes=work.prepared_reserve(5,1).unwrap();
+            let value=project_hull(Enclosure::point(x),ProductUnit::Megapascal,17,&mut work);
+            assert_eq!(work.projection_conversions.exact(),Ok(1));
+            assert_eq!(work.projection_outcomes.len(),1);
+            assert_eq!(work.projection_outcomes[0].0,17);
+            match work.projection_outcomes[0].1 {
+                B::Normal(v)=>{assert_eq!(expected,0);assert_eq!(v,if negative {-1.0}else{1.0});assert_eq!(value.unwrap().to_bits(),(v/1_000_000.).to_bits());},
+                B::Subnormal{value:v,relative_precision}=>{assert_eq!(expected,1);assert_eq!(v.to_bits(),if negative {0x8000000000000001}else{1});assert!(relative_precision>0.);assert_eq!(value.unwrap().to_bits(),0);},
+                B::Underflow{negative:sign}=>{assert_eq!(expected,2);assert_eq!(sign,negative);assert_eq!(value.unwrap().to_bits(),0);},
+                B::Overflow{negative:sign}=>{assert_eq!(expected,3);assert_eq!(sign,negative);assert_eq!(value.unwrap_err().category(),"numeric");},
+            }
+            assert_eq!(work.scalar_operations.exact(),Ok(if expected==3 {0}else{1}));
+        }
+    }
+    println!("W1_STRESS_LAYOUT outcome={} align={} tuple={} proof_trace={} certificate_spent={}",
+        std::mem::size_of::<B>(),std::mem::align_of::<B>(),std::mem::size_of::<(usize,B)>(),
+        std::mem::size_of::<ProductProofTrace<'static>>(),std::mem::size_of::<ProductCertificateSpent<'static>>());
+}
+#[test]
+fn w1_si_first_stress_publication_accounting_refusal_keeps_si_outcome() {
+    use super::super::super::wide::multi::Binary64Outcome as B;
+    let mut work=ProductCertificateSpent::new(&[]);
+    work.projection_outcomes=work.prepared_reserve(5,1).unwrap();
+    work.scalar_operations=WorkTotal::exact_count(u64::MAX);
+    let failure=project_hull(Enclosure::point(Endpoint::ONE),ProductUnit::Megapascal,17,&mut work).unwrap_err();
+    assert_eq!(failure.category(),"work_accounting");
+    assert_eq!(work.projection_conversions.exact(),Ok(1));
+    assert!(matches!(work.projection_outcomes.as_slice(),[(17,B::Normal(1.0))]));
+    assert!(work.numeric.wide.checked_lme().exact().unwrap()>0);
+}
+#[test]
+fn w1_si_first_stress_is_admitted_only_with_its_typed_mpa_unit() {
+    let (invocation,case)=b3k_case(80e9);
+    let owner=b3k_owner(&case);
+    let rows=b3k_rows(owner,true,true);
+    let facts=b3k_facts(ProductMaterial::Base {e:B3K_E,g:80e9});
+    for wrong_stress_unit in [ProductUnit::Pascal,ProductUnit::Millimetre] {
+        let mut specs=b3k_specs(&rows,"case");
+        let stress=specs.iter_mut().find(|r|matches!(r.recipe,ProductRecipe::Stress{..})).unwrap();
+        stress.unit=wrong_stress_unit;
+        let failure=match invocation.begin_prepared_product(case.run,owner,&facts,&specs).into_ready() {
+            Err(e)=>e,Ok(_)=>panic!("wrong typed stress unit")};
+        assert_eq!(failure.failure().category(),"association");
+        let mut copies=TraceCopyWork::default();
+        let trace=failure.work().typed_trace(&mut copies);
+        assert!(trace.projection_outcomes.is_empty());
+        assert_eq!(trace.projection_conversions.exact(),Ok(0));
+    }
+    let mut specs=b3k_specs(&rows,"case");
+    let nonstress=specs.iter_mut().find(|r|matches!(r.recipe,ProductRecipe::Native(_))).unwrap();
+    nonstress.unit=ProductUnit::Megapascal;
+    let failure=match invocation.begin_prepared_product(case.run,owner,&facts,&specs).into_ready() {
+        Err(e)=>e,Ok(_)=>panic!("nonstress MPa unit")};
+    assert_eq!(failure.failure().category(),"association");
+    assert!(failure.work().projection_outcomes.is_empty());
 }

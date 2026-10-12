@@ -33,7 +33,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
+    "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -42,7 +42,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
+    "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3
@@ -1319,6 +1319,7 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::Produc
     let _ = P;
     json!({"lanes":lanes,"numeric":numeric(e,&p.numeric),"comparisons_lme":e.count(p.comparisons_lme),"visits":e.count(p.visits),"scalar_operations":e.count(p.scalar_operations),
         "projection_conversions":e.count(p.projection_conversions),
+        // The definition binds MPa stress outcomes to SI; all other outcomes remain raw.
         "projection_outcomes":p.projection_outcomes.iter().map(|(r,o)|json!({"row_index":r,"outcome":conversion(e,o)})).collect::<Vec<_>>(),
         "capacities":p.capacities,"prepared_capacity_bytes":p.prepared_capacity_bytes,"completion":completion,
         "checks":{"certificate":check(e,&view.checks[0],capture),"observables":check(e,&view.checks[1],capture),"g5a":check(e,&view.checks[2],capture)},"summary_coverage":coverage})

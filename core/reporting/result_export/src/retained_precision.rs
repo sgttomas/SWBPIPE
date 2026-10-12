@@ -8,12 +8,12 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
+    "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
-    "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957";
+    "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
 /// read on its own route (`EXACT`), whose base is physics-1.
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
@@ -21,7 +21,7 @@ pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
 pub const EXACT_DEFINITION_HASH: &str =
-    "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
+    "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -911,6 +911,22 @@ fn conversion_kind_ok(o: &Value) -> bool {
         "subnormal" => n != 0.0 && n.abs() < f64::MIN_POSITIVE,
         _ => true,
     }
+}
+/// Current DEF-O/E/C H: only the four typed MPa stress recipes trace the SI
+/// midpoint conversion. All other rows keep the actual raw conversion word.
+fn projection_matches_row(row: &Value, outcome: &Value) -> bool {
+    let value = match text(&outcome["kind"]) {
+        "underflow" => 0.0,
+        "normal" | "subnormal" => f(&outcome["value"]),
+        _ => return false,
+    };
+    let stress_mpa = row["unit"] == "MPa" && matches!(text(&row["kind"]),
+        "element_local_axial_normal_stress" | "element_local_bending_normal_stress_y"
+        | "element_local_bending_normal_stress_z" | "element_local_torsional_shear_stress");
+    let published = if stress_mpa { value / 1_000_000.0 } else { value };
+    published.is_finite() && row["value"].as_f64().is_some_and(|v| {
+        v.to_bits() == (if published == 0.0 { 0.0 } else { published }).to_bits()
+    })
 }
 fn rows_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
     list(&source["results"])
@@ -2915,14 +2931,7 @@ fn proof_checks(
                 let row = rows[u(&v["row_index"]) as usize];
                 let o = &v["outcome"];
                 pf(o["kind"] != "overflow")?;
-                let value = if o["kind"] == "underflow" {
-                    0.0
-                } else {
-                    f(&o["value"])
-                };
-                pf(row["value"].as_f64().is_some_and(|v| {
-                    v.to_bits() == (if value == 0.0 { 0.0 } else { value }).to_bits()
-                }))?;
+                pf(projection_matches_row(row, o))?;
             }
         }
     }
@@ -6455,4 +6464,49 @@ pub fn outcome_json(outcome: &VResult<Validation>) -> Value {
 /// header directly. Unchanged; this only makes it reachable.
 pub fn validate_preview_physics_transport_metadata(source: &Value) -> Result<(), String> {
     preview_physics_transport_metadata(source)
+}
+
+#[cfg(test)]
+mod w1_si_first_publication_tests {
+    use super::*;
+    #[test]
+    fn w1_si_first_stress_publication_binds_the_actual_si_word_and_row() {
+        let outcome = json!({"kind":"normal","value":"40f8000000000002"});
+        for kind in ["element_local_axial_normal_stress", "element_local_bending_normal_stress_y",
+            "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress"] {
+            let mut row=json!({"kind":kind,"unit":"MPa","value":f64::from_bits(0x3fb92a737110e456)});
+            assert!(projection_matches_row(&row,&outcome));
+            // Exact dyadic midpoint divided before RN64 is the obsolete other word.
+            row["value"]=json!(f64::from_bits(0x3fb92a737110e455));
+            assert!(!projection_matches_row(&row,&outcome));
+            row["value"]=json!(f64::from_bits(0x3fb92a737110e456));
+            for (field,value) in [("kind",json!("element_local_axial_force")),("unit",json!("Pa"))] {
+                let mut wrong=row.clone();wrong[field]=value;
+                assert!(!projection_matches_row(&wrong,&outcome));
+            }
+            let changed=json!({"kind":"normal","value":"40f8000000000000"});
+            assert!(!projection_matches_row(&row,&changed));
+        }
+    }
+    #[test]
+    fn w1_si_first_other_rows_keep_raw_words_and_stress_zero_is_truthful() {
+        for (kind,unit,word) in [("global_nodal_displacement_x","mm",0x4197700000000001),
+            ("element_local_torsional_moment","N*m",0x40f8000000000002),
+            ("pipe_elastic_normal_stress_maximum_v2","Pa",0x40f8000000000002),
+            ("element_local_axial_force","MPa",0x40f8000000000002)] {
+            let row=json!({"kind":kind,"unit":unit,"value":f64::from_bits(word)});
+            let outcome=json!({"kind":"normal","value":format!("{word:016x}")});
+            assert!(projection_matches_row(&row,&outcome));
+        }
+        let mut row=json!({"kind":"element_local_axial_normal_stress","unit":"MPa","value":0.0});
+        for outcome in [json!({"kind":"underflow","negative":true}),
+            json!({"kind":"subnormal","value":"0000000000000001","relative_precision":"3ff0000000000000"})] {
+            assert!(projection_matches_row(&row,&outcome));
+            row["value"]=json!(-0.0);assert!(!projection_matches_row(&row,&outcome));row["value"]=json!(0.0);
+        }
+        for outcome in [json!({"kind":"overflow","negative":false}),
+            json!({"kind":"normal","value":"7ff0000000000000"}),json!({"kind":"unknown"})] {
+            assert!(!projection_matches_row(&row,&outcome));
+        }
+    }
 }

@@ -240,6 +240,7 @@ pub struct LaneTrace<'a> {pub law:source_residual::ReadoutLaw,pub result:Result<
 pub struct ProductProofTrace<'a> {
     pub lanes:[Option<LaneTrace<'a>>;2],pub numeric:NumericTrace,pub comparisons_lme:WorkTotal,
     pub visits:WorkTotal,pub scalar_operations:WorkTotal,pub projection_conversions:WorkTotal,
+    /// Actual SI midpoint conversion for MPa Stress rows; raw conversion for every other unit.
     pub projection_outcomes:&'a [(usize,super::super::wide::multi::Binary64Outcome)],
     pub capacities:[usize;7],pub prepared_capacity_bytes:[usize;6],pub completion_merged:bool,
     pub trace_copy_work:&'a TraceCopyWork,
@@ -1725,8 +1726,9 @@ fn project_hull(interval:Enclosure,unit:ProductUnit,row:usize,work:&mut ProductC
         let raw=match unit {
             ProductUnit::Millimetre=>{work.visit()?;let scale=lift(1000.)?;
                 ctx.mul(&midpoint,&scale).map_err(AttemptStop::from).map_err(NumericError::from)?},
-            ProductUnit::Megapascal=>{work.visit()?;let scale=lift(1_000_000.)?;
-                ctx.div(&midpoint,&scale).map_err(AttemptStop::from).map_err(NumericError::from)?},
+            // begin_prepared_product admits MPa only for the typed Stress recipe.
+            // DEF-O/E/C: convert its SI midpoint before binary64 MPa publication.
+            ProductUnit::Megapascal=>midpoint,
             ProductUnit::Record=>return Err(bad("record projection")),_=>midpoint,
         };
         work.visit()?;
@@ -1736,11 +1738,17 @@ fn project_hull(interval:Enclosure,unit:ProductUnit,row:usize,work:&mut ProductC
         let outcome=raw.to_binary64();
         // Reserved and charged before entry; no fallible operation can lose the actual outcome.
         work.projection_outcomes.push((row,outcome));
-        match outcome {
-            super::super::wide::multi::Binary64Outcome::Normal(y)|super::super::wide::multi::Binary64Outcome::Subnormal{value:y,..}=>Ok(if y==0.0 {0.0}else{y}),
-            super::super::wide::multi::Binary64Outcome::Underflow{..}=>Ok(0.0),
-            _=>Err(NumericError::Binary64Range.into()),
-        }
+        let value=match outcome {
+            super::super::wide::multi::Binary64Outcome::Normal(y)|super::super::wide::multi::Binary64Outcome::Subnormal{value:y,..}=>if y==0.0 {0.0}else{y},
+            super::super::wide::multi::Binary64Outcome::Underflow{..}=>0.0,
+            _=>return Err(NumericError::Binary64Range.into()),
+        };
+        // Other units retain their existing raw conversion and trace word.
+        let published=if unit==ProductUnit::Megapascal {
+            work.f64_op(Scalar64::Div,value,1_000_000.)?
+        } else {value};
+        if !published.is_finite() {return Err(NumericError::Binary64Range.into());}
+        Ok(if published==0.0 {0.0}else{published})
     })();
     work.numeric.wide.record(&ctx);
     result

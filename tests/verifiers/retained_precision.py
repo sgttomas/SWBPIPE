@@ -31,11 +31,11 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+DEFINITION_HASH = "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2"
 TABLE_HASH = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
-COMBINATION_DEFINITION_HASH = "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"
+COMBINATION_DEFINITION_HASH = "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
@@ -45,7 +45,7 @@ METHOD = "contribution_preserving_multiprecision_v1"
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
-EXACT_DEFINITION_HASH = "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af"
+EXACT_DEFINITION_HASH = "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc"
 EXACT_TABLE_HASH = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
@@ -1218,6 +1218,22 @@ def _g5_preparation_members(a, prefix_ok, fail, wf):
                 fail(outcome["kind"] == "normal" and outcome["value"] == m["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
 
 
+def _projected_publication_value(row, outcome):
+    """Current H: an MPa stress outcome is SI; every other outcome stays raw."""
+    if outcome["kind"] == "underflow":
+        value = 0.0
+    elif outcome["kind"] in {"normal", "subnormal"}:
+        value = from_bits(outcome["value"])
+    else:
+        return None
+    if row["unit"] == "MPa" and row["kind"] in {
+        "element_local_axial_normal_stress", "element_local_bending_normal_stress_y",
+        "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
+    }:
+        value /= 1_000_000.0
+    return (value if value != 0 else 0.0) if math.isfinite(value) else None
+
+
 def _g5_proof_rows(a, rows, fail, wf):
     """The proof's lanes and its projection outcomes against the owner's own rows (case or combination)."""
     proof = a["proof"]
@@ -1244,8 +1260,8 @@ def _g5_proof_rows(a, rows, fail, wf):
         if outcome["kind"] == "subnormal": fail(0 < abs(from_bits(outcome["value"])) < 2.0 ** -1022)
         if a["result"]["kind"] == "ready":
             fail(outcome["kind"] != "overflow")
-            value = 0.0 if outcome["kind"] == "underflow" else from_bits(outcome["value"])
-            fail(bits(float(row["value"])) == bits(value if value != 0 else 0.0))
+            value = _projected_publication_value(row, outcome)
+            fail(value is not None and bits(float(row["value"])) == bits(value))
 
 
 COMPONENTS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
