@@ -252,17 +252,28 @@ ID_AUDIT_WHY = ("SQ2 G5 (B2): IN128 = a model id (combination, load case, node, 
 # load_case_algebra (findings exist only on an algebra refusal): per-call counts. The short key lib.rs:179:new is shared
 # with stress_recovery's StressFinding::new, so only (caller, callee) edges, which are unique, are bound.
 _AF = "load_case_algebra AlgebraFinding::new"
+def _algebra_finding_new():
+    """AlgebraFinding::new resolved by name at the snapshot. The basis short key lib.rs:179:new also named a stress_recovery
+    lib.rs line; once that file's lines moved (the pressure-source join removed its #[path] correct_norm module, -4
+    lines) the basis key is ambiguous between the two lib.rs files. load_case_algebra's definition is unchanged."""
+    f = "core/loads/load_case_algebra/src/lib.rs"
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*fn new\(code: FindingCode, subject_id: impl Into<String>, message: impl Into<String>\) -> Self \{$", l)]
+    if len(hits) != 1:
+        raise SystemExit(f"AlgebraFinding::new defined {len(hits)} times in {f}")
+    return Resolved(f"lib.rs:{hits[0]}:new")
+_AFN = _algebra_finding_new()
 EDGE_PER_CALL += [
-    ("lib.rs:292:evaluate_linear_combination", "lib.rs:179:new", "4", _AF + ": one empty-expression finding, then per term (<= 3) at most one of non-finite / duplicate / missing (each `continue`s)"),
+    ("lib.rs:292:evaluate_linear_combination", _AFN, "4", _AF + ": one empty-expression finding, then per term (<= 3) at most one of non-finite / duplicate / missing (each `continue`s)"),
     ("lib.rs:292:evaluate_linear_combination", "lib.rs:546:collect_statuses", "3", "one call per term (<= 3)"),
     ("lib.rs:292:evaluate_linear_combination", "lib.rs:524:same_dimension_or_record", "3", "one call per term (<= 3)"),
-    ("lib.rs:426:evaluate_range_envelope", "lib.rs:179:new", "4", _AF + ": one empty-expression finding, then per operand (<= 3) at most one of duplicate / missing"),
+    ("lib.rs:426:evaluate_range_envelope", _AFN, "4", _AF + ": one empty-expression finding, then per operand (<= 3) at most one of duplicate / missing"),
     ("lib.rs:426:evaluate_range_envelope", "lib.rs:546:collect_statuses", "3", "one call per operand (<= 3)"),
     ("lib.rs:426:evaluate_range_envelope", "lib.rs:524:same_dimension_or_record", "3", "one call per operand (<= 3)"),
-    ("lib.rs:364:evaluate_result_state_subtraction", "lib.rs:179:new", "4", _AF + ": duplicate (1), missing (<= 2, one per distinct id), dimension mismatch (1)"),
+    ("lib.rs:364:evaluate_result_state_subtraction", _AFN, "4", _AF + ": duplicate (1), missing (<= 2, one per distinct id), dimension mismatch (1)"),
     ("lib.rs:364:evaluate_result_state_subtraction", "lib.rs:546:collect_statuses", "2", "the minuend's and the subtrahend's"),
-    ("lib.rs:546:collect_statuses", "lib.rs:179:new", "3", _AF + ": empty statuses (1) or one per status (<= 2, every operand on the graph has two), plus model-incomplete (1)"),
-    ("lib.rs:524:same_dimension_or_record", "lib.rs:179:new", "1", _AF + ": its one site"),
+    ("lib.rs:546:collect_statuses", _AFN, "3", _AF + ": empty statuses (1) or one per status (<= 2, every operand on the graph has two), plus model-incomplete (1)"),
+    ("lib.rs:524:same_dimension_or_record", _AFN, "1", _AF + ": its one site"),
 ]
 PREFIX.update({
     'for r in projected[" "].as_array_mut().ok_or_else(||': ("Pall", "RS retained_precision.rs project (B3b changed its error code by route): the projection's `results` rows, at most the envelope's rows (Pall = C_eq * P_final)"),

@@ -79,6 +79,9 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 - **E13 (#1251): `append_combination_results` deleted.**
   - The combination engine's `append_combination_results` is deleted. `EDGE_ZERO[0]`, which zeroed its only call edge, now names nothing.
   - Its key may stay uncarried (`KEYMAP_ALLOW`). Any other uncarried decision key stops the run.
+- **The pressure-source join (33218f87c4).**
+  - The join deletes `append_retained_source_not_joined` and `RETAINED_SOURCE_NOT_JOINED_TEXT`. N1 and N2 are guarded by that function's name, so they add nothing at join heads; KD5A3's `route` class no longer assumes N2 created `O10_ARGS_FIRST`.
+  - The join removes stress_recovery's `#[path]` `correct_norm` module (four lines). The basis key `lib.rs:179:new` named both load_case_algebra's `AlgebraFinding::new` and a stress_recovery line, and the shift makes it ambiguous. The five `AlgebraFinding::new` per-call bounds now resolve that function by name in load_case_algebra (unchanged there); their counts and arguments are unchanged.
 - **`g5_native_combinations`' operand loop (99cb958e85).**
   - 99cb958e85 zipped the loop with the combination's terms. Both header forms are bound at 3, one per term.
   - The pre-99cb958e85 form is kept so that the registered tree's revision (`f78f52b7e2`) still prices.
