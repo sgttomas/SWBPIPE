@@ -2360,3 +2360,40 @@ fn kd5_positive_w2_lambda_sigma_unscale_mutant_underbounds_actual_reference_erro
     );
     eprintln!("positive W2 b={exponent}: actual={actual:e}, R={correct:e}, mutant={mutant:e}, R/actual={}, mutant/actual={}",correct/actual,mutant/actual);
 }
+/// §2 step 7 and §7 ("drop the 2^10"): Λ = 2^10·est/(1 − 2^10·est·ε_E). A
+/// seeded inexact solve leaves the exact second residual s₂ = −2^-89 (σ = 2^-89,
+/// ψ = 0, ε_E = 0), so Λσ is 2^10·est·2^-89 within its few upward roundings; and
+/// est·ε_E < 1 ≤ 2^10·est·ε_E must fail closed on the Neumann condition.
+#[test]
+fn kd5_lambda_carries_the_two_to_ten_inverse_factor_and_its_neumann_boundary() {
+    let force = input_ledger(&[2.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+    let (k, source) = spring_system(force.values());
+    let contributions = [super::super::StiffnessContribution { row: 0, col: 0, value: 2.0 }];
+    let prescribed = [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0), (5, 0.0)];
+    let system = StructuralSystem {
+        stiffness: &k,
+        force: force.values(),
+        free_dofs: &[0],
+        prescribed: &prescribed,
+        contributions: Some(&contributions),
+        symmetry: None,
+    };
+    // u = 1 + 2^-40: ρ = −2^-39; the solve returns (rhs/2)(1 + 2^-25), exactly.
+    let u = [1.0 + 2.0f64.powi(-40), 0.0, 0.0, 0.0, 0.0, 0.0];
+    let inexact = |rhs: &[f64]| Ok(vec![rhs[0] / 2.0 * (1.0 + 2.0f64.powi(-25))]);
+    let est = 0.5;
+    let (finding, bound) = check(&system, &source, Some(&force), &[0], &u, (1.0, est, 2.0), &|i, j| k[i][j], &|_, _| 2.0, &inexact);
+    assert!(finding.is_none(), "{finding:?}");
+    let bound = bound.unwrap();
+    let sigma = 2.0f64.powi(-89);
+    let expected = 1024.0 * est * sigma;
+    assert!(bound.lambda_sigma >= expected, "Λσ={:e} must carry 2^10·est·σ={expected:e}", bound.lambda_sigma);
+    assert!(bound.lambda_sigma <= expected * (1.0 + 2.0f64.powi(-46)), "Λσ={:e} vs {expected:e}", bound.lambda_sigma);
+    // ε_E is the assembly rounding 1 (stored 3 against the contributed 2):
+    // est·ε_E = 1/64 < 1, but 2^10·est·ε_E = 16 ≥ 1.
+    let exact = |rhs: &[f64]| Ok(vec![rhs[0] / 2.0]);
+    let (finding, bound) = check(&system, &source, Some(&force), &[0], &[1.0, 0.0, 0.0, 0.0, 0.0, 0.0], (1.0, 1.0 / 64.0, 3.0),
+        &|i, j| if i == j && i == 0 { 3.0 } else { 0.0 }, &|_, _| 3.0, &exact);
+    assert!(bound.is_none());
+    assert!(matches!(finding.unwrap().reason, FormationCheckReason::FormationCheckUnavailable { detail } if detail == "Neumann"));
+}
