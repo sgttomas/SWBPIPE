@@ -504,7 +504,8 @@ fn precision_1_is_readable_but_never_fresh() {
     }
     // T1 activation (DESIGN 10.3): exactly the four T0R identities plus T1's
     // two 0.4.0 exact-route identities, plus T3's F2a preview successor (U6a,
-    // D-U6-6: membership is not standing); nothing else is fresh.
+    // D-U6-6: membership is not standing), plus B7's joined pressure-source-1
+    // (b7-plan D1); nothing else is fresh.
     let mut fresh: Vec<&str> = s::FRESH_IDENTITIES.to_vec();
     fresh.sort_unstable();
     let mut expected = vec![
@@ -512,6 +513,7 @@ fn precision_1_is_readable_but_never_fresh() {
         open_pipe_stress_result_export::source_blocks::CONTRACT_ID,
         s::PHYSICS_ID,
         s::PHYSICS_SOURCE_ID,
+        s::PRESSURE_SOURCE_ID,
         s::LOAD_REFERENCE_ID,
         s::LOAD_REFERENCE_SOURCE_ID,
         s::PREVIEW_PHYSICS_RETAINED_ID,

@@ -15559,7 +15559,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -15589,7 +15589,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -19507,7 +19507,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED",
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
             "MECHANICS_NOT_SOLVED"
           ],
           "route": "unsupported",
@@ -20406,7 +20406,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -20443,7 +20443,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
