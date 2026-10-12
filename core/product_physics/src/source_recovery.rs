@@ -1885,3 +1885,7 @@ mod tests {
 #[cfg(test)]
 #[path = "source_recovery/j7_t4_consequences.rs"]
 mod j7_t4_consequences;
+
+#[cfg(test)]
+#[path = "source_recovery/j7_rf_census.rs"]
+mod j7_rf_census;
