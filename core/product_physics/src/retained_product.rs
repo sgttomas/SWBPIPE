@@ -4118,8 +4118,10 @@ impl ProductCapture {
         if !self.prepared_probe || self.error.is_some() || !self.early_sources.is_empty() {return;}
         // The first G-B check precedes even the pending-vector allocation.
         for (index,case) in model.load_cases.iter().enumerate() {
-            self.late_loads_total=self.late_loads_total.saturating_add(case.primitive_loads.len());
+            // G-B's running total is the permit's seam, as on the late path: an observer without a
+            // permit never reaches G-B, so its total stays 0.
             if let Some(permit)=self.permit.as_ref() {
+                self.late_loads_total=self.late_loads_total.saturating_add(case.primitive_loads.len());
                 #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
                 let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
                 if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}

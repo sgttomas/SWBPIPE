@@ -2590,6 +2590,9 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             let bytes=serde_json::to_vec(&e).unwrap();
             o.finish(&e);
             assert_eq!(serde_json::to_vec(&e).unwrap(),bytes,"capture never mutates envelope");
+            // B4/D1: the actual run settles the ordinary terminal once after the envelope
+            // (`run_linear_static_preview_observed`); custody requires that settlement.
+            o.settle_ordinary_terminal();
             if name=="multiple cases" {
                 // B1 SP (T-6): two cases requested, one seen. Invocation custody refuses once,
                 // before any product attempt.
