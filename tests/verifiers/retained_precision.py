@@ -1033,7 +1033,32 @@ def _requested_mode_text(mode, case_index):
             f"owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection")
 
 
-def _g5_requested_mode(body, rows_by_case, diags, quality):
+def _initial_failure_code(error):
+    """product_physics `integrity_failure_code` over the receipt's encoded structural error; never a
+    success code."""
+    tag, detail = (error or {}).get("tag"), (error or {}).get("detail")
+    detail = detail if isinstance(detail, str) else ""
+    if tag == "mechanism": return "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
+    if tag == "negative_energy": return "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY"
+    if tag in ("asymmetric", "invalid_input"): return "NUMERICAL_INTEGRITY_FAILED"
+    if tag == "numerically_unresolved" and ("contribution" in detail or "assembly" in detail):
+        return "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"
+    return "NUMERICAL_INTEGRITY_UNRESOLVED"
+
+
+# product_physics `assessed_numerical_quality`: a failure code's (structural_status, solve_quality,
+# model_matrix_fidelity, accuracy_evidence); any other code takes the default.
+FAILURE_QUALITY = {
+    "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM": ("physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"),
+    "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY": ("negative_energy_witnessed", "failed", "not_assessed", "not_claimed"),
+    "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED": ("numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"),
+    "NUMERICAL_INTEGRITY_FAILED": ("numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"),
+}
+FAILURE_QUALITY_DEFAULT = ("numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved")
+INTEGRITY_MESSAGE_TAIL = "; no structural rejection is bypassed by generic LU or output quantization"
+
+
+def _g5_requested_mode(body, rows_by_case, diags, quality, status=None):
     """B4/D1 rulings (2)-(4), before G8's invocation binding: a requested-mode basis row only on a
     selected case whose ordinary attempt genuinely failed, exactly one there, never beside an ordinary
     mode or parity observation; its value the requested mode's code and its metadata the mode, the
@@ -1066,8 +1091,37 @@ def _g5_requested_mode(body, rows_by_case, diags, quality):
         fail(q["basis_ref"] == case["basis_ref"] and q["solve_quality"] in ("unresolved", "failed")
              and q["structural_status"] != "passive_model_basis" and q["accuracy_evidence"] != "reference_verified"
              and REQUESTED_MODE_ID in refs and f"diagnostic:retained-precision:{cid}:selected" in refs)
-        for ref in ((attempt.get("initial") or {}).get("diagnostic_ref"), (attempt.get("w2") or {}).get("diagnostic_ref")):
-            if ref is not None: bound.append((ref, cid))
+        # Ruling (3), reverse binding: each failure diagnostic the attempt names is still that failure's
+        # diagnostic: blocking, naming this case alone, with the non-success code the recorded failure
+        # determines (a failed W2 is ruling (5)'s named refusal). The receipt records no message, so the
+        # message is bound to the producer's template for this case. Ruling (2): the case's quality keeps
+        # that code's outcome tokens and names the diagnostic.
+        fd = lambda ok: _need(ok, "G5", "FAILURE_DIAGNOSTIC_MISMATCH")
+        fq = lambda ok: _need(ok, "G5", "FAILURE_QUALITY_MISMATCH")
+        initial, w2 = attempt.get("initial") or {}, attempt.get("w2") or {}
+        expected = []
+        if initial.get("diagnostic_ref") is not None:
+            expected.append((initial["diagnostic_ref"], _initial_failure_code(initial.get("error")), False))
+        if w2.get("diagnostic_ref") is not None:
+            fd(w2.get("kind") == "failed")
+            expected.append((w2["diagnostic_ref"], "NUMERICAL_INTEGRITY_UNRESOLVED", True))
+        fd(bool(expected))
+        lead = f"Load case {cid}: "
+        for ref, code, from_w2 in expected:
+            d = next((x for x in diags if x["id"] == ref), None)
+            fd(d is not None)
+            message = d.get("message") if isinstance(d.get("message"), str) else ""
+            rest = message[len(lead):] if message.startswith(lead) else ""
+            fd(d.get("severity") == "blocking" and d.get("affected_refs") == [cid] and d.get("code") == code
+               and message.endswith(INTEGRITY_MESSAGE_TAIL)
+               and ("; range_scaling: attempted; step1_trigger=" in rest if from_w2 else rest.startswith("structural integrity: ")))
+            structural, solve, fidelity, accuracy = FAILURE_QUALITY.get(code, FAILURE_QUALITY_DEFAULT)
+            fq(ref in refs and q["structural_status"] == structural and q["solve_quality"] == solve
+               and q["model_matrix_fidelity"] == fidelity and q["accuracy_evidence"] == accuracy)
+            bound.append((ref, cid))
+        # F2: the envelope status ranks at least this case's failed outcome (product_physics' maximum), so it
+        # is never a success token beside a failed-ordinary case.
+        fq(status == "failed" or (status == "unresolved" and q["solve_quality"] == "unresolved"))
     # Ruling (5): a failed W2 attempt is only the closed named refusal, whose step-1 trigger, when
     # recorded, is the outer range trigger.
     for attempt in body["ordinary_attempts"]:
@@ -1862,6 +1916,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         # invocation's mode and replaces the ordinary mode row.
         requested = [r for r in case_rows if r["kind"] == REQUESTED_MODE_KIND]
         if requested:
+            # Defence in depth: unreachable while G5 binds the row to the receipt's mode first.
             _need(len(requested) == 1 and not modes and type(requested[0]["value"]) in (int, float) and requested[0]["value"] == mode_code,
                   "G8", "REQUESTED_MODE_MISMATCH")
             continue
@@ -2809,7 +2864,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # REVISION_01 §4.1 #6: one case or one combination.
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
-        state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality);_g5_products(body,rows,route)
+        state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality,snapshot["numerical_quality"].get("status"));_g5_products(body,rows,route)
         # B3-D §6.2: on the exact branch G5b also binds each selected case's own physics-1 section evidence.
         state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
         state["gate"]="G6"

@@ -2196,7 +2196,6 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
     }
 }
 
-/// Test access to the D39 mapping with its first-failure encoder.
 /// Test access to the ordinary attempt's `initial`, `w2` and `formation` with its encoder's
 /// failures (B4/D1 ruling (5)'s closed W2 translation).
 #[cfg(test)]
@@ -2205,6 +2204,7 @@ pub(super) fn test_ordinary_members(seed: &rp::OrdinarySeed) -> ((Value, Value, 
     let members = ordinary_members(&e, seed);
     (members, e.failures.into_inner())
 }
+/// Test access to the D39 mapping with its first-failure encoder.
 #[cfg(test)]
 pub(super) fn test_legacy_source(seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>)
     -> Result<(Value, Option<String>), ReceiptFailure> {

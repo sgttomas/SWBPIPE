@@ -159,7 +159,8 @@ def test_blocking_diagnostic_and_w2_mutations_refuse_by_name(index):
         s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["failure"]["refusal"]["trigger"]["error"]["detail"] = "another"
 
     assert _mutated(base, invocation, extra_blocking) == unbound
-    assert _mutated(base, invocation, widened) == unbound
+    # The reverse binding refuses a widened failure diagnostic first.
+    assert _mutated(base, invocation, widened) == FAILURE_DIAGNOSTIC
     assert _mutated(base, invocation, untranslated) == w2
     assert _mutated(base, invocation, inner_trigger) == w2
 
@@ -249,3 +250,88 @@ def test_exact_and_combination_lanes_keep_one_correction(index):
     for route, owner, lane, limit in ((rp.PREVIEW_ROUTE, "case", 1, 2), (rp.PREVIEW_ROUTE, "case", 0, 1), (rp.EXACT_ROUTE, "case", 1, 1),
                                       (rp.PREVIEW_ROUTE, "combination", 1, 1), (None, "case", 1, 1)):
         assert rp._lane_correction_limit(route, {"owner_ref": {"kind": owner}}, lane) == limit
+
+
+FAILURE_DIAGNOSTIC = ("G5", "RETAINED_PRECISION_FAILURE_DIAGNOSTIC_MISMATCH")
+FAILURE_QUALITY = ("G5", "RETAINED_PRECISION_FAILURE_QUALITY_MISMATCH")
+
+
+def _failure_diagnostic(s):
+    ref = s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["diagnostic_ref"]
+    return next(d for d in s["diagnostics"] if d["id"] == ref)
+
+
+def _set_diagnostic(**fields):
+    def mutate(s):
+        _failure_diagnostic(s).update(fields)
+    return mutate
+
+
+@pytest.mark.parametrize("index", range(2))
+def test_reclassified_failure_diagnostic_refuses_by_name(index):
+    # Ruling (3)'s reverse binding (g2 review F1): the failure diagnostic the attempt names stays blocking,
+    # names its one case, keeps the code the failure determines and the producer's message template (the
+    # receipt records no message, so no message text is bound beyond it).
+    base, invocation = _cases()[index]
+    tail = rp.INTEGRITY_MESSAGE_TAIL
+    for label, mutate in (
+        ("warning", _set_diagnostic(severity="warning")),
+        ("info", _set_diagnostic(severity="info")),
+        ("checks_passed code", _set_diagnostic(code="NUMERICAL_INTEGRITY_CHECKS_PASSED")),
+        ("sensitive code", _set_diagnostic(code="NUMERICAL_INTEGRITY_SENSITIVE")),
+        ("another failure code", _set_diagnostic(code="NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED")),
+        ("downgraded and recoded", _set_diagnostic(severity="warning", code="NUMERICAL_INTEGRITY_CHECKS_PASSED")),
+        ("edited message", _set_diagnostic(message="Load case case: numerical integrity checks passed")),
+        ("another case's message", _set_diagnostic(message="Load case supports: range: scaled evaluation outside normal range; "
+                                                           "range_scaling: attempted; step1_trigger=x" + tail)),
+        ("W2 marker removed", _set_diagnostic(message="Load case case: range: scaled evaluation outside normal range" + tail)),
+    ):
+        assert _mutated(base, invocation, mutate) == FAILURE_DIAGNOSTIC, label
+
+    def unnamed(s):
+        s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["diagnostic_ref"] = None
+    # A failed W2 that names no failure diagnostic is already the receipt's (G1).
+    assert _mutated(base, invocation, unnamed) == ("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")
+
+
+@pytest.mark.parametrize("index", range(2))
+def test_success_quality_beside_a_failed_ordinary_case_refuses_by_name(index):
+    # Rulings (2) and (3) (g2 review F2): the case keeps the bound failure code's outcome tokens and names its
+    # diagnostic; the envelope status is never a success token beside it.
+    base, invocation = _cases()[index]
+
+    def envelope(status):
+        def mutate(s):
+            s["numerical_quality"]["status"] = status
+        return mutate
+
+    def case(field, token):
+        def mutate(s):
+            s["numerical_quality"]["cases"][0][field] = token
+        return mutate
+
+    def diagnostic_unnamed(s):
+        s["numerical_quality"]["cases"][0]["evidence_refs"].remove("diagnostic:numerical-integrity:case")
+
+    for label, mutate in (
+        ("envelope checks_passed", envelope("checks_passed")),
+        ("envelope sensitive", envelope("sensitive")),
+        ("envelope not_assessed", envelope("not_assessed")),
+        ("solve failed", case("solve_quality", "failed")),
+        ("assembly loss", case("model_matrix_fidelity", "assembly_loss_detected")),
+        ("equations retained", case("model_matrix_fidelity", "represented_equations_retained")),
+        ("accuracy not claimed", case("accuracy_evidence", "not_claimed")),
+        ("mechanism", case("structural_status", "physical_mechanism_witnessed")),
+        ("diagnostic unnamed", diagnostic_unnamed),
+    ):
+        assert _mutated(base, invocation, mutate) == FAILURE_QUALITY, label
+
+
+def test_initial_failure_code_follows_the_producer_mapping():
+    code = rp._initial_failure_code
+    assert code({"tag": "range", "detail": "division overflow or underflow"}) == "NUMERICAL_INTEGRITY_UNRESOLVED"
+    assert code({"tag": "numerically_unresolved", "detail": "positive diagonal contribution absorbed by assembly"}) == "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"
+    assert code({"tag": "numerically_unresolved", "detail": "pivot"}) == "NUMERICAL_INTEGRITY_UNRESOLVED"
+    assert code({"tag": "negative_energy"}) == "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY"
+    assert code({"tag": "mechanism"}) == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
+    assert code({"tag": "asymmetric"}) == code({"tag": "invalid_input"}) == "NUMERICAL_INTEGRITY_FAILED"

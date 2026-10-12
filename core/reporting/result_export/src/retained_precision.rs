@@ -4746,6 +4746,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             .filter(|r| r["kind"] == REQUESTED_MODE_KIND)
             .collect();
         if !requested.is_empty() {
+            // Defence in depth: unreachable while G5 binds the row to the receipt's mode first.
             need(
                 requested.len() == 1 && modes.is_empty() && requested[0]["value"].as_f64() == Some(code),
                 "G8",
@@ -5547,6 +5548,34 @@ fn failed_ordinary(o: &Value) -> bool {
 pub fn requested_mode_basis(mode: &str, case_index: usize) -> String {
     format!("captured_requested_mode; solver_mode={mode}; ordinary_attempt=failed_without_observation; owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection")
 }
+/// The integrity code product_physics `integrity_failure_code` publishes for an ordinary attempt's
+/// structural failure, over the receipt's encoding of that error. Never a success code.
+fn initial_failure_code(error: &Value) -> &'static str {
+    let detail = text(&error["detail"]);
+    match text(&error["tag"]) {
+        "mechanism" => "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+        "negative_energy" => "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
+        "asymmetric" | "invalid_input" => "NUMERICAL_INTEGRITY_FAILED",
+        "numerically_unresolved" if detail.contains("contribution") || detail.contains("assembly") => {
+            "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"
+        }
+        _ => "NUMERICAL_INTEGRITY_UNRESOLVED",
+    }
+}
+/// The case quality tokens (structural_status, solve_quality, model_matrix_fidelity,
+/// accuracy_evidence) product_physics `assessed_numerical_quality` assigns to a failure code.
+fn failure_quality(code: &str) -> [&'static str; 4] {
+    match code {
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM" => ["physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"],
+        "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY" => ["negative_energy_witnessed", "failed", "not_assessed", "not_claimed"],
+        "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"],
+        "NUMERICAL_INTEGRITY_FAILED" => ["numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"],
+        _ => ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"],
+    }
+}
+/// The fixed tail of product_physics' integrity and W2-refusal diagnostic messages.
+const INTEGRITY_MESSAGE_TAIL: &str =
+    "; no structural rejection is bypassed by generic LU or output quantization";
 /// B4/D1 rulings (2)-(4) (G5, before G8's invocation binding): a requested-mode basis row exists
 /// only on a selected case whose ordinary attempt genuinely failed, and such a case has exactly
 /// one; it never coexists with an ordinary mode or parity observation; its value is the code of
@@ -5609,11 +5638,51 @@ fn g5_requested_mode(source: &Value) -> VResult {
             && q["accuracy_evidence"] != "reference_verified"
             && refs.contains(&json!(REQUESTED_MODE_ID))
             && refs.contains(&selected))?;
-        for id in [&o["initial"]["diagnostic_ref"], &o["w2"]["diagnostic_ref"]] {
-            if !id.is_null() {
-                bound.push((id, cid));
-            }
+        // Ruling (3), reverse binding: each failure diagnostic the attempt names is still that
+        // failure's diagnostic: blocking, naming this case alone, with the non-success code the
+        // recorded failure determines (a failed W2 is ruling (5)'s named refusal). The receipt
+        // records no message, so the message is bound to the producer's template for this case.
+        // Ruling (2): the case's quality keeps that code's outcome tokens and names the diagnostic.
+        let fd = |ok| need(ok, "G5", "FAILURE_DIAGNOSTIC_MISMATCH");
+        let fq = |ok| need(ok, "G5", "FAILURE_QUALITY_MISMATCH");
+        let mut expected: Vec<(&Value, &str, bool)> = Vec::new();
+        if !o["initial"]["diagnostic_ref"].is_null() {
+            let code = initial_failure_code(&o["initial"]["error"]);
+            expected.push((&o["initial"]["diagnostic_ref"], code, false));
         }
+        if !o["w2"]["diagnostic_ref"].is_null() {
+            fd(o["w2"]["kind"] == "failed")?;
+            expected.push((&o["w2"]["diagnostic_ref"], "NUMERICAL_INTEGRITY_UNRESOLVED", true));
+        }
+        fd(!expected.is_empty())?;
+        let lead = format!("Load case {}: ", text(cid));
+        for (id, code, w2) in expected {
+            let Some(d) = list(&source["diagnostics"]).iter().find(|d| d["id"] == *id) else {
+                return fd(false);
+            };
+            let message = text(&d["message"]);
+            let body = message.strip_prefix(lead.as_str()).unwrap_or("");
+            fd(d["severity"] == "blocking"
+                && d["affected_refs"] == json!([cid])
+                && d["code"] == code
+                && message.ends_with(INTEGRITY_MESSAGE_TAIL)
+                && if w2 {
+                    body.contains("; range_scaling: attempted; step1_trigger=")
+                } else {
+                    body.starts_with("structural integrity: ")
+                })?;
+            let [structural, solve, fidelity, accuracy] = failure_quality(code);
+            fq(refs.contains(id)
+                && q["structural_status"] == structural
+                && q["solve_quality"] == solve
+                && q["model_matrix_fidelity"] == fidelity
+                && q["accuracy_evidence"] == accuracy)?;
+            bound.push((id, cid));
+        }
+        // F2: the envelope status ranks at least this case's failed outcome (product_physics'
+        // maximum), so it is never a success token beside a failed-ordinary case.
+        let status = text(&source["numerical_quality"]["status"]);
+        fq(status == "failed" || (status == "unresolved" && q["solve_quality"] == "unresolved"))?;
     }
     // Ruling (5): a failed W2 attempt is only the closed named refusal, whose step-1 trigger, when
     // recorded, is the outer range trigger.
@@ -6917,12 +6986,12 @@ mod b4_failed_ordinary_tests {
                 s["diagnostics"].as_array_mut().unwrap().push(json!({"id":"diagnostic:invented:blocking","code":"SOLVER_SYSTEM_BLOCKED",
                     "severity":"blocking","message":"invented","source":"core/product_physics","affected_refs":["supports"]}));
             }), unbound, "{mode}: unbound blocking diagnostic");
-            // The failure diagnostic widened beyond its one case.
+            // The failure diagnostic widened beyond its one case: the reverse binding refuses first.
             assert_eq!(mutate(&|s| {
                 for d in s["diagnostics"].as_array_mut().unwrap() {
                     if d["severity"] == "blocking" { d["affected_refs"] = json!(["case", "supports"]); }
                 }
-            }), unbound, "{mode}: widened blocking diagnostic");
+            }), ("G5", "RETAINED_PRECISION_FAILURE_DIAGNOSTIC_MISMATCH".to_string()), "{mode}: widened blocking diagnostic");
             // Removing the requested-mode basis shifts the receipt's row indices: G3 refuses it. (In
             // place, a fabricated observation without the basis is G5's: the other test.)
             assert_eq!(mutate(&|s| {
@@ -6938,5 +7007,85 @@ mod b4_failed_ordinary_tests {
                 s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["failure"]["refusal"]["trigger"]["error"]["detail"] = json!("another");
             }), ("G5", "RETAINED_PRECISION_W2_FAILURE_MISMATCH".to_string()), "{mode}: inner trigger");
         }
+    }
+    /// The failed case's bound failure diagnostic, by the W2 attempt's reference.
+    fn failure_diagnostic(s: &mut Value) -> &mut Value {
+        let id = s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["diagnostic_ref"].clone();
+        s["diagnostics"].as_array_mut().unwrap().iter_mut().find(|d| d["id"] == id).unwrap()
+    }
+    #[test]
+    fn reclassified_failure_diagnostics_refuse_by_name() {
+        // Ruling (3)'s reverse binding (g2 review F1): the failure diagnostic the attempt names stays
+        // blocking, names its one case, keeps the code the failure determines and the producer's
+        // message template (the receipt records no message, so no message text is bound beyond it).
+        let fd = ("G5", "RETAINED_PRECISION_FAILURE_DIAGNOSTIC_MISMATCH".to_string());
+        for (base, inv) in cases() {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let mutate = |f: &dyn Fn(&mut Value)| {
+                let mut s = base.clone();
+                f(&mut s);
+                rehash(&mut s);
+                refused(&s, &inv)
+            };
+            for severity in ["warning", "info"] {
+                assert_eq!(mutate(&|s| failure_diagnostic(s)["severity"] = json!(severity)), fd, "{mode}: {severity}");
+            }
+            for code in ["NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE", "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"] {
+                assert_eq!(mutate(&|s| failure_diagnostic(s)["code"] = json!(code)), fd, "{mode}: {code}");
+            }
+            assert_eq!(mutate(&|s| {
+                let d = failure_diagnostic(s);
+                d["severity"] = json!("warning");
+                d["code"] = json!("NUMERICAL_INTEGRITY_CHECKS_PASSED");
+            }), fd, "{mode}: downgraded and recoded");
+            for message in [
+                "Load case case: numerical integrity checks passed",
+                "Load case supports: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=x; no structural rejection is bypassed by generic LU or output quantization",
+                "Load case case: range: scaled evaluation outside normal range; no structural rejection is bypassed by generic LU or output quantization",
+            ] {
+                assert_eq!(mutate(&|s| failure_diagnostic(s)["message"] = json!(message)), fd, "{mode}: message {message}");
+            }
+            // A failed W2 that names no failure diagnostic is already the receipt's (G1).
+            assert_eq!(mutate(&|s| {
+                s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["diagnostic_ref"] = Value::Null;
+            }), ("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH".to_string()), "{mode}: failure diagnostic unnamed");
+        }
+    }
+    #[test]
+    fn success_quality_beside_a_failed_ordinary_case_refuses_by_name() {
+        // Rulings (2) and (3) (g2 review F2): the case keeps the bound failure code's outcome tokens and
+        // names its diagnostic; the envelope status is never a success token beside it.
+        let fq = ("G5", "RETAINED_PRECISION_FAILURE_QUALITY_MISMATCH".to_string());
+        for (base, inv) in cases() {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let mutate = |f: &dyn Fn(&mut Value)| {
+                let mut s = base.clone();
+                f(&mut s);
+                rehash(&mut s);
+                refused(&s, &inv)
+            };
+            for status in ["checks_passed", "sensitive", "not_assessed"] {
+                assert_eq!(mutate(&|s| s["numerical_quality"]["status"] = json!(status)), fq, "{mode}: envelope {status}");
+            }
+            for (field, token) in [("solve_quality", "failed"), ("model_matrix_fidelity", "assembly_loss_detected"),
+                ("model_matrix_fidelity", "represented_equations_retained"), ("accuracy_evidence", "not_claimed"),
+                ("structural_status", "physical_mechanism_witnessed")] {
+                assert_eq!(mutate(&|s| s["numerical_quality"]["cases"][0][field] = json!(token)), fq, "{mode}: {field}={token}");
+            }
+            assert_eq!(mutate(&|s| {
+                s["numerical_quality"]["cases"][0]["evidence_refs"].as_array_mut().unwrap().retain(|r| r != "diagnostic:numerical-integrity:case");
+            }), fq, "{mode}: failure diagnostic unnamed in quality");
+        }
+    }
+    #[test]
+    fn initial_failure_code_follows_the_producer_mapping() {
+        let code = |e: Value| initial_failure_code(&e);
+        assert_eq!(code(json!({"tag":"range","detail":"division overflow or underflow"})), "NUMERICAL_INTEGRITY_UNRESOLVED");
+        assert_eq!(code(json!({"tag":"numerically_unresolved","detail":"positive diagonal contribution absorbed by assembly"})), "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED");
+        assert_eq!(code(json!({"tag":"numerically_unresolved","detail":"pivot"})), "NUMERICAL_INTEGRITY_UNRESOLVED");
+        assert_eq!(code(json!({"tag":"negative_energy"})), "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY");
+        assert_eq!(code(json!({"tag":"mechanism"})), "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM");
+        assert_eq!(code(json!({"tag":"asymmetric"})), "NUMERICAL_INTEGRITY_FAILED");
+        assert_eq!(code(json!({"tag":"invalid_input"})), "NUMERICAL_INTEGRITY_FAILED");
     }
 }
