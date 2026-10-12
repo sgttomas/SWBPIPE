@@ -56,12 +56,21 @@ export function nativeMechanicsReplayPair(mode: PreviewSolverMode = "sparse_inte
 
 let instanceSequence = 0;
 /** The resource grant a replayed job reports: the qualified 12 GiB default as
- * both budget and pool, the ordinary route unpriced. Replay data, not a native reading. */
+ * both budget and pool, the ordinary solve in a worker capped at its grant.
+ * Replay data, not a native reading. */
 export const REPLAY_RESOURCE_GRANT = Object.freeze({
   invocation_budget_bytes: 12 * 1024 ** 3,
   pool_bytes: 12 * 1024 ** 3,
-  route_pricing: "ordinary_unpriced" as const,
+  route_pricing: "ordinary_worker_capped" as const,
+  worker_grant_bytes: null,
+  worker_peak_grant_bytes: null,
+  worker_peak_footprint_bytes: null,
 });
+/** The peak worker grant and peak footprint a replayed finished job reports
+ * (invented figures, not measurements); its worker has exited, so it holds no
+ * current grant. */
+export const REPLAY_WORKER_PEAK_GRANT_BYTES = 256 * 1024 ** 2;
+export const REPLAY_WORKER_PEAK_FOOTPRINT_BYTES = 192 * 1024 ** 2;
 /** The UTF-8 bytes and solver-mode header a start command sends. */
 export function startRequestModel(args: unknown, options: unknown): { model: unknown; mode: unknown; text: string } {
   if (!(args instanceof Uint8Array) && !ArrayBuffer.isView(args)) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
@@ -89,7 +98,7 @@ export const DISPOSE_ALL_COMMAND = "dispose_all_preview_mechanics_results";
 
 /** A mocked native solve-job transport speaking the job contract (raw-bytes
  * start with the solver-mode header, poll without result, take, dispose,
- * cooperative cancel). `answer` supplies the producer bytes for each accepted
+ * cancel). `answer` supplies the producer bytes for each accepted
  * start; a thrown answer rejects the start. Unit simulation only. */
 export function createSolveJobTransport(
   answer: (request: { model: unknown; mode: unknown; text: string }) => string | Promise<string>,
@@ -99,7 +108,13 @@ export function createSolveJobTransport(
   const scope = options.cancellationScope ?? "unit_transport_replay_not_native_ui_qualification";
   const jobs = new Map<string, { bytes: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean }>();
   let sequence = 0, disposeAllCalls = 0;
-  const grant = (ingress: number) => ({ ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: ingress });
+  // A queued job's worker holds no grant yet; a finished job's worker has exited, leaving its peak.
+  const grant = (ingress: number, finished: boolean) => ({
+    ...REPLAY_RESOURCE_GRANT,
+    ingress_reserved_bytes: ingress,
+    worker_peak_grant_bytes: finished ? REPLAY_WORKER_PEAK_GRANT_BYTES : null,
+    worker_peak_footprint_bytes: finished ? REPLAY_WORKER_PEAK_FOOTPRINT_BYTES : null,
+  });
   const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command);
   const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
     if (command === "start_preview_mechanics_job") {
@@ -107,7 +122,7 @@ export function createSolveJobTransport(
       const bytes = await answer(request);
       const ingress = new TextEncoder().encode(request.text).byteLength, job_id = `${prefix}:${++sequence}`;
       jobs.set(job_id, { bytes, ingress, cancelled: false, taken: false, disposed: false });
-      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress) };
+      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress, false) };
     }
     if (command === DISPOSE_ALL_COMMAND) {
       // As the native host at session start: every retained or delivered result is released.
@@ -146,7 +161,7 @@ export function createSolveJobTransport(
     return { job_id: jobId, state: job.cancelled ? "cancelled" : "completed", queue_reason: null, cancellation_requested: job.cancelled,
       cancellation_status: job.cancelled ? "cancelled" : "not_requested", cancellation_scope: scope,
       result_available: available, result_bytes: available ? new TextEncoder().encode(job.bytes).byteLength : null, error_message: null,
-      resource_refusal: null, resource: grant(job.ingress) };
+      resource_refusal: null, resource: grant(job.ingress, !job.cancelled) };
   };
   /** Jobs whose delivered results are held by the app (taken, not disposed). */
   const custody = () => [...jobs].filter(([, job]) => job.taken && !job.disposed).map(([id]) => id);

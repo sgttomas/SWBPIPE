@@ -593,9 +593,9 @@ describe("native mechanics failure boundary", () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const pool = { capacity_bytes: 16 * 2 ** 30, recommended_pool_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, pool_above_recommended: false,
       invocation_budget_bytes: 12 * 2 ** 30, qualified_invocation_budget_bytes: 12 * 2 ** 30, reserved_bytes: 0,
-      reserved_by_purpose: { ingress: 0, result: 0, custody: 0 }, unpriced_solve_running: false, queued_jobs: 0, running_jobs: 0,
+      reserved_by_purpose: { ingress: 0, worker: 0, result: 0, custody: 0 }, running_workers: 0, queued_jobs: 0, running_jobs: 0, limits: { max_running_workers: 8 },
       retained_results: 0, webview_custody_results: 0, headroom: { available_bytes: 2 * 2 ** 30, pressure: "normal", sample_age_ms: 20 },
-      ordinary_route_pricing: "unpriced", last_refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 } };
+      ordinary_route_pricing: "worker_capped", last_refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 } };
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 }, pool });
     const failure = await runPreviewMechanics(nativeMechanicsReplayPair().model).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
@@ -640,13 +640,52 @@ describe("native mechanics failure boundary", () => {
     invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
       const answer = await replay.invoke(command, args, options);
       if (command !== "poll_preview_mechanics_job" || ++polls > 1) return answer;
-      return { ...answer, state: "queued", result_available: false, result_bytes: null, queue_reason: { kind: "solve_slot_busy" } };
+      return { ...answer, state: "queued", result_available: false, result_bytes: null, queue_reason: { kind: "pool_exhausted", requested_bytes: 2 ** 20, reserved_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30 } };
     });
     const seen: Array<[string, unknown]> = [];
     const result = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push([status.state, status.queue_reason]) });
-    expect(seen).toEqual([["queued", { kind: "solve_slot_busy" }], ["completed", null]]);
+    expect(seen).toEqual([["queued", { kind: "pool_exhausted", requested_bytes: 2 ** 20, reserved_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30 }], ["completed", null]]);
     expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
   });
+
+  it("rejects a job refused while its worker ran with the typed worker refusal, nested cause included, and takes nothing", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const refusal = { kind: "worker_growth_refused", granted_bytes: 4 * 2 ** 30, requested_bytes: 6 * 2 ** 30, cause: { kind: "pressure_elevated", level: "warning" } };
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await replay.invoke(command, args, options);
+      return command === "poll_preview_mechanics_job"
+        ? { ...answer, state: "refused", result_available: false, result_bytes: null, resource_refusal: refusal,
+          resource: { ...answer.resource, worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 } }
+        : answer;
+    });
+    const seen: unknown[] = [];
+    const failure = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push(status.resource) }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual(refusal);
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal.");
+    expect(seen.at(-1)).toMatchObject({ route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 });
+    expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+  });
+
+  it.each(["SOLVE_WORKER_EXITED: the worker process ended (signal 9)", "SOLVE_WORKER_PROTOCOL: the worker reply could not be decoded"])(
+    "rejects a job whose worker failed (%s) as a failure carrying the native message, not a refusal",
+    async (message) => {
+      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+      const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+      invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+        const answer = await replay.invoke(command, args, options);
+        return command === "poll_preview_mechanics_job"
+          ? { ...answer, state: "failed", result_available: false, result_bytes: null, error_message: message }
+          : answer;
+      });
+      const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(Error);
+      expect(failure).not.toBeInstanceOf(ResourceUnavailableError);
+      expect((failure as Error).message).toBe(message);
+      expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+    }
+  );
 });
 
 describe("delivered result custody", () => {
@@ -736,7 +775,7 @@ describe("delivered result custody", () => {
     invokeMock.mockImplementation(replay.invoke);
     const start = await startPreviewMechanicsJob(pair.model);
     if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
-    expect(start.resource).toEqual({ invocation_budget_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, route_pricing: "ordinary_unpriced", ingress_reserved_bytes: expect.any(Number) });
+    expect(start.resource).toEqual({ invocation_budget_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, route_pricing: "ordinary_worker_capped", ingress_reserved_bytes: expect.any(Number), worker_grant_bytes: null, worker_peak_grant_bytes: null, worker_peak_footprint_bytes: null });
     expect(await discardPreviewMechanicsJobResult(start.job_id)).toBe(true);
     // Released natively without a copy to the app: no take.
     expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["start_preview_mechanics_job", "dispose_preview_mechanics_result"]);

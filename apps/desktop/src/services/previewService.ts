@@ -448,7 +448,7 @@ function retireJobCapture(jobId: string): void {
 
 /** A started job whose terminal state the app did not establish (a poll
  * failed, its identity did not match, or its run was superseded before it was
- * awaited) and whose result the app will not take: request its cooperative
+ * awaited) and whose result the app will not take: request its
  * cancellation, so the native host drops a result it has not yet published,
  * then release whatever it already retains. Best effort; never throws. A
  * result neither step reaches stays with the native host until the next

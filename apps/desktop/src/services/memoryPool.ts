@@ -60,9 +60,26 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
       return `Too many completed results are waiting to be collected (${refusal.retained} of ${refusal.limit}).`;
     case "custody_full":
       return `The app already holds the maximum number of delivered results (${refusal.delivered} of ${refusal.limit}); a held result must be released first.`;
-    case "solve_slot_busy":
-      return "Another ordinary solve is running; ordinary solves are unpriced, so this one waits for it to finish.";
+    case "worker_cap_exceeded":
+      return `The solve needed more memory than the per-invocation budget of ${formatBytes(refusal.cap_bytes)} allows (requested ${formatBytes(refusal.requested_bytes)}).`;
+    case "worker_growth_refused":
+      return `The solve needed more memory (${formatBytes(refusal.requested_bytes)}) than could be reserved while it ran: ${describeResourceRefusal(refusal.cause)}`;
+    case "worker_footprint_exceeded":
+      return `The solve's measured memory footprint (${formatBytes(refusal.footprint_bytes)}) does not fit the per-invocation budget, so the solve was ended (its reservation was ${formatBytes(refusal.grant_bytes)}).`;
+    case "worker_limit_reached":
+      return `${refusal.running} solve ${refusal.running === 1 ? "worker is" : "workers are"} already running (limit ${refusal.limit}); this solve waits until one finishes.`;
   }
+}
+
+/** Plain-language reading of a solve that failed because its worker process
+ * crashed or broke the worker protocol (native `error_message` prefixed
+ * `SOLVE_WORKER_EXITED:` or `SOLVE_WORKER_PROTOCOL:`); null for any other
+ * failure. Such a job failed: it is not a memory-pool refusal. */
+export function describeSolveWorkerFailure(message: string | null | undefined): string | null {
+  const code = typeof message === "string" ? /\bSOLVE_WORKER_(EXITED|PROTOCOL):/.exec(message)?.[1] : undefined;
+  if (code === "EXITED") return "The solve's worker process ended without returning a result. The solve failed; this is not a memory-pool refusal.";
+  if (code === "PROTOCOL") return "The solve's worker process returned a reply the app could not read. The solve failed; this is not a memory-pool refusal.";
+  return null;
 }
 
 type Fields = Record<string, unknown>;
@@ -70,8 +87,11 @@ const isCount = (value: unknown): value is number => typeof value === "number" &
 const isRecord = (value: unknown): value is Fields => !!value && typeof value === "object" && !Array.isArray(value);
 const countOrNull = (value: unknown): value is number | null => value === null || isCount(value);
 
+/** How deeply a growth refusal's cause may nest; a deeper report is not readable. */
+const MAX_REFUSAL_CAUSE_DEPTH = 4;
+
 /** The typed refusal as reported, with only its declared fields; null for any other shape. */
-export function parseResourceRefusal(value: unknown): ResourceRefusal | null {
+export function parseResourceRefusal(value: unknown, depth = 0): ResourceRefusal | null {
   if (!isRecord(value) || typeof value.kind !== "string") return null;
   const counts = (...keys: string[]) => keys.every((key) => isCount(value[key]));
   const pick = <K extends string>(...keys: K[]) => Object.fromEntries(keys.map((key) => [key, value[key]])) as Record<K, number>;
@@ -80,7 +100,6 @@ export function parseResourceRefusal(value: unknown): ResourceRefusal | null {
     case "capacity_unknown":
     case "headroom_unknown":
     case "pressure_unknown":
-    case "solve_slot_busy":
       return { kind };
     case "headroom_stale":
       return counts("age_ms") ? { kind, ...pick("age_ms") } : null;
@@ -109,37 +128,62 @@ export function parseResourceRefusal(value: unknown): ResourceRefusal | null {
       return counts("retained", "limit") ? { kind, ...pick("retained", "limit") } : null;
     case "custody_full":
       return counts("delivered", "limit") ? { kind, ...pick("delivered", "limit") } : null;
+    case "worker_cap_exceeded":
+      return counts("cap_bytes", "requested_bytes") ? { kind, ...pick("cap_bytes", "requested_bytes") } : null;
+    case "worker_growth_refused": {
+      // The cause is the pool's own verdict on the growth: it must itself be readable.
+      if (!counts("granted_bytes", "requested_bytes") || depth >= MAX_REFUSAL_CAUSE_DEPTH) return null;
+      const cause = parseResourceRefusal(value.cause, depth + 1);
+      return cause ? { kind, ...pick("granted_bytes", "requested_bytes"), cause } : null;
+    }
+    case "worker_footprint_exceeded":
+      return counts("grant_bytes", "footprint_bytes") ? { kind, ...pick("grant_bytes", "footprint_bytes") } : null;
+    case "worker_limit_reached":
+      return counts("running", "limit") ? { kind, ...pick("running", "limit") } : null;
     default:
       return null;
   }
 }
 
-/** The per-job resource grant as reported; null for any other shape. */
+/** The per-job resource grant as reported; null for any other shape. The
+ * worker's current and peak grant and its peak footprint are all present (null
+ * before the worker holds a grant or is measured); a current grant needs a peak
+ * at least as large, and the peak grant never exceeds the per-invocation budget
+ * that caps the worker. The peak footprint is any whole byte count: it can
+ * briefly exceed the peak grant between growth exchanges. */
 export function parseSolveResourceGrant(value: unknown): SolveResourceGrant | null {
-  if (!isRecord(value) || value.route_pricing !== "ordinary_unpriced") return null;
+  if (!isRecord(value) || value.route_pricing !== "ordinary_worker_capped") return null;
   if (![value.invocation_budget_bytes, value.pool_bytes, value.ingress_reserved_bytes].every(isCount)) return null;
+  if (!["worker_grant_bytes", "worker_peak_grant_bytes", "worker_peak_footprint_bytes"].every((key) => key in value)) return null;
+  const grant = value.worker_grant_bytes, peak = value.worker_peak_grant_bytes, footprint = value.worker_peak_footprint_bytes;
+  if (!countOrNull(grant) || !countOrNull(peak) || !countOrNull(footprint)) return null;
+  if (grant !== null && (peak === null || grant > peak)) return null;
+  if (peak !== null && peak > (value.invocation_budget_bytes as number)) return null;
   return {
     invocation_budget_bytes: value.invocation_budget_bytes as number,
     pool_bytes: value.pool_bytes as number,
-    route_pricing: "ordinary_unpriced",
+    route_pricing: "ordinary_worker_capped",
     ingress_reserved_bytes: value.ingress_reserved_bytes as number,
+    worker_grant_bytes: grant,
+    worker_peak_grant_bytes: peak,
+    worker_peak_footprint_bytes: footprint,
   };
 }
 
 /** The pool status as reported, with only its declared fields; null for any other shape. */
 export function parsePoolStatus(value: unknown): PoolStatus | null {
-  if (!isRecord(value) || !isRecord(value.reserved_by_purpose) || !isRecord(value.headroom)) return null;
-  const purpose = value.reserved_by_purpose, headroom = value.headroom;
+  if (!isRecord(value) || !isRecord(value.reserved_by_purpose) || !isRecord(value.headroom) || !isRecord(value.limits)) return null;
+  const purpose = value.reserved_by_purpose, headroom = value.headroom, limits = value.limits;
   const last = value.last_refusal === null ? null : parseResourceRefusal(value.last_refusal);
   if (
     !countOrNull(value.capacity_bytes) || !countOrNull(value.recommended_pool_bytes)
     || ![value.pool_bytes, value.invocation_budget_bytes, value.qualified_invocation_budget_bytes, value.reserved_bytes,
-      purpose.ingress, purpose.result, purpose.custody, value.queued_jobs, value.running_jobs,
-      value.retained_results, value.webview_custody_results].every(isCount)
-    || typeof value.pool_above_recommended !== "boolean" || typeof value.unpriced_solve_running !== "boolean"
+      purpose.ingress, purpose.worker, purpose.result, purpose.custody, value.queued_jobs, value.running_jobs,
+      value.running_workers, limits.max_running_workers, value.retained_results, value.webview_custody_results].every(isCount)
+    || typeof value.pool_above_recommended !== "boolean"
     || !countOrNull(headroom.available_bytes) || !countOrNull(headroom.sample_age_ms)
     || !PRESSURE_LEVELS.includes(headroom.pressure as MemoryPressureLevel)
-    || value.ordinary_route_pricing !== "unpriced"
+    || value.ordinary_route_pricing !== "worker_capped"
     || (value.last_refusal !== null && last === null)
   ) return null;
   return {
@@ -150,14 +194,15 @@ export function parsePoolStatus(value: unknown): PoolStatus | null {
     invocation_budget_bytes: value.invocation_budget_bytes as number,
     qualified_invocation_budget_bytes: value.qualified_invocation_budget_bytes as number,
     reserved_bytes: value.reserved_bytes as number,
-    reserved_by_purpose: { ingress: purpose.ingress as number, result: purpose.result as number, custody: purpose.custody as number },
-    unpriced_solve_running: value.unpriced_solve_running,
+    reserved_by_purpose: { ingress: purpose.ingress as number, worker: purpose.worker as number, result: purpose.result as number, custody: purpose.custody as number },
+    running_workers: value.running_workers as number,
+    limits: { max_running_workers: limits.max_running_workers as number },
     queued_jobs: value.queued_jobs as number,
     running_jobs: value.running_jobs as number,
     retained_results: value.retained_results as number,
     webview_custody_results: value.webview_custody_results as number,
     headroom: { available_bytes: headroom.available_bytes, pressure: headroom.pressure as MemoryPressureLevel, sample_age_ms: headroom.sample_age_ms },
-    ordinary_route_pricing: "unpriced",
+    ordinary_route_pricing: "worker_capped",
     last_refusal: last,
   };
 }

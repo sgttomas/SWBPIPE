@@ -4,7 +4,7 @@ import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
-import { describeResourceRefusal, formatBytes } from "../../services/memoryPool";
+import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes } from "../../services/memoryPool";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 
 export function SolvePanel({
@@ -60,6 +60,11 @@ export function SolvePanel({
         </span>
       </div>
       {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+      {solveJob.state === "failed" && describeSolveWorkerFailure(solveJob.error_message) ? (
+        <p role="status" className="memory-pool-message error" data-testid="solve-job-worker-failure">
+          {describeSolveWorkerFailure(solveJob.error_message)}
+        </p>
+      ) : null}
       {solveJob.resource.refusal ? (
         <p role="status" className="memory-pool-message warning" data-testid="solve-job-resource-refusal">
           Refused by the native memory pool: {describeResourceRefusal(solveJob.resource.refusal)} No result was published.
@@ -277,9 +282,11 @@ function buildSolveJobPacket({
       backend_job_seam: solveJob.backend_job_seam,
       backend_job_id: solveJob.backend_job_id,
       backend_cancellation_token: solveJob.backend_cancellation_token,
+      // The scope the native host reported for this job (a running job's worker
+      // process is terminated on cancellation); browser fixture runs have no backend job.
       cancellation_scope:
         solveJob.backend_job_seam === "tauri_backend_job"
-          ? "cooperative_checkpoints_not_preemptive"
+          ? solveJob.backend_cancellation_scope ?? "not_reported"
           : "ui_request_record_only_no_backend_job",
       mutates_solver_process_directly: false,
       cancellation_success_claimed: false
@@ -292,7 +299,12 @@ function buildSolveJobPacket({
       pool_bytes: solveJob.resource.pool_bytes,
       route_pricing: solveJob.resource.route_pricing,
       ingress_reserved_bytes: solveJob.resource.ingress_reserved_bytes,
-      ordinary_route_byte_bound_claimed: false,
+      // The ordinary solve runs in a worker process whose allocator is capped at
+      // its grant; the grant grows on demand up to the per-invocation budget.
+      ordinary_solve_capped_by: solveJob.resource.route_pricing === "ordinary_worker_capped" ? "worker_grant" : null,
+      worker_grant_bytes: solveJob.resource.worker_grant_bytes,
+      worker_peak_grant_bytes: solveJob.resource.worker_peak_grant_bytes,
+      worker_peak_footprint_bytes: solveJob.resource.worker_peak_footprint_bytes,
       queue_reason: solveJob.resource.queue_reason,
       refusal: solveJob.resource.refusal,
       refusal_reason: solveJob.resource.refusal ? describeResourceRefusal(solveJob.resource.refusal) : null
@@ -380,13 +392,19 @@ function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): st
 function resourceSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
   const resource = packet.resource;
   if (resource.source === "not_reported" && !resource.refusal) return "not reported; no native job grant recorded";
-  // The per-invocation budget bounds only the request intake; held results are
-  // bounded by the pool, headroom and count limits, and the ordinary solve
-  // itself is unpriced, so no byte bound is claimed for it.
+  // The per-invocation budget bounds the request intake and caps the ordinary
+  // solve's worker (its grant grows on demand up to the budget); held results
+  // are bounded by the pool, headroom and count limits, not by the budget.
+  const worker = resource.route_pricing === "ordinary_worker_capped"
+    ? [`worker grant=${resource.worker_grant_bytes === null ? "none held" : formatBytes(resource.worker_grant_bytes)}`,
+      `peak=${resource.worker_peak_grant_bytes === null ? "none" : formatBytes(resource.worker_peak_grant_bytes)}`,
+      `peak footprint=${resource.worker_peak_footprint_bytes === null ? "not measured" : formatBytes(resource.worker_peak_footprint_bytes)}`]
+    : [];
   return [
-    `intake budget=${formatBytes(resource.invocation_budget_bytes)}`,
+    `budget=${formatBytes(resource.invocation_budget_bytes)} (intake and solve worker cap)`,
     `pool=${formatBytes(resource.pool_bytes)}`,
-    `route=${resource.route_pricing ?? "not granted"}${resource.route_pricing === "ordinary_unpriced" ? " (solve not bounded by the budget)" : ""}`,
+    `route=${resource.route_pricing ?? "not granted"}`,
+    ...worker,
     `refusal=${resource.refusal?.kind ?? "none"}`
   ].join("; ");
 }

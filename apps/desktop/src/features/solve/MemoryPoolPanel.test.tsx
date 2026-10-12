@@ -17,16 +17,17 @@ function poolStatus(overrides: Partial<PoolStatus> = {}): PoolStatus {
     pool_above_recommended: false,
     invocation_budget_bytes: 12 * GiB,
     qualified_invocation_budget_bytes: 12 * GiB,
-    reserved_bytes: 12.5 * GiB,
-    reserved_by_purpose: { ingress: 0.5 * GiB, result: 0, custody: 12 * GiB },
-    unpriced_solve_running: true,
+    reserved_bytes: 18.5 * GiB,
+    reserved_by_purpose: { ingress: 0.5 * GiB, worker: 6 * GiB, result: 0, custody: 12 * GiB },
+    running_workers: 2,
+    limits: { max_running_workers: 8 },
     queued_jobs: 1,
-    running_jobs: 1,
+    running_jobs: 2,
     retained_results: 0,
     webview_custody_results: 1,
     headroom: { available_bytes: 20 * GiB, pressure: "normal", sample_age_ms: 120 },
-    ordinary_route_pricing: "unpriced",
-    last_refusal: { kind: "solve_slot_busy" },
+    ordinary_route_pricing: "worker_capped",
+    last_refusal: { kind: "worker_cap_exceeded", cap_bytes: 12 * GiB, requested_bytes: 14 * GiB },
     ...overrides
   };
 }
@@ -54,23 +55,26 @@ describe("the memory pool panel", () => {
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
-  it("shows the budget, pool, reservations, unpriced ordinary solve, queued work, free memory and last refusal", async () => {
+  it("shows the budget, pool, reservations, running solve workers, queued work, free memory and last refusal", async () => {
     nativeRuntime();
     invokeMock.mockResolvedValue(poolStatus());
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
     expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
-    // The budget bounds only the request intake: neither held results nor the ordinary solve.
-    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) only; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget; the ordinary solve itself is unpriced, so no byte bound is claimed for it");
+    // The budget bounds the request intake and each ordinary solve's worker, not held results.
+    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget");
     expect(screen.getByTestId("memory-pool-status").textContent).not.toMatch(/qualified up to|guarantee/i);
     expect(line("memory-pool-size")).toBe("48 GiB; recommended 48 GiB for 64 GiB physical memory");
-    expect(line("memory-pool-reserved")).toBe("12.5 GiB (model intake 512 MiB, results 0 MiB, results held by the app 12 GiB)");
-    expect(line("memory-pool-ordinary")).toBe("running; unpriced: no byte bound is claimed for the ordinary solve itself");
-    expect(line("memory-pool-queue")).toBe("1 queued; 1 running; 0 results awaiting collection; 1 held by the app");
+    expect(line("memory-pool-reserved")).toBe("18.5 GiB (model intake 512 MiB, solve workers 6 GiB, results 0 MiB, results held by the app 12 GiB)");
+    expect(line("memory-pool-ordinary")).toBe("2 of at most 8 running, holding 6 GiB; each is capped at the per-invocation budget");
+    expect(line("memory-pool-queue")).toBe("1 queued; 2 running; 0 results awaiting collection; 1 held by the app");
     expect(line("memory-pool-headroom")).toBe("20 GiB available; pressure normal; read 120 ms ago");
-    expect(line("memory-pool-last-refusal")).toBe("Another ordinary solve is running; ordinary solves are unpriced, so this one waits for it to finish.");
+    expect(line("memory-pool-last-refusal")).toBe("The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 14 GiB).");
+    // The interim unpriced, one-at-a-time wording is gone.
+    expect(screen.getByTestId("memory-pool-panel").textContent).not.toMatch(/unpriced|one at a time/i);
     expect(screen.getByTestId("memory-pool-boundary").textContent).toMatch(/not an assurance/);
+    expect(screen.getByTestId("memory-pool-boundary").textContent).toMatch(/16 GiB Mac is the base design target/);
     expect(screen.getByTestId("memory-pool-boundary").textContent).not.toMatch(/guarantee[sd]? (that|to)/i);
     // Inputs start at the reported pool and budget.
     expect(screen.getByLabelText("Pool size (GiB)")).toHaveValue(48);
@@ -85,6 +89,29 @@ describe("the memory pool panel", () => {
     expect(line("memory-pool-size")).toBe("48 GiB; recommended unknown for unknown physical memory");
     expect(line("memory-pool-headroom")).toBe("not reported; pressure unknown");
     expect(line("memory-pool-last-refusal")).toBe("none");
+  });
+
+  it("shows no running solve worker and no worker reservation when none runs", async () => {
+    nativeRuntime();
+    invokeMock.mockResolvedValue(poolStatus({ running_workers: 0, running_jobs: 0, reserved_bytes: 12.5 * GiB, reserved_by_purpose: { ingress: 0.5 * GiB, worker: 0, result: 0, custody: 12 * GiB } }));
+    render(<MemoryPoolPanel active={false} />);
+    await screen.findByTestId("memory-pool-status");
+    expect(line("memory-pool-ordinary")).toBe("0 of at most 8 running, holding 0 MiB; each is capped at the per-invocation budget");
+    expect(line("memory-pool-reserved")).toBe("12.5 GiB (model intake 512 MiB, solve workers 0 MiB, results 0 MiB, results held by the app 12 GiB)");
+  });
+
+  it.each([
+    [{ ordinary_route_pricing: "unpriced" }, "the interim unpriced route"],
+    [{ running_workers: undefined, unpriced_solve_running: true }, "the interim running flag in place of a worker count"],
+    [{ reserved_by_purpose: { ingress: 0, result: 0, custody: 0 } }, "reservations without the worker purpose"],
+    [{ running_workers: -1 }, "a negative worker count"],
+    [{ limits: { max_queued_jobs: 4 } }, "no running-worker limit"],
+    [{ limits: undefined }, "no limits"]
+  ] as Array<[Record<string, unknown>, string]>)("reads a pool status with %s as unreadable (%s)", async (overrides) => {
+    nativeRuntime();
+    invokeMock.mockResolvedValue({ ...poolStatus(), ...overrides });
+    render(<MemoryPoolPanel active={false} />);
+    expect(await screen.findByTestId("memory-pool-read-error")).toHaveTextContent("MEMORY_POOL_STATUS_INVALID");
   });
 
   it("requires an explicit acknowledgement above the recommended pool, and the acknowledgement does not hide a native headroom refusal", async () => {
@@ -160,7 +187,12 @@ describe("the memory pool panel", () => {
   it.each([
     [{ kind: "pressure_unknown" }, "macOS did not report a memory-pressure state, so no new solve is admitted."],
     [{ kind: "pressure_elevated", level: "warning" }, "macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal."],
-    [{ kind: "pressure_elevated", level: "critical" }, "macOS reports memory pressure (critical), so no new solve is admitted until it returns to normal."]
+    [{ kind: "pressure_elevated", level: "critical" }, "macOS reports memory pressure (critical), so no new solve is admitted until it returns to normal."],
+    [{ kind: "worker_growth_refused", granted_bytes: 4 * GiB, requested_bytes: 6 * GiB, cause: { kind: "pool_exhausted", requested_bytes: 2 * GiB, reserved_bytes: 47 * GiB, pool_bytes: 48 * GiB } },
+      "The solve needed more memory (6 GiB) than could be reserved while it ran: The memory pool is fully reserved: this request needs 2 GiB, and 47 GiB of the 48 GiB pool is already reserved."],
+    [{ kind: "worker_footprint_exceeded", grant_bytes: 4 * GiB, footprint_bytes: 4.5 * GiB },
+      "The solve's measured memory footprint (4.5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB)."],
+    [{ kind: "worker_limit_reached", running: 8, limit: 8 }, "8 solve workers are already running (limit 8); this solve waits until one finishes."]
   ])("shows the last %s refusal in plain language", async (refusal, text) => {
     nativeRuntime();
     invokeMock.mockResolvedValue(poolStatus({ last_refusal: refusal as PoolStatus["last_refusal"] }));

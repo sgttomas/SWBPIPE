@@ -18,8 +18,9 @@ type Outcome = { tone: "applied" | "refused" | "error"; text: string };
 
 /**
  * The native memory pool beside the solve controls (DEL-04-07 memory-budget
- * decision): the per-invocation budget, the aggregate pool, reservations,
- * queued work, free memory and the last refusal, with controls for a pool size
+ * decision): the per-invocation budget, the aggregate pool, reservations
+ * (including running solve workers' grants), queued work, free memory and the
+ * last refusal, with controls for a pool size
  * and a per-invocation budget. The native host owns every verdict; this panel
  * shows the figures it reports and never fabricates one.
  */
@@ -135,7 +136,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
-            value="receiving the model document (request intake) only; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget; the ordinary solve itself is unpriced, so no byte bound is claimed for it"
+            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget"
           />
           <PoolLine
             label="Memory pool"
@@ -145,12 +146,12 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="Reserved"
             testId="memory-pool-reserved"
-            value={`${formatBytes(status.reserved_bytes)} (model intake ${formatBytes(status.reserved_by_purpose.ingress)}, results ${formatBytes(status.reserved_by_purpose.result)}, results held by the app ${formatBytes(status.reserved_by_purpose.custody)})`}
+            value={`${formatBytes(status.reserved_bytes)} (model intake ${formatBytes(status.reserved_by_purpose.ingress)}, solve workers ${formatBytes(status.reserved_by_purpose.worker)}, results ${formatBytes(status.reserved_by_purpose.result)}, results held by the app ${formatBytes(status.reserved_by_purpose.custody)})`}
           />
           <PoolLine
-            label="Ordinary solve"
+            label="Solve workers"
             testId="memory-pool-ordinary"
-            value={`${status.unpriced_solve_running ? "running" : "not running"}; unpriced: no byte bound is claimed for the ordinary solve itself`}
+            value={`${status.running_workers} of at most ${status.limits.max_running_workers} running, holding ${formatBytes(status.reserved_by_purpose.worker)}; each is capped at the per-invocation budget`}
           />
           <PoolLine
             label="Work"
@@ -177,9 +178,9 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
         <p role="status" data-testid="memory-pool-reading">Reading memory pool status…</p>
       )}
       <p className="memory-pool-note" data-testid="memory-pool-boundary">
-        Figures are what this Mac reports when read; other applications can change free memory at any time. The budget and
-        pool are accounting limits, not an assurance that a solve will run or finish. A 16 GiB Mac is the base design target;
-        no statement is made for arbitrary competing workloads.
+        Figures are what this Mac reports when read; other applications can change free memory at any time. The budget caps
+        what each solve worker may reserve and the pool caps what all work may reserve; these limits are not an assurance that a
+        solve will run or finish. A 16 GiB Mac is the base design target; no statement is made for arbitrary competing workloads.
       </p>
       <form className="memory-pool-form" aria-label="Memory pool settings" onSubmit={(event) => void apply(event)}>
         <label className="memory-pool-field">

@@ -752,6 +752,8 @@ export type SolveJobAuditState = {
   backend_job_seam: SolveJobBackendSeam;
   backend_job_id: string | null;
   backend_cancellation_token: string;
+  /** The cancellation scope the native host reported for this job; null without a backend job. */
+  backend_cancellation_scope: string | null;
   events: SolveJobEvent[];
   error_message: string | null;
   /** The native memory ledger's grant and verdicts for this job (DEL-04-07). */
@@ -776,17 +778,32 @@ export type ResourceRefusal =
   | { kind: "queue_full"; queued: number; limit: number }
   | { kind: "retention_full"; retained: number; limit: number }
   | { kind: "custody_full"; delivered: number; limit: number }
-  | { kind: "solve_slot_busy" };
+  /** The ordinary solve worker needed more than the per-invocation budget caps it at. */
+  | { kind: "worker_cap_exceeded"; cap_bytes: number; requested_bytes: number }
+  /** The worker's grant could not grow while it ran; `cause` is the pool's verdict on that growth. */
+  | { kind: "worker_growth_refused"; granted_bytes: number; requested_bytes: number; cause: ResourceRefusal }
+  /** The solve's measured footprint does not fit the per-invocation budget (at a growth or at the result). */
+  | { kind: "worker_footprint_exceeded"; grant_bytes: number; footprint_bytes: number }
+  /** A queue reason: the bound on concurrently running solve worker processes is reached. */
+  | { kind: "worker_limit_reached"; running: number; limit: number };
 
 /** The resources the native host granted one solve job, recorded in its
  * solve-job audit record (never in the model document or the analysis run).
- * The per-invocation budget bounds only the request intake; the ordinary route
- * is unpriced: no byte bound is claimed for the solve itself. */
+ * The per-invocation budget bounds the request intake and each ordinary solve's
+ * worker process: the worker's grant grows on demand in pool admissions, up to
+ * the budget, and a solve needing more is refused. `worker_grant_bytes` is the
+ * current grant and `worker_peak_grant_bytes` the largest it reached (null
+ * before the worker holds one). */
 export type SolveResourceGrant = {
   invocation_budget_bytes: number;
   pool_bytes: number;
-  route_pricing: "ordinary_unpriced";
+  route_pricing: "ordinary_worker_capped";
   ingress_reserved_bytes: number;
+  worker_grant_bytes: number | null;
+  worker_peak_grant_bytes: number | null;
+  /** The largest footprint measured for the worker (null before one is measured).
+   * It can briefly exceed the peak grant between growth exchanges. */
+  worker_peak_footprint_bytes: number | null;
 };
 
 export type MemoryPressureLevel = "normal" | "warning" | "critical" | "unknown";
@@ -800,26 +817,36 @@ export type PoolStatus = {
   invocation_budget_bytes: number;
   qualified_invocation_budget_bytes: number;
   reserved_bytes: number;
-  reserved_by_purpose: { ingress: number; result: number; custody: number };
-  unpriced_solve_running: boolean;
+  reserved_by_purpose: { ingress: number; worker: number; result: number; custody: number };
+  /** Ordinary solve worker processes currently running. */
+  running_workers: number;
+  /** Bounds the native host reports; `max_running_workers` bounds concurrent solve worker processes. */
+  limits: { max_running_workers: number };
   queued_jobs: number;
   running_jobs: number;
   retained_results: number;
   webview_custody_results: number;
   headroom: { available_bytes: number | null; pressure: MemoryPressureLevel; sample_age_ms: number | null };
-  ordinary_route_pricing: "unpriced";
+  ordinary_route_pricing: "worker_capped";
   last_refusal: ResourceRefusal | null;
 };
 
 /** The solve job's resource record: the budget and pool the native host
- * granted (or reported with a refusal), the route pricing, the latest queue
- * reason and any typed refusal. Budget policy is never part of the model. */
+ * granted (or reported with a refusal), the route pricing, the worker's current
+ * and peak grant, the latest queue reason and any typed refusal. Budget policy
+ * is never part of the model. */
 export type SolveJobResourceRecord = {
   source: "not_reported" | "native_job_receipt" | "native_refusal_pool_status";
   invocation_budget_bytes: number | null;
   pool_bytes: number | null;
-  route_pricing: "ordinary_unpriced" | null;
+  route_pricing: "ordinary_worker_capped" | null;
   ingress_reserved_bytes: number | null;
+  /** The worker's current grant, as last reported; null when none was reported. */
+  worker_grant_bytes: number | null;
+  /** The largest grant the worker reached, as last reported; null when none was reported. */
+  worker_peak_grant_bytes: number | null;
+  /** The largest footprint measured for the worker, as last reported; null when none was reported. */
+  worker_peak_footprint_bytes: number | null;
   queue_reason: ResourceRefusal | null;
   refusal: ResourceRefusal | null;
 };

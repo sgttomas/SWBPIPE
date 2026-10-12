@@ -582,6 +582,7 @@ describe("SWBPIPE desktop preview", () => {
       backend_job_seam: "tauri_backend_job",
       backend_job_id: "job:test-completed",
       backend_cancellation_token: "token:test",
+      backend_cancellation_scope: "worker_process_terminated",
       events: [],
       error_message: null,
       resource: initialSolveJob().resource,

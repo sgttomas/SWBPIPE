@@ -9,7 +9,7 @@ import type {
   BackendSolveJobStatus,
   SolveJobStartReceipt
 } from "../../services/previewService";
-import { describeResourceRefusal, formatBytes, ResourceUnavailableError } from "../../services/memoryPool";
+import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, ResourceUnavailableError } from "../../services/memoryPool";
 import type {
   AnalysisRunEnvelope,
   MechanicsResult,
@@ -31,6 +31,9 @@ function notReportedResource(): SolveJobResourceRecord {
     pool_bytes: null,
     route_pricing: null,
     ingress_reserved_bytes: null,
+    worker_grant_bytes: null,
+    worker_peak_grant_bytes: null,
+    worker_peak_footprint_bytes: null,
     queue_reason: null,
     refusal: null
   };
@@ -54,9 +57,28 @@ function refusedResource(current: SolveJobResourceRecord, refusal: ResourceRefus
   };
 }
 
+const largest = (recorded: number | null, reported: number | null) =>
+  recorded === null ? reported : reported === null ? recorded : Math.max(recorded, reported);
+
+/** A later report of the same job's grant: the worker's current grant follows
+ * the native report; its peak grant and peak footprint never fall below values
+ * already recorded. */
+function withWorkerGrant(current: SolveJobResourceRecord, grant: SolveResourceGrant): SolveJobResourceRecord {
+  const peak = largest(current.worker_peak_grant_bytes, grant.worker_peak_grant_bytes);
+  const footprint = largest(current.worker_peak_footprint_bytes, grant.worker_peak_footprint_bytes);
+  if (current.worker_grant_bytes === grant.worker_grant_bytes && current.worker_peak_grant_bytes === peak
+    && current.worker_peak_footprint_bytes === footprint) return current;
+  return { ...current, worker_grant_bytes: grant.worker_grant_bytes, worker_peak_grant_bytes: peak, worker_peak_footprint_bytes: footprint };
+}
+
+/** What cancelling a backend job does: a queued job is removed before a worker
+ * starts; a running job's worker process is terminated, and the job reads
+ * cancelled (no result published) only after that worker has exited. */
+const BACKEND_CANCELLATION = "cancelling a queued job removes it before a worker starts; cancelling a running job terminates its worker process, and the job reads cancelled (no result published) only after the worker has exited";
+
 function grantSummary(grant: SolveResourceGrant | null): string {
   return grant
-    ? `per-invocation budget ${formatBytes(grant.invocation_budget_bytes)} (bounds the model intake only); pool ${formatBytes(grant.pool_bytes)}; model intake reserved ${formatBytes(grant.ingress_reserved_bytes)}; route ordinary_unpriced (no byte bound is claimed for the solve itself)`
+    ? `per-invocation budget ${formatBytes(grant.invocation_budget_bytes)} (bounds the model intake and caps the ordinary solve worker, whose grant grows on demand up to it); pool ${formatBytes(grant.pool_bytes)}; model intake reserved ${formatBytes(grant.ingress_reserved_bytes)}; route ordinary_worker_capped; worker grant ${grant.worker_grant_bytes === null ? "not yet held" : formatBytes(grant.worker_grant_bytes)}`
     : "the native host reported no resource grant";
 }
 
@@ -72,6 +94,7 @@ export function initialSolveJob(): SolveJobAuditState {
     backend_job_seam: "no_job_started",
     backend_job_id: null,
     backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
+    backend_cancellation_scope: null,
     events: [
       {
         event_id: "solve-preview-not-started",
@@ -103,11 +126,12 @@ export function startSolveJob(model: PreviewModel | null, startReceipt: SolveJob
       backend_job_seam: "tauri_backend_job",
       backend_job_id: startReceipt.job_id,
       backend_cancellation_token: startReceipt.backend_cancellation_token,
+      backend_cancellation_scope: startReceipt.cancellation_scope || null,
       events: [
         {
           event_id: "solve-preview-queued",
           state: "queued",
-          message: `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary; ${grantSummary(startReceipt.resource)}; cancellation is cooperative at backend checkpoints (${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`,
+          message: `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary; ${grantSummary(startReceipt.resource)}; ${BACKEND_CANCELLATION} (scope ${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`,
           result_available: false,
           diagnostic_count: model?.diagnostics.length ?? 0,
           result_row_count: 0,
@@ -129,6 +153,7 @@ export function startSolveJob(model: PreviewModel | null, startReceipt: SolveJob
     backend_job_seam: "browser_fixture_no_backend_job",
     backend_job_id: null,
     backend_cancellation_token: "unavailable_no_backend_job_browser_fixture_mode",
+    backend_cancellation_scope: null,
     events: [
       {
         event_id: "solve-preview-queued",
@@ -154,16 +179,22 @@ export function startSolveJob(model: PreviewModel | null, startReceipt: SolveJob
   };
 }
 
-/** Follows a backend job's non-terminal status: a queue reason the native
- * ledger reports while the job waits, and the move from queued to running.
- * Terminal states are recorded by their own transitions. */
+/** Follows a backend job's status: the worker grant it reports, a queue reason
+ * the native ledger reports while the job waits, and the move from queued to
+ * running. Terminal states are recorded by their own transitions. */
 export function progressSolveJob(current: SolveJobAuditState, status: BackendSolveJobStatus): SolveJobAuditState {
-  if (current.backend_job_id !== status.job_id || (status.state !== "queued" && status.state !== "running")) return current;
+  if (current.backend_job_id !== status.job_id) return current;
   if (current.state !== "queued" && current.state !== "running" && current.state !== "cancelling") return current;
+  // Every status of this job, terminal ones included, carries the worker's
+  // current and peak grant; the record follows it before any terminal transition.
+  const resource = !status.resource ? current.resource
+    : current.resource.source !== "native_job_receipt"
+      ? { ...grantedResource(status.resource), queue_reason: current.resource.queue_reason }
+      : withWorkerGrant(current.resource, status.resource);
+  if (status.state !== "queued" && status.state !== "running") {
+    return resource === current.resource ? current : { ...current, resource };
+  }
   const reason = status.state === "queued" ? status.queue_reason : null;
-  const resource = status.resource && current.resource.source !== "native_job_receipt"
-    ? { ...grantedResource(status.resource), queue_reason: current.resource.queue_reason }
-    : current.resource;
   if (status.state === "running" && current.state === "queued") {
     return {
       ...current,
@@ -174,7 +205,7 @@ export function progressSolveJob(current: SolveJobAuditState, status: BackendSol
         {
           event_id: "solve-preview-running",
           state: "running",
-          message: `Backend solve job ${status.job_id} is executing; cancellation is cooperative at backend checkpoints (${status.cancellation_scope}); this service path does not stream percentage progress.`,
+          message: `Backend solve job ${status.job_id} is executing in its worker process; cancelling it terminates that worker process, and the job reads cancelled (no result published) only after the worker has exited (scope ${status.cancellation_scope}); this service path does not stream percentage progress.`,
           result_available: false,
           diagnostic_count: 0,
           result_row_count: 0,
@@ -317,7 +348,7 @@ export function cancelledSolveJob(current: SolveJobAuditState, status: BackendSo
       {
         event_id: "solve-preview-cancelled",
         state: "cancelled",
-        message: `Backend solve job ${status.job_id} stopped at a cooperative checkpoint (${status.cancellation_status}); no result was published and no cancellation-success guarantee is claimed.`,
+        message: `Backend solve job ${status.job_id} reads cancelled (${status.cancellation_status}): a queued job was removed before a worker started, or a running job's worker process was terminated and has exited; no result was published, and no cancellation-success claim is made beyond that.`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
@@ -410,6 +441,7 @@ function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvel
     backend_job_seam: "restored_persisted_run_no_new_solve",
     backend_job_id: null,
     backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
+    backend_cancellation_scope: null,
     events: [
       {
         event_id: "solve-preview-restored",
@@ -429,6 +461,8 @@ function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvel
 export function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
   // A typed resource refusal is recorded as a refusal, never as a generic failure.
   if (error instanceof ResourceUnavailableError) return refusedSolveJob(current, error.refusal, error.pool);
+  // A crashed or protocol-breaking solve worker is a failure, never a refusal.
+  const worker = describeSolveWorkerFailure(String(error));
   return {
     ...current,
     state: "failed",
@@ -438,7 +472,7 @@ export function failSolveJob(current: SolveJobAuditState, error: unknown): Solve
       {
         event_id: "solve-preview-failed",
         state: "failed",
-        message: `Preview mechanics failed: ${String(error)}`,
+        message: `Preview mechanics failed: ${String(error)}${worker ? ` (${worker})` : ""}`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
@@ -465,7 +499,7 @@ export function requestSolveCancellation(current: SolveJobAuditState): SolveJobA
         event_id: "solve-preview-cancel-requested",
         state: "cancelling",
         message: backendJob
-          ? `Cancellation requested for backend solve job ${current.backend_job_id} using its backend cancellation token; cancellation is cooperative at backend checkpoints and success is not guaranteed.`
+          ? `Cancellation requested for backend solve job ${current.backend_job_id} using its backend cancellation token; ${BACKEND_CANCELLATION}; no cancellation-success guarantee is claimed beyond that.`
           : "Cancellation request recorded at the UI boundary; no backend job exists in browser fixture mode, so the in-flight fixture run cannot be interrupted.",
         result_available: false,
         diagnostic_count: 0,
@@ -489,7 +523,7 @@ export function pendingBackendStartCancellationSolveJob(current: SolveJobAuditSt
         event_id: "solve-preview-cancel-requested-before-backend-start",
         state: "cancelling",
         message:
-          "Cancellation requested before backend job creation completed; the active solve generation will stop before start or dispatch exactly one cooperative cancellation when its backend receipt arrives.",
+          "Cancellation requested before backend job creation completed; the active solve generation will stop before start or dispatch exactly one cancellation when its backend receipt arrives.",
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
