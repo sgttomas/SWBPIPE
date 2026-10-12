@@ -31,7 +31,7 @@ from core.analysis_runs.compatibility import (
 from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
 from tests.verifiers.source_blocks import domain_hash
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
-from schema_validation import validate_instance
+from schema_validation import envelope_branches, validate_instance
 
 PROJECT = Path(__file__).resolve().parents[1]
 RESULTS_SCHEMA = PROJECT / "schemas/results.v0.3.schema.yaml"
@@ -78,8 +78,8 @@ def _matching_result_branches(instance):
 
 
 def _branch_of(contract_id):
-    _, branches = _results_branches()
-    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in branches]
+    document, _ = _results_branches()
+    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in envelope_branches(document)]
     return ids.index(contract_id)
 
 

@@ -386,6 +386,14 @@ add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
 # here would count the same bytes twice.
 add("Retained diagnostics (Vec<Diagnostic> backing; strings are in T08 TAV)", "Diagnostics",
     V("Diagnostic", DIAG))
+# KD5O14: each case's LoadCaseSolve.withheld_summaries is its own push-grown
+# Vec<Diagnostic> (at most one per member), live beside the envelope's vector
+# until the solves drop (an append leaves its capacity). Strings and the
+# count inside D are already priced; only the separate backings are added.
+_lib_path = os.path.join(_snapshot, "core/product_physics/src/lib.rs") if KD5 else None
+if KD5 and "    withheld_summaries: Vec<Diagnostic>,\n" in open(_lib_path, encoding="utf-8").read():
+    add("Withheld certified-summary diagnostics backing per case (KD5O14)", "Diagnostics",
+        V("Diagnostic", m) * CC)
 
 # ---------------- LegacyRecoveryPrefix_or_Exact (T07) and selected finalization (T25) -----
 def load_symbolic(path, key):

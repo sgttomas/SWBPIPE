@@ -1,8 +1,8 @@
-"""T4-U3 (S14): the Python pressure-1 reader admits objective connector records
-and rows over the shared connector corpus (Rust ``tests/connector_contract.rs``
-and TypeScript ``pressureConnectorEvidence.test.ts`` read the same bytes),
-refuses each broken binding by name, and every other contract refuses
-connector evidence.
+"""T4-U3 (S14): the test-only pressure-1 verifier admits objective connector
+records and rows over the shared connector corpus (the Rust reader's
+``tests/connector_contract.rs`` reads the same bytes; the Rust reader is the
+only product reader), refuses each broken binding by name, and the v2 product
+readers refuse connector evidence.
 """
 from copy import deepcopy
 import json
@@ -10,8 +10,9 @@ from pathlib import Path
 
 import pytest
 from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
-from tests.verifiers.physics_evidence import (
-    PRESSURE_ID, validate_exact_pressure_evidence, validate_physics_evidence, validate_pressure_evidence,
+from tests.verifiers.physics_evidence import validate_physics_evidence
+from tests.verifiers.pressure_1 import (
+    CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -73,10 +74,12 @@ def test_corpus_shape():
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
-def test_pressure_1_reader_and_dispatch_admit_the_connector_corpus(label, envelope):
+def test_verifier_and_dispatch_admit_the_connector_corpus(label, envelope):
     assert envelope["producer"]["semantic_contract_id"] == PRESSURE_ID
     validate_pressure_evidence(deepcopy(envelope))
     validate_exact_pressure_evidence(deepcopy(envelope))
+    verify_source(deepcopy(envelope))
+    verify_source(deepcopy(envelope), raw=False)
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
@@ -94,11 +97,17 @@ def test_every_other_contract_refuses_connector_evidence(label, envelope):
     as_v2 = deepcopy(envelope)
     for case in as_v2["contract_evidence"]["exact_cases"]:
         case["profile_mode"] = "exact_straight_pressure_v2"
+    # The hanger's model-scoped input review rows are pressure-1's (v2 keeps its
+    # case-scoped rule); they are not what this test refuses.
+    as_v2["results"] = [r for r in as_v2["results"] if "basis_ref" in r]
     reader = validate_load_reference_evidence if load_state(envelope) else validate_physics_evidence
     with pytest.raises(ValueError) as refused:
         reader(deepcopy(as_v2))
     assert "CONNECTOR_UNSUPPORTED" in str(refused.value) or str(refused.value).endswith("unsupported connector"), str(refused.value)
-    as_v2["contract_evidence"]["connector"] = []
+    # The v2 product readers (as on main) refuse connector records; connector
+    # rows without their records are refused as unbound by the verifier (the
+    # "record removed" mutation above) and by the Rust reader under every
+    # contract, not by the v2 Python product readers, which T3's unit R2 retires.
     with pytest.raises(ValueError) as refused:
-        reader(as_v2)
-    assert str(refused.value).endswith("unsupported connector"), str(refused.value)
+        validate_pressure_evidence(as_v2)
+    assert str(refused.value).endswith("V2_READ_AS_V3"), str(refused.value)

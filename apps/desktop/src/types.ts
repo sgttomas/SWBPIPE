@@ -11,6 +11,8 @@ export type PreviewComponent = {
   geometry?: {
     bend_radius?: QuantityValue;
     bend_angle?: QuantityValue;
+    /** Not authored or consumed (T4-I11 D-B): the arc's plane and side come
+     * from its span's y_reference. A value in an existing document is kept. */
     bend_plane_orientation?: string;
     /** User-entered pipe reference naming the realized curved-bend span
      * (DEC-070). Starts absent; never defaulted or inferred. */
@@ -1010,6 +1012,7 @@ export type EditorOperationIntent = {
       | "detach_section"
       | "split_pipe_run"
       | "transform_pipe_run"
+      | "insert_bend_at_corner"
       | "delete_combination_term"
       | "insert_component_symbol";
     field_label: string;

@@ -180,8 +180,28 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
     O10_ID_AUDIT += [(site("push_product", _LL, "source: source.into()", full=True), {"source": IN})]
     _BP = PP_ + "bend_pressure.rs"
     if fnkey("append_arc_pressure_results", _BP):
+        # U2A2 (batch 4, review M-2): the function now holds two blocking
+        # diagnostics with the same affected-ref line, the unknown-location
+        # refusal and the unrepresentable-section diagnostic. Each is keyed
+        # by its own unique preceding line and checked; both stay priced.
+        _bp_lines = open(_os.path.join(_SNAP, _BP), encoding="utf-8").read().split("\n")
+        for _before in ['format!("arc section location {location:?} is not one of', "RECOVERY_UNREPRESENTABLE,"]:
+            _prev = site("append_arc_pressure_results", _BP, _before, full=True)
+            _prev_file, _prev_line = _prev.rsplit(":", 1)
+            if _bp_lines[int(_prev_line)].strip() != "vec![case.id.clone(), pipe_id.to_string()],":
+                raise SystemExit("U2A2: arc pressure affected-ref site changed; re-review")
+            O10_ID_AUDIT += [(Resolved(f"{_prev_file}:{int(_prev_line) + 1}"), {"case.id": IN, "pipe_id": IN})]
+        # U2L4 (batch 4, review I-1/M-2): the per-section recovery loop runs
+        # over the two ends plus the caller's station rows, which every
+        # solve_load_case_observed branch forms as at most three (quarter_1,
+        # midspan, quarter_3; KD5L7, curved_bend_station_resultants -> [_; 3]).
+        O10_LOOPS_LAST += [("for (location, elastic) in sections", "5", O10 + "U2L4: sections = [end_i, end_j] + stations, stations <= 3", ["bend_pressure.rs:append_arc_pressure_results"])]
+        # U2A3: the unknown-location refusal's {location:?} is a &'static str
+        # of `sections`: the literals end_i/end_j or StationResultants.location
+        # (&'static str; quarter_1/midspan/quarter_3). STATIC; the site stays priced.
+        O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, 'format!("arc section location {location:?} is not one of', full=True),
+                          {"location|?": ST})]
         for _text, _values in [
-            ("vec![case.id.clone(), pipe_id.to_string()]", {"case.id": IN, "pipe_id": IN}),
             ('"result:pressure-exact:{}:{}:{}:{}:{}:{}"', {"case.id.len()": NUM_, "case.id": IN, "pipe_id.len()": NUM_, "pipe_id": IN,
                 "location": ST, "component": ST}),
             ("kind: kind.to_string()", {"kind": ST}),
@@ -240,6 +260,29 @@ if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
             {"re": r"^phi$|^factor$", "max": 327, "why": O10 + "O13T: f64 Display maximum is 327"},
             {"re": r"^line$", "max": _SRC_BYTES, "why": O10 + "O13T: product_text copies a line of its include_str source; one line <= combined source bytes, measured at snapshot"},
         ]
+
+# O13T2 (T4 batch 4): O-13's arc predicate is removed (the unified K-D5
+# predicate decides), so the block above is inert, but `s11g_tests/arc_recovery.rs`
+# remains, rewritten. It is still a module of the cfg(test) `s11g_tests`; the
+# chain reaches some of its helpers only through conservative name candidates.
+# The same honest test-only classes as O13T; never a guessed zero size.
+_AR = PP_ + "s11g_tests/arc_recovery.rs"
+if not fnkey("arc_recovery_finding", PP_ + "formation_guard.rs") and _os.path.exists(_os.path.join(_SNAP, _AR)):
+    for _fn, _text, _values in [
+        # Literal kinds only: "axial", "shear", "torsion", "bending" (g2 iterates the same four).
+        ("group", "kind: kind.into()", {"kind": ST}),
+        # Test project ids: the fixed invented:o13:* ids, the longest 42 B with phi's Display; <= IN128.
+        ("p2_realistic_arcs_are_not_demoted", 'let tag = format!("{} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+        ("p5_an_already_sensitive_case_is_left_untouched", 'let tag = format!("P5 {} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+    ]:
+        if fnkey(_fn, _AR):
+            O10_ID_AUDIT += [(site(_fn, _AR, _text, full=True), _values)]
+    _SRC_BYTES = sum(_os.path.getsize(_os.path.join(_SNAP, PP_ + f)) for f in ("lib.rs", "formation_guard.rs"))
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^mode$", "max": 17, "why": O10 + "O13T2: PreviewSolverMode Debug is SparseInteractive (17) or DenseScrutiny (13)"},
+        {"re": r"^phi$", "max": 327, "why": O10 + "O13T2: f64 Display maximum is 327"},
+        {"re": r"^line$", "max": _SRC_BYTES, "why": O10 + "O13T2: product_text copies a line of its include_str source (lib.rs, formation_guard.rs); one line <= combined source bytes, measured at snapshot"},
+    ]
 
 
 # KD5L1: current unified RecoveryRecord includes supports. Rebind the
@@ -319,7 +362,10 @@ if fnkey("member_group_fires", _FG):
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
         (site("summand", _CL, "source: source.into()", full=True), {"source": CP}),
         (site("solve_load_case_observed", PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
-        (site("finish_source_groups", PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+        # KD5A3 (batch 4 re-key): the pressure closure label moved, unchanged,
+        # from finish_source_groups' map closure into its callee closure_source.
+        (site("closure_source" if fnkey("closure_source", PP_ + "pressure_runtime.rs") else "finish_source_groups",
+              PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
     ]
     _LL = FK_ + "load_ledger.rs"
     CG_RULES += [{"caller": Resolved(_LL + ":" + fnkey("force_scaled", _LL).split(":",1)[1]), "name": "force_scaled",
@@ -409,7 +455,10 @@ if fnkey("member_group_fires", _FG):
 # named callers' primitive numbers, not that new private method owner.
 if fnkey("fallback_circular_maximum", _CP):
     _primitive_minmax_callers = {
-        "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales", "moment_scales", "stress_free_notice"],
+        # Batch 4 renamed moment_scales to action_scales (O-13's coupled
+        # ActionScales); its min/max receivers are still the f64 scales.
+        "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales",
+            "action_scales" if fnkey("action_scales", PP_ + "formation_guard.rs") else "moment_scales", "stress_free_notice"],
         "lib.rs": ["observation_lane_profile", "build_curved_bend_macro_elements", "straight_summary_extrema"],
         "pressure_exact.rs": ["fused_mul_add"], "pressure_runtime.rs": ["finish_source_groups"],
         "retained_memory.rs": ["string", "material", "walk", "combination_census", "longest_string", "complete_observations"],
@@ -492,6 +541,33 @@ if fnkey("append_stress_mpa", _CP):
         (site("recovery_finding", _FG, '"{}.{}.{}: member comparison unavailable', full=True, row="format!("), {"record.member": IN}),
     ]
     O10_ARGS_FIRST += [{"re": "^located$", "max": 128, "why": "KD5A7: endpoint/station location rewrites preserve caller's fixed≤128-B token"}]
+
+# KD5A8: the withheld certified-summary warning's three authored-id copies
+# (id suffix, message member id, affected ref) are the pipe's own id, IN128.
+# Its {error} operand and the diagnostic's multiplicity are not narrowed.
+if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
+    _L = PP_ + "lib.rs"
+    _kd5a8_id = site("solve_load_case_observed", _L, '"diagnostic:stress:{}:summary-unavailable"', full=True)
+    _kd5a8_msg = site("solve_load_case_observed", _L, "the open-formula stress summary of {} is unavailable", full=True)
+    _kd5a8_file, _kd5a8_line = _kd5a8_msg.rsplit(":", 1)
+    if open(_os.path.join(_SNAP, _L), encoding="utf-8").read().split("\n")[int(_kd5a8_line)].strip() != "vec![pipe.element_id.clone()],":
+        raise SystemExit("KD5A8: withheld summary affected-ref site changed; re-review")
+    O10_ID_AUDIT += [
+        (_kd5a8_id, {"stable_suffix(&pipe.element_id)": IN}),
+        (_kd5a8_msg, {"pipe.element_id": IN}),
+        (Resolved(f"{_kd5a8_file}:{int(_kd5a8_line) + 1}"), {"pipe.element_id": IN}),
+    ]
+
+# KD5A9 (T4 batch 4): certified_loads::member_source's ledger source label.
+# Batch 4's pressure closure binding (arc pressure free strain, region id)
+# gives the site a positive multiplicity. `member` is a pipe or connector
+# component's authored id (IN128). `source` is an authored load or region id,
+# the static "reference", or on the 0.4.0 route source_recovery::eigen_source_id
+# ("load_state_eigenstrain:{len}:{pipe_id}", <= 23+20+1+128 B): the composite
+# class (600) covers every caller. The site keeps its full multiplicity.
+if fnkey("member_source", PP_ + "certified_loads.rs") and fnkey("closure_source", PP_ + "pressure_runtime.rs"):
+    O10_ID_AUDIT += [(site("member_source", PP_ + "certified_loads.rs", 'format!("member:{}:{member}:{source}", member.len())', full=True),
+                      {"member": IN, "source": CP})]
 
 # C7A1: move only the five replaced owned-key audit lines to source-bound
 # name keys. Borrowed input metadata is resolved without an allocation row.

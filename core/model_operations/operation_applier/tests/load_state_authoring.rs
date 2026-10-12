@@ -1425,29 +1425,36 @@ fn codes(model: &Value, op: &Value) -> (bool, Vec<String>) {
 }
 
 #[test]
-fn pressure_profile_cannot_change_a_0_4_0_model() {
+fn pressure_profile_keeps_a_0_4_0_model_version_and_writes_only_v3() {
     let model = connected();
     let project = model["project"]["id"].as_str().unwrap().to_string();
     let before = canonical_json(&json!({
         "schema_version": model["schema_version"],
         "pressure_contract": model["pressure_contract"],
     }));
-    let exact = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+    let v2 = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+    let v3 = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
     let code = "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED";
-    // The downgrade the review found, and an unchanged profile, are refused.
-    for after in [
-        json!({"schema_version":"0.3.0","pressure_contract":exact}),
-        json!({"schema_version":"0.4.0","pressure_contract":exact}),
+    // The version change the review found is refused; so is any v2 write.
+    for (after, refusal) in [
+        (json!({"schema_version":"0.3.0","pressure_contract":v3}), code),
+        (json!({"schema_version":"0.4.0","pressure_contract":v2}), "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"),
     ] {
-        let op = intent(
-            "Model",
-            &project,
-            "pressure_profile",
-            &before,
-            &after.to_string(),
-        );
-        refused(&model, &op, code);
+        let op = intent("Model", &project, "pressure_profile", &before, &after.to_string());
+        refused(&model, &op, refusal);
     }
+    // The contract-only upgrade keeps the version and every other byte.
+    let upgrade = intent(
+        "Model",
+        &project,
+        "pressure_profile",
+        &before,
+        &json!({"schema_version":"0.4.0","pressure_contract":v3}).to_string(),
+    );
+    let upgraded = apply_operation(&model, &upgrade, Some(&hash(&model))).applied_model.expect("contract-only upgrade");
+    let mut expected = model.clone();
+    expected["pressure_contract"] = v3.clone();
+    assert_same_bytes(&upgraded, &expected);
     // Inside an atomic batch, after an admitted load-state edit, the whole
     // batch is refused and no model is returned.
     let mut state = model["load_cases"][0]["analysis_state"].clone();
@@ -1464,7 +1471,7 @@ fn pressure_profile_cannot_change_a_0_4_0_model() {
         &project,
         "pressure_profile",
         &before,
-        &json!({"schema_version":"0.3.0","pressure_contract":exact}).to_string(),
+        &json!({"schema_version":"0.3.0","pressure_contract":v3}).to_string(),
     );
     let batch = json!({"batch_id":"batch:pressure-profile-lock","operations":[edit, downgrade]});
     let claim = hash(&model);

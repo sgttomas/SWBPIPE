@@ -57,6 +57,28 @@ pub fn signature_in(table: &'static Value, row: &Value) -> Result<Option<&'stati
     // used only to classify the incomplete disclosure, never to emit a target.
     Ok(Some(units[0]))
 }
+/// The signature of `row` under the table `for_source` selected for `source`.
+/// Under pressure-1 a connector row's signature is held as code
+/// (`connector_evidence`), since pressure-1 resolves its other rows against
+/// physics-1's resident table and holds no table of its own (T4-RV14 F1).
+pub fn signature_for(source: &Value, table: &'static Value, row: &Value) -> Result<Option<Value>, String> {
+    if source["producer"]["semantic_contract_id"] == PRESSURE_ID {
+        if let Some(signature) = crate::connector_evidence::signature(row)? {
+            return Ok(Some(signature));
+        }
+    }
+    Ok(signature_in(table, row)?.cloned())
+}
+/// Canonical metadata under the vocabulary `for_source` selected for `source`
+/// (pressure-1: physics-1's plus the connector entries).
+pub fn canonical_metadata_for(source: &Value, table: &Value, row: &Value) -> Option<Value> {
+    if source["producer"]["semantic_contract_id"] == PRESSURE_ID
+        && crate::connector_evidence::is_connector_kind(row["kind"].as_str().unwrap_or_default())
+    {
+        return crate::connector_evidence::canonical_metadata(row);
+    }
+    canonical_metadata_in(table, row)
+}
 pub fn complete_metadata(row: &Value) -> bool {
     [
         "component",
@@ -272,6 +294,13 @@ pub fn pressure_rows_contract() -> &'static Value {
 /// T4-U3 (S14): the objective connector row signatures of `pressure-1`:
 /// (kind, unit, components, locations).
 pub use crate::connector_evidence::KINDS as CONNECTOR_ROW_KINDS;
+/// T4-U2: the connector rows' stable basis and the canonical metadata
+/// vocabulary they add to physics-1's under pressure-1.
+pub use crate::connector_evidence::{
+    ROW_BASIS as CONNECTOR_ROW_BASIS, VOCABULARY_COMPONENTS as CONNECTOR_VOCABULARY_COMPONENTS,
+    VOCABULARY_COORDINATE_SYSTEMS as CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS,
+    VOCABULARY_LOCATIONS as CONNECTOR_VOCABULARY_LOCATIONS,
+};
 /// Pinned table bytes: identity, profile and sha256 are checked, never inferred.
 pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
@@ -578,6 +607,8 @@ pub const FRESH_IDENTITIES: &[&str] = &[
     // T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
     LOAD_REFERENCE_ID,
     LOAD_REFERENCE_SOURCE_ID,
+    // T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
+    PRESSURE_ID,
     // U6a (D-U6-6; D2 4.7 S-1): membership is not standing. The successor's
     // standing comes only from the accepted reader's verified receipt.
     PREVIEW_PHYSICS_RETAINED_ID,

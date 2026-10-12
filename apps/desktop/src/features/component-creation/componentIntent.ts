@@ -1,4 +1,5 @@
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import { isPressureV3 } from "../pressure-authoring/pressureContract";
 
 export const creatableComponentKinds = ["bend", "tee", "reducer", "valve", "flange", "expansion_joint"] as const;
 export type CreatableComponentKind = (typeof creatableComponentKinds)[number];
@@ -13,13 +14,8 @@ export type ComponentDraft = {
   lengthUnit: string;
   angleUnit: string;
   forceUnit: string;
-  areaUnit: string;
-  movementUnit: string;
-  linearStiffnessUnit: string;
-  rotationalStiffnessUnit: string;
   bendRadius: string;
   bendAngle: string;
-  bendPlaneOrientation: string;
   branchRunSize: string;
   branchHeaderSize: string;
   branchConnectionAngle: string;
@@ -35,19 +31,129 @@ export type ComponentDraft = {
   connectionEndAReference: string;
   connectionEndBReference: string;
   stiffnessBehaviorReference: string;
-  effectiveArea: string;
-  movementLimit: string;
-  hardwareReference: string;
-  manufacturerReference: string;
-  pressureThrustReference: string;
-  axialStiffness: string;
-  lateralStiffness: string;
-  angularStiffness: string;
-  torsionalStiffness: string;
-  stiffnessSourceReference: string;
   geometrySourceReference: string;
   provenance: string;
+} & ConnectorDraft;
+
+/** T4-U3/T4-U2: an expansion joint is authored as an objective connector
+ * (objective_connector 1.0.0) on a 3.0.0/exact_pressure_v3 document, replacing
+ * the selected span (the primary pipe), whose end nodes are its ends. Every
+ * value is the user's; nothing is inferred from the pipe or defaulted. Matrices
+ * are three rows of three numbers ("1 0 0; 0 1 0; 0 0 1"), vectors three
+ * numbers, and the work matrix the 21 upper-triangle coefficients (N*m) in the
+ * order tx, ty, tz, rx, ry, rz. */
+export type ConnectorDraft = {
+  connectorAxes: string;
+  endINodeAxes: string;
+  endJNodeAxes: string;
+  endIOffset: string;
+  endJOffset: string;
+  offsetUnit: string;
+  qRefTranslation: string;
+  qRefTranslationUnit: string;
+  qRefRotation: string;
+  qRefRotationUnit: string;
+  referenceState: string;
+  installedTemperature: string;
+  installedTemperatureUnit: string;
+  translationScale: string;
+  translationScaleUnit: string;
+  workMatrixUpperTriangle: string;
+  stiffnessSourceReference: string;
+  measurementRestraints: string;
+  basisTransformReference: string;
+  validityStatement: string;
+  installedGeometry: string;
+  hardwareKind: string;
+  pressureModel: string;
 };
+export const CONNECTOR_REFERENCE_STATES = ["stress_free", "prestressed"] as const;
+/** The only hardware and pressure model the connector admits until T4-U5. */
+export const CONNECTOR_HARDWARE_KINDS = ["untied"] as const;
+export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
+export function emptyConnectorDraft(): ConnectorDraft {
+  return {
+    connectorAxes: "", endINodeAxes: "", endJNodeAxes: "", endIOffset: "", endJOffset: "", offsetUnit: "",
+    qRefTranslation: "", qRefTranslationUnit: "", qRefRotation: "", qRefRotationUnit: "", referenceState: "",
+    installedTemperature: "", installedTemperatureUnit: "", translationScale: "", translationScaleUnit: "",
+    workMatrixUpperTriangle: "", stiffnessSourceReference: "", measurementRestraints: "", basisTransformReference: "",
+    validityStatement: "", installedGeometry: "", hardwareKind: "", pressureModel: ""
+  };
+}
+/** Expansion joints are created only on a 3.0.0/exact_pressure_v3 document. */
+export function connectorCreationAvailable(model: PreviewModel): boolean {
+  return isPressureV3(model);
+}
+export const CONNECTOR_CONTRACT_NOTICE = "An expansion joint is created as an objective connector, which needs a 3.0.0/exact_pressure_v3 document: select that pressure profile first. It replaces the selected span and is solved unpressurized and untied until T4-U5.";
+function numbers(text: string): number[] | null {
+  const parts = text.split(/[\s,]+/).filter(Boolean);
+  const values = parts.map(Number);
+  return parts.length && values.every(Number.isFinite) ? values : null;
+}
+function vector3(text: string): number[] | null {
+  const values = numbers(text);
+  return values && values.length === 3 ? values : null;
+}
+function matrix3(text: string): number[][] | null {
+  const rows = text.split(";").map(row => vector3(row));
+  return rows.length === 3 && rows.every(Boolean) ? rows as number[][] : null;
+}
+function upperTriangle(text: string): number[] | null {
+  const values = numbers(text);
+  return values && values.length === 21 ? values : null;
+}
+function connectorDraftValid(draft: ConnectorDraft): boolean {
+  return Boolean(
+    matrix3(draft.connectorAxes) && matrix3(draft.endINodeAxes) && matrix3(draft.endJNodeAxes) &&
+    vector3(draft.endIOffset) && vector3(draft.endJOffset) && validUnit(draft.offsetUnit) &&
+    vector3(draft.qRefTranslation) && validUnit(draft.qRefTranslationUnit) &&
+    vector3(draft.qRefRotation) && validUnit(draft.qRefRotationUnit) &&
+    (CONNECTOR_REFERENCE_STATES as readonly string[]).includes(draft.referenceState) &&
+    finiteNumber(draft.installedTemperature) && validUnit(draft.installedTemperatureUnit) &&
+    positiveFinite(draft.translationScale) && validUnit(draft.translationScaleUnit) &&
+    upperTriangle(draft.workMatrixUpperTriangle) &&
+    [draft.stiffnessSourceReference, draft.measurementRestraints, draft.basisTransformReference, draft.validityStatement, draft.installedGeometry].every(text => text.trim()) &&
+    (CONNECTOR_HARDWARE_KINDS as readonly string[]).includes(draft.hardwareKind) &&
+    (CONNECTOR_PRESSURE_MODELS as readonly string[]).includes(draft.pressureModel)
+  );
+}
+/** The objective connector record for the span the draft names. */
+function objectiveConnector(model: PreviewModel, draft: ConnectorDraft & { primaryPipeRef: string }): Record<string, unknown> {
+  const span = model.pipe_segments.find(pipe => pipe.id === draft.primaryPipeRef.trim());
+  if (!span) throw new Error("CONNECTOR_SPAN_MISSING");
+  const xyz = (text: string, unit: string) => { const [x, y, z] = vector3(text)!; return { x, y, z, unit: unit.trim() }; };
+  const provenance = {
+    source_reference: draft.stiffnessSourceReference.trim(),
+    measurement_restraints: draft.measurementRestraints.trim(),
+    basis_transform_reference: draft.basisTransformReference.trim()
+  };
+  return {
+    version: "1.0.0",
+    motion_basis: "symmetric_midpoint_small_rotation_v1",
+    end_i: { node_ref: span.from, initial_node_axes_global: matrix3(draft.endINodeAxes), offset_local: xyz(draft.endIOffset, draft.offsetUnit) },
+    end_j: { node_ref: span.to, initial_node_axes_global: matrix3(draft.endJNodeAxes), offset_local: xyz(draft.endJOffset, draft.offsetUnit) },
+    connector_axes_global: matrix3(draft.connectorAxes),
+    installed_reference_temperature: { value: Number(draft.installedTemperature), unit: draft.installedTemperatureUnit.trim() },
+    temperature_applicability: "fixed_installed_parameters_v1",
+    reference_state: draft.referenceState,
+    q_ref: { translation: xyz(draft.qRefTranslation, draft.qRefTranslationUnit), rotation: xyz(draft.qRefRotation, draft.qRefRotationUnit) },
+    stiffness: {
+      version: "1.0.0",
+      representation: "scaled_work_coefficients_v1",
+      translation_scale: { value: Number(draft.translationScale), unit: draft.translationScaleUnit.trim() },
+      rotation_scale: { value: 1, unit: "rad" },
+      coefficient_unit: "N*m",
+      upper_triangle: upperTriangle(draft.workMatrixUpperTriangle),
+      coordinate_order: ["tx", "ty", "tz", "rx", "ry", "rz"],
+      provenance
+    },
+    topology: { type: "replaces_span", span_ref: span.id },
+    calibration: { kind: "constant_structural_elasticity_v1", includes_pressure_dependent_tangent: false, installed_geometry: draft.installedGeometry.trim() },
+    hardware: { kind: draft.hardwareKind },
+    pressure_model: { kind: draft.pressureModel },
+    provenance: { ...provenance, validity_statement: draft.validityStatement.trim() }
+  };
+}
 
 export function defaultComponentDraft(
   model: PreviewModel,
@@ -70,13 +176,8 @@ export function defaultComponentDraft(
     lengthUnit: model.project.units.length ?? "TBD",
     angleUnit: model.project.units.angle ?? "rad",
     forceUnit: model.project.units.force ?? "TBD",
-    areaUnit: "",
-    movementUnit: "",
-    linearStiffnessUnit: "",
-    rotationalStiffnessUnit: "",
     bendRadius: "",
     bendAngle: "",
-    bendPlaneOrientation: "",
     branchRunSize: "",
     branchHeaderSize: "",
     branchConnectionAngle: "",
@@ -92,16 +193,7 @@ export function defaultComponentDraft(
     connectionEndAReference: "",
     connectionEndBReference: "",
     stiffnessBehaviorReference: "",
-    effectiveArea: "",
-    movementLimit: "",
-    hardwareReference: "",
-    manufacturerReference: "",
-    pressureThrustReference: "",
-    axialStiffness: "",
-    lateralStiffness: "",
-    angularStiffness: "",
-    torsionalStiffness: "",
-    stiffnessSourceReference: "",
+    ...emptyConnectorDraft(),
     geometrySourceReference: kind === "expansion_joint" ? "" : "user_entered_component_form",
     provenance: kind === "expansion_joint" ? "" : "user_entered_local_preview"
   };
@@ -131,24 +223,7 @@ export function componentDraftForKind(
 }
 
 function emptyExpansionJointInputs(): Partial<ComponentDraft> {
-  return {
-    areaUnit: "",
-    movementUnit: "",
-    linearStiffnessUnit: "",
-    rotationalStiffnessUnit: "",
-    effectiveArea: "",
-    movementLimit: "",
-    hardwareReference: "",
-    manufacturerReference: "",
-    pressureThrustReference: "",
-    axialStiffness: "",
-    lateralStiffness: "",
-    angularStiffness: "",
-    torsionalStiffness: "",
-    stiffnessSourceReference: "",
-    geometrySourceReference: "",
-    provenance: ""
-  };
+  return { ...emptyConnectorDraft(), geometrySourceReference: "", provenance: "" };
 }
 
 export function componentDraftForNode(model: PreviewModel, draft: ComponentDraft, node: string): ComponentDraft {
@@ -171,7 +246,7 @@ export function isComponentDraftValid(
       draft.label.trim() &&
       draft.node.trim() &&
       model.nodes.some((node) => node.id === draft.node.trim()) &&
-      draft.geometrySourceReference.trim() &&
+      (draft.kind === "expansion_joint" || draft.geometrySourceReference.trim()) &&
       draft.provenance.trim() &&
       !model.components.some((component) => component.id === draft.id.trim()) &&
       !queuedIntents.some(
@@ -189,8 +264,7 @@ export function isComponentDraftValid(
         positiveFinite(draft.bendRadius) &&
         validUnit(draft.lengthUnit) &&
         positiveFinite(draft.bendAngle) &&
-        validUnit(draft.angleUnit) &&
-        draft.bendPlaneOrientation.trim()
+        validUnit(draft.angleUnit)
     );
   }
   if (draft.kind === "tee") {
@@ -209,21 +283,9 @@ export function isComponentDraftValid(
   }
   if (draft.kind === "expansion_joint") {
     return Boolean(
-      incidentPipe(model, draft.node, draft.primaryPipeRef) &&
-        positiveFinite(draft.effectiveArea) &&
-        validUnit(draft.areaUnit) &&
-        positiveFinite(draft.movementLimit) &&
-        validUnit(draft.movementUnit) &&
-        draft.hardwareReference.trim() &&
-        draft.manufacturerReference.trim() &&
-        draft.pressureThrustReference.trim() &&
-        positiveFinite(draft.axialStiffness) &&
-        positiveFinite(draft.lateralStiffness) &&
-        validUnit(draft.linearStiffnessUnit) &&
-        positiveFinite(draft.angularStiffness) &&
-        positiveFinite(draft.torsionalStiffness) &&
-        validUnit(draft.rotationalStiffnessUnit) &&
-        draft.stiffnessSourceReference.trim()
+      connectorCreationAvailable(model) &&
+        incidentPipe(model, draft.node, draft.primaryPipeRef) &&
+        connectorDraftValid(draft)
     );
   }
   return Boolean(
@@ -245,12 +307,15 @@ export function isComponentDraftValid(
 
 export function buildCreateComponentIntent({
   draft,
+  model,
   sourceRef,
   sourceRole,
   unitValidation,
   sequence
 }: {
   draft: ComponentDraft;
+  /** The document the component is created in (the connector's span ends). */
+  model: PreviewModel;
   sourceRef: string;
   sourceRole: "gui_editor" | "viewport_editor";
   unitValidation: string;
@@ -259,16 +324,23 @@ export function buildCreateComponentIntent({
   const componentId = draft.id.trim();
   const kind = draft.kind;
   const suffix = sequence === undefined ? "" : `-${sequence.toString().padStart(3, "0")}`;
-  const modifiers = componentModifiers(draft);
-  const payload = {
-    id: componentId,
-    label: draft.label.trim(),
-    kind,
-    node: draft.node.trim(),
-    geometry: componentGeometry(draft),
-    ...(modifiers ? { modifiers } : {}),
-    provenance: draft.provenance.trim()
-  };
+  const payload = kind === "expansion_joint"
+    ? {
+        id: componentId,
+        label: draft.label.trim(),
+        kind,
+        node: draft.node.trim(),
+        objective_connector: objectiveConnector(model, draft),
+        provenance: draft.provenance.trim()
+      }
+    : {
+        id: componentId,
+        label: draft.label.trim(),
+        kind,
+        node: draft.node.trim(),
+        geometry: componentGeometry(draft),
+        provenance: draft.provenance.trim()
+      };
   return {
     operation_id: `op:create-${kind}-${safeToken(componentId)}${suffix}`,
     operation_kind: "insert",
@@ -322,7 +394,6 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
       bend_pipe_ref: draft.primaryPipeRef.trim(),
       bend_radius: { value: Number(draft.bendRadius), unit: draft.lengthUnit.trim() },
       bend_angle: { value: Number(draft.bendAngle), unit: draft.angleUnit.trim() },
-      bend_plane_orientation: draft.bendPlaneOrientation.trim(),
       bend_geometry_source_reference: draft.geometrySourceReference.trim()
     };
   }
@@ -336,17 +407,6 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
       branch_connection_type: draft.branchConnectionType.trim(),
       branch_reinforcement_reference: draft.branchReinforcementReference.trim(),
       branch_geometry_source_reference: draft.geometrySourceReference.trim()
-    };
-  }
-  if (draft.kind === "expansion_joint") {
-    return {
-      expansion_joint_pipe_ref: draft.primaryPipeRef.trim(),
-      effective_area: { value: Number(draft.effectiveArea), unit: draft.areaUnit.trim() },
-      movement_limit: { value: Number(draft.movementLimit), unit: draft.movementUnit.trim() },
-      hardware_reference: draft.hardwareReference.trim(),
-      manufacturer_reference: draft.manufacturerReference.trim(),
-      pressure_thrust_reference: draft.pressureThrustReference.trim(),
-      expansion_joint_source_reference: draft.geometrySourceReference.trim()
     };
   }
   return {
@@ -368,38 +428,15 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
   };
 }
 
-function componentModifiers(draft: ComponentDraft): Record<string, unknown> | null {
-  if (draft.kind !== "expansion_joint") return null;
-  return {
-    axial_stiffness_user_value: {
-      value: Number(draft.axialStiffness),
-      unit: draft.linearStiffnessUnit.trim()
-    },
-    lateral_stiffness_user_value: {
-      value: Number(draft.lateralStiffness),
-      unit: draft.linearStiffnessUnit.trim()
-    },
-    angular_stiffness_user_value: {
-      value: Number(draft.angularStiffness),
-      unit: draft.rotationalStiffnessUnit.trim()
-    },
-    torsional_stiffness_user_value: {
-      value: Number(draft.torsionalStiffness),
-      unit: draft.rotationalStiffnessUnit.trim()
-    },
-    source_reference: draft.stiffnessSourceReference.trim()
-  };
-}
-
 function componentSourceNote(kind: CreatableComponentKind): string {
   if (kind === "bend") {
-    return "explicit user-entered bend node, realized pipe connectivity, radius, angle, plane orientation, and geometry source";
+    return "explicit user-entered bend node, realized pipe connectivity, radius, angle, and geometry source";
   }
   if (kind === "tee") {
     return "explicit user-entered tee node, two-pipe connectivity, run/header sizes, connection angle/type, reinforcement reference, and geometry source";
   }
   if (kind === "expansion_joint") {
-    return "explicit user-entered expansion-joint node, realized pipe connectivity, effective area, movement limit, hardware/manufacturer/pressure-thrust references, four-axis stiffness quantities, geometry/stiffness sources, and provenance";
+    return "explicit user-entered objective connector (objective_connector 1.0.0): replaced span, frames, offsets, installed reference state, 6x6 work matrix, calibration, hardware, pressure model and provenance";
   }
   return `explicit user-entered ${kind} node, realized pipe connectivity, dimensions, weight, center of gravity, connection references, stiffness behavior, and geometry source`;
 }

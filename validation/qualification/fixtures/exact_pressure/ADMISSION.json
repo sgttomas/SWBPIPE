@@ -1,0 +1,9 @@
+{
+  "format": "openpipestress.exact_pressure_admission/1",
+  "status": "admitted",
+  "independent_review": {
+    "path": "validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-RV28.md",
+    "sha256": "5f18862a9d831251744dc6c1402ca7dfc3d7bb2badc1ef7c726dbea3252e3ab2"
+  },
+  "admitted_by": "T4 WORKING_ITEMS manager, after independent review T4-RV28 (verdict ADMIT) of commit 92d53b69e0fc6181c42740086576e41e85c4cc15, unadmitted MANIFEST.json sha256 856991e27a9d983544a15e98ab52ac67a6e34cac419f995c76de238183c0185c"
+}

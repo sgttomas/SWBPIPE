@@ -1236,7 +1236,8 @@ pub fn certify_connector_recovery(
 
 /// Restrained reaction K_int,r*corrected_u - f_int,r. The caller supplies the
 /// same unscaled physical ledger/source used for member recovery. Element
-/// blocks are re-formed and discarded one at a time, never heap-cached.
+/// blocks are re-formed, only for elements adjacent to the reaction DOF, and
+/// discarded one at a time, never heap-cached.
 /// The remainder uses the upward triangle upper bound obtained by summing
 /// each contribution's free-column ||A_e D||1; prescribed columns are absent.
 pub fn certify_support_reaction(
@@ -1267,17 +1268,32 @@ pub fn certify_support_reaction(
             remainder = add_up(remainder, evaluated.remainder);
             Ok(())
         };
+    // Adjacency first: only an element whose DOF map contains the reaction
+    // DOF contributes, so a block is formed only for such an element. The
+    // contributing elements, their order and their arithmetic are unchanged.
+    let adjacent = |ni: usize, nj: usize| element_dof_map(ni, nj).contains(&dof);
     for frame in &source.frames {
+        let (ni, nj) = (frame.node_i.index, frame.node_j.index);
+        if !adjacent(ni, nj) {
+            continue;
+        }
         let k = frame_matrix(&mut a, frame)?;
-        apply(frame.node_i.index, frame.node_j.index, &k)?;
+        apply(ni, nj, &k)?;
     }
     for arc in &source.curved {
+        if !adjacent(arc.node_i, arc.node_j) {
+            continue;
+        }
         let k = curved_matrix(&mut a, arc)?;
         apply(arc.node_i, arc.node_j, &k)?;
     }
     for connector in &source.connectors {
+        let (ni, nj) = (connector.node_i().index, connector.node_j().index);
+        if !adjacent(ni, nj) {
+            continue;
+        }
         let k = connector_matrix(&mut a, connector)?;
-        apply(connector.node_i().index, connector.node_j().index, &k)?;
+        apply(ni, nj, &k)?;
     }
     for &(i, k) in &source.springs {
         if i == dof {

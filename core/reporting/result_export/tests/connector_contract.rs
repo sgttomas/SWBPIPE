@@ -1,6 +1,6 @@
 //! T4-U3 (S14): the pressure-1 reader admits objective connector records and
-//! rows over the shared connector corpus (also read by the Python and
-//! TypeScript readers), refuses each broken binding by name, and every other
+//! rows over the shared connector corpus (also read by the Python
+//! reader), refuses each broken binding by name, and every other
 //! contract refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
@@ -108,6 +108,9 @@ fn every_other_contract_refuses_connector_evidence() {
         for case in v2["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
             case["profile_mode"] = json!("exact_straight_pressure_v2");
         }
+        // The hanger's model-scoped input review rows are pressure-1's (v2
+        // keeps its case-scoped rule); they are not what this test refuses.
+        v2["results"].as_array_mut().unwrap().retain(|r| r.get("basis_ref").is_some());
         let read = |e: &Value| {
             if load_state(e) { s::validate_load_reference_evidence(e) } else { s::validate_physics_evidence(e) }
         };

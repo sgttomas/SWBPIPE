@@ -91,7 +91,13 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 These additions close the new header and argument inventory. They do not
 zero a newly reached branch. D1 still admits no components and no pressure-v3
 namespace (§B P1–P3); true array and collection bounds are used even when the
-chain conservatively reaches an arc helper.
+chain conservatively reaches an arc helper. One exception: the chain charges a
+named closure's body sites once per enclosing call, so the text rows of the
+`append` closure in `append_arc_pressure_results` (called 2 + 3·|sections| ≤ 17
+times per call) are charged at the call's multiplicity, not up to 17 times it.
+This is safe on D1, which forms no realized bend and no exact-pressure state, so
+the closure is unreachable; a domain that admits them must charge the closure
+per call first.
 
 | Label | Rule and code argument |
 |---|---|
@@ -104,6 +110,16 @@ chain conservatively reaches an arc helper.
 | **O13L1** | `ArcRowGroup::ALL` is `[Self;4]`. The guard walks all four groups, bounded at 4. |
 | **O13A1** | A fired item is bounded by the existing F_len = max(id+34+3·24, id+41+8192): numeric items fit the first/unavailable upper, and an unavailable certificate carries the 8192 B error class. Each finding has at most six named items. A sentence is bounded by 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1. The merge receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B. `composite_text.py` uses this whole-sentence bound for `evidence_line`; the per-site `merged.sentence` is classed by the same bound. The old formula remains on revisions without the arc finding, preserving the registered tree. |
 | **O13T** | `s11g_tests/arc_recovery.rs` is included only with `#[cfg(test)]`; no test function is on the product graph. These arguments nevertheless receive honest bounds: mode Debug ≤17 B, f64 Display ≤327 B, project/member ids IN128, each sentence ≤50,955 B, and a copied source line no longer than the total included source bytes measured at the snapshot. No test site is assigned a fabricated zero. |
+
+Batch 4 on K-D5 (`9b128d5ed0`) adds:
+
+| Label | Rule and code argument |
+|---|---|
+| **U2A2** | Review M-2 gives `append_arc_pressure_results` a second blocking diagnostic (an unknown section location is refused, never read as end_j) whose affected-ref line equals the unrepresentable-section diagnostic's. Each `vec![case.id.clone(), pipe_id.to_string()]` is keyed by its own unique preceding line and checked; both keep U2A's IN128 classes and both sites stay priced. |
+| **U2A3** | That refusal's `{location:?}` is one of `sections`' locations: the literals end_i/end_j or a `StationResultants.location`, a `&'static str` (quarter_1, midspan, quarter_3). STATIC (128). |
+| **U2L4** | The per-section recovery loop `for (location, elastic) in sections` runs over the two ends plus the caller's station rows; every `solve_load_case_observed` branch forms at most three (two fixed arrays of three, `curved_bend_station_resultants -> [_; 3]`, or none; KD5L7). Bounded at 5. |
+| **O13T2** | O-13's arc predicate is gone (the O13 rows above stay for historical snapshots), but `s11g_tests/arc_recovery.rs` remains, rewritten, inside the cfg(test) `s11g_tests`. The chain reaches some of its helpers through conservative name candidates, so its arguments keep honest classes: the test `group`'s kind (callers pass only axial/shear/torsion/bending) STATIC, the P2/P5 tags' project ids (fixed `invented:o13:*` ids, longest 42 B) IN128, mode Debug ≤17 B, f64 Display ≤327 B and a copied source line ≤ the included lib.rs + formation_guard.rs bytes at the snapshot. No zero. |
+| **KD5A9** | `certified_loads::member_source` formats `member:{len}:{member}:{source}`. Batch 4's pressure closure binding (the arc pressure free strain keyed by region id) gives the site a positive multiplicity. `member` is a pipe or connector component id (IN128). `source` is an authored load or region id, the static `reference`, or on the 0.4.0 route `source_recovery::eigen_source_id` (≤ 23 + 20 + 1 + 128 B), so it takes the existing 600-B composite class. The full multiplicity stays. |
 
 U2 deletes `connector_evidence::row_basis`; its E4 edge and A3 audit are added
 only when that function is present. This avoids a null stale key without
@@ -177,7 +193,9 @@ Final completeness and budget claims require the implementing commit's full
 pricing run and in-build atom evaluation.
 
 
-- **KD5T1/T2 (unified fixed text).** Final source basis c62d759f1556cb7c0380aea9f4146a0c8412ddce
+- **KD5T1/T2 (unified fixed text).** Final source basis 9b128d5ed0, T4 batch 4
+  merged onto K-D5 (re-reviewed from 3903ab6f28 and before it from
+  c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
   has source-pinned record constructors, group/magnitude_group helpers,
   member_group_decision, the D1 case consumer and both maximum evidence
   producers. Production-prefix pins protect the certified-publication,
@@ -201,6 +219,60 @@ pricing run and in-build atom evaluation.
   evidence allowance; the evidence object field count remains within15.
   Changed producer/consumer/inventory source fails closed for renewed
   review. Historical registered snapshots retain their original formula.
+  Pins re-reviewed at 3903ab6f28:
+  - certified_recovery.rs production prefix ab2a378f…: c85d346213 maps an
+    underflowing midpoint to 0.0 (scalar match); 9ef0cbc78a's RowLoad is a
+    stack value (one ExactAccumulator and two f64), and straight section rows
+    are formed one at a time with one live load sum moved into the row's
+    evaluation, within the eight-accumulator census; arc rows (a = 0 at D1)
+    and the envelope's addend counts are stack arrays; 8ac8c57ade forms an
+    element block only when it is adjacent to the reaction DOF. These changes
+    add no allocation, String, format site or error literal, and no owned
+    layout or caller/workspace union changes.
+  - lib.rs solve_load_case_observed 4b96ef49… (both models): six early
+    returns add an empty withheld_summaries Vec (no allocation); one new
+    per-member warning in the certified summary-error arm (KD5A8, KD5O14).
+    It adds no route string or maximum literal, and no CPP first-return
+    allocation site; its {error} copy is priced as a TEXT site.
+  - preview_physics.rs render eb43e10b…: a cfg(test) witness hook only,
+    with no `divided` call.
+  Pins re-reviewed at 9b128d5ed0 (batch 4: U2 arc pressure, O-13's arc
+  predicate and short-bend rule removed, review repairs):
+  - certified_publication.rs production prefix ea24eab4… (text model,
+    KD5C5 and KD5C6) and whole file b54ebf46… (KD5C6): one new function,
+    `arc_pressure_wall`, adds pAi to each section's axial row of a cloned
+    CertifiedMemberRecovery (fixed `[CertifiedRow; 12]` and `[[_; 6]; 5]`
+    arrays) and negates/copies the two wall end rows. It is stack-only, its
+    errors are FK's static RecoveryFailure, and it adds no String, format
+    site, label literal, FallbackError use or first-return allocation; the
+    test module adds `arc: None` to a fixture. The KD5T2 inventory and the
+    KD5C6 site rules are unchanged apart from line numbers (checked by
+    evaluating both models at 3903ab6f28 and 9b128d5ed0).
+  - formation_guard.rs recovery_finding c499ed59…: the scales map's value
+    type is O-13's `ActionScales { force, moment }` instead of a tuple
+    (`unwrap_or_default`, `.force`/`.moment`); its three format templates
+    and their arguments are unchanged.
+  - lib.rs solve_load_case_observed 435591f5… (both models): the realized
+    arc branches of U2 (arc free expansion with the pressure strain, the
+    certified arc wall rows, `append_arc_pressure_results`), the
+    case-qualified arc extrema id (already audited, §E U2A) and the removal
+    of the short-bend finding. It adds no route string or maximum literal
+    and no CPP first-return allocation site; `wall.clone()` and the new
+    `Option<CertifiedMemberRecovery>` are stack values.
+- **KD5A8 (withheld summary ids).** The certified summary-error arm's
+  warning copies only the pipe's own authored id: the stable_suffix id
+  suffix, the message's member id and the affected ref (IN128). Its
+  `{error}` operand keeps the chain's own TEXT cap, and the site keeps its
+  full m-per-case multiplicity in D. The rule needs the
+  `withhold_certified_summaries` consumer and the exact affected-ref line;
+  otherwise it stops.
+- **KD5O14 (withheld summary backing).** Each case's LoadCaseSolve owns a
+  separately push-grown Vec<Diagnostic> of at most one warning per member.
+  An append into the envelope leaves its capacity, and a rendered preview
+  never appends, so each case's backing lives beside the envelope's vector
+  until the solves drop. Price C·PushCap(m)·s(Diagnostic) in the
+  Diagnostics family. The strings and the count are already in TAV and D.
+  Snapshots without the field keep their formula.
 - **KD5L1/L2 (group census).** The surviving `record in records` header is
   re-bound to m+g on the unified record shape; the separate per-record
   `group` header is bounded at 28 (supports have four evaluands). This protects
@@ -243,7 +315,10 @@ pricing run and in-build atom evaluation.
   are static ≤128. The finite-a notice copies a capped case id. Summand
   family is a static token, source is at most the existing 600-B composite
   class (two capped ids and a length or pressure source tuple). Pressure
-  closure identities use capped region/pipe ids and a fixed kind token.
+  closure identities use capped region/pipe ids and a fixed kind token;
+  batch 4 moves that `format!("{}:{}:{}", term.1, term.2, term.3)` site,
+  unchanged, from finish_source_groups' map closure into its new callee
+  `closure_source`, and the audit follows it there by name.
   Unavailable-route text selects one of two ≤128-B literals. The earlier
   `formation_entity_bodies` map is no longer called on the unified graph;
   its three copy audits remain on historical snapshots where the old guard
@@ -499,6 +574,10 @@ pricing run and in-build atom evaluation.
   The current production-prefix pin protects that typed boundary.
   Existing true visits and R2 call paths remain; this is a type binding,
   not a fixture-derived multiplicity or an unpriced-site waiver.
+  Batch 4 renames formation_guard `moment_scales` to `action_scales`
+  (O-13's coupled ActionScales); the binding follows the name. Its min/max
+  receivers are still the f64 scales (`entry.*.max(value)`,
+  `force.max(moment / extent)`, `moment.max(extent * force)`).
 - **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
   source, the heuristic graph adds private FallbackError methods to outside
   callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
@@ -518,6 +597,15 @@ pricing run and in-build atom evaluation.
   (add); pressure_exact/source_geometry from_od_wall (add and mul),
   pressure_group_value (mul) and surface_stresses (add); and
   case_state/temperature exact_kelvin (mul).
+  KD5C5b (batch 4): on a snapshot whose bend_pressure.rs defines
+  `append_arc_pressure_results`, two more outside callers join the
+  inventory (17 + 2 pairs, FALLBACK_OUTSIDE_CALLERS_U2, body-pinned):
+  bend_pressure `append_arc_pressure_results` (divided; receiver
+  `wall.sections[index][0]`, FK's CertifiedRow) and source_geometry
+  `arc_pressure_strain` (mul; receivers Scaled). At 9b128d5ed0 the
+  production prefix is ea24eab4… (the new `arc_pressure_wall` uses no
+  FallbackError). Without the two exclusions KD5C6's cutset check stops,
+  because the name resolver adds these false private candidates.
   The new `exclude_targets` mechanism subtracts only the qualified CPP
   add/mul/divided target from each existing candidate list after any existing
   replacement rule. Every other candidate and every inside-CPP caller is

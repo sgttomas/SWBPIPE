@@ -182,24 +182,6 @@ const EXCLUDED_KEYS: &[&str] = &[
     "category",
     "reason",
 ];
-const REGION_KEYS: &[&str] = &[
-    "profile_version",
-    "profile_mode",
-    "load_case_id",
-    "region_id",
-    "member_pipe_ids",
-    "pressure_basis",
-    "p_pa",
-    "external_pressure_increment_pa",
-    "approximation",
-    "geometry_representation_guard",
-    "geometry",
-    "materials",
-    "applied_loads",
-    "terminals",
-    "provenance",
-    "result_ids",
-];
 const REGION_MATERIAL_KEYS: &[&str] = &[
     "pipe_id",
     "material_id",
@@ -538,7 +520,17 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     }
     // S12 pressure-region materials are the resolved member pair of their case.
     for region in pressure {
-        require(keys(region, REGION_KEYS), "REGION_SHAPE")?;
+        // T4-U2: a pressure-1 region with a realized arc adds the arc keys
+        // (checked with the arc members by the inherited physics pass).
+        let arcs = crate::arc_evidence::members(region, method == Method::Pressure)?;
+        require(
+            crate::arc_evidence::region_shape(
+                region,
+                crate::physics_evidence::REGION_KEYS,
+                !arcs.is_empty(),
+            ),
+            "REGION_SHAPE",
+        )?;
         let case_id = text(&region["load_case_id"])?;
         text(&region["region_id"])?;
         let case = cases

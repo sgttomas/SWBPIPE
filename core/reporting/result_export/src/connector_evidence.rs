@@ -89,15 +89,69 @@ fn matrix3(v: &Value) -> bool {
         .is_some_and(|rows| rows.len() == 3 && rows.iter().all(|row| numbers(row, 3)))
 }
 
+/// T4-U2 (export): the canonical metadata vocabulary the connector rows add
+/// to physics-1's under pressure-1 (components, frame, location, basis).
+pub const VOCABULARY_COMPONENTS: [&str; 12] = [
+    "qt_x", "qt_y", "qt_z", "qr_x", "qr_y", "qr_z", "gt_x", "gt_y", "gt_z", "gr_x", "gr_y", "gr_z",
+];
+pub const VOCABULARY_COORDINATE_SYSTEMS: [&str; 1] = [LOCAL_FRAME];
+pub const VOCABULARY_LOCATIONS: [&str; 1] = [LOCAL];
+
+/// The pressure-1 signature of a connector row (the `connector_*` rows of
+/// the pressure-1 table, held as code): `None` for another kind; a unit or
+/// component outside the kind's is a contradiction, as `signature_in` says.
+pub(crate) fn signature(row: &Value) -> Result<Option<Value>, String> {
+    let kind = row["kind"].as_str().unwrap_or_default();
+    let Some((_, unit, components, _)) = KINDS.iter().find(|(k, ..)| *k == kind) else {
+        return Ok(None);
+    };
+    if row["unit"] != *unit {
+        return Err(format!("SOURCE_UNIT_CONTRADICTION: {kind}"));
+    }
+    let component = row["metadata"]["component"].as_str().unwrap_or_default();
+    if !components.contains(&component) {
+        return Err(format!("SOURCE_COMPONENT_CONTRADICTION: {kind}"));
+    }
+    let (dimension, family) = match kind {
+        "connector_generalized_translation_v1" => ("length", "displacement"),
+        "connector_generalized_rotation_v1" => ("angle", "rotation"),
+        "connector_generalized_force_v1" | "connector_endpoint_force_v1" => ("force", "force"),
+        _ => ("moment", "moment"),
+    };
+    Ok(Some(serde_json::json!({"kind": kind, "unit": unit, "component": component,
+        "source_physical_semantic_dimension": dimension, "derivative_target_dimension": dimension,
+        "category": "physical_quantity", "family": family, "canonical_disposition": "exported_quantity",
+        "legacy_declared_dimension": null, "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+        "governing_ratio_eligible": false})))
+}
+
+/// The canonical metadata of a connector row under pressure-1's vocabulary
+/// (physics-1's plus the connector entries above), or `None` when a value
+/// lies outside it.
+pub(crate) fn canonical_metadata(row: &Value) -> Option<Value> {
+    let md = &row["metadata"];
+    let kind = row["kind"].as_str()?;
+    let (_, _, components, locations) = KINDS.iter().find(|(k, ..)| *k == kind)?;
+    let ok = md["component"].as_str().is_some_and(|c| components.contains(&c))
+        && md["location"].as_str().is_some_and(|l| locations.contains(&l))
+        && matches!(md["coordinate_system"].as_str(), Some(LOCAL_FRAME | "global"))
+        && md["basis"] == ROW_BASIS
+        && md["sign_convention"].as_str().is_some_and(|s| !s.is_empty());
+    ok.then(|| {
+        serde_json::json!({"component": md["component"], "coordinate_system": md["coordinate_system"],
+            "location": md["location"], "basis": md["basis"], "sign_convention": md["sign_convention"]})
+    })
+}
+
 /// Whether a row kind belongs to the connector family (any version).
 pub(crate) fn is_connector_kind(kind: &str) -> bool {
     kind.starts_with("connector_")
 }
 
-/// The row basis of a connector replacing `span`.
-pub(crate) fn row_basis(span: &str) -> String {
-    format!("objective_connector_v1;replaces_span={span};{MOTION_BASIS}")
-}
+/// The row basis of every connector row: one stable string (T4-U2, the
+/// export vocabulary). The replaced span is bound through the record named by
+/// the row's `entity_ref`, never through the basis text.
+pub const ROW_BASIS: &str = "objective_connector_v1;symmetric_midpoint_small_rotation_v1";
 
 fn connector_record(r: &Value) -> Result<(&str, &str), String> {
     require_connector(keys(r, RECORD_KEYS), "RECORD_SHAPE")?;
@@ -191,9 +245,7 @@ pub(crate) fn validate(
             .iter()
             .find(|(k, ..)| *k == kind)
             .ok_or("SOURCE_PHYSICS_CONNECTOR_ROW_KIND")?;
-        let span = spans
-            .get(entity)
-            .ok_or("SOURCE_PHYSICS_CONNECTOR_ROW_UNBOUND")?;
+        require_connector(spans.contains_key(entity), "ROW_UNBOUND")?;
         let md = &row["metadata"];
         require_connector(
             keys(md, &["component", "coordinate_system", "location", "basis", "sign_convention"]),
@@ -207,7 +259,7 @@ pub(crate) fn validate(
                 && components.contains(&component)
                 && locations.contains(&location)
                 && md["coordinate_system"] == if local { LOCAL_FRAME } else { "global" }
-                && md["basis"] == row_basis(span).as_str()
+                && md["basis"] == ROW_BASIS
                 && md["sign_convention"] == if local { LOCAL_SIGN } else { END_SIGN },
             "ROW_SEMANTICS",
         )?;
