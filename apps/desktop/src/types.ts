@@ -733,7 +733,7 @@ export type AnalysisRunEnvelope = {
 
 export type SolveJobEvent = {
   event_id: string;
-  state: "not_started" | "queued" | "running" | "cancelling" | "cancelled" | "completed" | "failed";
+  state: "not_started" | "queued" | "running" | "cancelling" | "cancelled" | "completed" | "failed" | "refused";
   message: string;
   result_available: boolean;
   diagnostic_count: number;
@@ -754,6 +754,71 @@ export type SolveJobAuditState = {
   backend_cancellation_token: string;
   events: SolveJobEvent[];
   error_message: string | null;
+  /** The native memory ledger's grant and verdicts for this job (DEL-04-07). */
+  resource: SolveJobResourceRecord;
+};
+
+/** A typed native resource refusal (DEL-04-07 memory-budget decision). */
+export type ResourceRefusal =
+  | { kind: "capacity_unknown" }
+  | { kind: "headroom_unknown" }
+  | { kind: "headroom_stale"; age_ms: number }
+  | { kind: "headroom_insufficient"; required_bytes: number; available_bytes: number }
+  | { kind: "pressure_elevated"; level: string }
+  | { kind: "pool_exhausted"; requested_bytes: number; reserved_bytes: number; pool_bytes: number }
+  | { kind: "budget_unqualified"; requested_bytes: number; qualified_bytes: number }
+  | { kind: "budget_exceeds_pool"; budget_bytes: number; pool_bytes: number }
+  | { kind: "pool_above_capacity"; pool_bytes: number; capacity_bytes: number }
+  | { kind: "pool_above_recommended_unacknowledged"; pool_bytes: number; recommended_bytes: number }
+  | { kind: "ingress_exceeds_budget"; required_bytes: number; budget_bytes: number }
+  | { kind: "ingress_invalid"; reason: string }
+  | { kind: "queue_full"; queued: number; limit: number }
+  | { kind: "retention_full"; retained: number; limit: number }
+  | { kind: "custody_full"; delivered: number; limit: number }
+  | { kind: "solve_slot_busy" };
+
+/** The resources the native host granted one solve job. The ordinary route is
+ * unpriced: no byte bound is claimed for the solve itself. */
+export type SolveResourceGrant = {
+  invocation_budget_bytes: number;
+  pool_bytes: number;
+  route_pricing: "ordinary_unpriced";
+  ingress_reserved_bytes: number;
+};
+
+export type MemoryPressureLevel = "normal" | "warning" | "critical" | "unknown";
+
+/** The native memory pool as reported by `get_memory_pool_status`. */
+export type PoolStatus = {
+  capacity_bytes: number | null;
+  recommended_pool_bytes: number | null;
+  pool_bytes: number;
+  pool_above_recommended: boolean;
+  invocation_budget_bytes: number;
+  qualified_invocation_budget_bytes: number;
+  reserved_bytes: number;
+  reserved_by_purpose: { ingress: number; result: number; custody: number };
+  unpriced_solve_running: boolean;
+  queued_jobs: number;
+  running_jobs: number;
+  retained_results: number;
+  webview_custody_results: number;
+  headroom: { available_bytes: number | null; pressure: MemoryPressureLevel; sample_age_ms: number | null };
+  ordinary_route_pricing: "unpriced";
+  last_refusal: ResourceRefusal | null;
+};
+
+/** The solve job's resource record: the budget and pool the native host
+ * granted (or reported with a refusal), the route pricing, the latest queue
+ * reason and any typed refusal. Budget policy is never part of the model. */
+export type SolveJobResourceRecord = {
+  source: "not_reported" | "native_job_receipt" | "native_refusal_pool_status";
+  invocation_budget_bytes: number | null;
+  pool_bytes: number | null;
+  route_pricing: "ordinary_unpriced" | null;
+  ingress_reserved_bytes: number | null;
+  queue_reason: ResourceRefusal | null;
+  refusal: ResourceRefusal | null;
 };
 
 export type SolveJobBackendSeam =

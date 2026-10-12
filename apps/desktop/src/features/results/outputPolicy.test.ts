@@ -12,7 +12,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 import { type SourceContract } from "./numericalResultQuality";
 import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
@@ -41,7 +41,7 @@ function milestone(mode: PreviewSolverMode) {
 async function eligible(mode: PreviewSolverMode) {
   const { source, model } = milestone(mode);
   (window as Json).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async () => solveBytes(source));
+  invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(source)).invoke);
   const received = await runPreviewMechanics(model, mode);
   expect(numericalResultStanding(received, model)).toMatchObject({ eligible: true, findings: [] });
   return { source, received, model };

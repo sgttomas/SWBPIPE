@@ -173,11 +173,11 @@ describe("a stage or view switch is a presentation change", () => {
     const knowledge = await loadDesignKnowledge();
     const replay = createNativeMechanicsReplay();
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown>, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     const { result } = await readySession();
     await act(async () => {
@@ -270,11 +270,11 @@ describe("a stage or view switch is a presentation change", () => {
     // T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
     const replay = createNativeMechanicsReplay({ profile: "preview" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown>, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     const { result } = await readySession();
     await act(async () => { await result.current.results.handleRun(); });

@@ -6,7 +6,7 @@ import { retainedPrecisionInvocation } from "../features/results/retainedPrecisi
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
-import { hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
+import { disposeDeliveredMechanicsResult, hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
 
 // Rule-check runner seam (Phase C4, TP-C4-CHECKGUI-001). Running a rule pack's
 // checks against a solved model routes through the desktop (Tauri)
@@ -118,21 +118,35 @@ export async function runRuleChecks(args: {
   // pass). `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
-  const source = args.solvedEnvelope ?? await runPreviewMechanics(args.model);
-  if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
+  // Without a supplied envelope this run solves for itself through the native
+  // job path; that transient result is released from native custody once used.
+  const transient = args.solvedEnvelope ? null : await runPreviewMechanics(args.model);
+  try {
+    return await checkSolvedSource(args, args.solvedEnvelope ?? transient!, args.model);
+  } finally {
+    if (transient) await disposeDeliveredMechanicsResult(transient);
+  }
+}
+
+async function checkSolvedSource(
+  args: Parameters<typeof runRuleChecks>[0],
+  source: MechanicsResult,
+  model: PreviewModel
+): Promise<RuleCheckRunRoute> {
+  if (!hasNativeMechanicsInvocation(source, model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible; precision-1 is historical.
   if (!isFreshSemanticResult(source)) throw new Error(standingReason(source) === PRECISION_1_HISTORICAL_SEMANTICS ? `${PRECISION_1_HISTORICAL_SEMANTICS}: ${N_P1}` : "RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
-  if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
+  if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   // U6d: a preview successor requires eligible standing, as the receipt routes do;
   // standing comes only from its registered reader validation (never numerical_quality).
   if (isRetainedRoute(sourceContract(source))) {
-    const standing = numericalResultStanding(source, args.model);
+    const standing = numericalResultStanding(source, model);
     if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
   }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
-  if (sourceContract(source) === "source_blocks" || sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, args.model);
-  if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
-  if (args.model) invokeArgs.model = args.model;
+  if (sourceContract(source) === "source_blocks" || sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, model);
+  if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
+  if (model) invokeArgs.model = model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;
   }

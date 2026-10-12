@@ -3,21 +3,62 @@
 // records that replace it when the model changes, and the poll that waits for a
 // backend job. No React.
 
-import { pollPreviewMechanicsJob } from "../../services/previewService";
+import { awaitPreviewMechanicsJob } from "../../services/previewService";
 import type {
   BackendSolveJobCancellationReceipt,
   BackendSolveJobStatus,
   SolveJobStartReceipt
 } from "../../services/previewService";
+import { describeResourceRefusal, formatBytes, ResourceUnavailableError } from "../../services/memoryPool";
 import type {
   AnalysisRunEnvelope,
   MechanicsResult,
   OperationOutcome,
+  PoolStatus,
   PreviewModel,
-  SolveJobAuditState
+  ResourceRefusal,
+  SolveJobAuditState,
+  SolveJobResourceRecord,
+  SolveResourceGrant
 } from "../../types";
 
 const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";
+
+function notReportedResource(): SolveJobResourceRecord {
+  return {
+    source: "not_reported",
+    invocation_budget_bytes: null,
+    pool_bytes: null,
+    route_pricing: null,
+    ingress_reserved_bytes: null,
+    queue_reason: null,
+    refusal: null
+  };
+}
+
+function grantedResource(grant: SolveResourceGrant | null): SolveJobResourceRecord {
+  if (!grant) return notReportedResource();
+  return { ...notReportedResource(), source: "native_job_receipt", ...grant };
+}
+
+/** The resource record of a refusal: the budget and pool come from the pool
+ * status reported with it, when there is one; there is no route grant. */
+function refusedResource(current: SolveJobResourceRecord, refusal: ResourceRefusal, pool: PoolStatus | null): SolveJobResourceRecord {
+  if (current.source === "native_job_receipt") return { ...current, queue_reason: null, refusal };
+  return {
+    ...notReportedResource(),
+    source: pool ? "native_refusal_pool_status" : "not_reported",
+    invocation_budget_bytes: pool?.invocation_budget_bytes ?? null,
+    pool_bytes: pool?.pool_bytes ?? null,
+    refusal
+  };
+}
+
+function grantSummary(grant: SolveResourceGrant | null): string {
+  return grant
+    ? `per-invocation budget ${formatBytes(grant.invocation_budget_bytes)}; pool ${formatBytes(grant.pool_bytes)}; model intake reserved ${formatBytes(grant.ingress_reserved_bytes)}; route ordinary_unpriced (no byte bound is claimed for the solve itself)`
+    : "the native host reported no resource grant";
+}
 
 export function initialSolveJob(): SolveJobAuditState {
   return {
@@ -42,36 +83,57 @@ export function initialSolveJob(): SolveJobAuditState {
         analysis_status: []
       }
     ],
-    error_message: null
+    error_message: null,
+    resource: notReportedResource()
   };
 }
 
 export function startSolveJob(model: PreviewModel | null, startReceipt: SolveJobStartReceipt): SolveJobAuditState {
   const modelRef = model?.project.id ?? "project:unknown";
-  const backendJob = startReceipt.mode === "backend_job";
-  const runningMessage = backendJob
-    ? `Backend solve job ${startReceipt.job_id} is executing; cancellation is cooperative at backend checkpoints (${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`
-    : "Preview mechanics command is executing in browser fixture mode without a backend job; this service path does not stream percentage progress.";
+  if (startReceipt.mode === "backend_job") {
+    // A backend job starts queued; the native state is followed by `progressSolveJob`.
+    return {
+      job_id: startReceipt.job_id,
+      state: "queued",
+      progress_basis: "preview_service_event_state_only_no_percent_stream",
+      percentages_synthesized: false,
+      backend_percent_stream_available: false,
+      cancellation_requested: false,
+      cancellation_status: "not_requested",
+      backend_job_seam: "tauri_backend_job",
+      backend_job_id: startReceipt.job_id,
+      backend_cancellation_token: startReceipt.backend_cancellation_token,
+      events: [
+        {
+          event_id: "solve-preview-queued",
+          state: "queued",
+          message: `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary; ${grantSummary(startReceipt.resource)}; cancellation is cooperative at backend checkpoints (${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`,
+          result_available: false,
+          diagnostic_count: model?.diagnostics.length ?? 0,
+          result_row_count: 0,
+          analysis_status: model ? [model.analysis_status.mechanics, model.analysis_status.rule_check] : []
+        }
+      ],
+      error_message: null,
+      resource: grantedResource(startReceipt.resource)
+    };
+  }
   return {
-    job_id: backendJob ? startReceipt.job_id : `job:preview-linear-static:${safeJobToken(modelRef)}`,
+    job_id: `job:preview-linear-static:${safeJobToken(modelRef)}`,
     state: "running",
     progress_basis: "preview_service_event_state_only_no_percent_stream",
     percentages_synthesized: false,
     backend_percent_stream_available: false,
     cancellation_requested: false,
     cancellation_status: "not_requested",
-    backend_job_seam: backendJob ? "tauri_backend_job" : "browser_fixture_no_backend_job",
-    backend_job_id: backendJob ? startReceipt.job_id : null,
-    backend_cancellation_token: backendJob
-      ? startReceipt.backend_cancellation_token
-      : "unavailable_no_backend_job_browser_fixture_mode",
+    backend_job_seam: "browser_fixture_no_backend_job",
+    backend_job_id: null,
+    backend_cancellation_token: "unavailable_no_backend_job_browser_fixture_mode",
     events: [
       {
         event_id: "solve-preview-queued",
         state: "queued",
-        message: backendJob
-          ? `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary.`
-          : "Preview mechanics command queued through the application service boundary.",
+        message: "Preview mechanics command queued through the application service boundary.",
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
@@ -80,15 +142,102 @@ export function startSolveJob(model: PreviewModel | null, startReceipt: SolveJob
       {
         event_id: "solve-preview-running",
         state: "running",
-        message: runningMessage,
+        message: "Preview mechanics command is executing in browser fixture mode without a backend job; this service path does not stream percentage progress.",
         result_available: false,
         diagnostic_count: model?.diagnostics.length ?? 0,
         result_row_count: 0,
         analysis_status: model ? [model.analysis_status.mechanics, model.analysis_status.rule_check] : []
       }
     ],
+    error_message: null,
+    resource: notReportedResource()
+  };
+}
+
+/** Follows a backend job's non-terminal status: a queue reason the native
+ * ledger reports while the job waits, and the move from queued to running.
+ * Terminal states are recorded by their own transitions. */
+export function progressSolveJob(current: SolveJobAuditState, status: BackendSolveJobStatus): SolveJobAuditState {
+  if (current.backend_job_id !== status.job_id || (status.state !== "queued" && status.state !== "running")) return current;
+  if (current.state !== "queued" && current.state !== "running" && current.state !== "cancelling") return current;
+  const reason = status.state === "queued" ? status.queue_reason : null;
+  const resource = status.resource && current.resource.source !== "native_job_receipt"
+    ? { ...grantedResource(status.resource), queue_reason: current.resource.queue_reason }
+    : current.resource;
+  if (status.state === "running" && current.state === "queued") {
+    return {
+      ...current,
+      state: "running",
+      resource: { ...resource, queue_reason: null },
+      events: [
+        ...current.events,
+        {
+          event_id: "solve-preview-running",
+          state: "running",
+          message: `Backend solve job ${status.job_id} is executing; cancellation is cooperative at backend checkpoints (${status.cancellation_scope}); this service path does not stream percentage progress.`,
+          result_available: false,
+          diagnostic_count: 0,
+          result_row_count: 0,
+          analysis_status: []
+        }
+      ]
+    };
+  }
+  if (sameRefusal(reason, resource.queue_reason)) return resource === current.resource ? current : { ...current, resource };
+  return {
+    ...current,
+    resource: { ...resource, queue_reason: reason },
+    events: reason
+      ? [
+          ...current.events,
+          {
+            event_id: "solve-preview-queued-waiting",
+            state: current.state,
+            message: `Backend solve job ${status.job_id} is waiting in the queue: ${describeResourceRefusal(reason)}`,
+            result_available: false,
+            diagnostic_count: 0,
+            result_row_count: 0,
+            analysis_status: []
+          }
+        ]
+      : current.events
+  };
+}
+
+/** A job the native memory ledger refused: a terminal `refused` poll, or a
+ * refused take of a completed job's result. The typed refusal is recorded as is. */
+export function refusedSolveJob(current: SolveJobAuditState, refusal: ResourceRefusal, pool: PoolStatus | null = null): SolveJobAuditState {
+  return {
+    ...current,
+    state: "refused",
+    resource: refusedResource(current.resource, refusal, pool),
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-resource-refused",
+        state: "refused",
+        message: `Refused by the native memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ],
     error_message: null
   };
+}
+
+/** A start the native memory ledger refused before any job existed. */
+export function refusedBeforeBackendStartSolveJob(model: PreviewModel, error: ResourceUnavailableError): SolveJobAuditState {
+  return refusedSolveJob(
+    { ...initialSolveJob(), job_id: `job:preview-linear-static:refused-before-start:${safeJobToken(model.project.id)}`, events: [] },
+    error.refusal,
+    error.pool
+  );
+}
+
+function sameRefusal(left: ResourceRefusal | null, right: ResourceRefusal | null): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 export function modelChangedSolveJob(outcome: OperationOutcome): SolveJobAuditState {
@@ -147,13 +296,13 @@ export function sessionHistoryChangedSolveJob(action: "undo" | "redo" | "batch",
   };
 }
 
-export async function awaitBackendSolveJob(jobId: string): Promise<BackendSolveJobStatus> {
-  let status = await pollPreviewMechanicsJob(jobId);
-  while (status.state === "queued" || status.state === "running") {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    status = await pollPreviewMechanicsJob(jobId);
-  }
-  return status;
+/** Polls a backend job to its terminal state; `onStatus` sees each status read,
+ * so a queue reason can be shown while the job waits. */
+export async function awaitBackendSolveJob(
+  jobId: string,
+  onStatus?: (status: BackendSolveJobStatus) => void
+): Promise<BackendSolveJobStatus> {
+  return awaitPreviewMechanicsJob(jobId, onStatus);
 }
 
 export function cancelledSolveJob(current: SolveJobAuditState, status: BackendSolveJobStatus): SolveJobAuditState {
@@ -162,6 +311,7 @@ export function cancelledSolveJob(current: SolveJobAuditState, status: BackendSo
     state: "cancelled",
     cancellation_requested: true,
     cancellation_status: status.cancellation_status,
+    resource: { ...current.resource, queue_reason: null },
     events: [
       ...current.events,
       {
@@ -231,6 +381,7 @@ export function completeSolveJob(
     ...current,
     state: "completed",
     cancellation_status: cancellationStatus,
+    resource: { ...current.resource, queue_reason: null },
     events: [
       ...current.events,
       {
@@ -270,14 +421,18 @@ function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvel
         analysis_status: analysisRun.analysis_run.analysis_status
       }
     ],
-    error_message: null
+    error_message: null,
+    resource: notReportedResource()
   };
 }
 
 export function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
+  // A typed resource refusal is recorded as a refusal, never as a generic failure.
+  if (error instanceof ResourceUnavailableError) return refusedSolveJob(current, error.refusal, error.pool);
   return {
     ...current,
     state: "failed",
+    resource: { ...current.resource, queue_reason: null },
     events: [
       ...current.events,
       {
@@ -295,7 +450,7 @@ export function failSolveJob(current: SolveJobAuditState, error: unknown): Solve
 }
 
 export function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditState {
-  if (current.state !== "running") return current;
+  if (current.state !== "running" && current.state !== "queued") return current;
   const backendJob = current.backend_job_seam === "tauri_backend_job";
   return {
     ...current,

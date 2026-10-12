@@ -21,7 +21,7 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysis
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "../../services/hashService";
 import { buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResultQuality";
 import { numericalResultStanding } from "../results/resultStanding";
 import {
@@ -59,7 +59,7 @@ function milestone(mode: PreviewSolverMode) {
 /** Mocked direct IPC: the native command returns these bytes for this mode. */
 async function deliver(source: MechanicsResult, model: PreviewModel, mode: PreviewSolverMode): Promise<MechanicsResult> {
   (window as Json).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async () => solveBytes(source));
+  invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(source)).invoke);
   return runPreviewMechanics(model, mode);
 }
 /** Invented manifest evidence for the AnalysisRun record (not the product's builder). */

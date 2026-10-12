@@ -1876,6 +1876,84 @@ fieldset.viewport-intent-controls {
   min-height: 285px;
 }
 
+/* DEL-04-07 memory pool beside the solve controls. */
+.memory-pool-panel {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--ui-divider);
+}
+
+.memory-pool-panel p {
+  margin: 0;
+}
+
+.memory-pool-status {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.memory-pool-note {
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  line-height: var(--type-lineHeight-caption);
+}
+
+.memory-pool-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.memory-pool-field {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--type-size-caption);
+}
+
+.memory-pool-field input {
+  min-height: var(--layout-control);
+}
+
+.memory-pool-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-size: var(--type-size-caption);
+}
+
+.memory-pool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.memory-pool-message {
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-hairline) solid var(--ui-divider);
+  border-radius: var(--radius-control);
+  font-size: var(--type-size-chip);
+}
+
+.memory-pool-message.info {
+  color: var(--ui-info-text);
+  border-color: var(--ui-info-border);
+  background: var(--ui-info-surface);
+}
+
+.memory-pool-message.warning {
+  color: var(--ui-warning-text);
+  border-color: var(--ui-warning-border);
+  background: var(--ui-warning-surface);
+}
+
+.memory-pool-message.error {
+  color: var(--ui-error-text);
+  border-color: var(--ui-error-border);
+  background: var(--ui-error-surface);
+}
+
 .rule-check-panel {
   min-height: 350px;
 }

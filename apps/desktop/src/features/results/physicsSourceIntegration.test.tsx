@@ -7,6 +7,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
+import { createSolveJobTransport, resultArrayBuffer, startRequestModel } from "../../test/nativeMechanicsReplay";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
@@ -48,12 +49,15 @@ async function received(name: string, mode: string, generation = caseGeneration)
   (window as any).__TAURI_INTERNALS__ = {};
   // Unit-only transport replay of the exact separately captured producer pair.
   // Only the production private IPC path can register these delivered bytes.
-  invokeMock.mockImplementation(async (command: string, args: any) => {
+  const transport = createSolveJobTransport((sent) => {
     assertLiveCase(generation);
-    expect(command).toBe("run_preview_mechanics_with_solver_mode");
-    expect(args.solverMode).toBe(mode);
-    expect(isDeepStrictEqual({ model: args.model, materials: [] }, request)).toBe(true);
+    expect(sent.mode).toBe(mode);
+    expect(isDeepStrictEqual({ model: sent.model, materials: [] }, request)).toBe(true);
     return sourceText; // the producer's bytes, as captured
+  });
+  invokeMock.mockImplementation(async (command: string, args: any, options?: unknown) => {
+    assertLiveCase(generation);
+    return transport.invoke(command, args, options);
   });
   const source = await runPreviewMechanics(model, mode as "sparse_interactive" | "dense_scrutiny");
   const inputManifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"unit-transport-replay-not-native-witness",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
@@ -75,21 +79,25 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const scope = "unit_transport_replay_not_native_ui_qualification", started: string[] = [];
   assertLiveCase(generation);
-  invokeMock.mockImplementation(async (command: string, args: any) => {
+  invokeMock.mockImplementation(async (command: string, args: any, options?: unknown) => {
     assertLiveCase(generation);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(request.model);
-    if (command === "start_preview_mechanics_job_with_solver_mode") {
-      if (!isDeepStrictEqual({ model: args.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
-      started.push(args.solverMode);
+    if (command === "start_preview_mechanics_job") {
+      const sent = startRequestModel(args, options);
+      if (!isDeepStrictEqual({ model: sent.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
+      started.push(String(sent.mode));
       const job_id = `unit-transport-replay:${generation}:${name}:${started.length}`;
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
     }
-    if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${generation}:${name}:${started.length}`) {
-      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: sourceText, error_message: null };
+    const current = `unit-transport-replay:${generation}:${name}:${started.length}`;
+    if (command === "poll_preview_mechanics_job" && args?.jobId === current) {
+      return { job_id: args.jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result_available: true, result_bytes: sourceText.length, error_message: null, resource_refusal: null, resource: null };
     }
+    if (command === "take_preview_mechanics_job_result" && args?.jobId === current) return resultArrayBuffer(sourceText);
+    if (command === "dispose_preview_mechanics_result") return null;
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
   (window as any).__TAURI_INTERNALS__ = {};

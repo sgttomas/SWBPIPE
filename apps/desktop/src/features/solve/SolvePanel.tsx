@@ -4,6 +4,8 @@ import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
+import { describeResourceRefusal, formatBytes } from "../../services/memoryPool";
+import { MemoryPoolPanel } from "./MemoryPoolPanel";
 
 export function SolvePanel({
   analysisRun,
@@ -58,10 +60,21 @@ export function SolvePanel({
         </span>
       </div>
       {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+      {solveJob.resource.refusal ? (
+        <p role="status" className="memory-pool-message warning" data-testid="solve-job-resource-refusal">
+          Refused by the native memory pool: {describeResourceRefusal(solveJob.resource.refusal)} No result was published.
+        </p>
+      ) : null}
+      {solveJob.resource.queue_reason && (solveJob.state === "queued" || solveJob.state === "cancelling") ? (
+        <p role="status" className="memory-pool-message info" data-testid="solve-job-queue-reason">
+          Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)}
+        </p>
+      ) : null}
       <div className="report-list solve-job-list" data-testid="solve-job-audit">
         <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
         <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
         <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
+        <SolveLine label="Memory" value={resourceSummary(packet)} testId="solve-job-resource" />
         <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
         <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
         <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
@@ -106,6 +119,7 @@ export function SolvePanel({
         <Square size={15} aria-hidden="true" />
         Cancel preview
       </button>
+      <MemoryPoolPanel active={running} />
     </section>
   );
 }
@@ -141,6 +155,7 @@ function readinessSummary({
       value: result
         ? `${result.results.length} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
         : solveJob.state === "failed" ? `Solve job state: ${solveJob.state}; ${solverDisplayWithToken(solveJob.state)}`
+        : solveJob.state === "refused" ? "Solve job state: refused by the native memory pool; no result was published"
         : `preview run not started; ${hasRecordedUnsolvedModelStatus(mechanicsStatus) ? solverDisplayWithToken(mechanicsStatus) : statusDisplayWithToken(mechanicsStatus)}`,
       tone: result ? "ok" : "info"
     },
@@ -269,6 +284,19 @@ function buildSolveJobPacket({
       mutates_solver_process_directly: false,
       cancellation_success_claimed: false
     },
+    // DEL-04-07: the native memory grant and verdicts for this job. Budget policy
+    // is recorded here, beside the run, never in the model document.
+    resource: {
+      source: solveJob.resource.source,
+      invocation_budget_bytes: solveJob.resource.invocation_budget_bytes,
+      pool_bytes: solveJob.resource.pool_bytes,
+      route_pricing: solveJob.resource.route_pricing,
+      ingress_reserved_bytes: solveJob.resource.ingress_reserved_bytes,
+      ordinary_route_byte_bound_claimed: false,
+      queue_reason: solveJob.resource.queue_reason,
+      refusal: solveJob.resource.refusal,
+      refusal_reason: solveJob.resource.refusal ? describeResourceRefusal(solveJob.resource.refusal) : null
+    },
     model_state_ref: run?.model_state_ref ?? null,
     analysis_run_ref: run ? { object_type: "AnalysisRun", ref: run.run_id } : null,
     run_kind: run?.run_kind ?? "not_started",
@@ -346,6 +374,17 @@ function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): st
     `seam=${packet.cancellation.backend_job_seam}`,
     `token=${packet.cancellation.backend_cancellation_token}`,
     `success_claimed=${String(packet.cancellation.cancellation_success_claimed)}`
+  ].join("; ");
+}
+
+function resourceSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  const resource = packet.resource;
+  if (resource.source === "not_reported" && !resource.refusal) return "not reported; no native job grant recorded";
+  return [
+    `budget=${formatBytes(resource.invocation_budget_bytes)}`,
+    `pool=${formatBytes(resource.pool_bytes)}`,
+    `route=${resource.route_pricing ?? "not granted"}`,
+    `refusal=${resource.refusal?.kind ?? "none"}`
   ].join("; ");
 }
 

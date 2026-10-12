@@ -49,9 +49,9 @@ async function renderCurrentReplayShell(width = 1440) {
   const pair = nativeMechanicsReplayPair();
   const replay = createNativeMechanicsReplay();
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);
-  invokeMock.mockImplementation(async (command: string, args?: unknown) => {
+  invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "sync_native_shell_state") return undefined;
-    const result = await replay.invoke(command, args);
+    const result = await replay.invoke(command, args, options);
     // Registration still occurs inside previewService from the actual mocked
     // start/poll path. Restore browser chrome before the terminal render.
     if (command === "poll_preview_mechanics_job" && result.state === "completed") setTauriRuntime(false);
@@ -206,7 +206,7 @@ describe("the rail's states through the product", () => {
   it("after a failed run with none solved: Results is captioned Failed and Review says No solved run", async () => {
     await renderShell();
     invokeMock.mockImplementation((command: string) =>
-      Promise.reject(new Error(command === "start_preview_mechanics_job_with_solver_mode" ? "Invented solve failure" : `Unexpected command ${command}`)));
+      Promise.reject(new Error(command === "start_preview_mechanics_job" ? "Invented solve failure" : `Unexpected command ${command}`)));
     setTauriRuntime(true);
     fireEvent.click(screen.getByTestId("toolbar-run"));
     await waitFor(() => expect(railState("results").caption).toBe("Failed"));
@@ -426,7 +426,7 @@ describe("the toolbar band", () => {
     await renderShell();
     const running = new Promise<never>(() => undefined);
     invokeMock.mockImplementation((command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "shell-run", backend_cancellation_token: "shell-run-token", state: "queued", cancellation_scope: "synthetic" });
+      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "shell-run", backend_cancellation_token: "shell-run-token", state: "queued", cancellation_scope: "synthetic" });
       if (command === "poll_preview_mechanics_job") return running;
       if (command === "cancel_preview_mechanics_job") return Promise.resolve({ job_id: "shell-run", cancellation_requested: true, cancellation_status: "requested", cancellation_scope: "synthetic" });
       return Promise.reject(new Error(`Unexpected command ${command}`));
@@ -435,7 +435,7 @@ describe("the toolbar band", () => {
     fireEvent.click(screen.getByTestId("toolbar-run"));
     const stop = await screen.findByTestId("toolbar-stop");
     expect(screen.queryByTestId("toolbar-run")).not.toBeInTheDocument();
-    expect(invokeMock.mock.calls.filter(([command]) => command === "start_preview_mechanics_job_with_solver_mode")).toHaveLength(1);
+    expect(invokeMock.mock.calls.filter(([command]) => command === "start_preview_mechanics_job")).toHaveLength(1);
     fireEvent.click(stop);
     await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "cancel_preview_mechanics_job")).toBe(true));
   });

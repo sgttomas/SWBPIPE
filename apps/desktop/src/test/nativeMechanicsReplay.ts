@@ -55,50 +55,110 @@ export function nativeMechanicsReplayPair(mode: PreviewSolverMode = "sparse_inte
 }
 
 let instanceSequence = 0;
-/** A bounded invokeMock implementation for the captured model and two modes.
- * A caller may wrap this invoke to delay delivery or simulate failures. Unknown
- * commands/jobs/models/modes fail rather than silently replaying another source. */
+/** The resource grant a replayed job reports: the qualified 12 GiB default as
+ * both budget and pool, the ordinary route unpriced. Replay data, not a native reading. */
+export const REPLAY_RESOURCE_GRANT = Object.freeze({
+  invocation_budget_bytes: 12 * 1024 ** 3,
+  pool_bytes: 12 * 1024 ** 3,
+  route_pricing: "ordinary_unpriced" as const,
+});
+/** The UTF-8 bytes and solver-mode header a start command sends. */
+export function startRequestModel(args: unknown, options: unknown): { model: unknown; mode: unknown; text: string } {
+  if (!(args instanceof Uint8Array) && !ArrayBuffer.isView(args)) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
+  const view = args as Uint8Array;
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(view);
+  const headers = (options as { headers?: Record<string, unknown> } | undefined)?.headers;
+  if (!headers || typeof headers !== "object") throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
+  return { model: JSON.parse(text), mode: headers["x-swbpipe-solver-mode"], text };
+}
+/** The bytes a take command hands over for a producer's text. */
+export function resultArrayBuffer(text: string): ArrayBuffer {
+  const bytes = new TextEncoder().encode(text);
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+}
+export const SOLVE_JOB_COMMANDS = Object.freeze([
+  "start_preview_mechanics_job",
+  "poll_preview_mechanics_job",
+  "take_preview_mechanics_job_result",
+  "dispose_preview_mechanics_result",
+  "cancel_preview_mechanics_job",
+]);
+
+/** A mocked native solve-job transport speaking the job contract (raw-bytes
+ * start with the solver-mode header, poll without result, take, dispose,
+ * cooperative cancel). `answer` supplies the producer bytes for each accepted
+ * start; a thrown answer rejects the start. Unit simulation only. */
+export function createSolveJobTransport(
+  answer: (request: { model: unknown; mode: unknown; text: string }) => string | Promise<string>,
+  options: { jobIdPrefix?: string; cancellationScope?: string } = {},
+) {
+  const prefix = options.jobIdPrefix ?? `unit-solve-job:${++instanceSequence}`;
+  const scope = options.cancellationScope ?? "unit_transport_replay_not_native_ui_qualification";
+  const jobs = new Map<string, { bytes: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean }>();
+  let sequence = 0;
+  const grant = (ingress: number) => ({ ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: ingress });
+  const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command);
+  const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
+    if (command === "start_preview_mechanics_job") {
+      const request = startRequestModel(args, invokeOptions);
+      const bytes = await answer(request);
+      const ingress = new TextEncoder().encode(request.text).byteLength, job_id = `${prefix}:${++sequence}`;
+      jobs.set(job_id, { bytes, ingress, cancelled: false, taken: false, disposed: false });
+      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress) };
+    }
+    if (!handles(command)) throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+    const request = args as { jobId?: unknown; cancellationToken?: unknown } | undefined;
+    const job = typeof request?.jobId === "string" ? jobs.get(request.jobId) : undefined;
+    if (!job) throw new Error("NATIVE_REPLAY_JOB_UNKNOWN");
+    const jobId = request!.jobId as string;
+    if (command === "cancel_preview_mechanics_job") {
+      if (request!.cancellationToken !== `${jobId}:token`) throw new Error("NATIVE_REPLAY_CANCELLATION_TOKEN_MISMATCH");
+      job.cancelled = true;
+      return { job_id: jobId, accepted: true, cancellation_status: "cancelled", job_state: "cancelled", cancellation_scope: scope, cancellation_success_claimed: false };
+    }
+    if (command === "take_preview_mechanics_job_result") {
+      if (job.cancelled || job.taken || job.disposed) throw { code: "INVALID_REQUEST", message: `NATIVE_REPLAY_RESULT_UNAVAILABLE: ${jobId}` };
+      job.taken = true;
+      return resultArrayBuffer(job.bytes);
+    }
+    if (command === "dispose_preview_mechanics_result") {
+      // As the native host: releases a delivered copy or a retained, untaken result; a repeat releases nothing.
+      const released = !job.disposed && !job.cancelled;
+      job.disposed = true;
+      return { job_id: jobId, released, released_bytes: released ? new TextEncoder().encode(job.bytes).byteLength : 0, delivered: job.taken };
+    }
+    const available = !job.cancelled && !job.taken && !job.disposed;
+    return { job_id: jobId, state: job.cancelled ? "cancelled" : "completed", queue_reason: null, cancellation_requested: job.cancelled,
+      cancellation_status: job.cancelled ? "cancelled" : "not_requested", cancellation_scope: scope,
+      result_available: available, result_bytes: available ? new TextEncoder().encode(job.bytes).byteLength : null, error_message: null,
+      resource_refusal: null, resource: grant(job.ingress) };
+  };
+  /** Jobs whose delivered results are held by the app (taken, not disposed). */
+  const custody = () => [...jobs].filter(([, job]) => job.taken && !job.disposed).map(([id]) => id);
+  /** Jobs whose delivered results the app released. */
+  const disposed = () => [...jobs].filter(([, job]) => job.disposed).map(([id]) => id);
+  return { invoke, handles, custody, disposed };
+}
+
+/** A bounded invokeMock implementation for the captured model and two modes,
+ * speaking the job contract. A caller may wrap this invoke to delay delivery or
+ * simulate failures. Unknown commands/jobs/models/modes fail rather than
+ * silently replaying another source. */
 export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; profile?: NativeMechanicsReplayProfile } = {}) {
   const profile = options.profile ?? "physics";
   nativeMechanicsReplayPair("sparse_interactive", { profile });
-  const prefix = options.jobIdPrefix ?? `unit-native-replay:${++instanceSequence}`;
-  const jobs = new Map<string, { bytes: string; cancelled: boolean }>();
-  let sequence = 0;
-  const requestPair = (args: unknown) => {
-    if (!args || typeof args !== "object" || Array.isArray(args)) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
-    const request = args as Record<string, unknown>;
-    if (Object.keys(request).length !== 2 || !Object.hasOwn(request, "model") || !Object.hasOwn(request, "solverMode")) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
-    replayMode(request.solverMode);
-    const pair = nativeMechanicsReplayPair(request.solverMode, { profile });
+  const transport = createSolveJobTransport((request) => {
+    replayMode(request.mode);
+    const pair = nativeMechanicsReplayPair(request.mode, { profile });
     if (!isDeepStrictEqual(request.model, pair.model)) throw new Error("NATIVE_REPLAY_MODEL_MISMATCH");
-    return pair;
-  };
-  const invoke = async (command: string, args?: unknown): Promise<any> => {
+    return pair.bytes;
+  }, { jobIdPrefix: options.jobIdPrefix ?? `unit-native-replay:${++instanceSequence}` });
+  const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
     if (command === "load_preview_model") {
       if (args !== undefined) throw new Error("NATIVE_REPLAY_REQUEST_INVALID");
       return nativeMechanicsReplayPair("sparse_interactive", { profile }).model;
     }
-    if (command === "run_preview_mechanics_with_solver_mode") return requestPair(args).bytes;
-    if (command === "start_preview_mechanics_job_with_solver_mode") {
-      const pair = requestPair(args), job_id = `${prefix}:${++sequence}`;
-      jobs.set(job_id, { bytes: pair.bytes, cancelled: false });
-      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: "unit_transport_replay_not_native_ui_qualification" };
-    }
-    if (command === "poll_preview_mechanics_job" || command === "cancel_preview_mechanics_job") {
-      const request = args as { jobId?: unknown; cancellationToken?: unknown } | undefined;
-      const job = typeof request?.jobId === "string" ? jobs.get(request.jobId) : undefined;
-      if (!job) throw new Error("NATIVE_REPLAY_JOB_UNKNOWN");
-      const jobId = request!.jobId as string;
-      if (command === "cancel_preview_mechanics_job") {
-        if (request!.cancellationToken !== `${jobId}:token`) throw new Error("NATIVE_REPLAY_CANCELLATION_TOKEN_MISMATCH");
-        job.cancelled = true;
-        return { job_id: jobId, accepted: true, cancellation_status: "cancelled", job_state: "cancelled", cancellation_scope: "unit_transport_replay_not_native_ui_qualification", cancellation_success_claimed: false };
-      }
-      return { job_id: jobId, state: job.cancelled ? "cancelled" : "completed", cancellation_requested: job.cancelled,
-        cancellation_status: job.cancelled ? "cancelled" : "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification",
-        result: job.cancelled ? null : job.bytes, error_message: null };
-    }
-    throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+    return transport.invoke(command, args, invokeOptions);
   };
-  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed };
 }

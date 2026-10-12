@@ -25,8 +25,13 @@ import {
   loadPreviewModel,
   loadSampleProposal,
   hasNativeMechanicsInvocation,
-  startPreviewMechanicsJob
+  discardPreviewMechanicsJobResult,
+  disposeDeliveredMechanicsResult,
+  startPreviewMechanicsJob,
+  takePreviewMechanicsJobResult,
+  terminalJobError
 } from "../../services/previewService";
+import { ResourceUnavailableError } from "../../services/memoryPool";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -129,6 +134,9 @@ import {
   initialSolveJob,
   modelChangedSolveJob,
   pendingBackendStartCancellationSolveJob,
+  progressSolveJob,
+  refusedBeforeBackendStartSolveJob,
+  refusedSolveJob,
   recordBackendCancellationFailure,
   recordBackendCancellationReceipt,
   requestSolveCancellation,
@@ -587,6 +595,19 @@ export function useWorkspaceSession() {
     };
   }, [model]);
 
+  // Native result custody (DEL-04-07): the session publishes a delivered result
+  // only through `setResult`, so the result it stops holding (replaced by a new
+  // solve, cleared by model edits, undo/redo, project changes or reference
+  // inspection) is released to the native custody ledger here, as is the held
+  // result when the session ends.
+  const heldResultRef = useRef<MechanicsResult | null>(null);
+  useEffect(() => {
+    const previous = heldResultRef.current;
+    heldResultRef.current = result;
+    if (previous && previous !== result) void disposeDeliveredMechanicsResult(previous);
+  }, [result]);
+  useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
     referencePersistence.current = null;
     modelHashOwner.current = null;
@@ -766,6 +787,9 @@ export function useWorkspaceSession() {
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
     let startedJob: SolveJobAuditState | null = null;
+    // A delivered result this run did not publish is released in `finally`.
+    let deliveredOutput: MechanicsResult | null = null;
+    let publishedOutput = false;
     try {
       if (!model) {
         throw new Error(
@@ -790,7 +814,17 @@ export function useWorkspaceSession() {
         return;
       }
       // Capture the original live caller representation as well as dispatched JSON.
-      const startReceipt = await startPreviewMechanicsJob(model, solverMode);
+      let startReceipt: Awaited<ReturnType<typeof startPreviewMechanicsJob>>;
+      try {
+        startReceipt = await startPreviewMechanicsJob(model, solverMode);
+      } catch (error) {
+        // A start the native memory pool refuses is a typed refusal, recorded as such.
+        if (error instanceof ResourceUnavailableError) {
+          if (solveRunGate.current.isCurrent(runGeneration)) setSolveJob(refusedBeforeBackendStartSolveJob(solveModel, error));
+          return;
+        }
+        throw error;
+      }
       // Reference records never create a fresh solve. Only a real backend job
       // can publish current result/manifest/proof cells through this path.
       if (startReceipt.mode !== "backend_job") {
@@ -841,8 +875,17 @@ export function useWorkspaceSession() {
       }
       let output: MechanicsResult;
       if (startReceipt.mode === "backend_job") {
-        const terminal = await awaitBackendSolveJob(startReceipt.job_id);
-        if (!solveRunGate.current.isCurrent(runGeneration)) return;
+        const visibleJobId = startedJob.job_id;
+        const terminal = await awaitBackendSolveJob(startReceipt.job_id, (status) => {
+          // Show the native state while the job waits, including its queue reason.
+          if (!solveRunGate.current.isCurrent(runGeneration)) return;
+          setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
+        });
+        if (!solveRunGate.current.isCurrent(runGeneration)) {
+          // A superseded run's completed result is released from native retention unread.
+          if (terminal.state === "completed") void discardPreviewMechanicsJobResult(startReceipt.job_id);
+          return;
+        }
         if (terminal.job_id !== startedJob.job_id) {
           throw new Error(
             `SOLVE-JOB-IDENTITY-MISMATCH: expected ${startedJob.job_id}; received ${terminal.job_id}`
@@ -856,12 +899,26 @@ export function useWorkspaceSession() {
           );
           return;
         }
-        if (terminal.state !== "completed" || !terminal.result) {
-          throw new Error(
-            terminal.error_message ?? `backend solve job ${terminal.job_id} ended as ${terminal.state} without a result`
+        if (terminal.state === "refused" && terminal.resource_refusal) {
+          const refusal = terminal.resource_refusal;
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? refusedSolveJob(current, refusal)
+              : current
           );
+          return;
         }
-        output = terminal.result;
+        if (terminal.state !== "completed") throw terminalJobError(terminal);
+        // The poll carries no result: take the producer's bytes. A refused take
+        // (for example custody_full) is recorded as a typed refusal; the session
+        // does not retry it, so the natively retained result is released.
+        try {
+          output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        } catch (error) {
+          if (error instanceof ResourceUnavailableError) void discardPreviewMechanicsJobResult(startReceipt.job_id);
+          throw error;
+        }
+        deliveredOutput = output;
       } else {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: browser references are not completed solve results.");
       }
@@ -907,6 +964,7 @@ export function useWorkspaceSession() {
       );
       referencePersistence.current = null;
       setHistoricalRun(null);
+      publishedOutput = true;
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
@@ -934,6 +992,7 @@ export function useWorkspaceSession() {
         );
       }
     } finally {
+      if (deliveredOutput && !publishedOutput) void disposeDeliveredMechanicsResult(deliveredOutput);
       solveCancellationTombstones.current.delete(runGeneration);
       if (activeSolveJob.current?.generation === runGeneration) {
         activeSolveJob.current = null;

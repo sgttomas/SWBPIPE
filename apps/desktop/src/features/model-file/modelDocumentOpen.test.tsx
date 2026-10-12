@@ -121,12 +121,12 @@ describe("File > Open Model Document…", () => {
   it("adopts the opened document unchanged as the unsaved session model and solves that document", async () => {
     const document = openedDocument();
     let solved: unknown = null;
-    invokeMock.mockImplementation((command: string, args?: { model?: unknown }) => {
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
       if (command === "open_model_document_file") {
         return Promise.resolve({ outcome: "opened", file_name: "opened.json", byte_count: 1234, schema_status: "migrated", document: clone(document) });
       }
-      if (command === "start_preview_mechanics_job_with_solver_mode") {
-        solved = args?.model;
+      if (command === "start_preview_mechanics_job") {
+        solved = JSON.parse(new TextDecoder().decode(args as Uint8Array));
         return new Promise(() => {});
       }
       if (command === "sync_native_shell_state") return Promise.resolve(null);

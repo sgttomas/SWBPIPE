@@ -1,5 +1,5 @@
 import { act, render, renderHook, waitFor, within } from "@testing-library/react";
-import { solveBytes } from "../../test/nativeMechanicsReplay";
+import { resultArrayBuffer, solveBytes, startRequestModel } from "../../test/nativeMechanicsReplay";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -36,20 +36,23 @@ async function recordedProducerSession() {
   const knowledge = await loadDesignKnowledge();
   const jobId = "unit-transport-replay:invented-preview-physics-1-sparse";
   const scope = "unit_transport_replay_not_native_ui_qualification";
-  invokeMock.mockImplementation(async (command: string, args?: unknown) => {
+  invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(modelFixture);
-    if (command === "start_preview_mechanics_job_with_solver_mode") {
+    if (command === "start_preview_mechanics_job") {
       // Replay only the exact recorded input and mode; anything else fails.
-      if (!isDeepStrictEqual(args, { model: modelFixture, solverMode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
+      const sent = startRequestModel(args, options);
+      if (!isDeepStrictEqual({ model: sent.model, mode: sent.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
       return { job_id: jobId, backend_cancellation_token: `${jobId}:token`, state: "queued", cancellation_scope: scope };
     }
     if (command === "poll_preview_mechanics_job" && isDeepStrictEqual(args, { jobId })) {
-      return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested",
-        cancellation_scope: scope, result: solveBytes(sourceFixture), error_message: null };
+      return { job_id: jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested",
+        cancellation_scope: scope, result_available: true, result_bytes: solveBytes(sourceFixture).length, error_message: null, resource_refusal: null, resource: null };
     }
+    if (command === "take_preview_mechanics_job_result" && isDeepStrictEqual(args, { jobId })) return resultArrayBuffer(solveBytes(sourceFixture));
+    if (command === "dispose_preview_mechanics_result") return null;
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
