@@ -60,7 +60,10 @@ describe("the memory pool panel", () => {
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
-    expect(line("memory-pool-budget")).toBe("12 GiB (qualified up to 12 GiB)");
+    expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
+    // The budget bounds intake and result custody, not the ordinary solve.
+    expect(line("memory-pool-budget-scope")).toBe("receiving the model document and holding its result (natively and in the app); the ordinary solve itself is unpriced, so no byte bound is claimed for it");
+    expect(screen.getByTestId("memory-pool-status").textContent).not.toMatch(/qualified up to|guarantee/i);
     expect(line("memory-pool-size")).toBe("48 GiB; recommended 48 GiB for 64 GiB physical memory");
     expect(line("memory-pool-reserved")).toBe("12.5 GiB (model intake 512 MiB, results 0 MiB, results held by the app 12 GiB)");
     expect(line("memory-pool-ordinary")).toBe("running; unpriced: no byte bound is claimed for the ordinary solve itself");
@@ -130,7 +133,7 @@ describe("the memory pool panel", () => {
     fireEvent.click(screen.getByTestId("memory-pool-apply"));
     expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent("Applied: pool 24 GiB; per-invocation budget 8 GiB.");
     expect(invokeMock).toHaveBeenCalledWith("configure_memory_pool", { poolBytes: 24 * GiB, invocationBudgetBytes: 8 * GiB, acknowledgeAboveRecommended: false });
-    expect(line("memory-pool-budget")).toBe("8 GiB (qualified up to 12 GiB)");
+    expect(line("memory-pool-budget")).toBe("8 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
   });
 
   it.each([
@@ -152,6 +155,18 @@ describe("the memory pool panel", () => {
     if (ack) fireEvent.click(ack);
     fireEvent.click(screen.getByTestId("memory-pool-apply"));
     expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent(`Refused by the native memory pool: ${text}`);
+  });
+
+  it.each([
+    [{ kind: "pressure_unknown" }, "macOS did not report a memory-pressure state, so no new solve is admitted."],
+    [{ kind: "pressure_elevated", level: "warning" }, "macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal."],
+    [{ kind: "pressure_elevated", level: "critical" }, "macOS reports memory pressure (critical), so no new solve is admitted until it returns to normal."]
+  ])("shows the last %s refusal in plain language", async (refusal, text) => {
+    nativeRuntime();
+    invokeMock.mockResolvedValue(poolStatus({ last_refusal: refusal as PoolStatus["last_refusal"] }));
+    render(<MemoryPoolPanel active={false} />);
+    await screen.findByTestId("memory-pool-status");
+    expect(line("memory-pool-last-refusal")).toBe(text);
   });
 
   it("refreshes while a solve is active and on demand, and shows an unreadable status as an error", async () => {

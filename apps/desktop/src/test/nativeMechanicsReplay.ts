@@ -84,6 +84,9 @@ export const SOLVE_JOB_COMMANDS = Object.freeze([
   "cancel_preview_mechanics_job",
 ]);
 
+/** The session-start release of every retained or delivered result. */
+export const DISPOSE_ALL_COMMAND = "dispose_all_preview_mechanics_results";
+
 /** A mocked native solve-job transport speaking the job contract (raw-bytes
  * start with the solver-mode header, poll without result, take, dispose,
  * cooperative cancel). `answer` supplies the producer bytes for each accepted
@@ -95,7 +98,7 @@ export function createSolveJobTransport(
   const prefix = options.jobIdPrefix ?? `unit-solve-job:${++instanceSequence}`;
   const scope = options.cancellationScope ?? "unit_transport_replay_not_native_ui_qualification";
   const jobs = new Map<string, { bytes: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean }>();
-  let sequence = 0;
+  let sequence = 0, disposeAllCalls = 0;
   const grant = (ingress: number) => ({ ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: ingress });
   const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command);
   const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
@@ -105,6 +108,18 @@ export function createSolveJobTransport(
       const ingress = new TextEncoder().encode(request.text).byteLength, job_id = `${prefix}:${++sequence}`;
       jobs.set(job_id, { bytes, ingress, cancelled: false, taken: false, disposed: false });
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress) };
+    }
+    if (command === DISPOSE_ALL_COMMAND) {
+      // As the native host at session start: every retained or delivered result is released.
+      let released_results = 0, released_bytes = 0;
+      for (const job of jobs.values()) {
+        if (job.disposed || job.cancelled) continue;
+        job.disposed = true;
+        released_results += 1;
+        released_bytes += new TextEncoder().encode(job.bytes).byteLength;
+      }
+      disposeAllCalls += 1;
+      return { released_results, released_bytes };
     }
     if (!handles(command)) throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
     const request = args as { jobId?: unknown; cancellationToken?: unknown } | undefined;
@@ -137,7 +152,9 @@ export function createSolveJobTransport(
   const custody = () => [...jobs].filter(([, job]) => job.taken && !job.disposed).map(([id]) => id);
   /** Jobs whose delivered results the app released. */
   const disposed = () => [...jobs].filter(([, job]) => job.disposed).map(([id]) => id);
-  return { invoke, handles, custody, disposed };
+  /** How many times the session-start release of every result was requested. */
+  const disposeAllCount = () => disposeAllCalls;
+  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount };
 }
 
 /** A bounded invokeMock implementation for the captured model and two modes,
@@ -160,5 +177,5 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
     }
     return transport.invoke(command, args, invokeOptions);
   };
-  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed };
+  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount };
 }

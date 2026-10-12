@@ -17,6 +17,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 afterEach(() => {
   invokeMock.mockReset();
+  resetSessionResultCustodyForTests();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 import type { MechanicsResult, PreviewModel } from "../types";
@@ -30,6 +31,10 @@ import {
   hasNativeMechanicsInvocation,
   retainedNativeMechanicsInvocation,
   pollPreviewMechanicsJob,
+  awaitPreviewMechanicsJob,
+  beginSessionResultCustodyReset,
+  disposeAllPreviewMechanicsResults,
+  resetSessionResultCustodyForTests,
   cancelPreviewMechanicsJob,
   deliveredMechanicsResultJob,
   discardPreviewMechanicsJobResult,
@@ -616,6 +621,18 @@ describe("native mechanics failure boundary", () => {
     expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
   });
 
+  it("reads an unreported pressure state as its own refusal, distinct from elevated pressure", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pressure_unknown" }, pool: null });
+    const failure = await startPreviewMechanicsJob(nativeMechanicsReplayPair().model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "pressure_unknown" });
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: macOS did not report a memory-pressure state, so no new solve is admitted.");
+    // Elevated pressure is warning or critical; any other level is not a readable refusal.
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pressure_elevated", level: "unknown" }, pool: null });
+    await expect(startPreviewMechanicsJob(nativeMechanicsReplayPair().model)).rejects.toThrow("RESOURCE_UNAVAILABLE: the native refusal could not be read.");
+  });
+
   it("reports the queue reason of a waiting job before it completes", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
@@ -651,7 +668,7 @@ describe("delivered result custody", () => {
     expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
   });
 
-  it("keeps the capture when the take is refused (custody_full) so a later take registers", async () => {
+  it("keeps the capture when a take is refused (custody_full), so a later take of the retained result registers", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
     let refuseTake = true;
@@ -662,15 +679,55 @@ describe("delivered result custody", () => {
       }
       return replay.invoke(command, args, options);
     });
-    const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+    const start = await startPreviewMechanicsJob(pair.model);
+    if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
+    expect((await awaitPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+    const failure = await takePreviewMechanicsJobResult(start.job_id).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "custody_full", delivered: 4, limit: 4 });
-    expect(startCalls()).toHaveLength(1);
-    const { job_id } = await (invokeMock.mock.results[0].value as Promise<{ job_id: string }>);
-    // The result stayed with the native host; the app takes it once custody allows.
-    const taken = await takePreviewMechanicsJobResult(job_id);
+    // The take alone releases nothing: the result stayed with the native host, and the app takes it once custody allows.
+    expect(invokeMock.mock.calls.some(([command]) => command === "dispose_preview_mechanics_result")).toBe(false);
+    const taken = await takePreviewMechanicsJobResult(start.job_id);
     expect(taken).toEqual(pair.source);
     expect(hasNativeMechanicsInvocation(taken, pair.model)).toBe(true);
+  });
+
+  it("runPreviewMechanics releases the job's result unread when its take is refused", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "take_preview_mechanics_job_result") throw { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "custody_full", delivered: 4, limit: 4 }, pool: null };
+      return replay.invoke(command, args, options);
+    });
+    const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    const { job_id } = await (invokeMock.mock.results[0].value as Promise<{ job_id: string }>);
+    await vi.waitFor(() => expect(replay.disposed()).toEqual([job_id]));
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
+      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result",
+    ]);
+    expect(replay.custody()).toEqual([]);
+    // The retired capture can never register a later delivery.
+    invokeMock.mockImplementation(async (command: string) =>
+      command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : undefined);
+    expect(hasNativeMechanicsInvocation(await takePreviewMechanicsJobResult(job_id), pair.model)).toBe(false);
+  });
+
+  it("runPreviewMechanics abandons a started job whose poll fails: cancellation, then release", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "poll_preview_mechanics_job") throw new Error("invented poll IPC failure");
+      return replay.invoke(command, args, options);
+    });
+    await expect(runPreviewMechanics(pair.model)).rejects.toThrow("invented poll IPC failure");
+    const { job_id, backend_cancellation_token } = await (invokeMock.mock.results[0].value as Promise<{ job_id: string; backend_cancellation_token: string }>);
+    await vi.waitFor(() => expect(invokeMock.mock.calls.map(([command]) => command)).toContain("dispose_preview_mechanics_result"));
+    expect(invokeMock.mock.calls.slice(2)).toEqual([
+      ["cancel_preview_mechanics_job", { jobId: job_id, cancellationToken: backend_cancellation_token }],
+      ["dispose_preview_mechanics_result", { jobId: job_id }],
+    ]);
+    expect(replay.custody()).toEqual([]);
   });
 
   it("discards a superseded completed job's result without registering it", async () => {
@@ -688,6 +745,51 @@ describe("delivered result custody", () => {
     invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
       command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : replay.invoke(command, args, options));
     expect(hasNativeMechanicsInvocation(await takePreviewMechanicsJobResult(start.job_id), pair.model)).toBe(false);
+  });
+});
+
+describe("session-start release of earlier native custody", () => {
+  it("releases every native result once per webview session in the Tauri runtime, and a start waits for it", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    let finishReset!: () => void;
+    const resetGate = new Promise<void>((resolve) => { finishReset = resolve; });
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "dispose_all_preview_mechanics_results") await resetGate;
+      return replay.invoke(command, args, options);
+    });
+    const first = beginSessionResultCustodyReset();
+    expect(beginSessionResultCustodyReset()).toBe(first);
+    const starting = startPreviewMechanicsJob(pair.model);
+    await Promise.resolve();
+    // No start reaches the native host before the release completes.
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results"]);
+    finishReset();
+    expect(await first).toEqual({ released_results: 0, released_bytes: 0 });
+    await starting;
+    void beginSessionResultCustodyReset();
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results", "start_preview_mechanics_job"]);
+    expect(replay.disposeAllCount()).toBe(1);
+  });
+
+  it("issues no release in the browser fixture mode", async () => {
+    expect(await beginSessionResultCustodyReset()).toBeNull();
+    expect(await disposeAllPreviewMechanicsResults()).toBeNull();
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("never rejects: a failed or unreadable release reads as null and a later start proceeds", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "dispose_all_preview_mechanics_results") throw new Error("command not found");
+      return replay.invoke(command, args, options);
+    });
+    expect(await beginSessionResultCustodyReset()).toBeNull();
+    const result = await runPreviewMechanics(pair.model);
+    expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
+    invokeMock.mockResolvedValueOnce({ released_results: "two" });
+    expect(await disposeAllPreviewMechanicsResults()).toBeNull();
   });
 });
 

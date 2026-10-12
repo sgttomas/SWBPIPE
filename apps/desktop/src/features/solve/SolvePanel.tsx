@@ -380,10 +380,12 @@ function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): st
 function resourceSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
   const resource = packet.resource;
   if (resource.source === "not_reported" && !resource.refusal) return "not reported; no native job grant recorded";
+  // The per-invocation budget bounds request intake and native result custody;
+  // the ordinary solve itself is unpriced, so no byte bound is claimed for it.
   return [
-    `budget=${formatBytes(resource.invocation_budget_bytes)}`,
+    `intake/custody budget=${formatBytes(resource.invocation_budget_bytes)}`,
     `pool=${formatBytes(resource.pool_bytes)}`,
-    `route=${resource.route_pricing ?? "not granted"}`,
+    `route=${resource.route_pricing ?? "not granted"}${resource.route_pricing === "ordinary_unpriced" ? " (solve not bounded by the budget)" : ""}`,
     `refusal=${resource.refusal?.kind ?? "none"}`
   ].join("; ");
 }

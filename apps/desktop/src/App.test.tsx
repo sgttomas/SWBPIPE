@@ -5,7 +5,7 @@ import refusedPreviewModel from "../../../fixtures/product_preview/invented_prev
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
 import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
@@ -14740,8 +14740,8 @@ describe("workflow current and historical result boundaries", () => {
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "load_preview_model") return Promise.resolve(structuredClone(model));
-      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
-      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result_available: true, result_bytes: solveBytes(output).length, error_message: null, resource_refusal: null, resource: null });
+      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic", resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
+      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result_available: true, result_bytes: solveBytes(output).length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
       if (command === "take_preview_mechanics_job_result") return Promise.resolve(resultArrayBuffer(solveBytes(output)));
       if (command === "dispose_preview_mechanics_result") return Promise.resolve(null);
       return Promise.reject(new Error(`Unexpected command ${command}`));

@@ -130,7 +130,12 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="Per-invocation budget"
             testId="memory-pool-budget"
-            value={`${formatBytes(status.invocation_budget_bytes)} (qualified up to ${formatBytes(status.qualified_invocation_budget_bytes)})`}
+            value={`${formatBytes(status.invocation_budget_bytes)} (default ${formatBytes(status.qualified_invocation_budget_bytes)}; a lower budget can be selected; a larger one is refused because no larger budget is qualified)`}
+          />
+          <PoolLine
+            label="What the budget bounds"
+            testId="memory-pool-budget-scope"
+            value="receiving the model document and holding its result (natively and in the app); the ordinary solve itself is unpriced, so no byte bound is claimed for it"
           />
           <PoolLine
             label="Memory pool"

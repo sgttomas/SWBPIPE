@@ -61,9 +61,23 @@ export async function runPreviewMechanics(
 ): Promise<MechanicsResult> {
   const receipt = await startPreviewMechanicsJob(model, solverMode);
   if (receipt.mode !== "backend_job") throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt is not a solve.");
-  const terminal = await awaitPreviewMechanicsJob(receipt.job_id, options.onStatus);
-  if (terminal.state === "completed") return takePreviewMechanicsJobResult(receipt.job_id);
-  throw terminalJobError(terminal);
+  // From here the started job's result is either taken (and then in the
+  // caller's custody) or released natively: a step that fails abandons it.
+  let terminal: BackendSolveJobStatus;
+  try {
+    terminal = await awaitPreviewMechanicsJob(receipt.job_id, options.onStatus);
+  } catch (error) {
+    void abandonPreviewMechanicsJob(receipt.job_id, receipt.backend_cancellation_token);
+    throw error;
+  }
+  if (terminal.state !== "completed") throw terminalJobError(terminal);
+  try {
+    return await takePreviewMechanicsJobResult(receipt.job_id);
+  } catch (error) {
+    // A refused or failed take is not retried: release the job's result unread.
+    void discardPreviewMechanicsJobResult(receipt.job_id);
+    throw error;
+  }
 }
 
 /** The error a non-completed terminal job state stands for. */
@@ -261,6 +275,8 @@ export async function startPreviewMechanicsJob(
     throw await browserSolveUnavailable(model);
   }
   if (!model) throw new Error("PREVIEW-SOLVE-MODEL-REQUIRED: a solve carries the session's model document.");
+  // The session's startup release of earlier webview custody completes before any start.
+  if (sessionCustodyReset) await sessionCustodyReset;
   const capture = captureNativeInvocation(model, solverMode);
   // The request body is the UTF-8 JSON text of exactly the captured model; the
   // solver mode travels as a header. Budget policy is never part of the model.
@@ -383,11 +399,18 @@ export async function takePreviewMechanicsJobResult(jobId: string): Promise<Mech
   return result;
 }
 
+/** Jobs whose result or custody the native host reported released: a job's
+ * result is released at most once, so a later discard of the same job (for
+ * example after its take already released an unreadable delivery) sends nothing. */
+const releasedJobs = new Set<string>();
+
 /** Releases a delivered result from the native custody ledger. Best effort: a
  * failure is reported as false and never thrown. */
 export async function disposePreviewMechanicsResult(jobId: string): Promise<boolean> {
+  if (releasedJobs.has(jobId)) return false;
   try {
-    await invoke("dispose_preview_mechanics_result", { jobId });
+    const receipt = await invoke<{ released?: unknown } | null>("dispose_preview_mechanics_result", { jobId });
+    if (receipt?.released === true) releasedJobs.add(jobId);
     return true;
   } catch {
     return false;
@@ -414,9 +437,68 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | null | und
  * or its take was refused and the session does not retry): retire its capture
  * and release the retained result natively, without copying it to the app. */
 export async function discardPreviewMechanicsJobResult(jobId: string): Promise<boolean> {
+  retireJobCapture(jobId);
+  return disposePreviewMechanicsResult(jobId);
+}
+
+function retireJobCapture(jobId: string): void {
   const capture = jobInvocations.get(jobId);
   if (capture) { capture.terminalClaimed = true; capture.invalidated = true; jobInvocations.delete(jobId); }
+}
+
+/** A started job whose terminal state the app did not establish (a poll
+ * failed, its identity did not match, or its run was superseded before it was
+ * awaited) and whose result the app will not take: request its cooperative
+ * cancellation, so the native host drops a result it has not yet published,
+ * then release whatever it already retains. Best effort; never throws. A
+ * result neither step reaches stays with the native host until the next
+ * session start releases it (`beginSessionResultCustodyReset`). */
+export async function abandonPreviewMechanicsJob(jobId: string, cancellationToken: string): Promise<boolean> {
+  retireJobCapture(jobId);
+  try { await invoke("cancel_preview_mechanics_job", { jobId, cancellationToken }); } catch { /* best effort */ }
   return disposePreviewMechanicsResult(jobId);
+}
+
+/** What `dispose_all_preview_mechanics_results` reported releasing. */
+export type NativeCustodyReset = { released_results: number; released_bytes: number };
+
+/** Releases every result the native host retains or counts as held by this
+ * webview, untaken or delivered. Only meaningful when no result is held: a
+ * fresh webview holds none, so the session calls it once at start. Best
+ * effort: null when unavailable or unreadable; never throws. */
+export async function disposeAllPreviewMechanicsResults(): Promise<NativeCustodyReset | null> {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return null;
+  try {
+    const reported = await invoke<Record<string, unknown>>("dispose_all_preview_mechanics_results");
+    const results = reported?.released_results, bytes = reported?.released_bytes;
+    return Number.isSafeInteger(results) && Number.isSafeInteger(bytes)
+      ? { released_results: results as number, released_bytes: bytes as number }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+let sessionCustodyReset: Promise<NativeCustodyReset | null> | null = null;
+
+/** Once per webview session, before any solve starts: a new webview (first
+ * launch or reload) holds no delivered result, so whatever the native host
+ * still retains or counts as webview custody belongs to a page that is gone
+ * and would otherwise fill the retention and custody limits for good. Starts
+ * the release at most once (Tauri runtime only) and returns the same promise;
+ * `startPreviewMechanicsJob` waits for it. It never rejects, so a failed
+ * release never blocks startup or a solve. */
+export function beginSessionResultCustodyReset(): Promise<NativeCustodyReset | null> {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return Promise.resolve(null);
+  sessionCustodyReset ??= disposeAllPreviewMechanicsResults();
+  return sessionCustodyReset;
+}
+
+/** Test support only: forget the session's startup release and the jobs
+ * already released (mocked transports reuse job ids across tests). */
+export function resetSessionResultCustodyForTests(): void {
+  sessionCustodyReset = null;
+  releasedJobs.clear();
 }
 
 export async function cancelPreviewMechanicsJob(
@@ -477,15 +559,21 @@ export async function buildAnalysisRunPreview(
   {
     inputManifest,
     ruleCheckAggregate,
+    executionResources,
   }: {
     inputManifest: CurrentSessionInputManifestEvidence;
     ruleCheckAggregate?: string | null;
+    /** DEL-04-07: the native grant the solve ran under, recorded in the run
+     * (outside the model document). The session's fresh solve always supplies
+     * it; a revision of an earlier record carries over exactly what that record
+     * held; omitted, the record carries no execution-resources member. */
+    executionResources?: SolveResourceGrant | null;
   },
 ): Promise<AnalysisRunEnvelope> {
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
+  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload), executionResources);
 }
 
 export function bindSourceResultDimensions(

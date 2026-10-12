@@ -7,7 +7,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
-import { createSolveJobTransport, resultArrayBuffer, startRequestModel } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, REPLAY_RESOURCE_GRANT, resultArrayBuffer, startRequestModel } from "../../test/nativeMechanicsReplay";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
@@ -90,11 +90,11 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
       if (!isDeepStrictEqual({ model: sent.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
       started.push(String(sent.mode));
       const job_id = `unit-transport-replay:${generation}:${name}:${started.length}`;
-      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
+      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
     }
     const current = `unit-transport-replay:${generation}:${name}:${started.length}`;
     if (command === "poll_preview_mechanics_job" && args?.jobId === current) {
-      return { job_id: args.jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result_available: true, result_bytes: sourceText.length, error_message: null, resource_refusal: null, resource: null };
+      return { job_id: args.jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result_available: true, result_bytes: sourceText.length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
     }
     if (command === "take_preview_mechanics_job_result" && args?.jobId === current) return resultArrayBuffer(sourceText);
     if (command === "dispose_preview_mechanics_result") return null;

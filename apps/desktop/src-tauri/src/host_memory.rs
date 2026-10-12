@@ -63,6 +63,10 @@ mod mac {
     use std::mem::{size_of, MaybeUninit};
     use std::sync::OnceLock;
 
+    // `host_statistics64` writes HOST_VM_INFO64_COUNT integer_t (4-byte) words
+    // into the buffer: the struct must be exactly that size.
+    const _: () = assert!(size_of::<libc::vm_statistics64>() == libc::HOST_VM_INFO64_COUNT as usize * 4);
+
     // libc marks `mach_host_self` deprecated; declare it directly.
     extern "C" {
         fn mach_host_self() -> libc::mach_port_t;

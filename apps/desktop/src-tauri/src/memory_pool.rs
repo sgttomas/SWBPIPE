@@ -83,6 +83,9 @@ pub(crate) enum ResourceRefusal {
     HeadroomUnknown,
     HeadroomStale { age_ms: u64 },
     HeadroomInsufficient { required_bytes: u64, available_bytes: u64 },
+    /// The host's pressure level could not be read.
+    PressureUnknown,
+    /// Pressure is `warning` or `critical`.
     PressureElevated { level: PressureLevel },
     PoolExhausted { requested_bytes: u64, reserved_bytes: u64, pool_bytes: u64 },
     BudgetUnqualified { requested_bytes: u64, qualified_bytes: u64 },
@@ -150,7 +153,8 @@ fn check_fresh(sample: &HostSample) -> Result<(), ResourceRefusal> {
 fn check_pressure(sample: &HostSample) -> Result<(), ResourceRefusal> {
     match sample.pressure {
         PressureLevel::Normal => Ok(()),
-        level => Err(ResourceRefusal::PressureElevated { level }),
+        PressureLevel::Unknown => Err(ResourceRefusal::PressureUnknown),
+        level @ (PressureLevel::Warning | PressureLevel::Critical) => Err(ResourceRefusal::PressureElevated { level }),
     }
 }
 
@@ -301,11 +305,16 @@ impl MemoryPool {
     }
 
     fn release(&self, purpose: LeasePurpose, bytes: u64) {
-        let mut state = self.lock();
-        let slot = &mut state.reserved[purpose as usize];
-        debug_assert!(*slot >= bytes, "a lease releases only what it reserved");
-        *slot = slot.saturating_sub(bytes);
-        self.notify(&mut state);
+        let held = {
+            let mut state = self.lock();
+            let slot = &mut state.reserved[purpose as usize];
+            let held = *slot;
+            *slot = slot.saturating_sub(bytes);
+            self.notify(&mut state);
+            held
+        };
+        // Checked after the lock is released so a failure cannot poison it.
+        debug_assert!(held >= bytes, "a lease releases only what it reserved");
     }
 
     fn admit_unpriced_locked(&self, state: &mut PoolState) -> Result<(), ResourceRefusal> {
@@ -732,11 +741,15 @@ mod tests {
     fn admission_refuses_elevated_or_unknown_pressure() {
         let host = ScriptedHost::normal();
         let pool = pool(&host);
-        for level in [PressureLevel::Warning, PressureLevel::Critical, PressureLevel::Unknown] {
+        for level in [PressureLevel::Warning, PressureLevel::Critical] {
             host.set(|s| s.pressure = level);
             assert_eq!(pool.acquire(1, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::PressureElevated { level });
             assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::PressureElevated { level });
         }
+        // An unreadable pressure level is its own refusal, not an elevated level.
+        host.set(|s| s.pressure = PressureLevel::Unknown);
+        assert_eq!(pool.acquire(1, LeasePurpose::Ingress).unwrap_err(), ResourceRefusal::PressureUnknown);
+        assert_eq!(pool.try_begin_unpriced_solve().unwrap_err(), ResourceRefusal::PressureUnknown);
         host.set(|s| s.pressure = PressureLevel::Normal);
         let lease = pool.acquire(1, LeasePurpose::Ingress).unwrap();
         // Elevated pressure refuses new admission without touching existing leases.
@@ -872,6 +885,7 @@ mod tests {
         let refusal = serde_json::to_value(ResourceRefusal::PressureElevated { level: PressureLevel::Warning }).unwrap();
         assert_eq!(refusal, serde_json::json!({"kind":"pressure_elevated","level":"warning"}));
         assert_eq!(serde_json::to_value(ResourceRefusal::SolveSlotBusy).unwrap(), serde_json::json!({"kind":"solve_slot_busy"}));
+        assert_eq!(serde_json::to_value(ResourceRefusal::PressureUnknown).unwrap(), serde_json::json!({"kind":"pressure_unknown"}));
         assert_eq!(
             serde_json::to_value(ResourceRefusal::PoolAboveRecommendedUnacknowledged { pool_bytes: 2, recommended_bytes: 1 }).unwrap(),
             serde_json::json!({"kind":"pool_above_recommended_unacknowledged","pool_bytes":2,"recommended_bytes":1})

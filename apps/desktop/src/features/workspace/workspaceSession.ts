@@ -19,6 +19,8 @@ import {
 } from "../../services/operationService";
 import {
   buildAnalysisRunPreview,
+  abandonPreviewMechanicsJob,
+  beginSessionResultCustodyReset,
   cancelPreviewMechanicsJob,
   loadDesignKnowledge,
   loadBundledMechanicsReference,
@@ -63,7 +65,8 @@ import type {
   ModelHashEvidence,
   ProjectEnvelopeHashEvidence,
   PreviewModel,
-  SolveJobAuditState
+  SolveJobAuditState,
+  SolveResourceGrant
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
@@ -601,6 +604,11 @@ export function useWorkspaceSession() {
   // inspection) is released to the native custody ledger here, as is the held
   // result when the session ends.
   const heldResultRef = useRef<MechanicsResult | null>(null);
+  // A new webview session holds no delivered result, so whatever the native
+  // host still retains or counts as held by an earlier page is released once,
+  // before any solve can start (a start waits for it). Tauri runtime only; a
+  // failure never blocks the session.
+  useEffect(() => { void beginSessionResultCustodyReset(); }, []);
   useEffect(() => {
     const previous = heldResultRef.current;
     heldResultRef.current = result;
@@ -789,6 +797,10 @@ export function useWorkspaceSession() {
     let startedJob: SolveJobAuditState | null = null;
     // A delivered result this run did not publish is released in `finally`.
     let deliveredOutput: MechanicsResult | null = null;
+    // A started native job whose result this run has neither taken nor
+    // released; `finally` releases it, so no path leaves it retained natively.
+    // `completed` records that the job was seen completed (its result awaits a take).
+    let unsettledJob: { jobId: string; token: string; completed: boolean } | null = null;
     let publishedOutput = false;
     try {
       if (!model) {
@@ -830,25 +842,16 @@ export function useWorkspaceSession() {
       if (startReceipt.mode !== "backend_job") {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
       }
+      unsettledJob = { jobId: startReceipt.job_id, token: startReceipt.backend_cancellation_token, completed: false };
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
       ) {
-        if (
-          cancellationTombstone?.requested &&
-          !cancellationTombstone.dispatched &&
-          startReceipt.mode === "backend_job"
-        ) {
-          cancellationTombstone.dispatched = true;
-          void cancelPreviewMechanicsJob(
-            startReceipt.job_id,
-            startReceipt.backend_cancellation_token
-          ).catch(() => {
-            // The originating generation is already detached from visible UI.
-            // A failed best-effort cancellation must not resurrect stale state.
-          });
-        }
+        // The originating generation is already detached from visible UI: the
+        // started job is abandoned in `finally` (cancellation, then release of
+        // anything it retains); a failed best effort must not resurrect stale state.
+        if (cancellationTombstone) cancellationTombstone.dispatched = true;
         return;
       }
       if (startReceipt.mode !== "backend_job") throw new Error("BROWSER_REFERENCE_RECEIPT_NOT_A_CURRENT_SOLVE");
@@ -874,6 +877,7 @@ export function useWorkspaceSession() {
         }
       }
       let output: MechanicsResult;
+      let terminalResource: SolveResourceGrant | null = null;
       if (startReceipt.mode === "backend_job") {
         const visibleJobId = startedJob.job_id;
         const terminal = await awaitBackendSolveJob(startReceipt.job_id, (status) => {
@@ -881,11 +885,14 @@ export function useWorkspaceSession() {
           if (!solveRunGate.current.isCurrent(runGeneration)) return;
           setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
         });
-        if (!solveRunGate.current.isCurrent(runGeneration)) {
-          // A superseded run's completed result is released from native retention unread.
-          if (terminal.state === "completed") void discardPreviewMechanicsJobResult(startReceipt.job_id);
-          return;
+        terminalResource = terminal.resource;
+        // A completed job's result awaits a take; any other terminal job retains none.
+        if (terminal.job_id === startReceipt.job_id) {
+          if (terminal.state === "completed") unsettledJob.completed = true;
+          else unsettledJob = null;
         }
+        // A superseded run's completed result is released from native retention unread (`finally`).
+        if (!solveRunGate.current.isCurrent(runGeneration)) return;
         if (terminal.job_id !== startedJob.job_id) {
           throw new Error(
             `SOLVE-JOB-IDENTITY-MISMATCH: expected ${startedJob.job_id}; received ${terminal.job_id}`
@@ -911,14 +918,10 @@ export function useWorkspaceSession() {
         if (terminal.state !== "completed") throw terminalJobError(terminal);
         // The poll carries no result: take the producer's bytes. A refused take
         // (for example custody_full) is recorded as a typed refusal; the session
-        // does not retry it, so the natively retained result is released.
-        try {
-          output = await takePreviewMechanicsJobResult(startReceipt.job_id);
-        } catch (error) {
-          if (error instanceof ResourceUnavailableError) void discardPreviewMechanicsJobResult(startReceipt.job_id);
-          throw error;
-        }
+        // does not retry a failed take, so `finally` releases the retained result.
+        output = await takePreviewMechanicsJobResult(startReceipt.job_id);
         deliveredOutput = output;
+        unsettledJob = null;
       } else {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: browser references are not completed solve results.");
       }
@@ -945,8 +948,14 @@ export function useWorkspaceSession() {
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
+      // DEL-04-07: the run records the native grant it executed under.
+      const executionResources = terminalResource ?? startReceipt.resource;
+      if (!executionResources) {
+        throw new Error("SOLVE-RESOURCE-GRANT-MISSING: the native host reported no readable resource grant for this completed job.");
+      }
       const runRecord = await buildAnalysisRunPreview(output, {
-        inputManifest: manifest
+        inputManifest: manifest,
+        executionResources
       });
       if (
         modelRevision.current !== solveModelRevision ||
@@ -993,6 +1002,8 @@ export function useWorkspaceSession() {
       }
     } finally {
       if (deliveredOutput && !publishedOutput) void disposeDeliveredMechanicsResult(deliveredOutput);
+      if (unsettledJob?.completed) void discardPreviewMechanicsJobResult(unsettledJob.jobId);
+      else if (unsettledJob) void abandonPreviewMechanicsJob(unsettledJob.jobId, unsettledJob.token);
       solveCancellationTombstones.current.delete(runGeneration);
       if (activeSolveJob.current?.generation === runGeneration) {
         activeSolveJob.current = null;
@@ -1033,6 +1044,10 @@ export function useWorkspaceSession() {
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
     const capturedManifest = inputManifest;
+    // The revised record keeps exactly the grant the solve-time record holds.
+    const capturedResources = analysisRun?.analysis_run.run_id === capturedResult.run_id
+      ? analysisRun.analysis_run.execution_resources ?? null
+      : null;
     const capturedModelRevision = modelRevision.current;
     const capturedSolveGeneration = solveRunGate.current.current();
     const stillCurrent = () =>
@@ -1046,7 +1061,8 @@ export function useWorkspaceSession() {
     try {
       const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
           inputManifest: capturedManifest,
-          ruleCheckAggregate: aggregate
+          ruleCheckAggregate: aggregate,
+          executionResources: capturedResources
       });
       if (!stillCurrent()) return;
       setAnalysisRun(revisedRecord);

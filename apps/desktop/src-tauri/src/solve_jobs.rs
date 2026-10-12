@@ -3,7 +3,8 @@
 //!
 //! Ownership and accounting, in order:
 //! 1. Ingress: the raw body is prescanned without allocating
-//!    ([`crate::ingress::prescan`]); an ingress lease of `raw_len + bound` is
+//!    ([`crate::ingress::prescan`]); an ingress lease of the raw body's
+//!    allocation envelope plus the materialization bound is
 //!    admitted against the per-invocation budget and the pool *before*
 //!    `serde_json::from_slice` materializes the model.
 //! 2. Queue: the admitted input and its lease move into the worker, which
@@ -12,11 +13,14 @@
 //! 3. Solve: the ordinary (non-retained) facade runs under the slot and
 //!    `catch_unwind`; its stage is unpriced (`ordinary_unpriced`). The input
 //!    lease is released when the solve returns.
-//! 4. Result: a result lease for the result buffer's capacity is admitted;
-//!    the result is retained (bounded) until taken.
+//! 4. Result: the result buffer is shrunk to fit and a result lease for its
+//!    real allocation is admitted; the result is retained (bounded) until
+//!    taken. A start is refused early while retention is already full.
 //! 5. Handoff: taking the result grows its lease to 2R (handoff copy overlap),
 //!    moves the bytes out without cloning, and keeps the 2R custody lease until
-//!    the webview disposes its copy.
+//!    the webview disposes its copy. A freshly loaded webview holds no copy, so
+//!    [`SolveJobRegistry::dispose_all_results`] then releases every retained
+//!    result and custody lease (never a queued or running job's owners).
 //!
 //! Locks: the registry lock may be held while taking the pool lock (lease
 //! drop/grow); the pool never calls back into the registry under its lock.
@@ -79,7 +83,7 @@ pub(crate) struct JobResource {
     pub invocation_budget_bytes: u64,
     pub pool_bytes: u64,
     pub route_pricing: &'static str,
-    /// Bytes reserved by the ingress lease at admission (raw body + materialization bound).
+    /// Bytes reserved by the ingress lease at admission (raw body envelope + materialization bound).
     pub ingress_reserved_bytes: u64,
 }
 
@@ -125,6 +129,33 @@ pub(crate) struct SolveResultDisposal {
     pub released: bool,
     pub released_bytes: u64,
     pub delivered: bool,
+}
+
+/// What [`SolveJobRegistry::dispose_all_results`] released.
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub(crate) struct SolveResultsDisposal {
+    /// Records whose retained result and/or custody lease was released.
+    pub released_results: usize,
+    pub released_bytes: u64,
+}
+
+/// The bytes a result buffer actually occupies: on macOS the allocator's
+/// usable size of the block (the desktop uses the system allocator), elsewhere
+/// the allocation envelope of its capacity.
+fn result_allocation_bytes(result: &String) -> u64 {
+    let capacity = result.capacity() as u64;
+    let envelope = ingress::allocation_envelope(capacity).unwrap_or(u64::MAX);
+    #[cfg(target_os = "macos")]
+    if capacity > 0 {
+        // SAFETY: a non-zero-capacity String owns a live heap block from the
+        // global allocator (the system malloc); malloc_size only reads it.
+        let usable = unsafe { libc::malloc_size(result.as_ptr() as *const libc::c_void) } as u64;
+        // 0 means the block is not malloc's: fall back to the envelope.
+        if usable > 0 {
+            return usable.max(capacity);
+        }
+    }
+    envelope
 }
 
 /// The typed error of the job and pool commands.
@@ -328,9 +359,16 @@ impl SolveJobRegistry {
         }
         {
             let table = self.table();
-            let queued = table.counts().queued;
-            if queued >= MAX_QUEUED_JOBS {
-                return Err(self.unavailable_locked(&table, ResourceRefusal::QueueFull { queued, limit: MAX_QUEUED_JOBS }));
+            let counts = table.counts();
+            if counts.queued >= MAX_QUEUED_JOBS {
+                return Err(self.unavailable_locked(&table, ResourceRefusal::QueueFull { queued: counts.queued, limit: MAX_QUEUED_JOBS }));
+            }
+            // A result could not be retained: refuse before reserving or solving.
+            if counts.retained >= MAX_RETAINED_RESULTS {
+                return Err(self.unavailable_locked(
+                    &table,
+                    ResourceRefusal::RetentionFull { retained: counts.retained, limit: MAX_RETAINED_RESULTS },
+                ));
             }
         }
         // The reservation precedes the native Value.
@@ -503,15 +541,18 @@ impl SolveJobRegistry {
         }
     }
 
-    fn publish(&self, job_id: &str, result: String, slot: crate::memory_pool::UnpricedSolveSlot) {
+    fn publish(&self, job_id: &str, mut result: String, slot: crate::memory_pool::UnpricedSolveSlot) {
         if self.cancellation_requested(job_id) {
             drop(result);
             drop(slot);
             self.finish_cancelled(job_id, CANCELLED_AT_PUBLICATION, None);
             return;
         }
-        // The result buffer is priced at its capacity before the slot is released.
-        let lease = match self.pool.acquire(result.capacity() as u64, LeasePurpose::Result) {
+        // Shrink the buffer (up to 2x its length after serialization) to fit,
+        // still inside the unpriced solve stage, then price its real
+        // allocation before the slot is released.
+        result.shrink_to_fit();
+        let lease = match self.pool.acquire(result_allocation_bytes(&result), LeasePurpose::Result) {
             Ok(lease) => lease,
             Err(refusal) => {
                 drop(result);
@@ -625,6 +666,29 @@ impl SolveJobRegistry {
         drop(lease);
         table.prune();
         Ok(receipt)
+    }
+
+    /// Releases every retained-but-untaken result and every webview custody
+    /// lease: called when a freshly loaded webview provably holds no result
+    /// copy. Queued and running jobs are untouched (their owners are live in
+    /// their workers); their results publish and are retained as usual.
+    pub(crate) fn dispose_all_results(&self) -> SolveResultsDisposal {
+        let mut table = self.table();
+        let mut released = Vec::new();
+        for record in table.records.values_mut().filter(|r| r.state.terminal()) {
+            let result = record.result.take();
+            let lease = record.result_lease.take();
+            if result.is_some() || lease.is_some() {
+                released.push((result, lease));
+            }
+        }
+        let receipt = SolveResultsDisposal {
+            released_results: released.len(),
+            released_bytes: released.iter().filter_map(|(_, lease)| lease.as_ref()).map(Lease::bytes).sum(),
+        };
+        drop(released);
+        table.prune();
+        receipt
     }
 
     pub(crate) fn cancel(&self, job_id: &str, cancellation_token: &str) -> Result<SolveJobCancellationReceipt, String> {
@@ -859,8 +923,15 @@ mod tests {
             s.age = Duration::from_secs(3);
         });
         wait_for(&registry, &next.job_id, |s| matches!(s.queue_reason, Some(ResourceRefusal::HeadroomStale { .. })));
+        // An unreadable pressure level is reported as such, not as elevated.
+        host.set(|s| {
+            s.age = Duration::ZERO;
+            s.pressure = PressureLevel::Unknown;
+        });
+        wait_for(&registry, &next.job_id, |s| s.queue_reason == Some(ResourceRefusal::PressureUnknown));
+        assert_eq!(registry.start(MODEL, None).unwrap_err().refusal(), Some(&ResourceRefusal::PressureUnknown));
         assert_eq!(gate.calls.load(Ordering::SeqCst), 1);
-        host.set(|s| s.age = Duration::ZERO);
+        host.set(|s| s.pressure = PressureLevel::Normal);
         started(&gate);
         gate.release.send(Ok("{}".into())).unwrap();
         assert_eq!(wait_terminal(&registry, &next.job_id).state, "completed");
@@ -914,23 +985,43 @@ mod tests {
     #[test]
     fn retention_and_custody_bounds_refuse_without_losing_held_results() {
         let host = ScriptedHost::normal();
-        let registry = instant_registry(&host, "{\"r\":1}");
-        let mut jobs = Vec::new();
-        for _ in 0..MAX_RETAINED_RESULTS {
-            let receipt = registry.start(MODEL, None).unwrap();
-            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
-            jobs.push(receipt.job_id);
+        let (registry, gate) = gated_registry(&host);
+        // One running and MAX_QUEUED_JOBS queued are admitted while nothing is
+        // retained; the last to publish finds retention full (post-solve check).
+        let first = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        let mut started_jobs: Vec<_> = vec![first.job_id];
+        started_jobs.extend((0..MAX_QUEUED_JOBS).map(|_| registry.start(MODEL, None).unwrap().job_id));
+        for _ in 0..=MAX_QUEUED_JOBS {
+            gate.release.send(Ok("{\"r\":1}".into())).unwrap();
         }
-        let extra = registry.start(MODEL, None).unwrap();
-        let refused = wait_terminal(&registry, &extra.job_id);
-        assert_eq!(refused.state, "refused");
-        assert_eq!(refused.resource_refusal, Some(ResourceRefusal::RetentionFull { retained: 4, limit: 4 }));
+        let (mut jobs, mut refused) = (Vec::new(), Vec::new());
+        for job in started_jobs {
+            let status = wait_terminal(&registry, &job);
+            match status.state {
+                "completed" => jobs.push(job),
+                _ => refused.push(status),
+            }
+        }
+        while gate.started.try_recv().is_ok() {} // the queued jobs' start signals
+        assert_eq!((jobs.len(), refused.len()), (MAX_RETAINED_RESULTS, 1), "{refused:?}");
+        assert_eq!(refused[0].state, "refused");
+        assert_eq!(refused[0].resource_refusal, Some(ResourceRefusal::RetentionFull { retained: 4, limit: 4 }));
         assert_eq!(registry.pool_status().retained_results, 4);
+        let calls = gate.calls.load(Ordering::SeqCst);
+        // With retention full, a start is refused early: no reservation, no solve.
+        let reserved = registry.pool().reserved_total();
+        let early = registry.start(MODEL, None).unwrap_err();
+        assert_eq!(early.refusal(), Some(&ResourceRefusal::RetentionFull { retained: 4, limit: 4 }));
+        assert_eq!(registry.pool().reserved_total(), reserved);
+        assert_eq!(gate.calls.load(Ordering::SeqCst), calls, "the solver never ran");
         // Taking all four fills custody; a fifth take refuses and keeps its result.
         for job in &jobs {
             registry.take_result(job).unwrap();
         }
         let fifth = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        gate.release.send(Ok("{\"r\":1}".into())).unwrap();
         assert_eq!(wait_terminal(&registry, &fifth.job_id).state, "completed");
         let refusal = registry.take_result(&fifth.job_id).unwrap_err();
         assert_eq!(refusal.refusal(), Some(&ResourceRefusal::CustodyFull { delivered: 4, limit: 4 }));
@@ -939,6 +1030,8 @@ mod tests {
         registry.take_result(&fifth.job_id).unwrap();
         // Disposing a retained-but-untaken result drops it too.
         let untaken = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        gate.release.send(Ok("{\"r\":1}".into())).unwrap();
         wait_terminal(&registry, &untaken.job_id);
         assert!(registry.dispose_result(&untaken.job_id).unwrap().released);
         assert!(!registry.status(&untaken.job_id).unwrap().result_available);
@@ -948,6 +1041,79 @@ mod tests {
         assert_eq!(registry.pool().reserved_total(), 0);
         let status = registry.pool_status();
         assert_eq!((status.retained_results, status.webview_custody_results), (0, 0));
+    }
+
+    #[test]
+    fn dispose_all_releases_retained_and_custody_but_spares_live_jobs() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated_registry(&host);
+        // Two retained results; one of them taken into custody.
+        let mut done = Vec::new();
+        for _ in 0..2 {
+            let receipt = registry.start(MODEL, None).unwrap();
+            started(&gate);
+            gate.release.send(Ok("{\"r\":1}".into())).unwrap();
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+            done.push(receipt.job_id);
+        }
+        registry.take_result(&done[0]).unwrap();
+        // A running job and a queued job hold their own ingress leases.
+        let running = registry.start(MODEL, None).unwrap();
+        started(&gate);
+        let queued = registry.start(MODEL, None).unwrap();
+        let live_ingress = running.resource.ingress_reserved_bytes + queued.resource.ingress_reserved_bytes;
+        let held = registry.pool().reserved(LeasePurpose::Result) + registry.pool().reserved(LeasePurpose::Custody);
+        assert!(held > 0);
+
+        let disposal = registry.dispose_all_results();
+        assert_eq!(disposal, SolveResultsDisposal { released_results: 2, released_bytes: held });
+        assert_eq!(registry.pool().reserved(LeasePurpose::Result) + registry.pool().reserved(LeasePurpose::Custody), 0);
+        assert_eq!(registry.pool().reserved(LeasePurpose::Ingress), live_ingress, "live jobs keep their leases");
+        let status = registry.pool_status();
+        assert_eq!((status.retained_results, status.webview_custody_results), (0, 0));
+        assert_eq!((status.running_jobs, status.queued_jobs), (1, 1));
+        for job in &done {
+            let after = registry.status(job).unwrap();
+            assert!(!after.result_available && after.state == "completed");
+        }
+        assert_eq!(registry.dispose_all_results(), SolveResultsDisposal { released_results: 0, released_bytes: 0 });
+
+        // The live jobs still complete and are retained as usual.
+        gate.release.send(Ok("{\"r\":2}".into())).unwrap();
+        started(&gate);
+        gate.release.send(Ok("{\"r\":3}".into())).unwrap();
+        for job in [&running.job_id, &queued.job_id] {
+            assert!(wait_terminal(&registry, job).result_available);
+        }
+        assert_eq!(registry.dispose_all_results().released_results, 2);
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    #[test]
+    fn result_lease_covers_the_shrunk_buffer_not_its_spare_capacity() {
+        let host = ScriptedHost::normal();
+        let pool = MemoryPool::with_wait_tick(host.clone(), Duration::from_millis(5));
+        let solve: SolveFn = Arc::new(|_, _| {
+            let mut text = String::with_capacity(1 << 20);
+            text.push_str("{\"r\":1}");
+            Ok(text)
+        });
+        let registry = SolveJobRegistry::with_hooks(pool, solve, Arc::new(thread_spawn));
+        let receipt = registry.start(MODEL, None).unwrap();
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        let leased = registry.pool().reserved(LeasePurpose::Result);
+        assert!((7..=16).contains(&leased), "lease {leased} covers the 7-byte result's block, not 1 MiB");
+        assert_eq!(registry.take_result(&receipt.job_id).unwrap(), b"{\"r\":1}");
+        registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!(registry.pool().reserved_total(), 0);
+        // The lease covers the block's real size.
+        let text = String::from("x").repeat(32_769);
+        let bytes = result_allocation_bytes(&text);
+        assert!(bytes >= text.capacity() as u64);
+        #[cfg(target_os = "macos")]
+        // SAFETY: a live heap block owned by `text`.
+        assert_eq!(bytes, unsafe { libc::malloc_size(text.as_ptr() as *const libc::c_void) } as u64);
+        assert_eq!(result_allocation_bytes(&String::new()), 0);
     }
 
     #[test]

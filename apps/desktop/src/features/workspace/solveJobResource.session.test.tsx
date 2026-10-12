@@ -7,7 +7,8 @@ import modelFixture from "../../../../../core/product_physics/tests/fixtures/pre
 import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { getLocalStorageCapability } from "../../services/projectService";
-import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
+import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
+import { verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
@@ -21,17 +22,19 @@ type Hook = (command: string, args: unknown, options: unknown, forward: () => Pr
 afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
+  resetSessionResultCustodyForTests();
   window.localStorage.clear();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-async function session(hook: Hook = () => undefined) {
+let sessionSequence = 0;
+async function session(hook: Hook = () => undefined, { tauri = true }: { tauri?: boolean } = {}) {
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
     return solveBytes(sourceFixture);
-  }, { jobIdPrefix: "unit-memory-session" });
+  }, { jobIdPrefix: `unit-memory-session:${++sessionSequence}` });
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
@@ -42,7 +45,7 @@ async function session(hook: Hook = () => undefined) {
     if (hooked) return hooked;
     return forward();
   });
-  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  if (tauri) (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   const rendered = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(rendered.result.current.model.model).not.toBeNull());
   await waitFor(() => expect(rendered.result.current.model.modelHash).not.toBeNull());
@@ -91,12 +94,18 @@ it("shows the native queue reason while the job waits, then records the grant wi
   // model document; it is read through the browser download route here.
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
   const panel = renderSolvePanel(result.current);
-  expect(within(panel.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("budget=12 GiB; pool=12 GiB; route=ordinary_unpriced; refusal=none");
+  expect(within(panel.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("intake/custody budget=12 GiB; pool=12 GiB; route=ordinary_unpriced (solve not bounded by the budget); refusal=none");
   fireEvent.click(within(panel.container).getByTestId("solve-job-export-link-local-private-intent"));
   const href = within(panel.container).getByTestId("solve-job-export-link").getAttribute("href")!;
   const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
   expect(packet.resource).toMatchObject({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced", ordinary_route_byte_bound_claimed: false, refusal: null });
   expect(JSON.stringify(result.current.model.model)).not.toMatch(/budget|pool_bytes/);
+  // The run's analysis record carries the same grant (DEL-04-07), under its record checksum.
+  const record = result.current.results.analysisRun!;
+  expect(record.analysis_run.execution_resources).toEqual({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced", ingress_reserved_bytes: done.resource.ingress_reserved_bytes });
+  expect(done.resource.ingress_reserved_bytes).toEqual(expect.any(Number));
+  expect(await verifyAnalysisRunRecord(record)).toBe("match");
+  expect(JSON.stringify(result.current.model.model)).not.toMatch(/execution_resources|ordinary_unpriced/);
 });
 
 it("records a refused terminal job as a typed refusal with its budget, takes nothing and publishes no result", async () => {
@@ -119,6 +128,17 @@ it("records a refused terminal job as a typed refusal with its budget, takes not
   );
   expect(within(view.container).queryByTestId("solve-job-error")).toBeNull();
   expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
+  // A refused run makes no analysis record; its typed refusal and budget are recoverable from the solve-job export.
+  expect(result.current.results.analysisRun).toBeNull();
+  view.unmount();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+  const panel = renderSolvePanel(result.current);
+  fireEvent.click(within(panel.container).getByTestId("solve-job-export-link-local-private-intent"));
+  const href = within(panel.container).getByTestId("solve-job-export-link").getAttribute("href")!;
+  const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
+  expect(packet.resource).toMatchObject({ invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_unpriced", refusal,
+    refusal_reason: "The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved." });
+  expect(packet.analysis_run_ref).toBeNull();
 });
 
 it("records a refused start with the pool status the native side reported", async () => {
@@ -181,4 +201,96 @@ it("releases a delivered result when a new solve replaces it, when reference ins
   unmount();
   await waitFor(() => expect(transport.custody()).toEqual([]));
   expect(commands().filter((command) => command === "dispose_preview_mechanics_result")).toHaveLength(3);
+});
+
+it("releases earlier native custody once when the session starts in the Tauri runtime, before its first solve", async () => {
+  const { result, transport, unmount } = await session();
+  await waitFor(() => expect(transport.disposeAllCount()).toBe(1));
+  await act(async () => { await result.current.results.handleRun(); });
+  await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
+  const sequence = commands().filter((command) => command.includes("preview_mechanics"));
+  expect(sequence[0]).toBe("dispose_all_preview_mechanics_results");
+  expect(sequence.indexOf("start_preview_mechanics_job")).toBeGreaterThan(0);
+  // A second session in the same webview does not release again: it may already hold results.
+  unmount();
+  renderHook(() => useWorkspaceSession());
+  await act(async () => { await Promise.resolve(); });
+  expect(commands().filter((command) => command === "dispose_all_preview_mechanics_results")).toHaveLength(1);
+});
+
+it("issues no session-start release in the browser fixture mode", async () => {
+  const { result } = await session(undefined, { tauri: false });
+  await act(async () => { await Promise.resolve(); });
+  expect(result.current.model.model).not.toBeNull();
+  expect(commands()).not.toContain("dispose_all_preview_mechanics_results");
+});
+
+it("abandons a started job whose poll fails: requests its cancellation, then releases anything it retains", async () => {
+  const { result, transport } = await session((command) => command === "poll_preview_mechanics_job"
+    ? Promise.reject(new Error("invented poll IPC failure"))
+    : undefined);
+  await act(async () => { await result.current.results.handleRun(); });
+  expect(result.current.results.solveJob.state).toBe("failed");
+  expect(result.current.results.result).toBeNull();
+  await waitFor(() => expect(commands()).toContain("dispose_preview_mechanics_result"));
+  const jobCommands = commands().filter((command) => command !== "dispose_all_preview_mechanics_results" && command.includes("preview_mechanics"));
+  expect(jobCommands).toEqual(["start_preview_mechanics_job", "poll_preview_mechanics_job", "cancel_preview_mechanics_job", "dispose_preview_mechanics_result"]);
+  const jobId = result.current.results.solveJob.job_id;
+  const cancel = invokeMock.mock.calls.find(([command]) => command === "cancel_preview_mechanics_job")![1] as { jobId: string };
+  expect(jobId).toContain(cancel.jobId);
+  expect(transport.custody()).toEqual([]);
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+});
+
+it("releases a completed job's result when the take fails for a reason other than a typed refusal", async () => {
+  const { result, transport } = await session((command) => command === "take_preview_mechanics_job_result"
+    ? Promise.reject(new Error("invented take IPC failure"))
+    : undefined);
+  await act(async () => { await result.current.results.handleRun(); });
+  expect(result.current.results.solveJob.state).toBe("failed");
+  await waitFor(() => expect(transport.disposed()).toHaveLength(1));
+  expect(commands()).not.toContain("cancel_preview_mechanics_job");
+  expect(transport.custody()).toEqual([]);
+});
+
+it("keeps the run's recorded grant when a rule-check aggregate revises its analysis record", async () => {
+  const { result } = await session();
+  await act(async () => { await result.current.results.handleRun(); });
+  await waitFor(() => expect(result.current.results.analysisRun).not.toBeNull());
+  const first = result.current.results.analysisRun!;
+  const grant = first.analysis_run.execution_resources;
+  expect(grant).toMatchObject({ invocation_budget_bytes: 12 * GiB, route_pricing: "ordinary_unpriced" });
+  const { projectSessionGeneration, uiModelRevision } = result.current.model;
+  await act(async () => {
+    await result.current.results.handleRuleCheckAggregate("USER_RULE_CHECKED", {
+      projectSessionGeneration, modelRevision: uiModelRevision,
+      result: result.current.results.currentSolvedResult, inputManifest: result.current.results.inputManifest
+    });
+  });
+  await waitFor(() => expect(result.current.results.analysisRun).not.toBe(first));
+  const revised = result.current.results.analysisRun!;
+  expect(revised.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+  expect(revised.analysis_run.execution_resources).toEqual(grant);
+  expect(await verifyAnalysisRunRecord(revised)).toBe("match");
+});
+
+it("abandons a job whose run is superseded while its start is in flight, so its result is never left retained", async () => {
+  let answerStart!: () => void;
+  const startGate = new Promise<void>((resolve) => { answerStart = resolve; });
+  const { result, transport } = await session((command, _args, _options, forward) => command === "start_preview_mechanics_job"
+    ? startGate.then(forward)
+    : undefined);
+  let running!: Promise<void>;
+  act(() => { running = result.current.results.handleRun(); });
+  await waitFor(() => expect(commands()).toContain("start_preview_mechanics_job"));
+  // The run is superseded (reference inspection retires it) before the start answers.
+  await act(async () => { await result.current.results.handleInspectBundledReference(); });
+  await act(async () => { answerStart(); await running; });
+  const { job_id: jobId } = await (invokeMock.mock.results[commands().indexOf("start_preview_mechanics_job")].value as Promise<{ job_id: string }>);
+  const forJob = () => invokeMock.mock.calls.filter(([, args]) => (args as { jobId?: string } | undefined)?.jobId === jobId).map(([command]) => command);
+  await waitFor(() => expect(forJob()).toContain("dispose_preview_mechanics_result"));
+  expect(forJob()).toEqual(["cancel_preview_mechanics_job", "dispose_preview_mechanics_result"]);
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+  expect(transport.custody()).toEqual([]);
+  expect(result.current.results.result).toBeNull();
 });

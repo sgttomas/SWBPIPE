@@ -1787,13 +1787,14 @@ fn solve_preview_mechanics_value_with_mode(
 }
 
 /// A solve always carries the session's model document; there is no implicit model.
+#[cfg(test)]
 fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
     model.ok_or_else(|| "PREVIEW-SOLVE-MODEL-REQUIRED: a solve carries the session's model document.".to_string())
 }
 
 use solve_jobs::{
     SolveJobCancellationReceipt, SolveJobError, SolveJobRegistry, SolveJobStartReceipt, SolveJobStatusReport,
-    SolveResultDisposal,
+    SolveResultDisposal, SolveResultsDisposal,
 };
 
 /// Starts a preview solve job (the desktop's one solve path). The body is the
@@ -1846,6 +1847,14 @@ fn dispose_preview_mechanics_result(
     job_id: String,
 ) -> Result<SolveResultDisposal, SolveJobError> {
     state.dispose_result(&job_id)
+}
+
+/// Releases every retained-but-untaken result and every webview custody lease.
+/// The frontend calls it on page load, when a fresh webview provably holds no
+/// result copy. Queued and running jobs are untouched.
+#[tauri::command]
+fn dispose_all_preview_mechanics_results(state: tauri::State<'_, SolveJobRegistry>) -> SolveResultsDisposal {
+    state.dispose_all_results()
 }
 
 #[tauri::command]
@@ -2815,7 +2824,6 @@ fn run_rule_checks(
     )?;
     let invocation = source_block_invocation;
     qualify_rule_mechanics_with_context(supplied_model, &envelope, invocation.as_ref())?;
-    let solved_envelope = Some(envelope);
     // Resolve `private_library_value` inputs from the local private-library
     // store (C3 rule-pack <-> library reference wiring). Library values are read
     // at run time and never embedded in the rule pack (IP boundary). A reference
@@ -2824,7 +2832,7 @@ fn run_rule_checks(
     let resolved_project = resolve_rule_check_project_id(
         project_id.as_deref(),
         model.as_ref(),
-        solved_envelope.as_ref(),
+        Some(&envelope),
     );
     let library_value_bindings = match resolved_project {
         Some(project) => Some(resolve_library_value_bindings(
@@ -2836,8 +2844,7 @@ fn run_rule_checks(
     };
     run_rule_checks_core(
         rule_pack_document,
-        model,
-        solved_envelope,
+        envelope,
         solver_result_bindings,
         supplied_value_bindings,
         library_value_bindings,
@@ -2897,11 +2904,11 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
 
 /// Store-free rule-check orchestration. The Tauri command resolves library
 /// references from the local store into `library_value_bindings`, then calls
-/// this; tests target it directly with already-resolved bindings.
+/// this; tests target it directly with already-resolved bindings. It requires
+/// the solved envelope: it never solves (every solve runs in the pool's slot).
 fn run_rule_checks_core(
     rule_pack_document: Value,
-    model: Option<Value>,
-    solved_envelope: Option<Value>,
+    envelope: Value,
     solver_result_bindings: Option<Value>,
     supplied_value_bindings: Option<Value>,
     library_value_bindings: Option<Value>,
@@ -2924,11 +2931,6 @@ fn run_rule_checks_core(
             "professional_boundary_notice": rule_check_runner::PROFESSIONAL_BOUNDARY_NOTICE,
         }));
     }
-
-    let envelope = match solved_envelope {
-        Some(value) => value,
-        None => solve_preview_mechanics(resolve_solve_model_payload(model)?)?,
-    };
 
     // Solver values for `solver_result` inputs come from two sources: an
     // authored in-pack `solver_result_ref` (the additive solver-result-selector
@@ -4744,6 +4746,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
 
 /// Run the native packaged-binary persistence proof in a unique, disposable
 /// file-backed SQLite store and remove that store before returning.
+/// Its solves run outside the memory pool: this is a separate self-test process mode, not an app job.
 pub fn run_packaged_saved_edited_load_self_test() -> Result<Value, String> {
     let nonce = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -4789,6 +4792,7 @@ macro_rules! app_invoke_handler {
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
             dispose_preview_mechanics_result,
+            dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,
             get_memory_pool_status,
             configure_memory_pool,
@@ -7805,8 +7809,7 @@ mod tests {
     fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
         let outcome = run_rule_checks_core(
             example_rule_pack_document(),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -7822,8 +7825,7 @@ mod tests {
     fn run_rule_checks_command_normalizes_compatible_rule_check_units() {
         let outcome = run_rule_checks_core(
             example_rule_pack_with_stress_unit("Pa"),
-            None,
-            Some(demo_solved_envelope_with_unit(0.05, "MPa")),
+            demo_solved_envelope_with_unit(0.05, "MPa"),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values_with_stress_unit(100.0, "kPa")),
             None,
@@ -7853,8 +7855,7 @@ mod tests {
     fn run_rule_checks_command_failing_case_reports_user_rule_failed() {
         let outcome = run_rule_checks_core(
             example_rule_pack_document(),
-            None,
-            Some(demo_solved_envelope(150.0)),
+            demo_solved_envelope(150.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -7869,8 +7870,7 @@ mod tests {
         // No solver selectors -> the solver_result input is unsupplied.
         let outcome = run_rule_checks_core(
             example_rule_pack_document(),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             None,
             Some(demo_supplied_values()),
             None,
@@ -7884,8 +7884,7 @@ mod tests {
     fn run_rule_checks_command_rejects_blocking_invalid_pack() {
         let outcome = run_rule_checks_core(
             json!({ "not": "a valid rule pack" }),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -7898,8 +7897,7 @@ mod tests {
     fn run_rule_checks_command_emits_only_status_vocabulary() {
         let outcome = run_rule_checks_core(
             example_rule_pack_document(),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -8250,8 +8248,7 @@ mod tests {
         }]);
         let outcome = run_rule_checks_core(
             pack_with_library_ref(),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             Some(library_bindings),
@@ -8277,8 +8274,7 @@ mod tests {
         // a silent pass).
         let outcome = run_rule_checks_core(
             pack_with_library_ref(),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -8295,8 +8291,7 @@ mod tests {
         // member retiring the caller-supplied solver binding.
         let outcome = run_rule_checks_core(
             pack_with_solver_result_ref("result:stress:demo"),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             None,
             Some(demo_supplied_values()),
             None,
@@ -8324,8 +8319,7 @@ mod tests {
         // is a deferred non-goal). Never a silent pass.
         let outcome = run_rule_checks_core(
             pack_with_solver_result_ref("result:absent"),
-            None,
-            Some(demo_solved_envelope(50.0)),
+            demo_solved_envelope(50.0),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
             None,
@@ -8349,7 +8343,7 @@ mod tests {
             (pack_with_solver_result_ref("result:stress:demo"), None),
             (example_rule_pack_document(), Some(demo_solver_selectors())),
         ] {
-            let outcome = run_rule_checks_core(pack, None, Some(envelope.clone()), selectors, Some(demo_supplied_values()), None)
+            let outcome = run_rule_checks_core(pack, envelope.clone(), selectors, Some(demo_supplied_values()), None)
                 .expect("rule checks run");
             assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
             assert!(outcome["checks"][0]["completeness_findings"].as_array().unwrap().iter().any(|f| f["code"] == json!(reason)));
@@ -8358,7 +8352,7 @@ mod tests {
         assert!(resolve_solver_result_bindings(Some(&demo_solver_selectors()), &envelope, &mut refused).unwrap().is_empty());
         assert_eq!(refused.len(), 1);
         assert_eq!(refused[0].reason, reason);
-        let outcome = run_rule_checks_core(pack_with_solver_result_ref("result:force:demo"), None, Some(envelope), None, Some(demo_supplied_values()), None)
+        let outcome = run_rule_checks_core(pack_with_solver_result_ref("result:force:demo"), envelope, None, Some(demo_supplied_values()), None)
             .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
     }

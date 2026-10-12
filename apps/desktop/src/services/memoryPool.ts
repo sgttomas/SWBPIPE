@@ -36,6 +36,8 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
       return `The free-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new solve is admitted until it refreshes.`;
     case "headroom_insufficient":
       return `Not enough free memory on this Mac right now: needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
+    case "pressure_unknown":
+      return "macOS did not report a memory-pressure state, so no new solve is admitted.";
     case "pressure_elevated":
       return `macOS reports memory pressure (${refusal.level}), so no new solve is admitted until it returns to normal.`;
     case "pool_exhausted":
@@ -77,6 +79,7 @@ export function parseResourceRefusal(value: unknown): ResourceRefusal | null {
   switch (kind) {
     case "capacity_unknown":
     case "headroom_unknown":
+    case "pressure_unknown":
     case "solve_slot_busy":
       return { kind };
     case "headroom_stale":
@@ -84,7 +87,8 @@ export function parseResourceRefusal(value: unknown): ResourceRefusal | null {
     case "headroom_insufficient":
       return counts("required_bytes", "available_bytes") ? { kind, ...pick("required_bytes", "available_bytes") } : null;
     case "pressure_elevated":
-      return typeof value.level === "string" && value.level ? { kind, level: value.level } : null;
+      // Elevated pressure is warning or critical; an unreported state is its own kind.
+      return value.level === "warning" || value.level === "critical" ? { kind, level: value.level } : null;
     case "pool_exhausted":
       return counts("requested_bytes", "reserved_bytes", "pool_bytes") ? { kind, ...pick("requested_bytes", "reserved_bytes", "pool_bytes") } : null;
     case "budget_unqualified":

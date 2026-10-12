@@ -10,8 +10,9 @@
 //! `raw_value`, `unbounded_depth`; not `preserve_order`, not
 //! `arbitrary_precision`), the parser's scratch buffer, one reallocation
 //! transient, the float parser's bignum transients, an error allocation and the
-//! native solve request wrapper ([`native_request`]). Every
-//! allocation is priced with the macOS malloc size classes ([`malloc_price`]).
+//! native solve request wrapper ([`native_request`]). Every allocation is
+//! priced by its allocation envelope ([`allocation_envelope`]), which does not
+//! depend on the allocator's size-class table.
 //!
 //! The prescan itself does not allocate: it walks the bytes once with a
 //! fixed-size stack of per-container counters.
@@ -23,7 +24,7 @@ pub(crate) const MAX_NESTING: usize = 127;
 /// `size_of::<serde_json::Value>()` for the configuration above.
 const VALUE_BYTES: u64 = 32;
 /// `BTreeMap<String, Value>` leaf node (632 B) and internal node (728 B); a
-/// node of either kind is priced as the larger, `malloc_price(728)`.
+/// node of either kind is priced as the larger, `allocation_envelope(728)`.
 const BTREE_LEAF_NODE_BYTES: u64 = 632;
 const BTREE_INTERNAL_NODE_BYTES: u64 = 728;
 /// Insert-only construction keeps every non-root node at >= 5 entries, so an
@@ -47,16 +48,24 @@ const SCRATCH_ESCAPE_SLACK: u64 = 4;
 /// significand (20 digits) and one leading zero.
 const SCRATCH_NUMBER_SLACK: u64 = 21;
 
-/// macOS malloc size classes: tiny (16 B quanta) up to 1008 B, small (512 B
-/// quanta) up to 128 KiB, large (16 KiB pages) above.
-pub(crate) fn malloc_price(size: u64) -> Option<u64> {
-    let quantum = match size {
-        0 => return Some(0),
-        1..=1008 => 16,
-        1009..=131_072 => 512,
-        _ => 16_384,
-    };
-    size.checked_add(quantum - 1).map(|v| v / quantum * quantum)
+/// The usable bytes the allocator may hand back for a request of `size` bytes.
+///
+/// Assumption: the system allocator rounds a request of s >= 1 bytes to at
+/// most the next power of two, and never below 16 bytes. This holds for
+/// every class of macOS 26 xzone malloc (measured: 257 -> 320, 728 -> 768,
+/// 1008 -> 1024, 4097 -> 5120, 32769 -> 49152, 131073 -> 147456; large
+/// allocations are 16 KiB-page rounded) and for the legacy libmalloc
+/// tiny/small/large classes, and is checked against `malloc_size` of every
+/// live allocation by `ingress_bound_covers_measured_materialization`. It is
+/// deliberately independent of the class table, which differs between
+/// allocator generations. Looseness: for s > 8 the envelope is < 2s, so it is
+/// < 2x any real class (every class is >= its request). `None` when the next
+/// power of two overflows (the caller refuses the input).
+pub(crate) fn allocation_envelope(size: u64) -> Option<u64> {
+    match size {
+        0 => Some(0),
+        _ => size.checked_next_power_of_two().map(|p| p.max(16)),
+    }
 }
 
 /// The native solve request `{"model": model, "materials": []}`, built by
@@ -73,21 +82,27 @@ pub(crate) fn native_request(model: serde_json::Value) -> serde_json::Value {
 /// strings ("model", "materials"); the empty array and the moved model
 /// allocate nothing further.
 pub(crate) fn wrapper_bytes() -> u64 {
-    malloc_price(BTREE_LEAF_NODE_BYTES).unwrap() + malloc_price(5).unwrap() + malloc_price(9).unwrap()
+    allocation_envelope(BTREE_LEAF_NODE_BYTES.max(BTREE_INTERNAL_NODE_BYTES)).unwrap()
+        + allocation_envelope(5).unwrap()
+        + allocation_envelope(9).unwrap()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct IngressBound {
-    /// The raw body, already buffered by the IPC layer before the command runs.
+    /// The raw body's length, already buffered by the IPC layer before the command runs.
     pub raw_len: u64,
     /// Upper bound on the heap bytes of the native materialization.
     pub materialization_bytes: u64,
 }
 
 impl IngressBound {
-    /// Bytes the ingress lease covers: the buffered body plus its materialization.
+    /// Bytes the ingress lease covers: the buffered body, priced by the
+    /// allocation envelope of its length (its buffer's capacity is not visible
+    /// to the command), plus its materialization. Residual outside this bound:
+    /// wry/Tauri may hold more than one copy of the body before the command
+    /// runs; those copies are not ours to price or release.
     pub(crate) fn lease_bytes(&self) -> Option<u64> {
-        self.raw_len.checked_add(self.materialization_bytes)
+        allocation_envelope(self.raw_len)?.checked_add(self.materialization_bytes)
     }
 }
 
@@ -159,7 +174,7 @@ impl Scan<'_> {
     }
 
     fn add_tree(&mut self, bytes: u64) -> Result<(), IngressInvalid> {
-        let priced = malloc_price(bytes).ok_or(invalid("input too large to price", self.index))?;
+        let priced = allocation_envelope(bytes).ok_or(invalid("input too large to price", self.index))?;
         self.tree = self.tree.checked_add(priced).ok_or(invalid("input too large to price", self.index))?;
         Ok(())
     }
@@ -313,7 +328,7 @@ impl Scan<'_> {
         if frame.object {
             if frame.count > 0 {
                 let nodes = frame.count / BTREE_MIN_NON_ROOT_ENTRIES + 1;
-                let node = malloc_price(BTREE_INTERNAL_NODE_BYTES.max(BTREE_LEAF_NODE_BYTES)).unwrap();
+                let node = allocation_envelope(BTREE_INTERNAL_NODE_BYTES.max(BTREE_LEAF_NODE_BYTES)).unwrap();
                 let bytes = nodes.checked_mul(node).ok_or(too_large)?;
                 self.tree = self.tree.checked_add(bytes).ok_or(too_large)?;
             }
@@ -323,7 +338,7 @@ impl Scan<'_> {
             let buffer = capacity.checked_mul(VALUE_BYTES).ok_or(too_large)?;
             self.add_tree(buffer)?;
             if capacity > 4 {
-                let previous = malloc_price(capacity / 2 * VALUE_BYTES).ok_or(too_large)?;
+                let previous = allocation_envelope(capacity / 2 * VALUE_BYTES).ok_or(too_large)?;
                 self.largest_array_transient = self.largest_array_transient.max(previous);
             }
         }
@@ -455,8 +470,8 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
         0
     } else {
         let capacity = scan.largest_scratch.checked_mul(2).ok_or(too_large)?.max(SCRATCH_MIN_CAPACITY);
-        malloc_price(capacity)
-            .and_then(|c| c.checked_add(malloc_price(capacity / 2)?))
+        allocation_envelope(capacity)
+            .and_then(|c| c.checked_add(allocation_envelope(capacity / 2)?))
             .ok_or(too_large)?
     };
     let float = if scan.float_path_seen { FLOAT_PARSE_ALLOWANCE_BYTES } else { 0 };
@@ -470,7 +485,8 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
 #[cfg(test)]
 pub(crate) mod counting {
     //! Per-thread allocation accounting for the ingress bound tests: tracks the
-    //! live requested bytes and the live bytes priced by `malloc_price`.
+    //! live requested bytes, the live bytes priced by `allocation_envelope`
+    //! and (macOS) the live real usable sizes reported by `malloc_size`.
     use std::alloc::{GlobalAlloc, Layout, System};
     use std::cell::Cell;
 
@@ -482,32 +498,58 @@ pub(crate) mod counting {
         static PEAK: Cell<i64> = const { Cell::new(0) };
         static LIVE_PRICED: Cell<i64> = const { Cell::new(0) };
         static PEAK_PRICED: Cell<i64> = const { Cell::new(0) };
+        static LIVE_REAL: Cell<i64> = const { Cell::new(0) };
+        static PEAK_REAL: Cell<i64> = const { Cell::new(0) };
         static ALLOCATIONS: Cell<u64> = const { Cell::new(0) };
     }
 
     fn price(size: usize) -> i64 {
-        super::malloc_price(size as u64).unwrap_or(u64::MAX) as i64
+        super::allocation_envelope(size as u64).unwrap_or(u64::MAX) as i64
+    }
+
+    /// The allocator's real usable size of a live block (0 where unknown).
+    fn usable(ptr: *mut u8) -> i64 {
+        #[cfg(target_os = "macos")]
+        {
+            // SAFETY: `ptr` is a live block returned by the system allocator.
+            (unsafe { libc::malloc_size(ptr as *const libc::c_void) }) as i64
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = ptr;
+            0
+        }
+    }
+
+    fn active() -> bool {
+        ACTIVE.try_with(Cell::get).unwrap_or(false)
+    }
+
+    /// Adds `added`, records the peak, then removes `removed` (both live across).
+    fn bump(live: &'static std::thread::LocalKey<Cell<i64>>, peak: &'static std::thread::LocalKey<Cell<i64>>, added: i64, removed: i64) {
+        live.with(|live| {
+            live.set(live.get() + added);
+            peak.with(|peak| peak.set(peak.get().max(live.get())));
+            live.set(live.get() - removed);
+        });
     }
 
     fn record(added: usize, removed: usize, counts_as_allocation: bool) {
-        let _ = ACTIVE.try_with(|active| {
-            if !active.get() {
-                return;
-            }
-            if counts_as_allocation {
-                ALLOCATIONS.with(|c| c.set(c.get() + 1));
-            }
-            LIVE.with(|live| {
-                live.set(live.get() + added as i64);
-                PEAK.with(|peak| peak.set(peak.get().max(live.get())));
-                live.set(live.get() - removed as i64);
-            });
-            LIVE_PRICED.with(|live| {
-                live.set(live.get() + if added > 0 { price(added) } else { 0 });
-                PEAK_PRICED.with(|peak| peak.set(peak.get().max(live.get())));
-                live.set(live.get() - if removed > 0 { price(removed) } else { 0 });
-            });
-        });
+        if !active() {
+            return;
+        }
+        if counts_as_allocation {
+            ALLOCATIONS.with(|c| c.set(c.get() + 1));
+        }
+        bump(&LIVE, &PEAK, added as i64, removed as i64);
+        let priced = |size: usize| if size > 0 { price(size) } else { 0 };
+        bump(&LIVE_PRICED, &PEAK_PRICED, priced(added), priced(removed));
+    }
+
+    fn record_real(added: i64, removed: i64) {
+        if active() {
+            bump(&LIVE_REAL, &PEAK_REAL, added, removed);
+        }
     }
 
     unsafe impl GlobalAlloc for CountingAllocator {
@@ -515,6 +557,7 @@ pub(crate) mod counting {
             let ptr = unsafe { System.alloc(layout) };
             if !ptr.is_null() {
                 record(layout.size(), 0, true);
+                record_real(usable(ptr), 0);
             }
             ptr
         }
@@ -522,18 +565,30 @@ pub(crate) mod counting {
             let ptr = unsafe { System.alloc_zeroed(layout) };
             if !ptr.is_null() {
                 record(layout.size(), 0, true);
+                record_real(usable(ptr), 0);
             }
             ptr
         }
         unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+            let real = usable(ptr);
             unsafe { System.dealloc(ptr, layout) };
             record(0, layout.size(), false);
+            record_real(0, real);
         }
         unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+            let old_real = usable(ptr);
             let new = unsafe { System.realloc(ptr, layout, new_size) };
             if !new.is_null() {
-                // Old and new buffers are both counted live across the move.
+                // Priced: old and new buffers are both counted live across the move.
                 record(new_size, layout.size(), true);
+                // Real: a moved block coexisted with the old one; an in-place
+                // resize changes the live size by the difference.
+                let new_real = usable(new);
+                if new == ptr {
+                    record_real(new_real.saturating_sub(old_real).max(0), old_real.saturating_sub(new_real).max(0));
+                } else {
+                    record_real(new_real, old_real);
+                }
             }
             new
         }
@@ -543,12 +598,14 @@ pub(crate) mod counting {
     pub struct Measured {
         pub peak_requested: u64,
         pub peak_priced: u64,
+        /// Peak live `malloc_size` total (macOS; 0 elsewhere).
+        pub peak_real: u64,
         pub allocations: u64,
     }
 
     /// Runs `f` with this thread's accounting active from zero.
     pub fn measure<T>(f: impl FnOnce() -> T) -> (T, Measured) {
-        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED] {
+        for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED, &LIVE_REAL, &PEAK_REAL] {
             cell.with(|c| c.set(0));
         }
         ALLOCATIONS.with(|c| c.set(0));
@@ -558,6 +615,7 @@ pub(crate) mod counting {
         let measured = Measured {
             peak_requested: PEAK.with(Cell::get).max(0) as u64,
             peak_priced: PEAK_PRICED.with(Cell::get).max(0) as u64,
+            peak_real: PEAK_REAL.with(Cell::get).max(0) as u64,
             allocations: ALLOCATIONS.with(Cell::get),
         };
         (out, measured)
@@ -616,6 +674,19 @@ mod tests {
             ("empty_array".into(), "[]".into()),
             ("scalar".into(), "  7  ".into()),
         ];
+        // Strings just above size-class boundaries, repeated to ~4 MB: macOS
+        // xzone counterexamples to a legacy-class price (32769 x 122 measured a
+        // real peak of 6,001,312 B against the former 4,068,000 B bound).
+        for len in [257usize, 513, 4_097, 16_385, 32_769, 65_537] {
+            let n = (4_000_000 / len).max(1);
+            let s = "a".repeat(len);
+            inputs.push((format!("strings_{len}x{n}"), format!("[{}\"{s}\"]", format!("\"{s}\",").repeat(n - 1))));
+        }
+        // 20,000 keys of 129 B with values of 257 B.
+        inputs.push((
+            "object_k129_v257".into(),
+            format!("{{{}}}", (0..20_000).map(|i| format!("\"{i:0>129}\":\"{}\"", "b".repeat(257))).collect::<Vec<_>>().join(",")),
+        ));
         // Arrays at each capacity boundary.
         for n in [1usize, 3, 4, 5, 8, 9, 16, 17] {
             inputs.push((format!("array_{n}"), format!("[{}0]", "0,".repeat(n - 1))));
@@ -629,16 +700,47 @@ mod tests {
     }
 
     #[test]
-    fn malloc_price_follows_macos_size_classes() {
-        assert_eq!(malloc_price(0), Some(0));
-        assert_eq!(malloc_price(1), Some(16));
-        assert_eq!(malloc_price(1008), Some(1008));
-        assert_eq!(malloc_price(1009), Some(1024));
-        assert_eq!(malloc_price(131_072), Some(131_072));
-        assert_eq!(malloc_price(131_073), Some(147_456));
-        assert_eq!(malloc_price(u64::MAX), None);
-        assert_eq!(wrapper_bytes(), 640 + 16 + 16);
+    fn allocation_envelope_is_the_checked_next_power_of_two_at_least_16() {
+        assert_eq!(allocation_envelope(0), Some(0));
+        assert_eq!(allocation_envelope(1), Some(16));
+        assert_eq!(allocation_envelope(16), Some(16));
+        assert_eq!(allocation_envelope(17), Some(32));
+        // At or above every measured macOS 26 xzone class.
+        for (request, xzone_class) in [(257u64, 320u64), (728, 768), (1008, 1024), (4097, 5120), (32_769, 49_152), (131_073, 147_456)] {
+            assert!(allocation_envelope(request).unwrap() >= xzone_class, "{request}");
+        }
+        assert_eq!(allocation_envelope(1 << 63), Some(1 << 63));
+        assert_eq!(allocation_envelope((1 << 63) + 1), None);
+        assert_eq!(allocation_envelope(u64::MAX), None);
+        assert_eq!(wrapper_bytes(), 1024 + 16 + 16);
         assert_eq!(std::mem::size_of::<Value>() as u64, VALUE_BYTES);
+        let bound = IngressBound { raw_len: 1025, materialization_bytes: 7 };
+        assert_eq!(bound.lease_bytes(), Some(2048 + 7), "the raw body is priced by its envelope");
+        assert_eq!(IngressBound { raw_len: u64::MAX, materialization_bytes: 0 }.lease_bytes(), None);
+    }
+
+    /// The allocator's real usable sizes, checked directly on this host.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn allocation_envelope_covers_this_hosts_malloc_size() {
+        let mut loosest = 0.0f64;
+        let mut sizes: Vec<usize> = (1..=70_000).collect();
+        sizes.extend((70_000..=4 << 20).step_by(4_093));
+        for size in sizes {
+            // SAFETY: plain malloc/free of a non-zero size; the block is unused.
+            let real = unsafe {
+                let ptr = libc::malloc(size);
+                assert!(!ptr.is_null());
+                let real = libc::malloc_size(ptr);
+                libc::free(ptr);
+                real as u64
+            };
+            let envelope = allocation_envelope(size as u64).unwrap();
+            assert!(real <= envelope, "{size}: malloc_size {real} exceeds envelope {envelope}");
+            loosest = loosest.max(envelope as f64 / real as f64);
+        }
+        assert!(loosest <= 2.0, "loosest envelope/malloc_size {loosest:.3}");
+        eprintln!("loosest envelope / malloc_size over sampled requests: {loosest:.4}");
     }
 
     #[test]
@@ -697,8 +799,11 @@ mod tests {
 
     #[test]
     fn ingress_bound_covers_measured_materialization() {
-        let mut worst_ratio = f64::MAX; // tightest
-        let mut loosest_ratio = 0.0f64;
+        // On macOS the bound is checked against the real live usable sizes
+        // (`malloc_size`); elsewhere against the envelope-priced peak.
+        let real = cfg!(target_os = "macos");
+        let mut tightest = f64::MAX;
+        let mut loosest = 0.0f64;
         let mut loosest_name = String::new();
         let mut report = Vec::new();
         for (name, input) in adversarial_inputs() {
@@ -714,24 +819,41 @@ mod tests {
             let () = parsed;
             assert!(
                 measured.peak_priced <= bound.materialization_bytes,
-                "{name}: measured {measured:?} exceeds bound {}",
+                "{name}: priced {measured:?} exceeds bound {}",
                 bound.materialization_bytes
             );
             assert!(measured.peak_requested <= measured.peak_priced, "{name}");
-            let ratio = bound.materialization_bytes as f64 / measured.peak_priced.max(1) as f64;
-            report.push(format!("{name}: bound {} priced peak {} requested peak {} ratio {ratio:.3}", bound.materialization_bytes, measured.peak_priced, measured.peak_requested));
-            if measured.peak_priced >= 64 * 1024 {
+            if real {
+                assert!(measured.peak_real > 0 || measured.allocations == 0, "{name}: malloc_size recorded");
+                assert!(
+                    measured.peak_real <= bound.materialization_bytes,
+                    "{name}: real malloc_size peak {} exceeds bound {}",
+                    measured.peak_real,
+                    bound.materialization_bytes
+                );
+            }
+            let peak = if real { measured.peak_real } else { measured.peak_priced };
+            let ratio = bound.materialization_bytes as f64 / peak.max(1) as f64;
+            report.push(format!(
+                "{name}: bound {} real peak {} priced peak {} requested peak {} bound/{} {ratio:.3}",
+                bound.materialization_bytes,
+                measured.peak_real,
+                measured.peak_priced,
+                measured.peak_requested,
+                if real { "real" } else { "priced" },
+            ));
+            if peak >= 64 * 1024 {
                 // Not absurdly loose where the content dominates the fixed allowances.
                 assert!(ratio < 3.0, "{name}: ratio {ratio:.3}");
-                worst_ratio = worst_ratio.min(ratio);
-                if ratio > loosest_ratio {
-                    loosest_ratio = ratio;
+                tightest = tightest.min(ratio);
+                if ratio > loosest {
+                    loosest = ratio;
                     loosest_name = name.clone();
                 }
             }
         }
         eprintln!("{}", report.join("\n"));
-        eprintln!("content-dominated ratios: tightest {worst_ratio:.3}, loosest {loosest_ratio:.3} ({loosest_name})");
+        eprintln!("content-dominated bound/peak: tightest {tightest:.3}, loosest {loosest:.3} ({loosest_name})");
     }
 
     #[test]
@@ -752,10 +874,13 @@ mod tests {
             let bound = prescan(text.as_bytes()).unwrap().materialization_bytes;
             let (_, measured) = measure(|| serde_json::from_str::<Value>(&text).map(drop).map_err(drop));
             assert!(measured.peak_priced <= bound, "{text}: {measured:?} > {bound}");
+            if cfg!(target_os = "macos") {
+                assert!(measured.peak_real <= bound, "{text}: real {measured:?} > {bound}");
+            }
             // How much of the float allowance this parse needed beyond everything else priced.
             let used = measured.peak_priced.saturating_sub(bound - FLOAT_PARSE_ALLOWANCE_BYTES);
             largest_used = largest_used.max(used);
-            eprintln!("float of {} chars: priced peak {} bound {}", text.len(), measured.peak_priced, bound);
+            eprintln!("float of {} chars: priced peak {} real peak {} bound {}", text.len(), measured.peak_priced, measured.peak_real, bound);
         }
         eprintln!("largest share of the float allowance used: {largest_used} of {FLOAT_PARSE_ALLOWANCE_BYTES} bytes");
     }
