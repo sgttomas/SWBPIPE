@@ -119,7 +119,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
+    "4ccf01fe2c414864483299b092f724248589ff4105861ece5a962ba1f7cde0fa";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// physics-1. Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -127,7 +127,7 @@ pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
+    "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

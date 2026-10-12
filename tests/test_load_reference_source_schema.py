@@ -64,11 +64,11 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
+SUCCESSOR_SHA = "4ccf01fe2c414864483299b092f724248589ff4105861ece5a962ba1f7cde0fa"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+EXACT_SHA = "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}

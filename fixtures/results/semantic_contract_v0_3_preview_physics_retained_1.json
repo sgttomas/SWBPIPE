@@ -1193,7 +1193,7 @@
     "openpipestress.result_semantics/0.3.0/pressure-1",
     "openpipestress.result_semantics/0.3.0/stress-1"
   ],
-  "inherited_semantic_contract_sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a",
+  "inherited_semantic_contract_sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c",
   "retired_source_kinds": [
     "reaction_resultant",
     "open_formula_stress_summary",

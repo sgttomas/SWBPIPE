@@ -579,14 +579,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
+const TABLE_HASH: &str = "4ccf01fe2c414864483299b092f724248589ff4105861ece5a962ba1f7cde0fa";
 /// The exact successor's table (XTABLE) and its inherited physics-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PHYSICS_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
-const EXACT_TABLE_HASH: &str = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
+const EXACT_TABLE_HASH: &str = "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -6664,8 +6664,8 @@ mod w1_si_first_publication_tests {
 mod b4_failed_ordinary_tests {
     //! B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings"): the requested-mode basis,
     //! the admitted blocking diagnostic and the closed W2 refusal, read below G0. The producer
-    //! asserts that the fixture is its own output. G0 itself refuses these statements until the
-    //! packaged table pins move at B7a's D3 re-registration (ruling (6)); `pending_g0` pins that.
+    //! asserts that the fixture is its own output. With the table pins on the current reviewed
+    //! bytes (ruling (6)), the full reader gives the same validation as the gates below G0.
     use super::*;
     const FIXTURE: &str =
         include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json");
@@ -6710,12 +6710,14 @@ mod b4_failed_ordinary_tests {
         }
     }
     #[test]
-    fn pending_g0_refuses_while_the_table_pins_are_held() {
-        // Expected to become `Ok` when B7a's D3 re-registration moves TABLE_HASH and its mirrors
-        // to the reviewed current table bytes; then replace this with the eligible assertion.
+    fn failed_ordinary_successors_pass_g0_with_the_current_table_pins() {
+        // Ruling (6): TABLE_HASH and its mirrors follow the reviewed current table bytes, so the
+        // full reader (G0 first) gives the same eligible validation as the gates below G0.
         for (s, inv) in cases() {
-            let e = validate(&s, Some(&inv)).unwrap_err();
-            assert_eq!((e.gate, e.code.as_str()), ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"));
+            let mode = inv["solver_mode"].clone();
+            let v = validate(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+            assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
+            assert_eq!(Ok(v), below_g0(&s, Some(&inv)), "{mode}");
         }
     }
     #[test]

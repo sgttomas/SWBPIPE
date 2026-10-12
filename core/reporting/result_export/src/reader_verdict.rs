@@ -59,8 +59,8 @@ const BINDINGS: [(&str, &str, &str); 10] = [
     ("preview_physics", sc::PREVIEW_PHYSICS_ID, "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"),
     ("load_reference", sc::LOAD_REFERENCE_ID, "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"),
     ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"),
-    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"),
-    ("retained_physics", sc::PHYSICS_RETAINED_ID, "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"),
+    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "4ccf01fe2c414864483299b092f724248589ff4105861ece5a962ba1f7cde0fa"),
+    ("retained_physics", sc::PHYSICS_RETAINED_ID, "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9"),
 ];
 
 /// A reader's error text as `{code, detail}`: the code is the leading
