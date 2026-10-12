@@ -343,10 +343,13 @@ if fnkey("member_group_fires", _FG):
     _labels_model = _pricing_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "kd5_text_model.py"))
     _fixed = _labels_model["inspect"](_SNAP)
     _label = {"bytes": _fixed["label_bytes"], "source": "KD5T2: exhaustive source-pinned constructor label inventory"}
-    O10_ID_AUDIT += [(site("group", _CP, "location: location.into()", full=True), {"location": _label}),
-        (site("group", _CP, "kind: kind.into()", full=True), {"kind": _label})]
-    for _text in ['"{}.{}.{}: q={:e}', '"{}.{}.{}: the member bound is unavailable']:
+    for _producer in ("group", "magnitude_group"):
+        O10_ID_AUDIT += [(site(_producer, _CP, "location: location.into()", full=True), {"location": _label}),
+            (site(_producer, _CP, "kind: kind.into()", full=True), {"kind": _label})]
+    for _text in ['"{}.{}.{}: q={:e}', '"{}.{}.{}: the member bound is unavailable', '"{}.{}.{}: member comparison unavailable']:
         O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"group.location": _label, "group.kind": _label})]
+    O10_ID_AUDIT += [(site("recovery_finding", _FG, '"{}.{}.{}: member comparison unavailable', full=True, row="format!("),
+        {"reason": {"bytes": _fixed["comparison_reason_bytes"], "source": "KD5T2: pinned member_group_decision fixed reason inventory"}})]
     O10_ARGS_FIRST = [{"re": r"^route$", "max": _fixed["route_bytes"], "why": "KD5T2: exhaustive source-pinned static route strings"}] + O10_ARGS_FIRST
 
 
@@ -401,3 +404,133 @@ if fnkey("member_group_fires", _FG):
     _stress_subject = _labels_model["inspect_stress_subjects"](_SNAP)
     LEX_SITE_SIZE += [(Resolved("stress_recovery/src/lib.rs:" + str(_stress_subject["line"])),
         {"class": 128, "why": "KD5T3: production source-pinned private StressFinding::new/helper call tree has17 fixed ASCII subjects, max22UTF8 B; retain existing audit128 and full multiplicity; no type-wide subject or message narrowing"})]
+
+# KD5C4: FallbackError is private/non-escaping; these receivers are the
+# named callers' primitive numbers, not that new private method owner.
+if fnkey("fallback_circular_maximum", _CP):
+    _primitive_minmax_callers = {
+        "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales", "moment_scales", "stress_free_notice"],
+        "lib.rs": ["observation_lane_profile", "build_curved_bend_macro_elements", "straight_summary_extrema"],
+        "pressure_exact.rs": ["fused_mul_add"], "pressure_runtime.rs": ["finish_source_groups"],
+        "retained_memory.rs": ["string", "material", "walk", "combination_census", "longest_string", "complete_observations"],
+        "retained_product.rs": ["g5a"], "source_recovery.rs": ["solve"],
+        "source_receipt/composite.rs": ["norm"],
+        "source_receipt/endpoint_maximum.rs": ["absolute", "endpoint_maximum", "directed"],
+        "source_receipt/rows.rs": ["derived_for"],
+        "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
+        "certified_publication.rs": ["fallback_denominator_relative_error"],
+    }
+    for _file, _names in _primitive_minmax_callers.items():
+        for _name in _names:
+            _file = PP_ + _file if not _file.startswith(PP_) else _file
+            _key = (_fn_n("string", _file, 2, 2) if _file == PP_ + "retained_memory.rs" and _name == "string"
+                    else fnkey(_name, _file))
+            if not _key:
+                raise SystemExit(f"KD5C4: primitive caller is not unique: {_file}:{_name}")
+            for _method in ("min", "max"):
+                _keep = []
+                if _method == "max" and (_file, _name) in [(PP_ + "retained_memory.rs", "longest_string"), (PP_ + "source_recovery.rs", "solve")]:
+                    # Preserve the old heuristic's non-TEXT max targets;
+                    # this correction removes only the new private candidate.
+                    _keep = [_fn_n("max", PP_ + "retained_memory.rs", 1, 2),
+                             _fn_n("max", PP_ + "retained_memory.rs", 2, 2),
+                             _fn_n("max", FK_ + "structural/retained/product_certificate.rs", 1, 1)]
+                CG_RULES += [{"caller": Resolved(_file + ":" + _key.split(":", 1)[1]), "name": _method, "targets": _keep,
+                    "added": "KD5C4", "evidence": "named receiver is usize/f64/i32 intrinsic; private FallbackError has no outward producer or escape, so it cannot be this receiver; real CP fallback_section_errors min/max preserved"}]
+
+# KD5C5: subtract only witnessed private FallbackError candidates from
+# approved outside callers, retaining every other conservative candidate.
+if fnkey("fallback_circular_maximum", _CP):
+    for _rule in _labels_model["inspect_fallback_boundary"](_SNAP):
+        CG_RULES += [{"caller": Resolved(_rule["caller"]), "name": _rule["name"],
+            "exclude_targets": [Resolved(_target) for _target in _rule["exclude_targets"]],
+            "added": "KD5C5", "evidence": "current private FallbackError has no trait/public-return/function-pointer/macro escape; pinned outside receivers are Scaled/Bytes/ExactAccumulator/CertifiedRow/CertifiedValue; subtract only this qualified candidate and preserve all other and inside-CP candidates"}]
+
+# KD5C6: returning allocation alternatives only; no visit or graph cap.
+import runpy as _c6_runpy
+_c6_model = _c6_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "kd5_first_error_model.py"))
+_c6_state = _c6_model["inspect"](_SNAP)
+if _c6_state is not None:
+    FIRST_ERROR_GUARD = "KD5C6"
+    O10_SITE_FROM += [(Resolved(_key), dict(_entry, **{"from": [Resolved(_root) for _root in _entry["from"]]}))
+                     for _key, _entry in _c6_model["site_rules"](_c6_state)]
+
+# KD5L14-L18: actual fixed arrays, conservative span census, and returning
+# power-transport error. No function or run multiplier is globally capped.
+if fnkey("fallback_circular_maximum", _CP):
+    O10_LOOPS_LAST += [
+        ("for span in spans", "2*l+1", O10 + "KD5L14: current D1 has no uniform primitive, hence one interval; retain conservative positive2l+1 span allowance from KD5O10", ["certified_publication.rs:fallback_circular_maximum"]),
+        ("iter:spans .into_iter().map", "2*l+1", O10 + "KD5L14: FK returned certificate spans have the same current-D1 one-interval producer; positive2l+1 allowance", ["certified_publication.rs:straight_stress_spans"]),
+        ("for component in powers", "3", O10 + "KD5L15: three stress component coefficient arrays", ["certified_publication.rs:fallback_circular_maximum"]),
+        ("for (station, rows) in member.sections.iter().enumerate()", "5", O10 + "KD5L15: CertifiedMemberRecovery sections is exactly5", ["certified_publication.rs:maximum_cover"]),
+        ("for (target, &value) in axial.iter_mut().zip(&span.axial)", "3", O10 + "KD5L15: degree2 axial controls have3 coefficients", ["certified_publication.rs:fallback_circular_maximum"]),
+        ("for (target, source) in axial.iter_mut().zip(span.axial)", "3", O10 + "KD5L15: degree2 axial controls have3 coefficients", ["certified_publication.rs:straight_stress_spans"]),
+        ("for value in &mut intensity", "3", O10 + "KD5L15: local axial/y/z intensity array is3", ["certified_publication.rs:fallback_circular_maximum"]),
+        ("for value in sample", "3", O10 + "KD5L15: axial/y/z stress sample array is3", ["certified_publication.rs:fallback_circular_maximum"]),
+        ("for (target, &value) in sections.iter_mut().zip(&ends[..6])", "6", O10 + "KD5L16: force/moment section array has6 components", ["certified_publication.rs:fallback_section_errors"]),
+        ("for (index, row) in sections.iter_mut().enumerate()", "6", O10 + "KD5L16: force/moment section array has6 components", ["certified_publication.rs:fallback_section_errors"]),
+        ("while remaining != 0", "4194304", O10 + "KD5L17: i32 shift moves toward0 by512 until its final smaller step; ceil(2^31/512) bounds all operands without a pressure-domain inference", ["certified_publication.rs:fallback_denominator_relative_error"]),
+        ("while value != 0.0 && exponent != 0", "4194304", O10 + "KD5L17: i32 exponent moves toward0 by512 until final smaller step; positive universal type bound", ["certified_publication.rs:fallback_power_up"]),
+    ]
+    O10_SITE_FROM += [(site("fallback_power_up", _CP, 'return Err("fallback scaled constituent range".into())'),
+        {"from": [fnkey("fallback_power_up", _CP)], "per": "1", "why": O10 + "KD5L18: error allocation returns immediately from the loop, at most1 per actual power-transport invocation; keep full case/replay multiplier"})]
+
+# KD5A7: new endpoint/station MPa copies retain authored IDs and existing
+# fixed-token caps; no blanket identifier or message narrowing.
+if fnkey("append_stress_mpa", _CP):
+    O10_ID_AUDIT += [
+        (site("append_stress_mpa", _CP, 'format!("result:stress:', full=True), {"suffix": IN, "located": ST}),
+        (site("append_stress_mpa", _CP, "kind: kind.into()", full=True), {"kind": ST}),
+        (site("append_stress_mpa", _CP, "entity_ref: pipe_id.into()", full=True), {"pipe_id": IN}),
+        (site("append_stress_mpa", _CP, "component: component.into()", full=True), {"component": ST}),
+        (site("append_stress_mpa", _CP, "location: location.into()", full=True), {"location": ST}),
+        (site("append_stress_mpa", _CP, "basis: basis.into()", full=True), {"basis": ST}),
+        (site("append_stress_mpa", _CP, "let sign_convention=", full=True), {"label": ST,
+            'iftail=="torsional-shear"{"torsionalshear"}elseiftail=="axial-normal"{"normal"}else{"bendingnormal"}': ST,
+            "sign": {"bytes": _fixed["sign_bytes"], "source": "KD5A7: measured fixed sign constants consumed by pinned case caller"}}),
+        (site("straight_stress_spans", _CP, 'format!("member:', full=True), {"pipe.element_id": IN, "pipe.element_id.len()": NUM_}),
+        (site("recovery_finding", _FG, '"{}.{}.{}: member comparison unavailable', full=True, row="format!("), {"record.member": IN}),
+    ]
+    O10_ARGS_FIRST += [{"re": "^located$", "max": 128, "why": "KD5A7: endpoint/station location rewrites preserve caller's fixed≤128-B token"}]
+
+# KD5A8: the withheld certified-summary warning's three authored-id copies
+# (id suffix, message member id, affected ref) are the pipe's own id, IN128.
+# Its {error} operand and the diagnostic's multiplicity are not narrowed.
+if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
+    _L = PP_ + "lib.rs"
+    _kd5a8_id = site("solve_load_case_observed", _L, '"diagnostic:stress:{}:summary-unavailable"', full=True)
+    _kd5a8_msg = site("solve_load_case_observed", _L, "the open-formula stress summary of {} is unavailable", full=True)
+    _kd5a8_file, _kd5a8_line = _kd5a8_msg.rsplit(":", 1)
+    if open(_os.path.join(_SNAP, _L), encoding="utf-8").read().split("\n")[int(_kd5a8_line)].strip() != "vec![pipe.element_id.clone()],":
+        raise SystemExit("KD5A8: withheld summary affected-ref site changed; re-review")
+    O10_ID_AUDIT += [
+        (_kd5a8_id, {"stable_suffix(&pipe.element_id)": IN}),
+        (_kd5a8_msg, {"pipe.element_id": IN}),
+        (Resolved(f"{_kd5a8_file}:{int(_kd5a8_line) + 1}"), {"pipe.element_id": IN}),
+    ]
+
+# C7A1: move only the five replaced owned-key audit lines to source-bound
+# name keys. Borrowed input metadata is resolved without an allocation row.
+import runpy as _c7_audit_runpy
+_c7_audit_model = _c7_audit_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "prescribed_key_model.py"))
+_c7_audit_borrowed = _c7_audit_model["borrowed"](_SNAP)
+_c7_audit_file = RE_ + "retained_precision.rs"
+_c7_audit_sites = [
+    ("numeric_owner", "prescribed.insert((text(&n[\"id\"]).into(), text(&d[\"dof\"][\"component\"]).into()));",
+     "prescribed.insert((text(&n[\"id\"]), text(&d[\"dof\"][\"component\"])));",
+     {"text(&d[\"\"][\"\"])": {"bytes": 128, "source": "IN128"}, "text(&n[\"\"])": {"bytes": 128, "source": "IN128"}}),
+    ("numeric_owner", "prescribed.contains(&(text(&r[\"entity_ref\"]).into(), c.into()))",
+     "prescribed.contains(&(text(&r[\"entity_ref\"]), c))",
+     {"text(&r[\"\"])": {"bytes": 1024, "source": "RES"}}),
+    ("g5c", "text(&d[\"node_id\"]).to_string(),", "text(&d[\"node_id\"]),",
+     {"text(&d[\"\"])": {"bytes": 128, "source": "IN128"}}),
+    ("g5c", "text(&d[\"component\"]).to_string(),", "text(&d[\"component\"]),",
+     {"text(&d[\"\"])": {"bytes": 128, "source": "STATIC"}}),
+    ("g5c", ".contains(&(text(&row[\"entity_ref\"]).into(), d.into()))",
+     ".contains(&(text(&row[\"entity_ref\"]), d))",
+     {"text(&row[\"\"])": {"bytes": 1024, "source": "RES"}}),
+]
+C7_INPUT_METADATA = [(site(_name, _c7_audit_file, _borrowed if _c7_audit_borrowed else _owned, full=True), _audit)
+                     for _name, _owned, _borrowed, _audit in _c7_audit_sites]
+if not _c7_audit_borrowed:
+    O10_ID_AUDIT += C7_INPUT_METADATA

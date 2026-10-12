@@ -126,6 +126,8 @@ json.dump(LB, open(lbp, "w"), indent=1)
 tap = os.path.join(dst, "text_args.g4.json"); TA = json.load(open(tap))
 for key, bytes_, why in D.get("SITE_TOTAL", []):
     TA["site_total"][key] = {"bytes": bytes_, "why": "SQ2 G5: " + why}; LOG["other"].append(["site_total", key, bytes_])
+if D.get("FIRST_ERROR_GUARD"):
+    TA["first_error_guard"] = D["FIRST_ERROR_GUARD"]
 for key, entry in D.get("SITE_FROM", []):
     entry = dict(entry); entry["why"] = "SQ2 G5: " + entry["why"]; TA["site_from"][key] = entry; LOG["other"].append(["site_from", key, entry])
 for key, per, why in D.get("SITE_FROM_REBIND", []):

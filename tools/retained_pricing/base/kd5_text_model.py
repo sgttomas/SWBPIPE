@@ -7,7 +7,9 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': '00d97e3e62b9533ee1bf49c5e8dad88d38028b9f29a173115182e31ce322a169', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '854169c4f86d9fc8c96aa642f8295c6f6ccf5e7c5f0ff9103044a2c70d8fb774', 'unavailable_record': 'dce5657004aeb2807d7c3fe6a8814c7963df73d73422a583e5465efd8ea6f407', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': '8182d4258b0b7ddd452ffb5df65619c1283abf3e055916e2bc220d233e4b8307'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '74c5cead7b08e7456f604bd026ccafd13f35516cfac172aef217fedc0d4c4894'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': '5a16ba3e4680f456ec998edbad20ef80a7fdf3edb0c85665bafac61dfb0c19b0', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '4b96ef49a3ab5494bc79c3425adaf5b67e1fe072a1043653ba040c37f15871db'}}
+
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab2a378f57eb1922c84ab006f9d58f04bf5c37c3b553bed0f6fc910cf507e034', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -28,6 +30,11 @@ def literal_bytes(template):
 
 def inspect(snapshot):
     bodies = {}
+    for file, digest in PRODUCTION_PINS.items():
+        with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+            source = stream.read().split("#[cfg(test)]", 1)[0]
+        if hashlib.sha256(source.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
     for file, functions in PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read()
@@ -49,7 +56,26 @@ def inspect(snapshot):
     routes = [value for value in literals(bodies["solve_load_case_observed"]) if value.startswith("on ") and value.endswith(" route")]
     if not routes:
         raise ValueError("KD5T2: no fixed route strings")
+    with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), encoding="utf-8") as stream:
+        consumer_source = stream.read()
+    sign_values = []
+    for name in ("STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION", "CURVED_BEND_SECTION_SIGN_CONVENTION"):
+        hits = re.findall(r"const " + name + r': &str = "([^"\\]+)";', consumer_source)
+        if len(hits) != 1:
+            raise ValueError(f"KD5A7: expected one unescaped sign constant {name}")
+        sign_values += hits
+    comparison_reasons = literals(bodies["member_group_decision"])
+    coefficient_basis = "j_side_section_equilibrium_binary64_enclosures"
+    enclosure_scope = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+    for producer in ("extrema_evidence", "solve_load_case_observed"):
+        values = literals(bodies[producer])
+        if coefficient_basis not in values or enclosure_scope not in values:
+            raise ValueError(f"KD5T2: current maximum literal absent in {producer}")
     return {"labels": labels, "label_bytes": max(len(value.encode()) for value in labels),
+            "comparison_reason_bytes": max(len(value.encode()) for value in comparison_reasons),
+            "sign_bytes": max(len(value.encode()) for value in sign_values),
+            "item_comparison_literal": one("member comparison unavailable"),
+            "coefficient_basis_bytes": len(coefficient_basis.encode()), "enclosure_scope_bytes": len(enclosure_scope.encode()),
             "item_numeric_literal": one(": q="), "item_unavailable_literal": one("member bound is unavailable"),
             "sentence_literal": one("S11-G recovery guard"), "route_bytes": max(len(value.encode()) for value in routes)}
 
@@ -106,3 +132,69 @@ def inspect_directed_helpers(snapshot):
         if hashlib.sha256(function_body(source, name).encode()).hexdigest() != digest:
             raise ValueError(f"KD5O13: directed helper source changed: {name}; re-review the three-frame slot census")
     return True
+
+# KD5C5: only exact outside-caller candidates into the private non-escaping
+# FallbackError owner are removed; every other resolver candidate is retained.
+FALLBACK_METHOD_PINS = {
+    "add": "6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d",
+    "mul": "b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375",
+    "divided": "42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8",
+}
+FALLBACK_OUTSIDE_CALLERS = (
+    ("annulus_geometry.rs", "source_wall_area_scaled", ("mul",), "19e9559e151064359ff00db6a27c90c64ec619ef465f6dc90d077795850821f7"),
+    ("annulus_geometry.rs", "source_bore_area_scaled", ("mul",), "13e243a2122d8717d5741c8698206bf8dac7d6673e91a5ffa4052252649e8a61"),
+    ("annulus_geometry.rs", "source_insulation_area_m2", ("mul",), "41ec087e427844f47f407ed550d9124e6cfe773e98ab61a99335e08a47a68b41"),
+    ("lib.rs", "exact_straight_summary_extrema", ("add",), "c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1"),
+    ("lib.rs", "append_exact_pressure_results", ("divided",), "c65eecfd90235e5adf464f7149a377ac79ae9474cd99a2933405120b4b9d5f77"),
+    ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
+    ("pressure_exact.rs", "lame_at_radius", ("mul",), "4cc46083ebb6e0a4ae0b1fdd58b9219cefd77f44ac81ca6021b77845c7cded64"),
+    ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
+    ("preview_physics.rs", "render", ("divided",), "eb43e10bf8292eaf21706a887b4b28d6d616fc9216ef29ef86339dfad0a3f4db"),
+    ("retained_memory.rs", "strings", ("add",), "b34bc5c8a6f6863d21fd93b87baae4f33e47467d1f639086650fe6a22bd1a585"),
+    ("retained_memory.rs", "retained_error_text", ("add",), "f50e721160819efd5fc3c5b4fb3dae56c70989cf4cea9d3dd75f6a546507a666"),
+    ("retained_memory.rs", "complete_observations", ("add",), "8f65af0bdd6c83d559966214eb77b308bea940f917ebb210e70d27e9bfef2fc2"),
+    ("pressure_exact/source_geometry.rs", "from_od_wall", ("add", "mul"), "0c2ac197402cbbfb8ceae54cb1c18acaefbcb1a26f658c11f88b88d33e1e1df9"),
+    ("pressure_exact/source_geometry.rs", "pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
+    ("pressure_exact/source_geometry.rs", "surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
+    ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
+)
+
+def _indented_function(text, name):
+    hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
+    if len(hits) != 1:
+        raise ValueError(f"KD5C5: expected one fn {name}, found {len(hits)}")
+    hit = hits[0]
+    end = re.search(r"^" + re.escape(hit.group(1)) + r"}", text[hit.end():], re.M)
+    if not end:
+        raise ValueError(f"KD5C5: no same-indent end of fn {name}")
+    return text[hit.start():hit.end() + end.end()], text.count("\n", 0, hit.start()) + 1
+
+def inspect_fallback_boundary(snapshot):
+    file = "core/product_physics/src/certified_publication.rs"
+    with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+        source = stream.read().split("#[cfg(test)]", 1)[0]
+    if hashlib.sha256(source.encode()).hexdigest() != PRODUCTION_PINS[file]:
+        raise ValueError("KD5C5: private owner/production/escape boundary changed; re-review the exact target exclusions")
+    if len(re.findall(r"^struct FallbackError \{", source, re.M)) != 1 or len(re.findall(r"^impl FallbackError \{", source, re.M)) != 1:
+        raise ValueError("KD5C5: private struct/impl inventory changed")
+    targets = {}
+    for name, digest in FALLBACK_METHOD_PINS.items():
+        body, line = _indented_function(source, name)
+        if not body.startswith("    fn " + name + "(") or hashlib.sha256(body.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5C5: private method/body changed: {name}")
+        targets[name] = f"{file}:{line}:{name}"
+    inventory = []
+    for relative, name, methods, digest in FALLBACK_OUTSIDE_CALLERS:
+        caller_file = "core/product_physics/src/" + relative
+        with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
+            text = stream.read()
+        body, line = _indented_function(text, name)
+        if hashlib.sha256(body.encode()).hexdigest() != digest:
+            raise ValueError(f"KD5C5: outside caller/receiver body changed: {caller_file}:{name}")
+        if caller_file == file:
+            raise ValueError("KD5C5: an inside-owner caller cannot be excluded")
+        inventory.extend({"caller": f"{caller_file}:{line}:{name}", "name": method,
+                          "exclude_targets": [targets[method]]} for method in methods)
+    if len(inventory) != 17 or len({(r["caller"], r["name"]) for r in inventory}) != 17:
+        raise ValueError("KD5C5: exact outside caller/method inventory changed")
+    return inventory

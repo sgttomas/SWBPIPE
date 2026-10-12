@@ -47,6 +47,12 @@ if which == "caps":
 else:
     n, m, g, sp, r, l = 2, 1, 4, 3, 6, 3
 CC = CAPS.get("c", 1) if which == "caps" else 1      # I82: requested cases (every one may be exact-selected)
+# C8: all original T25 owners stay; source-qualified positive extra staging.
+from member_comparison_model import inspect as _c8_inspect, coefficient as _c8_coefficient
+_c8_state = _c8_inspect(os.environ["RP_SNAPSHOT"])
+_c8_workspace = s("MemberComparisonWorkspace") * _c8_coefficient(CC, _c8_state)
+if _c8_state["borrowed"]:
+    ASSUMED["s(MemberComparisonWorkspace)"] = 640
 LL = min(CAPS.get("L", CC * l), CC * l) if which == "caps" else l
 N = 6 * n; F = N; k = min(N, r); C = 144 * m + sp
 Fn = 42 * m + N + sp + 6 * g
@@ -218,6 +224,10 @@ stage = {
     "S4 source commitment (+ carried ledger)": rows["T25.4 source commitment: payload + hash, functions, plan + hash, blocks"] + carried_case,
     "S5 serialized(rows), work, case": rows["T25.5 actual_rows Value, work Value, retained FinalizedSourceBlockCase"] + carried_case,
 }
+# C8: include CC complete frames at every stage rather than crediting their
+# sequential lifetimes; no resident output/backing or old frame reuse credit.
+for _key in stage:
+    stage[_key] = stage[_key] + _c8_workspace
 case_name, case_peak = pick_max(list(stage.items()))
 inv_base = (publication + requested + VF(obj=8, ent=60, strb=4096, keyb=2400, nums=20).tree() * 2
             + rows["T25.8 ids set, accounted set, observations"]
@@ -227,6 +237,8 @@ inv = {
     "I2 hash(body)": inv_base + body_vf.tree() + hash_route(body_vf, L_BODY),
     "I3 into_wire copy": inv_base + body_vf.tree() * 2,
 }
+for _key in inv:
+    inv[_key] = inv[_key] + _c8_workspace
 inv_name, inv_peak = pick_max(list(inv.items()))
 req = carried_case + (case_peak if ev(case_peak) >= ev(inv_peak) else inv_peak)
 out = {"which": which, "EPS": EPS,

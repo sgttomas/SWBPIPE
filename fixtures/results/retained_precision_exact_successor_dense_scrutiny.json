@@ -245,18 +245,18 @@
           "pipe_stress_extrema": [
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 1.0900377190420868e-106,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 8.170865639376692e-92,
+              "certified_gap_pa": 1.0491613045780085e-105,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 8.170865639376739e-92,
               "local_fraction": 0.0,
               "pipe_id": "M1",
               "result_id": "result:elastic-maximum:4:case:2:M1",
               "span_index": 0,
               "station_fraction": 0.0,
               "subdivisions": 0,
-              "value_lower_pa": 8.170865639376682e-92,
-              "value_upper_pa": 8.170865639376692e-92
+              "value_lower_pa": 8.170865639376634e-92,
+              "value_upper_pa": 8.170865639376739e-92
             }
           ],
           "pressure_rhs_assembly": {
@@ -410,8 +410,10 @@
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
         "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
         "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-        "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
-        "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+        "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+        "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
       ],
       "profile_id": "exact_straight_retained_w1a_v2"
     },
@@ -4574,7 +4576,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "4d166b39837d5d2bd38bc1432bc8b85a14204cb32cec3aabb689037ee6d097c3",
+        "publication_sha256": "b20c2d3c6cd4cfc1a1b0bc886857c3798b13f1573a59092ac5456f144f59be73",
         "receipt_version": 1,
         "sources": [
           {
@@ -5554,7 +5556,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d"
+      "receipt_sha256": "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

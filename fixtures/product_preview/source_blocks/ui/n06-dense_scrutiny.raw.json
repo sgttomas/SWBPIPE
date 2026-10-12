@@ -48,7 +48,9 @@
       "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.",
       "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.",
       "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.",
-      "Protected rule inputs and professional acceptance are not provided; human review remains required."
+      "Protected rule inputs and professional acceptance are not provided; human review remains required.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ],
     "profile_id": "product_preview_mechanics_v1"
   },
@@ -3284,11 +3286,11 @@
         "publication_charged": 26348
       },
       "policy": "SOURCE-BLOCKS-1",
-      "publication_sha256": "0d16d27a5bfa2a012bd419c2c6b155c02ea0dfc321c8a82fd44b41e01de6e3f6",
+      "publication_sha256": "7e9dec9ffa0f8427862c124e18ea9cc08d5d603b8ef17af26d5274419cd2f22f",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "7e85ab4f444f82b512fa9ce651fdbc8291c71984b213a9a18a14d7b463d51ad8"
+    "receipt_sha256": "2a0e09ebaedd7f99db86f51904ccf6e235432c28990391a8cf4f31beafc794d4"
   },
   "status": {
     "mechanics": "MECHANICS_SOLVED",

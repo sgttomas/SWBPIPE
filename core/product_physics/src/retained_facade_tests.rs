@@ -11,9 +11,14 @@ use sha2::{Digest, Sha256};
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 /// U1's committed successor bytes (retained_wire_tests::SUCCESSOR_SHA256).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", "efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"),
-    ("dense_scrutiny", "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5", "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"),
+    ("sparse_interactive", "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6", "1932f8843dee94baccff7c21ebc01523d8a509919b9a3bbd48e26167ffd1eff4"),
+    ("dense_scrutiny", "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55", "39895d62e38a6bc87242d5591384c23ab274e71832d974f40da915d13a0f7356"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -978,11 +983,16 @@ fn u8_real_input_fallbacks_append_one_notice() {
 
 /// U8's L = 0 pins, per mode: the successor document's sha256 (id `u8_l0_isolated_node_<mode>`,
 /// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876", "c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72",
-        "9b425066029969b992278306a678303717400a5f16636d3427c5b9b8150ac83a"),
-    ("dense_scrutiny", "dbb3d477364248fb9ae15f7b9cff44410c2bffe45f783dd02d96eca663b0ac88", "0b4250c8139ba25ab9d35fc2d443a01d85de943a8e3d0eb9193f5dd5061ce994",
-        "5d84fce64bb0810da24df9ea5d6ad354b18d864f07826dd09e191e345e4dea48"),
+    ("sparse_interactive", "57951028f52124e04d83d16585564513dfbd69df6819264de6e2eb361d181c7f", "4d509cd499166bd885549213d03374dd41041cb80acacb41df4170f42c59be24",
+        "de9e67561d105541466f5ec7210d5e31f6e5d652fe4ab73151c27dc1d51cb53b"),
+    ("dense_scrutiny", "e8dd5f584948a469de58490ff8da09ab95f33de0605ada60334e885589b74ce0", "1d4e615e64fd219d976f4bc492c90cbab414e9d838e9fe8917bf1e01254cf671",
+        "55a2c2b119681b7e7ff3cc90ffdb2e4b8e0685598219df0199d04d0127727aca"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1879,9 +1889,14 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// norms (`correct_norm`, I109), so the bytes no longer depend on the platform's libm. Dense was
 /// re-pinned by I109 (PR-N): case C's `rigid:N0` support force magnitude is the correctly rounded
 /// 1.6258317075882523e-12, one ulp above macOS libm's `hypot` chain (glibc's value).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886", "c7a1859330e9e36e18f5572838dbad72ea251a817241acc6968f8f83b70170fa"),
-    ("dense_scrutiny", "c11f7566f1f0c469bc0a2808466dd9dd137ea64abed327fb9e4d35ff92ded22f", "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2", "604e4a3380b28d3757d7a7f20aa5d72eae8a93bdc9e24dc966afe6b48fafca3f"),
+    ("sparse_interactive", "c653b8767e3b9ccb5f3e19e44953e65250b7c4e0ee2ffb27f21a5ba0f9abe5e4", "f9a99e3e24cb3a813143af49f4b4d535f7380d24db8fbe5e47adc07b34355f43", "110778c674a6ec365a081092d30934c3c557c03fca99495206692819877ac9e2"),
+    ("dense_scrutiny", "9e7fffa1b9cfc22549b250a6896aaec2ed05c4a644fd5fb9640cb94d38acec4a", "a5b6ff1b436121d830bd7b34608bacf758608ebac2bbfbf80f48405c3df69e7d", "90b55f2dad8a2a51516241a291df6dc2a4ad7e74ec77187071eff2e27fd5b3d8"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2235,14 +2250,24 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
     raw
 }
 /// The pinned successors of RV109's SF-2 inputs: (mode, receipt sha256, successor bytes sha256).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
+    ("sparse_interactive", "8f50bc11b4460c42167e9d3446d73a6fbbf1d1f7d231fb60b8e484751d3e5342", "f13bc5399f10281a32cf9a7270125dda8344a10679d2643770e31b3705777f25"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f"),
+    ("dense_scrutiny", "c07795bf74a5ca34b26707b862b3026763ee351b5655591006e0b1b13e90cf0f", "47caff74691b99889a0440b7e1cd2b24cdc5c47abf14888592d2928802c7a8d8"),
 ];
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),
-    ("dense_scrutiny", "30001ccf42ad12acd9dbb458392fee514946c1a52aa0d4e5f0b20bde5b09ea71", "f4075cdc80eff27099a28f787cec07080b745eca2d598eb3381a84ec03964176"),
+    ("sparse_interactive", "fb41aa63728bb774876d689b21118bbd1747b109d694311b10532d73ab2d45c7", "4b47ca8edcfd89eb23d60b1f4a2122cf28cc18feb34491f61b1ce4e2226a90ee"),
+    ("dense_scrutiny", "e69dd41f2842c2198f96b47b42f9e055c68a49b8fd73267a61ee827045e832eb", "bbd4fb5c901f3cab3615e4a1520bfa178d364964c20d67f1eb11d015ff281fb5"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2336,9 +2361,14 @@ fn milestone_reversed() -> Value {
     raw
 }
 /// Its pinned successor: (mode, receipt sha256, published bytes sha256).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "b79f691a4a899e3ed4a7d13957f74d4c4ee7430ee3062396214261144cbabd82", "93aa043538bbc01e0a7bcef4e381f88468edfd6792769b7041d7f6483ad959b1"),
-    ("dense_scrutiny", "c6b03683c8a2591f4d59429407608a6aafd0abf25663c7d771de60f221135832", "b70edc6d002c92692f00a247702353f79e6410acf17eb385b3d2c2500ca76d8e"),
+    ("sparse_interactive", "452057c5f8c278b0e81b8d9555dd9f9ed80f53790fb003e1d9f3b81fb03bfaa3", "80faccc913f44fe1f9a273c519c1b2e3da3fe37c51f396f6c4fdf84688f517f5"),
+    ("dense_scrutiny", "79455f17810c19c227f9304af74d7f7b1e5c2198544433bd2554e8c844af7266", "2dbc7fc5ae0e1da4e86b4d3525212018fc062b590110090f77f4cd2e2377c013"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -2467,12 +2497,17 @@ fn b3b_witness_inputs_and_routes() {
 /// validates every `physics-retained-1` successor the tests below produce.
 /// The exact successor's pinned bytes, both modes: (mode, receipt sha256, successor bytes sha256,
 /// fixture document sha256).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f", "f18227f7c5eb10d849b0499c7afd139ba2aab493bbdc581805db3ba3ebd4b20d", "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6"),
-    ("dense_scrutiny", "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d", "e31f03a45d8028f32ae518d2004e97423d33139c3c807700755bcbe0113cdb2a", "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc"),
+    ("sparse_interactive", "9b4792ef7426c324ba4ae9726d1936560440e16a6326ba38a5191d163e1ffff6", "8b6f6980da97feb38de70dcdf52becf12c3a89de6de0acab56233f92f85fd575", "fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85"),
+    ("dense_scrutiny", "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475", "88a3ea6611f5cfaa63aa0d2165a9da99a1df436fce8e9f4d943f8e2cc583a2e8", "2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "71703ab120645b7c7b903a072b5e2cc95b72e0a0759db75f3b4b7bcfbe7cb29f", "ca2cd75096cee1fe318d2623ae5c4737438e300ab92dbe8f0f61310d19c4a53b"), ("dense_scrutiny", "b5cf5a4f42bc4e4d1b576250096cf18875c8601fb29b92e6ce0f2fdd86a0eec3", "a50c530faba48a8d0afe87b79ac7c85771a529fd3ce4fbef251189f13c621337")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "7e7ab4450b19d45826128a178941e8a6f71bbc9770dd0a3ec989d707899f49ef", "83a6275589ec2b999a43f195e006989bc8b9da1134b74ec08b8a571ff0b8565c"), ("dense_scrutiny", "4c3a80002488e76939f5e7b965110da9a13ed37f8cca90f1727fce7a2e1b8484", "34bbd776db77e64f6d223918ad957a73b408cd752b89370649afcb06a3b41da8")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3081,11 +3116,16 @@ fn two_member_exact(reversed: bool) -> Value {
     raw
 }
 /// RV123 S-1's pins: (members reversed, mode, sha256 of the successor's bytes).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "94549ef80998798af7a7068007f4c2cd27bf1edac1b3e0efb80ef4022dd90f8b"),
-    (false, "dense_scrutiny", "58d053642f6b3bcc4d475dde530c28651a01130cc8c50105ffe9ba2a0e853eb2"),
-    (true, "sparse_interactive", "cb20f6dd4c70c5b96b47ad996ef0dd469be895c183ab0dc8d43924f6a7338d9a"),
-    (true, "dense_scrutiny", "3fd88b489fb030d82a4b678ab6ff3d1ba96097088fff71dd1843aff6ef8e0368")];
+    (false, "sparse_interactive", "57cb1e0df4f5c419d55d9f01466f5fdf257ba7e057ffe6e62b780cd5a9f367e1"),
+    (false, "dense_scrutiny", "b6d7cc7e2670276c298a5b35b74a61090695ebc63fc1d66e1787d506288086f1"),
+    (true, "sparse_interactive", "b3a470a4d9477edcfd399d8dbfb5f95d9e0c11b7cceaf9d5c9cf6c5d262d4555"),
+    (true, "dense_scrutiny", "065e7c0e7302f42136b3c1b1f5d3fc89da02fb6b85876583b459a78052ea2567")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3113,8 +3153,8 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
     }
 }
 /// RV123 S-2's pins: (mode, sha256 of the successor's bytes).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "a056ac91ce498ec79505e68bf63559d1cc7abba69428a84ece70c8bb293d070a"),
-    ("dense_scrutiny", "5275a75381cd8d0797b598f6057d206b7f57510bc32132687ac2470977d800b5")];
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "2c78cdfa0d720d093e88df0345ccc1be996714c165e4f0de4d0104da7b59a9f8"),
+    ("dense_scrutiny", "5e13a60e12e3a5714d89e82ec6227a11a43a604818e6ad2954a04dda6e816f66")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -3751,47 +3791,52 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// B2-P's witness pins (PLAN §1.2.6; REVISION_01 §5.1), both modes: (witness, mode, receipt
 /// sha256, sha256 of the successor's bytes), from the private driver's successor that precommit
 /// receives.
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// at the K-D5 head; against main the successors differ only by the current maximum declaration
+/// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
+/// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
+/// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "6345c3a32dd243ecc877ebce349307602cfe65e700048981d9171f4c15ee7880",
-        "d5fa0b8bc48646c88506490eda71ba9264244dbe3f6658816d83e6b6d62b7e7a"),
-    ("w_cb1", "dense_scrutiny", "3b24b62e72b366554e51d621f395c6128a75f1fe9e92f6b42e4da47e697750ed",
-        "295f3575f6a475e69f3d7cb7db4326983aefaba3caa1e31d9a711c68ea431b70"),
-    ("w_cb1z", "sparse_interactive", "133b60a763a9cc6bb85541d18dce65e8ecdb550e8538e5d167d5a706adfd0b12",
-        "ad01b6adf436777a4b370bfaa152e8fe4459ae8f28d048b7ff992405004311ec"),
-    ("w_cb1z", "dense_scrutiny", "70e5bfc9569f4d6f2a958dfecee0f541602caf9e84796187c0754c8fbfede71b",
-        "d38ff80c33deae242fc3e440ac9270a5299d198a053e1e273a7b8b23789441fa"),
-    ("w_cb2", "sparse_interactive", "154c52607fe0a4a91d591e48af428c360f17cd043d9f5621acfcadf15db48605",
-        "9731586e98ab443c08636931f29ace24be49e0006ac574b2b4526c9155993b9e"),
-    ("w_cb2", "dense_scrutiny", "94e468af39678f62bffc9ab8ec426ff3d4b18f59c5cf4232eb42a136f7263edd",
-        "cf9d4c6bb8a7546b515a5d74f25276598be3954953a2be4d5480589c732500cf"),
-    ("w_cb3", "sparse_interactive", "f86ffd2b3b403c84fca91aeb686028e7d613c23f291f23b2acdc91633bea3e99",
-        "82edc28b3f797c3d41a14dd31fcc2185baf630a76e6a857681dd435c00a6a9f5"),
-    ("w_cb3", "dense_scrutiny", "beb1461c0860663d74dd2b012aeedfa2667e701c71073ca59c6ea842bb9f786d",
-        "d8a46a71f9d3a5b32dc03b5a9724eacc2956ab56936ab488182c3a48577e9f1e"),
-    ("w_cb4a", "sparse_interactive", "7b8773530d63fb32542210bb6ad4c709fe957f554da835b9efb7ccd485883fe9",
-        "318c4abd082c1df910a91803ccc14973f498cdad7d2c13a40004bbc7ca7afbc0"),
-    ("w_cb4a", "dense_scrutiny", "00e21ac355d409cdff9b666ce9587427dd0ff77ccd412f3fe568735df0c9cc4a",
-        "f0210262e38db5e7d5b7aa46c4d03d869c6cb0b4940646e7b9b3149feb43f714"),
-    ("w_cb4b", "sparse_interactive", "31e0fd4804064ffbc298fccec0981cc0aab7db9348f583094ff2f83795f0a643",
-        "c291b532c781092d6b13aeec9dbf055631181169fb43edb40a18f6120ddb6e73"),
-    ("w_cb4b", "dense_scrutiny", "2c5b46caf32f625089637b545294dc3a24739fad151274e29d2831066afbf330",
-        "c558ccfe5492902f231d01eab776fa88a352dbb70addf3042929aeb4e0195c3b"),
-    ("w_cb5", "sparse_interactive", "e26015faa2ab14d571ad67c037a3a4afa69b1b4d97841a31b2fb4713b2bda3fe",
-        "8e83f75890ef99057942f4e10b6b378fb56b1363e59fdd52050d1659078124a9"),
-    ("w_cb5", "dense_scrutiny", "f27870de60f57d3e28998305f856079e3f788762f562f58e38af1419d5144c58",
-        "265a84bbd39b4380cb2c950847f0e47d60fe56b74bcb6e207b86e2701baf1834"),
-    ("c1_range_mechanics", "sparse_interactive", "877e0c7a32f4740b6a907ac4cb9d63e6f018687208ba396148b22112ee5956d8",
-        "d32ed8bf6594ce7107763bc31f9fc1d2d989a644d1538243b4b78aec79951ce8"),
-    ("c1_range_mechanics", "dense_scrutiny", "5b2812606ff71ba390602070528ea00a13848e59847ba6d7a13da424aaf8d450",
-        "bc641fe3414556f2e74d0b9f57f685d58029cc7de9feb250cabba8b432c2fbbf"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "86d0f1f821bb212fdea7f431291fe4b22b92c3564320b91911abe04ab50686ca",
-        "ec58bcab704f8e870947a90a48321f211637e0131288a86ea1116aeb188751ba"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "03a8eec6106b3c507ca4a7648e0010f6c382e9ece099521b2a0d9044486c2454",
-        "6149647c6cd9264c0fad7760e05c6148462ec36b986eac1e9ad62978f98ecd6c"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "6d9f6fc9a26d91402cec7dab0ec3996a22ddecc84bd8a2a8925b1eb1ba7984ee",
-        "98bddd8285e488ff6789048dd0fba68da963a0226cd2be4d408db7be8d780402"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "88324f91e52426b4f966acaf28063d6b75c4b1b4163b0d233efdfcdffddda577",
-        "d608a0b03e2cb7fa8720bddc706b9706c958d78d8c9a9383b6a7cef05cbb4e1c"),
+    ("w_cb1", "sparse_interactive", "e77ab66880490cecceec490cca2984b59badfe34c5bd6bf6d42a89d25cc75497",
+        "416ffa9c6fb0df0a0d3a617862873c1dc2dee07b33cf5acfd108fb240f890667"),
+    ("w_cb1", "dense_scrutiny", "8f2df2825cf39775e081fd63eeca3de58622006f765cf6b04c24c0b6c88e6796",
+        "5b83f16927bf46df2d02f2159fcdf73886b1862a622442de3c7a6abf6019ee5d"),
+    ("w_cb1z", "sparse_interactive", "78c93f800eeff167bc5aeb1504ccb5663dbe2aa231fd9898be64600c91a69800",
+        "b0a57154ba34bcdc9e01f01d9848b2c30db6706117573fffeed773902ff79913"),
+    ("w_cb1z", "dense_scrutiny", "e84147d0bd439a38943cfd27abb1e6f7e4fb81fa8425e2a7ef619776f2945b59",
+        "976a67208b71279fe0aa6ce87bc47fbeea6106c0323c67d563aa36c131c6c8af"),
+    ("w_cb2", "sparse_interactive", "1b192257f1990b96c3ba45bb8d2f903947e7717cef7ccbcaeb42493d494a8974",
+        "7fe73d20fade61b8b0a53aad7f88baa9d7a314462d77c47b53b63a24e2aa2a05"),
+    ("w_cb2", "dense_scrutiny", "1f03c0f481e937985428c21368b1e983cf7c98f00080f78b54152dcb34e7151a",
+        "8c6d0b1cad0c4960d2f927d1a0da15581425ecae2735afbe39a05c3f099fdc48"),
+    ("w_cb3", "sparse_interactive", "3e4d480a057bff394e0a93e567f3b9be4c1df1f1562ad337625166273c3dcb8f",
+        "42cd15793b65591dfe428b0985f8d5aadd9cd743651be3528eec49708a3db95e"),
+    ("w_cb3", "dense_scrutiny", "3293d2793dbcfd60d3ead11a912ae318fbe40ebd569ca873a4789e73f2b65d48",
+        "c3842d74f6aab3787a1027298413ba0233125e3a2c85ddab19d961abd5d88f67"),
+    ("w_cb4a", "sparse_interactive", "ae2de5572ecccaacc6a1db45ef18e9a824393d816e517c98b79a0e0e2031b5fd",
+        "500d4b22b0b5f09d504b3cdea692215726fd46f39b970c06ad56523f6fd713fe"),
+    ("w_cb4a", "dense_scrutiny", "a54e755f40218126ba0b33122b1d4ba7853b5fbf412396f2ccec25a2b4de2f3d",
+        "8b9053361deb4bf122b37911f579a4bcca011da523084f4ef6ebbaaf8de064be"),
+    ("w_cb4b", "sparse_interactive", "9e8e24033ba0469bb44b9d9c94821fb0b1682e9a8aefd399fe2e25ab5c8460ca",
+        "1fee40021596875ea780427f7cee64d9be4b675258b620a566d8cee6853a6697"),
+    ("w_cb4b", "dense_scrutiny", "de1d2c62e95f83b08c797c0149484768bd07cefde4028e9dbf6146179fb63fcd",
+        "bf14ad6c68da091f949b30d77644f36eea9242f5135206062e8ce5c684dcab7a"),
+    ("w_cb5", "sparse_interactive", "57d749823d149ee0eb09d250ef589dad6164220cf69fae7a57efe3cbf242084b",
+        "3c9755e1069be458802923ba1569188777dc465d024e1dc20730e1ec510f8656"),
+    ("w_cb5", "dense_scrutiny", "d49a41de8d8f1e6c78972f94c838812f6017a99df840b16cb5d91ad5b2fdd427",
+        "c64889ca3477056c73037de3072c59ad0fbd0418862ac95699840ad010d71513"),
+    ("c1_range_mechanics", "sparse_interactive", "a1e3daa03c059c9a5c5f1b8e334233db138d599403a1ba20f9ca9d46e92c3e43",
+        "de77d89e254d1f950461795af1f853139fe57b7783dec96d68ab380309b42c99"),
+    ("c1_range_mechanics", "dense_scrutiny", "674659067e1a549e1588f4f8209359c949291e3684d2ee3037acef2a41330677",
+        "070c45afd4658e24b38819cbc292ace50b8b459fd59fe2ea793cccc24f4a4564"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "8b28de5de556ada431a662e9637e93de7006e6069cfe86efb9d5799a69792599",
+        "b33bb6802ff362b1b2959bd155d7212a1a1f0ce21b34d36a84f0b2aa6fde29aa"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "ecaae2f332e1fd4218bdaca4e57fe7a6e811a578cfe525ca0f8e7c487c970d76",
+        "8e76378baad983759df254149356359ed14f48853c46bd94bddea2567e9834df"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "55fb93d48f2bf2da3daa9b1ce22df8d2c11de42c4b5ca4ce62dc79aa859f6097",
+        "1f8b3980b7be95f871b6c471e5578010330c53a9b6dfe41acf93c3bbf0afcd6d"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "107ac51b7155aa4aa0809c26807d65c843a3487042a78c8c8af8981df85e6ddb",
+        "afa80ae05ffcce1eccbe99ee546dc79d71f8a9cb710839a3cec7005aba1828e1"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {

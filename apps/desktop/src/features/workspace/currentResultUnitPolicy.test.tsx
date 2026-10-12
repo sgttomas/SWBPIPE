@@ -7,7 +7,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import modelFixture from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { getLocalStorageCapability } from "../../services/projectService";
-import { hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
+import { loadDesignKnowledge } from "../../services/previewService";
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
 import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
@@ -82,25 +82,23 @@ it("reads results=none in the solve and design unit lines without a Current resu
   expect(line(design, "design-workspace-units")).toBe(`${modelUnits}; results=none; comparison=none; conversion=false`);
 });
 
-it("reports a qualified Current result's recorded units, including Pa, N*m and N/m, unconverted in the solve and design unit lines", async () => {
+it("reports a solved result's recorded units, including Pa, N*m and N/m, unconverted, and keeps the Sensitive demo out of Current", async () => {
+  // K-D5 (DEL-04-01 kd5-member-relative-bound.md §5): the invented demo has nonlinear supports, so its
+  // converged cases are published NUMERICAL_INTEGRITY_SENSITIVE. The solve panel reports the received rows'
+  // units unconverted; the qualification gate admits no Current result, so the design line reads none.
   const { result } = await recordedProducerSession();
   await act(async () => { await result.current.results.handleRun(); });
-  await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
-  const model = result.current.model.model, currentSolvedResult = result.current.results.currentSolvedResult;
-  expect(result.current.results.result).toBe(currentSolvedResult);
-  expect(hasNativeMechanicsInvocation(currentSolvedResult, model, "sparse_interactive")).toBe(true);
-  expect(currentSolvedResult!.results).toHaveLength(625);
-  expect([...new Set(currentSolvedResult!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
-  expect(currentSolvedResult).toEqual(sourceFixture); // received producer bytes, unchanged
+  await waitFor(() => expect(result.current.results.result).not.toBeNull());
+  const solved = result.current.results.result;
+  expect(result.current.results.currentSolvedResult).toBeNull();
+  expect(solved!.numerical_quality!.status).toBe("sensitive");
+  expect(solved!.results).toHaveLength(625);
+  expect([...new Set(solved!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
+  expect(solved).toEqual(sourceFixture); // received producer bytes, unchanged
 
   const { solve, design, line } = renderPanels(result.current);
   expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=625; conversion=false`);
   expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("state=completed");
   expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=625");
-  // comparison= lists only the units of rows matched between the default comparison bases (load:L-100 vs combination:C-OPER-ALT).
-  // T0R: that mechanics combination is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE), so no rows are matched.
-  expect(line(design, "design-workspace-units"))
-    .toBe(`${modelUnits}; results=${recordedUnits}; comparison=none; conversion=false`);
-  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=625");
-  expect(currentSolvedResult).toEqual(sourceFixture);
+  expect(line(design, "design-workspace-units")).toBe(`${modelUnits}; results=none; comparison=none; conversion=false`);
 });

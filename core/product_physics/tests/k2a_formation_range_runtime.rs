@@ -200,9 +200,12 @@ fn assert_w2_refused(r: &Reach, reason: &str, name: &str) {
 /// F1b (Q10): on both entries and in both modes, W2 publishes the case at
 /// b = `b`: N1's `free` displacement (mm) is within the unchanged 1e-9
 /// criterion of the exact reference `reference_m` (m); nothing blocks; the
-/// case's integrity diagnostic is `NUMERICAL_INTEGRITY_SENSITIVE` (S11-G's
-/// R-b' fails closed at b != 0, ROOT Q5(a)) and carries the `range_scaling:`
-/// evidence line exactly once, before R-b''s text.
+/// case's integrity diagnostic carries the `range_scaling:` evidence line
+/// exactly once. Under K-D5's repair the W2 attempt carries its own member
+/// bound (DEL-04-01 kd5-member-relative-bound.md §2.2), so the unified
+/// predicate judges its certified rows at b != 0 instead of R-b''s former
+/// fail-closed rule (ROOT Q5(a)): the case is `NUMERICAL_INTEGRITY_CHECKS_PASSED`
+/// with no S11-G sentence (§§3.3, 4.2's Sensitive -> Passed moves).
 fn assert_w2_published(r: &Reach, b: i32, reference_m: f64) {
     let line = format!("range_scaling: force_scale_exponent={b}; basis=exact power-of-two");
     let kind = format!("global_nodal_displacement_{}", r.free[1..].to_lowercase());
@@ -241,14 +244,11 @@ fn assert_w2_published(r: &Reach, b: i32, reference_m: f64) {
                 .filter(|d| d.id == "diagnostic:numerical-integrity:case")
                 .collect();
             assert_eq!(integrity.len(), 1, "{ctx}");
-            assert_eq!(integrity[0].code, "NUMERICAL_INTEGRITY_SENSITIVE", "{ctx}");
+            assert_eq!(integrity[0].code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{ctx}");
             let message = &integrity[0].message;
             assert_eq!(message.matches("range_scaling:").count(), 1, "{ctx}");
-            let at = message
-                .find(&line)
-                .unwrap_or_else(|| panic!("{ctx}: {message}"));
-            let guard = message.find("S11-G recovery guard (R-b')").expect("R-b'");
-            assert!(at < guard, "{ctx}: the line precedes R-b''s text");
+            assert!(message.contains(&line), "{ctx}: {message}");
+            assert!(!message.contains("S11-G"), "{ctx}: {message}");
         }
     }
 }
@@ -429,9 +429,10 @@ fn main_linear_route_at_kernel_level(
     r: &Reach,
     free: usize,
 ) -> open_pipe_stress_frame_kernel::structural::StructuralSolution {
+    use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
     use open_pipe_stress_frame_kernel::structural::{
         solve_formation_checked_structural_dense, transform_roundoff, FormationSource,
-        StructuralSystem, SymmetryEvidence,
+        StiffnessContribution, StructuralSystem, SymmetryEvidence,
     };
     use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
     let (area, i, j) = product_section(r.od, r.wall);
@@ -456,8 +457,22 @@ fn main_linear_route_at_kernel_level(
     for &(d, s) in &springs {
         k[d][d] = k[d][d] + s;
     }
-    let mut f = vec![0.0; 12];
-    f[free] = r.load;
+    // K-D5 runs only on a typed ledger with the contribution trace (DEL-04-01
+    // kd5-member-relative-bound.md §1 "K-D5 without a ledger fails closed",
+    // §2 step 7): the load is a nodal input term; the trace is main's element
+    // block (identity rotation) and the spring.
+    let mut ledger = LoadLedger::new();
+    ledger.push("load:0", free, r.load);
+    let force = ledger.finish(12).unwrap();
+    let mut contributions = Vec::with_capacity(145);
+    for (row, values) in local.iter().enumerate() {
+        for (col, &value) in values.iter().enumerate() {
+            contributions.push(StiffnessContribution { row, col, value });
+        }
+    }
+    for &(d, s) in &springs {
+        contributions.push(StiffnessContribution { row: d, col: d, value: s });
+    }
     let prescribed: Vec<(usize, f64)> = (0..12).filter(|&d| d != free).map(|d| (d, 0.0)).collect();
     let frame = FrameElement::new(
         FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
@@ -472,18 +487,19 @@ fn main_linear_route_at_kernel_level(
         springs,
         ..FormationSource::default()
     };
-    let system = StructuralSystem {
-        stiffness: &k,
-        force: &f,
-        free_dofs: &[free],
-        prescribed: &prescribed,
-        contributions: None,
-        symmetry: Some(SymmetryEvidence {
+    let free_dofs = [free];
+    let system = StructuralSystem::assembled(
+        &k,
+        &force,
+        &free_dofs,
+        &prescribed,
+        Some(&contributions),
+        Some(SymmetryEvidence {
             absolute_roundoff: &absolute,
             operation_counts: &counts,
             basis: roundoff.basis,
         }),
-    };
+    );
     solve_formation_checked_structural_dense(&system.with_formation_source(&source)).unwrap()
 }
 

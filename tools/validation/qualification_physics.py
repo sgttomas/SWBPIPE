@@ -30,7 +30,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 TABLE_SHA256 = '9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc'
 DEPENDENCIES = {
-    MODULE: '899f9ba28ad3adb07720674cf9ae6bd6157dd260bf48d3651b34d9b678853a57',
+    MODULE: 'd79f9ef001ffd633846be2e42efe5332ce7643a987d202e2d14056ed0a93052b',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
@@ -40,7 +40,7 @@ READER = 'physics'
 LIMIT = 8 * 1024 * 1024
 REFERENCE_BASIS_SHA256 = 'be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9'
 SECTION_CRITERIA_SHA256 = '1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2'
-STRUCTURAL_OBLIGATIONS_SHA256 = 'b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa'
+STRUCTURAL_OBLIGATIONS_SHA256 = '6d7b5ed5a900b4ba417d32bc4624f1511812f8dc889438cc9bbf5aaca72660da'
 # These are the actual finite package's review/technical-selection records,
 # not a general authorisation system or labels supplied by a result producer.
 SELECTED_ADMISSION_FILES = {

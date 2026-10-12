@@ -2197,6 +2197,11 @@ struct LoadCaseSolve {
     component_stress_modifier_count: usize,
     component_pressure_thrust_load_count: usize,
     preview: Option<preview_physics::CaseRecord>,
+    /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): the named warning
+    /// of each certified member whose open-formula (L1) summary row is
+    /// withheld. Preview-physics retires every summary row, so these apply
+    /// only when it does not render (`withhold_certified_summaries`).
+    withheld_summaries: Vec<Diagnostic>,
 }
 
 #[derive(Debug, Clone)]
@@ -2820,6 +2825,9 @@ fn run_linear_static_preview_observed(
     let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
+    if preview.is_none() {
+        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);
+    }
     let max_displacement = maximum_across_cases(&load_case_solves, false);
     let max_stress = maximum_across_cases(&load_case_solves, true);
     let component_stress_modifier_count = load_case_solves
@@ -4019,6 +4027,21 @@ fn assemble_case_stiffness(
     Ok(stiffness)
 }
 
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2) when preview-physics
+/// does not render (a case of the invocation is source-selected): a certified
+/// member whose open-formula summary is unavailable keeps its signed rows, its
+/// withheld summary row is named, and its case's stress maximum covers an
+/// incomplete member domain, so it is withheld (as on the exact route and in
+/// preview-physics), which also withholds the invocation's headline.
+fn withhold_certified_summaries(solves: &mut [LoadCaseSolve], diagnostics: &mut Vec<Diagnostic>) {
+    for solve in solves {
+        if !solve.withheld_summaries.is_empty() {
+            diagnostics.append(&mut solve.withheld_summaries);
+            solve.max_stress = None;
+        }
+    }
+}
+
 fn maximum_across_cases(cases: &[LoadCaseSolve], stress: bool) -> Option<LocatedQuantity> {
     // A headline covers the complete requested domain, never only available members.
     if cases.iter().any(|case| {
@@ -4125,9 +4148,17 @@ fn case_force_ledger(
     ledger
 }
 
-/// The retained-source replay's case force (S11 section 4.5): the same live
-/// producer functions as `solve_load_case` (nodal loads, then T1's eigen
-/// equivalents), through the ledger. Retained scope admits no other producer.
+/// The retained-source replay's case force (S11 section 4.5), through the
+/// ledger: nodal loads, then T1's eigen equivalents by the live
+/// `add_thermal_equivalent_loads`. The live ledger's nodal producer is
+/// `certified_loads::nodal` (K-D5, DEL-04-01 kd5-member-relative-bound.md
+/// §1), which pushes the same value per load: a plain input term for an
+/// unscaled authored load, and for a load-source-factored load a formed
+/// RoundedProduct term carrying its closure summand. The replay uses
+/// `push_nodal_loads`, which pushes every nodal load as a plain term with no
+/// closure metadata, so its values agree bit for bit with the live ledger's
+/// while it never feeds K-D5's closure. Retained scope admits no other
+/// producer.
 pub(crate) fn nodal_and_eigen_case_force(
     application: &LoadApplication,
     eigen: &[ThermalElementLoad],
@@ -4464,6 +4495,7 @@ fn solve_load_case_observed(
             component_stress_modifier_count: 0,
             component_pressure_thrust_load_count: 0,
             preview: None,
+            withheld_summaries: Vec::new(),
         });
     }
 
@@ -4499,6 +4531,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
         }
         None => build_thermal_element_loads(
@@ -4605,6 +4638,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
         }
     }
@@ -4890,6 +4924,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
                     }
                 },
@@ -4921,6 +4956,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
                 }
             }
@@ -5048,6 +5084,7 @@ fn solve_load_case_observed(
                     component_stress_modifier_count: 0,
                     component_pressure_thrust_load_count: 0,
                     preview: None,
+                    withheld_summaries: Vec::new(),
                 });
             }
         }
@@ -5351,6 +5388,7 @@ fn solve_load_case_observed(
     let mut max_stress = None;
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
+    let mut withheld_summaries = Vec::new();
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         // T4-U3 (S20): a replaced span has no member rows, maxima or
@@ -5823,12 +5861,33 @@ fn solve_load_case_observed(
                 summary_values.push(certified_publication::summary(rows,section).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified station summary",value:f64::NAN })?);
             }
         }
+        // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): on the
+        // certified route, coefficient uncertainty that prevents the unchanged
+        // gap (or an overflowing enclosure) makes the member's L1 summary
+        // unavailable by name; the signed rows stay published. Only the
+        // binary64 point-coefficient route keeps its blocking refusal.
+        let mut summary_unavailable = false;
         if macro_bend.is_none() && !pressure_runtime::is_exact(model) && recovered_member.is_none() {
             let summary_extrema=if let Some(spans)=&certified_spans {
                 spans.as_ref().map_err(Clone::clone).and_then(|spans|certified_publication::l1_summary(spans))
             } else {straight_summary_extrema(pipe,&corrected_local_forces,&straight_loads,section).map_err(|error|error.to_string())};
             match summary_extrema {
                 Ok(value) => summary_values.push(value),
+                Err(error) if certified_spans.is_some() => {
+                    summary_unavailable = true;
+                    // The preview-physics route retires the summary row and
+                    // names the circular maximum's own unavailability. Whether
+                    // it renders is decided for the whole invocation (no case
+                    // source-selected), so the withheld row's warning waits
+                    // for that decision (`withhold_certified_summaries`).
+                    withheld_summaries.push(diag(
+                        &format!("diagnostic:stress:{}:summary-unavailable", stable_suffix(&pipe.element_id)),
+                        "STRESS_RECOVERY_LIMITED",
+                        "warning",
+                        format!("signed rows remain available; the open-formula stress summary of {} is unavailable: {error}", pipe.element_id),
+                        vec![pipe.element_id.clone()],
+                    ));
+                }
                 Err(error) => diagnostics.push(diag(
                     "diagnostic:stress:straight-extrema",
                     "ELEMENT_FORCE_RECOVERY_FAILED",
@@ -5838,7 +5897,9 @@ fn solve_load_case_observed(
                 )),
             }
         }
-        let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
+        let summary_value = if summary_unavailable {
+            None
+        } else if pressure_runtime::is_exact(model) && selected_source.is_some() {
             // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
             // unloaded circular straight span only; the arc policy gates it.
             // The withheld reason is a static text borrowed, not formatted, inside
@@ -6139,6 +6200,7 @@ fn solve_load_case_observed(
         component_stress_modifier_count,
         component_pressure_thrust_load_count,
         preview: preview_record,
+        withheld_summaries,
     })
 }
 
@@ -13919,6 +13981,110 @@ mod nonlinear_context_passthrough_tests {
     }
 }
 
+/// Review finding F3 (DEL-04-01 kd5-member-relative-bound.md §3.2): a
+/// certified member's withheld open-formula summary row was silently omitted
+/// whenever another case of the invocation was source-selected (preview-physics
+/// does not render then), and that case's stress maximum became the maximum
+/// over the other members. On the public entries this combination is refused
+/// today before publication: the summary's coefficient width is far below the
+/// member bound B, so a withheld summary implies a unified-predicate demotion
+/// after routing, which a pre-0.4 captured invocation refuses
+/// (`s11g_tests::t20_*`, SOURCE_BLOCKS_FINALIZATION_FAILED). The disposition is
+/// pinned here directly.
+#[cfg(test)]
+mod kd5_withheld_summary_tests {
+    use super::*;
+
+    fn solve(case: &str, member: &str, withheld: bool) -> LoadCaseSolve {
+        LoadCaseSolve {
+            load_state_evidence: None,
+            exact_case_evidence: None,
+            pressure_evidence: Vec::new(),
+            source_case: None,
+            source_selected: false,
+            load_case_id: case.to_string(),
+            results: Vec::new(),
+            max_displacement: None,
+            max_stress: Some(LocatedQuantity {
+                value: 1.0,
+                unit: "MPa".to_string(),
+                location_ref: member.to_string(),
+                result_ref: format!("result:stress:{member}"),
+            }),
+            component_stress_modifier_count: 0,
+            component_pressure_thrust_load_count: 0,
+            preview: None,
+            withheld_summaries: if withheld {
+                vec![diag(
+                    &format!("diagnostic:stress:{member}:summary-unavailable"),
+                    "STRESS_RECOVERY_LIMITED",
+                    "warning",
+                    format!("signed rows remain available; the open-formula stress summary of {member} is unavailable: test"),
+                    vec![member.to_string()],
+                )]
+            } else {
+                Vec::new()
+            },
+        }
+    }
+
+    #[test]
+    fn kd5_withheld_summary_is_named_and_withholds_the_maximum_without_preview() {
+        let mut solves = vec![solve("case", "a", false), solve("case-b", "b", true)];
+        // Precondition: without the disposition the headline would be the
+        // other members' maximum.
+        assert!(maximum_across_cases(&solves, true).is_some());
+        let mut diagnostics = Vec::new();
+        withhold_certified_summaries(&mut solves, &mut diagnostics);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, "STRESS_RECOVERY_LIMITED");
+        assert_eq!(diagnostics[0].severity, "warning");
+        assert_eq!(diagnostics[0].affected_refs, vec!["b".to_string()]);
+        assert!(solves[0].max_stress.is_some(), "a complete case keeps its maximum");
+        assert!(solves[1].max_stress.is_none(), "the incomplete case withholds its maximum");
+        assert!(solves[1].withheld_summaries.is_empty());
+        assert!(maximum_across_cases(&solves, true).is_none(), "the headline is withheld");
+        // The invocation applies it exactly when preview-physics does not
+        // render, and the per-member site defers the warning to it.
+        let code = include_str!("lib.rs");
+        assert!(code.contains("    if preview.is_none() {\n        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);\n    }"));
+        assert!(code.contains("                    withheld_summaries.push(diag(\n"));
+    }
+}
+
+/// Review finding F7(c): the precondition of the integration test
+/// `tests/kd5_preview_maximum_enclosure.rs` on its U-line fixture. The
+/// published evidence carries the global upper only (§3.2), so the witness
+/// interval is read before publication: on the middle-leg tie its upper lies
+/// strictly below the global upper in both modes, so publishing the witness
+/// upper (the killed mutant) is observable there.
+#[cfg(test)]
+mod kd5_maximum_witness_tests {
+    use super::*;
+
+    #[test]
+    fn kd5_u_line_witness_upper_lies_below_the_global_upper() {
+        let request: LinearStaticPreviewRequest = serde_json::from_str(include_str!(
+            "../tests/fixtures/kd5_maximum_u_line.json"
+        ))
+        .unwrap();
+        let project = request.model.project.id.clone();
+        assert!(project.starts_with("kd5-max:"));
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let _ = preview_physics::witness_hook::take(&project);
+            let envelope = run_linear_static_preview_with_mode(request.clone(), mode);
+            assert!(envelope.diagnostics.iter().any(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{mode:?}");
+            let seen = preview_physics::witness_hook::take(&project);
+            assert_eq!(seen.len(), 3, "{mode:?}: one maximum per straight member: {seen:?}");
+            assert!(seen.iter().all(|(_, witness, global)| witness <= global), "{mode:?}: {seen:?}");
+            assert!(
+                seen.iter().any(|(_, witness, global)| witness < global),
+                "{mode:?}: precondition, a witness upper lies below its global upper: {seen:?}"
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -14975,9 +15141,15 @@ mod tests {
                 encoded["formulation_basis"]["profile_id"],
                 "product_preview_mechanics_v1"
             );
+            // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6 TEXT): the
+            // linear profile adds its limitation and scope sentences.
             assert_eq!(
                 output.formulation_basis.limitations,
-                preview_physics::LIMITATIONS.map(str::to_string).to_vec()
+                preview_physics::formulation_basis().limitations
+            );
+            assert_eq!(
+                output.formulation_basis.limitations.len(),
+                preview_physics::LIMITATIONS.len() + 2
             );
             assert!(output.contract_evidence.is_some());
         }
@@ -22470,10 +22642,13 @@ mod tests {
                 "{mode:?}: {}",
                 integrity.message
             );
-            assert!(output
-                .diagnostics
-                .iter()
-                .any(|d| d.code == "ELEMENT_FORCE_RECOVERY_FAILED" && d.severity == "blocking"));
+            // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1-3.2): the
+            // case now publishes certified rows, so the derived-row overflow is
+            // met first by the certified stress publication, which refuses the
+            // invocation by name (§3.2: an unrepresentable required magnitude
+            // follows a named refusal); main's binary64 refusal ("computed
+            // mechanics must be finite, got inf" with ELEMENT_FORCE_RECOVERY_FAILED)
+            // is no longer reached. No solved row is published either way.
             let blocked: Vec<_> = output
                 .diagnostics
                 .iter()
@@ -22482,9 +22657,12 @@ mod tests {
             assert_eq!(blocked.len(), 1, "{mode:?}");
             assert_eq!(blocked[0].id, "diagnostic:physics:solver");
             assert_eq!(blocked[0].severity, "blocking");
-            assert_eq!(
-                blocked[0].message,
-                "computed mechanics must be finite, got inf"
+            assert!(
+                blocked[0]
+                    .message
+                    .starts_with("certified endpoint stress must be finite"),
+                "{mode:?}: {}",
+                blocked[0].message
             );
         }
     }

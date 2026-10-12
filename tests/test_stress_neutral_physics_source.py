@@ -270,15 +270,17 @@ def test_value_bits_annotation_refuses_nonfinite_mismatch_and_noncanonical_zero(
 
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_original(mode, tmp_path):
-    path = COMPOSITE_DIR / f"mixed-{mode}.raw.json"
+    # K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1, 3.4): the composite `mixed` source's CHECKS_PASSED
+    # case now publishes its exactly-zero certified rows as +0 (its 31 received -0 rows are gone), so the
+    # actual producer source with both received zero signs is the source-block multicase capture.
+    path = PROJECT / f"fixtures/product_preview/source_blocks/ui/multicase-{mode}.raw.json"
     raw, analysis, packet = captured(path)
     before = deepcopy(raw)
     original_bits = {row["id"]: struct.pack(">d", float(row["value"])).hex() for row in raw["results"]}
     negative_ids = {identity for identity, bits in original_bits.items() if bits == "8000000000000000"}
     positive_ids = {identity for identity, bits in original_bits.items() if bits == "0000000000000000"}
     assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
-    if mode == "sparse_interactive":
-        assert len(negative_ids) == 31, "Retain the independent review's original signed-zero failure population"
+    assert len(negative_ids) == 5, "the capture's received -0 population"
     sn.write_materialized_members_v0_3(packet, tmp_path)
     reread = sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")

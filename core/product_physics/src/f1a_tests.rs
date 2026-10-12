@@ -165,7 +165,13 @@ fn f1a_kd5_demoted_case_carries_exactly_one_d5_line() {
 
 /// Non-demoted cases carry no D-5 line: P1's 345 and RF-CHAIN r1e-04
 /// continuity controls (K-D5 Passed), and an S11-G-demoted case K-D5 leaves
-/// Passed (RF-CANCEL-UDL-W1e8), whose record keeps S11-G's sentence alone.
+/// Passed, whose record keeps S11-G's sentence alone. Under K-D5's closure
+/// (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2) RF-CANCEL-UDL-W1e8 itself
+/// is demoted at the solve (D5C-1 at S1:RZ); the S11-G-only case is the same
+/// request with a soft 10 m branch from S1 carrying a 2e-6 N tip force, whose
+/// rotation (about 1e-3 rad) sets the body's rotation scale so K-D5 passes,
+/// while the load-row guard's coupled moment scale is unchanged and it still
+/// fires at S1:RZ.
 #[test]
 fn f1a_non_demoted_cases_carry_no_d5_line() {
     for name in [
@@ -192,6 +198,16 @@ fn f1a_non_demoted_cases_carry_no_d5_line() {
         .find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8"))
         .unwrap()["request"]
         .clone();
+    // HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf; DEL-04-01
+    // kd5-member-relative-bound.md "The rulings"): this demotion at the solve
+    // is an expected outcome of the closed residual.
+    for mode in MODES {
+        let d = integrity(&solved(Entry::Typed, &request, mode), "case").clone();
+        assert_eq!(d.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{mode:?}");
+        assert!(d.message.contains(&format!("{D5}reason=estimate; row=S1:RZ;")), "{mode:?}");
+        assert!(!d.message.contains(LOAD_ROW), "{mode:?}");
+    }
+    let request = udl_w1e8_with_soft_branch();
     for entry in ENTRIES {
         for mode in MODES {
             let label = format!("UDL-W1e8 {entry:?} {mode:?}");
@@ -659,4 +675,41 @@ fn f1a_no_record_is_byte_identical_to_main() {
             );
         }
     }
+}
+
+/// RF-CANCEL-UDL-W1e8 with a soft 10 m branch from S1 (OD 2 mm, wall 0.2 mm)
+/// carrying a 2e-6 N tip force: the branch tip's rotation (about 1e-3 rad)
+/// sets the body's rotation scale, so K-D5 (DEL-04-01
+/// kd5-member-relative-bound.md §1, D5C-1 on the closed w) passes, while the
+/// load-row guard's coupled moment scale is unchanged and it still fires at
+/// S1:RZ: a Passed report with a load-row finding.
+pub(crate) fn udl_w1e8_with_soft_branch() -> Value {
+    let data: Value =
+        serde_json::from_str(include_str!("../tests/fixtures/s11f/rf_cancel_cases.json")).unwrap();
+    let mut request = data["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8"))
+        .unwrap()["request"]
+        .clone();
+    let model = &mut request["model"];
+    let provenance = model["nodes"][0]["provenance"].clone();
+    model["nodes"].as_array_mut().unwrap().push(json!({"id": "S3", "position": {"x": 2.0, "y": 10.0, "z": 0.0}, "provenance": provenance}));
+    let mut branch = model["pipe_segments"][0].clone();
+    branch["id"] = json!("C");
+    branch["from"] = json!("S1");
+    branch["to"] = json!("S3");
+    branch["y_reference"] = json!({"x": 1, "y": 0, "z": 0});
+    branch["section"] = json!({"outside_diameter": {"unit": "m", "value": 0.002}, "wall_thickness": {"unit": "m", "value": 0.0002}});
+    model["pipe_segments"].as_array_mut().unwrap().push(branch);
+    let mut tip = model["load_cases"][0]["primitive_loads"][0].clone();
+    tip["id"] = json!("load:tip");
+    tip["category"] = json!("concentrated_force");
+    tip["dimension"] = json!("force");
+    tip["direction"] = json!("global_z");
+    tip["magnitude"] = json!({"unit": "N", "value": 2e-6});
+    tip["target"] = json!({"node": "S3", "type": "node"});
+    model["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(tip);
+    request
 }
