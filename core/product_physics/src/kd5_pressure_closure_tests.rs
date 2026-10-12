@@ -140,20 +140,61 @@ fn operand_reference(formula: &LoadFormula) -> f64 {
     force * c * d
 }
 
+/// The skew single-arc sketch with its node-B terminal closure separately
+/// supported: the region terminal sits at the realized arc's end j and its
+/// cap does not transfer to the wall, so the arc's `-c_b` summand at B has no
+/// `terminal_cap` (and, being a terminal, no kink remainder) to cancel it.
+/// `traverse_region` admits a terminal at an arc end and the terminal
+/// validation admits either closure, so this is an admitted configuration in
+/// which the arc's end-tangent binding changes the term's value.
+fn uncancelled_arc_end() -> Value {
+    let mut document = sketch("MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW");
+    let terminal = &mut document["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][1];
+    assert_eq!(terminal["node_ref"], "node:B");
+    terminal["closure_transfer"] = Value::from("separately_supported_or_compensated");
+    document
+}
+
 /// Each formed pressure term's summands sum, in the independent reference,
-/// to the producer's binary64 group value; each arc summand's tangent law
-/// agrees with CB's end tangents (the producer's own directions); the arc's
-/// eps_p law agrees with the represented `arc_pressure_strain`.
+/// to the producer's binary64 group value; each summand's geometry is bound
+/// at the node of its term's DOF (an arc's end tangent is end j exactly when
+/// that node is the arc's node j; a straight's frame contains the node); each
+/// arc summand's tangent law agrees with CB's end tangents (the producer's own
+/// directions); the arc's eps_p law agrees with the represented
+/// `arc_pressure_strain`. At a bend-adjacent node an arc's `-c_b` cancels its
+/// own kink remainder or transferred terminal cap, so the uncancelled
+/// arc-end sketch is the one whose value depends on the end binding.
 #[test]
 fn kd5_u2_pressure_families_bind_their_own_operands() {
-    let mut checked = [0usize; 4];
-    for id in ["U2-L-ANCH-P-K2", "U2-L-ANCH-ALL-K2-SKEW", "U2-L-KINK-ANCH-P-K2", "U2-U-ANCH-ALL-K2-SKEW-X7P3E6"] {
-        let Case { built, exact, force, .. } = case(&sketch(id));
+    let mut checked = [0usize; 5];
+    let documents = ["U2-L-ANCH-P-K2", "U2-L-ANCH-ALL-K2-SKEW", "U2-L-KINK-ANCH-P-K2", "U2-U-ANCH-ALL-K2-SKEW-X7P3E6"]
+        .map(|id| (id, sketch(id)))
+        .into_iter()
+        .chain([("uncancelled arc end", uncancelled_arc_end())]);
+    for (id, document) in documents {
+        let Case { built, exact, force, .. } = case(&document);
         let primitives = force.load_primitives();
         for (term, record) in force.closure_records().iter().enumerate() {
             let supplied: Vec<_> = primitives.iter().filter(|p| p.term_index == term).collect();
             if supplied.is_empty() || supplied[0].identity.family != "pressure_operand" {
                 continue;
+            }
+            let node = force.terms()[term].dof / DOF_PER_NODE;
+            for p in &supplied {
+                match &p.formula {
+                    LoadFormula::PressureOperand { geometry: PressureGeometry::Curved { arc }, direction: PressureDirection::Tangent { end_j, .. }, .. } => {
+                        assert!([arc.node_i, arc.node_j].contains(&node), "{id} term {term}: the arc does not meet the term's node");
+                        assert_eq!(*end_j, node == arc.node_j, "{id} term {term}: the arc's tangent is bound at the other end");
+                    }
+                    LoadFormula::PressureOperand { geometry: PressureGeometry::Straight { frame }, direction: PressureDirection::Chord { .. }, .. } => {
+                        assert!([frame.node_i.index, frame.node_j.index].contains(&node), "{id} term {term}: the straight does not meet the term's node");
+                    }
+                    other => panic!("{id} term {term}: unexpected pressure binding {other:?}"),
+                }
+            }
+            // A lone arc summand: its term's value is its own end tangent's.
+            if supplied.len() == 1 && is_arc(supplied[0]) {
+                checked[4] += 1;
             }
             // The manifest is complete, separately installed, and the supplied
             // vector matches it exactly on the unmutated producer.
@@ -302,7 +343,18 @@ fn kd5_u2_grouped_pressure_mutants_fail_closed_on_ordinary_and_w2_routes() {
     assert_eq!(scaled.closure_records().len(), control.force.closure_records().len());
     for (original, rescaled) in control.force.closure_records().iter().zip(scaled.closure_records()) {
         assert_eq!(original.formed, rescaled.formed);
-        assert_eq!(original.manifest.as_ref().map(Vec::len), rescaled.manifest.as_ref().map(Vec::len));
+        assert_eq!(original.manifest.is_some(), rescaled.manifest.is_some());
+        let (Some(original), Some(rescaled)) = (&original.manifest, &rescaled.manifest) else { continue };
+        // The same entries, each rebound with the force exponent (its last
+        // operand word) and otherwise bit-identical.
+        assert_eq!(original.len(), rescaled.len());
+        for (a, b) in original.iter().zip(rescaled) {
+            assert_eq!(a.identity, b.identity);
+            let (a_exponent, a_operands) = a.operand_bits.split_last().unwrap();
+            let (b_exponent, b_operands) = b.operand_bits.split_last().unwrap();
+            assert_eq!(a_operands, b_operands, "{:?}", a.identity);
+            assert_eq!(*b_exponent as i64, *a_exponent as i64 + 4, "{:?}", a.identity);
+        }
     }
     assert!(scaled.load_primitives().iter().all(|p| p.force_scale_exponent == 4));
     for (route, quality, check, bound) in checked_solves(&control, 4) {
