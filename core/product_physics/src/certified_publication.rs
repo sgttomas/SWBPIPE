@@ -1179,6 +1179,7 @@ mod fallback_transport_tests {
             annulus,
             pressure,
             material,
+            arc: None,
             eigenload_pair: [0.0, 0.0],
         };
         let area = annulus.wall_area_m2();

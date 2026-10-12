@@ -12,8 +12,10 @@
 //! compares. All models are invented fixtures.
 //!
 //! Addendum 2 adds `fixtures/model_operations/load_reference_authoring_control.json`
-//! the same way: pressure-profile and temperature-point authoring outcomes on the
-//! 0.2.0 and 0.3.0 fixture models, blessed from the base revision (`203396e4d`).
+//! the same way: temperature-point authoring outcomes on the 0.2.0 and 0.3.0
+//! fixture models, blessed from the base revision (`203396e4d`). Its
+//! pressure-profile rows were removed when authoring moved to
+//! `3.0.0/exact_pressure_v3` (T4-U2); `tests/exact_authoring.rs` covers the profile.
 use open_pipe_stress_operation_applier::{
     apply_operation, canonical_json, sha256_hex, validate_operation,
 };
@@ -271,7 +273,7 @@ fn delete_outcomes_without_load_state_records_are_byte_identical_to_the_base_rev
 }
 
 // ---------------------------------------------------------------------------
-// Addendum 2 (review B F1, F2, F9): pressure-profile and temperature-point
+// Addendum 2 (review B F1, F2, F9): temperature-point
 // authoring on models before 0.4.0 is byte-identical to the base revision.
 // ---------------------------------------------------------------------------
 
@@ -304,30 +306,6 @@ fn invented_points() -> Value {
 }
 fn authoring_intents(model: &Value) -> Vec<(String, Value, Value)> {
     let mut out = Vec::new();
-    let project = text(&model["project"], "id");
-    let profile: Map<String, Value> = ["schema_version", "pressure_contract"]
-        .iter()
-        .filter_map(|k| model.get(*k).map(|v| ((*k).to_string(), v.clone())))
-        .collect();
-    let before = canonical_json(&Value::Object(profile.clone()));
-    let exact = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
-    for (label, after) in [
-        (
-            "exact_0_3_0",
-            json!({"schema_version":"0.3.0","pressure_contract":exact}).to_string(),
-        ),
-        (
-            "to_0_4_0",
-            json!({"schema_version":"0.4.0","pressure_contract":exact}).to_string(),
-        ),
-        ("unchanged", Value::Object(profile.clone()).to_string()),
-    ] {
-        out.push((
-            format!("pressure_profile:{label}"),
-            model.clone(),
-            set_intent("Model", &project, "pressure_profile", &before, &after),
-        ));
-    }
     for (index, material) in model["materials"]
         .as_array()
         .into_iter()
@@ -412,7 +390,7 @@ fn authoring_outcomes() -> Value {
 }
 
 #[test]
-fn pressure_profile_and_temperature_point_outcomes_before_0_4_0_are_byte_identical_to_the_base_revision(
+fn temperature_point_outcomes_before_0_4_0_are_byte_identical_to_the_base_revision(
 ) {
     let actual = authoring_outcomes();
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(AUTHORING_GOLDEN);
@@ -423,9 +401,7 @@ fn pressure_profile_and_temperature_point_outcomes_before_0_4_0_are_byte_identic
     let golden: Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
     assert_eq!(golden, actual);
     let rows = golden.as_object().unwrap();
-    for kind in ["pressure_profile", "temperature_points"] {
-        assert!(rows.keys().any(|k| k.contains(kind)), "{kind}");
-    }
+    assert!(rows.keys().any(|k| k.contains("temperature_points")));
     assert!(rows.values().any(|r| r["applied"] == true));
     assert!(rows.values().any(|r| r["applied"] == false));
 }

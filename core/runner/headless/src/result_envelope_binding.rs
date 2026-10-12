@@ -256,6 +256,14 @@ pub fn build_result_export_document_with_evidence(request: &RunnerRequest, runne
                 .map(|id| reference("load_case", id)).ok_or("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE")
         }).collect::<Result<_, _>>()?;
         if export::semantic_contract::numerical_use_standing_with_context(&source, &requested, Some(&evidence.actual_invocation)) != "numerically_eligible" {
+            // T4-U2: an ordinary source the reader refuses is named, never reported
+            // as a numerical-standing outcome (standing reads it as "unsupported").
+            // The successors' standing comes only from their accepted reader.
+            let successor = matches!(source["producer"]["semantic_contract_id"].as_str(),
+                Some(export::semantic_contract::PREVIEW_PHYSICS_RETAINED_ID | export::semantic_contract::PHYSICS_RETAINED_ID));
+            if !successor {
+                export::semantic_contract::for_source(&source)?;
+            }
             return Err("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE".into());
         }
         let payload_ref=reference("attested_headless_producer",envelope_id);
@@ -632,6 +640,31 @@ mod tests {
      .join("../../../fixtures/product_preview/source_blocks/ui")
      .join(format!("{stem}-{}.request.json", mode.as_str()));
    serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap()
+ }
+
+ /// T4-U2: an ordinary source the reader refuses is named at export, never
+ /// reported as a numerical-standing outcome; an admitted pressure-1 arc
+ /// envelope exports.
+ #[test]
+ fn a_pressure_1_reader_refusal_is_named_at_export_both_modes() {
+   use open_pipe_stress_product_physics::PreviewSolverMode;
+   let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap();
+   let input = corpus["cases"][0]["document"].clone();
+   for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+     let output = crate::run_preview_model_value_with_mode(request(), input.clone(), mode).unwrap();
+     let mechanics = output.mechanics_envelope.as_ref().unwrap();
+     let proof = output.qualified_preview_evidence.as_ref().unwrap();
+     assert!(output.result_envelope_document.is_some(), "{mode:?}: {:?}", output.canonical_export_unavailability);
+     let mut tampered = mechanics.clone();
+     let row = tampered.results.iter_mut()
+       .find(|r| r.entity_ref == "pipe:BEND" && r.kind == "pipe_wall_axial_force_v2").unwrap();
+     row.metadata.as_mut().unwrap().sign_convention = "tension-positive material wall section resultant Nw".into();
+     let mut forged = proof.clone();
+     forged.mechanics_digest = export::derivative::digest(&serde_json::to_value(&tampered).unwrap()).unwrap();
+     let refusal = build_result_export_document_with_evidence(&request(), &output.runner_result, &tampered, &forged).unwrap_err();
+     assert!(refusal.message.contains("SOURCE_PHYSICS_ROW_SEMANTICS"), "{mode:?}: {}", refusal.message);
+     assert!(!refusal.message.contains("NEEDS_RECOMPUTE"), "{mode:?}: {}", refusal.message);
+   }
  }
 
  #[test]

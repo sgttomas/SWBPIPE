@@ -18,19 +18,6 @@ from collections.abc import Mapping
 from typing import Any
 
 PROFILE = "exact_straight_pressure_v2"
-# T4-U2a: the exact pressure contracts a reader dispatches on. v2 (physics-1,
-# load-reference-1) refuses p_pa < 0; v3 (pressure-1, 0.3.0 and 0.4.0 shapes)
-# admits straight families only, with signed p_pa. Neither reads the other.
-STRAIGHT_V2 = ("2.0.0", "exact_straight_pressure_v2")
-PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
-PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_PROFILE = "exact_pressure_v3"
-V3_READ_AS_V2 = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2"
-V2_READ_AS_V3 = "SOURCE_PHYSICS_EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3"
-CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
-_TABLES = {STRAIGHT_V2: "semantic_contract_v0_3_physics_1.json", PRESSURE_V3: "semantic_contract_v0_3_pressure_1.json"}
 PIPE_KINDS = {
     "pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2",
     "pipe_effective_axial_force_v2", "pipe_axial_membrane_stress_v2",
@@ -47,23 +34,6 @@ SIGNS = {
     "pipe_lame_hoop_stress_v2": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment",
 }
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
-
-# T4-U3 (S14): objective connector rows and records, pressure-1 only (the
-# connector_* rows of semantic_contract_v0_3_pressure_1.json; Rust
-# ``connector_evidence``). kind -> (unit, components, locations).
-CONNECTOR_KINDS = {
-    "connector_generalized_translation_v1": ("m", ("qt_x", "qt_y", "qt_z"), ("connector_local",)),
-    "connector_generalized_rotation_v1": ("rad", ("qr_x", "qr_y", "qr_z"), ("connector_local",)),
-    "connector_generalized_force_v1": ("N", ("gt_x", "gt_y", "gt_z"), ("connector_local",)),
-    "connector_generalized_moment_v1": ("N*m", ("gr_x", "gr_y", "gr_z"), ("connector_local",)),
-    "connector_endpoint_force_v1": ("N", ("Fx", "Fy", "Fz"), ("end_i", "end_j")),
-    "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
-}
-CONNECTOR_ROWS_PER_CASE = 24
-CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
-CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
-CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
-CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
 
 GEOMETRY = {"pipe_id", "geometry_basis", "outside_diameter_m", "effective_wall_thickness_m", "ri_m", "ro_m", "Ai_m2", "As_m2", "I_m4", "J_m4", "Z_m3"}
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
@@ -120,58 +90,12 @@ def validate_physics_evidence(source: Mapping[str, Any]) -> None:
         raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
 
-def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Raw pressure-1 publication (3.0.0/exact_pressure_v3), Rust ``validate_pressure_evidence``.
-
-    A 0.4.0 envelope carries ``load_reference_states`` and takes the
-    load/reference pre-pass first; a 0.3.0 envelope takes the physics checks."""
-    evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
-    if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
-        from .load_reference_evidence import validate_pressure_load_reference_evidence
-        validate_pressure_load_reference_evidence(source)
-        return
-    try:
-        _validate_physics_evidence(source, contract=PRESSURE_V3)
-    except (TypeError, KeyError, AttributeError, OverflowError) as error:
-        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
-
-
-def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Dispatch on the producer's contract identity; an unknown identity is refused."""
-    from .load_reference_evidence import validate_load_reference_evidence
-    producer = source.get("producer") if isinstance(source, Mapping) else None
-    identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
-    if identity == PHYSICS_ID:
-        validate_physics_evidence(source)
-    elif identity == LOAD_REFERENCE_ID:
-        validate_load_reference_evidence(source)
-    elif identity == PRESSURE_ID:
-        basis = source.get("formulation_basis")
-        _require(isinstance(basis, Mapping) and basis.get("profile_id") == PRESSURE_PROFILE, "pressure-1 formulation profile")
-        validate_pressure_evidence(source)
-    else:
-        raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
-
-
-def _contract_identity(evidence: Any, contract: tuple[str, str]) -> None:
-    other = PRESSURE_V3 if contract == STRAIGHT_V2 else STRAIGHT_V2
-    if not isinstance(evidence, Mapping):
-        return
-    cases = evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []
-    regions = evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []
-    if any(isinstance(c, Mapping) and c.get("profile_mode") == other[1] for c in cases) or any(
-            isinstance(r, Mapping) and (r.get("profile_mode") == other[1] or r.get("profile_version") == other[0]) for r in regions):
-        raise ValueError(V3_READ_AS_V2 if contract == STRAIGHT_V2 else V2_READ_AS_V3)
-
-
-def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None, contract: tuple[str, str] = STRAIGHT_V2) -> None:
-    _require(context is None or contract == STRAIGHT_V2, "composite contract")
-    _contract_identity(source.get("contract_evidence"), contract)
+def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None) -> None:
     _require(not any(key in source for key in (("source_block_recovery", "carrier_evidence") if context is None else ("carrier_evidence",))), "unsupported source namespace")
     evidence = source.get("contract_evidence")
     _shape(evidence, {"pressure", "connector", "exact_cases"}, "namespace")
     _finite_tree(evidence)
-    _require((contract == PRESSURE_V3 and isinstance(evidence["connector"], list) or evidence["connector"] == []) and isinstance(evidence["pressure"], list), "unsupported connector")
+    _require(evidence["connector"] == [] and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
     rows = _indexed(source.get("results"), "id", "result IDs")
     quality = source.get("numerical_quality", {}).get("cases", [])
@@ -184,7 +108,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
         _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()), "case shape")
-        _require(case["profile_mode"] == contract[1] and _text(case["material_basis"]), "case profile/material basis")
+        _require(case["profile_mode"] == PROFILE and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
         _require(bool(geometries[cid]) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
@@ -236,7 +160,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
         regions.add((cid, rid))
         region_pressures[cid, rid] = region["p_pa"]
-        _require(region["profile_mode"] == contract[1] and region["profile_version"] == contract[0] and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]) and (contract == PRESSURE_V3 or region["p_pa"] >= 0), "region pressure basis")
+        _require(region["profile_mode"] == PROFILE and region["profile_version"] == "2.0.0" and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]) and region["p_pa"] >= 0, "region pressure basis")
         _require(_text(region["provenance"]) and region["approximation"] == "long_straight_annulus_small_strain_v2" and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
         members = region["member_pipe_ids"]
         _require(_strings(members, True) and set(members) <= set(geometries[cid]), "region members")
@@ -275,7 +199,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
         _require(_strings(ids, True) and set(ids) == expected and not bindings.intersection(ids), "region result binding")
         bindings.update(ids)
-    table = json.loads((Path(__file__).resolve().parents[2] / "fixtures/results" / _TABLES[contract]).read_text()) if context is None else context.TABLE
+    table = json.loads((Path(__file__).resolve().parents[2] / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_text()) if context is None else context.TABLE
     support_components: dict[tuple[str, str], list[str]] = {}
     physical_slots: set[tuple[str, str, str, str, str]] = set()
     for row in rows.values():
@@ -310,7 +234,6 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
                 _require(row["id"] in extrema_ids, "unbound extrema row")
             else:
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
-    _validate_connectors(evidence["connector"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED", contract == PRESSURE_V3)
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     headline = source.get("summary", {}).get("max_open_formula_stress")
@@ -346,62 +269,6 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any = None
                 _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
             else:
                 _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
-
-
-def _connector_matrix3(value: Any) -> bool:
-    return isinstance(value, list) and len(value) == 3 and all(_vector(row, 3) for row in value)
-
-
-def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool, admitted: bool) -> None:
-    """T4-U3 (S14): ``contract_evidence.connector`` records and the rows bound
-    to them, pressure-1 only (Rust ``connector_evidence::validate``)."""
-    _require(isinstance(records, list) and (admitted or not records), "unsupported connector")
-    spans: dict[str, str] = {}
-    for record in records:
-        _shape(record, CONNECTOR_RECORD, "connector record shape")
-        _require(all(_text(record[k]) for k in ("component_id", "replaced_pipe_id", "node_i", "node_j", "provenance")) and record["node_i"] != record["node_j"], "connector record identity")
-        _require(record["topology"] == "replaces_span" and record["motion_basis"] == "symmetric_midpoint_small_rotation_v1" and record["calibration"] == "constant_structural_elasticity_v1"
-                 and record["hardware"] == "untied" and record["pressure_model"] == "unpressurized" and record["temperature_applicability"] == "fixed_installed_parameters_v1"
-                 and record["reference_state"] in {"stress_free", "prestressed"}, "connector record law")
-        _require(all(_connector_matrix3(record[k]) for k in ("connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global"))
-                 and _vector(record["end_i_offset_local_m"], 3) and _vector(record["end_j_offset_local_m"], 3) and _vector(record["q_ref"], 6)
-                 and _number(record["installed_reference_temperature_k"]) and record["installed_reference_temperature_k"] > 0, "connector record frame")
-        matrix = record["work_matrix"]
-        _require(isinstance(matrix, Mapping) and set(matrix) == CONNECTOR_MATRIX and matrix["representation"] == "scaled_work_coefficients_v1"
-                 and matrix["coordinate_order"] == ["tx", "ty", "tz", "rx", "ry", "rz"] and _number(matrix["translation_scale_m"]) and matrix["translation_scale_m"] > 0
-                 and _number(matrix["rotation_scale_rad"]) and matrix["rotation_scale_rad"] == 1 and matrix["coefficient_unit"] == "N*m"
-                 and _vector(matrix["upper_triangle"], 21) and _text(matrix["source_reference"]), "connector work matrix")
-        _require(record["component_id"] not in spans, "duplicate connector record")
-        _require(record["replaced_pipe_id"] not in spans.values(), "duplicate connector replaced span")
-        _require(record["replaced_pipe_id"] not in members, "connector replaced span published")
-        spans[record["component_id"]] = record["replaced_pipe_id"]
-    replaced = set(spans.values())
-    slots: set[tuple[str, str, str, str, str]] = set()
-    counts: dict[tuple[str, str], int] = {}
-    for row in rows.values():
-        _require(row.get("entity_ref") not in replaced, "connector replaced span published")
-        kind = row.get("kind", "")
-        if not kind.startswith("connector_"):
-            continue
-        _require(admitted, "unsupported connector")
-        _require(kind in CONNECTOR_KINDS, "unknown connector kind")
-        _require(row.get("entity_ref") in spans, "unbound connector row")
-        unit, components, locations = CONNECTOR_KINDS[kind]
-        metadata = row.get("metadata")
-        _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "connector metadata shape")
-        local = metadata["location"] == "connector_local"
-        _require(row.get("unit") == unit and metadata["component"] in components and metadata["location"] in locations
-                 and metadata["coordinate_system"] == ("connector_axes_q" if local else "global")
-                 and metadata["basis"] == f"objective_connector_v1;replaces_span={spans[row['entity_ref']]};symmetric_midpoint_small_rotation_v1"
-                 and metadata["sign_convention"] == (CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
-        case = row["basis_ref"]["ref_id"]
-        _require(case in cases, "connector row case")
-        slot = (case, row["entity_ref"], kind, metadata["component"], metadata["location"])
-        _require(slot not in slots, "duplicate connector row")
-        slots.add(slot)
-        counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
-    if solved:
-        _require(all(counts.get((case, component)) == CONNECTOR_ROWS_PER_CASE for case in cases for component in spans), "connector row coverage")
 
 
 def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:

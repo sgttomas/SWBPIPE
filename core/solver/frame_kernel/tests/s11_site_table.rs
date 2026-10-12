@@ -382,6 +382,13 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/arc_certificate.rs", "abs_up", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
     ("FK/structural/arc_certificate.rs", "abs_dn", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
     ("FK/structural/arc_certificate.rs", "u_term", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
+    ("FK/structural/arc_certificate.rs", "arc_geometry", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "arc_flexibility", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "invert_equilibrated", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "certify_curved_recovery", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "bound_end_actions", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "group", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
+    ("FK/structural/arc_certificate.rs", "with_resolution", 0, "O-13: ball arithmetic as T4-U1b's (Wide midpoints, binary64 radii through directed helpers); a bound, nothing published"),
     // ---- K2b (ROOT's K2b ruling 5: declared, additive; no row above changes).
     // The force-scaled load and publication sites sum through ExactAccumulator.
     ("FK/load_ledger.rs", "force_scaled", 0, "K2b: the ledger's terms times 2^b, exactly; each DOF's net one exact sum, rounded once (as finish)"),

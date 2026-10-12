@@ -241,7 +241,8 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     enum = schema["$defs"]["RowDisclosure"]["properties"]["reason_code"]["enum"]
     assert enum[-2:] == CODES and len(set(enum)) == len(enum)
     clause = {"properties": {"row_disclosures": {"items": {"properties": {"reason_code": {"not": {"enum": CODES}}}}}}}
-    branches = schema["$defs"]["ResultEnvelope"]["oneOf"]
+    from tests.schema_validation import envelope_branches
+    branches = envelope_branches(schema)  # pressure-1's branch is held in results_pressure_1.v0.3
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         if sid in SUCCESSORS:
@@ -323,7 +324,7 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         refused = {"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])
         assert refused is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 9
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 10  # T4-U2 added pressure-1
     contract = schema["$defs"]["SemanticContract"]
     assert {"properties": {"id": {"const": SUCC}, "sha256": {"const": SUCC_SHA}}} in contract["oneOf"]
     # Two receipt-carrying identities without a former `not` now refuse a receipt.
@@ -401,7 +402,7 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
         ids.append(sid)
         assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 9
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 10  # T4-U2 added pressure-1
 
 
 # ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).

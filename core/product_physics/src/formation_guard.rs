@@ -30,7 +30,16 @@
 //!   wall and support group. It fires for a nonfinite bound or exactly
 //!   `B > RD(1e-9) q` with `S* >= 2^-988` and `q_hat >= 2^-34 S*`.
 //!   The force and moment body scales are coupled; the floor uses the
-//!   certified upper magnitude. No resolution conjunct applies.
+//!   certified upper magnitude. No resolution conjunct applies. It is the
+//!   one unified predicate for straight members, realized arcs, connectors
+//!   and supports (DEL-04-01 `kd5-member-relative-bound.md` section 3.3); it
+//!   replaces O-13's arc predicate and its B_u. S* is O-13's coupled
+//!   [`ActionScales`] over the repaired published groups.
+//! - **The short-bend rule** (HELP_HUMAN's R-1, option (c), O-13) demotes a
+//!   case that publishes a realized bend whose arc length is below
+//!   `SHORT_BEND_PASSED_RATIO` of its shorter neighbour. K-D5 supersedes it
+//!   (section 4.3); batch 4 removes it only after the closed recovery is
+//!   verified on the integrated producer, so it stays wired until then.
 
 use super::{Diagnostic, ResultItem, DOF_PER_NODE};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
@@ -60,6 +69,7 @@ pub(crate) const NAMED: usize = 6;
 pub(crate) enum Guard {
     LoadRow,
     Recovery,
+    ShortBend,
 }
 
 /// One case's finding: the guard, the reason sentence appended to the
@@ -351,8 +361,9 @@ pub(crate) struct RecoveryRecord {
     pub(crate) groups: Vec<RecoveryGroup>,
 }
 
-/// Coupled force and moment scales over every repaired published group.
-pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, (f64, f64)> {
+/// Coupled force and moment scales (O-13's [`ActionScales`]) over every
+/// repaired published group.
+pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, ActionScales> {
     let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
     for record in records {
         let Some(body) = record.body else { continue };
@@ -365,8 +376,8 @@ pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> Hash
     maxima.into_iter().map(|(body, (force, moment))| {
         let extent = bodies.extent(body);
         let scales = if extent > 0.0 && extent.is_finite() {
-            (force.max(moment / extent), moment.max(extent * force))
-        } else { (force, moment) };
+            ActionScales { force: force.max(moment / extent), moment: moment.max(extent * force) }
+        } else { ActionScales { force, moment } };
         (body, scales)
     }).collect()
 }
@@ -404,17 +415,25 @@ fn action_class(kind: &str, unit: &str) -> Option<(bool, f64)> {
     }
 }
 
-/// S*_moment per body over the case's published rows (DESIGN section
-/// 4.1.6.1): S(force) and S(moment) are the largest |row| of each class in
-/// the body; mo = max(S(moment), L_b S(force)). Rows of `excluded` members
-/// (curved spans, entity rule 2b) and rows whose entity has no body are not
-/// covered.
-pub(crate) fn moment_scales(
+/// A body's coupled scales over the case's published rows (DESIGN section
+/// 4.1.6.1 items 5 and 6): fo = max(S(force), fl(S(moment)/L_b)) and
+/// mo = max(S(moment), fl(L_b S(force))).
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub(crate) struct ActionScales {
+    pub(crate) force: f64,
+    pub(crate) moment: f64,
+}
+
+/// The coupled scales per body: S(force) and S(moment) are the largest |row|
+/// of each class in the body. Rows of `excluded` members (realized arcs
+/// without an arc recovery record, entity rule 2b) and rows whose entity has
+/// no body are not covered.
+pub(crate) fn action_scales(
     results: &[ResultItem],
     body_of_entity: &HashMap<String, usize>,
     excluded: &HashSet<String>,
     bodies: &Bodies,
-) -> HashMap<usize, f64> {
+) -> HashMap<usize, ActionScales> {
     let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
     for row in results {
         let Some((moment, factor)) = action_class(&row.kind, &row.unit) else {
@@ -437,14 +456,16 @@ pub(crate) fn moment_scales(
     maxima
         .into_iter()
         .map(|(body, (force, moment))| {
-            // DESIGN item 6: mo = max(S_mo, fl(L_b S_fo)).
             let extent = bodies.extent(body);
-            let mo = if extent > 0.0 {
-                moment.max(extent * force)
+            let scales = if extent > 0.0 {
+                ActionScales {
+                    force: force.max(moment / extent),
+                    moment: moment.max(extent * force),
+                }
             } else {
-                moment
+                ActionScales { force, moment }
             };
-            (body, mo)
+            (body, scales)
         })
         .collect()
 }
@@ -470,14 +491,14 @@ pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) ->
 /// Unified finding over all member locations, wall rows and support groups.
 pub(crate) fn recovery_finding(
     records: &[RecoveryRecord],
-    scales: &HashMap<usize, (f64, f64)>,
+    scales: &HashMap<usize, ActionScales>,
     case_id: &str,
 ) -> Option<FormationFinding> {
     let mut fired = Vec::new();
     for record in records {
-        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or((0.0, 0.0));
+        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or_default();
         for group in &record.groups {
-            let scale = if group.moment { scales.1 } else { scales.0 };
+            let scale = if group.moment { scales.moment } else { scales.force };
             match &group.bound {
                 Ok(bound) => match member_group_decision(group.q,group.q_hat,*bound,scale) {
                     Ok(true) => fired.push(format!("{}.{}.{}: q={:e}, B={bound:e}",record.member,group.location,group.kind,group.q)),
@@ -544,6 +565,59 @@ pub(crate) fn stress_free_notice(records: &[RecoveryRecord], case_id: &str) -> O
         format!("Load case {case_id}: every member and support force row is bounded by {force:e} N and every moment row by {moment:e} N*m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."),
         vec![case_id.to_string()],
     ))
+}
+
+// --------------------------------------------------------- short-bend rule
+
+/// HELP_HUMAN's R-1, option (c) (`arc-recovery-guard.md`, "Short bends"):
+/// below this arc-length ratio rho to the shorter adjacent member a realized
+/// bend's recovered rows carry the solve's rounding amplified by the
+/// recovery's cancellation C = a rho^-3 (a <= 13.7 on T4's L line), beyond
+/// what B_f can see, so a case publishing such a bend is not Passed. The
+/// published error is theta 2^-53 C q with theta <= 1.21, which reaches
+/// RD(1e-9) q at rho = 1.23e-2; the limit is that ratio times 2^(1/3) (a
+/// factor 2 on the error), rounded up.
+pub(crate) const SHORT_BEND_PASSED_RATIO: f64 = 1.6e-2;
+
+/// One published realized bend that is short against its neighbours.
+#[derive(Debug, Clone)]
+pub(crate) struct ShortBend {
+    pub(crate) component: String,
+    pub(crate) pipe: String,
+    pub(crate) ratio: f64,
+}
+
+/// The short-bend rule's finding for one case, or `None` when no published
+/// bend is below [`SHORT_BEND_PASSED_RATIO`].
+pub(crate) fn short_bend_finding(bends: &[ShortBend], case_id: &str) -> Option<FormationFinding> {
+    let fired: Vec<String> = bends
+        .iter()
+        .filter(|bend| bend.ratio < SHORT_BEND_PASSED_RATIO)
+        .map(|bend| format!("{} (pipe {}): {:.3e}", bend.component, bend.pipe, bend.ratio))
+        .collect();
+    (!fired.is_empty()).then(|| FormationFinding {
+        guard: Guard::ShortBend,
+        sentence: format!(
+            "Short-bend rule: load case {case_id} is Sensitive because {} realized bend(s) are short against their neighbours (arc length / shorter adjacent member length below {SHORT_BEND_PASSED_RATIO:e}): the assembled system's conditioning amplifies the solve's rounding in the bend's recovered torsion and shear beyond the 1e-9 criterion; every value is kept for inspection. Bends: [{}]{}",
+            fired.len(),
+            fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+        ),
+        fired,
+    })
+}
+
+/// The case's recovery-side findings as one: the unified member sentence,
+/// then the short-bend sentence, separated by one space. A single finding is
+/// returned unchanged (byte for byte).
+pub(crate) fn merge(findings: Vec<FormationFinding>) -> Option<FormationFinding> {
+    let mut findings = findings.into_iter();
+    let mut merged = findings.next()?;
+    for finding in findings {
+        merged.sentence = format!("{} {}", merged.sentence, finding.sentence);
+        merged.fired.extend(finding.fired);
+    }
+    Some(merged)
 }
 
 // ------------------------------------------------------------------ verdict

@@ -1363,13 +1363,6 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         model.project.units.angle ?? "rad"
       ),
       scalarGridColumn(
-        "bend-plane",
-        "Bend plane",
-        "geometry.bend_plane_orientation",
-        "Component",
-        "user-entered bend plane orientation"
-      ),
-      scalarGridColumn(
         "bend-pipe",
         "Bend pipe",
         "geometry.bend_pipe_ref",

@@ -493,7 +493,6 @@ describe("ModelTree virtual typed selection", () => {
 
     fireEvent.change(screen.getByTestId("create-component-radius"), { target: { value: "1" } });
     fireEvent.change(screen.getByTestId("create-component-angle"), { target: { value: "90" } });
-    fireEvent.change(screen.getByTestId("create-component-plane"), { target: { value: "XY" } });
     fireEvent.click(screen.getByTestId("queue-create-component-intent"));
     expect(screen.getByLabelText("New component node current value")).toHaveTextContent("Node 1 (n/1)");
     expect(queue.mock.calls.map(([intent]) => intent.change.change_kind)).toEqual(expect.arrayContaining([

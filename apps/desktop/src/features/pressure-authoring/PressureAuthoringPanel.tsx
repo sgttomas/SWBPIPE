@@ -1,8 +1,8 @@
 import { useEffect, useId, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+import { isPressureV3, PRESSURE_V3, pressureProfileTarget } from "./pressureContract";
 
-export const EXACT_PROFILE = { schema_version: "0.3.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } };
 export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
 export function materialProjection(material: object): DraftRecord {
   const value = material as DraftRecord;
@@ -66,37 +66,51 @@ function CreateExactMaterial(props: RichFormProps) {
  * pressure contract: it belongs to the pressure-free namespace, where a pressure primitive
  * is refused; a model that still carries such primitives is told so. A declared
  * 1.0.0/legacy_pressure_v1 contract is retired, and any other non-exact contract is
- * unsupported; both are refused until the model is re-authored to exact. T4-U2a: a declared
- * 3.0.0/exact_pressure_v3 contract solves its admitted (straight) families. */
+ * unsupported; both are refused until the model is re-authored. T4-U2: new authoring
+ * writes 3.0.0/exact_pressure_v3; an existing 2.0.0/exact_straight_pressure_v2 document
+ * stays solvable and is upgraded only by selecting the profile again. */
 export function pressureModeText(model: RichFormProps["model"]): string {
   const contract = model.pressure_contract;
+  const reauthor = `re-authored to ${PRESSURE_V3.mode}`;
   if (contract) {
-    if (contract.version === "2.0.0" && contract.mode === "exact_straight_pressure_v2") return contract.mode;
-    if (contract.version === "3.0.0" && contract.mode === "exact_pressure_v3") return `${contract.mode} (straight members and linear restraints or springs only; other families are refused by name; result export is not yet available)`;
+    if (contract.version === "2.0.0" && contract.mode === "exact_straight_pressure_v2") return `${contract.mode} (straight pipe only; still solvable; select ${PRESSURE_V3.mode} to upgrade it)`;
+    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; the desktop does not read pressure-1 results)`;
     const declared = `${contract.version}/${contract.mode}`;
-    if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is re-authored to exact_straight_pressure_v2)`;
-    return `${declared} (unsupported; solves are refused until the model is re-authored to exact_straight_pressure_v2)`;
+    if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is ${reauthor})`;
+    return `${declared} (unsupported; solves are refused until the model is ${reauthor})`;
   }
   if (model.schema_version === "0.3.0") return "not declared";
   const legacy = model.load_cases.reduce((count, loadCase) => count + (loadCase.primitive_loads ?? []).filter(load => load.category === "pressure" || load.dimension === "pressure").length, 0);
   return legacy > 0
-    ? `none (pressure-free namespace; this model carries ${legacy} legacy pressure primitive${legacy === 1 ? "" : "s"}, which ${legacy === 1 ? "is" : "are"} refused: remove ${legacy === 1 ? "it" : "them"} or re-author the model to exact_straight_pressure_v2)`
+    ? `none (pressure-free namespace; this model carries ${legacy} legacy pressure primitive${legacy === 1 ? "" : "s"}, which ${legacy === 1 ? "is" : "are"} refused: remove ${legacy === 1 ? "it" : "them"} or re-author the model to ${PRESSURE_V3.mode})`
     : "none (pressure-free namespace; legacy pressure primitives are refused)";
+}
+/** A region member's label: a realized bend names its k; a geometry-only
+ * bend's span must be realized before it can carry pressure. */
+function memberLabel(model: RichFormProps["model"], pipe: RichFormProps["model"]["pipe_segments"][number]): string {
+  const name = pipe.label || pipe.id;
+  const bend = model.components.find(c => (c.kind === "bend" || c.kind === "elbow") && c.geometry?.bend_pipe_ref === pipe.id);
+  if (!bend) return name;
+  if (bend.mechanics_interface?.solver_consumption === "curved_bend_macro_element") {
+    const k = bend.modifiers?.flexibility_factor_user_value?.value;
+    return `${name} (realized bend ${bend.id}, k = ${k ?? "not entered"})`;
+  }
+  return `${name} (geometry-only bend span ${bend.id}: realize this bend first)`;
 }
 export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string }) {
   const state = useRichQueue(props);
   const [profile, setProfile] = useState("");
   const profileReasonId = useId();
   const profileDisabledReason = state.busy ? "Wait for the current change to finish queuing."
-    : profile !== "exact_straight_pressure_v2" ? "Select a pressure profile before queuing this change." : undefined;
+    : profile !== PRESSURE_V3.mode ? "Select a pressure profile before queuing this change." : undefined;
   const currentProfile = { schema_version: props.model.schema_version, ...(props.model.pressure_contract ? { pressure_contract: props.model.pressure_contract } : {}) };
   const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
   return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
     <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}. Every exact-profile case needs an explicit pressure-region array, including an explicitly reviewed empty array for unpressurized cases. Existing pressure primitives must be removed explicitly before this profile can be applied. Unsupported combinations, fittings and nonlinear cases remain subject to solver diagnostics.</p>
     <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
     <fieldset disabled={state.busy}>
-      <TextField label="Pressure profile" value={profile} choices={["exact_straight_pressure_v2"]} onChange={setProfile} />
-      <button type="button" disabled={profile !== "exact_straight_pressure_v2"} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, EXACT_PROFILE, "Exact pressure profile")}>Queue pressure profile</button>
+      <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
+      <button type="button" disabled={profile !== PRESSURE_V3.mode} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, pressureProfileTarget(props.model), "Exact pressure profile")}>Queue pressure profile</button>
     </fieldset>
     {profileDisabledReason && <p id={profileReasonId}>{profileDisabledReason}</p>}
     <QueueFeedback {...state} />
@@ -109,7 +123,8 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
   useEffect(() => setRows(clone(props.loadCase.pressure_regions ?? []) as DraftRecord[]), [props.loadCase]);
   const state = useRichQueue(props);
   const update = (index: number, key: string, value: unknown) => setRows(current => current.map((row, i) => i === index ? setMember(row, key, value) : row));
-  const pipes = props.model.pipe_segments.map(p => ({ value: p.id, label: p.label || p.id }));
+  const pipes = props.model.pipe_segments.map(p => ({ value: p.id, label: memberLabel(props.model, p) }));
+  const signed = isPressureV3(props.model);
   async function submit() { try {
     const after = parseQuantities(rows) as DraftRecord[];
     const ids = after.map(row => requireText(row.id, "Region ID"));
@@ -126,12 +141,14 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     await state.queue({ object_type: "Load", ref: props.loadCase.id }, "update_load", "pressure_regions", props.loadCase.pressure_regions, after, "Pressure regions", props.loadCase.pressure_regions === undefined);
   } catch (e) { state.setError(String(e)); } }
   return <section aria-label="Case pressure regions"><h4>Pressure regions — {props.loadCase.label || props.loadCase.id}</h4>
-    <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. The solver checks continuity, straightness and physical compatibility.</p>
+    <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. {signed
+      ? "The solver checks continuity, physical compatibility and tangency: straight runs stay collinear, direction changes happen only at realized bends, and a direction change above 1e-3 rad at a bend's end is refused as a mitre. A geometry-only bend cannot carry pressure: realize it first. Tees, valves, joints and other fittings are refused by name."
+      : "The solver checks continuity, straightness and physical compatibility."}</p>
     <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
       <TextField label={`Region ${index + 1} pressure basis`} value={row.pressure_basis} choices={["internal_differential_zero_external_v1"]} onChange={v => update(index, "pressure_basis", v)} />
-      <QuantityField label={`Region ${index + 1} pressure`} dimension="pressure" value={row.pressure} onChange={v => update(index, "pressure", v)} />
+      <QuantityField label={`Region ${index + 1} pressure`} dimension={signed ? "pressure; signed (a negative value is a net external differential; external-pressure stability and collapse are not assessed)" : "pressure; p >= 0"} value={row.pressure} onChange={v => update(index, "pressure", v)} />
       {[0, 1].map(t => {
         const terminals = Array.isArray(row.terminals) ? row.terminals as DraftRecord[] : [{}, {}]; const terminal = terminals[t] ?? {};
         const edit = (key: string, value: string) => update(index, "terminals", [0, 1].map(i => i === t ? setMember(terminal, key, value) : terminals[i] ?? {}));
