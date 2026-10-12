@@ -5838,12 +5838,32 @@ fn solve_load_case_observed(
                 summary_values.push(certified_publication::summary(rows,section).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified station summary",value:f64::NAN })?);
             }
         }
+        // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): on the
+        // certified route, coefficient uncertainty that prevents the unchanged
+        // gap (or an overflowing enclosure) makes the member's L1 summary
+        // unavailable by name; the signed rows stay published. Only the
+        // binary64 point-coefficient route keeps its blocking refusal.
+        let mut summary_unavailable = false;
         if macro_bend.is_none() && !pressure_runtime::is_exact(model) && recovered_member.is_none() {
             let summary_extrema=if let Some(spans)=&certified_spans {
                 spans.as_ref().map_err(Clone::clone).and_then(|spans|certified_publication::l1_summary(spans))
             } else {straight_summary_extrema(pipe,&corrected_local_forces,&straight_loads,section).map_err(|error|error.to_string())};
             match summary_extrema {
                 Ok(value) => summary_values.push(value),
+                Err(error) if certified_spans.is_some() => {
+                    summary_unavailable = true;
+                    // The preview-physics route retires the summary row and
+                    // names the circular maximum's own unavailability.
+                    if preview_record.is_none() {
+                        diagnostics.push(diag(
+                            &format!("diagnostic:stress:{}:summary-unavailable", stable_suffix(&pipe.element_id)),
+                            "STRESS_RECOVERY_LIMITED",
+                            "warning",
+                            format!("signed rows remain available; the open-formula stress summary of {} is unavailable: {error}", pipe.element_id),
+                            vec![pipe.element_id.clone()],
+                        ));
+                    }
+                }
                 Err(error) => diagnostics.push(diag(
                     "diagnostic:stress:straight-extrema",
                     "ELEMENT_FORCE_RECOVERY_FAILED",
@@ -5853,7 +5873,9 @@ fn solve_load_case_observed(
                 )),
             }
         }
-        let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
+        let summary_value = if summary_unavailable {
+            None
+        } else if pressure_runtime::is_exact(model) && selected_source.is_some() {
             // T4-U2a (T4-I13 open item): the endpoint recipe holds for an
             // unloaded circular straight span only; the arc policy gates it.
             // The withheld reason is a static text borrowed, not formatted, inside

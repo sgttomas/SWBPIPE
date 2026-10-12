@@ -1115,8 +1115,18 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
 
 /// T5: probe A, (G, 0.3, -G) and (0.3, G, -G) at G = 1e8 and 1e80. The G
 /// terms' own defects are nonzero and cancel exactly (same expression,
-/// negated operand), so the statistic is the 0.3 term's alone: CHECKS_PASSED.
-/// Kills Sum|eps| (M6) and the a-priori bound (M4).
+/// negated operand), so the load-row statistic is the 0.3 term's alone and
+/// S11-G adds nothing. Kills Sum|eps| (M6) and the a-priori bound (M4).
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.1-3.3): at G = 1e8 the
+/// certified rows pass: CHECKS_PASSED. At G = 1e80 the intended net 0.3 N/m
+/// sits under a cancellation of about 3e80, beyond what p = 128 with the
+/// load enclosure radii (2^-120 level, §1's table) and the evaluation radius
+/// can certify: every group has B far above 1e-9 q (B ~ 1e48 against q ~ 1),
+/// so the unified predicate demotes the case with its sentence. Its circular
+/// maximum is named unavailable and its signed rows stay published (§3.2);
+/// before the summary fix this case was refused with
+/// ELEMENT_FORCE_RECOVERY_FAILED, which kills that regression.
 #[test]
 fn t5_probe_a_same_expression_defects_cancel() {
     for g in [1e8, 1e80] {
@@ -1159,13 +1169,27 @@ fn t5_probe_a_same_expression_defects_cancel() {
             );
             for entry in entries(g >= 9.0e15) {
                 for mode in MODES {
+                    let label = format!("G={g} {order:?} {entry:?} {mode:?}");
                     let envelope = solved(entry, &request, mode);
-                    assert_eq!(
-                        integrity(&envelope, "case").code,
-                        "NUMERICAL_INTEGRITY_CHECKS_PASSED",
-                        "G={g} {order:?} {entry:?} {mode:?}"
-                    );
-                    assert_not_demoted_by_s11g(&envelope, "case", "T5");
+                    let d = integrity(&envelope, "case");
+                    assert!(!d.message.contains(LOAD_ROW), "{label}");
+                    assert!(d.message.contains("quality: Passed"), "{label}");
+                    if g < 9.0e15 {
+                        assert_eq!(d.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+                        assert_not_demoted_by_s11g(&envelope, "case", "T5");
+                    } else {
+                        assert_demoted(&envelope, "case", RECOVERY, &label);
+                        assert!(
+                            envelope.diagnostics.iter().any(|d| d.code
+                                == "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+                                && d.affected_refs == vec!["case".to_string(), "pipe".to_string()]),
+                            "{label}: the maximum is named unavailable"
+                        );
+                        assert!(
+                            envelope.results.iter().any(|r| r.kind == "element_local_bending_moment_z"),
+                            "{label}: the signed rows stay published"
+                        );
+                    }
                 }
             }
         }
