@@ -869,7 +869,7 @@ pub(crate) fn append_combination_results(
                 continue;
             }
             if kind == "displacement_magnitude" && !range {
-                append_combined_vector_magnitude(combination, &expression, base_id, reference, rows_by_base_id, &HashMap::new(), results, diagnostics);
+                append_combined_vector_magnitude(combination, &expression, base_id, reference, rows_by_base_id, results, diagnostics);
                 continue;
             }
             if !(LINEAR_STATE_KINDS.contains(&kind) || (range && kind == "displacement_magnitude")) {

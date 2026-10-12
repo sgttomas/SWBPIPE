@@ -1,4 +1,4 @@
-//! Active source-OD/wall annulus, separate from the preserved radii-only scalar API.
+//! Active source-OD/wall annulus over the exact-annulus kernel.
 use super::{
     cap_pair, eigenload_pair, pressure_trace_scaled, scaled_output, ExactAnnulus,
     ExactPressureError, InternalDifferentialPressure, IsotropicENu, RadialHoopStressPa, Scaled,
@@ -10,7 +10,6 @@ pub(crate) struct SourceAnnulus {
     od_m: f64,
     wall_m: f64,
     // Reuse existing cap/eigen constitutive arithmetic through its actual areas.
-    // This private value is never passed to the radii-only interior Lamé API.
     kernel: ExactAnnulus,
     i_m4: f64,
     j_m4: f64,

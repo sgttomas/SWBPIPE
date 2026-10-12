@@ -111,7 +111,6 @@ use validation::validate_model_inputs;
 #[cfg(test)]
 #[cfg(test)]
 mod membrane_publication_range;
-#[allow(dead_code)]
 mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
@@ -351,7 +350,6 @@ pub struct PipeSectionInput {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Quantity {
     pub value: f64,
-    #[allow(dead_code)]
     pub unit: String,
 }
 
@@ -360,7 +358,6 @@ pub struct VectorQuantity {
     pub x: f64,
     pub y: f64,
     pub z: f64,
-    #[allow(dead_code)]
     pub unit: String,
 }
 
@@ -663,7 +660,6 @@ pub struct WindExposedSpanInput {
 pub struct PreviewCombination {
     pub id: String,
     #[serde(default)]
-    #[allow(dead_code)]
     pub label: Option<String>,
     /// Closed basis set: `mechanics` (linear terms),
     /// `result_state_subtraction` (`minuend_id` − `subtrahend_id`), and
@@ -13266,49 +13262,38 @@ impl<'a> CombinationExpression<'a> {
     }
 }
 
+/// A combination's `displacement_magnitude` row: the norm of the combined signed
+/// global displacement components (the only caller's reference kind).
 fn append_combined_vector_magnitude(
     combination: &PreviewCombination,
     expression: &CombinationExpression<'_>,
     base_id: &str,
     reference: &ResultItem,
     rows: &HashMap<String, HashMap<String, ResultItem>>,
-    support_vectors: &HashMap<String, HashMap<String, [f64; 3]>>,
     results: &mut Vec<ResultItem>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
-    let displacement = reference.kind == "displacement_magnitude";
-    let dimension = if displacement {
-        LoadDimension::Displacement
-    } else {
-        LoadDimension::Force
-    };
     let mut vector = [0.0; 3];
     let mut source_refs = Vec::new();
     for (axis, suffix) in ["ux", "uy", "uz"].iter().enumerate() {
         let component_id = format!("{base_id}:{suffix}");
         let mut operands = Vec::new();
         for case in expression.operand_ids() {
-            let value = if displacement {
-                rows.get(&component_id)
-                    .and_then(|cases| cases.get(case))
-                    .filter(|row| {
-                        row.entity_ref == reference.entity_ref
-                            && row.unit == reference.unit
-                            && row.kind
-                                == [
-                                    "global_nodal_displacement_x",
-                                    "global_nodal_displacement_y",
-                                    "global_nodal_displacement_z",
-                                ][axis]
-                    })
-                    .map(|row| row.value)
-            } else {
-                support_vectors
-                    .get(case)
-                    .and_then(|supports| supports.get(&reference.entity_ref))
-                    .map(|v| v[axis])
-            };
-            if let Some(value) = value.and_then(|v| AlgebraQuantity::new(v, dimension).ok()) {
+            let value = rows
+                .get(&component_id)
+                .and_then(|cases| cases.get(case))
+                .filter(|row| {
+                    row.entity_ref == reference.entity_ref
+                        && row.unit == reference.unit
+                        && row.kind
+                            == [
+                                "global_nodal_displacement_x",
+                                "global_nodal_displacement_y",
+                                "global_nodal_displacement_z",
+                            ][axis]
+                })
+                .map(|row| row.value);
+            if let Some(value) = value.and_then(|v| AlgebraQuantity::new(v, LoadDimension::Displacement).ok()) {
                 operands.push(AlgebraOperand::new(
                     case.to_string(),
                     case.to_string(),
@@ -13342,19 +13327,10 @@ fn append_combined_vector_magnitude(
             return;
         }
         vector[axis] = algebra.quantity.unwrap().value;
-        if displacement {
-            source_refs.push(qualified_combination_result_id(
-                &combination.id,
-                &component_id,
-            ));
-        }
-    }
-    if !displacement {
-        for case in expression.operand_ids() {
-            if let Some(row) = rows.get(base_id).and_then(|cases| cases.get(case)) {
-                source_refs.push(row.id.clone());
-            }
-        }
+        source_refs.push(qualified_combination_result_id(
+            &combination.id,
+            &component_id,
+        ));
     }
     let mut combined = reference.clone();
     combined.id = qualified_combination_result_id(&combination.id, base_id);
@@ -13364,8 +13340,6 @@ fn append_combined_vector_magnitude(
         ref_id: combination.id.clone(),
     });
     combined.source_result_refs = source_refs;
-    // No new public component rows: reaction vectors are internal selected
-    // support actions, and source edges retain their primitive reaction rows.
     results.push(combined);
 }
 
@@ -22341,7 +22315,7 @@ mod tests {
     }
 
     /// The live engine's combined displacement magnitude (`preview_physics::append_combination_results` calls
-    /// `append_combined_vector_magnitude`, with an empty support map, for a mechanics or subtraction combination's
+    /// `append_combined_vector_magnitude` for a mechanics or subtraction combination's
     /// `displacement_magnitude` row):
     /// published from complete signed components, withheld with LOAD_COMBINATION_VECTOR_COMPONENT_MISSING when one
     /// component row is unavailable in an operand case.
@@ -22366,7 +22340,7 @@ mod tests {
         assert_eq!((reference.kind.as_str(), reference.entity_ref.as_str()), ("displacement_magnitude", "node:N-110"));
         let run = |rows: &HashMap<String, HashMap<String, ResultItem>>| {
             let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
-            append_combined_vector_magnitude(combination, &expression, base_id, &reference, rows, &HashMap::new(), &mut results, &mut diagnostics);
+            append_combined_vector_magnitude(combination, &expression, base_id, &reference, rows, &mut results, &mut diagnostics);
             (results, diagnostics)
         };
         // Control: complete components publish the magnitude (one factor-1 term reproduces the case's own value).

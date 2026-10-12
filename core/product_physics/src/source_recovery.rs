@@ -140,6 +140,8 @@ pub(super) fn solve_ordinary(
     solve(input, limits)
 }
 
+/// No longer built: the selection keeps no spring actions. The registered memory
+/// profile still names this type (`s(SpringAction)`) until B7a's D3 re-registration.
 #[derive(Debug, Clone)]
 pub(super) struct SpringAction {
     pub support_id: String,
@@ -194,7 +196,6 @@ pub(super) struct SelectedSourceRecovery {
     published_nodal: Vec<f64>,
     published_nodal_indices: Vec<usize>,
     members: Vec<MemberRecovery>,
-    springs: Vec<SpringAction>,
     supports: Vec<SupportActions>,
     retained: RetainedFunctionalSet,
     summary: RecoverySummary,
@@ -375,7 +376,6 @@ struct Sources {
     spring_ids: Vec<(String, usize)>,
     support_ids: Vec<(String, usize)>,
     nodal_start: usize,
-    spring_start: usize,
     support_start: usize,
 }
 impl Sources {
@@ -1156,7 +1156,6 @@ fn prepare_sources(
             });
         }
     }
-    let spring_start = descriptors.len();
     for spring in input.spring_entries {
         let dof = spring.node_dof.global_index();
         descriptors.push(FunctionalDescriptor {
@@ -1235,7 +1234,6 @@ fn prepare_sources(
         spring_ids,
         support_ids,
         nodal_start,
-        spring_start,
         support_start,
     })
 }
@@ -1504,17 +1502,6 @@ pub(super) fn solve(
                 }
             })
             .collect();
-        let springs = source
-            .spring_ids
-            .iter()
-            .enumerate()
-            .map(|(i, (id, dof))| SpringAction {
-                support_id: id.clone(),
-                global_dof: *dof,
-                value: value(source.spring_start + i),
-                functional_index: source.spring_start + i,
-            })
-            .collect();
         let supports = source
             .support_ids
             .iter()
@@ -1564,7 +1551,6 @@ pub(super) fn solve(
             (0..n).map(|i| value(source.nodal_start + i)).collect(),
             (0..n).map(|i| source.nodal_start + i).collect(),
             members,
-            springs,
             supports,
             retained,
             summary,
@@ -1577,7 +1563,6 @@ pub(super) fn solve(
             published_nodal,
             published_nodal_indices,
             members,
-            springs,
             supports,
             retained,
             summary,
@@ -1587,7 +1572,6 @@ pub(super) fn solve(
             published_nodal,
             published_nodal_indices,
             members,
-            springs,
             supports,
             retained,
             summary,
