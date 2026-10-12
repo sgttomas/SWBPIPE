@@ -190,13 +190,22 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
     // Invoke the actual corrected extrema coefficient path, not just the
     // constitutive helper. Constant pressure and zero bending make every
     // station carry the independent membrane maximum.
-    assert_original_reference(maximum.value_lower, "extrema witness lower");
-    assert_original_reference(maximum.value_upper, "extrema witness upper");
-    assert_original_reference(maximum.upper_bound, "extrema global upper");
-    assert_original_reference(
-        maximum.value_lower + 0.5 * (maximum.value_upper - maximum.value_lower),
-        "same estimator consumed by public summary",
-    );
+    //
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2, "Fallback arithmetic
+    // transport"): this noncertified maximum now replays the binary64 recipe
+    // with an absolute quantum per rounding (u*(magnitude+error) +
+    // min_subnormal), propagated through the stored areas. At this subnormal
+    // wall force each quantum is about 5e-171 Pa, so the truthful enclosure is
+    // [0, 4.2e-169] Pa, about 135 times the reference, and its midpoint no
+    // longer equals the membrane stress. The unchanged absolute gap (1e-12 Pa)
+    // is met, so the maximum stays available. The pin is now containment of
+    // the independent reference; the membrane rows themselves stay pinned
+    // exactly by the publisher test above, which keeps the sensitivity to the
+    // redivision defect.
+    assert!(maximum.value_lower <= EXPECTED_MEMBRANE_PA, "{maximum:?}");
+    assert!(EXPECTED_MEMBRANE_PA <= maximum.value_upper, "{maximum:?}");
+    assert_eq!(maximum.value_upper, maximum.upper_bound, "{maximum:?}");
+    assert!(maximum.certified_gap <= 1e-12 + 1e-12 * maximum.value_lower, "{maximum:?}");
     assert!(maximum.value_lower <= maximum.value_upper);
     assert!(maximum.value_upper <= maximum.upper_bound);
     assert!((0.0..=1.0).contains(&maximum.station));

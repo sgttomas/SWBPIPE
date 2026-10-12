@@ -15012,9 +15012,15 @@ mod tests {
                 encoded["formulation_basis"]["profile_id"],
                 "product_preview_mechanics_v1"
             );
+            // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6 TEXT): the
+            // linear profile adds its limitation and scope sentences.
             assert_eq!(
                 output.formulation_basis.limitations,
-                preview_physics::LIMITATIONS.map(str::to_string).to_vec()
+                preview_physics::formulation_basis().limitations
+            );
+            assert_eq!(
+                output.formulation_basis.limitations.len(),
+                preview_physics::LIMITATIONS.len() + 2
             );
             assert!(output.contract_evidence.is_some());
         }
@@ -22507,10 +22513,13 @@ mod tests {
                 "{mode:?}: {}",
                 integrity.message
             );
-            assert!(output
-                .diagnostics
-                .iter()
-                .any(|d| d.code == "ELEMENT_FORCE_RECOVERY_FAILED" && d.severity == "blocking"));
+            // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1-3.2): the
+            // case now publishes certified rows, so the derived-row overflow is
+            // met first by the certified stress publication, which refuses the
+            // invocation by name (§3.2: an unrepresentable required magnitude
+            // follows a named refusal); main's binary64 refusal ("computed
+            // mechanics must be finite, got inf" with ELEMENT_FORCE_RECOVERY_FAILED)
+            // is no longer reached. No solved row is published either way.
             let blocked: Vec<_> = output
                 .diagnostics
                 .iter()
@@ -22519,9 +22528,12 @@ mod tests {
             assert_eq!(blocked.len(), 1, "{mode:?}");
             assert_eq!(blocked[0].id, "diagnostic:physics:solver");
             assert_eq!(blocked[0].severity, "blocking");
-            assert_eq!(
-                blocked[0].message,
-                "computed mechanics must be finite, got inf"
+            assert!(
+                blocked[0]
+                    .message
+                    .starts_with("certified endpoint stress must be finite"),
+                "{mode:?}: {}",
+                blocked[0].message
             );
         }
     }
