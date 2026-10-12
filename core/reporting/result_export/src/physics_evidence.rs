@@ -79,6 +79,15 @@ const MATERIAL_KEYS: &[&str] = &[
     "alpha_per_kelvin",
     "provenance",
 ];
+const RESOLVED_MATERIAL_KEYS: &[&str] = &[
+    "pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis",
+    "thermal_consumed", "alpha_per_kelvin", "provenance",
+    "material_selection_kind", "resolved_eigenstrain",
+];
+const EVIDENCE_KEYS: &[&str] = &["pressure", "connector", "exact_cases"];
+const RESOLVED_EVIDENCE_KEYS: &[&str] = &[
+    "pressure", "connector", "exact_cases", "load_reference_states",
+];
 const GEOMETRY_KEYS: &[&str] = &[
     "pipe_id",
     "geometry_basis",
@@ -165,10 +174,8 @@ fn vector(v: &Value, len: usize) -> Check {
 }
 fn material(v: &Value) -> Check { material_in(v, false) }
 fn material_in(v: &Value, resolved: bool) -> Check {
-    let fields: Vec<_> = MATERIAL_KEYS.iter().copied()
-        .chain(resolved.then_some("material_selection_kind"))
-        .chain(resolved.then_some("resolved_eigenstrain")).collect();
-    require(keys(v, &fields), "MATERIAL_SHAPE")?;
+    let fields = if resolved { RESOLVED_MATERIAL_KEYS } else { MATERIAL_KEYS };
+    require(keys(v, fields), "MATERIAL_SHAPE")?;
     for k in ["pipe_id", "material_id", "provenance"] {
         text(&v[k])?;
     }
@@ -427,9 +434,8 @@ pub(crate) fn validate_physics_evidence_in(
         // projects them onto the v2 namespace or recomputes a commitment.
         crate::load_reference::prepass(source, true, crate::load_reference::Method::PressureJoined)?;
     }
-    let fields: Vec<_> = ["pressure", "connector", "exact_cases"].into_iter()
-        .chain(resolved.then_some("load_reference_states")).collect();
-    require(keys(evidence, &fields), "EVIDENCE_SHAPE")?;
+    let fields = if resolved { RESOLVED_EVIDENCE_KEYS } else { EVIDENCE_KEYS };
+    require(keys(evidence, fields), "EVIDENCE_SHAPE")?;
     // T4-U3: connector records are admitted under pressure-1 only (checked,
     // with their rows, by `connector_evidence` once the cases are read).
     require(
@@ -1246,4 +1252,59 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod static_field_slice_tests {
+    use super::*;
+    fn material(resolved: bool) -> Value {
+        let source: Value=serde_json::from_str(if resolved {
+            include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json")
+        } else {
+            include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json")
+        }).unwrap();
+        source["contract_evidence"]["exact_cases"][0]["pipe_materials"][0].clone()
+    }
+    #[test]
+    fn static_material_fields_preserve_exact_shapes_and_first_refusal() {
+        for resolved in [false,true] {
+            let base=material(resolved);
+            assert_eq!(material_in(&base,resolved),Ok(()));
+            let fields=if resolved {RESOLVED_MATERIAL_KEYS} else {MATERIAL_KEYS};
+            assert_eq!(fields.len(),if resolved {11} else {9});
+            for field in fields {
+                let mut missing=base.clone();missing.as_object_mut().unwrap().remove(*field);
+                assert_eq!(material_in(&missing,resolved),Err("SOURCE_PHYSICS_MATERIAL_SHAPE".into()));
+            }
+            let mut extra=base.clone();extra["unexpected"]=Value::Null;extra["E_pa"]=json!(-1.0);
+            assert_eq!(material_in(&extra,resolved),Err("SOURCE_PHYSICS_MATERIAL_SHAPE".into()));
+            assert_eq!(material_in(&base,!resolved),Err("SOURCE_PHYSICS_MATERIAL_SHAPE".into()));
+        }
+        assert_eq!(&RESOLVED_MATERIAL_KEYS[..MATERIAL_KEYS.len()],MATERIAL_KEYS);
+    }
+    #[test]
+    fn static_evidence_fields_preserve_exact_member_sets() {
+        for resolved in [false,true] {
+            let fields=if resolved {RESOLVED_EVIDENCE_KEYS} else {EVIDENCE_KEYS};
+            let mut value=Value::Object(fields.iter().map(|field|((*field).into(),Value::Null)).collect());
+            assert!(keys(&value,fields));
+            for field in fields {
+                let mut missing=value.clone();missing.as_object_mut().unwrap().remove(*field);assert!(!keys(&missing,fields));
+            }
+            value["unexpected"]=Value::Null;assert!(!keys(&value,fields));
+            assert_eq!(fields.len(),if resolved {4} else {3});
+        }
+        assert_eq!(&RESOLVED_EVIDENCE_KEYS[..EVIDENCE_KEYS.len()],EVIDENCE_KEYS);
+    }
+    #[test]
+    fn static_field_slices_have_program_lifetime_and_positive_backing() {
+        use std::mem::{size_of,size_of_val};
+        fn program_lifetime(_: &'static [&'static str]) {}
+        for fields in [MATERIAL_KEYS,RESOLVED_MATERIAL_KEYS,EVIDENCE_KEYS,RESOLVED_EVIDENCE_KEYS] {
+            program_lifetime(fields);
+            assert_eq!(size_of_val(fields),fields.len()*size_of::<&str>());
+            assert!(size_of_val(fields)>0);
+        }
+        println!("static_field_backing={}",json!({"material":size_of_val(MATERIAL_KEYS),"resolved_material":size_of_val(RESOLVED_MATERIAL_KEYS),"evidence":size_of_val(EVIDENCE_KEYS),"resolved_evidence":size_of_val(RESOLVED_EVIDENCE_KEYS),"str_reference":size_of::<&str>(),"slice_reference":size_of::<&[&str]>()}));
+    }
 }

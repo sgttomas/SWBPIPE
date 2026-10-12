@@ -508,3 +508,144 @@ fn private_reservation_expression_retains_saturation_without_changing_admitted_v
     assert_eq!(refused.work.limit,before.limit);
     assert_eq!(refused.work.charged,before.charged);
 }
+
+#[test]
+fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        for (load_state,v3) in [(false,false),(true,false),(false,true),(true,true)] {
+            let raw=request(load_state,v3);
+            let before=raw.clone();
+            let encoded=checked(&raw).unwrap().len();
+            let digest=hash("source_blocks_invocation_v1",&json!({"request":&raw,"solver_mode":mode.as_str()})).unwrap();
+            let (mut typed,capture)=CapturedInvocation::parse(raw,mode).unwrap();
+            let selected=CompositeSourceContext::for_model(&typed.model).unwrap();
+            assert_eq!(capture.context,Some(selected));
+            // The caller's typed half may be normalized/changed later. Neither
+            // it nor an envelope label can redefine this capture's context.
+            typed.model.schema_version="0.1.0".into();
+            typed.model.pressure_contract=None;
+            for _ in 0..8 { assert_eq!(capture.composite_context(),Ok(selected)); }
+            assert_eq!(capture.borrowed_raw(),&before);
+            assert_eq!(capture.encoded_length(),encoded);
+            assert_eq!(capture.borrowed_digest(),&digest);
+            assert_eq!(capture.mode(),mode);
+        }
+    }
+}
+
+#[test]
+fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
+    let refusal=bad("composite source requires an actual exact contract");
+    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0"] {
+        for contract in [None,Some(Value::Null),Some(json!({})),
+            Some(json!({"version":"3.0.0","mode":"exact_straight_pressure_v2"})),
+            Some(json!({"version":"2.0.0","mode":"exact_pressure_v3"})),
+            Some(json!({"version":"invalid","mode":"invalid"}))] {
+            let mut raw=request(false,false);
+            raw["model"]["schema_version"]=json!(schema);
+            if let Some(contract)=contract { raw["model"]["pressure_contract"]=contract; }
+            else {raw["model"].as_object_mut().unwrap().remove("pressure_contract");}
+            let before=raw.clone();
+            let (_,capture)=CapturedInvocation::parse(raw,PreviewSolverMode::SparseInteractive).unwrap();
+            assert_eq!(capture.context,None);
+            assert_eq!(capture.composite_context(),Err(refusal.clone()));
+            assert_eq!(capture.borrowed_raw(),&before);
+        }
+    }
+    for schema in ["0.1.0","0.2.0","0.5.0"] {
+        let mut raw=request(false,true);raw["model"]["schema_version"]=json!(schema);
+        let (_,capture)=CapturedInvocation::parse(raw,PreviewSolverMode::DenseScrutiny).unwrap();
+        assert_eq!(capture.composite_context(),Err(refusal.clone()));
+    }
+}
+
+#[test]
+fn cached_source_context_preserves_checked_hash_and_serde_failure_order() {
+    // Both faults are present: checked canonical input refuses before serde.
+    let mut raw=request(false,true);
+    raw["unsafe_integer"]=json!(9_007_199_254_740_993_u64);
+    raw["model"]["pressure_contract"]["version"]=json!(42);
+    let expected=checked(&raw).unwrap_err();
+    assert_eq!(CapturedInvocation::parse(raw,PreviewSolverMode::DenseScrutiny).unwrap_err(),expected);
+    for bad_contract in [json!(42),json!([]),json!({"version":42,"mode":"exact_pressure_v3"}),json!({"version":"3.0.0","mode":[]})] {
+        let mut raw=request(false,true);raw["model"]["pressure_contract"]=bad_contract;
+        checked(&raw).unwrap();
+        let error=CapturedInvocation::parse(raw,PreviewSolverMode::SparseInteractive).unwrap_err();
+        assert!(error.0.starts_with("request: "),"{}",error.0);
+        assert_eq!(error.1,None);
+    }
+}
+
+#[test]
+fn cached_source_context_accessor_has_no_clone_or_reparse_and_one_constructor() {
+    let source=include_str!("../source_receipt.rs");
+    let accessor=source.split("pub(super) fn composite_context(&self)").nth(1).unwrap().split("\n    }").next().unwrap();
+    for forbidden in ["requested(","clone(","from_value(","from_str(","borrowed_raw("] {
+        assert!(!accessor.contains(forbidden),"context accessor contains {forbidden}");
+    }
+    assert!(accessor.contains("self.context.ok_or_else"));
+    let capture=source.split("impl CapturedInvocation {").nth(1).unwrap().split("\n}\n").next().unwrap();
+    assert_eq!(capture.matches("Self {").count(),1);
+    assert!(capture.contains("let context = CompositeSourceContext::from_model(&parsed.model)"));
+}
+
+#[test]
+fn cached_source_context_reports_actual_positive_layout_and_lifetime() {
+    use std::mem::{align_of,offset_of,size_of};
+    let fields=size_of::<Value>()+size_of::<PreviewSolverMode>()+size_of::<String>()+size_of::<usize>()+size_of::<Option<CompositeSourceContext>>();
+    let total=size_of::<CapturedInvocation>();
+    assert!(size_of::<CompositeSourceContext>()>0);
+    assert!(size_of::<Option<CompositeSourceContext>>()>0);
+    assert!(total>=fields);
+    println!("capture_context_layout={}",json!({
+        "enum":{"size":size_of::<CompositeSourceContext>(),"align":align_of::<CompositeSourceContext>()},
+        "option":{"size":size_of::<Option<CompositeSourceContext>>(),"align":align_of::<Option<CompositeSourceContext>>()},
+        "capture":{"size":total,"align":align_of::<CapturedInvocation>(),"field_size_sum":fields,"padding":total-fields},
+        "offsets":{"raw":offset_of!(CapturedInvocation,raw),"mode":offset_of!(CapturedInvocation,mode),"digest":offset_of!(CapturedInvocation,digest),"encoded_len":offset_of!(CapturedInvocation,encoded_len),"context":offset_of!(CapturedInvocation,context)}
+    }));
+    // The positive inline tag owns no heap backing. Existing raw Value and
+    // digest String owners remain with the non-Clone capture through its move/
+    // borrow lifetime; this measurement does not infer allocator/compiler reuse.
+    let (_,capture)=CapturedInvocation::parse(request(false,true),PreviewSolverMode::SparseInteractive).unwrap();
+    let moved=capture;let borrowed=&moved;
+    assert_eq!(borrowed.composite_context(),Ok(CompositeSourceContext::PressureSource));
+}
+
+#[test]
+fn cached_source_context_preserves_current_v2_v3_public_serializations() {
+    let project=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    // V3's exact committed producer bytes are permanent controls. Coordinators
+    // may also supply previously captured original-v2 bytes for this repair;
+    // the test has no permanent dependency on that optional scratch evidence.
+    let original_v2=std::env::var_os("SWBPIPE_SOURCE_CONTEXT_V2_BYTES").map(std::path::PathBuf::from);
+    let families: [(&str,&str,&[&str]);2]=[
+        ("physics_source","0_3",&["n05","n06","n05_unicode","n05_units","fields","mixed","mixed_units"]),
+        ("load_reference_source","0_4",&["n05","n06","eigen_motion","fields","mixed"]),
+    ];
+    let mut v3_controls=0;let mut v2_controls=0;
+    for (family,version,names) in families {
+        for name in names {
+            let original: Value=serde_json::from_str(&std::fs::read_to_string(project.join(format!("fixtures/product_preview/{family}/{name}.request.json"))).unwrap()).unwrap();
+            for v3 in [false,true] {
+                let mut raw=original.clone();
+                if v3 {raw["model"]["pressure_contract"]=json!({"version":"3.0.0","mode":"exact_pressure_v3"});}
+                for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+                    let envelope=run_linear_static_preview_value_with_mode(raw.clone(),mode).unwrap();
+                    let bytes=serde_json::to_string(&envelope).unwrap();
+                    let expected=if v3 {
+                        v3_controls+=1;
+                        Some(project.join(format!("fixtures/product_preview/pressure_source/{family}/{name}-{}.raw.json",mode.as_str())))
+                    } else {original_v2.as_ref().map(|directory| {v2_controls+=1;directory.join(format!("{name}-{version}-{}-v2.raw.json",mode.as_str()))})};
+                    if let Some(expected)=expected {
+                        let expected_bytes=std::fs::read(&expected).unwrap();
+                        let first_difference=bytes.as_bytes().iter().zip(&expected_bytes).position(|(a,b)|a!=b);
+                        assert!(bytes.as_bytes()==expected_bytes,"exact public serialization {}: actual_len={}, expected_len={}, first_difference={first_difference:?}",expected.display(),bytes.len(),expected_bytes.len());
+                    }
+                }
+            }
+        }
+    }
+    assert_eq!(v3_controls,24);
+    assert_eq!(v2_controls,if original_v2.is_some(){24}else{0});
+    println!("cache_serialization_controls_v3={v3_controls},v2={v2_controls}");
+}

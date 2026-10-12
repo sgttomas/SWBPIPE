@@ -111,14 +111,17 @@ pub(super) enum CompositeSourceContext {
     PressureSource,
 }
 impl CompositeSourceContext {
-    pub(super) fn for_model(model: &PreviewModel) -> Result<Self, ReceiptError> {
+    fn from_model(model: &PreviewModel) -> Option<Self> {
         match exact_admission::ExactContract::of(model) {
-            Some(exact_admission::ExactContract::PressureV3) => Ok(Self::PressureSource),
-            Some(exact_admission::ExactContract::StraightV2) => Ok(
+            Some(exact_admission::ExactContract::PressureV3) => Some(Self::PressureSource),
+            Some(exact_admission::ExactContract::StraightV2) => Some(
                 if case_state::is_load_state(model) { Self::LoadReferenceSource } else { Self::PhysicsSource }
             ),
-            None => Err(bad("composite source requires an actual exact contract")),
+            None => None,
         }
+    }
+    pub(super) fn for_model(model: &PreviewModel) -> Result<Self, ReceiptError> {
+        Self::from_model(model).ok_or_else(|| bad("composite source requires an actual exact contract"))
     }
     fn receipt_policy(self) -> ReceiptPolicy {
         match self {
@@ -164,6 +167,9 @@ pub(super) struct CapturedInvocation {
     mode: PreviewSolverMode,
     digest: String,
     encoded_len: usize,
+    // Derived from the typed half of this same parse. No model/Value owner is
+    // retained here; the scalar context follows the capture's move/borrow life.
+    context: Option<CompositeSourceContext>,
 }
 impl CapturedInvocation {
     pub(super) fn parse(
@@ -175,8 +181,9 @@ impl CapturedInvocation {
             "source_blocks_invocation_v1",
             &json!({"request":&raw,"solver_mode":mode.as_str()}),
         )?;
-        let parsed =
+        let parsed: LinearStaticPreviewRequest =
             serde_json::from_value(raw.clone()).map_err(|e| bad(format!("request: {e}")))?;
+        let context = CompositeSourceContext::from_model(&parsed.model);
         Ok((
             parsed,
             Self {
@@ -184,6 +191,7 @@ impl CapturedInvocation {
                 mode,
                 digest,
                 encoded_len,
+                context,
             },
         ))
     }
@@ -197,9 +205,10 @@ impl CapturedInvocation {
     fn requested(&self) -> Result<LinearStaticPreviewRequest, ReceiptError> {
         serde_json::from_value(self.raw.clone()).map_err(|e| bad(e.to_string()))
     }
-    /// Context from captured request bytes only; no envelope label is an input.
+    /// Context derived by the existing custody parse; no later model, envelope
+    /// label, raw clone or reparse is an input to this borrowed accessor.
     pub(super) fn composite_context(&self) -> Result<CompositeSourceContext, ReceiptError> {
-        CompositeSourceContext::for_model(&self.requested()?.model)
+        self.context.ok_or_else(|| bad("composite source requires an actual exact contract"))
     }
     /// Reconstruct only the actual product normalization/material selection. Raw
     /// custody/hashing remains the preparse Value, never these typed objects.
