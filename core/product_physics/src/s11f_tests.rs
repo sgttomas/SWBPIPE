@@ -145,16 +145,48 @@ fn value_bits(envelope: &MechanicsEnvelope, case: &str) -> BTreeMap<String, u64>
 }
 
 /// The net-load answer under K-D5's repair (DEL-04-01
-/// kd5-member-relative-bound.md §§3.1, 3.3, 3.4). Displacement and rotation
-/// rows are the solve's own and stay bit-identical. Member rows of a Passed
-/// case are certified recoveries rounded once from a p = 128 evaluation whose
-/// noise scales with the evaluated terms (the cancelling loads here), so two
-/// load expressions with the same exact net publish the same row ids and
-/// values that are bit-identical or differ by at most 2^-34 of the largest
-/// reference row of the same unit (the unified predicate's relative floor):
-/// the answer to within the recovery's own noise. Returns how many rows
-/// differ.
+/// kd5-member-relative-bound.md §§3.1, 3.4): displacement and rotation rows
+/// are the solve's own, and every member row of the case is a certified
+/// recovery whose intended load terms (each re-formed primitive, each station
+/// transfer, each distributed-load term) enter one exact sum before the
+/// single rounding, so cancelling same-expression loads net exactly: every
+/// published value equals the single net load's answer bit for bit. A case
+/// that the unified predicate demotes (§3.3) keeps its certified rows (§3.1
+/// "Which rows publish") and names its maximum unavailable (§3.2), so with
+/// `demoted` the comparison omits the reference's maximum rows only.
 fn assert_rows_match_net_answer(
+    envelope: &MechanicsEnvelope,
+    reference: &MechanicsEnvelope,
+    label: &str,
+    demoted: bool,
+) {
+    let mut expected = value_bits(reference, "case");
+    if demoted {
+        let maxima: Vec<String> = case_rows(reference, "case")
+            .filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2")
+            .map(|r| r.id.clone())
+            .collect();
+        assert!(!maxima.is_empty(), "{label}: the reference publishes its maximum");
+        for id in maxima {
+            expected.remove(&id);
+        }
+    }
+    assert_eq!(
+        value_bits(envelope, "case"),
+        expected,
+        "{label}: rows differ from the net-load answer"
+    );
+}
+
+/// F8 at G = 1e80 only: the cancelling curved case is demoted by S11-G's
+/// load-row guard (its CannotBound curved terms), so it is not pre-guard
+/// Passed and keeps its binary64 recovery (DEL-04-01
+/// kd5-member-relative-bound.md §3.1 "Which rows publish"), while the single
+/// net load is Passed and publishes certified rows. The two recipes differ by
+/// binary64 rounding, not by the cancelling loads: every row id matches and
+/// each value is bit-identical or within 2^-34 of the largest reference row of
+/// its unit (the unified predicate's relative floor). Returns how many differ.
+fn assert_binary64_rows_near_certified_net_answer(
     envelope: &MechanicsEnvelope,
     reference: &MechanicsEnvelope,
     label: &str,
@@ -174,19 +206,9 @@ fn assert_rows_match_net_answer(
             continue;
         }
         differing += 1;
-        assert!(
-            !r.kind.starts_with("global_nodal_"),
-            "{label}: {id} is a displacement row: {} against {}",
-            r.value,
-            e.value
-        );
+        assert!(!r.kind.starts_with("global_nodal_"), "{label}: {id} is a displacement row");
         let floor = scale[e.unit.as_str()] * 2f64.powi(-34);
-        assert!(
-            (r.value - e.value).abs() <= floor,
-            "{label}: {id} {} against {} (floor {floor:e})",
-            r.value,
-            e.value
-        );
+        assert!((r.value - e.value).abs() <= floor, "{label}: {id} {} against {} (floor {floor:e})", r.value, e.value);
     }
     differing
 }
@@ -968,10 +990,12 @@ fn f2_probe_a(g: f64) {
                         "{label}"
                     );
                     if g >= 9.0e15 {
-                        // The displacements are the solve's own net answer;
-                        // the demoted case's certified member rows are kept
-                        // for inspection only (`assert_integrity_at_g`).
+                        // Demoted (`assert_integrity_at_g`): its certified
+                        // rows are still the net answer, bit for bit, except
+                        // the unavailable maximum.
                         assert_probe_a_displacements(&envelope, &label);
+                        let reference = solved(entry, &net, mode);
+                        assert_rows_match_net_answer(&envelope, &reference, &label, true);
                         continue;
                     }
                     assert_probe_a(&envelope, &label);
@@ -998,7 +1022,7 @@ fn f2_probe_a(g: f64) {
                         );
                     }
                     let reference = solved(entry, &net, mode);
-                    assert_rows_match_net_answer(&envelope, &reference, &label);
+                    assert_rows_match_net_answer(&envelope, &reference, &label, false);
                 }
             }
         }
@@ -1012,9 +1036,9 @@ fn f2_probe_a(g: f64) {
 /// level) can certify: B is about 1e48 against q of order 1, so the unified
 /// predicate demotes the case and the maximum is named unavailable (§3.2).
 /// The demoted case still publishes its certified rows (§3.1 "Which rows
-/// publish"); their midpoints are not the net answer here (the root moment
-/// publishes -0.5 N*m against the exact 0.6 N*m, inside its quoted B), so only
-/// the displacements are compared with it.
+/// publish"). Each primitive and each distributed-load term enters its row's
+/// exact sum before the one rounding (§3.1), so those rows are the net
+/// answer bit for bit (`assert_rows_match_net_answer` with `demoted`).
 fn assert_integrity_at_g(envelope: &MechanicsEnvelope, g: f64, label: &str) {
     let code = integrity_code(envelope, "case");
     if g < 9.0e15 {
@@ -1085,8 +1109,11 @@ fn f2_probe_a_simply_supported(g: f64) {
                     "{label}"
                 );
                 if g >= 9.0e15 {
-                    // Demoted (`assert_integrity_at_g`): the certified member
-                    // rows are kept for inspection, not compared.
+                    // Demoted (`assert_integrity_at_g`): its certified rows
+                    // are the net answer bit for bit except the unavailable
+                    // maximum.
+                    let reference = solved(entry, &net, mode);
+                    assert_rows_match_net_answer(&envelope, &reference, &label, true);
                     continue;
                 }
                 // Exact net answers: M(L/2) = w L^2 / 8 = 0.15 (0.3 / 2
@@ -1107,7 +1134,7 @@ fn f2_probe_a_simply_supported(g: f64) {
                 let bits = value_bits(&envelope, "case");
                 // The interior maximum is published, so E7 reaches a row.
                 assert!(bits.contains_key(maximum_id), "{label}: {bits:?}");
-                assert_rows_match_net_answer(&envelope, &reference, &label);
+                assert_rows_match_net_answer(&envelope, &reference, &label, false);
             }
         }
     }
@@ -1683,9 +1710,12 @@ fn curved_bend(loads: Vec<Value>) -> Value {
 /// cancelling temperature intervals (T, t, -T), so the strains are
 /// (eps, eps_n, -eps) and E8's pre-summed strain would be exercised. The
 /// recovery (end forces and arc stations) equals the answer for the net load
-/// alone: the ledger nets and E8-E11's per-load exact sums see the same exact
-/// net. Under K-D5's repair that answer holds to within the certified
-/// recovery's noise floor (`assert_rows_match_net_answer`).
+/// alone, bit for bit: the ledger nets and E8-E11's per-load exact sums see the
+/// same exact net, and K-D5's certified recovery enters each primitive and
+/// each distributed-load term as its own exact addend
+/// (`assert_rows_match_net_answer`). At G = 1e80 the load-row guard demotes
+/// the curved case before K-D5's repair, so it keeps binary64 rows against the
+/// certified net answer (`assert_binary64_rows_near_certified_net_answer`).
 #[test]
 fn f8_curved_bend_uniform_g1e8() {
     f8_curved_uniform(1e8);
@@ -1722,13 +1752,21 @@ fn f8_curved_uniform(g: f64) {
         };
         for &entry in entries {
             for mode in MODES {
+                let label = format!("F8 uniform G={g} {entry:?} {mode:?}");
                 let envelope = solved(entry, &request, mode);
                 let reference = solved(entry, &net, mode);
-                assert_rows_match_net_answer(
-                    &envelope,
-                    &reference,
-                    &format!("F8 uniform G={g} {entry:?} {mode:?}"),
-                );
+                assert_eq!(integrity_code(&reference, "case"), "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+                if g < 9.0e15 {
+                    assert_eq!(integrity_code(&envelope, "case"), "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+                    assert_rows_match_net_answer(&envelope, &reference, &label, false);
+                } else {
+                    // Precondition of the relaxed comparison: the load-row
+                    // guard demotes the case, so its rows are binary64.
+                    let d = envelope.diagnostics.iter().find(|d| d.code.starts_with("NUMERICAL_INTEGRITY_")).unwrap();
+                    assert_eq!(d.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{label}");
+                    assert!(d.message.contains("S11-G formation-noise guard"), "{label}: {}", d.message);
+                    assert_binary64_rows_near_certified_net_answer(&envelope, &reference, &label);
+                }
             }
         }
     }
@@ -1758,7 +1796,7 @@ fn f8_curved_bend_thermal_cancelling_strains() {
         for mode in MODES {
             let envelope = solved(entry, &request, mode);
             let reference = solved(entry, &net, mode);
-            assert_rows_match_net_answer(&envelope, &reference, &format!("F8 thermal {entry:?} {mode:?}"));
+            assert_rows_match_net_answer(&envelope, &reference, &format!("F8 thermal {entry:?} {mode:?}"), false);
         }
     }
 }

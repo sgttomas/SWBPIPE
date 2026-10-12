@@ -362,6 +362,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/certified_recovery.rs", "scale_up", 1, "K-D5: integer exponent step; nonnegative remainder radius products upward"),
     ("FK/structural/certified_recovery.rs", "sum_ball", 1, "K-D5: integer significand exponent carry; exact accumulator projection with guard and sticky bits, radius encloses discarded bits"),
     ("FK/structural/certified_recovery.rs", "certified_magnitude", 1, "K-D5: maximum published component chooses an exact power-of-two scaling; ball squares and root at p128 with directed radii, followed by one magnitude publication"),
+    ("FK/structural/certified_recovery.rs", "straight_section_evaluation_envelopes", 2, "K-D5 (review F5): integer counts of each section row's separate load addends, one TINY split allowance each in the positive majorant; no published value or force row accumulates here"),
     ("FK/structural/certified_recovery.rs", "certify_straight_stress_spans", 1, "K-D5 repaired stress controls (kd5-member-relative-bound.md §3.2): nonnegative ball radii of the section-factor envelope summed upward (add_up) into the evaluation radius; no published value or force row accumulates here"),
     // ---- T4-U1b (declared additive extension, O-11): the arc load certificate
     ("FK/structural/arc_certificate.rs", "certify_curved_uniform_load", 0, "T4-U1b: ball arithmetic: Wide midpoints (rounding covered by the proved radius), binary64 radii through directed helpers; nothing published"),
