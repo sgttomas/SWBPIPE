@@ -227,7 +227,8 @@ pub(crate) fn pid_lifetime_max_footprint(pid: i32) -> u64 {
 /// min(resident size, physical footprint). The resident size includes shared
 /// pages (not taken from the free queue for this process) and the footprint
 /// includes compressed pages (which occupy no free page until decompressed);
-/// each over-states, so the smaller is used. `None` if the read fails.
+/// each over-states, so the smaller is used (still an upper bound on private
+/// resident memory). `None` if the read fails.
 #[cfg(target_os = "macos")]
 pub(crate) fn pid_realized_bytes(pid: i32) -> Option<u64> {
     let mut info = std::mem::MaybeUninit::<libc::rusage_info_v0>::zeroed();
