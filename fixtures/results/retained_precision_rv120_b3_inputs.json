@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "588601c0f8d92e9331d30c5794038c724ae0b1dda100ef8a1ef3920b350627cf",
+   "input_sha256": "c918ff9bff2c9f9591cbb1a73ebac8b29124cb18bc02e15652d3985f96aa6c17",
    "edits": [
     {
      "op": "remove",
@@ -79,8 +79,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -205,8 +205,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -358,7 +358,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -556,7 +556,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "a2b56fe82eb0a12627efe88773c4cfd67a5a9011c8676e7a05d5be192de596b1",
+   "input_sha256": "8e233204f305932ee58f10492771e746142daae7664c286d74fd53b5f0c85954",
    "edits": [
     {
      "op": "remove",
@@ -622,8 +622,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -748,8 +748,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -901,7 +901,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -1113,7 +1113,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "cd1c6d69aa95f78f17949ebf2c624b1a79f9314e1f47ef745f74508ecfd698a9",
+   "input_sha256": "892ea8a44af4732d22d102af4856b165f1f35d6dc331dffed93b2aef4793caf1",
    "edits": [
     {
      "op": "remove",
@@ -1179,8 +1179,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -1305,8 +1305,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -1458,7 +1458,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -1670,7 +1670,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "24ac27f808040862420a263b542962fff3a6eedeffaa5f32b769ece21220a6ef",
+   "input_sha256": "029c8e68c2dfc13eccd028eb8a2e0d15d207ae2c4c13be3d940c8613c4e1752d",
    "edits": [
     {
      "op": "remove",
@@ -1736,8 +1736,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -1862,8 +1862,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -2015,7 +2015,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -2227,7 +2227,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "0292c86c96e1daabbda863c4094ef13e3343bc0d5ca2ef061f6d21c8ae992da1",
+   "input_sha256": "0e50977fa86753185bbfd250f3c3750f5dbe23084ec6e60e3898fe8d97e751bd",
    "edits": [
     {
      "op": "remove",
@@ -2293,8 +2293,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -2446,7 +2446,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -2770,7 +2770,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "a02aac3a39a18ccb1c187b7746addd70c5870dbf9926a0904f715c7115de55d0",
+   "input_sha256": "e84a7aba2d41216061a28345283de90bab940550824b8c87f2729ed8e80a6eec",
    "edits": [
     {
      "op": "remove",
@@ -2836,8 +2836,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -2989,7 +2989,7 @@
       "limitations",
       5
      ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "op": "set",
@@ -3313,7 +3313,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "11ef2090ec14b45710b24b56d4a47cdb3c683c76665fc24c4f7f900e9bfe4a98",
+   "input_sha256": "68b6a6377b5fca89bcf0c9b648a66cdbeffbacc3922dffc3991786255c093859",
    "edits": [
     {
      "op": "set",
@@ -3487,7 +3487,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "4a8e63ee1d86a053558edff73563596220ba89b0077f9cdfb5718ab219b25999",
+   "input_sha256": "5ab3f293fa872879b438398557242bc576fd0569a3b84fa4b1f9e92c14d7c406",
    "edits": [
     {
      "op": "set",
@@ -3673,7 +3673,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "deb972aca48fd6cc9b626487c6df8a07b01a1c7f4ad921d639811b012d6da6b8",
+   "input_sha256": "3fae649c39a3e6a5d02de16af720c8bb3a58c2c7b42ce13146ed4cfd0085afda",
    "edits": [
     {
      "path": [
@@ -3739,8 +3739,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -3865,8 +3865,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -4018,7 +4018,7 @@
       5
      ],
      "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "path": [
@@ -4180,7 +4180,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "7732c8627d9dd9cf777da2cba9da002bef42bee66209ae30a5b4c3f9a64a07b3",
+   "input_sha256": "6ce13fc2551dafd25db3f100717e36919094b6e5e264788b875ff092f96654dd",
    "edits": [
     {
      "path": [
@@ -4223,18 +4223,18 @@
        "pipe_stress_extrema": [
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
-         "certified_gap_pa": 1.0900377190420868e-106,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-         "global_upper_bound_pa": 8.170865639376692e-92,
+         "certified_gap_pa": 1.0491613045780085e-105,
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+         "global_upper_bound_pa": 8.170865639376739e-92,
          "local_fraction": 0.0,
          "pipe_id": "M1",
          "result_id": "result:elastic-maximum:4:case:2:M1",
          "span_index": 0,
          "station_fraction": 0.0,
          "subdivisions": 0,
-         "value_lower_pa": 8.170865639376682e-92,
-         "value_upper_pa": 8.170865639376692e-92
+         "value_lower_pa": 8.170865639376634e-92,
+         "value_upper_pa": 8.170865639376739e-92
         }
        ],
        "pressure_rhs_assembly": {
@@ -4349,18 +4349,18 @@
        "pipe_stress_extrema": [
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
-         "certified_gap_pa": 1.0900377190420868e-106,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-         "global_upper_bound_pa": 8.170865639376692e-92,
+         "certified_gap_pa": 1.0491613045780085e-105,
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+         "global_upper_bound_pa": 8.170865639376739e-92,
          "local_fraction": 0.0,
          "pipe_id": "M1",
          "result_id": "result:elastic-maximum:4:case:2:M1",
          "span_index": 0,
          "station_fraction": 0.0,
          "subdivisions": 0,
-         "value_lower_pa": 8.170865639376682e-92,
-         "value_upper_pa": 8.170865639376692e-92
+         "value_lower_pa": 8.170865639376634e-92,
+         "value_upper_pa": 8.170865639376739e-92
         }
        ],
        "pressure_rhs_assembly": {
@@ -4453,7 +4453,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "4b0c7b62bc86bba8c267ee02213e3d4e4432ef3208a0185e860aecabb496a446",
+   "input_sha256": "00a7c45033a6e63bbc1a6a3816cca1072419c69e8ff938468aed5598b9e89c18",
    "edits": [
     {
      "path": [
@@ -4519,8 +4519,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -4645,8 +4645,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -4798,7 +4798,7 @@
       5
      ],
      "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "path": [
@@ -4996,7 +4996,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "531279516823371aca26ea5a9952b10514b939bfae1284dbd48962f59f774ddd",
+   "input_sha256": "3ee365efdd05d8d83676d5add68ff1f9198095e3b209a9c74b4337d85aea0d46",
    "edits": [
     {
      "path": [
@@ -5062,8 +5062,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 5.2154064178466803e-08,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 41354908.75465697,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -5188,8 +5188,8 @@
         {
          "approximation": "piecewise_quadratic_straight_section_statics",
          "certified_gap_pa": 0.0,
-         "coefficient_basis": "j_side_section_equilibrium_binary64",
-         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
          "global_upper_bound_pa": 0.0,
          "local_fraction": 0.0,
          "pipe_id": "pipe:fixture-span",
@@ -5341,7 +5341,7 @@
       5
      ],
      "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
     },
     {
      "path": [
