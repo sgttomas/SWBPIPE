@@ -549,6 +549,16 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/formation_check.rs", "points_binding", "K-D5 §1: exact operand bits of a thermal table; read-only"),
     ("FK/structural/formation_check.rs", "strain_binding", "K-D5 §1: exact operand bits of an eigenstrain; read-only"),
     (
+        "FK/structural/formation_check.rs",
+        "binding",
+        "K-D5 §1: LoadFormula::binding, exact operand bits of a primitive's formula for its closure entry; read-only",
+    ),
+    (
+        "FK/structural/formation_check.rs",
+        "force_scaled",
+        "K-D5 §2.2: LoadPrimitive::force_scaled, rebinds one primitive's force exponent with its term's 2^b (W2); authored operands unchanged, no ledger value",
+    ),
+    (
         "FK/structural/certified_recovery.rs",
         "from_primitives",
         "K-D5 §3.1: unqualified member-load constructor (delegates to from_member_primitives)",
@@ -559,6 +569,36 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "K-D5 §3.1: the member's intended end loads, each primitive re-formed at p and added to its row's exact sum",
     ),
     ("FK/structural/certified_recovery.rs", "member_pair", "K-D5 §3.1: a primitive's member nodes; read-only"),
+    (
+        "FK/structural/certified_recovery.rs",
+        "default",
+        "K-D5 §3.1: Default for CertifiedMemberLoads, the unloaded member (zero end loads, no primitives)",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "add",
+        "K-D5 §3.1: RowLoad::add, one load contribution entered as its own exact addend of the row's sum, radius added upward",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "single",
+        "K-D5 §3.1: RowLoad::single, one load ball as the row's only (subtracted) load addend",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "evaluate_row",
+        "K-D5 §3.1: a row A x - load with one load addend (RowLoad::single), through evaluate_row_inner",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "evaluate_row_inner",
+        "K-D5 §3.1: the row's exact sum starts from its RowLoad addends (moved, not copied) and the stiffness products of u, w and w2 join it; one rounding",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "evaluate_ends",
+        "K-D5 §3.1: the 12 end rows, each with its own end-load addend (evaluate_row)",
+    ),
     ("FK/structural/certified_recovery.rs", "uniform_loads", "K-D5 §3.1: each uniform primitive's intensity re-formed at p for the station transfer"),
     ("FK/structural/certified_recovery.rs", "local_loads", "K-D5 §3.1: the member's intended end loads in its chord frame"),
     ("FK/structural/certified_recovery.rs", "straight_context", "K-D5 §3.1: straight recovery context (K_int,m and the chord-frame loads)"),
@@ -602,6 +642,16 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "PP/certified_publication.rs",
+        "fallback_section_errors",
+        "K-D5 §3.2: whole-member error replay of the binary64 E4/E6 section recipe from the held end actions and the member's local uniform intensities (SpannedUniformLocalLoad); no ledger value",
+    ),
+    (
+        "PP/certified_publication.rs",
+        "fallback_circular_maximum",
+        "K-D5 §3.2: the fallback circular stress maximum over the member's local uniform intensities (through fallback_section_errors); no ledger value",
+    ),
+    (
+        "PP/certified_publication.rs",
         "straight_stress_spans",
         "K-D5 §3.2: certified stress controls from the member's re-formed primitives; read-only",
     ),
@@ -624,6 +674,8 @@ const FORCE_TOKENS: &[&str] = &[
     ".load_primitives()",
     "load_reformation(",
     "term.accumulate(",
+    // K-D5 §3.1: a recovered row's load addends (see FORCE_SIGNATURE_TOKENS).
+    "RowLoad",
 ];
 
 /// Rule 8 (R3-3, R3B-5, RV1-N1): every accumulation of the rule-8 shapes in
@@ -1413,13 +1465,80 @@ const FORCE_SIGNATURE_TOKENS: &[&str] = &[
     "ThermalPointPrimitive",
     "CertifiedMemberLoads",
     "CertifiedUniformLoad",
+    // K-D5 §3.1 (9ef0cbc78a): a recovered row's intended load part, each load
+    // contribution its own exact addend, joined by the row's stiffness
+    // products in `evaluate_row_inner`.
+    "RowLoad",
 ];
+
+/// Rule 6, K-D5 §3.1: a parameter of these names carries a recovered row's
+/// load addend(s) into the row's exact sum (`evaluate_row`'s `load`,
+/// `evaluate_ends`'s `loads`), so the function is a force site whatever the
+/// parameter's type.
+const FORCE_PARAMETER_NAMES: &[&str] = &["load:", "loads:"];
 
 fn force_site(item: &Item) -> bool {
     FORCE_TOKENS.iter().any(|t| item.body.contains(t))
         || FORCE_SIGNATURE_TOKENS
             .iter()
+            .chain(FORCE_PARAMETER_NAMES)
             .any(|t| calls(&item.signature, t).next().is_some())
+}
+
+/// The bodies of the `impl` blocks (inherent or trait) whose implementing type
+/// is `ty`: their methods are force sites although a `self` receiver names no
+/// type (`RowLoad::add`, `RowLoad::single`).
+fn impl_bodies(code: &str, ty: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for at in calls(code, "impl") {
+        let rest = &code[at + 4..];
+        if !rest.starts_with(|c: char| c.is_whitespace() || c == '<') {
+            continue;
+        }
+        let Some(open) = rest.find(['{', ';']) else {
+            continue;
+        };
+        if !rest[open..].starts_with('{') {
+            continue;
+        }
+        let header = rest[..open].split(" where ").next().unwrap_or("");
+        let implementing = header.rsplit(" for ").next().unwrap_or(header);
+        let path = implementing.split('<').next().unwrap_or("").trim();
+        if path.rsplit("::").next() != Some(ty) {
+            continue;
+        }
+        let start = at + 4 + open;
+        let mut depth = 0usize;
+        for (offset, c) in code[start..].char_indices() {
+            match c {
+                '{' => depth += 1,
+                '}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        out.push(code[start + 1..start + offset].to_string());
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    out
+}
+
+/// Rule 6's force sites of one lexed file.
+fn force_sites(code: &str) -> BTreeSet<String> {
+    let mut out: BTreeSet<String> = items(code)
+        .into_iter()
+        .filter(force_site)
+        .map(|item| item.name)
+        .collect();
+    for ty in FORCE_SIGNATURE_TOKENS {
+        for body in impl_bodies(code, ty) {
+            out.extend(items(&body).into_iter().map(|item| item.name));
+        }
+    }
+    out
 }
 
 #[test]
@@ -1429,10 +1548,8 @@ fn rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites() {
         .iter()
         .filter(|s| RULE6_PRODUCT_FILES.contains(&s.name));
     for source in KERNEL.iter().chain(product) {
-        for item in items(&code_of(source.text)) {
-            if force_site(&item) {
-                actual.insert((source.name.to_string(), item.name));
-            }
+        for name in force_sites(&code_of(source.text)) {
+            actual.insert((source.name.to_string(), name));
         }
     }
     let expected: BTreeSet<_> = FORCE_FUNCTIONS
@@ -1452,7 +1569,8 @@ fn rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites() {
 /// of a formed load term enters any of them"): K-D5's residual, closure and
 /// recovery files never read the ledger's folded binary64 values. A formed
 /// term enters only as its re-formed primitives and an input term only as its
-/// own exact term (`term.accumulate`). Exact: no function may match.
+/// own exact term (`term.accumulate`), and only on a branch guarded as an
+/// input term. Exact: no function may match.
 const KD5_FILES: &[&str] = &[
     "FK/structural/formation_check.rs",
     "FK/structural/certified_recovery.rs",
@@ -1461,8 +1579,11 @@ const KD5_FILES: &[&str] = &[
 ];
 
 /// Folded-value reads: `values()`, an indexed or element read of a force or
-/// ledger, the `ForceRows` binding, or any `.force.` use other than its
-/// length.
+/// ledger, the `ForceRows` binding, any `.force.` use other than its length,
+/// a per-DOF ledger read or sum (`terms_for`, `accumulate_dof`), the S11-G
+/// formation rows (net defects of the binary64 terms), a term's binary64
+/// operands (`.kind`, `ForceTermKind`), and a ledger-term accumulation outside
+/// an input-term guard (`unguarded_term_accumulations`).
 fn folded_value_reads(body: &str) -> usize {
     let tokens = [
         "values()",
@@ -1473,10 +1594,127 @@ fn folded_value_reads(body: &str) -> usize {
         "ledger.iter(",
         "ForceRows",
         "force_rows",
+        "accumulate_dof(",
+        "terms_for(",
+        "formation_rows(",
+        "ForceTermKind",
     ];
+    let field = |name: &str| {
+        body.match_indices(name)
+            .filter(|(at, _)| {
+                !body[at + name.len()..].starts_with(|c: char| c.is_alphanumeric() || c == '_')
+            })
+            .count()
+    };
     tokens.iter().map(|t| body.matches(t).count()).sum::<usize>()
         + body.matches(".force.").count()
         - body.matches(".force.len()").count()
+        + field(".kind")
+        + unguarded_term_accumulations(body)
+}
+
+/// Ledger-term accumulations (`ForceTerm::accumulate(&self, &mut acc,
+/// negate)`: `.accumulate(` with two or more arguments, or the path form
+/// `ForceTerm::accumulate(`; the product's one-argument
+/// `FallbackError::accumulate` is not one) that no enclosing block guards as
+/// an input term. Only these two guards count, each an `if` whose whole
+/// condition is a plain field path ending in `.formed`:
+/// - the then-block of `if !<path>.formed { .. }`;
+/// - the `else` block of `if <path>.formed { .. } else { .. }`.
+/// Any other position (a formed branch, an `else if`, a compound condition,
+/// a closure, a `match` arm) counts. Limit: the guard is matched by shape,
+/// not by proving that its record is the accumulated term's own.
+fn unguarded_term_accumulations(body: &str) -> usize {
+    let method = calls(body, ".accumulate(").filter(|&at| {
+        let arguments = call_arguments(&body[at..], ".accumulate(")[0].clone();
+        let mut depth = 0i32;
+        let commas = arguments
+            .trim_end()
+            .trim_end_matches(',')
+            .chars()
+            .filter(|&c| {
+                match c {
+                    '(' | '[' | '{' => depth += 1,
+                    ')' | ']' | '}' => depth -= 1,
+                    _ => {}
+                }
+                c == ',' && depth == 0
+            })
+            .count();
+        commas >= 1
+    });
+    let path = calls(body, "ForceTerm::accumulate(");
+    method
+        .chain(path)
+        .filter(|&at| !input_term_guarded(body, at))
+        .count()
+}
+
+/// Whether an enclosing block of `at` is the then-block of
+/// `if !<path>.formed` or the `else` block of `if <path>.formed`.
+fn input_term_guarded(body: &str, at: usize) -> bool {
+    let b = body.as_bytes();
+    let mut open = Vec::new();
+    for (i, &c) in b[..at].iter().enumerate() {
+        match c {
+            b'{' => open.push(i),
+            b'}' => {
+                open.pop();
+            }
+            _ => {}
+        }
+    }
+    // The header of the block opened at `o`: the text back to the previous
+    // `;`, `{` or `}`, and that delimiter's position.
+    let header = |o: usize| {
+        let start = b[..o]
+            .iter()
+            .rposition(|&c| matches!(c, b';' | b'{' | b'}'))
+            .map_or(0, |p| p + 1);
+        (body[start..o].trim(), start.checked_sub(1))
+    };
+    // A condition that is exactly a field path ending in `.formed`.
+    let formed_path = |cond: &str| {
+        cond.ends_with(".formed")
+            && cond
+                .chars()
+                .all(|c| c.is_alphanumeric() || matches!(c, '_' | '.' | '[' | ']' | '(' | ')'))
+    };
+    open.iter().rev().any(|&o| {
+        let (head, delimiter) = header(o);
+        if let Some(cond) = head.strip_prefix("if ") {
+            return cond
+                .trim()
+                .strip_prefix('!')
+                .is_some_and(|path| formed_path(path.trim()));
+        }
+        if head != "else" {
+            return false;
+        }
+        // Match the then-block's `}` back to its `{`.
+        let Some(close) = delimiter.filter(|&d| b[d] == b'}') else {
+            return false;
+        };
+        let mut depth = 0usize;
+        let then_open = (0..close).rev().find(|&i| match b[i] {
+            b'}' => {
+                depth += 1;
+                false
+            }
+            b'{' if depth == 0 => true,
+            b'{' => {
+                depth -= 1;
+                false
+            }
+            _ => false,
+        });
+        then_open.is_some_and(|t| {
+            header(t)
+                .0
+                .strip_prefix("if ")
+                .is_some_and(|cond| formed_path(cond.trim()))
+        })
+    })
 }
 
 #[test]
@@ -1629,6 +1867,39 @@ fn scanner_self_checks() {
     assert!(force_site(&found[0]));
     assert_eq!(folded_value_reads(&found[1].body), 1);
     assert_eq!(folded_value_reads(&found[2].body), 0);
+    // Rule 6: a load-addend parameter is a site, and so is every method of an
+    // impl of a signature type (a `self` receiver names no type).
+    let code = code_of(
+        "fn p(op: &[Ball; 3], load: Ball) -> u8 { 0 }\nimpl Default for RowLoad { fn default() -> Self { z() } }\nimpl RowLoad { fn add(&mut self) {} }\nimpl Other { fn q(&self) {} }",
+    );
+    let sites = force_sites(&code);
+    assert_eq!(
+        sites,
+        ["add", "default", "p"].into_iter().map(String::from).collect()
+    );
+    // Rule 6b (N1): per-DOF ledger reads and sums and a term's binary64
+    // operands are folded reads; `.kinds` is not `.kind`.
+    let code = code_of(
+        "fn a(l: &AssembledForce, s: &mut A) { l.accumulate_dof(0, s, false); }\nfn b(l: &AssembledForce) { for t in l.terms_for(0) {} }\nfn c(t: &ForceTerm) { match t.kind { _ => {} } }\nfn d(x: &X) { x.kinds(); }",
+    );
+    let found = items(&code);
+    let reads: Vec<_> = found.iter().map(|i| folded_value_reads(&i.body)).collect();
+    assert_eq!(reads, [1, 1, 1, 0]);
+    // Rule 6b (N1): a ledger-term accumulation counts unless an enclosing
+    // block is the input branch of a plain `formed` guard; the product's
+    // one-argument accumulation is not a ledger-term accumulation.
+    let code = code_of(
+        "fn e(t: &ForceTerm, r: &R) { if !r.records()[0].formed { if ok { t.accumulate(&mut s, false)?; } } }\n\
+         fn f(t: &ForceTerm, r: &R) { if r.formed { g(); } else { t.accumulate(&mut s, false)?; } }\n\
+         fn g(t: &ForceTerm, r: &R) { if r.formed { t.accumulate(&mut s, false)?; } else { h(); } }\n\
+         fn h(t: &ForceTerm, r: &R) { if !r.formed && x { t.accumulate(&mut s, false)?; } }\n\
+         fn i(t: &ForceTerm, r: &R) { if r.formed { g(); } else if y { t.accumulate(&mut s, false)?; } }\n\
+         fn j(t: &ForceTerm) { t.accumulate(&mut s, false)?; ForceTerm::accumulate(t, &mut s, true)?; }\n\
+         fn k(a: F, b: F) { let c = a.accumulate(b.mul(x)?)?; }",
+    );
+    let found = items(&code);
+    let reads: Vec<_> = found.iter().map(|i| folded_value_reads(&i.body)).collect();
+    assert_eq!(reads, [0, 0, 1, 1, 1, 2, 0]);
     // Rule 8 counts RV1-N1's self-assignment folds.
     let counts = scan(
         "fn f(a: &mut [f64], t: &[f64]) { a[0] = a[0] + t[0]; let b = checked_value(b - t[1])?; }",
