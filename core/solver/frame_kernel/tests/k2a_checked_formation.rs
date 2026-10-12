@@ -14,9 +14,10 @@
 //! `k2a_models.py`); the section is formed as PP `derive_pipe_section` forms
 //! it. The K-D5 interaction uses V1's F122 and F345 models as K-D5's adapter
 //! tests carry them (`nonlinear_integration/src/structural_adapter/kd5_models.rs`).
+use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
 use open_pipe_stress_frame_kernel::structural::{
     solve_formation_checked_structural_dense, transform_roundoff, FormationCheckReason,
-    FormationSource, SolveQuality, StructuralSystem, SymmetryEvidence,
+    FormationSource, SolveQuality, StiffnessContribution, StructuralSystem, SymmetryEvidence,
 };
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness, element_dof_map, local_stiffness, transform_global_stiffness,
@@ -674,6 +675,31 @@ fn kd5_stiffness(model: &Kd5Model, element_matrix: &Matrix12) -> Vec<Vec<f64>> {
     k
 }
 
+/// The same assembly as `kd5_stiffness`, as K-D5's ε_E reads it: the element's
+/// 144 contributions in assembly order, then each spring (DEL-04-01
+/// kd5-member-relative-bound.md §2 step 7).
+fn kd5_contributions(model: &Kd5Model, element_matrix: &Matrix12) -> Vec<StiffnessContribution> {
+    let map = element_dof_map(0, 1);
+    let mut out = Vec::with_capacity(144 + model.springs.len());
+    for r in 0..12 {
+        for c in 0..12 {
+            out.push(StiffnessContribution {
+                row: map[r],
+                col: map[c],
+                value: element_matrix[r][c],
+            });
+        }
+    }
+    for &(dof, value) in &model.springs {
+        out.push(StiffnessContribution {
+            row: dof,
+            col: dof,
+            value,
+        });
+    }
+    out
+}
+
 #[test]
 fn k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations() {
     let mut demoted = Vec::new();
@@ -692,10 +718,14 @@ fn k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations() {
             &element.orientation().unwrap(),
         );
         assert_eq!(bits(&checked), bits(&unchecked), "{}", model.name);
-        let mut f = vec![0.0; 12];
+        // K-D5 runs only on a typed ledger (kd5-member-relative-bound.md §1:
+        // "K-D5 without a ledger fails closed"). The nodal loads are input
+        // terms, which carry no closure primitive.
+        let mut ledger = LoadLedger::new();
         for &(dof, value) in model.loads {
-            f[dof] = value;
+            ledger.push(format!("load:{dof}"), dof, value);
         }
+        let force = ledger.finish(12).unwrap();
         let free: Vec<usize> = (3..12).collect();
         let prescribed = [(0, 0.0), (1, 0.0), (2, 0.0)];
         let source = FormationSource {
@@ -721,24 +751,26 @@ fn k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations() {
             .iter()
             .map(|r| r.to_vec())
             .collect();
-        let solve = |k: &Vec<Vec<f64>>| {
-            let system = StructuralSystem {
-                stiffness: k,
-                force: &f,
-                free_dofs: &free,
-                prescribed: &prescribed,
-                contributions: None,
-                symmetry: Some(SymmetryEvidence {
+        let solve = |element_matrix: &Matrix12| {
+            let k = kd5_stiffness(model, element_matrix);
+            let contributions = kd5_contributions(model, element_matrix);
+            let system = StructuralSystem::assembled(
+                &k,
+                &force,
+                &free,
+                &prescribed,
+                Some(&contributions),
+                Some(SymmetryEvidence {
                     absolute_roundoff: &absolute,
                     operation_counts: &counts,
                     basis: roundoff.basis,
                 }),
-            };
+            );
             solve_formation_checked_structural_dense(&system.with_formation_source(&source))
                 .unwrap()
         };
-        let with_checked = solve(&kd5_stiffness(model, &checked));
-        let with_unchecked = solve(&kd5_stiffness(model, &unchecked));
+        let with_checked = solve(&checked);
+        let with_unchecked = solve(&unchecked);
         // The K-D5 outcome with checked formation is the outcome before K2a.
         assert_eq!(
             format!("{with_checked:?}"),

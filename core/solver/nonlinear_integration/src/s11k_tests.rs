@@ -1228,7 +1228,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
         assert_eq!(code.matches("solve_with_formation").count(), 0, "{name}");
         for plumbing in FORMATION_ENTRY_POINTS
             .iter()
-            .filter(|p| **p != "solve_assembled_with_formation_check")
+            .filter(|p| **p != "solve_assembled_with_formation_check" && !(name == "certified_publication.rs" && **p == "FormationSource"))
         {
             assert_eq!(
                 code.matches(plumbing).count(),
@@ -1254,6 +1254,23 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
         calls, 1,
         "product_physics calls the formation-checked entry {calls} times"
     );
+    // K-D5 repair needs a pure source view for restrained-row recovery. This
+    // names primitives, not a formation-check invocation. Its only product
+    // constructor call is gated by an existing member bound on a linear solve.
+    let (_,product_lib)=product.iter().find(|(name,_)|name=="lib.rs").unwrap();
+    let case_body=function_body(product_lib,"fn solve_load_case_observed(");
+    let compact=case_body.split_whitespace().collect::<String>();
+    assert!(compact.contains("letmember_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
+    assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,&force,spring_entries));"));
+    assert_eq!(product.iter().map(|(_,code)|code.matches("certified_publication::source(").count()).sum::<usize>(),1);
+    let (_,recovery)=product.iter().find(|(name,_)|name=="certified_publication.rs").unwrap();
+    let view=function_body(recovery,"fn source(").split_whitespace().collect::<String>();
+    assert!(view.contains("FormationSource{"));
+    assert!(view.contains("force.load_primitives().to_vec("));
+    for entry in FORMATION_ENTRY_POINTS.iter().filter(|entry|**entry!="FormationSource") {
+        assert!(!recovery.contains(entry),"pure recovery view invoked {entry}");
+    }
+
     // The loop's structural solve stays the named binary64 variant.
     let lib = strip_cfg_test(&lex(include_str!("lib.rs")));
     assert!(lib.contains("assembly.solve_binary64("));
@@ -1327,6 +1344,7 @@ fn kd5_nonlinear_loop_reaches_no_formation_check() {
             .solve_binary64(&built.k, &built.f, &built.free, &built.prescribed, mode)
             .unwrap();
         assert_eq!(binary64.formation_check, None);
+        assert!(binary64.member_bound.is_none(), "nonlinear binary64 route has no formation-bound inputs");
         assert_eq!(
             bits(&first.displacements),
             bits(&binary64.displacements),
@@ -1838,5 +1856,24 @@ fn top_level_item(code: &str, at: usize) -> String {
         }
         "const" if words.get(k + 1) == Some(&"fn") => format!("fn {}", words[k + 2]),
         keyword => format!("{keyword} {}", words[k + 1]),
+    }
+}
+
+
+#[test]
+fn kd5_member_bound_exists_only_on_the_selected_linear_adapter() {
+    let frame=probe_p_elements()[0];
+    let k=assemble_global_stiffness(2,&[frame]).unwrap();
+    let assembly=AssemblyEvidence::new(2,&[frame],&[],&[],&[]).unwrap();
+    let mut f=vec![0.0;12];f[7]=100.0;let force=ledger_force(&f);
+    let free=(6..12).collect::<Vec<_>>();let prescribed=(0..6).map(|dof|(dof,0.0)).collect::<Vec<_>>();
+    for mode in [LinearSolveMode::DenseScrutiny,LinearSolveMode::SparseInteractive] {
+        let selected=assembly.solve_assembled_with_formation_check(&k,&force,&free,&prescribed,mode,&[],true).unwrap();
+        assert_eq!(selected.report.quality,SolveQuality::Passed,"{:?}",selected.formation_check);
+        assert!(selected.member_bound.is_some());
+        let unselected=assembly.solve_assembled_with_formation_check(&k,&force,&free,&prescribed,mode,&[],false).unwrap();
+        assert!(unselected.member_bound.is_none());
+        assert!(unselected.formation_check.is_none());
+        assert_eq!(unselected,assembly.solve_assembled(&k,&force,&free,&prescribed,mode).unwrap());
     }
 }

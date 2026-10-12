@@ -35,7 +35,7 @@ HELP_HUMAN, 2026-10-10, on the v3 retained-source join: D1, D2 (inside B7, no co
 - *The corpus* is:
   - `fixtures/results/retained_precision_cases.json` (07m/07n: 26 bases, 534 mutations, 78 must-pass);
   - `retained_precision_cases_07o.json` (19 bases, 69 mutations, 19 must-pass).
-- *Re-registration* follows **D3**. It is approved on the join head and on the B7 heads if M stays 10.5 GiB (11,274,289,152 bytes) and the 5 % text budget holds. Otherwise it returns to HELP_HUMAN for a ruling. Any change of M or of the budget model is decision 22, which the owner holds.
+- *Re-registration* follows **D3**. The owner selected M = 12 GiB (12,884,901,888 bytes) for current product build qualification. Re-registration on the join and B7 heads must retain the 0.9 M margin and 5 % TEXT reserve and re-audit their actual source and resource changes. Machine-dependent scaling is separate owner-directed design; this registration does not implement it. Further changes to M or the budget model remain decision 22 with the owner.
 
 ## Unit R: one product reader
 
@@ -371,4 +371,4 @@ HELP_HUMAN accepted this design on 2026-10-10. DEL-02-05 CLM-003 and DEL-04-07 D
 These are not decided here.
 - **G10 interpretation.** B7a changes the milestone model's document version, its ordinary-route bytes and its displayed rows (C4, E14, the model format). Whether G10 is witnessed before B7a, or re-issued against the B7 head, is the owner's choice.
 - **B8 (activation).** R and B7a change the desktop's retained standing text and notices. Nothing here activates anything.
-- **Decision 22.** Any change of M or of the budget model.
+- **Decision 22.** Budget-model or qualification changes outside the owner-approved 12 GiB base allowance and shared 75% pool policy. Implementing and qualifying that selected policy is already authorized; larger numerical domains, risk acceptance and other unselected choices still require the owner.

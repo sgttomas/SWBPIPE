@@ -24,8 +24,8 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from retained_precision_corpus import load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-PINNED = {"sparse_interactive": "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
-          "dense_scrutiny": "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5"}
+PINNED = {"sparse_interactive": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
+          "dense_scrutiny": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
@@ -485,8 +485,8 @@ B3B_PASSES = {
 
 # Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
 # document and receipt sha256, as RS pins them. Every B3b shape is also read on each.
-EXACT_PINNED = {"sparse_interactive": ("02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6", "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f"),
-                "dense_scrutiny": ("31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc", "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d")}
+EXACT_PINNED = {"sparse_interactive": ("fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85", "9b4792ef7426c324ba4ae9726d1936560440e16a6326ba38a5191d163e1ffff6"),
+                "dense_scrutiny": ("2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d", "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475")}
 KINDS = ("synthetic", "producer")
 
 

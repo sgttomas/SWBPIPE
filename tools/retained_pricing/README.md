@@ -1,6 +1,8 @@
 # Retained pricing
 
-This tool prices the retained route's memory at a revision. It also writes the registered profile, the GENERATED PROFILE block in `core/product_physics/src/retained_memory.rs`.
+This tool prices the retained route's memory at a revision and generates the GENERATED PROFILE block in `core/product_physics/src/retained_memory.rs`. Registration separately binds the actual build, reviewed inputs, layouts and selected threshold.
+
+The base chain's `g4_caps.py` keeps the historical illustrative `M = 4_026_531_840`: `tree.M`, `fraction_of_M`, `margin_rule_0.9M` and `fits_M` use illustrative layout strides and are not native budget qualification. `run` exit 0 establishes pricing completeness. `generate` replaces only the generated block and preserves `REGISTERED_PROFILES.threshold_bytes`; it does not select or register M. `eval` (`lib/tree_eval.py`) uses supplied native atoms to evaluate forms/phases without applying a budget. Current qualification uses the source-selected registered threshold and the native law tests' checks of all phases, R, the 0.9 margin and the upward-rounded 5% TAV_W/TAV_X reserve.
 
 It is SQ2's TEXT and cap-priced chain under the O-10 rules, in one Python command (standard library only). The reasons for the rules it adds by name are in DEL-05-02's [retained-pricing-rules.md](../../execution/PKG-05/DEL-05-02/Design/retained-pricing-rules.md). Use this tool, not earlier copies of the chain.
 
@@ -108,7 +110,8 @@ All outputs go to `--out`.
 - **Source:** I104's chain scripts, at `e85d383b64:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I104/b1_sq_01/_run_records/chain/`.
 - **N-5 adapter rows:** applied in `producer_caps.py` and `g5_profile.py` by that record's `g6/tools/sq_n5_chain.py`.
 - **Rule tables and keys:** the rule tables, `sens.py`'s keys and I65's premise pins were carried from `57c92a7b33` to `2243be380b` by RV132's line map. This is the base SQ2 was qualified on.
-- **Check:** on `f78f52b7e2`, `2c5cf0823b` and `e9cc7e3f5f`, carrying from this base gives rule tables byte-identical to the earlier two-hop carry from `57c92a7b33`.
+- **Historical carry check:** before K-D5's name-key migrations, carrying this base at `f78f52b7e2`, `2c5cf0823b` and `e9cc7e3f5f` gave rule tables byte-identical to the earlier two-hop carry from `57c92a7b33`. K-D5 moves reviewed changed sites and the condition-estimator call into name-keyed rules; the registered batch-3 tree still reproduces with the same 630 coefficients.
+- **Current-source model:** K-D5's owned-layout and unified-text additions apply only when the snapshot defines `MemberBoundInputs`. Older priced revisions keep their original formulas and illustrative-layout metadata. The positive owners and domain-grounded empty children are explained in the governed pricing rules.
 - **Generator change:** `g5_profile.py` also takes the wrapped basis line described under "The basis line".
 - **Not included:** the chain's patch logs and its stale template inventory, because a run regenerates the inventory.
 

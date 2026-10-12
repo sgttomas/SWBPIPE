@@ -261,6 +261,45 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
+- from: DEL-04-01
+  when: K-D5 member-relative bound (option (d)) implementation
+  condition: 'DEL-04-07 attaches the load primitives of K-D5''s load closure (DEL-04-01 Design/kd5-member-relative-bound.md
+    sections 1 to 3). DEL-04-01 supplies the LoadPrimitive type and FormationSource::loads, with many primitives
+    per ledger term; the closure rule, which fails closed on a formed term its primitives do not cover and
+    on a solve without a ledger; epsilon_E by the triangle bound; the two corrections and MemberBoundInputs;
+    and the certified recovery of straight members, arcs, connectors and supports. DEL-04-07 forms its own
+    terms'' primitives per section 1 (arc and pressure free strain, the exact-pressure operand groups including
+    the straight Poisson pairs, connector reference loads and their W2 forms), publishes certified rows only
+    when MemberBoundInputs are present, and fails every other Passed route closed with a named reason.'
+  gating: true
+- from: DEL-05-01
+  when: K-D5 member-relative bound (option (d)) implementation
+  condition: 'K-D5 re-forms every formed load term at p = 128 from its binary64 primitives and uses no
+    ledger value of a formed term (DEL-04-01 Design/kd5-member-relative-bound.md section 1). DEL-05-01 supplies,
+    with each term it forms, the primitives and formula K-D5 can re-form at p: the resolved total eigenstrain
+    of the load state (thermal alpha Delta T plus fit and cold-spring strain), formed once and shared by
+    the straight, arc and pressure primitives; and generated self-weight as its authored densities, diameters,
+    thicknesses and g, so that its intensity is re-formed at p and needs no operand bound. A formed term
+    without them makes the formation check unavailable.'
+  gating: true
+- from: DEL-04-02
+  when: K-D5 member-relative bound (option (d)) implementation
+  condition: 'K-D5 re-forms every formed load term at p = 128 (DEL-04-01 Design/kd5-member-relative-bound.md
+    section 1). DEL-04-02 supplies, for the straight member''s formed terms, the primitives and formula K-D5
+    can re-form at p: the consistent uniform-load vector (wL/2, wL^2/12 in the chord frame) and the free-strain
+    eigen pair (E A epsilon along the chord). The same definitions, with the equivalent terms and free-strain
+    axial load that exact_straight_end_forces removes, serve the certified straight recovery at the corrected
+    displacement.'
+  gating: true
+- from: DEL-05-05
+  when: K-D5 member-relative bound (option (d)) implementation
+  condition: 'K-D5 re-forms every formed load term at p = 128 (DEL-04-01 Design/kd5-member-relative-bound.md
+    section 1). DEL-05-05 applies the distributed loads and owns the application of R-1''s certified arc
+    loads (DEL-04-01''s certify_curved_uniform_load). For each uniform element load on a straight member
+    or a realized arc it supplies the primitives and formula K-D5 can re-form at p, and for arcs R-1''s midpoint-radius
+    enclosure, linear in w and applied to each term of w''s exact split, with its radius carried. A failed
+    R-1 precondition makes the formation check unavailable.'
+  gating: true
 code_paths:
 - core/product_physics/src/lib.rs
 - core/solver/nonlinear_integration/

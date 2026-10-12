@@ -369,14 +369,22 @@ def closure(c, seen=None):
     return seen
 DEPS_CLOSURE = {c: closure(c) for c in set(crate_key.values())}
 
-# optional manual adjudication rules (CG_RULES env var): (caller, name) -> real targets
-RULES = {}
+# optional adjudication (CG_RULES): replacement targets or exact target subtractions
+RULES, RULE_EXCLUDES = {}, {}
+EXCLUSION_HITS = set()
 if os.environ.get("CG_RULES"):
     rj = json.load(open(os.environ["CG_RULES"]))
     W = rj.get("W", "")
     for r in rj["rules"]:
         c = r["caller"].replace("W/", W + "/", 1)
-        RULES[(c, r["name"])] = [t.replace("W/", W + "/", 1) for t in r["targets"]]
+        rk = (c, r["name"])
+        if "targets" in r:
+            RULES[rk] = [t.replace("W/", W + "/", 1) for t in r["targets"]]
+        if "exclude_targets" in r:
+            excluded = [t.replace("W/", W + "/", 1) for t in r["exclude_targets"]]
+            if not excluded or c not in bodies or any(t not in bodies for t in excluded):
+                raise SystemExit(f"CALLGRAPH exclusion inventory missing: {rk}: {excluded}")
+            RULE_EXCLUDES.setdefault(rk, set()).update(excluded)
     missing = [k for k in RULES if k[0] not in bodies]
     if missing:
         print("RULE CALLERS NOT FOUND:", missing)
@@ -512,6 +520,11 @@ for key in nodes:
         if (key, name) in RULES:
             targets = [t for t in RULES[(key, name)] if t in bodies]
             reason = "rule"
+        if (key, name) in RULE_EXCLUDES:
+            excluded = RULE_EXCLUDES[(key, name)]
+            EXCLUSION_HITS.update((key, name, t) for t in targets if t in excluded)
+            targets = [t for t in targets if t not in excluded]
+            reason = "rule target exclusion"
         n = 0
         for t in dict.fromkeys(targets):
             if crate_key[t] in allowed and not (REPAIR and crate_local.get(t) and crate_key[t] != cr):
@@ -806,6 +819,12 @@ if IMPLICIT:
 
 # Tarjan SCC (iterative)
 index, low, onstack, stack, sccs, idx = {}, {}, set(), [], [], [0]
+# Exclusions are exact source-bound target subtractions, never a quiet no-op.
+for (caller, name), excluded in RULE_EXCLUDES.items():
+    for target in excluded:
+        if (caller, name, target) not in EXCLUSION_HITS or target in edges[caller]:
+            raise SystemExit(f"CALLGRAPH exclusion did not remove its witnessed candidate: {caller}:{name} -> {target}")
+
 for v0 in nodes:
     if v0 in index:
         continue
@@ -860,7 +879,7 @@ if os.environ.get("CG_AUDIT_OUT"):
                "blanket_methods": sorted(blanket), "trait_names": len(TRAIT_NAMES), "aliases": sorted(ALIASES),
                "unresolved_call_tokens": len(audit), "by_reason": collections.Counter(r["reason"] for r in audit).most_common(),
                "rows": audit}, open(os.environ["CG_AUDIT_OUT"], "w"), indent=1)
-out = {"repair": REPAIR, "implicit": IMPLICIT, "rules_applied": len(RULES), "files": len(paths), "nodes": len(nodes), "edges": sum(len(e) for e in edges.values()),
+out = {"repair": REPAIR, "implicit": IMPLICIT, "rules_applied": len(set(RULES) | set(RULE_EXCLUDES)), "target_exclusions": sorted(EXCLUSION_HITS), "files": len(paths), "nodes": len(nodes), "edges": sum(len(e) for e in edges.values()),
        "cyclic_components": cyclic, "cyclic_component_edges": cyc_edges,
        "root_depths": {r: depth(comp_of[r]) for r in roots}}
 json.dump(out, open(out_path, "w"), indent=1)

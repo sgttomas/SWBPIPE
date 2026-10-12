@@ -1186,27 +1186,29 @@ impl Represented for SparseStructuralSystem<'_> {
     fn formation_check<F>(
         &self,
         source: &FormationSource,
-        force_terms: Option<&[ForceTerm]>,
+        ledger: Option<&AssembledForce>,
+        condition:(f64,f64,f64),
+        projected:&impl Fn(usize,usize)->f64,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
-    ) -> Option<FormationCheck>
+    ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        // The check re-forms the intended system from `source`; of the
-        // equations it reads only `force` and `free_dofs` (and the attempt's
-        // own factor, through `solve`), so it takes the same inputs in both
-        // representations. Its stiffness view is left empty.
+        // Re-formation uses the same source and factor as the dense path.
+        // The contribution trace, represented entries and projected prepared
+        // entries also enter the rigorous epsilon_E triangle bound. The dense
+        // stiffness placeholder is empty; the callbacks read sparse entries.
         let view = StructuralSystem {
             stiffness: &[],
             force: self.force,
             free_dofs: self.free_dofs,
             prescribed: self.prescribed,
-            contributions: None,
+            contributions: self.contributions,
             symmetry: None,
         };
-        formation_check::check(&view, source, force_terms, scale_exponents, u, solve)
+        formation_check::check(&view, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness.get(i,j), projected, solve)
     }
 }
 
@@ -1715,11 +1717,14 @@ impl PreparedGate for SparsePreparedSystem<'_> {
     fn gate_shape_matches(&self, n: usize) -> bool {
         self.row_starts.len() == n + 1 && self.rhs.len() == n && self.scale_exponents.len() == n
     }
-    fn gate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    fn gate_condition<F>(&self, solve: &F) -> Result<(f64,f64,f64), StructuralError>
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        ConditionMatrix::estimate_rcond(self, solve)
+        ConditionMatrix::estimate_condition(self, solve)
+    }
+    fn gate_value(&self,r:usize,c:usize)->f64 {
+        self.columns[self.row_range(r)].binary_search(&c).map_or(0.0,|k|self.values[self.row_starts[r]+k])
     }
     fn gate_rhs(&self) -> &[f64] {
         &self.rhs

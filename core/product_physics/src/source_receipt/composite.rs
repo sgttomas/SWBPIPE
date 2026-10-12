@@ -660,7 +660,8 @@ fn validate_physics_rows(
             return Err(bad("physical maximum range"));
         }
         if !source_selected
-            && (e["coefficient_basis"] != "j_side_section_equilibrium_binary64"
+            && (e["coefficient_basis"] != "j_side_section_equilibrium_binary64_enclosures"
+                || e["enclosure_scope"] != "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                 || e["approximation"] != "piecewise_quadratic_straight_section_statics")
         {
             return Err(bad("ordinary physical maximum method"));
@@ -864,12 +865,17 @@ impl FinalizedSourceBlockCase {
                         .descriptors()
                         .get(index)
                         .ok_or_else(|| bad("section stress descriptor"))?;
-                    if descriptor.key.quantity
-                        != (FunctionalQuantity::MemberSection {
-                            member: member.member_id.clone(),
-                            station_bits: source_recovery::STATIONS[station].to_bits(),
-                            component: component as u8,
-                        })
+                    let quantity_matches = matches!(
+                        &descriptor.key.quantity,
+                        FunctionalQuantity::MemberSection {
+                            member: descriptor_member,
+                            station_bits: descriptor_station,
+                            component: descriptor_component,
+                        } if descriptor_member == &member.member_id
+                            && *descriptor_station == source_recovery::STATIONS[station].to_bits()
+                            && *descriptor_component == component as u8
+                    );
+                    if !quantity_matches
                         || descriptor.key.convention != FunctionalConvention::SectionLocal
                         || descriptor.key.case_id != input.load_case.id
                     {

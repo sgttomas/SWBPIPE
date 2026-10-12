@@ -4,6 +4,8 @@ The registered memory profile (`core/product_physics/src/retained_memory.rs`, it
 
 Line numbers are those at the head named in each section. The tool resolves every key by name, or by the site's own text inside a named function, at the snapshot it prices.
 
+**Current qualification budget.** The owner selected M = 12 GiB (12,884,901,888 B). Keep the 0.9 M margin and require at least 5 % of the phase's applicable TAV_W or TAV_X as remaining TEXT reserve, rounded upward to whole bytes. Existing model counts, all positive owner/backing charges and source refusal guards remain in force. Qualification binds the K-D5/C8 profile to its actual source and native values; the old 10.5 GiB declaration is superseded for this registration. The 64 GiB testing-host ceiling is not a product threshold. Machine-dependent scaling needs its separate resource/concurrency design before implementation.
+
 ## A. Rulings applied to T4's batch 1 heads
 
 These are Agent 0's rulings. Heads: `c2f1db4814`, `8388da7a8c`, `666cb30520`.
@@ -82,3 +84,646 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 - **`g5_native_combinations`' operand loop (99cb958e85).**
   - 99cb958e85 zipped the loop with the combination's terms. Both header forms are bound at 3, one per term.
   - The pre-99cb958e85 form is kept so that the registered tree's revision (`f78f52b7e2`) still prices.
+
+
+## E. T4 batch 4: U2 and O-13 at `98dba87714`
+
+These additions close the new header and argument inventory. They do not
+zero a newly reached branch. D1 still admits no components and no pressure-v3
+namespace (§B P1–P3); true array and collection bounds are used even when the
+chain conservatively reaches an arc helper.
+
+| Label | Rule and code argument |
+|---|---|
+| **U2L1** | `exact.pipe_states` in `add_curved_bend_pressure_equivalent_load` has one entry per built pipe, at most m. |
+| **U2L2/U2L3** | The thermal and pressure free-expansion helpers walk `element_dof_map` and `free_expansion`, each a 12-element array (`ELEMENT_DOF`). Both headers are bounded at 12. |
+| **U2E1** | RE `arc_evidence::ROWS` is a four-element array, so its coverage header is bounded at 4. |
+| **U2E2** | `build_pressure_case_with_members` constructs one junction for each adjacent checked traversal pair. The traversal has at most m pipes, so the junction list is bounded at m. |
+| **U2A** | The `bend_pressure::append_arc_pressure_results` case and pipe ids are IN128. Their `.len()` spellings are integers (20 B upper). Its row kind, location and component are static tokens (each <128 B). The new exact-stress diagnostic suffixes preserve the case and pipe id lengths; the arc recovery record's member is a pipe id. The test observation's project is the D1-capped project id. `pressure_treatment` selects one of two static literals (<128 B). The newly conservatively reached `LoadLedger::push_product` source is the capped pressure region/source id. The arc guard endpoint `name` (i or j), group label and `unit` are static tokens. |
+| **U2C** | `component_solver_consumption` copies a component's authored text or the static default. D1.4 excludes components, but the chain conservatively reaches this helper at a positive multiplicity. It stays priced at that computed multiplicity. Its lexical receiver is audited as IN128: the authored field is within D1's text cap, and the static defaults also fit 128 B. No edge or site multiplicity is overridden. |
+| **O13L1** | `ArcRowGroup::ALL` is `[Self;4]`. The guard walks all four groups, bounded at 4. |
+| **O13A1** | A fired item is bounded by the existing F_len = max(id+34+3·24, id+41+8192): numeric items fit the first/unavailable upper, and an unavailable certificate carries the 8192 B error class. Each finding has at most six named items. A sentence is bounded by 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1. The merge receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B. `composite_text.py` uses this whole-sentence bound for `evidence_line`; the per-site `merged.sentence` is classed by the same bound. The old formula remains on revisions without the arc finding, preserving the registered tree. |
+| **O13T** | `s11g_tests/arc_recovery.rs` is included only with `#[cfg(test)]`; no test function is on the product graph. These arguments nevertheless receive honest bounds: mode Debug ≤17 B, f64 Display ≤327 B, project/member ids IN128, each sentence ≤50,955 B, and a copied source line no longer than the total included source bytes measured at the snapshot. No test site is assigned a fabricated zero. |
+
+U2 deletes `connector_evidence::row_basis`; its E4 edge and A3 audit are added
+only when that function is present. This avoids a null stale key without
+weakening a surviving function's rule. The registered revision still carries
+the original E4/A3 entries.
+
+
+## F. K-D5 actual owned layouts (KD5O1–KD5O6)
+
+These model additions apply only when the priced source defines
+`MemberBoundInputs`. Pricing an older registered revision keeps its original
+formula. The tool's snapshot path is passed to `ordinary_caps.py`; this is
+history pricing, with no product format compatibility path.
+
+- **KD5O1/O2 (ordinary formation peak).** `evaluate` reuses its rho backing for
+  s and s₂, then drops it before `epsilon_e` allocates one reusable F-row of
+  exact accumulators. The conservative three-row allowance in §6 is retained:
+  +2·Xc(ExactAccumulator,F) over the old row and +8·5F bytes for psi, the
+  correction right-hand side/solve scratch and epsilon's row/column sums. The
+  old per-row list allowance also remains conservative. Every element/load
+  re-formation and certified recovery remains stack-only; the matrix-cache
+  row stays zero, subject to the source/T06 checks.
+- **KD5O3 (closure owners and their children).** Every nodal term now retains
+  a `LoadClosureRecord` (formed=false, manifest=None) beside its ordinary
+  formation record: add V(LoadClosureRecord,l), and its exact-count scaled
+  clone in W2. The empty primitive Vec inline owners in AssembledForce, FormationSource and the scaled force remain positive (`s(Vec)`); manifest headers are already inside each closure-record stride. D1.3 admits only the preview/straight-pressure namespace and excludes 0.4.0, v3, expansion laws and load-state references; `lib.rs w1_route` also returns None when `case_state::is_load_state(model)`. D1.7 admits only nodal force/moment input loads; D1.5 excludes
+  analysis states, equivalent-static generation and every pressure region
+  (also its spare capacity); D1.4 excludes components and D1.6 hanger and
+  nonlinear supports. At `e9296aae32` the new nodal producer first queries
+  `certified_loads::source_factor`, which returns None unless
+  `case_state::is_load_state(model)` (the exact 0.4.0 namespace). Thus every
+  admitted D1 nodal load takes `ledger.push` of its normalized exact leaf,
+  never `push_formed` or `attach_last`. Unit normalization precedes this
+  intended-input boundary and installs no closure metadata. `NodalProduct`
+  is positively stored on admitted 0.4 source-factor routes in the general
+  product, but those routes are outside D1/W1. This re-audited seam, together
+  with the exclusions above, establishes that no supplied LoadPrimitive,
+  expected LoadClosureEntry, operand-bits Vec, intensity-product factors or
+  thermal-table clone exists on the current D1 route. Their backing children, including the per-primitive temporary binding operand Vec, are priced
+  at zero by these domain predicates, independently of typical fixtures.
+  The positive closure-record vector remains priced. Adding one of these
+  families to D1 (including B7 namespace/domain extension) requires re-auditing these guards and a new count law for both independent expected
+  manifests and supplied primitives, including all identity strings,
+  operand vectors and cloned thermal tables, before the profile can bind it.
+- **KD5O4 (solution payload).** `MemberBoundInputs` retains f64[N] w and w₂,
+  i32[N] global exponents and the inline owner: B(20N)+s(MemberBoundInputs),
+  through completion and recovery. W2's evaluate includes the larger core
+  twice as before.
+- **KD5O5 (W2 tail).** `force_scaling_recovery` clones the complete payload into
+  PreviewLinearSolve while the outcome's solution still lives. Both payloads
+  are included at that peak: 2·(B(20N)+s(MemberBoundInputs)). The unscaled
+  exponent vector is counted as well as w/w₂.
+- **KD5O6 (recovery records and groups).** At D1, m straight members each own
+  up to 7 locations ×4 groups and g supports 4 evaluands (force/moment
+  vectors and their separately published magnitudes). Price
+  V(RecoveryRecord,m+g), each record's separately grown group backing
+  (m·PushCap(28)+g·PushCap(4))·s(RecoveryGroup), every member/support id, two
+  owned labels per group at 128 B each, and the error child at
+  TextCap(8192) for every group. Group allocation headers are in the actual
+  in-build `RecoveryRecord`; all group fields are in the in-build
+  `RecoveryGroup`. The fired-items Vec also gets V(String,28m+4g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted.
+  `member_scales` collects its paired maxima map into a second paired map.
+  Both `(usize,(f64,f64))` bucket maps are priced concurrently, with no
+  allocator-reuse assumption. Older snapshots retain the original paired
+  map plus scalar map formula.
+
+Every weighted layout atom binds to actual in-build sizes or an explicit
+source upper over those types. Workspace unions are source uppers, not
+compiler-frame measurements. Python ASSUMED strides are not budget evidence.
+Final completeness and budget claims require the implementing commit's full
+pricing run and in-build atom evaluation.
+
+
+- **KD5T1/T2 (unified fixed text).** Final source basis 3903ab6f28 (re-reviewed
+  from c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
+  has source-pinned record constructors, group/magnitude_group helpers,
+  member_group_decision, the D1 case consumer and both maximum evidence
+  producers. Production-prefix pins protect the certified-publication,
+  certified-recovery and exact-sum source/slot inventories as well.
+  Every produced group label comes from the exhaustive constructor list:
+  all, axial, bending, connector_local, cut_i, cut_j, end_i, end_j, force,
+  midspan, moment, node, pipe_wall, quarter_1, quarter_3, recovery, shear,
+  support_force, support_force_magnitude, support_moment,
+  support_moment_magnitude, torsion, wall_cut_i, wall_cut_j, wall_end_i,
+  wall_end_j, wall_midspan, wall_quarter_1 and wall_quarter_3. The maximum
+  is24 UTF8 B; non-D1 wall/connector labels remain conservatively included.
+  Numeric/bound-unavailable/comparison-unavailable item literals are
+  10/38/36 B; the unified sentence literal is234 B. The pinned comparison
+  producer's longest reason is35 B (nonfinite certified group magnitude).
+  Bound-unavailable reason content remains8192 B, member ids IN128 and
+  f64 exponent spelling24 B. Thus F_len=max(234,8406,247)=8406 B and
+  the six-item sentence bound is50859 B. Fixed route tokens are at most30 B.
+  One unified recovery sentence has no three-sentence merge factor.
+  Current maximum coefficient_basis/enclosure_scope literals are46/79 B,
+  present in both pinned producers and within the existing120-B ordinary
+  evidence allowance; the evidence object field count remains within15.
+  Changed producer/consumer/inventory source fails closed for renewed
+  review. Historical registered snapshots retain their original formula.
+  Pins re-reviewed at 3903ab6f28:
+  - certified_recovery.rs production prefix ab2a378f…: c85d346213 maps an
+    underflowing midpoint to 0.0 (scalar match); 9ef0cbc78a's RowLoad is a
+    stack value (one ExactAccumulator and two f64), and straight section rows
+    are formed one at a time with one live load sum moved into the row's
+    evaluation, within the eight-accumulator census; arc rows (a = 0 at D1)
+    and the envelope's addend counts are stack arrays; 8ac8c57ade forms an
+    element block only when it is adjacent to the reaction DOF. These changes
+    add no allocation, String, format site or error literal, and no owned
+    layout or caller/workspace union changes.
+  - lib.rs solve_load_case_observed 4b96ef49… (both models): six early
+    returns add an empty withheld_summaries Vec (no allocation); one new
+    per-member warning in the certified summary-error arm (KD5A8, KD5O14).
+    It adds no route string or maximum literal, and no CPP first-return
+    allocation site; its {error} copy is priced as a TEXT site.
+  - preview_physics.rs render eb43e10b…: a cfg(test) witness hook only,
+    with no `divided` call.
+- **KD5A8 (withheld summary ids).** The certified summary-error arm's
+  warning copies only the pipe's own authored id: the stable_suffix id
+  suffix, the message's member id and the affected ref (IN128). Its
+  `{error}` operand keeps the chain's own TEXT cap, and the site keeps its
+  full m-per-case multiplicity in D. The rule needs the
+  `withhold_certified_summaries` consumer and the exact affected-ref line;
+  otherwise it stops.
+- **KD5O14 (withheld summary backing).** Each case's LoadCaseSolve owns a
+  separately push-grown Vec<Diagnostic> of at most one warning per member.
+  An append into the envelope leaves its capacity, and a rendered preview
+  never appends, so each case's backing lives beside the envelope's vector
+  until the solves drop. Price C·PushCap(m)·s(Diagnostic) in the
+  Diagnostics family. The strings and the count are already in TAV and D.
+  Snapshots without the field keep their formula.
+- **KD5L1/L2 (group census).** The surviving `record in records` header is
+  re-bound to m+g on the unified record shape; the separate per-record
+  `group` header is bounded at 28 (supports have four evaluands). This protects
+  every new support record instead of retaining the former member-only m
+  census. The new-header rule is limited to the two actual guard functions.
+
+- **KD5A1 (publication identity and labels).** `certified_publication::member`
+  forms a prefix from the pipe id (IN128) and its integer length. Its record
+  constructors own a member/support/entity id, each taken directly from the
+  D1-capped model id. `group` copies the static location and kind tokens from
+  those constructors; all are shorter than 128 B. Each copy remains priced
+  at its computed multiplicity. The removed `arc_recovery_record` audit is
+  retained only on snapshots that still define that function.
+
+
+- **KD5C1 (surviving condition-estimator call).** K-D5 renames the trait body
+  `ConditionMatrix::estimate_rcond` to `estimate_condition`, returning the
+  gate's rcond, inverse estimate and norm. The public `estimate_rcond` still
+  delegates to that body and returns its first value. Its original basis
+  callgraph rule moves to a named rule that requires exactly one public
+  wrapper and one new trait method, or the original two old definitions.
+  No edge or bound is pruned; the historical wrapper/trait edge is preserved.
+- **KD5C2 (source-replaced identifier audit sites).** The two old recovery
+  end-message sites become the unified group-message sites with the same
+  IN128 member id and fixed ≤128 B location/kind labels. The old inline
+  `RecoveryRecord` member copy moves to certified-publication constructors
+  (KD5A1). `check` still copies its unavailable family at the existing static
+  class (128 B). These four audits move from the basis line table to named
+  sites; historical snapshots receive the original arguments/classes exactly.
+
+
+- **KD5O7 (certified support norms).** `preview_physics::CaseRecord` now
+  retains one `(String,[f64;2])` per support with certified rows. Add its
+  separately grown backing V((String,[f64;2]),g), g capped support-id byte
+  strings and the vector header. The inline `MemberRecord` also grew two
+  certified bending rows; its existing in-build stride covers those fields.
+- **KD5A2/A3 (new owned text).** The lexicon explicitly recognizes the
+  certified-publication record constructors' &str-to-String conversions
+  (`member`, `support`, `entity`). Their ids are IN128; kind/location tokens
+  are static ≤128. The finite-a notice copies a capped case id. Summand
+  family is a static token, source is at most the existing 600-B composite
+  class (two capped ids and a length or pressure source tuple). Pressure
+  closure identities use capped region/pipe ids and a fixed kind token.
+  Unavailable-route text selects one of two ≤128-B literals. The earlier
+  `formation_entity_bodies` map is no longer called on the unified graph;
+  its three copy audits remain on historical snapshots where the old guard
+  consumes it. A future reached copy again requires classification.
+- **KD5C3 (scaling call binding).** `AssembledForce::force_scaled` maps its
+  `Vec<LoadPrimitive>` with `p.force_scaled`, calling `LoadPrimitive`'s method.
+  The callgraph is bound to that exact method. It never recursively calls
+  the ledger method; adding a fictitious recursion allowance would conceal
+  the callgraph error.
+- **KD5L3–L12 (new header bounds).** Supplied primitives and per-term manifests
+  are 0 on the re-audited D1 producer seam in KD5O3; trusted term/record walks
+  are l. Member locations are exactly 2 ends +5 sections, station recovery
+  has 3 interior stations, and section summary walks 5 sections. The notice's
+  diagnostic-position scan is bounded by D. Exact-pressure closure groups
+  are absent/empty under D1.5. Every appended rule names only its actual
+  function, checked by O-10 after the full run.
+
+- **KD5O8 (recovery FormationSource).** On exact `e9296aae32`,
+  `certified_publication::source` clones m FrameElements and collects sp
+  spring pairs for support recovery. Price this source positively and
+  separately: Xc(FrameElement,m)+Xc((usize,f64),sp)+6·s(Vec), preserving
+  the existing assembly/check-source allowances. Its primitive, connector,
+  curved and unavailable backings are empty under the current D1 guards.
+  This formula does not rely on old sources dropping or allocation reuse.
+  The proposed NI recovery-view API is absent on this head; its actual
+  constructor must be rechecked if it replaces this source.
+- **KD5A4 (closure details).** The three pre-manifest error messages copy
+  `term.source`, the D1-capped nodal load id (IN128). Those sites remain
+  conservatively priced even though trusted input records continue before
+  those formed-term branches on admitted D1 cases.
+
+- **KD5L13 (pressure source-term map).** `finish_source_groups` receives only
+  factor groups produced by pressure-region traversal. D1.5 admits no such
+  region (absent on L, present and empty on E), so its mapped term list is
+  empty. This zero rests on the producer/admission seam, not fixture counts.
+
+- **KD5A5 (text-typed failure operands).** The inherited bare `s` rule is
+  f64 Display (327 B). The new Shape, Closure and Second enum bindings are
+  text and receive explicit site classes. Shape is a fixed ≤128-B literal.
+  Closure's source cases are bounded by max(128+40,128+14+8192): a capped
+  D1 load id with the longest ordinary suffix40, or the reformation
+  prefix14 and existing 8192-B error class. The conservative site cap8352
+  retains both cases. Second holds an inner subtraction/correction
+  failure detail (error8192 + longest inner prefix21 =8213); those helpers
+  do not produce nested Second. With each outer literal, the maximum
+  returned formation detail is 8366 B; T08 prices its capacity at16732 B.
+  These are positive, honest text bounds, with no changed multiplicity.
+
+- **KD5M1 (failure detail multiplicity).** On the reviewed and source-pinned
+  `formation_check::{check,evaluate,Failure::detail}` bodies, each check
+  invokes evaluate once. An error either reaches the outer detail directly
+  or creates one inner detail for Second and then the outer detail; the
+  inner `?` exits prevent a second inner allocation. There are at most two
+  detail allocations across all alternatives per actual check invocation.
+  Existing positive `site_from` rules conservatively charge each of the
+  seven exclusive allocation sites at two per check, retaining the full
+  reached ordinary/W2/case/replay multiplicity. This is a sum-of-alternatives
+  allowance, not a global cap on the function's run count.
+- **KD5M2 (first closure error).** Every one of the 15 reviewed, source-pinned
+  load_closure error allocation sites returns Err directly or propagates
+  through `?`; success allocates none. At most one error allocation occurs
+  across those sites per actual closure invocation. The positive site_from
+  rules charge every exclusive site at one per closure call, preserving
+  all ordinary/W2/case/replay invocation multipliers. Loop counts are still
+  audited and retained; this bound applies only to the returning allocation.
+  A changed producer or error-control-flow body stops for renewed review.
+
+- **KD5A6 (unavailable detail copy).** Failure::Unavailable carries a
+  private fixed &str and copies it through `(*s).into()`. The lexicon now
+  includes this actual String allocation on implementing snapshots. The
+  pinned evaluate body constructs only contraction, Neumann and non-finite
+  Lambda sigma literals, all within a positive 128-B allowance. This site
+  also retains KD5M1's per-check invocation multiplier.
+
+- **KD5O9 (support magnitude evaluands).** A snapshot whose actual support
+  constructor emits support_force_magnitude also retains four support
+  groups: the force vector and its separately published magnitude, plus
+  the moment vector and its magnitude. Price four group children, their
+  labels/error allowances and four possible fired strings per support,
+  retaining per-record PushCap(4) backing. The two physical scale families
+  remain force and moment. Exact e929 predates that constructor and uses
+  its actual two-group model; proposed constructors are never charged as
+  already implemented. Source-pinned final constructor inventory governs
+  this detection and must be reviewed when those bodies change.
+
+- **KD5O10 (same-source coefficient vectors).** On snapshots whose actual
+  certified-publication constructor calls certify_straight_stress_spans,
+  retain the conservative S=2l+1 allowance. On current D1, KD5O3's
+  admission/producer guards make source_count=0, so the actual constructor
+  has only 0/1 and one interval, even when the nodal count l is positive.
+  Thus S remains an honest positive upper without assuming a general
+  primitive/source count law. FK owns an exact-capacity
+  Vec<CertifiedStraightStressSpan>; PP maps it into the engine's
+  Vec<EnclosedQuadraticStressSpan>. Price their simultaneous backing
+  as s(FK span)·S+s(engine span)·PushCap(S), plus both vector headers.
+  Result collect receives a conservative push-growth allowance; no
+  allocation reuse is assumed. Add the earlier FK boundary backing
+  8·(2l+2) and its header conservatively over the constructor/mapping
+  peaks. Both maximum laws borrow this one PP vector sequentially. The
+  existing per-case maximum family also preserves the exact-span fallback
+  and Node subdivision allowance. The new span atoms are in-build sizes
+  (observed 168/160 B); the engine Node stride stays the actual existing
+  atom (observed 184 B). Add the kernel's source-owned typed workspace
+  upper from certified_stress_control_sizes().workspace_upper as a
+  SourceUpper atom. It retains constructor/evaluation contexts, nested
+  matrix/section/row/accumulator arrays and return/move slots. This is
+  a conservative model of the declared kernel workspace, not a compiler
+  frame or allocator/system-library stack measurement. Primitive/source
+  exclusion and span-bound premises must be re-audited with any B7
+  admission-domain extension.
+
+- **KD5O11 (product caller certificates).** The kernel workspace is
+  kernel-only. Product recovery retains certified_member and
+  certified_effective, each Option<CertifiedMemberRecovery>, while the
+  maxima borrow the coefficient vector. Each member payload has 12 end
+  rows and 5×6 section rows. Add both actual in-build Option strides.
+  Conservatively sum the source-owned transient carriers too: two
+  Result<Member,RecoveryFailure> slots (FK→PP and PP→and_then returns),
+  four Member slots (mechanical parameter, its clone, and the effective/
+  published match bindings), and two Result<(Member,Member),RecoveryFailure>
+  slots (closure return and certificate binding). This sum retains return
+  and move staging without claiming compiler slot reuse.
+  The support loop adds two [CertifiedRow;6] arrays (builder rows and
+  Ok binding), its Result return and its retained Option. Private
+  stress/summary/group helpers retain up to three named Row operands,
+  their chained scalar/return staging and two group-value staging slots;
+  a positive 16·s(CertifiedRow)+2·s(CertifiedGroup) allowance preserves
+  that fixed nonrecursive caller union. Kernel arithmetic frames remain
+  in KD5O10; none is discounted against this separate caller allowance.
+  All strides, including enum/Option padding, bind to actual size_of.
+  The allowance joins the existing per-case ordinary-recovery family,
+  preserving every case multiplier and the other positive owners.
+
+- **KD5T3 (one fixed subject copy).** Only the lexical allocation
+  StressFinding::new's subject_id.into() receives a positive 128-B cap,
+  replacing the unrelated snapshot-wide STATIC maximum at that site.
+  The stress-recovery production prefix before cfg(test) is hash-pinned:
+  4526e43a3dca37a265516ad5556a07efb9f25693fca6ee8e065a8211637c47c1.
+  Thirteen private constructor calls and their private forwarding helpers
+  resolve to exactly 17 source-literal subjects: analysis_status, area,
+  axial_force, axial_normal_range, bending_moment_y, bending_moment_z,
+  bending_normal_y_range, bending_normal_z_range, first_state, second_state,
+  section_modulus_y, section_modulus_z, torsion_constant, torsion_radius,
+  torsional_moment, torsional_shear and torsional_shear_range. All are ASCII;
+  the maximum UTF8 length is 22 B. The literal seed callers are
+  recover_stresses, validate_stress_input_unit_metadata, torsional_shear
+  and recover_stress_range; subject/numerator_name/denominator_name
+  forwarding does not admit an external value. Independent T3 scrutiny
+  confirmed this closed boundary. The existing identifier audit stays128,
+  message stays2173, all authored/derived ids and full case/replay counts
+  stay governed by their original caps. The public field remains externally
+  authorable; this creates no global subject_id or type-wide rule. Historical
+  registered snapshots retain their original formula, and changed production
+  source fails closed for renewed caller review. Final native pricing decides
+  the resulting budget margin; this rule alone establishes no passing claim.
+
+- **KD5O12 (fallback arithmetic replay workspace).** The current fallback
+  preserves the supplied QuadraticStressSpan vector and builds a separate
+  exact-capacity engine enclosure vector. Their backing and headers are
+  positively covered by the summed exact-span fallback and KD5O10 vector
+  allowances; no simultaneous allocation is removed. FallbackError has
+  only magnitude/error f64 fields, checked before the ordinary model runs.
+  Its fixed replay inventory retains the former256 pair-value slots:
+  six section values plus l/distance/start/end/active_end/active/lever/q;
+  six returned rows, three samples/intensities, nine powers, component/
+  control values and helper argument/return staging. Scaled constituents
+  use fixed mantissa/exponent pairs and iterative power transport, with
+  no new heap array or recursive fallback-product call. The pressure
+  branch adds fixed fluid/coefficient/wall/generic/reference-law operands.
+
+  fallback_product_up has nine positive call sites, executed sequentially
+  by mul/rounded, power transport, reference-law transport, uniform-slope
+  and unit transport. Its one owned ExactAccumulator (actual1088 B)
+  remains live through add_product, round, add(-rounded), then signum.
+  The source call tree is add_product→decompose/add_shifted→add_word;
+  round→round_scaled→compare/subtract→project→window/bit/any_below;
+  then add→decompose/add_shifted→add_word and signum→compare. None
+  recurses or creates another nested fallback_product_up. Each array
+  size is the fixed68-u64 magnitude grid, checked by the model.
+
+  Conservatively sum two actual accumulator strides (product owner and
+  new Self return/move staging) and eight68-u64 buffers: two initializer
+  arrays, plus both exclusive round_scaled branches' subtract output,
+  returned-array staging and project-call temporary. The scalar/index
+  census adds256 slots for decompose/product/shifted-word, compare/net
+  subtraction and projection helper parameters, locals and return staging
+  to the previous128 replay slots. This retains all alternatives and
+  integer/u128 argument/move staging without compiler reuse assumptions.
+  The resulting SourceUpper is
+  256·size_of((f64,f64))+384·max(size_of(usize),size_of(f64))
+  +2·actual ExactAccumulator stride+8·size_of([u64;68])
+  (13696 B on the current64-bit build). Scalar slot width remains at
+  least f64 width. These charges are additional to the kernel workspace,
+  product certificates, simultaneous vectors and String allocations.
+
+  Current D1 has no member uniform source, so load iterators are empty;
+  all positive fixed arrays, values and exact-product call-depth buffers
+  remain priced independent of that emptiness. Any extended source/grid
+  domain or changed replay layout needs source review before binding.
+  This establishes a source upper bound, not a compiler-frame measurement.
+
+- **KD5O13 (FK directed-helper scalar staging).** Exact source checkpoint
+  d0fe28ce8209921489174b1a75114b0660d4d132 changes load_ledger's
+  upward/downward product and downward quotient to a bounded integer
+  comparator. The complete source file SHA256 is
+  84772047aee55e330ab4f7723a81cb8a0ebf255f8ee2b7a8f5fef547ef97f115;
+  the model separately pins all five actual helper bodies. The call chain
+  is one of product_upward/product_downward/quotient_downward→
+  compare_nonnegative_product→nonnegative_parts. It is nonrecursive;
+  the three decomposition calls are sequential, with no heap or persistent
+  layout. Stack-only is not used as a zero premise.
+
+  Add a separate positive SourceUpper:
+  8·size_of(u128)+6·size_of((u64,i32))
+  +48·max(size_of(u64),size_of(f64),size_of(usize))
+  (608 B on the current64-bit layout). Eight u128 slots conservatively
+  retain the product/reference values, three integer conversion results
+  and two shifted comparands plus staging. Six dyadic tuple slots retain
+  the three decomposition bindings and each return's staging, even though
+  the calls run sequentially. Forty-eight scalar-width slots cover the
+  wrapper's operands/rounded result, comparator operands and ep/hp/hr/
+  common/sp/sr/order, leading-zero and conversion/shift temporaries, plus
+  the decomposition's value/bits/biased/fraction and scalar return/argument
+  staging. The sum retains exclusive alternatives and return/move slots
+  without inferring compiler reuse or a measured native frame.
+
+  Charge the atom explicitly in the typed-core family (therefore in both
+  W2 evaluations through the existing core multiplier) and again in late
+  formation-guard recovery. This conservative separate charge covers
+  S11-G/formation and late guard consumers without relying on PP fallback
+  KD5O12 or certificate-caller KD5O11 allowances. Existing case/replay
+  multipliers, M/text limits and all earlier positives remain unchanged.
+  Historical helper bodies receive no new charge only after all three
+  wrapper bodies match their pinned originals (identical at basis2243be380b,
+  registered B3 and U2 snapshots), and no new nonnegative_parts helper
+  remains. Comparator-name absence alone never selects historical pricing.
+  Renaming or removing the new comparator changes the wrapper bodies and
+  fails closed; a changed original wrapper is also rejected. All five new
+  helper bodies remain individually pinned for the positive608-B branch.
+  A changed source stops for a renewed source/slot review. Native profile
+  and whole-stack claims remain pending final immutable source evaluation.
+
+- **KD5C4 (primitive min/max call targets).** New private
+  certified_publication::FallbackError min/max methods made the heuristic
+  graph incorrectly fan primitive-number calls into their error-returning
+  bodies. The type is private, has no escaping producer/return, and every
+  named outside caller's receiver is a primitive number or its numeric
+  iterator. These calls use the standard intrinsic, with no repository
+  method body or String allocation. Explicit caller/name bindings remove
+  that false target; all real FallbackError min/max calls in
+  fallback_section_errors remain. The one included CP caller,
+  fallback_denominator_relative_error, has f64 lower/ratio operands only.
+  The current production-prefix pin protects that typed boundary.
+  Existing true visits and R2 call paths remain; this is a type binding,
+  not a fixture-derived multiplicity or an unpriced-site waiver.
+- **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
+  source, the heuristic graph adds private FallbackError methods to outside
+  callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
+  CertifiedRow or CertifiedValue. FallbackError, its impl and these three
+  methods are private within certified_publication. The entire production
+  prefix has no trait, public return, function-pointer or macro escape of
+  that type. The production-prefix SHA256 822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8,
+  three private method bodies and all 16 caller bodies are guarded by
+  `kd5_text_model.py::inspect_fallback_boundary`. A changed receiver,
+  visibility, escape path, body, or missing/duplicate function stops pricing.
+  The exact 17 caller/name pairs are in FALLBACK_OUTSIDE_CALLERS: annulus
+  source_wall_area_scaled, source_bore_area_scaled and source_insulation_area_m2
+  (mul); lib exact_straight_summary_extrema (add) and
+  append_exact_pressure_results (divided); pressure_exact from_radii,
+  lame_at_radius and eigenload_pair (mul); preview render (divided);
+  retained_memory strings, retained_error_text and complete_observations
+  (add); pressure_exact/source_geometry from_od_wall (add and mul),
+  pressure_group_value (mul) and surface_stresses (add); and
+  case_state/temperature exact_kelvin (mul).
+  The new `exclude_targets` mechanism subtracts only the qualified CPP
+  add/mul/divided target from each existing candidate list after any existing
+  replacement rule. Every other candidate and every inside-CPP caller is
+  preserved, including conservative inside candidates. Both the inventory
+  and an actual removed-candidate encounter must hold; an absent target or
+  quiet no-op refuses. Historical revisions without the fallback function
+  add no C5 exclusions and retain their original graph. This changes no
+  rows, cases, counts, source/workspace owners, D1 premise or memory/text
+  limit. The failed b3a2c739 tree remains evidence; corrected contributions
+  and native budget outcomes require the subsequent immutable-head run.
+- **KD5C6 (conditional first-return String allocation).** Exactly14
+  returning allocation alternatives in certified_publication receive per1
+  site_from bounds: checked/divided use fallback_circular_maximum,
+  summary_row, stress_mpa and maximum_summary_mpa; the six transport errors
+  use both fallback_circular_maximum and straight_stress_spans; the two
+  maximum_cover errors and three public-MPa errors use maximum_cover;
+  direct fallback transport failure uses fallback_circular_maximum.
+  Each genuine inner Err propagates immediately from that complete attempt,
+  including Result<Vec<_>,String> collection's first-error stop. Preserved
+  conservative CertifiedRow/Value receiver candidates retain positive root
+  allowances. Every outer attempt/member/case/replay count remains, along
+  with all graph/function/loop counts, 4194304 arithmetic visits and2l+1
+  span capacity/traversal. Inner returned Strings, outer formatted Strings
+  and stored certified_spans error clones are distinct positive owners;
+  solve_load_case_observed may catch and continue, so no bound spans those
+  attempts. Sites731/765/816/872/931/943, engine formatters, outer clones
+  and all other String sites remain unchanged. The whole CPP file/prefix,
+  all12 private helpers, roots and solve/exactStraight consumers are pinned.
+  ALL fully qualified incoming graph edges must match the reviewed five
+  entry functions and exact shared-helper parents; exact kind+site inventory
+  and positive root witnesses must hold. Every consumer lookup spelling
+  (short, qualified, kind-qualified and lexical fallback) refuses count,
+  size, zero, aggregate or total overrides outside the14 canonical per1
+  records. The actual post-rebind multiplicity must equal its positive
+  source-root sum. Catch/continue/retry, swallowed
+  Err, collection, parent or allocation changes refuse for re-review.
+  Historical no-cap behavior requires CPP absence plus pinned original
+  directed wrappers; current marker removal alone never selects history.
+  Limits, criteria and positive-path arithmetic are unchanged. This source
+  proof confers no budget pass; final immutable pricing/native evaluation
+  remains required before registration.
+- **KD5L14–L16 (new fixed/span headers).** The mapped certificate/fallback
+  span walk retains positive2l+1 under KD5O10's current-D1 one-interval
+  producer. Section maximum coverage walks exactly5 sections. Coefficient
+  controls, stress components, sample values and local intensities are
+  arrays of3; section-force/moment walks have6 entries. Rules are limited
+  to their named actual functions and retain all case/replay multipliers.
+  False primitive min/max ancestors no longer create fictitious TEXT
+  visits on Bodies coordinates/edges, g5a rows or notice group scans.
+- **KD5L17/L18 (power-transport error).** Each i32 remaining/exponent moves
+  toward zero in signed steps of512, except its final smaller step. The
+  positive universal loop bound is ceil(2^31/512)=4194304; no pressure
+  namespace inference is used. fallback_power_up's sole error copy returns
+  Err immediately, so it allocates at most once per actual invocation.
+  Its existing positive site_from family preserves the full function's
+  case/replay count while bounding only the returning allocation.
+- **KD5A7 (MPa copies and identities).** stable_suffix replaces each colon
+  by one hyphen, preserving the capped pipe-id byte length. pipe_id and
+  record.member remain IN128; pipe.element_id.len() remains numeric20.
+  Endpoint/station location rewriting uses fixed tokens; kind/component/
+  label/basis and the three stress-name alternatives use existing128-B
+  fixed-token caps. The pinned caller supplies only current code constants.
+  The lexicon additionally inventories the actual sign.map(str::to_string)
+  copy at append_stress_mpa, which a method-only pattern missed. Its two
+  caller constants measure167/179 UTF8 B; use the measured179-B bound and
+  retain the fallback format allocation separately as an alternative sum.
+  No global identifier/message cap is narrowed. Historical snapshots
+  without this producer do not gain this lexical row or these rules.
+
+
+## C7. Borrowed prescribed keys, positive overlapping owners
+
+The released retained_precision NumericCase prescribed field and its four
+constructor/query regions use borrowed str pairs. Ordering, duplicate tests,
+row visits, classifications and failure paths remain. References point into
+integral_receipt's live normalized Value (Cow Borrowed or Owned); no backing
+Value/String/JSON BTree allocation is removed. g5b only changes final_scales;
+no key reference escapes g5c. The exact struct/numeric_cases/numeric_owner/g5c source pins
+in prescribed_key_model guard the new owner count and lifetime. numeric_cases
+constructs one numeric owner per selected case or retained-selected combination;
+its unchanged body9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9
+is required in both known owned and borrowed branches. Duplicating either push
+refuses rather than silently exceeding C; old owned source keeps all original pricing.
+
+Add to SETS, without removing its existing owned-key node/backing allowance:
+(C*tree_nodes(k)+tree_nodes(Q))*Node((&str,&str),())
++pushcap(C)*NumericCaseBorrowed +(C+1)*BTreeSetBorrowed
++3*VecHeader +(2*pushcap(Q)+4)*PairBorrowed
++2*NumericCaseResultBorrowed.
+C<=3 covers all retained NumericCase sets; k<=192 is each constraint domain.
+The simultaneous sequential actual selection set is bounded at Q=1472 before
+equality/duplicate rejection. Two positive Q tuple buffers cover FromIterator's
+input Vec and stable-sort scratch; count them with the entire Q tree and all
+retained sets, without allocation reuse. Three Vec headers cover the NumericCase
+Vec and both temporary buffers; set headers are explicit in addition to the
+conservative complete NumericCase stride. Four tuple slots cover the four
+released source constructions/queries; two complete Result carriers conservatively
+cover the numeric_owner return and caller staging (variant-sum over the full
+record, public ValidationError and a word tag). Existing reader stack allowances
+stay. Resident additions remain in V4/V5/V6 through G7/G8; both temporary
+selection buffers and the Q tree remain charged there conservatively as well.
+All global owned StringPair20480 and existing SETS/Cow/backing charges stay.
+This is a T17 working-owner addition (V4/V5/V6), used by W4's precommit maximum;
+old full/W source allocation volume remains431376384B attribution only.
+No E+R, margin or5% pass follows from that volume.
+
+The focused native allocator/type probe on rustc1.97.1/8bab26f4, aarch64,
+observes borrowed pair32B align8 and set header24B. Inserted leaf/internal
+blocks are368/464B align8; FromIterator at Q1472 additionally allocates two
+47104B buffers. The existing btree_node_upper helper at the measured borrowed
+key layout gives472B; its11key/12edge bound agrees with the exact toolchain
+[standard-library node source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/node.rs).
+The input/sort path is confirmed in the exact-toolchain
+[FromIterator source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/map.rs).
+The472B charge is a source/layout upper bound driven by in-build sizes,
+not a node-size subtraction from the existing648B owned-key atom. The private
+NumericCase field-sum is SourceUpper, with the isolated168B witness. Current
+source still requires independent proposal scrutiny and immutable full pricing
+and fresh native confirmation before any registration.
+
+C7A1 migrates exactly the five replaced basis audit keys3635/3644/4329/4330/4346
+from text_args.g4.json to function-qualified O10_ID_AUDIT sites. The reviewed
+owned/borrowed source distinction selects exact constructor/query text under
+the existing owner/count pins. Both representations retain original IN128
+constraint/selection node IDs, STATIC128 selection components and RES1024
+result entity IDs. Current borrowed lines resolve these same source-bound
+input metadata definitions, without placing nonallocating sites in the G6
+allocation id_audit inventory. Only exact pinned owned syntax emits the five
+allocation audits. Actual template/LEX inventory and the unchanged G6 consumer
+check this distinction; no fake allocation or zero rule is added. This migration
+changes no multiplicity, visit,
+byte class, source backing, arithmetic or positive owner. Known-owned audit
+tables remain equivalent; line replacement is neither deletion nor a zero rule.
+
+
+## C8. Borrowed member comparison, positive caller staging
+
+The composite_exact MemberSection check borrows the descriptor quantity and
+member/station/component fields, preserving ordered byte/bit/variant comparisons,
+convention/case checks and every error. Its exact old993146b2/new8f9f963b body
+pins include the enclosing loops, later JSON/projection work and non-escape
+boundary. The old body is identical at the basis, f78/2c5/e9cc, batch3ff5347,
+U2 98dba, e929 and936; changed/renamed/duplicated bodies refuse.
+
+Charge a positive MemberComparisonWorkspace SourceUpper to every T25 case and
+invocation stage, at CC copies (<=3), in addition to all prior owners. The
+source-union inventory is16 thin reference/pointer slots,8 borrowed byte-slice
+views,16 usize/index/length/size slots,4 u64 station-bit slots,4 f64 station/bitcast
+slots,4 u8 component/cast slots,16 bool pattern/guard/short-circuit/return slots,
+and4 i32 byte-comparison result slots. Charge every slot rounded to the maximum
+alignment across these actual types, retaining argument/return/move staging and
+no reuse between alternatives or source frames. The references include the
+quantity view, three pattern bindings, expected member/array cell, lifted
+reference comparison and String/Vec equality interfaces/raw pointer staging;
+byte views include returns and arguments; lengths include equality/byte-size
+and array-index/cast staging. Numeric operands, comparisons, stored
+quantity_matches, negation and outer condition remain positive. The standard
+String representation and comparison path are documented in the exact-toolchain
+[String source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/string.rs)
+and [slice comparison source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/cmp.rs).
+Current native widths/alignments give640B per union and1920B at CC3. This is a
+source-slot bound, not a compiler-stack measurement; existing library/helper
+allowances and R stay positive. The one guard is nonrecursive; its references
+and boolean do not escape the sequential row loop. Charging CC complete copies
+at every S/I stage conservatively covers overlap with all carried/resident
+member/descriptor enums, Strings, JSON, section checks, projections and collectors,
+even after these temporary slots drop; no old owner is credited or replaced.
+
+Only route E's basis audit869 migrates. Its original member.member_id IN128
+class remains in source-resolved C8_INPUT_METADATA for both representations.
+Exact known-owned syntax emits its allocation audit; the nonallocating borrowed
+guard emits none. Route L and every sibling audit (including maximum97) remain.
+Actual G6 allocation inventory must accept this distinction without a fake row,
+zero rule or waiver. The old155934720B site volume is attribution, not an actual
+phase/peak saving. All counts, visits, criteria and failed936 evidence remain;
+immutable-source/full pricing/native confirmation is still required before any
+registration or budget claim.

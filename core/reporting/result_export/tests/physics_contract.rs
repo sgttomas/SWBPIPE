@@ -430,3 +430,43 @@ fn pressure_ledger_cannot_claim_to_include_thermal_actions() {
         .unwrap_err()
         .contains("APPLIED_THERMAL_FLAG"));
 }
+
+#[test]
+fn current_maximum_declaration_refuses_old_and_mixed_scope() {
+    let current = source(false);
+    s::for_source(&current).expect("current enclosed maximum must admit");
+    derive(&current).expect("current enclosed maximum transport must derive");
+    for (field, value) in [
+        ("coefficient_basis", "j_side_section_equilibrium_binary64"),
+        ("enclosure_scope", "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"),
+    ] {
+        let mut invalid = current.clone();
+        invalid["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0][field] = json!(value);
+        assert!(s::for_source(&invalid).is_err(), "old or mixed declaration admitted: {field}");
+        assert!(derive(&invalid).is_err(), "old or mixed declaration derived: {field}");
+    }
+}
+
+#[test]
+fn current_maximum_enclosure_refuses_a_local_witness_upper() {
+    let mut invalid = source(false);
+    s::for_source(&invalid).expect("current global maximum must admit");
+    let maximum = invalid["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0].clone();
+    let id = maximum["result_id"].as_str().unwrap();
+    let global = maximum["global_upper_bound_pa"].as_f64().unwrap();
+    let upper = global.next_down();
+    let lower = upper.next_down();
+    let value = lower + 0.5 * (upper - lower);
+    let gap = global - lower;
+    assert!(lower >= 0.0 && lower <= value && value <= upper && upper < global);
+    assert!(gap <= 1e-12 + 1e-12 * lower);
+    let row = invalid["results"].as_array_mut().unwrap().iter_mut()
+        .find(|row| row["id"] == id).unwrap();
+    row["value"] = json!(value);
+    let maximum = &mut invalid["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0];
+    maximum["value_lower_pa"] = json!(lower);
+    maximum["value_upper_pa"] = json!(upper);
+    maximum["certified_gap_pa"] = json!(gap);
+    assert!(s::for_source(&invalid).unwrap_err().contains("EXTREMA_BOUNDS"));
+    assert!(derive(&invalid).is_err());
+}

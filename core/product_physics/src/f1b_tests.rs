@@ -2262,6 +2262,7 @@ fn f1b_admission_names_each_family() {
         source: "load:t".into(),
         axial_load: 1.0,
         thermal_strain: 1.0e-5,
+        strain_primitive: certified_loads::constant_alpha(1.0e-5, 1.0),
     }];
     let mut uniform = chain_request(2);
     uniform["model"]["load_cases"][0]["primitive_loads"]
@@ -2435,6 +2436,14 @@ fn f1b_an_in_range_reaction_is_the_scaled_exact_sum_rounded_once() {
 /// quantum from unchecked `-k*u` (a single rounding into the subnormal
 /// range) in both modes, with the same u: the product publishes the helper's
 /// value as the spring's support component, on both entries.
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§2.2, 3.2, 3.4): the case is
+/// CHECKS_PASSED, so its support reaction is now the certified recovery
+/// -k*(u + w + w2), the W2 attempt's displacement corrections unscaled as
+/// always, formed exactly and rounded once. The pin compares the published
+/// row with that exact single rounding, formed here independently from the
+/// attempt's own payload; the helper's value stays pinned against unchecked
+/// -k*u.
 #[test]
 fn f1b_a_subnormal_spring_action_is_the_checked_helpers_value() {
     let k = f64::from_bits(0x0410240000000000);
@@ -2471,6 +2480,17 @@ fn f1b_a_subnormal_spring_action_is_the_checked_helpers_value() {
         );
         let unchecked = -spring * u[dof];
         assert_ne!(helper.value.to_bits(), unchecked.to_bits(), "{mode:?}");
+        let bound = outcome
+            .solution
+            .solution
+            .member_bound
+            .as_ref()
+            .expect("the passing check's member bound");
+        let mut exact = ExactAccumulator::new();
+        for v in [u[dof], bound.w[dof], bound.w2[dof]] {
+            exact.add_product(-spring, v).unwrap();
+        }
+        let certified = exact.round().unwrap();
         let envelopes = [
             run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
             run_linear_static_preview_with_mode(
@@ -2489,7 +2509,13 @@ fn f1b_a_subnormal_spring_action_is_the_checked_helpers_value() {
                 })
                 .collect();
             assert_eq!(rows.len(), 1, "{mode:?}: {:?}", envelope.diagnostics);
-            assert_eq!(rows[0].value.to_bits(), helper.value.to_bits(), "{mode:?}");
+            let integrity = envelope
+                .diagnostics
+                .iter()
+                .find(|d| d.id == integrity_diagnostic_id("case"))
+                .expect("the case's integrity record");
+            assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{mode:?}");
+            assert_eq!(rows[0].value.to_bits(), certified.to_bits(), "{mode:?}");
         }
     }
 }

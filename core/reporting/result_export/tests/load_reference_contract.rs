@@ -267,19 +267,19 @@ fn frozen_inputs_table_and_schema_are_pinned() {
     for (name, digest) in [
         (
             "connected-sparse",
-            "75f8bf1b6fc53f7c13148bce54099ae9cdd3a2f4c9ae014f48be02e562a864b4",
+            "7c61890113c0eb2fff897a90c2203fa441c9c171b4075458b5d04c1c80132a2a",
         ),
         (
             "connected-dense",
-            "8413d25c71a62d740614e98e3e86160e99dc76e35f5fdddcb936df80a0f6c0b0",
+            "e8d9a710d8f6168caae6617641875210906d84b9da717b8b187c2189e0122545",
         ),
         (
             "pressure-sparse",
-            "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134",
+            "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
         ),
         (
             "pressure-dense",
-            "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707",
+            "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
@@ -297,7 +297,7 @@ fn frozen_inputs_table_and_schema_are_pinned() {
     assert!(lr::transport_schema().is_ok());
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65"
+        "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
     );
 }
 

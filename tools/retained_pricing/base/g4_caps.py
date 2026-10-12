@@ -261,6 +261,15 @@ SETS = (X({"Node(&str,())": tree_nodes(PA) + 2 * tree_nodes(DENV) + tree_nodes(n
         + X({"Node((String,String),())": tree_nodes(k)}) + B(k * 2 * (ID + 8))             # numeric_cases prescribed set
         + s("&Value") * (8 * PA) + B(8 * 4 * n)                                            # rows_for vectors, extents, raw
         + X({"Node(String,Value)": PA}))   # G5 part 2 (RV87 N-2): RowClassification.basis_ref, a cloned Value object per row
+# C7: source-bound additional owners. Keep the original SETS line above
+# and global owned StringPair atoms unchanged; no storage reuse credit.
+import prescribed_key_model as _prescribed_keys
+if _prescribed_keys.borrowed(SNAP):
+    _c7 = X(_prescribed_keys.owned_formula(CC, k, Q, tree_nodes, pushcap))
+    SETS = SETS + _c7
+    ASSUMED.update({"Node((&str,&str),())": 472, "s(NumericCaseBorrowed)": 168,
+                    "s(BTreeSetBorrowed)": 24, "s(PairBorrowed)": 32, "s(NumericCaseResultBorrowed)": 240})
+    evv.update(ASSUMED)
 # G5 part 2 (RV87 N-2): the walkers allocate per object: objects() (retained_precision.rs:1694) pushes a
 # reference per object of a work owner (<= BODY); located() (:1722) pushes (path.clone(), &Map) per object
 # of an attempt (accounting_rules, :1850; ATTEMPT), the path <= 9 segments of <= 32 bytes

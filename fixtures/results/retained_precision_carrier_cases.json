@@ -5,27 +5,27 @@
   "fixtures": {
     "milestone_sparse_interactive": {
       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
-      "sha256": "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
+      "sha256": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
       "shape": "milestone"
     },
     "milestone_dense_scrutiny": {
       "path": "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json",
-      "sha256": "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5",
+      "sha256": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
       "shape": "milestone"
     },
     "legacy_preview_0_1": {
       "path": "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
-      "sha256": "4d3bc14f1db7bc97ac779bee158acc96612e9c3cf01daae96936a42c5804e051",
+      "sha256": "9100dae6c400dc367456945d32761e2e79b8a0ca8573dab316087612fa99dc15",
       "shape": "raw"
     },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
-      "sha256": "a8d18b7f791071e0c18bb745494ca68ac1d9d08afb7adb6fd998d5936bb9d5c4",
+      "sha256": "cdaa8bf9bff5d9347f28bb61d530c6773f4f6728d5e349ff145dd5c30143b50e",
       "shape": "raw"
     },
     "source_blocks_n05_sparse": {
       "path": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
-      "sha256": "8bde86e98206e644a2c1029da7a736b7c3dbc1ecccc50ae92f3ab8cc525e0b6e",
+      "sha256": "b8ac8eccef35a800fab7aaad71e107ed6c441d30aa2d2412176f7cb8e493965b",
       "shape": "raw"
     }
   },

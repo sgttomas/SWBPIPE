@@ -45,6 +45,7 @@ TEXT_NAMES = re.compile(
     r"semantic_contract_id|run_id|model_ref|description|title|path|ref|failure|location_ref|result_ref)$")
 PATS = [
     ("to_string", re.compile(r"\.\s*to_string\s*\(\s*\)")),
+    ("to_string_pointer", re.compile(r"\bstr::to_string\b")),
     ("to_owned", re.compile(r"\.\s*to_owned\s*\(\s*\)")),
     ("string_from", re.compile(r"\bString::from\s*\(")),
     ("into", re.compile(r"\.\s*into\s*\(\s*\)")),
@@ -121,9 +122,14 @@ for key in sorted(reach):
     for pkind, rx in PATS:
         for m in rx.finditer(body):
             kind = pkind
+            if kind == "to_string_pointer" and not (f == "core/product_physics/src/certified_publication.rs" and key.endswith(":append_stress_mpa")):
+                continue
             pos = a + m.start()
             line = bt.count("\n", 0, pos) + 1
             r0, rec = receiver(body, m.start()) if kind not in ("string_from", "diag_literal", "from_literal") else (m.start(), "")
+            if kind == "to_string_pointer":
+                kind, rec = "to_string", "sign"  # the pinned Option<&str>.map copy
+
             if kind == "from_literal":
                 # only a `?` into an error type with an allocating From<&str>: String, CaptureError
                 # (retained_product.rs) or Box<dyn Error>; a &'static str error allocates nothing
@@ -159,7 +165,12 @@ for key in sorted(reach):
                 rec = arg
             if kind == "into":
                 lastn = re.sub(r"\(.*$", "", rec.split(".")[-1]).strip("&*() ")
-                if lit is None and not TEXT_NAMES.search(lastn):
+                if lit is None and not TEXT_NAMES.search(lastn) and not (
+                    (f == "core/product_physics/src/certified_publication.rs" and rec in ("member", "support", "entity")) or
+                    (f == "core/solver/frame_kernel/src/structural/formation_check.rs" and key.endswith(":detail")
+                     and rec == "(*s)" and "pub struct MemberBoundInputs" in raw)):
+                    # KD5A2: these &str parameters become the RecoveryRecord's
+                    # owned String. Other non-text conversions stay unchanged.
                     into_other[(f.split("/src/")[-1], rec[-60:])] += 1
                     continue
                 kind = "into_text"

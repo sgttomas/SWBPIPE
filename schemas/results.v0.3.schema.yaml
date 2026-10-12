@@ -1461,7 +1461,9 @@
                     "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
                     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
                     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
                   ]
                 }
               }
@@ -1684,7 +1686,9 @@
                     "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
                     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
                     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
                   ]
                 }
               }
@@ -1743,8 +1747,10 @@
                     "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
                     "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
                     "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-                    "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
-                    "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+                    "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+                    "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
                   ]
                 }
               }
@@ -3095,11 +3101,10 @@
                       "const": "piecewise_quadratic_straight_section_statics"
                     },
                     "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64"
+                      "const": "j_side_section_equilibrium_binary64_enclosures"
                     },
                     "enclosure_scope": {
-                      "type": "string",
-                      "minLength": 1
+                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                     }
                   }
                 }
@@ -3587,10 +3592,10 @@
                       "const": "piecewise_quadratic_straight_section_statics"
                     },
                     "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64"
+                      "const": "j_side_section_equilibrium_binary64_enclosures"
                     },
                     "enclosure_scope": {
-                      "const": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"
+                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                     }
                   }
                 }
@@ -4243,11 +4248,10 @@
                     "const": "piecewise_quadratic_straight_section_statics"
                   },
                   "coefficient_basis": {
-                    "const": "j_side_section_equilibrium_binary64"
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
                   },
                   "enclosure_scope": {
-                    "type": "string",
-                    "minLength": 1
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                   }
                 }
               },
@@ -4538,11 +4542,10 @@
                     "const": "piecewise_quadratic_straight_section_statics"
                   },
                   "coefficient_basis": {
-                    "const": "j_side_section_equilibrium_binary64"
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
                   },
                   "enclosure_scope": {
-                    "type": "string",
-                    "minLength": 1
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
                   }
                 }
               }

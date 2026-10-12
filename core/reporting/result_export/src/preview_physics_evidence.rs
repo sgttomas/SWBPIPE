@@ -472,14 +472,15 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 lower >= 0.0
                     && lower <= value
                     && value <= upper
+                    && upper == number(&extrema["global_upper_bound_pa"])?
                     && value == lower + 0.5 * (upper - lower),
                 "EXTREMA_BOUNDS",
             )?;
             require(
                 extrema["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && extrema["coefficient_basis"] == "j_side_section_equilibrium_binary64"
+                    && extrema["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
                     && extrema["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
                 "EXTREMA_BASIS",
             )?;
         }

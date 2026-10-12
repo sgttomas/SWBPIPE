@@ -15,9 +15,13 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// The milestone's protected ordinary bytes, by value. The pin is private: it lives in
 /// `src/retained_wire_tests.rs` as `ORDINARY_SHA256` (a `#[cfg(test)]` module), and
 /// `copied_pin_matches_its_source` keeps this copy equal to it.
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
+/// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
+/// the bytes differ only by the two linear limitation sentences, the current
+/// maximum declaration literals and the fallback maximum's enclosure.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68250, "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871"),
-    ("dense_scrutiny", 69366, "aa8b93ba9717bcc61bf708bb3dd7ab4848d655334dd1f3f6d5e852c2d40f8a8d"),
+    ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
+    ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

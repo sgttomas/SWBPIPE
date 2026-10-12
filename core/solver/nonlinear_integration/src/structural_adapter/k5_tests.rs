@@ -1216,7 +1216,13 @@ fn k5_basis_text_and_family_flag_are_unchanged() {
                     .unwrap()
                     .ends_with(MIXED));
                 if solution.formation_check.is_none() {
-                    assert_eq!(render(&result), render(today), "{name} {mode:?}");
+                    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §7): a
+                    // check that runs and passes returns its recovery-only
+                    // `member_bound` beside the unchanged report; the plain
+                    // entry runs no check. Everything else is the plain outcome.
+                    let mut plain_part = solution.clone();
+                    plain_part.member_bound = None;
+                    assert_eq!(render(&Ok(plain_part)), render(today), "{name} {mode:?}");
                 }
             }
         }

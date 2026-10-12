@@ -48,8 +48,8 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** I76's goldens (committed at 055ee0c0bc) and its recorded inputs (R/I76/t6s_01/inputs/). */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "958df02e276538a96c4732302a46cb36a53c2298ca7e1f4deb88a3748c67c661", base: "5a48e00d7976ed7e2e34967d023219a7e5e23144b35c680415d1b3786bfc44d8", origin: "1a0f642ce9c9476924e6f8841ccadd3109c9f1f761fe404d7adb5c84759894cc", rows: 98, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "3f9905ad4c4bba688687714751abe965d18cea834701c32c379d81f573dcf682", base: "3f054be38290bf9ae6e6a236c192d6eda8c5a0867367d8a0559509fe6f515e78", origin: "04ee7eb957b9bdc7b617e588393a01107c7a1aa0a064087e45a58c481a682231", rows: 99, nonQuantity: 2 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "7394d3cb100939a1600a1f54682bb74c1e89b474da7263a10596c78ee571e943", base: "5a48e00d7976ed7e2e34967d023219a7e5e23144b35c680415d1b3786bfc44d8", origin: "99170fb742e65fb00a5d101f2269db7af450cf644908f6e71a3607359513c983", rows: 98, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "bdc1e4514df54b53b998c777468549a39f21444dfe03cc18ddbae162b9457e51", base: "3f054be38290bf9ae6e6a236c192d6eda8c5a0867367d8a0559509fe6f515e78", origin: "8aabc364c27701133e3574a121b861b90283fff99ad416b30a32d7f1326c5b28", rows: 99, nonQuantity: 2 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -323,8 +323,8 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
  * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
  * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; path: string; sha256: string; rows: number }> = {
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "79d9930541303b003f215aee6503aa1cec73b45eeb351998a77856257c171ff8", rows: 98 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "32b4182c8d524dc0f03c2237a80fc41ca2e72e1a895e46d6f38ddc66eba1a891", rows: 99 },
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "f13f4f40307abe25c055a622465f4ec60472fb2686894c5d7a175db8c6d9941d", rows: 98 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "de9f2315a978c70eccaa3b101bde647efcb605474323610e3cac8cdc8eb2d54b", rows: 99 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
   it("derives the golden's exact canonical bytes; it validates and carries the receipt and physics-1's evidence", async () => {
