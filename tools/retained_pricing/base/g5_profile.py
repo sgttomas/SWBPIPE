@@ -255,6 +255,13 @@ BIND.update({
     "s(NumericCaseResultBorrowed)": upr(f"up({_C7_UP} + up(size_of::<open_pipe_stress_result_export::retained_precision::ValidationError>(), {_C7_A}) + size_of::<usize>(), {_C7_A})",
         "C7: two positive numeric_owner Result return/staging carriers, full NumericCase field-sum plus public ValidationError and word tag allowance; variant-sum upper, no compiler reuse"),
 })
+# C8: source-union staging, distinct from every resident enum/String/JSON owner.
+_C8_TYPES = ["&'static u8", "&'static [u8]", "usize", "u64", "f64", "u8", "bool", "i32"]
+_C8_ALIGN = align_expr(_C8_TYPES)
+_C8_SLOTS = [16, 8, 16, 4, 4, 4, 16, 4]
+BIND["s(MemberComparisonWorkspace)"] = upr(
+    " + ".join(f"{count} * up(size_of::<{kind}>(), {_C8_ALIGN})" for kind, count in zip(_C8_TYPES, _C8_SLOTS)),
+    "C8: source-pinned borrowed MemberSection guard plus reference/numeric equality operand, argument, return and move staging; aligned typed-slot union; old library/R/helpers and all resident enum/String/JSON owners remain; not a compiler-frame measurement")
 ROW_TREATMENT = ["String", "&'static str", "Option<String>", "Option<&'static str>", "Vec<String>"]
 PROJECTION = ["String", "String", "String", "&'static str", "f64", "String", "&'static str", "[f64; 2]", "f64", "f64", "f64",
               "&'static str"]

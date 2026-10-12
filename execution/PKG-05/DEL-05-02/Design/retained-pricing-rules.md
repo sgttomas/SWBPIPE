@@ -649,3 +649,47 @@ check this distinction; no fake allocation or zero rule is added. This migration
 changes no multiplicity, visit,
 byte class, source backing, arithmetic or positive owner. Known-owned audit
 tables remain equivalent; line replacement is neither deletion nor a zero rule.
+
+
+## C8. Borrowed member comparison, positive caller staging
+
+The composite_exact MemberSection check borrows the descriptor quantity and
+member/station/component fields, preserving ordered byte/bit/variant comparisons,
+convention/case checks and every error. Its exact old993146b2/new8f9f963b body
+pins include the enclosing loops, later JSON/projection work and non-escape
+boundary. The old body is identical at the basis, f78/2c5/e9cc, batch3ff5347,
+U2 98dba, e929 and936; changed/renamed/duplicated bodies refuse.
+
+Charge a positive MemberComparisonWorkspace SourceUpper to every T25 case and
+invocation stage, at CC copies (<=3), in addition to all prior owners. The
+source-union inventory is16 thin reference/pointer slots,8 borrowed byte-slice
+views,16 usize/index/length/size slots,4 u64 station-bit slots,4 f64 station/bitcast
+slots,4 u8 component/cast slots,16 bool pattern/guard/short-circuit/return slots,
+and4 i32 byte-comparison result slots. Charge every slot rounded to the maximum
+alignment across these actual types, retaining argument/return/move staging and
+no reuse between alternatives or source frames. The references include the
+quantity view, three pattern bindings, expected member/array cell, lifted
+reference comparison and String/Vec equality interfaces/raw pointer staging;
+byte views include returns and arguments; lengths include equality/byte-size
+and array-index/cast staging. Numeric operands, comparisons, stored
+quantity_matches, negation and outer condition remain positive. The standard
+String representation and comparison path are documented in the exact-toolchain
+[String source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/string.rs)
+and [slice comparison source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/cmp.rs).
+Current native widths/alignments give640B per union and1920B at CC3. This is a
+source-slot bound, not a compiler-stack measurement; existing library/helper
+allowances and R stay positive. The one guard is nonrecursive; its references
+and boolean do not escape the sequential row loop. Charging CC complete copies
+at every S/I stage conservatively covers overlap with all carried/resident
+member/descriptor enums, Strings, JSON, section checks, projections and collectors,
+even after these temporary slots drop; no old owner is credited or replaced.
+
+Only route E's basis audit869 migrates. Its original member.member_id IN128
+class remains in source-resolved C8_INPUT_METADATA for both representations.
+Exact known-owned syntax emits its allocation audit; the nonallocating borrowed
+guard emits none. Route L and every sibling audit (including maximum97) remain.
+Actual G6 allocation inventory must accept this distinction without a fake row,
+zero rule or waiver. The old155934720B site volume is attribution, not an actual
+phase/peak saving. All counts, visits, criteria and failed936 evidence remain;
+immutable-source/full pricing/native confirmation is still required before any
+registration or budget claim.
