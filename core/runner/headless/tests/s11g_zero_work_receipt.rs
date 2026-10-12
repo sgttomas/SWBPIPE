@@ -5,11 +5,14 @@
 //! The captured envelope is produced live from S11-G's T19 construction (no
 //! committed fixture): N05's sensitive torsion cantilever with two cases on
 //! per-case modulus bases. Case A (cancelling tip torques, base basis) is
-//! Sensitive and source-selected; case B (a uniform load cancelled at the tip
-//! by authored nodal inputs, plus 0.2 N*m at the tip RZ) runs on an invented
-//! soft temperature point (E = 1 Pa, G = 0.4 Pa), is Passed, and its load-row
-//! formation guard fires. Case B's receipt entry is the zero-work decline:
-//! `unsupported`, `source_validation` / `unsupported_family`, work
+//! Sensitive and source-selected. Case B (a uniform load cancelled at the tip
+//! by authored nodal inputs, plus 0.2 N*m at the tip RZ and a 1e-10 N*m tip
+//! torque) runs on an invented temperature point (E = 1 Pa, G = 1e-12 Pa). The
+//! torque twists the torsionally soft pipe by about 3e6 rad, so K-D5's per-DOF
+//! rule passes the tip:RZ formation defect on the closed residual (DEL-04-01
+//! kd5-member-relative-bound.md §1) and case B is Passed, while its load-row
+//! formation guard still fires. Case B's receipt entry is the zero-work
+//! decline: `unsupported`, `source_validation` / `unsupported_family`, work
 //! {limit 0, charged 0, rejected 0}, ordinary outcome `sensitive`. Inputs are
 //! invented; no material, component, catalogue or code-rule data is used.
 use open_pipe_stress_product_physics::{
@@ -35,7 +38,7 @@ fn request() -> Value {
     .unwrap();
     model["materials"][0]["temperature_points"] = json!([{
         "id": "point:soft", "temperature": {"value": 20.0, "unit": "degC"},
-        "elastic_modulus": {"value": 1.0, "unit": "Pa"}, "shear_modulus": {"value": 0.4, "unit": "Pa"},
+        "elastic_modulus": {"value": 1.0, "unit": "Pa"}, "shear_modulus": {"value": 1e-12, "unit": "Pa"},
         "provenance": INVENTED}]);
     let w = 1e8_f64;
     model["load_cases"] = json!([
@@ -48,7 +51,8 @@ fn request() -> Value {
                     "direction": "global_y", "magnitude": {"value": w, "unit": "N/m"},
                     "dimension": "force_per_length", "provenance": INVENTED},
                 nodal("case-b:uy", "tip", "global_y", -w),
-                nodal("case-b:rz", "tip", "RZ", w / 3.0 + 0.2)
+                nodal("case-b:rz", "tip", "RZ", w / 3.0 + 0.2),
+                nodal("case-b:rx", "tip", "RX", 1e-10)
             ]}
     ]);
     json!({"model": model, "materials": []})
@@ -63,6 +67,23 @@ fn t23_source_blocks_reader_accepts_the_zero_work_formation_decline() {
         let request = request();
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
             .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        // Precondition: case B's report is Passed and the load-row guard
+        // demotes it (the case the ordinary route never attempts).
+        let integrity = envelope
+            .diagnostics
+            .iter()
+            .find(|d| {
+                d.code.starts_with("NUMERICAL_INTEGRITY_")
+                    && d.affected_refs == vec!["case-b".to_string()]
+            })
+            .expect("case B's integrity diagnostic");
+        assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{mode:?}");
+        assert!(integrity.message.contains("quality: Passed"), "{mode:?}: {}", integrity.message);
+        assert!(
+            integrity.message.contains("S11-G formation-noise guard"),
+            "{mode:?}: {}",
+            integrity.message
+        );
         let raw = serde_json::to_value(&envelope).unwrap();
         // Precondition (paths differ): case B's entry is the zero-work decline,
         // and case A is qualified, so the reader sees a real receipt with it.

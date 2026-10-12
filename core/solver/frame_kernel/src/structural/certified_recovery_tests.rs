@@ -35,6 +35,32 @@ fn exact_projection_uses_guard_and_sticky_bits() {
     assert_eq!(midpoint_publication(ball.m).unwrap(), 1.0);
     assert_eq!(ball.r, 0.0);
 }
+/// v_g = fl(m_g) (DEL-04-01 kd5-member-relative-bound.md §3.1): a nonzero
+/// midpoint whose correct rounding is zero publishes 0, with its whole
+/// magnitude kept in the row's rounding gap, instead of making the member
+/// bound unavailable. Kills the regression that demoted F1b's PHYS-R4 W2 case
+/// (E = 1 Pa, Iz ~ 1e-307 m^4) with "recovery publication".
+#[test]
+fn a_midpoint_below_half_the_least_subnormal_publishes_zero() {
+    let tiny = |pow: i64| Wide2::from_f64(f64::from_bits(1)).unwrap().mul_pow2(pow).unwrap();
+    for (m, published) in [
+        (tiny(-10), 0.0),
+        (tiny(-10).neg(), 0.0),
+        (tiny(-1), 0.0), // exactly half the least subnormal: ties to even zero
+        (tiny(0), f64::from_bits(1)),
+    ] {
+        let v = midpoint_publication(m).unwrap();
+        assert_eq!(v.to_bits(), published.to_bits(), "{m:?}");
+        let row = CertifiedRow::finish(Ball::exact(m), 0.0, 0.0).unwrap();
+        assert_eq!(row.published.to_bits(), published.to_bits());
+        if published == 0.0 {
+            assert!(row.rounding_gap > 0.0, "the gap carries |m_g|");
+        }
+    }
+    // Overflow stays unrepresentable.
+    let huge = Wide2::from_f64(f64::MAX).unwrap().mul_pow2(1).unwrap();
+    assert!(midpoint_publication(huge).is_err());
+}
 #[test]
 fn corrections_are_not_binary64_summed_and_w2_stays_physical() {
     let op = [Ball::exact(Wide2::ONE)];
@@ -116,6 +142,142 @@ fn uniform_straight_ends_and_all_sections_match_exact_statics() {
             );
         }
     }
+}
+/// One full-span authored uniform primitive per element row of `frame`.
+fn sourced_uniform_primitives(frame: &FrameElement, source: &str, w: [f64; 3], start: usize) -> Vec<LoadPrimitive> {
+    (0..12)
+        .map(|row| LoadPrimitive {
+            term_index: start + row,
+            identity: LoadSummandIdentity {
+                family: "uniform_straight".into(),
+                source: source.into(),
+                ordinal: row,
+            },
+            local_row: row,
+            formula: LoadFormula::UniformStraight {
+                frame: frame.clone(),
+                intensity: IntensityPrimitive::Authored(w),
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            force_scale_exponent: 0,
+        })
+        .collect()
+}
+fn skew_frame() -> FrameElement {
+    FrameElement::new(
+        FrameNode::new(0, [0.0; 3]).unwrap(),
+        FrameNode::new(1, [2.0, 1.0, 0.5]).unwrap(),
+        FrameSection::new(8.0, 4.0, 2.0, 3.0, 3.0, 6.0).unwrap(),
+        [0.0, 0.0, 1.0],
+    )
+    .unwrap()
+}
+
+/// Review finding F5 (DEL-04-01 kd5-member-relative-bound.md §3.1: m_g is one
+/// exact sum of the stiffness products minus the member's intended load
+/// terms). Same-expression +/-G cancellation control: probe A's (G, n, -G)
+/// uniform loads at G = 1e80 on a skew member publish, row by row (ends and
+/// all five sections), exactly the bits of the net load n alone, because each
+/// primitive enters its row's exact sum before the one rounding and each
+/// uniform term enters the station rows as its own addend; only the radii
+/// grow. Precondition (paths differ): pre-summing the three balls at p, as
+/// the recovery did before, absorbs n entirely.
+#[test]
+fn same_expression_cancelling_loads_publish_the_net_rows() {
+    let frame = skew_frame();
+    let (g, n) = (1e80, 0.3);
+    let mut primitives = sourced_uniform_primitives(&frame, "g", [0.0, 0.0, g], 0);
+    primitives.extend(sourced_uniform_primitives(&frame, "n", [0.0, 0.0, n], 12));
+    primitives.extend(sourced_uniform_primitives(&frame, "-g", [0.0, 0.0, -g], 24));
+    let net = sourced_uniform_primitives(&frame, "n", [0.0, 0.0, n], 0);
+    // Precondition: the former 128-bit pre-sum of the three primitives loses n.
+    let mut b = Balls::new().unwrap();
+    let row = 2;
+    let ball = |p: &LoadPrimitive| {
+        let (m, r) = load_reformation(p).unwrap();
+        Ball { m: m[row], r: r[row] }
+    };
+    let first = b.add(ball(&primitives[row]), ball(&primitives[12 + row])).unwrap();
+    let presum = b.add(first, ball(&primitives[24 + row])).unwrap();
+    let alone = ball(&net[row]);
+    assert!(!alone.m.is_zero());
+    assert_ne!(midpoint_publication(presum.m).unwrap(), midpoint_publication(alone.m).unwrap());
+    let cancelling = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let reference = CertifiedMemberLoads::from_primitives(0, 1, &net).unwrap();
+    assert_eq!(cancelling.uniform_loads().count(), 3);
+    let u = [1e-3, -2e-3, 3e-4, 1e-4, -5e-4, 2e-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    let bound = bound(12);
+    let a = certify_straight_recovery(&frame, &cancelling, &u, &bound).unwrap();
+    let e = certify_straight_recovery(&frame, &reference, &u, &bound).unwrap();
+    let rows = |x: &CertifiedMemberRecovery| -> Vec<CertifiedRow> {
+        x.ends.iter().chain(x.sections.iter().flatten()).cloned().collect()
+    };
+    let (a, e) = (rows(&a), rows(&e));
+    assert_eq!(a.len(), 42);
+    let mut grown = 0;
+    for (i, (x, y)) in a.iter().zip(&e).enumerate() {
+        assert_eq!(x.published.to_bits(), y.published.to_bits(), "row {i}: {x:?} against {y:?}");
+        assert!(x.radius >= y.radius, "row {i}");
+        grown += usize::from(x.radius > y.radius);
+    }
+    assert!(grown > 0, "the +/-G enclosure radii stay in the bound");
+    // An arbitrary section takes the same recipe.
+    for fraction in [0.125, 0.6] {
+        let x = certify_straight_section(&frame, &cancelling, &u, &bound, fraction).unwrap();
+        let y = certify_straight_section(&frame, &reference, &u, &bound, fraction).unwrap();
+        for r in 0..6 {
+            assert_eq!(x[r].published.to_bits(), y[r].published.to_bits(), "fraction {fraction} row {r}");
+        }
+    }
+}
+
+/// Review finding F5: an ordinary multi-primitive row. Two different uniform
+/// loads on one member: each element row's intended load is the exact sum of
+/// the two re-formed midpoints, projected once to p, with both radii; the
+/// published end and station rows match the exact statics of the summed
+/// intensity within their bounds.
+#[test]
+fn multi_primitive_rows_are_one_exact_sum_of_their_primitives() {
+    let frame = frame();
+    let mut primitives = sourced_uniform_primitives(&frame, "a", [0.0, -6.0, 0.0], 0);
+    primitives.extend(sourced_uniform_primitives(&frame, "b", [0.0, 3.0, 1.5], 12));
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    for row in 0..12 {
+        let mut sum = ExactAccumulator::new();
+        let mut radius = 0.0;
+        for p in primitives.iter().filter(|p| p.local_row == row) {
+            let (m, r) = load_reformation(p).unwrap();
+            add_ball(&mut sum, &mut radius, Ball { m: m[row], r: r[row] }, false).unwrap();
+        }
+        let expected = sum_ball(&sum, radius).unwrap();
+        assert_eq!(loads.equivalent[row].m.cmp_value(&expected.m), std::cmp::Ordering::Equal, "row {row}");
+        assert_eq!(loads.equivalent[row].r.to_bits(), expected.r.to_bits(), "row {row}");
+    }
+    let recovered = certify_straight_recovery(&frame, &loads, &[0.0; 12], &bound(12)).unwrap();
+    // Total intensity (0, -3, 1.5) N/m over L = 2 m, fixed-end equivalents;
+    // every station truth is a dyadic rational, exact in binary64.
+    let (wy, wz) = (-3.0, 1.5);
+    for (station, &fraction) in recovered.sections.iter().zip(&CERTIFIED_SECTION_FRACTIONS) {
+        let x = 2.0 * fraction;
+        let truth = [
+            0.0,
+            wy + (-wy) * x,
+            wz + (-wz) * x,
+            0.0,
+            -(wz * 4.0 / 12.0 - wz * x + 0.5 * wz * x * x),
+            wy * 4.0 / 12.0 - wy * x + 0.5 * wy * x * x,
+        ];
+        for r in 0..6 {
+            assert!(
+                (station[r].published - truth[r]).abs() <= station[r].bound(),
+                "fraction {fraction}, row {r}: {:?} against {}",
+                station[r],
+                truth[r]
+            );
+        }
+    }
+    assert!(recovered.ends.iter().all(|row| row.radius.is_finite()));
 }
 #[test]
 fn spring_support_on_pipe_sign_and_exact_signed_equilibrium() {

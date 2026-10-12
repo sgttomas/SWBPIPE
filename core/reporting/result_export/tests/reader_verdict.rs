@@ -496,9 +496,17 @@ fn preview_physics_standing_and_transport() {
         let model = read("fixtures/product_preview/invented_demo_model.json");
         let d = rv::dispatch(&raw, Some(&model), None);
         assert_eq!((d["route"].as_str(), d["binding"]["id"].as_str()), (Some("preview_physics"), Some(sc::PREVIEW_PHYSICS_ID)));
-        assert_eq!(findings(&d["standing"]), Vec::<&str>::new(), "{mode}: {}", d["standing"]);
+        // Nonlinear supports: no member bound on that route, so the cases are
+        // Sensitive and not qualified (DEL-04-01 kd5-member-relative-bound.md §5).
+        assert_eq!(findings(&d["standing"]), vec!["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"], "{mode}: {}", d["standing"]);
         assert_eq!(rv::validate("preview-physics", &raw, Some(&model), None), json!({"ok": true}));
         assert_eq!(rv::transport("preview-physics", &raw), json!({"ok": true}));
+        // A linear-route CHECKS_PASSED preview envelope keeps an empty standing.
+        let raw = read(&format!("fixtures/results/preview_physics_connected_{mode}.json"));
+        let model = read("fixtures/model_operations/precision_connected_ui_model.json");
+        let d = rv::dispatch(&raw, Some(&model), None);
+        assert_eq!(findings(&d["standing"]), Vec::<&str>::new(), "{mode}: {}", d["standing"]);
+        assert_eq!(rv::validate("preview-physics", &raw, Some(&model), None), json!({"ok": true}));
     }
 }
 

@@ -10,6 +10,7 @@ use super::formation_check::{
     chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
     FormationSource, LoadFormula, LoadPrimitive, MemberBoundInputs,
 };
+use super::retained::wide::multi::Binary64Outcome;
 use super::retained::wide::{Wide2, WideArith, WideError};
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
@@ -109,10 +110,17 @@ fn add_ball(
 }
 fn midpoint_publication(m: Wide2) -> Result<f64, RecoveryFailure> {
     // Wide's converter applies the power before rounding, including subnormals.
-    let v = m
-        .to_binary64()
-        .value()
-        .ok_or_else(|| shape("recovery publication"))?;
+    // v_g = fl(m_g) (kd5-member-relative-bound.md §3.1): a nonzero midpoint
+    // below half the least subnormal rounds to zero. That is a correctly
+    // rounded publication, not an unavailable one; its gap |0 - m_g| enters
+    // the row's rounding term of B_g. Only an overflowing rounding is
+    // unrepresentable.
+    let v = match m.to_binary64() {
+        Binary64Outcome::Underflow { .. } => 0.0,
+        outcome => outcome
+            .value()
+            .ok_or_else(|| shape("recovery publication"))?,
+    };
     if v.is_finite() {
         Ok(if v == 0.0 { 0.0 } else { v })
     } else {
@@ -466,30 +474,28 @@ impl<'a> CertifiedMemberLoads<'a> {
             source_prefix,
             ..Self::default()
         };
-        let mut b = Balls::new()?;
-        for primitive in primitives {
-            if !primitive.identity.source.starts_with(source_prefix) {
-                continue;
+        let member = |p: &&LoadPrimitive| {
+            p.identity.source.starts_with(source_prefix)
+                && member_pair(&p.formula).is_some_and(|(i, j)| same_pair(node_i, node_j, i, j))
+        };
+        if primitives.iter().filter(member).any(|p| p.local_row >= 12) {
+            return Err(shape("member primitive local row"));
+        }
+        // Each primitive is re-formed once and enters its element row's exact
+        // sum as its own addend (Design §3.1: one exact sum of the intended
+        // load terms), so cancelling primitives net exactly; the net is then
+        // projected once to p, its radii and the projection added upward.
+        // One accumulator is live at a time (stack only).
+        for row in 0..12 {
+            let mut sum = ExactAccumulator::new();
+            let mut radius = 0.0;
+            for primitive in primitives.iter().filter(member).filter(|p| p.local_row == row) {
+                let (m, r) = load_reformation(primitive)?;
+                add_ball(&mut sum, &mut radius, Ball { m: m[row], r: r[row] }, false)?;
+                out.equivalent_scale[row] =
+                    add_up(out.equivalent_scale[row], add_up(abs_up(&m[row])?, r[row]));
             }
-            if !member_pair(&primitive.formula)
-                .is_some_and(|(i, j)| same_pair(node_i, node_j, i, j))
-            {
-                continue;
-            }
-            if primitive.local_row >= 12 {
-                return Err(shape("member primitive local row"));
-            }
-            let (m, r) = load_reformation(primitive)?;
-            let row = primitive.local_row;
-            out.equivalent[row] = b.add(
-                out.equivalent[row],
-                Ball {
-                    m: m[row],
-                    r: r[row],
-                },
-            )?;
-            out.equivalent_scale[row] =
-                add_up(out.equivalent_scale[row], add_up(abs_up(&m[row])?, r[row]));
+            out.equivalent[row] = sum_ball(&sum, radius)?;
         }
         Ok(out)
     }
@@ -593,6 +599,33 @@ fn corrected_ball(u: f64, w: f64, w2: f64) -> Result<Ball, RecoveryFailure> {
     }
     sum_ball(&sum, 0.0)
 }
+/// The intended load part of one recovered row, as the row's exact sum before
+/// its stiffness products (Design §3.1). Every load contribution (a rotated
+/// end term, a station transfer, each distributed-load term) is its own exact
+/// addend, so contributions that cancel net exactly before the row's single
+/// rounding; their radii add upward. `scale` is the absolute evaluation
+/// scale of the load terms (a_g, §3.3).
+#[derive(Debug, Clone, Default)]
+struct RowLoad {
+    sum: ExactAccumulator,
+    radius: f64,
+    scale: f64,
+}
+impl RowLoad {
+    /// Adds `ball` (negated when `negate`) as its own exact addend.
+    fn add(&mut self, ball: Ball, negate: bool) -> Result<(), RecoveryFailure> {
+        add_ball(&mut self.sum, &mut self.radius, ball, negate)
+    }
+    /// One load ball subtracted from the row (row = A x - load).
+    fn single(load: Ball, scale: f64) -> Result<Self, RecoveryFailure> {
+        let mut out = Self {
+            scale,
+            ..Self::default()
+        };
+        out.add(load, true)?;
+        Ok(out)
+    }
+}
 fn evaluate_row<const N: usize>(
     operator: &[Ball; N],
     map: &[usize; N],
@@ -601,18 +634,22 @@ fn evaluate_row<const N: usize>(
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
-    evaluate_row_inner(operator, map, load, load_scale, u, bound, true)
+    evaluate_row_inner(operator, map, RowLoad::single(load, load_scale)?, u, bound, true)
 }
 fn evaluate_row_inner<const N: usize>(
     operator: &[Ball; N],
     map: &[usize; N],
-    load: Ball,
-    load_scale: f64,
+    load: RowLoad,
     u: &[f64],
     bound: &MemberBoundInputs,
     include_remainder: bool,
 ) -> Result<CertifiedRow, RecoveryFailure> {
-    let mut sum = ExactAccumulator::new();
+    // The row's exact sum starts from its load addends (moved, not copied).
+    let RowLoad {
+        mut sum,
+        radius: load_radius,
+        scale: load_scale,
+    } = load;
     let mut radius = 0.0;
     let mut scale = 0.0;
     let mut norm = 0.0;
@@ -638,7 +675,7 @@ fn evaluate_row_inner<const N: usize>(
             norm = add_up(norm, scale_up(ku, bound.exponents[i]));
         }
     }
-    add_ball(&mut sum, &mut radius, load, true)?;
+    radius = add_up(radius, load_radius);
     scale = add_up(scale, load_scale);
     CertifiedRow::finish(
         sum_ball(&sum, radius)?,
@@ -717,14 +754,10 @@ fn straight_section_rows(
     let map = ctx.map;
     let distance = b.mul(Ball::exact(length), fraction)?;
     let mut op = [[Ball::ZERO; 12]; 6];
-    let mut eq = [Ball::ZERO; 6];
-    let mut es = [0.0; 6];
     for r in 0..6 {
         for c in 0..12 {
             op[r][c] = operator[r][c].neg();
         }
-        eq[r] = equivalent[r].neg();
-        es[r] = equivalent_scale[r];
     }
     for (moment, shear, sign) in [(4, 2, -1.0), (5, 1, 1.0)] {
         for c in 0..12 {
@@ -735,63 +768,78 @@ fn straight_section_rows(
                 b.add(op[moment][c], term)?
             };
         }
-        es[moment] = add_up(
-            es[moment],
-            mul_up(
-                add_up(abs_up(&distance.m)?, distance.r),
-                equivalent_scale[shear],
-            ),
-        );
-        let term = b.mul(distance, equivalent[shear])?;
-        eq[moment] = if sign < 0.0 {
-            b.sub(eq[moment], term)?
-        } else {
-            b.add(eq[moment], term)?
-        };
     }
-    for load in loads.uniform_loads() {
-        let load = load?;
-        let end_value = b.lift(load.end_fraction)?;
-        let end = if fraction.m.cmp_value(&end_value.m).is_gt() {
-            end_value
-        } else {
-            fraction
-        };
-        if !end.m.cmp_value(&b.lift(load.start_fraction)?.m).is_gt() {
-            continue;
-        }
-        let start = b.mul(Ball::exact(length), b.lift(load.start_fraction)?)?;
-        let active_end = b.mul(Ball::exact(length), end)?;
-        let active = b.sub(active_end, start)?;
-        let ea = b.mul(active_end, active_end)?;
-        let sa = b.mul(start, start)?;
-        let diff = b.sub(ea, sa)?;
-        let half = b.half(diff)?;
-        let da = b.mul(distance, active)?;
-        let lever = b.sub(da, half)?;
-        let mut intensity = [Ball::ZERO; 3];
-        for r in 0..3 {
-            for c in 0..3 {
-                let term = b.mul(Ball::exact(axes[r][c]), load.intensity[c])?;
-                intensity[r] = b.add(intensity[r], term)?;
-            }
-        }
-        for r in 0..3 {
-            let term = b.mul(intensity[r], active)?;
-            eq[r] = b.add(eq[r], term)?;
-            es[r] = add_up(es[r], add_up(abs_up(&term.m)?, term.r));
-        }
-        let my = b.mul(intensity[2], lever)?;
-        eq[4] = b.add(eq[4], my)?;
-        es[4] = add_up(es[4], add_up(abs_up(&my.m)?, my.r));
-        let mz = b.mul(intensity[1], lever)?;
-        eq[5] = b.sub(eq[5], mz)?;
-        es[5] = add_up(es[5], add_up(abs_up(&mz.m)?, mz.r));
-    }
-
+    // Section row r = op_r x - eq_r. Its load part -eq_r is the row's exact
+    // sum of separate addends (`RowLoad`): the i-end term, the station
+    // transfer of the end shear (moments) and each uniform primitive's term.
+    // Rows are formed one at a time, so one load sum is live (the stack
+    // census of `certified_stress_control_sizes` is unchanged); each row
+    // re-forms the member's uniform intensities on the stack.
     let mut out = [CertifiedRow::ZERO; 6];
     for r in 0..6 {
-        out[r] = evaluate_row_inner(&op[r], &map, eq[r], es[r], u, bound, include_remainder)?;
+        let mut load = RowLoad::default();
+        load.add(equivalent[r], false)?;
+        load.scale = equivalent_scale[r];
+        let transfer = match r {
+            4 => Some((2, -1.0)),
+            5 => Some((1, 1.0)),
+            _ => None,
+        };
+        if let Some((shear, sign)) = transfer {
+            load.scale = add_up(
+                load.scale,
+                mul_up(
+                    add_up(abs_up(&distance.m)?, distance.r),
+                    equivalent_scale[shear],
+                ),
+            );
+            // eq_moment = -end_moment + sign * d * end_shear.
+            let term = b.mul(distance, equivalent[shear])?;
+            load.add(term, sign > 0.0)?;
+        }
+        if r != 3 {
+            for uniform in loads.uniform_loads() {
+                let uniform = uniform?;
+                let end_value = b.lift(uniform.end_fraction)?;
+                let end = if fraction.m.cmp_value(&end_value.m).is_gt() {
+                    end_value
+                } else {
+                    fraction
+                };
+                if !end.m.cmp_value(&b.lift(uniform.start_fraction)?.m).is_gt() {
+                    continue;
+                }
+                let start = b.mul(Ball::exact(length), b.lift(uniform.start_fraction)?)?;
+                let active_end = b.mul(Ball::exact(length), end)?;
+                let active = b.sub(active_end, start)?;
+                // eq_r += w_r * active (r < 3), eq_My += w_z * lever,
+                // eq_Mz -= w_y * lever (w in the chord frame).
+                let (axis, factor, negate) = if r < 3 {
+                    (r, active, true)
+                } else {
+                    let ea = b.mul(active_end, active_end)?;
+                    let sa = b.mul(start, start)?;
+                    let diff = b.sub(ea, sa)?;
+                    let half = b.half(diff)?;
+                    let da = b.mul(distance, active)?;
+                    let lever = b.sub(da, half)?;
+                    if r == 4 {
+                        (2, lever, true)
+                    } else {
+                        (1, lever, false)
+                    }
+                };
+                let mut intensity = Ball::ZERO;
+                for c in 0..3 {
+                    let term = b.mul(Ball::exact(axes[axis][c]), uniform.intensity[c])?;
+                    intensity = b.add(intensity, term)?;
+                }
+                let term = b.mul(intensity, factor)?;
+                load.add(term, negate)?;
+                load.scale = add_up(load.scale, add_up(abs_up(&term.m)?, term.r));
+            }
+        }
+        out[r] = evaluate_row_inner(&op[r], &map, load, u, bound, include_remainder)?;
     }
     Ok(out)
 }
@@ -986,13 +1034,11 @@ pub fn certify_arc_recovery(
         let eqforce = [teq[0], teq[1], teq[2]];
         let eqtransfer = b.cross(&arm, &eqforce)?;
         let mut op = tip;
-        let mut eq = teq;
         let mut eqscale = tes;
         for r in 0..3 {
             for c in 0..12 {
                 op[3 + r][c] = b.add(op[3 + r][c], transfer[r][c])?;
             }
-            eq[3 + r] = b.add(eq[3 + r], eqtransfer[r])?;
             let j = (r + 1) % 3;
             let k = (r + 2) % 3;
             eqscale[3 + r] = add_up(
@@ -1002,6 +1048,35 @@ pub fn certify_arc_recovery(
                     mul_up(ball_magnitude(arm[k])?, tes[j]),
                 ),
             );
+        }
+        let axes = [
+            [sin.neg(), cos, Ball::ZERO],
+            [cos.neg(), sin.neg(), Ball::ZERO],
+            [Ball::ZERO, Ball::ZERO, Ball::ONE],
+        ];
+        // Section row (block, r) = A x - sum_k axes[r][k] * eq[3 block + k],
+        // with eq = tip end loads + (moments) their station transfer - each
+        // uniform primitive's term. Its load part is the row's exact sum of
+        // separate addends (`RowLoad`): the rotated tip term, the rotated
+        // transfer and each primitive's rotated term.
+        let rotated = |b: &mut Balls, r: usize, v: [Ball; 3]| -> Result<Ball, RecoveryFailure> {
+            let mut out = Ball::ZERO;
+            for k in 0..3 {
+                let term = b.mul(axes[r][k], v[k])?;
+                out = b.add(out, term)?;
+            }
+            Ok(out)
+        };
+        let mut row_loads: [RowLoad; 6] = Default::default();
+        for block in 0..2 {
+            for r in 0..3 {
+                let tip_term = rotated(&mut b, r, [teq[3 * block], teq[3 * block + 1], teq[3 * block + 2]])?;
+                row_loads[3 * block + r].add(tip_term, true)?;
+                if block == 1 {
+                    let transfer_term = rotated(&mut b, r, eqtransfer)?;
+                    row_loads[3 + r].add(transfer_term, true)?;
+                }
+            }
         }
         let r2 = b.mul(geometry.radius, geometry.radius)?;
         let rc = b.mul(remaining, cos)?;
@@ -1017,38 +1092,34 @@ pub fn certify_arc_recovery(
                 wl[r] = b.dot(&geometry.axes[r], &load.intensity)?;
             }
             let moment = b.cross(&distarm, &wl)?;
+            let mut force = [Ball::ZERO; 3];
             for r in 0..3 {
-                let term = b.mul(length, wl[r])?;
-                eq[r] = b.sub(eq[r], term)?;
-                eqscale[r] = add_up(eqscale[r], ball_magnitude(term)?);
-                eq[3 + r] = b.sub(eq[3 + r], moment[r])?;
+                force[r] = b.mul(length, wl[r])?;
+                eqscale[r] = add_up(eqscale[r], ball_magnitude(force[r])?);
                 eqscale[3 + r] = add_up(eqscale[3 + r], ball_magnitude(moment[r])?);
             }
-        }
-        let axes = [
-            [sin.neg(), cos, Ball::ZERO],
-            [cos.neg(), sin.neg(), Ball::ZERO],
-            [Ball::ZERO, Ball::ZERO, Ball::ONE],
-        ];
-        for block in 0..2 {
+            // eq -= term, so the row's load part gains + axes * term.
             for r in 0..3 {
-                let mut row = [Ball::ZERO; 12];
-                let mut load = Ball::ZERO;
-                let mut ls = 0.0;
-                for k in 0..3 {
-                    for c in 0..12 {
-                        let term = b.mul(axes[r][k], op[3 * block + k][c])?;
-                        row[c] = b.add(row[c], term)?;
-                    }
-                    let term = b.mul(axes[r][k], eq[3 * block + k])?;
-                    load = b.add(load, term)?;
-                    ls = add_up(
-                        ls,
-                        mul_up(ball_magnitude(axes[r][k])?, eqscale[3 * block + k]),
-                    );
-                }
-                sections[s][3 * block + r] = evaluate_row(&row, &map, load, ls, u, bound)?;
+                let force_term = rotated(&mut b, r, force)?;
+                row_loads[r].add(force_term, false)?;
+                let moment_term = rotated(&mut b, r, moment)?;
+                row_loads[3 + r].add(moment_term, false)?;
             }
+        }
+        for (index, mut load) in row_loads.into_iter().enumerate() {
+            let (block, r) = (index / 3, index % 3);
+            let mut row = [Ball::ZERO; 12];
+            for k in 0..3 {
+                for c in 0..12 {
+                    let term = b.mul(axes[r][k], op[3 * block + k][c])?;
+                    row[c] = b.add(row[c], term)?;
+                }
+                load.scale = add_up(
+                    load.scale,
+                    mul_up(ball_magnitude(axes[r][k])?, eqscale[3 * block + k]),
+                );
+            }
+            sections[s][index] = evaluate_row_inner(&row, &map, load, u, bound, true)?;
         }
     }
     Ok(CertifiedMemberRecovery { ends, sections })
@@ -1349,12 +1420,20 @@ fn straight_section_evaluation_envelopes(
     for value in &mut eq {
         *value = positive(*value);
     }
+    // The actual recipe enters each load contribution as its own exact addend
+    // (`straight_section_rows`); each addend's split may lose one TINY below
+    // the subnormal grid, so the majorant counts them per row.
+    let mut addends = [1.0_f64; 6];
     for (moment, shear) in [(4, 2), (5, 1)] {
         let term = b.mul(distance, positive(ctx.equivalent[shear]))?;
         eq[moment] = b.add(eq[moment], term)?;
+        addends[moment] += 1.0;
     }
     for load in loads.uniform_loads() {
         let load = load?;
+        for r in [0, 1, 2, 4, 5] {
+            addends[r] += 1.0;
+        }
         let mut intensity = [Ball::ZERO; 3];
         for r in 0..3 {
             for c in 0..3 {
@@ -1405,7 +1484,7 @@ fn straight_section_evaluation_envelopes(
         sum = b.add(sum, eq[r])?;
         sum.r = add_up(sum.r, split_allowance);
         if !eq[r].m.is_zero() {
-            sum.r = add_up(sum.r, TINY);
+            sum.r = add_up(sum.r, mul_up(TINY, addends[r]));
         }
         sum.r = finite(sum.r, "section evaluation envelope")?;
         out[r] = sum;
@@ -1624,8 +1703,10 @@ pub const fn certified_stress_control_sizes() -> CertifiedStressControlSizes {
     // One Context remains live; two3x6 Row arrays cover control points+move
     // staging; two6x12 Ball operators cover section op+array initialization.
     // Eight ExactAccumulator slots exceed the complete named sum inventory:
-    // row sum, corrected sum, coefficient lower/upper sums, and their move
-    // slots. Eight68-limb magnitudes cover nested net/project/subtract scratch.
+    // row sum (a section row's load sum, moved into its evaluation as the
+    // row's sum; rows are formed one at a time), corrected sum, coefficient
+    // lower/upper sums, and their move slots. Eight68-limb magnitudes cover
+    // nested net/project/subtract scratch.
     //
     // Remaining Ball-equivalent slot census (matrices/point arrays excluded):
     // main builder<=64 (envelope6,stress3,controls9,values3,fs/fe/fm/sum,

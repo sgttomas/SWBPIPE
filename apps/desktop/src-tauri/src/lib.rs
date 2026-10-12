@@ -6932,8 +6932,8 @@ mod tests {
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 68250, "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871"),
-            ("dense_scrutiny", 69366, "aa8b93ba9717bcc61bf708bb3dd7ab4848d655334dd1f3f6d5e852c2d40f8a8d"),
+            ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
+            ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -7198,8 +7198,16 @@ mod tests {
     fn assert_bundled_demo_solved(solved: &Value) {
         assert_eq!(solved["model_ref"], json!("project:invented-demo-loop-01"));
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
-        assert_eq!(solved["numerical_quality"]["status"], json!("checks_passed"));
-        assert!(!solved["diagnostics"].as_array().expect("diagnostics").iter().any(|d| d["severity"] == json!("blocking")));
+        // K-D5 Design §5: the invented demo's nonlinear-support cases fail closed
+        // to Sensitive (two non-blocking NUMERICAL_INTEGRITY_SENSITIVE warnings);
+        // the model still solves and publishes rows.
+        assert_eq!(solved["numerical_quality"]["status"], json!("sensitive"));
+        let diagnostics = solved["diagnostics"].as_array().expect("diagnostics");
+        assert_eq!(
+            diagnostics.iter().filter(|d| d["code"] == json!("NUMERICAL_INTEGRITY_SENSITIVE") && d["severity"] == json!("warning")).count(),
+            2
+        );
+        assert!(!diagnostics.iter().any(|d| d["severity"] == json!("blocking")));
         assert!(!solved["results"].as_array().expect("result rows").is_empty());
     }
 

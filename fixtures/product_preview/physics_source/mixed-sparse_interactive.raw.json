@@ -253,18 +253,18 @@
         "pipe_stress_extrema": [
           {
             "approximation": "piecewise_quadratic_straight_section_statics",
-            "certified_gap_pa": 0.0,
-            "coefficient_basis": "j_side_section_equilibrium_binary64",
-            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-            "global_upper_bound_pa": 0.000042631578947368425,
+            "certified_gap_pa": 6.776263578034404e-20,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 0.00004263157894736846,
             "local_fraction": 0.0,
             "pipe_id": "independent-member",
             "result_id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
-            "value_lower_pa": 0.000042631578947368425,
-            "value_upper_pa": 0.000042631578947368425
+            "value_lower_pa": 0.00004263157894736839,
+            "value_upper_pa": 0.00004263157894736846
           }
         ],
         "pressure_rhs_assembly": {
@@ -3386,7 +3386,7 @@
             "structural_report_diagnostic_ref": "diagnostic:numerical-integrity:case:ordinary-pressure"
           },
           "outcome": "qualified",
-          "physical_evidence_sha256": "fc6d245175712b9c051ddc0f50a9052ed807bd2e2476801e3fece64f5e4c19b8",
+          "physical_evidence_sha256": "d75128568b7d51c952aeb21947e6ea65d9f61873917b23e23668b4e85c86eefa",
           "projections": [],
           "requested_mode": "sparse_interactive",
           "rows": [
@@ -4189,11 +4189,11 @@
         "publication_charged": 500604
       },
       "policy": "PHYSICS-SOURCE-1",
-      "publication_sha256": "44672de903859e87afffb00f6ca36438568a4dcc0ec336f2dd023efd6d5d310e",
+      "publication_sha256": "fa03dce7f45ca9a2bde9da4409e289e8aea5d5f95759c26555f2a9c3c544e032",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "77205c09bb6a5306efe9cc51e93189e0fff1b925cfd5c0815f94b5b0b48af80f"
+    "receipt_sha256": "77a52c838a5651f9401220f8b04f63321ac8f13b9c47b916c0b88acfbb44591d"
   },
   "formulation_basis": {
     "profile_id": "exact_straight_pressure_v2",
@@ -4203,8 +4203,10 @@
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-      "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
-      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",
@@ -6157,7 +6159,7 @@
     {
       "id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Mx",
       "kind": "support_reaction_component_v2",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-spring",
       "basis_ref": {
@@ -6427,7 +6429,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6445,7 +6447,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6463,7 +6465,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6481,7 +6483,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6499,7 +6501,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6517,7 +6519,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:midspan:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6535,7 +6537,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:midspan:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6553,7 +6555,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6571,7 +6573,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6589,7 +6591,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6607,7 +6609,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6625,7 +6627,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6643,7 +6645,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6661,7 +6663,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6679,7 +6681,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6697,7 +6699,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6715,7 +6717,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6733,7 +6735,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6751,7 +6753,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6769,7 +6771,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6787,7 +6789,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6805,7 +6807,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6823,7 +6825,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6841,7 +6843,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6859,7 +6861,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6877,7 +6879,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6895,7 +6897,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6913,7 +6915,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6931,7 +6933,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {
@@ -6949,7 +6951,7 @@
     {
       "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.0,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "independent-member",
       "basis_ref": {

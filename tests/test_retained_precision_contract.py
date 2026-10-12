@@ -221,8 +221,8 @@ def _corpus_entries():
 
 
 MILESTONE_PINS = {
-    "sparse_interactive": ("ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", [25, 69, 3, 1]),
-    "dense_scrutiny": ("6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5", [25, 69, 3, 2]),
+    "sparse_interactive": ("174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6", [25, 69, 3, 1]),
+    "dense_scrutiny": ("ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55", [25, 69, 3, 2]),
 }
 
 
@@ -998,10 +998,10 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 L0_PINS = {
-    "sparse_interactive": ("93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876",
-                           "c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72", [25, 78, 9, 1]),
-    "dense_scrutiny": ("dbb3d477364248fb9ae15f7b9cff44410c2bffe45f783dd02d96eca663b0ac88",
-                       "0b4250c8139ba25ab9d35fc2d443a01d85de943a8e3d0eb9193f5dd5061ce994", [25, 78, 9, 2]),
+    "sparse_interactive": ("57951028f52124e04d83d16585564513dfbd69df6819264de6e2eb361d181c7f",
+                           "4d509cd499166bd885549213d03374dd41041cb80acacb41df4170f42c59be24", [25, 78, 9, 1]),
+    "dense_scrutiny": ("e8dd5f584948a469de58490ff8da09ab95f33de0605ada60334e885589b74ce0",
+                       "1d4e615e64fd219d976f4bc492c90cbab414e9d838e9fe8917bf1e01254cf671", [25, 78, 9, 2]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1813,18 +1813,18 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # (admitted, not eligible) or a gate and code. An admitted rewrite that changes the classes states its own
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
-N07_W_C2 = {"sparse_interactive": ("7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886"),
-            "dense_scrutiny": ("c11f7566f1f0c469bc0a2808466dd9dd137ea64abed327fb9e4d35ff92ded22f", "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2")}
+N07_W_C2 = {"sparse_interactive": ("c653b8767e3b9ccb5f3e19e44953e65250b7c4e0ee2ffb27f21a5ba0f9abe5e4", "f9a99e3e24cb3a813143af49f4b4d535f7380d24db8fbe5e47adc07b34355f43"),
+            "dense_scrutiny": ("9e7fffa1b9cfc22549b250a6896aaec2ed05c4a644fd5fb9640cb94d38acec4a", "a5b6ff1b436121d830bd7b34608bacf758608ebac2bbfbf80f48405c3df69e7d")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).
 N07_PP_PINNED = {
-    "cause_milestone_reversed_sparse_interactive": ("b79f691a4a899e3ed4a7d13957f74d4c4ee7430ee3062396214261144cbabd82", "93aa043538bbc01e0a7bcef4e381f88468edfd6792769b7041d7f6483ad959b1"),
-    "cause_milestone_reversed_dense_scrutiny": ("c6b03683c8a2591f4d59429407608a6aafd0abf25663c7d771de60f221135832", "b70edc6d002c92692f00a247702353f79e6410acf17eb385b3d2c2500ca76d8e"),
-    "sf2_c_b_a_sparse_interactive": ("863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
-    "sf2_c_b_a_dense_scrutiny": ("255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f"),
-    "sf2_a_a2_sparse_interactive": ("41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),
-    "sf2_a_a2_dense_scrutiny": ("30001ccf42ad12acd9dbb458392fee514946c1a52aa0d4e5f0b20bde5b09ea71", "f4075cdc80eff27099a28f787cec07080b745eca2d598eb3381a84ec03964176"),
+    "cause_milestone_reversed_sparse_interactive": ("452057c5f8c278b0e81b8d9555dd9f9ed80f53790fb003e1d9f3b81fb03bfaa3", "80faccc913f44fe1f9a273c519c1b2e3da3fe37c51f396f6c4fdf84688f517f5"),
+    "cause_milestone_reversed_dense_scrutiny": ("79455f17810c19c227f9304af74d7f7b1e5c2198544433bd2554e8c844af7266", "2dbc7fc5ae0e1da4e86b4d3525212018fc062b590110090f77f4cd2e2377c013"),
+    "sf2_c_b_a_sparse_interactive": ("8f50bc11b4460c42167e9d3446d73a6fbbf1d1f7d231fb60b8e484751d3e5342", "f13bc5399f10281a32cf9a7270125dda8344a10679d2643770e31b3705777f25"),
+    "sf2_c_b_a_dense_scrutiny": ("c07795bf74a5ca34b26707b862b3026763ee351b5655591006e0b1b13e90cf0f", "47caff74691b99889a0440b7e1cd2b24cdc5c47abf14888592d2928802c7a8d8"),
+    "sf2_a_a2_sparse_interactive": ("fb41aa63728bb774876d689b21118bbd1747b109d694311b10532d73ab2d45c7", "4b47ca8edcfd89eb23d60b1f4a2122cf28cc18feb34491f61b1ce4e2226a90ee"),
+    "sf2_a_a2_dense_scrutiny": ("e69dd41f2842c2198f96b47b42f9e055c68a49b8fd73267a61ee827045e832eb", "bbd4fb5c901f3cab3615e4a1520bfa178d364964c20d67f1eb11d015ff281fb5"),
 }
 N07_BASES = ["w_c2_sparse_interactive", "w_c2_dense_scrutiny", "d38_beside_selected"] + list(N07_PP_PINNED)
 N07_KEYS = {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility",
@@ -1933,10 +1933,15 @@ def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
 # (`retained_precision_corpus.py`) and written as the single file was (indent 2, ASCII, final newline), they are byte
 # for byte one document (O07_JOINED_SHA256). R1 re-pinned all three: its only change removed every per-reader
 # `typescript` member (92 in the 07m + 07n file, 1 in 07o), each file otherwise the same JSON in the same form
-# (was 0703ec17…, ee5b8af2… and joined 78d6d7c5…).
-O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "28ae62bfa708f63269f44707a13912b1d80b31c72079ca5cd53a2303a6dbf765",
-              "fixtures/results/retained_precision_cases_07o.json": "327180453ff71b8146e3c1edab901c06fb3932a68629817aa24740f58f8cd8f8"}
-O07_JOINED_SHA256 = "b8f89d25a8d1c7b41dc0af5b60777eadd376e6f752f8cee82be031f508136cdc"
+# (was 0703ec17…, ee5b8af2… and joined 78d6d7c5…). K-D5 re-pinned all three (DEL-04-01
+# kd5-member-relative-bound.md §§3.2, 3.4, 6): every base carries the current maximum declaration and the
+# two linear limitation sentences, the producer-solved and hook bases are the current producer's
+# successors (CHECKS_PASSED cases' certified rows), the derived synthetic bases take those changes, and
+# two mutations' embedded copies follow their bases (was 28ae62bf…, 32718045… and joined b8f89d25…; the
+# full earlier files stay at tag archive/piping-retained-corpus-20261011 and in Git history).
+O07_SHA256 = {"fixtures/results/retained_precision_cases.json": "9f7cbdabba37ec42f73f03e5420b22182f8e6a156ab6d419a81cf271bcbf7c3e",
+              "fixtures/results/retained_precision_cases_07o.json": "420ba602a841f965f3be4dc16a031e10906aedf0926a53459de959955eceb6ad"}
+O07_JOINED_SHA256 = "1445190dfd888b07677fc70101612bfb2722e00392cbaf261bbcce37c229ee9a"
 O07_BASES = [f"{name}_{mode}" for name in ("w_cb1",) for mode in ("sparse_interactive", "dense_scrutiny")] + ["w_cb1z_sparse_interactive"] + [
     f"{name}_{mode}" for name in ("w_cb2", "w_cb3", "w_cb4a", "w_cb4b", "w_cb5", "b2_c1_range_mechanics") for mode in ("sparse_interactive", "dense_scrutiny")] + [
     "b2_operand_preparation_failure", "b2_operand_source_unavailable", "b2_pre_source_refusal", "b2_base_withheld"]

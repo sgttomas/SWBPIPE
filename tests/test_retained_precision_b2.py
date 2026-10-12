@@ -665,11 +665,23 @@ def test_b2_n1_negative_extrema_values(field):
     for read in (ppe.validate_preview_physics_evidence, ppe.validate_transport_metadata):
         with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: extrema numbers"):
             read(projected)
+    # A zero passes the number demand. K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2) makes
+    # value_upper_pa the global upper bound, so a zero global bound beside a nonzero upper fails the
+    # later bounds demand; a zero gap is accepted.
     for zero in (0.0, -0.0, 0):
         projected["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0][field] = zero
-        ppe.validate_transport_metadata(projected)
+        if field == "global_upper_bound_pa":
+            with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: extrema bounds"):
+                ppe.validate_transport_metadata(projected)
+        else:
+            ppe.validate_transport_metadata(projected)
     zeroed, invocation = edited([_set(EXTREMUM + [field], 0.0)])
-    assert verdict(zeroed, invocation) == ("pass", "eligible")
+    if field == "global_upper_bound_pa":
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision(deepcopy(zeroed), deepcopy(invocation))
+        assert (error.value.gate, error.value.code) == EVIDENCE and error.value.detail.endswith("extrema bounds")
+    else:
+        assert verdict(zeroed, invocation) == ("pass", "eligible")
 
 
 # ---------------------------------------------------------------------------------------------------------------

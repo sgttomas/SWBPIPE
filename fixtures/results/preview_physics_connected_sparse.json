@@ -8,18 +8,18 @@
         "pipe_stress_extrema": [
           {
             "approximation": "piecewise_quadratic_straight_section_statics",
-            "certified_gap_pa": 5.2154064178466803e-8,
-            "coefficient_basis": "j_side_section_equilibrium_binary64",
-            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-            "global_upper_bound_pa": 41354908.75465697,
+            "certified_gap_pa": 1.3411045074462893e-7,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 41354908.754657015,
             "local_fraction": 0.0,
             "pipe_id": "pipe:fixture-span",
             "result_id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
-            "value_lower_pa": 41354908.75465692,
-            "value_upper_pa": 41354908.75465697
+            "value_lower_pa": 41354908.75465688,
+            "value_upper_pa": 41354908.754657015
           }
         ],
         "stress_maximum_coverage": {
@@ -72,7 +72,9 @@
       "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
       "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
       "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-      "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+      "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",
@@ -99,7 +101,7 @@
       "result_ref": "result:disp:node-fixture-tip"
     },
     "max_open_formula_stress": {
-      "value": 41354908.75465694,
+      "value": 41354908.75465695,
       "unit": "Pa",
       "location_ref": "pipe:fixture-span",
       "result_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
@@ -419,7 +421,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
       "kind": "support_reaction_component_v2",
-      "value": -399.99999999999994,
+      "value": -400.0,
       "unit": "N*m",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -473,7 +475,7 @@
     {
       "id": "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
       "kind": "support_reaction_force_magnitude_v2",
-      "value": 3741.6573867739417,
+      "value": 3741.657386773941,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -617,7 +619,7 @@
     {
       "id": "result:moment:pipe-fixture-span:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -399.99999999999994,
+      "value": -400.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -635,7 +637,7 @@
     {
       "id": "result:moment:pipe-fixture-span:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 399.99999999999994,
+      "value": 400.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -779,7 +781,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 399.99999999999994,
+      "value": 400.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -887,7 +889,7 @@
     {
       "id": "result:moment:pipe-fixture-span:midspan:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 399.99999999999994,
+      "value": 400.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -995,7 +997,7 @@
     {
       "id": "result:moment:pipe-fixture-span:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 399.99999999999994,
+      "value": 400.0,
       "unit": "N*m",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1049,7 +1051,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.289372623803446,
+      "value": 0.28937262380344597,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1067,7 +1069,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 28.462881029847146,
+      "value": 28.462881029847143,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1121,7 +1123,7 @@
     {
       "id": "result:stress:pipe-fixture-span:end-j:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.289372623803446,
+      "value": 0.28937262380344597,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1193,7 +1195,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-1:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.289372623803446,
+      "value": 0.28937262380344597,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1265,7 +1267,7 @@
     {
       "id": "result:stress:pipe-fixture-span:midspan:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.289372623803446,
+      "value": 0.28937262380344597,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1337,7 +1339,7 @@
     {
       "id": "result:stress:pipe-fixture-span:quarter-3:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.289372623803446,
+      "value": 0.28937262380344597,
       "unit": "MPa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {
@@ -1409,7 +1411,7 @@
     {
       "id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
-      "value": 41354908.75465694,
+      "value": 41354908.75465695,
       "unit": "Pa",
       "entity_ref": "pipe:fixture-span",
       "basis_ref": {

@@ -11,7 +11,7 @@
     },
     {
       "path": "STRUCTURAL_EXPECTATIONS.json",
-      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "sha256": "6d7b5ed5a900b4ba417d32bc4624f1511812f8dc889438cc9bbf5aaca72660da",
       "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json",
       "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
       "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."

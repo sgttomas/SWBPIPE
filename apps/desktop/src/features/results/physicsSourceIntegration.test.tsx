@@ -228,8 +228,10 @@ it("preserves signed-zero sidecars and rejects a coherently rehashed false sign 
   const {source,model,analysisRun}=await received("mixed","sparse_interactive");
   const packet=await buildStressNeutralExportPacket({model,result:source,analysisRun});
   const changed=JSON.parse(await canonicalJsonCheckedV1(packet));
-  const annotation=changed.source_annotations.find((a:any)=>a.source_value_bits==="8000000000000000");expect(annotation).toBeDefined();
-  annotation.source_value_bits="0000000000000000";
+  // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.1): the CHECKS_PASSED case's exactly-zero certified rows
+  // publish +0 (they published -0 before), so the false sign tampered here is -0 on a +0 row.
+  const annotation=changed.source_annotations.find((a:any)=>a.source_value_bits==="0000000000000000");expect(annotation).toBeDefined();
+  annotation.source_value_bits="8000000000000000";
   // Exact original-source comparison must reject before any package self-hash
   // can present the changed sign as authentic. The raw producer is untouched.
   await expect(validateStressNeutralExportPacket(changed,source,analysisRun)).rejects.toThrow("SN-SOURCE-ANNOTATION-BINDING-MISMATCH");

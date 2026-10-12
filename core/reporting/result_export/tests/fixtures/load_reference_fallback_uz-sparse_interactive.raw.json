@@ -38,18 +38,18 @@
         "pipe_stress_extrema": [
           {
             "approximation": "piecewise_quadratic_straight_section_statics",
-            "certified_gap_pa": 3.725290298461915e-9,
-            "coefficient_basis": "j_side_section_equilibrium_binary64",
-            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-            "global_upper_bound_pa": 15000480.007404711,
+            "certified_gap_pa": 3.725290298461915e-8,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 15000480.007404728,
             "local_fraction": 0.0,
             "pipe_id": "member",
             "result_id": "result:elastic-maximum:9:case:join:6:member",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
-            "value_lower_pa": 15000480.007404707,
-            "value_upper_pa": 15000480.007404711
+            "value_lower_pa": 15000480.00740469,
+            "value_upper_pa": 15000480.007404728
           }
         ],
         "pressure_rhs_assembly": {
@@ -320,7 +320,9 @@
       "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
       "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
       "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.",
-      "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced."
+      "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",

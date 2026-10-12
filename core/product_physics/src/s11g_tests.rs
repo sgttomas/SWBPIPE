@@ -153,6 +153,38 @@ fn assert_not_demoted_by_s11g(envelope: &MechanicsEnvelope, case: &str, label: &
     assert!(!d.message.contains("S11-G"), "{label}: {}", d.message);
 }
 
+/// K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2): ρ is
+/// formed from the intended loads re-formed at p, so a formed-term ledger
+/// defect that the load-row guard judged on a Passed report is now judged by
+/// D5C-1 on the closed residual, at the solve. The verdict pinned here: the
+/// report is Sensitive, the formation check demotes by its estimate at `row`,
+/// no S11-G sentence is added (the no-op rule), the case quality and the
+/// envelope status are not Passed, and nothing is refused.
+fn assert_demoted_at_the_solve(envelope: &MechanicsEnvelope, case: &str, row: &str, label: &str) {
+    let d = integrity(envelope, case);
+    assert_eq!(d.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{label}");
+    assert_eq!(d.severity, "warning", "{label}");
+    assert!(d.message.contains("quality: Sensitive"), "{label}: {}", d.message);
+    assert!(
+        d.message.contains(&format!("formation_check: reason=estimate; row={row};")),
+        "{label}: {}",
+        d.message
+    );
+    assert!(!d.message.contains("S11-G"), "{label}: {}", d.message);
+    assert_eq!(d.affected_refs, vec![case.to_string()], "{label}");
+    assert_eq!(
+        case_quality(envelope, case),
+        NumericalQualityStatus::Sensitive,
+        "{label}"
+    );
+    assert_ne!(
+        envelope.numerical_quality.status,
+        NumericalQualityStatus::ChecksPassed,
+        "{label}"
+    );
+    assert!(blocking(envelope).is_empty(), "{label}: never refused");
+}
+
 // ------------------------------------------------------ the guard's own view
 
 /// The case's ledger rows and their scales, from the product's own producer
@@ -926,11 +958,42 @@ fn assert_source_block_codes(envelope: &MechanicsEnvelope, entry: Entry, label: 
     );
 }
 
+/// A case demoted at the solve (`assert_demoted_at_the_solve`) is a
+/// Sensitive report, which the captured entry's retained-source method
+/// attempts (S11-G revision 2.2 G-2, unchanged): one
+/// `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info), the method's own decline of a
+/// non-nodal producer, and no selection; on the typed entry none.
+fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: Entry, label: &str) {
+    let found: Vec<&Diagnostic> = envelope
+        .diagnostics
+        .iter()
+        .filter(|d| d.code.starts_with("SOURCE_BLOCK_") || d.code.starts_with("SOURCE_RECOVERY"))
+        .collect();
+    match entry {
+        Entry::Typed => assert!(found.is_empty(), "{label}: {found:?}"),
+        Entry::Captured => {
+            assert_eq!(found.len(), 1, "{label}: {found:?}");
+            assert_eq!(found[0].code, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "{label}");
+            assert_eq!(found[0].severity, "info", "{label}");
+            assert!(
+                found[0].message.contains("non-nodal load producer present"),
+                "{label}: {}",
+                found[0].message
+            );
+        }
+    }
+}
+
 /// T1: UDL-W1e8 (captured and typed, both modes). Precondition: the ordinary
 /// report is Passed, and S1.RZ's exact net defect is V1's independent
 /// Fraction figure 2.3594e-8 (S11G_CHECK check 1), about 48x its threshold,
-/// with P = 0 (no floor on a UDL row). Pin: Sensitive on every view; no
-/// retained-source diagnostic; the only integrity code is SENSITIVE.
+/// with P = 0 (no floor on a UDL row). Pin: Sensitive on every view; the
+/// only integrity code is SENSITIVE. Under K-D5's closure (DEL-04-01
+/// kd5-member-relative-bound.md §§1, 4.2) the same defect is caught at the
+/// solve: D5C-1 on the closed residual demotes S1:RZ (trigger about 96, twice
+/// the guard's 48), so the report is Sensitive and the load-row guard is a
+/// no-op. On the captured entry the Sensitive case is attempted by the
+/// retained-source method, which declines the UDL producer.
 #[test]
 fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
     let request = rf_request("RF-CANCEL-UDL-W1e8");
@@ -945,19 +1008,15 @@ fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
         for mode in MODES {
             let label = format!("T1 {entry:?} {mode:?}");
             let envelope = solved(entry, &request, mode);
-            assert_ordinary_passed(&envelope, "case", &label);
-            assert_demoted(&envelope, "case", LOAD_ROW, &label);
-            assert!(
-                integrity(&envelope, "case").message.contains("S1:RZ"),
-                "{label}"
-            );
-            assert_source_block_codes(&envelope, entry, &label);
+            assert_demoted_at_the_solve(&envelope, "case", "S1:RZ", &label);
+            assert_source_block_codes_at_the_solve(&envelope, entry, &label);
         }
     }
 }
 
 /// T2: UDL-W1e80 (typed, both modes; the captured entry refuses it).
 /// Precondition: S1.RZ's defect is V1's 2.6328e64 against a 1e-17 threshold.
+/// Caught at the solve by K-D5's D5C-1 on the closed residual (§§1, 4.2).
 #[test]
 fn t2_udl_w1e80_is_demoted_on_the_typed_entry() {
     let request = rf_request("RF-CANCEL-UDL-W1e80");
@@ -972,8 +1031,7 @@ fn t2_udl_w1e80_is_demoted_on_the_typed_entry() {
         );
         let label = format!("T2 typed {mode:?}");
         let envelope = solved(Entry::Typed, &request, mode);
-        assert_ordinary_passed(&envelope, "case", &label);
-        assert_demoted(&envelope, "case", LOAD_ROW, &label);
+        assert_demoted_at_the_solve(&envelope, "case", "S1:RZ", &label);
         assert_source_block_codes(&envelope, Entry::Typed, &label);
     }
 }
@@ -1115,8 +1173,18 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
 
 /// T5: probe A, (G, 0.3, -G) and (0.3, G, -G) at G = 1e8 and 1e80. The G
 /// terms' own defects are nonzero and cancel exactly (same expression,
-/// negated operand), so the statistic is the 0.3 term's alone: CHECKS_PASSED.
-/// Kills Sum|eps| (M6) and the a-priori bound (M4).
+/// negated operand), so the load-row statistic is the 0.3 term's alone and
+/// S11-G adds nothing. Kills Sum|eps| (M6) and the a-priori bound (M4).
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.1-3.3): at G = 1e8 the
+/// certified rows pass: CHECKS_PASSED. At G = 1e80 the intended net 0.3 N/m
+/// sits under a cancellation of about 3e80, beyond what p = 128 with the
+/// load enclosure radii (2^-120 level, §1's table) and the evaluation radius
+/// can certify: every group has B far above 1e-9 q (B ~ 1e48 against q ~ 1),
+/// so the unified predicate demotes the case with its sentence. Its circular
+/// maximum is named unavailable and its signed rows stay published (§3.2);
+/// before the summary fix this case was refused with
+/// ELEMENT_FORCE_RECOVERY_FAILED, which kills that regression.
 #[test]
 fn t5_probe_a_same_expression_defects_cancel() {
     for g in [1e8, 1e80] {
@@ -1159,13 +1227,33 @@ fn t5_probe_a_same_expression_defects_cancel() {
             );
             for entry in entries(g >= 9.0e15) {
                 for mode in MODES {
+                    let label = format!("G={g} {order:?} {entry:?} {mode:?}");
                     let envelope = solved(entry, &request, mode);
-                    assert_eq!(
-                        integrity(&envelope, "case").code,
-                        "NUMERICAL_INTEGRITY_CHECKS_PASSED",
-                        "G={g} {order:?} {entry:?} {mode:?}"
-                    );
-                    assert_not_demoted_by_s11g(&envelope, "case", "T5");
+                    let d = integrity(&envelope, "case");
+                    assert!(!d.message.contains(LOAD_ROW), "{label}");
+                    assert!(d.message.contains("quality: Passed"), "{label}");
+                    if g < 9.0e15 {
+                        assert_eq!(d.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+                        assert_not_demoted_by_s11g(&envelope, "case", "T5");
+                    } else {
+                        assert_demoted(&envelope, "case", RECOVERY, &label);
+                        assert!(
+                            envelope.diagnostics.iter().any(|d| d.code
+                                == "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+                                && d.affected_refs == vec!["case".to_string(), "pipe".to_string()]),
+                            "{label}: the maximum is named unavailable"
+                        );
+                        assert!(
+                            envelope.results.iter().any(|r| r.kind == "element_local_bending_moment_z"),
+                            "{label}: the signed rows stay published"
+                        );
+                        // Preview-physics renders here and retires the summary
+                        // row, so the withheld summary is not named (F3).
+                        assert!(
+                            !envelope.diagnostics.iter().any(|d| d.id.ends_with(":summary-unavailable")),
+                            "{label}: no summary notice on the preview-physics route"
+                        );
+                    }
                 }
             }
         }
@@ -1279,7 +1367,18 @@ fn collinear_run(end: [f64; 3], stations: &[f64]) -> Value {
 /// run was retired with legacy pressure, U3.) Without
 /// the floor the self-equilibrated statistic is at least 1e8 on the runs V1
 /// found firing (computed here from the ledger rows); with the floor every
-/// row is below 1e-3 of its threshold. Kills dropping the floor (M11).
+/// row is below 1e-3 of its threshold, and S11-G adds no sentence. Kills
+/// dropping the floor (M11).
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.2): the two skew runs
+/// V1 found firing are now Sensitive at the solve. Fully restrained and
+/// uniformly heated, their true rotations are only the residue of the
+/// binary64 node coordinates (body rotation scale about 2e-17 to 5e-17 rad).
+/// The closure forms the intended thermal loads at p, so D5C-1 now compares
+/// the published rotations with the intended system's, and they differ by a
+/// large fraction of that scale (trigger 7e8 and 1.1e9 at s4:RZ and s3:RZ).
+/// The load-row guard is still silent, so the demotion is K-D5's own. The
+/// axis-aligned and 45-degree runs stay CHECKS_PASSED.
 #[test]
 fn t6a_collinear_runs_are_silent_with_the_floor() {
     let runs: [([f64; 3], &[f64], bool); 4] = [
@@ -1290,7 +1389,8 @@ fn t6a_collinear_runs_are_silent_with_the_floor() {
         // here (V1's emulation did not), so there is no noise to silence.
         ([9.0, 0.0, 0.0], &[0.0, 0.13, 0.4, 0.55, 0.81, 1.0], false),
     ];
-    for (end, stations, fires_without_floor) in runs {
+    let solve_rows: [Option<&str>; 4] = [Some("s4:RZ"), Some("s3:RZ"), None, None];
+    for ((end, stations, fires_without_floor), solve_row) in runs.into_iter().zip(solve_rows) {
         let request = collinear_run(end, stations);
         let view = guard_view(&request, 0);
         let mut unfloored = 0.0_f64;
@@ -1317,12 +1417,16 @@ fn t6a_collinear_runs_are_silent_with_the_floor() {
         assert!(floored < 1e-3, "{end:?}: floored statistic {floored:e}");
         for entry in [Entry::Captured, Entry::Typed] {
             for mode in MODES {
+                let label = format!("T6a {end:?} {entry:?} {mode:?}");
                 let envelope = solved(entry, &request, mode);
-                assert_eq!(
-                    integrity(&envelope, "case").code,
-                    "NUMERICAL_INTEGRITY_CHECKS_PASSED",
-                    "T6a {end:?} {entry:?} {mode:?}"
-                );
+                match solve_row {
+                    Some(row) => assert_demoted_at_the_solve(&envelope, "case", row, &label),
+                    None => assert_eq!(
+                        integrity(&envelope, "case").code,
+                        "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+                        "{label}"
+                    ),
+                }
                 assert_not_demoted_by_s11g(&envelope, "case", "T6a");
             }
         }
@@ -1374,8 +1478,11 @@ fn db1(delta_t: f64) -> Value {
 /// fixed-end term carries a real defect (V1: -1.49e-8, 14901x the unfloored
 /// threshold); two thermal members meeting there raise revision 2's
 /// whole-row floor so that it would be silent (0.0076 at N ~ 1e6, 0.76 at
-/// N ~ 1e4, computed here from the ledger rows). Sensitive, naming S1:UY and
-/// loads A and B. Kills the whole-row floor (M17).
+/// N ~ 1e4, computed here from the ledger rows). Sensitive, naming S1:UY.
+/// Kills the whole-row floor (M17). Under K-D5's closure (DEL-04-01
+/// kd5-member-relative-bound.md §§1, 4.2) the net defect is caught at the
+/// solve: D5C-1 on the closed residual demotes S1:UY (trigger about 3e4), and
+/// the floor never enters that rule.
 #[test]
 fn t6b_floor_never_hides_a_net_defect() {
     // E A alpha = 200e9 * pi (0.1^2 - 0.09^2) * 1.2e-5 = 14325.7 N/degC.
@@ -1398,78 +1505,73 @@ fn t6b_floor_never_hides_a_net_defect() {
             for mode in MODES {
                 let label = format!("T6b dT={delta_t} {entry:?} {mode:?}");
                 let envelope = solved(entry, &request, mode);
-                assert_ordinary_passed(&envelope, "case", &label);
-                assert_demoted(&envelope, "case", LOAD_ROW, &label);
-                let message = &integrity(&envelope, "case").message;
-                assert!(
-                    message.contains("S1:UY")
-                        && message.contains("load:A")
-                        && message.contains("load:B"),
-                    "{label}: {message}"
-                );
+                assert_demoted_at_the_solve(&envelope, "case", "S1:UY", &label);
             }
         }
     }
 }
 
 /// I4's pinned INPLANE formation rows (S11-F `FORMATION_PINS`): (case, member,
-/// location, mode, [My, Mz]).
+/// location, mode, [My, Mz]). K-D5 (DEL-04-01 kd5-member-relative-bound.md
+/// §§3.1, 3.4) publishes them as certified recoveries: each is now exactly the
+/// intended +/-1e-8 N*m in both modes (main published 0.99999937e-8 to
+/// 1.0000058e-8, mode-dependent).
 const INPLANE_PINS: &[(&str, &str, &str, &str, [f64; 2])] = &[
     (
         "RF-CANCEL-F-G1e80-GnG-INPLANE",
         "M1",
         "end_j",
         "dense_scrutiny",
-        [0.0, 1.0000036354540498e-08],
+        [0.0, 1e-8],
     ),
     (
         "RF-CANCEL-F-G1e80-GnG-INPLANE",
         "M1",
         "end_j",
         "sparse_interactive",
-        [0.0, 1.0000022143685783e-08],
+        [0.0, 1e-8],
     ),
     (
         "RF-CANCEL-F-G1e80-GnG-INPLANE",
         "M2",
         "end_i",
         "dense_scrutiny",
-        [0.0, -9.999993721976352e-09],
+        [0.0, -1e-8],
     ),
     (
         "RF-CANCEL-F-G1e80-GnG-INPLANE",
         "M2",
         "end_i",
         "sparse_interactive",
-        [0.0, -1.0000043459967856e-08],
+        [0.0, -1e-8],
     ),
     (
         "RF-CANCEL-M-G1e80-GnG-INPLANE",
         "M2",
         "end_i",
         "dense_scrutiny",
-        [0.0, -1.000005767082257e-08],
+        [0.0, -1e-8],
     ),
     (
         "RF-CANCEL-M-G1e80-GnG-INPLANE",
         "M2",
         "end_i",
         "sparse_interactive",
-        [0.0, -1.0000043459967856e-08],
+        [0.0, -1e-8],
     ),
     (
         "RF-CANCEL-M-G1e80-GnG-INPLANE",
         "M2",
         "end_j",
         "dense_scrutiny",
-        [0.0, 9.999993721976352e-09],
+        [0.0, 1e-8],
     ),
     (
         "RF-CANCEL-M-G1e80-GnG-INPLANE",
         "M2",
         "end_j",
         "sparse_interactive",
-        [0.0, 9.999993721976352e-09],
+        [0.0, 1e-8],
     ),
 ];
 
@@ -1490,13 +1592,16 @@ fn element_pair(envelope: &MechanicsEnvelope, member: &str, location: &str) -> [
     [value("bending_moment_y"), value("bending_moment_z")]
 }
 
-/// T11 (B-1; load-bearing: R-b' is the only INPLANE catch after S11-F), and
-/// ruling 1's "R-b' alone" test. F- and M-G1e80-GnG-INPLANE, typed, both
-/// modes. Precondition: no formed term (the load-row guard cannot fire), the
-/// ordinary report is Passed, and R-b' fires on I4's rows from the published
-/// values. Pin: Sensitive on every view (code, severity, the one R-b'
-/// sentence naming the ends, q, B and S*, the case quality and the envelope
-/// status), no load-row sentence, and I4's pinned bits unchanged.
+/// T11 (B-1; R-b' was the only INPLANE catch after S11-F), and ruling 1's
+/// "R-b' alone" test. F- and M-G1e80-GnG-INPLANE, typed, both modes.
+/// Precondition: no formed term (the load-row guard cannot fire), the
+/// ordinary report is Passed, and R-b''s retired binary64 statistic still
+/// fires on I4's ends. K-D5's repair (DEL-04-01 kd5-member-relative-bound.md
+/// §§3.1-3.4, 4.2) publishes I4's rows as certified recoveries, exactly the
+/// intended +/-1e-8 N*m, inside R1's exact intervals: the unified predicate
+/// passes them, so the case is CHECKS_PASSED with no S11-G sentence (one of
+/// §4.2's Sensitive -> Passed moves). The protective intent is kept by the
+/// repaired values themselves (pinned bits and R1's intervals).
 #[test]
 fn t11_inplane_rows_are_demoted_by_rb_prime_alone() {
     for id in [
@@ -1536,17 +1641,21 @@ fn t11_inplane_rows_are_demoted_by_rb_prime_alone() {
                     "{label}: pinned bits"
                 );
             }
-            assert_demoted(&envelope, "case", RECOVERY, &label);
-            let message = &integrity(&envelope, "case").message;
-            assert!(!message.contains(LOAD_ROW), "{label}");
-            for pin in &pins {
-                let end = if pin.2 == "end_i" { "i" } else { "j" };
-                assert!(
-                    message.contains(&format!("{}.{end}: q=", pin.1)),
-                    "{label}: {message}"
-                );
-            }
-            assert!(message.contains("S*_moment="), "{label}");
+            let case = rf_cancel_data()["cases"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|c| c["id"] == json!(id))
+                .unwrap()
+                .clone();
+            let (breaches, checked) = rf_breaches(&case, &envelope);
+            assert!(!checked.is_empty() && breaches.is_empty(), "{label}: {breaches:?}");
+            assert_eq!(
+                integrity(&envelope, "case").code,
+                "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+                "{label}"
+            );
+            assert_not_demoted_by_s11g(&envelope, "case", &label);
         }
     }
 }
@@ -1591,9 +1700,18 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 
 /// T13 (B-1): the committed request `load_reference_fallback_uz`, already
 /// Sensitive, through its producer (captured entry, pretty JSON plus a
-/// newline): the envelope is byte-identical to the committed raw file in
-/// both modes (the no-op rule). R-b's two clauses hold at end i (the design's
-/// precondition, asserted); R-b' is silent there anyway, below its floor.
+/// newline), against the committed raw file in both modes (the no-op rule).
+/// R-b's two clauses hold at end i (the design's precondition, asserted);
+/// R-b' is silent there anyway, below its floor.
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) changed three
+/// declared things on this already-Sensitive case against main's bytes: the
+/// two linear limitation sentences, the current maximum declaration literals,
+/// and the fallback maximum's enclosure (its arithmetic transport widens it;
+/// the new enclosure contains main's). Every diagnostic, numerical-quality
+/// entry and result row stayed byte-identical. The committed raw file, which
+/// result_export's suites and the base reader corpus consume, is regenerated
+/// from this producer, so the check is now byte identity with it.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     let request: Value = serde_json::from_str(include_str!(
@@ -1621,7 +1739,23 @@ fn t13_committed_fallback_uz_is_byte_identical() {
             "{mode:?}: precondition, R-b holds at end i: {ends:?}"
         );
         let text = format!("{}\n", serde_json::to_string_pretty(&envelope).unwrap());
-        assert!(text == committed, "{mode:?}: committed bytes changed");
+        // The current maximum declaration (§3.2) and the §3.4 sentences.
+        let current: Value = serde_json::from_str(&text).unwrap();
+        for x in current["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap() {
+            assert_eq!(x["coefficient_basis"], json!("j_side_section_equilibrium_binary64_enclosures"));
+            assert_eq!(x["enclosure_scope"], json!("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"));
+            assert_eq!(x["value_upper_pa"], x["global_upper_bound_pa"], "{mode:?}");
+        }
+        let limitations = current["formulation_basis"]["limitations"].as_array().unwrap();
+        assert_eq!(
+            limitations[limitations.len() - 2..].to_vec(),
+            preview_physics::formulation_basis().limitations[preview_physics::LIMITATIONS.len()..]
+                .iter()
+                .map(|t| json!(t))
+                .collect::<Vec<_>>(),
+            "{mode:?}"
+        );
+        assert!(text == committed, "{mode:?}: the producer's bytes differ from the committed raw file");
     }
 }
 
@@ -2143,35 +2277,61 @@ fn udl_body(model: &mut Value, prefix: &str, origin: f64) {
         ]);
 }
 
-/// Ruling 1: both guards fire. The F-INPLANE model (R-b' fires on its
-/// members) plus a separate straight body built like RF-CANCEL-UDL-W1e8
-/// (its own RZ row fires the load-row guard). The load-row demotion comes
-/// first; R-b''s later amendment is a no-op: its sentence does not appear.
+/// A body like `udl_body` with a soft 10 m cantilever branch from S1 (OD
+/// 2 mm, wall 0.2 mm) carrying a 2e-6 N tip force. The branch tip's rotation
+/// (about 1e-3 rad) sets the body's rotation scale, so K-D5's per-DOF rule
+/// (DEL-04-01 kd5-member-relative-bound.md §1, D5C-1 on the closed w) passes
+/// the S1:RZ formation defect, while the tiny tip force leaves the load-row
+/// guard's coupled moment scale (about 0.2 N*m) unchanged, so the guard still
+/// fires there: a Passed report with a load-row finding.
+fn udl_body_with_soft_branch(model: &mut Value, prefix: &str, origin: f64) {
+    udl_body(model, prefix, origin);
+    let id = |s: &str| format!("{prefix}{s}");
+    model["nodes"].as_array_mut().unwrap().push(node(&id("S3"), origin + 2.0, 10.0, 0.0));
+    let mut branch = pipe(&id("C"), &id("S1"), &id("S3"), [1.0, 0.0, 0.0]);
+    branch["material"] = model["materials"][0]["id"].clone();
+    branch["section"] = json!({"outside_diameter": {"value": 0.002, "unit": "m"}, "wall_thickness": {"value": 0.0002, "unit": "m"}});
+    model["pipe_segments"].as_array_mut().unwrap().push(branch);
+    model["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(nodal(&id("load:tip"), &id("S3"), "global_z", 2e-6));
+}
+
+/// Ruling 1: both guards fire. Probe A at G = 1e80 (the unified predicate
+/// fires on its certified rows, T5) plus a separate straight body built like
+/// RF-CANCEL-UDL-W1e8 with a soft branch (its own RZ row fires the load-row
+/// guard on a Passed report, `udl_body_with_soft_branch`). The load-row
+/// demotion comes first; the recovery guard's later amendment is a no-op: its
+/// sentence does not appear (kd5-member-relative-bound.md §3.3, "the load-row
+/// sentence stands first (I5 ruling 1)"). Under K-D5's repair the earlier
+/// F-INPLANE trigger is repaired and passes (T11), so probe A replaces it.
 /// (T4-U1b, O-8: the earlier trigger, a curved uniform load, is now
 /// certified and no longer fires.)
 #[test]
 fn ruling1_both_guards_fire_and_the_load_row_sentence_stands() {
-    let mut request = rf_request("RF-CANCEL-F-G1e80-GnG-INPLANE");
-    udl_body(&mut request["model"], "u", 100.0);
+    let mut request = probe_a(1e80, [1.0, 0.0, -1.0]);
+    udl_body_with_soft_branch(&mut request["model"], "u", 100.0);
     let view = guard_view(&request, 0);
     assert!(
         view.decision("uS1:RZ").fires,
         "precondition: the load-row guard fires on uS1:RZ"
     );
-    assert!(view.any_fires());
+    let alone = probe_a(1e80, [1.0, 0.0, -1.0]);
     for mode in MODES {
         let label = format!("both guards {mode:?}");
+        // Precondition: alone, probe A is demoted by the recovery guard.
+        assert_demoted(&solved(Entry::Typed, &alone, mode), "case", RECOVERY, &label);
         let envelope = solved(Entry::Typed, &request, mode);
         assert_ordinary_passed(&envelope, "case", &label);
-        let ends = rb_view(&request, &envelope, "case");
-        assert!(
-            ends.iter().any(EndView::rb_prime),
-            "{label}: precondition, R-b' fires too"
-        );
         assert_demoted(&envelope, "case", LOAD_ROW, &label);
         assert!(
+            integrity(&envelope, "case").message.contains("uS1:RZ"),
+            "{label}"
+        );
+        assert!(
             !integrity(&envelope, "case").message.contains(RECOVERY),
-            "{label}: R-b' is a no-op"
+            "{label}: the recovery guard is a no-op"
         );
     }
 }
@@ -2275,23 +2435,23 @@ fn rf_breaches(case: &Value, envelope: &MechanicsEnvelope) -> (Vec<String>, BTre
     (breaches, checked)
 }
 
-/// The RF-CANCEL case-modes S11-G demotes, as (entry, case, mode). The 14
-/// formation rows sit in the first 7 (entry, case) pairs' case-modes.
+/// The RF-CANCEL case-modes demoted, as (entry, case, mode): the UDL
+/// formation rows' case-modes, which K-D5 demotes at the solve.
 const EXPECTED_DEMOTED: &[(&str, &str)] = &[
     ("captured", "RF-CANCEL-UDL-W1e8"),
     ("typed", "RF-CANCEL-UDL-W1e8"),
     ("typed", "RF-CANCEL-UDL-W1e80"),
-    ("typed", "RF-CANCEL-F-G1e80-GnG-INPLANE"),
-    ("typed", "RF-CANCEL-M-G1e80-GnG-INPLANE"),
 ];
 
 /// T16 (extended from S11-F's F1/F11/F12). Every RF-CANCEL case through both
-/// entries and both modes: all 14 formation rows are published in a
-/// non-Passed case (6 UDL rows by the load-row guard, 8 INPLANE rows by
-/// R-b'), every row outside the formation list meets R1's predicate (so the
-/// S11 list stays empty and there is no breach outside the lists), and the
-/// set of case-modes S11-G demotes is exactly `EXPECTED_DEMOTED` in both
-/// modes.
+/// entries and both modes. Under K-D5 (DEL-04-01 kd5-member-relative-bound.md
+/// §§1, 3.4, 4.2): the 6 UDL formation rows (S1's rotation, a displacement
+/// row published unchanged) still breach and are published in a non-Passed
+/// case, demoted at the solve by D5C-1 on the closed residual; the 8 INPLANE
+/// formation rows are repaired and now meet R1's predicate in a
+/// CHECKS_PASSED case. Every row outside the formation list meets R1's
+/// predicate (the S11 list stays empty), S11-G demotes no case-mode, and the
+/// set of demoted case-modes is exactly `EXPECTED_DEMOTED` in both modes.
 #[test]
 fn t16_formation_rows_are_published_non_passed_on_both_entries() {
     let data = rf_cancel_data();
@@ -2332,8 +2492,9 @@ fn t16_formation_rows_are_published_non_passed_on_both_entries() {
                     mode.as_str().to_string(),
                 );
                 codes_by_case_mode.insert(slot.clone(), d.code.clone());
-                if d.message.contains("S11-G") {
-                    assert_eq!(d.code, "NUMERICAL_INTEGRITY_SENSITIVE");
+                assert!(!d.message.contains("S11-G"), "{slot:?}: {}", d.message);
+                if d.code == "NUMERICAL_INTEGRITY_SENSITIVE" {
+                    assert!(d.message.contains("formation_check: reason=estimate; row=S1:RZ;"), "{slot:?}");
                     demoted.insert(slot.clone());
                 }
                 let (bad, keys) = rf_breaches(case, &envelope);
@@ -2349,21 +2510,25 @@ fn t16_formation_rows_are_published_non_passed_on_both_entries() {
             }
         }
     }
-    // Every formation row is checked and published in a non-Passed case.
+    // Every formation row is checked: a UDL row still breaches and is
+    // published in a demoted case; an INPLANE row is repaired and Passed.
     for (entry, case, key, mode) in &formation {
         let slot = (entry.clone(), case.clone(), mode.clone());
         assert!(
             checked.get(&slot).is_some_and(|k| k.contains(key)),
             "{slot:?} {key} not published"
         );
-        assert_ne!(
-            codes_by_case_mode[&slot], "NUMERICAL_INTEGRITY_CHECKS_PASSED",
-            "{slot:?} {key} is published Passed"
-        );
-        assert!(
-            demoted.contains(&slot),
-            "{slot:?} {key}: not demoted by S11-G"
-        );
+        let row = (entry.clone(), case.clone(), key.clone(), mode.clone());
+        if case.contains("UDL") {
+            assert!(breaches.contains(&row), "{row:?}");
+            assert!(demoted.contains(&slot), "{slot:?} {key}: not demoted");
+        } else {
+            assert!(!breaches.contains(&row), "{row:?}: repaired rows meet R1's predicate");
+            assert_eq!(
+                codes_by_case_mode[&slot], "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+                "{slot:?} {key}"
+            );
+        }
     }
     // No breach outside the formation list: the S11 list stays empty.
     let outside: Vec<_> = breaches
@@ -2398,7 +2563,7 @@ fn t16_formation_rows_are_published_non_passed_on_both_entries() {
         })
         .collect();
     eprintln!("T16 demoted case-modes: {demoted:?}");
-    assert_eq!(demoted, expected, "the set of case-modes S11-G demotes");
+    assert_eq!(demoted, expected, "the set of demoted case-modes");
 }
 
 // ============================================ revision 2.2 routing (T18-T22)
@@ -2499,30 +2664,63 @@ fn t18_path2_invocation_is_not_refused() {
     }
 }
 
-/// T19 (path 1, load-row variant; revision 2.2). Per-case modulus bases:
-/// case A (N05's cancelling torques, base basis) is Sensitive by N05's soft
-/// torsion spring and source-selected; case B (the tip formation noise) runs
-/// on an invented soft basis (E = 1 Pa, G = 0.4 Pa) on which the same model
-/// is well conditioned, so its report is Passed, and its load-row guard
-/// fires. Pin: no refusal; case B `SENSITIVE`; its receipt entry is
-/// `unsupported` with ordinary outcome `sensitive`, stage
-/// `source_validation`, code `unsupported_family` and zero work (erratum
-/// E-1); case A qualified.
+/// T19's construction: N05's model, unchanged, with two cases on per-case
+/// modulus bases. Case A (N05's cancelling torques, base basis) is Sensitive
+/// by N05's soft torsion spring and source-selected. Case B is N05's tip
+/// formation noise (`n05_tip_noise`) plus a 1e-10 N*m tip torque, on an
+/// invented basis with E = 1 Pa and a torsionally soft G = 1e-12 Pa. On it
+/// N05's spring no longer makes the model ill conditioned, and the tiny
+/// torque twists the pipe by about 3e6 rad. That rotation sets the body's
+/// scales, so K-D5's per-DOF rule (DEL-04-01 kd5-member-relative-bound.md
+/// §1, D5C-1 on the closed w) passes the tip:RZ formation defect, while the
+/// torque leaves the load-row guard's moment scale unchanged, so the guard
+/// still fires there (the soft-branch pattern of T22 and F1a; a branch
+/// member would couple more than two free DOFs, which the retained exact
+/// context refuses for case A).
+fn t19_request() -> Value {
+    let mut case_b = n05_tip_noise("case-b");
+    case_b["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(nodal("case-b:rx", "tip", "RX", 1e-10));
+    with_basis(
+        n05_request(vec![n05_torques(), case_b]),
+        "case-b",
+        "point:soft",
+        1.0,
+        1e-12,
+    )
+}
+
+/// T19 (path 1, load-row variant; revision 2.2 with erratum E-1). Case A is
+/// source-selected; case B is Passed in its report and its load-row guard
+/// fires (`t19_request`). With G = 0.4 Pa K-D5's closure judges case B's
+/// tip formation defect at the solve (DEL-04-01 kd5-member-relative-bound.md
+/// §§1, 4.2), so the construction adds the soft twist, whose rotation scale
+/// keeps the report Passed while the guard still fires on tip:RZ. Pin: no refusal; case B `SENSITIVE` by the
+/// load-row guard; its receipt entry is `unsupported` with ordinary outcome
+/// `sensitive`, stage `source_validation`, code `unsupported_family` and zero
+/// work (erratum E-1: the ordinary route never attempts a Passed case); case A
+/// qualified.
 #[test]
 fn t19_path1_load_row_variant_is_not_refused() {
-    let request = with_basis(
+    let request = t19_request();
+    assert!(
+        guard_view(&request, 1).decision("tip:RZ").fires,
+        "precondition: case B's guard fires"
+    );
+    // Control (paths differ): without the soft twist (G = 0.4 Pa, no torque)
+    // K-D5's closure demotes case B at the solve.
+    let control = with_basis(
         n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
         "case-b",
         "point:soft",
         1.0,
         0.4,
     );
-    assert!(
-        guard_view(&request, 1).decision("tip:RZ").fires,
-        "precondition: case B's guard fires"
-    );
     for mode in MODES {
         let label = format!("T19 {mode:?}");
+        assert_demoted_at_the_solve(&solved(Entry::Typed, &control, mode), "case-b", "tip:RZ", &label);
         let envelope = solved(Entry::Captured, &request, mode);
         assert_ordinary_passed(&envelope, "case-b", &label);
         assert!(
@@ -2538,6 +2736,7 @@ fn t19_path1_load_row_variant_is_not_refused() {
                 .collect::<Vec<_>>()
         );
         assert_demoted(&envelope, "case-b", LOAD_ROW, &label);
+        assert!(integrity(&envelope, "case-b").message.contains("tip:RZ"), "{label}");
         assert_eq!(
             receipt_case(&envelope, "case")["outcome"],
             json!("qualified"),
@@ -2612,6 +2811,38 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// equals the applied tip moment, and its y component is zero). A
 /// single-case captured invocation of case B is demoted and not refused. The
 /// control (m = 0.5, R-b' silent) publishes with a receipt, case A qualified.
+///
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1-3.4, 4.2): C1 no longer
+/// reaches the residual. Case B's tip moment is now its certified recovery,
+/// exactly |m|, so the unified predicate passes it while R-b''s retired
+/// binary64 statistic would still fire there: case B is CHECKS_PASSED on the
+/// typed entry, alone on the captured entry, and in the two-case captured
+/// invocation, which now publishes with both receipt entries qualified.
+///
+/// The residual itself (a Passed report demoted after routing beside a
+/// source-selected case) is reached under K-D5 by a probe A-style case B
+/// (`residual_case_b`): N05's pipe carries cancelling uniform loads (G, n, -G)
+/// along global y with G = 8e15 N/m (below the captured entry's 2^53 limit)
+/// and n = 1e-8 N/m, on C1's soft basis. Its report is Passed; the load
+/// enclosure radii (2^-120 level, §1) enter every group's remainder R, so
+/// against the tiny net B exceeds RD(1e-9)·q (the anchor's force group has
+/// B/q of about 6e-9) and the unified predicate fires after routing (§3.3). Typed: demoted with the unified sentence, no receipt;
+/// alone on the captured entry: demoted, not refused; beside case A on the
+/// captured entry: refused, fail-closed. Control: n = 0.3 N/m lifts the body
+/// scale, the predicate is silent and the invocation publishes with both
+/// receipt entries qualified.
+/// T20's probe A-style case B (see T20): (G, n, -G) uniform loads along
+/// global y on N05's pipe, G = 8e15 N/m.
+fn residual_case_b(n: f64) -> Value {
+    let g = 8e15_f64;
+    json!({"id": "case-b", "label": "case-b", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [uniform("b:g", "pipe", "global_y", g), uniform("b:n", "pipe", "global_y", n), uniform("b:-g", "pipe", "global_y", -g)]})
+}
+
+fn residual_request(cases: Vec<Value>) -> Value {
+    with_basis(n05_request(cases), "case-b", "point:soft", 1.0, 0.4)
+}
+
 #[test]
 fn t20_characterization_rb_prime_residual_c1() {
     let (force, moment) = (1.0, 1e-7);
@@ -2620,8 +2851,8 @@ fn t20_characterization_rb_prime_residual_c1() {
     assert!(!case_state::is_load_state(&model), "pre-0.4 only");
     for mode in MODES {
         let label = format!("T20 {mode:?}");
-        // Precondition and typed pin: case B Passed in its report, R-b' fires
-        // on a genuinely inaccurate row, published Sensitive, no receipt.
+        // Typed pin: case B Passed in its report; R-b''s retired statistic
+        // fires at the tip, but the repaired row is exact: Passed, no receipt.
         let typed = solved(Entry::Typed, &request, mode);
         assert!(typed.source_block_recovery.is_none(), "{label}");
         assert_ordinary_passed(&typed, "case-b", &label);
@@ -2629,15 +2860,12 @@ fn t20_characterization_rb_prime_residual_c1() {
             .into_iter()
             .find(|e| e.member == "pipe" && e.end == "j")
             .expect("the tip end");
-        assert!(tip.rb_prime(), "{label}: R-b' fires at the tip: {tip:?}");
-        // q and |m| lie within a factor of two, so q - m is exact (Sterbenz).
-        let relative = (tip.q - moment).abs() / moment;
-        assert!(
-            relative > formation_guard::CRITERION,
-            "{label}: the tip row's relative error {relative:e} is genuine"
-        );
-        assert_demoted(&typed, "case-b", RECOVERY, &label);
-        // Case B alone on the captured entry: demoted, not refused.
+        assert!(tip.rb_prime(), "{label}: R-b''s retired statistic fires at the tip: {tip:?}");
+        // The repaired tip moment is exactly the applied |m|.
+        assert_eq!(tip.q.to_bits(), moment.to_bits(), "{label}: {tip:?}");
+        assert_eq!(integrity(&typed, "case-b").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+        assert_not_demoted_by_s11g(&typed, "case-b", &label);
+        // Case B alone on the captured entry: Passed.
         let alone = with_basis(
             n05_request(vec![c1_case_b(force, moment)]),
             "case-b",
@@ -2647,14 +2875,13 @@ fn t20_characterization_rb_prime_residual_c1() {
         );
         let single = solved(Entry::Captured, &alone, mode);
         assert_ordinary_passed(&single, "case-b", &label);
-        assert_demoted(&single, "case-b", RECOVERY, &label);
-        // The residual: the two-case captured invocation is refused, fail-closed.
-        match run(Entry::Captured, &request, mode) {
-            Err(error) => assert_eq!(error, "SOURCE_BLOCKS_FINALIZATION_FAILED", "{label}"),
-            Ok(_) => {
-                panic!("{label}: the residual is expected to refuse (update T20 when it closes)")
-            }
-        }
+        assert_eq!(integrity(&single, "case-b").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
+        // C1's two-case captured invocation now publishes: the residual is
+        // not reached here.
+        let both = solved(Entry::Captured, &request, mode);
+        assert_eq!(receipt_case(&both, "case")["outcome"], json!("qualified"), "{label}");
+        assert_eq!(receipt_case(&both, "case-b")["outcome"], json!("qualified"), "{label}");
+        assert_eq!(integrity(&both, "case-b").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
         // Control: m = 0.5 (R-b' silent) publishes with a receipt.
         let control = solved(Entry::Captured, &c1_request(force, 0.5), mode);
         assert_eq!(
@@ -2668,6 +2895,34 @@ fn t20_characterization_rb_prime_residual_c1() {
             "{label}"
         );
         assert_not_demoted_by_s11g(&control, "case-b", &label);
+        assert_eq!(
+            integrity(&control, "case-b").code,
+            "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "{label}"
+        );
+
+        // The residual under K-D5: the probe A-style case B.
+        let residual = residual_request(vec![n05_torques(), residual_case_b(1e-8)]);
+        let typed = solved(Entry::Typed, &residual, mode);
+        assert!(typed.source_block_recovery.is_none(), "{label}");
+        assert_ordinary_passed(&typed, "case-b", &label);
+        assert_demoted(&typed, "case-b", RECOVERY, &label);
+        let single = solved(Entry::Captured, &residual_request(vec![residual_case_b(1e-8)]), mode);
+        assert_ordinary_passed(&single, "case-b", &label);
+        assert_demoted(&single, "case-b", RECOVERY, &label);
+        match run(Entry::Captured, &residual, mode) {
+            Err(error) => assert_eq!(error, "SOURCE_BLOCKS_FINALIZATION_FAILED", "{label}"),
+            Ok(_) => {
+                panic!("{label}: the residual is expected to refuse (update T20 when it closes)")
+            }
+        }
+        let control = solved(
+            Entry::Captured,
+            &residual_request(vec![n05_torques(), residual_case_b(0.3)]),
+            mode,
+        );
+        assert_eq!(receipt_case(&control, "case")["outcome"], json!("qualified"), "{label}");
+        assert_eq!(receipt_case(&control, "case-b")["outcome"], json!("qualified"), "{label}");
         assert_eq!(
             integrity(&control, "case-b").code,
             "NUMERICAL_INTEGRITY_CHECKS_PASSED",
@@ -3043,13 +3298,27 @@ fn t21_selection_is_declined_for_a_formation_finding() {
 }
 
 /// T22 (erratum E-1, ROOT's D22-1 condition): on a Passed, guard-fired case
-/// (UDL-W1e8, captured) the invocation budget equals the unguarded route's:
-/// the ordinary route never attempts a Passed case, so nothing is charged,
-/// no attempt is counted and nothing fails. Kills restoring the charged
-/// attempt (M23).
+/// (captured) the invocation budget equals the unguarded route's: the
+/// ordinary route never attempts a Passed case, so nothing is charged, no
+/// attempt is counted and nothing fails. Kills restoring the charged attempt
+/// (M23). UDL-W1e8 itself is now Sensitive at the solve (K-D5's closure,
+/// DEL-04-01 kd5-member-relative-bound.md §§1, 4.2; T1), so the Passed
+/// guard-fired case is the same body with a soft branch
+/// (`udl_body_with_soft_branch`), whose RZ row still fires the load-row guard.
 #[test]
 fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
-    let request = rf_request("RF-CANCEL-UDL-W1e8");
+    let mut model = preview_model("t22");
+    model["nodes"] = json!([]);
+    model["pipe_segments"] = json!([]);
+    model["materials"] = json!([material()]);
+    model["supports"] = json!([]);
+    model["load_cases"][0]["primitive_loads"] = json!([]);
+    udl_body_with_soft_branch(&mut model, "", 0.0);
+    let request = request_of(model);
+    assert!(
+        guard_view(&request, 0).decision("S1:RZ").fires,
+        "precondition: the load-row guard fires on S1:RZ"
+    );
     for mode in MODES {
         let (typed, capture) =
             source_receipt::CapturedInvocation::parse(request.clone(), mode).unwrap();

@@ -24,15 +24,22 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// every target: the dense bytes used to differ across targets through libm `hypot`
 /// (`rigid:N0`'s support force magnitude); since I109 (PR-N) magnitudes are correctly
 /// rounded norms, and dense is re-pinned at the correctly rounded value.
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
+/// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
+/// the bytes differ only by the two linear limitation sentences, the current
+/// maximum declaration literals and the fallback maximum's enclosure.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68250, "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871"),
-    ("dense_scrutiny", 69366, "aa8b93ba9717bcc61bf708bb3dd7ab4848d655334dd1f3f6d5e852c2d40f8a8d"),
+    ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
+    ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6): against main the milestone
+/// successor differs only by the current maximum declaration and fallback enclosure, the two
+/// linear limitation sentences, and the receipt and publication hashes that bind them.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", "efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"),
-    ("dense_scrutiny", "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5", "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"),
+    ("sparse_interactive", "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6", "1932f8843dee94baccff7c21ebc01523d8a509919b9a3bbd48e26167ffd1eff4"),
+    ("dense_scrutiny", "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55", "39895d62e38a6bc87242d5591384c23ab274e71832d974f40da915d13a0f7356"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -466,14 +473,16 @@ fn u1_refusals_are_typed() {
     assert_eq!(wire::serialize_cases(&mut prepared, &staged, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" }));
 }
 
-/// G-b and D39 on an actual load-row case (S11-G T1, RF-CANCEL-UDL-W1e8, captured
-/// entry): the finding demotes a Passed report, so its sentence is disclosed in
-/// the integrity diagnostic, and the legacy route declines without an attempt.
-/// Capture leaves the ordinary bytes unchanged here too.
+/// G-b and D39 on an actual load-row case (captured entry): the finding demotes a
+/// Passed report, so its sentence is disclosed in the integrity diagnostic, and the
+/// legacy route declines without an attempt. Capture leaves the ordinary bytes
+/// unchanged here too. S11-G T1's RF-CANCEL-UDL-W1e8 is now Sensitive at the solve
+/// under K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2), so the
+/// Passed load-row case is the same request with a soft branch
+/// (`f1a_tests::udl_w1e8_with_soft_branch`).
 #[test]
 fn u1_load_row_case_capture() {
-    let cases: Value = serde_json::from_str(include_str!("../tests/fixtures/s11f/rf_cancel_cases.json")).unwrap();
-    let raw = cases["cases"].as_array().unwrap().iter().find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8")).unwrap()["request"].clone();
+    let raw = crate::f1a_tests::udl_w1e8_with_soft_branch();
     for mode in MODES {
         let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
         let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();

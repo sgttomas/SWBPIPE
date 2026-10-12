@@ -629,8 +629,11 @@ fn f1b_w2_limitation_chain_is_refused_by_name_and_not_fixed() {
 /// displacement is its base model's times 2^(pf-pm-pl) (translations) or
 /// 2^(pf-pm-2pl) (rotations), every force 2^pf and every moment 2^(pf+pl)
 /// times the base's, bit for bit (support components and member end actions).
-/// Standing is never above the base's: the base is `CHECKS_PASSED`, the
-/// scaled case Sensitive by R-b' (Q5(a)).
+/// Standing is never above the base's. Under K-D5's repair both publish
+/// certified rows and both are `CHECKS_PASSED`: the W2 attempt carries its own
+/// member bound (DEL-04-01 kd5-member-relative-bound.md §2.2) and the unified
+/// predicate replaces R-b''s fail-closed rule at b != 0 (§3.3); the earlier
+/// R-b' demotion is one of §4.2's predicted Sensitive -> Passed moves.
 #[test]
 fn f1b_w2_lef_large_analogue_scales_by_exact_powers_of_two() {
     let (pl, pm, pf) = (200, 300, 600);
@@ -663,11 +666,12 @@ fn f1b_w2_lef_large_analogue_scales_by_exact_powers_of_two() {
         for (_, scaled) in envelopes(&scaled_chain(pl, pm, pf), mode, Entries::TypedOnly) {
             assert_eq!(scaled.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
             let record = integrity(&scaled, "case");
-            assert_eq!(record.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{mode:?}");
+            assert_eq!(record.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{mode:?}");
             assert_eq!(record.message.matches("range_scaling:").count(), 1);
-            assert!(record.message.contains(
-                " range_scaling: force_scale_exponent=-702; basis=exact power-of-two S11-G recovery guard (R-b'): "
-            ));
+            assert!(record
+                .message
+                .contains(" range_scaling: force_scale_exponent=-702; basis=exact power-of-two"));
+            assert!(!record.message.contains("S11-G"), "{mode:?}");
             let mut compared = 0;
             for expected in &base.results {
                 let component = expected.metadata.as_ref().map(|m| m.component.as_str());
@@ -827,6 +831,9 @@ fn f1b_w2_publication_refuses_a_value_outside_binary64() {
 /// outcomes are rendered with their fields (RV11-N3): K2a's partial-underflow
 /// case (b = 898) publishes its whole evidence line, identically on both
 /// entries and in both modes, with S11-G's `NAMED` (6) entries and `more=1`.
+/// The case is `CHECKS_PASSED`: the W2 attempt's own member bound (DEL-04-01
+/// kd5-member-relative-bound.md §2.2) replaces R-b''s fail-closed rule at
+/// b != 0, and the unified predicate passes its certified rows (§§3.3, 4.2).
 #[test]
 fn f1b_w2_evidence_line_renders_subnormal_values_and_records() {
     let request = reach(
@@ -843,15 +850,18 @@ fn f1b_w2_evidence_line_renders_subnormal_values_and_records() {
         record=intended_residual_rows.residual@N1:UY:underflow; \
         record=intended_residual_rows.evaluation_allowance@N1:UY:subnormal(relative_precision=0.003703703703703704); \
         subnormal=reaction@N1:RZ:relative_precision=5.1806537865882194e-11; \
-        subnormal=end_action@M1.i:Mz:relative_precision=5.1806537865882194e-11; more=1 ";
+        subnormal=end_action@M1.i:Mz:relative_precision=5.1806537865882194e-11; more=1";
     for mode in MODES {
         for (entry, envelope) in envelopes(&request, mode, Entries::Both) {
             let record = integrity(&envelope, "case");
             assert_eq!(
-                record.code, "NUMERICAL_INTEGRITY_SENSITIVE",
+                record.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED",
                 "{entry} {mode:?}"
             );
+            // The line now ends the message: no R-b' sentence follows it.
             assert_eq!(record.message.matches(line).count(), 1, "{entry} {mode:?}");
+            assert!(record.message.ends_with(line), "{entry} {mode:?}");
+            assert!(!record.message.contains("S11-G"), "{entry} {mode:?}");
         }
     }
 }
@@ -1198,17 +1208,21 @@ fn full_envelope_sha256(envelope: &MechanicsEnvelope) -> String {
 ///   refuses it with the ordinary Range text (the C1 kind).
 ///
 /// A re-pin is due if a later slice legitimately changes this model's envelope.
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6 TEXT) re-pinned both
+/// modes: against main's envelope the only differences are the two linear
+/// limitation sentences and the source-recovery receipt's publication and
+/// receipt hashes, which bind those bytes.
 #[test]
 fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes() {
     let request = coexistence_cx_f();
     for (mode, main_sha256) in [
         (
             PreviewSolverMode::SparseInteractive,
-            "aaabc777a0f2f3bff2392fc442eb2fac48c305345b25164ceb9d7cfbb90ecf9c",
+            "6b2264e785db54403a4da04ece366a76b6db7ac95aabaed2629b594dd093f0f0",
         ),
         (
             PreviewSolverMode::DenseScrutiny,
-            "7db0edaf667ef1d38fcdfb72da9df313adf2f716c305a5d22219fc64a5400f7f",
+            "9b7eb7e38759fa8353f093d04754d9b3978d912d7d2d8fc2d31bbc94a3b403c5",
         ),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
@@ -1300,7 +1314,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
             );
             assert_eq!(
                 full_envelope_sha256(&envelope),
-                "a29e29f2c447a96cdac952c64a82cb528d974c3f78bc41c7cd2a1a4f46a7bdbb",
+                // Main's bytes plus K-D5's two linear-profile limitation
+                // sentences (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6
+                // TEXT): removing them recovers main's a29e29f2..., exactly.
+                "449b2786608ecf155f5f4d3faa5e0975615ae45cd0f125ba3e5c6713c51f005e",
                 "{ctx}"
             );
         }

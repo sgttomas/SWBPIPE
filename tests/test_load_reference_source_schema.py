@@ -64,7 +64,7 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
+SUCCESSOR_SHA = "7cff3e9fe0c29a5b34d1762662e71ad58f00bb2993e9a3f1893323c0d64161e0"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"

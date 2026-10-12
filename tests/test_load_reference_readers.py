@@ -39,11 +39,11 @@ CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_referen
 CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
     "fixtures/product_preview/load_reference/connected.request.json": "ff0ce8724d7734c2cd8d10ce866085d80741adadc0da529521084dc8382453a2",
-    "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json": "75f8bf1b6fc53f7c13148bce54099ae9cdd3a2f4c9ae014f48be02e562a864b4",
-    "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json": "8413d25c71a62d740614e98e3e86160e99dc76e35f5fdddcb936df80a0f6c0b0",
+    "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json": "7c61890113c0eb2fff897a90c2203fa441c9c171b4075458b5d04c1c80132a2a",
+    "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json": "e8d9a710d8f6168caae6617641875210906d84b9da717b8b187c2189e0122545",
     "fixtures/product_preview/load_reference/pressure.request.json": "52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69",
-    "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134",
-    "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707",
+    "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
+    "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
     "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
