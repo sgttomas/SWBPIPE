@@ -6262,14 +6262,26 @@ mod b3b_table_binding_tests {
     }
 }
 
+#[cfg(test)]
+#[path = "../tests/support/retained_precision_corpus.rs"]
+mod retained_precision_corpus_storage;
+
+#[cfg(test)]
+fn shared_test_corpus() -> &'static Value {
+    static CORPUS: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    CORPUS.get_or_init(|| retained_precision_corpus_storage::expand(serde_json::from_str(
+        include_str!("../../../../fixtures/results/retained_precision_cases.json")
+    ).unwrap()))
+}
+
 /// I61 U6e (snapshot 07g): reader-local pins for RV79-N1 (D37's expected table is
 /// the corpus's, derived from native source, never this reader's) and RV80-N2
 /// (`integral_receipt` touches only the receipt).
 #[cfg(test)]
 mod u6e_reader_round_tests {
     use super::*;
-    fn corpus() -> Value {
-        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
+    fn corpus() -> &'static Value {
+        shared_test_corpus()
     }
 
     #[test]
@@ -6331,10 +6343,7 @@ mod u6e_reader_round_tests {
 mod b2_g0_table_tests {
     use super::*;
     fn receipt() -> Value {
-        let corpus: Value = serde_json::from_str(include_str!(
-            "../../../../fixtures/results/retained_precision_cases.json"
-        ))
-        .unwrap();
+        let corpus = shared_test_corpus();
         corpus["cases"]
             .as_array()
             .unwrap()
