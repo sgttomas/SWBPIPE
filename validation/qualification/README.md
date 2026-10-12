@@ -74,7 +74,7 @@ all production contacts. Independently check analytical assumptions, arithmetic,
 range stability and primary-source relevance before freezing each oracle. Do not
 import the production stiffness/property/recovery helper into its own oracle.
 
-External packages are catalogued separately from readiness. The [source-preparation packet](../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/RETURN.md)
+External packages are catalogued separately from readiness. The [source-preparation packet](https://github.com/sgttomas/chirality/blob/24e9117b9c2d9d10f57642da4eef0d13c90bb166/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/RETURN.md)
 identifies an important SSLL106A mismatch: TUYAU_3M transverse
 references include shear response, whereas the current straight profile is
 Euler–Bernoulli. Full-case displacement or radial-pressure assertions cannot be
