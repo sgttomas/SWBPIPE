@@ -406,3 +406,40 @@ fn kd5_u2_arc_wall_rows_keep_nw_equal_s_plus_p_ai() {
         assert!(!output.results.iter().any(|r| r.entity_ref == "pipe:BEND" && r.kind == "element_local_axial_force"), "{mode:?}");
     }
 }
+
+/// The certified arc wall rows read the certified recovery's section by its
+/// location name, and an unknown name fails closed with a named blocking
+/// diagnostic instead of being read as end_j (Design section 3.2, pipe-wall
+/// rows).
+#[test]
+fn kd5_u2_arc_wall_rows_refuse_an_unknown_section_location() {
+    use open_pipe_stress_frame_kernel::structural::{CertifiedMemberRecovery, CertifiedRow};
+    let names = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
+    for (index, name) in names.into_iter().enumerate() {
+        assert_eq!(bend_pressure::certified_section_index(name), Some(index));
+    }
+    for name in ["end", "quarter_2", "END_J", ""] {
+        assert_eq!(bend_pressure::certified_section_index(name), None, "{name:?}");
+    }
+    let control = case(&sketch("U2-L-ANCH-PTW-K2"));
+    let state = control.exact.pipe_states.values().find(|s| s.arc.is_some()).unwrap();
+    let load_case = &control.model.load_cases[0];
+    let rows = CertifiedMemberRecovery { ends: [CertifiedRow::ZERO; 12], sections: [[CertifiedRow::ZERO; 6]; 5] };
+    let run = |locations: [&'static str; 3]| {
+        let stations = locations.map(|location| StationResultants { location, resultants: [0.0; 6] });
+        let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
+        bend_pressure::append_arc_pressure_results(
+            &mut results, &mut diagnostics, load_case, "pipe:BEND", state, &[[0.0; 6]; 2], &stations, Some((&rows, &rows)),
+        );
+        (results, diagnostics)
+    };
+    let (results, diagnostics) = run(["quarter_1", "midspan", "quarter_3"]);
+    assert!(diagnostics.is_empty(), "{diagnostics:?}");
+    assert_eq!(results.len(), 2 + 3 * 5);
+    let (results, diagnostics) = run(["quarter_1", "quarter_2", "quarter_3"]);
+    assert!(results.is_empty(), "no row is published from an unknown section");
+    assert_eq!(diagnostics.len(), 1);
+    assert_eq!(diagnostics[0].code, bend_pressure::ARC_SECTION_UNKNOWN);
+    assert_eq!(diagnostics[0].severity, "blocking");
+    assert!(diagnostics[0].message.contains("quarter_2"), "{}", diagnostics[0].message);
+}

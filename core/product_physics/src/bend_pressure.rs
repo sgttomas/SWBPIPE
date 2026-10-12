@@ -65,6 +65,22 @@ const EFFECTIVE_FORCE_SIGN: &str = "effective wall-fluid resultant S=Nw-pAi (the
 const MEMBRANE_SIGN: &str = "tension-positive axial wall membrane stress Nw/As on the arc section; no added longitudinal pressure scalar";
 const RECOVERY_FAILED: &str = "EXACT_PRESSURE_RECOVERY_FAILED";
 const RECOVERY_UNREPRESENTABLE: &str = "arc pressure section recovery is unrepresentable";
+/// A section location outside the certified recovery's five sections.
+pub(super) const ARC_SECTION_UNKNOWN: &str = "EXACT_PRESSURE_ARC_SECTION_UNKNOWN";
+
+/// The certified recovery's section index of an arc section location
+/// (`CERTIFIED_SECTION_FRACTIONS`: end_i, quarter_1, midspan, quarter_3,
+/// end_j); `None` for any other name, which the caller refuses.
+pub(super) fn certified_section_index(location: &str) -> Option<usize> {
+    match location {
+        "end_i" => Some(0),
+        "quarter_1" => Some(1),
+        "midspan" => Some(2),
+        "quarter_3" => Some(3),
+        "end_j" => Some(4),
+        _ => None,
+    }
+}
 
 /// The pressure family's rows on a realized arc (H-2): `pipe_wall_*`,
 /// `pipe_effective_*` and `pipe_axial_membrane_*` at the two ends and three
@@ -105,12 +121,16 @@ pub(super) fn append_arc_pressure_results(
     for (location, elastic) in sections {
         let values = match certified {
             Some((wall, effective)) => {
-                let index = match location {
-                    "end_i" => 0,
-                    "quarter_1" => 1,
-                    "midspan" => 2,
-                    "quarter_3" => 3,
-                    _ => 4,
+                // Fail closed: an unknown location is never read as end_j.
+                let Some(index) = certified_section_index(location) else {
+                    diagnostics.push(diag(
+                        "diagnostic:exact-pressure:arc-section-location",
+                        ARC_SECTION_UNKNOWN,
+                        "blocking",
+                        format!("arc section location {location:?} is not one of the certified recovery's five sections"),
+                        vec![case.id.clone(), pipe_id.to_string()],
+                    ));
+                    return;
                 };
                 let wall_row = wall.sections[index][0];
                 wall_row.divided(state.annulus.wall_area_m2()).ok().map(|membrane| {
