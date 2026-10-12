@@ -35,6 +35,32 @@ fn exact_projection_uses_guard_and_sticky_bits() {
     assert_eq!(midpoint_publication(ball.m).unwrap(), 1.0);
     assert_eq!(ball.r, 0.0);
 }
+/// v_g = fl(m_g) (DEL-04-01 kd5-member-relative-bound.md §3.1): a nonzero
+/// midpoint whose correct rounding is zero publishes 0, with its whole
+/// magnitude kept in the row's rounding gap, instead of making the member
+/// bound unavailable. Kills the regression that demoted F1b's PHYS-R4 W2 case
+/// (E = 1 Pa, Iz ~ 1e-307 m^4) with "recovery publication".
+#[test]
+fn a_midpoint_below_half_the_least_subnormal_publishes_zero() {
+    let tiny = |pow: i64| Wide2::from_f64(f64::from_bits(1)).unwrap().mul_pow2(pow).unwrap();
+    for (m, published) in [
+        (tiny(-10), 0.0),
+        (tiny(-10).neg(), 0.0),
+        (tiny(-1), 0.0), // exactly half the least subnormal: ties to even zero
+        (tiny(0), f64::from_bits(1)),
+    ] {
+        let v = midpoint_publication(m).unwrap();
+        assert_eq!(v.to_bits(), published.to_bits(), "{m:?}");
+        let row = CertifiedRow::finish(Ball::exact(m), 0.0, 0.0).unwrap();
+        assert_eq!(row.published.to_bits(), published.to_bits());
+        if published == 0.0 {
+            assert!(row.rounding_gap > 0.0, "the gap carries |m_g|");
+        }
+    }
+    // Overflow stays unrepresentable.
+    let huge = Wide2::from_f64(f64::MAX).unwrap().mul_pow2(1).unwrap();
+    assert!(midpoint_publication(huge).is_err());
+}
 #[test]
 fn corrections_are_not_binary64_summed_and_w2_stays_physical() {
     let op = [Ball::exact(Wide2::ONE)];

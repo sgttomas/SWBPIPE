@@ -10,6 +10,7 @@ use super::formation_check::{
     chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
     FormationSource, LoadFormula, LoadPrimitive, MemberBoundInputs,
 };
+use super::retained::wide::multi::Binary64Outcome;
 use super::retained::wide::{Wide2, WideArith, WideError};
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
@@ -109,10 +110,17 @@ fn add_ball(
 }
 fn midpoint_publication(m: Wide2) -> Result<f64, RecoveryFailure> {
     // Wide's converter applies the power before rounding, including subnormals.
-    let v = m
-        .to_binary64()
-        .value()
-        .ok_or_else(|| shape("recovery publication"))?;
+    // v_g = fl(m_g) (kd5-member-relative-bound.md §3.1): a nonzero midpoint
+    // below half the least subnormal rounds to zero. That is a correctly
+    // rounded publication, not an unavailable one; its gap |0 - m_g| enters
+    // the row's rounding term of B_g. Only an overflowing rounding is
+    // unrepresentable.
+    let v = match m.to_binary64() {
+        Binary64Outcome::Underflow { .. } => 0.0,
+        outcome => outcome
+            .value()
+            .ok_or_else(|| shape("recovery publication"))?,
+    };
     if v.is_finite() {
         Ok(if v == 0.0 { 0.0 } else { v })
     } else {
