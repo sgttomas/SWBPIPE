@@ -8,7 +8,7 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2";
+    "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
@@ -23,6 +23,14 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub const EXACT_DEFINITION_HASH: &str =
     "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
+/// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
+/// basis row of a case whose ordinary attempt genuinely failed. It replaces
+/// `linear_solver_mode_basis` there; the two never coexist in one case.
+pub const REQUESTED_MODE_KIND: &str = "retained_precision_requested_mode_basis";
+const REQUESTED_MODE_ID: &str = "result:retained-precision:requested-mode-basis";
+const REQUESTED_MODE_COMPONENT: &str = "requested_solver_mode";
+const REQUESTED_MODE_COORDINATE: &str = "captured_invocation";
+const REQUESTED_MODE_SIGN: &str = "mode_code 1=sparse_interactive, 2=dense_scrutiny; the captured requested solver mode after a failed ordinary attempt, not an ordinary solve observation";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationError {
@@ -3413,6 +3421,7 @@ fn row_kind(r: &Value) -> &'static str {
     let unit = text(&r["unit"]);
     match k {
         "linear_solver_mode_basis"
+        | REQUESTED_MODE_KIND
         | "sparse_live_path_dense_parity_relative_delta"
         | "modulus_basis_record"
         | "combination_modulus_basis_record" => "non_quantity",
@@ -4719,16 +4728,23 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             .iter()
             .filter(|r| r["kind"] == "linear_solver_mode_basis")
             .collect();
+        let code = if mode == "sparse_interactive" { 1.0 } else { 2.0 };
+        // B4/D1 ruling (4): a failed ordinary case's requested-mode basis (G5 bound its shape and
+        // owner) binds the actual invocation's mode, and it replaces the ordinary mode row.
+        let requested: Vec<_> = rows
+            .iter()
+            .filter(|r| r["kind"] == REQUESTED_MODE_KIND)
+            .collect();
+        if !requested.is_empty() {
+            need(
+                requested.len() == 1 && modes.is_empty() && requested[0]["value"].as_f64() == Some(code),
+                "G8",
+                "REQUESTED_MODE_MISMATCH",
+            )?;
+            continue;
+        }
         // P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
-        fail(
-            modes.len() == 1
-                && modes[0]["value"].as_f64()
-                    == Some(if mode == "sparse_interactive" {
-                        1.0
-                    } else {
-                        2.0
-                    }),
-        )?;
+        fail(modes.len() == 1 && modes[0]["value"].as_f64() == Some(code))?;
         let parity = rows
             .iter()
             .filter(|r| r["kind"] == "sparse_live_path_dense_parity_relative_delta")
@@ -5505,6 +5521,116 @@ fn native_bytes(s: &Value, source: bool) -> VResult<Vec<u8>> {
         Ok(out)
     }
 }
+/// B4/D1 W1 extension: whether a case's ordinary attempt genuinely failed: a structural failure
+/// outside DN §4.3's exclusions (mechanism, asymmetric, invalid input) that W2 did not publish.
+fn failed_ordinary(o: &Value) -> bool {
+    o["initial"]["kind"] == "structural_failure"
+        && !matches!(
+            text(&o["initial"]["error"]["tag"]),
+            "mechanism" | "asymmetric" | "invalid_input"
+        )
+        && matches!(text(&o["w2"]["kind"]), "not_triggered" | "failed")
+}
+/// The requested-mode basis text (b7-plan "Failed-ordinary successor rulings" (4)): the captured
+/// mode token, the failed ordinary attempt and the selected retained owner (the receipt's case
+/// `case_index`) with its certificate (that case's `selection`).
+pub fn requested_mode_basis(mode: &str, case_index: usize) -> String {
+    format!("captured_requested_mode; solver_mode={mode}; ordinary_attempt=failed_without_observation; owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection")
+}
+/// B4/D1 rulings (2)-(4) (G5, before G8's invocation binding): a requested-mode basis row exists
+/// only on a selected case whose ordinary attempt genuinely failed, and such a case has exactly
+/// one; it never coexists with an ordinary mode or parity observation; its value is the code of
+/// the receipt's requested mode and its metadata names the mode, the case's retained owner and
+/// its certificate. That case's quality entry keeps the failed attempt's outcome (never a
+/// success token) and names the certificate's diagnostic and the basis row. A blocking
+/// diagnostic is admitted only as such a case's own failure diagnostic (ruling (3)).
+fn g5_requested_mode(source: &Value) -> VResult {
+    let b = &source["retained_precision"]["body"];
+    let rm = |ok| need(ok, "G5", "REQUESTED_MODE_MISMATCH");
+    let mut bound: Vec<(&Value, &Value)> = Vec::new();
+    for (i, c) in list(&b["cases"]).iter().enumerate() {
+        let o = &b["ordinary_attempts"][i];
+        let cid = &c["basis_ref"]["ref_id"];
+        let rows = rows_for(source, c);
+        let requested: Vec<&Value> = rows
+            .iter()
+            .copied()
+            .filter(|r| r["kind"] == REQUESTED_MODE_KIND)
+            .collect();
+        let observed = rows
+            .iter()
+            .filter(|r| {
+                matches!(
+                    text(&r["kind"]),
+                    "linear_solver_mode_basis" | "sparse_live_path_dense_parity_relative_delta"
+                )
+            })
+            .count();
+        let failed = failed_ordinary(o);
+        if requested.is_empty() {
+            rm(!(failed && c["status"] == "selected"))?;
+            continue;
+        }
+        rm(failed && c["status"] == "selected" && requested.len() == 1 && observed == 0)?;
+        let row = requested[0];
+        let mode = text(&o["requested_mode"]);
+        let code: f64 = match mode {
+            "sparse_interactive" => 1.0,
+            "dense_scrutiny" => 2.0,
+            _ => return rm(false),
+        };
+        let m = &row["metadata"];
+        rm(row["id"] == REQUESTED_MODE_ID
+            && row["unit"] == "mode_code"
+            && row["entity_ref"] == "solver:linear_static_preview"
+            && row["value"].as_f64().is_some_and(|v| v.to_bits() == code.to_bits())
+            && list(&row["source_result_refs"]).is_empty()
+            && m["component"] == REQUESTED_MODE_COMPONENT
+            && m["coordinate_system"] == REQUESTED_MODE_COORDINATE
+            && m["location"] == *cid
+            && m["sign_convention"] == REQUESTED_MODE_SIGN
+            && m["basis"] == requested_mode_basis(mode, i))?;
+        let q = &source["numerical_quality"]["cases"][i];
+        let refs = list(&q["evidence_refs"]);
+        let selected = json!(format!("diagnostic:retained-precision:{}:selected", text(cid)));
+        rm(q["basis_ref"] == c["basis_ref"]
+            && matches!(text(&q["solve_quality"]), "unresolved" | "failed")
+            && q["structural_status"] != "passive_model_basis"
+            && q["accuracy_evidence"] != "reference_verified"
+            && refs.contains(&json!(REQUESTED_MODE_ID))
+            && refs.contains(&selected))?;
+        for id in [&o["initial"]["diagnostic_ref"], &o["w2"]["diagnostic_ref"]] {
+            if !id.is_null() {
+                bound.push((id, cid));
+            }
+        }
+    }
+    // Ruling (5): a failed W2 attempt is only the closed named refusal, whose step-1 trigger, when
+    // recorded, is the outer range trigger.
+    for o in list(&b["ordinary_attempts"]) {
+        if o["w2"]["kind"] == "failed" {
+            let refusal = &o["w2"]["failure"]["refusal"];
+            need(
+                o["w2"]["failure"]["tag"] == "refused"
+                    && (refusal["trigger"].is_null() || refusal["trigger"] == o["w2"]["trigger"]),
+                "G5",
+                "W2_FAILURE_MISMATCH",
+            )?;
+        }
+    }
+    for d in list(&source["diagnostics"]) {
+        if d["severity"] == "blocking" {
+            need(
+                bound
+                    .iter()
+                    .any(|(id, cid)| d["id"] == **id && d["affected_refs"] == json!([cid])),
+                "G5",
+                "BLOCKING_DIAGNOSTIC_UNBOUND",
+            )?;
+        }
+    }
+    Ok(())
+}
 fn g5_ordinary(source: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G5", "ATTEMPT_MISMATCH");
@@ -5819,6 +5945,11 @@ fn project(source: &Value, raw: bool, route: &Route) -> VResult<Value> {
                 o.remove("recovery_method");
             }
         }
+        // B4/D1: the requested-mode basis is the successor's own record (G5, G8), not a base row.
+        projected["results"]
+            .as_array_mut()
+            .into_iter()
+            .for_each(|rows| rows.retain(|r| r["kind"] != REQUESTED_MODE_KIND));
     }
     Ok(projected)
 }
@@ -5834,6 +5965,13 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
     } else {
         g0(source)?;
     }
+    gates_after_g0(source, actual_invocation, route)
+}
+/// G1-G8, in order, of a statement whose G0 (identity, packaged tables, definitions and bound
+/// receipt values) has passed. `validate` is its only production caller; reader-local tests
+/// also reach the later gates through it while the packaged table pins are held for B7a's D3
+/// re-registration (b7-plan "Failed-ordinary successor rulings" (6)).
+fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Route) -> VResult<Validation> {
     g1(source, true, route)?;
     g2(source)?;
     let normalized = integral_receipt(source);
@@ -5843,6 +5981,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
     let body = &source["retained_precision"]["body"];
     g5_native(body)?;
     g5_ordinary(source)?;
+    g5_requested_mode(source)?;
     g5_products(source)?;
     let mut cases = numeric_cases(source)?;
     g5a(body, &cases)?;
@@ -6517,6 +6656,171 @@ mod w1_si_first_publication_tests {
         for outcome in [json!({"kind":"overflow","negative":false}),
             json!({"kind":"normal","value":"7ff0000000000000"}),json!({"kind":"unknown"})] {
             assert!(!projection_matches_row(&row,&outcome));
+        }
+    }
+}
+
+#[cfg(test)]
+mod b4_failed_ordinary_tests {
+    //! B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings"): the requested-mode basis,
+    //! the admitted blocking diagnostic and the closed W2 refusal, read below G0. The producer
+    //! asserts that the fixture is its own output. G0 itself refuses these statements until the
+    //! packaged table pins move at B7a's D3 re-registration (ruling (6)); `pending_g0` pins that.
+    use super::*;
+    const FIXTURE: &str =
+        include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json");
+    fn cases() -> Vec<(Value, Value)> {
+        let fixture: Value = serde_json::from_str(FIXTURE).unwrap();
+        list(&fixture["cases"])
+            .iter()
+            .map(|c| {
+                (c["successor"].clone(), json!({"request": c["request"], "solver_mode": c["solver_mode"]}))
+            })
+            .collect()
+    }
+    /// Rehash the publication and the receipt (the mutations touch neither sources nor preparations).
+    fn rehash(s: &mut Value) {
+        let mut env = s.clone();
+        env.as_object_mut().unwrap().remove("retained_precision");
+        let publication = hash("retained_precision_publication_mp_v2", &env, "G1", "X").unwrap();
+        s["retained_precision"]["body"]["publication_sha256"] = json!(publication);
+        let receipt = hash("retained_precision_receipt_mp_v2", &s["retained_precision"]["body"], "G1", "X").unwrap();
+        s["retained_precision"]["receipt_sha256"] = json!(receipt);
+    }
+    fn below_g0(s: &Value, inv: Option<&Value>) -> VResult<Validation> {
+        gates_after_g0(s, inv, route(s))
+    }
+    fn refused(s: &Value, inv: &Value) -> (&'static str, String) {
+        match below_g0(s, Some(inv)) {
+            Err(e) => (e.gate, e.code),
+            Ok(_) => ("accepted", String::new()),
+        }
+    }
+    fn requested_index(s: &Value) -> usize {
+        list(&s["results"]).iter().position(|r| r["kind"] == REQUESTED_MODE_KIND).unwrap()
+    }
+    #[test]
+    fn failed_ordinary_successors_pass_g1_to_g8_and_are_eligible() {
+        for (s, inv) in cases() {
+            let mode = inv["solver_mode"].clone();
+            assert_eq!(below_g0(&s, None).map(|v| v.numerical_eligible), Ok(false), "{mode}");
+            let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+            assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
+            assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
+        }
+    }
+    #[test]
+    fn pending_g0_refuses_while_the_table_pins_are_held() {
+        // Expected to become `Ok` when B7a's D3 re-registration moves TABLE_HASH and its mirrors
+        // to the reviewed current table bytes; then replace this with the eligible assertion.
+        for (s, inv) in cases() {
+            let e = validate(&s, Some(&inv)).unwrap_err();
+            assert_eq!((e.gate, e.code.as_str()), ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"));
+        }
+    }
+    #[test]
+    fn requested_mode_mutations_refuse_by_name() {
+        let mm = ("G5", "RETAINED_PRECISION_REQUESTED_MODE_MISMATCH".to_string());
+        for (base, inv) in cases() {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let at = requested_index(&base);
+            let mutate = |f: &dyn Fn(&mut Value)| {
+                let mut s = base.clone();
+                f(&mut s);
+                rehash(&mut s);
+                refused(&s, &inv)
+            };
+            // An ordinary mode observation beside the requested-mode basis (coexistence). Appended,
+            // so that the receipt's row indices still resolve (an inserted row is G3's).
+            assert_eq!(mutate(&|s| {
+                let mut row = s["results"][at].clone();
+                row["id"] = json!("result:solver-mode:linear-solve-basis");
+                row["kind"] = json!("linear_solver_mode_basis");
+                s["results"].as_array_mut().unwrap().push(row);
+            }), mm, "{mode}: coexistence");
+            // A fabricated ordinary observation in place of the basis.
+            assert_eq!(mutate(&|s| {
+                s["results"][at]["id"] = json!("result:solver-mode:linear-solve-basis");
+                s["results"][at]["kind"] = json!("linear_solver_mode_basis");
+            }), mm, "{mode}: fabricated observation");
+            // A fabricated parity observation.
+            assert_eq!(mutate(&|s| {
+                let mut row = s["results"][at].clone();
+                row["id"] = json!("result:sparse-live:dense-parity-relative-delta");
+                row["kind"] = json!("sparse_live_path_dense_parity_relative_delta");
+                s["results"].as_array_mut().unwrap().push(row);
+            }), mm, "{mode}: fabricated parity");
+            // A mode code other than the captured mode.
+            assert_eq!(mutate(&|s| {
+                let other = if s["results"][at]["value"] == json!(1.0) { 2.0 } else { 1.0 };
+                s["results"][at]["value"] = json!(other);
+            }), mm, "{mode}: other mode");
+            // The owner or certificate named in the basis is another case's.
+            for (from, to) in [("owner_ref=case:0", "owner_ref=case:1"), ("cases[0].selection", "cases[1].selection")] {
+                assert_eq!(mutate(&|s| {
+                    let basis = text(&s["results"][at]["metadata"]["basis"]).replace(from, to);
+                    s["results"][at]["metadata"]["basis"] = json!(basis);
+                }), mm, "{mode}: {to}");
+            }
+            // A success token in the failed case's quality entry, or the basis row unnamed there.
+            assert_eq!(mutate(&|s| s["numerical_quality"]["cases"][0]["solve_quality"] = json!("sensitive")), mm, "{mode}: sensitive");
+            assert_eq!(mutate(&|s| s["numerical_quality"]["cases"][0]["structural_status"] = json!("passive_model_basis")), mm, "{mode}: passive");
+            let mut s = base.clone();
+            s["numerical_quality"]["cases"][0]["solve_quality"] = json!("checks_passed");
+            rehash(&mut s);
+            assert_eq!(refused(&s, &inv).0, "G5", "{mode}: checks_passed");
+            assert_eq!(mutate(&|s| {
+                s["numerical_quality"]["cases"][0]["evidence_refs"].as_array_mut().unwrap().retain(|r| r != REQUESTED_MODE_ID);
+            }), mm, "{mode}: basis unnamed");
+            // A requested-mode basis on a case whose ordinary attempt succeeded.
+            assert_eq!(mutate(&|s| {
+                let o = &mut s["retained_precision"]["body"]["ordinary_attempts"][0];
+                o["initial"] = json!({"kind":"report","report_diagnostic_ref":"diagnostic:numerical-integrity:case","outcome":"sensitive"});
+                o["w2"] = json!({"kind":"not_triggered"});
+                s["numerical_quality"]["cases"][0]["solve_quality"] = json!("sensitive");
+            }), mm, "{mode}: successful ordinary attempt");
+            // The invocation's mode is not the captured mode: G8.
+            let mut other = inv.clone();
+            other["solver_mode"] = json!(if mode == "sparse_interactive" { "dense_scrutiny" } else { "sparse_interactive" });
+            assert_eq!(refused(&base, &other).0, "G8", "{mode}: invocation mode");
+        }
+    }
+    #[test]
+    fn blocking_diagnostics_and_w2_refusal_mutations_refuse_by_name() {
+        let unbound = ("G5", "RETAINED_PRECISION_BLOCKING_DIAGNOSTIC_UNBOUND".to_string());
+        for (base, inv) in cases() {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let mutate = |f: &dyn Fn(&mut Value)| {
+                let mut s = base.clone();
+                f(&mut s);
+                rehash(&mut s);
+                refused(&s, &inv)
+            };
+            // A blocking diagnostic not bound to a failed case's requested-mode basis.
+            assert_eq!(mutate(&|s| {
+                s["diagnostics"].as_array_mut().unwrap().push(json!({"id":"diagnostic:invented:blocking","code":"SOLVER_SYSTEM_BLOCKED",
+                    "severity":"blocking","message":"invented","source":"core/product_physics","affected_refs":["supports"]}));
+            }), unbound, "{mode}: unbound blocking diagnostic");
+            // The failure diagnostic widened beyond its one case.
+            assert_eq!(mutate(&|s| {
+                for d in s["diagnostics"].as_array_mut().unwrap() {
+                    if d["severity"] == "blocking" { d["affected_refs"] = json!(["case", "supports"]); }
+                }
+            }), unbound, "{mode}: widened blocking diagnostic");
+            // Removing the requested-mode basis shifts the receipt's row indices: G3 refuses it. (In
+            // place, a fabricated observation without the basis is G5's: the other test.)
+            assert_eq!(mutate(&|s| {
+                let at = requested_index(s);
+                s["results"].as_array_mut().unwrap().remove(at);
+            }), ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH".to_string()), "{mode}: basis removed");
+            // A W2 failure other than the translated named refusal.
+            assert_eq!(mutate(&|s| {
+                s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["failure"] = json!({"tag":"not_engaged"});
+            }), ("G5", "RETAINED_PRECISION_W2_FAILURE_MISMATCH".to_string()), "{mode}: untranslated W2 variant");
+            // The inner refusal trigger differs from the outer range trigger.
+            assert_eq!(mutate(&|s| {
+                s["retained_precision"]["body"]["ordinary_attempts"][0]["w2"]["failure"]["refusal"]["trigger"]["error"]["detail"] = json!("another");
+            }), ("G5", "RETAINED_PRECISION_W2_FAILURE_MISMATCH".to_string()), "{mode}: inner trigger");
         }
     }
 }

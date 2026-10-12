@@ -221,6 +221,31 @@ pub(super) struct ProductCapture {
     #[cfg(debug_assertions)]
     lent: Option<usize>,
 }
+/// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
+/// basis row of a case whose ordinary attempt genuinely failed. It replaces
+/// `linear_solver_mode_basis` there; its value is the captured mode's code (1 sparse, 2 dense),
+/// its metadata names the mode token, the retained owner and its certificate, and it carries
+/// no ordinary observation.
+pub(super) const REQUESTED_MODE_KIND: &str = "retained_precision_requested_mode_basis";
+pub(super) const REQUESTED_MODE_ID: &str = "result:retained-precision:requested-mode-basis";
+pub(super) const REQUESTED_MODE_COMPONENT: &str = "requested_solver_mode";
+pub(super) const REQUESTED_MODE_COORDINATE: &str = "captured_invocation";
+pub(super) const REQUESTED_MODE_SIGN: &str = "mode_code 1=sparse_interactive, 2=dense_scrutiny; the captured requested solver mode after a failed ordinary attempt, not an ordinary solve observation";
+/// The requested-mode basis text: the captured mode token, the failed ordinary attempt and the
+/// selected retained owner (`owner_ref`, the receipt's case) with its certificate (that case's
+/// `selection`).
+pub(super) fn requested_mode_basis(mode: PreviewSolverMode, case_index: usize) -> String {
+    format!("captured_requested_mode; solver_mode={}; ordinary_attempt=failed_without_observation; owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection", mode.as_str())
+}
+/// The failed manifest's per-member rows: 12 end actions, 18 station actions, 8 endpoint and
+/// 12 station stresses, and the circular maximum.
+const FAILED_MEMBER_ROWS: usize = 51;
+const FAILED_STATIONS: [&str; 3] = ["quarter_1", "midspan", "quarter_3"];
+/// The solved preview run's fixed identifier (lib.rs's solved envelope).
+const FAILED_SUCCESSOR_RUN_ID: &str = "run:preview-linear-static-001";
+const SUPPORT_SIGN: &str = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+const STATION_FORCE_SIGN: &str = "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction";
+const MAXIMUM_SIGN: &str = "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim";
 /// Source readiness is independent of the actual ordinary attempt's outcome.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub(super) enum OrdinaryTerminal {
@@ -454,9 +479,9 @@ pub(super) enum W2Seed {
     #[default]
     NotTriggered,
     Published { trigger: RangeTrigger, force_scale_exponent: i32, report_diagnostic_ref: Option<String> },
-    /// Not translated, so its fields are never read; `OrdinarySeed`'s layout is a priced atom
-    /// of the registered memory profile (`retained_memory.rs`).
-    #[allow(dead_code)]
+    /// B4/D1 ruling (5): only `ForceScalingFailure::Refused` has a closed wire translation;
+    /// `OrdinarySeed`'s layout is a priced atom of the registered memory profile
+    /// (`retained_memory.rs`).
     Failed { trigger: RangeTrigger, failure: ForceScalingFailure, diagnostic_ref: String },
 }
 /// The S11-G load-row finding and the diagnostic that discloses it, if any.
@@ -2308,7 +2333,7 @@ impl ProductCapture {
             if !same_case {
                 return Err("case binding".into());
             }
-            if combination.is_some() && matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record") {
+            if combination.is_some() && matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record"|REQUESTED_MODE_KIND) {
                 return Err("combination record row".into());
             }
             let node = self
@@ -2325,7 +2350,7 @@ impl ProductCapture {
                 .position(|s| self.adapter.same(&s.0, &r.entity_ref));
             self.adapter.require()?;
             let loc = r.metadata.as_ref().map(|m| m.location.as_str());
-            let (recipe, body, unit) = if r.kind == "linear_solver_mode_basis" {
+            let (recipe, body, unit) = if r.kind == "linear_solver_mode_basis" || r.kind == REQUESTED_MODE_KIND {
                 if r.unit != "mode_code" {
                     return Err("mode unit".into());
                 }
@@ -2940,6 +2965,23 @@ fn validate_final_metadata(
         Ok(())
     };
     let expected = match recipe {
+        k::ProductRecipe::NonQuantity if row.kind == REQUESTED_MODE_KIND => {
+            // B4/D1: the requested-mode basis of a failed ordinary case (its binding to the
+            // captured mode, case and owner is `bind_requested_mode`'s).
+            let m = m.ok_or("requested mode metadata")?;
+            if row.entity_ref != "solver:linear_static_preview"
+                || m.component != REQUESTED_MODE_COMPONENT
+                || m.coordinate_system != REQUESTED_MODE_COORDINATE
+                || m.location != case
+                || m.sign_convention != REQUESTED_MODE_SIGN
+                || !(row.value == 1.0 || row.value == 2.0)
+            {
+                return Err("requested mode record".into());
+            }
+            work.enter(AdapterEvent::ValidationEntry, 1);
+            work.require()?;
+            REQUESTED_MODE_ID.to_string()
+        }
         k::ProductRecipe::NonQuantity => {
             let m = m.ok_or("mode metadata")?;
             if row.kind != "linear_solver_mode_basis"
@@ -3383,7 +3425,8 @@ impl ProductCapture {
     pub(super) fn full_case_passed(&self) -> bool {
         self.error.is_none()
             && self.adapter.fault.get().is_none()
-            && self.final_calls == 1
+            // B4/D1: a genuinely failed ordinary run has no final hook (its envelope blocked).
+            && self.final_calls == usize::from(self.terminal != OrdinaryTerminal::FailedAttempt)
             && self.numeric_pass
             && self.observable_error.is_none()
             && self.g5a_error.is_none()
@@ -4096,6 +4139,186 @@ impl ProductCapture {
             self.with_case(index,|capture|capture.terminal=state);
         }
     }
+    /// B4/D1 W1 extension: the one requested case's ordinary attempt genuinely failed, so its
+    /// successor, if any, publishes from the typed row manifest (`failed_manifest`).
+    pub(super) fn failed_ordinary_case(&self)->bool {
+        self.parked.is_empty() && self.prepared_one_case_seen && self.terminal==OrdinaryTerminal::FailedAttempt
+    }
+    /// B4/D1 (b7-plan "Failed-ordinary successor rulings"): custody of a genuinely failed
+    /// ordinary run. One requested case on the preview route, its terminal a failed attempt
+    /// with no observation and its validated early source, the ordinary envelope blocked
+    /// (MODEL_INCOMPLETE, no rows, no final hook), and the seed a genuine failure outside DN
+    /// §4.3's exclusions that W2 did not publish. Anything else keeps the blocked fallback.
+    fn failed_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<(),CaptureError> {
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        if !self.prepared_probe || self.route!=W1Route::Preview || self.final_calls!=0
+            || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.native_invocation.is_some()
+            || ordinary.producer.semantic_contract_id!=self.route.base_contract()
+            || ordinary.status.mechanics!="MODEL_INCOMPLETE" || !ordinary.results.is_empty() {
+            return Err("failed ordinary custody/permit".into());
+        }
+        if requested!=1 || self.cases_seen()!=1 || attempted!=[0] {
+            return Err("failed ordinary case scope".into());
+        }
+        if !self.combinations.is_empty() || self.basis_expected || self.basis_record.is_some() {
+            return Err("failed ordinary formation scope".into());
+        }
+        if self.observations.is_some() || self.observation_calls!=0 || self.invocation_calls!=1
+            || self.invocation_mode.is_none() || self.source.is_none() {
+            return Err("failed ordinary observation custody".into());
+        }
+        let seed=only_one(self.ordinary.iter().filter(|seed|seed.case==self.case_id)).ok_or("failed ordinary seed")?;
+        let genuine=match (&seed.initial,&seed.w2) {
+            (Some(InitialSeed::StructuralFailure{error,..}),W2Seed::NotTriggered|W2Seed::Failed{..})=>
+                !matches!(error,StructuralError::Mechanism{..}|StructuralError::Asymmetric{..}|StructuralError::InvalidInput(_)),
+            _=>false,
+        };
+        if !genuine {
+            return Err("failed ordinary seed kind".into());
+        }
+        let quality=only_one(ordinary.numerical_quality.cases.iter().filter(|q|q.basis_ref.ref_id==self.case_id)).ok_or("failed ordinary quality")?;
+        if ordinary.numerical_quality.cases.len()!=1 || quality.solve_quality==NumericalQualityStatus::ChecksPassed {
+            return Err("failed ordinary quality".into());
+        }
+        Ok(())
+    }
+    /// B4/D1: the typed row manifest of a failed ordinary case, from the captured maps only
+    /// (normalized nodes, members, supports and their three stations), in preview-physics-1's
+    /// row order and with its ids, units and metadata (`validate_final_metadata` binds each
+    /// row to a captured identity). Every quantity value is a placeholder that the freeze
+    /// replaces from the selected retained owner; the maxima evidence's eight numbers are
+    /// regenerated there (`prepared_maxima`). The ordinary envelope's numerical quality tokens
+    /// and diagnostics are kept verbatim; the case's evidence refs add the requested-mode basis
+    /// row and the retained selection diagnostic. `status.mechanics` is MECHANICS_SOLVED only
+    /// in the successor this base can produce; on any refusal the blocked envelope publishes.
+    fn failed_manifest(&self,ordinary:&MechanicsEnvelope)->Result<MechanicsEnvelope,CaptureError> {
+        self.adapter.require()?;
+        let mode=self.invocation_mode.ok_or("failed manifest mode")?;
+        let case=self.case_id.as_str();
+        let count=self.nodes.len().checked_mul(7)
+            .and_then(|n|self.supports.len().checked_mul(8).and_then(|s|n.checked_add(s)))
+            .and_then(|n|self.members.len().checked_mul(FAILED_MEMBER_ROWS).and_then(|m|n.checked_add(m)))
+            .and_then(|n|n.checked_add(1)).ok_or(CaptureError::CountRange("failed manifest rows"))?;
+        let mut rows=self.adapter.reserve::<ResultItem>(count)?;
+        self.capture_entry(AdapterEvent::LibraryBoundary)?; // Existing fixed-id formatting; internals unqualified.
+        rows.push(ResultItem{id:REQUESTED_MODE_ID.into(),kind:REQUESTED_MODE_KIND.into(),value:mode.mode_code(),unit:"mode_code".into(),
+            entity_ref:"solver:linear_static_preview".into(),basis_ref:None,source_result_refs:Vec::new(),
+            metadata:Some(ResultMetadata{component:REQUESTED_MODE_COMPONENT.into(),coordinate_system:REQUESTED_MODE_COORDINATE.into(),
+                location:case.into(),basis:requested_mode_basis(mode,0),sign_convention:REQUESTED_MODE_SIGN.into()})});
+        for (id,_) in &self.nodes {
+            rows.push(ResultItem{id:format!("result:disp:{}",stable_suffix(id)),kind:"displacement_magnitude".into(),value:0.0,
+                unit:"mm".into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),metadata:None});
+        }
+        let zeros=[0.0;6];
+        for (id,_) in &self.nodes {
+            super::append_node_displacement_component_results(&mut rows,id,&zeros,0);
+        }
+        for (id,_) in &self.supports {
+            for (slot,component) in ["Fx","Fy","Fz","Mx","My","Mz","force_magnitude","moment_magnitude"].into_iter().enumerate() {
+                rows.push(ResultItem{id:format!("result:support-action:{}:{}:{}:{}:{}",case.len(),case,id.len(),id,component),
+                    kind:match slot {6=>"support_reaction_force_magnitude_v2",7=>"support_reaction_moment_magnitude_v2",_=>"support_reaction_component_v2"}.into(),
+                    value:0.0,unit:if slot<3 || slot==6 {"N"} else {"N*m"}.into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),
+                    metadata:Some(ResultMetadata{component:component.into(),coordinate_system:"global".into(),location:"node".into(),
+                        basis:"recovered_from_assembled_support_law".into(),sign_convention:SUPPORT_SIGN.into()})});
+            }
+        }
+        let zero=StressComponents{axial_normal:Some(0.0),bending_normal_y:Some(0.0),bending_normal_z:Some(0.0),torsional_shear:Some(0.0)};
+        let mut extrema=self.adapter.reserve::<serde_json::Value>(self.members.len())?;
+        for member in &self.members {
+            super::append_element_force_results(&mut rows,&member.id,&[0.0;12]);
+            for location in FAILED_STATIONS {
+                super::append_station_force_results(&mut rows,&member.id,location,&zeros,super::SECTION_RESULTANT_BASIS,STATION_FORCE_SIGN,"element_local");
+            }
+            for location in ["end_i","end_j"] {
+                super::append_endpoint_stress_results(&mut rows,&member.id,location,&zero,super::STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION);
+            }
+            for location in FAILED_STATIONS {
+                super::append_station_stress_results(&mut rows,&member.id,location,&zero,"recovered_from_open_mechanics_stress_components",None);
+            }
+            let id=format!("result:elastic-maximum:{}:{}:{}:{}",case.len(),case,member.id.len(),member.id);
+            extrema.push(serde_json::json!({"pipe_id":member.id,"result_id":id,"station_fraction":0.0,"span_index":0u64,"local_fraction":0.0,
+                "value_lower_pa":0.0,"value_upper_pa":0.0,"global_upper_bound_pa":0.0,"certified_gap_pa":0.0,"subdivisions":0u64,
+                "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64_enclosures",
+                "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"}));
+            rows.push(ResultItem{id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:0.0,unit:"Pa".into(),entity_ref:member.id.clone(),
+                basis_ref:None,source_result_refs:Vec::new(),metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),
+                    coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:"recovered_from_open_mechanics_stress_components".into(),
+                    sign_convention:MAXIMUM_SIGN.into()})});
+        }
+        if rows.len()!=count {
+            return Err("failed manifest row count".into());
+        }
+        let moves=u64::try_from(count).map_err(|_|CaptureError::CountRange("failed manifest rows"))?;
+        self.adapter.enter(AdapterEvent::MapWrite,moves.saturating_mul(2));
+        self.adapter.require()?;
+        for row in &mut rows {
+            row.basis_ref=Some(ResultBasisRef{ref_type:"load_case".into(),ref_id:case.into()});
+        }
+        let attributed:Vec<&str>=self.supports.iter().map(|(id,_)|id.as_str()).collect();
+        let evidence=serde_json::json!({"preview_cases":[{"load_case_id":case,"pipe_stress_extrema":extrema,
+            "stress_maximum_coverage":{"complete":true,"unavailable_pipe_ids":[],"outside_domain_pipe_ids":[]},
+            "support_attribution":{"attributed_support_ids":attributed,"withheld":[]},"intensified_measures":[]}],"combination_gates":[]});
+        let mut quality=ordinary.numerical_quality.clone();
+        for entry in quality.cases.iter_mut().filter(|entry|entry.basis_ref.ref_id==case) {
+            entry.evidence_refs.push(REQUESTED_MODE_ID.into());
+            entry.evidence_refs.push(format!("diagnostic:retained-precision:{case}:selected"));
+        }
+        self.capture_entry(AdapterEvent::MapWrite)?;
+        Ok(MechanicsEnvelope{contract_evidence:Some(evidence),schema_version:ordinary.schema_version.clone(),
+            producer:ordinary.producer.clone(),numerical_quality:quality,source_block_recovery:None,
+            formulation_basis:ordinary.formulation_basis.clone(),document_kind:ordinary.document_kind.clone(),
+            run_id:FAILED_SUCCESSOR_RUN_ID.into(),model_ref:ordinary.model_ref.clone(),
+            status:StatusEnvelope{mechanics:"MECHANICS_SOLVED".into(),rule_check:ordinary.status.rule_check.clone(),
+                professional_acceptance:ordinary.status.professional_acceptance.clone()},
+            summary:Summary{max_displacement:None,max_open_formula_stress:None,..ordinary.summary.clone()},
+            results:rows,diagnostics:ordinary.diagnostics.clone(),professional_boundary:ordinary.professional_boundary.clone(),
+            accepted_model_state_mutated:false})
+    }
+    /// B4/D1 ruling (4): a failed ordinary case's rows carry exactly one requested-mode basis,
+    /// bound to the captured invocation mode, the case and its retained owner (case index 0:
+    /// one requested case), and no ordinary mode or parity observation.
+    fn bind_requested_mode(&self,rows:&[ResultItem],qualified:bool)->Result<(),CaptureError> {
+        self.adapter.require()?;
+        if self.error.is_some() {
+            return Err("prior observation capture refusal".into());
+        }
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        let mode=self.invocation_mode.ok_or("requested mode custody")?;
+        if qualified || self.invocation_calls!=1 || self.observations.is_some() || self.observation_calls!=0
+            || self.terminal!=OrdinaryTerminal::FailedAttempt {
+            return Err("requested mode custody".into());
+        }
+        let expected=requested_mode_basis(mode,0);
+        let mut found=0usize;
+        for row in rows {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            let observed=self.adapter.same(&row.kind,"linear_solver_mode_basis")
+                || self.adapter.same(&row.kind,"sparse_live_path_dense_parity_relative_delta");
+            let requested=self.adapter.same(&row.kind,REQUESTED_MODE_KIND);
+            self.adapter.require()?;
+            if observed {
+                return Err("ordinary observation beside requested mode".into());
+            }
+            if !requested {
+                continue;
+            }
+            found=found.checked_add(1).ok_or(CaptureError::CountRange("requested modes"))?;
+            let m=row.metadata.as_ref().ok_or("requested mode metadata")?;
+            let basis=row.basis_ref.as_ref().ok_or("requested mode basis")?;
+            let bound=row.id==REQUESTED_MODE_ID && row.value.to_bits()==mode.mode_code().to_bits() && row.unit=="mode_code"
+                && basis.ref_type=="load_case" && self.adapter.same(&basis.ref_id,&self.case_id)
+                && self.adapter.same(&m.location,&self.case_id) && self.adapter.same(&m.basis,&expected)
+                && row.source_result_refs.is_empty();
+            self.adapter.require()?;
+            if !bound {
+                return Err("requested mode binding".into());
+            }
+        }
+        if found!=1 {
+            return Err("requested mode presence".into());
+        }
+        Ok(())
+    }
     pub(super) fn pending_error_bytes(&self)->usize {
         self.early_sources.iter().filter_map(Option::as_ref).filter_map(|source|match &source.error {
             Some(CaptureError::Association(text))=>Some(text.capacity()),_=>None}).fold(0usize,usize::saturating_add)
@@ -4360,6 +4583,10 @@ pub(super) struct PreparedCases {
     pub operand_preparations: Vec<OperandPreparation>,
     /// B2-P (T-10b (i)): the rebuilt sources of `unavailable` operand cases, one per case.
     pub rebuilt: Vec<(usize, k::PreparedCaseSource)>,
+    /// B4/D1 W1 extension: after a genuine ordinary failure, `ordinary` above is the typed row
+    /// manifest built from the captured maps (`ProductCapture::failed_manifest`), and this is
+    /// the untouched blocked ordinary envelope, the only fallback (`into_ordinary`).
+    blocked: Option<MechanicsEnvelope>,
 }
 /// B1 SP (DESIGN_v2 T-6): invocation custody failed, so no case was attempted. The facade reads
 /// the ordinary owner only; the private one-case driver (tests) reads the capture and its error.
@@ -4501,7 +4728,10 @@ impl PreparedCases {
             .fold(0u64, |bits, (k, _)| bits | 1u64.checked_shl(u32::try_from(k).unwrap_or(u32::MAX)).unwrap_or(0))
     }
     /// The one ordinary owner, untouched (the fallback, or the transfer's base).
-    pub(super) fn into_ordinary(self) -> MechanicsEnvelope { self.ordinary }
+    pub(super) fn into_ordinary(self) -> MechanicsEnvelope { self.blocked.unwrap_or(self.ordinary) }
+    /// Whether this transaction's base is a failed ordinary run's row manifest.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(super) fn failed_ordinary(&self) -> bool { self.blocked.is_some() }
     /// Test-only staging fault (RV85 N6): the first frozen case's first maxima patch names an
     /// evidence index past the envelope's extrema.
     #[cfg(test)]
@@ -4569,6 +4799,9 @@ impl ProductCapture {
         }
         self.adapter.require()?;
         if self.terminal_calls!=1 {return Err("missing ordinary terminal custody".into());}
+        if self.failed_ordinary_case() {
+            return self.failed_custody(ordinary,requested,attempted);
+        }
         if !self.prepared_probe || self.final_calls!=1
             || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.native_invocation.is_some()
             || self.parked.iter().any(|slot|slot.native.is_some())
@@ -4685,11 +4918,19 @@ impl ProductCapture {
         if let Err(error)=self.prepared_custody(&ordinary,requested,attempted) {
             return Err(CustodyFailure{ordinary,capture:self,error});
         }
+        // B4/D1: after a genuine ordinary failure the base is the typed manifest; the blocked
+        // ordinary envelope stays untouched as the fallback.
+        let (ordinary,blocked)=if self.failed_ordinary_case() {
+            match self.failed_manifest(&ordinary) {
+                Ok(manifest)=>(manifest,Some(ordinary)),
+                Err(error)=>return Err(CustodyFailure{ordinary,capture:self,error}),
+            }
+        } else {(ordinary,None)};
         let mut attempts=Vec::with_capacity(attempted.len());
         for (attempt,&request) in attempted.iter().enumerate() {
             attempts.push(self.with_case(request,|capture|capture.prepare_attempt(request,attempt)));
         }
-        Ok(PreparedCases{ordinary,capture:self,attempts,combinations:Vec::new(),operand_preparations:Vec::new(),rebuilt:Vec::new()})
+        Ok(PreparedCases{ordinary,capture:self,attempts,combinations:Vec::new(),operand_preparations:Vec::new(),rebuilt:Vec::new(),blocked})
     }
     /// One product attempt (T-7) on the case in the capture's own fields.
     fn prepare_attempt(&mut self,request:usize,attempt:usize)->CaseAttempt {
@@ -5049,10 +5290,16 @@ impl PreparedCandidateRefusal {
 }
 impl ProductCapture {
     fn bind_observations_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
-        self.bind_observations_in(view.case_rows(),view.scope.qualified)?;
+        // B4/D1: a genuinely failed ordinary case has no observation to bind; its requested-mode
+        // basis binds the captured mode instead (never an ordinary mode or parity row).
+        if self.terminal==OrdinaryTerminal::FailedAttempt {
+            self.bind_requested_mode(view.case_rows(),view.scope.qualified)?;
+        } else {
+            self.bind_observations_in(view.case_rows(),view.scope.qualified)?;
+        }
         for r in view.rows() {
             self.capture_entry(AdapterEvent::RowVisit)?;
-            if matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record")
+            if matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record"|REQUESTED_MODE_KIND)
                 && r.value.to_bits()!=r.original.value.to_bits() {return Err("overlay ancillary bits".into());}
         }
         Ok(())

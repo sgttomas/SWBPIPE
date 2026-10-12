@@ -435,6 +435,7 @@ fn controls() -> Vec<Control> {
 fn b4_w1_source_census() {
     let (mut trials, mut refused, mut unselected, mut selected_cases, mut covered, mut losses) =
         (0usize, 0usize, 0usize, 0usize, 0usize, Vec::new());
+    let mut loss_causes = std::collections::BTreeMap::<String, usize>::new();
     for c in controls() {
         for mode in c.modes {
             trials += 1;
@@ -516,6 +517,18 @@ fn b4_w1_source_census() {
             );
             ordinary.diagnostics.shrink_to_fit();
             let (_, successor) = retained_w1(observer, ordinary, &capture);
+            // Each lost case's cause class: the D1 domain (W1 never starts on the Direct entry),
+            // the held packaged table-byte pin at precommit G0 (b7-plan ruling (6)), or the W1 stage.
+            let cause = if domain.is_some() {
+                "d1_domain".to_string()
+            } else {
+                match &successor {
+                    Err(W1Fallback::Precommit { gate: "G0", code }) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => "held_g0_table_pin".to_string(),
+                    Err(other) => format!("w1_{other:?}"),
+                    Ok(_) => "reader_or_standing".to_string(),
+                }
+            };
+            let losses_before = losses.len();
             let mut details = Vec::new();
             let (outcome, w1_standing) = match successor {
                 Err(error) => (json!({"fallback":format!("{error:?}")}), "unsupported"),
@@ -628,21 +641,155 @@ fn b4_w1_source_census() {
                         .push(json!({"basis_ref":basis,"retained_same_or_better_standing":false}));
                 }
             }
+            *loss_causes.entry(cause.clone()).or_insert(0usize) += losses.len() - losses_before;
             eprintln!(
                 "B4_W1_CENSUS {}",
-                json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"request_sha256":sha(serde_json::to_string(&c.raw).unwrap().as_bytes()),"baseline_identity":baseline["producer"]["semantic_contract_id"],"baseline_reader":format!("{baseline_check:?}"),"baseline_standing":baseline_standing,"domain_refusal":domain.map(|d|format!("{d:?}")),"w1":outcome,"w1_standing":w1_standing,"cases":details})
+                json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"request_sha256":sha(serde_json::to_string(&c.raw).unwrap().as_bytes()),"baseline_identity":baseline["producer"]["semantic_contract_id"],"baseline_reader":format!("{baseline_check:?}"),"baseline_standing":baseline_standing,"domain_refusal":domain.map(|d|format!("{d:?}")),"w1":outcome,"w1_standing":w1_standing,"loss_cause":cause,"cases":details})
             );
         }
     }
     eprintln!(
         "B4_W1_CENSUS_SUMMARY {}",
-        json!({"trials":trials,"baseline_refused":refused,"baseline_unselected":unselected,"baseline_selected_cases":selected_cases,"covered_same_or_better":covered,"losses":losses})
+        json!({"trials":trials,"baseline_refused":refused,"baseline_unselected":unselected,"baseline_selected_cases":selected_cases,"covered_same_or_better":covered,"loss_causes":loss_causes,"losses":losses})
     );
     assert!(
         losses.is_empty(),
         "B4/D1 census found {} capability losses; see per-control evidence",
         losses.len()
     );
+}
+
+/// The committed failed-ordinary successor fixture, read by the Rust reader's and the Python
+/// verifier's below-G0 tests while the table pins are held (b7-plan ruling (6)).
+const FAILED_ORDINARY_FIXTURE: &str = "fixtures/results/retained_precision_failed_ordinary_cxf.json";
+
+/// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings"): CX-F's ordinary attempt fails
+/// genuinely (a range trigger that W2's orchestrator refused with ScaledEvaluation). W1 builds the
+/// typed row manifest from the captured maps, freezes the selected retained owner, serializes the
+/// successor (rulings (1)-(5)) and stops only at precommit's G0, where the packaged table-byte pin
+/// is held for D3. The fallback is the untouched blocked envelope with its unavailable notice.
+/// The serialized successors are the committed fixture, byte for byte.
+#[test]
+fn b4_failed_ordinary_cxf_freezes_and_stops_only_at_the_held_g0_pin() {
+    let raw = coexistence_cx_f();
+    let mut fixture = Vec::new();
+    for mode in MODES {
+        let label = mode.as_str();
+        let (_, _, plain) = early_observed(&raw, mode, false);
+        let (capture, observer, ordinary) = early_observed(&raw, mode, true);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), serde_json::to_vec(&plain).unwrap(), "{label}: ordinary bytes");
+        assert_eq!(observer.terminal, rp::OrdinaryTerminal::FailedAttempt, "{label}");
+        let ((fallback, result), _, successor) =
+            retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        assert_eq!(result.err(), Some(W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }),
+            "{label}: the held table-byte pin is the only refusal");
+        // The fallback: the blocked envelope's bytes, then the reserved unavailable notice.
+        let (fallback, plain) = (serde_json::to_value(&fallback).unwrap(), serde_json::to_value(&plain).unwrap());
+        let mut prefix = fallback.clone();
+        let notice = prefix["diagnostics"].as_array_mut().unwrap().pop().unwrap();
+        assert_eq!(prefix, plain, "{label}: blocked fallback");
+        assert_eq!(notice["code"], json!("RETAINED_PRECISION_UNAVAILABLE"), "{label}");
+        let s = successor.expect("the serialized successor reached precommit");
+        // Ruling (1): solved only as a successor; the blocked fallback stays MODEL_INCOMPLETE.
+        assert_eq!(s["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}");
+        let rows = s["results"].as_array().unwrap();
+        let requested: Vec<&Value> = rows.iter().filter(|r| r["kind"] == json!(rp::REQUESTED_MODE_KIND)).collect();
+        assert_eq!(requested.len(), 1, "{label}: ruling (4)");
+        assert!(!rows.iter().any(|r| matches!(r["kind"].as_str(),
+            Some("linear_solver_mode_basis" | "sparse_live_path_dense_parity_relative_delta"))), "{label}: no ordinary observation");
+        assert_eq!(requested[0]["value"], json!(mode.mode_code()), "{label}");
+        assert_eq!(requested[0]["metadata"]["basis"], json!(rp::requested_mode_basis(mode, 0)), "{label}");
+        // Ruling (2): the ordinary tokens kept; the evidence refs add the basis row and the certificate.
+        let quality = &s["numerical_quality"]["cases"][0];
+        let ordinary_quality = &plain["numerical_quality"]["cases"][0];
+        for key in ["structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"] {
+            assert_eq!(quality[key], ordinary_quality[key], "{label}: {key}");
+        }
+        let mut refs = ordinary_quality["evidence_refs"].as_array().unwrap().clone();
+        refs.extend([json!(rp::REQUESTED_MODE_ID), json!("diagnostic:retained-precision:case:selected")]);
+        assert_eq!(quality["evidence_refs"], json!(refs), "{label}");
+        // Ruling (3): the blocking diagnostic verbatim.
+        let blocking = plain["diagnostics"].as_array().unwrap().iter().find(|d| d["severity"] == json!("blocking")).unwrap();
+        assert!(s["diagnostics"].as_array().unwrap().contains(blocking), "{label}: blocking diagnostic kept verbatim");
+        // Ruling (5): W2's named refusal, translated once.
+        let body = &s["retained_precision"]["body"];
+        let range = json!({"tag":"evaluation","error":{"tag":"range","detail":"division overflow or underflow"}});
+        assert_eq!(body["ordinary_attempts"][0]["w2"], json!({"kind":"failed","trigger":range,
+            "failure":{"tag":"refused","refusal":{"reason":{"tag":"scaled_evaluation"},"trigger":range}},
+            "diagnostic_ref":"diagnostic:numerical-integrity:case"}), "{label}");
+        assert_eq!(body["cases"][0]["status"], json!("selected"), "{label}");
+        fixture.push(json!({"solver_mode": label, "request": raw, "successor": s}));
+    }
+    let fixture = serde_json::to_string(&json!({
+        "description": "B4/D1 failed-ordinary W1 successors of the CX-F control, both modes, as the producer serializes them before precommit (b7-plan Failed-ordinary successor rulings). Invented input; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+        "cases": fixture})).unwrap() + "\n";
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").join(FAILED_ORDINARY_FIXTURE);
+    if let Ok(out) = std::env::var("B4_FAILED_ORDINARY_FIXTURE_OUT") {
+        std::fs::write(out, &fixture).unwrap();
+    } else {
+        assert_eq!(std::fs::read_to_string(path).unwrap(), fixture, "the committed fixture is the producer's output");
+    }
+}
+
+/// B4/D1: N06's ordinary assembly absorbs its soft rotational spring. Custody and the typed
+/// manifest hold and the native Run is selected, but DEF-O's annular-source lane fails the
+/// existing residual contraction condition (alpha >= 1, block 0) before projection. W1 keeps the
+/// blocked fallback; the certificate law is unchanged.
+#[test]
+fn b4_failed_ordinary_n06_refuses_at_the_existing_alpha_condition() {
+    for c in controls().into_iter().filter(|c| c.name.contains("n06-") || c.name.starts_with("sign_rotation/N06")) {
+        for mode in c.modes.clone() {
+            let label = format!("{} {}", c.name, mode.as_str());
+            let (_, observer, ordinary) = early_observed(&c.raw, mode, true);
+            assert!(observer.failed_ordinary_case(), "{label}: genuine ordinary failure");
+            assert_eq!((observer.ordinary.len(), observer.terminal_calls), (1, 1), "{label}");
+            let mut prepared = observer.prepare_cases(ordinary, 1, &[0]).unwrap_or_else(|f| panic!("{label}: {:?}", f.error));
+            assert!(prepared.failed_ordinary(), "{label}: the base is the typed manifest");
+            prepared.native();
+            prepared.freeze();
+            match &prepared.attempts[0].end {
+                rp::AttemptEnd::Candidate(refused) => {
+                    let cause = format!("{:?}", refused.error);
+                    assert!(cause.starts_with("Proof(") && cause.contains("Native(Alpha { block: 0"), "{label}: {}", &cause[..120.min(cause.len())]);
+                }
+                _ => panic!("{label}: expected the alpha refusal"),
+            }
+            assert_eq!(serde_json::to_value(prepared.into_ordinary()).unwrap()["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
+            let (capture, observer, ordinary) = early_observed(&c.raw, mode, true);
+            let (_, result) = retained_w1(observer, ordinary, &capture);
+            assert_eq!(result.err(), Some(W1Fallback::Candidate), "{label}");
+        }
+    }
+}
+
+/// B4/D1 ruling (5): only `ForceScalingFailure::Refused` has a closed translation, with every named
+/// reason and its optional inner trigger; every other variant stays an untranslated refusal.
+#[test]
+fn b4_w2_failed_translation_is_closed_over_the_named_refusal() {
+    let range = RangeTrigger::Evaluation(StructuralError::Range("division overflow or underflow"));
+    let range_v = json!({"tag":"evaluation","error":{"tag":"range","detail":"division overflow or underflow"}});
+    let seed = |failure: ForceScalingFailure| rp::OrdinarySeed { case: "case".into(),
+        initial: Some(rp::InitialSeed::StructuralFailure { error: StructuralError::Range("division overflow or underflow"), diagnostic_ref: None }),
+        w2: rp::W2Seed::Failed { trigger: range.clone(), failure, diagnostic_ref: "diagnostic:numerical-integrity:case".into() },
+        load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false, legacy: None };
+    for (reason, wire_reason, inner) in [
+        (ForceScaleReason::ScaledEvaluation, json!({"tag":"scaled_evaluation"}), Some(range.clone())),
+        (ForceScaleReason::SubnormalAtFormation, json!({"tag":"subnormal_at_formation"}), None),
+        (ForceScaleReason::InfeasibleWindow { e_min: -1074, e_max: 1023 }, json!({"tag":"infeasible_window","e_min":-1074,"e_max":1023}), Some(range.clone())),
+        (ForceScaleReason::PublicationOutsideBinary64 { global_dof: Some(6) }, json!({"tag":"publication_outside_binary64","global_dof":6}), Some(range.clone())),
+    ] {
+        let inner_v = if inner.is_some() { range_v.clone() } else { Value::Null };
+        let ((_, w2, _), failures) = super::retained_wire::test_ordinary_members(&seed(ForceScalingFailure::Refused(ForceScalingRefusal { reason, trigger: inner })));
+        assert!(failures.is_empty(), "{failures:?}");
+        assert_eq!(w2, json!({"kind":"failed","trigger":range_v,"failure":{"tag":"refused","refusal":{"reason":wire_reason,"trigger":inner_v}},
+            "diagnostic_ref":"diagnostic:numerical-integrity:case"}));
+    }
+    for failure in [ForceScalingFailure::NotAdmitted { family: "spring", b: 518 }, ForceScalingFailure::NotEngaged,
+        ForceScalingFailure::Publication { quantity: "reaction".into(), b: 4 },
+        ForceScalingFailure::Failed(ForceScaledError::Structural(StructuralError::Range("division overflow or underflow")))] {
+        let (_, failures) = super::retained_wire::test_ordinary_members(&seed(failure.clone()));
+        assert_eq!(failures.first().map(|f| (f.check, f.field_path)), Some((super::retained_wire::ReceiptCheck::Untranslated, "ordinary_attempts[].w2.failure")), "{failure:?}");
+    }
 }
 
 #[test]
@@ -829,8 +976,17 @@ fn b4_early_failed_inputs_are_ready_with_genuine_terminal_and_no_rescue() {
                 "B4_EARLY_PREPARATION {}",
                 json!({"control":c.name,"mode":mode.as_str(),"terminal":format!("{:?}",observer.terminal),"source_ready":true,"layout":observer.early_source_layout()})
             );
+            // Before the failed-ordinary extension custody refused these at Preparation. The
+            // governed extension (b7-plan "Failed-ordinary successor rulings") now carries them past
+            // custody: CX-F to precommit's held G0 pin, N06 to the existing alpha refusal. Early
+            // readiness alone still creates no attempt (above) and no successor.
             let (_, successor) = retained_w1(observer, ordinary, &capture);
-            assert_eq!(successor.err(), Some(W1Fallback::Preparation));
+            let expected = if c.name == "CX-F" {
+                W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }
+            } else {
+                W1Fallback::Candidate
+            };
+            assert_eq!(successor.err(), Some(expected));
         }
     }
 }

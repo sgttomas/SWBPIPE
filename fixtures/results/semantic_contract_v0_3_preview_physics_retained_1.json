@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 73,
-  "source_kind_count": 49,
+  "source_signature_count": 74,
+  "source_kind_count": 50,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -1125,6 +1125,20 @@
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false
+    },
+    {
+      "signature_id": "preview-physics-retained-requested-mode-basis",
+      "kind": "retained_precision_requested_mode_basis",
+      "unit": "mode_code",
+      "component": "requested_solver_mode",
+      "source_physical_semantic_dimension": "dimensionless",
+      "derivative_target_dimension": "dimensionless",
+      "category": "solver_mode",
+      "family": null,
+      "canonical_disposition": "disclosed",
+      "legacy_declared_dimension": "dimensionless",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
     }
   ],
   "hash_vectors": [
@@ -1253,7 +1267,7 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-ORDINARY-DUAL-v1",
-      "sha256": "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2"
+      "sha256": "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323"
     },
     {
       "id": "RP-PREPARED-COMBINATION-DUAL-v1",

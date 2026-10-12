@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2"
+DEFINITION_HASH = "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323"
 TABLE_HASH = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
@@ -1020,6 +1020,67 @@ PRECONDITION_CODES = {"caller": "caller_not_qualified", "resource_admission": "r
                       "source_family": "source_unavailable"}
 
 
+def _failed_ordinary(attempt):
+    """B4/D1: a structural failure outside DN 4.3's exclusions that W2 did not publish."""
+    initial, w2 = attempt.get("initial") or {}, attempt.get("w2") or {}
+    return (initial.get("kind") == "structural_failure"
+            and (initial.get("error") or {}).get("tag") not in ("mechanism", "asymmetric", "invalid_input")
+            and w2.get("kind") in ("not_triggered", "failed"))
+
+
+def _requested_mode_text(mode, case_index):
+    return (f"captured_requested_mode; solver_mode={mode}; ordinary_attempt=failed_without_observation; "
+            f"owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection")
+
+
+def _g5_requested_mode(body, rows_by_case, diags, quality):
+    """B4/D1 rulings (2)-(4), before G8's invocation binding: a requested-mode basis row only on a
+    selected case whose ordinary attempt genuinely failed, exactly one there, never beside an ordinary
+    mode or parity observation; its value the requested mode's code and its metadata the mode, the
+    case's retained owner and certificate. That case's quality keeps the failed outcome and names the
+    basis row and the selection diagnostic. A blocking diagnostic is admitted only as such a case's own
+    failure diagnostic (ruling (3))."""
+    fail = lambda ok: _need(ok, "G5", "REQUESTED_MODE_MISMATCH")
+    bound = []
+    for i, case in enumerate(body["cases"]):
+        attempt = body["ordinary_attempts"][i]
+        cid = case["basis_ref"]["ref_id"]
+        rows = rows_by_case.get(cid, [])
+        requested = [r for r in rows if r["kind"] == REQUESTED_MODE_KIND]
+        observed = [r for r in rows if r["kind"] in ("linear_solver_mode_basis", "sparse_live_path_dense_parity_relative_delta")]
+        failed = _failed_ordinary(attempt)
+        if not requested:
+            fail(not (failed and case["status"] == "selected"))
+            continue
+        fail(failed and case["status"] == "selected" and len(requested) == 1 and not observed)
+        row, mode = requested[0], attempt["requested_mode"]
+        code = {"sparse_interactive": 1, "dense_scrutiny": 2}.get(mode)
+        meta = row.get("metadata") or {}
+        fail(code is not None and row["id"] == REQUESTED_MODE_ID and row["unit"] == "mode_code"
+             and row["entity_ref"] == "solver:linear_static_preview" and type(row["value"]) in (int, float)
+             and bits(float(row["value"])) == bits(float(code)) and not row.get("source_result_refs")
+             and meta == {"component": "requested_solver_mode", "coordinate_system": "captured_invocation", "location": cid,
+                          "basis": _requested_mode_text(mode, i), "sign_convention": REQUESTED_MODE_SIGN})
+        q = quality[i]
+        refs = q.get("evidence_refs") or []
+        fail(q["basis_ref"] == case["basis_ref"] and q["solve_quality"] in ("unresolved", "failed")
+             and q["structural_status"] != "passive_model_basis" and q["accuracy_evidence"] != "reference_verified"
+             and REQUESTED_MODE_ID in refs and f"diagnostic:retained-precision:{cid}:selected" in refs)
+        for ref in ((attempt.get("initial") or {}).get("diagnostic_ref"), (attempt.get("w2") or {}).get("diagnostic_ref")):
+            if ref is not None: bound.append((ref, cid))
+    # Ruling (5): a failed W2 attempt is only the closed named refusal, whose step-1 trigger, when
+    # recorded, is the outer range trigger.
+    for attempt in body["ordinary_attempts"]:
+        w2 = attempt.get("w2") or {}
+        if w2.get("kind") == "failed":
+            failure = w2.get("failure") or {}
+            inner = (failure.get("refusal") or {}).get("trigger")
+            _need(failure.get("tag") == "refused" and (inner is None or inner == w2.get("trigger")), "G5", "W2_FAILURE_MISMATCH")
+    for d in diags:
+        if d.get("severity") == "blocking":
+            _need(any(d["id"] == ref and d.get("affected_refs") == [cid] for ref, cid in bound), "G5", "BLOCKING_DIAGNOSTIC_UNBOUND")
+
+
 def _g5_ordinary(body, cases, diags, quality, gates=None):
     """G5 class 2 ordinary pass (C3:304; D3, D6): checklist O2-O5 (C2:149-161; S06:51), plus the
     ordinary-list, not_attempted, report, not_required, selected-quality and rcond checks that
@@ -1265,10 +1326,16 @@ def _g5_proof_rows(a, rows, fail, wf):
 
 
 COMPONENTS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
-NONQUANTITY_KINDS = {"linear_solver_mode_basis", "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
+# B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): a failed ordinary case's
+# requested-mode basis replaces its ordinary mode row; the two never coexist in one case.
+REQUESTED_MODE_KIND = "retained_precision_requested_mode_basis"
+REQUESTED_MODE_ID = "result:retained-precision:requested-mode-basis"
+REQUESTED_MODE_SIGN = ("mode_code 1=sparse_interactive, 2=dense_scrutiny; the captured requested solver mode after a failed "
+                       "ordinary attempt, not an ordinary solve observation")
+NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
 HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2"}
-NONQUANTITY = {"linear_solver_mode_basis", "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
+NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
 INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "component_user_stiffness_macro_element_review", "constant_effort_user_input_review", "spring_hanger_user_input_review", "expansion_joint_pressure_thrust_load_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
 MOMENT = {"element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z", "support_reaction_moment_magnitude_v2"}
@@ -1783,6 +1850,13 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         need(o["material_basis_ref"] == case_bases[i])
         case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
         modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
+        # B4/D1 ruling (4): a failed ordinary case's requested-mode basis (bound at G5) binds the actual
+        # invocation's mode and replaces the ordinary mode row.
+        requested = [r for r in case_rows if r["kind"] == REQUESTED_MODE_KIND]
+        if requested:
+            _need(len(requested) == 1 and not modes and type(requested[0]["value"]) in (int, float) and requested[0]["value"] == mode_code,
+                  "G8", "REQUESTED_MODE_MISMATCH")
+            continue
         # 3. P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
         need(len(modes) == 1 and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
         parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
@@ -2591,6 +2665,9 @@ def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
     projected["producer"]["semantic_contract_id"]=route.base_id;projected["formulation_basis"]["profile_id"]=route.base_profile
     for row in projected["results"] if type(projected.get("results")) is list else []:
         if type(row) is dict:row.pop("recovery_method",None)
+    # B4/D1: the requested-mode basis is the successor's own record (G5, G8), not a base row.
+    if type(projected.get("results")) is list:
+        projected["results"]=[row for row in projected["results"] if not (type(row) is dict and row.get("kind")==REQUESTED_MODE_KIND)]
     return projected
 
 
@@ -2598,26 +2675,39 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
     """The ordered checks behind the public entry (D-U6-1). With raw=False, the transport checks
     (F-U6b-2): G1 skips the raw rows and the publication digest, as Rust's g1(source, false).
     B3b: one dispatch on the identity at G0 selects the route (B3-D §6.1); the other gates are shared."""
-    gate="G0";route=None
+    state={"gate":"G0","phase":["G5a"]};route=None
     try:
         producer=source.get("producer") if type(source) is dict else None;basis=source.get("formulation_basis") if type(source) is dict else None
         contract=producer.get("semantic_contract_id") if type(producer) is dict else None
         route=ROUTES.get(contract) if type(contract) is str else None
         _need(type(producer) is dict and type(basis) is dict and route is not None and basis.get("profile_id")==route.profile,"G0","SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         snapshot=deepcopy(source);invocation=deepcopy(invocation);receipt=snapshot.get("retained_precision");schema=_schema()
-        _need(snapshot.get("schema_version")=="0.2.0" and snapshot["producer"].get("component_name")=="open_pipe_stress_product_physics" and snapshot["producer"].get("component_version")=="0.2.0",gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+        _need(snapshot.get("schema_version")=="0.2.0" and snapshot["producer"].get("component_name")=="open_pipe_stress_product_physics" and snapshot["producer"].get("component_version")=="0.2.0",state["gate"],"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         if route.exact:_g0_exact(receipt)
         else:_g0_preview(receipt)
-        gate="G1";_need(_shape(receipt,schema) and (not raw or (type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]))),gate,"RECEIPT_MISMATCH")
+    except RetainedPrecisionError:raise
+    except (KeyError,IndexError,TypeError,ValueError,OverflowError,ZeroDivisionError,StopIteration,AttributeError) as exc:
+        raise _fallback_error(state,route) from exc
+    return _gates_after_g0(snapshot,receipt,schema,invocation,route,raw,state)
+
+
+def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, state=None):
+    """G1-G8, in order, of a statement whose G0 (identity, packaged tables, definitions and bound receipt
+    values) has passed. `_validate_draft` is its only production caller; verifier tests also reach the later
+    gates through it while the packaged table pins are held for B7a's D3 re-registration (b7-plan
+    "Failed-ordinary successor rulings" (6))."""
+    state={"gate":"G1","phase":["G5a"]} if state is None else state
+    try:
+        state["gate"]="G1";_need(_shape(receipt,schema) and (not raw or (type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]))),state["gate"],"RECEIPT_MISMATCH")
         body=receipt["body"]
-        _need(_hash("retained_precision_receipt_mp_v2",body)==receipt["receipt_sha256"],gate,"RECEIPT_MISMATCH")
-        if raw:_need(_hash("retained_precision_publication_mp_v2",{k:v for k,v in snapshot.items() if k!="retained_precision"})==body["publication_sha256"],gate,"RECEIPT_MISMATCH")
+        _need(_hash("retained_precision_receipt_mp_v2",body)==receipt["receipt_sha256"],state["gate"],"RECEIPT_MISMATCH")
+        if raw:_need(_hash("retained_precision_publication_mp_v2",{k:v for k,v in snapshot.items() if k!="retained_precision"})==body["publication_sha256"],state["gate"],"RECEIPT_MISMATCH")
         # Integrity is G1. Invalid reference representation/coverage is left for
         # G2/G3; only already-addressable records have an integrity comparison.
         for c in body["cases"]:
             si=_integral(c.get("source_ref"))
             if c["status"]=="selected" and si is not None and 0<=si<len(body["sources"]):
-                _need(c["source_identity_sha256"]==_source_hash(body["sources"][si]),gate,"RECEIPT_MISMATCH")
+                _need(c["source_identity_sha256"]==_source_hash(body["sources"][si]),state["gate"],"RECEIPT_MISMATCH")
         for s in body["sources"]:
             prep=s.get("preparation")
             if prep is not None and "attempt_ref" in prep:
@@ -2626,25 +2716,25 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
                     a=body["product_attempts"][ai]
                     if all(m["result"]["kind"]=="prepared" for m in a["preparation"]["members"]):
                         # S-1 (B3-D REVISION_01 §2): the payload carries the route's definition hash, not DEF-O's.
-                        _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a,route.definition_hash)),gate,"RECEIPT_MISMATCH")
+                        _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a,route.definition_hash)),state["gate"],"RECEIPT_MISMATCH")
         _g1_combinations(body,route)
-        gate="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),gate,"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
+        state["gate"]="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),state["gate"],"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
         if not raw:
-            gate="G7";_transport_base(snapshot,route)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
+            state["gate"]="G7";_transport_base(snapshot,route)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
             return {"invocation_bound":False,"numerical_eligible":False,"standing":"needs_recompute","publication_sha256":body["publication_sha256"],"classifications":[]}
-        gate="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
+        state["gate"]="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
         ids=[c["basis_ref"]["ref_id"] for c in cases]
-        _need(len(set(ids))==len(ids) and [c["basis_ref"] for c in cases]==[q["basis_ref"] for q in quality] and any(c["status"]=="selected" for c in cases),gate,"COVERAGE_MISMATCH")
-        if invocation is not None:_need(ids==[c["id"] for c in invocation["request"]["model"]["load_cases"]],gate,"COVERAGE_MISMATCH")
+        _need(len(set(ids))==len(ids) and [c["basis_ref"] for c in cases]==[q["basis_ref"] for q in quality] and any(c["status"]=="selected" for c in cases),state["gate"],"COVERAGE_MISMATCH")
+        if invocation is not None:_need(ids==[c["id"] for c in invocation["request"]["model"]["load_cases"]],state["gate"],"COVERAGE_MISMATCH")
         # B2-C §10.1 G3 (c), REVISION_01 §4.1 #5: a row's basis names a case or a combination entry (at z = 0, a case).
         combos=body["combinations"];cids=[c["basis_ref"]["ref_id"] for c in combos]
         rows={cid:[] for cid in ids};crows={cid:[] for cid in cids};seen=set()
         for row in snapshot["results"]:
             basis=row.get("basis_ref",{});owned=rows if basis.get("ref_type")=="load_case" else crows if basis.get("ref_type")=="combination" else {}
-            _need(row["id"] not in seen and basis.get("ref_id") in owned,gate,"COVERAGE_MISMATCH")
+            _need(row["id"] not in seen and basis.get("ref_id") in owned,state["gate"],"COVERAGE_MISMATCH")
             seen.add(row["id"]);owned[basis["ref_id"]].append(row)
-        _need(len(body["ordinary_attempts"])==len(cases),gate,"COVERAGE_MISMATCH")
-        for s in body["sources"]:_need(s["owner"]["kind"]=="combination" or len(s["body_membership"])>0,gate,"COVERAGE_MISMATCH")  # D29 (a CombinationSource has none)
+        _need(len(body["ordinary_attempts"])==len(cases),state["gate"],"COVERAGE_MISMATCH")
+        for s in body["sources"]:_need(s["owner"]["kind"]=="combination" or len(s["body_membership"])>0,state["gate"],"COVERAGE_MISMATCH")  # D29 (a CombinationSource has none)
         # The receipt's own references, bound and unbound (RR "RV113's three returns verified; ...; the three-reader
         # alignment set ruled", item 1; TS `coverage`): each source and each material basis sits at its index, a
         # source's owner is its own case, and a basis's case list is unique and in range.
@@ -2652,87 +2742,92 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
             if s["owner"]["kind"]=="combination":
                 # REVISION_01 §4.1 #4: a CombinationSource names its own combination entry.
                 ki=_integral(s["owner"]["combination_index"])
-                _need(s["index"]==si and ki is not None and 0<=ki<len(combos) and cids[ki]==s["owner"]["combination_id"],gate,"COVERAGE_MISMATCH")
+                _need(s["index"]==si and ki is not None and 0<=ki<len(combos) and cids[ki]==s["owner"]["combination_id"],state["gate"],"COVERAGE_MISMATCH")
                 continue
             ci=_integral(s["owner"]["case_index"])
-            _need(s["index"]==si and s["owner"]["kind"]=="case" and ci is not None and 0<=ci<len(cases) and ids[ci]==s["owner"]["case_id"],gate,"COVERAGE_MISMATCH")
+            _need(s["index"]==si and s["owner"]["kind"]=="case" and ci is not None and 0<=ci<len(cases) and ids[ci]==s["owner"]["case_id"],state["gate"],"COVERAGE_MISMATCH")
         for mi,mb in enumerate(body["material_bases"]):
-            _need(mb["index"]==mi and len(set(mb["case_indices"]))==len(mb["case_indices"]) and all(x<len(cases) for x in mb["case_indices"]),gate,"COVERAGE_MISMATCH")
+            _need(mb["index"]==mi and len(set(mb["case_indices"]))==len(mb["case_indices"]) and all(x<len(cases) for x in mb["case_indices"]),state["gate"],"COVERAGE_MISMATCH")
         # REVISION_01 §4.1 #1: the attempt bijection covers the cases' and the combination entries' references.
         refs=[c["product_attempt_ref"] for c in cases if c["product_attempt_ref"] is not None]+[c["product_attempt_ref"] for c in combos if c.get("product_attempt_ref") is not None]
-        _need(sorted(refs)==list(range(len(body["product_attempts"]))),gate,"COVERAGE_MISMATCH")
+        _need(sorted(refs)==list(range(len(body["product_attempts"]))),state["gate"],"COVERAGE_MISMATCH")
         for ai,a in enumerate(body["product_attempts"]):
             if a["owner_ref"]["kind"]=="combination":
                 _g3_combination_attempt(body,a,ai,crows);continue  # REVISION_01 §4.1 #3
-            _need(a["id"]==ai and a["owner_ref"]["kind"]=="case" and a["owner_ref"]["index"]<len(cases),gate,"COVERAGE_MISMATCH")
+            _need(a["id"]==ai and a["owner_ref"]["kind"]=="case" and a["owner_ref"]["index"]<len(cases),state["gate"],"COVERAGE_MISMATCH")
             c=cases[int(a["owner_ref"]["index"])]
-            _need(c["product_attempt_ref"]==ai,gate,"COVERAGE_MISMATCH")
+            _need(c["product_attempt_ref"]==ai,state["gate"],"COVERAGE_MISMATCH")
             old,new=a["operational"]["old"],a["operational"]["new"];pm=a["preparation"]["members"]
-            _need([x["member"] for x in old]==list(range(len(old))) and [x["member"] for x in pm]==list(range(len(pm))) and [x["member"] for x in new]==list(range(len(new))) and len(new)<=len(pm)<=len(old),gate,"COVERAGE_MISMATCH")
-            if a["operational"]["old_coverage"]=="captured_prefix":_need(not pm and not new,gate,"COVERAGE_MISMATCH")
+            _need([x["member"] for x in old]==list(range(len(old))) and [x["member"] for x in pm]==list(range(len(pm))) and [x["member"] for x in new]==list(range(len(new))) and len(new)<=len(pm)<=len(old),state["gate"],"COVERAGE_MISMATCH")
+            if a["operational"]["old_coverage"]=="captured_prefix":_need(not pm and not new,state["gate"],"COVERAGE_MISMATCH")
             if a["operational"]["old_coverage"]=="complete":
                 # D1 (F1:101, 130; C3:302): complete old ids equal the member inventory: the source's
                 # map when sourced, else every CaseSource's (one model); without one, G8 binds it.
                 si=_integral(a["source_ref"])
-                if si is not None and 0<=si<len(body["sources"]):_need([x["member"] for x in old]==[m["kernel_member"] for m in body["sources"][si]["id_maps"]["members"]],gate,"COVERAGE_MISMATCH")  # D23
+                if si is not None and 0<=si<len(body["sources"]):_need([x["member"] for x in old]==[m["kernel_member"] for m in body["sources"][si]["id_maps"]["members"]],state["gate"],"COVERAGE_MISMATCH")  # D23
                 elif si is None:
                     for s in body["sources"]:
-                        if s["owner"]["kind"]=="case":_need(len(old)==len(s["id_maps"]["members"]),gate,"COVERAGE_MISMATCH")
+                        if s["owner"]["kind"]=="case":_need(len(old)==len(s["id_maps"]["members"]),state["gate"],"COVERAGE_MISMATCH")
             if a["proof"] is not None:
                 indices=[x["row_index"] for x in a["proof"]["projection_outcomes"]];case_rows=rows[c["basis_ref"]["ref_id"]]
-                _need(indices==sorted(set(indices)) and all(x<len(case_rows) and case_rows[int(x)]["kind"] not in HULL_EXCLUDED for x in indices),gate,"COVERAGE_MISMATCH")
+                _need(indices==sorted(set(indices)) and all(x<len(case_rows) and case_rows[int(x)]["kind"] not in HULL_EXCLUDED for x in indices),state["gate"],"COVERAGE_MISMATCH")
                 # I57 s4 G3: a complete proof-owned roster lists the attempt's source bodies
                 # exactly once, ascending 0..body_count-1. A null/invalid source reference is
                 # left to the G5 association pass.
                 coverage=a["proof"]["summary_coverage"];si=_integral(a["source_ref"])
                 if coverage is not None and si is not None and 0<=si<len(body["sources"]):
                     inventory=[b["body"] for b in body["sources"][si]["body_membership"]]
-                    _need(bool(inventory) and [x["body"] for x in coverage]==inventory==list(range(len(inventory))),gate,"COVERAGE_MISMATCH")
+                    _need(bool(inventory) and [x["body"] for x in coverage]==inventory==list(range(len(inventory))),state["gate"],"COVERAGE_MISMATCH")
         # D1 (C2:117; C1:146): each run id is its execution-order position; the order is a bijection.
         # B2-C G3 (f), REVISION_01 §4.1 #2: the case Runs, then the combination Runs in Call order (at z = 0, the cases' only).
         order=body["work"]["execution_order"];with_run=[i for i,c in enumerate(cases) if c.get("run") is not None]
         n=next((k for k,e in enumerate(order) if e["kind"]!="case"),len(order));head,tail=order[:n],order[n:]
-        _need(all(e["kind"]=="case" for e in head) and sorted(e["index"] for e in head)==with_run and all(cases[e["index"]]["run"]["id"]==k for k,e in enumerate(head)),gate,"COVERAGE_MISMATCH")
+        _need(all(e["kind"]=="case" for e in head) and sorted(e["index"] for e in head)==with_run and all(cases[e["index"]]["run"]["id"]==k for k,e in enumerate(head)),state["gate"],"COVERAGE_MISMATCH")
         _need(all(e["kind"]=="combination" for e in tail) and [e["index"] for e in tail]==[k for k,c in enumerate(combos) if c.get("run") is not None]
-              and all(combos[e["index"]]["run"]["id"]==n+k for k,e in enumerate(tail)),gate,"COVERAGE_MISMATCH")
+              and all(combos[e["index"]]["run"]["id"]==n+k for k,e in enumerate(tail)),state["gate"],"COVERAGE_MISMATCH")
         for i,c in enumerate(cases):
-            _need(c["ordinary"]["attempt_ref"]==i and c["ordinary"]["quality_binding"]=={"kind":"present","index":i} and body["ordinary_attempts"][i]["case_index"]==i and body["ordinary_attempts"][i]["case_id"]==ids[i],gate,"COVERAGE_MISMATCH")
+            _need(c["ordinary"]["attempt_ref"]==i and c["ordinary"]["quality_binding"]=={"kind":"present","index":i} and body["ordinary_attempts"][i]["case_index"]==i and body["ordinary_attempts"][i]["case_id"]==ids[i],state["gate"],"COVERAGE_MISMATCH")
         _g3_combinations(snapshot,body,ids,crows)
         rows.update(crows)  # one id set (G3 (b)): the cases' and the combination entries' rows
-        gate="G4";diags=snapshot["diagnostics"]
-        _need(len({d["id"] for d in diags})==len(diags) and not any(d["code"]=="SOURCE_BLOCK_RECOVERY_SELECTED" for d in diags),gate,"DIAGNOSTIC_MISMATCH")
+        state["gate"]="G4";diags=snapshot["diagnostics"]
+        _need(len({d["id"] for d in diags})==len(diags) and not any(d["code"]=="SOURCE_BLOCK_RECOVERY_SELECTED" for d in diags),state["gate"],"DIAGNOSTIC_MISMATCH")
         for i,c in enumerate(cases):
             cid=ids[i];selected=[d for d in diags if d["code"]=="RETAINED_PRECISION_SELECTED" and cid in d.get("affected_refs",[])];unavailable=[d for d in diags if d["code"]=="RETAINED_PRECISION_UNAVAILABLE" and cid in d.get("affected_refs",[])]
-            _need(len(selected)==int(c["status"]=="selected") and len(unavailable)==int(c["status"]=="unavailable") and all(d["affected_refs"]==[cid] for d in selected+unavailable),gate,"DIAGNOSTIC_MISMATCH")
-            if c["status"]=="unavailable":_need(unavailable[0]["id"]==c["diagnostic_ref"],gate,"DIAGNOSTIC_MISMATCH")
-            if c["status"]=="selected":_need(not any(d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE" and cid in d.get("affected_refs",[]) for d in diags),gate,"DIAGNOSTIC_MISMATCH")
+            _need(len(selected)==int(c["status"]=="selected") and len(unavailable)==int(c["status"]=="unavailable") and all(d["affected_refs"]==[cid] for d in selected+unavailable),state["gate"],"DIAGNOSTIC_MISMATCH")
+            if c["status"]=="unavailable":_need(unavailable[0]["id"]==c["diagnostic_ref"],state["gate"],"DIAGNOSTIC_MISMATCH")
+            if c["status"]=="selected":_need(not any(d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE" and cid in d.get("affected_refs",[]) for d in diags),state["gate"],"DIAGNOSTIC_MISMATCH")
         for d in diags:
             # D7 (C1 G4 row; C1:147): every retained diagnostic names exactly one requested case.
             # REVISION_01 §4.1 #6: one case or one combination.
-            if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),gate,"DIAGNOSTIC_MISMATCH")
+            if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
-        gate="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_products(body,rows)
+        state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality);_g5_products(body,rows)
         # B3-D §6.2: on the exact branch G5b also binds each selected case's own physics-1 section evidence.
-        gate="G5a";phase=["G5a"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
-        gate="G6"
+        state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
+        state["gate"]="G6"
         for c in cases:
-            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["status"]=="selected" else "recovery_method" not in row,gate,"ROW_METHOD_MISMATCH")
+            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["status"]=="selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         for c in body["combinations"]:
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
-            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,gate,"ROW_METHOD_MISMATCH")
-        gate="G7";projected=_project(snapshot,route)
+            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
+        state["gate"]="G7";projected=_project(snapshot,route)
         try:_source_contract(projected)
         except ValueError as exc:
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
             error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
             raise error from exc
-        gate="G8"
+        state["gate"]="G8"
         if invocation is not None:_g8(body,snapshot,invocation,route)
         eligible=_IMPLEMENTATION_COMPLETE and invocation is not None and snapshot["status"]["mechanics"]=="MECHANICS_SOLVED" and all(c["status"] in ("selected","not_required") for c in cases)
         return {"invocation_bound":invocation is not None,"numerical_eligible":eligible,"standing":"eligible" if eligible else "needs_recompute","publication_sha256":body["publication_sha256"],"classifications":classes}
     except RetainedPrecisionError:raise
     except (KeyError,IndexError,TypeError,ValueError,OverflowError,ZeroDivisionError,StopIteration,AttributeError) as exc:
-        # Fail-closed fallback only (D16): checks report their own codes; G5a/G5b/G5c follow the phase (D10).
-        if gate=="G5a":gate=phase[0]
-        code={"G0":"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED","G1":"RETAINED_PRECISION_RECEIPT_MISMATCH","G2":"RETAINED_PRECISION_ENCODING_MISMATCH","G3":"RETAINED_PRECISION_COVERAGE_MISMATCH","G4":"RETAINED_PRECISION_DIAGNOSTIC_MISMATCH","G5":"RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH","G5a":"RETAINED_PRECISION_SCALE_MISMATCH","G5b":"RETAINED_PRECISION_SCALE_MISMATCH","G5c":"RETAINED_PRECISION_CLASSIFICATION_MISMATCH","G6":"RETAINED_PRECISION_ROW_METHOD_MISMATCH","G8":"RETAINED_PRECISION_PREPARATION_MISMATCH"}.get(gate,(route or PREVIEW_ROUTE).base_invalid)
-        raise RetainedPrecisionError(gate,code) from exc
+        raise _fallback_error(state,route) from exc
+
+
+def _fallback_error(state, route):
+    """Fail-closed fallback only (D16): checks report their own codes; G5a/G5b/G5c follow the phase (D10)."""
+    gate=state["gate"]
+    if gate=="G5a":gate=state["phase"][0]
+    code={"G0":"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED","G1":"RETAINED_PRECISION_RECEIPT_MISMATCH","G2":"RETAINED_PRECISION_ENCODING_MISMATCH","G3":"RETAINED_PRECISION_COVERAGE_MISMATCH","G4":"RETAINED_PRECISION_DIAGNOSTIC_MISMATCH","G5":"RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH","G5a":"RETAINED_PRECISION_SCALE_MISMATCH","G5b":"RETAINED_PRECISION_SCALE_MISMATCH","G5c":"RETAINED_PRECISION_CLASSIFICATION_MISMATCH","G6":"RETAINED_PRECISION_ROW_METHOD_MISMATCH","G8":"RETAINED_PRECISION_PREPARATION_MISMATCH"}.get(gate,(route or PREVIEW_ROUTE).base_invalid)
+    return RetainedPrecisionError(gate,code)

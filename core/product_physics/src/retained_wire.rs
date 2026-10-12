@@ -33,7 +33,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "5b92d518b044a1e65a3fee37e0cf5e1490ef7f679eefe4b2537cfb8f43cfa0a2";
+    "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -758,6 +758,18 @@ fn range_trigger(e: &Enc, trigger: &RangeTrigger) -> Value {
     }
 }
 
+/// B4/D1 ruling (5): K2b's named refusal (schema `ForceRefusal`): its reason and, when the
+/// b-rule ran, its step-1 trigger.
+fn force_refusal(e: &Enc, refusal: &ForceScalingRefusal) -> Value {
+    let reason = match &refusal.reason {
+        ForceScaleReason::SubnormalAtFormation => json!({"tag":"subnormal_at_formation"}),
+        ForceScaleReason::ScaledEvaluation => json!({"tag":"scaled_evaluation"}),
+        ForceScaleReason::InfeasibleWindow { e_min, e_max } => json!({"tag":"infeasible_window","e_min":e_min,"e_max":e_max}),
+        ForceScaleReason::PublicationOutsideBinary64 { global_dof } => json!({"tag":"publication_outside_binary64","global_dof":global_dof}),
+    };
+    let trigger = refusal.trigger.as_ref().map_or(Value::Null, |trigger| range_trigger(e, trigger));
+    json!({"reason":reason,"trigger":trigger})
+}
 /// The successor's identity and profile (G-a), set once per successor: the route's (B3b-P, P-9;
 /// the profile's `limitations` stay the base producer's).
 fn successor_identity(env: &mut Value, route: rp::W1Route) {
@@ -869,7 +881,13 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
             e.fail(ReceiptCheck::Association, "ordinary_attempts[].w2.report_diagnostic_ref");
             Value::Null
         }
-        // ForceScalingFailure has no closed translation.
+        // B4/D1 ruling (5): one closed translation, the orchestrator's named refusal with the
+        // outer range trigger, its inner trigger and reason, and the diagnostic reference.
+        rp::W2Seed::Failed { trigger, failure: ForceScalingFailure::Refused(refusal), diagnostic_ref } => {
+            json!({"kind":"failed","trigger":range_trigger(e,trigger),
+                "failure":{"tag":"refused","refusal":force_refusal(e,refusal)},"diagnostic_ref":diagnostic_ref})
+        }
+        // Every other ForceScalingFailure variant has no closed translation.
         rp::W2Seed::Failed { .. } => e.untranslated("ordinary_attempts[].w2.failure"),
     };
     if seed.recovery_demoted {
@@ -2179,6 +2197,14 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
 }
 
 /// Test access to the D39 mapping with its first-failure encoder.
+/// Test access to the ordinary attempt's `initial`, `w2` and `formation` with its encoder's
+/// failures (B4/D1 ruling (5)'s closed W2 translation).
+#[cfg(test)]
+pub(super) fn test_ordinary_members(seed: &rp::OrdinarySeed) -> ((Value, Value, Value), Vec<ReceiptFailure>) {
+    let e = Enc::default();
+    let members = ordinary_members(&e, seed);
+    (members, e.failures.into_inner())
+}
 #[cfg(test)]
 pub(super) fn test_legacy_source(seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>)
     -> Result<(Value, Option<String>), ReceiptFailure> {
