@@ -699,6 +699,60 @@ fn b4_w1_n06_cxf_capture_errors() {
     }
 }
 
+/// The census's per-case causes before precommit: the actual W1 stages, unchanged,
+/// stepped one by one so that each lost case names its first refusal. Evidence only.
+#[test]
+fn b4_w1_census_loss_causes() {
+    for c in controls() {
+        for mode in c.modes.clone() {
+            let Ok((request, capture)) = source_receipt::CapturedInvocation::parse(c.raw.clone(), mode) else {
+                eprintln!("B4_W1_CAUSE {}", json!({"control":c.name,"mode":mode.as_str(),"cause":"parse_refused"}));
+                continue;
+            };
+            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
+            let mut budget = SourceRecoveryBudget { per_case_limit: 0, ..Default::default() };
+            let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut budget, Some(&mut observer));
+            ordinary.diagnostics.shrink_to_fit();
+            let Some(cases) = w1_case_ids(&capture) else {
+                eprintln!("B4_W1_CAUSE {}", json!({"control":c.name,"mode":mode.as_str(),"cause":"domain"}));
+                continue;
+            };
+            let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).collect();
+            let attempted = cases.attempted(triggers.iter().copied());
+            let slots: Vec<Value> = (0..observer.cases_seen()).map(|i| {
+                let (source, terminal) = observer.source_terminal_at(i);
+                let error = observer.parked_cases().get(i).map_or_else(|| observer.error.as_ref().map(|e| format!("{e:?}")), |slot| slot.error.as_ref().map(|e| format!("{e:?}")));
+                json!({"case":i,"source_ready":source,"terminal":format!("{terminal:?}"),"capture_error":error})
+            }).collect();
+            let seeds: Vec<String> = observer.ordinary.iter().map(|seed| format!("{:?}/{:?}", seed.initial, seed.w2)).collect();
+            let head = json!({"control":c.name,"mode":mode.as_str(),"ordinary_status":ordinary.status.mechanics,
+                "triggers":format!("{triggers:?}"),"slots":slots,"seeds":seeds});
+            let attempts = match observer.prepare_cases(ordinary, cases.ids().len(), attempted.requests()) {
+                Err(failure) => json!({"custody":format!("{:?}", failure.error)}),
+                Ok(mut prepared) => {
+                    prepared.native();
+                    prepared.freeze();
+                    let mut rows = Vec::new();
+                    for index in 0..prepared.attempts.len() {
+                        let request = prepared.attempts[index].request;
+                        let end = match &prepared.attempts[index].end {
+                            rp::AttemptEnd::Preparation => format!("Preparation({})", prepared.capture.with_case(request, |c| format!("{:?}", c.error))),
+                            rp::AttemptEnd::Prepared => "Prepared".into(),
+                            rp::AttemptEnd::Native => format!("Native({:?})", prepared.attempts[index].trace.native_error),
+                            rp::AttemptEnd::Selected => "Selected".into(),
+                            rp::AttemptEnd::Frozen(_) => "Frozen".into(),
+                            rp::AttemptEnd::Candidate(refused) => format!("Candidate({:?})", refused.error),
+                        };
+                        rows.push(json!({"request":request,"end":end}));
+                    }
+                    json!(rows)
+                }
+            };
+            eprintln!("B4_W1_CAUSE {}", json!({"head":head,"attempts":attempts}));
+        }
+    }
+}
+
 fn early_observed(
     raw: &Value,
     mode: PreviewSolverMode,
