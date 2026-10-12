@@ -707,7 +707,7 @@ fn pressure_source_twins_have_only_d5_differences_and_current_reader_corpus() {
     if std::env::var("SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE").as_deref() != Ok("1") {
         assert_eq!(
             read_corpus(),
-            corpus,
+            &corpus,
             "pressure-source reader corpus is current"
         );
     }
@@ -753,20 +753,120 @@ fn pressure_source_declines_every_present_pressure_region() {
     }
 }
 
-fn read_corpus() -> Value {
-    let text = std::fs::read_to_string(
-        project_root().join("fixtures/results/pressure_source_reader_corpus.json"),
-    )
-    .unwrap();
-    corpus_storage::expand(serde_json::from_str(&text).unwrap())
+fn read_corpus() -> &'static Value {
+    static CORPUS: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    CORPUS.get_or_init(|| {
+        let text = std::fs::read_to_string(
+            project_root().join("fixtures/results/pressure_source_reader_corpus.json"),
+        )
+        .unwrap();
+        corpus_storage::expand(serde_json::from_str(&text).unwrap())
+    })
+}
+
+/// Corpus paths are selectors over the maintained generated vocabulary. Only
+/// the matching generated path reaches the read callback; no unchecked input,
+/// canonicalization, search or alias fallback reaches filesystem access.
+fn read_listed_raw_fixture<T>(
+    entry: &Value,
+    read: impl FnOnce(std::path::PathBuf) -> T,
+) -> Result<Option<T>, &'static str> {
+    let Some(value) = entry.get("raw_fixture") else { return Ok(None); };
+    let input = value.as_str().ok_or("raw_fixture must be a listed string")?;
+    for family in [Family::Physics03, Family::LoadReference04] {
+        for name in family.names() {
+            for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                let generated = format!(
+                    "fixtures/product_preview/pressure_source/{}/{}-{}.raw.json",
+                    family.name(), name, mode.as_str()
+                );
+                if input == generated {
+                    return Ok(Some(read(project_root().join(generated))));
+                }
+            }
+        }
+    }
+    Err("raw_fixture is not a maintained generated path")
+}
+
+#[test]
+fn pressure_source_raw_fixture_path_guard_admits_exact_generated24() {
+    let mut accepted = std::collections::BTreeSet::new();
+    for family in [Family::Physics03, Family::LoadReference04] {
+        for name in family.names() {
+            for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                let generated = format!(
+                    "fixtures/product_preview/pressure_source/{}/{}-{}.raw.json",
+                    family.name(), name, mode.as_str()
+                );
+                let calls = std::cell::Cell::new(0);
+                let actual = read_listed_raw_fixture(&json!({"raw_fixture":generated}), |path| {
+                    calls.set(calls.get()+1); path
+                }).unwrap().unwrap();
+                assert_eq!(actual, project_root().join(&generated));
+                assert_eq!(calls.get(), 1);
+                assert!(accepted.insert(generated));
+            }
+        }
+    }
+    assert_eq!(accepted.len(), 24);
+}
+
+#[test]
+fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
+    let valid = "fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json";
+    let absolute = project_root().join(valid).to_string_lossy().into_owned();
+    let invalid = [
+        String::new(), absolute, format!("/{valid}"), format!("../{valid}"),
+        format!("./{valid}"), format!("{valid}/"), format!("{valid}\0"),
+        valid.replace("fixtures/", "fixtures//"),
+        valid.replace("/physics_source/", "/physics_source/./"),
+        valid.replace("/physics_source/", "/physics_source/../physics_source/"),
+        valid.replace("n06-", "unlisted-"), valid.replace("n06-", "eigen_motion-"),
+        valid.replace("physics_source/n06-", "load_reference_source/n05_unicode-"),
+        valid.replace("sparse_interactive", "other_mode"),
+        valid.replace("pressure_source/", "other_family/"),
+        valid.replace("/", "\\"), valid.to_uppercase(),
+        "C:\\fixtures\\n06-sparse_interactive.raw.json".into(),
+    ];
+    let mut refused = 0;
+    for value in invalid.into_iter().map(Value::String).chain([
+        Value::Null, json!(false), json!(24), json!([]), json!({"path":valid}),
+    ]) {
+        let calls = std::cell::Cell::new(0);
+        let result = read_listed_raw_fixture(&json!({"raw_fixture":value}), |_| {
+            calls.set(calls.get()+1);
+        });
+        assert!(result.is_err(), "unlisted or malformed fixture selector must refuse");
+        assert_eq!(calls.get(), 0, "refusal occurs before the actual read boundary");
+        refused += 1;
+    }
+    let calls = std::cell::Cell::new(0);
+    assert_eq!(read_listed_raw_fixture(&json!({}), |_| calls.set(calls.get()+1)), Ok(None));
+    assert_eq!(calls.get(), 0, "absent optional raw fixture performs no read");
+    assert_eq!(refused, 23);
+    println!("pressure_source_fixture_path_controls=24allowed,23refused_before_read,1absent_no_read");
+}
+
+#[test]
+fn pressure_source_corpus_cache_shares_one_strict_expansion() {
+    let corpus = read_corpus();
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 270);
+    for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
+    std::thread::scope(|scope| {
+        let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
+        for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
+    });
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,270entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];
     let invocation = &entry["invocation"];
     let model = &invocation["request"]["model"];
     let reader = entry["reader"].as_str().unwrap();
-    if let Some(path) = entry["raw_fixture"].as_str() {
-        let text = std::fs::read_to_string(project_root().join(path)).unwrap();
+    if let Some(text) = read_listed_raw_fixture(entry, |generated_path| {
+        std::fs::read_to_string(generated_path).unwrap()
+    }).expect("raw_fixture must be in the exact maintained generated vocabulary") {
         assert_eq!(
             serde_json::from_str::<Value>(&text).unwrap(),
             *source,
