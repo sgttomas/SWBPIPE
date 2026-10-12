@@ -377,6 +377,74 @@ fn kd5_u2_grouped_pressure_mutants_fail_closed_on_ordinary_and_w2_routes() {
     }
 }
 
+/// K-D5 "One ε" (Design section 1): a producer may omit only a source-known
+/// exactly zero contribution, never a formed one because its binary64 fold
+/// is zero. The quarter arc from (1.5, 0, 0) to (0, 1.5, 0) with
+/// y_reference (1, 1, 0) and R one ulp below 1.5 has end tangents whose
+/// binary64 components t_i,x and t_j,y fold to exactly zero, while at p they
+/// are +-(s - c)/sqrt2 = +-2(a - R)(a + R)/(sqrt2 R (L + sqrt(4R^2 - L^2)))
+/// with a - R = 2^-52 * 1.5 exact and nonzero (an 80-digit evaluation gives
+/// 1.4802973661668757e-16). Node B's closure is separately supported, so
+/// the arc's -c_b at B is the lone summand of its term. Both components keep
+/// their arc operand at the term of their DOF, and the unmutated system
+/// closes on both routes with the member bound.
+#[test]
+fn kd5_u2_arc_tangent_folded_to_zero_keeps_its_formed_operand() {
+    let mut document = sketch("MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2");
+    let model = &mut document["model"];
+    let (a, radius) = (1.5_f64, f64::from_bits(1.5_f64.to_bits() - 1));
+    model["nodes"][0]["position"] = serde_json::json!({"x": a, "y": 0.0, "z": 0.0});
+    model["nodes"][1]["position"] = serde_json::json!({"x": 0.0, "y": a, "z": 0.0});
+    model["components"][0]["geometry"]["bend_radius"]["value"] = Value::from(radius);
+    let terminal = &mut model["load_cases"][0]["pressure_regions"][0]["terminals"][1];
+    assert_eq!(terminal["node_ref"], "node:B");
+    terminal["closure_transfer"] = Value::from("separately_supported_or_compensated");
+    let control = case(&document);
+    let bend = &control.built.curved_bend_elements[0];
+    let tangents = bend.macro_element.end_tangents().unwrap();
+    let (node_i, node_j) = (bend.macro_element.node_i.index, bend.macro_element.node_j.index);
+    // Preconditions: binary64 zero, not source-known zero, nonzero at p.
+    assert_eq!((tangents[0][0], tangents[1][1]), (0.0, 0.0), "{tangents:?}");
+    let chord = [0, 1].map(|k| bend.macro_element.node_j.coordinates[k] - bend.macro_element.node_i.coordinates[k]);
+    assert!(chord.iter().all(|d| *d != 0.0));
+    let l = (2.0 * a * a).sqrt();
+    let formed = 2.0 * (a - radius) * (a + radius) / (2.0_f64.sqrt() * radius * (l + (4.0 * radius * radius - l * l).sqrt()));
+    assert!((formed / 1.4802973661668757e-16 - 1.0).abs() < 1e-3, "{formed:e}");
+    let primitives = control.force.load_primitives();
+    for (node, axis, end_j) in [(node_i, 0, false), (node_j, 1, true)] {
+        let dof = node * DOF_PER_NODE + axis;
+        let terms: Vec<_> = (0..control.force.terms().len())
+            .filter(|&term| control.force.terms()[term].dof == dof)
+            .filter(|&term| primitives.iter().any(|p| p.term_index == term && p.identity.family == "pressure_operand"))
+            .collect();
+        assert_eq!(terms.len(), 1, "one pressure term at node {node} axis {axis}");
+        let term = terms[0];
+        let manifest = control.force.closure_records()[term].manifest.as_ref().expect("its manifest");
+        let supplied: Vec<_> = primitives.iter().filter(|p| p.term_index == term).collect();
+        assert_eq!(manifest, &supplied.iter().map(|p| p.closure_entry()).collect::<Vec<_>>());
+        let arc_operands = supplied
+            .iter()
+            .filter(|p| matches!(&p.formula, LoadFormula::PressureOperand { direction: PressureDirection::Tangent { end_j: e, axis: x }, .. } if *e == end_j && *x == axis))
+            .count();
+        assert!(arc_operands >= 1, "node {node} axis {axis}: the arc's formed tangent operand is kept");
+        let open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(value) = control.force.terms()[term].kind else { panic!() };
+        assert_eq!(value, 0.0, "the ordinary force bits are the binary64 fold");
+        if end_j {
+            assert_eq!(supplied.len(), 1, "node B: the arc's -c_b is the lone summand");
+        }
+    }
+    // The published observation of the binary64 RHS lists only groups with
+    // a nonzero binary64 direction (the reader's RHS_DIRECTION); the formed
+    // zero-fold groups are ledger terms with closure operands beyond it.
+    let groups = control.exact.assembly_evidence["groups"].as_array().unwrap();
+    assert!(groups.iter().all(|g| g["direction_component_magnitude"].as_f64().unwrap() > 0.0));
+    assert!(control.exact.assembled_operands.len() > groups.len());
+    for (route, quality, check, bound) in checked_solves(&control, 4) {
+        assert_eq!(quality, SolveQuality::Passed, "{route}: {check}");
+        assert!(bound, "{route}: the closed system carries the member bound");
+    }
+}
+
 /// Repaired arc wall publication under pressure (Design section 3.2,
 /// pipe-wall rows; H-2): on a Passed case the arc's wall force at both ends
 /// and the three stations is its effective force plus pAi, the effective

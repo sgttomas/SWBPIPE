@@ -904,12 +904,14 @@ pub(crate) fn build_pressure_case_with_members(
             {
                 let (step, state, _, _) = &region_states[traversal_index];
                 let pipe = &built.pipes[step.pipe_index];
+                let source_zero = source_zero_axes(built, step.pipe_index);
                 for axis in 0..3 {
                     add_factor_term(
                         &mut factor_groups,
                         junction.node * DOF_PER_NODE + axis,
                         state,
                         t[axis],
+                        source_zero[axis],
                         coefficient,
                         id,
                         &pipe.element_id,
@@ -925,6 +927,7 @@ pub(crate) fn build_pressure_case_with_members(
         let has_arc = region_states.iter().any(|(_, state, _, _)| state.arc.is_some());
         for (step, state, _, directions) in region_states {
             let pipe = &built.pipes[step.pipe_index];
+            let source_zero = source_zero_axes(built, step.pipe_index);
             for (end, node) in [pipe.node_i.index, pipe.node_j.index]
                 .into_iter()
                 .enumerate()
@@ -940,6 +943,7 @@ pub(crate) fn build_pressure_case_with_members(
                             node * DOF_PER_NODE + axis,
                             &state,
                             direction[axis],
+                            source_zero[axis],
                             sign * 2.0 * state.material.poisson_ratio(),
                             id,
                             &pipe.element_id,
@@ -952,6 +956,7 @@ pub(crate) fn build_pressure_case_with_members(
                             node * DOF_PER_NODE + axis,
                             &state,
                             direction[axis],
+                            source_zero[axis],
                             sign,
                             id,
                             &pipe.element_id,
@@ -968,6 +973,7 @@ pub(crate) fn build_pressure_case_with_members(
                             node * DOF_PER_NODE + axis,
                             &state,
                             direction[axis],
+                            source_zero[axis],
                             -sign,
                             id,
                             &pipe.element_id,
@@ -1048,20 +1054,48 @@ struct FactorGroup {
     direction: f64,
     terms: Vec<(f64, String, String, &'static str)>,
 }
+/// The global axes on which a member's direction component is source-known
+/// exactly zero: its chord has a zero component there and, on a realized
+/// arc, so has its y_reference. Then the component's p re-formation
+/// (`PressureOperand`, from the same chord, radius and y_reference) is exactly
+/// zero with a zero enclosure radius. Any other component is formed, and
+/// DEL-04-01 `kd5-member-relative-bound.md` section 1 ("One ε") forbids
+/// omitting it because its binary64 fold is zero: such a summand keeps its
+/// zero-valued group and its closure operand, so the ordinary force bits are
+/// unchanged and the formed load enters the closed residual.
+fn source_zero_axes(built: &BuiltModel, pipe_index: usize) -> [bool; 3] {
+    let zero = |xi: [f64; 3], xj: [f64; 3], yr: Option<[f64; 3]>| {
+        [0, 1, 2].map(|k| xi[k] == xj[k] && yr.map_or(true, |yr| yr[k] == 0.0))
+    };
+    match built
+        .curved_bend_elements
+        .iter()
+        .find(|bend| bend.pipe_index == pipe_index)
+    {
+        Some(bend) => {
+            let m = &bend.macro_element;
+            zero(m.node_i.coordinates, m.node_j.coordinates, Some(m.y_reference))
+        }
+        None => built.pipes[pipe_index]
+            .frame_element()
+            .map_or([false; 3], |frame| zero(frame.node_i.coordinates, frame.node_j.coordinates, None)),
+    }
+}
 #[allow(clippy::too_many_arguments)]
 fn add_factor_term(
     groups: &mut BTreeMap<FactorKey, FactorGroup>,
     dof: usize,
     state: &ExactPressurePipeState,
     direction: f64,
+    source_zero: bool,
     coefficient: f64,
     region: &str,
     pipe: &str,
     kind: &'static str,
 ) {
-    if direction == 0.0 {
+    if source_zero && direction == 0.0 {
         return;
-    } // Only a derived zero direction is omitted; source values remain in their ledgers.
+    } // Only a source-known zero is omitted (K-D5 "One ε"); a formed component whose binary64 fold is zero is kept.
     let (hi, lo) = state.annulus.source_bore_key();
     let magnitude = direction.abs();
     let key = (
@@ -1216,6 +1250,14 @@ fn finish_source_groups(
         let sources = group.terms.iter().map(|term| closure_source(built, output, dof, term)).collect();
         output.closure_sources.push(sources);
         output.assembled_operands.push((dof, value, source));
+        // The published groups observe the binary64 RHS. A formed group whose
+        // binary64 direction folds to zero (K-D5 "One ε") adds exactly zero
+        // to it: it stays a formed ledger term with its closure operands
+        // above, and the observation lists, as before, only groups with a
+        // nonzero binary64 direction (the reader's RHS_DIRECTION).
+        if group.direction == 0.0 {
+            continue;
+        }
         evidence.push(json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
             "pressure_bits":format!("{pbits:016x}"),"source_inner_radius_hi_bits":format!("{hi:016x}"),"source_inner_radius_lo_bits":format!("{lo:016x}"),
             "direction_component_magnitude":group.direction,"coefficient_sum":coefficient,"assembled_force_n":value,
@@ -2121,7 +2163,7 @@ mod grouping_identity_tests {
         assert_ne!(c.source_bore_key(), d.source_bore_key());
     }
     #[test]
-    fn either_derived_zero_direction_sign_contributes_no_force_group() {
+    fn either_source_known_zero_direction_sign_contributes_no_force_group() {
         let annulus = SourceAnnulus::from_od_wall(0.12, 0.01).unwrap();
         let material = IsotropicENu::new(200e9, 0.3).unwrap();
         let pressure = InternalDifferentialPressure::new(2e6).unwrap();
@@ -2135,8 +2177,34 @@ mod grouping_identity_tests {
         };
         let mut groups = BTreeMap::new();
         for zero in [-0.0, 0.0] {
-            add_factor_term(&mut groups, 0, &state, zero, 1.0, "r", "p", "terminal_cap");
+            add_factor_term(&mut groups, 0, &state, zero, true, 1.0, "r", "p", "terminal_cap");
         }
         assert!(groups.is_empty());
+    }
+    /// K-D5 "One ε": a formed direction component whose binary64 fold is
+    /// zero is kept, both signs in the one zero-magnitude group with their
+    /// signed coefficients, and its group value is zero.
+    #[test]
+    fn a_formed_direction_folded_to_zero_keeps_its_force_group() {
+        let annulus = SourceAnnulus::from_od_wall(0.12, 0.01).unwrap();
+        let material = IsotropicENu::new(200e9, 0.3).unwrap();
+        let pressure = InternalDifferentialPressure::new(2e6).unwrap();
+        let state = ExactPressurePipeState {
+            region_id: "r".to_string(),
+            annulus,
+            material,
+            pressure,
+            eigenload_pair: [0.0, 0.0],
+            arc: None,
+        };
+        let mut groups = BTreeMap::new();
+        for zero in [-0.0, 0.0] {
+            add_factor_term(&mut groups, 0, &state, zero, false, 1.0, "r", "p", "bend_cap_removed");
+        }
+        assert_eq!(groups.len(), 1);
+        let group = groups.values().next().unwrap();
+        assert_eq!(group.direction.to_bits(), 0.0_f64.to_bits());
+        assert_eq!(group.terms.iter().map(|term| term.0).collect::<Vec<_>>(), [-1.0, 1.0]);
+        assert_eq!(annulus.pressure_group_value(pressure, 0.0, group.direction).unwrap(), 0.0);
     }
 }
