@@ -653,10 +653,10 @@ pub struct LinkedSolverIdentity<'a> {
     pub solver_build_ref: &'a str,
 }
 
-/// T0R: the owner accepted that no fresh result is report-package eligible until
-/// T6. The desktop refuses before building a request; this boundary refuses the
-/// same thing again, from content, because the wire carries no semantic identity.
-pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results until T6 (owner-accepted outage).";
+/// No fresh result is report-package eligible. The desktop refuses before
+/// building a request (the same text); this boundary refuses the same thing
+/// again, from content, because the wire carries no semantic identity.
+pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
 
 /// Metadata tokens that only fresh result semantics (preview-physics-1,
 /// physics-1 and their source forms) publish; historical rows never carry them.
@@ -880,7 +880,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_result_rows_are_refused_until_t6() {
+    fn fresh_result_rows_are_refused() {
         let witness = request_with_component_provenance_projection();
         let values = witness
             .pointer("/result_envelopes/0/result_sets/0/values")

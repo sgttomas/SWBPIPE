@@ -1,5 +1,5 @@
 /** U6d (D-U6-8; D2 4.9.6; plan 1d and 4): every desktop output of the F2a
- * preview successor is refused until T6. Each refuses through the one shared
+ * preview successor is refused. Each refuses through the one shared
  * function (`loadReferenceOutputRefusal` / `refuseLoadReferenceOutput`), which
  * returns the successor's own reason, or through the report package's
  * fresh-result refusal. `isLoadReferenceRoute` is unchanged, so the
@@ -121,14 +121,14 @@ const GATED: [string, ComponentType<Json>, string][] = [
 ];
 
 describe("the shared refusal", () => {
-  it("names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference", async () => {
+  it("names the desktop route only, states the current refusal, never calls the result invalid or unsupported, and is distinct from load-reference", async () => {
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.startsWith(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: `)).toBe(true);
-    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("not yet available on the desktop");
-    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("routed to T6");
+    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("is not available on the desktop");
+    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toMatch(/\bT[0-9]/);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
     // B3b (B3D-14): the exact successor's own reason, re-exported beside the preview one, which is untouched.
-    expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).toBe(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: This output of retained-precision results (physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.`);
+    expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).toBe(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: This output of retained-precision results (physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.`);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("(preview-physics-retained-1)");
     for (const mode of MODES) {
       const { result } = await successor(mode);

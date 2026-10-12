@@ -30,16 +30,16 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 /** J3/D6: pressure-source export waits for U2's native/source export support.
  * This policy adds no numerical standing and does not enable ordinary pressure-1. */
 export const PRESSURE_1_EXPORT_NOT_AVAILABLE = "PRESSURE_1_EXPORT_NOT_AVAILABLE";
-export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_1_EXPORT_NOT_AVAILABLE}: Output of pressure-source-1 is not yet available on the desktop; it awaits T4-U2's export support. The result remains readable here.`;
+export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_1_EXPORT_NOT_AVAILABLE}: Output of pressure-source-1 is not available on the desktop. The result remains readable here.`;
 export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";
-export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
+export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not available on the desktop. The result remains readable here; this is not a finding about the result.";
 export const LOAD_REFERENCE_OUTPUT_REFUSAL = `${LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE}: ${N_LOAD_REFERENCE_OUTPUT}`;
 export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
-export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.";
+export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const RETAINED_PRECISION_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PRECISION_OUTPUT}`;
 /** B3b (B3-D §7; B3D-14): the exact successor's own reason; the preview text is untouched. */
-export const N_RETAINED_PHYSICS_OUTPUT = "This output of retained-precision results (physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.";
+export const N_RETAINED_PHYSICS_OUTPUT = "This output of retained-precision results (physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const RETAINED_PHYSICS_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PHYSICS_OUTPUT}`;
 /** An admitted surface refuses a gated route that is not numerically eligible. The
  * reason starts with the standing's own finding code (for example

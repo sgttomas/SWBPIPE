@@ -1,5 +1,5 @@
 /** Every desktop output of a load/reference-state result is refused with the one
- * shared reason (routed to T6), and the report package keeps T0R's refusal.
+ * shared reason, and the report package keeps its fresh-result refusal.
  * Display stays. A physics-1 result is the control: its outputs are unchanged.
  * Unit rendering over committed producer bytes; all inputs are invented. */
 import { render, screen, cleanup } from "@testing-library/react";
@@ -90,9 +90,9 @@ const GATED: [string, ComponentType<Json>, string][] = [
 ];
 
 describe("the shared refusal", () => {
-  it("names the desktop route only, routes it to T6 and never calls the result invalid or unsupported", async () => {
-    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).toContain("not yet available on the desktop");
-    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).toContain("routed to T6");
+  it("names the desktop route only, states the current refusal and never calls the result invalid or unsupported", async () => {
+    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).toContain("is not available on the desktop");
+    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).not.toMatch(/\bT[0-9]/);
     expect(LOAD_REFERENCE_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
     expect(loadReferenceOutputRefusal((await ordinary()).result)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
     expect(loadReferenceOutputRefusal((await joined()).result)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
