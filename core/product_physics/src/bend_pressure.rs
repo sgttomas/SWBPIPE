@@ -28,6 +28,7 @@ use super::{
     StationResultants, UX,
 };
 use open_pipe_stress_frame_kernel::load_ledger::{gamma, product_upward};
+use open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery;
 
 /// The v3 limitation a model with a realized bend adds (static text, T3 O-10).
 pub(super) const BEND_LIMITATION: &str = "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the straight Lame hoop and radial values and the governing normal-stress maximum are withheld; the excluded effects above apply to every bend result.";
@@ -70,7 +71,9 @@ const RECOVERY_UNREPRESENTABLE: &str = "arc pressure section recovery is unrepre
 /// stations from the elastic section actions (tangent frame), and the wall
 /// end actions along the end tangents. The elastic axial rows the arc
 /// published are replaced, as on a pressurized straight; no Lamé row is
-/// published on an arc.
+/// published on an arc. On a pre-guard Passed case (`certified` = the arc's
+/// certified wall and effective recoveries, K-D5) each N_w, S and N_w/As is
+/// the certified row rounded once; otherwise the binary64 `Scaled` path.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn append_arc_pressure_results(
     results: &mut Vec<ResultItem>,
@@ -80,6 +83,7 @@ pub(super) fn append_arc_pressure_results(
     state: &ExactPressurePipeState,
     endpoint_resultants: &[[f64; 6]; 2],
     stations: &[StationResultants],
+    certified: Option<(&CertifiedMemberRecovery, &CertifiedMemberRecovery)>,
 ) {
     results.retain(|r| {
         r.entity_ref != pipe_id
@@ -99,7 +103,23 @@ pub(super) fn append_arc_pressure_results(
     let wanted = sections.len();
     let mut recovered = Vec::with_capacity(wanted);
     for (location, elastic) in sections {
-        let Ok(values) = state.annulus.recover_arc_wall_effective_membrane(elastic, state.pressure) else {
+        let values = match certified {
+            Some((wall, effective)) => {
+                let index = match location {
+                    "end_i" => 0,
+                    "quarter_1" => 1,
+                    "midspan" => 2,
+                    "quarter_3" => 3,
+                    _ => 4,
+                };
+                let wall_row = wall.sections[index][0];
+                wall_row.divided(state.annulus.wall_area_m2()).ok().map(|membrane| {
+                    (wall_row.published, effective.sections[index][0].published, membrane.published)
+                })
+            }
+            None => state.annulus.recover_arc_wall_effective_membrane(elastic, state.pressure).ok(),
+        };
+        let Some(values) = values else {
             break;
         };
         recovered.push((location, values));

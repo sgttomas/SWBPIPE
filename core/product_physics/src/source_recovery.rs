@@ -1724,6 +1724,47 @@ mod tests {
         assert_eq!(sources.descriptors.len(), 42 + 12 + 2 + 18);
     }
 
+    /// D7 (DEL-04-07 `pressure-contract.md`, "T3 coexistence and B7";
+    /// HELP_HUMAN 2026-10-10): the v3 family T4-U2 admits, the realized bend
+    /// under `3.0.0/exact_pressure_v3`, never reaches a retained source
+    /// solve, since T4-U2 does not extend the source method. In
+    /// `prepare_sources` it fails closed before any source is formed: the
+    /// realized arc has no straight frame, so the actual-dimensions check
+    /// (frames = members) declines it ahead of the named curved-family
+    /// decline, which this pins. A v3 model the dimensions admit is declined
+    /// by the not-joined name.
+    #[test]
+    fn d7_realized_bend_v3_family_never_reaches_a_source_solve() {
+        let documents: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../validation/references/t4_i7/u2_document_sketches.json"
+        ))
+        .unwrap();
+        let mut model: PreviewModel = serde_json::from_value(
+            documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone(),
+        )
+        .unwrap();
+        // The product's own preparation: units, then the exact route's derived G.
+        let (mut materials, mut diagnostics) = (model.materials.clone(), Vec::new());
+        super::super::normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        super::super::pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        model.materials = materials;
+        let refuse = |fixture: &Fixture| {
+            prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err()
+        };
+        let bend = Fixture::new(model.clone());
+        assert!(!bend.built.curved_bend_elements.is_empty(), "precondition: a realized bend");
+        assert_eq!(bend.built.frame_elements.len() + bend.built.curved_bend_elements.len(), bend.built.pipes.len());
+        assert_eq!(refuse(&bend), Some(RecoveryError::SourceMismatch("actual model/source dimensions")));
+        let mut straight = Fixture::new(Fixture::model());
+        straight.model.pressure_contract = model.pressure_contract.clone();
+        straight.model.schema_version = model.schema_version.clone();
+        straight.model.load_cases[0].pressure_regions = Some(Vec::new());
+        assert_eq!(
+            refuse(&straight),
+            Some(RecoveryError::Unsupported("3.0.0/exact_pressure_v3 is not joined to retained-source recovery"))
+        );
+    }
+
     // RV127 N-4: `validate_profile` refuses every one of these documents before
     // a solve, so this gate is defence in depth for the non-exact namespace;
     // it is pinned here at unit level (U3).

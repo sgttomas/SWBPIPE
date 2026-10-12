@@ -157,6 +157,18 @@ A fresh numerical reviewer, who did not design or write the unit, reviews it aga
   - every mutant is killed by a named test;
   - item 6's no-regression conditions hold.
 
+## Superseded in part by the K-D5 member-relative bound unit
+
+HELP_HUMAN ruled on 2026-10-11 for option (d) ([kd5-member-relative-bound.md](kd5-member-relative-bound.md)). The ruling supersedes "my short-bend thresholds (ruling 5, plus the withdrawn (c) limit)", to be named "in the DEL-04-01 Design as superseded by this unit". When that unit lands:
+
+- **Predicate.** The arc predicate is replaced by the unified member predicate on certified rows. This covers R-b′ on B_f + B_u and R-2's B_f clause.
+- **Arc rows.** They are published as recoveries at the corrected displacement u + w + w₂, with K-D5's arc matrix. They no longer come from the formed K_c·u.
+- **Short-bend rule.** The rule and the withdrawn (c) limit, its Passed ratio of 1.6e-2, are removed with the load closure.
+
+**Batch-4 integration (K-D5 with U2/O-13).** On the integrated branch the predicate and arc-row items hold: `arc_group_fires`, its B_u and O-13's `ArcRecoveryRecord` are gone, arcs are judged by `member_group_decision` on their certified rows, and O-13's coupled `ActionScales` are the S* of every group. O-13's protective tests are kept against the unified predicate (`s11g_tests/arc_recovery.rs`). The short-bend rule (`short_bend_finding`, `ShortBend`, `SHORT_BEND_PASSED_RATIO`) stays wired until the closed recovery is verified on the integrated producer and M3 is checked; its removal follows that verification.
+
+The requirement above remains the record of O-13's unit.
+
 Sources:
 - S11-G design: [S11G_GUARD.md revision 2.1](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/S11G_GUARD.md).
 - R-b′ selection and load-bearing ruling: [T3 rulings](https://github.com/sgttomas/chirality/blob/e85d383b64/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md), sections "S11-G note revision 2: rulings …", "S11-G revision 2 after V1's delta check" and "S11-G implementation: I5 rulings".

@@ -35,6 +35,8 @@ mod s11f_tests;
 mod s11g_tests;
 #[cfg(test)]
 mod source_budget_tests;
+#[cfg(test)]
+mod kd5_pressure_closure_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -5574,25 +5576,38 @@ fn solve_load_case_observed(
         // if the unified member predicate subsequently demotes it.
         let mut certified_member = None;
         let mut certified_effective = None;
+        let mut certified_wall = None;
         if let Some(bound) = member_bound {
+            let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
             let certificate = certified_publication::member(pipe, macro_bend, &force, &displacements, bound).and_then(|mechanical| {
-                if let Some(state) = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index)) {
-                    exact_mechanical_local_forces = Some(mechanical.ends.map(|row| row.published).to_vec());
-                    let effective = certified_publication::pressure_adjustment(&mechanical, state, false)?;
-                    let wall = certified_publication::pressure_adjustment(&mechanical, state, true)?;
-                    Ok((effective, wall))
-                } else { Ok((mechanical.clone(), mechanical)) }
+                match pressure_state {
+                    // T4-U2 (H-2) on a realized arc: the published member rows
+                    // are elastic (S = N_el); the wall rows are N_w = N_el + pAi
+                    // with pAi formed at p, and the wall end actions lie along
+                    // the end tangents (K-D5 Design section 3.2, pipe-wall rows).
+                    Some(state) if state.arc.is_some() => {
+                        let wall = certified_publication::arc_pressure_wall(&mechanical, state)?;
+                        Ok((mechanical.clone(), mechanical, Some(wall)))
+                    }
+                    Some(state) => {
+                        exact_mechanical_local_forces = Some(mechanical.ends.map(|row| row.published).to_vec());
+                        let effective = certified_publication::pressure_adjustment(&mechanical, state, false)?;
+                        let wall = certified_publication::pressure_adjustment(&mechanical, state, true)?;
+                        Ok((effective, wall.clone(), Some(wall)))
+                    }
+                    None => Ok((mechanical.clone(), mechanical, None)),
+                }
             });
             match certificate {
-                Ok((effective, published)) => {
-                    let wall = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index)).map(|_| &published);
-                    match certified_publication::member_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), &effective, wall) {
+                Ok((effective, published, wall)) => {
+                    match certified_publication::member_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), &effective, wall.as_ref()) {
                         Ok(record) => recovery_records.push(record),
                         Err(error) => recovery_records.push(certified_publication::unavailable_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), format!("{error:?}"))),
                     }
                     corrected_local_forces = published.ends.map(|row| row.published).to_vec();
                     certified_effective = Some(effective);
                     certified_member = Some(published);
+                    certified_wall = wall;
                 }
                 Err(error) => recovery_records.push(certified_publication::unavailable_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), format!("{error:?}"))),
             }
@@ -6074,6 +6089,7 @@ fn solve_load_case_observed(
                 state,
                 &endpoint_resultants,
                 &station_resultants,
+                certified_wall.as_ref().zip(certified_effective.as_ref()),
             );
         } else if let Some(state) = exact_pressure
             .as_ref()
@@ -11404,7 +11420,13 @@ fn add_curved_bend_pressure_equivalent_load(
         let dof_map = element_dof_map(bend.node_i, bend.node_j);
         for (local_row, &global_row) in dof_map.iter().enumerate() {
             for (local_col, &free_value) in free_expansion.iter().enumerate() {
-                if free_value != 0.0 {
+                // K-D5 (DEL-04-01 kd5-member-relative-bound.md section 1, "One
+                // eps"): only a source-known exact zero (a zero chord
+                // component, whose re-formation and radius are exactly zero)
+                // is omitted, never a product whose binary64 fold is zero.
+                if (DOF_PER_NODE..DOF_PER_NODE + 3).contains(&local_col)
+                    && bend.chord[local_col - DOF_PER_NODE] != 0.0
+                {
                     let k = bend.global_stiffness[local_row][local_col];
                     ledger.push_formed_product(
                         &state.region_id,
@@ -11419,6 +11441,24 @@ fn add_curved_bend_pressure_equivalent_load(
                         bend_pressure::strain_operand_bound(k, free_value),
                         true,
                     );
+                    // The arc's member-owned term K_int,arc*u_free(eps_p), with
+                    // eps_p = (1-2nu)pAi/(EA) re-formed at p from the same raw
+                    // operands (T4-U2 pressure free strain on arcs). Its source
+                    // is member-scoped, so certified recovery subtracts it.
+                    certified_loads::attach_last(ledger, certified_loads::summand(
+                        "pressure_free_strain_curved",
+                        &certified_loads::member_source(&bend.pipe_id, &state.region_id),
+                        local_row * 12 + local_col,
+                        local_row,
+                        LoadFormula::PressureFreeStrainCurved {
+                            arc: curved_formation_of(bend),
+                            pressure: state.pressure.pressure_pa(),
+                            outer_diameter: state.annulus.outside_diameter_m(),
+                            wall_thickness: state.annulus.effective_wall_thickness_m(),
+                            poisson_ratio: state.material.poisson_ratio(),
+                            column: Some(local_col),
+                        },
+                    ));
                 }
             }
         }

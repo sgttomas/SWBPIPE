@@ -139,14 +139,56 @@ pub(super) fn attach(ledger: &mut LoadLedger, term_index: usize, sources: Vec<Su
         })
         .collect();
     assert!(ledger.set_closure_manifest(term_index, expected));
-    for source in sources {
-        ledger.attach_load_primitive(LoadPrimitive {
+    #[cfg_attr(not(test), allow(unused_mut))]
+    let mut supplied: Vec<LoadPrimitive> = sources
+        .into_iter()
+        .map(|source| LoadPrimitive {
             term_index,
             identity: source.identity,
             local_row: source.local_row,
             formula: source.formula,
             force_scale_exponent: 0,
-        });
+        })
+        .collect();
+    #[cfg(test)]
+    supplied_mutant::apply(term_index, &mut supplied);
+    for primitive in supplied {
+        ledger.attach_load_primitive(primitive);
+    }
+}
+
+/// Test-only mutants of the supplied primitive collection (never of the
+/// expected manifest, which is installed first): K-D5 Design section 7,
+/// "The closure" mutants on the integrated producer.
+#[cfg(test)]
+pub(super) mod supplied_mutant {
+    use super::LoadPrimitive;
+    use std::cell::RefCell;
+
+    /// Returns true when it mutated this term's supplied primitives; it is
+    /// then disarmed, so exactly one term is mutated per ledger.
+    pub(crate) type Mutant = Box<dyn Fn(usize, &mut Vec<LoadPrimitive>) -> bool>;
+    thread_local! {
+        static MUTANT: RefCell<Option<Mutant>> = const { RefCell::new(None) };
+        static APPLIED: RefCell<Option<usize>> = const { RefCell::new(None) };
+    }
+    pub(crate) fn arm(mutant: Mutant) {
+        MUTANT.with(|m| *m.borrow_mut() = Some(mutant));
+        APPLIED.with(|a| *a.borrow_mut() = None);
+    }
+    /// Disarms and returns the mutated term, if any.
+    pub(crate) fn disarm() -> Option<usize> {
+        MUTANT.with(|m| *m.borrow_mut() = None);
+        APPLIED.with(|a| a.borrow_mut().take())
+    }
+    pub(super) fn apply(term_index: usize, supplied: &mut Vec<LoadPrimitive>) {
+        if APPLIED.with(|a| a.borrow().is_some()) {
+            return;
+        }
+        let hit = MUTANT.with(|m| m.borrow().as_ref().is_some_and(|mutant| mutant(term_index, supplied)));
+        if hit {
+            APPLIED.with(|a| *a.borrow_mut() = Some(term_index));
+        }
     }
 }
 pub(super) fn attach_last(ledger: &mut LoadLedger, source: Summand) {

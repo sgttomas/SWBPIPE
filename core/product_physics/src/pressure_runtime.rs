@@ -1091,6 +1091,81 @@ fn add_factor_term(
             kind,
         ));
 }
+/// K-D5's load closure (DEL-04-01 `kd5-member-relative-bound.md` section 1,
+/// "T4-U2 pressure operand groups"): one `PressureOperand` per factor-group
+/// summand, bound to its own pipe, coefficient and direction, from the
+/// producer's enumeration of the group (never from the supplied primitives).
+///
+/// - A straight member's summand (`poisson_eigen`, `terminal_cap`,
+///   `kink_remainder`) acts along its chord (local x).
+/// - A realized arc's summand (`bend_cap_removed`, `terminal_cap`,
+///   `kink_remainder`) acts along its end tangent at the group's node,
+///   formed at p from the arc's chord, radius and y_reference as K_int,arc is
+///   (T4-U2 H-2: c_b and the remainders lie along the end tangents).
+///
+/// The coefficient's sign is the summand's signed contribution relative to
+/// the binary64 direction the producer used; its magnitude is 1 for caps and
+/// remainders and 2|nu| for the straight Poisson pair, so the re-formed value
+/// is p*pi*r_i^2 times the summand's signed coefficient times the direction.
+fn closure_source(
+    built: &BuiltModel,
+    output: &ExactPressureCase,
+    dof: usize,
+    term: &(f64, String, String, &'static str),
+) -> (String, open_pipe_stress_frame_kernel::structural::LoadFormula) {
+    use open_pipe_stress_frame_kernel::structural::{
+        LoadFormula, PressureCoefficient, PressureDirection, PressureGeometry,
+    };
+    let pipe_index = built
+        .pipes
+        .iter()
+        .position(|pipe| pipe.element_id == term.2)
+        .expect("pressure source pipe");
+    let pipe = &built.pipes[pipe_index];
+    let state = &output.pipe_states[&pipe_index];
+    let axis = dof % DOF_PER_NODE;
+    let (geometry, direction, binary64) = match (
+        state.arc,
+        built
+            .curved_bend_elements
+            .iter()
+            .find(|bend| bend.pipe_index == pipe_index),
+    ) {
+        (Some(arc), Some(bend)) => {
+            let end_j = dof / DOF_PER_NODE == pipe.node_j.index;
+            (
+                PressureGeometry::Curved { arc: super::curved_formation_of(bend) },
+                PressureDirection::Tangent { end_j, axis },
+                arc.tangents[usize::from(end_j)][axis],
+            )
+        }
+        _ => {
+            let frame = pipe.frame_element().expect("validated pressure frame");
+            let direction = frame.orientation().expect("validated orientation").local_axes[0][axis];
+            (PressureGeometry::Straight { frame }, PressureDirection::Chord { axis }, direction)
+        }
+    };
+    let sign = if term.0.is_sign_negative() == binary64.is_sign_negative() { 1.0 } else { -1.0 };
+    let coefficient = if term.3 == "poisson_eigen" {
+        PressureCoefficient::Poisson {
+            poisson_ratio: state.material.poisson_ratio(),
+            sign: sign * 2.0 * if state.material.poisson_ratio().is_sign_negative() { -1.0 } else { 1.0 },
+        }
+    } else {
+        PressureCoefficient::Constant(sign)
+    };
+    (
+        format!("{}:{}:{}", term.1, term.2, term.3),
+        LoadFormula::PressureOperand {
+            geometry,
+            pressure: state.pressure.pressure_pa(),
+            outer_diameter: state.annulus.outside_diameter_m(),
+            wall_thickness: state.annulus.effective_wall_thickness_m(),
+            coefficient,
+            direction,
+        },
+    )
+}
 fn finish_source_groups(
     model: &PreviewModel,
     built: &BuiltModel,
@@ -1138,24 +1213,7 @@ fn finish_source_groups(
             .map_or_else(|| case.id.clone(), |term| term.1.clone());
         // Enumerate every original source constituent. This list is independent
         // of the primitive vector attached later by the ledger producer.
-        let sources = group.terms.iter().map(|term| {
-            use open_pipe_stress_frame_kernel::structural::{LoadFormula, PressureCoefficient, PressureDirection, PressureGeometry};
-            let pipe_index = built.pipes.iter().position(|pipe| pipe.element_id == term.2).expect("pressure source pipe");
-            let pipe = &built.pipes[pipe_index];
-            let state = &output.pipe_states[&pipe_index];
-            let frame = pipe.frame_element().expect("validated pressure frame");
-            let axis = dof % DOF_PER_NODE;
-            let direction = frame.orientation().expect("validated orientation").local_axes[0][axis];
-            let sign = if term.0.is_sign_negative() == direction.is_sign_negative() { 1.0 } else { -1.0 };
-            let coefficient = if term.3 == "poisson_eigen" {
-                PressureCoefficient::Poisson { poisson_ratio: state.material.poisson_ratio(), sign: sign * 2.0 * if state.material.poisson_ratio().is_sign_negative() { -1.0 } else { 1.0 } }
-            } else { PressureCoefficient::Constant(sign) };
-            (format!("{}:{}:{}", term.1, term.2, term.3), LoadFormula::PressureOperand {
-                geometry: PressureGeometry::Straight { frame }, pressure: state.pressure.pressure_pa(),
-                outer_diameter: state.annulus.outside_diameter_m(), wall_thickness: state.annulus.effective_wall_thickness_m(),
-                coefficient, direction: PressureDirection::Chord { axis },
-            })
-        }).collect();
+        let sources = group.terms.iter().map(|term| closure_source(built, output, dof, term)).collect();
         output.closure_sources.push(sources);
         output.assembled_operands.push((dof, value, source));
         evidence.push(json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
