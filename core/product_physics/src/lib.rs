@@ -6127,24 +6127,10 @@ fn solve_load_case_observed(
     tests::KD5_RECOVERY_PROBE.with(|probe| {if let Some(records)=probe.borrow_mut().as_mut() {records.extend(recovery_records.iter().cloned());}});
     if !recovery_records.is_empty() {
         let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);
-        // O-13's short-bend rule, kept wired until batch 4 removes it on the
-        // verified closed recovery (DEL-04-01 kd5-member-relative-bound.md
-        // section 4.3): it reads the published realized bends that carry a
-        // certified recovery record.
-        let guarded: HashSet<&str> = recovery_records.iter().map(|r| r.member.as_str()).collect();
-        let short_bends: Vec<formation_guard::ShortBend> = bend_neighbour_ratios(built)
-            .into_iter()
-            .filter(|(bend, _)| guarded.contains(bend.pipe_id.as_str()))
-            .map(|(bend, ratio)| formation_guard::ShortBend {
-                component: bend.component_id.clone(),
-                pipe: bend.pipe_id.clone(),
-                ratio,
-            })
-            .collect();
-        let unified = formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id);
-        let unified_fired = unified.is_some();
-        let findings = [unified, formation_guard::short_bend_finding(&short_bends, &load_case.id)];
-        if let Some(finding) = formation_guard::merge(findings.into_iter().flatten().collect()) {
+        // The unified member predicate alone decides (DEL-04-01
+        // kd5-member-relative-bound.md section 3.3); O-13's short-bend rule is
+        // removed on the verified closed recovery (section 4.3, M3).
+        if let Some(finding) = formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id) {
             let demoted = formation_guard::amend_integrity_report(
                 diagnostics,
                 &integrity_diagnostic_id(&load_case.id),
@@ -6155,7 +6141,7 @@ fn solve_load_case_observed(
                 observer.ordinary_recovery_demoted(&load_case.id);
             }
             // Section 3.3 condition 2: the unified predicate itself demotes.
-            if demoted && unified_fired && pre_guard_passed && member_bound.is_some() && load_row_finding.is_none() {
+            if demoted && pre_guard_passed && member_bound.is_some() && load_row_finding.is_none() {
                 if let Some(notice) = formation_guard::stress_free_notice(&recovery_records, &load_case.id) {
                     if let Some(index) = diagnostics.iter().position(|d| d.id == integrity_diagnostic_id(&load_case.id)) { diagnostics.insert(index+1,notice); }
                 }

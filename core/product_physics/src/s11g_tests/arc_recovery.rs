@@ -5,20 +5,24 @@
 //! included). The protective intents of O-13's G1-G6 and P1-P8
 //! (`arc-recovery-guard.md`) are kept against the integrated producer: exact
 //! criterion and floor boundaries, each group on its own scale, unavailable
-//! bounds fail closed, the named sentence, the merge with the short-bend rule
-//! (kept wired until batch 4 removes it on the verified closure, section
-//! 4.3), arcs inside S*, and no Passed case publishing an arc row outside the
-//! criterion. T4-I34's exact published rows
+//! bounds fail closed, the named sentence, arcs inside S*, and no Passed case
+//! publishing an arc row outside the criterion. O-13's short-bend rule is
+//! removed (section 4.3, M3 on the integrated closed recovery; the Design's
+//! "Superseded by this unit" items 1-2): its cases are pinned to the unified
+//! predicate's outcome below. T4-I34's exact published rows
 //! (`validation/references/t4_o13/o13_candidates.json`, 120-digit model
 //! solves) stay the reference for the load-bearing case. Inputs are invented.
 use super::*;
 use crate::formation_guard::{
-    member_group_decision, member_scales, merge, recovery_finding, short_bend_finding,
-    ActionScales, Bodies, RecoveryGroup, RecoveryRecord, ShortBend, CRITERION,
-    SHORT_BEND_PASSED_RATIO,
+    member_group_decision, member_scales, recovery_finding, ActionScales, Bodies, RecoveryGroup,
+    RecoveryRecord, CRITERION,
 };
 
+/// The removed short-bend rule's sentence head: no message may carry it.
 const SHORT: &str = "Short-bend rule";
+/// O-13's former Passed limit on R*phi/L (superseded; used only to place the
+/// former boundary's cases).
+const FORMER_SHORT_LIMIT: f64 = 1.6e-2;
 const CANDIDATES: &str =
     include_str!("../../../../validation/references/t4_o13/o13_candidates.json");
 const FLOOR: f64 = 1.0 / 17_179_869_184.0; // 2^-34
@@ -141,24 +145,14 @@ fn g4_the_sentence_names_six_then_counts() {
     assert!(!finding.sentence.contains("A.end_j.bending"));
 }
 
-/// G5: a single finding is unchanged by the merge (the unified sentence
-/// stays byte for byte); several are joined unified, then short bend, one
-/// space apart.
+/// G5: the case's recovery-side finding is the unified finding alone, by
+/// the recovery guard (the short-bend sentence and its merge are removed,
+/// section 4.3).
 #[test]
-fn g5_merge_keeps_a_single_sentence_and_orders_several() {
+fn g5_the_finding_is_the_unified_sentence_alone() {
     let unified = recovery_finding(&[arc_record("A", arc_groups(1.0))], &unit_scales(), "c").unwrap();
-    let short = short_bend_finding(
-        &[ShortBend { component: "component:A".into(), pipe: "A".into(), ratio: 1e-2 }],
-        "c",
-    )
-    .unwrap();
-    let alone = merge(vec![unified.clone()]).unwrap();
-    assert_eq!(alone.sentence, unified.sentence);
-    assert_eq!(alone.guard, formation_guard::Guard::Recovery);
-    let all = merge(vec![unified.clone(), short.clone()]).unwrap();
-    assert_eq!(all.sentence, format!("{} {}", unified.sentence, short.sentence));
-    assert_eq!(all.fired.len(), unified.fired.len() + 1);
-    assert!(merge(Vec::new()).is_none());
+    assert_eq!(unified.guard, formation_guard::Guard::Recovery);
+    assert!(unified.sentence.contains(RECOVERY) && !unified.sentence.contains(SHORT), "{}", unified.sentence);
 }
 
 /// G6 (O-13's scale extension): the body's scales include an arc's
@@ -172,20 +166,6 @@ fn g6_scales_include_arcs_and_couple_force_and_moment() {
     // S(force) = 10, S(moment) = 50, L_b = 2: fo = max(10, 25), mo = max(50, 20).
     assert_eq!(member_scales(&[straight.clone(), arc], &bodies)[&0], scales(25.0, 50.0));
     assert_eq!(member_scales(&[straight], &bodies)[&0], scales(3.0, 6.0));
-}
-
-/// The short-bend rule's threshold is strict and names each bend below it.
-#[test]
-fn short_bend_finding_is_strict_and_names_each_bend() {
-    let at = |ratio: f64| ShortBend {
-        component: "component:B".into(),
-        pipe: "B".into(),
-        ratio,
-    };
-    assert!(short_bend_finding(&[at(SHORT_BEND_PASSED_RATIO)], "c").is_none());
-    let finding = short_bend_finding(&[at(SHORT_BEND_PASSED_RATIO.next_down()), at(0.5)], "c").unwrap();
-    assert_eq!(finding.fired, ["component:B (pipe B): 1.600e-2"]);
-    assert!(finding.sentence.starts_with(&format!("{SHORT}: load case c is Sensitive because 1 realized bend(s)")));
 }
 
 // ============================================================= product level
@@ -393,14 +373,14 @@ fn p4_the_load_row_sentence_stands_alone() {
 }
 
 /// P5 (the no-op rule): a case that is already Sensitive by the solver is
-/// left untouched although the short-bend rule would fire. (a) The L line
-/// at 1 degree (R phi/L = 1.3e-3, below the short-bend limit). (b) T4-I34's
-/// nodal-only arc at k = 1e9.
+/// left untouched. (a) The L line at 1 degree (R phi/L = 1.3e-3, where the
+/// solver's own report is Sensitive; curved-numerical-integrity.md "Short
+/// stiff bends"). (b) T4-I34's nodal-only arc at k = 1e9.
 #[test]
 fn p5_an_already_sensitive_case_is_left_untouched() {
     let line = l_line("invented:o13:p5:line", [0.0; 3], 1f64.to_radians(), 0.2286, -450.0, 50.0);
     let ratio = prepared(&line).built.curved_bend_elements[0].arc_length / 3.0;
-    assert!(ratio < SHORT_BEND_PASSED_RATIO, "precondition: the short-bend rule fires");
+    assert!(ratio < 6e-3, "precondition: below the solver's Sensitive ratio");
     let mut model = preview_model("invented:o13:p5:stiff");
     model["materials"] = json!([material()]);
     curved_arc(
@@ -498,59 +478,75 @@ fn p8_a_stress_free_arc_is_passed_or_demoted_as_an_all_zero_body() {
     }
 }
 
-// ----------------------------------------------------- the short-bend rule
+// ------------------------------------- the former short-bend rule's cases
 
-/// HELP_HUMAN's R-1, option (c): a realized bend whose arc length is below
-/// SHORT_BEND_PASSED_RATIO of its shorter neighbour demotes its Passed case,
-/// naming the bend and its ratio; just above the limit the case stays
-/// Passed. On the L line (shorter neighbour 3 m) the limit is at
-/// phi = 3 * 1.6e-2 / 0.2286 rad.
-#[test]
-fn short_bend_rule_at_its_limit() {
-    let limit_phi = 3.0 * SHORT_BEND_PASSED_RATIO / 0.2286;
-    for (factor, demoted) in [(0.995, true), (1.005, false)] {
-        let phi = limit_phi * factor;
-        let request = l_line(&format!("invented:o13:short:{factor}"), [0.0; 3], phi, 0.2286, -450.0, 50.0);
-        let ratio = prepared(&request).built.curved_bend_elements[0].arc_length / 3.0;
-        assert_eq!(ratio < SHORT_BEND_PASSED_RATIO, demoted, "precondition: the ratio's side");
-        for entry in [Entry::Captured, Entry::Typed] {
-            for mode in MODES {
-                let tag = format!("{factor} {entry:?} {mode:?}");
-                let envelope = solved(entry, &request, mode);
-                assert_ordinary_passed(&envelope, "case", &tag);
-                let message = &integrity(&envelope, "case").message;
-                if demoted {
-                    assert_demoted(&envelope, "case", SHORT, &tag);
-                    assert!(
-                        message.contains(&format!("component:BC (pipe BC): {ratio:.3e}")),
-                        "{tag}: {message}"
-                    );
-                } else {
-                    assert_eq!(integrity(&envelope, "case").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{tag}");
-                }
-            }
-        }
-    }
+/// The published (N, Vy, Vz, T, My, Mz) end rows of `member` at end_i and
+/// end_j, in T4-I34's f* order.
+fn end_rows(envelope: &MechanicsEnvelope, member: &str) -> [f64; 12] {
+    let value = |kind: &str, location: &str| {
+        case_rows(envelope, "case")
+            .into_iter()
+            .find(|r| r.entity_ref == member && r.kind == kind && r.metadata.as_ref().is_some_and(|m| m.location == location))
+            .map(|r| r.value)
+            .unwrap_or_else(|| panic!("{member} {kind} {location}"))
+    };
+    let kinds = [
+        "element_local_axial_force",
+        "element_local_shear_force_y",
+        "element_local_shear_force_z",
+        "element_local_torsional_moment",
+        "element_local_bending_moment_y",
+        "element_local_bending_moment_z",
+    ];
+    std::array::from_fn(|k| value(kinds[k % 6], if k < 6 { "end_i" } else { "end_j" }))
 }
 
-/// R-1's cases: the L line at 5 and 8 degrees (and the UTM L line at 4
-/// degrees) published Passed torsion and shear breaches up to 4.9 times the
-/// criterion (T4-I34 section 4.5); each is now Sensitive by the short-bend
-/// rule, while 15 degrees stays Passed (`p2`).
+/// DEL-04-01 `kd5-member-relative-bound.md`, "Superseded by this unit"
+/// items 1-2 and section 4.3: O-13's short-bend rule and its 1.6e-2 Passed
+/// limit are removed, and a short bend's verdict is the solver's gate and the
+/// unified predicate's outcome on its certified rows. R-1's cases, the L line
+/// at 5 and 8 degrees (T4-I34 section 4.5: Passed torsion and shear breaches
+/// up to 4.9 times the criterion before K-D5), and the cases either side of
+/// the former limit, publish Passed with no short-bend sentence; on the two
+/// referenced lines every published arc end group lies within RD(1e-9) of its
+/// norm from T4-I34's exact f* (120-digit model solve), the repaired rows the
+/// rule used to hide. The UTM L line at 4 degrees takes the same outcome.
 #[test]
-fn short_bend_rule_demotes_r1_cases() {
+fn r1_short_bend_cases_take_the_unified_outcome() {
     let deg = |x: f64| x.to_radians();
-    for (name, origin, phi) in [
-        ("5", [0.0; 3], deg(5.0)),
-        ("8", [0.0; 3], deg(8.0)),
-        ("utm4", [7.3e6, 4.6e6, 312.5], deg(4.0)),
-    ] {
+    let limit_phi = 3.0 * FORMER_SHORT_LIMIT / 0.2286;
+    let mut cases = vec![
+        ("5", [0.0; 3], deg(5.0), Some("L-line w+T50 5deg")),
+        ("8", [0.0; 3], deg(8.0), Some("L-line w+T50 8deg")),
+        ("utm4", [7.3e6, 4.6e6, 312.5], deg(4.0), None),
+    ];
+    for factor in [0.995, 1.005] {
+        cases.push((if factor < 1.0 { "below" } else { "above" }, [0.0; 3], limit_phi * factor, None));
+    }
+    for (name, origin, phi, reference) in cases {
         let request = l_line(&format!("invented:o13:r1:{name}"), origin, phi, 0.2286, -450.0, 50.0);
-        for mode in MODES {
-            let tag = format!("{name} {mode:?}");
-            let envelope = solved(Entry::Typed, &request, mode);
-            assert_ordinary_passed(&envelope, "case", &tag);
-            assert_demoted(&envelope, "case", SHORT, &tag);
+        let ratio = prepared(&request).built.curved_bend_elements[0].arc_length / 3.0;
+        assert!(ratio < 2.0 * FORMER_SHORT_LIMIT, "{name}: precondition, a short bend ({ratio:e})");
+        for entry in [Entry::Captured, Entry::Typed] {
+            for mode in MODES {
+                let tag = format!("{name} {entry:?} {mode:?}");
+                let envelope = solved(entry, &request, mode);
+                assert_ordinary_passed(&envelope, "case", &tag);
+                let d = integrity(&envelope, "case");
+                assert_eq!(d.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{tag}: {}", d.message);
+                assert!(!d.message.contains(SHORT) && !d.message.contains(RECOVERY), "{tag}");
+                if let Some(label) = reference {
+                    let exact = exact_rows(label, mode, "BC");
+                    let published = end_rows(&envelope, "BC");
+                    for end in 0..2 {
+                        for group in [&[0][..], &[1, 2], &[3], &[4, 5]] {
+                            let q = group.iter().map(|&k| published[6 * end + k].powi(2)).sum::<f64>().sqrt();
+                            let err = group.iter().map(|&k| (published[6 * end + k] - exact[6 * end + k]).powi(2)).sum::<f64>().sqrt();
+                            assert!(err <= CRITERION * q, "{tag}: end {end} group {group:?} err {err:e} against q {q:e}");
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -576,8 +572,8 @@ fn body<'a>(text: &'a str, name: &str) -> &'a str {
 /// P7: the call site uses the tested predicate. In PP's source the
 /// recovery loop forms every member's certified record (straight and arc)
 /// through `certified_publication::member`; the case's finding is the
-/// unified `recovery_finding`, merged with the short-bend rule's, and
-/// `recovery_finding` decides each group with `member_group_decision`,
+/// unified `recovery_finding` alone (O-13's short-bend rule and its merge
+/// are removed), and `recovery_finding` decides each group with `member_group_decision`,
 /// which carries the exact criterion, the guard and the floor and no
 /// resolution conjunct.
 #[test]
@@ -588,12 +584,13 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     assert!(solve.contains("certified_publication::member(pipe, macro_bend, &force, &displacements, bound)"));
     let site = &solve[solve.find("let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);").expect("the decision site")..];
     for call in [
-        "formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)",
-        "formation_guard::short_bend_finding(&short_bends, &load_case.id)",
-        "formation_guard::merge(findings.into_iter().flatten().collect())",
+        "if let Some(finding) = formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)",
         "formation_guard::amend_integrity_report(",
     ] {
         assert!(site.contains(call), "the call site makes {call}");
+    }
+    for removed in ["short_bend_finding", "ShortBend", "SHORT_BEND_PASSED_RATIO", "formation_guard::merge("] {
+        assert!(!lib.contains(removed) && !guard.contains(removed), "{removed} is removed");
     }
     assert!(!lib.contains("arc_recovery_record") && !guard.contains("arc_group_fires") && !guard.contains("rb_prime_fires"));
     assert!(body(&guard, "recovery_finding").contains("member_group_decision(group.q,group.q_hat,*bound,scale)"));
@@ -602,3 +599,4 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     assert!(decision.contains("s_star >= DESIGN_FLOOR_MIN_SCALE && q_hat >= DESIGN_FLOOR * s_star"));
     assert!(!guard.contains("RESOLUTION_FACTOR"));
 }
+

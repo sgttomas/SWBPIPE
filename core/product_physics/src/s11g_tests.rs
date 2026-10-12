@@ -2038,8 +2038,11 @@ fn t15g_generated_arc_load_carries_the_gamma5_operand_bound() {
 
 /// T15b (DESIGN_R01 §5 with T4-RV8 C-1): certified arcs publish Passed at
 /// ordinary and UTM origins, from 90° to 5°, at k = 1 and 2, under an
-/// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad
-/// (the acceptance floor; Passed now that the load vector is stable).
+/// out-of-plane and an in-plane load; and a 0.3 m chord at φ = 1e-4 rad.
+/// Re-pinned to the unified member predicate's outcome on the certified
+/// rows (DEL-04-01 `kd5-member-relative-bound.md`, "Superseded by this unit"
+/// item 3: the t15b 1e-4 rad acceptance is superseded; predicted and
+/// measured Passed, with the short-bend rule removed).
 #[test]
 fn t15b_certified_arcs_pass_at_utm_and_small_angles() {
     let mut cases = Vec::new();
@@ -3343,5 +3346,5 @@ fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
 // HELP_HUMAN's ruling 5 (T4): short stiff bends.
 mod short_bend;
 
-// O-13: the arc recovery guard and the short-bend rule.
+// O-13's arc tests under K-D5's unified predicate (the short-bend rule removed).
 mod arc_recovery;
