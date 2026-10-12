@@ -406,15 +406,14 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "solve_linearized_system_evidence",
         "the loop's binary64 solves (option (c) pins)",
     ),
-    (
-        "FK/structural/formation_check.rs",
-        "check",
-        "K-D5: passes the ledger terms (or none) to the evaluation; read-only",
-    ),
+    // K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §1): `check` and
+    // the sparse `formation_check` now pass the whole ledger (`AssembledForce`)
+    // through untouched and are no longer force sites; with no ledger the
+    // evaluation fails closed instead of folding the force.
     (
         "FK/structural/formation_check.rs",
         "evaluate",
-        "K-D5: the residual rho = f - K_int u starts from the ledger terms, else the folded force, in one exact sum per free row; read-only",
+        "K-D5: the residual rho = f_int - K_int u starts from the ledger's input terms and the closure's re-formed primitives (no ledger fails closed), in one exact sum per free row; read-only",
     ),
     (
         "FK/structural/sparse.rs",
@@ -450,11 +449,6 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "FK/structural/sparse.rs",
         "audit_sparse_load_fidelity",
         "S11 section 5.1 load audit over the pattern (rows through FK/structural.rs audit_load_row)",
-    ),
-    (
-        "FK/structural/sparse.rs",
-        "formation_check",
-        "K-D5: passes the ledger terms (or none) to the evaluation; read-only",
     ),
     (
         "FK/structural/sparse.rs",
