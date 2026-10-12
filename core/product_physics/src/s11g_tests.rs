@@ -994,7 +994,9 @@ fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: E
 /// solve: D5C-1 on the closed residual demotes S1:RZ (trigger about 96, twice
 /// the guard's 48), so the report is Sensitive and the load-row guard is a
 /// no-op. On the captured entry the Sensitive case is attempted by the
-/// retained-source method, which declines the UDL producer.
+/// retained-source method, which declines the UDL producer. HELP_HUMAN,
+/// 2026-10-12 (W1 routing, agreed on T3's behalf): the solve demotion and
+/// that `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) are expected outcomes.
 #[test]
 fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
     let request = rf_request("RF-CANCEL-UDL-W1e8");
@@ -1017,7 +1019,8 @@ fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
 
 /// T2: UDL-W1e80 (typed, both modes; the captured entry refuses it).
 /// Precondition: S1.RZ's defect is V1's 2.6328e64 against a 1e-17 threshold.
-/// Caught at the solve by K-D5's D5C-1 on the closed residual (§§1, 4.2).
+/// Caught at the solve by K-D5's D5C-1 on the closed residual (§§1, 4.2);
+/// an expected outcome under HELP_HUMAN's 2026-10-12 W1-routing ruling.
 #[test]
 fn t2_udl_w1e80_is_demoted_on_the_typed_entry() {
     let request = rf_request("RF-CANCEL-UDL-W1e80");
@@ -1379,7 +1382,10 @@ fn collinear_run(end: [f64; 3], stations: &[f64]) -> Value {
 /// the published rotations with the intended system's, and they differ by a
 /// large fraction of that scale (trigger 7e8 and 1.1e9 at s4:RZ and s3:RZ).
 /// The load-row guard is still silent, so the demotion is K-D5's own. The
-/// axis-aligned and 45-degree runs stay CHECKS_PASSED.
+/// axis-aligned and 45-degree runs stay CHECKS_PASSED. HELP_HUMAN,
+/// 2026-10-12 (T6a): this behaviour is accepted. The unchanged D5C-1 rule's
+/// Passed -> Sensitive demotion is fail-safe and moves no realistic, RV29,
+/// W1 or RV30 case-mode; no displacement-noise floor is added.
 #[test]
 fn t6a_collinear_runs_are_silent_with_the_floor() {
     let runs: [([f64; 3], &[f64], bool); 4] = [
@@ -1483,7 +1489,10 @@ fn db1(delta_t: f64) -> Value {
 /// Kills the whole-row floor (M17). Under K-D5's closure (DEL-04-01
 /// kd5-member-relative-bound.md §§1, 4.2) the net defect is caught at the
 /// solve: D5C-1 on the closed residual demotes S1:UY (trigger about 3e4), and
-/// the floor never enters that rule.
+/// the floor never enters that rule. HELP_HUMAN, 2026-10-12 (W1 routing,
+/// agreed on T3's behalf): the solve demotion, and on the captured entry the
+/// retained-source attempt that declines the uniform-load producer, are
+/// expected outcomes.
 #[test]
 fn t6b_floor_never_hides_a_net_defect() {
     // E A alpha = 200e9 * pi (0.1^2 - 0.09^2) * 1.2e-5 = 14325.7 N/degC.
@@ -1507,6 +1516,7 @@ fn t6b_floor_never_hides_a_net_defect() {
                 let label = format!("T6b dT={delta_t} {entry:?} {mode:?}");
                 let envelope = solved(entry, &request, mode);
                 assert_demoted_at_the_solve(&envelope, "case", "S1:UY", &label);
+                assert_source_block_codes_at_the_solve(&envelope, entry, &label);
             }
         }
     }
@@ -2725,6 +2735,30 @@ fn t19_path1_load_row_variant_is_not_refused() {
     for mode in MODES {
         let label = format!("T19 {mode:?}");
         assert_demoted_at_the_solve(&solved(Entry::Typed, &control, mode), "case-b", "tip:RZ", &label);
+        // HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf; DEL-04-01
+        // kd5-member-relative-bound.md "The rulings" and §4.2): on the
+        // captured entry the control, demoted at the solve, attempts
+        // retained-source recovery and charges its source validation. That
+        // charged work is an expected outcome of the closed residual.
+        let captured = solved(Entry::Captured, &control, mode);
+        assert_demoted_at_the_solve(&captured, "case-b", "tip:RZ", &format!("{label} control captured"));
+        // Unlike the guard-fired Passed case below (zero work), the Sensitive
+        // control is attempted: it charges 36,480 work units in both modes
+        // before source validation declines its family (`unsupported_family`).
+        let control_entry = receipt_case(&captured, "case-b");
+        assert_eq!(control_entry["outcome"], json!("unsupported"), "{label}: {control_entry}");
+        assert_eq!(
+            control_entry["ordinary_attempt"]["outcome"],
+            json!("sensitive"),
+            "{label}: {control_entry}"
+        );
+        assert_eq!(control_entry["failure"]["stage"], json!("source_validation"), "{label}");
+        assert_eq!(control_entry["failure"]["code"], json!("unsupported_family"), "{label}");
+        assert_eq!(
+            control_entry["work"]["charged"],
+            json!(36480),
+            "{label}: the control charges its source validation"
+        );
         let envelope = solved(Entry::Captured, &request, mode);
         assert_ordinary_passed(&envelope, "case-b", &label);
         assert!(

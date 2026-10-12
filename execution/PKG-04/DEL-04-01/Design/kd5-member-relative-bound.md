@@ -1,6 +1,6 @@
 # K-D5 member-relative bound and the unified R-b′ predicate (T4-KD5)
 
-Revision 3. It implements HELP_HUMAN's ruling of 2026-10-11, made under the owner's delegation: **option (d), "repair"**, and HELP_HUMAN's later ruling of the same day on all-zero bodies. Revision 0 (68d78411af) derived the bound; revision 1 (5fec6bb9c0) made the unit publish what the bound certifies and folded in the load closure. Revision 2 applied T3's re-review of revision 1 (I1–I8, S6) and T4-RV34's check, and replaced two stand-ins with measurements taken on the product: ε_E (§2.1) and the remainder under the attempt's own matrix (§4.2). Revision 3 makes the summand-completeness invariant explicit, qualifies the all-zero explanation by the existing minimum-scale guard, corrects the spring-reaction sign, and source-qualifies the surviving combination producer. Revision 4 replaces predictions with the implementation's measurements and the independent review's findings: runtime, the D5C-1 fold on constructed bodies, the displacement-group counts, the Sensitive → Passed moves on main/K-D5 and the Z set's signed zeros. The numerical criterion is unchanged.
+Revision 4. It implements HELP_HUMAN's ruling of 2026-10-11, made under the owner's delegation: **option (d), "repair"**, HELP_HUMAN's later ruling of the same day on all-zero bodies, and HELP_HUMAN's rulings of 2026-10-12 on the D5C-1 fold's constructed-body effects. Revision 0 (68d78411af) derived the bound; revision 1 (5fec6bb9c0) made the unit publish what the bound certifies and folded in the load closure. Revision 2 applied T3's re-review of revision 1 (I1–I8, S6) and T4-RV34's check, and replaced two stand-ins with measurements taken on the product: ε_E (§2.1) and the remainder under the attempt's own matrix (§4.2). Revision 3 makes the summand-completeness invariant explicit, qualifies the all-zero explanation by the existing minimum-scale guard, corrects the spring-reaction sign, and source-qualifies the surviving combination producer. Revision 4 replaces predictions with the implementation's measurements and the independent review's findings: runtime, the D5C-1 fold on constructed bodies, the displacement-group counts, the Sensitive → Passed moves on main/K-D5 and the Z set's signed zeros. It records the 2026-10-12 rulings that settle the D5C-1 items (§4.2) and the adjacency-first reaction loop (§6). The numerical criterion is unchanged.
 
 The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integrity.md)) and R-b′/O-13 ([arc-recovery-guard.md](arc-recovery-guard.md)). It changes no product code. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -28,6 +28,11 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 **HELP_HUMAN, 2026-10-11 (under the owner's delegation), option (d).** Publish the certified member rows recovered at p (the intended recovery m_g at u + w + w₂, rounded to binary64), with T3's full load closure folded into D5C-1, so that K-D5 certifies one intended system. The 1e-9 criterion and its 2^-34·S* floor stay, with no interim criterion change. Every formed load term is covered, and B ≥ err is shown on all 90,734 breaching groups. "Certified" means against K-D5's intended system. The published values change: this is stated as a property, and the SP-1/SP-4 blast radius is declared before any re-pin (§3.4, §6). The residual demotion rate and M1's W1-abandonment rate are reported (§4). The short-bend rule is removed only after the closure is available and verified on the affected admitted path (M3). The recovered branch split means main/K-D5 has no such O-13 rule; its removal belongs to the final batch-4 U2 integration on the verified closure. The nonlinear-support route fails closed with a named, disclosed reason (§5). Re-registration is priced with `tools/retained_pricing/` (§6).
 
 **HELP_HUMAN, 2026-10-11, all-zero bodies.** The floor stays. The reason given is that keeping the criterion carries less risk of false conclusions, while anchoring the floor to the load scale could certify unchecked small-but-meaningful rows. The unit adds a named notice with no criterion change (§3.3).
+
+**HELP_HUMAN, 2026-10-12, the D5C-1 fold on constructed bodies (§4.2).**
+
+- **T6a: the current behaviour is accepted.** The unchanged D5C-1 rule's Passed → Sensitive demotion is fail-safe and moves no realistic, RV29, W1 or RV30 case-mode. No displacement-noise floor is added; a floor would be a criterion change, which remains a possible later owner choice.
+- **W1 routing: agreed on T3's behalf.** S11-G's T1, T2 and T6b, T19's control and F1a's UDL case demote at the solve and, on the captured entry, attempt retained-source recovery. This is the intended consequence of the closed residual. T19's charged source-validation work and T1's `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` are expected outcomes. T3 folds them into its W1 census baseline after fan-in.
 
 **Superseded by this unit.** HELP_HUMAN's ruling supersedes "my short-bend thresholds (ruling 5, plus the withdrawn (c) limit)" and "the t15b 1e-4 rad acceptance", and asks that they be named "in the DEL-04-01 Design as superseded by this unit". They are:
 
@@ -361,7 +366,9 @@ The closed bound is applied to today's published rows v (I43): B_c = ‖v − m_
   - S11-G's T1, T2 and T6b, T19's original construction (N05's tip formation noise, kept as T19's control) and F1a's UDL case now demote at the solve, by D5C-1 on the closed residual. On the captured entry such a case then attempts retained-source recovery: T19's original construction charges its source validation, and T1 gains `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`. This is a change of W1's routing.
   - T6a's two skew anchored, uniformly heated runs move from Passed to Sensitive. Their true rotations are coordinate residue (about 2e-17 rad), and D5C-1 has no floor below the body's own noise.
 
-  Both are open items pending HELP_HUMAN/T3 ruling.
+  Both are settled by HELP_HUMAN's rulings of 2026-10-12 (see "The rulings"); the S11-G and F1a tests pin them as expected outcomes.
+  - Measured scope of the T6a effect: no realistic, RV29, W1 or RV30 case-mode moves. Of T6a's four runs, the axis-aligned run and the 45° in-plane run stay `CHECKS_PASSED`. Only the two fully anchored, uniformly heated runs along skew directions demote. The demotion is fail-safe, and no noise floor is added.
+  - The routing consequence: on the captured entry these cases attempt retained-source recovery. T1's attempt declines the UDL producer with one `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info), and T19's control charges its source validation. No invocation of the W1 set changes route, since the fold demotes no case-mode there.
 - **The load-row guard (T3's I6).** S11-G's load-row guard still demotes on formed-term ledger defects. Under (d) those defects reach no certified row: the closure keeps them out of ρ and the rows, and their effect on u is judged by D5C-1 and the bound.
   - Its role after this unit is a conservative standing demotion and the trigger for retained-source recovery (`needs_source_recovery`). It stays unchanged here, because retiring it changes W1's routing, which is T3's interface.
   - Availability effect: 6 RV30 case-modes (`B|L|0.5-20|t96|R1|rho0.012–0.017|k1|wTp|utm73-skew`, both modes) are Sensitive only through it. Their repaired rows are within criterion (B/c ≤ 1.0e-7). The effect is 0 in the realistic, RV29 and W1 sets. Retiring it is an open item.
@@ -511,13 +518,13 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 **Runtime (RV34; measured at implementation).** Each element is re-formed at p in five passes instead of one: ρ, s, s₂, ε_E and recovery. The memory pricing does not cover time.
 
-- Realistic set, per case-mode against the baseline: median 5.6×, p90 9.4×, maximum 10.6× (median 1.19 ms → 7.71 ms).
-- D1-cap models: the all-fixed model 10.5–17.5×; the model that is Sensitive at the structural gate about 1.02×.
-- Attribution:
-  - `certify_support_reaction` re-forms every element matrix at p for each restrained DOF before testing adjacency: 84 % of the D1 samples.
-  - On the realistic set, `certified_publication::member` takes about 40 %. Its `load_reformation` re-forms the arc certificate for each `UniformCurved` primitive (12 per load), and `evaluate`'s ρ pass repeats it.
-- These were measured before the recovery's member loads entered its exact sums as separate addends (§3.1). Straight section rows are now formed one at a time, keeping the priced stress-control stack census, so each row re-forms the member's uniform intensities. On a self-weight member this is 25 instead of 5 intensity re-formations, about 140 µs of a 756 µs straight recovery (release build). D1 members carry no uniform sources.
-- An adjacency-first reaction loop and per-member reuse of re-formed loads are numerically identical refinements; they are an open item.
+- **Adjacency-first reaction loop (made).** `certify_support_reaction` now tests whether an element's DOF map contains the reaction DOF before it forms that element's matrix at p. It skips non-adjacent elements; the contributing elements, their order and their arithmetic are unchanged, and nothing is allocated. Before the change it formed every element matrix for each restrained DOF, which took 84 % of the D1 samples. The change is numerically identical on genuine outputs: release runners at the parent revision and at the change produced byte-identical records, including the complete public JSON, for all 98,108 case-mode-entry records of the realistic set, RV29, W1 and every RV30 chunk (families A–D and the short-bend family).
+- Measured after the change (release build, exclusive host, typed and captured entries, both modes, median of two interleaved passes), against the pre-K-D5 main baseline:
+  - realistic set, per case-mode: median 5.3×, p90 9.2×, maximum 10.2× (median 1.18 ms → 7.49 ms). Before the change it was median 5.7×, p90 9.7×, maximum 10.6× (7.79 ms); the change alone is a median 0.95× and 0.94× in total time;
+  - D1-cap models: the all-fixed model 2.4–3.3× (55–66 ms against 276–286 ms before the change, which was 10.4–16.8×); the model that is Sensitive at the structural gate about 1.0×.
+- Remaining attribution: on the realistic set `certified_publication::member` took about 40 % before the change. Its `load_reformation` re-forms the arc certificate for each `UniformCurved` primitive (12 per load), and `evaluate`'s ρ pass repeats it.
+- Straight section rows are formed one at a time, keeping the priced stress-control stack census, so each row re-forms the member's uniform intensities. On a self-weight member this is 25 instead of 5 intensity re-formations, about 140 µs of a 756 µs straight recovery (release build). D1 members carry no uniform sources.
+- Per-member reuse of re-formed loads is a numerically identical refinement that is not made; it is an open item.
 
 ## 7. Implementation plan
 
@@ -636,8 +643,6 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 
 - **Combination rows** are not judged against their own q (§3.3).
 - **The load-row guard** no longer guards any certified row (§4.2). Retiring it changes W1's routing into retained-source recovery and needs T3's agreement. Its availability cost is 6 RV30 case-modes and 0 realistic.
-- **Runtime** (§6, measured): an adjacency-first `certify_support_reaction` loop and per-member reuse of re-formed loads are numerically identical refinements, not yet made.
-- **D5C-1 on constructed bodies** (§4.2), pending HELP_HUMAN/T3 ruling:
-  - the availability effect on T6a's two skew uniformly heated runs (Passed → Sensitive on coordinate-residue rotations);
-  - the routing change: formed-load defects now judged at the solve send the captured entry into retained-source recovery (T19's original construction charges work; T1 gains `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`).
+- **Runtime** (§6, measured): per-member reuse of re-formed loads is a numerically identical refinement, not yet made. The adjacency-first reaction loop is made.
+- **A displacement-noise floor for D5C-1** (§4.2) would be a criterion change. It is noted to the owner as a possible later choice; the 2026-10-12 ruling adds none.
 - **The emulation's intended loads** are RV30's reference definitions. The implementation's primitives must match them, including the effective-force pressure model and the resolved total eigenstrain, or the closure test against the exact reference fails.

@@ -198,8 +198,12 @@ fn f1a_non_demoted_cases_carry_no_d5_line() {
         .find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8"))
         .unwrap()["request"]
         .clone();
+    // HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf; DEL-04-01
+    // kd5-member-relative-bound.md "The rulings"): this demotion at the solve
+    // is an expected outcome of the closed residual.
     for mode in MODES {
         let d = integrity(&solved(Entry::Typed, &request, mode), "case").clone();
+        assert_eq!(d.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{mode:?}");
         assert!(d.message.contains(&format!("{D5}reason=estimate; row=S1:RZ;")), "{mode:?}");
         assert!(!d.message.contains(LOAD_ROW), "{mode:?}");
     }
