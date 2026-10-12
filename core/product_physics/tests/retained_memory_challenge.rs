@@ -21,7 +21,10 @@
 //!
 //! The counting allocator does SeqCst atomics on every allocation, which slows these dev/test
 //! timings; release times come from the witness tests, without it (A1-N-9).
-use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode};
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode, RetainedByteLimit};
+
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 use serde_json::Value;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -102,7 +105,7 @@ fn measure(label: &str, raw: Value, mode: PreviewSolverMode, route: Route) {
     let start = std::time::Instant::now();
     let (outcome, w1_work, envelope_rows) = match route {
         Route::Direct => {
-            let output = run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            let output = run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
             let elapsed = start.elapsed();
             let notices = output.envelope().diagnostics.iter().filter(|d| d.message.starts_with(N1_NOTICE)).count();
             let successor = output.successor().map(|s| serde_json::to_vec(s).unwrap().len());

@@ -722,15 +722,17 @@ pub(super) enum CapFact {
     UnitsKeyTextBytes,
     ControlBytes,
 }
-/// Why the admission bound refused (S-1: E_mov,max + R ≤ M).
+/// Why the admission bound refused (S-1: E_mov,max + R ≤ L, with L ≤ M).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum BoundRefusal {
     /// The cap-priced maximum has no in-build expression yet (fail-closed).
     Unpriced,
     /// Checked arithmetic overflowed.
     Overflow,
-    /// The required bytes exceed the threshold M.
+    /// The required bytes exceed the caller's limit L.
     Exceeds { required: u64, threshold: u64 },
+    /// The caller's limit L exceeds the registered profile's qualified M; never clamped.
+    Unqualified { limit: u64, qualified: u64 },
 }
 /// The first failing clause, with the facts it read (DOMAIN.md §3's refusal map).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2582,15 +2584,32 @@ pub(super) fn bound_admits(maximum: u64, reserved_stack: u64, threshold: u64) ->
         Err(BoundRefusal::Exceeds { required, threshold })
     }
 }
-/// S-1 at admission (RV89 G6 S-3): the registered profile's bound for the invocation's
+/// S-1 at admission (RV89 G6 S-3): the bound for the invocation's
 /// mode, `E_mov,max(mode) + R ≤ threshold`, with R always the constant reserved stack
 /// (never the `cfg(test)` override, which only sizes the witness thread). `admit` prices
 /// its bound through this function alone. Pure.
 pub(super) fn admission_bound(maximum: Result<u64, BoundRefusal>, threshold: u64) -> Result<u64, BoundRefusal> {
     bound_admits(maximum?, RESERVED_STACK_BYTES as u64, threshold)
 }
+/// S-1 under the caller's immutable limit L: an L above the registered profile's qualified
+/// M refuses `Unqualified` (never clamped or rewritten); otherwise `admission_bound` at L. Pure.
+pub(super) fn limited_bound(maximum: Result<u64, BoundRefusal>, limit: RetainedByteLimit, qualified: u64) -> Result<u64, BoundRefusal> {
+    if limit.0 > qualified {
+        return Err(BoundRefusal::Unqualified { limit: limit.0, qualified });
+    }
+    admission_bound(maximum, limit.0)
+}
+/// The qualified required bytes `E_mov,max(mode) + R` of a priced maximum, in checked
+/// arithmetic; Unpriced or Overflow is an error, never a number. Pure.
+pub(super) fn qualified_required(maximum: Result<u64, BoundRefusal>) -> Result<u64, RetainedPricingError> {
+    match admission_bound(maximum, u64::MAX) {
+        Ok(required) => Ok(required),
+        Err(BoundRefusal::Unpriced) => Err(RetainedPricingError::Unpriced),
+        Err(_) => Err(RetainedPricingError::Overflow),
+    }
+}
 /// The required bytes a bound verdict states, admitted or exceeded (`None` when it was
-/// not computed: Unpriced or Overflow). Pure.
+/// not computed: Unpriced, Overflow or Unqualified). Pure.
 pub(super) fn bound_required(verdict: &Result<u64, BoundRefusal>) -> Option<u64> {
     match *verdict {
         Ok(required) | Err(BoundRefusal::Exceeds { required, .. }) => Some(required),
@@ -3099,6 +3118,51 @@ pub enum ProfileStatus {
 pub enum AllowanceStatus {
     Unselected,
 }
+/// The caller's immutable per-invocation byte limit L. The host chooses it; the core
+/// never discovers the machine and never rewrites it (memory-budget-decision.md).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RetainedByteLimit(u64);
+impl RetainedByteLimit {
+    pub const fn new(bytes: u64) -> Self {
+        Self(bytes)
+    }
+    pub const fn bytes(self) -> u64 {
+        self.0
+    }
+}
+/// Why this build's qualified required bytes are not a number.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RetainedPricingError {
+    Unpriced,
+    Overflow,
+}
+/// The registered profile this build matched: its identity text and qualified M. Read-only.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RetainedProfileFacts {
+    identity: &'static str,
+    qualified: RetainedByteLimit,
+}
+impl RetainedProfileFacts {
+    /// The exact D-6 identity text of the qualified build.
+    pub fn identity(&self) -> &'static str {
+        self.identity
+    }
+    /// The qualified M: the largest limit admission accepts.
+    pub fn qualified_limit(&self) -> RetainedByteLimit {
+        self.qualified
+    }
+    /// `E_mov,max(mode) + R` for this build, the least limit that admits an in-domain request.
+    pub fn required_bytes(&self, mode: crate::PreviewSolverMode) -> Result<u64, RetainedPricingError> {
+        qualified_required(cap_priced_maximum(mode))
+    }
+}
+/// The registered profile this build matched, or its D-6 status (`Missing`/`Stale`).
+pub fn retained_profile() -> Result<RetainedProfileFacts, ProfileStatus> {
+    build_status().map(|index| {
+        let profile = &REGISTERED_PROFILES[index];
+        RetainedProfileFacts { identity: profile.identity, qualified: RetainedByteLimit(profile.threshold_bytes) }
+    })
+}
 
 /// Borrowed actual caller roots, never a qualified label or caller byte total.
 /// Cross-crate visibility is not authentication. Headless is refused at D1.0 (D-2), even in the registered build;
@@ -3224,14 +3288,16 @@ pub(super) fn assess(
     capture: &CapturedInvocation,
     request: &LinearStaticPreviewRequest,
     entry: Entry<'_>,
+    limit: RetainedByteLimit,
 ) -> RetainedAdmissionReport {
-    match admit(capture, request, entry) {
+    match admit(capture, request, entry, limit) {
         Err(report) => report,
         Ok((_permit, report)) => report,
     }
 }
 /// G-A (API_G4.md §1): the census, the D1 predicate (D1.0–D1.11; Headless is
-/// refused under D-2), the D-6 build status and the cap-priced bound against M,
+/// refused under D-2), the D-6 build status and the cap-priced bound against the
+/// caller's limit L (refused above the registered M),
 /// all allocation-free. A permit comes with the same report (RV85 S3), so a
 /// permitted output keeps every fact. With no registered profile, every call
 /// refuses at D1.1 and the report keeps the first failing domain clause too.
@@ -3239,6 +3305,7 @@ pub(super) fn admit(
     capture: &CapturedInvocation,
     request: &LinearStaticPreviewRequest,
     entry: Entry<'_>,
+    limit: RetainedByteLimit,
 ) -> Result<(CapturePermit, RetainedAdmissionReport), RetainedAdmissionReport> {
     let (caller, headless) = match entry {
         Entry::Direct => (RetainedCaller::Direct, None),
@@ -3287,7 +3354,7 @@ pub(super) fn admit(
     let mode = capture.mode();
     let mut required = None;
     let verdict = law_order(caller, build, domain, |index| {
-        let bound = admission_bound(cap_priced_maximum(mode), REGISTERED_PROFILES[index].threshold_bytes);
+        let bound = limited_bound(cap_priced_maximum(mode), limit, REGISTERED_PROFILES[index].threshold_bytes);
         required = bound_required(&bound);
         bound
     });
@@ -3341,7 +3408,7 @@ pub(super) mod tests {
         ] {
             DISPATCH_COUNT.with(|c| c.set(Some(0)));
             let result =
-                crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode)
+                crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, law_tests::RETAINED_LIMIT)
                     .unwrap();
             // G6: the qualified build admits the milestone (one dispatch, capture installed);
             // any other build is Stale. Either way the ordinary run is dispatched once.
@@ -3411,7 +3478,7 @@ pub(super) mod tests {
         .unwrap();
         let (request, capture) =
             CapturedInvocation::parse(raw, crate::PreviewSolverMode::SparseInteractive).unwrap();
-        let base = assess(&capture, &request, Entry::Direct);
+        let base = assess(&capture, &request, Entry::Direct, law_tests::RETAINED_LIMIT);
         for profile in [ProfileStatus::Missing, ProfileStatus::Stale] {
             for status in [
                 CensusStatus::Complete,
