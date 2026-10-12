@@ -206,7 +206,13 @@ It also checks:
   In phase 2, saving the bundled demo over the stored demo prompts too;
 - that the exported file in Downloads is bound to the solved model's project,
   shows the row count the export panel showed, and accounts for every row of the
-  solve.
+  solve;
+- where `expected.json` says a case's export is not offered, the export panel's
+  text, and that nothing was written. Since K-D5 (DEL-04-01
+  `kd5-member-relative-bound.md` §5) the demo, like the milestone, is
+  Sensitive and so not Current: neither case offers an export. The saved demo
+  run must be Sensitive, with its rows, and carry two non-blocking
+  `NUMERICAL_INTEGRITY_SENSITIVE` warnings with the route's sentence.
 
 Run it on a Mac with a GUI session:
 

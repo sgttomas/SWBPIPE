@@ -253,7 +253,28 @@ for (const item of first.exports ?? []) {
   check(`${item.label}: exported rows match the export panel`, rows !== undefined && item.summary?.includes(`rows=${rows};`), `${rows}; ${item.summary}`);
   check(`${item.label}: export accounts for every solved row`, accounted === solvedRows, `${accounted} accounted; ${solvedRows} solved`);
 }
-check("at least one result export written", exported.length > 0, exported);
+// Each case's export is offered and written, or not offered as `expected.json`
+// says. Under K-D5 (DEL-04-01 kd5-member-relative-bound.md §5) the nonlinear-
+// support demo is Sensitive like the milestone; a Sensitive result is not
+// Current, so no case offers a result export and nothing may be written. The
+// demo's refusal is named by its standing (checked above) and by the saved run.
+for (const doc of documents) {
+  const item = first.exports?.find((entry) => entry.label === doc.case);
+  const want = doc.result_export ?? { offered: true };
+  if (want.offered) check(`${doc.case}: result export offered`, item?.available, item?.reason);
+  else check(`${doc.case}: result export not offered (${want.panel_text_prefix})`, item && !item.available && item.reason?.startsWith(want.panel_text_prefix), item?.reason);
+  const integrity = doc.stored_run_integrity;
+  if (!integrity) continue;
+  const run = storedRuns[doc.project_id];
+  const named = (run?.diagnostics ?? []).filter((item) => item.code === integrity.code);
+  check(`${doc.case}: saved run is ${integrity.status}, its rows published (K-D5 §5)`,
+    run?.numerical_quality?.status === integrity.status && run.results?.length === observation(first, doc.case, doc.modes.at(-1))?.proof_rows, `${run?.numerical_quality?.status}; ${run?.results?.length} rows`);
+  check(`${doc.case}: saved run names the refusal: ${integrity.count} ${integrity.severity} ${integrity.code} with the route's sentence, none blocking`,
+    named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
+      && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
+}
+if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
+else check("no result export written: no case offers one", exported.length === 0, exported);
 
 const second = await launch("reopen");
 check("phase reopen completed", second.ok, second.error);
