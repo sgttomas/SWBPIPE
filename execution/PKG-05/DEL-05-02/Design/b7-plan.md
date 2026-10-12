@@ -371,4 +371,4 @@ HELP_HUMAN accepted this design on 2026-10-10. DEL-02-05 CLM-003 and DEL-04-07 D
 These are not decided here.
 - **G10 interpretation.** B7a changes the milestone model's document version, its ordinary-route bytes and its displayed rows (C4, E14, the model format). Whether G10 is witnessed before B7a, or re-issued against the B7 head, is the owner's choice.
 - **B8 (activation).** R and B7a change the desktop's retained standing text and notices. Nothing here activates anything.
-- **Decision 22.** Any change of M or of the budget model.
+- **Decision 22.** Budget-model or qualification changes outside the owner-approved 12 GiB base allowance and shared 75% pool policy. Implementing and qualifying that selected policy is already authorized; larger numerical domains, risk acceptance and other unselected choices still require the owner.
