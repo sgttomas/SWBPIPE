@@ -68,8 +68,19 @@ pub(crate) fn bridge_failure(error:&Error)->BridgeFailure<'_> {
         Error::MissingRadius(n)=>BridgeFailure::MissingRadius(*n),Error::MissingUniquenessWarrant(n)=>BridgeFailure::MissingUniquenessWarrant(*n),
         Error::RowIdentity(n)=>BridgeFailure::RowIdentity(*n),Error::CountRange=>BridgeFailure::CountRange,
         Error::Storage=>BridgeFailure::Storage,Error::Alpha{block,..}=>BridgeFailure::AlphaCondition{block:*block},
+        // The contraction condition failed and no extension certified the block.
+        Error::Congruence{block,..}=>BridgeFailure::AlphaCondition{block:*block},
     }
 }
+/// The radius law a lane may take for a data block whose contraction condition
+/// fails (b7-plan "N06 absorbed-spring certificate extension"). `Contraction` is
+/// the existing law alone. `ContractionOrCongruence` keeps it for every block
+/// with alpha < 1 and lets an annular_source block with alpha >= 1 take the
+/// congruence radius when its class holds; the admitted_k lane never uses it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RadiusLaw { Contraction, ContractionOrCongruence }
+/// The congruence class's largest relative member-coefficient gap, 2^-32.
+pub(crate) const CONGRUENCE_DELTA_MAX_EXPONENT: i64 = -32;
 #[derive(Debug)]
 pub struct LaneWorkTrace<'a> {
     pub numeric:NumericTrace,pub point_lme:WorkTotal,
@@ -152,6 +163,18 @@ impl ResidualWork {
         }
         self.capacities[at] = (name, n);
         self.capacity_entries = count_add(at, 1)?;
+        Ok(())
+    }
+    /// Raise the latest `name` entry to `n`: a buffer allocated after its
+    /// same-kind predecessor was dropped (one visit; the entry must exist).
+    fn peak(&mut self, name: &'static str, n: usize) -> Result<(), Error> {
+        self.visit()?;
+        let entry = self.capacities[..self.capacity_entries]
+            .iter_mut()
+            .rev()
+            .find(|(k, _)| *k == name)
+            .ok_or(Error::CountRange)?;
+        entry.1 = entry.1.max(n);
         Ok(())
     }
     fn check(&self) -> Result<(), Error> {
@@ -593,11 +616,28 @@ fn residual(
     view: &SourceBridgeView<'_>,
     laws: &[ProposedMemberLaw<'_>],
     center: &[Endpoint],
+    eta: Option<&mut [Endpoint]>,
+    w: &mut ResidualWork,
+) -> Result<Vec<Enclosure>, Error> {
+    residual_recorded(view, laws, center, eta, false, w)
+}
+/// `peak`: the buffer replaces a dropped residual buffer of the same lane (the
+/// congruence lane's further correction), so its capacity raises that entry's
+/// recorded peak instead of adding an entry.
+fn residual_recorded(
+    view: &SourceBridgeView<'_>,
+    laws: &[ProposedMemberLaw<'_>],
+    center: &[Endpoint],
     mut eta: Option<&mut [Endpoint]>,
+    peak: bool,
     w: &mut ResidualWork,
 ) -> Result<Vec<Enclosure>, Error> {
     let mut out = buffer(center.len(), ZERO)?;
-    w.capacity("residual", out.capacity())?;
+    if peak {
+        w.peak("residual", out.capacity())?;
+    } else {
+        w.capacity("residual", out.capacity())?;
+    }
     for (i, law) in laws.iter().enumerate() {
         w.visit()?;
         let m = member(view, law, i, w)?;
@@ -830,16 +870,23 @@ pub(crate) fn source_residual_for_law<'a>(
     owner:&'a RetainedSolve, source:&'a PrimitiveSource, identity:&[u8], precision:u32,
     laws:&'a [ProposedMemberLaw<'a>], readout_law:ReadoutLaw,
 ) -> ResidualSpent<'a> {
-    source_residual_inner(owner,source,identity,precision,laws,readout_law,None)
+    source_residual_inner(owner,source,identity,precision,laws,readout_law,None,RadiusLaw::Contraction)
 }
 pub(super) fn source_residual_prepared<'a>(owner:&'a RetainedSolve, source:&'a PrimitiveSource,
     identity:&[u8], precision:u32, laws:&'a [ProposedMemberLaw<'a>],
-    anchor:&std::sync::Arc<super::final_case::ProofAnchor>, seed:&LaneReadouts)->ResidualSpent<'a> {
-    source_residual_inner(owner,source,identity,precision,laws,ReadoutLaw::AnnularSource,Some((anchor,seed)))
+    anchor:&std::sync::Arc<super::final_case::ProofAnchor>, seed:&LaneReadouts, radius_law:RadiusLaw)->ResidualSpent<'a> {
+    source_residual_inner(owner,source,identity,precision,laws,ReadoutLaw::AnnularSource,Some((anchor,seed)),radius_law)
 }
+/// The annular_source lane without a seed under an explicit radius law (kernel tests).
+#[cfg(test)]
+pub(crate) fn source_residual_with_radius<'a>(owner:&'a RetainedSolve, source:&'a PrimitiveSource,
+    identity:&[u8], precision:u32, laws:&'a [ProposedMemberLaw<'a>], radius_law:RadiusLaw)->ResidualSpent<'a> {
+    source_residual_inner(owner,source,identity,precision,laws,ReadoutLaw::AnnularSource,None,radius_law)
+}
+#[allow(clippy::too_many_arguments)]
 fn source_residual_inner<'a>(owner:&'a RetainedSolve,source:&'a PrimitiveSource,identity:&[u8],precision:u32,
     laws:&'a [ProposedMemberLaw<'a>],readout_law:ReadoutLaw,
-    seed:Option<(&std::sync::Arc<super::final_case::ProofAnchor>,&LaneReadouts)>)->ResidualSpent<'a> {
+    seed:Option<(&std::sync::Arc<super::final_case::ProofAnchor>,&LaneReadouts)>,radius_law:RadiusLaw)->ResidualSpent<'a> {
     let mut work = ResidualWork::new();
     work.readout_law=readout_law;
     let view = owner.source_bridge_view(source, identity, precision);
@@ -850,7 +897,7 @@ fn source_residual_inner<'a>(owner:&'a RetainedSolve,source:&'a PrimitiveSource,
         Ok(view) => {
             work.data_capacity=view.data_capacity();
             let check=match seed {None=>Ok(()),Some((anchor,k))=>validate_seed(&view,anchor,k,&mut work)};
-            check.and_then(|()|run(view,laws,seed.map(|(_,k)|k),&mut work))
+            check.and_then(|()|run(view,laws,seed.map(|(_,k)|k),radius_law,&mut work))
         },
     };
     let result = match result {
@@ -880,6 +927,7 @@ fn run<'a>(
     view: SourceBridgeView<'a>,
     laws: &'a [ProposedMemberLaw<'a>],
     seed: Option<&LaneReadouts>,
+    radius_law: RadiusLaw,
     w: &mut ResidualWork,
 ) -> Result<ConditionalSourceResidual<'a>, Error> {
     if !view.source().directional_springs().is_empty() {
@@ -919,6 +967,8 @@ fn run<'a>(
     let mut epsilon = buffer(nb, Endpoint::ZERO)?;
     w.capacity("alpha", alpha.capacity())?;
     w.capacity("epsilon", epsilon.capacity())?;
+    // The first data block whose contraction condition fails under the extension.
+    let mut extended: Option<usize> = None;
     for b in 0..nb {
         w.visit()?;
         let body = view.group().blocks.body[b];
@@ -944,13 +994,23 @@ fn run<'a>(
         }
         alpha[b] = w.numeric.scalar(Entry::Mul, &beta, &e, Toward::Up)?;
         if alpha[b].cmp_value(&Endpoint::ONE) != Ordering::Less {
-            return Err(Error::Alpha {
-                block: b,
-                alpha_hi: alpha[b],
-            });
+            if radius_law == RadiusLaw::Contraction || w.readout_law != ReadoutLaw::AnnularSource {
+                return Err(Error::Alpha {
+                    block: b,
+                    alpha_hi: alpha[b],
+                });
+            }
+            if extended.is_none() {
+                extended = Some(b);
+            }
         }
     }
     drop(eta);
+    // Formed only when a block needs it, so every alpha < 1 lane's work is unchanged.
+    let delta = match extended {
+        None => None,
+        Some(block) => Some(congruence_delta(&view, laws, block, w)?),
+    };
     #[cfg(test)]
     let initial_trace = initial.clone();
     #[cfg(test)]
@@ -965,14 +1025,7 @@ fn run<'a>(
         drop(initial);
         let (result, spent_work) = view.source_correction(midpoint).into_parts();
         w.correction = spent_work;
-        let correction = result.map_err(|e| match e {
-            SourceCorrectionError::Arithmetic(e) => Error::Numeric(NumericError::Arithmetic(e)),
-            SourceCorrectionError::Storage => Error::Storage,
-            SourceCorrectionError::CountRange => Error::CountRange,
-            SourceCorrectionError::Identity => {
-                Error::View(super::super::adaptive::SourceBridgeViewIssue::VerificationCache)
-            }
-        })?;
+        let correction = result.map_err(correction_error)?;
         w.check()?;
         for a in 0..nf {
             w.visit()?;
@@ -987,8 +1040,12 @@ fn run<'a>(
     } else {
         drop(initial);
     }
+    if delta.is_some() {
+        // b7-plan N06 extension: one further correction for a lane with a congruence block.
+        refine(&view, laws, &mut center, w)?;
+    }
     let rho = residual(&view, laws, &center, None, w)?;
-    radius(&view, &alpha, &rho, &mut epsilon, w)?;
+    radius(&view, &alpha, &rho, &mut epsilon, delta, w)?;
     #[cfg(not(test))]
     drop(rho);
     let rows = recover(&view, laws, &center, &epsilon, w)?;
@@ -1008,11 +1065,150 @@ fn run<'a>(
         correction: correction_trace,
     })
 }
+/// b7-plan "N06 absorbed-spring certificate extension": the congruence class's
+/// relative gap delta = max over members m and coefficients p of
+/// RU(dd[m][p] / c_K[m][p]), where dd is the existing outward |c_G - c_K| over the
+/// annular enclosure and c_K the exact admitted product. The class also needs
+/// positive scalar springs, no directional spring, positive admitted products and
+/// delta <= 2^-32; otherwise the block refuses as `Congruence`. Positive work:
+/// one member build, four upward divisions and the visits, per member.
+fn congruence_delta(
+    view: &SourceBridgeView<'_>,
+    laws: &[ProposedMemberLaw<'_>],
+    block: usize,
+    w: &mut ResidualWork,
+) -> Result<Endpoint, Error> {
+    let refused = Error::Congruence { block };
+    if !view.source().directional_springs().is_empty() {
+        return Err(refused);
+    }
+    for spring in view.source().springs() {
+        w.visit()?;
+        if !(spring.stiffness.is_finite() && spring.stiffness > 0.0) {
+            return Err(refused);
+        }
+    }
+    let mut delta = Endpoint::ZERO;
+    for (i, law) in laws.iter().enumerate() {
+        w.visit()?;
+        let c = coefficients(view, law, i, w)?;
+        for p in 0..4 {
+            w.visit()?;
+            if !positive(&c.admitted_products[p]) {
+                return Err(refused);
+            }
+            let gap = w.numeric.scalar(
+                Entry::Div,
+                &c.coefficient_differences[p],
+                &c.admitted_products[p],
+                Toward::Up,
+            )?;
+            delta = max(delta, gap);
+        }
+    }
+    w.visit()?;
+    if delta.cmp_value(&shift(&Endpoint::ONE, CONGRUENCE_DELTA_MAX_EXPONENT)?) == Ordering::Greater {
+        return Err(refused);
+    }
+    Ok(delta)
+}
+fn correction_error(e: SourceCorrectionError) -> Error {
+    match e {
+        SourceCorrectionError::Arithmetic(e) => Error::Numeric(NumericError::Arithmetic(e)),
+        SourceCorrectionError::Storage => Error::Storage,
+        SourceCorrectionError::CountRange => Error::CountRange,
+        SourceCorrectionError::Identity => {
+            Error::View(super::super::adaptive::SourceBridgeViewIssue::VerificationCache)
+        }
+    }
+}
+/// The congruence lane's one further verification-factor correction: the fresh
+/// residual at the corrected center, its RN1024 midpoints, one existing
+/// `source_correction` call and the RN1024 center update on data blocks. The
+/// buffers replace dropped same-kind buffers (recorded as peaks); the correction
+/// work adds to the lane's correction record (calls, cast/factor work, visits)
+/// and its capacities take the larger value.
+fn refine(
+    view: &SourceBridgeView<'_>,
+    laws: &[ProposedMemberLaw<'_>],
+    center: &mut [Endpoint],
+    w: &mut ResidualWork,
+) -> Result<(), Error> {
+    let nf = center.len();
+    let current = residual_recorded(view, laws, center, None, true, w)?;
+    let mut midpoint = buffer(nf, Endpoint::ZERO)?;
+    w.peak("midpoint", midpoint.capacity())?;
+    for (a, r) in current.iter().enumerate() {
+        w.visit()?;
+        midpoint[a] = shift(&w.nearest_add(r.lo, r.hi)?, -1)?;
+    }
+    drop(current);
+    let (result, spent) = view.source_correction(midpoint).into_parts();
+    let c = &mut w.correction;
+    c.cast.merge(&spent.cast);
+    c.factor.merge(&spent.factor);
+    c.visits = c.visits.add(spent.visits);
+    c.calls = c.calls.add(spent.calls);
+    c.rhs_capacity = c.rhs_capacity.max(spent.rhs_capacity);
+    c.output_capacity = c.output_capacity.max(spent.output_capacity);
+    c.converted_capacity = c.converted_capacity.max(spent.converted_capacity);
+    let correction = result.map_err(correction_error)?;
+    w.check()?;
+    for a in 0..nf {
+        w.visit()?;
+        if view.data()[view.group().blocks.of[a] as usize] {
+            center[a] = w.nearest_add(center[a], shift(&correction[a], view.scales()[a])?)?;
+        }
+    }
+    Ok(())
+}
+/// The least integer k with k*k >= n (n >= 1), one visit per step.
+fn ceil_sqrt(n: usize, w: &mut ResidualWork) -> Result<usize, Error> {
+    let mut k = 1usize;
+    while count_mul(k, k)? < n {
+        w.visit()?;
+        k = count_add(k, 1)?;
+    }
+    Ok(k)
+}
+/// The congruence radius of one block: RU(RU(RU(beta*k)*omega)/RD(1-delta)),
+/// k = ceil(sqrt(n_b)). Every operation is a directed binary1024 entry; an
+/// exponent outside the Wide range refuses (never flushes or wraps).
+fn congruence_radius(
+    beta: Endpoint,
+    omega: Endpoint,
+    delta: Endpoint,
+    n: usize,
+    block: usize,
+    w: &mut ResidualWork,
+) -> Result<Endpoint, Error> {
+    let denominator = w
+        .numeric
+        .scalar(Entry::Sub, &Endpoint::ONE, &delta, Toward::Down)?;
+    if !positive(&denominator) {
+        return Err(Error::Congruence { block });
+    }
+    let k = ceil_sqrt(n, w)?;
+    let k = lift(u32::try_from(k).map_err(|_| Error::CountRange)? as f64)?;
+    let scaled = w.numeric.scalar(Entry::Mul, &beta, &k, Toward::Up)?;
+    let numerator = w.numeric.scalar(Entry::Mul, &scaled, &omega, Toward::Up)?;
+    Ok(w
+        .numeric
+        .scalar(Entry::Div, &numerator, &denominator, Toward::Up)?)
+}
+#[cfg(test)]
+pub(crate) fn test_congruence_radius(beta: Endpoint, omega: Endpoint, delta: Endpoint, n: usize)
+    -> (Result<Endpoint, Error>, ResidualWork) {
+    let mut w = ResidualWork::new();
+    let r = congruence_radius(beta, omega, delta, n, 0, &mut w);
+    (r, w)
+}
 fn radius(
     view: &SourceBridgeView<'_>,
     alpha: &[Endpoint],
     rho: &[Enclosure],
     epsilon: &mut [Endpoint],
+    delta: Option<Endpoint>,
     w: &mut ResidualWork,
 ) -> Result<(), Error> {
     for b in 0..view.data().len() {
@@ -1031,6 +1227,19 @@ fn radius(
         for &a in &view.group().blocks.positions[b] {
             w.visit()?;
             omega = max(omega, max(rho[a].lo.abs(), rho[a].hi.abs()));
+        }
+        if alpha[b].cmp_value(&Endpoint::ONE) != Ordering::Less {
+            // Only run() under ContractionOrCongruence forms delta; without it the
+            // existing refusal stands.
+            let Some(delta) = delta else {
+                return Err(Error::Alpha {
+                    block: b,
+                    alpha_hi: alpha[b],
+                });
+            };
+            let n = view.group().blocks.positions[b].len();
+            epsilon[b] = congruence_radius(beta, omega, delta, n, b, w)?;
+            continue;
         }
         let denominator = w
             .numeric
@@ -1056,9 +1265,48 @@ pub(crate) fn test_at_center(
     let mut w = ResidualWork::new();
     let rho = residual(&native.view, native.proposed_laws, center, None, &mut w)?;
     let mut epsilon = buffer(native.alpha.len(), Endpoint::ZERO)?;
-    radius(&native.view, &native.alpha, &rho, &mut epsilon, &mut w)?;
+    radius(&native.view, &native.alpha, &rho, &mut epsilon, None, &mut w)?;
     let rows = recover(&native.view, native.proposed_laws, center, &epsilon, &mut w)?;
     Ok((rho, epsilon, rows, w))
+}
+/// Test-only diagnosis of the contraction condition at the published center:
+/// per data block (beta = 2*B_b, max eta, alpha = RU(beta*eta)), and per member
+/// the exact admitted products and the outward coefficient gaps of `law`.
+#[cfg(test)]
+#[allow(clippy::type_complexity)]
+pub(crate) fn test_alpha_operands(
+    view: &SourceBridgeView<'_>,
+    laws: &[ProposedMemberLaw<'_>],
+    law: ReadoutLaw,
+) -> Result<(Vec<(usize, Endpoint, Endpoint, Endpoint)>, Vec<[(Endpoint, Endpoint); 4]>), Error> {
+    let mut w = ResidualWork::new();
+    w.readout_law = law;
+    let nf = view.group().ordering.free.len();
+    let mut center = buffer(nf, Endpoint::ZERO)?;
+    for (a, &g) in view.group().ordering.free.iter().enumerate() {
+        center[a] = lift(view.row(g).0.value.value().ok_or(Error::MissingRadius(g))?)?;
+    }
+    let mut eta = buffer(nf, Endpoint::ZERO)?;
+    residual(view, laws, &center, Some(&mut eta), &mut w)?;
+    let mut blocks = Vec::new();
+    for b in 0..view.data().len() {
+        if !view.data()[b] {
+            continue;
+        }
+        let beta = shift(&pos_lift(view.bound(view.group().blocks.body[b]).unwrap())?, 1)?;
+        let mut e = Endpoint::ZERO;
+        for &a in &view.group().blocks.positions[b] {
+            e = max(e, eta[a]);
+        }
+        let alpha = w.numeric.scalar(Entry::Mul, &beta, &e, Toward::Up)?;
+        blocks.push((b, beta, e, alpha));
+    }
+    let mut members = Vec::new();
+    for (i, l) in laws.iter().enumerate() {
+        let c = coefficients(view, l, i, &mut w)?;
+        members.push(std::array::from_fn(|p| (c.admitted_products[p], c.coefficient_differences[p])));
+    }
+    Ok((blocks, members))
 }
 #[cfg(test)]
 pub(crate) fn test_arithmetic_controls() {

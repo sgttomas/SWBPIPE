@@ -29,6 +29,11 @@ pub(crate) enum BridgeError {
     CountRange,
     Storage,
     Alpha { block: usize, alpha_hi: Endpoint },
+    /// b7-plan "N06 absorbed-spring certificate extension": the block's
+    /// contraction condition failed (alpha_hi >= 1) and the congruence radius
+    /// law's class predicate does not hold. Published as the alpha condition.
+    /// It carries no endpoint, so the enum's priced layout is unchanged.
+    Congruence { block: usize },
 }
 impl From<NumericError> for BridgeError {
     fn from(e: NumericError) -> Self {

@@ -1640,7 +1640,8 @@ impl<'s,'m> ProductProofStartSpent<'s,'m> {
     }
 }
 pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:usize,
-    owner:&'s adaptive::RetainedSolve,facts:&'s [ProductMemberFacts],specs:&'m [ProductRowSpec<'m>])
+    owner:&'s adaptive::RetainedSolve,facts:&'s [ProductMemberFacts],specs:&'m [ProductRowSpec<'m>],
+    radius_law:source_residual::RadiusLaw)
     -> ProductProofStartSpent<'s,'m> {
     let mut work=ProductCertificateSpent::new(&[]);
     let result=(|| {
@@ -1693,7 +1694,7 @@ pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:u
             owner.selected_precision(),&laws,source_residual::ReadoutLaw::AdmittedK);
         let (kr,kw)=kspent.into_readouts(&anchor);let k=work.retain_lane(kr,kw)?;
         let sspent=source_residual::source_residual_prepared(owner,source,&owner.evidence().source_encoding,
-            owner.selected_precision(),&laws,&anchor,&k);
+            owner.selected_precision(),&laws,&anchor,&k,radius_law);
         let (sr,sw)=sspent.into_readouts(&anchor);let source_rows=work.retain_lane(sr,sw)?;
         if k.data!=source_rows.data || k.rows.len()!=owner.publish().rows.len()
             || source_rows.rows.len()!=k.rows.len() {return Err(bad("lane coverage/data"));}

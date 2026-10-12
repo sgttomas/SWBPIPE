@@ -5456,7 +5456,11 @@ impl ProductCapture {
             self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
             *proof_attempted=true;
             trace.enter(trace::Stage::ProofStart);
-            let draft=invocation.begin_prepared_product(case.run,owner,&self.facts,&specs).into_ready().map_err(PreparedCandidateError::Proof)?;
+            // DEF-O (preview) admits the congruence radius for a block whose contraction
+            // condition fails (b7-plan "N06 absorbed-spring certificate extension"); DEF-E keeps
+            // the contraction law alone.
+            let radius_law=match scope.route {W1Route::Preview=>k::RadiusLaw::ContractionOrCongruence,W1Route::Exact=>k::RadiusLaw::Contraction};
+            let draft=invocation.begin_prepared_product_with(case.run,owner,&self.facts,&specs,radius_law).into_ready().map_err(PreparedCandidateError::Proof)?;
             trace.completed(trace::Stage::ProofStart);
             #[cfg(test)] println!("I51_DUAL_LANES {:?}",draft.lane_debug());
             trace.enter(trace::Stage::Projection);

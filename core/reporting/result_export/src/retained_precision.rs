@@ -8,7 +8,7 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323";
+    "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
@@ -2809,6 +2809,16 @@ fn member_checks(a: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(boo
 /// a combination entry: B2-C §10.1 G5 products, "as C3 without a preparation
 /// stage"): stage progression, lane and check records, projection outcomes over
 /// the owner's rows and, for a Ready attempt, the frozen row values.
+/// The correction calls a completed or failed lane may record. DEF-O's lanes.congruence lets a
+/// preview-route case's annular_source lane (index 1) take one further correction; every other
+/// lane, the exact route (DEF-E) and combinations (DEF-C) keep at most one.
+fn lane_correction_limit(source: &Value, a: &Value, lane: usize) -> u64 {
+    if !route(source).exact && a["owner_ref"]["kind"] == "case" && lane == 1 {
+        2
+    } else {
+        1
+    }
+}
 fn proof_checks(
     source: &Value,
     a: &Value,
@@ -2844,7 +2854,7 @@ fn proof_checks(
                 pf(i + 1 == lanes.len())?;
             }
             if let Some(n) = exact_count(&lane["work"]["correction"]["calls"]) {
-                wf(n <= 1)?;
+                wf(n <= lane_correction_limit(source, a, i))?;
             }
             wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])?;
         }
@@ -6669,8 +6679,14 @@ mod b4_failed_ordinary_tests {
     use super::*;
     const FIXTURE: &str =
         include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json");
+    /// N06 under b7-plan's "N06 absorbed-spring certificate extension" (four successors).
+    const N06_FIXTURE: &str =
+        include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_n06.json");
     fn cases() -> Vec<(Value, Value)> {
-        let fixture: Value = serde_json::from_str(FIXTURE).unwrap();
+        cases_of(FIXTURE)
+    }
+    fn cases_of(text: &str) -> Vec<(Value, Value)> {
+        let fixture: Value = serde_json::from_str(text).unwrap();
         list(&fixture["cases"])
             .iter()
             .map(|c| {
@@ -6707,6 +6723,104 @@ mod b4_failed_ordinary_tests {
             let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
             assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
             assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
+        }
+    }
+    /// N06's successors read like CX-F's: G1-G8 pass below the held G0 pin and the case is
+    /// eligible with its invocation; G0 itself refuses until the D3 re-registration.
+    #[test]
+    fn n06_congruence_successors_pass_g1_to_g8_and_are_eligible() {
+        let cases = cases_of(N06_FIXTURE);
+        assert_eq!(cases.len(), 4);
+        for (s, inv) in cases {
+            let mode = inv["solver_mode"].clone();
+            assert_eq!(below_g0(&s, None).map(|v| v.numerical_eligible), Ok(false), "{mode}");
+            let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+            assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
+            assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
+            let e = validate(&s, Some(&inv)).unwrap_err();
+            assert_eq!((e.gate, e.code.as_str()), ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"), "{mode}");
+        }
+    }
+    /// DEF-O's lanes.congruence admits one further correction on the annular_source lane only:
+    /// three calls there, or two on the admitted_k lane, refuse as work mismatches.
+    #[test]
+    fn n06_lane_correction_calls_are_bounded_by_lane() {
+        let wm = ("G5", "RETAINED_PRECISION_WORK_MISMATCH".to_string());
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let lanes = &base["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"];
+            assert_eq!(lanes[1]["work"]["correction"]["calls"], json!({"kind":"exact","value":2}), "{mode}");
+            assert_eq!(lanes[0]["work"]["correction"]["calls"], json!({"kind":"exact","value":1}), "{mode}");
+            for (lane, calls) in [(1, 3), (0, 2)] {
+                let mut s = base.clone();
+                s["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"][lane]["work"]["correction"]["calls"] =
+                    json!({"kind":"exact","value":calls});
+                rehash(&mut s);
+                assert_eq!(refused(&s, &inv), wm, "{mode}: lane {lane} calls {calls}");
+            }
+        }
+    }
+    /// The lane-work check alone (G5's `proof_checks`) on an N06 attempt relabelled as the exact
+    /// route or as a combination: there the annular_source lane keeps at most one correction, so
+    /// its two calls refuse; with one call the same relabelled attempt passes, so nothing else in
+    /// the check depends on the relabelling.
+    #[test]
+    fn exact_route_and_combination_lanes_keep_one_correction() {
+        fn lane_work_ok(s: &Value) -> bool {
+            let b = &s["retained_precision"]["body"];
+            let (a, c) = (&b["product_attempts"][0], &b["cases"][0]);
+            let pf = |ok: bool| if ok { Ok(()) } else { Err(error("G5", "PRODUCT_ATTEMPT_MISMATCH")) };
+            let mut all = true;
+            let mut wf = |ok: bool| -> VResult {
+                all &= ok;
+                Ok(())
+            };
+            proof_checks(s, a, c, &pf, &mut wf).unwrap();
+            all
+        }
+        let calls = |s: &mut Value, lane: usize, n: u64| {
+            s["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"][lane]["work"]["correction"]["calls"] =
+                json!({"kind":"exact","value":n});
+        };
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            assert!(lane_work_ok(&base), "{mode}: preview case annular lane, two calls");
+            let mut exact = base.clone();
+            exact["producer"]["semantic_contract_id"] = json!(EXACT_CONTRACT_ID);
+            assert!(!lane_work_ok(&exact), "{mode}: exact route refuses two calls");
+            calls(&mut exact, 1, 1);
+            assert!(lane_work_ok(&exact), "{mode}: exact route, one call");
+            let mut combination = base.clone();
+            combination["retained_precision"]["body"]["product_attempts"][0]["owner_ref"]["kind"] = json!("combination");
+            assert!(!lane_work_ok(&combination), "{mode}: combination refuses two calls");
+            calls(&mut combination, 1, 1);
+            assert!(lane_work_ok(&combination), "{mode}: combination, one call");
+            let mut admitted = base.clone();
+            calls(&mut admitted, 0, 2);
+            assert!(!lane_work_ok(&admitted), "{mode}: admitted_k refuses two calls");
+        }
+        for (source, a, lane, limit) in [(CONTRACT_ID, "case", 1, 2), (CONTRACT_ID, "case", 0, 1),
+            (EXACT_CONTRACT_ID, "case", 1, 1), (CONTRACT_ID, "combination", 1, 1), (EXACT_CONTRACT_ID, "combination", 1, 1)] {
+            let s = json!({"producer":{"semantic_contract_id":source}});
+            assert_eq!(lane_correction_limit(&s, &json!({"owner_ref":{"kind":a}}), lane), limit, "{source} {a} {lane}");
+        }
+    }
+    /// A published certified quantity moved by one ulp (receipt and publication rehashed) no
+    /// longer matches its recorded projection outcome and is refused.
+    #[test]
+    fn n06_perturbed_certified_value_refuses() {
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            for kind in ["element_local_torsional_moment", "global_nodal_rotation_x", "global_nodal_rotation_y"] {
+                let Some(at) = list(&base["results"]).iter().position(|r| r["kind"] == kind && r["value"].as_f64().is_some_and(|v| v != 0.0)) else { continue };
+                let mut s = base.clone();
+                let v = s["results"][at]["value"].as_f64().unwrap();
+                s["results"][at]["value"] = json!(f64::from_bits(v.to_bits() + 1));
+                rehash(&mut s);
+                let (gate, code) = refused(&s, &inv);
+                assert_ne!(gate, "accepted", "{mode}: {kind}");
+                println!("N06_PERTURBED {mode} {kind} {gate} {code}");
+            }
         }
     }
     #[test]
