@@ -2809,11 +2809,20 @@ fn member_checks(a: &Value, pf: &dyn Fn(bool) -> VResult, wf: &mut dyn FnMut(boo
 /// a combination entry: B2-C §10.1 G5 products, "as C3 without a preparation
 /// stage"): stage progression, lane and check records, projection outcomes over
 /// the owner's rows and, for a Ready attempt, the frozen row values.
+/// The correction calls a completed or failed lane may record. DEF-O's lanes.congruence lets a
+/// preview-route case's annular_source lane (index 1) take one further correction; every other
+/// lane, the exact route (DEF-E) and combinations (DEF-C) keep at most one.
+fn lane_correction_limit(source: &Value, a: &Value, lane: usize) -> u64 {
+    if !route(source).exact && a["owner_ref"]["kind"] == "case" && lane == 1 {
+        2
+    } else {
+        1
+    }
+}
 fn proof_checks(
     source: &Value,
     a: &Value,
     c: &Value,
-    congruence: bool,
     pf: &dyn Fn(bool) -> VResult,
     wf: &mut dyn FnMut(bool) -> VResult,
 ) -> VResult {
@@ -2845,7 +2854,7 @@ fn proof_checks(
                 pf(i + 1 == lanes.len())?;
             }
             if let Some(n) = exact_count(&lane["work"]["correction"]["calls"]) {
-                wf(n <= if congruence && i == 1 { 2 } else { 1 })?;
+                wf(n <= lane_correction_limit(source, a, i))?;
             }
             wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])?;
         }
@@ -2970,7 +2979,7 @@ fn combination_attempt(
     pf(s["owner"]["kind"] == "combination"
         && s["owner"]["combination_index"] == a["owner_ref"]["index"]
         && st.get("preparation").is_none())?;
-    proof_checks(source, a, e, false, pf, wf)?;
+    proof_checks(source, a, e, pf, wf)?;
     let selected = run["kernel_terminal"]["kind"] == "selected";
     pf(st["native"] != "not_entered" && (st["native"] == "completed") == selected)?;
     let proof = &a["proof"];
@@ -3221,9 +3230,7 @@ fn g5_products(source: &Value) -> VResult {
         let new = list(&a["operational"]["new"]);
         let st = &a["stages"];
         member_checks(a, &pf, &mut wf)?;
-        // DEF-O's lanes.congruence: a preview case's annular_source lane may take one further
-        // correction; DEF-E (exact) and DEF-C (combinations) keep at most one.
-        proof_checks(source, a, c, !route(source).exact, &pf, &mut wf)?;
+        proof_checks(source, a, c, &pf, &mut wf)?;
         let proof = &a["proof"];
         if st["native"] == "completed" {
             pf(c["run"]["kernel_terminal"]["kind"] == "selected")?;
@@ -6751,6 +6758,51 @@ mod b4_failed_ordinary_tests {
                 rehash(&mut s);
                 assert_eq!(refused(&s, &inv), wm, "{mode}: lane {lane} calls {calls}");
             }
+        }
+    }
+    /// The lane-work check alone (G5's `proof_checks`) on an N06 attempt relabelled as the exact
+    /// route or as a combination: there the annular_source lane keeps at most one correction, so
+    /// its two calls refuse; with one call the same relabelled attempt passes, so nothing else in
+    /// the check depends on the relabelling.
+    #[test]
+    fn exact_route_and_combination_lanes_keep_one_correction() {
+        fn lane_work_ok(s: &Value) -> bool {
+            let b = &s["retained_precision"]["body"];
+            let (a, c) = (&b["product_attempts"][0], &b["cases"][0]);
+            let pf = |ok: bool| if ok { Ok(()) } else { Err(error("G5", "PRODUCT_ATTEMPT_MISMATCH")) };
+            let mut all = true;
+            let mut wf = |ok: bool| -> VResult {
+                all &= ok;
+                Ok(())
+            };
+            proof_checks(s, a, c, &pf, &mut wf).unwrap();
+            all
+        }
+        let calls = |s: &mut Value, lane: usize, n: u64| {
+            s["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"][lane]["work"]["correction"]["calls"] =
+                json!({"kind":"exact","value":n});
+        };
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            assert!(lane_work_ok(&base), "{mode}: preview case annular lane, two calls");
+            let mut exact = base.clone();
+            exact["producer"]["semantic_contract_id"] = json!(EXACT_CONTRACT_ID);
+            assert!(!lane_work_ok(&exact), "{mode}: exact route refuses two calls");
+            calls(&mut exact, 1, 1);
+            assert!(lane_work_ok(&exact), "{mode}: exact route, one call");
+            let mut combination = base.clone();
+            combination["retained_precision"]["body"]["product_attempts"][0]["owner_ref"]["kind"] = json!("combination");
+            assert!(!lane_work_ok(&combination), "{mode}: combination refuses two calls");
+            calls(&mut combination, 1, 1);
+            assert!(lane_work_ok(&combination), "{mode}: combination, one call");
+            let mut admitted = base.clone();
+            calls(&mut admitted, 0, 2);
+            assert!(!lane_work_ok(&admitted), "{mode}: admitted_k refuses two calls");
+        }
+        for (source, a, lane, limit) in [(CONTRACT_ID, "case", 1, 2), (CONTRACT_ID, "case", 0, 1),
+            (EXACT_CONTRACT_ID, "case", 1, 1), (CONTRACT_ID, "combination", 1, 1), (EXACT_CONTRACT_ID, "combination", 1, 1)] {
+            let s = json!({"producer":{"semantic_contract_id":source}});
+            assert_eq!(lane_correction_limit(&s, &json!({"owner_ref":{"kind":a}}), lane), limit, "{source} {a} {lane}");
         }
     }
     /// A published certified quantity moved by one ulp (receipt and publication rehashed) no

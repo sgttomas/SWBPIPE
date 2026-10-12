@@ -203,15 +203,48 @@ def test_n06_lane_corrections_and_perturbed_values_refuse(index):
         assert _mutated(base, invocation, ulp) == ("G5", "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"), kind
 
 
-def test_exact_and_combination_lanes_keep_one_correction():
-    # Off the preview route's case lanes (DEF-E, DEF-C) the annular lane keeps at most one correction.
-    base, _ = _cases(N06_FIXTURE)[0]
-    attempt = deepcopy(base["retained_precision"]["body"]["product_attempts"][0])
-    attempt["proof"]["projection_outcomes"] = []
-    attempt["proof"]["projection_conversions"] = {"kind": "exact", "value": 0}
-    checks = []
-    rp._g5_proof_rows(attempt, [], lambda ok: None, checks.append, congruence=False)
-    assert False in checks
-    checks = []
-    rp._g5_proof_rows(attempt, [], lambda ok: None, checks.append, congruence=True)
-    assert False not in checks
+@pytest.mark.parametrize("index", range(4))
+def test_exact_and_combination_lanes_keep_one_correction(index):
+    """The lane-work check on an N06 attempt read as the exact route or as a combination: two annular_source
+    calls refuse there, one passes, so nothing else in the check depends on the relabelling. The products pass
+    (`_g5_products`) takes the dispatcher's route, as G5 does."""
+    base, _ = _cases(N06_FIXTURE)[index]
+    body = base["retained_precision"]["body"]
+    rows = {c["basis_ref"]["ref_id"]: [r for r in base["results"] if r["basis_ref"]["ref_id"] == c["basis_ref"]["ref_id"]] for c in body["cases"]}
+
+    def lane_work(attempt, route):
+        checks = []
+        rp._g5_proof_rows(attempt, rows["case"], lambda ok: None, checks.append, route)
+        return False not in checks
+
+    def with_calls(attempt, lane, n):
+        attempt = deepcopy(attempt)
+        attempt["proof"]["lanes"][lane]["work"]["correction"]["calls"] = {"kind": "exact", "value": n}
+        return attempt
+
+    a = body["product_attempts"][0]
+    combination = deepcopy(a); combination["owner_ref"]["kind"] = "combination"
+    assert lane_work(a, rp.PREVIEW_ROUTE)
+    assert not lane_work(a, rp.EXACT_ROUTE) and lane_work(with_calls(a, 1, 1), rp.EXACT_ROUTE)
+    assert not lane_work(combination, rp.PREVIEW_ROUTE) and lane_work(with_calls(combination, 1, 1), rp.PREVIEW_ROUTE)
+    assert not lane_work(a, None)
+    assert not lane_work(with_calls(a, 0, 2), rp.PREVIEW_ROUTE)
+    # Through the products pass with the route G5 hands it.
+    rp._g5_products(deepcopy(body), rows, rp.PREVIEW_ROUTE)
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp._g5_products(deepcopy(body), rows, rp.EXACT_ROUTE)
+    assert (error.value.gate, error.value.code) == ("G5", "RETAINED_PRECISION_WORK_MISMATCH")
+    # G5 hands the products pass the dispatched route object itself (not a constant or a flag).
+    seen = []
+    original = rp._g5_products
+    route = rp.PREVIEW_ROUTE._replace()
+    try:
+        rp._g5_products = lambda b, r, route_arg=None: (seen.append(route_arg), original(b, r, route_arg))[1]
+        source, invocation = _cases(N06_FIXTURE)[index]
+        rp._gates_after_g0(deepcopy(source), source["retained_precision"], rp._schema(), deepcopy(invocation), route)
+    finally:
+        rp._g5_products = original
+    assert len(seen) == 1 and seen[0] is route
+    for route, owner, lane, limit in ((rp.PREVIEW_ROUTE, "case", 1, 2), (rp.PREVIEW_ROUTE, "case", 0, 1), (rp.EXACT_ROUTE, "case", 1, 1),
+                                      (rp.PREVIEW_ROUTE, "combination", 1, 1), (None, "case", 1, 1)):
+        assert rp._lane_correction_limit(route, {"owner_ref": {"kind": owner}}, lane) == limit

@@ -1001,6 +1001,33 @@ fn n06_congruence_radius_encloses_the_closed_form() {
         println!("N06_CONGRUENCE sign={sign} epsilon={:e} member_builds={:?} visits={:?} contraction_member_builds={:?}",
             f64_of(&native.epsilon[0]), spent.work.member_builds.exact(), spent.work.visits.exact(), contraction.work.member_builds.exact());
         n06_closed_form(&s, &native.rows, sign);
+        // The lane's block radius is exactly the documented law, formed here independently:
+        // beta = 2*B_b and the coefficient gaps from the diagnosis operands, omega from the
+        // lane's own final residual, k = ceil(sqrt(n_b)) by integer search.
+        let view = s.source_bridge_view(s.source(), &s.prep.identity, s.selected).result.unwrap();
+        let (blocks, members) = test_alpha_operands(&view, &input, ReadoutLaw::AnnularSource).unwrap();
+        let beta = blocks[0].1;
+        let mut delta = Wide::<16>::ZERO;
+        for (c, d) in members.iter().flatten() {
+            let gap = directed_op('/', d, c, true);
+            if gap.cmp_value(&delta) == Cmp::Greater {
+                delta = gap;
+            }
+        }
+        let positions = &view.group().blocks.positions[0];
+        let mut omega = Wide::<16>::ZERO;
+        for &a in positions {
+            let (lo, hi) = native.rho[a].endpoints();
+            for v in [lo.abs(), hi.abs()] {
+                if v.cmp_value(&omega) == Cmp::Greater {
+                    omega = v;
+                }
+            }
+        }
+        let k = (1u32..).find(|k| (k * k) as usize >= positions.len()).unwrap();
+        let expected = independent_radius(beta, omega, delta, k);
+        assert_eq!(native.epsilon[0], expected, "epsilon = RU(RU(RU(beta*k)*omega)/RD(1-delta))");
+        assert!(!omega.is_zero() && !delta.is_zero());
         // One extra member build (delta) beyond the contraction law's complete run.
         assert!(spent.work.status().is_exact());
         assert!(spent.work.member_builds.exact().unwrap() > contraction.work.member_builds.exact().unwrap());
@@ -1043,6 +1070,27 @@ fn n06_congruence_class_refuses_outside_and_admits_inside() {
     assert_eq!(format!("{:?}", a.work.typed_trace(&mut ca).numeric.entries), format!("{:?}", b.work.typed_trace(&mut cb).numeric.entries));
 }
 
+/// One directed binary1024 operation, independent of the lane's numeric record.
+fn directed_op(op: char, a: &Wide<16>, b: &Wide<16>, up: bool) -> Wide<16> {
+    use super::super::directed::{add_toward, div_toward, mul_toward, sub_toward, Toward};
+    let t = if up { Toward::Up } else { Toward::Down };
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    let mut sum = ExactWideSum::new();
+    match op {
+        '+' => add_toward(&mut ctx, &mut sum, a, b, t),
+        '-' => sub_toward(&mut ctx, &mut sum, a, b, t),
+        '*' => mul_toward(&mut ctx, &mut sum, a, b, t),
+        _ => div_toward(&mut ctx, &mut sum, a, b, t),
+    }
+    .unwrap()
+}
+/// RU(RU(RU(beta*k)*omega)/RD(1-delta)), formed outside the kernel's lane code.
+fn independent_radius(beta: Wide<16>, omega: Wide<16>, delta: Wide<16>, k: u32) -> Wide<16> {
+    let k = Wide::<16>::from_f64(f64::from(k)).unwrap();
+    let numerator = directed_op('*', &directed_op('*', &beta, &k, true), &omega, true);
+    directed_op('/', &numerator, &directed_op('-', &Wide::<16>::ONE, &delta, false), true)
+}
+
 /// Closed-form controls of RU(RU(RU(beta*ceil(sqrt n))*omega)/RD(1-delta)) and its range refusals.
 #[test]
 fn congruence_radius_closed_form_and_range_controls() {
@@ -1057,12 +1105,35 @@ fn congruence_radius_closed_form_and_range_controls() {
     let r = r.unwrap();
     assert_eq!(r.cmp_value(&w(18.0)), Cmp::Greater);
     assert_ne!(r.cmp_value(&w(18.0 * (1.0 + 2f64.powi(-31)))), Cmp::Greater);
-    // Overflow and underflow of the exponent range refuse; they never wrap or flush to zero.
+    // Inexact quotients: the result is the upward quotient exactly, and among these cases the
+    // upward quotient differs from the nearest one (and from the downward one), so a
+    // downward or nearest final division cannot pass.
+    let mut nearest_differs = false;
+    for omega in [3.0, 5.0, 7.0, 11.0, 13.0, 0.1, 1e-36] {
+        for delta in [2f64.powi(-32), 3.0 * 2f64.powi(-40), 4e-17] {
+            for n in [1usize, 7] {
+                let (r, _) = test_congruence_radius(w(4.194304e18), w(omega), w(delta), n);
+                let r = r.unwrap();
+                let k = (1u32..).find(|k| (k * k) as usize >= n).unwrap();
+                let up = independent_radius(w(4.194304e18), w(omega), w(delta), k);
+                assert_eq!(r, up, "omega={omega} delta={delta} n={n}");
+                let numerator = directed_op('*', &directed_op('*', &w(4.194304e18), &w(f64::from(k)), true), &w(omega), true);
+                let denominator = directed_op('-', &Wide::<16>::ONE, &w(delta), false);
+                let down = directed_op('/', &numerator, &denominator, false);
+                let nearest = WideContext::<16>::new(1024).unwrap().div(&numerator, &denominator).unwrap();
+                assert_eq!(up.cmp_value(&down), Cmp::Greater, "inexact: omega={omega} delta={delta}");
+                nearest_differs |= up.cmp_value(&nearest) != Cmp::Equal;
+            }
+        }
+    }
+    assert!(nearest_differs, "some case's upward quotient is not its nearest quotient");
+    // Overflow and underflow of the exponent range refuse as ExponentRange; they never wrap or
+    // flush to zero.
     let huge = Wide::<16>::ONE.mul_pow2((1 << 61) + 16).unwrap();
     let tiny = Wide::<16>::ONE.mul_pow2(-(1 << 61) - 16).unwrap();
     for (beta, omega) in [(huge, huge), (tiny, tiny)] {
         let (r, _) = test_congruence_radius(beta, omega, Wide::<16>::ZERO, 4);
-        assert!(matches!(r, Err(BridgeError::Numeric(super::super::product_certificate::NumericError::Arithmetic(_)))), "{r:?}");
+        assert!(matches!(r, Err(BridgeError::Numeric(super::super::product_certificate::NumericError::Arithmetic(AttemptStop::Exponent)))), "{r:?}");
     }
     // delta at or above 1 refuses by name.
     let (r, _) = test_congruence_radius(w(2.0), w(3.0), Wide::<16>::ONE, 4);

@@ -1173,8 +1173,8 @@ def _g5_ordinary(body, cases, diags, quality, gates=None):
         _g5_dispositions(body, cases, diags, gates, fail)
 
 
-def _g5_products(body, rows_by_case, congruence=False):
-    """`congruence` is True on the preview route (DEF-O's lanes.congruence) and False on the exact route."""
+def _g5_products(body, rows_by_case, route=None):
+    """`route` selects the lane correction limit (`_lane_correction_limit`); None keeps every lane at one."""
     fail = lambda ok: _need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH")
     work_checks = []
     wf = work_checks.append
@@ -1210,7 +1210,7 @@ def _g5_products(body, rows_by_case, congruence=False):
         old, new = a["operational"]["old"], a["operational"]["new"]
         _g5_preparation_members(a, a["operational"]["old_coverage"] != "captured_prefix" or (not pm and not new and a["source_ref"] is None and a["run_ref"] is None and a["result"]["kind"] == "unavailable"), fail, wf)
         proof = a["proof"]
-        _g5_proof_rows(a, rows_by_case[case["basis_ref"]["ref_id"]] if proof is not None else None, fail, wf, congruence)
+        _g5_proof_rows(a, rows_by_case[case["basis_ref"]["ref_id"]] if proof is not None else None, fail, wf, route)
         _g5_coverage(a, case, source, fail)
         _g5_stages(a, case, fail, ai)
         for ok in _accounting_rules(a): wf(ok)
@@ -1296,10 +1296,15 @@ def _projected_publication_value(row, outcome):
     return (value if value != 0 else 0.0) if math.isfinite(value) else None
 
 
-def _g5_proof_rows(a, rows, fail, wf, congruence=False):
-    """The proof's lanes and its projection outcomes against the owner's own rows (case or combination).
-    `congruence`: DEF-O's lanes.congruence, where a preview case's annular_source lane may take one further
-    verification-factor correction; DEF-E's and DEF-C's lanes keep at most one."""
+def _lane_correction_limit(route, a, lane):
+    """DEF-O's lanes.congruence: a preview-route case's annular_source lane (index 1) may take one further
+    verification-factor correction; every other lane, the exact route (DEF-E) and combinations (DEF-C) keep at
+    most one. `route` is None where the caller has no route (combinations)."""
+    return 2 if route is not None and not route.exact and a["owner_ref"]["kind"] == "case" and lane == 1 else 1
+
+
+def _g5_proof_rows(a, rows, fail, wf, route=None):
+    """The proof's lanes and its projection outcomes against the owner's own rows (case or combination)."""
     proof = a["proof"]
     if proof is None:
         return
@@ -1310,7 +1315,7 @@ def _g5_proof_rows(a, rows, fail, wf, congruence=False):
         fail((lane["error"] is None) == (lane["state"] == "completed"))
         if lane["state"] == "failed": fail(i == len(lanes) - 1)
         calls = _count(lane["work"]["correction"]["calls"])
-        if calls is not None: wf(calls <= (2 if congruence and i == 1 else 1))
+        if calls is not None: wf(calls <= _lane_correction_limit(route, a, i))
         wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])
     if a["stages"]["projection"] != "not_entered": fail(len(lanes) == 2 and all(l["state"] == "completed" for l in lanes))
     outcomes = proof["projection_outcomes"]
@@ -2804,7 +2809,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # REVISION_01 §4.1 #6: one case or one combination.
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
-        state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality);_g5_products(body,rows,not route.exact)
+        state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality);_g5_products(body,rows,route)
         # B3-D §6.2: on the exact branch G5b also binds each selected case's own physics-1 section evidence.
         state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
         state["gate"]="G6"
