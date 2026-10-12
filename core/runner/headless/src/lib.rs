@@ -1500,9 +1500,11 @@ mod tests {
         )).unwrap();
         // Pressure is incidental to the legacy source-binding control. Remove any
         // legacy pressure primitive from a local input; keep fixture bytes intact.
-        // T0R A1: the derived joint-free invented model (the original demo's joint is refused).
+        // A linear-route preview model whose cases are CHECKS_PASSED, so the qualified export
+        // is exercised. (The invented model has nonlinear supports, whose converged cases K-D5
+        // publishes Sensitive and not exportable: DEL-04-01 kd5-member-relative-bound.md §5.)
         let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
-            "../../../product_physics/tests/fixtures/preview_physics_invented_model.json"
+            "../../../../fixtures/model_operations/precision_connected_ui_model.json"
         )).unwrap(), "materials": []});
         for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
             case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));

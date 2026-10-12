@@ -1,17 +1,21 @@
 //! S11-G T23 (S11G_GUARD revision 2.2 erratum E-1; ROOT's D22-1 condition and
 //! the manager's reader-test ruling): the result_export source-blocks reader
-//! accepts the zero-work formation decline entry.
+//! accepts the formation decline entry (zero-work before K-D5; attempted now).
 //!
 //! The captured envelope is produced live from S11-G's T19 construction (no
 //! committed fixture): N05's sensitive torsion cantilever with two cases on
 //! per-case modulus bases. Case A (cancelling tip torques, base basis) is
 //! Sensitive and source-selected; case B (a uniform load cancelled at the tip
 //! by authored nodal inputs, plus 0.2 N*m at the tip RZ) runs on an invented
-//! soft temperature point (E = 1 Pa, G = 0.4 Pa), is Passed, and its load-row
-//! formation guard fires. Case B's receipt entry is the zero-work decline:
+//! soft temperature point (E = 1 Pa, G = 0.4 Pa) and its load-row formation
+//! guard fires. Before K-D5 case B was Passed and its receipt entry was the
+//! zero-work decline. Under K-D5's load closure its formed tip-row defect is
+//! caught at the solve (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2), so
+//! case B is Sensitive and attempted (revision 2.2 G-2), as PP's T19 pins:
 //! `unsupported`, `source_validation` / `unsupported_family`, work
-//! {limit 0, charged 0, rejected 0}, ordinary outcome `sensitive`. Inputs are
-//! invented; no material, component, catalogue or code-rule data is used.
+//! {limit 4,000,000, charged 36,480, rejected 0}, ordinary outcome
+//! `sensitive`. The reader accepts that receipt. Inputs are invented; no
+//! material, component, catalogue or code-rule data is used.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, PreviewSolverMode,
 };
@@ -64,7 +68,7 @@ fn t23_source_blocks_reader_accepts_the_zero_work_formation_decline() {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
             .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
         let raw = serde_json::to_value(&envelope).unwrap();
-        // Precondition (paths differ): case B's entry is the zero-work decline,
+        // Precondition (paths differ): case B's entry is the attempted decline,
         // and case A is qualified, so the reader sees a real receipt with it.
         let cases = raw["source_block_recovery"]["body"]["cases"]
             .as_array()
@@ -93,8 +97,8 @@ fn t23_source_blocks_reader_accepts_the_zero_work_formation_decline() {
             json!("sensitive"),
             "{mode:?}"
         );
-        assert_eq!(b["work"]["limit"], json!(0), "{mode:?}");
-        assert_eq!(b["work"]["charged"], json!(0), "{mode:?}");
+        assert_eq!(b["work"]["limit"], json!(4_000_000), "{mode:?}");
+        assert_eq!(b["work"]["charged"], json!(36_480), "{mode:?}");
         assert_eq!(
             b["work"]["rejected_reservation"],
             json!({"kind": "finite", "amount": 0}),

@@ -70,7 +70,7 @@ def envelope():
             upper = lower + 2.0
             max_id = f"result:elastic-maximum:{R(case, pipe)}"
             results.append({"id": max_id, "kind": "pipe_elastic_normal_stress_maximum_v2", "value": lower + 0.5 * (upper - lower), "unit": "Pa", "entity_ref": pipe, "basis_ref": lc(case), "metadata": dict(MAX_META)})
-            extrema.append({"pipe_id": pipe, "result_id": max_id, "station_fraction": 1.0, "span_index": 0, "local_fraction": 1.0, "value_lower_pa": lower, "value_upper_pa": upper, "global_upper_bound_pa": upper, "certified_gap_pa": 2.0, "subdivisions": 0, "approximation": "piecewise_quadratic_straight_section_statics", "coefficient_basis": "j_side_section_equilibrium_binary64", "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"})
+            extrema.append({"pipe_id": pipe, "result_id": max_id, "station_fraction": 1.0, "span_index": 0, "local_fraction": 1.0, "value_lower_pa": lower, "value_upper_pa": upper, "global_upper_bound_pa": upper, "certified_gap_pa": 2.0, "subdivisions": 0, "approximation": "piecewise_quadratic_straight_section_statics", "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures", "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"})
         my, mz, z = 30.0 * scale, -40.0 * scale, 2.0e-5
         by_id, bz_id = f"result:{tag}stress:pipe:P1:end-j:bending-normal-y", f"result:{tag}stress:pipe:P1:end-j:bending-normal-z"
         results.append({"id": by_id, "kind": "element_local_bending_normal_stress_y", "value": my / z / 1e6, "unit": "MPa", "entity_ref": "pipe:P1", "basis_ref": lc(case), "metadata": meta("bending_normal_stress_y", "pipe_section", "end_j", "recovered_from_open_mechanics_stress_components")})
@@ -524,11 +524,16 @@ def test_a1_c_range_combination_is_exempt_from_magnitude_consistency():
     validate_preview_physics_evidence(source)
 
 
-def test_a1_d_no_certified_gap_or_global_bound_is_checked():
+def test_a1_d_no_certified_gap_is_checked_and_the_global_bound_is_the_upper():
     source = envelope()
     extremum = source["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0]
-    extremum.update(station_fraction=0.0, local_fraction=1.0, certified_gap_pa=0.0, global_upper_bound_pa=0.0, subdivisions=131072)
+    extremum.update(station_fraction=0.0, local_fraction=1.0, certified_gap_pa=0.0, subdivisions=131072)
     validate_preview_physics_evidence(source)
+    # K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): value_upper_pa is the global
+    # upper bound, so the global bound is now checked against it.
+    extremum["global_upper_bound_pa"] = 0.0
+    with pytest.raises(ValueError, match="extrema bounds"):
+        validate_preview_physics_evidence(source)
 
 
 def blocked():

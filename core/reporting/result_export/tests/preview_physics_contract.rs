@@ -112,12 +112,21 @@ fn actual_producer_envelopes_admit_bind_and_derive() {
         assert!(s::is_fresh_identity(
             raw["producer"]["semantic_contract_id"].as_str().unwrap()
         ));
-        assert_eq!(s::standing_reason(&raw), None);
-        assert_eq!(
-            s::numerical_use_standing(&raw, &bases(&raw)),
-            "numerically_eligible",
-            "{name}"
-        );
+        // The invented model has nonlinear supports: K-D5 has no member bound on
+        // that route, so its converged cases are published Sensitive and are not
+        // numerically eligible (DEL-04-01 kd5-member-relative-bound.md §5). The
+        // envelope is still admitted, bound and derived.
+        if name.starts_with("preview_physics_invented") {
+            assert_eq!(raw["numerical_quality"]["status"], "sensitive", "{name}");
+            assert_eq!(s::numerical_use_standing(&raw, &bases(&raw)), "needs_recompute", "{name}");
+        } else {
+            assert_eq!(s::standing_reason(&raw), None);
+            assert_eq!(
+                s::numerical_use_standing(&raw, &bases(&raw)),
+                "numerically_eligible",
+                "{name}"
+            );
+        }
         let doc = derive(&raw).unwrap_or_else(|e| panic!("{name}: {e}"));
         assert_eq!(
             doc["result_envelope"]["contract_evidence"],
@@ -528,7 +537,9 @@ fn precision_1_is_readable_but_never_fresh() {
 #[test]
 fn numerical_standing_progression_on_a_fresh_identity() {
     // The general-path checks formerly pinned on precision-1 (precision_contract.rs).
-    let raw = invented();
+    // A two-case CHECKS_PASSED envelope: the invented model's cases are Sensitive
+    // on the nonlinear-support route (DEL-04-01 kd5-member-relative-bound.md §5).
+    let raw = fixture("preview_physics_unicode_ids_sparse.json");
     let b = bases(&raw);
     assert_eq!(s::numerical_use_standing(&raw, &b), "numerically_eligible");
     assert_eq!(s::numerical_use_standing(&raw, &[]), "needs_recompute");
