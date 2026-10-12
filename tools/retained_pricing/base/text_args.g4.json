@@ -4495,44 +4495,10 @@
     "source": "STATIC"
    }
   },
-  "core/reporting/result_export/src/retained_precision.rs:3635": {
-   "text(&d[\"\"][\"\"])": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "text(&n[\"\"])": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/reporting/result_export/src/retained_precision.rs:3644": {
-   "text(&r[\"\"])": {
-    "bytes": 1024,
-    "source": "RES"
-   }
-  },
   "core/reporting/result_export/src/retained_precision.rs:297": {
    "source": {
     "bytes": 128,
     "source": "NOTID"
-   }
-  },
-  "core/reporting/result_export/src/retained_precision.rs:4329": {
-   "text(&d[\"\"])": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
-  "core/reporting/result_export/src/retained_precision.rs:4330": {
-   "text(&d[\"\"])": {
-    "bytes": 128,
-    "source": "STATIC"
-   }
-  },
-  "core/reporting/result_export/src/retained_precision.rs:4346": {
-   "text(&row[\"\"])": {
-    "bytes": 1024,
-    "source": "RES"
    }
   },
   "core/reporting/result_export/src/retained_precision.rs:4376": {

@@ -374,14 +374,15 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
     branches = results["$defs"]["ResultEnvelope"]["oneOf"]
-    assert len(branches) == 9
+    assert len(branches) == 10
     for branch in branches:
         # Keyed by the branch's pinned producer identity, not by position: T0R
         # appended preview-physics-1 and T1 appended load-reference-1 and
-        # load-reference-source-1; only the two retained-source methods and the
-        # preview method use their own result sets.
+        # load-reference-source-1; the retained-source methods (with b7-plan's
+        # pressure-source-1 join) and the preview method use their own result sets.
         identity = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         target = {"openpipestress.result_semantics/0.3.0/physics-source-1": "PhysicsSourceResultSet",
+                  "openpipestress.result_semantics/0.3.0/pressure-source-1": "PhysicsSourceResultSet",
                   "openpipestress.result_semantics/0.3.0/load-reference-source-1": "PhysicsSourceResultSet",
                   "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet",
                   # T3's F2a successor inherits the preview result sets (reader fan-in);

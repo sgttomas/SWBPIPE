@@ -70,10 +70,19 @@ SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_SHA = "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
-CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
+# b7-plan's pressure-source join carries pressure-source-1 after physics-source-1 in the
+# results and analysis-run carriers; its export is refused by name (b7-plan D6), so the
+# stress-neutral package keeps the other nine branches.
+PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
+PRS_SHA = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61"
+CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
+EXPORT_ORDER = [contract_id for contract_id in CARRIER_ORDER if contract_id != PRS_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
+EXPORT_BRANCH_OF = {contract_id: index for index, contract_id in enumerate(EXPORT_ORDER)}
 NEW_BRANCH = BRANCH_OF[LRS_ID]
+EXPORT_NEW_BRANCH = EXPORT_BRANCH_OF[LRS_ID]
 PS_BRANCH = BRANCH_OF[PS_ID]
+assert EXPORT_BRANCH_OF[PS_ID] == PS_BRANCH
 NEW_DEFS = ("LoadReferenceSourceRecovery", "LoadReferenceSourceReceiptBody", "LoadReferenceSourceContractEvidence",
             "LoadReferenceSourceExactCase", "LoadReferenceSourceStateRecord")
 LOCAL_EVIDENCE = {"$ref": "#/$defs/LoadReferenceSourceContractEvidence"}
@@ -185,7 +194,8 @@ def carrier_valid(name, instance, contract_id, label):
     valid(schema(name), instance, f"{label} via {name}")
     if name == RUN:
         valid(schema(RUN_ROOT), instance, f"{label} via {RUN_ROOT}")
-    assert matching_branches(name, instance) == [BRANCH_OF[contract_id]], label
+    branch_of = EXPORT_BRANCH_OF if name == PACKAGE else BRANCH_OF
+    assert matching_branches(name, instance) == [branch_of[contract_id]], label
 
 
 def carrier_invalid(name, instance, label):
@@ -309,30 +319,33 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert branch["properties"]["contract_evidence"] == LOCAL_EVIDENCE
     assert branch["properties"]["result_sets"] == results["oneOf"][PS_BRANCH]["properties"]["result_sets"]
     props = results["properties"]
-    assert props["contract_evidence"]["anyOf"][-1] == LOCAL_EVIDENCE
-    assert props["source_block_recovery"]["oneOf"][-1] == LOCAL_RECOVERY
+    assert props["contract_evidence"]["anyOf"][-2:] == [LOCAL_EVIDENCE, {"$ref": "#/$defs/PressureSourceContractEvidence"}]
+    assert props["source_block_recovery"]["oneOf"][-2:] == [LOCAL_RECOVERY, {"$ref": "#/$defs/PressureSourceRecovery"}]
     for key in ("producer", "semantic_contract_ref"):
         field = "semantic_contract_id" if key == "producer" else "ref_id"
         assert props[key]["properties"][field]["enum"][-3:] == [LRS_ID, SUCCESSOR_ID, EXACT_ID]
     assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-3:] == [LRS_PROFILE, SUCCESSOR_PROFILE, EXACT_PROFILE]
 
     run = schema(RUN)["$defs"]
-    assert run["SemanticContract"]["oneOf"][-3:] == [{"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}},
+    assert run["SemanticContract"]["oneOf"][-4:] == [{"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}},
                                                      {"properties": {"id": {"const": SUCCESSOR_ID}, "sha256": {"const": SUCCESSOR_SHA}}},
-                                                     {"properties": {"id": {"const": EXACT_ID}, "sha256": {"const": EXACT_SHA}}}]
-    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-3:] == [LRS_SHA, SUCCESSOR_SHA, EXACT_SHA]
+                                                     {"properties": {"id": {"const": EXACT_ID}, "sha256": {"const": EXACT_SHA}}},
+                                                     {"properties": {"id": {"const": PRS_ID}, "sha256": {"const": PRS_SHA}}}]
+    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-4:] == [LRS_SHA, SUCCESSOR_SHA, EXACT_SHA, PRS_SHA]
     branch = run["AnalysisRun"]["oneOf"][NEW_BRANCH]
     assert len(run["AnalysisRun"]["oneOf"]) == len(CARRIER_ORDER)
     assert branch["required"] == ["source_block_recovery", "contract_evidence"]
     assert branch["properties"]["source_block_recovery"] == REMOTE_RECOVERY
     assert branch["properties"]["contract_evidence"] == REMOTE_EVIDENCE
     assert run["AnalysisRun"]["properties"]["contract_evidence"] == {
-        "anyOf": [{"$ref": f"{PSR}#/$defs/physical_evidence"}, REMOTE_EVIDENCE]}
-    assert run["AnalysisRun"]["properties"]["source_block_recovery"]["oneOf"][-1] == REMOTE_RECOVERY
+        "anyOf": [{"$ref": f"{PSR}#/$defs/physical_evidence"}, REMOTE_EVIDENCE,
+                  {"$ref": f"{PSR}#/$defs/pressure_source_physical_evidence"}]}
+    assert run["AnalysisRun"]["properties"]["source_block_recovery"]["oneOf"][-2:] == [
+        REMOTE_RECOVERY, {"$ref": f"{PSR}#/$defs/pressure_source_receipt"}]
 
     package = schema(PACKAGE)
-    assert len(package["oneOf"]) == len(CARRIER_ORDER)
-    branch = package["oneOf"][NEW_BRANCH]
+    assert len(package["oneOf"]) == len(EXPORT_ORDER)
+    branch = package["oneOf"][EXPORT_NEW_BRANCH]
     assert branch["properties"]["semantic_contract"]["properties"] == {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LRS_PROFILE}
     assert branch["properties"]["contract_evidence"] == REMOTE_EVIDENCE

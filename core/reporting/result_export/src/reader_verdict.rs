@@ -56,7 +56,7 @@ const BINDINGS: [(&str, &str, &str); 10] = [
     ("source_blocks", crate::source_blocks::CONTRACT_ID, "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"),
     ("physics_source", sc::PHYSICS_SOURCE_ID, "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"),
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
-    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"),
+    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"),
     ("load_reference", sc::LOAD_REFERENCE_ID, "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"),
     ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"),
     ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "ed1fc7fca562f26365157141f54c450cbfaf2ef65e689d37ff54086b70510357"),

@@ -29,7 +29,7 @@ use open_pipe_stress_frame_kernel::structural::{
     finish_sparse_structural, finish_structural, negative_pair_witness,
     prepare_assembled_sparse_structural, prepare_assembled_structural,
     prepare_formation_checked_sparse_structural, prepare_formation_checked_structural,
-    reduce_assembled_sparse_system, sparse_negative_pair_witness, FormationSource,
+    reduce_assembled_sparse_system, sparse_negative_pair_witness, FormationSource, LoadPrimitive,
     SparseAssemblyOptions, SparsePreparedSystem, SparseStiffness, SparseStructuralSystem,
     SparseSymmetryEvidence, StructuralError, StructuralSolution, StructuralSystem,
     SymmetryEvidence,
@@ -282,9 +282,17 @@ fn end_result<T>(obs: &mut dyn StageObserver, stage: Stage, result: &Result<T, S
 
 /// The frames-only formation source, as SA's private `formation_source`
 /// builds it from `SparseAssemblyEvidence::new`'s primitives (`SA:1302-1357`).
-pub fn frames_formation_source(node_count: usize, frames: &[FrameElement]) -> FormationSource {
+/// `loads` are the ledger's closure primitives (K-D5 closure, DEL-04-01
+/// kd5-member-relative-bound.md §1); the K6 ledger holds only nodal input
+/// terms, so the list is empty and the closure checks it against the ledger.
+pub fn frames_formation_source(
+    node_count: usize,
+    frames: &[FrameElement],
+    loads: &[LoadPrimitive],
+) -> FormationSource {
     FormationSource {
         node_count,
+        loads: loads.to_vec(),
         frames: frames.to_vec(),
         connectors: Vec::new(),
         curved: Vec::new(),
@@ -330,7 +338,9 @@ fn sparse_solve(
 ) -> StagedSolve {
     obs.begin(Stage::Prepare);
     let basis = FRAME_FAMILY_SYMMETRY_BASIS.to_string();
-    let source = with_formation.then(|| frames_formation_source(node_count, frames));
+    let source = with_formation.then(|| {
+        frames_formation_source(node_count, frames, setup.force.load_primitives())
+    });
     let symmetry = SparseSymmetryEvidence {
         absolute_roundoff: setup.evidence.absolute_roundoff(),
         operation_counts: setup.evidence.operation_counts(),
@@ -424,7 +434,9 @@ fn dense_solve(
     obs.end(Stage::Densify, true, None);
     obs.begin(Stage::Prepare);
     let basis = FRAME_FAMILY_SYMMETRY_BASIS.to_string();
-    let source = with_formation.then(|| frames_formation_source(node_count, frames));
+    let source = with_formation.then(|| {
+        frames_formation_source(node_count, frames, setup.force.load_primitives())
+    });
     let system = StructuralSystem::assembled(
         &dense,
         &setup.force,

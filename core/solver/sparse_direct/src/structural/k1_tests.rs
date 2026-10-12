@@ -203,6 +203,10 @@ impl Model {
     fn formation_source(&self) -> FormationSource {
         FormationSource {
             node_count: self.node_count,
+            // K-D5 closure (DEL-04-01 kd5-member-relative-bound.md §1): this
+            // model's ledger holds only authored nodal input terms, which carry
+            // no closure primitive; the ledger's own (empty) list is supplied.
+            loads: self.ledger().load_primitives().to_vec(),
             frames: self.frames.clone(),
             connectors: self.connectors.clone(),
             curved: Vec::new(),
@@ -810,10 +814,13 @@ fn k1_storage_counts_of_the_rf_large_chain_and_tree() {
 // ------------------------------------------------------------------ T4-U3 (S10, S-3)
 
 /// T4-I12 round 02 case 22 (U3-KD5-UTM-SKEW-OFFSET-COUPLED) on the pattern
-/// path, with no contribution evidence: the connector alone, end j held,
-/// loads at end i. At X0 = 0, 5e6 and 7.3e6 m it is not demoted; perturbing
-/// only the assembled matrix by δ = 2^-20·max|Ke| at its largest diagonal
-/// (k = 3) demotes it.
+/// path: the connector alone, end j held, loads at end i. At X0 = 0, 5e6 and
+/// 7.3e6 m it is not demoted; perturbing only the assembled matrix by
+/// δ = 2^-20·max|Ke| at its largest diagonal (k = 3) demotes it. K-D5 runs
+/// only on a typed ledger with the connector's contribution block (DEL-04-01
+/// kd5-member-relative-bound.md §1 "K-D5 without a ledger fails closed", §2
+/// step 7's ε_E): the loads are nodal input terms, and the block trace is
+/// the represented matrix's, as the product's assembly records it.
 #[test]
 fn k1_connector_case_22_formation_check_on_the_pattern() {
     use open_pipe_stress_frame_kernel::connector::{
@@ -859,6 +866,25 @@ fn k1_connector_case_22_formation_check_on_the_pattern() {
         let force = [
             1000.0, -2000.0, 1500.0, 300.0, -200.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         ];
+        let mut ledger = LoadLedger::new();
+        for (dof, &value) in force.iter().enumerate() {
+            ledger.push(format!("load:{dof}"), dof, value);
+        }
+        let typed_force = ledger.finish(12).unwrap();
+        let map = element_dof_map(0, 1);
+        // The represented matrix's own block trace (the contribution audit
+        // requires the trace to assemble to it); K-D5 re-forms the connector
+        // from its primitives, so a perturbed block is still caught.
+        let contributions = |block: &Vec<Vec<f64>>| -> Vec<StiffnessContribution> {
+            (0..12)
+                .flat_map(|r| (0..12).map(move |c| (r, c)))
+                .map(|(r, c)| StiffnessContribution {
+                    row: map[r],
+                    col: map[c],
+                    value: block[map[r]][map[c]],
+                })
+                .collect()
+        };
         let free: Vec<usize> = (0..6).collect();
         let prescribed: Vec<(usize, f64)> = (6..12).map(|d| (d, 0.0)).collect();
         let max = assembled
@@ -872,12 +898,20 @@ fn k1_connector_case_22_formation_check_on_the_pattern() {
                 dense[3][3] += max * 2f64.powi(-20);
             }
             let k = SparseStiffness::from_dense(&dense).unwrap();
+            let trace = contributions(&dense);
             let system = SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None);
             let plain = solve_sparse_structural(&system).unwrap();
             assert_eq!(plain.report.quality, SolveQuality::Passed, "X0 {x0}");
             let checked = solve_formation_checked_sparse_structural(
-                &SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None)
-                    .with_formation_source(&source),
+                &SparseStructuralSystem::assembled(
+                    &k,
+                    &typed_force,
+                    &free,
+                    &prescribed,
+                    Some(&trace),
+                    None,
+                )
+                .with_formation_source(&source),
             )
             .unwrap();
             if perturbed {

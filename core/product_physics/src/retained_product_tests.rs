@@ -1121,15 +1121,15 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
             .iter()
             .all(|v| v.work.entered == 23 && !v.work.lost));
         assert!(o.adapter.fault.get().is_none());
-        if loaded {
-            assert!(o.g5a_error.is_none());
-        } else {
-            assert_eq!(
-                o.g5a_error,
-                Some(super::retained_product::G5aFailure::Zero { row: 35 })
-            );
-        }
-        assert!(!o.full_case_passed());
+        // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.1): the unloaded
+        // specimen's exactly-zero mechanical rows are certified recoveries,
+        // rounded once from an exact zero, so they publish +0. Main's
+        // binary64 recovery published row 35 as -0, which G5a refused
+        // (`Zero { row: 35 }`); that obstruction is gone.
+        assert!(o.g5a_error.is_none(), "{:?}", o.g5a_error);
+        // With the -0 obstruction gone (above), the unloaded specimen's final
+        // case verdict now passes in full; the loaded specimen's does not.
+        assert_eq!(o.full_case_passed(), !loaded, "loaded={loaded}");
         if !loaded {
             assert!(o.numeric_pass);
         }
@@ -1602,14 +1602,17 @@ fn rv60_fixed_mode_sign_refuses_in_isolated_synthetic_zero_snapshot() {
     use super::retained_product::CaptureError;
     let (actual, o) = observed(specimen(false));
     let actual_bytes = serde_json::to_string(&actual).unwrap();
-    assert!(actual.results[35].value.is_sign_negative());
+    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.1): row 35 is an
+    // exactly-zero certified recovery and publishes +0 (main published -0).
+    assert_eq!(actual.results[35].value.to_bits(), 0);
     let (invocation, case) = o.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
     o.bind_rows(&actual, owner).unwrap();
-    // Explicit synthetic snapshot only: remove the known -0 obstruction to numeric comparison.
-    // This never replaces the actual ordinary output or claims actual W0 availability.
+    // Explicit synthetic snapshot only: normalize any -0 obstruction to numeric comparison
+    // (none remains in the actual output under K-D5). This never replaces the actual
+    // ordinary output or claims actual W0 availability.
     let mut synthetic = actual.clone();
     for row in &mut synthetic.results {
         if row.value == 0.0 {
@@ -1632,7 +1635,7 @@ fn rv60_fixed_mode_sign_refuses_in_isolated_synthetic_zero_snapshot() {
     assert!(matches!(error, CaptureError::Association(_)));
     assert_eq!(error.to_string(), "ordinary sparse mode sign");
     assert_eq!(serde_json::to_string(&actual).unwrap(), actual_bytes);
-    assert!(actual.results[35].value.is_sign_negative());
+    assert_eq!(actual.results[35].value.to_bits(), 0);
     println!("RV60_SYNTHETIC_FULL_GATES_ACCEPT_WRONG_MODE_SIGN false");
 }
 
@@ -1898,25 +1901,20 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
         if o.error.is_some() {
             continue;
         }
-        if loaded {
-            assert!(o.g5a_error.is_none());
-        } else {
-            assert_eq!(
-                o.g5a_error,
-                Some(super::retained_product::G5aFailure::Zero {
-                    row: e
-                        .results
-                        .iter()
-                        .position(|r| (r.kind.starts_with("element_local_")
-                            && (r.kind.contains("force") || r.kind.contains("moment"))
-                            || r.kind == "support_reaction_component_v2")
-                            && r.value == 0.0
-                            && r.value.is_sign_negative())
-                        .expect("actual negative-zero mechanical row")
-                })
-            );
-        }
-        assert!(!o.full_case_passed());
+        // K-D5 (§3.1): exactly-zero certified mechanical rows publish +0, so
+        // main's negative-zero obstruction to G5a (`Zero { row }`) is gone.
+        assert!(
+            !e.results.iter().any(|r| (r.kind.starts_with("element_local_")
+                && (r.kind.contains("force") || r.kind.contains("moment"))
+                || r.kind == "support_reaction_component_v2")
+                && r.value == 0.0
+                && r.value.is_sign_negative()),
+            "no negative-zero mechanical row"
+        );
+        assert!(o.g5a_error.is_none(), "{:?}", o.g5a_error);
+        // With the -0 obstruction gone (above), the unloaded specimen's final
+        // case verdict now passes in full; the loaded specimen's does not.
+        assert_eq!(o.full_case_passed(), !loaded, "loaded={loaded}");
         if !loaded {
             assert!(o.numeric_pass);
         }

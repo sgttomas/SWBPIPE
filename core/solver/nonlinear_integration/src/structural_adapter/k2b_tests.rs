@@ -19,8 +19,9 @@ use crate::{
 };
 use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, Formation, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{
-    assemble_sparse_stiffness, unscale_for_publication, FormationCheckReason, PublishedValue,
-    RecordOutcome, RecordRepresentability, Representability, SolveQuality,
+    assemble_sparse_stiffness, unscale_for_publication, FormationCheckReason, LoadFormula,
+    LoadPrimitive, LoadSummandIdentity, PublishedValue, RecordOutcome, RecordRepresentability,
+    Representability, SolveQuality,
 };
 use open_pipe_stress_frame_kernel::{FrameDof, FrameNode, FrameSection};
 use open_pipe_stress_nonlinear_supports::{
@@ -396,6 +397,29 @@ fn as_today(
     }
 }
 
+/// K-D5's member-bound payload of a W2 attempt, in the unscaled attempt's
+/// representation, for comparison only (DEL-04-01
+/// kd5-member-relative-bound.md §2.2). The producer never unscales it: the
+/// attempt keeps its own exponents D′ and Λ′·σ′, and w and w₂ are
+/// displacement corrections, unchanged at any b. On these normal-range models
+/// at even b the attempt's scaled matrix D′·K′·D′ is today's D·K·D exactly,
+/// so D′ = 2^(-b/2)·D and Λ′·σ′ = 2^(b/2)·Λ·σ, both exactly, and the physical
+/// remainder ‖A·D′‖₁·Λ′·σ′ is today's. This map asserts nothing by itself:
+/// the comparison with today's payload that follows it is the pin.
+fn unscaled_member_bound(mut solution: StructuralSolution, s: ForceScale) -> StructuralSolution {
+    let b = s.exponent();
+    assert_eq!(b % 2, 0, "K2b force scales are even");
+    if let Some(bound) = solution.member_bound.as_mut() {
+        for e in &mut bound.exponents {
+            if *e != i32::MIN {
+                *e += b / 2;
+            }
+        }
+        bound.lambda_sigma *= pow2(-b / 2);
+    }
+    solution
+}
+
 /// The 12 local end actions of a frame at 2^b, published: the kernel's
 /// `FrameElement::force_scaled_end_actions` (RV11-1: the element formed at
 /// 2^b, the displacements never scaled, every product and partial sum checked,
@@ -474,8 +498,9 @@ fn k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte(
 /// ROOT's K2b ruling 1, pinned: on normal-range models solved at a forced
 /// even b != 0, in both representations and both modes, the stiffness is
 /// exactly 2^b times today's, the displacements are bit-identical, the
-/// unscaled solution (report, load fidelity, formation check) is today's in
-/// `Debug`, today's errors are today's errors, the reactions and actions
+/// unscaled solution (report, load fidelity, formation check, and K-D5's
+/// member-bound payload in today's representation, `unscaled_member_bound`)
+/// is today's in `Debug`, today's errors are today's errors, the reactions and actions
 /// unscale exactly (normal outcomes), and the two representations agree.
 #[test]
 fn k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly() {
@@ -504,7 +529,7 @@ fn k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly() {
                             let u = &scaled.solution.displacements;
                             assert_eq!(bits(u), bits(&today.displacements), "{ctx}");
                             assert_eq!(
-                                format!("{:?}", scaled.solution),
+                                format!("{:?}", unscaled_member_bound(scaled.solution.clone(), s)),
                                 format!("{today:?}"),
                                 "{ctx}"
                             );
@@ -1305,7 +1330,9 @@ fn k2b_existing_entries_refuse_a_force_scaled_evidence() {
 /// 0.1v, 0.7v and v - 0.1v - 0.7v), and an unaudited load-fidelity row (terms
 /// 1e80, -1e80 and 1e-300 on one free DOF, which leave the audit's radix
 /// range at every scale). At forced b the unscaled solution (KS1, KS3, the
-/// load audit's record and K-D5's ρ) is today's, byte for byte.
+/// load audit's record and K-D5's ρ) is today's, byte for byte; K-D5's
+/// member-bound payload is today's in today's representation
+/// (`unscaled_member_bound`).
 #[test]
 fn k2b_s11k_ledger_terms_and_audit_are_carried_under_b() {
     for m in [&F122, &CSKEW_8_5, &F345] {
@@ -1344,7 +1371,8 @@ fn k2b_s11k_ledger_terms_and_audit_are_carried_under_b() {
                         continue;
                     }
                     let scaled =
-                        as_today(model.forced(&force, scale(b), mode, representation, true));
+                        as_today(model.forced(&force, scale(b), mode, representation, true))
+                            .map(|solution| unscaled_member_bound(solution, scale(b)));
                     assert_eq!(
                         format!("{scaled:?}"),
                         format!("{today:?}"),
@@ -1357,39 +1385,88 @@ fn k2b_s11k_ledger_terms_and_audit_are_carried_under_b() {
     }
 }
 
-/// ROOT's K2b ruling 4: the kernel never reads the S11-G formation records,
-/// which the force-scaled ledger drops. The same loads pushed with and without
-/// a record solve identically, at b = 0 and at b = 64.
+/// ROOT's K2b ruling 4, under K-D5's closure (DEL-04-01
+/// kd5-member-relative-bound.md §§1, 2.2): the kernel never reads the S11-G
+/// *numeric* formation records, which the force-scaled ledger drops; it reads
+/// only the trusted input-versus-formed classification and the closure
+/// manifest, which W2 retains. The same loads pushed as input terms and as
+/// closed formed terms (one `NodalProduct` per term, factor 1, so the
+/// re-formation at p is the term's value), under two different numeric
+/// records, solve identically at b = 0 and at b = 64. A formed term without
+/// its manifest is never read as an input: it fails closed with a named
+/// load-closure detail on both routes.
 #[test]
 fn k2b_the_kernel_reads_no_s11g_formation_record() {
     let model = Model::from_kd5(&F122);
     let plain = model.ledger();
-    let mut ledger = LoadLedger::new();
-    for (index, &(dof, kind)) in model.terms.iter().enumerate() {
-        let ForceTermKind::Term(v) = kind else {
-            unreachable!()
-        };
-        ledger.push_formed(
-            format!("load:{index}"),
-            dof,
-            v,
-            Formation::Bounded { bound: 1.0e-20 },
-            1.0e-20,
-            false,
-        );
-    }
-    let formed = ledger.finish(12).unwrap();
+    let formed_with = |formation: Formation, operand_bound: f64, closed: bool| {
+        let mut ledger = LoadLedger::new();
+        for (index, &(dof, kind)) in model.terms.iter().enumerate() {
+            let ForceTermKind::Term(v) = kind else {
+                unreachable!()
+            };
+            ledger.push_formed(
+                format!("load:{index}"),
+                dof,
+                v,
+                formation.clone(),
+                operand_bound,
+                false,
+            );
+            if closed {
+                let primitive = LoadPrimitive {
+                    term_index: index,
+                    identity: LoadSummandIdentity {
+                        family: "nodal".into(),
+                        source: format!("load:{index}"),
+                        ordinal: 0,
+                    },
+                    local_row: dof % 6,
+                    formula: LoadFormula::NodalProduct {
+                        global_dof: dof,
+                        magnitude: v,
+                        factor: 1.0,
+                    },
+                    force_scale_exponent: 0,
+                };
+                assert!(ledger.set_closure_manifest(index, vec![primitive.closure_entry()]));
+                ledger.attach_load_primitive(primitive);
+            }
+        }
+        ledger.finish(12).unwrap()
+    };
+    let formed = formed_with(Formation::Bounded { bound: 1.0e-20 }, 1.0e-20, true);
+    let other_record = formed_with(Formation::CannotBound, 0.0, true);
+    let unclosed = formed_with(Formation::Bounded { bound: 1.0e-20 }, 1.0e-20, false);
     assert!(formed.has_formation_records() && !plain.has_formation_records());
+    let mut checked = 0;
     for mode in MODES {
         for representation in REPRESENTATIONS {
             for s in [ForceScale::UNSCALED, scale(64)] {
+                let today = format!("{:?}", model.forced(&plain, s, mode, representation, true));
                 assert_eq!(
-                    format!("{:?}", model.forced(&plain, s, mode, representation, true)),
+                    today,
                     format!("{:?}", model.forced(&formed, s, mode, representation, true)),
                 );
+                assert_eq!(
+                    today,
+                    format!("{:?}", model.forced(&other_record, s, mode, representation, true)),
+                );
+                let refused = model
+                    .forced(&unclosed, s, mode, representation, true)
+                    .unwrap();
+                assert_eq!(refused.solution.report.quality, SolveQuality::Sensitive);
+                assert!(refused.solution.member_bound.is_none());
+                assert!(matches!(
+                    &refused.solution.formation_check.as_ref().unwrap().reason,
+                    FormationCheckReason::FormationCheckUnavailable { detail }
+                        if detail == "load closure: load:0: absent manifest"
+                ));
+                checked += 1;
             }
         }
     }
+    assert_eq!(checked, 2 * MODES.len() * REPRESENTATIONS.len());
 }
 
 /// The behavioural pin behind the source pin: the nonlinear loop reaches no

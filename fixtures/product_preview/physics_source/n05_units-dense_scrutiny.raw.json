@@ -3056,11 +3056,11 @@
         "publication_charged": 257336
       },
       "policy": "PHYSICS-SOURCE-1",
-      "publication_sha256": "85b1598b5ef29a0a8d084d9d815166d85fc9de0cf8987d9bb14fca9904943662",
+      "publication_sha256": "0886c7ae691a85c78f9326c53358f5eafd396d61685a2ec5ac85611566fc2de4",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "1aacfd6d9f773528e678e3a6fb6aae9fd20bd61a86f240d9e7239625afe0ae56"
+    "receipt_sha256": "383818570e1d39a9fbf9a5d916203e63aa0c1ef79f889dc3f59060ffcaf29695"
   },
   "formulation_basis": {
     "profile_id": "exact_straight_pressure_v2",
@@ -3070,8 +3070,10 @@
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
-      "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline.",
-      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",

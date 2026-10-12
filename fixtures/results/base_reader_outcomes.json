@@ -5,7 +5,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -113,7 +113,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -222,17 +222,20 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
         "route": "preview_physics",
         "standing": {
-          "eligible": true,
-          "findings": [],
+          "eligible": false,
+          "findings": [
+            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+          ],
           "route": "preview_physics",
-          "status": "integrity_checked",
-          "token": "numerically_eligible"
+          "status": "needs_recompute",
+          "token": "needs_recompute"
         }
       },
       "id": "results/preview_physics_invented_sparse",
@@ -881,17 +884,20 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
         "route": "preview_physics",
         "standing": {
-          "eligible": true,
-          "findings": [],
+          "eligible": false,
+          "findings": [
+            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+          ],
           "route": "preview_physics",
-          "status": "integrity_checked",
-          "token": "numerically_eligible"
+          "status": "needs_recompute",
+          "token": "needs_recompute"
         }
       },
       "id": "results/preview_physics_invented_dense",
@@ -1542,7 +1548,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -3422,7 +3428,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -3461,7 +3467,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -3500,7 +3506,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -3508,8 +3514,10 @@
         "standing": {
           "eligible": false,
           "findings": [
+            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
             "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
           ],
           "route": "preview_physics",
           "status": "needs_recompute",
@@ -4162,7 +4170,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -4170,8 +4178,10 @@
         "standing": {
           "eligible": false,
           "findings": [
+            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
             "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
           ],
           "route": "preview_physics",
           "status": "needs_recompute",
@@ -12129,7 +12139,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12156,7 +12166,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12186,7 +12196,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12218,7 +12228,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12250,7 +12260,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12282,7 +12292,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12314,7 +12324,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12346,7 +12356,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12378,7 +12388,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12413,7 +12423,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12445,7 +12455,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12477,7 +12487,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12509,7 +12519,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12541,7 +12551,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12568,7 +12578,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12600,7 +12610,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12633,7 +12643,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12665,7 +12675,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12697,7 +12707,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12729,7 +12739,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12756,7 +12766,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -12791,7 +12801,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+          "sha256": "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
         },
         "error": null,
         "ok": true,
@@ -15549,7 +15559,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -15579,7 +15589,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -19497,7 +19507,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED",
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
             "MECHANICS_NOT_SOLVED"
           ],
           "route": "unsupported",
@@ -20396,7 +20406,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -20433,7 +20443,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",

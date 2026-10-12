@@ -23,14 +23,14 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc",
-        "efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494",
+        "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
+        "1932f8843dee94baccff7c21ebc01523d8a509919b9a3bbd48e26167ffd1eff4",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5",
-        "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a",
+        "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
+        "39895d62e38a6bc87242d5591384c23ab274e71832d974f40da915d13a0f7356",
     ),
 ];
 /// The milestone's validated class counts (R/I61 experiment 02; RV86 recount):

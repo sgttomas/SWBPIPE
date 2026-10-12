@@ -1,5 +1,5 @@
 {
-  "description": "Expected observations for the desktop walking-skeleton native smoke (run.mjs). Values come from T3's G10 checklist (a jsdom replay of the same models); they are not re-pinned from a native run. The model hash is computed by run.mjs from each file (RFC 8785 JCS, SHA-256), independently of the app.",
+  "description": "Expected observations for the desktop walking-skeleton native smoke (run.mjs). Values come from T3's G10 checklist (a jsdom replay of the same models); they are not re-pinned from a native run. The bundled invented demo has nonlinear supports, so under K-D5 (DEL-04-01 Design/kd5-member-relative-bound.md §5, \"The nonlinear-support route\") its converged cases are published NUMERICAL_INTEGRITY_SENSITIVE with the route's named sentence, and its rows stay today's binary64 rows (625 sparse, 627 dense). A Sensitive result is not Current, so the product offers no result export for either case (the milestone was already Sensitive): `result_export` gives the export panel's text, and `stored_run_integrity` the named Sensitive standing the saved demo run carries. The model hash is computed by run.mjs from each file (RFC 8785 JCS, SHA-256), independently of the app.",
   "bundled_project_id": "project:invented-demo-loop-01",
   "refusals": [
     { "file": "newer-schema.json", "code": "MODEL-FILE-SCHEMA-REFUSED" },
@@ -11,6 +11,7 @@
       "case": "milestone",
       "fixture": "fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json",
       "probe": "result:disp:N1",
+      "result_export": { "offered": false, "panel_text_prefix": "Run mechanics preview with valid Current input proof" },
       "observations": {
         "sparse_interactive": { "rows": 98, "probe_entered": "Entered: 0.09426732782247198 mm", "standing_prefix": "Numerical integrity: sensitive." },
         "dense_scrutiny": { "rows": 99, "probe_entered": "Entered: 0.0942673274792288 mm" }
@@ -19,9 +20,17 @@
     {
       "case": "demo",
       "fixture": "fixtures/product_preview/invented_demo_model.json",
+      "result_export": { "offered": false, "panel_text_prefix": "Run mechanics preview with valid Current input proof" },
+      "stored_run_integrity": {
+        "status": "sensitive",
+        "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+        "severity": "warning",
+        "count": 2,
+        "sentence": "the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries"
+      },
       "observations": {
-        "sparse_interactive": { "rows": 625, "standing_prefix": "Numerical integrity: checks_passed." },
-        "dense_scrutiny": { "rows": 627, "standing_prefix": "Numerical integrity: checks_passed." }
+        "sparse_interactive": { "rows": 625, "standing_prefix": "Numerical integrity: sensitive." },
+        "dense_scrutiny": { "rows": 627, "standing_prefix": "Numerical integrity: sensitive." }
       }
     }
   ]

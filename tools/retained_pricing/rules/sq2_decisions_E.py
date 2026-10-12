@@ -5,7 +5,7 @@ the real code at c3cf970ad3 (keys re-derived, each premise re-read), with B3b-P'
 branch live, and the mirror of route L: the preview-only W1 functions and branches zero."""
 import os, json, runpy
 H = os.path.dirname(os.path.abspath(__file__))
-globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any")})
+globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any", "Resolved")})
 EXACT = ("route E (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so pressure_runtime::is_exact is true; every case's "
          "pressure_regions is explicitly Some([]) (D1.5's exact clause)")
 FN_ZERO_RESTATE = [
@@ -110,12 +110,19 @@ ID_AUDIT = ID_AUDIT + [
     (C_ + "781", {"input.load_case.id": IN, "id": IN, "input.load_case.id.len()": NUM_, "id.len()": NUM_}),
     (C_ + "798", {"id": IN, "input.load_case.id": IN}),
     (C_ + "828", {"primary[&support.functional_indices[group*3+c]].id": RS_}),
-    (C_ + "869", {"member.member_id": IN}), (C_ + "925", {"input.load_case.id": IN}), (C_ + "961", {"case_id": IN}), (C_ + "968", {"r.id": RS_}),
+    (C_ + "925", {"input.load_case.id": IN}), (C_ + "961", {"case_id": IN}), (C_ + "968", {"r.id": RS_}),
     (PM_ + "7", {"stable_suffix(material)": IN, "code": ST}), (PM_ + "15", {"material": IN}),
     (PM_ + "85", {"stable_suffix(&material.id)": IN}), (PM_ + "86", {"material.id": IN}),
     (PM_ + "116", {"material": MAT_CLONE}), (PM_ + "234", {"material": MAT_CLONE}),
     (PM_ + "146", {"id": IN}), (PM_ + "205", {"a.unit": IN}), (PM_ + "212", {"p0.id": IN, "p1.id": IN}), (PM_ + "248", {"material.id": IN}),
 ]
+# C8: source-bound IN128 metadata survives; only owned syntax allocates.
+_C8_MODEL = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
+C8_MEMBER_STATE = _C8_MODEL["inspect"](os.environ["SQ2_SNAP"])
+C8_INPUT_METADATA = [(Resolved(C8_MEMBER_STATE["site"]), {"member.member_id": IN})]
+if not C8_MEMBER_STATE["borrowed"]:
+    ID_AUDIT = ID_AUDIT + C8_INPUT_METADATA
+
 ID_AUDIT_WHY_E = ("SQ2 G5 route E (RR I95 ruling 5: the 32 newly reached identifier placeholders of b3s_open_items.out.json, at c3cf970ad3 lines): "
     "ids (member, support, load case, material, temperature point) and input units are IN128 (D1.9 TEXT_BYTES); a row kind is STATIC; a result row "
     "id is RES (1024); a MaterialInput clone (pressure_material.rs:116, :234) copies its id, constitutive basis, provenance and four quantity units "

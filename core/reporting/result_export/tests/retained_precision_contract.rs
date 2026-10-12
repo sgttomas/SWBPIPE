@@ -5618,13 +5618,21 @@ fn b1_i4p_transport_extrema_numbers_at_g7() {
         .collect();
     rows.extend([
         ("the base", on(vec![]), admitted(false)),
+        // A JSON integer is a number. K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2)
+        // requires value_upper_pa = global_upper_bound_pa, so an integral global bound beside
+        // the base's fractional upper passes the number demand and fails the later bounds one.
         (
-            "both members JSON integers",
+            "certified_gap_pa a JSON integer",
+            on(vec![set(x("certified_gap_pa"), json!(0))]),
+            admitted(false),
+        ),
+        (
+            "global_upper_bound_pa a JSON integer",
             on(vec![
                 set(x("global_upper_bound_pa"), json!(41354909)),
                 set(x("certified_gap_pa"), json!(0)),
             ]),
-            admitted(false),
+            b1_metadata_refusal("extrema bounds"),
         ),
         (
             "a string bound beside a fraction above 1 (the demand comes first)",
@@ -6133,15 +6141,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6",
-        "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f",
+        "fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85",
+        "9b4792ef7426c324ba4ae9726d1936560440e16a6326ba38a5191d163e1ffff6",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc",
-        "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d",
+        "2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d",
+        "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -6387,10 +6395,12 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
     }
     assert_eq!(digests, REPAIR03_N2B_INPUTS, "the N2b probe inputs");
 }
-/// The N2b probe inputs (sha256 of the canonical `[source, invocation]`).
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["ab2807e39c79015c5929dac4c4a4a86f82e9e6187c66511686c93f57de60759d", "9451b8272ac84a10984b6848fe44d5fcd3585903ce7ab1f3d8fd59f4a3675da6"];
+/// The N2b probe inputs (sha256 of the canonical `[source, invocation]`). K-D5 re-based the
+/// corpus bases (current maximum declarations and limitation sentences, DEL-04-01
+/// kd5-member-relative-bound.md §§3.2, 3.4, 6), so these, RV120's N2 and F2 digests moved.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["d0521a806c6c1408f710e674d9f3a3dc6aab858d73471bf08c669d94501b9b23", "3e867ddc8024a453b2023ced4ecee951bece6c4fdda40ba8068b515b16ec540f"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0", "a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe"];
+const RV120_N2_INPUTS: [&str; 2] = ["1ff2833f6e45aa7fe488cedfb57c24e73d9ed6b67b68a29a91871c0f684461b9", "402e6922d40bce8d3ff41ee435ff2e90f4455dd68ae328f850c438475456ee2b"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -6399,10 +6409,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "2ae38c701c54bd1c29cfdd0eb9b666b99a2e8bba13f962c75a0bb7c394116264"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "72f491a72172e67d90b3723519d16700a966ca580e477dd08c3de67e1a8c1827"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "6068a30e4295ada12de028e00dd54224b6adddcc61886d81eee52c78d7d131b1"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "a78b7f7c11469c80af0d9dc78eae962548340eff1a609f03de2a42afa62f0df6"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
@@ -7404,7 +7414,8 @@ fn b2_r_comb_1_appended_classes() {
 /// `global_upper_bound_pa` or `certified_gap_pa` below zero fails exactly where
 /// a non-number fails today: on transport at G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID
 /// ("extrema numbers"), and bound or unbound in the base reader at G7
-/// SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID. +0 and -0 are accepted; no zero refusal.
+/// SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID. +0 and -0 pass this demand: a zero gap is
+/// accepted, and a zero global bound is refused only by the K-D5 bounds equality.
 #[test]
 fn n1_negative_extrema_numbers_refused_zero_accepted() {
     use serde_json::json;
@@ -7431,6 +7442,16 @@ fn n1_negative_extrema_numbers_refused_zero_accepted() {
                     assert_eq!((t.gate, t.code.as_str(), t.detail.as_deref()), ("G7", metadata, Some(format!("{metadata}: extrema numbers").as_str())), "{k} {value}");
                     for e in [bound.unwrap_err(), unbound.unwrap_err()] {
                         assert_eq!((e.gate, e.code.as_str()), ("G7", base), "{k} {value}");
+                    }
+                }
+                // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): value_upper_pa equals
+                // global_upper_bound_pa, so a zero global bound beside the base's nonzero upper
+                // passes this demand and fails the bounds one; a zero gap is accepted.
+                None if k == "global_upper_bound_pa" => {
+                    let t = transport.unwrap_err();
+                    assert_eq!((t.gate, t.code.as_str(), t.detail.as_deref()), ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", Some("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: extrema bounds")), "{k} {value}");
+                    for e in [bound.unwrap_err(), unbound.unwrap_err()] {
+                        assert_eq!((e.gate, e.code.as_str()), ("G7", "SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS"), "{k} {value}");
                     }
                 }
                 None => {
