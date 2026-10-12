@@ -876,3 +876,195 @@ fn i51_view_failure_keeps_both_entered_mask_capacities() {
         println!("I51_FAILED_VIEW_CAPACITY fault={fault} prescribed={} data={}",spent.work.prescribed_capacity,spent.work.data_capacity);
     }
 }
+
+// ---- b7-plan "N06 absorbed-spring certificate extension" -------------------------------
+// N06 (validation/benchmarks/numerical_integrity N06): a 2 m member (D 0.2, t 0.01, E 2e11,
+// G 8e10, the product's prepared annulus section) whose root is fixed except RX, which
+// carries a 1e-12 N*m/rad scalar spring; tip torque +-1e-16 N*m. GJ/L/k is about 2.2e18.
+const N06_SPRING: f64 = 1e-12;
+const N06_TORQUE: f64 = 1e-16;
+fn n06_section() -> [f64; 5] {
+    let prepared = super::super::product_certificate::prepare_product_annulus(0.2, 0.01);
+    prepared.result().unwrap().section_bits().values()
+}
+fn n06_source(sign: f64) -> PrimitiveSource {
+    let [a, i, j, _, _] = n06_section();
+    PrimitiveSource::new(SourceParts {
+        nodes: vec![[0.0; 3], [2.0, 0.0, 0.0]],
+        members: vec![StraightMember {
+            id: 7, node_i: 0, node_j: 1, elastic_modulus: 2e11, shear_modulus: 8e10,
+            area: a, second_moment_y: i, second_moment_z: i, torsion_constant: j,
+            y_reference: [0.0, 1.0, 0.0],
+        }],
+        constraints: [Component::Ux, Component::Uy, Component::Uz, Component::Ry, Component::Rz]
+            .iter().map(|&c| Constraint { dof: Dof { node: 0, component: c }, value: 0.0 }).collect(),
+        springs: vec![super::super::source::Spring { id: 9, dof: Dof { node: 0, component: Component::Rx }, stiffness: N06_SPRING }],
+        loads: vec![NodalLoad { dof: Dof { node: 1, component: Component::Rx }, value: sign * N06_TORQUE, source_id: "tip-MX".into() }],
+        stations: [0.0, 0.5, 1.0].iter().enumerate()
+            .map(|(k, &fraction)| Station { id: 17 + k as u32, member: 7, fraction }).collect(),
+        supports: vec![SupportGroup { id: 3, node: 0, restrained: [true, true, true, false, true, true],
+            springs: vec![9], directional_springs: vec![] }],
+        ..SourceParts::default()
+    })
+    .unwrap()
+}
+fn n06_laws(owner: &RetainedSolve, diameter: f64) -> [ProposedMemberLaw<'_>; 1] {
+    [ProposedMemberLaw {
+        member: &owner.source().members()[0],
+        diameter,
+        effective_wall: 0.01,
+        material: MaterialOperands::Ordinary { e: 2e11, g: 8e10 },
+        represented_z: n06_section()[3],
+    }]
+}
+fn f64_of(w: &Wide<16>) -> f64 {
+    match w.to_binary64() {
+        Binary64Outcome::Normal(v) | Binary64Outcome::Subnormal { value: v, .. } => v,
+        o => panic!("{o:?}"),
+    }
+}
+fn directed_quotient(a: f64, b: f64) -> (Wide<16>, Wide<16>) {
+    use super::super::directed::{div_toward, Toward};
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    let mut sum = ExactWideSum::new();
+    let (a, b) = (Wide::<16>::from_f64(a).unwrap(), Wide::<16>::from_f64(b).unwrap());
+    (div_toward(&mut ctx, &mut sum, &a, &b, Toward::Down).unwrap(),
+     div_toward(&mut ctx, &mut sum, &a, &b, Toward::Up).unwrap())
+}
+/// Every lane row of `rows` that the closed form fixes: root rotation M/k, both end
+/// torques +-M, the spring action -M, and a relative width below 2^-30 for each. (This lane
+/// starts from the published binary64 center; the product's seeded order is the sharper control
+/// `n06_seeded_congruence_lane_encloses_the_closed_form`.)
+fn n06_closed_form(s: &RetainedSolve, rows: &[super::super::product_certificate::Enclosure], sign: f64) {
+    use super::super::directed::{sub_toward, Toward};
+    let m = sign * N06_TORQUE;
+    let mut checked = 0;
+    for (i, row) in s.publish().rows.iter().enumerate() {
+        let truth = match row.id {
+            QuantityId::Displacement(d) if d.node == 0 && d.component == Component::Rx => directed_quotient(m, N06_SPRING),
+            QuantityId::EndAction { end, component: Component::Rx, .. } => point(if end == End::I { -m } else { m }),
+            QuantityId::SpringAction { .. } => point(-m), // -k*theta = -M on the structure
+            _ => continue,
+        };
+        contains(&rows[i], truth, &format!("N06 closed form {:?}", row.id));
+        let (lo, hi) = rows[i].endpoints();
+        let mut ctx = WideContext::<16>::new(1024).unwrap();
+        let mut sum = ExactWideSum::new();
+        let width = sub_toward(&mut ctx, &mut sum, hi, lo, Toward::Up).unwrap();
+        let scale = truth.1.abs().mul_pow2(-30).unwrap();
+        assert_ne!(width.cmp_value(&scale), Cmp::Greater, "N06 width {:?}", row.id);
+        checked += 1;
+    }
+    assert_eq!(checked, 4, "root rotation, two end torques, spring action");
+}
+
+/// Diagnosis (b7-plan N06 extension): at the published center, the existing contraction
+/// condition alpha = RU(2*B_b * max eta) of the annular_source lane exceeds 1 because B_b
+/// carries the soft spring's compliance while eta carries the stiff member's coefficient gap.
+/// The admitted_k lane (zero gap) has alpha = 0. Operands are printed as N06_ALPHA_OPERANDS.
+#[test]
+fn n06_contraction_condition_operands() {
+    for sign in [1.0, -1.0] {
+        let s = solved(n06_source(sign));
+        let input = n06_laws(&s, 0.2);
+        let view = s.source_bridge_view(s.source(), &s.prep.identity, s.selected).result.unwrap();
+        for law in [ReadoutLaw::AdmittedK, ReadoutLaw::AnnularSource] {
+            let (blocks, members) = test_alpha_operands(&view, &input, law).unwrap();
+            assert_eq!(blocks.len(), 1);
+            let (b, beta, eta, alpha) = blocks[0];
+            let gaps: Vec<String> = members[0].iter().map(|(c, d)| format!("{:e}/{:e}={:e}", f64_of(d), f64_of(c), f64_of(d) / f64_of(c))).collect();
+            println!("N06_ALPHA_OPERANDS sign={sign} law={law:?} block={b} n_b={} scales={:?} beta=2*B_b={:e} eta_max={:e} alpha={:e} gaps(dd/c_K)[EA,GJ,EIz,EIy]={gaps:?}",
+                view.group().blocks.positions[b].len(), view.scales(), f64_of(&beta), f64_of(&eta), f64_of(&alpha));
+            match law {
+                ReadoutLaw::AdmittedK => assert!(alpha.is_zero()),
+                ReadoutLaw::AnnularSource => assert_ne!(alpha.cmp_value(&Wide::<16>::ONE), Cmp::Less, "the existing condition fails"),
+            }
+        }
+        // The existing law alone refuses with the same alpha.
+        let spent = run(&s, &input);
+        assert!(matches!(spent.result(), Err(BridgeError::Alpha { block: 0, .. })), "{:?}", spent.result().err());
+    }
+}
+
+/// The congruence radius law certifies N06's annular_source lane: rows enclose the closed
+/// form, and the lane spends positive extra work only through its existing counters.
+#[test]
+fn n06_congruence_radius_encloses_the_closed_form() {
+    for sign in [1.0, -1.0] {
+        let s = solved(n06_source(sign));
+        let input = n06_laws(&s, 0.2);
+        let contraction = run(&s, &input);
+        assert!(matches!(contraction.result(), Err(BridgeError::Alpha { block: 0, .. })));
+        let spent = source_residual_with_radius(&s, s.source(), &s.prep.identity, s.selected, &input, RadiusLaw::ContractionOrCongruence);
+        let native = spent.result().unwrap_or_else(|e| panic!("congruence lane refused: {e:?}"));
+        assert_ne!(native.alpha[0].cmp_value(&Wide::<16>::ONE), Cmp::Less, "alpha is still the existing value");
+        println!("N06_CONGRUENCE sign={sign} epsilon={:e} member_builds={:?} visits={:?} contraction_member_builds={:?}",
+            f64_of(&native.epsilon[0]), spent.work.member_builds.exact(), spent.work.visits.exact(), contraction.work.member_builds.exact());
+        n06_closed_form(&s, &native.rows, sign);
+        // One extra member build (delta) beyond the contraction law's complete run.
+        assert!(spent.work.status().is_exact());
+        assert!(spent.work.member_builds.exact().unwrap() > contraction.work.member_builds.exact().unwrap());
+        // The admitted_k lane never enters the extension and is unchanged.
+        let k = source_residual_for_law(&s, s.source(), &s.prep.identity, s.selected, &input, ReadoutLaw::AdmittedK);
+        assert!(k.result().unwrap().alpha[0].is_zero());
+    }
+}
+
+/// Class predicate and its named refusal: a proposed law whose relative coefficient gap
+/// is about 2^-31 (just outside 2^-32) refuses as `Congruence`, published as the alpha
+/// condition; a gap of about 2^-36 is inside and certifies its own (perturbed) law.
+#[test]
+fn n06_congruence_class_refuses_outside_and_admits_inside() {
+    let s = solved(n06_source(1.0));
+    for (scale, inside) in [(1.0 + 2f64.powi(-31), false), (1.0 + 2f64.powi(-36), true)] {
+        let input = n06_laws(&s, 0.2 * scale);
+        let spent = source_residual_with_radius(&s, s.source(), &s.prep.identity, s.selected, &input, RadiusLaw::ContractionOrCongruence);
+        if inside {
+            spent.result().unwrap_or_else(|e| panic!("inside the class: {e:?}"));
+        } else {
+            let e = spent.result().err().unwrap();
+            assert!(matches!(e, BridgeError::Congruence { block: 0, .. }), "{e:?}");
+            assert!(matches!(bridge_failure(&e), BridgeFailure::AlphaCondition { block: 0 }));
+            assert_eq!(spent.work.correction.calls.exact(), Ok(0), "refused before any correction");
+        }
+    }
+    // A cantilever whose contraction condition holds never forms delta: the lane's work and
+    // rows are identical under either law.
+    let s = solved(source(true, false));
+    let input = laws(&s);
+    let a = run(&s, &input);
+    let b = source_residual_with_radius(&s, s.source(), &s.prep.identity, s.selected, &input, RadiusLaw::ContractionOrCongruence);
+    let (ra, rb) = (a.result().unwrap(), b.result().unwrap());
+    assert_eq!(format!("{:?}", ra.rows), format!("{:?}", rb.rows));
+    assert_eq!(format!("{:?}{:?}", ra.alpha, ra.epsilon), format!("{:?}{:?}", rb.alpha, rb.epsilon));
+    assert_eq!(a.work.member_builds.exact(), b.work.member_builds.exact());
+    assert_eq!(a.work.visits.exact(), b.work.visits.exact());
+    let (mut ca, mut cb) = (Default::default(), Default::default());
+    assert_eq!(format!("{:?}", a.work.typed_trace(&mut ca).numeric.entries), format!("{:?}", b.work.typed_trace(&mut cb).numeric.entries));
+}
+
+/// Closed-form controls of RU(RU(RU(beta*ceil(sqrt n))*omega)/RD(1-delta)) and its range refusals.
+#[test]
+fn congruence_radius_closed_form_and_range_controls() {
+    let w = |x: f64| Wide::<16>::from_f64(x).unwrap();
+    for (n, k) in [(1usize, 1.0), (4, 2.0), (5, 3.0), (9, 3.0), (10, 4.0), (256, 16.0), (257, 17.0)] {
+        let (r, work) = test_congruence_radius(w(2.0), w(3.0), Wide::<16>::ZERO, n);
+        assert_eq!(r.unwrap(), w(6.0 * k), "n={n}");
+        assert!(work.status().is_exact());
+    }
+    // delta = 2^-32 exactly: 18/(1-2^-32) rounded up lies in (18, 18*(1+2^-31)].
+    let (r, _) = test_congruence_radius(w(2.0), w(3.0), w(2f64.powi(-32)), 5);
+    let r = r.unwrap();
+    assert_eq!(r.cmp_value(&w(18.0)), Cmp::Greater);
+    assert_ne!(r.cmp_value(&w(18.0 * (1.0 + 2f64.powi(-31)))), Cmp::Greater);
+    // Overflow and underflow of the exponent range refuse; they never wrap or flush to zero.
+    let huge = Wide::<16>::ONE.mul_pow2((1 << 61) + 16).unwrap();
+    let tiny = Wide::<16>::ONE.mul_pow2(-(1 << 61) - 16).unwrap();
+    for (beta, omega) in [(huge, huge), (tiny, tiny)] {
+        let (r, _) = test_congruence_radius(beta, omega, Wide::<16>::ZERO, 4);
+        assert!(matches!(r, Err(BridgeError::Numeric(super::super::product_certificate::NumericError::Arithmetic(_)))), "{r:?}");
+    }
+    // delta at or above 1 refuses by name.
+    let (r, _) = test_congruence_radius(w(2.0), w(3.0), Wide::<16>::ONE, 4);
+    assert!(matches!(r, Err(BridgeError::Congruence { .. })));
+}

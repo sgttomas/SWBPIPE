@@ -986,11 +986,18 @@ pub use super::product_certificate::final_case::{ProductRowSpec, ProductProofSta
 impl RecordedInvocation {
     pub fn begin_prepared_product<'s,'m>(&self,run:usize,owner:&'s RetainedSolve,
         facts:&'s [ProductMemberFacts],specs:&'m [ProductRowSpec<'m>])->ProductProofStartSpent<'s,'m> {
-        super::product_certificate::final_case::begin_prepared_product(self,run,owner,facts,specs)
+        super::product_certificate::final_case::begin_prepared_product(self,run,owner,facts,specs,RadiusLaw::Contraction)
+    }
+    /// DEF-O's preview proof: the annular_source lane may take the congruence
+    /// radius for a block whose contraction condition fails (b7-plan "N06
+    /// absorbed-spring certificate extension"). Other formations keep `begin_prepared_product`.
+    pub fn begin_prepared_product_with<'s,'m>(&self,run:usize,owner:&'s RetainedSolve,
+        facts:&'s [ProductMemberFacts],specs:&'m [ProductRowSpec<'m>],radius_law:RadiusLaw)->ProductProofStartSpent<'s,'m> {
+        super::product_certificate::final_case::begin_prepared_product(self,run,owner,facts,specs,radius_law)
     }
 }
 
 // Typed prepared evidence, with no endpoint/radius access.
 pub use super::product_certificate::{NumericTrace, NumericError, TraceCopyWork, PreparationEndpoint, PreparationConversion};
-pub use super::product_certificate::source_residual::{ReadoutLaw,ViewFailure,BridgeFailure,LaneWorkTrace};
+pub use super::product_certificate::source_residual::{ReadoutLaw,RadiusLaw,ViewFailure,BridgeFailure,LaneWorkTrace};
 pub use super::product_certificate::final_case::{ProductFailureView,HelperFailure,LaneTrace,ProductProofTrace};

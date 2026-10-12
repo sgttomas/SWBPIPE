@@ -731,14 +731,27 @@ fn b4_failed_ordinary_cxf_freezes_and_stops_only_at_the_held_g0_pin() {
     }
 }
 
-/// B4/D1: N06's ordinary assembly absorbs its soft rotational spring. Custody and the typed
-/// manifest hold and the native Run is selected, but DEF-O's annular-source lane fails the
-/// existing residual contraction condition (alpha >= 1, block 0) before projection. W1 keeps the
-/// blocked fallback; the certificate law is unchanged.
+/// The committed N06 failed-ordinary successor fixture (b7-plan "N06 absorbed-spring certificate
+/// extension"): two of the twelve N06 census trials in both modes, read below G0 by the Rust
+/// reader's and the Python verifier's tests while the table pins are held.
+const N06_FIXTURE: &str = "fixtures/results/retained_precision_failed_ordinary_n06.json";
+const N06_FIXTURE_CONTROLS: [&str; 3] = ["committed/n06-sparse_interactive.request.json",
+    "committed/n06-dense_scrutiny.request.json", "sign_rotation/N06/-1/true"];
+
+/// B4/D1: N06's ordinary assembly absorbs its soft rotational spring (GJ/L over the spring is
+/// about 2.2e18). Custody and the typed manifest hold and the native Run is selected. DEF-O's
+/// annular_source lane fails the existing contraction condition (alpha >= 1 in block 0); under
+/// b7-plan's "N06 absorbed-spring certificate extension" that block takes the congruence radius
+/// and one further correction, the proof freezes, and W1 stops only at precommit's held G0 pin,
+/// as CX-F does. Before the extension this test pinned the alpha refusal (W1Fallback::Candidate);
+/// the expectation moved because the governed extension certifies this class.
 #[test]
-fn b4_failed_ordinary_n06_refuses_at_the_existing_alpha_condition() {
+fn b4_failed_ordinary_n06_freezes_under_the_congruence_extension() {
+    let mut fixture = Vec::new();
+    let mut trials = 0;
     for c in controls().into_iter().filter(|c| c.name.contains("n06-") || c.name.starts_with("sign_rotation/N06")) {
         for mode in c.modes.clone() {
+            trials += 1;
             let label = format!("{} {}", c.name, mode.as_str());
             let (_, observer, ordinary) = early_observed(&c.raw, mode, true);
             assert!(observer.failed_ordinary_case(), "{label}: genuine ordinary failure");
@@ -748,17 +761,38 @@ fn b4_failed_ordinary_n06_refuses_at_the_existing_alpha_condition() {
             prepared.native();
             prepared.freeze();
             match &prepared.attempts[0].end {
-                rp::AttemptEnd::Candidate(refused) => {
-                    let cause = format!("{:?}", refused.error);
-                    assert!(cause.starts_with("Proof(") && cause.contains("Native(Alpha { block: 0"), "{label}: {}", &cause[..120.min(cause.len())]);
-                }
-                _ => panic!("{label}: expected the alpha refusal"),
+                rp::AttemptEnd::Frozen(_) => {}
+                rp::AttemptEnd::Candidate(refused) => panic!("{label}: {:?}", refused.error),
+                _ => panic!("{label}: expected a frozen certificate"),
             }
-            assert_eq!(serde_json::to_value(prepared.into_ordinary()).unwrap()["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
+            let (_, _, plain) = early_observed(&c.raw, mode, false);
+            let plain = serde_json::to_value(&plain).unwrap();
             let (capture, observer, ordinary) = early_observed(&c.raw, mode, true);
-            let (_, result) = retained_w1(observer, ordinary, &capture);
-            assert_eq!(result.err(), Some(W1Fallback::Candidate), "{label}");
+            let ((_, result), _, successor) =
+                retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            assert_eq!(result.err(), Some(W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }),
+                "{label}: the held table-byte pin is the only refusal");
+            let s = successor.expect("the serialized successor reached precommit");
+            assert_eq!(s["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}");
+            assert_eq!(s["retained_precision"]["body"]["cases"][0]["status"], json!("selected"), "{label}");
+            let requested: Vec<&Value> = s["results"].as_array().unwrap().iter().filter(|r| r["kind"] == json!(rp::REQUESTED_MODE_KIND)).collect();
+            assert_eq!(requested.len(), 1, "{label}: ruling (4)");
+            let blocking = plain["diagnostics"].as_array().unwrap().iter().find(|d| d["severity"] == json!("blocking")).unwrap();
+            assert!(s["diagnostics"].as_array().unwrap().contains(blocking), "{label}: blocking diagnostic kept verbatim");
+            if N06_FIXTURE_CONTROLS.contains(&c.name.as_str()) {
+                fixture.push(json!({"control": c.name, "solver_mode": mode.as_str(), "request": c.raw, "successor": s}));
+            }
         }
+    }
+    assert_eq!((trials, fixture.len()), (12, 4));
+    let fixture = serde_json::to_string(&json!({
+        "description": "B4/D1 failed-ordinary W1 successors of two N06 controls (committed n06 and sign_rotation/N06/-1/true), both modes, certified under b7-plan's N06 absorbed-spring certificate extension, as the producer serializes them before precommit. Invented input; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+        "cases": fixture})).unwrap() + "\n";
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").join(N06_FIXTURE);
+    if let Ok(out) = std::env::var("B4_N06_FIXTURE_OUT") {
+        std::fs::write(out, &fixture).unwrap();
+    } else {
+        assert_eq!(std::fs::read_to_string(path).unwrap(), fixture, "the committed fixture is the producer's output");
     }
 }
 
@@ -978,14 +1012,11 @@ fn b4_early_failed_inputs_are_ready_with_genuine_terminal_and_no_rescue() {
             );
             // Before the failed-ordinary extension custody refused these at Preparation. The
             // governed extension (b7-plan "Failed-ordinary successor rulings") now carries them past
-            // custody: CX-F to precommit's held G0 pin, N06 to the existing alpha refusal. Early
-            // readiness alone still creates no attempt (above) and no successor.
+            // custody, and both CX-F and N06 (under the N06 absorbed-spring certificate extension)
+            // reach precommit's held G0 pin. Early readiness alone still creates no attempt (above)
+            // and no successor.
             let (_, successor) = retained_w1(observer, ordinary, &capture);
-            let expected = if c.name == "CX-F" {
-                W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }
-            } else {
-                W1Fallback::Candidate
-            };
+            let expected = W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() };
             assert_eq!(successor.err(), Some(expected));
         }
     }

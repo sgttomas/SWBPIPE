@@ -5,6 +5,7 @@ The producer asserts that the fixture is its own output. G0 refuses these statem
 packaged table pins move at B7a's D3 re-registration (ruling (6)); `test_pending_g0` pins that.
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."""
 import json
+import math
 from copy import deepcopy
 from pathlib import Path
 
@@ -16,8 +17,11 @@ FIXTURE = Path(__file__).resolve().parents[1] / "fixtures/results/retained_preci
 MODES = ("sparse_interactive", "dense_scrutiny")
 
 
-def _cases():
-    fixture = json.loads(FIXTURE.read_text())
+N06_FIXTURE = FIXTURE.with_name("retained_precision_failed_ordinary_n06.json")
+
+
+def _cases(path=FIXTURE):
+    fixture = json.loads(path.read_text())
     return [(c["successor"], {"request": c["request"], "solver_mode": c["solver_mode"]}) for c in fixture["cases"]]
 
 
@@ -157,3 +161,57 @@ def test_blocking_diagnostic_and_w2_mutations_refuse_by_name(index):
     assert _mutated(base, invocation, widened) == unbound
     assert _mutated(base, invocation, untranslated) == w2
     assert _mutated(base, invocation, inner_trigger) == w2
+
+
+# b7-plan "N06 absorbed-spring certificate extension": N06's successors, certified with the congruence radius
+# and one further annular_source correction, read below G0 like CX-F's.
+@pytest.mark.parametrize("index", range(4))
+def test_n06_congruence_successor_passes_g1_to_g8_and_is_eligible(index):
+    source, invocation = _cases(N06_FIXTURE)[index]
+    assert _below_g0(source, None)["numerical_eligible"] is False
+    result = _below_g0(source, invocation)
+    assert result["invocation_bound"] and result["numerical_eligible"]
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision(source, invocation)
+    assert (error.value.gate, error.value.code) == ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+
+
+@pytest.mark.parametrize("index", range(4))
+def test_n06_lane_corrections_and_perturbed_values_refuse(index):
+    base, invocation = _cases(N06_FIXTURE)[index]
+    lanes = base["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"]
+    assert [lane["work"]["correction"]["calls"]["value"] for lane in lanes] == [1, 2]
+
+    def calls(lane, value):
+        def mutate(s):
+            s["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"][lane]["work"]["correction"]["calls"] = {"kind": "exact", "value": value}
+        return mutate
+
+    work = ("G5", "RETAINED_PRECISION_WORK_MISMATCH")
+    assert _mutated(base, invocation, calls(1, 3)) == work
+    assert _mutated(base, invocation, calls(0, 2)) == work
+    # A certified torque or rotation moved by one ulp no longer matches its projection outcome.
+    for kind in ("element_local_torsional_moment", "global_nodal_rotation_x", "global_nodal_rotation_y"):
+        at = next((i for i, r in enumerate(base["results"]) if r["kind"] == kind and r["value"] not in (0, None)), None)
+        if at is None:
+            continue
+
+        def ulp(s, at=at):
+            v = s["results"][at]["value"]
+            s["results"][at]["value"] = math.nextafter(v, math.copysign(math.inf, v))
+
+        assert _mutated(base, invocation, ulp) == ("G5", "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"), kind
+
+
+def test_exact_and_combination_lanes_keep_one_correction():
+    # Off the preview route's case lanes (DEF-E, DEF-C) the annular lane keeps at most one correction.
+    base, _ = _cases(N06_FIXTURE)[0]
+    attempt = deepcopy(base["retained_precision"]["body"]["product_attempts"][0])
+    attempt["proof"]["projection_outcomes"] = []
+    attempt["proof"]["projection_conversions"] = {"kind": "exact", "value": 0}
+    checks = []
+    rp._g5_proof_rows(attempt, [], lambda ok: None, checks.append, congruence=False)
+    assert False in checks
+    checks = []
+    rp._g5_proof_rows(attempt, [], lambda ok: None, checks.append, congruence=True)
+    assert False not in checks

@@ -8,7 +8,7 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "32a26abd05e46fe27ba34e06a321e6d3514fe3fb65a788c8c4aaad3ae9651323";
+    "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
@@ -2813,6 +2813,7 @@ fn proof_checks(
     source: &Value,
     a: &Value,
     c: &Value,
+    congruence: bool,
     pf: &dyn Fn(bool) -> VResult,
     wf: &mut dyn FnMut(bool) -> VResult,
 ) -> VResult {
@@ -2844,7 +2845,7 @@ fn proof_checks(
                 pf(i + 1 == lanes.len())?;
             }
             if let Some(n) = exact_count(&lane["work"]["correction"]["calls"]) {
-                wf(n <= 1)?;
+                wf(n <= if congruence && i == 1 { 2 } else { 1 })?;
             }
             wf(lane["work"]["data_capacity"] == lane["work"]["view"]["data_capacity"])?;
         }
@@ -2969,7 +2970,7 @@ fn combination_attempt(
     pf(s["owner"]["kind"] == "combination"
         && s["owner"]["combination_index"] == a["owner_ref"]["index"]
         && st.get("preparation").is_none())?;
-    proof_checks(source, a, e, pf, wf)?;
+    proof_checks(source, a, e, false, pf, wf)?;
     let selected = run["kernel_terminal"]["kind"] == "selected";
     pf(st["native"] != "not_entered" && (st["native"] == "completed") == selected)?;
     let proof = &a["proof"];
@@ -3220,7 +3221,9 @@ fn g5_products(source: &Value) -> VResult {
         let new = list(&a["operational"]["new"]);
         let st = &a["stages"];
         member_checks(a, &pf, &mut wf)?;
-        proof_checks(source, a, c, &pf, &mut wf)?;
+        // DEF-O's lanes.congruence: a preview case's annular_source lane may take one further
+        // correction; DEF-E (exact) and DEF-C (combinations) keep at most one.
+        proof_checks(source, a, c, !route(source).exact, &pf, &mut wf)?;
         let proof = &a["proof"];
         if st["native"] == "completed" {
             pf(c["run"]["kernel_terminal"]["kind"] == "selected")?;
@@ -6669,8 +6672,14 @@ mod b4_failed_ordinary_tests {
     use super::*;
     const FIXTURE: &str =
         include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json");
+    /// N06 under b7-plan's "N06 absorbed-spring certificate extension" (four successors).
+    const N06_FIXTURE: &str =
+        include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_n06.json");
     fn cases() -> Vec<(Value, Value)> {
-        let fixture: Value = serde_json::from_str(FIXTURE).unwrap();
+        cases_of(FIXTURE)
+    }
+    fn cases_of(text: &str) -> Vec<(Value, Value)> {
+        let fixture: Value = serde_json::from_str(text).unwrap();
         list(&fixture["cases"])
             .iter()
             .map(|c| {
@@ -6707,6 +6716,59 @@ mod b4_failed_ordinary_tests {
             let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
             assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
             assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
+        }
+    }
+    /// N06's successors read like CX-F's: G1-G8 pass below the held G0 pin and the case is
+    /// eligible with its invocation; G0 itself refuses until the D3 re-registration.
+    #[test]
+    fn n06_congruence_successors_pass_g1_to_g8_and_are_eligible() {
+        let cases = cases_of(N06_FIXTURE);
+        assert_eq!(cases.len(), 4);
+        for (s, inv) in cases {
+            let mode = inv["solver_mode"].clone();
+            assert_eq!(below_g0(&s, None).map(|v| v.numerical_eligible), Ok(false), "{mode}");
+            let v = below_g0(&s, Some(&inv)).unwrap_or_else(|e| panic!("{mode}: {e:?}"));
+            assert!(v.invocation_bound && v.numerical_eligible, "{mode}");
+            assert!(v.classifications.iter().any(|c| c.result_id == REQUESTED_MODE_ID && c.class == AccuracyClass::NonQuantity), "{mode}");
+            let e = validate(&s, Some(&inv)).unwrap_err();
+            assert_eq!((e.gate, e.code.as_str()), ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"), "{mode}");
+        }
+    }
+    /// DEF-O's lanes.congruence admits one further correction on the annular_source lane only:
+    /// three calls there, or two on the admitted_k lane, refuse as work mismatches.
+    #[test]
+    fn n06_lane_correction_calls_are_bounded_by_lane() {
+        let wm = ("G5", "RETAINED_PRECISION_WORK_MISMATCH".to_string());
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            let lanes = &base["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"];
+            assert_eq!(lanes[1]["work"]["correction"]["calls"], json!({"kind":"exact","value":2}), "{mode}");
+            assert_eq!(lanes[0]["work"]["correction"]["calls"], json!({"kind":"exact","value":1}), "{mode}");
+            for (lane, calls) in [(1, 3), (0, 2)] {
+                let mut s = base.clone();
+                s["retained_precision"]["body"]["product_attempts"][0]["proof"]["lanes"][lane]["work"]["correction"]["calls"] =
+                    json!({"kind":"exact","value":calls});
+                rehash(&mut s);
+                assert_eq!(refused(&s, &inv), wm, "{mode}: lane {lane} calls {calls}");
+            }
+        }
+    }
+    /// A published certified quantity moved by one ulp (receipt and publication rehashed) no
+    /// longer matches its recorded projection outcome and is refused.
+    #[test]
+    fn n06_perturbed_certified_value_refuses() {
+        for (base, inv) in cases_of(N06_FIXTURE) {
+            let mode = text(&inv["solver_mode"]).to_owned();
+            for kind in ["element_local_torsional_moment", "global_nodal_rotation_x", "global_nodal_rotation_y"] {
+                let Some(at) = list(&base["results"]).iter().position(|r| r["kind"] == kind && r["value"].as_f64().is_some_and(|v| v != 0.0)) else { continue };
+                let mut s = base.clone();
+                let v = s["results"][at]["value"].as_f64().unwrap();
+                s["results"][at]["value"] = json!(f64::from_bits(v.to_bits() + 1));
+                rehash(&mut s);
+                let (gate, code) = refused(&s, &inv);
+                assert_ne!(gate, "accepted", "{mode}: {kind}");
+                println!("N06_PERTURBED {mode} {kind} {gate} {code}");
+            }
         }
     }
     #[test]
