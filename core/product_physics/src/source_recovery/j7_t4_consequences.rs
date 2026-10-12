@@ -1,4 +1,5 @@
-//! J7's genuine admitted connector Input: current SourceMismatch64, with no invented frames.
+//! J7's genuine admitted connector Input: the named connector-family decline at work 64
+//! (T4 batch 4's D7 order; formerly SourceMismatch64), with no invented frames.
 use super::*;
 use crate::*;
 use serde_json::{json,Value};
@@ -15,7 +16,7 @@ fn request()->Value{
     control["request"].clone()
 }
 #[test]
-fn j7_t4_i12_genuine_nodal_case_preserves_source_mismatch64(){
+fn j7_t4_i12_genuine_nodal_case_declines_the_connector_family_by_name(){
     let raw=request();
     assert_eq!(sha(serde_json::to_string(&raw).unwrap().as_bytes()),"99401eec19e6f5524fb1fd9e0f534c35fe07e1df384b15ec4ec4e92a0d0c527a");
     assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(),3);
@@ -46,10 +47,12 @@ fn j7_t4_i12_genuine_nodal_case_preserves_source_mismatch64(){
         let free:Vec<_>=(0..force.len()).filter(|d|!prescribed.iter().any(|(p,_)|p==d)).collect();
         assert_eq!((free.len(),prescribed.len()),(21,9));
         let result=solve_ordinary(Input{model:&model,built:&built,stiffness:&stiffness,force:&force,free:&free,prescribed:&prescribed,spring_entries:&boundary.springs,load_case:case,load_application:&application,thermal_loads:&[],load_state:None},exact::Limits{operations:PHYSICS_SOURCE_WORK_LIMIT,..Default::default()},ForceScale::UNSCALED);
-        let failure=result.expect_err("actual valid replaced span source fails current frame-count check");
+        let failure=result.expect_err("actual valid replaced span source is declined by family before the frame-count check");
         eprintln!("J7_T4_I12_SOURCE {}",json!({"request_native_json_sha256":sha(serde_json::to_string(&raw).unwrap().as_bytes()),"captured_invocation_sha256":captured.borrowed_digest(),"mode":mode.as_str(),"case_id":case.id,"case_ordinal":2,"pipes":built.pipes.len(),"frames":built.frame_elements.len(),"connectors":built.connectors.len(),"load_occurrences":application.nodal_loads.len(),"free":free,"prescribed":prescribed,"outcome":format!("{failure:?}"),"scope":"genuine normalized/build/boundary/load-owned private method call; no ordinary observations, public selection or source standing manufactured"}));
         assert_eq!(failure.stage,"source closure");assert_eq!(failure.helper_stage,AttemptStage::SourceClosure);
-        assert_eq!(failure.error,RecoveryError::SourceMismatch("actual model/source dimensions"));
+        // T4 batch 4's D7 decline (#1314): the connector family is named before the
+        // dimension closure that formerly failed as SourceMismatch at the same work.
+        assert_eq!(failure.error,RecoveryError::Unsupported("objective connector is not a straight source family"));
         assert_eq!(failure.work,exact::WorkReport{charged:64,rejected:0,limit:PHYSICS_SOURCE_WORK_LIMIT});
     }
 }

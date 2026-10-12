@@ -1792,14 +1792,14 @@ mod tests {
             refuse(&joint),
             Some(RecoveryError::Unsupported("objective connector is not a straight source family"))
         );
-        let mut straight = Fixture::new(Fixture::model());
-        straight.model.pressure_contract = model.pressure_contract.clone();
-        straight.model.schema_version = model.schema_version.clone();
-        straight.model.load_cases[0].pressure_regions = Some(Vec::new());
-        assert_eq!(
-            refuse(&straight),
-            Some(RecoveryError::Unsupported("3.0.0/exact_pressure_v3 is not joined to retained-source recovery"))
-        );
+        // The pressure-source join (b7-plan): a straight v3 model is joined, so
+        // no family decline applies and its sources prepare.
+        let mut straight_model = Fixture::model();
+        straight_model.pressure_contract = model.pressure_contract.clone();
+        straight_model.schema_version = model.schema_version.clone();
+        straight_model.load_cases[0].pressure_regions = Some(Vec::new());
+        let straight = Fixture::new(straight_model);
+        assert_eq!(refuse(&straight), None);
     }
 
     // RV127 N-4: `validate_profile` refuses every one of these documents before
