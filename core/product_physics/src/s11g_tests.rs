@@ -2658,35 +2658,65 @@ fn t18_path2_invocation_is_not_refused() {
     }
 }
 
-/// T19 (path 1, load-row variant; revision 2.2). Per-case modulus bases:
-/// case A (N05's cancelling torques, base basis) is Sensitive by N05's soft
-/// torsion spring and source-selected; case B (the tip formation noise) runs
-/// on an invented soft basis (E = 1 Pa, G = 0.4 Pa) on which the same model
-/// is well conditioned, and its load-row guard fires. Under K-D5's closure
-/// its report is Sensitive at the solve (D5C-1 at tip:RZ). The path-1
-/// routing pinned here is unchanged except that a Sensitive report is
-/// attempted (revision 2.2 G-2): the method charges its source validation
-/// (36,480 work units against the 4,000,000 case limit) before declining the
-/// family, where the Passed guard-fired case was declined with zero work. Pin: no refusal; case B `SENSITIVE`; its receipt entry is
-/// `unsupported` with ordinary outcome `sensitive`, stage
-/// `source_validation`, code `unsupported_family` and zero work (erratum
-/// E-1); case A qualified.
+/// T19's construction: N05's model, unchanged, with two cases on per-case
+/// modulus bases. Case A (N05's cancelling torques, base basis) is Sensitive
+/// by N05's soft torsion spring and source-selected. Case B is N05's tip
+/// formation noise (`n05_tip_noise`) plus a 1e-10 N*m tip torque, on an
+/// invented basis with E = 1 Pa and a torsionally soft G = 1e-12 Pa. On it
+/// N05's spring no longer makes the model ill conditioned, and the tiny
+/// torque twists the pipe by about 3e6 rad. That rotation sets the body's
+/// scales, so K-D5's per-DOF rule (DEL-04-01 kd5-member-relative-bound.md
+/// §1, D5C-1 on the closed w) passes the tip:RZ formation defect, while the
+/// torque leaves the load-row guard's moment scale unchanged, so the guard
+/// still fires there (the soft-branch pattern of T22 and F1a; a branch
+/// member would couple more than two free DOFs, which the retained exact
+/// context refuses for case A).
+fn t19_request() -> Value {
+    let mut case_b = n05_tip_noise("case-b");
+    case_b["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(nodal("case-b:rx", "tip", "RX", 1e-10));
+    with_basis(
+        n05_request(vec![n05_torques(), case_b]),
+        "case-b",
+        "point:soft",
+        1.0,
+        1e-12,
+    )
+}
+
+/// T19 (path 1, load-row variant; revision 2.2 with erratum E-1). Case A is
+/// source-selected; case B is Passed in its report and its load-row guard
+/// fires (`t19_request`). With G = 0.4 Pa K-D5's closure judges case B's
+/// tip formation defect at the solve (DEL-04-01 kd5-member-relative-bound.md
+/// §§1, 4.2), so the construction adds the soft twist, whose rotation scale
+/// keeps the report Passed while the guard still fires on tip:RZ. Pin: no refusal; case B `SENSITIVE` by the
+/// load-row guard; its receipt entry is `unsupported` with ordinary outcome
+/// `sensitive`, stage `source_validation`, code `unsupported_family` and zero
+/// work (erratum E-1: the ordinary route never attempts a Passed case); case A
+/// qualified.
 #[test]
 fn t19_path1_load_row_variant_is_not_refused() {
-    let request = with_basis(
+    let request = t19_request();
+    assert!(
+        guard_view(&request, 1).decision("tip:RZ").fires,
+        "precondition: case B's guard fires"
+    );
+    // Control (paths differ): without the soft twist (G = 0.4 Pa, no torque)
+    // K-D5's closure demotes case B at the solve.
+    let control = with_basis(
         n05_request(vec![n05_torques(), n05_tip_noise("case-b")]),
         "case-b",
         "point:soft",
         1.0,
         0.4,
     );
-    assert!(
-        guard_view(&request, 1).decision("tip:RZ").fires,
-        "precondition: case B's guard fires"
-    );
     for mode in MODES {
         let label = format!("T19 {mode:?}");
+        assert_demoted_at_the_solve(&solved(Entry::Typed, &control, mode), "case-b", "tip:RZ", &label);
         let envelope = solved(Entry::Captured, &request, mode);
+        assert_ordinary_passed(&envelope, "case-b", &label);
         assert!(
             envelope
                 .diagnostics
@@ -2699,9 +2729,8 @@ fn t19_path1_load_row_variant_is_not_refused() {
                 .map(|d| format!("{}: {}", d.code, d.message))
                 .collect::<Vec<_>>()
         );
-        // K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2):
-        // case B's formed tip-row defect is now caught at the solve.
-        assert_demoted_at_the_solve(&envelope, "case-b", "tip:RZ", &label);
+        assert_demoted(&envelope, "case-b", LOAD_ROW, &label);
+        assert!(integrity(&envelope, "case-b").message.contains("tip:RZ"), "{label}");
         assert_eq!(
             receipt_case(&envelope, "case")["outcome"],
             json!("qualified"),
@@ -2724,8 +2753,8 @@ fn t19_path1_load_row_variant_is_not_refused() {
             json!("unsupported_family"),
             "{label}"
         );
-        assert_eq!(entry["work"]["limit"], json!(4_000_000), "{label}");
-        assert_eq!(entry["work"]["charged"], json!(36_480), "{label}");
+        assert_eq!(entry["work"]["limit"], json!(0), "{label}");
+        assert_eq!(entry["work"]["charged"], json!(0), "{label}");
         assert_eq!(
             entry["work"]["rejected_reservation"]["amount"],
             json!(0),
