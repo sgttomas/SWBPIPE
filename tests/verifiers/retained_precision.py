@@ -1033,6 +1033,11 @@ def _g5_ordinary(body, cases, diags, quality, gates=None):
         # item 1; TS `ordinaryAttempts`), the ordinary class's reference rule, as D4b is the product class's.
         basis = _ref(body["material_bases"], o["material_basis_ref"])
         fail(basis is not None and i in basis["case_indices"])
+        # B7a (b), stage 1: a formation failure names the failing case's own basis (the basis whose
+        # stiffness failed to form): its basis_index resolves and equals material_basis_ref (Rust `g5_ordinary`).
+        if o["initial"]["kind"] == "formation_failure":
+            index = o["initial"]["basis_index"]
+            fail(_ref(body["material_bases"], index) is not None and int(index) == int(o["material_basis_ref"]))
         refs = o["diagnostic_refs"]
         # D6a (C1:100, C1:148, C2:166): untyped refs are unique and resolve.
         fail(len(set(refs)) == len(refs) and all(x in by_id for x in refs))

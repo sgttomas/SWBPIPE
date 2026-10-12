@@ -801,16 +801,18 @@ fn every_family_clause_refuses_with_its_fact() {
         assert_eq!(with(&element(direction)), family(C::Loads, F::LoadDirection), "{direction}");
     }
     assert_eq!(with(&load("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadDimension), "a concentrated element load");
-    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["dimension"] = json!("force"); }),
-        family(C::Loads, F::LoadDimension));
-    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["category"] = json!("weight"); }),
-        family(C::Loads, F::LoadDimension));
+    // A global_y member load with one field changed.
+    let element_with = |field: &'static str, value: Value| move |r: &mut Value| {
+        element("global_y")(r);
+        r["model"]["load_cases"][0]["primitive_loads"][2][field] = value.clone();
+    };
+    assert_eq!(with(&element_with("dimension", json!("force"))), family(C::Loads, F::LoadDimension));
+    assert_eq!(with(&element_with("category", json!("weight"))), family(C::Loads, F::LoadDimension));
     let case_id = milestone()["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
     let self_weight = format!("load:self-weight:{}:{case_id}:2:M1", case_id.len());
-    assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["id"] = json!(self_weight); }),
-        family(C::Loads, F::GeneratedLoadIdentity));
+    assert_eq!(with(&element_with("id", json!(self_weight))), family(C::Loads, F::GeneratedLoadIdentity));
     for near in [format!("{self_weight}x"), format!("load:self-weight:{}:{case_id}:3:M1", case_id.len()), "load:self-weight:".to_owned()] {
-        assert_eq!(with(&|r| { element("global_y")(r); r["model"]["load_cases"][0]["primitive_loads"][2]["id"] = json!(near); }), None, "{near}");
+        assert_eq!(with(&element_with("id", json!(near))), None, "{near}");
     }
     assert_eq!(with(&load("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension));
     assert_eq!(with(&load("dimension", json!("force"))), None);
@@ -842,7 +844,8 @@ fn every_family_clause_refuses_with_its_fact() {
         *r = with_cases(r.clone(), caps::LOAD_CASES);
         r["model"]["load_cases"][last]["primitive_loads"][2][field] = value.clone();
     };
-    assert_eq!(with(&load_on_last("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");    assert_eq!(with(&load_on_last("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
+    assert_eq!(with(&load_on_last("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
+    assert_eq!(with(&load_on_last("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
     assert_eq!(with(&load_on_last("provenance", json!("{"))), family(C::Provenance, F::ObjectProvenance), "D1.10 on case {last}");
     // D1.8 restates D1.4 (straight members only when no components exist).
     assert!(include_str!("retained_memory.rs").contains("return refuse(C::Members, F::Components);"));
@@ -2679,6 +2682,32 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     // The committed physics-source requests n05 and n06 (B3b's coexistence pins) are on branch E.
     for (name, text) in [("n05", N05), ("n06", N06)] {
         assert_eq!(domain(serde_json::from_str(text).unwrap()), None, "{name}");
+    }
+}
+
+/// B7a (b), stage 1, is branch L only (review F3a). On the exact route, on the first and the
+/// last of C cases, a full-span global-axis member load (inside D1.7 on L) refuses by D1.7's
+/// target fact, and a named-point basis (inside D1.5 on L) by D1.5's. D1 alone, so this holds
+/// in any build, registered or not.
+#[test]
+fn b7a_d1_exact_route_keeps_member_loads_and_selectors_out() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    let with = |case: usize, change: &dyn Fn(&mut Value)| {
+        let mut raw = exact3(milestone_cases(caps::LOAD_CASES));
+        change(&mut raw["model"]["load_cases"][case]);
+        domain(raw)
+    };
+    for case in [0, caps::LOAD_CASES - 1] {
+        assert_eq!(with(case, &|_| {}), None, "case {case}: the exact request is inside D1");
+        for direction in ["global_x", "global_y", "global_z"] {
+            let udl = json!({"id": "udl", "category": "distributed_force", "target": {"type": "element", "pipe": "M1"},
+                "direction": direction, "magnitude": {"value": 10.0, "unit": "N/m"}, "dimension": "force_per_length"});
+            assert_eq!(with(case, &|c| c["primitive_loads"][0] = udl.clone()), family(C::Loads, F::LoadTarget),
+                "case {case}: a {direction} member load");
+        }
+        assert_eq!(with(case, &|c| c["modulus_basis_ref"] = json!("T0")), family(C::Case, F::ModulusBasisRef),
+            "case {case}: a named-point basis");
     }
 }
 

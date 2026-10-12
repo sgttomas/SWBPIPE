@@ -1536,6 +1536,43 @@ fn source_decline_relation_reader_logic() {
     assert!(attempt_mismatch(rp::reader_logic::ordinary(&source)));
 }
 
+/// B7a (b), stage 1 (review F2): a formation failure's `basis_index` is the failing case's
+/// own material basis. On 07j's two-case statement, case 1's initial made a formation
+/// failure is admitted with its basis (one base basis, then two bases with case 1 on the
+/// second); an out-of-range index, and another case's basis, are refused at G5. Python's
+/// `test_b7a_formation_failure_names_its_own_basis` is the same table.
+#[test]
+fn b7a_formation_failure_names_its_own_basis() {
+    use serde_json::json;
+    let shared = corpus();
+    let with = |split: bool, basis_index: Value| {
+        let mut source = base_source(&shared, P_BASE);
+        let body = &mut source["retained_precision"]["body"];
+        if split {
+            let mut named = body["material_bases"][0].clone();
+            named["index"] = json!(1);
+            named["selector"] = json!({"kind": "named", "id": "P1"});
+            named["case_indices"] = json!([1]);
+            body["material_bases"][0]["case_indices"] = json!([0]);
+            body["material_bases"].as_array_mut().unwrap().push(named);
+            body["ordinary_attempts"][1]["material_basis_ref"] = json!(1);
+        }
+        body["ordinary_attempts"][1]["initial"] =
+            json!({"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b7a"}, "basis_index": basis_index});
+        rp::reader_logic::ordinary(&source)
+    };
+    assert_eq!(with(false, json!(0)), Ok(()), "one basis, its own");
+    assert_eq!(with(true, json!(1)), Ok(()), "two bases, its own");
+    for (name, split, index) in [
+        ("out of range", false, json!(7)),
+        ("out of range, two bases", true, json!(2)),
+        ("another case's basis", true, json!(0)),
+        ("not an index", false, json!("0")),
+    ] {
+        assert!(attempt_mismatch(with(split, index)), "{name}");
+    }
+}
+
 /// Reader-local controls (not shared corpus) for checklist checks added in the
 /// I63 audit that no shared mutation decides first: P2 (observables and G5a
 /// enter together), P6 (a failed maxima merges its work) and P9 (an

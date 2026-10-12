@@ -4333,6 +4333,13 @@ impl ProductCapture {
     pub(super) fn source_terminal_at(&self,index:usize)->(bool,OrdinaryTerminal) {
         match self.parked.get(index) {Some(slot)=>(slot.source.is_some(),slot.terminal),None=>(self.source.is_some(),self.terminal)}
     }
+    /// Test access (B7a (b), stage 1, review F3c): case `index`'s captured source members'
+    /// (E, G), so a selector case's early source is seen at its own basis state.
+    #[cfg(test)]
+    pub(super) fn source_moduli_at(&self,index:usize)->Option<Vec<(f64,f64)>> {
+        let source=match self.parked.get(index) {Some(slot)=>slot.source.as_ref(),None=>self.source.as_ref()};
+        source.map(|s|s.members().iter().map(|m|(m.elastic_modulus,m.shear_modulus)).collect())
+    }
     /// Test access (B7a (b), stage 1): installing a selector case's slot whose basis-state capture
     /// never ran.
     #[cfg(test)]
@@ -4357,6 +4364,16 @@ impl ProductCapture {
     pub(super) fn test_refuse_changed_occurrence(&mut self,raw:&serde_json::Value)->Result<(),CaptureError> {
         let request:LinearStaticPreviewRequest=serde_json::from_value(raw.clone()).unwrap();
         let case=&request.model.load_cases[0];let mut findings=Vec::new();
+        let loads=super::build_load_case_primitive_loads(&request.model,case,&mut findings);
+        let application=prepare_loads(request.model.nodes.len(),request.model.pipe_segments.len(),&loads);
+        self.check_early_occurrences(case,&application)
+    }
+    /// Test access (B7a (b), stage 1, review F3d): the late re-observation of the capture's
+    /// current case against `raw`'s case `index`, as the prepared late hook runs it.
+    #[cfg(test)]
+    pub(super) fn test_recheck_occurrences(&mut self,raw:&serde_json::Value,index:usize)->Result<(),CaptureError> {
+        let request:LinearStaticPreviewRequest=serde_json::from_value(raw.clone()).unwrap();
+        let case=&request.model.load_cases[index];let mut findings=Vec::new();
         let loads=super::build_load_case_primitive_loads(&request.model,case,&mut findings);
         let application=prepare_loads(request.model.nodes.len(),request.model.pipe_segments.len(),&loads);
         self.check_early_occurrences(case,&application)
