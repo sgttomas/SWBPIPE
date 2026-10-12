@@ -240,6 +240,21 @@ def align_expr(types):
 def field_upper(types):
     a = align_expr(types)
     return " + ".join(f"up(size_of::<{t}>(), {a})" for t in types)
+# C7: private NumericCase fields are source-pinned by prescribed_key_model.
+# Value backings and the original owned StringPair/BTree charges remain.
+_C7_FIELDS = ["&'static Value", "&'static Value", "Vec<&'static Value>", "&'static Value", "Vec<&'static Value>",
+              "Vec<f64>", "Vec<[f64;4]>", "Vec<[f64;4]>", "std::collections::BTreeSet<(&'static str, &'static str)>"]
+_C7_UP = field_upper(_C7_FIELDS)
+_C7_A = align_expr(_C7_FIELDS + ["open_pipe_stress_result_export::retained_precision::ValidationError", "usize"])
+BIND.update({
+    "Node((&str,&str),())": node("(&'static str, &'static str)", "()"),
+    "s(BTreeSetBorrowed)": sz("std::collections::BTreeSet<(&'static str, &'static str)>"),
+    "s(PairBorrowed)": sz("(&'static str, &'static str)"),
+    "s(NumericCaseBorrowed)": upr(_C7_UP,
+        "C7: source-pinned private NumericCase nine-field sum; three Value refs, five Vec owners and prescribed BTreeSet header; witnessed168B in isolated RE native controls; no compiler reuse assumption"),
+    "s(NumericCaseResultBorrowed)": upr(f"up({_C7_UP} + up(size_of::<open_pipe_stress_result_export::retained_precision::ValidationError>(), {_C7_A}) + size_of::<usize>(), {_C7_A})",
+        "C7: two positive numeric_owner Result return/staging carriers, full NumericCase field-sum plus public ValidationError and word tag allowance; variant-sum upper, no compiler reuse"),
+})
 ROW_TREATMENT = ["String", "&'static str", "Option<String>", "Option<&'static str>", "Vec<String>"]
 PROJECTION = ["String", "String", "String", "&'static str", "f64", "String", "&'static str", "[f64; 2]", "f64", "f64", "f64",
               "&'static str"]

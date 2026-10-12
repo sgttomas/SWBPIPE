@@ -3547,7 +3547,7 @@ struct NumericCase<'a> {
     extents: Vec<f64>,
     raw: Vec<[f64; 4]>,
     final_scales: Vec<[f64; 4]>,
-    prescribed: BTreeSet<(String, String)>,
+    prescribed: BTreeSet<(&'a str, &'a str)>,
 }
 fn finite_check(v: f64, gate: &'static str) -> VResult<f64> {
     need(v.is_finite(), gate, "SCALE_MISMATCH")?;
@@ -3652,7 +3652,7 @@ fn numeric_owner<'a>(
                 "G5a",
                 "SCALE_MISMATCH",
             )?;
-            prescribed.insert((text(&n["id"]).into(), text(&d["dof"]["component"]).into()));
+            prescribed.insert((text(&n["id"]), text(&d["dof"]["component"])));
         }
         for (bi, body) in list(&s["body_membership"]).iter().enumerate() {
             let extent = body_extent(s, bi, body)?;
@@ -3661,7 +3661,7 @@ fn numeric_owner<'a>(
             for r in &rows {
                 let n = finite_check(normalized(r), "G5a")?;
                 let input = component(r).is_some_and(|c| {
-                    prescribed.contains(&(text(&r["entity_ref"]).into(), c.into()))
+                    prescribed.contains(&(text(&r["entity_ref"]), c))
                 });
                 if row_body(r, s).0 == Some(bi) && !input {
                     if let Some(k) = NAMES.iter().position(|k| *k == row_kind(r)) {
@@ -4346,8 +4346,8 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
             .iter()
             .map(|d| {
                 (
-                    text(&d["node_id"]).to_string(),
-                    text(&d["component"]).to_string(),
+                    text(&d["node_id"]),
+                    text(&d["component"]),
                 )
             })
             .collect();
@@ -4363,7 +4363,7 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
             let k = row_kind(row);
             let input = component(row).is_some_and(|d| {
                 c.prescribed
-                    .contains(&(text(&row["entity_ref"]).into(), d.into()))
+                    .contains(&(text(&row["entity_ref"]), d))
             });
             let scale = if input || matches!(k, "non_quantity" | "input_derived") {
                 None
@@ -6456,4 +6456,179 @@ pub fn outcome_json(outcome: &VResult<Validation>) -> Value {
 /// header directly. Unchanged; this only makes it reachable.
 pub fn validate_preview_physics_transport_metadata(source: &Value) -> Result<(), String> {
     preview_physics_transport_metadata(source)
+}
+
+#[cfg(test)]
+mod c7_prescribed_key_controls {
+    use super::*;
+
+    fn fixture(first: &str, second: &str, owned: bool, combination: bool) -> Value {
+        let basis = json!({"ref_type":"case","id":"case"});
+        let selection = json!({
+            "input_derived_dofs":[{"node_id":first,"component":"UX"},{"node_id":second,"component":"RZ"}],
+            "absolute_verified":[],"not_covered":[]
+        });
+        let mut document = json!({
+            "results":[
+                {"id":"row-x","kind":"global_nodal_displacement_x","entity_ref":first,"value":0.0,"unit":"m","basis_ref":basis},
+                {"id":"row-rz","kind":"global_nodal_rotation_z","entity_ref":second,"value":0.0,"unit":"rad","basis_ref":basis}
+            ],
+            "retained_precision":{"body":{
+                "sources":[{
+                    "id_maps":{"nodes":[
+                        {"id":first,"kernel_node":0,"coordinates":["0000000000000000","0000000000000000","0000000000000000"]},
+                        {"id":second,"kernel_node":1,"coordinates":["3ff0000000000000","0000000000000000","0000000000000000"]}
+                    ],"members":[],"support_ids":[]},
+                    "constraints":[{"dof":{"node":0,"component":"UX"}},{"dof":{"node":1,"component":"RZ"}}],
+                    "body_membership":[{"body":0,"nodes":[0,1]}]
+                }],
+                "cases":[{"status":"selected","source_ref":0,"product_attempt_ref":0,"basis_ref":basis,"selection":selection}],
+                "product_attempts":[{"proof":{"summary_coverage":{}}}],"combinations":[]
+            }}
+        });
+        if owned {
+            document["retained_precision"]["body"]["sources"][0]["id_maps"]["nodes"][0]["kernel_node"] = json!(0.0);
+        }
+        if combination {
+            let basis = json!({"ref_type":"combination","id":"blend"});
+            let rows = document["results"].as_array().unwrap().clone();
+            for mut row in rows {
+                row["basis_ref"] = basis.clone();
+                row["id"] = json!(format!("blend:{}", text(&row["id"])));
+                document["results"].as_array_mut().unwrap().push(row);
+            }
+            document["retained_precision"]["body"]["sources"].as_array_mut().unwrap().push(json!({
+                "representative_source_ref":0,"operands":[{"factor":"3ff0000000000000","source_ref":0},{"factor":"0000000000000000","source_ref":999}]
+            }));
+            document["retained_precision"]["body"]["combinations"].as_array_mut().unwrap().push(json!({
+                "disposition":"retained_selected","source_ref":1,"product_attempt_ref":0,"basis_ref":basis,"selection":selection
+            }));
+        }
+        document
+    }
+
+    fn outcome(document: &Value, owned: bool, combination: bool) -> Value {
+        let normalized = integral_receipt(document);
+        assert_eq!(matches!(&normalized, std::borrow::Cow::Owned(_)), owned);
+        let root: &Value = &normalized;
+        let cases = match numeric_cases(root) {
+            Ok(cases) => cases,
+            Err(e) => return json!({"gate":e.gate,"code":e.code,"detail":e.detail}),
+        };
+        assert_eq!(cases.len(), if combination {2} else {1});
+        if combination {
+            assert!(std::ptr::eq(cases[1].source, &root["retained_precision"]["body"]["sources"][0]));
+            assert_eq!(cases[1].data_sources.len(), 1);
+            assert!(std::ptr::eq(cases[1].data_sources[0], cases[1].source));
+        }
+        match g5c(&cases) {
+            Ok(rows) => json!({"rows":rows.into_iter().map(|r|json!({
+                "id":r.result_id,"basis_ref":r.basis_ref,"normalized_bits":format!("{:016x}",r.normalized_bits),
+                "scale_bits":r.scale_bits.map(|x|format!("{x:016x}")),"class":format!("{:?}",r.class)
+            })).collect::<Vec<_>>()}),
+            Err(e) => json!({"gate":e.gate,"code":e.code,"detail":e.detail}),
+        }
+    }
+
+    #[test]
+    fn c7_equivalence_classification_error_bytes() {
+        let ids = [
+            ("ascii".to_string(), "other".to_string()),
+            ("".to_string(), "empty-peer".to_string()),
+            ("é".to_string(), "e\u{301}".to_string()),
+            ("节点🦀".to_string(), "节点🦀-other".to_string()),
+            ("a".repeat(127), "b".repeat(128)),
+            ("é".repeat(64), "é".repeat(64)+"a"),
+        ];
+        for (id_index, (first, second)) in ids.iter().enumerate() {
+            for owned in [false,true] {
+                for combination in [false,true] {
+                    let document = fixture(first, second, owned, combination);
+                    let value = outcome(&document, owned, combination);
+                    assert_eq!(value["rows"].as_array().unwrap_or_else(||panic!("fixture failed: {value}")).len(), if combination {4} else {2});
+                    println!("C7_CASE ids-{id_index}-{owned}-{combination} {value}");
+                }
+            }
+        }
+        for owned in [false,true] {
+            for alteration in ["reorder","duplicate","tamper-node","tamper-component","omit","malformed","minus-zero","nonzero","empty-set"] {
+                let mut document = fixture("node-a", "node-b", owned, false);
+                let selection = &mut document["retained_precision"]["body"]["cases"][0]["selection"]["input_derived_dofs"];
+                match alteration {
+                    "reorder" => selection.as_array_mut().unwrap().reverse(),
+                    "duplicate" => { let duplicate=selection[0].clone(); selection.as_array_mut().unwrap().push(duplicate); },
+                    "tamper-node" => selection[0]["node_id"] = json!("other-node"),
+                    "tamper-component" => selection[0]["component"] = json!("UY"),
+                    "omit" => { selection.as_array_mut().unwrap().pop(); },
+                    "malformed" => selection[0]["component"] = Value::Null,
+                    "minus-zero" => document["results"][0]["value"] = json!(-0.0),
+                    "nonzero" => document["results"][0]["value"] = json!(1.0),
+                    "empty-set" => {
+                        *selection=json!([]);
+                        document["retained_precision"]["body"]["sources"][0]["constraints"]=json!([]);
+                        document["results"]=json!([{"id":"mode","kind":"linear_solver_mode_basis","entity_ref":"node-a","value":1,"unit":"1","basis_ref":{"ref_type":"case","id":"case"}}]);
+                    },
+                    _=>unreachable!(),
+                }
+                let value = outcome(&document, owned, false);
+                if matches!(alteration,"reorder"|"empty-set") {
+                    assert!(value.get("rows").is_some());
+                } else {
+                    assert_eq!(value,json!({"gate":"G5c","code":"RETAINED_PRECISION_INPUT_DOF_MISMATCH","detail":null}));
+                }
+                println!("C7_CASE {alteration}-{owned} {value}");
+            }
+        }
+    }
+
+    #[test]
+    fn c7_equivalence_single_entry_and_unicode_distinction() {
+        for owned in [false,true] {
+            let mut document=fixture("é","peer",owned,false);
+            document["retained_precision"]["body"]["sources"][0]["constraints"].as_array_mut().unwrap().truncate(1);
+            document["retained_precision"]["body"]["cases"][0]["selection"]["input_derived_dofs"].as_array_mut().unwrap().truncate(1);
+            document["results"].as_array_mut().unwrap().truncate(1);
+            let normalized=integral_receipt(&document);
+            let cases=numeric_cases(&normalized).unwrap();
+            assert_eq!(cases[0].prescribed.len(),1);
+            assert!(cases[0].prescribed.contains(&("é".into(),"UX".into())));
+            assert!(!cases[0].prescribed.contains(&("e\u{301}".into(),"UX".into())));
+            let value=outcome(&document,owned,false);
+            assert_eq!(value["rows"].as_array().unwrap().len(),1);
+            println!("C7_CASE single-unicode-{owned} {value}");
+            drop(cases);
+            drop(normalized);
+            document["retained_precision"]["body"]["cases"][0]["selection"]["input_derived_dofs"][0]["node_id"]=json!("e\u{301}");
+            let value=outcome(&document,owned,false);
+            assert_eq!(value,json!({"gate":"G5c","code":"RETAINED_PRECISION_INPUT_DOF_MISMATCH","detail":null}));
+            println!("C7_CASE unicode-same-component-tamper-{owned} {value}");
+            document["retained_precision"]["body"]["cases"][0]["selection"]["input_derived_dofs"][0]["node_id"]=json!("é");
+            document["results"][0]["entity_ref"]=json!("e\u{301}");
+            let value=outcome(&document,owned,false);
+            assert_eq!(value,json!({"gate":"G5c","code":"RETAINED_PRECISION_CLASSIFICATION_MISMATCH","detail":null}));
+            println!("C7_CASE unicode-row-lookup-tamper-{owned} {value}");
+        }
+    }
+
+    #[test]
+    fn c7_borrowed_storage_and_positive_type_atoms() {
+        for owned in [false,true] {
+            let document=fixture("节点🦀","é",owned,true);
+            let normalized=integral_receipt(&document);
+            let cases=numeric_cases(&normalized).unwrap();
+            for case in &cases {
+                for (node,component) in &case.prescribed {
+                    let constraint=list(&case.source["constraints"]).iter().find(|d|text(&d["dof"]["component"])==*component).unwrap();
+                    let value=at(&case.source["id_maps"]["nodes"],&constraint["dof"]["node"],"G5a","SCALE_MISMATCH").unwrap();
+                    assert_eq!(node.as_ptr(),text(&value["id"]).as_ptr());
+                    assert_eq!(component.as_ptr(),text(&constraint["dof"]["component"]).as_ptr());
+                }
+            }
+            assert_eq!(std::mem::size_of::<(&str,&str)>(),2*std::mem::size_of::<&str>());
+            assert!(std::mem::size_of::<BTreeSet<(&str,&str)>>() > 0);
+            println!("C7_ATOMS owned={owned} numeric_case={} set_header={} borrowed_pair={} value_ref={}",
+                std::mem::size_of::<NumericCase<'_>>(),std::mem::size_of::<BTreeSet<(&str,&str)>>(),
+                std::mem::size_of::<(&str,&str)>(),std::mem::size_of::<&Value>());
+        }
+    }
 }

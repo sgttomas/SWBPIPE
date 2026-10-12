@@ -584,3 +584,54 @@ pricing run and in-build atom evaluation.
   retain the fallback format allocation separately as an alternative sum.
   No global identifier/message cap is narrowed. Historical snapshots
   without this producer do not gain this lexical row or these rules.
+
+
+## C7. Borrowed prescribed keys, positive overlapping owners
+
+The released retained_precision NumericCase prescribed field and its four
+constructor/query regions use borrowed str pairs. Ordering, duplicate tests,
+row visits, classifications and failure paths remain. References point into
+integral_receipt's live normalized Value (Cow Borrowed or Owned); no backing
+Value/String/JSON BTree allocation is removed. g5b only changes final_scales;
+no key reference escapes g5c. The exact struct/numeric_cases/numeric_owner/g5c source pins
+in prescribed_key_model guard the new owner count and lifetime. numeric_cases
+constructs one numeric owner per selected case or retained-selected combination;
+its unchanged body9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9
+is required in both known owned and borrowed branches. Duplicating either push
+refuses rather than silently exceeding C; old owned source keeps all original pricing.
+
+Add to SETS, without removing its existing owned-key node/backing allowance:
+(C*tree_nodes(k)+tree_nodes(Q))*Node((&str,&str),())
++pushcap(C)*NumericCaseBorrowed +(C+1)*BTreeSetBorrowed
++3*VecHeader +(2*pushcap(Q)+4)*PairBorrowed
++2*NumericCaseResultBorrowed.
+C<=3 covers all retained NumericCase sets; k<=192 is each constraint domain.
+The simultaneous sequential actual selection set is bounded at Q=1472 before
+equality/duplicate rejection. Two positive Q tuple buffers cover FromIterator's
+input Vec and stable-sort scratch; count them with the entire Q tree and all
+retained sets, without allocation reuse. Three Vec headers cover the NumericCase
+Vec and both temporary buffers; set headers are explicit in addition to the
+conservative complete NumericCase stride. Four tuple slots cover the four
+released source constructions/queries; two complete Result carriers conservatively
+cover the numeric_owner return and caller staging (variant-sum over the full
+record, public ValidationError and a word tag). Existing reader stack allowances
+stay. Resident additions remain in V4/V5/V6 through G7/G8; both temporary
+selection buffers and the Q tree remain charged there conservatively as well.
+All global owned StringPair20480 and existing SETS/Cow/backing charges stay.
+This is a T17 working-owner addition (V4/V5/V6), used by W4's precommit maximum;
+old full/W source allocation volume remains431376384B attribution only.
+No E+R, margin or5% pass follows from that volume.
+
+The focused native allocator/type probe on rustc1.97.1/8bab26f4, aarch64,
+observes borrowed pair32B align8 and set header24B. Inserted leaf/internal
+blocks are368/464B align8; FromIterator at Q1472 additionally allocates two
+47104B buffers. The existing btree_node_upper helper at the measured borrowed
+key layout gives472B; its11key/12edge bound agrees with the exact toolchain
+[standard-library node source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/node.rs).
+The input/sort path is confirmed in the exact-toolchain
+[FromIterator source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/map.rs).
+The472B charge is a source/layout upper bound driven by in-build sizes,
+not a node-size subtraction from the existing648B owned-key atom. The private
+NumericCase field-sum is SourceUpper, with the isolated168B witness. Current
+source still requires independent proposal scrutiny and immutable full pricing
+and fresh native confirmation before any registration.
