@@ -249,8 +249,11 @@ class NumericalTests(unittest.TestCase):
         references = set()
         literal = re.compile(r'\s*"((?:\\[\s\S]|[^"\\])*)"\s*,?\s*\)')
         for source in sources:
-            body = source.read_text()
-            for include in re.finditer(r'\binclude_(?:str|bytes)\s*!\s*\(', body):
+            # As the selector does: comments removed and string literals blanked,
+            # so include text quoted inside a test string is not a real include.
+            body = ci.rust_source(source.read_text())
+            syntax = ci.RUST_STRING.sub(lambda m: ' ' * len(m.group()), body)
+            for include in re.finditer(r'\binclude_(?:str|bytes)\s*!\s*\(', syntax):
                 match = literal.match(body, include.end())
                 self.assertIsNotNone(match, f'Unsupported include syntax in {source}: {body[include.start():include.start()+160]}')
                 path = (source.parent / self.rust_path_literal(match.group(1))).resolve()
@@ -502,7 +505,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
                 self.assertEqual(result['classification'], 'full-fallback')
                 self.assertTrue(result['fallback_reasons'])
 
-    def test_actual_complete_desktop_pr_diffs_retain_every_reader_and_controls_select_forty(self):
+    def test_actual_complete_desktop_pr_diffs_retain_every_reader_and_controls_select_all(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
         for base, head in [('a467a1f03799f12ebd02df82a0145cfc958f9dcb','c986759b21605293e29383dd2b660ab5acb7c3fb'),
                            ('2844f2b32d4b9f30effc41b4b387a302417697dc','b137b9c46a0a848a9284e5147391641845c83815'),
@@ -517,7 +520,8 @@ class ReachabilitySafetyTests(unittest.TestCase):
         for path in ['fixtures/unknown-new-input.json','tools/unknown-new-input.py']:
             selected = hosted_ci.select_paths([ci.PROJECT + path], profile)['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'full-fallback')
-            self.assertEqual(len(selected['manifests']), 40)
+            # 41 discovered crates since the pressure-source join added core/numerics/correct_norm.
+            self.assertEqual(len(selected['manifests']), 41)
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
