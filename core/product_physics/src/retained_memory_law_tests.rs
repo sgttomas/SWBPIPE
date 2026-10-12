@@ -301,14 +301,16 @@ fn sha256_matches_the_sha2_dependency() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // The 17 current inputs at the K-D5/C8 source basis, in the unchanged
-    // REVIEWED_INPUTS order; all digests remain checked against actual bytes.
+    // The 17 current inputs at the K-D5 member-bound source basis, in the
+    // unchanged REVIEWED_INPUTS order; all digests remain checked against
+    // actual bytes. The retained preview table (position 4) is the one bound
+    // to the current inherited preview-physics-1 table (c915605a11).
     const REVIEWED: [&str; 17] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "28c1560596444de7dd5228d5d0c81c3801ee7d1c0ceb66cbb471c856d5bd1123",
         "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
         "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
-        "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
+        "7cff3e9fe0c29a5b34d1762662e71ad58f00bb2993e9a3f1893323c0d64161e0",
         "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
         "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
         "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
@@ -980,8 +982,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current K-D5/C8 TEXT closure at C_eq = 3, maximum over the L/E routes.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 192_862_564, "current K-D5/C8 text closure at C_eq = 3, maximum over routes");
+    // Current K-D5 member-bound TEXT closure at C_eq = 3, maximum over the L/E routes.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 193_880_356, "current K-D5 member-bound text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -990,7 +992,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_600_699, 2_330, 16_384, 23_886, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (2_600_699, 2_330, 16_384, 23_982, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1211,16 +1213,17 @@ fn profile_in_build_record() {
     for (m, phases) in [phases_sparse(&ATOM_VALUES), phases_dense(&ATOM_VALUES)].iter().enumerate() {
         assert_eq!(phases.map(|(req, mov)| req.unwrap() + mov.unwrap()), PINNED_RECORD[m], "mode {m}");
     }
-    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][5], 5)), Some((PINNED_RECORD[1][5], 5))), "X1 is the maximum in both modes");
+    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][2], 2)), Some((PINNED_RECORD[1][2], 2))), "W3 is the maximum in both modes");
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The archive-derived K-D5/C8 record at 11cb56f3: requested plus moving
+/// The K-D5 member-bound record priced at 3903ab6f28: requested plus moving
 /// bytes without R, for the qualified build above. Each phase keeps its actual
-/// positive layout, source and TEXT charges; X1 is the maximum in both modes.
+/// positive layout, source and TEXT charges; W3 (publication with the staged
+/// copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [4_827_523_437, 5_150_955_399, 9_772_445_231, 9_552_007_524, 5_751_261_049, 9_833_797_530, 5_770_869_765],
-    [4_886_654_781, 5_210_086_743, 9_831_576_575, 9_611_138_868, 5_810_392_393, 9_892_928_874, 5_830_001_109],
+    [5_138_305_107, 5_461_737_069, 10_099_567_349, 9_878_612_362, 6_063_920_639, 9_909_832_400, 5_833_634_019],
+    [5_197_436_451, 5_520_868_413, 10_158_698_693, 9_937_743_706, 6_123_051_983, 9_968_963_744, 5_892_765_363],
 ];
 
 #[test]
@@ -1309,7 +1312,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 23_886, "current K-D5/C8 D_env at C_eq = 3");
+    assert_eq!(caps.complete[3], 23_982, "current K-D5 member-bound D_env at C_eq = 3");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

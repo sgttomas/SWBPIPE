@@ -493,6 +493,22 @@ if fnkey("append_stress_mpa", _CP):
     ]
     O10_ARGS_FIRST += [{"re": "^located$", "max": 128, "why": "KD5A7: endpoint/station location rewrites preserve caller's fixed≤128-B token"}]
 
+# KD5A8: the withheld certified-summary warning's three authored-id copies
+# (id suffix, message member id, affected ref) are the pipe's own id, IN128.
+# Its {error} operand and the diagnostic's multiplicity are not narrowed.
+if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
+    _L = PP_ + "lib.rs"
+    _kd5a8_id = site("solve_load_case_observed", _L, '"diagnostic:stress:{}:summary-unavailable"', full=True)
+    _kd5a8_msg = site("solve_load_case_observed", _L, "the open-formula stress summary of {} is unavailable", full=True)
+    _kd5a8_file, _kd5a8_line = _kd5a8_msg.rsplit(":", 1)
+    if open(_os.path.join(_SNAP, _L), encoding="utf-8").read().split("\n")[int(_kd5a8_line)].strip() != "vec![pipe.element_id.clone()],":
+        raise SystemExit("KD5A8: withheld summary affected-ref site changed; re-review")
+    O10_ID_AUDIT += [
+        (_kd5a8_id, {"stable_suffix(&pipe.element_id)": IN}),
+        (_kd5a8_msg, {"pipe.element_id": IN}),
+        (Resolved(f"{_kd5a8_file}:{int(_kd5a8_line) + 1}"), {"pipe.element_id": IN}),
+    ]
+
 # C7A1: move only the five replaced owned-key audit lines to source-bound
 # name keys. Borrowed input metadata is resolved without an allocation row.
 import runpy as _c7_audit_runpy

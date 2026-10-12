@@ -177,7 +177,8 @@ Final completeness and budget claims require the implementing commit's full
 pricing run and in-build atom evaluation.
 
 
-- **KD5T1/T2 (unified fixed text).** Final source basis c62d759f1556cb7c0380aea9f4146a0c8412ddce
+- **KD5T1/T2 (unified fixed text).** Final source basis 3903ab6f28 (re-reviewed
+  from c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
   has source-pinned record constructors, group/magnitude_group helpers,
   member_group_decision, the D1 case consumer and both maximum evidence
   producers. Production-prefix pins protect the certified-publication,
@@ -201,6 +202,37 @@ pricing run and in-build atom evaluation.
   evidence allowance; the evidence object field count remains within15.
   Changed producer/consumer/inventory source fails closed for renewed
   review. Historical registered snapshots retain their original formula.
+  Pins re-reviewed at 3903ab6f28:
+  - certified_recovery.rs production prefix ab2a378f…: c85d346213 maps an
+    underflowing midpoint to 0.0 (scalar match); 9ef0cbc78a's RowLoad is a
+    stack value (one ExactAccumulator and two f64), and straight section rows
+    are formed one at a time with one live load sum moved into the row's
+    evaluation, within the eight-accumulator census; arc rows (a = 0 at D1)
+    and the envelope's addend counts are stack arrays; 8ac8c57ade forms an
+    element block only when it is adjacent to the reaction DOF. These changes
+    add no allocation, String, format site or error literal, and no owned
+    layout or caller/workspace union changes.
+  - lib.rs solve_load_case_observed 4b96ef49… (both models): six early
+    returns add an empty withheld_summaries Vec (no allocation); one new
+    per-member warning in the certified summary-error arm (KD5A8, KD5O14).
+    It adds no route string or maximum literal, and no CPP first-return
+    allocation site; its {error} copy is priced as a TEXT site.
+  - preview_physics.rs render eb43e10b…: a cfg(test) witness hook only,
+    with no `divided` call.
+- **KD5A8 (withheld summary ids).** The certified summary-error arm's
+  warning copies only the pipe's own authored id: the stable_suffix id
+  suffix, the message's member id and the affected ref (IN128). Its
+  `{error}` operand keeps the chain's own TEXT cap, and the site keeps its
+  full m-per-case multiplicity in D. The rule needs the
+  `withhold_certified_summaries` consumer and the exact affected-ref line;
+  otherwise it stops.
+- **KD5O14 (withheld summary backing).** Each case's LoadCaseSolve owns a
+  separately push-grown Vec<Diagnostic> of at most one warning per member.
+  An append into the envelope leaves its capacity, and a rendered preview
+  never appends, so each case's backing lives beside the envelope's vector
+  until the solves drop. Price C·PushCap(m)·s(Diagnostic) in the
+  Diagnostics family. The strings and the count are already in TAV and D.
+  Snapshots without the field keep their formula.
 - **KD5L1/L2 (group census).** The surviving `record in records` header is
   re-bound to m+g on the unified record shape; the separate per-record
   `group` header is bounded at 28 (supports have four evaluands). This protects
