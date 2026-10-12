@@ -487,6 +487,36 @@ fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec
     out
 }
 
+/// Test-only view of each certified maximum's local witness upper beside its
+/// global upper before publication keeps only the latter (DEL-04-01
+/// kd5-member-relative-bound.md §3.2), so a test can assert its own
+/// precondition that they differ. Only `kd5-max:` projects are kept; the
+/// preview may run on the reserved-stack thread, hence a process-wide list.
+#[cfg(test)]
+pub(crate) mod witness_hook {
+    use super::MemberRecord;
+    type Seen = (String, String, f64, f64);
+    static SEEN: std::sync::Mutex<Vec<Seen>> = std::sync::Mutex::new(Vec::new());
+    pub(crate) fn observe(project: &str, members: &[MemberRecord]) {
+        if !project.starts_with("kd5-max:") {
+            return;
+        }
+        let mut seen = SEEN.lock().unwrap();
+        for member in members {
+            if let Some(Ok(maximum)) = &member.maximum {
+                seen.push((project.to_string(), member.pipe_id.clone(), maximum.value_upper, maximum.upper_bound));
+            }
+        }
+    }
+    /// (pipe, witness upper, global upper) observed for `project`, removed.
+    pub(crate) fn take(project: &str) -> Vec<(String, f64, f64)> {
+        let mut seen = SEEN.lock().unwrap();
+        let (mine, rest): (Vec<Seen>, Vec<Seen>) = seen.drain(..).partition(|entry| entry.0 == project);
+        *seen = rest;
+        mine.into_iter().map(|entry| (entry.1, entry.2, entry.3)).collect()
+    }
+}
+
 /// Replace the retired rows of every case, set the per-case headline inputs
 /// and edit the diagnostics (S1 §3-§8). Pure over the solved cases.
 pub(crate) fn render(
@@ -543,6 +573,8 @@ pub(crate) fn render(
             .collect();
 
         // Members.
+        #[cfg(test)]
+        witness_hook::observe(&model.project.id, &record.members);
         let MemberRender { mut maximum_rows, extrema, unavailable, outside, case_max } =
             render_members(&case_id, &record.members, diagnostics);
         let complete = unavailable.is_empty() && outside.is_empty();

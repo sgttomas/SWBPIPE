@@ -2817,10 +2817,32 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// exactly |m|, so the unified predicate passes it while R-b''s retired
 /// binary64 statistic would still fire there: case B is CHECKS_PASSED on the
 /// typed entry, alone on the captured entry, and in the two-case captured
-/// invocation, which now publishes with both receipt entries qualified. The
-/// residual itself (a Passed report demoted after routing beside a
-/// source-selected case) is not refuted for a construction on which the
-/// unified predicate fires after routing; T3's composite item keeps it.
+/// invocation, which now publishes with both receipt entries qualified.
+///
+/// The residual itself (a Passed report demoted after routing beside a
+/// source-selected case) is reached under K-D5 by a probe A-style case B
+/// (`residual_case_b`): N05's pipe carries cancelling uniform loads (G, n, -G)
+/// along global y with G = 8e15 N/m (below the captured entry's 2^53 limit)
+/// and n = 1e-8 N/m, on C1's soft basis. Its report is Passed; the load
+/// enclosure radii (2^-120 level, §1) enter every group's remainder R, so
+/// against the tiny net B exceeds RD(1e-9)·q (the anchor's force group has
+/// B/q of about 6e-9) and the unified predicate fires after routing (§3.3). Typed: demoted with the unified sentence, no receipt;
+/// alone on the captured entry: demoted, not refused; beside case A on the
+/// captured entry: refused, fail-closed. Control: n = 0.3 N/m lifts the body
+/// scale, the predicate is silent and the invocation publishes with both
+/// receipt entries qualified.
+/// T20's probe A-style case B (see T20): (G, n, -G) uniform loads along
+/// global y on N05's pipe, G = 8e15 N/m.
+fn residual_case_b(n: f64) -> Value {
+    let g = 8e15_f64;
+    json!({"id": "case-b", "label": "case-b", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [uniform("b:g", "pipe", "global_y", g), uniform("b:n", "pipe", "global_y", n), uniform("b:-g", "pipe", "global_y", -g)]})
+}
+
+fn residual_request(cases: Vec<Value>) -> Value {
+    with_basis(n05_request(cases), "case-b", "point:soft", 1.0, 0.4)
+}
+
 #[test]
 fn t20_characterization_rb_prime_residual_c1() {
     let (force, moment) = (1.0, 1e-7);
@@ -2873,6 +2895,34 @@ fn t20_characterization_rb_prime_residual_c1() {
             "{label}"
         );
         assert_not_demoted_by_s11g(&control, "case-b", &label);
+        assert_eq!(
+            integrity(&control, "case-b").code,
+            "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "{label}"
+        );
+
+        // The residual under K-D5: the probe A-style case B.
+        let residual = residual_request(vec![n05_torques(), residual_case_b(1e-8)]);
+        let typed = solved(Entry::Typed, &residual, mode);
+        assert!(typed.source_block_recovery.is_none(), "{label}");
+        assert_ordinary_passed(&typed, "case-b", &label);
+        assert_demoted(&typed, "case-b", RECOVERY, &label);
+        let single = solved(Entry::Captured, &residual_request(vec![residual_case_b(1e-8)]), mode);
+        assert_ordinary_passed(&single, "case-b", &label);
+        assert_demoted(&single, "case-b", RECOVERY, &label);
+        match run(Entry::Captured, &residual, mode) {
+            Err(error) => assert_eq!(error, "SOURCE_BLOCKS_FINALIZATION_FAILED", "{label}"),
+            Ok(_) => {
+                panic!("{label}: the residual is expected to refuse (update T20 when it closes)")
+            }
+        }
+        let control = solved(
+            Entry::Captured,
+            &residual_request(vec![n05_torques(), residual_case_b(0.3)]),
+            mode,
+        );
+        assert_eq!(receipt_case(&control, "case")["outcome"], json!("qualified"), "{label}");
+        assert_eq!(receipt_case(&control, "case-b")["outcome"], json!("qualified"), "{label}");
         assert_eq!(
             integrity(&control, "case-b").code,
             "NUMERICAL_INTEGRITY_CHECKS_PASSED",

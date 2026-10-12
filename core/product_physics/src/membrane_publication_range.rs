@@ -98,33 +98,8 @@ fn prepared_original_fixture() -> (
     BuiltModel,
     pressure_runtime::ExactPressureCase,
 ) {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(fixture(
-        &json!({"OD_m":4e-77,"wall_m":1e-77,"L_m":1.0,
-        "E_Pa":1.0,"nu":0.1,"p_Pa":4.7e-170}),
-        true,
-        true,
-    )).unwrap();
-    let mut model = request.model;
-    let mut materials = model.materials.clone();
-    let mut diagnostics = Vec::new();
-    pressure_runtime::validate_profile(&model, &mut diagnostics);
-    validate_model_inputs(&model, &materials, &mut diagnostics);
-    validate_support_family_tokens(&model, &mut diagnostics);
-    resolve_shared_sections(&mut model, &mut diagnostics);
-    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
-    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
-    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
-    let built = build_model(&model, &materials, &mut diagnostics).unwrap();
-    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
-    assert_eq!(built.pipes.len(), 1);
-    let pressure = pressure_runtime::build_pressure_case(
-        &model, &built, &materials, &model.load_cases[0], &mut diagnostics,
-    ).unwrap();
-    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
-    assert_eq!(pressure.pipe_states.len(), 1);
-    // This preparation reaches the lower-level subject directly. It does not
-    // invoke solve_load_case, select a solver, or produce a solved envelope.
-    (model, built, pressure)
+    prepared(json!({"OD_m":4e-77,"wall_m":1e-77,"L_m":1.0,
+        "E_Pa":1.0,"nu":0.1,"p_Pa":4.7e-170}))
 }
 
 fn assert_original_reference(actual: f64, label: &str) {
@@ -201,7 +176,9 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
     // is met, so the maximum stays available. The pin is now containment of
     // the independent reference; the membrane rows themselves stay pinned
     // exactly by the publisher test above, which keeps the sensitivity to the
-    // redivision defect.
+    // redivision defect, and the extrema path's sensitivity is kept by the
+    // unclamped control (`unclamped_subnormal_wall_force_extrema_*`), whose
+    // enclosure stays clear of zero so its public midpoint decides.
     assert!(maximum.value_lower <= EXPECTED_MEMBRANE_PA, "{maximum:?}");
     assert!(EXPECTED_MEMBRANE_PA <= maximum.value_upper, "{maximum:?}");
     assert_eq!(maximum.value_upper, maximum.upper_bound, "{maximum:?}");
@@ -212,3 +189,76 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
     // No envelope, load-case summary, public admission, solution error or
     // complete solver-to-publisher wiring claim is made by this direct test.
 }
+
+/// The fixed, pressurized fixture prepared to the lower-level subject. This
+/// preparation reaches the subject directly: it does not invoke
+/// solve_load_case, select a solver, or produce a solved envelope.
+fn prepared(inputs: Value) -> (PreviewModel, BuiltModel, pressure_runtime::ExactPressureCase) {
+    let request: LinearStaticPreviewRequest = serde_json::from_value(fixture(&inputs, true, true)).unwrap();
+    let mut model = request.model;
+    let mut materials = model.materials.clone();
+    let mut diagnostics = Vec::new();
+    pressure_runtime::validate_profile(&model, &mut diagnostics);
+    validate_model_inputs(&model, &materials, &mut diagnostics);
+    validate_support_family_tokens(&model, &mut diagnostics);
+    resolve_shared_sections(&mut model, &mut diagnostics);
+    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+    let built = build_model(&model, &materials, &mut diagnostics).unwrap();
+    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+    assert_eq!(built.pipes.len(), 1);
+    let pressure = pressure_runtime::build_pressure_case(&model, &built, &materials, &model.load_cases[0], &mut diagnostics).unwrap();
+    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+    assert_eq!(pressure.pipe_states.len(), 1);
+    (model, built, pressure)
+}
+
+/// Independent reference of the unclamped control: Fraction algebra of
+/// 2*nu*p*(OD/2-wall)^2 / (wall*(OD-wall)) for OD = 4e-77 m, wall = 1e-77 m,
+/// nu = 0.1, p = 4.7e-164 Pa (binary64 inputs), rounded to nearest.
+const UNCLAMPED_MEMBRANE_PA: f64 = 3.133333333333333e-165;
+
+/// Review finding F7(b): a normal-stress control on the same extrema path,
+/// where the redivision defect is still visible. At p = 4.7e-164 Pa the
+/// pressure wall force is subnormal (about 3e-318 N, some 20 significant
+/// bits), so redividing its rounding by the wall area misses the membrane
+/// stress by about 8e-7 relative, while the stress itself is normal and the
+/// fallback enclosure (about 3e-4 relative) stays clear of zero. The public
+/// row value, the enclosure midpoint (kd5-member-relative-bound.md §3.2),
+/// is then the membrane stress to within the unchanged 1e-9, which a
+/// redivided coefficient would miss by about 800 times that.
+#[test]
+fn unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane() {
+    let (_, built, pressure) = prepared(json!({"OD_m":4e-77,"wall_m":1e-77,"L_m":1.0,
+        "E_Pa":1.0,"nu":0.1,"p_Pa":4.7e-164}));
+    let state = pressure.pipe_states.get(&0).unwrap();
+    let mechanical_actions = [0.0; ELEMENT_DOF];
+    let maximum = exact_straight_summary_extrema(
+        &built.pipes[0], &mechanical_actions, &[], built.sections.get(PIPE).unwrap(), Some(state),
+    ).unwrap();
+    let reference = UNCLAMPED_MEMBRANE_PA;
+    // Preconditions (paths differ): the wall force is subnormal and its
+    // redivision misses the reference by far more than the tolerance; the
+    // enclosure is unclamped and narrow enough for its midpoint to decide.
+    let (wall, _, _) = state
+        .annulus
+        .recover_wall_effective_membrane(0.0, state.material, state.pressure)
+        .unwrap();
+    assert!(wall > 0.0 && wall < f64::MIN_POSITIVE, "{wall:e}");
+    let redivided = wall / state.annulus.wall_area_m2();
+    assert!((redivided / reference - 1.0).abs() > 1e-7, "{redivided:e}");
+    assert!(maximum.value_lower > 0.0, "{maximum:?}");
+    assert!((maximum.upper_bound - maximum.value_lower) < 1e-3 * reference, "{maximum:?}");
+    // The pins: containment, the public midpoint, the current reader rules.
+    assert!(maximum.value_lower <= reference && reference <= maximum.value_upper, "{maximum:?}");
+    assert_eq!(maximum.value_upper, maximum.upper_bound, "{maximum:?}");
+    let midpoint = maximum.value_lower + 0.5 * (maximum.upper_bound - maximum.value_lower);
+    assert!(
+        (midpoint - reference).abs() <= 1e-9 * reference,
+        "midpoint={midpoint:.17e}; independent reference={reference:.17e}"
+    );
+    assert!(maximum.certified_gap <= 1e-12 + 1e-12 * maximum.value_lower, "{maximum:?}");
+    assert!((0.0..=1.0).contains(&maximum.station));
+}
+

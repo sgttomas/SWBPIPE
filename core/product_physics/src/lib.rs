@@ -14067,6 +14067,39 @@ mod kd5_withheld_summary_tests {
     }
 }
 
+/// Review finding F7(c): the precondition of the integration test
+/// `tests/kd5_preview_maximum_enclosure.rs` on its U-line fixture. The
+/// published evidence carries the global upper only (§3.2), so the witness
+/// interval is read before publication: on the middle-leg tie its upper lies
+/// strictly below the global upper in both modes, so publishing the witness
+/// upper (the killed mutant) is observable there.
+#[cfg(test)]
+mod kd5_maximum_witness_tests {
+    use super::*;
+
+    #[test]
+    fn kd5_u_line_witness_upper_lies_below_the_global_upper() {
+        let request: LinearStaticPreviewRequest = serde_json::from_str(include_str!(
+            "../tests/fixtures/kd5_maximum_u_line.json"
+        ))
+        .unwrap();
+        let project = request.model.project.id.clone();
+        assert!(project.starts_with("kd5-max:"));
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let _ = preview_physics::witness_hook::take(&project);
+            let envelope = run_linear_static_preview_with_mode(request.clone(), mode);
+            assert!(envelope.diagnostics.iter().any(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{mode:?}");
+            let seen = preview_physics::witness_hook::take(&project);
+            assert_eq!(seen.len(), 3, "{mode:?}: one maximum per straight member: {seen:?}");
+            assert!(seen.iter().all(|(_, witness, global)| witness <= global), "{mode:?}: {seen:?}");
+            assert!(
+                seen.iter().any(|(_, witness, global)| witness < global),
+                "{mode:?}: precondition, a witness upper lies below its global upper: {seen:?}"
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
