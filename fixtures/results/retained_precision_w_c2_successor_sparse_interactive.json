@@ -398,24 +398,24 @@
           "pipe_stress_extrema": [
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 1.0900377190420868e-106,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 8.170865639376692e-92,
+              "certified_gap_pa": 1.0491613045780085e-105,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 8.170865639376739e-92,
               "local_fraction": 0.0,
               "pipe_id": "M1",
               "result_id": "result:elastic-maximum:6:case-a:2:M1",
               "span_index": 0,
               "station_fraction": 0.0,
               "subdivisions": 0,
-              "value_lower_pa": 8.170865639376682e-92,
-              "value_upper_pa": 8.170865639376692e-92
+              "value_lower_pa": 8.170865639376634e-92,
+              "value_upper_pa": 8.170865639376739e-92
             },
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
               "certified_gap_pa": 0.0,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
               "global_upper_bound_pa": 0.0,
               "local_fraction": 0.0,
               "pipe_id": "pipe:source-section",
@@ -450,8 +450,8 @@
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
               "certified_gap_pa": 0.0,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
               "global_upper_bound_pa": 0.0,
               "local_fraction": 0.0,
               "pipe_id": "M1",
@@ -464,18 +464,18 @@
             },
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 0.0,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 1.6976527263135509e-77,
+              "certified_gap_pa": 9.396311710921431e-92,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 1.6976527263135591e-77,
               "local_fraction": 0.0,
               "pipe_id": "pipe:source-section",
               "result_id": "result:elastic-maximum:6:case-b:19:pipe:source-section",
               "span_index": 0,
               "station_fraction": 0.0,
               "subdivisions": 0,
-              "value_lower_pa": 1.6976527263135509e-77,
-              "value_upper_pa": 1.6976527263135509e-77
+              "value_lower_pa": 1.6976527263135497e-77,
+              "value_upper_pa": 1.6976527263135591e-77
             }
           ],
           "stress_maximum_coverage": {
@@ -500,10 +500,10 @@
           "pipe_stress_extrema": [
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 2.646977960169689e-23,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 2.5172202259989918e-8,
+              "certified_gap_pa": 1.455837878093329e-22,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 2.5172202259990037e-8,
               "local_fraction": 0.0,
               "pipe_id": "M1",
               "result_id": "result:elastic-maximum:6:case-c:2:M1",
@@ -511,14 +511,14 @@
               "station_fraction": 0.0,
               "subdivisions": 0,
               "value_lower_pa": 2.517220225998989e-8,
-              "value_upper_pa": 2.5172202259989918e-8
+              "value_upper_pa": 2.5172202259990037e-8
             },
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 0.0,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 1.6976527263135509e-77,
+              "certified_gap_pa": 9.779834637897816e-92,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 1.6976527263135606e-77,
               "local_fraction": 0.0,
               "pipe_id": "pipe:source-section",
               "result_id": "result:elastic-maximum:6:case-c:19:pipe:source-section",
@@ -526,7 +526,7 @@
               "station_fraction": 0.0,
               "subdivisions": 0,
               "value_lower_pa": 1.6976527263135509e-77,
-              "value_upper_pa": 1.6976527263135509e-77
+              "value_upper_pa": 1.6976527263135606e-77
             }
           ],
           "stress_maximum_coverage": {
@@ -756,7 +756,9 @@
         "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
         "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-        "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+        "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
       ],
       "profile_id": "product_preview_retained_w1a_v2"
     },
@@ -4750,7 +4752,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -4912,7 +4914,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5074,7 +5076,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5146,7 +5148,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N",
-        "value": -1.0000000000000001e-307
+        "value": -1e-307
       },
       {
         "basis_ref": {
@@ -5218,7 +5220,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N*m",
-        "value": -1.0000000000000001e-307
+        "value": -1e-307
       },
       {
         "basis_ref": {
@@ -5236,7 +5238,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N",
-        "value": 1.0000000000000001e-307
+        "value": 1e-307
       },
       {
         "basis_ref": {
@@ -5254,7 +5256,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N*m",
-        "value": 1.4142135623730951e-307
+        "value": 1.414213562373095e-307
       },
       {
         "basis_ref": {
@@ -5488,7 +5490,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5506,7 +5508,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5524,7 +5526,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5542,7 +5544,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5560,7 +5562,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5578,7 +5580,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5596,7 +5598,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5614,7 +5616,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5632,7 +5634,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5650,7 +5652,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5668,7 +5670,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5686,7 +5688,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5704,7 +5706,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5722,7 +5724,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5740,7 +5742,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5758,7 +5760,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5776,7 +5778,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5794,7 +5796,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5812,7 +5814,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5830,7 +5832,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5848,7 +5850,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5866,7 +5868,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5884,7 +5886,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5902,7 +5904,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5920,7 +5922,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5938,7 +5940,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5956,7 +5958,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5974,7 +5976,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -5992,7 +5994,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6010,7 +6012,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6028,7 +6030,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6046,7 +6048,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6064,7 +6066,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6082,7 +6084,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6100,7 +6102,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6118,7 +6120,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6136,7 +6138,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6154,7 +6156,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6226,7 +6228,7 @@
           "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
         },
         "unit": "N",
-        "value": -1.0000000000000001e-307
+        "value": -1e-307
       },
       {
         "basis_ref": {
@@ -6244,7 +6246,7 @@
           "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
         },
         "unit": "N",
-        "value": 1.0000000000000001e-307
+        "value": 1e-307
       },
       {
         "basis_ref": {
@@ -6370,7 +6372,7 @@
           "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
         },
         "unit": "N*m",
-        "value": -1.0000000000000001e-307
+        "value": -1e-307
       },
       {
         "basis_ref": {
@@ -6406,7 +6408,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6424,7 +6426,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": 1.0000000000000001e-307
+        "value": 1e-307
       },
       {
         "basis_ref": {
@@ -6442,7 +6444,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6478,7 +6480,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6496,7 +6498,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": 7.500000000000001e-308
+        "value": 7.5e-308
       },
       {
         "basis_ref": {
@@ -6514,7 +6516,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6532,7 +6534,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": 1.0000000000000001e-307
+        "value": 1e-307
       },
       {
         "basis_ref": {
@@ -6550,7 +6552,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6586,7 +6588,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6604,7 +6606,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": 5.000000000000001e-308
+        "value": 5e-308
       },
       {
         "basis_ref": {
@@ -6622,7 +6624,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6640,7 +6642,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": 1.0000000000000001e-307
+        "value": 1e-307
       },
       {
         "basis_ref": {
@@ -6658,7 +6660,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6694,7 +6696,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6712,7 +6714,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "N*m",
-        "value": 2.5000000000000003e-308
+        "value": 2.5e-308
       },
       {
         "basis_ref": {
@@ -6730,7 +6732,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6748,7 +6750,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6766,7 +6768,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": 1.697652726313551e-83
+        "value": 1.6976527263135505e-83
       },
       {
         "basis_ref": {
@@ -6784,7 +6786,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": 0.0
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -6802,7 +6804,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6820,7 +6822,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6838,7 +6840,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": -1.3684555315672042e-131
       },
       {
         "basis_ref": {
@@ -6856,7 +6858,7 @@
           "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
         },
         "unit": "MPa",
-        "value": 0.0
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -6874,7 +6876,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6892,7 +6894,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6910,7 +6912,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 1.273239544735163e-83
+        "value": 1.2732395447351629e-83
       },
       {
         "basis_ref": {
@@ -6928,7 +6930,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 0.0
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -6946,7 +6948,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6964,7 +6966,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -6982,7 +6984,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 8.488263631567755e-84
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -7000,7 +7002,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 0.0
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -7018,7 +7020,7 @@
           "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -7036,7 +7038,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": -0.0
+        "value": 0.0
       },
       {
         "basis_ref": {
@@ -7054,7 +7056,7 @@
           "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 4.244131815783877e-84
+        "value": 4.244131815783876e-84
       },
       {
         "basis_ref": {
@@ -7072,7 +7074,7 @@
           "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
         },
         "unit": "MPa",
-        "value": 0.0
+        "value": 8.488263631567753e-84
       },
       {
         "basis_ref": {
@@ -7090,7 +7092,7 @@
           "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
         },
         "unit": "Pa",
-        "value": 1.6976527263135509e-77
+        "value": 1.6976527263135545e-77
       },
       {
         "basis_ref": {
@@ -9222,7 +9224,7 @@
           "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
         },
         "unit": "Pa",
-        "value": 2.5172202259989904e-8
+        "value": 2.5172202259989964e-8
       },
       {
         "basis_ref": {
@@ -10140,7 +10142,7 @@
           "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
         },
         "unit": "Pa",
-        "value": 1.6976527263135509e-77
+        "value": 1.6976527263135557e-77
       }
     ],
     "retained_precision": {
@@ -15021,7 +15023,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "61db93729e994494c7f63ad5c25ee8606b0ffd5e50fd44306a69efc63310acfb",
+        "publication_sha256": "1ee789e63d85f1927d1aaadc0489668da4530181b22320e4a97b20c08e61c029",
         "receipt_version": 1,
         "sources": [
           {
@@ -18548,7 +18550,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886"
+      "receipt_sha256": "f9a99e3e24cb3a813143af49f4b4d535f7380d24db8fbe5e47adc07b34355f43"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -18572,7 +18574,7 @@
         "location_ref": "M1",
         "result_ref": "result:elastic-maximum:6:case-c:2:M1",
         "unit": "Pa",
-        "value": 2.5172202259989904e-8
+        "value": 2.5172202259989964e-8
       },
       "node_count": 4,
       "segment_count": 2,

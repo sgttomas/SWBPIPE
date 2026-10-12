@@ -211,18 +211,18 @@
           "pipe_stress_extrema": [
             {
               "approximation": "piecewise_quadratic_straight_section_statics",
-              "certified_gap_pa": 1.0900377190420868e-106,
-              "coefficient_basis": "j_side_section_equilibrium_binary64",
-              "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
-              "global_upper_bound_pa": 8.170865639376692e-92,
+              "certified_gap_pa": 1.0491613045780085e-105,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 8.170865639376739e-92,
               "local_fraction": 0.0,
               "pipe_id": "M1",
               "result_id": "result:elastic-maximum:4:case:2:M1",
               "span_index": 0,
               "station_fraction": 0.0,
               "subdivisions": 0,
-              "value_lower_pa": 8.170865639376682e-92,
-              "value_upper_pa": 8.170865639376692e-92
+              "value_lower_pa": 8.170865639376634e-92,
+              "value_upper_pa": 8.170865639376739e-92
             }
           ],
           "stress_maximum_coverage": {
@@ -313,7 +313,9 @@
         "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
         "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-        "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+        "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
       ],
       "profile_id": "product_preview_retained_w1a_v2"
     },
@@ -4474,7 +4476,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66",
+        "publication_sha256": "ca1170b92c0ce3edb41cea2bc30f11f84c8b32cc0c29d1e36fa2b7e24cda5aba",
         "receipt_version": 1,
         "sources": [
           {
@@ -5454,7 +5456,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"
+      "receipt_sha256": "39895d62e38a6bc87242d5591384c23ab274e71832d974f40da915d13a0f7356"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
