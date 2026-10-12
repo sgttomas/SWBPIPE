@@ -1897,3 +1897,7 @@ mod tests {
         assert!(signed_permutation(&t).is_err());
     }
 }
+
+#[cfg(test)]
+#[path = "source_recovery/j7_t4_consequences.rs"]
+mod j7_t4_consequences;
