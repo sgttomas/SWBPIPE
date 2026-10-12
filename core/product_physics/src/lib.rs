@@ -2221,6 +2221,11 @@ struct LoadCaseSolve {
     component_stress_modifier_count: usize,
     component_pressure_thrust_load_count: usize,
     preview: Option<preview_physics::CaseRecord>,
+    /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): the named warning
+    /// of each certified member whose open-formula (L1) summary row is
+    /// withheld. Preview-physics retires every summary row, so these apply
+    /// only when it does not render (`withhold_certified_summaries`).
+    withheld_summaries: Vec<Diagnostic>,
 }
 
 #[derive(Debug, Clone)]
@@ -2848,6 +2853,9 @@ fn run_linear_static_preview_observed(
     let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
+    if preview.is_none() {
+        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);
+    }
     let max_displacement = maximum_across_cases(&load_case_solves, false);
     let max_stress = maximum_across_cases(&load_case_solves, true);
     let component_stress_modifier_count = load_case_solves
@@ -4029,6 +4037,21 @@ fn assemble_case_stiffness(
     Ok(stiffness)
 }
 
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2) when preview-physics
+/// does not render (a case of the invocation is source-selected): a certified
+/// member whose open-formula summary is unavailable keeps its signed rows, its
+/// withheld summary row is named, and its case's stress maximum covers an
+/// incomplete member domain, so it is withheld (as on the exact route and in
+/// preview-physics), which also withholds the invocation's headline.
+fn withhold_certified_summaries(solves: &mut [LoadCaseSolve], diagnostics: &mut Vec<Diagnostic>) {
+    for solve in solves {
+        if !solve.withheld_summaries.is_empty() {
+            diagnostics.append(&mut solve.withheld_summaries);
+            solve.max_stress = None;
+        }
+    }
+}
+
 fn maximum_across_cases(cases: &[LoadCaseSolve], stress: bool) -> Option<LocatedQuantity> {
     // A headline covers the complete requested domain, never only available members.
     if cases.iter().any(|case| {
@@ -4482,6 +4505,7 @@ fn solve_load_case_observed(
             component_stress_modifier_count: 0,
             component_pressure_thrust_load_count: 0,
             preview: None,
+            withheld_summaries: Vec::new(),
         });
     }
 
@@ -4517,6 +4541,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
         }
         None => build_thermal_element_loads(
@@ -4623,6 +4648,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
         }
     }
@@ -4913,6 +4939,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
                     }
                 },
@@ -4944,6 +4971,7 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 preview: None,
+                withheld_summaries: Vec::new(),
             });
                 }
             }
@@ -5071,6 +5099,7 @@ fn solve_load_case_observed(
                     component_stress_modifier_count: 0,
                     component_pressure_thrust_load_count: 0,
                     preview: None,
+                    withheld_summaries: Vec::new(),
                 });
             }
         }
@@ -5374,6 +5403,7 @@ fn solve_load_case_observed(
     let mut max_stress = None;
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
+    let mut withheld_summaries = Vec::new();
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         // T4-U3 (S20): a replaced span has no member rows, maxima or
@@ -5861,16 +5891,17 @@ fn solve_load_case_observed(
                 Err(error) if certified_spans.is_some() => {
                     summary_unavailable = true;
                     // The preview-physics route retires the summary row and
-                    // names the circular maximum's own unavailability.
-                    if preview_record.is_none() {
-                        diagnostics.push(diag(
-                            &format!("diagnostic:stress:{}:summary-unavailable", stable_suffix(&pipe.element_id)),
-                            "STRESS_RECOVERY_LIMITED",
-                            "warning",
-                            format!("signed rows remain available; the open-formula stress summary of {} is unavailable: {error}", pipe.element_id),
-                            vec![pipe.element_id.clone()],
-                        ));
-                    }
+                    // names the circular maximum's own unavailability. Whether
+                    // it renders is decided for the whole invocation (no case
+                    // source-selected), so the withheld row's warning waits
+                    // for that decision (`withhold_certified_summaries`).
+                    withheld_summaries.push(diag(
+                        &format!("diagnostic:stress:{}:summary-unavailable", stable_suffix(&pipe.element_id)),
+                        "STRESS_RECOVERY_LIMITED",
+                        "warning",
+                        format!("signed rows remain available; the open-formula stress summary of {} is unavailable: {error}", pipe.element_id),
+                        vec![pipe.element_id.clone()],
+                    ));
                 }
                 Err(error) => diagnostics.push(diag(
                     "diagnostic:stress:straight-extrema",
@@ -6184,6 +6215,7 @@ fn solve_load_case_observed(
         component_stress_modifier_count,
         component_pressure_thrust_load_count,
         preview: preview_record,
+        withheld_summaries,
     })
 }
 
@@ -13961,6 +13993,77 @@ mod nonlinear_context_passthrough_tests {
         assert!(!context.limitations.is_empty());
         assert!(!context.component_name.trim().is_empty());
         assert!(!context.component_version.trim().is_empty());
+    }
+}
+
+/// Review finding F3 (DEL-04-01 kd5-member-relative-bound.md §3.2): a
+/// certified member's withheld open-formula summary row was silently omitted
+/// whenever another case of the invocation was source-selected (preview-physics
+/// does not render then), and that case's stress maximum became the maximum
+/// over the other members. On the public entries this combination is refused
+/// today before publication: the summary's coefficient width is far below the
+/// member bound B, so a withheld summary implies a unified-predicate demotion
+/// after routing, which a pre-0.4 captured invocation refuses
+/// (`s11g_tests::t20_*`, SOURCE_BLOCKS_FINALIZATION_FAILED). The disposition is
+/// pinned here directly.
+#[cfg(test)]
+mod kd5_withheld_summary_tests {
+    use super::*;
+
+    fn solve(case: &str, member: &str, withheld: bool) -> LoadCaseSolve {
+        LoadCaseSolve {
+            load_state_evidence: None,
+            exact_case_evidence: None,
+            pressure_evidence: Vec::new(),
+            source_case: None,
+            source_selected: false,
+            load_case_id: case.to_string(),
+            results: Vec::new(),
+            max_displacement: None,
+            max_stress: Some(LocatedQuantity {
+                value: 1.0,
+                unit: "MPa".to_string(),
+                location_ref: member.to_string(),
+                result_ref: format!("result:stress:{member}"),
+            }),
+            component_stress_modifier_count: 0,
+            component_pressure_thrust_load_count: 0,
+            preview: None,
+            withheld_summaries: if withheld {
+                vec![diag(
+                    &format!("diagnostic:stress:{member}:summary-unavailable"),
+                    "STRESS_RECOVERY_LIMITED",
+                    "warning",
+                    format!("signed rows remain available; the open-formula stress summary of {member} is unavailable: test"),
+                    vec![member.to_string()],
+                )]
+            } else {
+                Vec::new()
+            },
+        }
+    }
+
+    #[test]
+    fn kd5_withheld_summary_is_named_and_withholds_the_maximum_without_preview() {
+        let mut solves = vec![solve("case", "a", false), solve("case-b", "b", true)];
+        // Precondition: without the disposition the headline would be the
+        // other members' maximum.
+        assert!(maximum_across_cases(&solves, true).is_some());
+        let mut diagnostics = Vec::new();
+        withhold_certified_summaries(&mut solves, &mut diagnostics);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, "STRESS_RECOVERY_LIMITED");
+        assert_eq!(diagnostics[0].severity, "warning");
+        assert_eq!(diagnostics[0].affected_refs, vec!["b".to_string()]);
+        assert!(solves[0].max_stress.is_some(), "a complete case keeps its maximum");
+        assert!(solves[1].max_stress.is_none(), "the incomplete case withholds its maximum");
+        assert!(solves[1].withheld_summaries.is_empty());
+        assert!(maximum_across_cases(&solves, true).is_none(), "the headline is withheld");
+        // The invocation applies it exactly when preview-physics does not
+        // render, and the per-member site defers the warning to it.
+        let code = include_str!("lib.rs");
+        assert!(code.contains("    if preview.is_none() {\n        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);\n    }"));
+        assert!(code.contains("                    withheld_summaries.push(diag(\n"));
     }
 }
 

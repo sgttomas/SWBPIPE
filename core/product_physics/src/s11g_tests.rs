@@ -1247,6 +1247,12 @@ fn t5_probe_a_same_expression_defects_cancel() {
                             envelope.results.iter().any(|r| r.kind == "element_local_bending_moment_z"),
                             "{label}: the signed rows stay published"
                         );
+                        // Preview-physics renders here and retires the summary
+                        // row, so the withheld summary is not named (F3).
+                        assert!(
+                            !envelope.diagnostics.iter().any(|d| d.id.ends_with(":summary-unavailable")),
+                            "{label}: no summary notice on the preview-physics route"
+                        );
                     }
                 }
             }
@@ -3285,5 +3291,3 @@ fn t22_invocation_budget_equals_main_on_a_passed_guard_fired_case() {
 
 // HELP_HUMAN's ruling 5 (T4): short stiff bends.
 mod short_bend;
-
-
