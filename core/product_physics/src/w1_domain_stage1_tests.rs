@@ -1,5 +1,6 @@
 //! B7a (b) Widen domain, stage 1: per-case basis custody (RV125 N-2) and member-load cases,
-//! stepped through the actual W1 stages (prepare, native, freeze), below the held G0 table pins.
+//! stepped through the actual W1 stages (prepare, native, freeze) and, at c = 3, published and
+//! read by the full Rust reader (b7-plan ruling (6) moved the G0 table pins).
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 use super::*;
 
@@ -153,7 +154,9 @@ fn b7a_member_load_case_is_unavailable_by_its_named_cause() {
 /// moduli (a selector case is captured at its basis state, not the base model's), every case
 /// freezes, and the serialized receipt carries one basis per selector in first-use order, with
 /// its moduli, and each case's own `material_basis_ref` on its ordinary attempt, product
-/// attempt and source, also when a point is reused around a base case.
+/// attempt and source, also when a point is reused around a base case. W1 publishes that
+/// successor (precommit's copy), and the full Rust reader, G0 first, finds it bound and
+/// numerically eligible with the invocation.
 #[test]
 fn b7a_three_cases_capture_and_serialize_their_own_bases() {
     use crate::retained_tests_hooks as hooks;
@@ -190,9 +193,15 @@ fn b7a_three_cases_capture_and_serialize_their_own_bases() {
             assert_eq!(stepped(&raw, mode, &|_| {}), ["Frozen", "Frozen", "Frozen"], "{label}");
             let (capture, observer, mut ordinary) = early_observed(&raw, mode, true);
             ordinary.diagnostics.shrink_to_fit();
-            let ((_, retained), _, successor) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
-            assert!(matches!(retained, Ok(_) | Err(W1Fallback::Precommit { gate: "G0", .. })), "{label}: {:?}", retained.err());
-            let successor = successor.unwrap_or_else(|| panic!("{label}: a serialized successor"));
+            let ((_, retained), _, precommit) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            let successor = match retained {
+                Ok(successor) => successor.value().clone(),
+                Err(fallback) => panic!("{label}: W1 fell back: {fallback:?}"),
+            };
+            assert_eq!(precommit.as_ref(), Some(&successor), "{label}: the published successor is precommit's copy");
+            let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+            let verdict = reader::validate(&successor, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: reader: {e:?}"));
+            assert!(verdict.invocation_bound && verdict.numerical_eligible, "{label}: bound and eligible");
             let body = &successor["retained_precision"]["body"];
             let bases = body["material_bases"].as_array().unwrap();
             assert_eq!(bases.len(), order.len(), "{label}");

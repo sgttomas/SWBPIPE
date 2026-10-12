@@ -4051,9 +4051,11 @@ fn b2p_direct(witnesses: Vec<(&'static str, Value)>) {
 /// RV125 N-2, met by B7a (b) Widen domain, stage 1: the capture's modulus-basis custody is per
 /// basis (`bases`) and each case binds its own (`basis_expected`, `basis`), so G-A admits a
 /// named-point selector on any case of branch L (D1.5), and on the private driver neither the
-/// custody (`Preparation`) nor any attempted case's freeze (`Candidate`) refuses it: W1 reaches
-/// precommit, whose only refusal while B7a's table-byte pins are held is G0's. The exact route
-/// still refuses any selector (P-5; `b3b_exact_capture_refuses_a_selected_basis`).
+/// custody (`Preparation`) nor any attempted case's freeze (`Candidate`) refuses it: W1 publishes
+/// its successor (b7-plan ruling (6) moved the table pins, so precommit's G0 accepts it), which
+/// is precommit's copy, and the full Rust reader, G0 first, finds it bound and numerically
+/// eligible with the invocation. The exact route still refuses any selector (P-5;
+/// `b3b_exact_capture_refuses_a_selected_basis`).
 ///
 /// Pinned for c = 2 without and with a combination, a point basis on either case or both.
 #[test]
@@ -4078,10 +4080,18 @@ fn b2p_selectors_at_two_cases_bind_their_own_basis() {
                 let (request, captured_invocation) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
                 assert_eq!(super::retained_memory::assess(&captured_invocation, &request, super::retained_memory::Entry::Direct).law().domain,
                     None, "{label}");
-                // The private driver: custody and freeze pass; precommit is reached.
+                // The private driver: custody and freeze pass, and the successor publishes.
                 let (capture, observer, ordinary) = observed(mode, &raw);
-                let ((_, retained), _, _) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
-                assert!(matches!(&retained, Ok(_) | Err(W1Fallback::Precommit { gate: "G0", .. })), "{label}: {:?}", retained.err());
+                let ((_, retained), _, precommit) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+                let successor = match retained {
+                    Ok(successor) => successor.value().clone(),
+                    Err(fallback) => panic!("{label}: W1 fell back: {fallback:?}"),
+                };
+                assert_eq!(precommit.as_ref(), Some(&successor), "{label}: the published successor is precommit's copy");
+                let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+                let verdict = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation))
+                    .unwrap_or_else(|e| panic!("{label}: reader: {e:?}"));
+                assert!(verdict.invocation_bound && verdict.numerical_eligible, "{label}: bound and eligible");
             }
         }
     }
