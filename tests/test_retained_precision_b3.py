@@ -779,13 +779,13 @@ def test_b3b_carriers(mode):
 @pytest.mark.parametrize("mode", MODES)
 def test_b3b_stress_neutral_packager_refuses_the_exact_successor(mode):
     """As the preview successor (T6's refusal stands in the Python packager; lane T's carriers are TS and schemas)."""
-    from core.handoff.stress_neutral import package_v0_3 as sn
+    from core.handoff.stress_neutral import package as sn
     from tests.test_stress_neutral_physics_source import arguments
     source, _ = m3x(mode)
     record = built(source)
     assert isinstance(record, dict), record
     try:
-        sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record))
+        sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
         refused = None
     except ValueError as error:
         refused = str(error)

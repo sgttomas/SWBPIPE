@@ -21,7 +21,7 @@ from core.analysis_runs.compatibility import (
     _source_contract, build_analysis_run_v0_3, PHYSICS_CONTRACT_ID,
     SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
 )
-from core.handoff.stress_neutral import package_v0_3 as sn
+from core.handoff.stress_neutral import package as sn
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from test_stress_neutral_export_package import source_payload
 from test_stress_neutral_precision import prepare as prepare_precision, rehash_packet
@@ -62,7 +62,7 @@ def captured(path):
         raw = json.loads(Path(path).read_text())
         before = deepcopy(raw)
         analysis = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:pure-projection-test"}, input_manifest_hash="1" * 64)
-        packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
+        packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
         assert raw == before
         return raw, analysis, packet
 
@@ -90,13 +90,13 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
     assert ("source_block_recovery" in packet) == (identity == SOURCE_BLOCKS_CONTRACT_ID)
     assert ("contract_evidence" in packet) == (identity == PHYSICS_CONTRACT_ID)
     validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
-    sn.validate_stress_neutral_export_package_v0_3(packet)
-    sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)
-    written = sn.write_materialized_members_v0_3(packet, tmp_path)
+    sn.validate_stress_neutral_export_package(packet)
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
+    written = sn.write_materialized_members(packet, tmp_path)
     assert [p.name for p in written] == sn.MEMBERS
     assert set(p.name for p in tmp_path.iterdir()) == set(sn.MEMBERS)
-    assert sn.read_materialized_members_v0_3(tmp_path) == packet
-    assert sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis) == packet
+    assert sn.read_materialized_members(tmp_path) == packet
+    assert sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis) == packet
     assert packet == before
 
 
@@ -128,8 +128,8 @@ def test_actual_composite_files_are_required_and_retain_both_namespaces(tmp_path
         assert packet["source_block_recovery"] == raw["source_block_recovery"]
         assert [a["source_row"] for a in packet["source_annotations"]] == raw["results"]
         validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
-        sn.write_materialized_members_v0_3(packet, tmp_path / path.stem)
-        assert sn.read_materialized_members_v0_3(tmp_path / path.stem, source_envelope=raw, analysis_record=analysis) == packet
+        sn.write_materialized_members(packet, tmp_path / path.stem)
+        assert sn.read_materialized_members(tmp_path / path.stem, source_envelope=raw, analysis_record=analysis) == packet
         for a, original_row in zip(packet["source_annotations"], raw["results"]):
             assert a["source_value_bits"] == struct.pack(">d", float(original_row["value"])).hex()
             row = a["source_row"]
@@ -151,9 +151,9 @@ def test_annotation_tampering_fails_even_after_package_rehash(change):
     else: annotations[0]["source_result_id"] = "unrelated"
     rehash_packet(packet)
     with pytest.raises(ValueError, match="SN-SOURCE-ANNOTATION"):
-        sn.validate_stress_neutral_export_package_v0_3(packet)
+        sn.validate_stress_neutral_export_package(packet)
     with pytest.raises(ValueError):
-        sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)
+        sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
 
 
 def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
@@ -165,9 +165,9 @@ def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
     row["retained_note"] = "invented transport mutation"
     packet["source_annotations"][0]["source_row_sha256"] = canonical_sha256_checked_v1(row)
     rehash_packet(packet)
-    sn.validate_stress_neutral_export_package_v0_3(packet)
+    sn.validate_stress_neutral_export_package(packet)
     with pytest.raises(ValueError, match="ANNOTATION-BINDING"):
-        sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw)
+        sn.validate_stress_neutral_export_package(packet, source_envelope=raw)
 
 
 @pytest.mark.parametrize("path", [ACTUAL_PATHS[0], ACTUAL_PATHS[4]], ids=["physics", "source_blocks"])
@@ -177,7 +177,7 @@ def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
     for bad_value in [None, False, {}, []]:
         packet = deepcopy(original); packet[field] = bad_value; rehash_packet(packet)
         with pytest.raises((ValueError, KeyError, TypeError)):
-            sn.validate_stress_neutral_export_package_v0_3(packet)
+            sn.validate_stress_neutral_export_package(packet)
         with pytest.raises(AssertionError):
             validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="invalid namespace")
     packet = deepcopy(original)
@@ -185,11 +185,11 @@ def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
     # The CSV wire policy is method-bound, so an unknown method cannot even be
     # re-materialized; the materializer and the validator must each refuse it.
     with pytest.raises(ValueError, match="SN-CSV-PROFILE-MISMATCH"): rehash_packet(deepcopy(packet))
-    with pytest.raises(ValueError, match="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"): sn.validate_stress_neutral_export_package_v0_3(packet)
+    with pytest.raises(ValueError, match="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"): sn.validate_stress_neutral_export_package(packet)
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="unknown method")
     packet = deepcopy(original); packet["semantic_contract"]["sha256"] = "f" * 64; rehash_packet(packet)
     with pytest.raises(ValueError, match="SEMANTIC-CONTRACT"):
-        sn.validate_stress_neutral_export_package_v0_3(packet)
+        sn.validate_stress_neutral_export_package(packet)
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="wrong method hash")
 
 
@@ -198,16 +198,16 @@ def test_new_method_privacy_professional_and_member_guards_stay_closed():
     for group, key in [("privacy", "private_payload_embedded"), ("privacy", "protected_payload_embedded"), ("professional_boundary", "software_makes_solver_validation_claim"), ("professional_boundary", "software_makes_approval_claim")]:
         packet = deepcopy(original); packet[group][key] = True; rehash_packet(packet)
         with pytest.raises(ValueError, match="BOUNDARY-VIOLATION"):
-            sn.validate_stress_neutral_export_package_v0_3(packet)
-    members = sn.materialized_members_v0_3(original)
+            sn.validate_stress_neutral_export_package(packet)
+    members = sn.materialized_members(original)
     members["extra.json"] = b"{}"
     with pytest.raises(ValueError, match="INVENTORY"):
-        sn.reconstruct_materialized_members_v0_3(members)
+        sn.reconstruct_materialized_members(members)
 
 
 def test_precision_package_and_all_nine_member_bytes_are_unchanged():
     raw, analysis, args = prepare_precision()
-    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=raw, analysis_record=analysis, **args)
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
     assert packet["package_checksum"]["value"] == "3677f468fb9dde4683de9fd5d9483fcce135cd4050d2f3fa7fa24d369a97359e"
     expected = {
         "manifest.json": "244baa3ba952493f7a2dcd5eceef478cf9b1d38d08794520a8e33e66c0cec601",
@@ -220,7 +220,7 @@ def test_precision_package_and_all_nine_member_bytes_are_unchanged():
         "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
         "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     }
-    assert {name: hashlib.sha256(data).hexdigest() for name, data in sn.materialized_members_v0_3(packet).items()} == expected
+    assert {name: hashlib.sha256(data).hexdigest() for name, data in sn.materialized_members(packet).items()} == expected
     assert not {"contract_evidence", "source_block_recovery", "source_annotations"} & set(packet)
 
 
@@ -279,8 +279,8 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
     assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
     if mode == "sparse_interactive":
         assert len(negative_ids) == 31, "Retain the independent review's original signed-zero failure population"
-    sn.write_materialized_members_v0_3(packet, tmp_path)
-    reread = sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis)
+    sn.write_materialized_members(packet, tmp_path)
+    reread = sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")
     assert set(p.name for p in tmp_path.iterdir()) == set(sn.MEMBERS)
     for annotation in reread["source_annotations"]:
@@ -300,18 +300,18 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
         # A changed sidecar is part of the hashed package; without rehashing it
         # fails even though +0 and -0 are numerically equal.
         with pytest.raises(ValueError, match="PACKAGE-CHECKSUM"):
-            sn.validate_stress_neutral_export_package_v0_3(forged)
+            sn.validate_stress_neutral_export_package(forged)
         rehash_packet(forged)
         # An internally consistent transport can carry either zero sign, but it
         # cannot be claimed to match the original received source after a flip.
-        sn.validate_stress_neutral_export_package_v0_3(forged)
+        sn.validate_stress_neutral_export_package(forged)
         with pytest.raises(ValueError, match="SOURCE-ANNOTATION-BINDING"):
-            sn.validate_stress_neutral_export_package_v0_3(forged, source_envelope=raw, analysis_record=analysis)
+            sn.validate_stress_neutral_export_package(forged, source_envelope=raw, analysis_record=analysis)
     malformed = deepcopy(reread)
     malformed["source_annotations"][0].pop("source_value_bits")
     rehash_packet(malformed)
     with pytest.raises(ValueError, match="ANNOTATION-SHAPE"):
-        sn.validate_stress_neutral_export_package_v0_3(malformed)
+        sn.validate_stress_neutral_export_package(malformed)
     with pytest.raises(AssertionError):
         validate_instance(json.loads(SCHEMA.read_text()), malformed, instance_label="missing CR02 sidecar")
 
@@ -393,7 +393,7 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
     assert any(not row["id"].isascii() for row in raw["results"])
     assert packet["export_profile"]["csv_encoding"] == "utf-8"
     assert packet["export_profile"]["csv_row_order"] == "unicode_scalar_value_result_id"
-    members = sn.materialized_members_v0_3(packet)
+    members = sn.materialized_members(packet)
     assert list(members) == sn.MEMBERS
     wire = members["stress_neutral_results.csv"]
     assert wire == packet["csv_text"].encode("utf-8") and not wire.startswith(b"\xef\xbb\xbf")
@@ -401,8 +401,8 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
     checksum = next(c for c in packet["manifest"]["checksums"] if c["payload_ref"]["ref"] == "stress_neutral_results.csv")
     assert checksum["canonicalization"] == "utf8_csv_record_lf_v1"
     assert checksum["value"] == hashlib.sha256(wire).hexdigest()
-    sn.write_materialized_members_v0_3(packet, tmp_path)
-    reopened = sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis)
+    sn.write_materialized_members(packet, tmp_path)
+    reopened = sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reopened, instance_label=f"UTF8 actual {mode}")
     assert reopened == packet
     raw_by_id = {row["id"]: row for row in raw["results"]}
@@ -414,11 +414,11 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
     for bad_wire in [b"\xff" + wire, b"\xc0\x80" + wire, b"\xed\xa0\x80" + wire, b"\xe2\x82", b"\xef\xbb\xbf" + wire, wire.replace(b"\n", b"\r\n", 1)]:
         corrupted = dict(members); corrupted["stress_neutral_results.csv"] = bad_wire
         with pytest.raises(ValueError, match="SN-CSV-"):
-            sn.reconstruct_materialized_members_v0_3(corrupted, source_envelope=raw)
+            sn.reconstruct_materialized_members(corrupted, source_envelope=raw)
     bad = deepcopy(packet); bad["export_profile"]["csv_encoding"] = "ascii"
     bad["package_checksum"]["value"] = canonical_sha256_checked_v1(sn.package_projection(bad))
     with pytest.raises(ValueError, match="CSV-PROFILE"):
-        sn.validate_stress_neutral_export_package_v0_3(bad)
+        sn.validate_stress_neutral_export_package(bad)
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 label")
     bad = deepcopy(packet)
     for claim in bad["manifest"]["checksums"]:
@@ -427,7 +427,7 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
         if member["filename"] == "stress_neutral_results.csv": member["checksum"]["canonicalization"] = "normalized_ascii_lf_text"
     bad["package_checksum"]["value"] = canonical_sha256_checked_v1(sn.package_projection(bad))
     with pytest.raises(ValueError, match="CHECKSUM-METADATA"):
-        sn.validate_stress_neutral_export_package_v0_3(bad)
+        sn.validate_stress_neutral_export_package(bad)
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 checksum label")
 
 
@@ -453,8 +453,8 @@ def test_new_method_diagnostic_ratio_witness_follows_exact_table_target():
     assert witness["conversion_performed"] is False
     assert not any(d["source"]["ref"] == DENSE_DIAGNOSTIC_RATIO_ID for d in packet["diagnostics"] if d["code"].startswith("SN-UNIT-WITNESS-WITHHELD"))
     assert packet["professional_boundary"]["software_makes_compliance_claim"] is False
-    sn.validate_stress_neutral_export_package_v0_3(packet)
-    sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)
+    sn.validate_stress_neutral_export_package(packet)
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
 
 
 @pytest.mark.parametrize("change", ["source_dimension", "target_dimension", "value", "contradiction", "unknown_semantic", "missing_semantic"])
@@ -484,6 +484,32 @@ def test_new_method_diagnostic_witness_and_category_cannot_override_table(change
     rehash_packet(packet)
     expected = "UNIT-WITNESS-BINDING" if change in {"source_dimension", "target_dimension", "value"} else "WITNESS-CATEGORY-ACCOUNTING"
     with pytest.raises(ValueError, match=expected):
-        sn.validate_stress_neutral_export_package_v0_3(packet)
+        sn.validate_stress_neutral_export_package(packet)
     with pytest.raises(ValueError, match="WITNESS-BINDING"):
-        sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)
+        sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
+
+
+# E3's equal-input Python construction basis is fixed before source/model/row
+# regeneration. The fixtures are complete package-file witnesses, whose
+# insertion-order file encoding is distinct from the checked member encoding.
+E3_PACKAGE_NAMES = [
+    f"{family}_{mode}"
+    for family in ("load_reference_connected", "load_reference_pressure",
+        "load_reference_source_eigen_motion", "load_reference_source_fields",
+        "load_reference_source_mixed", "load_reference_source_n05", "load_reference_source_n06")
+    for mode in ("sparse", "dense")
+]
+
+
+@pytest.mark.parametrize("name", E3_PACKAGE_NAMES)
+def test_current_native_builder_matches_committed_package_file_bytes_on_identical_inputs(name):
+    stem, mode = name.rsplit("_", 1)
+    source_family = "load_reference_source" if stem.startswith("load_reference_source_") else "load_reference"
+    case = stem.removeprefix(source_family + "_")
+    solver_mode = "sparse_interactive" if mode == "sparse" else "dense_scrutiny"
+    raw = json.loads((PROJECT / f"fixtures/product_preview/{source_family}/{case}-{solver_mode}.raw.json").read_text())
+    analysis = json.loads((PROJECT / f"fixtures/results/{name}.analysis_run.json").read_text())
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
+    file_bytes = (json.dumps(packet, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8")
+    assert file_bytes == (PROJECT / f"fixtures/results/{name}.stress_neutral.json").read_bytes()
+    assert list(sn.materialized_members(packet)) == sn.MEMBERS

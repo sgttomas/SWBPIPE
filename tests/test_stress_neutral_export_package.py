@@ -1,81 +1,40 @@
 #!/usr/bin/env python3
-"""Focused tests for DEL-17-06 stress-neutral CSV/JSON export packages."""
+"""Current DEL-17-06 construction, member, CSV and data-boundary controls.
 
+E3 retires the 0.1/0.2 construction and writer APIs. Their format-specific
+positive fixtures, inferred-family examples and non-JCS hash expectation no
+longer describe the current source-bound 0.3 builder. The reusable input
+fixture below is unchanged because the fourteen E3 byte witnesses use it.
+Current packets keep the substantive privacy, witness, relational, CSV and
+checksum checks; current write_materialized_members writes all nine members.
+"""
 from __future__ import annotations
 
 from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
-import re
 import sys
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-TESTS_DIR = ROOT / "tests"
-if str(TESTS_DIR) not in sys.path:
-    sys.path.insert(0, str(TESTS_DIR))
 
-from core.handoff.stress_neutral import (  # noqa: E402
-    CANONICALIZATION_LABEL,
-    build_stress_neutral_export_package,
-    canonical_json,
-    render_stress_neutral_csv,
-    write_stress_neutral_export_package,
-    build_stress_neutral_export_package_v0_2,
-    materialized_members_v0_2,
-    validate_stress_neutral_export_package_v0_2,
-    write_materialized_members_v0_2,
-)
-from schema_validation import (  # noqa: E402
-    JsonSchemaDependencyMissing,
-    _skip_or_note_missing_jsonschema,
-    validate_instance,
-    validate_schema_document,
-    walk_strings,
-)
-from core.handoff.stress_neutral.package_v0_2 import (  # noqa: E402
-    _checked,
-    _manifest_seed,
-    _validate_received_csv,
-    package_projection,
-)
-from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1  # noqa: E402
+from core.analysis_runs.compatibility import build_analysis_run_v0_3
+from core.handoff.stress_neutral import package as sn
+from core.security.redaction.route_control import control_route_export
+from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
+from schema_validation import validate_instance, validate_schema_document, walk_strings
+from test_precision_consumer_contract import source
 
-
-SCHEMA_PATH = ROOT / "schemas" / "stress_neutral_export.schema.json"
-FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_export_package.json"
-CSV_FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_results.csv"
-SOURCE_PAYLOAD_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "source_result_payload.json"
-V02_FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_export_package_v0_2.json"
-SHA256_PATTERN = re.compile(r"^sha256:[a-f0-9]{64}$")
-
-CSV_HEADER = (
-    "result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,"
-    "component_ref,value,unit,dimension,correlation_status"
-)
-
-FORBIDDEN_PAYLOAD_TEXT = {
-    "real client",
-    "asme table",
-    "b31j",
-    "cert" + "ified by openpipestress",
-    "code " + "compliant",
-    "professional " + "acceptance",
-}
+SCHEMA_PATH = ROOT / "schemas/stress_neutral_export.schema.json"
+CSV_HEADER = ",".join(sn.CSV_COLUMNS)
+FORBIDDEN_PAYLOAD_TEXT = {"real client", "asme table", "b31j", "cert" + "ified by openpipestress", "code " + "compliant", "professional " + "acceptance"}
 
 
 def ref(object_type: str, value: str) -> dict[str, str]:
     return {"object_type": object_type, "ref": value}
-
-
-def load_json(path: Path) -> dict[str, object]:
-    with path.open(encoding="utf-8") as handle:
-        return json.load(handle)
-
 
 def source_payload() -> dict[str, object]:
     return {
@@ -158,384 +117,176 @@ def source_payload() -> dict[str, object]:
     }
 
 
-def build_from_source() -> dict[str, object]:
-    return build_stress_neutral_export_package(**source_payload())
+def prepared(count=2, *, values=None, diagnostic_work=False, change_source=None):
+    """Invented transport statements, with the actual Rust reader and source hash."""
+    raw = source()
+    raw["results"] = [{"id": f"result:transport:{index:03d}", "kind": "displacement_magnitude",
+        "entity_ref": "node:transport", "value": float(index) if values is None else values[index], "unit": "mm"} for index in range(count)]
+    if values is None and count == 2:
+        raw["results"][0]["value"], raw["results"][1]["value"] = 12.5, 3450.0
+    if diagnostic_work:
+        for row in raw["results"][-2:]:
+            row.update(kind="nonlinear_support_free_dof_work_residual", unit="N*m", metadata={"component": "free_dof_work_residual"})
+    if change_source:
+        change_source(raw)
+    analysis = build_analysis_run_v0_3(raw, input_manifest_ref=ref("InputManifest", "manifest:transport"), input_manifest_hash="1" * 64)
+    args = source_payload()
+    args.update(source_result_ref=ref("ResultEnvelope", f"result-envelope:{raw['run_id']}"),
+        source_run_ref=ref("AnalysisRun", raw["run_id"]), source_model_ref=ref("Model", raw["model_ref"]),
+        source_hashes=deepcopy(analysis["analysis_run"]["hashes"]))
+    args["reproducibility_refs"] = [deepcopy(args["source_run_ref"]), ref("AuditManifest", "audit-manifest:invented-del-17-06")]
+    # Interpret each row through the already admitted source/table; no fabricated
+    # table identity or unit family supplies the source reader's admission.
+    _, _, table = sn._source_contract(raw)
+    args["result_rows"] = [sn._source_row_projection(raw, row, table) for row in raw["results"]]
+    args["stable_id_map"] = [{"canonical_ref": row["canonical_ref"],
+        "export_ref": ref("StressNeutralRow", row["result_id"]), "mapping_status": "mapped", "loss_category": "exported"} for row in args["result_rows"]]
+    return raw, analysis, args
 
 
-def source_payload_830() -> dict[str, object]:
-    payload = source_payload()
-    template = payload["result_rows"][0]
-    rows, stable = [], []
-    for index in range(830):
-        row = deepcopy(template)
-        row["result_id"] = f"result:stress-neutral:{index:03d}"
-        row["canonical_ref"] = ref("Result", row["result_id"])
-        row["source_result_ref"] = ref("Result", row["result_id"])
-        row["value"] = float(index)
-        if index >= 828:
-            row["row_kind"] = "diagnostic_work"
-            row["result_family"] = "diagnostic_work"
-        rows.append(row)
-        stable.append({"canonical_ref": ref("Result", row["result_id"]), "export_ref": ref("StressNeutralRow", row["result_id"]), "mapping_status": "mapped", "loss_category": "exported"})
-    payload["result_rows"] = rows
-    payload["stable_id_map"] = stable
-    return payload
+def build_from_source(**kwargs):
+    raw, analysis, args = prepared(**kwargs)
+    return sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
 
 
-def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
-    source = source_payload_830()
-    source_before = deepcopy(source)
-    received = deepcopy(source["source_hashes"])
-    package = build_stress_neutral_export_package_v0_2(**source)
-    assert package["schema_version"] == "0.2.0"
-    assert len(package["result_rows"]) == 830
-    assert len(package["stable_id_map"]) == 830
-    assert len(package["unit_preservation_witnesses"]) == 828
-    assert sum(item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK" for item in package["diagnostics"]) == 2
-    aggregate = next(item for item in package["diagnostics"] if item["code"] == "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE")
+def rehash_packet(packet):
+    """Coherently rehash an attack without repairing its received CSV or claims."""
+    members = sn.materialized_members(packet)
+    checks = [item for item in packet["manifest"]["checksums"] if item["payload_ref"]["ref"] != "manifest.json"]
+    for claim in checks:
+        claim["value"] = hashlib.sha256(members[claim["payload_ref"]["ref"]]).hexdigest()
+    checks.append(sn._checked(sn._manifest_seed(packet, checks), "manifest.json", "manifest_seed"))
+    packet["manifest"]["checksums"] = checks
+    packet["manifest"]["package_members"] = [{"filename": name, "checksum": deepcopy(next(c for c in checks if c["payload_ref"]["ref"] == name))} for name in sn.MEMBERS]
+    packet["package_checksum"]["value"] = canonical_sha256_checked_v1(sn.package_projection(packet))
+
+
+def test_current_builder_is_deterministic_source_bound_and_schema_conformant():
+    raw, analysis, args = prepared()
+    before = deepcopy((raw, analysis, args))
+    first = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    second = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    assert json.dumps(first, ensure_ascii=False, separators=(",", ":"), allow_nan=False) == json.dumps(second, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    assert (raw, analysis, args) == before
+    assert first["schema_version"] == "0.3.0"
+    assert first["deliverable_id"] == "DEL-17-06"
+    assert first["export_profile"]["profile_id"] == "ops.stress_neutral.v3"
+    assert first["export_profile"]["comparison_semantics"] == "diagnostic_export_only_no_pass_fail"
+    assert first["provenance"]["source_location"] == "core/handoff/stress_neutral/package.py"
+    assert [(row["result_id"], row["value"], row["unit"]) for row in first["result_rows"]] == [(row["id"], row["value"], row["unit"]) for row in raw["results"]]
+    assert first["unit_system_disclosure"]["unit_system_ref"]["ref"] == "unit-system:dec-018-si-dual-display"
+    assert first["unit_system_disclosure"]["result_units"] == ["mm"]
+    assert first["unit_system_disclosure"]["conversion_performed"] is False
+    assert first["unit_system_disclosure"]["protected_content_included"] is False
+    assert first["validation_ready"] is True
+    schema = json.loads(SCHEMA_PATH.read_text())
+    assert validate_schema_document(schema)
+    assert validate_instance(schema, first, instance_label="current native stress-neutral")
+
+
+def test_current_830_rows_keep_exact_values_units_and_witness_withholding():
+    raw, analysis, args = prepared(830, diagnostic_work=True)
+    before = deepcopy(raw)
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    assert len(packet["result_rows"]) == 830
+    assert [row["value"] for row in packet["result_rows"]] == [row["value"] for row in raw["results"]]
+    assert [row["unit"] for row in packet["result_rows"]] == [row["unit"] for row in raw["results"]]
+    assert len(packet["unit_preservation_witnesses"]) == 828
+    assert sum(item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK" for item in packet["diagnostics"]) == 2
+    aggregate = next(item for item in packet["diagnostics"] if item["code"] == "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE")
     assert "2 retained rows" in aggregate["message"] and "828 rows" in aggregate["message"]
-    assert not any(item["code"] == "SN-UNIT-DIMENSION-MISSING" for item in package["diagnostics"])
-    exported_reason = next(item["reason"] for item in package["loss_report"] if item["category"] == "exported")
-    assert "830 received numerical rows" in exported_reason
-    assert "828 rows have accepted semantic-contract dimension witnesses and 2 rows" in exported_reason
-    assert package["validation_ready"] is False
-    assert package["validation_report"]["validation_status"] == "blocked"
-    assert package["validation_report"]["checks"] == [{
-        "check_id": "stress-neutral-boundary-diagnostics", "check_status": "blocking",
-        "diagnostic_count": 3, "blocking_count": 1, "provenance": package["provenance"],
-    }]
-    assert source == source_before
-    assert package["received_source_checksums"] == received
-    members = materialized_members_v0_2(package)
-    assert list(members) == ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
-    assert all(not data.endswith(b"\n") for name, data in members.items() if name.endswith(".json"))
-    assert next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "manifest.json")["payload_scope"] == "manifest_seed"
-    validate_stress_neutral_export_package_v0_2(package)
-    validate_instance(load_json(SCHEMA_PATH), package, schema_label=str(SCHEMA_PATH), instance_label="strict stress-neutral 0.2 package")
+    assert not any(item["code"] == "SN-UNIT-DIMENSION-MISSING" for item in packet["diagnostics"])
+    exported_reason = next(item["reason"] for item in packet["loss_report"] if item["category"] == "exported")
+    assert "830 received numerical rows" in exported_reason and "828 rows" in exported_reason and "2 rows" in exported_reason
+    assert packet["validation_ready"] is False
+    assert packet["validation_report"]["validation_status"] == "blocked"
+    assert raw == before and packet["received_source_checksums"] == args["source_hashes"]
+    assert list(sn.materialized_members(packet)) == sn.MEMBERS
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
+    validate_instance(json.loads(SCHEMA_PATH.read_text()), packet, instance_label="current 830-row packet")
 
 
-@pytest.mark.parametrize(
-    "change,expected_code",
-    [
-        (lambda row: row.update(result_family="unknown"), "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC"),
-        (lambda row: row.update(unit="unknown-unit"), "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC"),
-        (lambda row: row.update(unit="Pa"), "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"),
-    ],
-)
-def test_v02_categorizes_unknown_missing_and_contradictory_rows_separately(change, expected_code):
-    source = source_payload()
-    change(source["result_rows"][0])
-    before = deepcopy(source)
-    package = build_stress_neutral_export_package_v0_2(**source)
-    result_id = source["result_rows"][0]["result_id"]
-    findings = [item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id]
-    assert [item["code"] for item in findings] == [expected_code]
-    assert findings[0]["severity"] == "blocking"
-    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    assert source == before
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-@pytest.mark.parametrize(
-    "unit,dimension",
-    [
-        ("N/m", "linear_stiffness"),
-        ("N*m/rad", "rotational_stiffness"),
-        ("N", "force"),
-        ("count", "dimensionless"),
-        ("record", "dimensionless"),
-    ],
-)
-def test_v02_other_family_uses_explicit_bound_semantics(unit, dimension):
-    source = source_payload()
-    source["result_rows"][0].update(result_family="other", unit=unit, dimension=dimension)
-    package = build_stress_neutral_export_package_v0_2(**source)
-    row = package["result_rows"][0]
-    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == row["result_id"])
-    assert witness["source_quantity"] == {"value": row["value"], "unit": unit, "dimension": dimension}
-    assert witness["target_quantity"] == witness["source_quantity"]
-    assert not [item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"]]
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_other_family_rejects_unit_dimension_contradiction():
-    source = source_payload()
-    source["result_rows"][0].update(result_family="other", unit="N/m", dimension="force")
-    package = build_stress_neutral_export_package_v0_2(**source)
-    row = package["result_rows"][0]
-    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"])
-    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
-    assert row["result_id"] not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_other_family_does_not_infer_diagnostic_work_from_moment_unit():
-    source = source_payload()
-    source["result_rows"][0].update(result_family="other", unit="N*m", dimension="TBD")
-    package = build_stress_neutral_export_package_v0_2(**source)
-    row = package["result_rows"][0]
-    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"])
-    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC"
-    assert finding["severity"] == "blocking"
-    assert finding["code"] != "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
-
-
-@pytest.mark.parametrize("unit,dimension", [("N", "force"), ("N*m", "moment")])
-def test_v02_reaction_family_accepts_only_established_force_and_moment_pairs(unit, dimension):
-    source = source_payload()
-    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension=dimension)
-    package = build_stress_neutral_export_package_v0_2(**source)
-    row = package["result_rows"][0]
-    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == row["result_id"])
-    assert witness["source_quantity"] == {"value": row["value"], "unit": unit, "dimension": dimension}
-    assert witness["target_quantity"] == witness["source_quantity"]
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-@pytest.mark.parametrize("unit,dimension", [("N", "moment"), ("N*m", "force")])
-def test_v02_reaction_family_withholds_cross_pair_contradictions(unit, dimension):
-    source = source_payload()
-    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension=dimension)
-    package = build_stress_neutral_export_package_v0_2(**source)
-    result_id = package["result_rows"][0]["result_id"]
-    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
-    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-@pytest.mark.parametrize("unit,dimension", [("N", "moment"), ("N*m", "force")])
-def test_v02_rejects_rehashed_witness_over_reaction_cross_pair(unit, dimension):
-    source = source_payload()
-    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension={"N": "force", "N*m": "moment"}[unit])
-    package = build_stress_neutral_export_package_v0_2(**source)
-    package["result_rows"][0]["dimension"] = dimension
-    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
-    rehash_v02(package)
-    with pytest.raises(ValueError, match="SN-UNIT-WITNESS-BINDING-MISMATCH"):
-        validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_diagnostic_work_with_moment_unit_remains_withheld():
-    source = source_payload()
-    source["result_rows"][0].update(row_kind="diagnostic_work", result_family="diagnostic_work", unit="N*m", dimension="moment")
-    package = build_stress_neutral_export_package_v0_2(**source)
-    result_id = package["result_rows"][0]["result_id"]
-    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
-    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
-    assert finding["severity"] == "info"
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_explicit_exported_dimension_contradiction_is_preserved_and_withheld():
-    source = source_payload()
-    source["result_rows"][0]["dimension"] = "stress"
-    before = deepcopy(source)
-    package = build_stress_neutral_export_package_v0_2(**source)
-    result_id = source["result_rows"][0]["result_id"]
-    row = next(item for item in package["result_rows"] if item["result_id"] == result_id)
-    assert row["dimension"] == "stress"
-    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
-    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
-    assert finding["severity"] == "blocking"
-    assert source == before
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_rejects_witness_over_explicit_exported_dimension_contradiction():
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    package["result_rows"][0]["dimension"] = "stress"
-    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
-    rehash_v02(package)
-    with pytest.raises(ValueError, match="SN-UNIT-WITNESS-BINDING-MISMATCH"):
-        validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_rejects_member_and_package_tamper():
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    package["result_rows"][0]["value"] = 999
-    try:
-        validate_stress_neutral_export_package_v0_2(package)
-    except ValueError as error:
-        assert "MEMBER-CHECKSUM-MISMATCH" in str(error)
-    else:
-        raise AssertionError("member tamper must fail")
-
-
-def test_v02_fixture_matches_builder_and_dispatch_schema():
-    fixture = load_json(V02_FIXTURE_PATH)
-    assert fixture == build_stress_neutral_export_package_v0_2(**source_payload())
-    validate_instance(load_json(SCHEMA_PATH), fixture, schema_label=str(SCHEMA_PATH), instance_label=str(V02_FIXTURE_PATH))
-
-
-def test_v02_successor_profile_identity_is_consistent_and_contradictions_are_rejected():
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    assert package["export_profile"]["profile_id"] == "ops.stress_neutral.v2"
-    assert package["export_profile"]["profile_version"] == "0.2.0"
-    assert package["manifest"]["export_profile_ref"] == {
-        "object_type": "StressNeutralExportProfile",
-        "ref": "ops.stress_neutral.v2",
-    }
-    for profile in (
-        {"profile_id": "ops.stress_neutral.v1"},
-        {"profile_version": "0.1.0"},
-    ):
-        payload = source_payload()
-        payload["export_profile"] = profile
-        with pytest.raises(ValueError, match="SN-0.2-PROFILE-IDENTITY-MISMATCH"):
-            build_stress_neutral_export_package_v0_2(**payload)
-
-
-def test_v02_writer_materializes_exact_nine_checksum_bound_bytes(tmp_path):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    expected = materialized_members_v0_2(package)
-    written = write_materialized_members_v0_2(package, tmp_path)
-    assert [path.name for path in written] == list(expected)
-    assert {path.name: path.read_bytes() for path in written} == expected
-    claims = {item["payload_ref"]["ref"]: item for item in package["manifest"]["checksums"]}
-    for filename, payload in expected.items():
+def test_current_writer_roundtrips_nine_exact_checksum_bound_members(tmp_path):
+    # Retired write_stress_neutral_export_package's 0.1 redaction refusal is not
+    # the current 0.3 writer contract (package_v0_3.py::write_materialized_members
+    # before E3). A normal current packet materializes all nine exact bytes.
+    packet = build_from_source()
+    members = sn.materialized_members(packet)
+    paths = sn.write_materialized_members(packet, tmp_path)
+    assert [path.name for path in paths] == sn.MEMBERS
+    assert {path.name: path.read_bytes() for path in paths} == members
+    assert sn.read_materialized_members(tmp_path) == packet
+    claims = {item["payload_ref"]["ref"]: item for item in packet["manifest"]["checksums"]}
+    for filename, payload in members.items():
         if filename != "manifest.json":
             assert hashlib.sha256(payload).hexdigest() == claims[filename]["value"]
         else:
             assert claims[filename]["payload_scope"] == "manifest_seed"
         if filename.endswith(".json"):
             assert not payload.endswith(b"\n")
+    assert all(item["canonicalization"] == "openpipestress_jcs_ijson_v1" for filename, item in claims.items() if filename.endswith(".json"))
 
 
-def rehash_v02(package):
-    members = materialized_members_v0_2(package)
-    checksums = package["manifest"]["checksums"]
-    non_manifest = [item for item in checksums if item["payload_ref"]["ref"] != "manifest.json"]
-    for item in non_manifest:
-        item["value"] = hashlib.sha256(members[item["payload_ref"]["ref"]]).hexdigest()
-    manifest = next(item for item in checksums if item["payload_ref"]["ref"] == "manifest.json")
-    manifest.update(_checked(_manifest_seed(package, non_manifest), "manifest.json", "manifest_seed"))
-    by_name = {item["payload_ref"]["ref"]: item for item in checksums}
-    for member in package["manifest"]["package_members"]:
-        member["checksum"] = deepcopy(by_name[member["filename"]])
-    package["package_checksum"]["value"] = canonical_sha256_checked_v1(package_projection(package))
+def test_current_csv_and_json_rows_preserve_scientific_values_order_and_units():
+    packet = build_from_source(values=[0.000028, 1.0])
+    assert packet["csv_text"] == sn._render_ascii_csv(packet["result_rows"])
+    assert packet["csv_text"].splitlines()[0] == CSV_HEADER
+    packet["csv_text"].encode("ascii")
+    packet["csv_text"] = packet["csv_text"].replace(",2.8e-05,mm,", ",0.000028,mm,").replace(",1,mm,", ",1.0,mm,")
+    received_bytes = packet["csv_text"].encode("ascii")
+    rehash_packet(packet)
+    sn.validate_stress_neutral_export_package(packet)
+    assert packet["csv_text"].encode("ascii") == received_bytes
+    claim = next(item for item in packet["manifest"]["checksums"] if item["payload_ref"]["ref"] == "stress_neutral_results.csv")
+    assert claim["value"] == hashlib.sha256(received_bytes).hexdigest()
 
 
-@pytest.mark.parametrize(
-    "initial_change,reduced_change,expected_code",
-    [
-        (
-            lambda row: row.update(unit="unknown-unit"),
-            lambda row: row.update(unit="N", dimension="force", correlation_status="canonical_id_map"),
-            "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
-        ),
-        (
-            lambda row: row.update(result_family="unknown"),
-            lambda row: row.update(result_family="other", dimension="TBD", correlation_status="unit_or_dimension_blocking_review_required"),
-            "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
-        ),
-        (
-            lambda row: row.update(unit="Pa"),
-            lambda row: None,
-            "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
-        ),
-    ],
-)
-def test_v02_consumes_explicit_checksum_covered_withholding_from_reduced_rows(initial_change, reduced_change, expected_code):
-    source = source_payload()
-    initial_change(source["result_rows"][0])
-    package = build_stress_neutral_export_package_v0_2(**source)
-    row = package["result_rows"][0]
-    reduced_change(row)
-    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
-    rehash_v02(package)
-    result_id = row["result_id"]
-    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
-    assert [item["code"] for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id] == [expected_code]
-    assert package["validation_ready"] is False
-    validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_received_csv_accepts_equivalent_binary64_spellings_without_rewriting_bytes():
-    source = source_payload()
-    source["result_rows"][0]["value"] = 0.000028
-    source["result_rows"][1]["value"] = 1.0
-    package = build_stress_neutral_export_package_v0_2(**source)
-    package["csv_text"] = package["csv_text"].replace(",2.8e-05,N,", ",0.000028,N,").replace(",1,Pa,", ",1.0,Pa,")
-    received_bytes = package["csv_text"].encode("ascii")
-    rehash_v02(package)
-    validate_stress_neutral_export_package_v0_2(package)
-    assert package["csv_text"].encode("ascii") == received_bytes
-    csv_claim = next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "stress_neutral_results.csv")
-    assert csv_claim["value"] == hashlib.sha256(received_bytes).hexdigest()
-
-
-@pytest.mark.parametrize("blank_mutation", [
-    lambda text: text.replace("\n", "\n\n", 1),
-    lambda text: text + "\n",
-    lambda text: text.replace("\n", "\n   \n", 1),
-])
-def test_v02_public_validator_rejects_recomputed_blank_csv_records(blank_mutation):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    package["csv_text"] = blank_mutation(package["csv_text"])
-    rehash_v02(package)
+@pytest.mark.parametrize("numeric_text", ["NaN", "Infinity", "-Infinity", "1e400", "1e-4000", "9007199254740992", "12.500000000000002", "01", "+12.5", "12.5x", ""])
+def test_current_csv_refuses_nonfinite_unsafe_malformed_underflow_or_unequal_values(numeric_text):
+    packet = build_from_source()
+    changed = packet["csv_text"].replace(",12.5,mm,", f",{numeric_text},mm,")
+    assert changed != packet["csv_text"]
     with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
-        validate_stress_neutral_export_package_v0_2(package)
-
-
-@pytest.mark.parametrize(
-    "numeric_text",
-    ["NaN", "Infinity", "-Infinity", "1e400", "1e-4000", "9007199254740992", "12.500000000000002", "01", "+12.5", "12.5x", ""],
-)
-def test_v02_received_csv_rejects_nonfinite_unsafe_malformed_underflow_and_unequal_values(numeric_text):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    text = package["csv_text"].replace(",12.5,N,", f",{numeric_text},N,")
-    with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
-        _validate_received_csv(text, package["result_rows"])
+        sn._validate_received_csv(changed, packet["result_rows"])
 
 
 @pytest.mark.parametrize("mutation", [
+    lambda text: text.replace("\n", "\n\n", 1), lambda text: text + "\n", lambda text: text.replace("\n", "\n   \n", 1),
     lambda text: text.replace("result_id,canonical_ref", "canonical_ref,result_id", 1),
-    lambda text: "\n".join(text.splitlines()[:-1]) + "\n",
-    lambda text: text + text.splitlines()[1] + "\n",
-    lambda text: text.replace(",N,force,", ",kN,force,", 1),
+    lambda text: "\n".join(text.splitlines()[:-1]) + "\n", lambda text: text + text.splitlines()[1] + "\n",
+    lambda text: text.replace(",mm,length,", ",m,length,", 1),
     lambda text: text.replace(",canonical_id_map\n", "\n", 1),
-    lambda text: text.replace("correlation_status\n", "correlation_status,extra\n", 1).replace("\n", ",extra\n", 1),
+    lambda text: text.replace("correlation_status\n", "correlation_status,extra\n", 1),
 ])
-def test_v02_received_csv_rejects_order_partial_duplicate_extra_and_field_changes(mutation):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
+def test_current_validator_refuses_coherently_rehashed_csv_shape_or_field_attacks(mutation):
+    packet = build_from_source(); packet["csv_text"] = mutation(packet["csv_text"]); rehash_packet(packet)
     with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
-        _validate_received_csv(mutation(package["csv_text"]), package["result_rows"])
+        sn.validate_stress_neutral_export_package(packet)
 
 
 @pytest.mark.parametrize("mutation,expected", [
     (lambda p: p["unit_preservation_witnesses"][0].update(result_id="result:wrong"), "UNIT-WITNESS-BINDING"),
+    (lambda p: p["unit_preservation_witnesses"][0]["source_quantity"].update(value=13.5), "UNIT-WITNESS-BINDING"),
+    (lambda p: p["unit_preservation_witnesses"][0]["target_quantity"].update(unit="m"), "UNIT-WITNESS-BINDING"),
+    (lambda p: p["unit_preservation_witnesses"][0].update(conversion_performed=True), "UNIT-WITNESS-BINDING"),
     (lambda p: p["loss_report"][0]["target_artifact_ref"].update(ref="package:wrong"), "LOSS-REPORT-BINDING"),
-    (lambda p: p["source_result_ref"].update(ref="result-envelope:wrong"), "SOURCE-RESULT-REF-UNBOUND"),
+    (lambda p: p["source_result_ref"].update(ref="result-envelope:wrong"), "CARRIER-BINDING"),
+    (lambda p: p["source_run_ref"].update(ref="run:wrong"), "SOURCE-RUN-REF-UNBOUND"),
     (lambda p: p["result_rows"][1].update(result_id=p["result_rows"][0]["result_id"], canonical_ref=deepcopy(p["result_rows"][0]["canonical_ref"]), source_result_ref=deepcopy(p["result_rows"][0]["source_result_ref"])), "RESULT-ROW-IDENTITY"),
     (lambda p: p["stable_id_map"][1].update(canonical_ref=deepcopy(p["stable_id_map"][0]["canonical_ref"])), "STABLE-ID-MAP-BINDING"),
     (lambda p: p["stable_id_map"].pop(), "STABLE-ID-MAP-BINDING"),
-    (lambda p: p.update(csv_text=p["csv_text"].replace(",N,force,", ",kN,force,", 1)), "CSV-ROW-BINDING"),
     (lambda p: p["validation_report"].update(validation_status="blocked"), "VALIDATION-STATUS-BINDING"),
     (lambda p: p["validation_report"]["checks"][0].update(check_status="blocking", blocking_count=0), "VALIDATION-STATUS-BINDING"),
     (lambda p: p.update(schema_conformant=False), "SCHEMA-CONFORMANCE-CLAIM"),
-    (lambda p: p["privacy"].update(private_payload_embedded=True), "PRIVACY-BOUNDARY"),
-    (lambda p: p["professional_boundary"].update(software_makes_approval_claim=True), "PROFESSIONAL-BOUNDARY"),
     (lambda p: p["unit_preservation_witnesses"].pop(), "WITNESS-CATEGORY-ACCOUNTING"),
-    (lambda p: p["export_profile"]["source_basis_refs"].remove({"object_type": "ExternalReference", "ref": "fixtures/results/semantic_contract_v0_2.json"}), "SEMANTIC-CONTRACT-BINDING"),
+    (lambda p: p["export_profile"]["source_basis_refs"].remove(ref("ExternalReference", "fixtures/results/semantic_contract_v0_3_precision_1.json")), "SEMANTIC-CONTRACT-BINDING"),
 ])
-def test_v02_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    mutation(package)
-    rehash_v02(package)
+def test_current_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
+    packet = build_from_source(); mutation(packet)
+    packet["csv_text"] = sn._render_ascii_csv(packet["result_rows"])
+    rehash_packet(packet)
     with pytest.raises(ValueError, match=expected):
-        validate_stress_neutral_export_package_v0_2(package)
-
-
-def test_v02_rejects_recomputed_explicit_category_reassignment():
-    package = build_stress_neutral_export_package_v0_2(**source_payload_830())
-    finding = next(item for item in package["diagnostics"] if item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")
-    finding["source"]["ref"] = package["unit_preservation_witnesses"][0]["result_id"]
-    rehash_v02(package)
-    with pytest.raises(ValueError, match="WITNESS-CATEGORY-ACCOUNTING"):
-        validate_stress_neutral_export_package_v0_2(package)
+        sn.validate_stress_neutral_export_package(packet)
 
 
 @pytest.mark.parametrize("mutation,expected", [
@@ -546,265 +297,156 @@ def test_v02_rejects_recomputed_explicit_category_reassignment():
     (lambda p: p["manifest"]["package_members"][0].update(checksum=deepcopy(p["manifest"]["checksums"][1])), "MEMBER-CHECKSUM-BINDING"),
     (lambda p: p["package_checksum"].update(payload_scope="member_payload"), "PACKAGE-CHECKSUM-METADATA"),
 ])
-def test_v02_rejects_inventory_checksum_metadata_and_binding_mutations(mutation, expected):
-    package = build_stress_neutral_export_package_v0_2(**source_payload())
-    mutation(package)
+def test_current_inventory_checksum_metadata_and_binding_attacks_refuse(mutation, expected):
+    packet = build_from_source(); mutation(packet)
     with pytest.raises(ValueError, match=expected):
-        validate_stress_neutral_export_package_v0_2(package)
+        sn.validate_stress_neutral_export_package(packet)
 
 
-def test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families():
-    schema = load_json(SCHEMA_PATH)
-    valid = build_stress_neutral_export_package_v0_2(**source_payload())
-    diagnostic_source = source_payload()
-    diagnostic_source["result_rows"][0]["row_kind"] = "diagnostic_work"
-    diagnostic_source["result_rows"][0]["result_family"] = "diagnostic_work"
-    with_diagnostic = build_stress_neutral_export_package_v0_2(**diagnostic_source)
-    cases = []
-    item = deepcopy(valid); item["export_profile"]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); del item["result_rows"][0]["unit"]; cases.append(item)
-    item = deepcopy(valid); item["unit_system_disclosure"]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); del item["stable_id_map"][0]["mapping_status"]; cases.append(item)
-    item = deepcopy(valid); del item["loss_report"][0]["reason"]; cases.append(item)
-    item = deepcopy(valid); item["validation_report"]["unknown"] = True; cases.append(item)
-    item = deepcopy(with_diagnostic); item["diagnostics"][0]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); item["provenance"]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); item["received_source_checksums"][0]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); item["privacy"]["unknown"] = True; cases.append(item)
-    item = deepcopy(valid); item["professional_boundary"]["unknown"] = True; cases.append(item)
-    for case in cases:
-        try:
-            validate_instance(schema, case, schema_label=str(SCHEMA_PATH), instance_label="negative strict stress-neutral package")
-        except AssertionError:
-            continue
-        raise AssertionError("strict stress-neutral schema accepted an unknown or missing family field")
+def test_current_package_and_member_tampering_is_detected():
+    packet = build_from_source(); packet["csv_text"] = packet["csv_text"].replace(",12.5,", ",13.5,")
+    with pytest.raises(ValueError, match="CHECKSUM"):
+        sn.validate_stress_neutral_export_package(packet)
+    packet = build_from_source(); packet["package_checksum"]["value"] = "0" * 64
+    with pytest.raises(ValueError, match="SN-PACKAGE-CHECKSUM-MISMATCH"):
+        sn.validate_stress_neutral_export_package(packet)
+    packet = build_from_source(); members = sn.materialized_members(packet); members["extra.json"] = b"{}"
+    with pytest.raises(ValueError, match="INVENTORY"):
+        sn.reconstruct_materialized_members(members)
 
 
-def walk_mappings(value):
-    if isinstance(value, dict):
-        yield value
-        for item in value.values():
-            yield from walk_mappings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_mappings(item)
+@pytest.mark.parametrize("profile", [{"profile_id": "ops.stress_neutral.v1"}, {"profile_version": "0.2.0"}])
+def test_current_builder_refuses_old_or_contradictory_profile_identity(profile):
+    raw, analysis, args = prepared(); args["export_profile"] = profile
+    with pytest.raises(ValueError, match="SN-0.3-PROFILE-IDENTITY-MISMATCH"):
+        sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
 
 
-def check_jsonschema_validation():
-    schema = load_json(SCHEMA_PATH)
-    fixture = load_json(FIXTURE_PATH)
-    built = build_from_source()
-    try:
-        assert validate_schema_document(schema, schema_label=str(SCHEMA_PATH))
-        assert validate_instance(schema, fixture, schema_label=str(SCHEMA_PATH), instance_label=str(FIXTURE_PATH))
-        assert validate_instance(
-            schema,
-            built,
-            schema_label=str(SCHEMA_PATH),
-            instance_label="build_stress_neutral_export_package output",
-        )
-    except JsonSchemaDependencyMissing as exc:
-        _skip_or_note_missing_jsonschema(exc)
+@pytest.mark.parametrize("version", ["0.1.0", "0.2.0"])
+def test_current_reader_and_schema_refuse_old_format_statements(version):
+    packet = build_from_source(); packet["schema_version"] = version
+    with pytest.raises(ValueError, match="SN-VERSION-UNSUPPORTED"):
+        sn.validate_stress_neutral_export_package(packet)
+    with pytest.raises(AssertionError):
+        validate_instance(json.loads(SCHEMA_PATH.read_text()), packet, instance_label="retired stress-neutral version")
 
 
-def test_fixture_and_builder_validate_against_schema():
-    check_jsonschema_validation()
+def test_current_schema_keeps_unknown_and_missing_field_guards():
+    schema = json.loads(SCHEMA_PATH.read_text()); valid = build_from_source()
+    for path, field, remove in [
+        (["export_profile"], "unknown", False), (["result_rows", 0], "unit", True),
+        (["unit_system_disclosure"], "unknown", False), (["stable_id_map", 0], "mapping_status", True),
+        (["loss_report", 0], "reason", True), (["validation_report"], "unknown", False),
+        (["provenance"], "unknown", False), (["received_source_checksums", 0], "unknown", False),
+        (["privacy"], "unknown", False), (["professional_boundary"], "unknown", False),
+    ]:
+        changed = deepcopy(valid); target = changed
+        for part in path: target = target[part]
+        if remove: del target[field]
+        else: target[field] = True
+        with pytest.raises(AssertionError):
+            validate_instance(schema, changed, instance_label=f"negative current field {path}/{field}")
 
 
-def test_builder_is_deterministic_and_preserves_members():
-    first = build_from_source()
-    second = build_from_source()
-
-    assert canonical_json(first) == canonical_json(second)
-    assert first["deliverable_id"] == "DEL-17-06"
-    assert first["package_status"] == "stress_neutral_export_package"
-    assert first["export_profile"]["comparison_semantics"] == "diagnostic_export_only_no_pass_fail"
-    assert first["export_profile"]["unit_policy"] == "unit_and_dimension_required_per_row"
-    member_roles = {item["member_role"] for item in first["manifest"]["package_members"]}
-    assert member_roles == {
-        "manifest",
-        "csv_text",
-        "result_rows",
-        "unit_system_disclosure",
-        "stable_id_map",
-        "loss_report",
-        "validation_report",
-        "diagnostics",
-    }
-    assert first["unit_system_disclosure"]["unit_system_ref"]["ref"] == "unit-system:dec-018-si-dual-display"
-    assert first["unit_system_disclosure"]["result_units"] == ["N", "Pa"]
-    assert first["unit_system_disclosure"]["conversion_performed"] is False
-    assert first["unit_system_disclosure"]["protected_content_included"] is False
-    assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
-    assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
-
-
-def test_json_hash_contract_is_exact_deterministic_and_not_jcs():
-    sample = {"z": "café", "a": [1, {"b": True}]}
-    expected = b'{"a":[1,{"b":true}],"z":"caf\\u00e9"}'
-    assert canonical_json(sample).encode("ascii") == expected
-    assert hashlib.sha256(expected).hexdigest() == (
-        "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
-    )
-
-    package = build_from_source()
-    json_checksums = [
-        item
-        for item in walk_mappings(package)
-        if item.get("algorithm") == "sha256"
-        and item.get("canonicalization") != "normalized_ascii_lf_text"
-    ]
-    assert json_checksums
-    assert {item["canonicalization"] for item in json_checksums} == {
-        CANONICALIZATION_LABEL
-    }
-    assert "JCS" not in canonical_json(package)
-
-    mutated = source_payload()
-    mutated["result_rows"][0]["value"] = 13.5
-    changed = build_stress_neutral_export_package(**mutated)
-    original_hashes = {item["value"] for item in package["manifest"]["checksums"]}
-    changed_hashes = {item["value"] for item in changed["manifest"]["checksums"]}
-    assert changed_hashes != original_hashes
-
-
-def test_csv_and_json_rows_are_synchronized_and_ascii_safe():
-    package = build_from_source()
-    text = package["csv_text"]
-
-    assert text == render_stress_neutral_csv(package["result_rows"])
-    assert text == CSV_FIXTURE_PATH.read_text(encoding="ascii")
-    assert text.splitlines()[0] == CSV_HEADER
-    text.encode("ascii")
-    assert "result:invented:force:P001:axial" in text
-    assert "result:invented:stress:P001:sustained" in text
-    assert {row["unit"] for row in package["result_rows"]} == {"N", "Pa"}
-    assert {row["dimension"] for row in package["result_rows"]} == {"force", "stress"}
-
-
-def test_assumption_and_reproducibility_refs_pass_through_to_package_and_manifest():
-    payload = source_payload()
-    package = build_stress_neutral_export_package(**payload)
-
+def test_assumption_reproducibility_refs_are_copied_into_current_transport():
+    raw, analysis, args = prepared()
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    transport = json.loads(sn.materialized_members(packet)["manifest.json"])
     for key in ("unresolved_assumption_refs", "reproducibility_refs"):
-        assert package[key] == payload[key]
-        assert package["manifest"][key] == payload[key]
-
-    payload["unresolved_assumption_refs"][0]["ref"] = "mutated-after-build"
-    assert package["unresolved_assumption_refs"][0]["ref"] == (
-        "assumption:invented-result-review"
-    )
-    assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
+        assert packet[key] == args[key] == transport["package_metadata"][key]
+    args["unresolved_assumption_refs"][0]["ref"] = "mutated-after-build"
+    assert packet["unresolved_assumption_refs"][0]["ref"] == "assumption:invented-result-review"
+    assert packet["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
-def test_missing_units_stable_ids_and_loss_report_are_blocking():
-    payload = source_payload()
-    rows = deepcopy(payload["result_rows"])
-    rows[0]["unit"] = ""
-
-    package = build_stress_neutral_export_package(
-        export_id="stress-neutral:blocked",
-        source_result_ref=payload["source_result_ref"],
-        source_run_ref=payload["source_run_ref"],
-        source_model_ref=payload["source_model_ref"],
-        source_hashes=payload["source_hashes"],
-        result_rows=rows,
-        stable_id_map=[],
-        loss_report=[],
-    )
-
-    codes = {item["code"] for item in package["diagnostics"]}
-    assert {"SN-UNIT-DIMENSION-MISSING", "SN-STABLE-ID-MAP-MISSING", "SN-LOSS-REPORT-MISSING"} <= codes
-    assert any(item["severity"] == "blocking" for item in package["diagnostics"])
-    assert package["validation_report"]["validation_status"] == "blocked"
+def test_current_boundary_diagnostics_keep_missing_data_privacy_and_authority_controls():
+    packet = build_from_source(); rows = deepcopy(packet["result_rows"]); rows[0]["unit"] = ""
+    profile = deepcopy(packet["export_profile"]); profile["free_metadata"] = {"unsafe_label": "cert" + "ified comparison export"}; profile["source_basis_refs"] = []
+    findings = sn._boundary_diagnostics(result_rows=rows, stable_id_map=[], loss_report=[], export_profile=profile,
+        privacy={**packet["privacy"], "protected_payload_embedded": True}, package_ref=ref("StressNeutralExportPackage", packet["export_id"]))
+    codes = {item["code"] for item in findings}
+    assert {"SN-UNIT-DIMENSION-MISSING", "SN-STABLE-ID-MAP-MISSING", "SN-LOSS-REPORT-MISSING", "SN-SOURCE-BASIS-REFS-MISSING", "SN-PRIVACY-BOUNDARY-VIOLATION", "SN-PROFILE-AUTHORITY-TERM"} <= codes
+    assert all(item["severity"] == "blocking" for item in findings)
+    controlled = control_route_export(packet, route_id="REXC-CORE-005", export_context="downstream_tool", require_lossless_materialization=True, source_findings=findings)
+    assert controlled.blocked is True and controlled.payload is None
+    assert controlled.summary["source_blocking_count"] == len(findings)
 
 
-def test_privacy_and_authority_boundary_diagnostics_are_blocking():
-    payload = source_payload()
-    package = build_stress_neutral_export_package(
-        export_id="stress-neutral:privacy-boundary",
-        source_result_ref=payload["source_result_ref"],
-        source_run_ref=payload["source_run_ref"],
-        source_model_ref=payload["source_model_ref"],
-        source_hashes=payload["source_hashes"],
-        result_rows=payload["result_rows"],
-        stable_id_map=payload["stable_id_map"],
-        loss_report=payload["loss_report"],
-        export_profile={"free_metadata": {"unsafe_label": "cert" + "ified comparison export"}},
-        privacy={"protected_payload_embedded": True},
-    )
-
-    codes = {item["code"] for item in package["diagnostics"]}
-    assert {"SN-PRIVACY-BOUNDARY-VIOLATION", "SN-PROFILE-AUTHORITY-TERM"} <= codes
-    assert any(item["severity"] == "blocking" for item in package["diagnostics"])
-    assert package["professional_boundary"]["software_makes_compliance_claim"] is False
-    assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
+def test_current_builder_retains_blocking_authority_diagnostic_without_false_claims():
+    raw, analysis, args = prepared(); args["export_profile"] = {"free_metadata": {"unsafe_label": "cert" + "ified comparison export"}}
+    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    assert "SN-PROFILE-AUTHORITY-TERM" in {item["code"] for item in packet["diagnostics"]}
+    assert packet["validation_ready"] is False and packet["validation_report"]["validation_status"] == "blocked"
+    assert packet["professional_boundary"]["software_makes_compliance_claim"] is False
+    assert packet["professional_boundary"]["software_creates_professional_reliance_record"] is False
+    # Free metadata is represented by the existing blocking diagnostic. It is
+    # not a new direct-writer refusal; the writer's current flag guards below
+    # are exercised with checksums coherent, before any filesystem writes.
+    controlled = control_route_export(packet, route_id="REXC-CORE-005", export_context="downstream_tool", require_lossless_materialization=True, source_findings=packet["diagnostics"])
+    assert controlled.blocked and controlled.summary["source_blocking_count"] >= 1
 
 
-def test_source_basis_refs_cover_result_export_run_and_comparison_contracts():
-    package = build_from_source()
-    refs = {
-        (item["object_type"], item["ref"])
-        for item in package["export_profile"]["source_basis_refs"]
-    }
-
-    assert {
-        ("Deliverable", "DEL-08-04"),
-        ("Deliverable", "DEL-14-02"),
-        ("Deliverable", "DEL-14-05"),
-        ("Deliverable", "DEL-17-02"),
-    } <= refs
-
-    payload = source_payload()
-    unsafe = build_stress_neutral_export_package(
-        export_id="stress-neutral:missing-source-basis",
-        source_result_ref=payload["source_result_ref"],
-        source_run_ref=payload["source_run_ref"],
-        source_model_ref=payload["source_model_ref"],
-        source_hashes=payload["source_hashes"],
-        result_rows=payload["result_rows"],
-        stable_id_map=payload["stable_id_map"],
-        loss_report=payload["loss_report"],
-        export_profile={"source_basis_refs": [ref("Deliverable", "DEL-17-02")]},
-    )
-
-    assert "SN-SOURCE-BASIS-REFS-MISSING" in {item["code"] for item in unsafe["diagnostics"]}
-    assert unsafe["validation_report"]["validation_status"] == "blocked"
+@pytest.mark.parametrize("field", ["private_payload_embedded", "protected_payload_embedded", "commercial_tool_payload_embedded", "telemetry_allowed"])
+def test_current_builder_refuses_disallowed_privacy_flags(field):
+    raw, analysis, args = prepared(); args["privacy"] = {field: True}
+    with pytest.raises(ValueError, match="SN-PRIVACY-BOUNDARY-VIOLATION"):
+        sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
 
 
-def test_writer_outputs_csv_and_sidecars(tmp_path):
-    package = build_from_source()
-
-    controlled = write_stress_neutral_export_package(tmp_path, package)
-
-    assert controlled.blocked is True
-    assert controlled.summary["materialization_withheld"] is True
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_fixtures_contain_no_private_or_protected_payload_text():
-    text = "\n".join(
-        walk_strings(
-            {
-                "package": load_json(FIXTURE_PATH),
-                "source": load_json(SOURCE_PAYLOAD_PATH),
-                "csv": CSV_FIXTURE_PATH.read_text(encoding="ascii"),
-            }
-        )
-    ).lower()
-    for forbidden in FORBIDDEN_PAYLOAD_TEXT:
-        assert forbidden not in text
+@pytest.mark.parametrize("group,field,value,code", [
+    ("privacy", "local_only", False, "SN-PRIVACY-BOUNDARY-VIOLATION"),
+    *(("privacy", field, True, "SN-PRIVACY-BOUNDARY-VIOLATION") for field in ("private_payload_embedded", "protected_payload_embedded", "commercial_tool_payload_embedded", "telemetry_allowed")),
+    ("professional_boundary", "human_review_required", False, "SN-PROFESSIONAL-BOUNDARY-VIOLATION"),
+    *(("professional_boundary", field, True, "SN-PROFESSIONAL-BOUNDARY-VIOLATION") for field in ("software_makes_release_claim", "software_makes_external_compatibility_claim", "software_makes_solver_validation_claim", "software_makes_compliance_claim", "software_makes_certification_claim", "software_makes_sealing_claim", "software_makes_approval_claim", "software_creates_professional_reliance_record")),
+])
+def test_current_writer_refuses_coherently_hashed_boundary_attacks_before_writes(tmp_path, group, field, value, code):
+    packet = build_from_source(); packet[group][field] = value; rehash_packet(packet)
+    assert canonical_sha256_checked_v1(sn.package_projection(packet)) == packet["package_checksum"]["value"]
+    output = tmp_path / "should-not-be-created"
+    with pytest.raises(ValueError, match=code):
+        sn.write_materialized_members(packet, output)
+    assert not output.exists() and list(tmp_path.iterdir()) == []
 
 
-def main():
-    check_jsonschema_validation()
-    test_builder_is_deterministic_and_preserves_members()
-    test_csv_and_json_rows_are_synchronized_and_ascii_safe()
-    test_missing_units_stable_ids_and_loss_report_are_blocking()
-    test_privacy_and_authority_boundary_diagnostics_are_blocking()
-    test_source_basis_refs_cover_result_export_run_and_comparison_contracts()
-    test_fixtures_contain_no_private_or_protected_payload_text()
+def test_current_source_basis_refs_keep_result_export_run_comparison_contracts():
+    packet = build_from_source()
+    assert {("Deliverable", name) for name in ("DEL-08-04", "DEL-14-02", "DEL-14-05", "DEL-17-02")} <= {(item["object_type"], item["ref"]) for item in packet["export_profile"]["source_basis_refs"]}
+    raw, analysis, args = prepared(); args["export_profile"] = {"source_basis_refs": [ref("Deliverable", "DEL-17-02")]}
+    blocked = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
+    assert "SN-SOURCE-BASIS-REFS-MISSING" in {item["code"] for item in blocked["diagnostics"]}
+    assert blocked["validation_report"]["validation_status"] == "blocked"
+
+
+def test_current_invented_packet_contains_no_private_or_protected_payload_text():
+    text = "\n".join(walk_strings(build_from_source())).lower()
+    for forbidden in FORBIDDEN_PAYLOAD_TEXT: assert forbidden not in text
+
+
+def test_current_category_reassignment_cannot_be_hidden_by_rehashing():
+    packet = build_from_source(count=4, diagnostic_work=True)
+    finding = next(item for item in packet["diagnostics"] if item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")
+    finding["source"]["ref"] = packet["unit_preservation_witnesses"][0]["result_id"]
+    rehash_packet(packet)
+    with pytest.raises(ValueError, match="WITNESS-CATEGORY-ACCOUNTING"):
+        sn.validate_stress_neutral_export_package(packet)
+
+
+def test_current_schema_keeps_nested_provenance_shape_without_weakening_top_level():
+    packet = build_from_source()
+    packet["result_rows"][0]["provenance"] = {"source_name": "invented nested record",
+        "source_location": "invented:test-record", "source_license": "invented", "extra": True}
+    rehash_packet(packet)
+    schema = json.loads(SCHEMA_PATH.read_text())
+    validate_instance(schema, packet, instance_label="unchanged current nested provenance admission")
+    packet["provenance"]["extra"] = True
+    with pytest.raises(AssertionError):
+        validate_instance(schema, packet, instance_label="unchanged strict top-level provenance refusal")
 
 
 if __name__ == "__main__":
-    main()
+    test_current_builder_is_deterministic_source_bound_and_schema_conformant()
+    test_current_csv_and_json_rows_preserve_scientific_values_order_and_units()
+    test_current_boundary_diagnostics_keep_missing_data_privacy_and_authority_controls()
+    test_current_builder_retains_blocking_authority_diagnostic_without_false_claims()
+    test_current_source_basis_refs_keep_result_export_run_comparison_contracts()
+    test_current_invented_packet_contains_no_private_or_protected_payload_text()
