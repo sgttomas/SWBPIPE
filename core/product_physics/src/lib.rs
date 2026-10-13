@@ -145,6 +145,7 @@ mod retained_wire_tests;
 #[cfg(test)]
 mod retained_facade_tests;
 pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
+pub use joint::authoring_findings as validate_joint_pressure_authoring;
 
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
     "DEC-046-CV-B-product-preview-active-set-count-v1";
@@ -4241,6 +4242,7 @@ fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<&str> {
 /// these rows are outside R-b′ and the straight-member recovery bound.
 fn append_connector_results(
     built: &BuiltModel,
+    pressure: Option<&pressure_runtime::ExactPressureCase>,
     displacements: &[f64],
     load_case_id: &str,
     results: &mut Vec<ResultItem>,
@@ -4273,7 +4275,12 @@ fn append_connector_results(
             let prefix = format!("member:{}:{}:", record.component_id.len(),record.component_id);
             match CertifiedMemberLoads::from_member_primitives(connector.node_i().index,connector.node_j().index,force.load_primitives(),&prefix).and_then(|loads| certify_connector_recovery(connector,&loads,displacements,bound)) {
                 Ok(certificate) => {
-                    match certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate) {
+                    let effective = record.pressure.as_ref().map(|model| {
+                        use open_pipe_stress_frame_kernel::structural::CertifiedValue;
+                        let p = pressure.and_then(|case| case.joint_pressures.get(&record.component_id)).copied().unwrap_or(0.0);
+                        certificate.g[0].add_value(CertifiedValue::exact(-p)?.product(CertifiedValue::exact(model.effective_area)?)?)
+                    }).transpose();
+                    match effective.and_then(|effective| certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate,effective.as_ref())) {
                         Ok(record) => recovery_records.push(record),
                         Err(error) => recovery_records.push(certified_publication::unavailable_record(&record.component_id,bodies.body_of_node(connector.node_i().index),format!("{error:?}"))),
                     }
@@ -4323,6 +4330,29 @@ fn append_connector_results(
                         .to_string(),
                     }),
                 });
+            }
+        }
+        if let Some(model) = &record.pressure {
+            use open_pipe_stress_frame_kernel::structural::{CertifiedValue, CertifiedRow};
+            let p = pressure.and_then(|case| case.joint_pressures.get(&record.component_id)).copied().unwrap_or(0.0);
+            let quantities = (|| {
+                let pe = CertifiedValue::exact(p)?.product(CertifiedValue::exact(model.effective_area)?)?;
+                let gx = match &certificate { Some(certificate) => certificate.g[0], None => CertifiedValue::exact(recovery.g[0])?.into_row()? };
+                let s = gx.add_value(pe.product(CertifiedValue::exact(-1.0)?)?)?;
+                Ok::<[CertifiedRow;2],open_pipe_stress_frame_kernel::structural::RecoveryFailure>([pe.into_row()?, s])
+            })();
+            match quantities {
+                Ok(rows) => for (kind, component, row) in [
+                    ("connector_pressure_force_v1", "pe_x", rows[0]),
+                    ("connector_effective_axial_force_v1", "s_x", rows[1]),
+                ] {
+                    results.push(ResultItem {
+                        id: format!("result:connector:{}:{}:connector_local:{component}", stable_suffix(&record.component_id),kind.trim_end_matches("_v1").replace('_',"-")),
+                        kind: kind.into(), value: row.published, unit: "N".into(), entity_ref: record.component_id.clone(), basis_ref: None, source_result_refs: Vec::new(),
+                        metadata: Some(ResultMetadata { component: component.into(), coordinate_system: "connector_axes_q".into(), location: "connector_local".into(), basis: "objective_connector_v1;symmetric_midpoint_small_rotation_v1".into(), sign_convention: "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes".into() }),
+                    });
+                },
+                Err(error) => diagnostics.push(diag(&format!("diagnostic:joint:{}:pressure-recovery",stable_suffix(&record.component_id)),"OBJECTIVE_CONNECTOR_RECOVERY_UNAVAILABLE","blocking",format!("joint pressure recovery failed: {error:?}"),vec![record.component_id.clone()])),
             }
         }
     }
@@ -4391,7 +4421,7 @@ fn push_exact_pressure_operands(
             *dof,
             *value,
             Formation::Bounded {
-                bound: exact_pressure_operand_bound(*value),
+                bound: exact.assembled_operand_bounds[group_index],
             },
             0.0,
             false,
@@ -4519,7 +4549,7 @@ fn solve_load_case_observed(
     source_budget: &mut SourceRecoveryBudget,
     load_state: Option<&case_state::resolve::ResolvedCase>,
     diagnostics: &mut Vec<Diagnostic>,
-    mut product: Option<&mut retained_product::ProductCapture>,
+    product: Option<&mut retained_product::ProductCapture>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     // A resolved case supplies the complete ordinary-source ledger: only its
     // declared, factored primitives are applied, exactly once.
@@ -4532,6 +4562,31 @@ fn solve_load_case_observed(
         load_state.map(|state| &state.pairs),
         diagnostics,
     );
+    solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,
+        modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)
+}
+
+/// Private mechanics composition after the wrapper's unchanged profile
+/// classification and pressure preparation. Document callers cannot enter
+/// here directly; one prepared case feeds assembly and publication together.
+#[allow(clippy::too_many_arguments)]
+fn solve_prepared_load_case(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    materials: &[MaterialInput],
+    stiffness: &BasisStiffness,
+    restrained_dofs: &[usize],
+    spring_entries: &[SpringEntry],
+    load_case: &PreviewLoadCase,
+    modulus_basis_record: Option<&str>,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+    load_state: Option<&case_state::resolve::ResolvedCase>,
+    exact_pressure: Option<pressure_runtime::ExactPressureCase>,
+    diagnostics: &mut Vec<Diagnostic>,
+    mut product: Option<&mut retained_product::ProductCapture>,
+) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     for finding in &load_application.findings {
@@ -6174,7 +6229,7 @@ fn solve_load_case_observed(
         );
     }
 
-    append_connector_results(built, &displacements, &load_case.id, &mut results, diagnostics, &force, member_bound, &formation_bodies, &mut recovery_records);
+    append_connector_results(built, exact_pressure.as_ref(), &displacements, &load_case.id, &mut results, diagnostics, &force, member_bound, &formation_bodies, &mut recovery_records);
     #[cfg(test)]
     tests::KD5_RECOVERY_PROBE.with(|probe| {if let Some(records)=probe.borrow_mut().as_mut() {records.extend(recovery_records.iter().cloned());}});
     if !recovery_records.is_empty() {

@@ -145,16 +145,11 @@ fn validate_regions(model: &Value, value: &Value, signed: bool) -> Result<()> {
     let mut ids = HashSet::new();
     let mut owned_pipes = HashSet::new();
     for region in regions {
+        let mut region_keys = vec!["id","member_pipe_ids","pressure_basis","pressure","terminals","provenance"];
+        if model["schema_version"] == "0.5.0" { region_keys.push("member_connector_ids"); }
         object(
             region,
-            &[
-                "id",
-                "member_pipe_ids",
-                "pressure_basis",
-                "pressure",
-                "terminals",
-                "provenance",
-            ],
+            &region_keys,
         )?;
         if !ids.insert(text(region, "id")?) {
             return Err(err("Duplicate region ID"));
@@ -211,6 +206,12 @@ fn validate_regions(model: &Value, value: &Value, signed: bool) -> Result<()> {
             }
             text(terminal, "provenance")?;
         }
+    }
+    if model["schema_version"] == "0.5.0" {
+        let mut candidate = model.clone();
+        candidate["load_cases"] = serde_json::json!([{"id":"authoring:joint-pressure-region","primitive_loads":[],"pressure_regions":value}]);
+        let findings = open_pipe_stress_product_physics::validate_joint_pressure_authoring(&candidate).map_err(err)?;
+        if !findings.is_empty() { return Err(err(findings.iter().map(|finding|format!("{}: {}",finding.code,finding.message)).collect::<Vec<_>>().join("; "))); }
     }
     Ok(())
 }

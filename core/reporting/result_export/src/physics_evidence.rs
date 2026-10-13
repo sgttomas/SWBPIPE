@@ -737,6 +737,7 @@ pub(crate) fn validate_physics_evidence_in(
     }
     crate::connector_evidence::validate(
         &evidence["connector"],
+        &evidence["pressure"],
         &rows,
         all_members.as_ref().unwrap_or(&HashSet::new()),
         &cases.keys().copied().collect(),
@@ -785,7 +786,8 @@ pub(crate) fn validate_physics_evidence_in(
                 && region["pressure_basis"] == "internal_differential_zero_external_v1"
                 && region["external_pressure_increment_pa"] == 0.0
                 && (!arcs.is_empty()
-                    || region["approximation"] == "long_straight_annulus_small_strain_v2"),
+                    || region["approximation"] == "long_straight_annulus_small_strain_v2"
+                    || region["approximation"] == crate::connector_evidence::JOINT_APPROXIMATION),
             "REGION_PROFILE",
         )?;
         let p = number(&region["p_pa"])?;
@@ -1005,6 +1007,7 @@ pub(crate) fn validate_physics_evidence_in(
             text(&case["load_case_id"])?,
             &regions,
             contract,
+            &evidence["connector"],
         )?;
     }
     let headline = &source["summary"]["max_open_formula_stress"];
@@ -1041,6 +1044,7 @@ fn assembly(
     case: &str,
     regions: &HashMap<(&str, &str), &Value>,
     contract: PressureContract,
+    connectors: &Value,
 ) -> Check {
     require(
         keys(
@@ -1098,7 +1102,50 @@ fn assembly(
         }
     }
     let mut groups = HashSet::new();
+    let mut joint_face_sources = HashSet::new();
     for group in array(&v["groups"])? {
+        let joint = group.get("effective_area_bits").is_some();
+        if joint {
+            require(contract == PressureContract::PressureV3 && keys(group, &["node_ref","component","pressure_bits","effective_area_bits","direction_component_magnitude","coefficient_sum","assembled_force_n","terms"]), "RHS_GROUP_SHAPE")?;
+            let node = text(&group["node_ref"])?;
+            let axis = match group["component"].as_str() { Some("Fx")=>0, Some("Fy")=>1, Some("Fz")=>2, _=>return Err("SOURCE_PHYSICS_RHS_GROUP_NODE".into()) };
+            require(nodes.contains(node), "RHS_GROUP_NODE")?;
+            let magnitude = number(&group["direction_component_magnitude"])?;
+            require(magnitude > 0.0 && magnitude <= 1.0, "RHS_DIRECTION")?;
+            let area_bits = text(&group["effective_area_bits"])?;
+            let pressure_bits = text(&group["pressure_bits"])?;
+            require([area_bits,pressure_bits].iter().all(|bits| bits.len()==16 && u64::from_str_radix(bits,16).is_ok_and(|bits| f64::from_bits(bits).is_finite())), "RHS_SOURCE_BITS")?;
+            require(groups.insert((node,text(&group["component"])?,pressure_bits,area_bits,"joint",magnitude.to_bits())), "RHS_GROUP_DUPLICATE")?;
+            let terms = array(&group["terms"])?;
+            require(!terms.is_empty(), "RHS_GROUP_TERMS")?;
+            let mut coefficient_sum = 0.0;
+            let mut joint_sources = HashSet::new();
+            for term in terms {
+                require(keys(term,&["coefficient","region_id","connector_id","kind"]) && term["kind"] == "joint_effective_area", "RHS_TERM_SHAPE")?;
+                let id = text(&term["connector_id"])?;
+                require(joint_sources.insert((text(&term["region_id"])?,id,node,axis)), "RHS_JOINT_SOURCE_DUPLICATE")?;
+                let region = regions.get(&(case,text(&term["region_id"])?)).ok_or("SOURCE_PHYSICS_RHS_REGION_UNRESOLVED")?;
+                let record = array(connectors)?.iter().find(|record| record["component_id"]==id).ok_or("SOURCE_PHYSICS_RHS_JOINT_UNRESOLVED")?;
+                require(region["member_connector_ids"].as_array().is_some_and(|ids| ids.iter().any(|entry|entry==id)) && record["pressure_model"]=="constant_effective_area_reference_v1", "RHS_JOINT_BINDING")?;
+                let p = number(&region["p_pa"])?;
+                let ae = number(&record["effective_area_m2"])?;
+                require(u64::from_str_radix(area_bits,16).ok()==Some(ae.to_bits()) && u64::from_str_radix(pressure_bits,16).ok()==Some(p.to_bits()), "RHS_JOINT_OPERANDS")?;
+                let direction = number(&record["connector_axes_global"][axis][0])?;
+                let end_sign = if record["node_i"]==node {-1.0} else if record["node_j"]==node {1.0} else {return Err("SOURCE_PHYSICS_RHS_JOINT_NODE".into())};
+                let coefficient = number(&term["coefficient"])?;
+                require(direction.abs()==magnitude && coefficient==end_sign*if direction.is_sign_negative(){-1.0}else{1.0}, "RHS_JOINT_DIRECTION")?;
+                coefficient_sum += coefficient;
+            }
+            require(number(&group["coefficient_sum"])?==coefficient_sum, "RHS_JOINT_COEFFICIENT")?;
+            // A joint face cannot meet another connector (§1); therefore a
+            // joint-area group at a node has exactly one original source.
+            require(terms.len()==1, "RHS_JOINT_SOURCE_CARDINALITY")?;
+            let p = f64::from_bits(u64::from_str_radix(pressure_bits,16).unwrap());
+            let ae = f64::from_bits(u64::from_str_radix(area_bits,16).unwrap());
+            let expected = p*ae*magnitude*coefficient_sum;
+            require(expected.is_finite() && (number(&group["assembled_force_n"])?-expected).abs() <= 64.0*f64::EPSILON*expected.abs()+f64::from_bits(1), "RHS_JOINT_VALUE")?;
+            continue;
+        }
         require(
             keys(
                 group,
@@ -1199,7 +1246,18 @@ fn assembly(
                 }
             }
             match term["kind"].as_str() {
-                Some("terminal_cap") => require(coefficient.abs() == 1.0, "RHS_CAP_COEFFICIENT")?,
+                Some("terminal_cap" | "joint_face_cap") => {
+                    require(coefficient.abs() == 1.0, "RHS_CAP_COEFFICIENT")?;
+                    if term["kind"] == "joint_face_cap" {
+                        let node=text(&group["node_ref"])?;
+                        require(joint_face_sources.insert((text(&term["region_id"])?,pipe,node,text(&group["component"])?)), "RHS_JOINT_FACE_DUPLICATE")?;
+                        let edge=array(&region["joint_edges"])?.iter().find(|edge| (edge["face_i_pipe_id"]==pipe && edge["node_i_ref"]==node) || (edge["face_j_pipe_id"]==pipe && edge["node_j_ref"]==node)).ok_or("SOURCE_PHYSICS_RHS_JOINT_FACE_BINDING")?;
+                        let record=array(connectors)?.iter().find(|record|record["component_id"]==edge["connector_id"]).ok_or("SOURCE_PHYSICS_RHS_JOINT_FACE_BINDING")?;
+                        let axis=match group["component"].as_str(){Some("Fx")=>0,Some("Fy")=>1,_=>2};
+                        let expected=number(&record["connector_axes_global"][axis][0])?*if edge["node_i_ref"]==node{1.0}else{-1.0};
+                        require(contract==PressureContract::PressureV3 && (coefficient*magnitude-expected).abs() <= 64.0*f64::EPSILON, "RHS_JOINT_FACE_DIRECTION")?;
+                    }
+                },
                 Some("poisson_eigen") => {
                     let materials = indexed(&region["materials"], "pipe_id")?;
                     require(
@@ -1289,7 +1347,7 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
             .filter(|p| p["load_case_id"] == cid)
             .map(|p| Ok(((text(&p["load_case_id"])?, text(&p["region_id"])?), p)))
             .collect::<Result<HashMap<_, _>, String>>()?;
-        assembly(&case["pressure_rhs_assembly"], cid, &regions, PressureContract::StraightV2)?;
+        assembly(&case["pressure_rhs_assembly"], cid, &regions, PressureContract::StraightV2, &json!([]))?;
     }
     let mut regions = HashSet::new();
     for region in array(&evidence["pressure"])? {

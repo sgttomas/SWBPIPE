@@ -378,6 +378,7 @@ pub(super) fn connector_record(
     entity: &str,
     body: Option<usize>,
     certificate: &open_pipe_stress_frame_kernel::structural::CertifiedConnectorRecovery,
+    effective_axial: Option<&CertifiedRow>,
 ) -> Result<formation_guard::RecoveryRecord, RecoveryFailure> {
     let mut groups = Vec::new();
     for (location, rows) in [
@@ -387,6 +388,9 @@ pub(super) fn connector_record(
     ] {
         groups.push(group(location, "force", false, &rows[..3], false)?);
         groups.push(group(location, "moment", true, &rows[3..], false)?);
+    }
+    if let Some(row) = effective_axial {
+        groups.push(group("connector_local", "effective_axial_force", false, std::slice::from_ref(row), false)?);
     }
     Ok(formation_guard::RecoveryRecord {
         member: entity.into(),

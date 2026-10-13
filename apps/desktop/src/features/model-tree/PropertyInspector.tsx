@@ -3,6 +3,7 @@ import { QuantityReadout } from "../display-units";
 import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
+import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
@@ -560,6 +561,7 @@ export function PropertyInspector({
       ) : null}
       <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <BendAuthoringForms getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <JointPressureModelEditor getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />

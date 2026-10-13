@@ -37,6 +37,77 @@ fn record(envelope: &mut Value) -> &mut Value {
     &mut envelope["contract_evidence"]["connector"][0]
 }
 
+/// A constant-area connector outside every region carries Pe=0. This is a
+/// result-reader shape/control, not a document-admission or mechanics oracle.
+fn u5a_remote_control() -> Value {
+    let mut envelope=corpus().remove(0).1;
+    let record=record(&mut envelope);
+    record["pressure_model"]=json!("constant_effective_area_reference_v1");
+    record["effective_area_m2"]=json!(0.004);
+    record["pressure_basis"]=json!("internal_differential_zero_external_v1");
+    record["pressure_source_reference"]=json!("invented U5a reader control");
+    let generalized=rows_mut(&mut envelope).iter().filter(|row|row["kind"]=="connector_generalized_force_v1" && row["metadata"]["component"]=="gt_x").cloned().collect::<Vec<_>>();
+    for g in generalized {
+        for (kind,component,value) in [("connector_pressure_force_v1","pe_x",json!(0.)),("connector_effective_axial_force_v1","s_x",g["value"].clone())] {
+            let mut row=g.clone();
+            row["id"]=json!(format!("{}:{component}",g["id"].as_str().unwrap()));
+            row["kind"]=json!(kind);row["metadata"]["component"]=json!(component);row["value"]=value;
+            rows_mut(&mut envelope).push(row);
+        }
+    }
+    envelope
+}
+#[test]
+fn u5a_remote_constant_area_rows_are_read_and_pressure_tampering_is_refused() {
+    let envelope=u5a_remote_control();
+    s::validate_pressure_evidence(&envelope).unwrap();
+    for field in ["effective_area_m2","pressure_basis","pressure_source_reference"] {
+        let mut missing=envelope.clone();record(&mut missing).as_object_mut().unwrap().remove(field);
+        assert!(s::validate_pressure_evidence(&missing).is_err(),"missing {field}");
+    }
+    let mut forged=envelope.clone();
+    rows_mut(&mut forged).iter_mut().find(|row|row["kind"]=="connector_pressure_force_v1").unwrap()["value"]=json!(f64::from_bits(1));
+    assert!(s::validate_pressure_evidence(&forged).unwrap_err().contains("PRESSURE_ROW_BINDING"));
+    let mut forged=envelope.clone();
+    rows_mut(&mut forged).iter_mut().find(|row|row["kind"]=="connector_effective_axial_force_v1").unwrap()["value"]=json!(1e6);
+    assert!(s::validate_pressure_evidence(&forged).unwrap_err().contains("EFFECTIVE_ROW_BINDING"));
+    let mut unpressurized=envelope.clone();record(&mut unpressurized)["pressure_model"]=json!("unpressurized");
+    assert!(s::validate_pressure_evidence(&unpressurized).unwrap_err().contains("RECORD_SHAPE"));
+}
+
+fn u5a_participating_control()->Value {
+    let control:Value=serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_joint_reader_control.json")).unwrap();
+    control["envelope"].clone()
+}
+#[test]
+fn u5a_participating_reader_control_binds_edges_groups_and_each_pressure_row() {
+    let envelope=u5a_participating_control();s::validate_pressure_evidence(&envelope).unwrap();
+    for (field,value) in [("connector_id",json!("component:wrong")),("face_i_pipe_id",json!("pipe:wrong")),("effective_area_m2",json!(0.005)),("p_pa",json!(1.)),("area_difference_force_n",json!([0.,0.])),("attachment_pair_global_n",json!([[0.,0.,0.],[0.,0.,0.]]))] {
+        let mut forged=envelope.clone();forged["contract_evidence"]["pressure"][0]["joint_edges"][0][field]=value;
+        assert!(s::validate_pressure_evidence(&forged).is_err(),"edge {field}");
+    }
+    let mut missing=envelope.clone();missing["contract_evidence"]["pressure"][0]["joint_edges"]=json!([]);
+    assert!(s::validate_pressure_evidence(&missing).unwrap_err().contains("PRESSURE_EDGE_COVERAGE"));
+    let mut basis=envelope.clone();record(&mut basis)["pressure_basis"]=json!("wrong");
+    assert!(s::validate_pressure_evidence(&basis).is_err());
+    for field in ["effective_area_bits","pressure_bits","direction_component_magnitude"] {
+        let mut forged=envelope.clone();
+        let group=forged["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array_mut().unwrap().iter_mut().find(|group|group.get("effective_area_bits").is_some()).unwrap();
+        group[field]=if field=="direction_component_magnitude" {json!(0.5)} else {json!("0000000000000000")};
+        assert!(s::validate_pressure_evidence(&forged).is_err(),"group {field}");
+    }
+    let mut duplicate=envelope.clone();
+    let group=duplicate["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array_mut().unwrap().iter_mut().find(|group|group.get("effective_area_bits").is_some()).unwrap();
+    let term=group["terms"][0].clone();group["terms"].as_array_mut().unwrap().push(term);
+    group["coefficient_sum"]=json!(2.*group["coefficient_sum"].as_f64().unwrap());
+    group["assembled_force_n"]=json!(2.*group["assembled_force_n"].as_f64().unwrap());
+    assert!(s::validate_pressure_evidence(&duplicate).unwrap_err().contains("RHS_JOINT_SOURCE_DUPLICATE"));
+    let mut wrong_face=envelope.clone();
+    let group=wrong_face["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array_mut().unwrap().iter_mut().find(|group|group["terms"].as_array().unwrap().iter().any(|term|term["kind"]=="joint_face_cap")).unwrap();
+    group["terms"].as_array_mut().unwrap().iter_mut().find(|term|term["kind"]=="joint_face_cap").unwrap()["pipe_id"]=json!("pipe:J");
+    assert!(s::validate_pressure_evidence(&wrong_face).is_err());
+}
+
 /// (label, mutation, the pressure-1 reader's error suffix).
 #[allow(clippy::type_complexity)]
 fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {

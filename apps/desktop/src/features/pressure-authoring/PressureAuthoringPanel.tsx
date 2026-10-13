@@ -124,6 +124,7 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
   const state = useRichQueue(props);
   const update = (index: number, key: string, value: unknown) => setRows(current => current.map((row, i) => i === index ? setMember(row, key, value) : row));
   const pipes = props.model.pipe_segments.map(p => ({ value: p.id, label: memberLabel(props.model, p) }));
+  const connectors = props.model.components.filter(component => component.kind === "expansion_joint" && "objective_connector" in component).map(component => ({ value: component.id, label: component.label || component.id }));
   const signed = isPressureV3(props.model);
   async function submit() { try {
     const after = parseQuantities(rows) as DraftRecord[];
@@ -147,6 +148,7 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
+      {props.model.schema_version === "0.5.0" && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
       <TextField label={`Region ${index + 1} pressure basis`} value={row.pressure_basis} choices={["internal_differential_zero_external_v1"]} onChange={v => update(index, "pressure_basis", v)} />
       <QuantityField label={`Region ${index + 1} pressure`} dimension={signed ? "pressure; signed (a negative value is a net external differential; external-pressure stability and collapse are not assessed)" : "pressure; p >= 0"} value={row.pressure} onChange={v => update(index, "pressure", v)} />
       {[0, 1].map(t => {

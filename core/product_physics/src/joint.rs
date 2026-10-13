@@ -160,13 +160,14 @@ use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
 /// The connector's stated law, added to v3's limitations when a model has one.
-pub(crate) const CONNECTOR_LIMITATION: &str = "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware and unpressurized joints only (a pressurized case with a joint is refused). No finite rotation, follower or geometric stiffness, pressure thrust, tie, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node actions; they are outside the straight-member recovery coverage.";
+pub(crate) const CONNECTOR_LIMITATION: &str = "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware only. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces, joints at region terminals or beside realized arcs, and ties are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, tie, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with the joint pressure force pAe and the effective axial force published separately; they are outside the straight-member recovery coverage.";
 pub(crate) const INPUT_INCOMPLETE: &str = "OBJECTIVE_CONNECTOR_INPUT_INCOMPLETE";
 pub(crate) const TOPOLOGY_UNRESOLVED: &str = "OBJECTIVE_CONNECTOR_TOPOLOGY_UNRESOLVED";
 pub(crate) const BASIS_UNSUPPORTED: &str = "JOINT_STIFFNESS_BASIS_UNSUPPORTED";
 pub(crate) const HARDWARE_NOT_DEFINED: &str = "JOINT_HARDWARE_NOT_DEFINED";
 pub(crate) const HARDWARE_LAW_UNSUPPORTED: &str = "JOINT_HARDWARE_LAW_UNSUPPORTED";
 pub(crate) const PRESSURE_INTERFACE_UNRESOLVED: &str = "JOINT_PRESSURE_INTERFACE_UNRESOLVED";
+pub(crate) const PRESSURE_AREA_MISSING: &str = "JOINT_PRESSURE_AREA_MISSING";
 pub(crate) const SPAN_LOAD_UNOWNED: &str = "JOINT_REPLACED_SPAN_LOAD_UNOWNED";
 const CONNECTOR_CONSUMPTION: &str = "objective_connector";
 const COORDINATE_ORDER: [&str; 6] = ["tx", "ty", "tz", "rx", "ry", "rz"];
@@ -188,6 +189,40 @@ pub(crate) struct ConnectorSpec {
     pub q_ref: [f64; 6],
     /// `reference_state = stress_free`: K q_ref = 0 is required.
     pub stress_free: bool,
+    pub pressure: Option<JointPressureModel>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct JointPressureModel {
+    pub effective_area: f64,
+    pub pressure_basis: String,
+    pub source_reference: String,
+}
+
+fn pressure_model(connector: &Value) -> Result<Option<JointPressureModel>, Finding> {
+    let model = &connector["pressure_model"];
+    match text(model, "kind") {
+        Some("unpressurized") if model.as_object().is_some_and(|object| object.len()==1) => Ok(None),
+        Some("unpressurized") => Err((PRESSURE_INTERFACE_UNRESOLVED,"unpressurized pressure model carries only kind".into())),
+        Some("constant_effective_area_reference_v1") => {
+            let area = model.get("effective_area").and_then(|area| {
+                if !area.as_object().is_some_and(|object| object.len()==2) {return None;}
+                si(area["value"].as_f64()?, text(area, "unit")?, Dimension::Area).ok()
+            }).filter(|area| *area > 0.0);
+            let source = text(model, "source_reference");
+            if area.is_none() || source.is_none() {
+                return Err((PRESSURE_AREA_MISSING, "effective_area must be finite, positive and an area, with a nonempty source_reference".into()));
+            }
+            let basis = text(model, "pressure_basis").filter(|basis| *basis == "internal_differential_zero_external_v1");
+            if basis.is_none() || model.as_object().map_or(true, |object| object.len() != 4) {
+                return Err((PRESSURE_INTERFACE_UNRESOLVED, "constant effective-area pressure model requires exactly kind, effective_area, pressure_basis and source_reference, with internal_differential_zero_external_v1 basis".into()));
+            }
+            Ok(Some(JointPressureModel {
+                effective_area: area.unwrap(), pressure_basis: basis.unwrap().into(), source_reference: source.unwrap().into(),
+            }))
+        }
+        kind => Err((PRESSURE_INTERFACE_UNRESOLVED, format!("pressure model {} is not supported; only unpressurized and constant_effective_area_reference_v1 are", kind.unwrap_or("(none)")))),
+    }
 }
 
 /// One refusal of a connector: (code, message).
@@ -352,6 +387,8 @@ fn decode_fields(component: &PreviewComponent, connector: &Value) -> Result<Conn
                 stiffness,
                 q_ref,
                 stress_free,
+                // Model findings own the pressure refusal and its precedence.
+                pressure: pressure_model(connector).ok().flatten(),
             })
         }
         (end_i, end_j, axes, q_ref, stiffness, _) => {
@@ -424,7 +461,11 @@ fn model_findings(
             "objective connector {}: hardware {} is not supported; only untied is (ties come with T4-U5)",
             spec.component_id, kind.unwrap_or("(no kind)")))),
     }
-    if connector.get("pressure_model").and_then(|p| text(p, "kind")) != Some("unpressurized") {
+    if model.schema_version == "0.5.0" {
+        if let Err(finding) = pressure_model(connector) {
+            findings.push(finding);
+        }
+    } else if connector.get("pressure_model").and_then(|p| text(p, "kind")) != Some("unpressurized") {
         findings.push((PRESSURE_INTERFACE_UNRESOLVED, format!(
             "objective connector {}: only the unpressurized pressure model is supported until T4-U5", spec.component_id)));
     }
@@ -465,12 +506,13 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
             }
         };
         let findings = model_findings(model, connector, &spec, &mut replaced);
+        let model_refused = !findings.is_empty();
         let span_known = !findings.iter().any(|(code, _)| *code == TOPOLOGY_UNRESOLVED);
         for (code, message) in findings {
             push(diagnostics, code, None, message);
         }
         for case in &model.load_cases {
-            if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
+            if model.schema_version != "0.5.0" && case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
                 push(diagnostics, PRESSURE_INTERFACE_UNRESOLVED, Some(&case.id), format!(
                     "load case {} has pressure regions, and a joint's pressure interface is not resolved until T4-U5; a pressurized model with a joint is refused", case.id));
             }
@@ -478,7 +520,92 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
         if span_known {
             refuse_applied_span_loads(model, &spec, diagnostics);
         }
+        if model.schema_version == "0.5.0" && !model_refused {
+            classify_pressure_participation(model, &spec, diagnostics);
+        }
     }
+    if model.schema_version == "0.5.0" {
+        // Known means an actual component carrying the interface. A model
+        // refusal does not turn that known connector into an unknown ID.
+        let connector_ids = model.components.iter().filter(|component| component.kind=="expansion_joint" && component.objective_connector.is_some()).map(|component| component.id.as_str()).collect::<HashSet<_>>();
+        for case in &model.load_cases {
+            for region in case.pressure_regions.iter().flatten() {
+                let mut seen = HashSet::new();
+                for id in region.member_connector_ids.iter().flatten() {
+                    if !connector_ids.contains(id.as_str()) || !seen.insert(id) {
+                        pressure_finding(diagnostics, &case.id, region.id.as_deref().unwrap_or_default(), id,
+                            "member_connector_ids must name unique objective connectors of the model");
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn pressure_finding(diagnostics: &mut Vec<Diagnostic>, case: &str, region: &str, connector: &str, reason: &str) {
+    diagnostics.push(diag(
+        &format!("diagnostic:joint:{}:pressure:{}", stable_suffix(connector), stable_suffix(&format!("{case}:{region}"))),
+        PRESSURE_INTERFACE_UNRESOLVED, "blocking", format!("load case {case}, region {region}, connector {connector}: {reason}"),
+        vec![case.into(), region.into(), connector.into()],
+    ));
+}
+
+fn classify_pressure_participation(model: &PreviewModel, spec: &ConnectorSpec, diagnostics: &mut Vec<Diagnostic>) {
+    let arcs = super::curved_bend_realized_pipe_ids(model);
+    for case in &model.load_cases {
+        let owners = case.pressure_regions.iter().flatten().filter(|region| region.member_connector_ids.as_ref().is_some_and(|ids| ids.contains(&spec.component_id))).count();
+        for region in case.pressure_regions.iter().flatten() {
+            let members = region.member_pipe_ids.as_deref().unwrap_or_default();
+            let terminals = region.terminals.as_deref().unwrap_or_default();
+            let listed = region.member_connector_ids.as_ref().is_some_and(|ids| ids.contains(&spec.component_id));
+            let at_end = |node: &str| node == spec.node_i || node == spec.node_j;
+            let touches = model.pipe_segments.iter().any(|pipe| members.contains(&pipe.id) && (at_end(&pipe.from) || at_end(&pipe.to)))
+                || terminals.iter().any(|terminal| terminal.node_ref.as_deref().is_some_and(at_end));
+            let reason = if touches && !listed { Some("region touches the joint but does not list it") }
+            else if !listed { None }
+            else if owners != 1 { Some("a connector must belong to exactly one region within a load case") }
+            else if spec.pressure.is_none() { Some("an unpressurized connector cannot be a pressure-region edge") }
+            else if spec.pressure.as_ref().is_some_and(|pressure| region.pressure_basis.as_deref() != Some(&pressure.pressure_basis)) { Some("joint and region pressure bases differ") }
+            else if terminals.iter().any(|terminal| terminal.node_ref.as_deref().is_some_and(at_end)) { Some("a joint face cannot be a region terminal") }
+            else if members.contains(&spec.span_id) { Some("the replaced span cannot be a member pipe of the region") }
+            else if spec.end_i.offset_local.iter().chain(&spec.end_j.offset_local).any(|offset| *offset != 0.0) { Some("pressurized joint attachment offsets must be exactly zero") }
+            else if [&spec.node_i, &spec.node_j].iter().any(|node| {
+                let faces = model.pipe_segments.iter().filter(|pipe| pipe.id != spec.span_id && (&pipe.from == *node || &pipe.to == *node)).collect::<Vec<_>>();
+                faces.len() != 1 || !members.contains(&faces[0].id) || arcs.contains(faces[0].id.as_str())
+                    || connector_specs(model).iter().any(|other| other.component_id != spec.component_id && (&other.node_i == *node || &other.node_j == *node))
+            }) { Some("each joint face must meet exactly one straight member pipe of the same region") }
+            else { None };
+            if let Some(reason) = reason { pressure_finding(diagnostics, &case.id, region.id.as_deref().unwrap_or_default(), &spec.component_id, reason); }
+        }
+    }
+}
+
+/// Authoring validates the new fields only on 0.5.0, without activating a
+/// solve profile. The strict public mechanics decoder continues to refuse
+/// member_connector_ids until B7b; this adapter constructs internal inputs.
+pub fn authoring_findings(value: &Value) -> Result<Vec<Diagnostic>, String> {
+    let mut input = value.clone();
+    let current = input["schema_version"] == "0.5.0";
+    let exact = input["pressure_contract"]["version"]=="3.0.0" && input["pressure_contract"]["mode"]=="exact_pressure_v3";
+    let new_model=input["components"].as_array().into_iter().flatten().any(|component|component["objective_connector"]["pressure_model"]["kind"]=="constant_effective_area_reference_v1");
+    if new_model && (!current || !exact) {return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: constant_effective_area_reference_v1 requires model 0.5.0 with 3.0.0/exact_pressure_v3".into());}
+    let mut memberships = Vec::new();
+    for case in input["load_cases"].as_array_mut().ok_or("load_cases must be an array")? {
+        let mut regions = Vec::new();
+        for region in case["pressure_regions"].as_array_mut().into_iter().flatten() {
+            let membership = region.as_object_mut().ok_or("pressure region must be an object")?.remove("member_connector_ids");
+            if membership.is_some() && (!current || !exact) { return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: member_connector_ids requires model 0.5.0 with 3.0.0/exact_pressure_v3".into()); }
+            regions.push(membership.map(serde_json::from_value::<Vec<String>>).transpose().map_err(|error|error.to_string())?);
+        }
+        memberships.push(regions);
+    }
+    let mut model: PreviewModel = serde_json::from_value(input).map_err(|error|error.to_string())?;
+    for (case,memberships) in model.load_cases.iter_mut().zip(memberships) {
+        for (region,membership) in case.pressure_regions.iter_mut().flatten().zip(memberships) { region.member_connector_ids=membership; }
+    }
+    let mut diagnostics = Vec::new();
+    classify_connectors(&model,&mut diagnostics);
+    Ok(diagnostics)
 }
 
 /// S20 (a) (RV6 C-1): a primitive targeting the replaced span in a case's
@@ -580,18 +707,20 @@ pub(crate) fn build_connector(
         component_id: spec.component_id.clone(),
         span_id: spec.span_id.clone(),
         span_index,
+        pressure: spec.pressure.clone(),
     };
     Ok((connector, record))
 }
 
 /// The PP record of one built connector (unpriced; beside the FK type in
 /// `BuiltModel`, as `CurvedBendMacroBuild.pipe_index` is for a bend).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct ConnectorRecord {
     pub component_id: String,
     pub span_id: String,
     /// The replaced span's index in `BuiltModel::pipes`.
     pub span_index: usize,
+    pub pressure: Option<JointPressureModel>,
 }
 
 /// S21 (and RV6 C-2): replaced spans are left out of every published
@@ -720,7 +849,7 @@ pub(crate) fn connector_evidence(model: &PreviewModel) -> Value {
         .map(|spec| {
             let authored = connector_value(model, &spec);
             let source = |value: Option<&Value>| value.and_then(|v| text(v, "source_reference")).unwrap_or_default().to_string();
-            serde_json::json!({
+            let mut record = serde_json::json!({
                 "component_id": spec.component_id,
                 "topology": "replaces_span",
                 "replaced_pipe_id": spec.span_id,
@@ -749,7 +878,14 @@ pub(crate) fn connector_evidence(model: &PreviewModel) -> Value {
                 "temperature_applicability": "fixed_installed_parameters_v1",
                 "installed_reference_temperature_k": authored.and_then(installed_reference_temperature_k),
                 "provenance": source(authored.and_then(|c| c.get("provenance"))),
-            })
+            });
+            if let Some(pressure) = &spec.pressure {
+                record["pressure_model"] = serde_json::json!("constant_effective_area_reference_v1");
+                record["effective_area_m2"] = serde_json::json!(pressure.effective_area);
+                record["pressure_basis"] = serde_json::json!(pressure.pressure_basis);
+                record["pressure_source_reference"] = serde_json::json!(pressure.source_reference);
+            }
+            record
         })
         .collect();
     Value::Array(records)

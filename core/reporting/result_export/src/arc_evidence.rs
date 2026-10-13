@@ -113,10 +113,10 @@ pub(crate) fn members<'a>(region: &'a Value, admitted: bool) -> Result<HashSet<&
 /// Exact region keys: a straight region's, plus the arc keys when (and only
 /// when) the region has a realized arc.
 pub(crate) fn region_shape(region: &Value, base: &[&str], has_arc: bool) -> bool {
-    if !has_arc {
-        return keys(region, base);
-    }
-    let all: Vec<&str> = base.iter().copied().chain(REGION_KEYS).collect();
+    let joint = matches!(region["approximation"].as_str(), Some(crate::connector_evidence::JOINT_APPROXIMATION | crate::connector_evidence::ARC_JOINT_APPROXIMATION));
+    let mut all = base.to_vec();
+    if has_arc { all.extend(REGION_KEYS); }
+    if joint { all.extend(["member_connector_ids","joint_edges"]); }
     keys(region, &all)
 }
 
@@ -125,7 +125,7 @@ pub(crate) fn region_shape(region: &Value, base: &[&str], has_arc: bool) -> bool
 /// `p` is the region pressure.
 pub(crate) fn region(region: &Value, arcs: &HashSet<&str>, p: f64) -> Check {
     require(
-        region["approximation"] == APPROXIMATION
+        (region["approximation"] == APPROXIMATION || region["approximation"] == crate::connector_evidence::ARC_JOINT_APPROXIMATION)
             && region["tangency_tolerance_rad"].as_f64() == Some(TANGENCY_TOLERANCE_RAD)
             && region["tangency_rule"] == TANGENCY_RULE
             && keys(&region["withheld_on_arcs"], &["result_kinds", "reason"])

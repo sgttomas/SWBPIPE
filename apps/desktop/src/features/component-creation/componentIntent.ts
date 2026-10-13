@@ -66,18 +66,27 @@ export type ConnectorDraft = {
   installedGeometry: string;
   hardwareKind: string;
   pressureModel: string;
+  effectiveArea: string;
+  effectiveAreaUnit: string;
+  pressureBasis: string;
+  pressureSourceReference: string;
 };
 export const CONNECTOR_REFERENCE_STATES = ["stress_free", "prestressed"] as const;
 /** The only hardware and pressure model the connector admits until T4-U5. */
 export const CONNECTOR_HARDWARE_KINDS = ["untied"] as const;
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
+export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
+export function connectorPressureModels(model: PreviewModel): readonly string[] {
+  return model.schema_version === "0.5.0" ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
+}
 export function emptyConnectorDraft(): ConnectorDraft {
   return {
     connectorAxes: "", endINodeAxes: "", endJNodeAxes: "", endIOffset: "", endJOffset: "", offsetUnit: "",
     qRefTranslation: "", qRefTranslationUnit: "", qRefRotation: "", qRefRotationUnit: "", referenceState: "",
     installedTemperature: "", installedTemperatureUnit: "", translationScale: "", translationScaleUnit: "",
     workMatrixUpperTriangle: "", stiffnessSourceReference: "", measurementRestraints: "", basisTransformReference: "",
-    validityStatement: "", installedGeometry: "", hardwareKind: "", pressureModel: ""
+    validityStatement: "", installedGeometry: "", hardwareKind: "", pressureModel: "",
+    effectiveArea: "", effectiveAreaUnit: "", pressureBasis: "", pressureSourceReference: ""
   };
 }
 /** Expansion joints are created only on a 3.0.0/exact_pressure_v3 document. */
@@ -102,7 +111,7 @@ function upperTriangle(text: string): number[] | null {
   const values = numbers(text);
   return values && values.length === 21 ? values : null;
 }
-function connectorDraftValid(draft: ConnectorDraft): boolean {
+function connectorDraftValid(model: PreviewModel, draft: ConnectorDraft): boolean {
   return Boolean(
     matrix3(draft.connectorAxes) && matrix3(draft.endINodeAxes) && matrix3(draft.endJNodeAxes) &&
     vector3(draft.endIOffset) && vector3(draft.endJOffset) && validUnit(draft.offsetUnit) &&
@@ -114,7 +123,9 @@ function connectorDraftValid(draft: ConnectorDraft): boolean {
     upperTriangle(draft.workMatrixUpperTriangle) &&
     [draft.stiffnessSourceReference, draft.measurementRestraints, draft.basisTransformReference, draft.validityStatement, draft.installedGeometry].every(text => text.trim()) &&
     (CONNECTOR_HARDWARE_KINDS as readonly string[]).includes(draft.hardwareKind) &&
-    (CONNECTOR_PRESSURE_MODELS as readonly string[]).includes(draft.pressureModel)
+    connectorPressureModels(model).includes(draft.pressureModel) &&
+    (draft.pressureModel !== "constant_effective_area_reference_v1" ||
+      (positiveFinite(draft.effectiveArea) && validUnit(draft.effectiveAreaUnit) && draft.pressureBasis === "internal_differential_zero_external_v1" && draft.pressureSourceReference.trim()))
   );
 }
 /** The objective connector record for the span the draft names. */
@@ -150,7 +161,9 @@ function objectiveConnector(model: PreviewModel, draft: ConnectorDraft & { prima
     topology: { type: "replaces_span", span_ref: span.id },
     calibration: { kind: "constant_structural_elasticity_v1", includes_pressure_dependent_tangent: false, installed_geometry: draft.installedGeometry.trim() },
     hardware: { kind: draft.hardwareKind },
-    pressure_model: { kind: draft.pressureModel },
+    pressure_model: draft.pressureModel === "constant_effective_area_reference_v1"
+      ? { kind: draft.pressureModel, effective_area: { value: Number(draft.effectiveArea), unit: draft.effectiveAreaUnit.trim() }, pressure_basis: draft.pressureBasis, source_reference: draft.pressureSourceReference.trim() }
+      : { kind: draft.pressureModel },
     provenance: { ...provenance, validity_statement: draft.validityStatement.trim() }
   };
 }
@@ -285,7 +298,7 @@ export function isComponentDraftValid(
     return Boolean(
       connectorCreationAvailable(model) &&
         incidentPipe(model, draft.node, draft.primaryPipeRef) &&
-        connectorDraftValid(draft)
+        connectorDraftValid(model, draft)
     );
   }
   return Boolean(
