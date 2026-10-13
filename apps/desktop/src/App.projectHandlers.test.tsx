@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import { App } from "./App";
 import * as hashService from "./services/hashService";
@@ -409,11 +409,11 @@ describe("project handlers: a failed or empty open leaves the open project as it
     const pair = nativeMechanicsReplayPair();
     const replay = createNativeMechanicsReplay();
     vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);
-    invokeMock.mockImplementation((command: string, args?: unknown) => {
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     setTauriRuntime(true);
     render(<App />);

@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type { ControlledRouteExport } from "../features/redaction-controls/redactionExportControls";
 import { REPORT_PACKAGE_SAVE_ROUTE_ID } from "../features/report/reportRedactionProjector";
 
@@ -96,7 +96,7 @@ export async function saveReportPackage(input: unknown): Promise<ReportPackageSa
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
   const localFirstEvidence = input.summary.local_first!;
-  const receipt = await invoke<ReportPackageSaveReceipt>("save_report_package", {
+  const receipt = await invokeWithIngress<ReportPackageSaveReceipt>("save_report_package", {
     request: input.payload,
     redactionEvidence: {
       route_id: input.summary.route_id,

@@ -16,14 +16,14 @@
  * unchanged. Inputs are PP's pinned milestone successor bytes (D-U6-5); unit
  * rendering only, NOT a native witness (plan F-1). */
 import { cleanup, render, screen } from "@testing-library/react";
-import { solveBytes } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ComponentType } from "react";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -223,7 +223,7 @@ describe("other consumers are unchanged; the standing session Current reads of a
   it.each(MODES)("%s: a registered successor is fresh and numerically eligible for its captured model only (U7)", async (mode) => {
     const { source, model } = milestone(mode);
     (window as Json).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(async () => solveBytes(source));
+    invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(source)).invoke);
     const received = await runPreviewMechanics(model, mode);
     expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
     expect(isFreshSemanticResult(received)).toBe(true);

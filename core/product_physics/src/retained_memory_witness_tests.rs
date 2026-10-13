@@ -25,6 +25,8 @@ use serde_json::{json, Value};
 mod b1_sq_inputs;
 use b1_sq_inputs as inputs;
 
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 const WITNESS_STACK: usize = RESERVED_STACK_BYTES / STACK_WITNESS_DIVISOR;
 
 fn milestone() -> Value {
@@ -171,7 +173,7 @@ per_mode! {
         escape_every_provenance(&mut raw);
         raw["model"]["deep_input_witness"] = depth_16_value();
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-        let report = super::super::assess(&capture, &request, super::super::Entry::Direct);
+        let report = super::super::assess(&capture, &request, super::super::Entry::Direct, RETAINED_LIMIT);
         assert_eq!(report.law().domain, None, "inside D1");
         assert_eq!(report.raw.maximum_depth, 16, "raw depth 16");
         for stack in [WITNESS_STACK, RESERVED_STACK_BYTES / 64] {
@@ -385,7 +387,7 @@ per_mode! {
         let raw = inputs::i3_three_case();
         assert_eq!(sha256_of(&raw), inputs::I3_THREE_CASE_SHA256, "I86's i3_c1_three_case");
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-        let report = super::super::assess(&capture, &request, super::super::Entry::Direct);
+        let report = super::super::assess(&capture, &request, super::super::Entry::Direct, RETAINED_LIMIT);
         assert_eq!(report.law().domain, None, "inside D1");
         assert_eq!(report.raw.maximum_depth, 16, "raw depth 16");
         assert_eq!((report.typed.load_cases.length, report.law().nested.total_loads), (3, 384), "C cases, Σ l_i = L");
@@ -400,7 +402,7 @@ per_mode! {
 /// driver skips admission; RV107 N-7), on the expected W1 route.
 fn inside_d1(label: &str, raw: &Value, mode: PreviewSolverMode, cases: usize, combinations: usize, exact: bool) {
     let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-    let report = super::assess(&capture, &request, super::Entry::Direct);
+    let report = super::assess(&capture, &request, super::Entry::Direct, RETAINED_LIMIT);
     assert_eq!(report.law().domain, None, "{label}: inside D1");
     assert_eq!((request.model.load_cases.len(), request.model.combinations.len()), (cases, combinations), "{label}: c and z");
     let branch = if exact { NamespaceBranch::Exact } else { NamespaceBranch::Preview };
@@ -578,7 +580,7 @@ fn f1_check_complete_reads_the_observer_route() {
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let raw = inputs::exact_cap_maximal();
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-        let permit = match super::admit(&capture, &request, super::Entry::Direct) {
+        let permit = match super::admit(&capture, &request, super::Entry::Direct, RETAINED_LIMIT) {
             Ok((permit, report)) => {
                 assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
                 permit
@@ -610,7 +612,7 @@ per_mode! {
     /// successor RS's precommit validated published. A Stale build refuses at D1.1 instead.
     f1_exact_cap_maximal_direct_publishes, |mode| {
         let raw = inputs::exact_cap_maximal();
-        let output = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+        let output = crate::run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
         let report = output.admission().unwrap();
         assert_eq!(report.law().domain, None, "{mode:?}: inside D1");
         if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {

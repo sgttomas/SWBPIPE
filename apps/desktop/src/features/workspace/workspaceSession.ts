@@ -19,14 +19,22 @@ import {
 } from "../../services/operationService";
 import {
   buildAnalysisRunPreview,
+  abandonPreviewMechanicsJob,
+  beginSessionResultCustodyReset,
   cancelPreviewMechanicsJob,
   loadDesignKnowledge,
   loadBundledMechanicsReference,
   loadPreviewModel,
   loadSampleProposal,
   hasNativeMechanicsInvocation,
-  startPreviewMechanicsJob
+  discardPreviewMechanicsJobResult,
+  disposeDeliveredMechanicsResult,
+  startPreviewMechanicsJob,
+  takePreviewMechanicsJobResult,
+  terminalJobError
 } from "../../services/previewService";
+import { ResourceUnavailableError } from "../../services/memoryPool";
+import { nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -128,6 +136,9 @@ import {
   initialSolveJob,
   modelChangedSolveJob,
   pendingBackendStartCancellationSolveJob,
+  progressSolveJob,
+  refusedBeforeBackendStartSolveJob,
+  refusedSolveJob,
   recordBackendCancellationFailure,
   recordBackendCancellationReceipt,
   requestSolveCancellation,
@@ -585,6 +596,24 @@ export function useWorkspaceSession() {
     };
   }, [model]);
 
+  // Native result custody (DEL-04-07): the session publishes a delivered result
+  // only through `setResult`, so the result it stops holding (replaced by a new
+  // solve, cleared by model edits, undo/redo, project changes or reference
+  // inspection) is released to the native custody ledger here, as is the held
+  // result when the session ends.
+  const heldResultRef = useRef<MechanicsResult | null>(null);
+  // A new webview session holds no delivered result, so whatever the native
+  // host still retains or counts as held by an earlier page is released once,
+  // before any solve can start (a start waits for it). Tauri runtime only; a
+  // failure never blocks the session.
+  useEffect(() => { void beginSessionResultCustodyReset(); }, []);
+  useEffect(() => {
+    const previous = heldResultRef.current;
+    heldResultRef.current = result;
+    if (previous && previous !== result) void disposeDeliveredMechanicsResult(previous);
+  }, [result]);
+  useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
     referencePersistence.current = null;
     modelHashOwner.current = null;
@@ -764,6 +793,13 @@ export function useWorkspaceSession() {
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
     let startedJob: SolveJobAuditState | null = null;
+    // A delivered result this run did not publish is released in `finally`.
+    let deliveredOutput: MechanicsResult | null = null;
+    // A started native job whose result this run has neither taken nor
+    // released; `finally` releases it, so no path leaves it retained natively.
+    // `completed` records that the job was seen completed (its result awaits a take).
+    let unsettledJob: { jobId: string; token: string; completed: boolean } | null = null;
+    let publishedOutput = false;
     try {
       if (!model) {
         throw new Error(
@@ -788,31 +824,32 @@ export function useWorkspaceSession() {
         return;
       }
       // Capture the original live caller representation as well as dispatched JSON.
-      const startReceipt = await startPreviewMechanicsJob(model, solverMode);
+      let startReceipt: Awaited<ReturnType<typeof startPreviewMechanicsJob>>;
+      try {
+        startReceipt = await startPreviewMechanicsJob(model, solverMode);
+      } catch (error) {
+        // A start the native memory pool refuses is a typed refusal, recorded as such.
+        if (error instanceof ResourceUnavailableError) {
+          if (solveRunGate.current.isCurrent(runGeneration)) setSolveJob(refusedBeforeBackendStartSolveJob(solveModel, error));
+          return;
+        }
+        throw error;
+      }
       // Reference records never create a fresh solve. Only a real backend job
       // can publish current result/manifest/proof cells through this path.
       if (startReceipt.mode !== "backend_job") {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
       }
+      unsettledJob = { jobId: startReceipt.job_id, token: startReceipt.backend_cancellation_token, completed: false };
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
       ) {
-        if (
-          cancellationTombstone?.requested &&
-          !cancellationTombstone.dispatched &&
-          startReceipt.mode === "backend_job"
-        ) {
-          cancellationTombstone.dispatched = true;
-          void cancelPreviewMechanicsJob(
-            startReceipt.job_id,
-            startReceipt.backend_cancellation_token
-          ).catch(() => {
-            // The originating generation is already detached from visible UI.
-            // A failed best-effort cancellation must not resurrect stale state.
-          });
-        }
+        // The originating generation is already detached from visible UI: the
+        // started job is abandoned in `finally` (cancellation, then release of
+        // anything it retains); a failed best effort must not resurrect stale state.
+        if (cancellationTombstone) cancellationTombstone.dispatched = true;
         return;
       }
       if (startReceipt.mode !== "backend_job") throw new Error("BROWSER_REFERENCE_RECEIPT_NOT_A_CURRENT_SOLVE");
@@ -839,7 +876,18 @@ export function useWorkspaceSession() {
       }
       let output: MechanicsResult;
       if (startReceipt.mode === "backend_job") {
-        const terminal = await awaitBackendSolveJob(startReceipt.job_id);
+        const visibleJobId = startedJob.job_id;
+        const terminal = await awaitBackendSolveJob(startReceipt.job_id, (status) => {
+          // Show the native state while the job waits, including its queue reason.
+          if (!solveRunGate.current.isCurrent(runGeneration)) return;
+          setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
+        });
+        // A completed job's result awaits a take; any other terminal job retains none.
+        if (terminal.job_id === startReceipt.job_id) {
+          if (terminal.state === "completed") unsettledJob.completed = true;
+          else unsettledJob = null;
+        }
+        // A superseded run's completed result is released from native retention unread (`finally`).
         if (!solveRunGate.current.isCurrent(runGeneration)) return;
         if (terminal.job_id !== startedJob.job_id) {
           throw new Error(
@@ -854,12 +902,22 @@ export function useWorkspaceSession() {
           );
           return;
         }
-        if (terminal.state !== "completed" || !terminal.result) {
-          throw new Error(
-            terminal.error_message ?? `backend solve job ${terminal.job_id} ended as ${terminal.state} without a result`
+        if (terminal.state === "refused" && terminal.resource_refusal) {
+          const refusal = terminal.resource_refusal;
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? refusedSolveJob(current, refusal)
+              : current
           );
+          return;
         }
-        output = terminal.result;
+        if (terminal.state !== "completed") throw terminalJobError(terminal);
+        // The poll carries no result: take the producer's bytes. A refused take
+        // (for example custody_full) is recorded as a typed refusal; the session
+        // does not retry a failed take, so `finally` releases the retained result.
+        output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        deliveredOutput = output;
+        unsettledJob = null;
       } else {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: browser references are not completed solve results.");
       }
@@ -905,6 +963,7 @@ export function useWorkspaceSession() {
       );
       referencePersistence.current = null;
       setHistoricalRun(null);
+      publishedOutput = true;
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
@@ -932,6 +991,9 @@ export function useWorkspaceSession() {
         );
       }
     } finally {
+      if (deliveredOutput && !publishedOutput) void disposeDeliveredMechanicsResult(deliveredOutput);
+      if (unsettledJob?.completed) void discardPreviewMechanicsJobResult(unsettledJob.jobId);
+      else if (unsettledJob) void abandonPreviewMechanicsJob(unsettledJob.jobId, unsettledJob.token);
       solveCancellationTombstones.current.delete(runGeneration);
       if (activeSolveJob.current?.generation === runGeneration) {
         activeSolveJob.current = null;
@@ -1080,7 +1142,7 @@ export function useWorkspaceSession() {
       setToolkitFocus({ testId: "", elementId: "batch-review" });
     } catch (error) {
       if (revision === modelRevision.current && epoch === requestEpochRef.current) {
-        setBatchMessage(`Batch could not be queued: ${String(error)}`);
+        setBatchMessage(`Batch could not be queued: ${nativeFailureText(error)}`);
       }
     }
   }
@@ -1150,7 +1212,7 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(null);
       setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
     } catch (error) {
-      if (stillCurrent()) setBatchMessage(`Batch request failed: ${String(error)}`);
+      if (stillCurrent()) setBatchMessage(`Batch request failed: ${nativeFailureText(error)}`);
     } finally {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -1202,7 +1264,7 @@ export function useWorkspaceSession() {
       directDraftReviews.current.set(review.reviewId, review);
       return structuredClone(review);
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Draft validation failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Draft validation failed to run: ${nativeFailureText(error)}`);
       return null;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1331,7 +1393,7 @@ export function useWorkspaceSession() {
       setOperationMessage(`Applied reviewed ${outcome.operation_id}; previous solve results were cleared.`);
       return true;
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${nativeFailureText(error)}`);
       return false;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1354,7 +1416,7 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${nativeFailureText(error)}`);
     } finally {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -1444,7 +1506,7 @@ export function useWorkspaceSession() {
       );
       return true;
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${nativeFailureText(error)}`);
       return false;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1773,7 +1835,7 @@ export function useWorkspaceSession() {
           pendingObservation.ordinal, false, requestModel.project.id);
       }
       if (!stillCurrent()) return;
-      setProjectMessage(`Create failed: ${String(error)}`);
+      setProjectMessage(`Create failed: ${nativeFailureText(error)}`);
       setProjectOperation("create_failed");
     } finally {
       releaseProjectOperation(owner);
@@ -1904,7 +1966,7 @@ export function useWorkspaceSession() {
       setProjectOperation("create_blank");
     } catch (error) {
       if (!stillCurrent()) return;
-      setProjectMessage(`Blank create failed: ${String(error)}`);
+      setProjectMessage(`Blank create failed: ${nativeFailureText(error)}`);
       setProjectOperation("create_blank_failed");
     } finally {
       releaseProjectOperation(owner);
@@ -2231,7 +2293,7 @@ export function useWorkspaceSession() {
           pendingObservation.ordinal, false, requestModel.project.id);
       }
       if (!stillCurrent()) return;
-      setProjectMessage(`Save failed: ${String(error)}`);
+      setProjectMessage(`Save failed: ${nativeFailureText(error)}`);
       setProjectOperation("save_failed");
     } finally {
       releaseProjectOperation(owner);

@@ -27,6 +27,14 @@ The approach must earn its value through use. Source-level cases support parts
 of the architecture; complete App–SWBPIPE integration and transfer to another
 practitioner remain to be demonstrated.
 
+This essay develops the evaluative view of the work introduced in the
+[shared introduction][S1]. SWBPIPE is a domain software instance in which
+Root's normative orientation and the App's operative hypotheses meet physical
+referents and engineering consequences. Evaluation here includes inquiry into
+representations, evidence, action and values; it is not confined to testing
+software after design is complete. The [support-arrangement example][S2]
+connects those questions across the three views through an illustrative revision.
+
 ## 1. Why the design environment matters
 
 A piping route is never merely a line waiting for a stress value. Its position
@@ -73,7 +81,17 @@ consequences and the costs of control.
 
 Moving a support changes an object, rests on assumptions, affects calculated
 behaviour and serves a purpose. A favourable result matters in relation to
-those conditions.
+those conditions. None of these questions belongs exclusively to this essay
+or to one of the other views. They are mutually corrective throughout the work.
+
+Evaluation returns findings to what produced them. A numerical defect calls for
+implementation repair; an unsuitable idealization calls for model revision;
+an impractical arrangement calls for a different design question. Findings can
+also challenge a prior purpose, such as addressing access alone when a newly
+recognized construction condition makes that framing inadequate. An agent may
+investigate and revise within its assignment or adopted policy. A change to an
+adopted commitment remains with the authority that holds it. This iterative
+relation connects domain experience back to methods and normative purposes.
 
 Agents extend **reckoning** through analysis, inference, comparison, planning,
 criticism and adaptive action. **Judgment** is the person's situated and
@@ -182,6 +200,9 @@ engineering act is available to an external agent. Likewise, preserving human
 judgment does not logically require the person to issue every low-level command.
 The current project contracts and owner decisions define the actual boundary;
 this thesis explains why such a boundary needs a domain subject.[P1][A2]
+An assignment or adopted operation policy supplies authorization. Host
+capabilities and permissions determine what can be done through that host;
+their availability does not itself authorize a change.
 
 ### 4.1 Common semantics must reach the exercised engine
 
@@ -203,6 +224,18 @@ hashes, including the absence of an applied result for a refused operation.
 
 Reusing the engine reduced one source of divergence while preserving the
 accessible browser examination path.
+
+Here operation validation asks whether an edit meets defined model-operation
+conditions. It does not validate the physical model for engineering use.
+Implementation verification examines specified behaviour; numerical verification
+examines the calculation against suitable independent reference grounds within
+its stated scope. Model applicability asks
+whether the idealization represents the intended conditions. Engineering
+adequacy asks whether the resulting design and evidence serve the undertaking.
+Acceptance concerns what a person accepts within their authority; professional
+authentication concerns their attributable commitment to accountable reliance
+within a defined scope and purpose. Neither is a solver output. These relations can inform each
+other without becoming one ascending software status.
 
 A shared defect can affect every consumer of that engine. Reference evidence
 and examination of the underlying assumptions remain necessary. Native/browser
@@ -298,7 +331,10 @@ An agent-enabled design environment needs to preserve such distinctions when
 bringing retrieved material into a candidate design.[P5]
 
 Retrieved material needs a source, a standing and relevance to the question.
-The joined Domains research activity remains prospective.[A2]
+The resources carry recorded material, not a practitioner's whole understanding.
+Even a suitable passage requires interpretation in relation to the current
+geometry, loads, conditions and purpose. The joined Domains research activity
+remains prospective.[A2]
 
 ## 7. Design inquiry, values and human judgment
 
@@ -314,6 +350,24 @@ into its objective. A route that minimizes one result may worsen access,
 construction, maintainability or another project's interface. Some conditions
 are measurable, some are represented only partially, and some become apparent
 through situated experience.
+
+Applicable obligations and safety constraints condition the admissible choices;
+negotiable preferences help compare alternatives within them. A construction
+sequence, equipment access, maintenance task or interface to another system can
+change what counts as useful. Unknown load conditions or an unresolved support
+assumption must remain unknown or be explicitly adopted as assumptions; a
+ranking cannot settle them by assigning convenient values. There is no universal
+objective that converts these distinct concerns into engineering adequacy.
+
+In the illustrative [support revision][S2], inquiry starts from an access
+concern in the current arrangement. Any mechanical comparison must therefore be
+read with that purpose, the physical arrangement and its unresolved conditions.
+Discovery of an additional construction or maintenance condition can require
+representing an omitted constraint and trying another arrangement. It can also
+broaden the initial access inquiry into finding a support concept that can be
+built, accessed and maintained under the applicable constraints. The example
+supplies a connecting argument, not evidence that this joined activity has
+already been implemented or exercised.
 
 Judgment enters before the final choice. It shapes what is modeled, what is
 left unresolved, what deserves comparison and how much evidence is appropriate.
@@ -467,7 +521,16 @@ can inspect the assumptions and reproduce the relevant analysis; whether agent
 assistance improves the alternatives considered; whether a consequential error
 is exposed in time; and whether handoff preserves enough meaning to continue.
 Those questions require actual use and comparison, not merely larger counts
-of generated models, tests or merged changes.
+of generated models, tests or merged changes. The relevant comparison includes
+preparation, review, repair, construction and maintenance implications, and
+attention spent recovering meaning at handoff. An apparent saving in modeling
+can be a loss elsewhere in the undertaking.
+
+Such findings must be able to alter the next activity: representations can gain
+an omitted relationship, methods can change the order or scope of examination,
+and the responsible person can reconsider prior purposes. Additional process
+is justified only where it helps that correction. Evaluation need not create a
+new approval sequence or permanent record for every question.
 
 The owner supplies engineering experience and sustained direction. A second
 practitioner's use would test whether the application remains intelligible
@@ -491,7 +554,10 @@ in advance.
 
 The application should make design inquiry more productive while keeping its
 grounds available. Actual use, connected application work and another
-practitioner's experience will test how well it does so.
+practitioner's experience will test how well it does so. Those findings return
+to the App's operative means and Root's normative questions; the three views
+remain one revisable argument. The [shared conclusion][S3] states what that
+argument supports and what remains to be learned.
 
 ## Source basis and reading
 
@@ -565,3 +631,7 @@ their authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-
 [T3]: ../../core/solver/curved_bend/src/short_arc_tests.rs
 [I5]: ../../core/handoff/exporter/workflow.py
 [T4]: ../../tests/test_handoff_export_workflow.py
+
+[S1]: ../../../../docs/thesis/INTRODUCTION.md
+[S2]: ../../../../docs/thesis/WORKED_EXAMPLE.md
+[S3]: ../../../../docs/thesis/CONCLUSION.md

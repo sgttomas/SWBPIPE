@@ -5,8 +5,9 @@ import { resolve } from "node:path";
 import type { MechanicsResult, PreviewModel } from "../types";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
-import { pollPreviewMechanicsJob, receivedResultBytes, runPreviewMechanics, startPreviewMechanicsJob } from "./previewService";
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+import { pollPreviewMechanicsJob, receivedResultBytes, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult } from "./previewService";
+import { createSolveJobTransport, resultArrayBuffer } from "../test/nativeMechanicsReplay";
 
 afterEach(() => {
   invokeMock.mockReset();
@@ -29,21 +30,26 @@ describe("the desktop receives the producer's exact bytes (G10 milestone)", () =
       const bytes = producerBytes(mode);
       expect([Buffer.byteLength(bytes, "utf8"), sha256(bytes)], "the producer's bytes").toEqual([length, digest]);
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-      invokeMock.mockImplementation(async (command: string, args?: Record<string, unknown>) => {
-        if (command === "run_preview_mechanics_with_solver_mode") return bytes;
-        if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: "g10", backend_cancellation_token: "g10:token", state: "queued", cancellation_scope: "cooperative_checkpoints_not_preemptive" };
-        if (command === "poll_preview_mechanics_job" && args?.jobId === "g10") return { job_id: "g10", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "cooperative_checkpoints_not_preemptive", result: bytes, error_message: null };
-        throw new Error(`unexpected ${command}`);
-      });
+      const sent: Array<{ model: unknown; mode: unknown }> = [];
+      const transport = createSolveJobTransport((request) => { sent.push({ model: request.model, mode: request.mode }); return bytes; }, { jobIdPrefix: "g10" });
+      invokeMock.mockImplementation(transport.invoke);
       const direct = await runPreviewMechanics(MODEL, mode);
-      expect(invokeMock).toHaveBeenCalledWith("run_preview_mechanics_with_solver_mode", { model: MODEL, solverMode: mode });
+      // The start carries the model document's UTF-8 JSON text and the mode header; no JSON-args model.
+      expect(invokeMock.mock.calls[0][0]).toBe("start_preview_mechanics_job");
+      expect(ArrayBuffer.isView(invokeMock.mock.calls[0][1])).toBe(true);
+      expect(invokeMock.mock.calls[0][2]).toEqual({ headers: { "x-swbpipe-solver-mode": mode } });
+      expect(sent).toEqual([{ model: MODEL, mode }]);
       const received = receivedResultBytes(direct)!;
       expect([Buffer.byteLength(received, "utf8"), sha256(received)], "the bytes the desktop received").toEqual([length, digest]);
       expect(direct).toEqual(JSON.parse(bytes));
       expect(Object.keys(direct)).toEqual(Object.keys(JSON.parse(bytes)));
-      await startPreviewMechanicsJob(MODEL, mode);
-      const status = await pollPreviewMechanicsJob("g10");
-      expect(sha256(receivedResultBytes(status.result)!), "the job's bytes").toBe(digest);
+      const start = await startPreviewMechanicsJob(MODEL, mode);
+      if (start.mode !== "backend_job") throw new Error("backend job expected");
+      const status = await pollPreviewMechanicsJob(start.job_id);
+      expect(status).not.toHaveProperty("result");
+      expect(status.result_bytes).toBe(length);
+      const taken = await takePreviewMechanicsJobResult(start.job_id);
+      expect(sha256(receivedResultBytes(taken)!), "the job's bytes").toBe(digest);
       // The bytes describe the result only while it is unchanged: a copy or an edit has none.
       expect(receivedResultBytes(structuredClone(direct))).toBeNull();
       (direct as MechanicsResult & { model_ref: string }).model_ref = "project:edited";
@@ -52,7 +58,23 @@ describe("the desktop receives the producer's exact bytes (G10 milestone)", () =
   }
   it("refuses a solve answer that is not the producer's bytes", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(JSON.parse(producerBytes("sparse_interactive")));
+    const transport = createSolveJobTransport(() => producerBytes("sparse_interactive"));
+    // The take answers a parsed value (or a string) instead of the producer's bytes.
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? JSON.parse(producerBytes("sparse_interactive")) : transport.invoke(command, args, options));
     await expect(runPreviewMechanics(MODEL, "sparse_interactive")).rejects.toThrow("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED");
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? producerBytes("sparse_interactive") : transport.invoke(command, args, options));
+    await expect(runPreviewMechanics(MODEL, "sparse_interactive")).rejects.toThrow("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED");
+  });
+  it("refuses result bytes that are not UTF-8", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const transport = createSolveJobTransport(() => producerBytes("sparse_interactive"));
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? new Uint8Array([0x7b, 0xff, 0x7d]).buffer : transport.invoke(command, args, options));
+    await expect(runPreviewMechanics(MODEL, "sparse_interactive")).rejects.toThrow("PREVIEW-SOLVE-RESULT-UTF8-INVALID");
+    // The unreadable delivery is released from native custody at once.
+    expect(invokeMock.mock.calls.filter(([command]) => command === "dispose_preview_mechanics_result")).toHaveLength(1);
+    expect(resultArrayBuffer("{}").byteLength).toBe(2);
   });
 });

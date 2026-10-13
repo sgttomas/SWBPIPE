@@ -15,6 +15,8 @@ use sha2::{Digest, Sha256};
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_ordinary_v1.json");
 const TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json");
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 /// Protected ordinary bytes of the milestone (experiment 03 controls B and B'):
 /// the plain route's serialized envelope, equal with and without capture. Pinned on
@@ -148,7 +150,7 @@ fn u1_ordinary_bytes_unchanged_under_capture() {
         assert_eq!(mode.as_str(), name);
         let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(milestone_raw(), mode).unwrap()).unwrap();
         assert_eq!((plain.len(), sha(&plain).as_str()), (len, digest), "{name}: protected ordinary bytes");
-        let direct = run_linear_static_preview_value_with_retained_direct(milestone_raw(), mode).unwrap();
+        let direct = run_linear_static_preview_value_with_retained_direct(milestone_raw(), mode, RETAINED_LIMIT).unwrap();
         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{name}: A, the Direct entry's ordinary envelope");
         let (candidate, _, captured) = milestone_candidate(mode);
         assert_eq!(captured, plain, "{name}: B, the ordinary run with capture installed");

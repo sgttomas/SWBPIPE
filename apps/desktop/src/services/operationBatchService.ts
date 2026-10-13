@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type { EditorOperationIntent, ModelHashEvidence, PreviewModel, OperationOutcomeDiagnostic, OperationDiffPreviewRow, OperationAcceptanceRecord } from "../types";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 export type OperationBatch = {
@@ -60,7 +60,7 @@ async function run(
   apply: boolean
 ): Promise<OperationBatchOutcome> {
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
-    return invoke(apply ? "apply_model_operation_batch" : "validate_model_operation_batch", {
+    return invokeWithIngress<OperationBatchOutcome>(apply ? "apply_model_operation_batch" : "validate_model_operation_batch", {
       model,
       batch,
       claimedModelHash

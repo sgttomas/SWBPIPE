@@ -309,12 +309,13 @@ function jobState(
   if (solveJob.state === "cancelling") return "CANCELLATION_REQUESTED";
   if (solveJob.state === "cancelled") return "CANCELLED";
   if (solveJob.state === "completed") return "COMPLETED";
-  if (solveJob.state === "failed") return "FAILED";
+  // The headless vocabulary has no refusal state: a native memory refusal ended the run without a result.
+  if (solveJob.state === "failed" || solveJob.state === "refused") return "FAILED";
   return "TBD";
 }
 
 function progressStep(solveJob: SolveJobAuditState): number {
-  if (solveJob.state === "completed" || solveJob.state === "failed" || solveJob.state === "cancelled") return 3;
+  if (solveJob.state === "completed" || solveJob.state === "failed" || solveJob.state === "cancelled" || solveJob.state === "refused") return 3;
   if (solveJob.state === "running" || solveJob.state === "cancelling") return 2;
   if (solveJob.state === "queued") return 1;
   return 0;

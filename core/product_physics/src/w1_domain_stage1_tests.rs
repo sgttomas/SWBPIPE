@@ -4,6 +4,9 @@
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 use super::*;
 
+/// These tests read only the D1 domain, which never reads the caller's limit L.
+const DOMAIN_ONLY: RetainedByteLimit = RetainedByteLimit::new(0);
+
 /// n05's sensitive torque case and a renamed copy (`case-b`), each optionally naming a
 /// temperature point whose E and G equal the base material's (the numerics are the base's).
 fn two_torque_cases(selectors: [Option<&str>; 2]) -> Value {
@@ -85,7 +88,7 @@ fn b7a_selector_cases_bind_their_own_basis_custody() {
         let raw = two_torque_cases(selectors);
         for mode in MODES {
             let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct).law().domain, None, "{label}");
+            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY).law().domain, None, "{label}");
             let (_, observer, ordinary) = early_observed(&raw, mode, true);
             assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{label}");
             assert_eq!(ordinary.results.iter().filter(|r| r.kind == "modulus_basis_record").count(),
@@ -128,7 +131,7 @@ fn b7a_member_load_case_is_unavailable_by_its_named_cause() {
         raw["model"]["load_cases"][loaded]["primitive_loads"].as_array_mut().unwrap().push(udl(&id));
         for mode in MODES {
             let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct).law().domain, None);
+            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY).law().domain, None);
             let (_, observer, _) = early_observed(&raw, mode, true);
             assert!(observer.error.is_none() && observer.basis_error.is_none());
             for case in 0..2 {
@@ -181,7 +184,7 @@ fn b7a_three_cases_capture_and_serialize_their_own_bases() {
         for mode in MODES {
             let label = format!("{selectors:?} {mode:?}");
             let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct).law().domain, None, "{label}");
+            assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY).law().domain, None, "{label}");
             let (_, observer, _) = early_observed(&raw, mode, true);
             assert_eq!(observer.bases.len(), named.len(), "{label}: one custody per named basis");
             for (case, selector) in selectors.iter().enumerate() {

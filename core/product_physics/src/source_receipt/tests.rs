@@ -1,5 +1,8 @@
 use super::*;
 use open_pipe_stress_primitive_loads::LoadApplication;
+
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: crate::RetainedByteLimit = crate::RetainedByteLimit::new(12_884_901_888);
 fn raw() -> Value {
     json!({"model":serde_json::from_str::<Value>(include_str!("../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json")).unwrap()})
 }
@@ -479,7 +482,7 @@ fn zero_legacy_pressure_primitive_is_refused_on_the_ordinary_route_and_the_retai
         assert_eq!(refusal.affected_refs, ["case", "load:zero-pressure"]);
         assert!(refusal.message.contains("2.0.0/exact_straight_pressure_v2"));
         let ordinary = serde_json::to_vec(&envelope).unwrap();
-        let direct = crate::run_linear_static_preview_value_with_retained_direct(value.clone(), mode).unwrap();
+        let direct = crate::run_linear_static_preview_value_with_retained_direct(value.clone(), mode, RETAINED_LIMIT).unwrap();
         assert!(direct.retained().is_none());
         match direct.into_publication() {
             crate::RetainedPublication::Ordinary(published) => {
@@ -506,7 +509,7 @@ fn retired_legacy_pressure_label_is_refused_on_the_retained_entry() {
         PreviewSolverMode::SparseInteractive,
     ] {
         let ordinary = serde_json::to_vec(&run_linear_static_preview_value_with_mode(value.clone(), mode).unwrap()).unwrap();
-        let direct = crate::run_linear_static_preview_value_with_retained_direct(value.clone(), mode).unwrap();
+        let direct = crate::run_linear_static_preview_value_with_retained_direct(value.clone(), mode, RETAINED_LIMIT).unwrap();
         assert!(matches!(
             direct.admission().unwrap().law().domain,
             Some(AdmissionRefusal::Family(D1Clause::Namespace, _))

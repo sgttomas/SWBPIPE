@@ -5,6 +5,9 @@
 use super::*;
 use open_pipe_stress_result_export::{retained_precision as reader, semantic_contract as sc};
 
+/// The census reads only the D1 domain, which never reads the caller's limit L.
+const DOMAIN_ONLY: RetainedByteLimit = RetainedByteLimit::new(0);
+
 struct Control {
     name: String,
     recipe: &'static str,
@@ -553,7 +556,7 @@ fn b4_w1_covers_every_formerly_selected_source_block_case() {
         let (request, capture) = source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
         let refs: Vec<Value> = request.model.load_cases.iter()
             .map(|case| json!({"ref_type":"load_case","ref_id":case.id})).collect();
-        assert!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct).law().domain.is_none(), "{label}: D1 domain");
+        assert!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY).law().domain.is_none(), "{label}: D1 domain");
         let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
         let mut budget = SourceRecoveryBudget::default();
         let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut budget, Some(&mut observer));
@@ -784,7 +787,7 @@ fn b4_w1_n06_cxf_capture_errors() {
             let (request, capture) =
                 source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
             let domain =
-                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
+                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY)
                     .law()
                     .domain;
             let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
@@ -994,7 +997,7 @@ fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
             let (request, capture) =
                 source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
             let admitted =
-                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
+                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY)
                     .law()
                     .domain
                     .is_none();

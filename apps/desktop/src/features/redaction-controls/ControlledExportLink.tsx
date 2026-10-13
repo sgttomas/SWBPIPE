@@ -258,7 +258,8 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, val
           <span role="status" data-testid={`${testId}-native-save-status`}>
             {visibleStatus?.outcome === "pending" ? "Saving local result JSON…" :
               visibleStatus?.outcome === "saved" ? `Saved ${visibleStatus.receipt!.file_name} (${visibleStatus.receipt!.byte_count} bytes).` :
-              visibleStatus?.outcome === "error" ? `Save failed (${visibleStatus.error!.stage}); cleanup=${visibleStatus.error!.cleanup}${visibleStatus.error!.partial_file_name ? `; partial file=${visibleStatus.error!.partial_file_name}` : ""}.` : busy ? "Previous authorized save is still pending." : ""}
+              visibleStatus?.outcome === "error" ? visibleStatus.error!.code === "RESOURCE_UNAVAILABLE" ? `Save failed (${visibleStatus.error!.stage}): ${visibleStatus.error!.message}` :
+              `Save failed (${visibleStatus.error!.stage}); cleanup=${visibleStatus.error!.cleanup}${visibleStatus.error!.partial_file_name ? `; partial file=${visibleStatus.error!.partial_file_name}` : ""}.` : busy ? "Previous authorized save is still pending." : ""}
           </span>
         </>
       ) : controlledHref ? (

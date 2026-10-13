@@ -35,3 +35,9 @@ serde_json = { version = "1", features = ["float_roundtrip"] }
 getrandom = "0.3"
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
+
+[target.'cfg(unix)'.dependencies]
+# Host memory reader for the aggregate pool (`src/host_memory.rs`, macOS) and
+# the capped solve worker's process control and raw channel (`src/solve_worker.rs`,
+# `src/worker_alloc.rs`).
+libc = "0.2"

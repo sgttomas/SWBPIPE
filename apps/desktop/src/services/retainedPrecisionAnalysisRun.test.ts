@@ -7,12 +7,12 @@
  * (D-U6-5) delivered through mocked IPC: a unit transport replay, NOT a native
  * witness (plan F-1; D-U6-3). */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { solveBytes } from "../test/nativeMechanicsReplay";
+import { createSolveJobTransport, solveBytes } from "../test/nativeMechanicsReplay";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../types";
 import {
   ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, analysisRecordProjection, buildAnalysisRunV03,
@@ -40,10 +40,7 @@ function milestone(mode: PreviewSolverMode) {
 async function delivered(mode: PreviewSolverMode, source?: MechanicsResult) {
   const pinned = milestone(mode);
   (window as Json).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async (command: string) => {
-    expect(command).toBe("run_preview_mechanics_with_solver_mode");
-    return solveBytes(source ?? pinned.source);
-  });
+  invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(source ?? pinned.source)).invoke);
   const received = await runPreviewMechanics(pinned.model, mode);
   // The pinned request model has no desktop load-case status, which the input
   // manifest requires; the manifest model adds an invented one. Delivery and
