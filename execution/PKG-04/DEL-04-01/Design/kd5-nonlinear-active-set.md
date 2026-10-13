@@ -276,13 +276,13 @@ The 1e-9 criterion, RD(1e-9), the floor q̂ ≥ 2^-34·S* and the 2^-988 guard a
 
 **Pricing.** The retained route's behaviour is unchanged. The static TEXT and cap chain still reaches shared code, and `solve_load_case_observed` reaches the nonlinear helper.
 
-- The confirmation and certificate sit behind the existing early return of `append_nonlinear_support_loop_results` (no nonlinear supports → return). Under D1.6 their loops have computed multiplicity 0; they need O-10 rules of the J kind (computed multiplicity, a guard that fails on positive multiplicity, honest classes).
+- The confirmation and certificate sit behind the existing early return of `append_nonlinear_support_loop_results` (no nonlinear supports → return). Under D1.6 the chain computes multiplicity 0 for their sites from the existing nonlinear-helper premise; they keep honest classes and need no new zero rule (§9).
 - **Outside the helper (review M3).** The publication changes in `solve_load_case_observed` (the nonlinear `member_bound` and its Stage-B force, the evidence line) and in `certified_publication::support` (the nonlinear slot) are reached by the static chain on every invocation. Their multiplicity is argued from the same D1.6 premise: each new branch is entered only when the built model has nonlinear supports (`built.nonlinear_supports` non-empty, or a confirmed state, which exists only then), so under D1.6 each has computed multiplicity 0 and holds no new allocation.
 - Each new text site gets a class: the §2.4 sentence with its reason (support id ≤ 128 B) and the evidence line.
-- KD5A3's route literal changes.
+- KD5A3's route literal changes; the evidence-line site in `solve_load_case_observed` is charged positively (§9).
 - `price.py run <head>`, then `compare`, then `generate`; re-registration stays under the owner's M = 12 GiB with kd5 §6's margins.
 
-**Runtime cost model.** T_f is one gate and factorization; T_s one right-hand-side solve; T_p one K-D5 re-formation pass over all elements at p. Today a converged case costs about I·(T_f + T_s) plus I·(k + 1) dense coupling solves. The unit adds T_f + 4·T_s (gate and Hager estimate) + T_ε (ε_E, once) and per evaluation 3·T_p + 2·T_s, for one (k = 0) or three (k = 1) evaluations, plus the adjacency-limited reaction and displacement balls. The implementation measures it (§5).
+**Runtime cost model.** T_f is one gate and factorization; T_s one right-hand-side solve; T_p one K-D5 re-formation pass over all elements at p. Today a converged case costs about I·(T_f + T_s) plus I·(k + 1) dense coupling solves. The unit adds T_f + 4·T_s (gate and Hager estimate) + T_ε (ε_E, once) and per evaluation 3·T_p + 2·T_s, for one (k = 0) or three (k = 1) evaluations, plus the adjacency-limited reaction and displacement balls. The implementation measures it (§9).
 
 ## 5. Committed outputs and declared moves
 
@@ -351,13 +351,13 @@ The committed demo models are natural positives (Passed in both modes).
 
 - `formation_check.rs`: `LoadFormula::SlidingFrictionExplicit` and `SlidingFrictionCoupled`, with bindings, nodal DOF binding in the closure, and re-formation (exact product; ball). `evaluate` gains `judged` (D5C-1 on or off) and a per-attempt ε_E cache.
 - `structural.rs`: `finish_confirmation(&PositiveFactor) -> (StructuralSolution, ConfirmationAttempt)`; `ConfirmationAttempt::evaluate_at(&FormationCheckedSystem, u, judged)`, which requires the factor's stiffness, free map and contributions.
-- `certified_recovery.rs`: `certify_displacement(dof, u, bound)`; `CertifiedRow::enclosure`, exact sign and stick comparisons (`lower_above`, `upper_below`, `stick_margin_positive`); `CertifiedValue::into_row`.
+- `certified_recovery.rs`: `certify_displacement(dof, u, bound)`; `CertifiedRow::enclosure`, exact sign and stick comparisons (`lower_exceeds`, `upper_below`, `established_sign`, `stick_capacity_exceeds`, `stick_capacity_exceeds_explicit`); `CertifiedValue::into_row`.
 - `load_ledger.rs`: `AssembledForce::with_appended(LoadLedger)`.
 
 **NI (DEL-04-04, DEL-04-07).**
 
 - `structural_adapter.rs`: `AssemblyEvidence::confirm_with_formation_check`, the route's single formation-check entry, which prepares, factors, finishes and hands an evaluation context to its caller.
-- `confirmation.rs`: `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> Confirmation`, with the preconditions, the manifest, Stage A, the influence evaluation, Stage B, and the pure predicate `active_set_certificate`, unit-testable on synthetic balls. The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
+- `confirmation.rs`: `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> Confirmation`, with the preconditions, the manifest, Stage A, the influence evaluation, Stage B, and the pure predicate `support_reason` with `certificate_reason`, unit-testable on synthetic balls. The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
 - The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry; `confirm_converged_state` contains exactly one call to the confirmation entry; the product calls `confirm_converged_state` once, inside the nonlinear helper.
 
 **PP (DEL-04-07).**
@@ -375,7 +375,73 @@ All of revision 0's R1–R5 are ruled (see "The rulings"). None is a criterion c
 
 ## 9. Measured at implementation
 
-Recorded by the implementing change: the margins and B/c on the 8 case-modes and on F-1, F-2 and U-1; φ⁰'s own coupling miss and the friction-row move; runtime; the pricing comparison; the fail-closed rate on every committed and test nonlinear model; the mutant table.
+Measured on the implementing head with an instrumented scratch copy of the code (the instrumentation prints each ball; it is not committed). "ρ" is a ball's decision radius (evaluation radius plus remainder); "max w" and "λσ" are Stage B's `MemberBoundInputs`.
+
+**The 8 committed case-modes** (demo and `preview_physics_invented` are identical in structure and loads and give identical balls; both modes):
+
+| Case | NL-140 contact m (N), ρ | S-130 R_n (N), ρ | NL-130-FRIC u_t (m), ρ | friction v (N), B | max w; λσ |
+|---|---|---|---|---|---|
+| L-100 | −297.627, 8.7e-11 | −52.373, 1.09e-10 | −6.644e-3, 1.3e-18 | 0.5237328198735871, 3.5e-17 | ≤ 6.7e-15; 2.1e-14 |
+| L-200 | −98.813, 4.4e-11 | −26.187, 5.5e-11 | −3.322e-3, 6.4e-19 | 0.26186640993679355, 1.7e-17 | ≤ 3.4e-15; 1.0e-14 |
+
+- Every margin exceeds its radius by at least 12 orders of magnitude. All 8 case-modes are established and Passed.
+- **Stage A** (both cases, both modes): c = −0.01, g = 0.11103 (c·g = −1.11e-3, as the probe found), β = −1 (R_n < 0). φ⁰'s own coupling miss (c·N⁰ − φ⁰)/φ⁰ is −5.77e-13 and is mode-independent. The Stage-A radius r' is 3.5e-17 N (L-100). The published friction row moved by −3.56e-10 (sparse) and +1.42e-9 (dense) relative (§5): almost all of that is the free row's binary64 residual in the old reported reaction, not the coupling miss (review I1 confirmed).
+- The certified friction value equals μ|R_n| of the certified source reaction to the last bit printed (0.5237328198735871 against 0.5237328198735872).
+
+**References** (`validation/references/kd5_nonlinear/`, both modes):
+
+| Id | Case | Outcome | Margin, ρ |
+|---|---|---|---|
+| F-1 | STICK (\|R_t\| = 30 N, μ\|R_n\| = 50 N) | established | stick margin 20 N, ρ = 0 (an exact solve: w = 0) |
+| F-1 | SLIDE-POS / SLIDE-NEG | established | u_t = ±8.47e-8 m, ρ 6e-42; R_n = ±100 N, ρ 1.7e-34; v = ∓50 N, B 2.9e-37 |
+| F-1 | BOUNDARY (\|P_x\| = μ\|P_y\| exactly) | `stick capacity not established` | margin exactly 0 (R3) |
+| F-1 explicit | STICK / SLIDE (N = 70, μ = 0.3) | established | slide v = −21 N exactly rounded, B = 7.8e-16 (the exact product's rounding) |
+| F-1 μ = 0 | FREE | established | u_t = 2.82e-8 m, ρ 8e-47; slot +0 |
+| F-2 | SLIDE (strong coupling) | established | c·g = −0.748; φ⁰ miss 2.4e-13; r' = 1.6e-14 N; R_n = 1427.976 N, ρ 4.1e-9; v = −713.98800347588 N |
+| U-1 | PRESSED / LIFTED | established | contact 100 N, ρ 0; separation 6.67e-4 m, ρ 2.3e-42 |
+| U-1 spring twin | PRESSED / LIFTED | established | contact 100 N, ρ 0; separation 4.00e-4 m, ρ 1.2e-42 |
+| U-1 | IN-PLANE (zero control, u_d = 0 exactly) | `separation not established` | margin exactly 0 (R3) |
+| G-1 | PRESSED / LIFTED with a gap | not run (R1) | `RECOVERY_BASIS_UNQUALIFIED`, rows byte-identical |
+
+**Fail-closed rate** over every nonlinear model the product-physics test suite solves (693 tests): 50 distinct model/case/mode outcomes: 36 established, 6 not established, 8 not run. All 6 not-established outcomes are deliberate: F-1's exact boundary (2), U-1's zero control (2), and the constant-effort precedence variant of `invented-loop-01`, whose CE-120 is given NL-140's one-way template and stays inactive with a separation ball that does not exclude 0 (L-100 and L-200, sparse; R3). All 8 not-run outcomes are gap-bearing cases (G-1 and the invented loop's L-GAP and L-MIXED-NONLINEAR; R1). No committed output fails closed.
+
+**Mutants** (each applied to a scratch copy, the named suites run; `mutants/run_all.log` and `run_pp_only.log` in the implementation's scratch evidence):
+
+| Mutant | Killed by |
+|---|---|
+| M01 midpoint-only (radius dropped) | NI `stick_capacity_is_decided_exactly_with_both_radii`, `unilateral_signs_need_the_whole_ball_strictly_on_their_side`, `sliding_needs_the_slip_sign_and_the_coupling_branch` |
+| M02 `≥` for `>` | NI `unilateral_signs_need_the_whole_ball_strictly_on_their_side` |
+| M03 reaction sign convention reversed | PP `kd5_eight_committed_nonlinear_case_modes_pass_with_the_confirmation`, `kd5_nonlinear_references_bind_and_match_in_both_modes` |
+| M04 spring at d excluded from the contact force | **equivalent**: a contact is evaluated only at an Active (prescribed) DOF, where the spring's term k·u_d multiplies the prescribed u_d = 0 exactly, and an inactive support is decided from its displacement ball. No test can kill it; revision 1's claim that U-1's twin would was wrong. |
+| M05 derived N signed, M07 without ρ_n, M08 without ρ_t, M09 rounded stick comparison | NI `stick_capacity_is_decided_exactly_with_both_radii` |
+| M06 β not checked, M10 slip sign not checked | NI `sliding_needs_the_slip_sign_and_the_coupling_branch` |
+| M11 φ⁰ published (Stage A skipped) | PP references (F-2) |
+| M12 (1 − c·g)⁻¹ dropped, M13 g's radius dropped | NI `coupled_ball_contains_the_coupled_force_far_from_the_loop_value` |
+| M14 Stage-A radius missing from ψ | FK `coupled_sliding_friction_re_forms_as_its_stage_a_ball` |
+| M15 k > 1 not refused, M26 derived source outside B admitted | NI `named_preconditions_fail_closed_before_the_attempt` |
+| M16 Stage A's bound used for §2.2 and publication | NI `evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged`; PP references |
+| M17 explicit force re-formed from fl(μN) | FK `explicit_sliding_friction_is_the_exact_product_of_its_inputs` |
+| M18 K-D5 at the gate's own solution | NI `evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged`. In PP it is numerically equivalent on every model: the gate solves the same matrix and right-hand side as the loop's final solve, so u_C equals the loop's u bit for bit. |
+| M19 influence system judged by D5C-1 | PP references and the eight committed case-modes (the demo fails closed under it) |
+| M20 confirmation not run | PP `kd5_nonlinear_route_named_fail_closed_in_both_modes`, references, eight committed case-modes |
+| M21 prescribed row mismatch not detected | NI `prescribed_rows_must_match_bit_for_bit` |
+| M22 inactive nonlinear row nonzero, M23 final reaction ≠ component, M28 nonlinear slot left at zero | PP references |
+| M24 rotational friction admitted | PP `rotational_friction_is_refused_by_name_at_validation` |
+| M25 μ = 0 sliding given a friction term | NI `a_zero_coefficient_sliding_support_carries_no_term_and_is_established` |
+| M27 a second formation-check entry | NI `r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry` |
+
+**Pricing** (DEL-05-02 retained-pricing-rules.md §G). The static chain prices the confirmation's sites at multiplicity 0 under D1.6. The evidence-line site is charged positively (+15,309,300 B on TAV_text, TAV_W and TAV_X); 685 of 689 coefficients are unchanged. The block is regenerated and qualifies at the owner's M = 12 GiB (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). A per-diagnostic id allocation in the evidence line's scan (62 MB on route E) was found by the pricing run and removed in code.
+
+**Runtime** (release `openpipestress-runner solve`, end to end, under the exclusive wrapper; median of 20 runs after 2 warm-ups; base = the merge base `c00eba0cf2`):
+
+| Model | Mode | Base (ms) | Head (ms) |
+|---|---|---|---|
+| demo | sparse | 31.9 | 115.3 |
+| demo | dense | 32.5 | 115.6 |
+| `preview_physics_invented` | sparse | 31.9 | 118.2 |
+| `preview_physics_invented` | dense | 33.8 | 117.0 |
+
+- Each run solves two load cases. The confirmation itself (gate, factorization, Stage A, the influence evaluation, Stage B and the certificate) takes 1.2–1.7 ms per case, measured inside the release build with an instrumented scratch copy. The remaining ≈ 80 ms per run is therefore not the confirmation. The other work a Passed case adds is (d)'s certified publication (kd5 §3: member, section, station and support rows recovered at p, and the certified maxima), which a Sensitive case skipped; it was not timed separately. The figures are reported, not judged against a threshold: no runtime threshold applies.
 
 ## Open items
 
