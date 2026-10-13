@@ -5285,11 +5285,6 @@ fn solve_load_case_observed(
             continue;
         }
         let macro_bend = curved_bends_by_pipe.get(&pipe_index).copied();
-        let arc_end_frame = if pressure_runtime::is_exact(model) {
-            open_pipe_stress_frame_kernel::structural::ArcEndFrame::Tangent
-        } else {
-            open_pipe_stress_frame_kernel::structural::ArcEndFrame::Chord
-        };
         let uniform_intensities = curved_bend_uniform_intensities
             .get(&pipe_index)
             .map(Vec::as_slice)
@@ -5334,7 +5329,6 @@ fn solve_load_case_observed(
                     bend_pressure::recovery_strain(exact_pressure.as_ref(), pipe_index),
                 ),
                 uniform_intensities,
-                arc_end_frame,
             ) {
                 Ok(local_forces) => local_forces,
                 Err(message) => {
@@ -5432,7 +5426,7 @@ fn solve_load_case_observed(
         let mut certified_wall = None;
         if let Some(bound) = member_bound {
             let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
-            let certificate = certified_publication::member(pipe, macro_bend, &force, &displacements, bound, arc_end_frame).and_then(|mechanical| {
+            let certificate = certified_publication::member(pipe, macro_bend, &force, &displacements, bound).and_then(|mechanical| {
                 match pressure_state {
                     // T4-U2 (H-2) on a realized arc: the published member rows
                     // are elastic (S = N_el); the wall rows are N_w = N_el + pAi
@@ -5466,7 +5460,7 @@ fn solve_load_case_observed(
             }
         }
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
-        if macro_bend.is_some() && arc_end_frame == open_pipe_stress_frame_kernel::structural::ArcEndFrame::Tangent {
+        if macro_bend.is_some() {
             for row in results.iter_mut().rev().take(12) {
                 let metadata = row.metadata.as_mut().expect("end row metadata");
                 metadata.sign_convention = if metadata.location == "end_i" { ARC_END_I_SIGN } else { ARC_END_J_SIGN }.into();
@@ -5485,7 +5479,6 @@ fn solve_load_case_observed(
                 pipe,
                 &corrected_local_forces,
                 uniform_intensities,
-                arc_end_frame,
             ) {
                 Ok(stations) => stations.to_vec(),
                 Err(message) => {
@@ -5550,8 +5543,7 @@ fn solve_load_case_observed(
                     &corrected_local_forces,
                     uniform_intensities,
                     fraction,
-                    arc_end_frame,
-                )
+                    )
             };
             match (evaluate(0.0), evaluate(1.0)) {
                 (Ok(end_i), Ok(end_j)) => [end_i, end_j],
@@ -11074,11 +11066,10 @@ fn curved_bend_free_expansions(
 // instead (`certified_publication::member`).
 fn recover_curved_bend_local_forces(
     bend: &CurvedBendMacroBuild,
-    pipe: &StraightPipeElement,
+    _pipe: &StraightPipeElement,
     displacements: &[f64],
     free_expansions: &[[f64; ELEMENT_DOF]],
     uniform_intensities: &[[f64; 3]],
-    end_frame: open_pipe_stress_frame_kernel::structural::ArcEndFrame,
 ) -> Result<Vec<f64>, String> {
     let element_displacements = curved_bend_element_displacements(bend, displacements)?;
     // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
@@ -11124,7 +11115,7 @@ fn recover_curved_bend_local_forces(
 
     let mut local_forces = vec![0.0; ELEMENT_DOF];
     for end in 0..2 {
-        let axes = curved_bend_end_axes(bend, pipe, end == 1, end_frame)?;
+        let axes = curved_bend_end_axes(bend, end == 1)?;
         for block in 0..2 {
             for axis in 0..3 {
                 let row = 6 * end + 3 * block + axis;
@@ -11138,12 +11129,8 @@ fn recover_curved_bend_local_forces(
 }
 
 fn curved_bend_end_axes(
-    bend: &CurvedBendMacroBuild, pipe: &StraightPipeElement, end_j: bool,
-    end_frame: open_pipe_stress_frame_kernel::structural::ArcEndFrame,
+    bend: &CurvedBendMacroBuild, end_j: bool,
 ) -> Result<[[f64; 3]; 3], String> {
-    if end_frame == open_pipe_stress_frame_kernel::structural::ArcEndFrame::Chord {
-        return pipe.frame_element().map_err(|error| error.to_string())?.orientation().map(|frame| frame.local_axes).map_err(|error| error.to_string());
-    }
     let geometry = bend.macro_element.geometry().map_err(|error| error.to_string())?;
     let tangent = bend.macro_element.end_tangents().map_err(|error| error.to_string())?[usize::from(end_j)];
     let normal = geometry.local_axes[2];
@@ -11212,11 +11199,10 @@ fn curved_bend_uniform_intensities_by_pipe(
 // grid mirrors the straight-span fractions.
 fn curved_bend_section_resultants(
     bend: &CurvedBendMacroBuild,
-    pipe: &StraightPipeElement,
+    _pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
     uniform_intensities: &[[f64; 3]],
     fraction: f64,
-    end_frame: open_pipe_stress_frame_kernel::structural::ArcEndFrame,
 ) -> Result<[f64; 6], String> {
     if corrected_local_forces.len() < ELEMENT_DOF {
         return Err(format!(
@@ -11225,7 +11211,7 @@ fn curved_bend_section_resultants(
             corrected_local_forces.len()
         ));
     }
-    let axes = curved_bend_end_axes(bend, pipe, true, end_frame)?;
+    let axes = curved_bend_end_axes(bend, true)?;
     // Use the transpose of the same end-j frame that published these rows.
     let mut node_j_force = [0.0; DOF_PER_NODE];
     for block in 0..2 {
@@ -11255,7 +11241,6 @@ fn curved_bend_station_resultants(
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
     uniform_intensities: &[[f64; 3]],
-    end_frame: open_pipe_stress_frame_kernel::structural::ArcEndFrame,
 ) -> Result<[StationResultants; 3], String> {
     let locations: [(&'static str, f64); 3] =
         [("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75)];
@@ -11281,7 +11266,6 @@ fn curved_bend_station_resultants(
             corrected_local_forces,
             uniform_intensities,
             fraction,
-            end_frame,
         )?;
     }
     Ok(stations)
@@ -12163,7 +12147,7 @@ fn append_curved_bend_macro_element_results(
                 coordinate_system: "component_local_preview".to_string(),
                 location: element.pipe_id.clone(),
                 basis: format!(
-                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment={};recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment={};recovery=node_on_element_end_actions_from_assembled_stiffness_in_end_tangent_frame;interior_stations=arc_section_equilibrium_stations",
                     scalar_string(element.flexibility_factor),
                     scalar_string(element.bend_radius),
                     scalar_string(element.included_angle),
@@ -13842,15 +13826,15 @@ mod tests {
             // recipe at the unchanged ordinary displacement, not a repaired
             // certificate and not an expected number copied from this output.
             let intensities=curved_bend_uniform_intensities_by_pipe(&application.element_uniform_loads,&bends);
-            let binary=recover_curved_bend_local_forces(bend,pipe,&checked.displacements,&[],&intensities[&0],open_pipe_stress_frame_kernel::structural::ArcEndFrame::Chord).unwrap();
+            let binary=recover_curved_bend_local_forces(bend,pipe,&checked.displacements,&[],&intensities[&0]).unwrap();
             let mut expected=Vec::new();append_element_force_results(&mut expected,&pipe.element_id,&binary);
             let reactions=restrained_reactions(&formed,&checked.displacements,&force);
             let mut support=[0.0;6];support.copy_from_slice(&reactions[..6]);append_signed_support_results(&mut expected,case,&model.supports[0],support);
             for mut original in expected {
-                // Historical final-row presentation: case attribution and the
-                // established arc chord-frame label are independent of repair.
+                // Final-row presentation: case attribution and the current
+                // tangent-frame end convention are independent of repair.
                 original.basis_ref=Some(ResultBasisRef {ref_type:"load_case".into(),ref_id:case.id.clone()});
-                if original.kind.starts_with("element_local_") { original.metadata.as_mut().unwrap().coordinate_system="arc_chord_frame".into(); }
+                if original.kind.starts_with("element_local_") { let metadata=original.metadata.as_mut().unwrap();metadata.sign_convention=if metadata.location=="end_i" {ARC_END_I_SIGN} else {ARC_END_J_SIGN}.into(); }
                 let published=output.results.iter().find(|row|row.kind==original.kind && row.entity_ref==original.entity_ref && row.metadata.as_ref().map(|m|(&m.location,&m.component))==original.metadata.as_ref().map(|m|(&m.location,&m.component))).unwrap();
                 assert_eq!(published.value.to_bits(),original.value.to_bits(),"{} {:?}",original.kind,original.metadata);
                 assert_eq!(serde_json::to_string(published).unwrap(),serde_json::to_string(&original).unwrap(),"previous row bytes");
@@ -14992,12 +14976,7 @@ mod tests {
         .unwrap();
         let build = curved_bend_direct_build();
         let intensity = [0.0, 0.0, -190.0];
-        let node_j_force: [f64; DOF_PER_NODE] = corrected[DOF_PER_NODE..]
-            .try_into()
-            .expect("six j-end action slots");
-
-        // The public endpoint rows stay the chord-frame node-on-element
-        // actions. Reconstruct that independent direct solve before testing
+        // Reconstruct the independent global direct solve before testing
         // the separate arc section-cut resultants consumed by stress.
         let uniform_equivalent = build
             .macro_element
@@ -15013,13 +14992,16 @@ mod tests {
                 expected_raw[row] += stiffness[row][col] * displacements[col];
             }
             expected_raw[row] -= uniform_equivalent[row];
-            assert!(
-                (corrected[row] - round6(expected_raw[row])).abs() <= 1.1e-6,
-                "raw chord-frame action slot {row}: {} != {}",
-                corrected[row],
-                round6(expected_raw[row])
-            );
         }
+        for end in 0..2 {
+            let axes=curved_bend_end_axes(&build,end==1).unwrap();
+            for block in 0..2 { for axis in 0..3 {
+                let slot=6*end+3*block+axis;
+                let expected=(0..3).map(|k|axes[axis][k]*expected_raw[6*end+3*block+k]).sum::<f64>();
+                assert!((corrected[slot]-round6(expected)).abs()<=1.1e-6,"raw tangent action slot{slot}");
+            }}
+        }
+        let node_j_force: [f64; DOF_PER_NODE] = expected_raw[DOF_PER_NODE..].try_into().unwrap();
         for row_id in &row_ids {
             for (id, location) in [
                 ((*row_id).to_string(), "end_i"),
@@ -15032,9 +15014,7 @@ mod tests {
                     .and_then(|row| row.metadata.as_ref())
                     .unwrap();
                 assert_eq!(metadata.location, location);
-                // T0R (N-2): arc endpoint force rows are labelled with their
-                // actual chord frame on preview-physics-1; values unchanged.
-                assert_eq!(metadata.coordinate_system, "arc_chord_frame");
+                assert_eq!(metadata.coordinate_system, "element_local");
                 assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
                 assert!(metadata.sign_convention.contains("force vector"));
             }
@@ -15047,7 +15027,6 @@ mod tests {
                 &corrected,
                 &[intensity],
                 fraction,
-                open_pipe_stress_frame_kernel::structural::ArcEndFrame::Chord,
             )
             .unwrap();
             let expected = build
@@ -22554,13 +22533,13 @@ mod tests {
             "arc realization {uy_mm} mm must be more flexible than the straight chord {straight_uy_mm} mm"
         );
 
-        // Force-balance sanity on the recovered chord-frame end forces: the
-        // chord frame coincides with global axes here, so end i carries the
-        // reaction to the 1000 N tip load.
+        // Force-balance sanity: end i carries the reaction to the1000N
+        // global-y tip load expressed in its tangent frame.
         let shear_end_i = result_value(&result, "result:force:pipe-P-100:shear-y");
+        let axes=curved_bend_end_axes(&curved_bend_direct_build(),false).unwrap();
+        let expected=-1000.0*axes[1][1];
         assert!(
-            (shear_end_i + 1000.0).abs() <= 1.0e-3 * 1000.0
-                || (shear_end_i - 1000.0).abs() <= 1.0e-3 * 1000.0
+            (shear_end_i - expected).abs() <= 1.0e-3 * 1000.0
         );
     }
 
@@ -22847,8 +22826,8 @@ mod tests {
             .all(|item| !item.id.contains(":distributed-load")));
 
         // Independent oracle: consistent equivalent loads on the direct arc,
-        // anchored solve, true end forces K d - p. The chord frame coincides
-        // with global axes in this fixture.
+        // anchored solve, true global end forces K d - p, projected into the
+        // end's own tangent frame for the public comparison.
         let element = curved_bend_direct_element();
         let intensity = [0.0, 0.0, -190.0];
         let equivalent = element.consistent_uniform_nodal_loads(intensity).unwrap();
@@ -22877,10 +22856,12 @@ mod tests {
         ];
         for (row_id, dof) in rows {
             let end_i = result_value(&result, row_id);
+            let axes=curved_bend_end_axes(&curved_bend_direct_build(),false).unwrap();
+            let expected=(0..3).map(|k|axes[dof%3][k]*expected_forces[3*(dof/3)+k]).sum::<f64>();
             assert!(
-                (end_i - expected_forces[dof]).abs() <= 1.0e-3,
+                (end_i - expected).abs() <= 1.0e-3,
                 "end-i row {row_id} value {end_i} must match the direct oracle {}",
-                expected_forces[dof]
+                expected
             );
             let end_j = result_value(&result, &format!("{row_id}:end-j"));
             assert!(
@@ -22890,7 +22871,7 @@ mod tests {
         }
         let shear_z_end_i = result_value(&result, "result:force:pipe-P-100:shear-z");
         assert!(
-            (shear_z_end_i - total_load).abs() <= 1.0e-3 * total_load,
+            (shear_z_end_i + total_load).abs() <= 1.0e-3 * total_load,
             "end-i shear {shear_z_end_i} must carry the full distributed resultant {total_load}"
         );
 

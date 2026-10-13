@@ -201,8 +201,7 @@ const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
 const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
     ("PP/lib.rs", "run_linear_static_preview_observed_inner", "load_case_solves", "per-case result records, not a force vector"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "global_forces", "E8/E9: the row loop writes each row's one exact sum"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the chord rotation of the recovered end forces (a formed transform, section 2.2)"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_force", "the chord rotation's element loop (a formed transform, section 2.2)"),
+    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the end tangent rotation of the recovered global end forces (one formed transform, section 2.2)"),
     ("FK/lib.rs", "reduced_right_hand_side", "adjusted_force", "KS2: the legacy row expression, kept only for the option (c) binary64 variant and legacy rows with no nonzero prescribed product (b - (+-0) is exact); ledger rows are always exact"),
     ("FK/lib.rs", "solve_dense", "rhs", "generic linear-algebra kernel (limit 1)"),
     ("FK/lib.rs", "solve_dense", "sum", "generic linear-algebra kernel (limit 1): back substitution"),
@@ -621,6 +620,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/certified_recovery.rs", "certify_straight_section", "K-D5 §3.1: one straight section by the same recipe"),
     ("FK/structural/certified_recovery.rs", "certify_straight_stress_spans", "K-D5 §3.2: Bernstein stress controls from the certified recovery and the raw uniform primitives"),
     ("FK/structural/certified_recovery.rs", "certify_arc_recovery", "K-D5 §3.1: arc end and station rows through K_int,arc"),
+    ("FK/structural/certified_recovery.rs", "tangent_end_operator_and_loads", "U4a: rotate intended end loads in ball arithmetic before evaluating and publishing the certified tangent rows"),
     ("FK/structural/certified_recovery.rs", "certify_connector_recovery", "K-D5 §3.1: connector rows through connector_matrix"),
     (
         "FK/structural/certified_recovery.rs",
@@ -725,7 +725,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "compute_pipe_mass_per_length", 2, "declared formation: same-sign mass terms (section 2.2, as self_weight)"),
     ("PP/lib.rs", "curved_bend_section_resultants", 1, "formed transform: chord frame back to global (section 2.2); E11 is the terms API call"),
     ("PP/lib.rs", "debit", 2, "integer: budget charge"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
+    ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the end tangent rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
     ("PP/lib.rs", "run_linear_static_preview_observed_inner", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
     ("PP/lib.rs", "solve_load_case_observed", 2, "integer: source-budget attempts and component modifier count"),

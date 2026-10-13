@@ -674,8 +674,7 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "moment_magnitude"
             | "maximum_absolute_normal_stress"
             | "equal_factor_intensified_bending_stress"
-    ) || metadata.coordinate_system == "arc_chord_frame"
-        || metadata.location == "governing_station"
+    ) || metadata.location == "governing_station"
 }
 
 pub fn assemble_wire_request(
@@ -895,7 +894,6 @@ mod tests {
             ("basis", "recovered_from_assembled_support_law"),
             ("component", "maximum_absolute_normal_stress"),
             ("component", "equal_factor_intensified_bending_stress"),
-            ("coordinate_system", "arc_chord_frame"),
             ("location", "governing_station"),
         ] {
             let mut fresh = witness.clone();

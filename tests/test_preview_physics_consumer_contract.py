@@ -222,7 +222,8 @@ def test_evidence_schema_is_closed_in_both_documents():
 def test_preview_metadata_vocabulary_is_scoped_to_its_branch():
     schema = results_schema()
     arc = meta("axial_force", "arc_chord_frame", "end_i", "recovered_from_local_element_stiffness")
-    validate_instance(schema_for_definition(schema, "PreviewPhysicsResultMetadata"), arc)
+    with pytest.raises(AssertionError):
+        validate_instance(schema_for_definition(schema, "PreviewPhysicsResultMetadata"), arc)
     with pytest.raises(AssertionError):
         validate_instance(schema_for_definition(schema, "ResultMetadata"), arc)
     intensified = meta("equal_factor_intensified_bending_stress", "pipe_section", "end_j", "user_sif_times_member_section_bending_stress_v1")
@@ -832,7 +833,7 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     from test_stress_neutral_physics_source import arguments
     source = envelope()
     # One arc member row exercises the arc vocabulary in the packaged annotations.
-    source["results"].append({"id": "result:force:pipe:P1:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "arc_chord_frame", "end_i", "recovered_from_local_element_stiffness")})
+    source["results"].append({"id": "result:force:pipe:P1:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "element_local", "end_i", "recovered_from_local_element_stiffness")})
     source["results"].append({"id": "result:stress:pipe:P1:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
     validate_preview_physics_evidence(source)
     analysis = build(source)

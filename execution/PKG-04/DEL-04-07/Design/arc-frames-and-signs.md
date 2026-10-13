@@ -10,8 +10,9 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 ## Status (2026-10-13, resumed implementation)
 
 The owner resumed T4-U4a from the controlled pause. Stage 1 is implemented
-and checked; the separate stage-2 preview flip is being prepared for B7a's
-H-4 wave. Registration remains stale until the owning batch's review and
+and checked; the separate stage-2 preview flip is implemented for B7a's
+H-4 wave. Its code, sentence, schema and table delta travel together;
+fixture regeneration and registration remain stale until the owning batch's review and
 re-registration; these checks do not establish acceptance.
 
 **Designed.** Sections 1–10: the tangent-frame, node-on-element convention
@@ -90,7 +91,14 @@ values or request bytes changed.
   or product comparison criterion.
 
 **Remaining work.**
-1. The stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
+1. B7a completes the stage-2 H-4 C4–C6 wave (§§5, 8): single corpus
+   regeneration, the remaining minified fixture sentence copies, reviewed
+   table digests/hash vectors and pinning. Both stages' product code is
+   implemented; the stage-2 U4a suite passes all 20 cases in both modes and
+   entries, including the ordinary binary64 gap case. Preview B1 tangent
+   rows pass with T0R's original chord block kept as a negative control.
+   Fifteen curved consumer tests, the six-resultant endpoint control and
+   both governed accumulation-site suites (12 PP, 3 FK) pass.
 2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
    status moves, targeted mutant runs, the VP-STATIC package's independent
    mapping re-review, and independent scrutiny of the implementation.

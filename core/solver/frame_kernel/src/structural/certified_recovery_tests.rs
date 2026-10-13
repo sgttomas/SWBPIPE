@@ -9,6 +9,16 @@ fn bound(n: usize) -> MemberBoundInputs {
         lambda_sigma: 0.0,
     }
 }
+// Historical chord control is test-only; the product has one current frame.
+fn chord_control_recovery(arc:&CurvedFormation,span:&FrameElement,loads:&CertifiedMemberLoads,u:&[f64],bound:&MemberBoundInputs)->Result<CertifiedMemberRecovery,RecoveryFailure> {
+    let mut a=WideArith::new(128)?;
+    let matrix=curved_matrix(&mut a,arc)?;
+    let (axes,_)=chord_axes(&mut a,span.node_i.coordinates,span.node_j.coordinates,span.y_reference)?;
+    let operator=local_operator(&matrix,&axes)?;
+    let (equivalent,scale)=local_loads(loads,&axes)?;
+    let ends=evaluate_ends(&operator,&element_dof_map(arc.node_i,arc.node_j),&equivalent,&scale,u,bound)?;
+    let mut tangent=certify_arc_recovery(arc,loads,u,bound)?;tangent.ends=ends;Ok(tangent)
+}
 fn frame() -> FrameElement {
     FrameElement::new(
         FrameNode::new(0, [0.0; 3]).unwrap(),
@@ -359,8 +369,8 @@ fn arc_recovery_uses_the_intended_matrix_and_equilibrium_sections() {
     u[7] = 0.125;
     u[11] = 0.0625;
     let recovered =
-        certify_arc_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b, ArcEndFrame::Chord).unwrap();
-    let tangent = certify_arc_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b, ArcEndFrame::Tangent).unwrap();
+        chord_control_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b).unwrap();
+    let tangent = certify_arc_recovery(&arc, &CertifiedMemberLoads::default(), &u, &b).unwrap();
     for (end, section, sign) in [(0,0,-1.0),(1,4,1.0)] {
         for r in 0..6 {
             let row=tangent.ends[6*end+r];let cut=tangent.sections[section][r];
@@ -826,7 +836,7 @@ mod independent_loaded_arc {
         let mut bound = bound(12);
         bound.w[8] = 2.0_f64.powi(-37);
         bound.w2[8] = 2.0_f64.powi(-62);
-        let result = certify_arc_recovery(&arc, &span, &loads, &u, &bound, ArcEndFrame::Chord).unwrap();
+        let result = chord_control_recovery(&arc, &span, &loads, &u, &bound).unwrap();
         let mut wide = WideArith::new(128).unwrap();
         let matrix = curved_matrix(&mut wide, &arc).unwrap();
         let (axes, _) = chord_axes(

@@ -11,7 +11,7 @@
 //!   S11-G reads the product's own rounding (`RoundedProduct`) and, as the
 //!   operand bound, ε_p's formation error ([`strain_operand_bound`]).
 //! - **Recovery.** The arc's elastic end actions are K_b(d − u_free(ε_th +
-//!   ε_p)) − p_uniform (`recover_curved_bend_local_forces`, the chord-frame
+//!   ε_p)) − p_uniform (`recover_curved_bend_local_forces`, the tangent-frame
 //!   `element_local_*` rows). At each end and station the wall force is
 //!   N_w = N_el + pAi and the effective force S = N_el; M and V are elastic
 //!   ([`append_arc_pressure_results`]). The wall end action is published

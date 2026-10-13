@@ -14,7 +14,6 @@ use open_pipe_stress_stress_recovery::elastic_extrema::CertifiedStressMaximum;
 pub(crate) const ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub(crate) const INTENSIFIED_KIND: &str = "component_equal_factor_intensified_bending_stress_v1";
 const ARC_BASIS: &str = "nominal_straight_beam_formula_on_arc_resultants";
-const ARC_COORDINATE: &str = "arc_chord_frame";
 const MAXIMUM_SIGN: &str = "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim";
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const WITHHELD_ATTRIBUTION: &str = "SUPPORT_ACTION_ATTRIBUTION_WITHHELD";
@@ -53,20 +52,12 @@ const ARC_STRESS_KINDS: [&str; 6] = [
     "pipe_section_pressure_hoop_stress",
     "pipe_section_pressure_longitudinal_stress",
 ];
-const END_FORCE_KINDS: [&str; 6] = [
-    "element_local_axial_force",
-    "element_local_shear_force_y",
-    "element_local_shear_force_z",
-    "element_local_torsional_moment",
-    "element_local_bending_moment_y",
-    "element_local_bending_moment_z",
-];
 
 pub(crate) const LIMITATIONS: [&str; 7] = [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
     "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-    "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
+    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
@@ -605,13 +596,6 @@ pub(crate) fn render(
                 if let Some(metadata) = row.metadata.as_mut() {
                     if ARC_STRESS_KINDS.contains(&row.kind.as_str()) {
                         metadata.basis = ARC_BASIS.to_string();
-                    } else if END_FORCE_KINDS.contains(&row.kind.as_str())
-                        && matches!(metadata.location.as_str(), "end_i" | "end_j")
-                        && metadata.basis == SECTION_RESULTANT_BASIS
-                        && metadata.coordinate_system == "element_local"
-                        && metadata.sign_convention.starts_with("positive value follows the element-local DOF at the")
-                    {
-                        metadata.coordinate_system = ARC_COORDINATE.to_string();
                     }
                 }
             }

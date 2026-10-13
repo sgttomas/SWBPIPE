@@ -73,7 +73,6 @@ pub use formation_check::{
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
 pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_support_reaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
 // O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
-pub use certified_recovery::ArcEndFrame;
 pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{
     assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,

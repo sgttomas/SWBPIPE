@@ -34,7 +34,6 @@ pub(super) fn member(
     force: &AssembledForce,
     u: &[f64],
     bound: &MemberBoundInputs,
-    end_frame: open_pipe_stress_frame_kernel::structural::ArcEndFrame,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
     let prefix = format!("member:{}:{}:", pipe.element_id.len(), pipe.element_id);
     let loads = CertifiedMemberLoads::from_member_primitives(
@@ -46,17 +45,9 @@ pub(super) fn member(
     if let Some(bend) = bend {
         certify_arc_recovery(
             &curved_formation_of(bend),
-            &pipe.frame_element().map_err(|_| {
-                RecoveryFailure::Wide(
-                    open_pipe_stress_frame_kernel::structural::retained_api::WideError::CountRange(
-                        "product arc frame",
-                    ),
-                )
-            })?,
             &loads,
             u,
             bound,
-            end_frame,
         )
     } else {
         certify_straight_recovery(
@@ -106,8 +97,8 @@ pub(super) fn pressure_adjustment(
 /// rounded once (K-D5 Design section 3.2, pipe-wall rows); S = N_el is the
 /// elastic recovery itself. The wall end actions lie along the arc's end
 /// tangents: -N_w(cut_i) at end i and +N_w(cut_j) at end j (exact negation),
-/// so the wall end groups judge the published tangent end actions, not the
-/// chord-frame end rows.
+/// so the wall end groups judge the wall action while the elastic end groups
+/// judge the separately published elastic action in the same tangent frame.
 pub(super) fn arc_pressure_wall(
     recovery: &CertifiedMemberRecovery,
     state: &pressure_runtime::ExactPressurePipeState,
@@ -209,13 +200,11 @@ mod u4a_record_tests {
     use super::*;
     #[test]
     fn u4a_end_groups_recompute_from_actual_tangent_row_certificates() {
-        use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
-        use open_pipe_stress_frame_kernel::structural::{ArcEndFrame, CurvedFormation};
+        use open_pipe_stress_frame_kernel::structural::{CurvedFormation};
         let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:[1.0,0.0,0.0],coordinates_j:[0.0,1.0,0.0],radius:1.0,y_reference:[1.0,1.0,0.0],elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:2.0,out_of_plane_flexibility_factor:2.0};
-        let span=FrameElement::new(FrameNode::new(0,arc.coordinates_i).unwrap(),FrameNode::new(1,arc.coordinates_j).unwrap(),FrameSection::new(8.0,4.0,2.0,3.0,3.0,6.0).unwrap(),arc.y_reference).unwrap();
         let bound=MemberBoundInputs {w:vec![2f64.powi(-30);12],w2:vec![-2f64.powi(-45);12],exponents:vec![0;12],lambda_sigma:2f64.powi(-35)};
         let u=[0.0,0.0,0.0,0.0,0.0,0.0,0.25,0.125,-0.03125,0.0625,-0.125,0.25];
-        let recovery=certify_arc_recovery(&arc,&span,&CertifiedMemberLoads::default(),&u,&bound,ArcEndFrame::Tangent).unwrap();
+        let recovery=certify_arc_recovery(&arc,&CertifiedMemberLoads::default(),&u,&bound).unwrap();
         let record=member_record("arc",Some(0),&recovery,None).unwrap();
         for (end,offset) in [("end_i",0),("end_j",6)] {
             for (kind,range) in [("axial",0..1),("shear",1..3),("torsion",3..4),("bending",4..6)] {

@@ -5,7 +5,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 const REQUESTS: &str = include_str!("../../../validation/references/t4_u4a/requests.json");
 const ORACLE: &str = include_str!("../../../validation/references/t4_u4a/oracle.json");
-const TANGENT_PREVIEW: bool = false;
+const TANGENT_PREVIEW: bool = true;
 const ENDS: [(&str, &str); 6] = [
     ("F_x", "element_local_axial_force"), ("F_y", "element_local_shear_force_y"),
     ("F_z", "element_local_shear_force_z"), ("M_x", "element_local_torsional_moment"),

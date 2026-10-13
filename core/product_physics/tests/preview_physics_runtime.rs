@@ -867,6 +867,7 @@ fn arc_model(k: f64, yref_bc: [f64; 3], sif_value: Option<f64>) -> Value {
 
 #[test]
 fn b1_arc_signed_rows_frames_and_withheld_maximum() {
+    let u4a: Value = serde_json::from_str(include_str!("../../../validation/references/t4_u4a/oracle.json")).unwrap();
     let r = r2();
     let b1 = &r["REF-B1-SIGNED"];
     let (fs, ms) = (num(&b1["zero_scale"]["force_N"]), num(&b1["zero_scale"]["moment_Nm"]));
@@ -883,12 +884,20 @@ fn b1_arc_signed_rows_frames_and_withheld_maximum() {
                 }
             }
             for (location, key) in [("end_i", "product_end_i_rows_node_on_element"), ("end_j", "product_end_j_rows_node_on_element")] {
-                let expected = vec3(&b1["chord_frame"][key]);
+                let chord = vec3(&b1["chord_frame"][key]);
+                let oracle = &u4a["cases"][format!("U4A-PP1-T0R-B1-K{}", k as u32)]["members"]["pipe:b-c"]["end_rows_node_on_element_elastic"][location]["tangent_frame"];
+                let expected = ["F_x", "F_y", "F_z", "M_x", "M_y", "M_z"].map(|name|oracle[name].as_str().unwrap().parse::<f64>().unwrap());
+                let mut chord_discriminated = false;
                 for (idx, (component, _)) in names.iter().enumerate() {
                     let row = results(&v).iter().find(|r| r["kind"] == kinds[idx] && r["entity_ref"] == "pipe:b-c" && r["metadata"]["location"] == location && r["metadata"]["component"] == *component).unwrap();
-                    assert_eq!(row["metadata"]["coordinate_system"], "arc_chord_frame");
-                    close(num(&row["value"]), expected[idx], if idx < 3 { fs } else { ms }, &format!("chord {location} {component}"));
+                    assert_eq!(row["metadata"]["coordinate_system"], "element_local");
+                    assert!(row["metadata"]["sign_convention"].as_str().unwrap().contains("in the arc tangent frame at end"));
+                    // These expectations use U4a's member-family criterion;
+                    // the unchanged T0R criterion still governs its own rows.
+                    assert!((num(&row["value"]) - expected[idx]).abs() <= 1e-9 * expected[idx].abs().max(if idx < 3 { fs } else { ms }), "tangent {location} {component}");
+                    chord_discriminated |= (num(&row["value"]) - chord[idx]).abs() > 1e3 * 1e-9 * expected[idx].abs().max(if idx < 3 { fs } else { ms });
                 }
+                assert!(chord_discriminated, "the frozen chord block is a negative control");
             }
             let es = &b1["endpoint_stress_rows_tangent_frame"];
             let stress = |kind: &str, location: &str| {

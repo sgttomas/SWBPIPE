@@ -408,7 +408,7 @@ fn run_pp_route_elbow(elbow: &PpRouteElbow) -> Vec<(String, MechanicsEnvelope, f
                     .unwrap()
                     .iter()
                     .any(|r| r["entity_ref"] == "M1"
-                        && r["metadata"]["coordinate_system"] == "arc_chord_frame"),
+                        && r["metadata"]["basis"] == "nominal_straight_beam_formula_on_arc_resultants"),
                 "{ctx}: M1 realized as an arc"
             );
             let actual = elbow.actual_ratio(&envelope);
