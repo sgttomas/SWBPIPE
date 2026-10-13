@@ -131,13 +131,14 @@ weakening a surviving function's rule. The registered revision still carries
 the original E4/A3 entries.
 
 
-## J. The pressure-source join on batch 4
+## J. The pressure-source join on current main
 
-The join (b7-plan) merged with T4 batch 4 (#1314, `745f55f918`). Each rule
-applies only where the join's code exists, so earlier revisions price as
-before, except JP1's pins, which are now the join's bytes. Every zero below is
-a dead edge or a guarded multiplicity-0 site; no reached branch is zeroed and
-no bound is unbounded.
+The join (b7-plan) incorporates T4 batch 4, nonlinear K-D5 (#1327) and
+batch 5 (#1333, `f01d1a32d2`) by merge commit. The current source basis is
+`20ad730689`. Each rule applies only where the join's code exists, so earlier
+revisions price as before except for JP1's exact current source pins. Every
+zero below is a dead edge or a guarded multiplicity-0 site; no reached branch
+is zeroed and no bound is unbounded.
 
 | Label | Rule | Code argument and guard |
 |---|---|---|
@@ -149,8 +150,41 @@ no bound is unbounded.
 | **J4** | `ID_AUDIT` `exact_admission.rs pressure_v3_formulation_basis_in`: `identity.to_string()` ≤ the longer of 2 literals; `source.to_string()` ≤ the longest of 3 literals | The two limitations are whole `&'static str` selections. `identity` is chosen by `selected == Some(true)` between the pressure-source-1 and pressure-1 texts. `source` is chosen by `match selected` among None, Some(false) and Some(true). Each bound is the raw literal length read at the snapshot (≥ the decoded length). **Guard:** the run stops unless each `let` selects exactly that number of literals. |
 | **J5** | `EDGE_ZERO` `physics_evidence.rs validate_physics_evidence_in` → `load_reference.rs prepass` | `prepass(source, true, Method::PressureJoined)` runs only under `if resolved`, where `resolved = composite && contract == PressureV3 && evidence has load_reference_states`. The one call passing `composite = true` is `physics_source::validate_in`. It is unreached on both routes: its only reached caller's edge is J1's zero, and its PhysicsV2 sibling is covered by G4 (T17). Every other call passes `false`: `validate_physics_evidence` (route E's reached caller, StraightV2), `validate_pressure_evidence` and `load_reference::validate`. Zeroing the edge removes route E's reach into `prepass`/`validate_record`, along with their `shape_in_resources` recursion, nine load-reference loop headers and the `support_state`/`member_state` id arguments. None of these is reachable on D1. **Guard:** the run stops unless the call sits under that `resolved` test and is the file's only prepass call, and unless the `validate_physics_evidence_in(` call inventory is exactly three `false` calls and physics_source.rs's one `true` call. |
 | **J6** | `recursion_reviewed` (via the new `O10_RECURSION_REVIEWED` family in `sq2_rules.py`): `source_blocks.rs shape_in_resources` | The join moved `shape_in`'s body into `shape_in_resources`. The only change is an explicit `resources` list, consulted for a non-local `$ref`; an unknown name or missing fragment fails closed. `shape_in` now only delegates with no resources. The registered review of `shape_in`'s bounded self-recursion applies to the function that now recurses: multiplicity 0 on D1, because the source-block shape check is not on the D1 path, and text only on its error path. Its graph callers are `shape_in`, whose D1 reach was only through `prepass` (J5), and physics_source's receipt and transport-metadata checks, which are unreached. **Guard:** `shape_in`'s delegation and the self-call are each found once. |
-| **JP1** | K-D5's three source pins are re-pinned to the join's bytes on batch 4: `certified_recovery.rs`'s production prefix, `lib.rs solve_load_case_observed` (in `kd5_text_model.PINS` and `kd5_first_error_model.LIB_PINS`), and stress_recovery's non-test source (`STRESS_SUBJECT_SOURCE_PIN`). `JOIN_REVIEWED` and its alternative-acceptance helper are removed. | Each digest was reviewed against batch 4's bytes (`745f55f918`). `certified_recovery.rs` differs only in its four `norm2`/`norm3` call paths: `crate::correct_norm` became `open_pipe_stress_correct_norm`, the same functions (JN1). `solve_load_case_observed` differs only by the removed not-joined diagnostic call; its route strings, record labels and KD5C6's attempt/clone consumers are unchanged. stress_recovery differs only by the removed `#[path]` `correct_norm` module; KD5T3's closed subject producer and its one copy site are unchanged. The pins are exact, so revisions before the join no longer price with this tool. The registration moves to the join head (D3). |
-| **JC5** | KD5C5's outside-caller inventory is a fixed 18 pairs: the 17 K-D5 pairs and the J7 census's `method_row_holds` `.mul(` (plus U2's pairs where `bend_pressure.rs` exists). `JOIN_ONLY_CALLER_FILES` is removed. | The census calls `.mul(` only on the validation crate's exact rational `Exact`, its own `Exact::mul`, never `FallbackError::mul`. The caller body is digest-pinned. |
+| **JP1** | K-D5 and batch 5 pins bind the actual merged production prefixes and case wrapper/prepared helper. `JOIN_REVIEWED` and its alternative-acceptance helper remain removed. | Against batch 5, `certified_recovery.rs` differs only in its four correct-norm crate paths (JN1), and stress recovery only by the removed local correct-norm module. Batch 5's wrapper and complete certified-publication production prefix are unchanged. The prepared helper removes the obsolete not-joined diagnostic call; the composite-context refusal contributes one diagnostic allocation, giving a net decrease of two in D and D_env under the unchanged TEXT recipes. Route strings, record labels and C6's attempt/clone consumers remain bound. The batch 5 pressure carrier, private preparation, directed helpers and positive workspace/TEXT charges all remain. Exact pins stop pricing on unreviewed source. Registration binds the actual join source and inputs under D3. |
+| **JC5** | KD5C5's outside-caller inventory is the fixed current union of 21 pairs in 20 callers: batch 5's 20 pairs and the J7 census's `method_row_holds` `.mul(`. `JOIN_ONLY_CALLER_FILES` remains removed. | The census calls `.mul(` only on the validation crate's exact rational `Exact`, its own `Exact::mul`, never `FallbackError::mul`. All outside caller bodies remain digest-pinned, including batch 5's conditional pressure descriptor callers. |
+
+
+**Current D3 binding.** The immutable assembled source `20ad730689` prices
+completely at all four points, with no unmapped header or unclassified
+argument, both O-10 checks passing and the same six inherited prunes. Against
+batch 5's registered source tree, the 701 union coefficients are 643 equal,
+20 higher and 38 lower; JP1 explains the diagnostic reductions, and all
+native phase totals increase. The generated block is exactly the tool's
+1,382-line output, with 277 atoms, 47 forms and no Estimate. The original
+17 reviewed-input positions (the PP lock and 16 reader statics) remain,
+pressure-source-1's table stays
+at index 17, and the pressure result schema is appended at index 18, giving
+19 actual digest bindings. The latter two are nonresident definitions: the
+closed guard requires their exact full paths and positions, zero production
+includes for each, and all original resident include obligations. Removing
+or changing either named token, or an unavailable input, fails the full
+binding. Similar paths/names and production hidden in a test region are
+refused by the maintained include-auditor controls.
+
+At M = 12 GiB (12,884,901,888 B), R = 67,108,864 B and the unchanged
+floor(0.9 M) = 11,596,411,699 B, native W3 is 10,295,522,396 B sparse and
+10,354,653,740 B dense including R. The upward-rounded applicable W/X
+TEXT reserves are 220,037,296/241,963,980 B; dense W3 leaves the least
+headroom, 1,021,720,663 B after its reserve. Reader size/alignment pairs stay
+56/8, 64/8, 96/8 and 16/8. The bound public/law suite passes 65 tests;
+all 67 maintained native witnesses and the allocator challenge pass in
+separate measured processes. Maximum process RSS is 182,517,760 B, and the
+allocator's four positive successor controls peak at 8,399,636 B, below the
+current sparse/dense profile bounds. Both non-maximal SQ2 shapes stay below
+L(3,0) in all fourteen native phases. Independent source, generated-block,
+native-atom, exact-input, margin/reserve and measured-process scrutiny finds
+no blocking D3 defect. This registers the join build; the join, B7a and B7b
+still integrate to main as one batch.
 
 
 ## F. K-D5 actual owned layouts (KD5O1–KD5O6)
