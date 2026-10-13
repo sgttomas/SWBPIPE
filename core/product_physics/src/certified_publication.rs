@@ -204,37 +204,6 @@ pub(super) fn member_record(
     })
 }
 
-#[cfg(test)]
-mod u4a_record_tests {
-    use super::*;
-    #[test]
-    fn u4a_end_groups_recompute_from_actual_tangent_row_certificates() {
-        use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
-        use open_pipe_stress_frame_kernel::structural::{ArcEndFrame, CurvedFormation};
-        let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:[1.0,0.0,0.0],coordinates_j:[0.0,1.0,0.0],radius:1.0,y_reference:[1.0,1.0,0.0],elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:2.0,out_of_plane_flexibility_factor:2.0};
-        let span=FrameElement::new(FrameNode::new(0,arc.coordinates_i).unwrap(),FrameNode::new(1,arc.coordinates_j).unwrap(),FrameSection::new(8.0,4.0,2.0,3.0,3.0,6.0).unwrap(),arc.y_reference).unwrap();
-        let bound=MemberBoundInputs {w:vec![2f64.powi(-30);12],w2:vec![-2f64.powi(-45);12],exponents:vec![0;12],lambda_sigma:2f64.powi(-35)};
-        let u=[0.0,0.0,0.0,0.0,0.0,0.0,0.25,0.125,-0.03125,0.0625,-0.125,0.25];
-        let recovery=certify_arc_recovery(&arc,&span,&CertifiedMemberLoads::default(),&u,&bound,ArcEndFrame::Tangent).unwrap();
-        let record=member_record("arc",Some(0),&recovery,None).unwrap();
-        for (end,offset) in [("end_i",0),("end_j",6)] {
-            for (kind,range) in [("axial",0..1),("shear",1..3),("torsion",3..4),("bending",4..6)] {
-                let rows=&recovery.ends[offset+range.start..offset+range.end];
-                assert!(rows.iter().any(|row|row.remainder>0.0));
-                let expected=certified_group(rows).unwrap();
-                let actual=record.groups.iter().find(|g|g.location==end && g.kind==kind).unwrap();
-                assert_eq!(actual.q.to_bits(),expected.q.to_bits());
-                assert_eq!(actual.q_hat.to_bits(),expected.q_hat.to_bits());
-                assert_eq!(actual.bound.as_ref().unwrap().to_bits(),expected.bound.to_bits());
-                assert_eq!(actual.absolute_scale.to_bits(),expected.absolute_scale.to_bits());
-                // The unchanged predicate consumes this exact certificate.
-                for scale in [1.0,1e15] {
-                    assert_eq!(formation_guard::member_group_fires(actual.q,actual.q_hat,*actual.bound.as_ref().unwrap(),scale),formation_guard::member_group_fires(expected.q,expected.q_hat,expected.bound,scale));
-                }
-            }
-        }
-    }
-}
 /// The separately published scalar norm has its own sqrt and rounding
 /// terms, and keeps its own criterion and floor operands.
 fn magnitude_group(
@@ -1340,5 +1309,37 @@ mod fallback_transport_tests {
             envelope.error >= reference,
             "a bare unweighted min-subnormal allowance misses this source-factor amplification"
         );
+    }
+}
+
+#[cfg(test)]
+mod u4a_record_tests {
+    use super::*;
+    #[test]
+    fn u4a_end_groups_recompute_from_actual_tangent_row_certificates() {
+        use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
+        use open_pipe_stress_frame_kernel::structural::{ArcEndFrame, CurvedFormation};
+        let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:[1.0,0.0,0.0],coordinates_j:[0.0,1.0,0.0],radius:1.0,y_reference:[1.0,1.0,0.0],elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:2.0,out_of_plane_flexibility_factor:2.0};
+        let span=FrameElement::new(FrameNode::new(0,arc.coordinates_i).unwrap(),FrameNode::new(1,arc.coordinates_j).unwrap(),FrameSection::new(8.0,4.0,2.0,3.0,3.0,6.0).unwrap(),arc.y_reference).unwrap();
+        let bound=MemberBoundInputs {w:vec![2f64.powi(-30);12],w2:vec![-2f64.powi(-45);12],exponents:vec![0;12],lambda_sigma:2f64.powi(-35)};
+        let u=[0.0,0.0,0.0,0.0,0.0,0.0,0.25,0.125,-0.03125,0.0625,-0.125,0.25];
+        let recovery=certify_arc_recovery(&arc,&span,&CertifiedMemberLoads::default(),&u,&bound,ArcEndFrame::Tangent).unwrap();
+        let record=member_record("arc",Some(0),&recovery,None).unwrap();
+        for (end,offset) in [("end_i",0),("end_j",6)] {
+            for (kind,range) in [("axial",0..1),("shear",1..3),("torsion",3..4),("bending",4..6)] {
+                let rows=&recovery.ends[offset+range.start..offset+range.end];
+                assert!(rows.iter().any(|row|row.remainder>0.0));
+                let expected=certified_group(rows).unwrap();
+                let actual=record.groups.iter().find(|g|g.location==end && g.kind==kind).unwrap();
+                assert_eq!(actual.q.to_bits(),expected.q.to_bits());
+                assert_eq!(actual.q_hat.to_bits(),expected.q_hat.to_bits());
+                assert_eq!(actual.bound.as_ref().unwrap().to_bits(),expected.bound.to_bits());
+                assert_eq!(actual.absolute_scale.to_bits(),expected.absolute_scale.to_bits());
+                // The unchanged predicate consumes this exact certificate.
+                for scale in [1.0,1e15] {
+                    assert_eq!(formation_guard::member_group_fires(actual.q,actual.q_hat,*actual.bound.as_ref().unwrap(),scale),formation_guard::member_group_fires(expected.q,expected.q_hat,expected.bound,scale));
+                }
+            }
+        }
     }
 }
