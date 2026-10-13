@@ -201,12 +201,11 @@ it('preserves UTF8 quoted identifier code points and refuses invalid encoding or
     return /[",\r\n]/.test(text)?`"${text.replaceAll('"','""')}"`:text;
   }).join(','))].join('\n')+'\n';
   expect(csv).toContain('"case:""温,\r\n度"":😀"');
-  expect(()=>validateStressNeutralCsv(csv,rows,true)).not.toThrow();
-  expect(()=>validateStressNeutralCsv(csv,rows)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
+  expect(()=>validateStressNeutralCsv(csv,rows)).not.toThrow();
   for(const bad of ['\ufeff'+csv,csv.replace('温','\ud800'),csv.replace(columns.join(',')+'\n',columns.join(',')+'\r\n')]) {
-    expect(()=>validateStressNeutralCsv(bad,rows,true)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
+    expect(()=>validateStressNeutralCsv(bad,rows)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
   }
-  expect(()=>validateStressNeutralCsv(csv,[rows[0],rows[2],rows[1]],true)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
+  expect(()=>validateStressNeutralCsv(csv,[rows[0],rows[2],rows[1]])).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
   for(const mutate of [
     (p:any)=>{p.export_profile.csv_encoding='ascii';},
     (p:any)=>{p.export_profile.csv_row_order='locale';},

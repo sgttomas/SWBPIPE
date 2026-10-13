@@ -45,17 +45,16 @@ PACKAGE = "stress_neutral_export.v0.3.schema.json"
 PSR = "physics_source_recovery.schema.json"
 LRSCHEMA = "load_reference_state.schema.json"
 
-PRECISION_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 SOURCE_BLOCKS_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 PS_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PS_SHA = "662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"
+PS_SHA = "33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"
 PS_PROFILE = "exact_straight_pressure_v2"
 LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LR_SHA = "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf"
+LR_SHA = "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef"
 LR_PROFILE = "resolved_straight_load_state_v1"
 LRS_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-LRS_SHA = "980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"
+LRS_SHA = "30b5d0e59c0629ea133c1af0873991f96fa710868d9c05510efce9e9afdbedde"
 LRS_PROFILE = "resolved_straight_load_state_source_v1"
 LRS_POLICY = "LOAD-REFERENCE-SOURCE-1"
 RETAINED = "retained_source_blocks_exact_v1"
@@ -64,18 +63,18 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3"
+SUCCESSOR_SHA = "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a"
+EXACT_SHA = "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1 in the
 # results and analysis-run carriers; its export is refused by name (b7-plan D6), so the
 # stress-neutral package keeps the other nine branches.
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRS_SHA = "6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771"
-CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
+PRS_SHA = "12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160"
+CARRIER_ORDER = [PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
 EXPORT_ORDER = [contract_id for contract_id in CARRIER_ORDER if contract_id != PRS_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
 EXPORT_BRANCH_OF = {contract_id: index for index, contract_id in enumerate(EXPORT_ORDER)}
@@ -475,12 +474,6 @@ def test_physics_1_physics_source_1_and_source_blocks_1_carriers_keep_their_bran
     carrier_valid(RESULTS, _results_document(raw, contract), contract, f"{path.stem} scaffold")
     carrier_valid(RUN, analysis, contract, f"{path.stem} run")
     carrier_valid(PACKAGE, packet, contract, f"{path.stem} packet")
-
-
-@pytest.mark.parametrize("name", ("precision_connected_ui_mechanics_sparse", "precision_connected_ui_mechanics_dense"))
-def test_precision_1_scaffold_keeps_its_branch(name):
-    raw = strict_json(RESULTS_FIXTURES / f"{name}.json")
-    carrier_valid(RESULTS, _results_document(raw, PRECISION_ID), PRECISION_ID, name)
 
 
 # ---------------------------------------------------------------- the READERS TASK's canonical carriers

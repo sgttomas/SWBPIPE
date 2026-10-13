@@ -478,26 +478,28 @@ fn header_and_blocked_envelope_shape() {
 }
 
 #[test]
-fn precision_1_is_readable_but_never_fresh() {
+fn a_stored_precision_1_result_is_refused_by_name() {
+    // B1: precision-1 is no longer read. A stored statement under it (here a
+    // solved preview statement relabelled, header and raw forms) is refused by
+    // name, never dispatched to a table, and has no standing reason.
     for name in [
-        "precision_connected_ui_mechanics_sparse.json",
-        "precision_connected_ui_mechanics_dense.json",
+        "preview_physics_connected_sparse.json",
+        "preview_physics_connected_dense.json",
     ] {
-        let raw = fixture(name);
-        assert_eq!(
-            s::for_source(&raw).unwrap().0["semantic_contract_id"],
-            s::PRECISION_ID
-        );
-        assert!(!s::is_fresh_identity(s::PRECISION_ID));
-        assert_eq!(
-            s::standing_reason(&raw),
-            Some(s::PRECISION_1_HISTORICAL_SEMANTICS)
-        );
-        assert_eq!(
-            s::numerical_use_standing(&raw, &bases(&raw)),
-            "needs_recompute",
-            "{name}"
-        );
+        let mut raw = fixture(name);
+        raw["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRECISION_ID);
+        raw.as_object_mut().unwrap().remove("contract_evidence");
+        let refusal = s::for_source(&raw).unwrap_err();
+        assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_PRECISION_1_RETIRED)), "{refusal}");
+        assert!(refusal.contains("re-run the analysis"), "{refusal}");
+        assert_eq!(s::for_source_metadata(&raw).unwrap_err(), refusal);
+        assert!(!s::is_fresh_identity(s::RETIRED_PRECISION_ID));
+        assert_eq!(s::standing_reason(&raw), None);
+        assert_eq!(s::numerical_use_standing(&raw, &bases(&raw)), "unsupported", "{name}");
+        let verdict = open_pipe_stress_result_export::reader_verdict::dispatch(&raw, None, None);
+        assert_eq!(verdict["route"], "unsupported");
+        assert_eq!(verdict["error"]["code"], s::SOURCE_PRECISION_1_RETIRED);
+        assert_eq!(verdict["binding"], Value::Null);
     }
     for id in [s::PREVIEW_PHYSICS_ID, s::PHYSICS_ID, s::PHYSICS_SOURCE_ID] {
         assert!(s::is_fresh_identity(id));
@@ -526,10 +528,9 @@ fn precision_1_is_readable_but_never_fresh() {
     assert!(s::is_fresh_identity(
         "openpipestress.result_semantics/0.3.0/source-blocks-1"
     ));
-    // Relabelling a fresh envelope as precision-1 does not make it Current.
-    // A2 item 10: a relabelled envelope fails validation first, so it is unsupported.
+    // Relabelling a fresh envelope as precision-1 is refused by name.
     let mut relabelled = invented();
-    relabelled["producer"]["semantic_contract_id"] = json!(s::PRECISION_ID);
+    relabelled["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRECISION_ID);
     assert_eq!(
         s::numerical_use_standing(&relabelled, &bases(&relabelled)),
         "unsupported"
@@ -538,7 +539,7 @@ fn precision_1_is_readable_but_never_fresh() {
 
 #[test]
 fn numerical_standing_progression_on_a_fresh_identity() {
-    // The general-path checks formerly pinned on precision-1 (precision_contract.rs).
+    // The general-path checks on a fresh identity.
     // A two-case CHECKS_PASSED envelope: the invented model's cases are Sensitive
     // on the nonlinear-support route (DEL-04-01 kd5-member-relative-bound.md §5).
     let raw = fixture("preview_physics_unicode_ids_sparse.json");
@@ -828,16 +829,14 @@ fn a2_attribution_identical_in_every_case_and_standing_order() {
         .unwrap()
         .retain(|s| s != support);
     refused(&raw, "SUPPORT_ATTRIBUTION_CASE_MISMATCH");
-    // A2 item 10: a tampered historical source is unsupported, a valid one needs_recompute.
-    let precision = fixture("precision_connected_ui_mechanics_sparse.json");
-    assert_eq!(
-        s::numerical_use_standing(&precision, &bases(&precision)),
-        "needs_recompute"
-    );
-    let mut tampered = precision.clone();
+    // A2 item 10: a tampered source is unsupported (B1 retired the historical
+    // precision-1 source this item also read; it is refused by name).
+    let valid = invented();
+    assert_ne!(s::numerical_use_standing(&valid, &bases(&valid)), "unsupported");
+    let mut tampered = valid.clone();
     tampered["numerical_quality"]["value_representation"] = json!("decimal");
     assert_eq!(
-        s::numerical_use_standing(&tampered, &bases(&precision)),
+        s::numerical_use_standing(&tampered, &bases(&valid)),
         "unsupported"
     );
 }

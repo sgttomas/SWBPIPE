@@ -1509,7 +1509,7 @@ mod tests {
         for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
             case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));
         }
-        // T0R: a fresh non-exact solve publishes preview-physics-1, never precision-1.
+        // A fresh non-exact solve publishes preview-physics-1, its route's identity.
         for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID),
             (exact, open_pipe_stress_result_export::semantic_contract::PHYSICS_ID)] {
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {

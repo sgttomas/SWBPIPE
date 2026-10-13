@@ -18,86 +18,104 @@ fn route(source: &Value) -> &'static str {
     rv::route(source).map_or(rv::UNSUPPORTED, |r| r.0)
 }
 
-// numericalResultQuality.test.ts: the synthetic precision-1 source and model.
-fn precision_model() -> Value {
+// numericalResultQuality.test.ts: the synthetic ordinary source and model. B1
+// deleted precision-1, the route these generic checks were first pinned on; the
+// statement now carries the preview-physics-1 identity, its profile limitations
+// and one empty preview case per numerical case (`with_preview_cases`), which the
+// preview reader admits, so the ordinary checks are the subject.
+fn ordinary_model() -> Value {
     json!({"load_cases": [{"id": "case:a"}, {"id": "case:b"}]})
 }
-fn precision_source() -> Value {
+fn ordinary_source() -> Value {
     let cases: Vec<Value> = ["case:a", "case:b"]
         .iter()
         .map(|id| json!({"basis_ref": {"ref_type": "load_case", "ref_id": id}, "structural_status": "passive_model_basis",
             "solve_quality": "checks_passed", "model_matrix_fidelity": "represented_equations_retained",
             "accuracy_evidence": "not_claimed", "evidence_refs": ["r"]}))
         .collect();
-    json!({"schema_version": "0.2.0", "document_kind": "MechanicsResult", "run_id": "test", "model_ref": "test", "summary": {},
+    let mut raw = json!({"schema_version": "0.2.0", "document_kind": "MechanicsResult", "run_id": "test", "model_ref": "test",
+        "summary": {"max_displacement": null, "max_open_formula_stress": null},
         "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"},
         "results": [{"id": "r", "kind": "global_nodal_rotation_x", "value": -1e-12, "unit": "rad", "entity_ref": "n"}], "diagnostics": [],
-        "producer": {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": sc::PRECISION_ID},
-        "formulation_basis": {"profile_id": "product_preview_mechanics_v1", "limitations": ["Pressure/component preview limitations retained"]},
+        "producer": {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": sc::PREVIEW_PHYSICS_ID},
+        "contract_evidence": {"preview_cases": [], "combination_gates": []},
+        "formulation_basis": {"profile_id": "product_preview_mechanics_v1",
+            "limitations": sc::preview_physics_contract()["supported_profile_limitations"].clone()},
         "numerical_quality": {"value_representation": "finite_binary64", "publication_quantization": "none",
-            "integrity_policy": "M03-INTEGRITY-v1", "status": "checks_passed", "cases": cases}})
+            "integrity_policy": "M03-INTEGRITY-v1", "status": "checks_passed", "cases": cases}});
+    with_preview_cases(&mut raw);
+    raw
+}
+/// One empty, complete preview case per numerical case, in its order.
+fn with_preview_cases(raw: &mut Value) {
+    let cases: Vec<Value> = raw["numerical_quality"]["cases"].as_array().unwrap().iter()
+        .map(|c| json!({"load_case_id": c["basis_ref"]["ref_id"], "pipe_stress_extrema": [],
+            "stress_maximum_coverage": {"complete": true, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": []},
+            "support_attribution": {"attributed_support_ids": [], "withheld": []}, "intensified_measures": []}))
+        .collect();
+    raw["contract_evidence"]["preview_cases"] = Value::from(cases);
 }
 fn standing(source: &Value, model: Option<&Value>) -> Value {
     rv::standing(source, model, None)
 }
 
 #[test]
-fn g1_precision_requires_complete_requested_cases_and_emitted_ids() {
-    let model = precision_model();
-    let mut raw = precision_source();
-    assert_eq!(route(&raw), "precision");
-    assert_eq!(findings(&standing(&raw, Some(&model))), ["PRECISION_1_HISTORICAL_SEMANTICS"]);
+fn g1_ordinary_checks_require_complete_requested_cases_and_emitted_ids() {
+    let model = ordinary_model();
+    let mut raw = ordinary_source();
+    assert_eq!(route(&raw), "preview_physics");
+    assert_eq!(findings(&standing(&raw, Some(&model))), Vec::<&str>::new());
     assert!(findings(&standing(&raw, None)).contains(&"REQUESTED_NUMERICAL_BASIS_UNAVAILABLE"));
     raw["numerical_quality"]["cases"].as_array_mut().unwrap().pop();
     assert!(findings(&standing(&raw, Some(&model))).contains(&"NUMERICAL_CASE_COVERAGE_INCOMPLETE"));
-    raw["numerical_quality"]["cases"] = precision_source()["numerical_quality"]["cases"].clone();
+    raw["numerical_quality"]["cases"] = ordinary_source()["numerical_quality"]["cases"].clone();
     raw["numerical_quality"]["cases"][0]["evidence_refs"] = json!(["invented"]);
     assert!(findings(&standing(&raw, Some(&model))).contains(&"NUMERICAL_CASE_EVIDENCE_INCOMPLETE"));
 }
 
 #[test]
 fn g1_legacy_unassessed_unknown_and_sensitive_are_never_eligible() {
-    let model = precision_model();
-    let mut legacy = precision_source();
+    let model = ordinary_model();
+    let mut legacy = ordinary_source();
     legacy["schema_version"] = json!("0.1.0");
-    for k in ["producer", "numerical_quality", "formulation_basis"] {
+    for k in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
         legacy.as_object_mut().unwrap().remove(k);
     }
     assert_eq!(route(&legacy), "legacy");
     let s = standing(&legacy, Some(&model));
     assert_eq!((s["status"].as_str(), findings(&s)), (Some("needs_recompute"), vec!["LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED"]));
     for status in ["not_assessed", "unresolved", "failed"] {
-        let mut c = precision_source();
+        let mut c = ordinary_source();
         c["numerical_quality"]["status"] = json!(status);
         assert_eq!(standing(&c, Some(&model))["eligible"], false);
     }
-    let mut future = precision_source();
-    future["producer"]["semantic_contract_id"] = json!(sc::PRECISION_ID.replace("precision-1", "pressure-1"));
+    let mut future = ordinary_source();
+    future["producer"]["semantic_contract_id"] = json!(sc::PREVIEW_PHYSICS_ID.replace("preview-physics-1", "pressure-1"));
     assert_eq!(route(&future), rv::UNSUPPORTED);
     assert_eq!(findings(&standing(&future, Some(&model))), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED]);
     future.as_object_mut().unwrap().remove("producer");
     assert_eq!(route(&future), rv::UNSUPPORTED);
-    let mut sensitive = precision_source();
+    let mut sensitive = ordinary_source();
     sensitive["numerical_quality"]["cases"][0]["solve_quality"] = json!("sensitive");
     sensitive["numerical_quality"]["status"] = json!("sensitive");
     sensitive["numerical_quality"]["cases"][0]["accuracy_evidence"] = json!("reference_verified");
-    assert_eq!(route(&sensitive), "precision");
+    assert_eq!(route(&sensitive), "preview_physics");
     assert_eq!(standing(&sensitive, Some(&model))["eligible"], false);
 }
 
 #[test]
 fn g1_ambiguous_or_missing_emitted_ids() {
-    let model = precision_model();
-    let mut raw = precision_source();
+    let model = ordinary_model();
+    let mut raw = ordinary_source();
     raw["diagnostics"] = json!([{"id": "r", "code": "test", "severity": "info", "message": "duplicate"}]);
     assert!(findings(&standing(&raw, Some(&model))).contains(&"NUMERICAL_EVIDENCE_ID_AMBIGUOUS"));
 }
 
 #[test]
 fn g5_present_falsy_precision_fields_on_legacy_are_unsupported() {
-    let mut clean = precision_source();
+    let mut clean = ordinary_source();
     clean["schema_version"] = json!("0.1.0");
-    for k in ["producer", "numerical_quality", "formulation_basis"] {
+    for k in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
         clean.as_object_mut().unwrap().remove(k);
     }
     for key in ["producer", "numerical_quality", "formulation_basis"] {
@@ -105,21 +123,21 @@ fn g5_present_falsy_precision_fields_on_legacy_are_unsupported() {
             let mut c = clean.clone();
             c[key] = value;
             assert_eq!(route(&c), rv::UNSUPPORTED, "{key}");
-            assert_eq!(standing(&c, Some(&precision_model()))["eligible"], false);
+            assert_eq!(standing(&c, Some(&ordinary_model()))["eligible"], false);
         }
     }
 }
 
 #[test]
 fn g1_general_basis_shapes_do_not_grant_coverage() {
-    let model = precision_model();
-    let mut raw = precision_source();
+    let model = ordinary_model();
+    let mut raw = ordinary_source();
     raw["numerical_quality"]["cases"][0]["basis_ref"]["ref_type"] = json!("custom-basis");
-    assert_eq!(route(&raw), "precision");
+    assert_eq!(route(&raw), "preview_physics");
     assert!(findings(&standing(&raw, Some(&model))).contains(&"NUMERICAL_CASE_COVERAGE_INCOMPLETE"));
     for key in ["ref_type", "ref_id"] {
         for value in [json!(""), json!(null), json!(false), json!(0), json!({}), json!([])] {
-            let mut bad = precision_source();
+            let mut bad = ordinary_source();
             bad["numerical_quality"]["cases"][0]["basis_ref"][key] = value;
             assert_eq!(route(&bad), rv::UNSUPPORTED);
         }
@@ -128,7 +146,7 @@ fn g1_general_basis_shapes_do_not_grant_coverage() {
 
 // numericalResultQuality.test.ts `aggregateFixture`.
 fn aggregate_fixture(statuses: &[&str], claimed: &str) -> (Value, Value) {
-    let mut raw = precision_source();
+    let mut raw = ordinary_source();
     let template = raw["numerical_quality"]["cases"][0].clone();
     raw["numerical_quality"]["status"] = json!(claimed);
     let mut cases = Vec::new();
@@ -158,6 +176,7 @@ fn aggregate_fixture(statuses: &[&str], claimed: &str) -> (Value, Value) {
         cases.push(c);
     }
     raw["numerical_quality"]["cases"] = Value::from(cases);
+    with_preview_cases(&mut raw);
     let requested = json!({"load_cases": (0..statuses.len()).map(|i| json!({"id": format!("case:{i}")})).collect::<Vec<_>>()});
     (raw, requested)
 }
@@ -176,11 +195,11 @@ fn g1_aggregate_consistency_is_distinct_from_qualification() {
     for (cases, aggregate) in honest {
         let (raw, requested) = aggregate_fixture(cases, aggregate);
         let s = standing(&raw, Some(&requested));
-        assert_eq!(s["route"], "precision");
+        assert_eq!(s["route"], "preview_physics");
         assert_eq!(s["status"], "needs_recompute");
         assert_eq!(
             findings(&s),
-            ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"],
+            ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"],
             "{cases:?}"
         );
     }
@@ -188,7 +207,7 @@ fn g1_aggregate_consistency_is_distinct_from_qualification() {
     raw["numerical_quality"]["cases"][0]["model_matrix_fidelity"] = json!("not_assessed");
     assert_eq!(
         findings(&standing(&raw, Some(&requested))),
-        ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]
+        ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]
     );
     let mismatched: [(&[&str], &str); 6] = [
         (&["unresolved", "sensitive"], "sensitive"),
@@ -205,17 +224,17 @@ fn g1_aggregate_consistency_is_distinct_from_qualification() {
         assert!(findings(&s).contains(&"NUMERICAL_AGGREGATE_CONTRADICTION"), "{cases:?} {claim}");
     }
     let (raw, requested) = aggregate_fixture(&["checks_passed", "checks_passed"], "checks_passed");
-    assert_eq!(findings(&standing(&raw, Some(&requested))), ["PRECISION_1_HISTORICAL_SEMANTICS"]);
+    assert_eq!(findings(&standing(&raw, Some(&requested))), Vec::<&str>::new());
     let (mut raw, _) = aggregate_fixture(&[], "not_assessed");
-    let model = precision_model();
+    let model = ordinary_model();
     assert_eq!(
         findings(&standing(&raw, Some(&model))),
-        ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_COVERAGE_INCOMPLETE"]
+        ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_COVERAGE_INCOMPLETE"]
     );
     raw["numerical_quality"]["status"] = json!("checks_passed");
     assert_eq!(
         findings(&standing(&raw, Some(&model))),
-        ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_CASE_COVERAGE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION"]
+        ["NUMERICAL_CASE_COVERAGE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION"]
     );
 }
 
@@ -480,11 +499,14 @@ fn g5_source_receipt_presence_on_other_headers_is_unsupported() {
     let mut composite = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
     composite["source_block_recovery"]["extra"] = json!(1);
     assert_eq!(route(&composite), rv::UNSUPPORTED);
-    // Precision-1 carries no contract evidence.
-    let mut precision = precision_source();
-    precision["contract_evidence"] = json!({});
+    // A stored precision-1 statement is refused by name (B1).
+    let mut precision = ordinary_source();
+    precision["producer"]["semantic_contract_id"] = json!(sc::RETIRED_PRECISION_ID);
+    precision.as_object_mut().unwrap().remove("contract_evidence");
     assert_eq!(route(&precision), rv::UNSUPPORTED);
-    let mut carrier = precision_source();
+    assert_eq!(rv::dispatch(&precision, None, None)["error"]["code"], sc::SOURCE_PRECISION_1_RETIRED);
+    assert_eq!(findings(&standing(&precision, None)), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED]);
+    let mut carrier = ordinary_source();
     carrier["carrier_evidence"] = json!({});
     assert_eq!(route(&carrier), rv::UNSUPPORTED);
 }
@@ -514,7 +536,6 @@ fn preview_physics_standing_and_transport() {
 fn binding_hashes_are_the_table_files() {
     use sha2::{Digest, Sha256};
     let files = [
-        ("precision", "semantic_contract_v0_3_precision_1.json"),
         ("physics", "semantic_contract_v0_3_physics_1.json"),
         ("source_blocks", "semantic_contract_v0_3_source_blocks_1.json"),
         ("physics_source", "semantic_contract_v0_3_physics_source_1.json"),
@@ -602,5 +623,5 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
         let reader = if folder == "source_blocks" { "source-blocks" } else { "physics-source" };
         assert_eq!(rv::validate(reader, &changed, None, None)["ok"], false);
     }
-    assert_eq!(rv::validate("source-recovery", &precision_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }

@@ -50,8 +50,9 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
         composite.validate_physics_source(source, altered)
 
 
-def test_previous_three_table_identities_remain_frozen():
-    expected={"precision_1":"d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e", "source_blocks_1":"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"}
+def test_inherited_table_identities_remain_pinned():
+    # B1 deleted precision-1's table; the composite's two inherited tables stay pinned.
+    expected={"source_blocks_1":"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"}
     from core.analysis_runs.compatibility import PHYSICS_CONTRACT_SHA256
     expected["physics_1"]=PHYSICS_CONTRACT_SHA256
     for name,digest in expected.items():

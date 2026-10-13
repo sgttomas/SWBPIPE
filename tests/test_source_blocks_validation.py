@@ -43,12 +43,10 @@ def control():
 
 
 class SourceBlockStatements(unittest.TestCase):
-    def test_pinned_additive_table_preserves_immutable_p1_rows(self):
-        p1 = ROOT / "fixtures/results/semantic_contract_v0_3_precision_1.json"
-        self.assertEqual(hashlib.sha256(p1.read_bytes()).hexdigest(), "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e")
+    def test_pinned_additive_table_keeps_its_signed_support_rows(self):
+        # B1 deleted the precision-1 table these rows were frozen against; this table goes with B4/D1 (b).
         self.assertEqual(hashlib.sha256(CONTRACT_PATH.read_bytes()).hexdigest(), CONTRACT_SHA256)
-        old, new = json.loads(p1.read_text()), json.loads(CONTRACT_PATH.read_text())
-        self.assertEqual(new["rows"][:len(old["rows"])], old["rows"])
+        new = json.loads(CONTRACT_PATH.read_text())
         self.assertEqual(new["source_signature_count"], 66)
         self.assertEqual({r["component"] for r in new["rows"][60:]}, {"Fx","Fy","Fz","Mx","My","Mz"})
 

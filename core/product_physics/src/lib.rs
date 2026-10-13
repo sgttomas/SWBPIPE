@@ -912,8 +912,6 @@ pub const SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID: &str =
 pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str = exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID;
-pub const PRECISION_SEMANTIC_CONTRACT_ID: &str =
-    "openpipestress.result_semantics/0.3.0/precision-1";
 pub const PHYSICS_SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -984,24 +982,29 @@ pub struct FormulationBasis {
     pub limitations: Vec<String>,
 }
 
-pub fn mechanics_producer() -> MechanicsProducer {
+/// The producer under one semantic contract identity; there is no default.
+pub fn mechanics_producer(semantic_contract_id: &str) -> MechanicsProducer {
     MechanicsProducer {
         component_name: solver_component_name().to_string(),
         component_version: solver_component_version().to_string(),
-        semantic_contract_id: PRECISION_SEMANTIC_CONTRACT_ID.to_string(),
+        semantic_contract_id: semantic_contract_id.to_string(),
     }
 }
 
+/// B1: the identity is a function of the model's route. The exact routes
+/// (pressure-1, load-reference-1, physics-1) and otherwise the ordinary
+/// preview route (preview-physics-1); a source-selected envelope takes its
+/// source identity when it is published.
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
-    let mut producer = mechanics_producer();
-    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        producer.semantic_contract_id = PRESSURE_SEMANTIC_CONTRACT_ID.to_string();
+    mechanics_producer(if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        PRESSURE_SEMANTIC_CONTRACT_ID
     } else if case_state::is_load_state(model) {
-        producer.semantic_contract_id = LOAD_REFERENCE_SEMANTIC_CONTRACT_ID.to_string();
+        LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
     } else if pressure_runtime::is_exact(model) {
-        producer.semantic_contract_id = PHYSICS_SEMANTIC_CONTRACT_ID.to_string();
-    }
-    producer
+        PHYSICS_SEMANTIC_CONTRACT_ID
+    } else {
+        preview_physics::ID
+    })
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
@@ -3021,7 +3024,6 @@ fn run_linear_static_preview_observed_inner(
         accepted_model_state_mutated: false,
     };
     if let Some(rendered) = &preview {
-        envelope.producer.semantic_contract_id = preview_physics::ID.into();
         envelope.formulation_basis = preview_physics::formulation_basis();
         envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
@@ -13574,7 +13576,6 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
         accepted_model_state_mutated: false,
     };
     if preview {
-        envelope.producer.semantic_contract_id = preview_physics::ID.into();
         envelope.formulation_basis = preview_physics::formulation_basis();
         envelope.contract_evidence = Some(preview_physics::empty_evidence());
         preview_physics::sanitize_blocked_diagnostics(&mut envelope.diagnostics);
@@ -15110,8 +15111,8 @@ mod tests {
                 env!("CARGO_PKG_VERSION")
             );
             assert_eq!(env!("CARGO_PKG_VERSION"), "0.2.0");
-            // T0R: fresh ordinary-route solves (solved or blocked) publish
-            // preview-physics-1; precision-1 is historical only.
+            // Fresh ordinary-route solves (solved or blocked) publish
+            // preview-physics-1, the route's identity (B1: no default).
             assert_eq!(
                 encoded["producer"]["semantic_contract_id"],
                 "openpipestress.result_semantics/0.3.0/preview-physics-1"

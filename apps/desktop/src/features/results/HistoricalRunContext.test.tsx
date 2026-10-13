@@ -3,26 +3,19 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
 import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
-import historicalModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
-import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import savedModel from "../../../../../fixtures/model_operations/precision_connected_ui_model.json";
+import savedResult from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import { PRECISION_CONTRACT_ID } from "./numericalResultQuality";
 import type { LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../types";
 
-/** A saved run with a current (0.3.0) analysis record. Its received result is a
- * synthetic precision-1 statement over the demo carrier's rows: a header-only
- * route whose record needs no producer evidence, so these tests exercise the
- * saved-run integrity checks only. */
+/** A saved run with a current (0.3.0) analysis record over the connected
+ * preview-physics-1 producer output and its model (B1 retired the synthetic
+ * precision-1 header these tests used), so they exercise the saved-run integrity
+ * checks only. */
 async function savedEnvelope() {
-  const model = structuredClone(historicalModel) as unknown as PreviewModel;
-  const mechanics_result = structuredClone(historicalResult) as unknown as MechanicsResult;
-  Object.assign(mechanics_result, {
-    schema_version: "0.2.0",
-    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID },
-    numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] },
-    formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic historical-run fixture only"] },
-  });
+  const model = structuredClone(savedModel) as unknown as PreviewModel;
+  const mechanics_result = structuredClone(savedResult) as unknown as MechanicsResult;
   const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: mechanics_result.producer!.component_name, solver_version: mechanics_result.producer!.component_version, solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
   const analysis_run = await buildAnalysisRunV03(mechanics_result, inputManifest);
   const model_hash = await computeModelHash(model);

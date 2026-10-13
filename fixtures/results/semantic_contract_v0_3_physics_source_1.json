@@ -1261,7 +1261,7 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-1",
-      "sha256": "48c1899917e59a58d288ee06326f94278449fca403543c23b817a25bd65cb510"
+      "sha256": "8dd5727cc9d61b18dd15c914743b3bd13342806518b8ed3b344907422990ca98"
     },
     {
       "id": "openpipestress.result_semantics/0.3.0/source-blocks-1",

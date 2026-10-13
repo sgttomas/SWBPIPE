@@ -95,7 +95,7 @@ fn receipt_presence_never_downgrades_to_precision_or_legacy() {
         json!([]),
     ] {
         for contract in [
-            semantic_contract::PRECISION_ID,
+            semantic_contract::RETIRED_PRECISION_ID,
             "openpipestress.result_semantics/0.3.0/physics-1",
         ] {
             let mut altered = source.clone();
@@ -145,13 +145,10 @@ fn rehashed_projection_work_and_attribution_mutations_reject() {
     }
 }
 #[test]
-fn additive_signatures_leave_precision_table_unchanged() {
-    let old = semantic_contract::precision_contract();
+fn additive_signatures_follow_the_base_rows() {
+    // B1 deleted the precision-1 table these rows were frozen against; the
+    // non-composite table itself goes with B4/D1 (b).
     let new = semantic_contract::source_blocks_contract();
-    assert_eq!(
-        &new["rows"].as_array().unwrap()[..60],
-        old["rows"].as_array().unwrap()
-    );
     assert_eq!(new["source_signature_count"], 66);
     for row in &new["rows"].as_array().unwrap()[60..] {
         assert_eq!(row["family"], "reaction");

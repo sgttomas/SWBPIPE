@@ -1376,11 +1376,9 @@
      "value": "openpipestress.result_semantics/0.3.0/precision-1"
     }
    ],
-   "dispatch": null,
+   "dispatch": "SOURCE_PRECISION_1_RETIRED: precision-1 results are no longer read; re-run the analysis",
    "validator": "accept",
-   "dispatch_rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "dispatch_python": "SOURCE_PHYSICS_CONTRACT_MISMATCH",
-   "note": "inherited header order for precision-1 (unchanged by this TASK); both readers reject"
+   "note": "B1: precision-1 is refused by name in both readers"
   },
   {
    "id": "TABLE-producer-version",

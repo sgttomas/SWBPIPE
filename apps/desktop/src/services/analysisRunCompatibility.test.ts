@@ -3,8 +3,9 @@ import type { MechanicsResult } from "../types";
 import { ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, sourceBasisReference, validateRetainedRecoverySource } from "./analysisRunCompatibility";
 import combinationSuccessor from "../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
 import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
-import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
-import { PRECISION_CONTRACT_SHA256 } from "../test-support/contractBindings";
+import { PREVIEW_PHYSICS_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "../test-support/contractBindings";
+import { minimalPreviewStatement, syncPreviewCases } from "../test-support/retiredPrecision";
 import { sourceContract } from "../features/results/resultReader";
 import sourceBlocks from "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
@@ -54,18 +55,23 @@ describe("analysis record versions", () => {
   });
 });
 
-it("binds the exact precision semantic contract and rejects unknown raw headers", async () => {
-  const raw = structuredClone(result); raw.schema_version = "0.2.0";
-  await expect(buildAnalysisRunV03(raw, manifest)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  raw.producer = { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID };
-  raw.numerical_quality = { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] };
-  raw.formulation_basis = { profile_id: "product_preview_mechanics_v1", limitations: ["bounded preview"] };
+// B1 retired precision-1, the header these record tests used over a synthetic row;
+// they use the minimal preview-physics-1 transport statement (a signed rotation row, so no headline).
+function syntheticPreview() {
+  return minimalPreviewStatement({ run_id: "run:test", model_ref: "model:test", cases: [],
+    rows: [{ id: "result:test", entity_ref: "node:test", kind: "global_nodal_rotation_x", value: 1, unit: "rad",
+      metadata: { component: "nodal_rotation_x", coordinate_system: "global", location: "node", basis: "solved_from_global_linear_system", sign_convention: "positive value follows the right-hand-rule rotation about the global cartesian X axis" } }] });
+}
+it("binds the exact preview semantic contract and rejects unknown raw headers", async () => {
+  const unknown = structuredClone(result); unknown.schema_version = "0.2.0";
+  await expect(buildAnalysisRunV03(unknown, manifest)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  const raw = syntheticPreview();
   raw.results[0].value = 1.0000000000000002;
-  const precisionManifest = structuredClone(manifest);
-  precisionManifest.manifest.solver_basis.solver_name = raw.producer.component_name; precisionManifest.manifest.solver_basis.solver_version = raw.producer.component_version;
-  const record = await buildAnalysisRunV03(raw, precisionManifest);
+  const previewManifest = structuredClone(manifest);
+  previewManifest.manifest.solver_basis.solver_name = raw.producer!.component_name; previewManifest.manifest.solver_basis.solver_version = raw.producer!.component_version;
+  const record = await buildAnalysisRunV03(raw, previewManifest);
   expect(record.schema_version).toBe("0.3.0");
-  expect(record.analysis_run.reproducibility.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
+  expect(record.analysis_run.reproducibility.semantic_contract).toEqual({ id: PREVIEW_PHYSICS_CONTRACT_ID, sha256: PREVIEW_PHYSICS_CONTRACT_SHA256 });
   expect(await verifyAnalysisRunRecord(record)).toBe("match");
   for (const modelState of [
     {object_type:"ModelState",ref:"state:other:preview"},
@@ -89,19 +95,16 @@ it("binds the exact precision semantic contract and rejects unknown raw headers"
   }
 });
 
-function syntheticPrecision() {
-  const raw = structuredClone(result);
-  raw.producer = { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID };
-  raw.numerical_quality = { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] };
-  raw.formulation_basis = { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic consumer fixture only"] };
+function syntheticRecordSource() {
+  const raw = syntheticPreview();
   raw.results[0].basis_ref = { ref_type: "load_case", ref_id: "load:test" };
   const input = structuredClone(manifest);
-  input.manifest.solver_basis.solver_name = raw.producer.component_name;
-  input.manifest.solver_basis.solver_version = raw.producer.component_version;
+  input.manifest.solver_basis.solver_name = raw.producer!.component_name;
+  input.manifest.solver_basis.solver_version = raw.producer!.component_version;
   return { raw, input };
 }
 it("rejects rehashed source diagnostics, mechanics and basis substitutions while preserving rule-only revisions", async () => {
-  const { raw, input } = syntheticPrecision(); const before = structuredClone(raw);
+  const { raw, input } = syntheticRecordSource(); const before = structuredClone(raw);
   const record = await buildAnalysisRunV03(raw, input);
   for (const mutate of [
     (r: typeof record) => { r.analysis_run.diagnostics = [{ source_annotation: { code: "fabricated" } }] as never; },
@@ -122,7 +125,7 @@ it("rejects rehashed source diagnostics, mechanics and basis substitutions while
   expect((await buildAnalysisRunV03(raw, input)).analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
 });
 it("distinguishes independent explicit basis from source available scope, including empty and malformed bases", async () => {
-  const { raw, input } = syntheticPrecision();
+  const { raw, input } = syntheticRecordSource();
   const refs = [{ object_type: "LoadCase", ref: "load:test" }, { object_type: "Combination", ref: "comb:requested" }];
   const broad = await buildAnalysisRunV03(raw, input, undefined, refs);
   await expect(validateAnalysisRunV03(broad, raw, refs)).resolves.toBeUndefined();
@@ -143,19 +146,21 @@ it("distinguishes independent explicit basis from source available scope, includ
   await expect(buildAnalysisRunV03(raw, input, undefined, [])).rejects.toThrow("CHECKED-JSON-UNSUPPORTED-TYPE: undefined");
 });
 it("accepts the shared generic numerical case basis shape", () => {
-  const { raw } = syntheticPrecision();
+  const { raw } = syntheticRecordSource();
   raw.numerical_quality!.cases = [{ basis_ref: { ref_type: "generic", ref_id: "basis:generic" }, structural_status: "numerically_unresolved", solve_quality: "unresolved", model_matrix_fidelity: "not_assessed", accuracy_evidence: "unresolved", evidence_refs: [] }];
-  expect(sourceContract(raw)).toBe("precision");
+  syncPreviewCases(raw);
+  expect(sourceContract(raw)).toBe("preview_physics");
 });
 
 it("validates source identities and requires explicit basis to cover emitted numerical cases", async () => {
-  const { raw, input } = syntheticPrecision();
+  const { raw, input } = syntheticRecordSource();
   for (const key of ["run_id", "model_ref", "row_id"]) for (const value of ["", 0, null]) {
     const bad = structuredClone(raw);
     if (key === "row_id") bad.results[0].id = value as never; else (bad as any)[key] = value;
     await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow("ANALYSIS_SOURCE_REFERENCE_INVALID");
   }
   raw.numerical_quality!.cases = [{ basis_ref: { ref_type: "load_case", ref_id: "load:without-row" }, structural_status: "numerically_unresolved", solve_quality: "unresolved", model_matrix_fidelity: "not_assessed", accuracy_evidence: "unresolved", evidence_refs: [] }];
+  syncPreviewCases(raw);
   const available = await buildAnalysisRunV03(raw, input);
   expect(available.analysis_run.load_basis_refs).toEqual([{ object_type: "LoadCase", ref: "load:test" }]);
   await expect(buildAnalysisRunV03(raw, input, undefined, available.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH");
@@ -164,7 +169,7 @@ it("validates source identities and requires explicit basis to cover emitted num
 });
 
 it("rejects invalid source rule statuses independently of a valid record override", async () => {
-  const { raw, input } = syntheticPrecision();
+  const { raw, input } = syntheticRecordSource();
   const record = await buildAnalysisRunV03(raw, input, "USER_RULE_CHECKED");
   for (const rule of ["", false, 0, "unknown"]) {
     const invalid = structuredClone(raw); invalid.status.rule_check = rule as never;

@@ -1,5 +1,6 @@
-import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
-import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
+import transport from "../../../../../fixtures/canonical_hash/binary64_transport_vectors.json";
+import previewModelJson from "../../../../../fixtures/model_operations/precision_connected_ui_model.json";
+import previewText from "../../../../../fixtures/results/preview_physics_connected_sparse.json?raw";
 import {mkdirSync,writeFileSync} from "node:fs";
 import path from "node:path";
 import {describe,it,expect,afterEach,vi} from 'vitest';
@@ -7,37 +8,26 @@ import {createNativeMechanicsReplay,nativeMechanicsReplayPair} from '../../test/
 const invokeMock=vi.hoisted(()=>vi.fn());
 vi.mock('@tauri-apps/api/core',()=>({invoke:invokeMock}));
 afterEach(()=>{invokeMock.mockReset();delete (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__;});
-import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
 import metadataFixtures from '../../../../../fixtures/results/invented/result_export_v0_2.json';
 import annotationFixtures from '../../../../../fixtures/results/invented/result_export_v0_2_rejections.json';
 import type {PreviewModel,MechanicsResult} from '../../types';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
-import {buildAnalysisRunPreview,bindSourceResultDimensions,runPreviewMechanics} from '../../services/previewService';
+import {buildAnalysisRunPreview,runPreviewMechanics} from '../../services/previewService';
 import {buildCurrentResultExport,validateResultDocument,guardResultJson,resultDigest,resultSchemaVersion,deriveResultDocument,ref,derivativeProvenance,type JsonObject} from './resultExportAdapter';
 import {canonicalJsonString,canonicalSha256HexCheckedV1} from '../../services/hashService';
 import {analysisRecordProjection,verifyAnalysisRunRecord} from '../../services/analysisRunCompatibility';
+import {minimalPreviewStatement} from '../../test-support/retiredPrecision';
 async function legacyDigest(value:unknown){
  const sort=(item:any):any=>Array.isArray(item)?item.map(sort):item&&typeof item==='object'?Object.fromEntries(Object.entries(item).sort(([a],[b])=>a.localeCompare(b)).map(([key,child])=>[key,sort(child)])):item;
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sort(value))));return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
 }
-// Historical-format protocol controls only: copied rows and gate labels are
-// never replayed as native output and never qualify Current or numerical accuracy.
-function precision(result: MechanicsResult, model: PreviewModel): MechanicsResult {
- // Preserve every legacy warning and load reference while giving this mock's
- // diagnostics unique identities. The immutable imported fixture is untouched.
- result.diagnostics=result.diagnostics.map((diagnostic,index)=>({...diagnostic,id:`test:synthetic-diagnostic:${index}:${diagnostic.id ?? 'missing'}`}));
- result.schema_version='0.2.0';
- result.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
- result.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['bounded pressure/component/stress/support preview']};
- result.diagnostics.push({id:'test:gate',code:'TEST_GATE',severity:'info',message:'Synthetic consumer gate evidence; not native proof'});
- result.numerical_quality={value_representation:'finite_binary64',publication_quantization:'none',integrity_policy:'M03-INTEGRITY-v1',status:'checks_passed',cases:model.load_cases.map(c=>({basis_ref:{ref_type:'load_case',ref_id:c.id},structural_status:'passive_model_basis',solve_quality:'checks_passed',model_matrix_fidelity:'represented_equations_retained',accuracy_evidence:'not_claimed',evidence_refs:['test:gate']}))};
- return result;
-}
+// B1 retired precision-1, whose synthetic header gave the demo carrier's legacy rows a
+// current record. A reference session is now the connected preview-physics-1 producer
+// output and its model, read from its bytes; it is never replayed as native output.
+function previewReference(): MechanicsResult { return JSON.parse(previewText) as MechanicsResult; }
 async function referenceSession(){
- const model=structuredClone(modelJson) as PreviewModel,result=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);
+ const model=structuredClone(previewModelJson) as unknown as PreviewModel,result=previewReference();
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.2.0',solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
- precision(result,model);
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});return {model,result,inputManifest,analysisRun};
 }
 // Actual captured input/output pair through explicitly simulated IPC; this is a
@@ -96,14 +86,14 @@ describe('reference projection contracts and simulated native Current boundaries
   const args=await referenceSession(),before=JSON.stringify(args);const doc=await referenceProjection(args);expect(doc.schema_version).toBe('0.3.0');if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){const dir=process.env.RESULTS_CONTRACT_OUTPUT_DIR;mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'reference-enriched.document.json'),JSON.stringify(doc,null,2));writeFileSync(path.join(dir,'reference-enriched.received.json'),JSON.stringify(args.result,null,2));writeFileSync(path.join(dir,'reference-enriched.model.json'),JSON.stringify(args.model,null,2));writeFileSync(path.join(dir,'reference-enriched.analysis-run.json'),JSON.stringify(args.analysisRun,null,2));}expect(doc.result_envelope.row_accounting).toHaveLength(args.result.results.length);expect(JSON.stringify(args)).toBe(before);
   expect(doc.result_envelope.reproducibility.raw_source_hashes).toEqual([]);expect(doc.result_envelope.reproducibility.source_origin_bindings[0].original_producer_checksum).toBeNull();
   const payload=structuredClone(doc);delete payload.result_envelope.reproducibility.derivative_hash;expect(doc.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
-  for(const a of doc.result_envelope.row_accounting){const row=args.result.results[a.source_row_index];expect(a.received_carrier_row_checksum.value).toBe(await resultDigest(row));const ann=doc.result_envelope.source_annotations[a.source_row_index];expect(ann.observed_carrier_dimension).toEqual({present:true,value:row.dimension});}
+  for(const a of doc.result_envelope.row_accounting){const row=args.result.results[a.source_row_index];expect(a.received_carrier_row_checksum.value).toBe(await resultDigest(row));const ann=doc.result_envelope.source_annotations[a.source_row_index];expect(ann.observed_carrier_dimension).toEqual({present:false,value:null});}
  });
  it('dimension-absent received carrier remains distinct from authentic producer',async()=>{
-  const args=await referenceSession();args.result=precision(structuredClone(resultJson) as unknown as MechanicsResult,args.model);args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await referenceProjection(args);expect(doc.result_envelope.reproducibility.source_origin_bindings[0].origin_class).toBe('received_current_dimension_absent');expect(doc.result_envelope.reproducibility.source_origin_bindings[0].authentic_producer_available).toBe(false);
+  const args=await referenceSession();args.result=previewReference();args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await referenceProjection(args);expect(doc.result_envelope.reproducibility.source_origin_bindings[0].origin_class).toBe('received_current_dimension_absent');expect(doc.result_envelope.reproducibility.source_origin_bindings[0].authentic_producer_available).toBe(false);
   if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){const dir=process.env.RESULTS_CONTRACT_OUTPUT_DIR;mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'reference-absent.document.json'),JSON.stringify(doc,null,2));writeFileSync(path.join(dir,'reference-absent.received.json'),JSON.stringify(args.result,null,2));}
  });
  it('dispatches raw 0.2 basis, discrete and diagnostic semantics without legacy enrichment',async()=>{
-  const args=await referenceSession(),kinds=['modulus_basis_record','linear_solver_mode_basis','nonlinear_support_free_dof_work_residual'];args.result=precision(structuredClone(resultJson) as unknown as MechanicsResult,args.model);args.result.results=kinds.map(kind=>structuredClone(metadataFixtures.fixtures.find(f=>f.input_row.kind===kind)!.input_row)) as MechanicsResult['results'];args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});const before=JSON.stringify(args.result);
+  const args=await referenceSession(),kinds=['modulus_basis_record','linear_solver_mode_basis','nonlinear_support_free_dof_work_residual'];args.result=minimalPreviewStatement({run_id:args.result.run_id,model_ref:args.result.model_ref,cases:[],rows:kinds.map(kind=>structuredClone(metadataFixtures.fixtures.find(f=>f.input_row.kind===kind)!.input_row)) as MechanicsResult['results']});args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});const before=JSON.stringify(args.result);
   expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await referenceProjection(args);expect(JSON.stringify(args.result)).toBe(before);expect(doc.result_envelope.row_accounting).toHaveLength(3);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(args.result.results.map(row=>row.id));expect(doc.result_envelope.row_accounting.every((row:any)=>row.disposition==='disclosed')).toBe(true);expect(doc.result_envelope.unit_preservation_witnesses).toHaveLength(0);
   const received=args.analysisRun.analysis_run.hashes.find(hash=>hash.payload_scope==='received_result')!;expect(received.value).toBe(await resultDigest(args.result));for(const [index,row] of args.result.results.entries()){expect(args.analysisRun.analysis_run.result_refs.find(item=>item.result_ref.ref===row.id)!.hash_refs[0].value).toBe(await resultDigest(row));expect(doc.result_envelope.source_annotations[index].observed_carrier_dimension).toEqual({present:false,value:null});}
  });
@@ -113,7 +103,13 @@ describe('reference projection contracts and simulated native Current boundaries
    {kind:'nonlinear_support_final_displacement',unit:'rad',component:'nonlinear_support_final_displacement',dimension:'length'},
    {kind:'nonlinear_support_final_reaction',unit:'N*m',component:'nonlinear_support_final_reaction',dimension:'force'},
    {kind:'spring_hanger_user_input_review',unit:'N*m/rad',component:'variable_spring_hanger_stiffness',dimension:'linear_stiffness'},
-  ];args.result.results=accepted.map(item=>{const fixture=metadataFixtures.fixtures.find(candidate=>candidate.input_row.kind===item.kind&&candidate.input_row.unit===item.unit&&candidate.input_row.metadata?.component===item.component)!;return {...structuredClone(fixture.input_row),dimension:item.dimension};}) as MechanicsResult['results'];args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});const before=JSON.stringify(args.result),doc=await referenceProjection(args);expect(JSON.stringify(args.result)).toBe(before);expect(doc.result_envelope.source_annotations.map((annotation:any)=>annotation.observed_carrier_dimension.value)).toEqual(accepted.map(item=>item.dimension));expect(doc.result_envelope.source_annotations.map((annotation:any)=>annotation.derivative_target_dimension)).toEqual([null,'angle','moment','rotational_stiffness']);
+  ];
+  // B1: no current statement admits a declared row dimension (precision-1, which read
+  // the legacy carrier's, is retired), so the pure projector reads each row alone.
+  for(const [index,item] of accepted.entries()){const fixture=metadataFixtures.fixtures.find(candidate=>candidate.input_row.kind===item.kind&&candidate.input_row.unit===item.unit&&candidate.input_row.metadata?.component===item.component)!;
+   const row={...structuredClone(fixture.input_row),dimension:item.dimension},before=JSON.stringify(row),doc=await projection(row);expect(JSON.stringify(row)).toBe(before);
+   expect(doc.result_envelope.source_annotations[0].observed_carrier_dimension.value).toBe(item.dimension);expect(doc.result_envelope.source_annotations[0].derivative_target_dimension).toBe([null,'angle','moment','rotational_stiffness'][index]);}
+  expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);
  });
  it('preserves established 0.1 legacy enrichment and hash verification',async()=>{
   const args=await legacyCurrent();args.result.schema_version='0.1.0';delete args.result.producer;delete args.result.numerical_quality;delete args.result.formulation_basis;const before=JSON.stringify(args),claims=JSON.stringify(args.analysisRun.analysis_run.hashes);await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');expect(JSON.stringify(args)).toBe(before);expect(JSON.stringify(args.analysisRun.analysis_run.hashes)).toBe(claims);
@@ -127,8 +123,8 @@ describe('reference projection contracts and simulated native Current boundaries
   const mixed=structuredClone(args);mixed.result.results[0].dimension='length';await expect(buildCurrentResultExport(mixed)).rejects.toThrow('MIXED');
  });
  it('rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence',async()=>{
-  const args=await referenceSession(),row=args.result.results.find(item=>item.kind==='displacement_magnitude')!;(row as any).dimension='stress';await rehashV02ResultClaims(args);expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');const before=JSON.stringify(args.result);// T0R: this precision-1 reference is refused at its historical standing before the dimension check.
-  await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');expect(JSON.stringify(args.result)).toBe(before);
+  const args=await referenceSession(),row=args.result.results.find(item=>item.kind==='displacement_magnitude')!;(row as any).dimension='stress';await rehashV02ResultClaims(args);expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');const before=JSON.stringify(args.result);// A declared dimension on a current statement is refused (B1: no longer a precision-1 reference read at its historical standing).
+  await expect(buildCurrentResultExport(args)).rejects.toThrow('MIXED_CARRIER_DIMENSIONS');expect(JSON.stringify(args.result)).toBe(before);
  });
  it('rejects checksum scope/type/algorithm/canonicalization/ref tampering',async()=>{
   const args=await current();const edits:Array<(a:typeof args)=>void>=[a=>{(a.analysisRun.analysis_run.hashes[0] as any).algorithm='TBD'},a=>{a.analysisRun.analysis_run.hashes[0].payload_ref.object_type='Wrong'},a=>{a.analysisRun.analysis_run.hashes[1].canonicalization='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_scope='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_ref.ref='wrong'},a=>{(a.analysisRun.analysis_run.reproducibility.input_manifest_hashes[0] as any).payload_scope='wrong'},a=>{a.analysisRun.analysis_run.reproducibility.input_manifest_refs[0].object_type='Wrong'}];
@@ -203,7 +199,7 @@ it('rejects ghost references, orphan witnesses and semantic tampering despite re
 
 it('preserves every shared nonzero f64 vector through canonical hash and derivative JSON',async()=>{
  const bits=(value:number)=>{const bytes=new DataView(new ArrayBuffer(8));bytes.setFloat64(0,value,false);return bytes.getBigUint64(0,false).toString(16).padStart(16,'0');};
- const args=await referenceSession();args.result.results=transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',value:JSON.parse(v.decimal),unit:'rad',entity_ref:'node:transport'}));
+ const args=await referenceSession();args.result=minimalPreviewStatement({run_id:args.result.run_id,model_ref:args.result.model_ref,cases:[],rows:transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',value:JSON.parse(v.decimal),unit:'rad',entity_ref:'node:transport'}))});
  args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});
  const before=await resultDigest(args.result),doc=await referenceProjection(args),decoded=JSON.parse(await canonicalJsonString(doc));
  expect(await resultDigest(JSON.parse(await canonicalJsonString(args.result)))).toBe(before);
@@ -235,19 +231,18 @@ it('requires the registered exact source object for Current export in a native t
  expect(JSON.stringify(args.result)).toBe(before);
  await expect(buildCurrentResultExport({...args,result:structuredClone(args.result)})).rejects.toThrow('CURRENT_NATIVE_INVOCATION_REQUIRED');
  const reference=await referenceSession();
- // T0R: the precision-1 reference is refused at its historical standing, ahead of the invocation gate.
- await expect(buildCurrentResultExport(reference)).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
+ // A reference session has no native invocation (B1: no longer a precision-1 statement).
+ await expect(buildCurrentResultExport(reference)).rejects.toThrow('CURRENT_NATIVE_INVOCATION_REQUIRED');
 });
 
-it('exports a registered preview-physics-1 Current result with its contract evidence; a registered precision-1 solve is refused',async()=>{
- for(const profile of ['preview','precision'] as const){
+it('exports a registered preview-physics-1 Current result with its contract evidence',async()=>{
+ for(const profile of ['preview'] as const){
   const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile});
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
   invokeMock.mockImplementation(createNativeMechanicsReplay({profile}).invoke);
   const result=await runPreviewMechanics(model);
   const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
   const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
-  if(profile==='precision'){await expect(buildCurrentResultExport({model,result,inputManifest,analysisRun})).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');continue;}
   const doc=await buildCurrentResultExport({model,result,inputManifest,analysisRun});
   expect(doc.schema_version).toBe('0.3.0');
   expect(doc.result_envelope.contract_evidence).toEqual(result.contract_evidence);

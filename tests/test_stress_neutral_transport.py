@@ -1,4 +1,5 @@
-"""Connected precision carrier → analysis 0.3 → neutral 0.3 transport tests."""
+"""Readable source → analysis 0.3 → neutral 0.3 transport tests, on the minimal
+preview-physics-1 transport source (B1 retired the precision-1 vehicle)."""
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -10,7 +11,7 @@ from core.handoff.stress_neutral.package import (
     write_materialized_members, read_materialized_members, MEMBERS,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
-from test_precision_consumer_contract import source
+from preview_transport_source import source, sync_headline
 from test_stress_neutral_export_package import source_payload
 from schema_validation import validate_instance
 
@@ -18,7 +19,8 @@ PROJECT = Path(__file__).resolve().parents[1]
 
 def prepare():
     raw=source();base=source_payload()
-    raw['results']=[{'id':f'result:{index}', 'kind':'displacement_magnitude', 'value':value, 'unit':'mm', 'entity_ref':'node:transport'} for index,value in enumerate([1.2345678901234567e-7,-1.0000000000000002])]
+    raw['results']=[{'id':f'result:{index}', 'kind':'global_nodal_displacement_x', 'value':value, 'unit':'mm', 'entity_ref':'node:transport'} for index,value in enumerate([1.2345678901234567e-7,-1.0000000000000002])]
+    sync_headline(raw)
     analysis=build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'manifest:transport'},input_manifest_hash='1'*64)
     base['source_result_ref']={'object_type':'ResultEnvelope','ref':f"result-envelope:{raw['run_id']}"}
     base['source_run_ref']={'object_type':'AnalysisRun','ref':raw['run_id']}
@@ -33,7 +35,7 @@ def prepare():
 def test_new_source_analysis_and_neutral_share_exact_values_and_hashes(tmp_path):
     raw,analysis,args=prepare();packet=build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**args)
     assert packet['schema_version']=='0.3.0'; assert packet['export_profile']['profile_id']=='ops.stress_neutral.v3'
-    validate_instance(json.loads((PROJECT/'schemas/stress_neutral_export.schema.json').read_text()),packet,instance_label='precision neutral')
+    validate_instance(json.loads((PROJECT/'schemas/stress_neutral_export.schema.json').read_text()),packet,instance_label='transport neutral')
     for key in ['producer','numerical_quality','formulation_basis']:assert packet[key]==raw[key]
     assert [row['value'] for row in packet['result_rows']]==[row['value'] for row in raw['results']]
     reread=json.loads(json.dumps(packet));validate_stress_neutral_export_package(reread,source_envelope=raw,analysis_record=analysis)
@@ -44,7 +46,7 @@ def test_new_source_analysis_and_neutral_share_exact_values_and_hashes(tmp_path)
     reconstructed=read_materialized_members(tmp_path,source_envelope=raw,analysis_record=analysis)
     assert reconstructed==packet
     assert canonical_sha256_checked_v1(package_projection(reconstructed))==packet['package_checksum']['value']
-    validate_instance(json.loads((PROJECT/'schemas/stress_neutral_export.schema.json').read_text()),reconstructed,instance_label='reconstructed precision neutral')
+    validate_instance(json.loads((PROJECT/'schemas/stress_neutral_export.schema.json').read_text()),reconstructed,instance_label='reconstructed transport neutral')
     transport=json.loads((tmp_path/'manifest.json').read_text())
     assert transport['manifest']==packet['manifest']
     assert 'package_checksum' not in transport['manifest']
@@ -67,7 +69,7 @@ def test_rehashed_metadata_and_source_mismatch_are_not_authenticated():
     wrong=deepcopy(raw);wrong['results'][0]['value']*=2
     with pytest.raises(ValueError,match='SOURCE'):validate_analysis_run_v0_3(analysis,wrong)
     old=deepcopy(raw)
-    for key in ['producer','numerical_quality','formulation_basis']:del old[key]
+    for key in ['producer','numerical_quality','formulation_basis','contract_evidence']:del old[key]
     with pytest.raises(ValueError,match='CONTRACT_UNSUPPORTED'):build_analysis_run_v0_3(old,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
 
 
@@ -81,8 +83,8 @@ def rehash_packet(packet):
     for row in csv_rows:
         for field in ['canonical_ref','load_case_ref','station_ref','component_ref']:
             if not isinstance(row.get(field),dict):row[field]={}
-    renderer = sn._render_utf8_csv if sn._csv_policy(packet)[0] == 'utf-8' else sn._render_ascii_csv
-    packet['csv_text'] = renderer(csv_rows)
+    sn._csv_policy(packet)
+    packet['csv_text'] = sn._render_utf8_csv(csv_rows)
     members = sn.materialized_members(packet)
     checks = [item for item in packet['manifest']['checksums'] if item['payload_ref']['ref'] != 'manifest.json']
     for claim in checks:

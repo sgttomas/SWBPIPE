@@ -2,7 +2,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import inventedSparse from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import inventedModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
-import precisionSparse from "../../../../../fixtures/results/precision_connected_ui_mechanics_sparse.json";
 import multicase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import sourceBlocksN05 from "../../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import { ResultsPanel } from "./ResultsPanel";
@@ -11,7 +10,7 @@ import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_P1, N_REPORT, N_SB } from "./knownSemanticLimitations";
+import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT, N_SB } from "./knownSemanticLimitations";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { formatComponentStressModifierSummary } from "../report/ReportPanel";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -42,10 +41,6 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     render(<ResultsPanel result={withheld} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
     expect(screen.getByTestId("results-notice-headline-withheld").textContent).toBe(N_HEADLINE_WITHHELD);
   });
-  it("Results: N-P1 on precision-1", () => {
-    render(<ResultsPanel result={clone(precisionSparse)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
-    expect(screen.getByTestId("results-notice-precision-1").textContent).toBe(N_P1);
-  });
   // The ResultsPanel placement of the notice component is covered by the tests
   // above; rendering the full row table of a source-blocks-1 result costs several
   // seconds per render in jsdom, so N-SB is asserted on the component itself.
@@ -66,20 +61,16 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     render(<StressNeutralExportPanel model={model} result={clone(multicase)} analysisRun={null} />);
     expect(screen.getByTestId("stress-neutral-notice-source-blocks-summary").textContent).toBe(N_SB);
   });
-  it("report package is unavailable for every fresh identity (N-REPORT) and for precision-1 (N-P1)", () => {
+  it("report package is unavailable for every fresh identity (N-REPORT)", () => {
     expect(reportPackageUnavailableReason(clone(inventedSparse))).toBe(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
     expect(reportPackageUnavailableReason(clone(multicase))).toContain(N_REPORT);
-    expect(reportPackageUnavailableReason(clone(precisionSparse))).toBe(`REPORT-PACKAGE-PRECISION-1-HISTORICAL: ${N_P1}`);
   });
   it("report packet SIF section never presents SIF×k rows as stress", () => {
-    // A historical precision-1 source and the component refs of its SIF×k review
-    // rows (component_user_stress_multiplier_review). No committed precision-1
-    // fixture carries such rows since the flawed demo pair was removed, so the
-    // records are supplied directly; the formatter reads only the records and the
-    // source's intensified rows.
-    const precision = clone(precisionSparse);
+    // The component refs of SIF×k review rows (component_user_stress_multiplier_review),
+    // supplied directly: no current route publishes them. The formatter reads only
+    // the records and the source's intensified rows (none without a source).
     const records = ["component:C-110", "component:C-110", "component:C-120"].map(component_ref => ({ component_ref }));
-    const historical = formatComponentStressModifierSummary(records, precision);
+    const historical = formatComponentStressModifierSummary(records, null);
     expect(historical).toContain(`${records.length} historical precision-1 SIF×k review rows (retired; not a stress)`);
     expect(historical).not.toMatch(/MPa|units=/);
     expect(formatComponentStressModifierSummary([], clone(inventedSparse))).toContain(`8 intensified measure rows (${N_INTENSIFIED})`);

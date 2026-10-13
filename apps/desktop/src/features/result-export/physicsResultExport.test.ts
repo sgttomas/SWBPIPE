@@ -4,8 +4,9 @@ import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { readerValidate } from "../results/resultReader";
-import { PHYSICS_CONTRACT_ID, PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
-import { PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { RETIRED_PRECISION_CONTRACT_ID, retiredPrecisionStatement } from "../../test-support/retiredPrecision";
+import { PHYSICS_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { sourceContract, sourceSemanticBinding } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { readerRowSemantics } from "../results/resultReader";
@@ -52,8 +53,8 @@ describe("actual joined physics-1 source consumers", () => {
     }
     expect(JSON.stringify(source)).toBe(before);
   });
-  it("pins the additive table and retains frozen precision table bytes", () => {
-    for (const [name, expected] of [["physics", PHYSICS_CONTRACT_SHA256], ["precision", PRECISION_CONTRACT_SHA256]])
+  it("pins the physics-1 table bytes", () => {
+    for (const [name, expected] of [["physics", PHYSICS_CONTRACT_SHA256]])
       expect(createHash("sha256").update(readFileSync(resolve(project, `fixtures/results/semantic_contract_v0_3_${name}_1.json`))).digest("hex")).toBe(expected);
   });
   it("rejects unknown/reserved and mismatched profile dispatch without falling back", () => {
@@ -64,10 +65,9 @@ describe("actual joined physics-1 source consumers", () => {
     for (const key of ["source_block_recovery", "carrier_evidence"]) {
       expect(sourceContract(Object.assign(raw(), { [key]: null }))).toBe("unsupported");
     }
-    const ordinary = json("fixtures/results/precision_connected_ui_mechanics_sparse.json") as MechanicsResult;
-    Object.assign(ordinary, { contract_evidence: null });
-    expect(sourceContract(ordinary)).toBe("precision");
-    const changed = raw(); changed.producer!.semantic_contract_id = PRECISION_CONTRACT_ID;
+    // B1: a stored precision-1 statement is refused by name (unsupported here).
+    expect(sourceContract(retiredPrecisionStatement())).toBe("unsupported");
+    const changed = raw(); changed.producer!.semantic_contract_id = RETIRED_PRECISION_CONTRACT_ID;
     expect(sourceContract(changed)).toBe("unsupported");
     changed.formulation_basis!.profile_id = "product_preview_mechanics_v1";
     expect(sourceContract(changed)).toBe("unsupported");

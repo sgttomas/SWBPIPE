@@ -25,9 +25,8 @@ use crate::semantic_contract as sc;
 use serde_json::{json, Value};
 
 /// The desktop's route names (its `SourceContract`), one per readable identity.
-pub const ROUTES: [&str; 11] = [
+pub const ROUTES: [&str; 10] = [
     "legacy",
-    "precision",
     "physics",
     "source_blocks",
     "physics_source",
@@ -50,17 +49,16 @@ pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
 /// `binding_hashes_are_the_table_files` checks them). Legacy has none.
-const BINDINGS: [(&str, &str, &str); 10] = [
-    ("precision", sc::PRECISION_ID, "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"),
-    ("physics", sc::PHYSICS_ID, "48c1899917e59a58d288ee06326f94278449fca403543c23b817a25bd65cb510"),
+const BINDINGS: [(&str, &str, &str); 9] = [
+    ("physics", sc::PHYSICS_ID, "8dd5727cc9d61b18dd15c914743b3bd13342806518b8ed3b344907422990ca98"),
     ("source_blocks", crate::source_blocks::CONTRACT_ID, "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"),
-    ("physics_source", sc::PHYSICS_SOURCE_ID, "662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"),
+    ("physics_source", sc::PHYSICS_SOURCE_ID, "33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"),
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
-    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "9aaab7bf3f4cc3623c7ba94a045df040f01b14d818dc5230eca00c17c844d028"),
-    ("load_reference", sc::LOAD_REFERENCE_ID, "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf"),
-    ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"),
-    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3"),
-    ("retained_physics", sc::PHYSICS_RETAINED_ID, "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a"),
+    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "a07ffb43886b6e68d95ab0a2f81bcbea02cd2eb6fac0001d96f4d9d50cfed02c"),
+    ("load_reference", sc::LOAD_REFERENCE_ID, "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef"),
+    ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "30b5d0e59c0629ea133c1af0873991f96fa710868d9c05510efce9e9afdbedde"),
+    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be"),
+    ("retained_physics", sc::PHYSICS_RETAINED_ID, "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3"),
 ];
 
 /// A reader's error text as `{code, detail}`: the code is the leading
@@ -85,8 +83,8 @@ fn present(value: Option<&Value>) -> Option<&Value> {
 /// guard (a receipt member or a W1 row token off the successor), a carrier
 /// namespace, `for_source_metadata` (with its retained transport reading), then
 /// the TypeScript header's checks: each source route's receipt shape, the evidence
-/// object the load-reference routes require, no evidence on precision-1, and no
-/// identity outside the desktop's routes (pressure-1).
+/// object the load-reference routes require, and no identity outside the
+/// desktop's routes (pressure-1).
 pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     sc::forbid_retained_member(source)?;
     sc::forbid_retained_rows(source)?;
@@ -100,12 +98,6 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     let evidence_object = source.get("contract_evidence").is_some_and(Value::is_object);
     let receipt = &source["source_block_recovery"];
     let route = match source["producer"]["semantic_contract_id"].as_str() {
-        Some(sc::PRECISION_ID) => {
-            if present(source.get("contract_evidence")).is_some() {
-                return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
-            }
-            "precision"
-        }
         Some(sc::PHYSICS_ID) => "physics",
         Some(sc::PHYSICS_SOURCE_ID) => {
             crate::physics_source::SourceContract::PhysicsV2.check_received(source)?;
@@ -371,8 +363,8 @@ pub fn source_findings(source: &Value, invocation: &Value, composite: bool) -> V
 /// legacy's integrity reason; a source route's validation findings (or
 /// `SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED` without an invocation, G4); the
 /// joined route's validation code or its T1 reason; a successor's reader code or
-/// its not-eligible reason; otherwise the evidence reader's code, the historical
-/// reason, and the ordinary checks of `numerical_quality` against the model;
+/// its not-eligible reason; otherwise the evidence reader's code and the
+/// ordinary checks of `numerical_quality` against the model;
 /// then, but for the joined and successor routes, an unsolved envelope.
 /// `eligible` is no findings, and `status` is `integrity_checked` when eligible.
 pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
@@ -453,9 +445,6 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
             if let Some(outcome) = checked.filter(|o| o["ok"] == false) {
                 let error = &outcome["error"];
                 findings.push(error["detail"].as_str().or(error["code"].as_str()).unwrap_or_default().into());
-            }
-            if route == "precision" {
-                findings.push(sc::PRECISION_1_HISTORICAL_SEMANTICS.into());
             }
             findings.extend(ordinary_findings(source, &requested_ids));
         }

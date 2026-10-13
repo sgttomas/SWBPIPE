@@ -26,7 +26,7 @@ from core.handoff.stress_neutral import package as sn
 from core.security.redaction.route_control import control_route_export
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
 from schema_validation import validate_instance, validate_schema_document, walk_strings
-from test_precision_consumer_contract import source
+from preview_transport_source import source, sync_headline
 
 SCHEMA_PATH = ROOT / "schemas/stress_neutral_export.schema.json"
 CSV_HEADER = ",".join(sn.CSV_COLUMNS)
@@ -127,6 +127,7 @@ def prepared(count=2, *, values=None, diagnostic_work=False, change_source=None)
     if diagnostic_work:
         for row in raw["results"][-2:]:
             row.update(kind="nonlinear_support_free_dof_work_residual", unit="N*m", metadata={"component": "free_dof_work_residual"})
+    sync_headline(raw)
     if change_source:
         change_source(raw)
     analysis = build_analysis_run_v0_3(raw, input_manifest_ref=ref("InputManifest", "manifest:transport"), input_manifest_hash="1" * 64)
@@ -229,7 +230,7 @@ def test_current_writer_roundtrips_nine_exact_checksum_bound_members(tmp_path):
 
 def test_current_csv_and_json_rows_preserve_scientific_values_order_and_units():
     packet = build_from_source(values=[0.000028, 1.0])
-    assert packet["csv_text"] == sn._render_ascii_csv(packet["result_rows"])
+    assert packet["csv_text"] == sn._render_utf8_csv(packet["result_rows"])
     assert packet["csv_text"].splitlines()[0] == CSV_HEADER
     packet["csv_text"].encode("ascii")
     packet["csv_text"] = packet["csv_text"].replace(",2.8e-05,mm,", ",0.000028,mm,").replace(",1,mm,", ",1.0,mm,")
@@ -279,11 +280,11 @@ def test_current_validator_refuses_coherently_rehashed_csv_shape_or_field_attack
     (lambda p: p["validation_report"]["checks"][0].update(check_status="blocking", blocking_count=0), "VALIDATION-STATUS-BINDING"),
     (lambda p: p.update(schema_conformant=False), "SCHEMA-CONFORMANCE-CLAIM"),
     (lambda p: p["unit_preservation_witnesses"].pop(), "WITNESS-CATEGORY-ACCOUNTING"),
-    (lambda p: p["export_profile"]["source_basis_refs"].remove(ref("ExternalReference", "fixtures/results/semantic_contract_v0_3_precision_1.json")), "SEMANTIC-CONTRACT-BINDING"),
+    (lambda p: p["export_profile"]["source_basis_refs"].remove(ref("ExternalReference", "fixtures/results/semantic_contract_v0_3_preview_physics_1.json")), "SEMANTIC-CONTRACT-BINDING"),
 ])
 def test_current_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
     packet = build_from_source(); mutation(packet)
-    packet["csv_text"] = sn._render_ascii_csv(packet["result_rows"])
+    packet["csv_text"] = sn._render_utf8_csv(packet["result_rows"])
     rehash_packet(packet)
     with pytest.raises(ValueError, match=expected):
         sn.validate_stress_neutral_export_package(packet)

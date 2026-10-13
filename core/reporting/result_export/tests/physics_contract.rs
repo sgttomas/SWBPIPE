@@ -2,7 +2,6 @@
 //! This proves consumer admission and source binding, not producer authentication.
 use open_pipe_stress_result_export::{derivative as d, semantic_contract as s};
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
 
 fn source(dense: bool) -> Value {
     serde_json::from_str(if dense {
@@ -254,7 +253,7 @@ fn metadata_only_dispatch_cannot_qualify_missing_raw_evidence_or_reserved_method
     assert!(s::for_source_metadata(&header).is_ok());
     assert!(s::for_source(&header).is_err());
     for id in [
-        s::PRECISION_ID,
+        s::RETIRED_PRECISION_ID,
         "openpipestress.result_semantics/0.3.0/precision-2",
         "openpipestress.result_semantics/0.3.0/source-blocks-1",
         "openpipestress.result_semantics/0.3.0/unknown",
@@ -315,20 +314,10 @@ fn canonical_physical_evidence_is_source_bound_even_after_rehash() {
     );
 }
 #[test]
-fn additive_table_retains_frozen_precision_bytes_and_semantics() {
-    assert_eq!(
-        format!(
-            "{:x}",
-            Sha256::digest(include_bytes!(
-                "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json"
-            ))
-        ),
-        "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
-    );
-    assert_eq!(
-        &s::physics_contract()["rows"].as_array().unwrap()[..60],
-        s::precision_contract()["rows"].as_array().unwrap()
-    );
+fn physics_table_declares_its_own_signature_counts() {
+    // B1: the table no longer inherits precision-1 (deleted); its rows were
+    // already inlined, so only the inherited digest went.
+    assert!(s::physics_contract().get("inherited_semantic_contract_sha256").is_none());
     assert_eq!(s::physics_contract()["source_signature_count"], 77);
     assert_eq!(s::physics_contract()["source_kind_count"], 57);
 }

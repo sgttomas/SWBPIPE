@@ -303,7 +303,7 @@ fn checked_dispatch(
     let (route, binding, token, findings, error) = match disposition {
         DispatchDisposition::PressureHealthy(resolved) => (
             "pressure_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160"}),
             if resolved {
                 "needs_recompute"
             } else {
@@ -318,7 +318,7 @@ fn checked_dispatch(
         ),
         DispatchDisposition::PressureFinding(code) => (
             "pressure_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160"}),
             "unsupported",
             json!([code]),
             Value::Null,
@@ -332,14 +332,14 @@ fn checked_dispatch(
         ),
         DispatchDisposition::PhysicsV2CapturedV3 => (
             "physics_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/physics-source-1","sha256":"662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/physics-source-1","sha256":"33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"}),
             "unsupported",
             json!([sc::V3_READ_AS_V2]),
             Value::Null,
         ),
         DispatchDisposition::LoadReferenceV2T1 => (
             "load_reference_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/load-reference-source-1","sha256":"980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/load-reference-source-1","sha256":"30b5d0e59c0629ea133c1af0873991f96fa710868d9c05510efce9e9afdbedde"}),
             "needs_recompute",
             json!([rv::LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE]),
             Value::Null,

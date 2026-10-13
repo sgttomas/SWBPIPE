@@ -11,7 +11,7 @@ non-JSON types are refused (ValueError).
 Test-only and independent: it calls no crate the producer links.
 `tests/test_verifier_independence.py` checks it against that crate's committed
 vectors (`fixtures/canonical_hash/cases.json`,
-`fixtures/results/precision_transport_v0_3.json`).
+`fixtures/canonical_hash/binary64_transport_vectors.json`).
 """
 from __future__ import annotations
 

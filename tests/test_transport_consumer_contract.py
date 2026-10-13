@@ -1,4 +1,7 @@
-"""Source dispatch and scientific-value transport; no engineering-accuracy claim."""
+"""Source dispatch and scientific-value transport; no engineering-accuracy claim.
+
+The readable statement is the minimal preview-physics-1 transport source
+(`preview_transport_source`); B1 retired precision-1, which is refused by name."""
 from copy import deepcopy
 import hashlib
 import json
@@ -7,33 +10,26 @@ import struct
 import pytest
 from core.analysis_runs.compatibility import (
     build_analysis_run, build_analysis_run_v0_3, numerical_use_standing, verify_analysis_run_record,
-    PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256,
+    PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import validate_instance
 
-PROJECT = Path(__file__).resolve().parents[1]
-BASIS = {"ref_type": "load_case", "ref_id": "load:transport"}
+from preview_transport_source import BASIS, retired_precision, source, sync_preview_cases
 
-def source(value=1.2345678901234567e-7):
-    return {"schema_version":"0.2.0", "run_id":"precision-transport", "model_ref":"precision-model",
-        "producer":{"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":PRECISION_CONTRACT_ID},
-        "numerical_quality":{"value_representation":"finite_binary64","publication_quantization":"none","integrity_policy":"M03-INTEGRITY-v1","status":"not_assessed","cases":[]},
-        "formulation_basis":{"profile_id":"product_preview_mechanics_v1","limitations":["Transport fixture; physics unqualified"]},
-        "status":{"mechanics":"MECHANICS_SOLVED"}, "diagnostics":[],
-        "results":[{"id":"result:rotation","kind":"global_nodal_rotation_x","unit":"rad","entity_ref":"node:transport","value":value,"basis_ref":BASIS}]}
+PROJECT = Path(__file__).resolve().parents[1]
 
 def build(raw):
     return build_analysis_run(raw,input_manifest_ref={"object_type":"InputManifest","ref":"manifest:transport"},input_manifest_hash="1"*64)
 
-def test_precision_dispatch_and_schema_binding_preserve_source_hash_and_rule_revision():
+def test_dispatch_and_schema_binding_preserve_source_hash_and_rule_revision():
     raw=source(); before=deepcopy(raw);record=build(raw)
     assert record['schema_version']=='0.3.0'
     assert raw==before
     assert verify_analysis_run_record(record)=="match"
-    validate_instance(json.loads((PROJECT/'schemas/analysis_run.schema.json').read_text()),record,instance_label="precision analysis")
+    validate_instance(json.loads((PROJECT/'schemas/analysis_run.schema.json').read_text()),record,instance_label="transport analysis")
     semantic=record['analysis_run']['reproducibility']['semantic_contract']
-    assert semantic=={'id':PRECISION_CONTRACT_ID,'sha256':PRECISION_CONTRACT_SHA256}
+    assert semantic=={'id':PREVIEW_PHYSICS_CONTRACT_ID,'sha256':PREVIEW_PHYSICS_CONTRACT_SHA256}
     hashes=record['analysis_run']['hashes'];received=next(x for x in hashes if x['payload_scope']=='received_result')
     assert received['value']==canonical_sha256_checked_v1(raw)
     revised=build_analysis_run_v0_3(raw,input_manifest_ref={"object_type":"InputManifest","ref":"manifest:transport"},input_manifest_hash="1"*64,rule_check_status="USER_RULE_CHECKED")
@@ -44,19 +40,33 @@ def test_precision_dispatch_and_schema_binding_preserve_source_hash_and_rule_rev
         # b7-plan R2's declared class: the Rust header knows pressure-1 and refuses its profile first.
         with pytest.raises(ValueError,match='SOURCE_FORMULATION_BASIS_UNSUPPORTED' if name=='pressure' else 'CONTRACT_UNSUPPORTED'):build(bad)
 
+def test_a_stored_precision_1_result_is_refused_by_name():
+    # B1: precision-1 is no longer read. The product (Rust's reader) refuses it by name for
+    # dispatch, standing, the analysis-run builder and the stress-neutral builder.
+    from core.analysis_runs.compatibility import _source_contract
+    from core.handoff.stress_neutral.package import build_stress_neutral_export_package
+    old=retired_precision(source())
+    message='^SOURCE_PRECISION_1_RETIRED: precision-1 results are no longer read; re-run the analysis$'
+    with pytest.raises(ValueError,match=message):_source_contract(old)
+    with pytest.raises(ValueError,match=message):build(old)
+    with pytest.raises(ValueError,match='SOURCE_PRECISION_1_RETIRED'):
+        build_stress_neutral_export_package(source_envelope=old,analysis_record=build(source()))
+    assert numerical_use_standing(old,[BASIS])=='unsupported'
+
+
 def test_history_never_becomes_current_from_source_or_input_authenticity():
     raw=source();assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     old=deepcopy(raw);old['schema_version']='0.1.0'
-    for key in ['producer','numerical_quality','formulation_basis']:del old[key]
+    for key in ['producer','numerical_quality','formulation_basis','contract_evidence']:del old[key]
     assert numerical_use_standing(old,[BASIS])=='needs_recompute'
     # A historical result is never recorded: analysis runs keep one current version (E1).
     with pytest.raises(ValueError,match='^ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH$'):build(old)
     quality=raw['numerical_quality'];quality['status']='checks_passed'
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     quality['cases']=[{'basis_ref':BASIS,'structural_status':'passive_model_basis','solve_quality':'checks_passed','model_matrix_fidelity':'represented_equations_retained','accuracy_evidence':'not_claimed','evidence_refs':['result:rotation']}]
-    # T0R retires precision-1 as Current: complete passing evidence still reads
-    # as needs_recompute (PRECISION_1_HISTORICAL_SEMANTICS); was numerically_eligible.
-    assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
+    sync_preview_cases(raw)
+    # The current ordinary identity with complete passing evidence for the requested case is eligible.
+    assert numerical_use_standing(raw,[BASIS])=='numerically_eligible'
     quality['cases'][0]['evidence_refs']=['missing:evidence']
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     assert numerical_use_standing(raw,[])=='needs_recompute'
@@ -72,10 +82,10 @@ def test_independent_same_unit_bit_vectors_reach_checked_hash_and_analysis():
     with pytest.raises(ValueError):build(source(9007199254740992.0))
 
 def test_immutable_tables_and_historical_schema_bytes():
-    table=PROJECT/'fixtures/results/semantic_contract_v0_3_precision_1.json'
-    assert hashlib.sha256(table.read_bytes()).hexdigest()==PRECISION_CONTRACT_SHA256
-    old=json.loads((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_text())
-    assert json.loads(table.read_text())['rows']==old['rows']
+    # B1 deleted the precision-1 table; the preview table is pinned at its bytes.
+    assert not (PROJECT/'fixtures/results/semantic_contract_v0_3_precision_1.json').exists()
+    table=PROJECT/'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'
+    assert hashlib.sha256(table.read_bytes()).hexdigest()==PREVIEW_PHYSICS_CONTRACT_SHA256
     assert hashlib.sha256((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_bytes()).hexdigest()=='4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da'
 
 
@@ -190,6 +200,7 @@ def test_sensitive_carrier_is_preserved_but_never_qualified_by_metadata(accuracy
         "solve_quality": "sensitive", "model_matrix_fidelity": "represented_equations_retained",
         "accuracy_evidence": accuracy, "evidence_refs": ["result:rotation"],
     }])
+    sync_preview_cases(raw)
     before = deepcopy(raw)
     record = build(raw)
     assert verify_analysis_run_record(record) == "match"

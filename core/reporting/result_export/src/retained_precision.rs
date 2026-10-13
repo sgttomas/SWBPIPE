@@ -579,14 +579,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3";
+const TABLE_HASH: &str = "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be";
 /// The exact successor's table (XTABLE) and its inherited physics-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PHYSICS_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
-const EXACT_TABLE_HASH: &str = "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a";
+const EXACT_TABLE_HASH: &str = "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {

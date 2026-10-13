@@ -1,7 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
@@ -23,7 +23,6 @@ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
 
 export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";
 export const N_HEADLINE_WITHHELD = "Stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route).";
-export const N_P1 = "Historical precision-1 result. Its support reactions are force norms only (no moments; constant-effort supports read 0 N), its member stress is the sum of absolute axial and bending components (up to about 1.414 times the circular maximum), its headline covers only the first load case, and its component rows multiply stress by SIF×k and enter combinations. It stays readable but is not Current, rule-, report- or export-eligible. Solve again to obtain preview-physics-1 results.";
 export const N_SB = "Summary stress in this retained-source result is the sum of absolute axial and bending components, not the circular-section maximum. The admitted loads are nodal only, so it is conservative and at most √2 (about 1.414) times the maximum. Rule checks cannot bind to it.";
 export const N_SB_MIXED = "This retained-source result contains an ordinary load case whose rows keep the retired precision-1 semantics (norm-only reactions and an absolute-sum stress summary). It is not Current, rule- or export-eligible.";
 export const N_REPORT = "The report package is unavailable for fresh results.";
@@ -36,12 +35,10 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
-export const PRECISION_1_HISTORICAL_SEMANTICS = "PRECISION_1_HISTORICAL_SEMANTICS";
 export const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
 export const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
 export const RULE_BINDS_RETIRED_RESULT = "RULE_BINDS_RETIRED_RESULT";
 export const REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE";
-export const REPORT_PACKAGE_PRECISION_1_HISTORICAL = "REPORT-PACKAGE-PRECISION-1-HISTORICAL";
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
@@ -116,7 +113,6 @@ export function standingReason(source: MechanicsResult | null | undefined): stri
   if (!source) return null;
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return null; }
-  if (route === "precision" && source.producer?.semantic_contract_id === PRECISION_CONTRACT_ID) return PRECISION_1_HISTORICAL_SEMANTICS;
   if (route === "source_blocks" && sourceBlocksOrdinaryCaseLegacy(source)) return SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS;
   return null;
 }
@@ -159,7 +155,6 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return []; }
   const notices: KnownSemanticNotice[] = [];
-  if (route === "precision") notices.push({ id: "precision-1", text: N_P1 });
   if (route === "source_blocks") {
     notices.push(sourceBlocksOrdinaryCaseLegacy(source)
       ? { id: "source-blocks-mixed", text: N_SB_MIXED }

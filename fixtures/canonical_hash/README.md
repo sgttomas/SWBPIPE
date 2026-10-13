@@ -30,3 +30,10 @@ engine and consumed by the wasm exports.
   I-JSON envelope RFC 8785 assumes, and production payloads reach the
   engine through `JSON.stringify`, so a JS lane can never produce that
   text distinct from its rounded double.
+
+`binary64_transport_vectors.json` holds independent binary64 bit patterns
+(subnormal, normal-boundary and near-tie values, both signs) with their
+shortest decimal text. The canonical-JSON crate (`tests/binary64_transport.rs`),
+the test verifier and the desktop transport tests read it; no solver or
+physics oracle. It was `fixtures/results/precision_transport_v0_3.json` until
+precision-1 was retired (b7-plan B1); its bytes are unchanged.

@@ -1,5 +1,6 @@
-import { PHYSICS_CONTRACT_ID, PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
-import { PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { retiredPrecisionStatement } from "../../test-support/retiredPrecision";
+import { PHYSICS_CONTRACT_SHA256, PREVIEW_PHYSICS_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { currentSemanticContract, hasCurrentSourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { act, renderHook } from "@testing-library/react";
@@ -32,8 +33,8 @@ it("keeps solved historical and unassessed carriers out of Current without chang
 
 it("requires actual native invocation plus joined preview-physics analysis and manifest identities before Current", async () => {
  // Explicit unit transport simulation over the unchanged, genuinely emitted
- // current ordinary pair (preview-physics-1 since T0R; precision-1 is historical
- // and is covered by the next test). This is not a native UI/host qualification witness.
+ // current ordinary pair (preview-physics-1 since T0R; a stored precision-1
+ // statement is refused, the next test). This is not a native UI/host qualification witness.
  const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"preview"});
  const replay = createNativeMechanicsReplay({profile:"preview"});
  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -65,20 +66,16 @@ it("requires actual native invocation plus joined preview-physics analysis and m
  expect(result.current.currentSolvedResult).toBeNull();
 });
 
-it("never admits a registered precision-1 solve as Current (T0R static fresh-identity set)", async () => {
- const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"precision"});
- const replay = createNativeMechanicsReplay({profile:"precision"});
- (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
- invokeMock.mockImplementation(replay.invoke);
- const source = await runPreviewMechanics(pair.model, pair.mode);
- const manifest = await buildCurrentSessionInputManifest({model:pair.model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:actual-core-pair-native-transport-simulation",solver_mode:pair.mode,settings:{}},active_rule_packs:[],external_assets:[]});
- const analysis = await buildAnalysisRunPreview(source,{inputManifest:manifest});
+it("never admits a stored precision-1 statement as Current (B1: refused by name, unsupported)", async () => {
+ const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"preview"});
+ const source = retiredPrecisionStatement();
  const {result} = renderHook(() => useResultsSessionState());
- act(()=>{result.current.setResult(source);result.current.setInputManifest(manifest);result.current.setAnalysisRun(analysis);});
- expect(result.current.result).toBe(source); // readable
- expect(numericalResultStanding(source, pair.model).findings).toContain("PRECISION_1_HISTORICAL_SEMANTICS");
+ act(()=>{result.current.setResult(source);});
+ expect(result.current.result).toBe(source); // readable as data
+ expect(numericalResultStanding(source, pair.model).findings).toEqual(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]);
  expect(result.current.currentSolvedResult).toBeNull();
 });
+
 
 // Maintained outputs from actual sparse/dense producer invocations. These are
 // received fixture bytes, not a live invocation or a Current-session manifest.
@@ -108,7 +105,7 @@ it.each(["sparse", "dense"])("recognizes actual %s physics semantics without tur
  expect(result.current.currentSolvedResultRef.current).toBeNull();
  await expect(buildCurrentSessionInputManifest({model,solver,active_rule_packs:[],external_assets:[]})).rejects.toThrow("INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE");
  const mismatched = structuredClone(analysis);
- mismatched.analysis_run.reproducibility.semantic_contract = {id:PRECISION_CONTRACT_ID,sha256:PRECISION_CONTRACT_SHA256};
+ mismatched.analysis_run.reproducibility.semantic_contract = {id:PREVIEW_PHYSICS_CONTRACT_ID,sha256:PREVIEW_PHYSICS_CONTRACT_SHA256};
  await expect(validateAnalysisRunV03(mismatched,source,modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
  act(()=>result.current.setAnalysisRun(mismatched));
  expect(result.current.currentSolvedResult).toBeNull();

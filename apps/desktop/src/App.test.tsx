@@ -1,6 +1,7 @@
 import { solverDisplayWithToken } from "./features/workspace/statusLabels";
 import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
 import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import demoPreviewFixture from "../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json";
 import refusedPreviewModel from "../../../fixtures/product_preview/invented_preview_model.json";
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
@@ -220,12 +221,12 @@ async function inspectBundledReference() {
 }
 // Narrow IPC replay for actual captured ordinary model/source pairs. A unit
 // simulation only; never an actual native UI witness or a relabeled old fixture.
-async function installPrecisionReplay() {
+async function installPreviewReplay() {
   // Capture the real browser-side bootstrap records before installing the
   // scoped native transport simulation; never invent storage capabilities.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  // T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
+  // T0R: the fresh ordinary route is preview-physics-1.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
   const invoke = (command: string, args?: unknown) => {
@@ -246,13 +247,14 @@ async function installPrecisionReplay() {
 // availability gate. To keep the save sequencer (handleSaveReportPackage: busy
 // state, generation/basis checks, stale completion) under test, these helpers
 // (a) assert the gate refusal first, then (b) lift the gate in the test only and
-// route assembly below it with the registered historical precision-1 session as
-// data. Production behaviour is unchanged; nothing here is a native witness.
-async function registeredPrecisionReportData() {
-  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
-  const precision = createNativeMechanicsReplay({ profile: "precision" });
+// route assembly below it with the registered preview-physics-1 session as data
+// (B1 retired the precision-1 session used before). Production behaviour is
+// unchanged; nothing here is a native witness.
+async function registeredPreviewReportData() {
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  const preview = createNativeMechanicsReplay({ profile: "preview" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(precision.invoke);
+  invokeMock.mockImplementation(preview.invoke);
   const result = await runPreviewMechanics(pair.model);
   const inputManifest = await buildCurrentSessionInputManifest({
     model: pair.model,
@@ -271,7 +273,7 @@ async function expectReportPackageGateRefusal() {
   expect(invokeMock.mock.calls.filter(([command]) => command === "save_report_package")).toHaveLength(savesBefore);
   expect(within(report).queryByTestId("report-package-save-status")).not.toBeInTheDocument();
 }
-async function liftReportGateForSequencerTest(data: Awaited<ReturnType<typeof registeredPrecisionReportData>>) {
+async function liftReportGateForSequencerTest(data: Awaited<ReturnType<typeof registeredPreviewReportData>>) {
   const reportPackageModule = await import("./features/report/reportPackageRequest");
   const gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
   const buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) =>
@@ -558,7 +560,7 @@ function renderedVendorNameMentions(panel: HTMLElement): string[] {
 describe("SWBPIPE desktop preview", () => {
   it("suppresses solve proof unless the completed job, result, and exact model version remain bound", async () => {
     // Pure proof-format unit simulation using a genuine paired producer record.
-    const { model, source: result } = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
+    const { model, source: result } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
     const modelHash: ModelHashEvidence = {
       algorithm: "sha256",
       canonicalization: "rfc8785_jcs",
@@ -10570,7 +10572,7 @@ describe("SWBPIPE desktop preview", () => {
   it("refuses the Sensitive demo reference in the pure stress-neutral projector", async () => {
     // K-D5 (DEL-04-01 kd5-member-relative-bound.md §5): the demo has nonlinear supports, so its converged
     // cases are published NUMERICAL_INTEGRITY_SENSITIVE. The pure packet projection admits a reference only
-    // at full numerical standing (apart from precision-1's historical reason), so the demo reference that
+    // at full numerical standing, so the demo reference that
     // projected to the 625-row format is now refused, and the reference is not changed.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
     const before = JSON.stringify(basis);
@@ -10719,7 +10721,7 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("qualifies only a matching captured native unit replay and retires it on reference inspection", async () => {
-    const pair = await installPrecisionReplay();
+    const pair = await installPreviewReplay();
     render(<App />);
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
@@ -14218,15 +14220,10 @@ describe("persistent modeling workspace", () => {
 async function workflowStoredEnvelope() {
   const model = await loadPreviewModel();
   const envelope = inventedOpenEnvelope(model);
-  // A saved run with a current (0.3.0) record: the demo carrier's rows under a
-  // synthetic precision-1 header (a header-only route), as saved history only.
-  const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
-  Object.assign(result, {
-    schema_version: "0.2.0", model_ref: envelope.model.project.id,
-    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: "openpipestress.result_semantics/0.3.0/precision-1" },
-    numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] },
-    formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic saved-history fixture only"] },
-  });
+  // A saved run with a current (0.3.0) record: the demo's preview-physics-1 producer
+  // output, as saved history only (B1 retired the synthetic precision-1 header).
+  const result = structuredClone(demoPreviewFixture) as unknown as MechanicsResult;
+  result.model_ref = envelope.model.project.id;
   const inputManifest = await buildCurrentSessionInputManifest({
     model: envelope.model,
     solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
@@ -14361,7 +14358,7 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   it("rejects a delayed rule-check aggregate from a replaced same-ID session basis", async () => {
-    const { model, replay } = await installPrecisionReplay();
+    const { model, replay } = await installPreviewReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
     replacement.summary.project_id = model.project.id;
@@ -14438,10 +14435,10 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   // T0R: (a) the gate refuses the fresh Current result; (b) the save sequencer runs
-  // below the gate with the historical precision-1 session as assembly data.
+  // below the gate with a registered preview-physics-1 session as assembly data.
   it("does not start an obsolete report-package save or publish stale build state", async () => {
-    const precisionData = await registeredPrecisionReportData();
-    const { model, replay } = await installPrecisionReplay();
+    const previewData = await registeredPreviewReportData();
+    const { model, replay } = await installPreviewReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
     replacement.summary.project_id = model.project.id;
@@ -14463,7 +14460,7 @@ describe("workflow current and historical result boundaries", () => {
       const reportPackageModule = await import("./features/report/reportPackageRequest");
       gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
-        const pendingBuild = reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: precisionData.result, analysisRun: precisionData.analysisRun, inputManifest: precisionData.inputManifest });
+        const pendingBuild = reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: previewData.result, analysisRun: previewData.analysisRun, inputManifest: previewData.inputManifest });
         outerReportBuild = pendingBuild;
         return pendingBuild;
       });
@@ -14526,8 +14523,8 @@ describe("workflow current and historical result boundaries", () => {
   it.each(["success", "error"] as const)(
     "keeps a newer report-package save busy and rejects stale %s completion state",
     async (staleOutcome) => {
-      const precisionData = await registeredPrecisionReportData();
-      const { model, replay } = await installPrecisionReplay();
+      const previewData = await registeredPreviewReportData();
+      const { model, replay } = await installPreviewReplay();
       const replacement = inventedOpenEnvelope(model);
       replacement.model = structuredClone(model);
       replacement.summary.project_id = model.project.id;
@@ -14551,7 +14548,7 @@ describe("workflow current and historical result boundaries", () => {
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       await expectReportPackageGateRefusal();
       expect(saveCalls).toBe(0);
-      const lifted = await liftReportGateForSequencerTest(precisionData);
+      const lifted = await liftReportGateForSequencerTest(previewData);
       try {
       let report = openWorkspaceSection("report");
       await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
@@ -14841,7 +14838,7 @@ describe("primitive case selection display", () => {
 
 describe("historical lifecycle history transitions", () => {
   it("cannot publish delayed inactive export or report completions after a project reopen", async () => {
-    const { model, replay } = await installPrecisionReplay();
+    const { model, replay } = await installPreviewReplay();
     const replacement = inventedOpenEnvelope(model);
     const exportHashGate = deferred<void>();
     const reportRender = deferred<unknown>();
@@ -15107,7 +15104,7 @@ describe("historical lifecycle history transitions", () => {
   });
 
   it("lets a fresh same-model solve win against a delayed Historical refresh", async () => {
-    const { model, source: historical, replay } = await installPrecisionReplay();
+    const { model, source: historical, replay } = await installPreviewReplay();
     const opened = inventedOpenEnvelope(model);
     opened.model = structuredClone(model);
     opened.summary.project_id = model.project.id;
@@ -15270,7 +15267,7 @@ describe("historical lifecycle history transitions", () => {
   });
 
   it("keeps a same-model Current solve Current after native save", async () => {
-    const { replay } = await installPrecisionReplay();
+    const { replay } = await installPreviewReplay();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     openWorkspaceSection("solve");

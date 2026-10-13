@@ -252,7 +252,7 @@ fn corpus() -> &'static [Input] {
 fn build_corpus() -> Vec<Input> {
     let mut inputs = Vec::new();
     // Result fixtures, each with its model.
-    let results: [(&str, Option<&str>); 18] = [
+    let results: [(&str, Option<&str>); 16] = [
         ("preview_physics_connected_sparse", Some("fixtures/model_operations/precision_connected_ui_model.json")),
         ("preview_physics_connected_dense", Some("fixtures/model_operations/precision_connected_ui_model.json")),
         ("preview_physics_invented_sparse", Some("core/product_physics/tests/fixtures/preview_physics_invented_model.json")),
@@ -264,8 +264,6 @@ fn build_corpus() -> Vec<Input> {
         ("physics_connected_ui_mechanics_dense", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
         ("physics_thermal_ui_mechanics_sparse", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
         ("physics_thermal_ui_mechanics_dense", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
-        ("precision_connected_ui_mechanics_sparse", Some("fixtures/model_operations/precision_connected_ui_model.json")),
-        ("precision_connected_ui_mechanics_dense", Some("fixtures/model_operations/precision_connected_ui_model.json")),
         ("../product_preview/invented_mechanics_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),

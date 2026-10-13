@@ -2,7 +2,6 @@ import { validateRetainedPrecision } from "../features/results/retainedPrecision
 import { isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
 import { validateLoadReferenceSourceEvidence } from "../features/results/resultStanding";
-import precisionTable from "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json";
 import physicsTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json";
 import physicsSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json";
 import sourceBlocksTable from "../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json";
@@ -33,7 +32,7 @@ const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_l
  * interpretation below is the record contract's own, not the reader's signature. */
 type RecordTable = { rows: Array<{ signature_id: string; kind: string; unit: string; component: string | null; source_basis?: string; category: string; family: string | null; source_physical_semantic_dimension: string | null; derivative_target_dimension: string | null; legacy_declared_dimension: string | null; canonical_disposition: string }> };
 const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
-  [precisionTable.semantic_contract_id]: precisionTable, [physicsTable.semantic_contract_id]: physicsTable,
+  [physicsTable.semantic_contract_id]: physicsTable,
   [physicsSourceTable.semantic_contract_id]: physicsSourceTable, [PRESSURE_SOURCE_CONTRACT_ID]: physicsSourceTable,
   [sourceBlocksTable.semantic_contract_id]: sourceBlocksTable,
   [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable, [loadReferenceTable.semantic_contract_id]: loadReferenceTable,
@@ -120,7 +119,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
+type V03Route = "physics" | "source_blocks" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
 /** T1: the load/reference-state readers run before a record is built or
  * validated, as Python `_source_contract` runs them (raw evidence). */
 async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {

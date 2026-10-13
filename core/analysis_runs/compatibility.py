@@ -192,49 +192,46 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
     return "match" if claim.get("value") == hash_fn(analysis_record_projection(envelope)) else "mismatch"
 
 
-PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
-PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
-_PRECISION_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_precision_1.json")
 PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-PHYSICS_CONTRACT_SHA256 = "48c1899917e59a58d288ee06326f94278449fca403543c23b817a25bd65cb510"
+PHYSICS_CONTRACT_SHA256 = "8dd5727cc9d61b18dd15c914743b3bd13342806518b8ed3b344907422990ca98"
 _PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_1.json")
 SOURCE_BLOCKS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 SOURCE_BLOCKS_CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
 _SOURCE_BLOCKS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_source_blocks_1.json")
 PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PHYSICS_SOURCE_CONTRACT_SHA256 = "662066c87225a919384dda44d37538e6ce69b50ecdce3837ca128e26e3be664c"
+PHYSICS_SOURCE_CONTRACT_SHA256 = "33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"
 _PHYSICS_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_source_1.json")
 # The v3 join binds its reviewed table; rows are interpreted lazily per record,
 # as every DEL-14-02 table is. No additional resident row table is held here.
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_CONTRACT_SHA256 = "6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160"
 _PRESSURE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_source_1.json")
 # Resolved load/reference-state method: one table, one profile; the AnalysisRun
 # record mirrors physics-1 and carries no contract_evidence.
 LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LOAD_REFERENCE_CONTRACT_SHA256 = "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf"
+LOAD_REFERENCE_CONTRACT_SHA256 = "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef"
 _LOAD_REFERENCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_1.json")
 LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1"
 # Joined load/reference-state method (retained-source receipt required): one
 # table, one profile, one receipt policy. The AnalysisRun record mirrors
 # physics-source-1 and carries source_block_recovery and contract_evidence.
 LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"
+LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "30b5d0e59c0629ea133c1af0873991f96fa710868d9c05510efce9e9afdbedde"
 _LOAD_REFERENCE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_source_1.json")
 LOAD_REFERENCE_SOURCE_PROFILE = "resolved_straight_load_state_source_v1"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "9aaab7bf3f4cc3623c7ba94a045df040f01b14d818dc5230eca00c17c844d028"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "a07ffb43886b6e68d95ab0a2f81bcbea02cd2eb6fac0001d96f4d9d50cfed02c"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_1.json")
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_retained_1.json")
 # B3b (B3-D §2, §6.1): the exact successor over physics-1. As the preview successor, its statements are checked
 # only by the accepted reader, which dispatches on this identity, and its standing comes only from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3"
 _PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_retained_1.json")
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -252,10 +249,9 @@ FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTR
                                 # U6b (D-U6-6): membership is not standing.
                                 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
 # Every current-record identity, which the 0.3 AnalysisRun builder and validator admit.
-CURRENT_RECORD_CONTRACT_IDS = frozenset({PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
+CURRENT_RECORD_CONTRACT_IDS = frozenset({PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
-PRECISION_1_HISTORICAL_SEMANTICS = "PRECISION_1_HISTORICAL_SEMANTICS"
 SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS"
 RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
 
@@ -264,8 +260,7 @@ RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIAB
 # The members a carrier keeps of a statement: what a transport reading reads.
 _TRANSPORTED = ("schema_version", "producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery", "carrier_evidence")
 # Each table a route binds, by identity: the reader's binding `{id, sha256}` must name one of these.
-_TABLES = {PRECISION_CONTRACT_ID: (PRECISION_CONTRACT_SHA256, _PRECISION_CONTRACT_PATH),
-           PHYSICS_CONTRACT_ID: (PHYSICS_CONTRACT_SHA256, _PHYSICS_CONTRACT_PATH),
+_TABLES = {PHYSICS_CONTRACT_ID: (PHYSICS_CONTRACT_SHA256, _PHYSICS_CONTRACT_PATH),
            SOURCE_BLOCKS_CONTRACT_ID: (SOURCE_BLOCKS_CONTRACT_SHA256, _SOURCE_BLOCKS_CONTRACT_PATH),
            PHYSICS_SOURCE_CONTRACT_ID: (PHYSICS_SOURCE_CONTRACT_SHA256, _PHYSICS_SOURCE_CONTRACT_PATH),
            PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESSURE_SOURCE_CONTRACT_PATH),

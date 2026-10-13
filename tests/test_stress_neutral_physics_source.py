@@ -25,7 +25,7 @@ from core.analysis_runs.compatibility import (
 from core.handoff.stress_neutral import package as sn
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from test_stress_neutral_export_package import source_payload
-from test_stress_neutral_precision import prepare as prepare_precision, rehash_packet
+from test_stress_neutral_transport import rehash_packet
 from schema_validation import validate_instance
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -206,25 +206,6 @@ def test_new_method_privacy_professional_and_member_guards_stay_closed():
         sn.reconstruct_materialized_members(members)
 
 
-def test_precision_package_and_all_nine_member_bytes_are_unchanged():
-    raw, analysis, args = prepare_precision()
-    packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **args)
-    assert packet["package_checksum"]["value"] == "3677f468fb9dde4683de9fd5d9483fcce135cd4050d2f3fa7fa24d369a97359e"
-    expected = {
-        "manifest.json": "244baa3ba952493f7a2dcd5eceef478cf9b1d38d08794520a8e33e66c0cec601",
-        "stress_neutral_results.csv": "e8d604f65489413da7f421f0f2d95432c4f7df16a7f8566c5902ececbaefb59d",
-        "result_rows.json": "eb752adaefb92719b5563322d00369f3657974e787f39da7f6dde3a3eb10b876",
-        "unit_system_disclosure.json": "3ad54b12cfc3081b51a2b394834826cbe4549e3c74d1dd8a6fa935d5a1a831e3",
-        "unit_preservation_witnesses.json": "1824cf8af549dea6d204e4a53fd2b4d30c676148d5253ad289dc5009c5547fc1",
-        "stable_id_map.json": "5feea93687527da9da108480548fd575c76132655a15793371374cdf419c17e6",
-        "loss_report.json": "c720c6fb2cfeb516cf6d28637c68b0b54147fc41cec5b1da412a3f60006c2d4e",
-        "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
-        "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-    }
-    assert {name: hashlib.sha256(data).hexdigest() for name, data in sn.materialized_members(packet).items()} == expected
-    assert not {"contract_evidence", "source_block_recovery", "source_annotations"} & set(packet)
-
-
 def test_physics_shape_definitions_match_published_result_schema():
     current = json.loads(SCHEMA.read_text())
     result = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
@@ -378,10 +359,11 @@ def test_utf8_csv_profile_is_explicit_for_each_new_method(method):
     for key in ["csv_encoding", "csv_row_order"]:
         mutated = deepcopy(minimal); del mutated["export_profile"][key]
         with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(mutated)
-    minimal["producer"]["semantic_contract_id"] = sn.PRECISION_CONTRACT_ID
+    # B1: the retired precision-1 identity has no CSV profile, with or without the UTF-8 members.
+    minimal["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/precision-1"
     with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(minimal)
     minimal["export_profile"] = {}
-    assert sn._csv_policy(minimal) == ("ascii", "normalized_ascii_lf_text")
+    with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(minimal)
 
 
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])

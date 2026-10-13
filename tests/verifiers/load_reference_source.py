@@ -42,7 +42,7 @@ from . import load_reference_evidence as lr
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
 PROFILE = "resolved_straight_load_state_source_v1"
-TABLE_SHA256 = "980d4fe96a5dbf62013ab089eee971234b4c4d2065359c8adf1f8297c3b15286"
+TABLE_SHA256 = "30b5d0e59c0629ea133c1af0873991f96fa710868d9c05510efce9e9afdbedde"
 TABLE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_3_load_reference_source_1.json"
 POLICY = "LOAD-REFERENCE-SOURCE-1"
 CASE_EVIDENCE_DOMAIN = "load_reference_source_case_evidence_v1"

@@ -1,6 +1,6 @@
 """b7-plan R2: the Python verifier and the product's Rust-routed reading over the shared base corpus.
 
-The corpus is `base_reader_outcomes.rs`'s (`tests/base_reader_corpus.py` builds the same 560 statements in
+The corpus is `base_reader_outcomes.rs`'s (`tests/base_reader_corpus.py` builds the same 558 statements in
 Python); `fixtures/results/base_reader_outcomes.json` pins the native outcome of each.
 
 - The verifier (`tests/verifiers/reader_verdict.py`) gives every committed outcome: the dispatch entry (route,
@@ -55,7 +55,7 @@ DECLARED_STANDING = (DECLARED_VALIDATE["preview-physics"] | DECLARED_VALIDATE["l
                      | {"lr/TABLE-id-physics-1-exact-profile", "lr/PHYSICS1-with-load-reference-states", "lr/PHYSICS1-with-empty-load-reference-states"})
 STANDING_CODES = {"LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED", rv.SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED, "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
                   rv.SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, rv.LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
-                  rv.RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, "PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+                  rv.RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
                   "NUMERICAL_EVIDENCE_ID_AMBIGUOUS", "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE", "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
                   "NUMERICAL_CASE_EVIDENCE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION", "MECHANICS_NOT_SOLVED",
                   "SOURCE_BLOCKS_CASE_UNQUALIFIED", "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY", "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
@@ -95,7 +95,7 @@ def _strict_json(text):
 
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
-    assert [item.id for item in built] == list(committed) and len(built) == 560
+    assert [item.id for item in built] == list(committed) and len(built) == 558
     for item in built:
         entry = committed[item.id]
         if item.source is None:

@@ -1,6 +1,7 @@
 """T6S-1 (CQ-7 B; I74 decision 7): the results dispatcher's 0.3.0 arm is a $ref
 to results.v0.3.schema.yaml, so at 0.3.0 the dispatcher admits exactly what the
-version file admits (F-U6c-2: the old inline copy knew only precision-1).
+version file admits (F-U6c-2: the old inline copy knew only precision-1, which B1
+retired; both now refuse it).
 
 Validation goes through the registry helper (tests/schema_validation.py
 validate_instance), which resolves the version file and its own external
@@ -24,7 +25,7 @@ RESULTS = ROOT / "fixtures/results"
 VERSION_FILE = "results.v0.3.schema.yaml"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-PRECISION_ID = "openpipestress.result_semantics/0.3.0/precision-1"
+RETIRED_PRECISION_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 # T6S-2's Rust goldens: derive_document's successor form of both pinned milestones.
 GOLDENS = ("retained_precision_successor_derivative_sparse_interactive.json",
@@ -85,12 +86,11 @@ def synthetic(name):
 
 def coverage_documents():
     """(label, identity, document): preview-physics-1, physics-1 and the
-    successor at 0.3.0 (plus precision-1, the one identity the old inline arm knew)."""
+    successor at 0.3.0."""
     goldens = [(f"golden {name}", SUCCESSOR_ID, json.loads((RESULTS / name).read_text(encoding="utf-8"))) for name in GOLDENS]
     return goldens + [
         ("synthetic preview-physics-1", PREVIEW_ID, synthetic("preview_physics_connected_sparse.json")),
         ("synthetic physics-1", PHYSICS_ID, synthetic("physics_connected_mechanics_sparse.json")),
-        ("synthetic precision-1", PRECISION_ID, synthetic("precision_connected_ui_mechanics_sparse.json")),
     ]
 
 
@@ -179,7 +179,7 @@ def test_dispatcher_and_version_file_agree_on_refusals():
 
 
 COVERAGE_LABELS = ["golden sparse_interactive", "golden dense_scrutiny", "synthetic preview-physics-1",
-                   "synthetic physics-1", "synthetic precision-1"]
+                   "synthetic physics-1"]
 
 
 @pytest.mark.parametrize("index", range(len(COVERAGE_LABELS)), ids=COVERAGE_LABELS)
@@ -242,3 +242,13 @@ def test_dispatcher_mutants_are_killed(mutate):
         coverage = [(label, document) for label, _, document in coverage_documents()]
         killed = equivalence_failures(mutant, coverage + committed_v03(), first=True)
     assert killed
+
+
+def test_dispatcher_and_version_file_refuse_precision_1():
+    """B1: a results 0.3 document under the retired precision-1 identity has no branch."""
+    source = json.loads((RESULTS / "preview_physics_connected_sparse.json").read_text(encoding="utf-8"))
+    source["producer"]["semantic_contract_id"] = RETIRED_PRECISION_ID
+    source.pop("contract_evidence")
+    document = _results_document({**source, "contract_evidence": None}, RETIRED_PRECISION_ID)
+    del document["result_envelope"]["contract_evidence"]
+    assert verdicts([("precision-1", document)]) == [("precision-1", False, False)]

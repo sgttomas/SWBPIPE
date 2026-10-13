@@ -17,7 +17,7 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
   `SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE`. Preview-physics-1's TypeScript reader ignores its model.
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
   TypeScript header's checks (each source route's receipt shape, the evidence object the load-reference
-  routes need, no evidence on precision-1, no identity outside the desktop's routes).
+  routes need, no identity outside the desktop's routes).
 
 Outcomes have the Rust entries' shape: `{"ok": true, ...}` or `{"ok": false, "error": {"code", "detail"}}`.
 The readers themselves are this package's verifiers. Tests only; no product import, no process.
@@ -34,7 +34,7 @@ from . import load_reference_evidence as lr
 from . import load_reference_source as lrs
 from . import physics_evidence, physics_source, preview_physics_evidence, source_blocks
 
-ROUTES = ("legacy", "precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
+ROUTES = ("legacy", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
           "load_reference_source", "retained_preview_physics", "retained_physics")
 UNSUPPORTED = "unsupported"
 SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
@@ -45,17 +45,17 @@ PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
                  "source_blocks": "source-blocks", "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
-_IDENTITY_ROUTES = {c.PRECISION_CONTRACT_ID: "precision", c.PHYSICS_CONTRACT_ID: "physics", c.SOURCE_BLOCKS_CONTRACT_ID: "source_blocks",
+_IDENTITY_ROUTES = {c.PHYSICS_CONTRACT_ID: "physics", c.SOURCE_BLOCKS_CONTRACT_ID: "source_blocks",
                     c.PHYSICS_SOURCE_CONTRACT_ID: "physics_source", c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
                     c.LOAD_REFERENCE_CONTRACT_ID: "load_reference", c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: "load_reference_source",
                     c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: "retained_preview_physics", c.PHYSICS_RETAINED_CONTRACT_ID: "retained_physics"}
 _BINDINGS = {route: identity for identity, route in _IDENTITY_ROUTES.items()}
-_SHA256 = {c.PRECISION_CONTRACT_ID: c.PRECISION_CONTRACT_SHA256, c.PHYSICS_CONTRACT_ID: c.PHYSICS_CONTRACT_SHA256,
+_SHA256 = {c.PHYSICS_CONTRACT_ID: c.PHYSICS_CONTRACT_SHA256,
            c.SOURCE_BLOCKS_CONTRACT_ID: c.SOURCE_BLOCKS_CONTRACT_SHA256, c.PHYSICS_SOURCE_CONTRACT_ID: c.PHYSICS_SOURCE_CONTRACT_SHA256, c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256,
            c.PREVIEW_PHYSICS_CONTRACT_ID: c.PREVIEW_PHYSICS_CONTRACT_SHA256, c.LOAD_REFERENCE_CONTRACT_ID: c.LOAD_REFERENCE_CONTRACT_SHA256,
            c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c.LOAD_REFERENCE_SOURCE_CONTRACT_SHA256,
            **{identity: pinned[0] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
-_TABLE_PATHS = {c.PRECISION_CONTRACT_ID: c._PRECISION_CONTRACT_PATH, c.PHYSICS_CONTRACT_ID: c._PHYSICS_CONTRACT_PATH,
+_TABLE_PATHS = {c.PHYSICS_CONTRACT_ID: c._PHYSICS_CONTRACT_PATH,
                 c.SOURCE_BLOCKS_CONTRACT_ID: c._SOURCE_BLOCKS_CONTRACT_PATH, c.PHYSICS_SOURCE_CONTRACT_ID: c._PHYSICS_SOURCE_CONTRACT_PATH, c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH,
                 c.PREVIEW_PHYSICS_CONTRACT_ID: c._PREVIEW_PHYSICS_CONTRACT_PATH, c.LOAD_REFERENCE_CONTRACT_ID: c._LOAD_REFERENCE_CONTRACT_PATH,
                 c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c._LOAD_REFERENCE_SOURCE_CONTRACT_PATH,
@@ -125,7 +125,11 @@ def _metadata_header(source: Any) -> str:
         raise Refused("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     known = {*(set(_IDENTITY_ROUTES) - set(c.RETAINED_CONTRACTS)), PRESSURE_CONTRACT_ID}
     if (not _keys(producer, {"component_name", "component_version", "semantic_contract_id"}) or producer["component_name"] != "open_pipe_stress_product_physics"
-            or producer["component_version"] != "0.2.0" or not isinstance(identity, str) or identity not in known):
+            or producer["component_version"] != "0.2.0"):
+        raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    if identity == c.RETIRED_PRECISION_CONTRACT_ID:
+        raise Refused(f"{c.SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
+    if not isinstance(identity, str) or identity not in known:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if identity in {c.LOAD_REFERENCE_CONTRACT_ID, c.LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "carrier_evidence" in source:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
@@ -188,8 +192,6 @@ def route(source: Any) -> str:
     evidence_object = isinstance(source.get("contract_evidence"), Mapping) if isinstance(source, Mapping) else False
     receipt = source.get("source_block_recovery") if isinstance(source, Mapping) else None
     try:
-        if name == "precision" and source.get("contract_evidence") is not None:
-            raise Refused(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         if name == "physics_source":
             physics_source.validate_receipt_shape(receipt)
         if name == "pressure_source":
@@ -430,8 +432,6 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
             outcome = validate(reader, source, model, None)
             if outcome["ok"] is not True:
                 findings.append(outcome["error"]["detail"] or outcome["error"]["code"])
-        if name == "precision":
-            findings.append(c.PRECISION_1_HISTORICAL_SEMANTICS)
         findings += _ordinary_findings(source, requested_ids)
     if ((source.get("status") or {}) if isinstance(source, Mapping) else {}).get("mechanics") != "MECHANICS_SOLVED":
         findings.append("MECHANICS_NOT_SOLVED")

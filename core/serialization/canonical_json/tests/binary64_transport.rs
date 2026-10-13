@@ -3,7 +3,7 @@ use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_
 use serde_json::{json, Value};
 #[test]
 fn checked_text_preserves_same_unit_nonzero_binary64_bits() {
-    let fixture:Value=serde_json::from_str(include_str!("../../../../fixtures/results/precision_transport_v0_3.json")).unwrap();
+    let fixture:Value=serde_json::from_str(include_str!("../../../../fixtures/canonical_hash/binary64_transport_vectors.json")).unwrap();
     for vector in fixture["vectors"].as_array().unwrap() {
             let bits=u64::from_str_radix(vector["bits_hex"].as_str().unwrap(),16).unwrap();
             let original:f64=vector["decimal"].as_str().unwrap().parse().unwrap();

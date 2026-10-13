@@ -41,7 +41,7 @@ CLASSIFICATION_SUMMARY = "classification-summary"
 RULE_BINDING = "rule-binding"
 ROW_SEMANTICS = "row-semantics"
 # The desktop's route names (`reader_verdict::ROUTES`); a refused header reads unsupported.
-ROUTES = frozenset({"legacy", "precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
+ROUTES = frozenset({"legacy", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
                     "load_reference_source", "retained_preview_physics", "retained_physics"})
 UNSUPPORTED = "unsupported"
 # Each base route's reader; its transport checks are `<reader>-transport`.

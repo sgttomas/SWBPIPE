@@ -1231,7 +1231,6 @@
   "reserved_inactive_successors": [
     "openpipestress.result_semantics/0.3.0/pressure-1"
   ],
-  "inherited_semantic_contract_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
   "formulation_profile_id": "exact_straight_pressure_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [

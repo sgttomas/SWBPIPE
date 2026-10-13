@@ -276,8 +276,6 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     ["physics_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"],
     ["physics_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"],
     ["physics_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"],
-    ["precision_connected_ui_mechanics_sparse", "fixtures/model_operations/precision_connected_ui_model.json"],
-    ["precision_connected_ui_mechanics_dense", "fixtures/model_operations/precision_connected_ui_model.json"],
     ["../product_preview/invented_mechanics_result_preview_physics_1_sparse", null],
     ["../product_preview/invented_mechanics_result_preview_physics_1_dense", null],
     ["../product_preview/invented_demo_result_preview_physics_1_sparse", null],

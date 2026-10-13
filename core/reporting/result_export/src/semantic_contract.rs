@@ -88,7 +88,7 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
     Some(Value::Object(projection))
 }
 
-/// Dispatch is source-bound; reserved successor IDs never select the precision table.
+/// Dispatch is source-bound; a reserved successor ID never selects a table.
 pub const PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 /// T4-U2a (H-1): `3.0.0/exact_pressure_v3` publishes under the reserved
@@ -97,13 +97,16 @@ pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1"
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
 /// Reviewed nonresident binding table; rows use physics_source_contract().
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "6584569b7ed2090b615581b5c3c9d19bd0190a49c51c48fa3612a6cafd4cc771";
-pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160";
+/// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
+/// refused by name (re-run the analysis); no table, route or notice remains.
+pub const RETIRED_PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
+pub const SOURCE_PRECISION_1_RETIRED: &str = "SOURCE_PRECISION_1_RETIRED";
 /// Resolved load/reference-state method; bound to exactly one formulation profile.
 pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
 pub const LOAD_REFERENCE_PROFILE: &str = "resolved_straight_load_state_v1";
 pub const LOAD_REFERENCE_TABLE_SHA256: &str =
-    "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf";
+    "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef";
 /// Joined load/reference-state method (retained-source receipt required);
 /// bound to exactly one formulation profile and one receipt policy.
 pub const LOAD_REFERENCE_SOURCE_ID: &str = crate::load_reference_source::CONTRACT_ID;
@@ -111,7 +114,7 @@ pub const LOAD_REFERENCE_SOURCE_PROFILE: &str = crate::load_reference_source::PR
 pub const LOAD_REFERENCE_SOURCE_TABLE_SHA256: &str = crate::load_reference_source::TABLE_SHA256;
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "9aaab7bf3f4cc3623c7ba94a045df040f01b14d818dc5230eca00c17c844d028";
+    "a07ffb43886b6e68d95ab0a2f81bcbea02cd2eb6fac0001d96f4d9d50cfed02c";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -119,7 +122,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "ab3c311038729e72a53c09e17efe0407d7cf38fa0e264415f516fe1e879be3e3";
+    "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// physics-1. Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -127,7 +130,7 @@ pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "d86903614a2f186e4d13334726be66b66b7995b75a48b740d51027856f2a282a";
+    "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -240,15 +243,6 @@ pub fn retained_row_classes(
             .map(|row| (row.result_id, row.class))
             .collect(),
     ))
-}
-pub fn precision_contract() -> &'static Value {
-    static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| {
-        serde_json::from_str(include_str!(
-            "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json"
-        ))
-        .expect("pinned precision semantic contract")
-    })
 }
 pub fn physics_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
@@ -385,21 +379,25 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 ],
             ) || p["component_name"] != "open_pipe_stress_product_physics"
                 || p["component_version"] != "0.2.0"
-                || !matches!(
-                    p["semantic_contract_id"].as_str(),
-                    Some(
-                        PRECISION_ID
-                            | PHYSICS_ID
-                            | PRESSURE_ID
-                            | PRESSURE_SOURCE_ID
-                            | PHYSICS_SOURCE_ID
-                            | LOAD_REFERENCE_ID
-                            | LOAD_REFERENCE_SOURCE_ID
-                            | PREVIEW_PHYSICS_ID
-                            | crate::source_blocks::CONTRACT_ID
-                    )
-                )
             {
+                return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
+            }
+            if p["semantic_contract_id"] == RETIRED_PRECISION_ID {
+                return Err(format!("{SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis"));
+            }
+            if !matches!(
+                p["semantic_contract_id"].as_str(),
+                Some(
+                    PHYSICS_ID
+                        | PRESSURE_ID
+                        | PRESSURE_SOURCE_ID
+                        | PHYSICS_SOURCE_ID
+                        | LOAD_REFERENCE_ID
+                        | LOAD_REFERENCE_SOURCE_ID
+                        | PREVIEW_PHYSICS_ID
+                        | crate::source_blocks::CONTRACT_ID
+                )
+            ) {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
             // The load-reference methods own no carrier namespace (same code
@@ -518,7 +516,6 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
-                Some(PRECISION_ID) => precision_contract(),
                 Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
@@ -617,14 +614,12 @@ pub const FRESH_IDENTITIES: &[&str] = &[
 pub fn is_fresh_identity(semantic_contract_id: &str) -> bool {
     FRESH_IDENTITIES.contains(&semantic_contract_id)
 }
-pub const PRECISION_1_HISTORICAL_SEMANTICS: &str = "PRECISION_1_HISTORICAL_SEMANTICS";
 pub const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS: &str =
     "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
 pub const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE: &str = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
 /// Why a readable source is not Current. Derived from the received bytes only.
 pub fn standing_reason(source: &Value) -> Option<&'static str> {
     match source["producer"]["semantic_contract_id"].as_str() {
-        Some(PRECISION_ID) => Some(PRECISION_1_HISTORICAL_SEMANTICS),
         Some(crate::source_blocks::CONTRACT_ID)
             if crate::source_blocks::has_ordinary_qualified_case(source) =>
         {
@@ -842,8 +837,8 @@ pub fn numerical_use_standing_with_context(
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };
-    // T0R (A2 item 10): validate first; then historical precision-1 and mixed
-    // ordinary source-blocks-1 are never Current.
+    // T0R (A2 item 10): validate first; then mixed ordinary source-blocks-1
+    // is never Current.
     if standing_reason(source).is_some() {
         return "needs_recompute";
     }

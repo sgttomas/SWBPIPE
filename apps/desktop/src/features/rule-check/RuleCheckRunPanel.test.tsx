@@ -23,8 +23,7 @@ import previewInvented from "../../../../../fixtures/results/preview_physics_inv
 import { N_RULE_RETIRED, N_SB } from "../results/knownSemanticLimitations";
 
 // A natively invoked, numerically eligible source as the rule service requires:
-// the captured preview-physics-1 producer pair (T0R: precision-1 is historical,
-// never rule-eligible)
+// the captured preview-physics-1 producer pair
 // is replayed through mocked IPC and registered only by the production private
 // IPC route. The mock is reset afterwards, so each test's own invoke mock sees
 // the panel's calls only.

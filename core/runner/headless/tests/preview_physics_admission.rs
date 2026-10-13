@@ -81,10 +81,6 @@ fn fresh_non_exact_solve_is_preview_physics_admitted_and_exportable() {
             raw["producer"]["semantic_contract_id"],
             semantic_contract::PREVIEW_PHYSICS_ID
         );
-        assert_ne!(
-            raw["producer"]["semantic_contract_id"],
-            semantic_contract::PRECISION_ID
-        );
         assert_eq!(
             semantic_contract::for_source(&raw).unwrap().0["semantic_contract_id"],
             semantic_contract::PREVIEW_PHYSICS_ID

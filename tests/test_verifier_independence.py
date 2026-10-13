@@ -10,7 +10,7 @@
   producer links (`core/serialization/canonical_json/adapter.py`, `core/units/adapter.py`).
 - Those two are checked against the crates' committed vectors, read from their files: the
   canonical JSON crate's `fixtures/canonical_hash/cases.json` and
-  `fixtures/results/precision_transport_v0_3.json`, and the units crate's catalog (bit for bit)
+  `fixtures/canonical_hash/binary64_transport_vectors.json`, and the units crate's catalog (bit for bit)
   and witness tables in `core/units/src/lib.rs`. The producer-solved successors' G8 replay checks the verifier's
   hashes and converted bits against the producer's own.
 """
@@ -140,9 +140,9 @@ def test_canonical_json_matches_the_crates_committed_vectors():
 
 
 def test_canonical_json_keeps_every_transport_vectors_bits():
-    """`fixtures/results/precision_transport_v0_3.json` (the crate's `precision_transport.rs`): each listed
+    """`fixtures/canonical_hash/binary64_transport_vectors.json` (the crate's `binary64_transport.rs`): each listed
     binary64 survives the checked text; 2^53 is outside the profile."""
-    vectors = json.loads((ROOT / "fixtures/results/precision_transport_v0_3.json").read_text(encoding="utf-8"))["vectors"]
+    vectors = json.loads((ROOT / "fixtures/canonical_hash/binary64_transport_vectors.json").read_text(encoding="utf-8"))["vectors"]
     for vector in vectors:
         value = float(vector["decimal"])
         assert struct.pack(">d", value).hex() == vector["bits_hex"]

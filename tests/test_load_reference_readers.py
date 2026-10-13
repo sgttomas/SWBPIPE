@@ -44,7 +44,7 @@ FROZEN = {
     "fixtures/product_preview/load_reference/pressure.request.json": "52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69",
     "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
     "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
-    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "2881eaadde2a296721df0626e20e4293d505decf26853de10868f62c4ec4f6bf",
+    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef",
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]
@@ -223,7 +223,7 @@ def test_transport_metadata_case(case):
 
 def test_nonfinite_cases_are_the_only_language_specific_representation():
     special = [case for case in CASES["cases"] if "dispatch_rust" in case or "dispatch_python" in case]
-    assert {case["id"] for case in special} == {"TABLE-id-precision-1", "NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure", "N2-integer-overflow-positive", "N2-integer-overflow-negative", "N2-integer-first-overflow"}
+    assert {case["id"] for case in special} == {"NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure", "N2-integer-overflow-positive", "N2-integer-overflow-negative", "N2-integer-first-overflow"}
     assert all(case.get("note") for case in special)
 
 

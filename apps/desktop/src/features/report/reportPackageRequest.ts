@@ -1,5 +1,5 @@
 import { sourceContract } from "../results/resultReader";
-import { isFreshSemanticResult, N_P1, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, REPORT_PACKAGE_PRECISION_1_HISTORICAL } from "../results/knownSemanticLimitations";
+import { isFreshSemanticResult, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import type {
@@ -20,15 +20,14 @@ import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
 export const SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE = "REPORT-PACKAGE-SOURCE-BLOCKS-UNAVAILABLE: This report package cannot preserve source-recovery evidence and signed support components. Use the supported result exports; report-package support for this method is unavailable.";
-/** T0R: the report package refuses every fresh identity until T6 (N-REPORT), and
- * precision-1 is historical only (N-P1). The method-specific reasons stay first. */
+/** T0R: the report package refuses every fresh identity until T6 (N-REPORT). The
+ * method-specific reasons stay first. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   if (!result) return null;
   const route = sourceContract(result);
   if (route === "source_blocks" || route === "physics_source") return `${SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE} ${N_REPORT}`;
   if (route === "physics") return `REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export. ${N_REPORT}`;
   if (route === "preview_physics" || isFreshSemanticResult(result)) return `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
-  if (route === "precision") return `${REPORT_PACKAGE_PRECISION_1_HISTORICAL}: ${N_P1}`;
   return null;
 }
 
@@ -103,7 +102,7 @@ function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunE
       recordedSolver.build_ref?.ref !== manifestSolver.solver_build_ref))) {
     throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: analysis record and verified manifest differ.");
   }
-  if (sourceContract(result) !== "precision" ||
+  if (sourceContract(result) !== "preview_physics" ||
     result.producer!.component_name !== manifestSolver.solver_name ||
     result.producer!.component_version !== manifestSolver.solver_version) {
     throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: recorded identity differs from the received producer.");
@@ -215,7 +214,7 @@ type ReportPackageRequestInput = {
   ruleCheckAggregate: string | null;
 };
 
-/** Public entry: the T0R availability gate (N-REPORT / N-P1), then assembly. */
+/** Public entry: the T0R availability gate (N-REPORT), then assembly. */
 export async function buildReportPackageRequest(input: ReportPackageRequestInput) {
   const unavailable = reportPackageUnavailableReason(input.result);
   if (unavailable) throw new Error(unavailable);
@@ -242,7 +241,9 @@ export async function assembleReportPackageRequestBelowAvailabilityGate({
   if (sourceContract(result) === "physics") {
     throw new Error("REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this legacy report transport does not preserve the exact physical metadata/evidence; use canonical result export.");
   }
-  if (analysisRun.schema_version === "0.3.0" && sourceContract(result) !== "precision") {
+  // Below the gate the strict 0.3.0 assembly reads the ordinary route as data; the
+  // public gate refuses it until T6 (N-REPORT). B1 retired precision-1, its former data.
+  if (analysisRun.schema_version === "0.3.0" && sourceContract(result) !== "preview_physics") {
     throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
   }
   await verifyCurrentSessionInputManifest(inputManifest);

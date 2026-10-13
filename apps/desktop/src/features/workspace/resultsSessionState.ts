@@ -54,7 +54,7 @@ export function useResultsSessionState() {
   try { numericallyEligible = !!result && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible; }
   catch { /* Malformed retained carriers remain inspectable, never Current. */ }
   // T0R: Current only for the static fresh-identity set with Current standing;
-  // precision-1 and other historical identities stay readable, never Current.
+  // other identities stay readable, never Current.
   const currentSolvedResult = result && currentContract && isFreshSemanticResult(result) && analysisRun?.schema_version === "0.3.0"
     && currentRecord?.run_id === result.run_id
     && inputManifest?.manifest.model_basis.model_ref === result.model_ref

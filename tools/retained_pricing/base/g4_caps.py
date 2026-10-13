@@ -242,7 +242,7 @@ def static_tree(path):
 STATIC_FILES = ["schemas/physics_source_recovery.schema.json", "schemas/retained_precision_mp_v2.schema.json",
                 "fixtures/results/retained_precision_prepared_ordinary_v1.json",
                 "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
-                "fixtures/results/semantic_contract_v0_2.json", "fixtures/results/semantic_contract_v0_3_precision_1.json",
+                "fixtures/results/semantic_contract_v0_2.json",
                 "fixtures/results/semantic_contract_v0_3_physics_1.json", "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
                 "fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
                 "fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
@@ -252,7 +252,7 @@ STATICS = X(); static_facts = {}
 for p_ in STATIC_FILES:
     t_, f_ = static_tree(os.path.join(SNAP, p_))
     STATICS = STATICS + t_; static_facts[p_] = f_
-rows["T17.0 the 13 result_export OnceLock statics (process-lifetime, first use counted here)"] = STATICS
+rows["T17.0 the 12 result_export OnceLock statics (process-lifetime, first use counted here)"] = STATICS
 INVOC = INVOC_VF.tree()
 ENVP = ENV_S                                                                          # project()/public: the successor without its receipt
 SETS = (X({"Node(&str,())": tree_nodes(PA) + 2 * tree_nodes(DENV) + tree_nodes(n + m + g)})   # rowids, diagnostic ids x2, model ids

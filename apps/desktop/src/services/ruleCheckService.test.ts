@@ -12,7 +12,8 @@ import {
 } from "./ruleCheckService";
 import multicase from "../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
-import { N_RULE_RETIRED, N_SB, N_P1 } from "../features/results/knownSemanticLimitations";
+import { N_RULE_RETIRED, N_SB } from "../features/results/knownSemanticLimitations";
+import { retiredPrecisionStatement } from "../test-support/retiredPrecision";
 import type { MechanicsResult } from "../types";
 import type { RulePackDocument } from "./rulePackService";
 
@@ -308,13 +309,11 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     const intensified = source.results.find((r) => r.kind === "component_equal_factor_intensified_bending_stress_v1")!;
     expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: intensified.id }])).toEqual([]);
   });
-  it("refuses a registered precision-1 solve before invoking the rule backend", async () => {
-    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" }), replay = createNativeMechanicsReplay({ profile: "precision" });
+  it("refuses a stored precision-1 statement before invoking the rule backend (B1)", async () => {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+    const source = retiredPrecisionStatement();
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(replay.invoke);
-    const source = await runPreviewMechanics(pair.model);
-    invokeMock.mockClear();
-    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow(`PRECISION_1_HISTORICAL_SEMANTICS: ${N_P1}`);
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
 });

@@ -133,8 +133,14 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
         "source_signature_count",
         "source_kind_count",
     ];
+    // physics-1 roots its lineage (B1 retired precision-1, its parent); only
+    // pressure-1 carries an inherited pin.
     let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
-    assert_eq!(p.keys().collect::<Vec<_>>(), q.keys().collect::<Vec<_>>());
+    assert!(!q.contains_key("inherited_semantic_contract_sha256"));
+    assert_eq!(
+        p.keys().filter(|k| *k != "inherited_semantic_contract_sha256").collect::<Vec<_>>(),
+        q.keys().collect::<Vec<_>>()
+    );
     for (key, value) in p {
         if !own.contains(&key.as_str()) {
             assert_eq!(value, &q[key], "{key}");

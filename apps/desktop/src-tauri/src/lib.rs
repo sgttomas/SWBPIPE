@@ -3076,8 +3076,8 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
         }
         refs.push(json!({"ref_type":"load_case", "ref_id":id}));
     }
-    // T0R: only a fresh identity is rule-eligible; precision-1 and mixed
-    // ordinary source-blocks-1 stay readable but need a new solve.
+    // T0R: only a fresh identity is rule-eligible; mixed ordinary
+    // source-blocks-1 stays readable but needs a new solve.
     // A2 item 10: validate first, so a tampered source is unsupported.
     let standing = open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation);
     let contract = envelope.pointer("/producer/semantic_contract_id").and_then(Value::as_str).unwrap_or_default();
@@ -5244,7 +5244,7 @@ mod tests {
 
     // Synthetic metadata is exclusively a consumer-policy fixture, never a claim
     // that the product solve below has passed the structural integrity gate.
-    // T0R: precision-1 is never rule-eligible, so the policy fixture carries the
+    // The policy fixture carries the
     // fresh preview-physics-1 identity with closed evidence and one table-signed row.
     fn preview_policy_envelope(model: &Value) -> Value {
         let cases = model["load_cases"].as_array().unwrap();
@@ -5271,11 +5271,11 @@ mod tests {
         model["load_cases"].as_array_mut().unwrap().push(json!({"id":"load:second"}));
         let envelope = preview_policy_envelope(&model);
         qualify_rule_mechanics(&model, &envelope).unwrap();
-        // The same complete evidence under the historical precision-1 identity is refused.
-        let mut historical = envelope.clone();
-        historical["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/precision-1");
-        historical.as_object_mut().unwrap().remove("contract_evidence");
-        assert!(qualify_rule_mechanics(&model, &historical).unwrap_err().contains("PRECISION_1_HISTORICAL_SEMANTICS"));
+        // The same complete evidence under the retired precision-1 identity is unreadable (B1).
+        let mut retired = envelope.clone();
+        retired["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/precision-1");
+        retired.as_object_mut().unwrap().remove("contract_evidence");
+        assert!(qualify_rule_mechanics(&model, &retired).unwrap_err().contains("RULE_NUMERICAL_SOURCE_UNSUPPORTED"));
         for status in ["not_assessed", "unresolved", "failed"] {
             let mut bad = envelope.clone(); bad["numerical_quality"]["status"] = json!(status);
             assert!(qualify_rule_mechanics(&model, &bad).unwrap_err().contains("NEEDS_RECOMPUTE"));
@@ -5338,7 +5338,7 @@ mod tests {
     #[test]
     fn precision_native_same_unit_edge_bits_store_download_and_rule_binding() {
         let model = precision_model();
-        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/results/precision_transport_v0_3.json")).unwrap();
+        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/canonical_hash/binary64_transport_vectors.json")).unwrap();
         for vector in vectors["vectors"].as_array().unwrap() {
             let bits = u64::from_str_radix(vector["bits_hex"].as_str().unwrap(), 16).unwrap();
             let value = f64::from_bits(bits);

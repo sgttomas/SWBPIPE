@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import vectors from "../../../../fixtures/results/precision_transport_v0_3.json";
+import vectors from "../../../../fixtures/canonical_hash/binary64_transport_vectors.json";
 import { convertDisplayQuantities } from "./displayQuantityService";
 
 // The real WASM engine is loaded by the maintained test setup. No converter mock.

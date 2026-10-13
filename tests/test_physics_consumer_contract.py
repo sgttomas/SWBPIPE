@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from core.analysis_runs.compatibility import (
-    PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256, PRECISION_CONTRACT_ID,
+    PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256,
     build_analysis_run, numerical_use_standing, validate_analysis_run_v0_3,
     verify_analysis_run_record,
 )
@@ -49,9 +49,10 @@ def test_actual_physics_source_analysis_round_trip(mode):
     assert len(source["contract_evidence"]["pressure"]) == 1
 
 
-def test_physics_table_identity_and_frozen_precision_table():
+def test_physics_table_identity():
     assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_bytes()).hexdigest() == PHYSICS_CONTRACT_SHA256
-    assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_precision_1.json").read_bytes()).hexdigest() == "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    # B1: precision-1's table is gone; physics-1 no longer names it.
+    assert not (PROJECT / "fixtures/results/semantic_contract_v0_3_precision_1.json").exists()
 
 
 @pytest.mark.parametrize("change", [
@@ -83,7 +84,7 @@ def test_physics_source_corruption_cannot_gain_semantic_or_numerical_admission(c
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
-@pytest.mark.parametrize("identity", [PRECISION_CONTRACT_ID, "openpipestress.result_semantics/0.3.0/source-blocks-1", "openpipestress.result_semantics/0.3.0/precision-2"])
+@pytest.mark.parametrize("identity", ["openpipestress.result_semantics/0.3.0/precision-1", "openpipestress.result_semantics/0.3.0/source-blocks-1", "openpipestress.result_semantics/0.3.0/precision-2"])
 def test_physics_never_falls_back_to_other_contract(identity):
     source = actual()
     source["producer"]["semantic_contract_id"] = identity
