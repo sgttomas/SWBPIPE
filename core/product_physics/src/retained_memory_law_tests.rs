@@ -1499,14 +1499,14 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The record priced at source 15d75d7e14 (pressure-only U4a stage 1 and
-/// dormant U5a; DEL-05-02 retained-pricing-rules.md section H):
+/// The actual joined-source record priced at 20ad730689, retaining pressure-only
+/// U4a stage 1 and dormant U5a's positive charges (pricing rules sections H/J):
 /// requested plus moving bytes without R, for the qualified build above. Each phase keeps its actual
 /// positive layout, source and TEXT charges; W3 (publication with the staged
 /// copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_229_391_176, 5_552_823_138, 10_228_170_794, 10_004_112_863, 6_161_951_412, 10_026_554_767, 5_926_936_362],
-    [5_288_522_520, 5_611_954_482, 10_287_302_138, 10_063_244_207, 6_221_082_756, 10_085_686_111, 5_986_067_706],
+    [5_229_637_644, 5_553_069_606, 10_228_413_532, 10_004_366_669, 6_162_183_193, 10_026_782_592, 5_927_125_782],
+    [5_288_768_988, 5_612_200_950, 10_287_544_876, 10_063_498_013, 6_221_314_537, 10_085_913_936, 5_986_257_126],
 ];
 
 #[test]
@@ -1625,7 +1625,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 24_556, "current D_env at C_eq = 3 (the join on T4 batch 4)");
+    assert_eq!(caps.complete[3], 24_556, "current D_env at C_eq = 3 (the join on batch 5)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
