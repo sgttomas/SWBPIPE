@@ -32,7 +32,7 @@ def test_current_exact_inventory():
     assert len(rules) == 20
     assert len({r["caller"] for r in rules}) == 19
     assert {r["exclude_targets"][0] for r in rules} == {
-        CPP + ":721:add", CPP + ":724:mul", CPP + ":740:divided"}
+        CPP + ":746:add", CPP + ":749:mul", CPP + ":765:divided"}
     assert all(not r["caller"].startswith(CPP + ":") for r in rules)
 
 

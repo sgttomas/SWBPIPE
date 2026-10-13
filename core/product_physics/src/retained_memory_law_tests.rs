@@ -631,10 +631,16 @@ fn the_registered_profile_is_the_only_permit_source() {
     refused.law.refusal = Some(AdmissionRefusal::Bound(BoundRefusal::Unpriced));
     refused.law.registered = Some(0);
     assert!(admission(refused).is_err());
-    // This build is the registered one, or Stale: never Missing now.
-    match COMPILED_IDENTITY {
-        Some(id) if id == REGISTERED_PROFILES[0].identity => assert_eq!(build_status(), Ok(0)),
-        _ => assert_eq!(build_status(), Err(ProfileStatus::Stale)),
+    // Toolchain identity alone does not bind changed reviewed inputs or reader layouts.
+    // This build is registered only when that complete binding holds, else Stale.
+    let profile = &REGISTERED_PROFILES[0];
+    let registered = COMPILED_IDENTITY == Some(profile.identity)
+        && bindings_hold(LAYOUT_WITNESSES, COMPILED_REVIEWED_INPUTS, profile.reviewed_inputs,
+            &READER_LAYOUTS, &profile.reader_layouts);
+    if registered {
+        assert_eq!(build_status(), Ok(0));
+    } else {
+        assert_eq!(build_status(), Err(ProfileStatus::Stale));
     }
 }
 
@@ -642,7 +648,10 @@ fn the_registered_profile_is_the_only_permit_source() {
 /// milestone Direct invocation in both modes; Headless and out-of-domain requests stay refused.
 #[test]
 fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let profile = &REGISTERED_PROFILES[0];
+    let registered = COMPILED_IDENTITY == Some(profile.identity)
+        && bindings_hold(LAYOUT_WITNESSES, COMPILED_REVIEWED_INPUTS, profile.reviewed_inputs,
+            &READER_LAYOUTS, &profile.reader_layouts);
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
         let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
