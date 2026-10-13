@@ -2219,11 +2219,6 @@ struct LoadCaseSolve {
     /// withheld. Preview-physics retires every summary row, so these apply
     /// only when it does not render (`withhold_certified_summaries`).
     withheld_summaries: Vec<Diagnostic>,
-    /// B3 (b7-plan): source-blocks-1's SIF×k review diagnostics, at their
-    /// positions in the invocation's diagnostics; published only when it does
-    /// not render (`preview_physics::restore_source_blocks_rows`). Goes with
-    /// B4/D1 (b).
-    source_blocks_diagnostics: Vec<(usize, Diagnostic)>,
 }
 
 #[derive(Debug, Clone)]
@@ -2877,7 +2872,6 @@ fn run_linear_static_preview_observed_inner(
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
     if preview.is_none() {
-        preview_physics::restore_source_blocks_rows(&mut load_case_solves, &mut diagnostics);
         withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);
     }
     let max_displacement = maximum_across_cases(&load_case_solves, false);
@@ -4402,7 +4396,6 @@ fn solve_load_case_observed(
             component_stress_modifier_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
         });
     }
 
@@ -4438,7 +4431,6 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
             });
         }
         None => build_thermal_element_loads(
@@ -4545,7 +4537,6 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
             });
         }
     }
@@ -4802,7 +4793,6 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
             });
                     }
                 },
@@ -4834,7 +4824,6 @@ fn solve_load_case_observed(
                 component_stress_modifier_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
             });
                 }
             }
@@ -4922,7 +4911,6 @@ fn solve_load_case_observed(
                     component_stress_modifier_count: 0,
                     preview: None,
                     withheld_summaries: Vec::new(),
-            source_blocks_diagnostics: Vec::new(),
                 });
             }
         }
@@ -5195,9 +5183,9 @@ fn solve_load_case_observed(
                 }
             }
             if !pressure_runtime::is_exact(model) {
-                // B3 (b7-plan): an ordinary case's row is the slot of the support's
-                // signed actions; only source-blocks-1 publishes the resultant
-                // (goes with B4/D1 (b)).
+                // B3 (b7-plan): an ordinary preview case's row is the slot of the
+                // support's signed actions; the resultant is published only off the
+                // preview record (B4/D1 (b) retired source-blocks-1, which read it).
                 let row = ResultItem {
                     id: format!("result:reaction:{}", stable_suffix(&support.id)),
                     kind: "reaction_resultant".to_string(),
@@ -5209,10 +5197,7 @@ fn solve_load_case_observed(
                     metadata: None,
                 };
                 match preview_record.as_mut() {
-                    Some(record) => {
-                        record.slots.push((results.len(), preview_physics::Slot::Support(support.id.clone())));
-                        record.source_blocks_rows.push((results.len(), row));
-                    }
+                    Some(record) => record.slots.push((results.len(), preview_physics::Slot::Support(support.id.clone()))),
                     None => results.push(row),
                 }
             }
@@ -5233,7 +5218,6 @@ fn solve_load_case_observed(
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
     let mut withheld_summaries = Vec::new();
-    let mut source_blocks_diagnostics = Vec::new();
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         // T4-U3 (S20): a replaced span has no member rows, maxima or
@@ -5866,9 +5850,8 @@ fn solve_load_case_observed(
                     result_ref: result_id.clone(),
                 });
             }
-            // B3 (b7-plan): an ordinary case's row is the slot of the member's
-            // maximum; only source-blocks-1 publishes the summary (goes with
-            // B4/D1 (b)).
+            // B3 (b7-plan): an ordinary preview case's row is the slot of the
+            // member's maximum; the exact route publishes the summary.
             let row = ResultItem {
                 id: result_id,
                 kind: "open_formula_stress_summary".to_string(),
@@ -5880,10 +5863,7 @@ fn solve_load_case_observed(
                 metadata: None,
             };
             match preview_record.as_mut() {
-                Some(record) => {
-                    record.slots.push((results.len(), preview_physics::Slot::Maximum(pipe.element_id.clone())));
-                    record.source_blocks_rows.push((results.len(), row));
-                }
+                Some(record) => record.slots.push((results.len(), preview_physics::Slot::Maximum(pipe.element_id.clone()))),
                 None => results.push(row),
             }
         }
@@ -5921,9 +5901,9 @@ fn solve_load_case_observed(
             );
         }
         if !pressure_runtime::is_exact(model) {
-            // B3 (b7-plan): the SIF×k review rows and their diagnostics are
-            // source-blocks-1's only; they are published when the invocation does
-            // not render (`restore_source_blocks_rows`) and go with B4/D1 (b).
+            // B3 (b7-plan): the SIF×k review rows and their diagnostics were
+            // source-blocks-1's only, and B4/D1 (b) retired it, so no route
+            // publishes them; the case keeps only their count.
             let (mut review_rows, mut review_diagnostics) = (Vec::new(), Vec::new());
             component_stress_modifier_count += append_component_stress_multiplier_results(
                 &mut review_rows,
@@ -5936,11 +5916,6 @@ fn solve_load_case_observed(
                 certified_member.as_ref(),
                 Some(section),
             );
-            match preview_record.as_mut() {
-                Some(record) => record.source_blocks_rows.extend(review_rows.into_iter().map(|row| (results.len(), row))),
-                None => results.extend(review_rows),
-            }
-            source_blocks_diagnostics.extend(review_diagnostics.into_iter().map(|d| (diagnostics.len(), d)));
         }
     }
 
@@ -6097,7 +6072,6 @@ fn solve_load_case_observed(
         component_stress_modifier_count,
         preview: preview_record,
         withheld_summaries,
-        source_blocks_diagnostics,
     })
 }
 
@@ -13573,7 +13547,6 @@ mod kd5_withheld_summary_tests {
             }),
             component_stress_modifier_count: 0,
             preview: None,
-            source_blocks_diagnostics: Vec::new(),
             withheld_summaries: if withheld {
                 vec![diag(
                     &format!("diagnostic:stress:{member}:summary-unavailable"),
@@ -13607,8 +13580,7 @@ mod kd5_withheld_summary_tests {
         // The invocation applies it exactly when preview-physics does not
         // render, and the per-member site defers the warning to it.
         let code = include_str!("lib.rs");
-        // (B3: the source-blocks-1 rows are restored first, in the same branch.)
-        assert!(code.contains("    if preview.is_none() {\n        preview_physics::restore_source_blocks_rows(&mut load_case_solves, &mut diagnostics);\n        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);\n    }"));
+        assert!(code.contains("    if preview.is_none() {\n        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);\n    }"));
         assert!(code.contains("                    withheld_summaries.push(diag(\n"));
     }
 }

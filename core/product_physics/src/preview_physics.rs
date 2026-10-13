@@ -131,41 +131,6 @@ pub(crate) struct CaseRecord {
     pub members: Vec<MemberRecord>,
     /// (position among the case's rows, slot), in the case loop's order.
     pub slots: Vec<(usize, Slot)>,
-    /// B3 (b7-plan): the source-blocks-1 ordinary-case rows, kept off the case's
-    /// rows at their positions. They are published only when the invocation
-    /// does not render (a source-selected case; `restore_source_blocks_rows`),
-    /// and go with B4/D1 (b).
-    pub source_blocks_rows: Vec<(usize, ResultItem)>,
-}
-
-/// B3 (b7-plan): when the invocation does not render because a case was
-/// source-selected, its ordinary cases publish the source-blocks-1 rows and
-/// diagnostics at the positions the case loop reached them. Goes with B4/D1 (b).
-pub(crate) fn restore_source_blocks_rows(solves: &mut [LoadCaseSolve], diagnostics: &mut Vec<Diagnostic>) {
-    let mut inserted = 0;
-    for solve in solves {
-        if let Some(record) = solve.preview.as_mut() {
-            for (offset, (at, row)) in std::mem::take(&mut record.source_blocks_rows).into_iter().enumerate() {
-                solve.results.insert(at + offset, row);
-            }
-        }
-        for (at, diagnostic) in std::mem::take(&mut solve.source_blocks_diagnostics) {
-            diagnostics.insert(at + inserted, diagnostic);
-            inserted += 1;
-        }
-    }
-}
-
-/// The case's rows with its source-blocks-1 ordinary-case rows in place (what a
-/// source-block receipt binds). Goes with B4/D1 (b).
-pub(crate) fn with_source_blocks_rows(results: &[ResultItem], record: Option<&CaseRecord>) -> Vec<ResultItem> {
-    let mut rows = results.to_vec();
-    if let Some(record) = record {
-        for (offset, (at, row)) in record.source_blocks_rows.iter().enumerate() {
-            rows.insert(at + offset, row.clone());
-        }
-    }
-    rows
 }
 
 /// Model facts that gate `mechanics` combinations.
