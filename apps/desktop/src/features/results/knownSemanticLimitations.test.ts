@@ -6,9 +6,9 @@ import physicsSparse from "../../../../../fixtures/results/physics_connected_ui_
 import multicase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import physicsSourceMixed from "../../../../../fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json";
 import {
-  COMBINATION_GATE_REASONS, FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT, N_RULE_RETIRED, N_SB, N_SB_MIXED,
+  COMBINATION_GATE_REASONS, FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT, N_SB, N_SB_MIXED,
   RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE, SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS,
-  isFreshSemanticResult, isRetiredResultId, knownSemanticNotices, resultRowLabel, ruleBindingRefusal, standingReason,
+  isFreshSemanticResult, knownSemanticNotices, resultRowLabel, ruleBindingRefusal, standingReason,
 } from "./knownSemanticLimitations";
 import { numericalResultStanding } from "./resultStanding";
 import { sourceContract } from "./resultReader";
@@ -31,7 +31,6 @@ describe("frozen T0R texts (S1 §10), verbatim", () => {
     expect(N_SB).toBe("Summary stress in this retained-source result is the sum of absolute axial and bending components, not the circular-section maximum. The admitted loads are nodal only, so it is conservative and at most √2 (about 1.414) times the maximum. Rule checks cannot bind to it.");
     expect(N_SB_MIXED).toBe("This retained-source result contains an ordinary load case whose rows keep the retired precision-1 semantics (norm-only reactions and an absolute-sum stress summary). It is not Current, rule- or export-eligible.");
     expect(N_REPORT).toBe("The report package is unavailable for fresh results.");
-    expect(N_RULE_RETIRED).toBe("This rule pack binds a result retired by preview-physics-1 (reaction_resultant, open_formula_stress_summary or component_user_stress_multiplier_review). Rebind it to support_reaction_component_v2, pipe_elastic_normal_stress_maximum_v2 or component_equal_factor_intensified_bending_stress_v1 rows; until then it reports RULE_INPUTS_INCOMPLETE.");
     expect(N_INTENSIFIED).toBe("equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined");
     expect(COMBINATION_GATE_REASONS).toEqual({
       NONLINEAR_COMBINATION_REQUIRES_SOLVE: "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
@@ -104,11 +103,6 @@ describe("rule binding refusal mirror", () => {
     expect(ruleBindingRefusal(preview, preview.results.find(r => r.kind === "pipe_elastic_normal_stress_maximum_v2")!)).toBeNull();
     const composite = clone(physicsSourceMixed);
     expect(composite.results.filter(r => ruleBindingRefusal(composite, r))).toEqual([]);
-  });
-  it("recognises retired id shapes, including case and combination qualification", () => {
-    for (const id of ["result:reaction:support-S-100", "result:stress:pipe-P-100", "result:loadcase:load-L-200:stress:pipe-P-100",
-      "result:combination:combination-C-OPER-ALT:reaction:support-S-100", "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier"]) expect(isRetiredResultId(id)).toBe(true);
-    for (const id of ["result:stress:pipe-P-100:end-j:torsional-shear", "result:elastic-maximum:10:load:L-100:10:pipe:P-120", "result:disp:node-N-140"]) expect(isRetiredResultId(id)).toBe(false);
   });
 });
 

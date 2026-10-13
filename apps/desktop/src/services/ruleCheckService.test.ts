@@ -12,7 +12,7 @@ import {
 } from "./ruleCheckService";
 import multicase from "../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
-import { N_RULE_RETIRED, N_SB } from "../features/results/knownSemanticLimitations";
+import { N_SB } from "../features/results/knownSemanticLimitations";
 import { retiredPrecisionStatement } from "../test-support/retiredPrecision";
 import type { MechanicsResult } from "../types";
 import type { RulePackDocument } from "./rulePackService";
@@ -301,10 +301,10 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     const headline = source.summary.max_open_formula_stress!.result_ref;
     expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack()), [{ input_id: "manual", result_id: headline }])[0].reason).toBe("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE");
   });
-  it("shows N-RULE-RETIRED for a preview-physics-1 binding to a retired id; the new rows bind", () => {
+  it("gives a preview-physics-1 binding to a retired id no special finding (B3: a missing result); the new rows bind", () => {
     const source = structuredClone(previewInvented) as unknown as MechanicsResult;
     const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack("result:reaction:support-S-100")), [{ input_id: "manual", result_id: "result:stress:pipe-P-120" }]);
-    expect(findings.map((f) => [f.input_id, f.reason, f.notice])).toEqual([["authored", "RULE_BINDS_RETIRED_RESULT", N_RULE_RETIRED], ["manual", "RULE_BINDS_RETIRED_RESULT", N_RULE_RETIRED]]);
+    expect(findings).toEqual([]);
     const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
     const intensified = source.results.find((r) => r.kind === "component_equal_factor_intensified_bending_stress_v1")!;
     expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: intensified.id }])).toEqual([]);

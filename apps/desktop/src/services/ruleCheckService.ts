@@ -1,7 +1,7 @@
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
-import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
+import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED, N_SB, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
@@ -324,8 +324,9 @@ export function ruleBindingPrecheck(
     ...plan.solverInputs.flatMap((input) => input.solver_result_ref ? [{ input_id: input.input_id, result_id: input.solver_result_ref.result_id }] : []),
     ...solverResultBindings.filter((b) => !plan.solverInputs.some((input) => input.input_id === b.input_id && input.solver_result_ref))
   ];
-  let route: ReturnType<typeof sourceContract>;
-  try { route = sourceContract(source); } catch { return []; }
+  // An unreadable source has no bindable rows (B3: a binding to a retired id is a
+  // missing result, refused as any other).
+  try { sourceContract(source); } catch { return []; }
   const findings: RuleBindingPrecheckFinding[] = [];
   for (const binding of bindings) {
     if (!binding.result_id) continue;
@@ -336,8 +337,6 @@ export function ruleBindingPrecheck(
       // Without a validated class (unregistered or refused) the row has no class label.
       const notice = reason === RULE_QUANTITY_BELOW_VERIFIED_FLOOR || reason === RULE_QUANTITY_NOT_COVERED ? retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED : N_SB;
       if (reason) findings.push({ ...binding, reason, notice });
-    } else if (route === "preview_physics" && isRetiredResultId(binding.result_id)) {
-      findings.push({ ...binding, reason: RULE_BINDS_RETIRED_RESULT, notice: N_RULE_RETIRED });
     }
   }
   return findings;

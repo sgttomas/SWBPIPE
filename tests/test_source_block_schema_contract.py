@@ -185,7 +185,7 @@ def test_schema_and_table_identities_preserve_older_contracts_and_reference_rece
         assert hashlib.sha256(table.read_bytes()).hexdigest() == expected
     for name, definition in (("results.v0.3.schema.yaml", "ResultEnvelope"), ("analysis_run.v0.3.schema.json", "AnalysisRun")):
         branches = schema(name)["$defs"][definition]["oneOf"]
-        assert branches[2]["properties"]["source_block_recovery"] == {"$ref": RECEIPT_REF}
+        assert branches[1]["properties"]["source_block_recovery"] == {"$ref": RECEIPT_REF}
         assert schema(name)["$defs"][definition]["properties"]["source_block_recovery"]["oneOf"][0] == {"$ref": RECEIPT_REF}
     assert schema(RECEIPT_REF)["$id"] == "openpipestress.source_block_receipt/1.0.0"
 
@@ -252,7 +252,7 @@ def test_actual_derivative_rejects_missing_mismatched_or_foreign_receipt_method(
 
 
 COMPOSITE_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-COMPOSITE_SHA256 = "33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"
+COMPOSITE_SHA256 = "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94"
 COMPOSITE_RECEIPT = "physics_source_recovery.schema.json"
 COMPOSITE_ROOT = PROJECT / "fixtures/product_preview/physics_source"
 COMPOSITE_PAIRS = tuple(f"{case}-{mode}" for case in ("n05", "n06", "mixed", "fields") for mode in MODES)
@@ -372,7 +372,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
     branches = results["$defs"]["ResultEnvelope"]["oneOf"]
-    assert len(branches) == 10
+    assert len(branches) == 9
     for branch in branches:
         # Keyed by the branch's pinned producer identity, not by position: T0R
         # appended preview-physics-1 and T1 appended load-reference-1 and

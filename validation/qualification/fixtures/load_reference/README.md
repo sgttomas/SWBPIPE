@@ -37,7 +37,7 @@ component-library or code-rule data.
   `CP2_WIRE_ADDENDUM_2.md`, `CP3_WIRE_ADDENDUM.md` and `CP4_WIRE_ADDENDUM.md`.
 - **Producer contract.** `openpipestress.result_semantics/0.3.0/load-reference-1`
   (table `fixtures/results/semantic_contract_v0_3_load_reference_1.json`,
-  sha256 `4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef`), with profile `resolved_straight_load_state_v1`.
+  sha256 `a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6`), with profile `resolved_straight_load_state_v1`.
 
 ## Files
 

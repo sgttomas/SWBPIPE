@@ -172,7 +172,9 @@ fn f1_positive_control_accepts_non_result_references() {
 }
 
 #[test]
-fn retired_kinds_and_codes_are_refused() {
+fn retired_and_unknown_kinds_have_no_row_signature() {
+    // B3 (b7-plan): the retired kinds are not in the table, so they are refused
+    // as any kind without a row signature.
     for kind in [
         "reaction_resultant",
         "open_formula_stress_summary",
@@ -183,18 +185,7 @@ fn retired_kinds_and_codes_are_refused() {
         extra["id"] = json!("result:retired");
         extra["kind"] = json!(kind);
         rows(&mut raw).push(extra);
-        refused(&raw, "RETIRED_KIND");
-    }
-    for code in [
-        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
-        "COMBINATION_STRESS_SUMMARY_SKIPPED",
-    ] {
-        let mut raw = invented();
-        let mut extra = raw["diagnostics"][0].clone();
-        extra["id"] = json!("diagnostic:retired");
-        extra["code"] = json!(code);
-        raw["diagnostics"].as_array_mut().unwrap().push(extra);
-        refused(&raw, "RETIRED_CODE");
+        refused(&raw, "ROW_SIGNATURE");
     }
     let mut unknown = invented();
     rows(&mut unknown)[0]["kind"] = json!("unknown_future_quantity");
@@ -624,9 +615,6 @@ fn blocked() -> Value {
 #[test]
 fn a1_blocked_envelope_keeps_items_2_and_3() {
     s::for_source(&blocked()).unwrap();
-    let mut retired = blocked();
-    retired["diagnostics"][0]["code"] = json!("COMPONENT_STRESS_MULTIPLIER_APPLIED");
-    refused(&retired, "RETIRED_CODE");
     let mut result_ref = blocked();
     result_ref["diagnostics"][0]["affected_refs"]
         .as_array_mut()

@@ -520,8 +520,9 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   ].join("; ");
 }
 
-// T0R: SIF×k review rows are historical precision-1 records, never presented as
-// stress; preview-physics-1 intensified measures carry their frozen label.
+// T0R: SIF×k review rows are retired records (B3; only source-blocks-1's ordinary
+// cases still carry them), never presented as stress; preview-physics-1
+// intensified measures carry their frozen label.
 export function formatComponentStressModifierSummary(
   records: Pick<ReturnType<typeof reportComponentStressModifierEvidence>[number], "component_ref">[],
   result: MechanicsResult | null
@@ -531,7 +532,7 @@ export function formatComponentStressModifierSummary(
   const parts: string[] = [];
   if (records.length > 0) {
     const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
-    parts.push(`${records.length} historical precision-1 SIF×k review row${records.length === 1 ? "" : "s"} (retired; not a stress); components=${components}`);
+    parts.push(`${records.length} retired SIF×k review row${records.length === 1 ? "" : "s"} (not a stress); components=${components}`);
   }
   if (intensified.length > 0) {
     const components = [...new Set(intensified.map((item) => item.entity_ref))].join(", ");

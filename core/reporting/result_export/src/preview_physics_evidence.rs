@@ -49,10 +49,6 @@ const METADATA_KEYS: &[&str] = &[
     "basis",
     "sign_convention",
 ];
-const RETIRED_CODES: &[&str] = &[
-    "COMPONENT_STRESS_MULTIPLIER_APPLIED",
-    "COMBINATION_STRESS_SUMMARY_SKIPPED",
-];
 const WITHHELD_REASONS: &[&str] = &[
     "SUPPORT_ACTION_ATTRIBUTION_WITHHELD",
     "CONSTANT_EFFORT_NOT_CONSUMED",
@@ -276,11 +272,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     for diagnostic in diagnostics {
         text(&diagnostic["id"])?;
     }
-    // 2. Kinds from the table only; no retired kind or code.
-    let retired: Vec<&Value> = array(&table["retired_source_kinds"])?.iter().collect();
+    // 2. Kinds from the table only.
     for row in rows_list {
         let kind = text(&row["kind"])?;
-        require(!retired.contains(&&row["kind"]), "RETIRED_KIND")?;
         number(&row["value"])?;
         text(&row["unit"])?;
         text(&row["entity_ref"])?; // A2 item 8
@@ -301,8 +295,6 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     }
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
-        let code = diagnostic["code"].as_str().unwrap_or("");
-        require(!RETIRED_CODES.contains(&code), "RETIRED_CODE")?;
         // A1 a: the key may be absent; A2 item 5: when present, an array of
         // non-empty strings (null is refused).
         let affected = match diagnostic.get("affected_refs") {
@@ -335,7 +327,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         require(integer(count) == Some(intensified as f64), "MODIFIER_COUNT")?;
     }
     // A1 e: a blocked envelope has empty evidence, no rows and null headlines;
-    // items 2-3 above already refused retired codes and any `result:` reference.
+    // item 3 above already refused any `result:` reference.
     if !solved {
         return require(
             preview_cases.is_empty()

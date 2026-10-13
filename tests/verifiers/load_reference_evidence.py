@@ -29,7 +29,7 @@ from typing import Any
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 PROFILE = "resolved_straight_load_state_v1"
-TABLE_SHA256 = "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef"
+TABLE_SHA256 = "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6"
 TABLE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_3_load_reference_1.json"
 TRANSPORT_SCHEMA_SHA256 = "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"

@@ -234,14 +234,6 @@ def _retired_kind(s):
     s["results"].append({"id": "result:reaction:support-S1", "kind": "reaction_resultant", "value": 1.0, "unit": "N", "entity_ref": "support:S1", "basis_ref": lc("load:A")})
 
 
-def _retired_code(s):
-    s["diagnostics"].append({"id": "diagnostic:retired", "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED", "severity": "info", "message": "x", "affected_refs": ["component:C1"]})
-
-
-def _retired_skip_code(s):
-    s["diagnostics"].append({"id": "diagnostic:retired-skip", "code": "COMBINATION_STRESS_SUMMARY_SKIPPED", "severity": "warning", "message": "x", "affected_refs": ["combination:C-OK"]})
-
-
 def _dangling(s):
     s["diagnostics"][0]["affected_refs"].append("result:stress:pipe-P1")
 
@@ -383,7 +375,7 @@ def _abs_sum_maximum(s):
 
 
 TAMPERS = [
-    _retired_kind, _retired_code, _retired_skip_code, _dangling, _dangling_summary, _headline_not_governing,
+    _retired_kind, _dangling, _dangling_summary, _headline_not_governing,
     _headline_first_case_only, _incomplete_with_headline, _outside_bounds, _off_midpoint, _support_magnitude,
     _dropped_moment, _combination_magnitude_linear, _combination_displacement_magnitude, _gated_combination_row,
     _missing_withheld_record, _withheld_record_in_one_case_only, _withheld_reason_changed, _zero_filled_withheld, _withheld_final_reaction, _intensified_in_combination,
@@ -558,11 +550,7 @@ def _blocked_result_ref(s):
     s["diagnostics"][0]["affected_refs"].append("result:stress:pipe-P1")
 
 
-def _blocked_retired_code(s):
-    s["diagnostics"].append({"id": "diagnostic:retired", "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED", "severity": "info", "message": "x", "affected_refs": ["component:C1"]})
-
-
-@pytest.mark.parametrize("change", [_blocked_rows, _blocked_headline, _blocked_evidence, _blocked_result_ref, _blocked_retired_code], ids=lambda f: f.__name__.strip("_"))
+@pytest.mark.parametrize("change", [_blocked_rows, _blocked_headline, _blocked_evidence, _blocked_result_ref], ids=lambda f: f.__name__.strip("_"))
 def test_a1_e_blocked_envelope_is_empty_and_clean(change):
     source = blocked()
     validate_preview_physics_evidence(source)

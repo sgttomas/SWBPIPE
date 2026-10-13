@@ -71,7 +71,7 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     // the records and the source's intensified rows (none without a source).
     const records = ["component:C-110", "component:C-110", "component:C-120"].map(component_ref => ({ component_ref }));
     const historical = formatComponentStressModifierSummary(records, null);
-    expect(historical).toContain(`${records.length} historical precision-1 SIF×k review rows (retired; not a stress)`);
+    expect(historical).toContain(`${records.length} retired SIF×k review rows (not a stress)`);
     expect(historical).not.toMatch(/MPa|units=/);
     expect(formatComponentStressModifierSummary([], clone(inventedSparse))).toContain(`8 intensified measure rows (${N_INTENSIFIED})`);
   });

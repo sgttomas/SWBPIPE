@@ -26,7 +26,6 @@ export const N_HEADLINE_WITHHELD = "Stress headline withheld: a stress maximum i
 export const N_SB = "Summary stress in this retained-source result is the sum of absolute axial and bending components, not the circular-section maximum. The admitted loads are nodal only, so it is conservative and at most √2 (about 1.414) times the maximum. Rule checks cannot bind to it.";
 export const N_SB_MIXED = "This retained-source result contains an ordinary load case whose rows keep the retired precision-1 semantics (norm-only reactions and an absolute-sum stress summary). It is not Current, rule- or export-eligible.";
 export const N_REPORT = "The report package is unavailable for fresh results.";
-export const N_RULE_RETIRED = "This rule pack binds a result retired by preview-physics-1 (reaction_resultant, open_formula_stress_summary or component_user_stress_multiplier_review). Rebind it to support_reaction_component_v2, pipe_elastic_normal_stress_maximum_v2 or component_equal_factor_intensified_bending_stress_v1 rows; until then it reports RULE_INPUTS_INCOMPLETE.";
 export const N_INTENSIFIED = "equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined";
 
 export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object.freeze({
@@ -37,7 +36,6 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
 
 export const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
 export const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
-export const RULE_BINDS_RETIRED_RESULT = "RULE_BINDS_RETIRED_RESULT";
 export const REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE";
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
@@ -131,19 +129,6 @@ export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsR
   if (row.kind === "open_formula_stress_summary") return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
   if (row.id === source.summary.max_open_formula_stress?.result_ref) return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
   return null;
-}
-
-// Base-id shapes of the three retired kinds, optionally qualified by load case or
-// combination (`result:loadcase:{stable(case)}:…`, `result:combination:{stable(c)}:…`).
-const RETIRED_ID_TAILS = [
-  /^reaction:[^:]+$/,               // reaction_resultant
-  /^stress:[^:]+$/,                 // open_formula_stress_summary
-  /^stress:.+:user-multiplier$/,    // component_user_stress_multiplier_review
-];
-/** True when an unresolved id has the shape of a row that preview-physics-1 retired. */
-export function isRetiredResultId(resultId: string): boolean {
-  const match = /^result:(?:(?:loadcase|combination):[^:]+:)?(.+)$/.exec(resultId);
-  return !!match && RETIRED_ID_TAILS.some(tail => tail.test(match[1]));
 }
 
 export type KnownSemanticNotice = { id: string; text: string };

@@ -167,7 +167,12 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
     assert_eq!(p["source_kind_count"], q["source_kind_count"].as_u64().unwrap() + 6);
-    for (i, r) in rows.iter().enumerate() {
-        assert_eq!(r["signature_id"], format!("supported-source-{i:03}"));
-    }
+    // Signature ids are stable and ascending; B3 removed the three retired rows
+    // (supported-source-008, -020, -021) without renumbering the others.
+    let numbers: Vec<u32> = rows
+        .iter()
+        .map(|r| r["signature_id"].as_str().unwrap().strip_prefix("supported-source-").unwrap().parse().unwrap())
+        .collect();
+    assert!(numbers.windows(2).all(|w| w[0] < w[1]));
+    assert_eq!(numbers.len() + 3, *numbers.last().unwrap() as usize + 1);
 }

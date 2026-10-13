@@ -1191,12 +1191,7 @@
   "reserved_inactive_successors": [
     "openpipestress.result_semantics/0.3.0/pressure-1"
   ],
-  "inherited_semantic_contract_sha256": "a07ffb43886b6e68d95ab0a2f81bcbea02cd2eb6fac0001d96f4d9d50cfed02c",
-  "retired_source_kinds": [
-    "reaction_resultant",
-    "open_formula_stress_summary",
-    "component_user_stress_multiplier_review"
-  ],
+  "inherited_semantic_contract_sha256": "e18be07932ae0f1d77138c3ddf06646c5762ee0eedb8f4ad74db24b7a0e039e0",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",

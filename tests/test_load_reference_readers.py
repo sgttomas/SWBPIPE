@@ -44,7 +44,7 @@ FROZEN = {
     "fixtures/product_preview/load_reference/pressure.request.json": "52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69",
     "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
     "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
-    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef",
+    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6",
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]

@@ -24,8 +24,6 @@ ROOT = Path(__file__).resolve().parents[2]
 TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
-RETIRED_KINDS = frozenset(TABLE["retired_source_kinds"])
-RETIRED_CODES = frozenset({"COMPONENT_STRESS_MULTIPLIER_APPLIED", "COMBINATION_STRESS_SUMMARY_SKIPPED"})
 
 MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2"
 INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1"
@@ -153,7 +151,6 @@ def signature(row: Mapping[str, Any]) -> Mapping[str, Any] | None:
     this table because arc variants precede their generic variants.
     """
     kind, unit = row.get("kind"), row.get("unit")
-    _require(kind not in RETIRED_KINDS, f"retired kind {kind}")
     candidates = [entry for entry in TABLE["rows"] if entry["kind"] == kind]
     _require(candidates, f"kind without signature {kind}")
     units = [entry for entry in candidates if entry["unit"] == unit]
@@ -262,7 +259,7 @@ def _validate(source: Mapping[str, Any]) -> None:
     rows = {row["id"]: row for row in results}
     _require(len(rows) == len(results), "duplicate result ID")
 
-    # 2. Every row kind has a signature; no retired kind or diagnostic code.
+    # 2. Every row kind has a signature.
     for row in results:
         _require(_number(row.get("value")) and _text(row.get("kind")) and _text(row.get("unit")) and _text(row.get("entity_ref")), "source row fields")
         _require(row.get("metadata") is None or isinstance(row.get("metadata"), Mapping), "source row metadata")
@@ -273,9 +270,6 @@ def _validate(source: Mapping[str, Any]) -> None:
         basis = row.get("basis_ref")
         if basis is not None:
             _shape(basis, {"ref_type", "ref_id"}, "row basis reference")
-    for item in diagnostics:
-        _require(item.get("code") not in RETIRED_CODES, f"retired diagnostic code {item.get('code')}")
-
     # 3. Completeness (F-1): result-namespace references only.
     for item in diagnostics:
         # A1 a / A2 5: the key may be absent; when present it is an array of non-empty strings.

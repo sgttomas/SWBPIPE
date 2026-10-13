@@ -97,7 +97,7 @@ pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1"
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
 /// Reviewed nonresident binding table; rows use physics_source_contract().
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "12902e3b9ab99927fae295da0d0dc19b8074080197ccfbd76c35b134080db160";
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "8a3e3ebb7df1d14bcc6ac4e31f23e865b1d0ded011832d29d97fa13a0f6f8681";
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
 /// refused by name (re-run the analysis); no table, route or notice remains.
 pub const RETIRED_PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
@@ -106,7 +106,7 @@ pub const SOURCE_PRECISION_1_RETIRED: &str = "SOURCE_PRECISION_1_RETIRED";
 pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
 pub const LOAD_REFERENCE_PROFILE: &str = "resolved_straight_load_state_v1";
 pub const LOAD_REFERENCE_TABLE_SHA256: &str =
-    "4f28443e602f637a44db7435f535ddcf8a87234f9e5ff5f069bfb6a15a5a73ef";
+    "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6";
 /// Joined load/reference-state method (retained-source receipt required);
 /// bound to exactly one formulation profile and one receipt policy.
 pub const LOAD_REFERENCE_SOURCE_ID: &str = crate::load_reference_source::CONTRACT_ID;
@@ -114,7 +114,7 @@ pub const LOAD_REFERENCE_SOURCE_PROFILE: &str = crate::load_reference_source::PR
 pub const LOAD_REFERENCE_SOURCE_TABLE_SHA256: &str = crate::load_reference_source::TABLE_SHA256;
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "a07ffb43886b6e68d95ab0a2f81bcbea02cd2eb6fac0001d96f4d9d50cfed02c";
+    "e18be07932ae0f1d77138c3ddf06646c5762ee0eedb8f4ad74db24b7a0e039e0";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -122,7 +122,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "93bc4bbb5dc75ea1c294c91c5b5866a1ea47599a75a4dd79beda275c62d375be";
+    "3c0216231a9b4fde531373ed6b9aec20de69098039d52960a9da3c1f87aac39f";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// physics-1. Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -130,7 +130,7 @@ pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "7c17915f392e5074ebf74dc87727e7f0bfbbe7de76ce432cc47422de2b9604c3";
+    "9865d9bfb9514bb6b207d6d5527b2987acba52b5710fdd618378910760ce03ac";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

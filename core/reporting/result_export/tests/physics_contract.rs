@@ -318,8 +318,8 @@ fn physics_table_declares_its_own_signature_counts() {
     // B1: the table no longer inherits precision-1 (deleted); its rows were
     // already inlined, so only the inherited digest went.
     assert!(s::physics_contract().get("inherited_semantic_contract_sha256").is_none());
-    assert_eq!(s::physics_contract()["source_signature_count"], 77);
-    assert_eq!(s::physics_contract()["source_kind_count"], 57);
+    assert_eq!(s::physics_contract()["source_signature_count"], 74);
+    assert_eq!(s::physics_contract()["source_kind_count"], 54);
 }
 
 #[test]

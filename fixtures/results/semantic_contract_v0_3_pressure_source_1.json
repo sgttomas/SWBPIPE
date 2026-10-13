@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 78,
-  "source_kind_count": 57,
+  "source_signature_count": 75,
+  "source_kind_count": 54,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -216,20 +216,6 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-008",
-      "kind": "reaction_resultant",
-      "unit": "N",
-      "component": null,
-      "source_physical_semantic_dimension": "force",
-      "derivative_target_dimension": "force",
-      "category": "physical_quantity",
-      "family": "reaction",
-      "canonical_disposition": "exported_quantity",
-      "legacy_declared_dimension": "force",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
       "signature_id": "supported-source-009",
       "kind": "element_local_axial_force",
       "unit": "N",
@@ -379,34 +365,6 @@
       "category": "physical_quantity",
       "family": "stress",
       "canonical_disposition": "exported_quantity",
-      "legacy_declared_dimension": "stress",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-020",
-      "kind": "open_formula_stress_summary",
-      "unit": "MPa",
-      "component": null,
-      "source_physical_semantic_dimension": "stress",
-      "derivative_target_dimension": "stress",
-      "category": "physical_quantity",
-      "family": "stress",
-      "canonical_disposition": "exported_quantity",
-      "legacy_declared_dimension": "stress",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-021",
-      "kind": "component_user_stress_multiplier_review",
-      "unit": "MPa",
-      "component": "user_entered_component_stress_multiplier",
-      "source_physical_semantic_dimension": "stress",
-      "derivative_target_dimension": "stress",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false
@@ -1259,7 +1217,7 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "33ba8fb7ce6cacb9b70fc68dedd922194f11d862284dbf72d234f97b78a9331d"
+      "sha256": "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94"
     }
   ],
   "source_block_policy": "PRESSURE-SOURCE-1",
