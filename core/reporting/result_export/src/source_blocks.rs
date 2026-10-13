@@ -17,17 +17,10 @@ use std::collections::{HashMap, HashSet};
 const NORM_ARITHMETIC_BOUND: f64 = 64.0 * f64::EPSILON;
 const NORM_INPUT_RELATIVE_LIMIT: f64 =
     (1.0e-9 - NORM_ARITHMETIC_BOUND) / (1.0 + NORM_ARITHMETIC_BOUND);
-// Additional conservative current-carrier reserve for stress and summary.
+// Additional conservative current-carrier reserve for the composites' straight stress.
 const STRESS_ARITHMETIC_BOUND: f64 = 128.0 * f64::EPSILON;
 const STRESS_INPUT_RELATIVE_LIMIT: f64 =
     (1.0e-9 - STRESS_ARITHMETIC_BOUND) / (1.0 + STRESS_ARITHMETIC_BOUND);
-const STRESS_LOCATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
-const STRESS_KINDS: [&str; 4] = [
-    "element_local_axial_normal_stress",
-    "element_local_bending_normal_stress_y",
-    "element_local_bending_normal_stress_z",
-    "element_local_torsional_shear_stress",
-];
 const EXACT: &str = "retained_source_blocks_exact_v1";
 const COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 macro_rules! require {
@@ -447,8 +440,12 @@ fn derived_in(
     row: &Value,
     inputs: &[&Value],
 ) -> Result<(), String> {
+    // B4/D1 (b): the composites' only shared non-composite recipe is the
+    // translation norm. The support-norm, straight-stress, stress-summary and
+    // section-property recipes were source-blocks-1's (its preview case rows,
+    // retired with B3), so they are refused as unknown recipes.
     let kind = text(&row["kind"])?;
-    let s = signature(row)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
+    signature(row)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
     let kinds: Vec<_> = inputs.iter().filter_map(|r| r["kind"].as_str()).collect();
     match text(recipe)? {
         "translation_norm_scaled_v1" => require!(
@@ -462,182 +459,28 @@ fn derived_in(
                     ],
             "TRANSLATION_NORM_INPUTS"
         ),
-        "support_force_norm_scaled_v1" => require!(
-            kind == "reaction_resultant"
-                && inputs.len() == 3
-                && inputs
-                    .iter()
-                    .all(|r| r["kind"] == "support_reaction_component_v2")
-                && inputs
-                    .iter()
-                    .filter_map(|r| r["metadata"]["component"].as_str())
-                    .collect::<Vec<_>>()
-                    == ["Fx", "Fy", "Fz"],
-            "SUPPORT_NORM_INPUTS"
-        ),
-        "straight_open_stress_v1" => require!(
-            inputs.len() == 1
-                && stress_action_kind(kind).is_some_and(|expected| inputs[0]["kind"] == expected),
-            "STRESS_RECIPE_INPUTS"
-        ),
-        "reviewed_stress_summary_v1" => require!(
-            kind == "open_formula_stress_summary" && !inputs.is_empty(),
-            "SUMMARY_RECIPE_INPUTS"
-        ),
-        "section_property_from_source_v1" => require!(
-            s["family"] == "section_property" || kind.starts_with("pipe_section_"),
-            "SECTION_RECIPE_KIND"
-        ),
         _ => return Err("SOURCE_BLOCKS_DERIVED_RECIPE".into()),
     }
     require!(
         inputs.iter().all(|r| r["entity_ref"] == row["entity_ref"]),
         "DERIVED_ENTITY"
     );
-    match recipe.as_str() {
-        Some("straight_open_stress_v1") => stress_observation(row, inputs[0])?,
-        Some("reviewed_stress_summary_v1") => stress_summary_observation(row, inputs)?,
-        _ => (),
+    // E15: the declared recipe is one correctly rounded norm3 of the published
+    // XYZ components. A nonzero result must be finite and normal; the claimed
+    // value is bound to it bit for bit.
+    let mut values = [0.0; 3];
+    for (index, input) in inputs.iter().enumerate() {
+        values[index] = number(&input["value"])?;
     }
-    if matches!(
-        recipe.as_str(),
-        Some("translation_norm_scaled_v1" | "support_force_norm_scaled_v1")
-    ) {
-        // E15: the declared recipe is one correctly rounded norm3 of the
-        // published XYZ/FxFyFz components. A nonzero result must be finite
-        // and normal; the claimed value is bound to it bit for bit.
-        let mut values = [0.0; 3];
-        for (index, input) in inputs.iter().enumerate() {
-            values[index] = number(&input["value"])?;
-        }
-        let expected = norm3(values[0], values[1], values[2]);
-        require!(
-            values.iter().all(|v| v.is_finite())
-                && (expected == 0.0 || expected.is_normal()),
-            "DERIVED_NORM_RANGE"
-        );
-        require!(
-            number(&row["value"])?.to_bits() == expected.to_bits(),
-            "DERIVED_NORM_VALUE"
-        );
-    }
-    Ok(())
-}
-
-fn stress_action_kind(kind: &str) -> Option<&'static str> {
-    match kind {
-        "element_local_axial_normal_stress" => Some("element_local_axial_force"),
-        "element_local_bending_normal_stress_y" => Some("element_local_bending_moment_y"),
-        "element_local_bending_normal_stress_z" => Some("element_local_bending_moment_z"),
-        "element_local_torsional_shear_stress" => Some("element_local_torsional_moment"),
-        _ => None,
-    }
-}
-fn normal_or_exact_zero(value: f64, logical_zero: bool) -> bool {
-    value.is_finite()
-        && if logical_zero {
-            value == 0.0
-        } else {
-            value.is_normal()
-        }
-}
-fn stress_observation(row: &Value, action: &Value) -> Result<(), String> {
-    // Area/Z/radius/J and actual Pa arithmetic remain in producer custody.
-    let location = text(&row["metadata"]["location"])?;
-    let expected_unit = if row["kind"] == "element_local_axial_normal_stress" {
-        "N"
-    } else {
-        "N*m"
-    };
+    let expected = norm3(values[0], values[1], values[2]);
     require!(
-        row["unit"] == "MPa"
-            && STRESS_LOCATIONS.contains(&location)
-            && action["metadata"]["location"] == location
-            && action["unit"] == expected_unit,
-        "STRESS_ACTION_BINDING"
+        values.iter().all(|v| v.is_finite())
+            && (expected == 0.0 || expected.is_normal()),
+        "DERIVED_NORM_RANGE"
     );
-    let source_action = number(&action["value"])?;
-    let value = number(&row["value"])?;
-    let logical_zero = source_action == 0.0;
     require!(
-        normal_or_exact_zero(value, logical_zero),
-        "STRESS_OUTPUT_RANGE"
-    );
-    let signed_action = if location == "end_i" {
-        -source_action
-    } else {
-        source_action
-    };
-    require!(
-        logical_zero || (value > 0.0) == (signed_action > 0.0),
-        "STRESS_ACTION_SIGN"
-    );
-    // This is an observable round trip, not the private source quotient.
-    require!(
-        normal_or_exact_zero(value * 1_000_000.0, logical_zero),
-        "STRESS_PA_OBSERVATION_RANGE"
-    );
-    Ok(())
-}
-fn stress_summary_observation(row: &Value, inputs: &[&Value]) -> Result<(), String> {
-    require!(
-        row["unit"] == "MPa" && inputs.len() == 20,
-        "SUMMARY_STRESS_COVERAGE"
-    );
-    let mut grouped = HashMap::new();
-    for input in inputs {
-        let location = text(&input["metadata"]["location"])?;
-        let kind = text(&input["kind"])?;
-        require!(
-            STRESS_LOCATIONS.contains(&location)
-                && STRESS_KINDS.contains(&kind)
-                && input["unit"] == "MPa"
-                && !grouped.contains_key(&(location, kind)),
-            "SUMMARY_STRESS_COVERAGE"
-        );
-        let value = number(&input["value"])?;
-        require!(
-            normal_or_exact_zero(value, value == 0.0),
-            "SUMMARY_INPUT_RANGE"
-        );
-        let pa = value * 1_000_000.0;
-        require!(
-            normal_or_exact_zero(pa, value == 0.0),
-            "SUMMARY_PA_OBSERVATION_RANGE"
-        );
-        grouped.insert((location, kind), pa);
-    }
-    let mut any_normal = false;
-    for location in STRESS_LOCATIONS {
-        let axial = grouped[&(location, STRESS_KINDS[0])];
-        let by = grouped[&(location, STRESS_KINDS[1])];
-        let bz = grouped[&(location, STRESS_KINDS[2])];
-        let logical_zero = axial == 0.0 && by == 0.0 && bz == 0.0;
-        any_normal |= !logical_zero;
-        // Preserve the declared order on these observable Pa values. They do
-        // not reproduce the unavailable preconversion Pa operands bitwise.
-        let base_normal = axial + 0.0;
-        let bending_total = by.abs() + bz.abs();
-        let plus = base_normal + bending_total;
-        let minus = base_normal - bending_total;
-        require!(
-            [base_normal, bending_total, plus, minus]
-                .iter()
-                .all(|v| v.is_finite()),
-            "SUMMARY_SUBTOTAL_RANGE"
-        );
-        let subtotal = plus.abs().max(minus.abs());
-        require!(
-            normal_or_exact_zero(subtotal, logical_zero)
-                && normal_or_exact_zero(subtotal / 1_000_000.0, logical_zero),
-            "SUMMARY_SUBTOTAL_RANGE"
-        );
-    }
-    // Torsion does not contribute to this normal-stress summary.
-    let value = number(&row["value"])?;
-    require!(
-        value >= 0.0 && normal_or_exact_zero(value, !any_normal),
-        "SUMMARY_OUTPUT_RANGE"
+        number(&row["value"])?.to_bits() == expected.to_bits(),
+        "DERIVED_NORM_VALUE"
     );
     Ok(())
 }
@@ -972,12 +815,7 @@ pub(crate) fn validate_source_contract_in(
             ),
             "ROW_IDS"
         );
-        if rows.iter().any(|row| {
-            matches!(
-                row["recipe_id"].as_str(),
-                Some("straight_open_stress_v1" | "reviewed_stress_summary_v1")
-            ) || row["recipe_id"] == "retained_source_straight_stress_v1"
-        }) {
+        if rows.iter().any(|row| row["recipe_id"] == "retained_source_straight_stress_v1") {
             let relative = ps
                 .iter()
                 .map(|p| number(&p["relative_error_bound"]))
@@ -1058,10 +896,7 @@ pub(crate) fn validate_source_contract_in(
                     } else {
                         derived_in(&treatment["recipe_id"], row, &input_rows)?;
                     }
-                    if matches!(
-                        treatment["recipe_id"].as_str(),
-                        Some("translation_norm_scaled_v1" | "support_force_norm_scaled_v1")
-                    ) {
+                    if treatment["recipe_id"] == "translation_norm_scaled_v1" {
                         let mut relative = 0.0_f64;
                         for input in inputs {
                             let input_row = treatments[text(input)?];
@@ -1540,27 +1375,17 @@ fn summary(
 mod norm_tests {
     use super::*;
 
-    fn check(values: [f64; 3], value: f64, support: bool) -> Result<(), String> {
+    fn check(values: [f64; 3], value: f64) -> Result<(), String> {
         let kinds = [
             "global_nodal_displacement_x",
             "global_nodal_displacement_y",
             "global_nodal_displacement_z",
         ];
         let inputs: Vec<Value> = values.into_iter().enumerate().map(|(index, value)| json!({
-            "kind": if support { "support_reaction_component_v2" } else { kinds[index] },
-            "metadata": { "component": COMPONENTS[index] }, "entity_ref": "synthetic-norm-owner", "value": value,
+            "kind": kinds[index], "entity_ref": "synthetic-norm-owner", "value": value,
         })).collect();
-        let row = json!({"kind":if support {"reaction_resultant"}else{"displacement_magnitude"},
-            "unit":if support {"N"}else{"mm"},"entity_ref":"synthetic-norm-owner","value":value});
-        derived_in(
-            &json!(if support {
-                "support_force_norm_scaled_v1"
-            } else {
-                "translation_norm_scaled_v1"
-            }),
-            &row,
-            &inputs.iter().collect::<Vec<_>>(),
-        )
+        let row = json!({"kind":"displacement_magnitude","unit":"mm","entity_ref":"synthetic-norm-owner","value":value});
+        derived_in(&json!("translation_norm_scaled_v1"), &row, &inputs.iter().collect::<Vec<_>>())
     }
 
     /// E15: the receipt recipe binds the exact correctly rounded value. Over the
@@ -1589,150 +1414,63 @@ mod norm_tests {
         let correct = f64::from_bits(0x4027_e5fc_308f_80ed);
         assert_eq!(norm3(differing[0], differing[1], differing[2]).to_bits(), correct.to_bits());
         assert_eq!(scaled(differing).to_bits(), correct.to_bits() - 1);
-        for support in [false, true] {
-            assert_eq!(check(components, 5.0, support), Ok(()));
-            assert_eq!(
-                check(components, one_ulp, support),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
-            );
-            assert_eq!(check(differing, correct, support), Ok(()));
-            assert_eq!(
-                check(differing, scaled(differing), support),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
-            );
-        }
+        assert_eq!(check(components, 5.0), Ok(()));
+        assert_eq!(check(components, one_ulp), Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into()));
+        assert_eq!(check(differing, correct), Ok(()));
+        assert_eq!(
+            check(differing, scaled(differing)),
+            Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
+        );
     }
 
     #[test]
     fn norm_recipe_accepts_small_normal_values_and_tiny_components() {
-        for support in [false, true] {
-            assert_eq!(check([3.0, 4.0, 0.0], 5.0, support), Ok(()));
-            let small = 2.0_f64.powi(-600);
-            assert_eq!(check([small, 0.0, 0.0], small, support), Ok(()));
-            assert_eq!(
-                check([f64::MIN_POSITIVE, 0.0, 0.0], f64::MIN_POSITIVE, support),
-                Ok(())
-            );
-            assert_eq!(check([1.0, f64::from_bits(1), 0.0], 1.0, support), Ok(()));
-        }
+        assert_eq!(check([3.0, 4.0, 0.0], 5.0), Ok(()));
+        let small = 2.0_f64.powi(-600);
+        assert_eq!(check([small, 0.0, 0.0], small), Ok(()));
+        assert_eq!(check([f64::MIN_POSITIVE, 0.0, 0.0], f64::MIN_POSITIVE), Ok(()));
+        assert_eq!(check([1.0, f64::from_bits(1), 0.0], 1.0), Ok(()));
     }
 
     #[test]
     fn norm_recipe_rejects_subnormal_output_overflow_and_one_ulp_value_changes() {
-        for support in [false, true] {
-            assert_eq!(
-                check([f64::from_bits(1), 0.0, 0.0], f64::from_bits(1), support),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_RANGE".into())
-            );
-            assert_eq!(
-                check([f64::MAX, f64::MAX, 0.0], 1.0, support),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_RANGE".into())
-            );
-            assert_eq!(
-                check(
-                    [1.0, 0.0, 0.0],
-                    f64::from_bits(1.0_f64.to_bits() + 1),
-                    support
-                ),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
-            );
-            assert_eq!(check([-0.0, 0.0, -0.0], 0.0, support), Ok(()));
-            assert_eq!(
-                check([-0.0, 0.0, -0.0], -0.0, support),
-                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
-            );
-            assert!(check([f64::NAN, 0.0, 0.0], 0.0, support).is_err());
-        }
+        assert_eq!(
+            check([f64::from_bits(1), 0.0, 0.0], f64::from_bits(1)),
+            Err("SOURCE_BLOCKS_DERIVED_NORM_RANGE".into())
+        );
+        assert_eq!(check([f64::MAX, f64::MAX, 0.0], 1.0), Err("SOURCE_BLOCKS_DERIVED_NORM_RANGE".into()));
+        assert_eq!(
+            check([1.0, 0.0, 0.0], f64::from_bits(1.0_f64.to_bits() + 1)),
+            Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
+        );
+        assert_eq!(check([-0.0, 0.0, -0.0], 0.0), Ok(()));
+        assert_eq!(check([-0.0, 0.0, -0.0], -0.0), Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into()));
+        assert!(check([f64::NAN, 0.0, 0.0], 0.0).is_err());
     }
 }
 
 #[cfg(test)]
-mod stress_range_tests {
+mod retired_recipe_tests {
     use super::*;
 
-    fn scalar(index: usize, action_value: f64, value: f64, location: &str) -> Result<(), String> {
-        let kind = STRESS_KINDS[index];
-        let component = [
-            "axial_normal_stress",
-            "bending_normal_stress_y",
-            "bending_normal_stress_z",
-            "torsional_shear_stress",
-        ][index];
-        let action = json!({"kind":stress_action_kind(kind).unwrap(),"unit":if index==0{"N"}else{"N*m"},"entity_ref":"stress-owner","metadata":{"location":location},"value":action_value});
-        let row = json!({"kind":kind,"unit":"MPa","entity_ref":"stress-owner","metadata":{"component":component,"location":location},"value":value});
-        derived_in(&json!("straight_open_stress_v1"), &row, &[&action])
-    }
-    fn summary(normal: f64, torsion: f64, value: f64) -> Result<(), String> {
-        let mut inputs = Vec::new();
-        for location in STRESS_LOCATIONS {
-            for (index, kind) in STRESS_KINDS.iter().enumerate() {
-                inputs.push(json!({"kind":kind,"unit":"MPa","entity_ref":"stress-owner","metadata":{"location":location},"value":if index==3{torsion}else{normal}}));
-            }
-        }
-        derived_in(
-            &json!("reviewed_stress_summary_v1"),
-            &json!({"kind":"open_formula_stress_summary","unit":"MPa","entity_ref":"stress-owner","value":value}),
-            &inputs.iter().collect::<Vec<_>>(),
-        )
-    }
+    /// B4/D1 (b): source-blocks-1's support-norm, straight-stress,
+    /// stress-summary and section-property recipes went with its preview case
+    /// rows; a composite receipt naming one is refused as an unknown recipe.
     #[test]
-    fn normal_stress_and_exact_logical_zero_remain_admitted() {
-        for index in 0..4 {
-            assert_eq!(scalar(index, 1.0, 1e-6, "midspan"), Ok(()));
-            assert_eq!(scalar(index, -1.0, -1e-6, "midspan"), Ok(()));
-            assert_eq!(scalar(index, -1.0, 1e-6, "end_i"), Ok(()));
-            assert_eq!(scalar(index, 0.0, 0.0, "midspan"), Ok(()));
-            assert_eq!(scalar(index, 0.0, -0.0, "midspan"), Ok(()));
+    fn source_blocks_1_recipes_are_unknown() {
+        let row = json!({"kind":"displacement_magnitude","unit":"mm","entity_ref":"owner","value":0.0});
+        for recipe in [
+            "support_force_norm_scaled_v1",
+            "straight_open_stress_v1",
+            "reviewed_stress_summary_v1",
+            "section_property_from_source_v1",
+        ] {
             assert_eq!(
-                scalar(index, 1.0, -1e-6, "midspan"),
-                Err("SOURCE_BLOCKS_STRESS_ACTION_SIGN".into())
+                derived_in(&json!(recipe), &row, &[]),
+                Err("SOURCE_BLOCKS_DERIVED_RECIPE".into()),
+                "{recipe}"
             );
         }
-    }
-    #[test]
-    fn nonzero_action_cannot_become_zero_or_subnormal_mpa() {
-        for index in 0..4 {
-            for value in [0.0, 1.675317e-318] {
-                assert_eq!(
-                    scalar(index, 1e-306, value, "midspan"),
-                    Err("SOURCE_BLOCKS_STRESS_OUTPUT_RANGE".into())
-                );
-            }
-            assert_eq!(
-                scalar(index, 0.0, 1e-6, "midspan"),
-                Err("SOURCE_BLOCKS_STRESS_OUTPUT_RANGE".into())
-            );
-            assert_eq!(
-                scalar(index, 1.0, f64::MAX, "midspan"),
-                Err("SOURCE_BLOCKS_STRESS_PA_OBSERVATION_RANGE".into())
-            );
-        }
-    }
-    #[test]
-    fn summary_excludes_torsion_but_requires_normal_nonzero_result() {
-        assert_eq!(summary(0.0, 1.0, 0.0), Ok(()));
-        assert_eq!(summary(0.0, 0.0, -0.0), Ok(()));
-        assert_eq!(summary(1.0, 0.0, 3.0), Ok(()));
-        assert_eq!(
-            summary(1.0, 0.0, 0.0),
-            Err("SOURCE_BLOCKS_SUMMARY_OUTPUT_RANGE".into())
-        );
-        assert_eq!(
-            summary(1.0, 0.0, 1.675317e-318),
-            Err("SOURCE_BLOCKS_SUMMARY_OUTPUT_RANGE".into())
-        );
-        assert_eq!(
-            summary(0.0, 1.0, 1.0),
-            Err("SOURCE_BLOCKS_SUMMARY_OUTPUT_RANGE".into())
-        );
-        assert_eq!(
-            summary(1.675317e-318, 0.0, 0.0),
-            Err("SOURCE_BLOCKS_SUMMARY_INPUT_RANGE".into())
-        );
-        assert_eq!(
-            summary(1e302, 0.0, 1.0),
-            Err("SOURCE_BLOCKS_SUMMARY_SUBTOTAL_RANGE".into())
-        );
     }
 }
 

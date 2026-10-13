@@ -99,7 +99,7 @@ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
         },
     )
     .unwrap();
-    let expected = rows::expected_primary_for(&f.input(), &selected, true).unwrap();
+    let expected = rows::expected_primary_for(&f.input(), &selected).unwrap();
     let bindings: Vec<_> = expected
         .iter()
         .map(|(i, r)| FunctionalRowBinding {
@@ -109,12 +109,12 @@ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
         .collect();
     let mut actual: Vec<_> = expected.values().cloned().collect();
     actual.extend(
-        rows::derived_for(&f.input(), &selected, &expected, true)
+        rows::derived_for(&f.input(), &selected, &expected)
             .unwrap()
             .into_iter()
             .map(|d| d.row),
     );
-    assert!(rows::bind_for(&f.input(), &selected, &actual, &bindings, true, vec![]).is_ok());
+    assert!(rows::bind_for(&f.input(), &selected, &actual, &bindings, vec![]).is_ok());
     for mutation in 0..4 {
         let mut bad_rows = actual.clone();
         match mutation {
@@ -125,11 +125,11 @@ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
                 bad_rows.remove(0);
             }
         }
-        assert!(rows::bind_for(&f.input(), &selected, &bad_rows, &bindings, true, vec![]).is_err());
+        assert!(rows::bind_for(&f.input(), &selected, &bad_rows, &bindings, vec![]).is_err());
     }
     let mut duplicate = bindings.clone();
     duplicate[1].functional_index = duplicate[0].functional_index;
-    assert!(rows::bind_for(&f.input(), &selected, &actual, &duplicate, true, vec![]).is_err());
+    assert!(rows::bind_for(&f.input(), &selected, &actual, &duplicate, vec![]).is_err());
 }
 #[test]
 fn actual_capture_replay_rejects_changed_material_or_load_source() {

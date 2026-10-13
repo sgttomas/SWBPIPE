@@ -57,7 +57,6 @@ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
 pub(super) fn expected_primary_for(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
-    composite: bool,
 ) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
     let mut expected = BTreeMap::new();
     for (node_index, node) in input.model.nodes.iter().enumerate() {
@@ -126,24 +125,24 @@ pub(super) fn expected_primary_for(
             expected.insert(support.functional_indices[c], qualify(input, row));
         }
     }
-    if composite {
-        for support in selected.support_actions() {
-            let authored = input
-                .model
-                .supports
-                .iter()
-                .find(|s| s.id == support.support_id)
-                .ok_or_else(|| bad("composite support owner"))?;
-            let mut generated = Vec::new();
-            append_signed_support_results(
-                &mut generated,
-                input.load_case,
-                authored,
-                support.values,
-            );
-            for (component, row) in generated.into_iter().take(6).enumerate() {
-                expected.insert(support.functional_indices[component], qualify(input, row));
-            }
+    // B4/D1 (b): every source-block receipt is a composite's, whose supports
+    // publish the signed support rows.
+    for support in selected.support_actions() {
+        let authored = input
+            .model
+            .supports
+            .iter()
+            .find(|s| s.id == support.support_id)
+            .ok_or_else(|| bad("composite support owner"))?;
+        let mut generated = Vec::new();
+        append_signed_support_results(
+            &mut generated,
+            input.load_case,
+            authored,
+            support.values,
+        );
+        for (component, row) in generated.into_iter().take(6).enumerate() {
+            expected.insert(support.functional_indices[component], qualify(input, row));
         }
     }
     Ok(expected)
@@ -326,7 +325,6 @@ pub(super) fn derived_for(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
     primary: &BTreeMap<usize, ResultItem>,
-    composite: bool,
 ) -> Result<Vec<Derived>, ReceiptError> {
     // Euclidean norm is 1-Lipschitz relative to a componentwise relative
     // perturbation. Reserve an additional conservative 64 machine epsilons
@@ -374,33 +372,15 @@ pub(super) fn derived_for(
             inputs: ids,
         });
     }
-    for s in selected.support_actions().iter().filter(|_| !composite) {
-        let ids = (0..3)
-            .map(|c| primary[&s.functional_indices[c]].id.clone())
-            .collect();
-        out.push(Derived {
-            row: qualify(
-                input,
-                bare(
-                    format!("result:reaction:{}", stable_suffix(&s.support_id)),
-                    "reaction_resultant",
-                    finite_norm([s.values[0], s.values[1], s.values[2]])?,
-                    "N",
-                    &s.support_id,
-                ),
-            ),
-            recipe: "support_force_norm_scaled_v1",
-            inputs: ids,
-        });
-    }
+    // B4/D1 (b): source-blocks-1's support resultant, straight-stress and
+    // stress-summary recipes went with its preview case rows; a composite's
+    // supports and members take its own recipes.
     for m in selected.members() {
         let section = input
             .built
             .sections
             .get(&m.member_id)
             .ok_or_else(|| bad("derived section source"))?;
-        let mut summary = 0.0_f64;
-        let mut stress_ids = Vec::new();
         for (s, location) in [
             (0, "end_i"),
             (1, "quarter_1"),
@@ -408,17 +388,7 @@ pub(super) fn derived_for(
             (3, "quarter_3"),
             (4, "end_j"),
         ] {
-            let actions: [f64; 6] = std::array::from_fn(|component| {
-                if composite {
-                    m.sections[s][component]
-                } else if s == 0 {
-                    -primary[&m.end_functional_indices[component]].value
-                } else if s == 4 {
-                    primary[&m.end_functional_indices[6 + component]].value
-                } else {
-                    primary[&m.section_functional_indices[s][component]].value
-                }
-            });
+            let actions: [f64; 6] = m.sections[s];
             let stress = recover_section_stress(&actions, section);
             if !stress.findings.is_empty() {
                 return Err(bad("straight stress source unavailable"));
@@ -468,7 +438,6 @@ pub(super) fn derived_for(
             {
                 return Err(bad("stress summary MPa publication range"));
             }
-            summary = summary.max(local);
             let mut generated = Vec::new();
             if s == 0 || s == 4 {
                 append_endpoint_stress_results(
@@ -489,57 +458,21 @@ pub(super) fn derived_for(
                 );
             }
             for row in generated {
-                let component = match row.kind.as_str() {
-                    "element_local_axial_normal_stress" => 0,
-                    "element_local_bending_normal_stress_y" => 4,
-                    "element_local_bending_normal_stress_z" => 5,
-                    "element_local_torsional_shear_stress" => 3,
-                    _ => return Err(bad("stress recipe component")),
-                };
-                let function = if s == 0 {
-                    m.end_functional_indices[component]
-                } else if s == 4 {
-                    m.end_functional_indices[6 + component]
-                } else {
-                    m.section_functional_indices[s][component]
-                };
-                let row = qualify(input, row);
-                stress_ids.push(row.id.clone());
+                if !matches!(
+                    row.kind.as_str(),
+                    "element_local_axial_normal_stress"
+                        | "element_local_bending_normal_stress_y"
+                        | "element_local_bending_normal_stress_z"
+                        | "element_local_torsional_shear_stress"
+                ) {
+                    return Err(bad("stress recipe component"));
+                }
                 out.push(Derived {
-                    row,
-                    recipe: if composite {
-                        "retained_source_straight_stress_v1"
-                    } else {
-                        "straight_open_stress_v1"
-                    },
-                    inputs: if composite {
-                        vec![]
-                    } else {
-                        vec![primary[&function].id.clone()]
-                    },
+                    row: qualify(input, row),
+                    recipe: "retained_source_straight_stress_v1",
+                    inputs: vec![],
                 });
             }
-        }
-        // No distributed or pressure terms enter this selected source; a
-        // resolved eigen axial load is a constant offset. Its
-        // normal components are affine along a straight span: sum of absolute
-        // affine components is convex, hence its maximum is at an endpoint.
-        // Evaluated five points remain checked binary64 recipes, no exact-max claim.
-        if !composite {
-            out.push(Derived {
-                row: qualify(
-                    input,
-                    bare(
-                        format!("result:stress:{}", stable_suffix(&m.member_id)),
-                        "open_formula_stress_summary",
-                        summary,
-                        "MPa",
-                        &m.member_id,
-                    ),
-                ),
-                recipe: "reviewed_stress_summary_v1",
-                inputs: stress_ids,
-            });
         }
     }
     Ok(out)
@@ -549,11 +482,10 @@ pub(super) fn bind_for(
     selected: &SelectedSourceRecovery,
     rows: &[ResultItem],
     bindings: &[FunctionalRowBinding],
-    composite: bool,
     additional: Vec<Derived>,
 ) -> Result<Ledger, ReceiptError> {
     validate_case_rows(&input.load_case.id, rows)?;
-    let primary = expected_primary_for(input, selected, composite)?;
+    let primary = expected_primary_for(input, selected)?;
     if primary.len() != bindings.len() {
         return Err(bad("complete public functional binding count"));
     }
@@ -593,7 +525,7 @@ pub(super) fn bind_for(
         );
         projections.push(projection);
     }
-    for d in derived_for(input, selected, &primary, composite)?
+    for d in derived_for(input, selected, &primary)?
         .into_iter()
         .chain(additional)
     {

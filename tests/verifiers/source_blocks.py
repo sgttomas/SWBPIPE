@@ -23,16 +23,9 @@ from .preview_physics_evidence import correctly_rounded_norm
 # Fixed recipe arithmetic bound, additional to the affine input bound.
 NORM_ARITHMETIC_BOUND = 64.0 * sys.float_info.epsilon
 NORM_INPUT_RELATIVE_LIMIT = (1.0e-9 - NORM_ARITHMETIC_BOUND) / (1.0 + NORM_ARITHMETIC_BOUND)
-# Conservative current-carrier allowance for component stress plus summary.
+# Conservative current-carrier allowance for the composites' straight stress.
 STRESS_ARITHMETIC_BOUND = 128.0 * sys.float_info.epsilon
 STRESS_INPUT_RELATIVE_LIMIT = (1.0e-9 - STRESS_ARITHMETIC_BOUND) / (1.0 + STRESS_ARITHMETIC_BOUND)
-STRESS_ACTION_KINDS = {
-    "element_local_axial_normal_stress":"element_local_axial_force",
-    "element_local_bending_normal_stress_y":"element_local_bending_moment_y",
-    "element_local_bending_normal_stress_z":"element_local_bending_moment_z",
-    "element_local_torsional_shear_stress":"element_local_torsional_moment",
-}
-STRESS_LOCATIONS = ("end_i", "quarter_1", "midspan", "quarter_3", "end_j")
 EXACT = "retained_source_blocks_exact_v1"
 MODES = {"dense_scrutiny": "ordinary_dense_structural_v1", "sparse_interactive": "ordinary_sparse_structural_v1"}
 COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
@@ -165,85 +158,27 @@ def _projection(projection: Mapping[str, Any], row: Mapping[str, Any], context: 
 
 
 def _derived(recipe: str, row: Mapping[str, Any], inputs: list[Mapping[str, Any]], context: Any) -> None:
+    # B4/D1 (b): the composites' only shared non-composite recipe is the translation
+    # norm; source-blocks-1's support-norm, straight-stress, stress-summary and
+    # section-property recipes went with its preview case rows and are unknown here.
     kind = row["kind"]
-    signature = _signature(row, context)
-    _require(signature is not None, "DERIVED_SIGNATURE")
-    if recipe == "translation_norm_scaled_v1":
-        _require(kind == "displacement_magnitude" and len(inputs) == 3 and [r["kind"] for r in inputs] == ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"], "TRANSLATION_NORM_INPUTS")
-    elif recipe == "support_force_norm_scaled_v1":
-        _require(kind == "reaction_resultant" and len(inputs) == 3 and all(r["kind"] == "support_reaction_component_v2" for r in inputs) and [r["metadata"]["component"] for r in inputs] == ["Fx", "Fy", "Fz"], "SUPPORT_NORM_INPUTS")
-    elif recipe == "straight_open_stress_v1":
-        _require(kind in STRESS_ACTION_KINDS and len(inputs) == 1 and inputs[0]["kind"] == STRESS_ACTION_KINDS[kind], "STRESS_RECIPE_INPUTS")
-    elif recipe == "reviewed_stress_summary_v1":
-        _require(kind == "open_formula_stress_summary" and bool(inputs), "SUMMARY_RECIPE_INPUTS")
-    elif recipe == "section_property_from_source_v1":
-        _require(signature["family"] == "section_property" or kind.startswith("pipe_section_"), "SECTION_RECIPE_KIND")
-    else:
-        _require(False, "DERIVED_RECIPE")
+    _require(_signature(row, context) is not None, "DERIVED_SIGNATURE")
+    _require(recipe == "translation_norm_scaled_v1", "DERIVED_RECIPE")
+    _require(kind == "displacement_magnitude" and len(inputs) == 3 and [r["kind"] for r in inputs] == ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"], "TRANSLATION_NORM_INPUTS")
     _require(all(r.get("entity_ref") == row.get("entity_ref") for r in inputs), "DERIVED_ENTITY")
-    if recipe == "straight_open_stress_v1":
-        _stress_observation(row, inputs[0])
-    elif recipe == "reviewed_stress_summary_v1":
-        _stress_summary_observation(row, inputs)
-    if recipe in {"translation_norm_scaled_v1", "support_force_norm_scaled_v1"}:
-        # E15: the declared recipe is one correctly rounded norm of the published
-        # components (independent exact-integer oracle); a nonzero result is finite and normal.
-        values = [float(item["value"]) for item in inputs]
-        _require(all(math.isfinite(value) for value in values), "DERIVED_NORM_RANGE")
-        expected = correctly_rounded_norm(values)
-        _require(expected == 0.0 or (math.isfinite(expected) and expected >= sys.float_info.min), "DERIVED_NORM_RANGE")
-        # This binds the declared recipe, not an affine projection error bound.
-        _require(_bits(row["value"]) == _bits(expected), "DERIVED_NORM_VALUE")
+    # E15: the declared recipe is one correctly rounded norm of the published
+    # components (independent exact-integer oracle); a nonzero result is finite and normal.
+    values = [float(item["value"]) for item in inputs]
+    _require(all(math.isfinite(value) for value in values), "DERIVED_NORM_RANGE")
+    expected = correctly_rounded_norm(values)
+    _require(expected == 0.0 or (math.isfinite(expected) and expected >= sys.float_info.min), "DERIVED_NORM_RANGE")
+    # This binds the declared recipe, not an affine projection error bound.
+    _require(_bits(row["value"]) == _bits(expected), "DERIVED_NORM_VALUE")
 
 
 
 def _normal_or_exact_zero(value: float, logical_zero: bool) -> bool:
     return math.isfinite(value) and (value == 0.0 if logical_zero else abs(value) >= sys.float_info.min)
-
-
-def _stress_observation(row: Mapping[str, Any], action: Mapping[str, Any]) -> None:
-    """Observable range gate only; hidden area/Z/radius/J remain producer-owned."""
-    location = (row.get("metadata") or {}).get("location")
-    _require(row["unit"] == "MPa" and location in STRESS_LOCATIONS and (action.get("metadata") or {}).get("location") == location and action["unit"] == ("N" if row["kind"] == "element_local_axial_normal_stress" else "N*m"), "STRESS_ACTION_BINDING")
-    source_action, value = float(action["value"]), float(row["value"])
-    _require(math.isfinite(source_action), "STRESS_ACTION_RANGE")
-    logical_zero = source_action == 0.0
-    _require(_normal_or_exact_zero(value, logical_zero), "STRESS_OUTPUT_RANGE")
-    signed_action = -source_action if location == "end_i" else source_action
-    _require(logical_zero or (value > 0) == (signed_action > 0), "STRESS_ACTION_SIGN")
-    # This round-trip Pa observation is not the unavailable private quotient.
-    _require(_normal_or_exact_zero(value * 1_000_000.0, logical_zero), "STRESS_PA_OBSERVATION_RANGE")
-
-
-def _stress_summary_observation(row: Mapping[str, Any], inputs: list[Mapping[str, Any]]) -> None:
-    _require(row["unit"] == "MPa" and len(inputs) == 20, "SUMMARY_STRESS_COVERAGE")
-    grouped = {}
-    for item in inputs:
-        location = (item.get("metadata") or {}).get("location")
-        key = (location, item["kind"])
-        _require(location in STRESS_LOCATIONS and item["kind"] in STRESS_ACTION_KINDS and item["unit"] == "MPa" and key not in grouped, "SUMMARY_STRESS_COVERAGE")
-        value = float(item["value"])
-        _require(_normal_or_exact_zero(value, value == 0.0), "SUMMARY_INPUT_RANGE")
-        observed_pa = value * 1_000_000.0
-        _require(_normal_or_exact_zero(observed_pa, value == 0.0), "SUMMARY_PA_OBSERVATION_RANGE")
-        grouped[key] = observed_pa
-    any_normal = False
-    for location in STRESS_LOCATIONS:
-        axial, by, bz = [grouped[(location, kind)] for kind in (
-            "element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z")]
-        logical_zero = axial == by == bz == 0.0
-        any_normal |= not logical_zero
-        # Preserve the existing summary operation order on observable Pa values;
-        # no bit equality to the private unrounded Pa subtotal is asserted.
-        base_normal = axial + 0.0
-        bending_total = abs(by) + abs(bz)
-        plus, minus = base_normal + bending_total, base_normal - bending_total
-        _require(all(math.isfinite(value) for value in (base_normal, bending_total, plus, minus)), "SUMMARY_SUBTOTAL_RANGE")
-        subtotal = max(abs(plus), abs(minus))
-        _require(_normal_or_exact_zero(subtotal, logical_zero) and _normal_or_exact_zero(subtotal / 1_000_000.0, logical_zero), "SUMMARY_SUBTOTAL_RANGE")
-    # Torsion is deliberately excluded from this normal-stress summary.
-    value = float(row["value"])
-    _require(value >= 0.0 and _normal_or_exact_zero(value, not any_normal), "SUMMARY_OUTPUT_RANGE")
 
 
 def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None, *, context: Any) -> bool:
@@ -324,7 +259,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         _unique([p["functional_id"] for p in case["projections"]], "FUNCTIONAL_IDS")
         _unique([p["result_id"] for p in case["projections"]], "PROJECTION_RESULTS")
         treatment = {r["result_id"]:r for r in case["rows"]}; _unique([r["result_id"] for r in case["rows"]], "ROW_IDS")
-        if any(row["recipe_id"] in {"straight_open_stress_v1", "reviewed_stress_summary_v1", "retained_source_straight_stress_v1"} for row in case["rows"]):
+        if any(row["recipe_id"] == "retained_source_straight_stress_v1" for row in case["rows"]):
             _require(bool(case["projections"]) and max(p["relative_error_bound"] for p in case["projections"]) <= STRESS_INPUT_RELATIVE_LIMIT, "STRESS_TOTAL_RELATIVE_BOUND")
         expected = {i for i,r in raw.items() if r.get("basis_ref") == basis}
         _require(set(treatment) == expected and not covered & expected, "CASE_ROW_COVERAGE"); covered |= expected
@@ -344,7 +279,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
                     context.validate_derived(source, case, treatment_row, row, [raw[i] for i in inputs])
                 else:
                     _derived(treatment_row["recipe_id"], row, [raw[i] for i in inputs], context)
-                if treatment_row["recipe_id"] in {"translation_norm_scaled_v1", "support_force_norm_scaled_v1"}:
+                if treatment_row["recipe_id"] == "translation_norm_scaled_v1":
                     _require(all(treatment[i]["treatment"] == "qualified_projection" for i in inputs), "NORM_PROJECTION_INPUT")
                     relative = max(projections[treatment[i]["projection_id"]]["relative_error_bound"] for i in inputs)
                     _require(relative <= NORM_INPUT_RELATIVE_LIMIT, "NORM_TOTAL_RELATIVE_BOUND")

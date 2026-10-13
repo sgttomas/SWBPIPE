@@ -772,7 +772,7 @@ impl FinalizedSourceBlockCase {
                 .map_err(|e| bad(format!("composite current source: {e:?}")))?;
             #[cfg(test)]
             trace("current_source_binding_complete", &selected);
-            let primary = rows::expected_primary_for(&input, &selected, true)?;
+            let primary = rows::expected_primary_for(&input, &selected)?;
             let mut additional = Vec::new();
             let mut derived_checks = Vec::new();
             let mut section_stress_checks = Vec::new();
@@ -897,7 +897,7 @@ impl FinalizedSourceBlockCase {
                     section_stress_checks.push(json!({"result_id":row.id,"recipe_id":"retained_source_straight_stress_v1","pipe_id":member.member_id,"location":metadata.location,"component":metadata.component,"functional_index":index,"functional_id":source::functional_id(&input.load_case.id,index),"action":{"value":projection.value(),"interval":projection.interval()},"parameters":{"area_m2":section.area,"section_modulus_m3":section.section_modulus,"torsion_radius_m":section.torsion_radius,"torsion_constant_m4":section.torsion_constant,"pa_per_mpa":1e6}}));
                 }
             }
-            let ledger = rows::bind_for(&input, &selected, actual, bindings, true, additional)?;
+            let ledger = rows::bind_for(&input, &selected, actual, bindings, additional)?;
             if ledger.rows.iter().any(|t| {
                 t.treatment == "inspection_only"
                     && !actual

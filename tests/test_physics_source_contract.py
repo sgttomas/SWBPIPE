@@ -3,10 +3,13 @@ from copy import deepcopy
 from pathlib import Path
 import hashlib
 import json
+import math
+import struct
+import sys
 import pytest
 from tests.verifiers import physics_source as composite
 from tests.verifiers.physics_evidence import validate_physics_evidence, validate_transport_metadata as physics_transport
-from tests.verifiers.source_blocks import domain_hash, _signature
+from tests.verifiers.source_blocks import domain_hash, _derived, _signature
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/product_preview/physics_source"
@@ -282,3 +285,67 @@ def test_e15_composite_norms_are_the_correctly_rounded_value():
     assert composite._norm([7.944, 6.99]) == float.fromhex("0x1.529b4c153125ep+3")
     with pytest.raises(ValueError):
         composite._norm([1.0])
+
+
+def translation_norm(values, output):
+    """The composites' shared translation-norm recipe (relocated from the retired
+    source-blocks-1 tests when B4/D1 (b) deleted them)."""
+    kinds = ("global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z")
+    inputs = [{"kind": kinds[i], "unit": "mm", "entity_ref": "norm-owner", "value": v} for i, v in enumerate(values)]
+    row = {"kind": "displacement_magnitude", "unit": "mm", "entity_ref": "norm-owner", "value": output}
+    return _derived("translation_norm_scaled_v1", row, inputs, composite)
+
+
+def test_translation_norm_admits_normal_output_and_small_components():
+    translation_norm([3.0, 4.0, 0.0], 5.0)
+    small = math.ldexp(1.0, -600)
+    translation_norm([small, 0.0, 0.0], small)
+    translation_norm([sys.float_info.min, 0.0, 0.0], sys.float_info.min)
+    translation_norm([1.0, math.ulp(0.0), 0.0], 1.0)
+    translation_norm([-0.0, 0.0, -0.0], 0.0)
+
+
+def test_e15_translation_norm_binds_the_correctly_rounded_value():
+    # The published (3,4,0) control: the recipe gives exactly 5, so the independently
+    # single-rounded 5 + 1 ulp that G7 admits is refused by the exact value binding;
+    # where the former max-scaled recipe differs, its value is refused.
+    controls = json.loads((ROOT / "fixtures/results/preview_magnitude_controls.json").read_text())["controls"]
+    control = next(c for c in controls if c["id"] == "independent_single_rounding_one_ulp")
+    unpack = lambda bits: struct.unpack(">d", bytes.fromhex(bits))[0]
+    components = [unpack(b) for b in control["component_bits"]]
+    one_ulp = unpack(control["magnitude_bits"])
+    assert (components, one_ulp) == ([3.0, 4.0, 0.0], math.nextafter(5.0, math.inf))
+    differing = [-1.327, -8.603, -8.186]
+    correct = float.fromhex("0x1.7e5fc308f80edp+3")
+    scale = max(abs(v) for v in differing)
+    n = [v / scale for v in differing]
+    scaled = scale * math.sqrt((n[0] * n[0] + n[1] * n[1]) + n[2] * n[2])
+    assert scaled == math.nextafter(correct, 0.0)
+    translation_norm(components, 5.0)
+    with pytest.raises(ValueError, match="DERIVED_NORM_VALUE"):
+        translation_norm(components, one_ulp)
+    translation_norm(differing, correct)
+    with pytest.raises(ValueError, match="DERIVED_NORM_VALUE"):
+        translation_norm(differing, scaled)
+
+
+def test_translation_norm_range_and_bit_identity_are_enforced():
+    with pytest.raises(ValueError, match="DERIVED_NORM_RANGE"):
+        translation_norm([math.ulp(0.0), 0.0, 0.0], math.ulp(0.0))
+    with pytest.raises(ValueError, match="DERIVED_NORM_RANGE"):
+        translation_norm([sys.float_info.max, sys.float_info.max, 0.0], 1.0)
+    with pytest.raises(ValueError, match="DERIVED_NORM_VALUE"):
+        translation_norm([1.0, 0.0, 0.0], math.nextafter(1.0, math.inf))
+    with pytest.raises(ValueError, match="DERIVED_NORM_VALUE"):
+        translation_norm([-0.0, 0.0, -0.0], -0.0)
+    with pytest.raises(ValueError):
+        translation_norm([math.nan, 0.0, 0.0], 0.0)
+
+
+@pytest.mark.parametrize("recipe", ["support_force_norm_scaled_v1", "straight_open_stress_v1",
+                                    "reviewed_stress_summary_v1", "section_property_from_source_v1"])
+def test_source_blocks_1_recipes_are_unknown(recipe):
+    # B4/D1 (b): these recipes went with source-blocks-1's preview case rows.
+    row = {"kind": "displacement_magnitude", "unit": "mm", "entity_ref": "norm-owner", "value": 0.0}
+    with pytest.raises(ValueError, match="DERIVED_RECIPE"):
+        _derived(recipe, row, [], composite)
