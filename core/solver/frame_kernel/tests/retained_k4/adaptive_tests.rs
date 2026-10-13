@@ -327,8 +327,8 @@ fn charge(solve_attempts: &[AttemptRecord]) -> u64 {
     solve_attempts
         .iter()
         .map(|a| {
-            a.work.limb_multiply_equivalents()
-                + a.k4_work.limb_multiply_equivalents()
+            a.work.checked_lme().exact().unwrap()
+                + a.k4_work.checked_lme().exact().unwrap()
                 + a.shared_work
                 + a.verification_shared_work
         })
@@ -345,7 +345,7 @@ fn a_case_limit_is_exhausted_exactly_where_its_work_ends() {
         };
         let needed = charge(&solve.evidence().attempts);
         assert_eq!(
-            meter.charged(),
+            meter.checked_charged().exact().unwrap(),
             needed,
             "{name}: a lone case charges the invocation its full work"
         );
@@ -372,7 +372,7 @@ fn a_case_limit_is_exhausted_exactly_where_its_work_ends() {
             }
         ));
         // An exhausted invocation refuses further cases before any work.
-        let before = meter.charged();
+        let before = meter.checked_charged().exact().unwrap();
         assert!(matches!(
             solve_case(source, CaseLimit::new(u64::MAX), &mut meter),
             CaseOutcome::Unresolved {
@@ -380,7 +380,7 @@ fn a_case_limit_is_exhausted_exactly_where_its_work_ends() {
                 ..
             }
         ));
-        assert_eq!(meter.charged(), before);
+        assert_eq!(meter.checked_charged().exact().unwrap(), before);
     }
 }
 
@@ -396,10 +396,10 @@ fn failed_and_verification_attempts_are_charged() {
     // The failed factor's work is its formation, assembly and factor stages.
     let s = &attempts[0].shared_stages;
     assert!(s.formation > 0 && s.assembly > 0 && s.factor > 0);
-    assert_eq!(attempts[0].work.limb_multiply_equivalents(), 0);
+    assert_eq!(attempts[0].work.checked_lme().exact().unwrap(), 0);
     // The verification solve carries its own stages, and the stop rule is
     // charged to the candidate.
-    assert!(attempts[2].work.limb_multiply_equivalents() > 0);
+    assert!(attempts[2].work.checked_lme().exact().unwrap() > 0);
     assert!(attempts[1].stop_rule_work > 0 && attempts[2].stop_rule_work == 0);
 }
 
@@ -502,14 +502,14 @@ fn golden_work_counts() {
         };
         // The historical columns remain R7-only. The helper separately checks
         // inclusive stage/attempt/case/invocation closure on these SAME states.
-        let components = replay_certificate_components(&solve, meter.charged());
+        let components = replay_certificate_components(&solve, meter.checked_charged().exact().unwrap());
         let attempts = &solve.evidence().attempts;
         let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = attempts
             .iter()
             .zip(rows)
             .map(|(a, old)| {
-                let own = a.work.limb_multiply_equivalents()
-                    + a.k4_work.limb_multiply_equivalents()
+                let own = a.work.checked_lme().exact().unwrap()
+                    + a.k4_work.checked_lme().exact().unwrap()
                     - a.stop_rule_work
                     - a.verification_work;
                 // A3a's own + K4-sum work outside its stop rule, kept in its
@@ -551,11 +551,11 @@ fn golden_work_counts() {
                 (
                     a.precision,
                     a.work
-                        .limb_multiply_equivalents()
+                        .checked_lme().exact().unwrap()
                         .checked_sub(certificate.context)
                         .unwrap(),
                     a.k4_work
-                        .limb_multiply_equivalents()
+                        .checked_lme().exact().unwrap()
                         .checked_sub(certificate.sums)
                         .unwrap(),
                     certificate.r7,
@@ -675,7 +675,7 @@ fn fingerprint(
                 (
                     a.precision,
                     a.outcome.clone(),
-                    a.work.limb_multiply_equivalents(),
+                    a.work.checked_lme().exact().unwrap(),
                 )
             })
             .collect(),
@@ -713,7 +713,7 @@ fn runs_and_list_permutations_are_deterministic() {
                     (
                         a.precision,
                         a.outcome.clone(),
-                        a.work.limb_multiply_equivalents(),
+                        a.work.checked_lme().exact().unwrap(),
                     )
                 })
                 .collect::<Vec<_>>(),
@@ -748,11 +748,11 @@ fn factor_reuse_is_bit_identical_to_separate_solves() {
         .map(|n| {
             let (limit, mut meter) = unlimited();
             let _ = solve_case(models::model(n).source(), limit, &mut meter);
-            meter.charged()
+            meter.checked_charged().exact().unwrap()
         })
         .sum();
     assert!(
-        meter.charged() < separate_charge,
+        meter.checked_charged().exact().unwrap() < separate_charge,
         "shared stages are charged once"
     );
     for (outcome, name) in together.iter().zip(names) {

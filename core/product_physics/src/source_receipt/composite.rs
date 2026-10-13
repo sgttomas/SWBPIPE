@@ -984,11 +984,7 @@ impl FinalizedSourceBlockCase {
                 .collect(),
             supports: json!([]),
             failure: None,
-            work: work_wire(exact::WorkReport {
-                charged: 0,
-                rejected: 0,
-                limit: 0,
-            })?,
+            work: work_wire(exact::WorkReport::new(0, 0, 0))?,
             actual_rows: serialized(&actual)?,
             qualified: true,
             exact: false,
@@ -1187,5 +1183,5 @@ pub(super) fn take_trace() -> Vec<Value> {
 }
 #[cfg(test)]
 fn trace(stage: &str, selected: &SelectedSourceRecovery) {
-    WORK_TRACE.with(|trace|if let Some(values)=&mut *trace.borrow_mut(){values.push(json!({"stage":stage,"charged":selected.summary().work.charged,"rejected":selected.summary().work.rejected}));});
+    WORK_TRACE.with(|trace|if let Some(values)=&mut *trace.borrow_mut(){values.push(json!({"stage":stage,"charged":selected.summary().work.charged,"rejected":selected.summary().work.rejected.exact().ok()}));});
 }

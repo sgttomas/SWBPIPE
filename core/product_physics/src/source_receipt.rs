@@ -807,11 +807,7 @@ impl FinalizedSourceBlockCase {
                 .collect(),
             supports: json!([]),
             failure: None,
-            work: work_wire(exact::WorkReport {
-                charged: 0,
-                rejected: 0,
-                limit: 0,
-            })?,
+            work: work_wire(exact::WorkReport::new(0, 0, 0))?,
             actual_rows: serialized(&rows)?,
             qualified: true,
             exact: false,
@@ -887,8 +883,17 @@ fn work_wire(work: exact::WorkReport) -> Result<Value, ReceiptError> {
     if work.charged > work.limit || (work.limit as u64) > MAX {
         return Err(bad("invalid work accounting"));
     }
+    // D6: `rejected` is the kernel's checked total. An exact amount within the
+    // JSON-safe range is finite; an overflowed total (or one beyond that range)
+    // is disclosed as overflow, never as a saturated number; an inconsistent
+    // total refuses the receipt.
+    let rejected = match work.rejected.exact() {
+        Ok(amount) if amount <= MAX => json!({"kind":"finite","amount":amount}),
+        Ok(_) | Err(open_pipe_stress_frame_kernel::structural::retained_api::WorkFault::Overflow) => json!({"kind":"overflow","amount":null}),
+        Err(_) => return Err(bad("inconsistent rejected reservation work")),
+    };
     Ok(
-        json!({"limit":work.limit,"charged":work.charged,"reserved_unobserved_failure":0,"rejected_reservation":if work.rejected == usize::MAX || (work.rejected as u64)>MAX{json!({"kind":"overflow","amount":null})}else{json!({"kind":"finite","amount":work.rejected})}}),
+        json!({"limit":work.limit,"charged":work.charged,"reserved_unobserved_failure":0,"rejected_reservation":rejected}),
     )
 }
 
@@ -966,11 +971,7 @@ impl FinalizedSourceBlockReceipt {
         {
             return Err(ReceiptError(
                 "case budget exceeds selected receipt policy".into(),
-                Some(exact::WorkReport {
-                    charged: invocation_budget.charged,
-                    rejected: 0,
-                    limit: invocation_budget.invocation_limit,
-                }),
+                Some(exact::WorkReport::new(invocation_budget.charged, 0, invocation_budget.invocation_limit)),
             ));
         }
         if !composite

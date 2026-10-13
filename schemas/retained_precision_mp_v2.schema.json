@@ -6529,7 +6529,6 @@
                 "publication_hash_range",
                 "work_counter_range",
                 "work_counter_inconsistent",
-                "saturation_not_excluded",
                 "association"
               ]
             },

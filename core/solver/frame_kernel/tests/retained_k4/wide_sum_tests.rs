@@ -201,7 +201,7 @@ fn zero_negation_absolute_value_and_reuse() {
     let w = sum.work();
     assert!(w.term_limbs > 0 && w.net_limbs > 0 && w.rounded_limbs > 0);
     assert_eq!(
-        w.limb_multiply_equivalents(),
+        w.checked_lme().exact().unwrap(),
         w.term_limbs + w.shift_limbs + w.net_limbs + w.rounded_limbs
     );
 }

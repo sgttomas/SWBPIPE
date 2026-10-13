@@ -75,21 +75,21 @@ fn gen_refusal(name: &str) -> String {
 /// shared work counted against its case (K6b's `own_total` and
 /// `shared_total`).
 fn own_total(a: &AttemptRecord) -> u64 {
-    a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents()
+    a.work.checked_lme().exact().unwrap() + a.k4_work.checked_lme().exact().unwrap()
 }
 
 /// Every attempt's stages sum to its charged totals, on every path.
 pub(super) fn assert_stage_identity(name: &str, attempts: &[AttemptRecord]) {
     for a in attempts {
         assert_eq!(
-            a.stages.total(),
+            a.stages.checked_total().exact().unwrap(),
             own_total(a),
             "{name} {}: own stages {:?}",
             a.precision,
             a.outcome
         );
         assert_eq!(
-            a.shared_stages.total(),
+            a.shared_stages.checked_total().exact().unwrap(),
             a.shared_work + a.verification_shared_work,
             "{name} {}: shared stages {:?}",
             a.precision,
@@ -316,7 +316,7 @@ where
     F: Fn(StageGuard) -> (bool, StageWork, u64),
 {
     let (ok, stages, total) = run(StageGuard::unlimited());
-    assert_eq!(stages.total(), total, "{label}: unlimited ({ok})");
+    assert_eq!(stages.checked_total().exact().unwrap(), total, "{label}: unlimited ({ok})");
     let parts = [
         stages.formation,
         stages.assembly,
@@ -349,7 +349,7 @@ where
     let mut stopped = 0;
     for limit in limits {
         let (ok, stages, total) = run(StageGuard::with_case_room(limit));
-        assert_eq!(stages.total(), total, "{label}: room {limit} ({ok})");
+        assert_eq!(stages.checked_total().exact().unwrap(), total, "{label}: room {limit} ({ok})");
         stopped += usize::from(!ok);
     }
     stopped
@@ -438,7 +438,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
         let s = build_shared::<4, 4>(128, 192, &prep.source, &group, StageGuard::unlimited());
         let err = s.result.as_ref().expect_err(name);
         assert!(format!("{err:?}").starts_with(stop), "{name}: {err:?}");
-        assert_eq!(s.stages.total(), s.total.exact().unwrap(), "{name}");
+        assert_eq!(s.stages.checked_total().exact().unwrap(), s.total.exact().unwrap(), "{name}");
         let partial = if stop == "Pivot" {
             s.stages.factor
         } else {
@@ -467,7 +467,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
     }
     let s = solve_case_at::<4, 4>(&shared, &prep, &group, StageGuard::unlimited());
     assert!(matches!(s.result, Err(AttemptStop::ResidualGate { .. })));
-    assert_eq!(s.stages.total(), s.total.exact().unwrap());
+    assert_eq!(s.stages.checked_total().exact().unwrap(), s.total.exact().unwrap());
     assert!(s.stages.refinement > 0 && s.stages.bounded_gate > 0);
     // `ResolutionScale` in the pass (EHAT-OVERFLOW at 256).
     let all5a3 = models::parse_models(include_str!("models5a3.txt"));
@@ -486,7 +486,7 @@ fn kf3_every_build_stages_its_charged_work_on_every_path() {
         .unwrap();
     let s = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
     assert!(matches!(s.result, Err(AttemptStop::ResolutionScale { .. })));
-    assert_eq!(s.stages.total(), s.total.exact().unwrap());
+    assert_eq!(s.stages.checked_total().exact().unwrap(), s.total.exact().unwrap());
     assert!(s.stages.scale > 0);
 }
 
@@ -504,7 +504,7 @@ fn kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work() {
     let full = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g);
     let vs = full.result.as_ref().unwrap();
     assert!(vs.uc[0].refused.is_some() && full.stages.uc > 0);
-    assert_eq!(full.stages.total(), full.total.exact().unwrap());
+    assert_eq!(full.stages.checked_total().exact().unwrap(), full.total.exact().unwrap());
     let room = full.stages.bounded_formation + full.stages.wide_formation + full.stages.uc / 2;
     let s = build_verify_shared::<4, 8, 8>(
         &shared,
@@ -516,7 +516,7 @@ fn kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work() {
         s.result,
         Err(AttemptStop::Budget(BudgetScope::Case))
     ));
-    assert_eq!(s.stages.total(), s.total.exact().unwrap());
+    assert_eq!(s.stages.checked_total().exact().unwrap(), s.total.exact().unwrap());
     assert!(s.stages.uc > 0 && s.stages.uc < full.stages.uc);
 }
 

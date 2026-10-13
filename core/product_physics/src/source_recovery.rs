@@ -83,11 +83,7 @@ pub(super) fn formation_decline_without_attempt() -> RecoveryFailure {
         stage: "formation guard",
         helper_stage: AttemptStage::SourceClosure,
         error: RecoveryError::Unsupported(FORMATION_GUARD_DECLINE),
-        work: exact::WorkReport {
-            charged: 0,
-            rejected: 0,
-            limit: 0,
-        },
+        work: exact::WorkReport::new(0, 0, 0),
     }
 }
 
@@ -106,11 +102,7 @@ pub(super) fn range_formation_decline_without_attempt() -> RecoveryFailure {
         stage: "range formation",
         helper_stage: AttemptStage::SourceClosure,
         error: RecoveryError::Unsupported(RANGE_FORMATION_DECLINE),
-        work: exact::WorkReport {
-            charged: 0,
-            rejected: 0,
-            limit: 0,
-        },
+        work: exact::WorkReport::new(0, 0, 0),
     }
 }
 
@@ -280,11 +272,7 @@ impl SelectedSourceRecovery {
             stage: "captured replay reservation",
             helper_stage: AttemptStage::Replay,
             error: RecoveryError::Exact(exact::Error::Budget),
-            work: exact::WorkReport {
-                charged,
-                rejected: charged,
-                limit,
-            },
+            work: exact::WorkReport::new(charged, charged, limit),
         })
     }
 
@@ -1810,7 +1798,7 @@ mod tests {
         .unwrap_err();
         assert_eq!(failure.stage, "source closure");
         assert_eq!(failure.work.charged, 0);
-        assert!(failure.work.rejected > 0);
+        assert!(failure.work.rejected.exact().unwrap() > 0);
         assert_eq!(failure.error, RecoveryError::Exact(exact::Error::Budget));
     }
 
@@ -1863,7 +1851,7 @@ mod tests {
         let failure = solve(fixture.input(), exact::Limits { operations: 0, ..exact::Limits::default() }).unwrap_err();
         assert_eq!(failure.stage, "source closure");
         assert_eq!(failure.work.charged, 0);
-        assert!(failure.work.rejected > 0);
+        assert!(failure.work.rejected.exact().unwrap() > 0);
         assert_eq!(failure.error, RecoveryError::Exact(exact::Error::Budget));
     }
 

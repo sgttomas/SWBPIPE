@@ -94,8 +94,8 @@ fn the_staged_solve_equals_k4s_own_entries() {
         assert_eq!(o.publish(), selected(&staged).publish());
         assert_eq!(o.evidence(), selected(&staged).evidence());
     }
-    assert_eq!(meter.charged(), staged.charged.exact().unwrap());
-    assert_eq!(meter_all.charged(), staged.charged.exact().unwrap());
+    assert_eq!(meter.checked_charged().exact().unwrap(), staged.charged.exact().unwrap());
+    assert_eq!(meter_all.checked_charged().exact().unwrap(), staged.charged.exact().unwrap());
 }
 
 /// Every R1 row of `id` under the unchanged predicate; W1's counts against the

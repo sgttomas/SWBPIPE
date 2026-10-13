@@ -92,7 +92,7 @@ fn origin_capacity_is_finite_checked_and_has_no_implicit_growth() {
         Err(OriginError::Capacity)
     ));
     assert!(ctx.calls().is_empty());
-    assert_eq!(ctx.meter().charged(), 0);
+    assert_eq!(ctx.meter().checked_charged().exact().unwrap(), 0);
 }
 
 #[test]
@@ -497,7 +497,7 @@ fn b2k_k02_for_invocation_registration_and_the_run_capacity_check() {
     let reserved = b2k_capacities(&ctx);
     assert_eq!(ctx.solve_cases(&[a.clone(), a.clone(), a.clone()], limit()).err(), Some(OriginError::Capacity));
     assert!(ctx.calls().is_empty() && ctx.sources().is_empty() && ctx.runs().is_empty());
-    assert_eq!(ctx.meter().charged(), 0);
+    assert_eq!(ctx.meter().checked_charged().exact().unwrap(), 0);
     let cases = ctx.solve_cases(&[a.clone(), a.clone()], limit()).unwrap();
     let id = ctx.register_prepared_source(&prepared).unwrap();
     b2k_with_run(ctx.solve_combination_sources(&[(1.0, RecordedOperand::Selected(selected(&cases[0]))),
@@ -691,7 +691,7 @@ fn b2k_c01_c04_mixed_operands_match_all_selected_bits_charge_nothing_and_change_
     assert_eq!((&f.evidence().ledger_encoding, &f.evidence().retained_state_encoding, &f.evidence().source_encoding),
         (&h.evidence().ledger_encoding, &h.evidence().retained_state_encoding, &h.evidence().source_encoding));
     assert_eq!(mixed.runs().len(), 2, "B has no Run");
-    assert!(mixed.meter().charged() < all.meter().charged(), "B is not charged");
+    assert!(mixed.meter().checked_charged().exact().unwrap() < all.meter().checked_charged().exact().unwrap(), "B is not charged");
     // One prepared source serves a second combination; nothing about an operand changed.
     let again = b2k_with_run(mixed.solve_combination_sources(&[(1.0, RecordedOperand::Selected(selected(&one[0]))),
         (1.0, RecordedOperand::Prepared { source: id, prepared: &pb })], limit()).unwrap());
@@ -726,7 +726,7 @@ fn b2k_w05_w06_custody_of_terminal_work_and_imports_from_selected_operands_only(
         (1.0, super::super::combine::CombinationOperand::Prepared(&rebuilt))], limit(), &mut meter);
     let CombinationOutcome::Selected(l) = legacy else { panic!() };
     assert_eq!(l.publish(), sc.publish());
-    assert!(meter.charged() > 0);
+    assert!(meter.checked_charged().exact().unwrap() > 0);
     // W05: a terminal unavailability after nonzero work keeps its attempts in
     // the recorded custody of solve_sources_recorded, and its legacy projection.
     let mut meter = InvocationMeter::new(u64::MAX);

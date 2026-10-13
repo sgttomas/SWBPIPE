@@ -2580,7 +2580,7 @@ fn f1b_solve_ordinary_refuses_force_scaled_evidence_with_zero_work() {
             ),
             "{b}"
         );
-        assert_eq!((refused.work.charged, refused.work.rejected), (0, 0), "{b}");
+        assert_eq!((refused.work.charged, refused.work.rejected.exact()), (0, Ok(0)), "{b}");
     }
     // At b = 0 the wrapper is `solve`: the empty stiffness reaches its
     // dimension check (a different, charged refusal).
@@ -2609,9 +2609,9 @@ fn f1b_range_formation_decline_is_named_and_charges_nothing() {
     assert_eq!(
         (
             decline.work.charged,
-            decline.work.rejected,
+            decline.work.rejected.exact(),
             decline.work.limit
         ),
-        (0, 0, 0)
+        (0, Ok(0), 0)
     );
 }

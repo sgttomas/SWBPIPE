@@ -1038,8 +1038,9 @@ impl WidthWork {
     fn charge(&mut self, kind: OpKind, limbs: usize) -> Result<(), WorkFault> {
         let mut prospective = *self;
         let count = WorkTotal::exact_count(self.count(kind)).add(WorkTotal::exact_count(1));
-        prospective.status = prospective.status.join(count.status());
-        *prospective.count_mut(kind) = count.legacy_saturated();
+        let mut status = prospective.status;
+        count.record_into(prospective.count_mut(kind), &mut status);
+        prospective.status = status;
         let total = prospective.checked_lme(limbs);
         self.status = self.status.join(total.status());
         total.exact()?;
@@ -1052,8 +1053,9 @@ impl WidthWork {
         for kind in OpKind::ALL {
             let total = WorkTotal::exact_count(self.count(kind))
                 .add(WorkTotal::exact_count(other.count(kind)));
-            self.status = self.status.join(total.status());
-            *self.count_mut(kind) = total.legacy_saturated();
+            let mut status = self.status;
+            total.record_into(self.count_mut(kind), &mut status);
+            self.status = status;
         }
         self.status = self.status.join(self.checked_lme(limbs).status());
     }
@@ -1070,21 +1072,14 @@ impl WidthWork {
         total
     }
 
-    /// All operations counted.
+    /// All operations counted (checked).
     #[cfg(test)]
-    pub(crate) fn operations(&self) -> u64 {
+    pub(crate) fn operations(&self) -> WorkTotal {
         OpKind::ALL
             .iter()
             .fold(WorkTotal::zero().join_status(self.status), |sum, &kind| {
                 sum.add(WorkTotal::exact_count(self.count(kind)))
             })
-            .legacy_saturated()
-    }
-
-    /// The counts' cost at width `limbs`, in limb-multiply equivalents.
-    #[allow(dead_code)] // Legacy getter retained for callers and compatibility tests.
-    pub(crate) fn limb_multiply_equivalents(&self, limbs: usize) -> u64 {
-        self.checked_lme(limbs).legacy_saturated()
     }
 }
 
@@ -1119,10 +1114,7 @@ impl AttemptWork {
         self.widths[<Wide<L> as SupportedWidth>::SLOT]
     }
 
-    /// The whole attempt's cost in limb-multiply equivalents.
-    pub fn limb_multiply_equivalents(&self) -> u64 {
-        self.checked_lme().legacy_saturated()
-    }
+    /// The whole attempt's checked cost in limb-multiply equivalents.
     pub fn checked_lme(&self) -> WorkTotal {
         self.widths
             .iter()

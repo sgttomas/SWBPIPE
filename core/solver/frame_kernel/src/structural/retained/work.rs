@@ -114,8 +114,23 @@ impl WorkTotal {
     pub(crate) fn room(self, limit: u64) -> Self {
         Self::exact_count(limit.saturating_sub(self.amount)).join_status(self.status)
     }
-    pub(crate) fn legacy_saturated(self) -> u64 {
-        self.exact().unwrap_or(u64::MAX)
+    /// D6: the room against a checked limit; an unavailable limit leaves the
+    /// room unavailable (no saturated stand-in amount).
+    pub(crate) fn room_in(self, limit: Self) -> Self {
+        match limit.exact() {
+            Ok(limit) => self.room(limit),
+            Err(_) => Self::zero().join_status(self.status).join_status(limit.status),
+        }
+    }
+    /// D6: stores this total into a record's (amount, status) pair. An exact
+    /// amount replaces the stored one; a fault joins the status and leaves the
+    /// amount untouched, so the record reads as unavailable through its checked
+    /// getters. Nothing saturates.
+    pub(crate) fn record_into(self, amount: &mut u64, status: &mut WorkStatus) {
+        *status = status.join(self.status);
+        if let Ok(exact) = self.exact() {
+            *amount = exact;
+        }
     }
 }
 impl fmt::Debug for WorkTotal {

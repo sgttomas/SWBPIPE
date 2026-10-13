@@ -177,7 +177,7 @@ fn u1_typed_ordinary_capture_milestone() {
             Some(rp::LegacySeed::Unavailable { work, diagnostic_ref }) => {
                 assert_eq!(diagnostic_ref, "diagnostic:source-recovery:case");
                 assert_eq!(*work, rp::LegacyWork { stage: "source closure", helper_stage: AttemptStage::SourceClosure,
-                    charged: 46628, rejected: 0, limit: 4_000_000 });
+                    charged: 46628, rejected: rej(0), limit: 4_000_000 });
             }
             other => panic!("legacy unavailable expected: {other:?}"),
         }
@@ -342,6 +342,10 @@ fn u1_conservation_checked_before_emission() {
 
 /// D-4b (ROOT, NUM fe38ea55bc): the typed cause maps totally onto the accepted
 /// `receipt_failure.check` enum, C1:68's tokens only.
+/// D6: an exact checked `rejected` total, through the kernel's public constructor.
+fn rej(amount: usize) -> k::WorkTotal {
+    open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport::new(0, amount, 0).rejected
+}
 #[test]
 fn u1_receipt_check_wire_vocabulary() {
     use wire::ReceiptCheck as C;
@@ -353,7 +357,6 @@ fn u1_receipt_check_wire_vocabulary() {
         (C::WorkCounter(k::WorkFault::Both), "work_counter_inconsistent"),
         (C::WorkCounterRange, "work_counter_range"),
         (C::WorkCounterInconsistent, "work_counter_inconsistent"),
-        (C::SaturationNotExcluded, "saturation_not_excluded"),
         (C::Association, "association"),
         (C::Scope, "association"),
         (C::Untranslated, "encoding"),
@@ -367,8 +370,10 @@ fn u1_receipt_check_wire_vocabulary() {
     }
 }
 
-/// D-4 §3 items 2 and 4: a trace Count is exact or abandons, and a legacy
-/// `rejected` beyond the safe range is `saturation_not_excluded`.
+/// D-4 §3 items 2 and 4 with D6: a trace Count is exact or abandons, and a legacy
+/// `rejected` is the kernel's checked total: an overflowed total refuses as
+/// `work_counter_range` (WorkCounter(Overflow)) and an exact one beyond the safe
+/// range as `work_counter_range`; nothing saturates.
 #[test]
 fn u1_exact_or_abandon_counts_and_legacy_rejected() {
     let mut overflow = k::StageWork::default();
@@ -379,11 +384,15 @@ fn u1_exact_or_abandon_counts_and_legacy_rejected() {
     assert_eq!(failures, vec![wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow), field_path: "Count.value" }]);
     let (count, failures) = wire::test_count(k::StageWork::default().checked_total());
     assert_eq!((count, failures.len()), (json!({"kind":"exact","value":0}), 0));
-    let saturated = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: usize::MAX, limit: 9 };
+    let overflowed = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: rej(usize::MAX) + rej(1), limit: 9 };
     let mut work = Vec::new();
-    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: saturated, diagnostic_ref: "d".into() }), 0, &mut work),
-        Err(wire::ReceiptFailure { check: wire::ReceiptCheck::SaturationNotExcluded, field_path: "legacy_source_work[].rejected" }));
-    let ranged = rp::LegacyWork { charged: 1 << 53, rejected: 0, ..saturated };
+    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: overflowed, diagnostic_ref: "d".into() }), 0, &mut work),
+        Err(wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow), field_path: "legacy_source_work[].rejected" }));
+    assert_eq!(wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow).wire(), "work_counter_range");
+    let beyond = rp::LegacyWork { rejected: rej(1 << 53), ..overflowed };
+    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: beyond, diagnostic_ref: "d".into() }), 0, &mut Vec::new()),
+        Err(wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounterRange, field_path: "legacy_source_work[].rejected" }));
+    let ranged = rp::LegacyWork { charged: 1 << 53, rejected: rej(0), ..overflowed };
     assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: ranged, diagnostic_ref: "d".into() }), 0, &mut Vec::new()).err().map(|f| f.check),
         Some(wire::ReceiptCheck::WorkCounterRange));
 }
@@ -391,8 +400,8 @@ fn u1_exact_or_abandon_counts_and_legacy_rejected() {
 /// D39 (ROOT, 2026-10-04) with T1 (a): each legacy route row's disposition.
 #[test]
 fn u1_d39_legacy_dispositions() {
-    let work = rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: 0, limit: 0 };
-    let attempted = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: 3, limit: 9 };
+    let work = rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: rej(0), limit: 0 };
+    let attempted = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: rej(3), limit: 9 };
     let rows: [(rp::LegacySeed, Value, Option<&str>, Option<Value>); 4] = [
         (rp::LegacySeed::NotEligible, json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}), None, None),
         (rp::LegacySeed::NotRequired, json!({"disposition":"not_required","diagnostic_ref":null,"work_ref":null}), None, None),
@@ -430,7 +439,7 @@ fn u1_d39_route_capture() {
         capture.ordinary[0].legacy.clone()
     };
     assert!(matches!(failure(false), Some(rp::LegacySeed::DeclinedWithoutAttempt { work, ref diagnostic_ref })
-        if work.stage == "formation guard" && (work.charged, work.rejected, work.limit) == (0, 0, 0) && diagnostic_ref == "d:legacy"));
+        if work.stage == "formation guard" && (work.charged, work.rejected.exact(), work.limit) == (0, Ok(0), 0) && diagnostic_ref == "d:legacy"));
     assert!(matches!(failure(true), Some(rp::LegacySeed::Unavailable { .. })));
     let route = |eligible: bool, needs: bool, exact: bool| {
         let mut capture = rp::ProductCapture::default();
@@ -504,7 +513,7 @@ fn u1_load_row_case_capture() {
         assert!(record.message.ends_with(&finding.sentence) || record.message.contains(&finding.sentence), "test oracle only");
         match &seed.legacy {
             Some(rp::LegacySeed::DeclinedWithoutAttempt { work, diagnostic_ref }) => {
-                assert_eq!(*work, rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: 0, limit: 0 });
+                assert_eq!(*work, rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: rej(0), limit: 0 });
                 assert_eq!(diagnostic_ref, &format!("diagnostic:source-recovery:{}", seed.case));
             }
             other => panic!("{mode:?}: D39 declined_without_attempt expected: {other:?}"),
@@ -818,7 +827,7 @@ fn u1g2_initial_quality_crosscheck_negative() {
 #[test]
 fn u1g2_safe_range_boundary() {
     let max_safe = (1usize << 53) - 1;
-    let at = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: max_safe, rejected: max_safe, limit: max_safe };
+    let at = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: max_safe, rejected: rej(max_safe), limit: max_safe };
     let mut work = Vec::new();
     assert!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: at, diagnostic_ref: "d".into() }), 0, &mut work).is_ok(), "R22: 2^53-1 is in range");
     assert_eq!(work[0]["charged"], json!(max_safe as u64));

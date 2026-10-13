@@ -319,7 +319,7 @@ fn composite_recipe_reserves_before_failures_and_geometry_changes() {
     let before = selected.summary().work.charged;
     assert!(composite_support_norms(&f.input(), &mut selected, "missing").is_err());
     assert_eq!(selected.summary().work.charged, before);
-    assert!(selected.summary().work.rejected > 0);
+    assert!(selected.summary().work.rejected.exact().unwrap() > 0);
 }
 
 // Measurement only: explicit command; never a production budget override.

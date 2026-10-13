@@ -2263,7 +2263,8 @@ pub enum StrictGapEvidence {
 pub struct ExactGapWork {
     pub preparation_and_solve_charged: Option<usize>,
     pub charged: usize,
-    pub rejected: usize,
+    /// D6: the kernel's checked total of refused reservations (no saturation).
+    pub rejected: open_pipe_stress_frame_kernel::structural::retained_api::WorkTotal,
     pub reserved_for_unobserved_failure: usize,
     pub attempts: Vec<(String, exact::WorkReport, Option<String>)>,
 }
@@ -2438,11 +2439,7 @@ impl ExactGapReport {
         let source = self.retained.source_system();
         let mut total = 256;
         if total > limit {
-            return Err(exact::WorkReport {
-                charged: 0,
-                rejected: total,
-                limit,
-            });
+            return Err(exact::WorkReport::new(0, total, limit));
         }
         // Fixed scalar fields, length checks, repeated numeric summary loops,
         // and construction of the expected-contact triples are covered here.
@@ -2463,21 +2460,13 @@ impl ExactGapReport {
             self.work.attempts.len(),
             self.work_snapshot.attempts.len(),
         ] {
-            add(&mut total, count, 64, limit).map_err(|rejected| exact::WorkReport {
-                charged: 0,
-                rejected,
-                limit,
-            })?;
+            add(&mut total, count, 64, limit).map_err(|rejected| exact::WorkReport::new(0, rejected, limit))?;
         }
         // The complete sizing traversal is now conservatively charged, even if
         // it stops early. Dynamic comparison bytes have not yet been accepted.
         let prefix = total;
         let remaining = limit - prefix;
-        let late_rejection = |rejected| exact::WorkReport {
-            charged: prefix,
-            rejected,
-            limit,
-        };
+        let late_rejection = |rejected| exact::WorkReport::new(prefix, rejected, limit);
         let mut dynamic = 0;
         for bytes in [
             self.source_identity.len(),
@@ -2531,11 +2520,7 @@ impl ExactGapReport {
         if !self.summaries_match() {
             return exact::Attempt {
                 result: Err(exact::Error::Invalid("retained adapter summary mismatch")),
-                work: exact::WorkReport {
-                    charged: charge,
-                    rejected: 0,
-                    limit,
-                },
+                work: exact::WorkReport::new(charge, 0, limit),
             };
         }
         let contacts = self
@@ -2567,7 +2552,7 @@ fn gap_attempt<T>(
     label: String,
 ) -> Result<T, exact::Error> {
     work.charged = work.charged.saturating_add(attempt.work.charged);
-    work.rejected = work.rejected.saturating_add(attempt.work.rejected);
+    work.rejected = work.rejected + attempt.work.rejected;
     work.attempts.push((
         label,
         attempt.work,
@@ -2872,19 +2857,15 @@ pub(crate) fn scrutinize_gaps(
                 } else {
                     Err(exact::Error::Budget)
                 },
-                work: exact::WorkReport {
-                    charged: if state_charge <= remaining {
+                work: exact::WorkReport::new(if state_charge <= remaining {
                         state_charge
                     } else {
                         0
-                    },
-                    rejected: if state_charge <= remaining {
+                    }, if state_charge <= remaining {
                         0
                     } else {
                         state_charge
-                    },
-                    limit: remaining,
-                },
+                    }, remaining),
             },
             &mut work,
             "retain ordinary/projected states and reports".into(),
@@ -3181,7 +3162,7 @@ mod retention_tests {
             let tight = replay(report, 1088);
             assert!(matches!(tight.result, Err(exact::Error::Budget)));
             assert_eq!(tight.work.charged, 0);
-            assert!(tight.work.rejected > 1088);
+            assert!(tight.work.rejected.exact().unwrap() > 1088);
             let before_comparison = replay(report, charge - 1);
             assert!(matches!(
                 before_comparison.result,
@@ -3190,7 +3171,7 @@ mod retention_tests {
             assert!(before_comparison.work.charged > 0);
             assert!(before_comparison.work.charged < charge);
             assert_eq!(
-                before_comparison.work.charged + before_comparison.work.rejected,
+                before_comparison.work.charged + before_comparison.work.rejected.exact().unwrap() as usize,
                 charge
             );
             // Prefix accepted; only unexecuted dynamic bytes were rejected.
@@ -3200,7 +3181,7 @@ mod retention_tests {
             assert!(sufficient.work.charged > charge);
             let one_short = replay(report, sufficient.work.charged - 1);
             assert!(matches!(one_short.result, Err(exact::Error::Budget)));
-            assert!(one_short.work.rejected > 0);
+            assert!(one_short.work.rejected.exact().unwrap() > 0);
             assert!(one_short.work.charged >= charge);
             // Public failed-attempt strings are compared even though this honest
             // successful report had no errors. Mutated metadata must be sized
@@ -3214,7 +3195,7 @@ mod retention_tests {
             let denied = replay(&changed, charge);
             assert!(matches!(denied.result, Err(exact::Error::Budget)));
             assert_eq!(denied.work.charged, sizing_prefix);
-            assert!(denied.work.rejected > charge - sizing_prefix);
+            assert!(denied.work.rejected.exact().unwrap() as usize > charge - sizing_prefix);
             assert!(matches!(
                 replay(&changed, usize::MAX).result,
                 Err(exact::Error::Invalid("retained adapter summary mismatch"))

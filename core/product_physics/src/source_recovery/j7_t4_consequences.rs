@@ -50,6 +50,6 @@ fn j7_t4_i12_genuine_nodal_case_preserves_source_mismatch64(){
         eprintln!("J7_T4_I12_SOURCE {}",json!({"request_native_json_sha256":sha(serde_json::to_string(&raw).unwrap().as_bytes()),"captured_invocation_sha256":captured.borrowed_digest(),"mode":mode.as_str(),"case_id":case.id,"case_ordinal":2,"pipes":built.pipes.len(),"frames":built.frame_elements.len(),"connectors":built.connectors.len(),"load_occurrences":application.nodal_loads.len(),"free":free,"prescribed":prescribed,"outcome":format!("{failure:?}"),"scope":"genuine normalized/build/boundary/load-owned private method call; no ordinary observations, public selection or source standing manufactured"}));
         assert_eq!(failure.stage,"source closure");assert_eq!(failure.helper_stage,AttemptStage::SourceClosure);
         assert_eq!(failure.error,RecoveryError::SourceMismatch("actual model/source dimensions"));
-        assert_eq!(failure.work,exact::WorkReport{charged:64,rejected:0,limit:PHYSICS_SOURCE_WORK_LIMIT});
+        assert_eq!(failure.work,exact::WorkReport::new(64,0,PHYSICS_SOURCE_WORK_LIMIT));
     }
 }

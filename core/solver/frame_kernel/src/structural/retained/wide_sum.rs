@@ -113,17 +113,13 @@ impl SumWork {
             t.add(WorkTotal::exact_count(n))
         })
     }
-    pub fn limb_multiply_equivalents(&self) -> u64 {
-        self.checked_lme().legacy_saturated()
-    }
     pub(crate) fn merge(&mut self, other: &Self) {
         self.status = self.status.join(other.status);
         macro_rules! merge {
             ($field:ident) => {{
-                let t =
-                    WorkTotal::exact_count(self.$field).add(WorkTotal::exact_count(other.$field));
-                self.status = self.status.join(t.status());
-                self.$field = t.legacy_saturated();
+                WorkTotal::exact_count(self.$field)
+                    .add(WorkTotal::exact_count(other.$field))
+                    .record_into(&mut self.$field, &mut self.status);
             }};
         }
         merge!(term_limbs);
@@ -141,10 +137,9 @@ impl SumWork {
         };
         macro_rules! delta {
             ($field:ident) => {{
-                let t = WorkTotal::exact_count(self.$field)
-                    .remainder(WorkTotal::exact_count(before.$field));
-                out.status = out.status.join(t.status());
-                out.$field = t.legacy_saturated();
+                WorkTotal::exact_count(self.$field)
+                    .remainder(WorkTotal::exact_count(before.$field))
+                    .record_into(&mut out.$field, &mut out.status);
             }};
         }
         delta!(term_limbs);

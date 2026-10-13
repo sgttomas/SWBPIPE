@@ -85,8 +85,6 @@ pub(super) enum ReceiptCheck {
     /// An exact amount above 2^53-1.
     WorkCounterRange,
     WorkCounterInconsistent,
-    /// A legacy `rejected` beyond the safe range: only `saturating_add` reaches it.
-    SaturationNotExcluded,
     Association,
     /// Outside the serializer's scope (G-j; coexistence; D9b).
     Scope,
@@ -104,7 +102,6 @@ impl ReceiptCheck {
             Self::WorkCounter(k::WorkFault::Inconsistent | k::WorkFault::Both) => "work_counter_inconsistent",
             Self::WorkCounterRange => "work_counter_range",
             Self::WorkCounterInconsistent => "work_counter_inconsistent",
-            Self::SaturationNotExcluded => "saturation_not_excluded",
             // A candidate outside the invocation it was given is not associated with it.
             Self::Association | Self::Scope => "association",
             // A payload without a closed translation cannot be encoded.
@@ -833,19 +830,18 @@ fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work
     -> Result<(Value, Option<String>), ReceiptFailure> {
     let disclosed = |d: &String| if selected { (Value::Null, Some(d.clone())) } else { (json!(d), None) };
     let entry = |w: &rp::LegacyWork| {
-        // D-4 §3 item 4: `charged` and `limit` are guarded exact; `rejected` is
-        // projected only within the safe range (beyond it only saturation reaches).
+        // D-4 §3 item 4 with D6: `charged`, `limit` and the checked `rejected`
+        // total are guarded exact; an unavailable or out-of-range amount refuses
+        // by its work-counter check (nothing saturates).
         let beyond = |amount: usize| u64::try_from(amount).map_or(true, |a| a > MAX_SAFE);
         for (amount, path) in [(w.charged, "legacy_source_work[].charged"), (w.limit, "legacy_source_work[].limit")] {
             if beyond(amount) {
                 e.fail(ReceiptCheck::WorkCounterRange, path);
             }
         }
-        if beyond(w.rejected) {
-            e.fail(ReceiptCheck::SaturationNotExcluded, "legacy_source_work[].rejected");
-        }
+        let rejected = e.exact(w.rejected, "legacy_source_work[].rejected");
         json!({"case_index":case_index,"stage":w.stage,"helper_stage":helper_stage(w.helper_stage),
-            "charged":w.charged,"rejected":w.rejected,"limit":w.limit,"settlement":"booked"})
+            "charged":w.charged,"rejected":rejected,"limit":w.limit,"settlement":"booked"})
     };
     Ok(match seed {
         Some(rp::LegacySeed::NotEligible) => (json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}), None),

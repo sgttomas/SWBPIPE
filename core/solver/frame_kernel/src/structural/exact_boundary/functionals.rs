@@ -33,7 +33,7 @@ impl AttemptBudget {
             work: Work {
                 limits,
                 used: 0,
-                rejected: 0,
+                rejected: super::WorkTotal::zero(),
             },
             token: Arc::new(()),
             stage: AttemptStage::Preparation,
@@ -796,8 +796,10 @@ impl<'r, 'p, 'a> FunctionalSet<'r, 'p, 'a> {
             );
             // The legacy call was capped at the decreasing remainder, and its
             // failed/denied reservations are folded back before returning error.
-            w.used = w.used.saturating_add(a.work.charged);
-            w.rejected = w.rejected.saturating_add(a.work.rejected);
+            // D6: the remainder cap keeps `used + charged` within the limit; the
+            // refused reservations add as one checked total.
+            w.used = w.used.checked_add(a.work.charged).ok_or(Error::Budget)?;
+            w.rejected = w.rejected.add(a.work.rejected);
             let response = a.result?;
             Ok(RetainedFunctionalSet {
                 token: Arc::clone(token),

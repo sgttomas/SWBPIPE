@@ -2396,7 +2396,7 @@ fn work_is_counted_by_kind_and_width_and_saturates() {
         ),
         (1, 2, 1, 2, 1, 2, 1, 2)
     );
-    assert_eq!(w4.operations(), 12);
+    assert_eq!(w4.operations().exact(), Ok(12));
     assert_eq!(c8.work().add, 2);
     assert_eq!(c16.work().add, 3);
     let mut attempt = AttemptWork::default();
@@ -2406,16 +2406,19 @@ fn work_is_counted_by_kind_and_width_and_saturates() {
     assert_eq!(attempt.width::<4>(), c4.work());
     assert_eq!(attempt.width::<8>(), c8.work());
     assert_eq!(attempt.width::<16>(), c16.work());
-    // Saturation: counts never wrap.
+    // D6: counts never wrap or saturate; an overflowing count or cost is
+    // unavailable by name.
     let saturated = WidthWork {
         add: u64::MAX,
         ..WidthWork::default()
     };
+    assert_eq!(saturated.operations().exact(), Ok(u64::MAX));
+    assert_eq!(saturated.checked_lme(16).exact(), Err(WorkFault::Overflow));
     let mut twice = saturated;
     twice.merge(&saturated, 16);
-    assert_eq!(twice.add, u64::MAX);
-    assert_eq!(saturated.limb_multiply_equivalents(16), u64::MAX);
-    assert_eq!(saturated.operations(), u64::MAX);
+    assert_eq!(twice.add, u64::MAX, "an unavailable merge keeps the last exact count");
+    assert_eq!(twice.operations().exact(), Err(WorkFault::Overflow));
+    assert_eq!(twice.checked_lme(4).exact(), Err(WorkFault::Overflow));
 }
 
 #[test]
@@ -2452,7 +2455,7 @@ fn limb_multiply_cost_table_is_pinned() {
         ..WidthWork::default()
     };
     assert_eq!(
-        one_each.limb_multiply_equivalents(8),
+        one_each.checked_lme(8).exact().unwrap(),
         16 + 16 + 64 + 4626 + 5140 + 16 + 96 + 96
     );
 }
@@ -2476,7 +2479,7 @@ fn attempt_work_merges_across_widths() {
     assert_eq!(first.width::<4>().div, 2);
     assert_eq!(first.width::<8>().sqrt, 1);
     assert_eq!(first.width::<16>(), WidthWork::default());
-    assert_eq!(first.limb_multiply_equivalents(), 2 * 16 + 2 * 1290 + 5140);
+    assert_eq!(first.checked_lme().exact().unwrap(), 2 * 16 + 2 * 1290 + 5140);
 }
 
 #[test]

@@ -552,7 +552,8 @@ pub(super) struct LegacyWork {
     pub stage: &'static str,
     pub helper_stage: open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage,
     pub charged: usize,
-    pub rejected: usize,
+    /// D6: the kernel's checked total of refused reservations.
+    pub rejected: k::WorkTotal,
     pub limit: usize,
 }
 impl ProductCapture {

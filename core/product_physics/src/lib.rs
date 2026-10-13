@@ -893,7 +893,7 @@ impl SourceRecoveryBudget {
     fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
         if amount > self.invocation_limit.saturating_sub(self.charged) {
             self.rejected = self.rejected.saturating_add(amount);
-            return Err(open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport { charged: self.charged, rejected: amount, limit: self.invocation_limit });
+            return Err(open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport::new(self.charged, amount, self.invocation_limit));
         }
         self.charged += amount;
         self.publication_charged += amount;
@@ -3201,12 +3201,12 @@ const RECEIPT_ENCODING_REASON: &str = " Reason: receipt_encoding; detail: ";
 const RECEIPT_ENCODING_DETAIL_MAX: usize = 25;
 
 /// C1:68's receipt-encoding detail for a serializer refusal, from the accepted
-/// `ReceiptCheck::wire()` token: only the details C1:68 names (the three work-counter
-/// tokens, and `publication_hash_range` "similarly"). An association or untranslated
+/// `ReceiptCheck::wire()` token: only the details C1:68 names (the work-counter
+/// tokens, and `publication_hash_range` "similarly"; D6 removed `saturation_not_excluded`). An association or untranslated
 /// refusal is not a receipt-encoding fallback and states no reason.
 fn receipt_encoding_detail(check: retained_wire::ReceiptCheck) -> Option<&'static str> {
     match check.wire() {
-        token @ ("work_counter_range" | "work_counter_inconsistent" | "saturation_not_excluded" | "publication_hash_range") => Some(token),
+        token @ ("work_counter_range" | "work_counter_inconsistent" | "publication_hash_range") => Some(token),
         _ => None,
     }
 }

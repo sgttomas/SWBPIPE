@@ -219,7 +219,7 @@ fn method_comparison(refcase: &Value, m: &SelectedSourceRecovery, owned: &Owned)
     (rows.len(), pass)
 }
 fn work_json(w: &exact::WorkReport) -> Value {
-    json!({"charged": w.charged, "rejected": w.rejected, "limit": w.limit})
+    json!({"charged": w.charged, "rejected": w.rejected.exact().ok(), "limit": w.limit})
 }
 fn response_digest(m: &SelectedSourceRecovery) -> String {
     let mut h = Sha256::new();
