@@ -737,8 +737,11 @@ pub(crate) fn supervise(
                     control.kill();
                     break;
                 }
-                // The result lease is admitted while the grant is still held.
-                let lease = match terms.pool.acquire(resident_envelope(length), LeasePurpose::Result) {
+                // The result lease is admitted while the grant is still held. It
+                // is held as an uncredited (ingress) reservation while the bytes
+                // are read, and becomes a Result lease, which interactive
+                // admissions count as written, only once they are written.
+                let mut lease = match terms.pool.acquire(resident_envelope(length), LeasePurpose::Ingress) {
                     Ok(lease) => lease,
                     Err(refused) => {
                         verdict = end(WorkerOutcome::Refused(refused));
@@ -754,6 +757,7 @@ pub(crate) fn supervise(
                     verdict = end(protocol("the result frame was truncated"));
                     break;
                 }
+                lease.set_purpose(LeasePurpose::Result);
                 completed = Some((result, lease));
                 break;
             }

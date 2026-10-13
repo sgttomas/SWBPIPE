@@ -1169,6 +1169,18 @@ mod tests {
         drop(lease);
         // Still bounded: 9 GiB more needs 9 + 2 > 10.
         assert!(matches!(pool.acquire_interactive(9 * gib), Err(ResourceRefusal::HeadroomInsufficient { .. })));
+        // A result still being read is held as an uncredited ingress lease:
+        // with 1 GiB of it pending, 8 GiB more needs 8 + 2 + 1 > 10; once it
+        // is written (relabelled Result) the same request fits (8 + 2 <= 10).
+        let mut pending = pool.acquire(gib, LeasePurpose::Ingress).unwrap_or_else(|_| {
+            host.set(|s| s.headroom_bytes = Some(20 * GIB));
+            let lease = pool.acquire(gib, LeasePurpose::Ingress).unwrap();
+            host.set(|s| s.headroom_bytes = Some(10 * GIB));
+            lease
+        });
+        assert!(matches!(pool.acquire_interactive(8 * gib), Err(ResourceRefusal::HeadroomInsufficient { .. })));
+        pending.set_purpose(LeasePurpose::Result);
+        drop(pool.acquire_interactive(8 * gib).unwrap());
     }
 
     /// The interactive class: pressure does not gate it (warning, critical or
