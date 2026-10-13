@@ -365,7 +365,7 @@
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d",
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec",
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d",
-    "core/solver/frame_kernel/tests/s11_site_table.rs": "28a33c0f17f0319bbcecb4496e850b16b281039a603671f6da0db2b31956cad6",
+    "core/solver/frame_kernel/tests/s11_site_table.rs": "60846bba47facb000044e1e87f68ac52df38bffbc0e9004954682b04d42b647c",
     "core/solver/linear_supports/.gitignore": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
     "core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
     "core/solver/linear_supports/Cargo.toml": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
@@ -822,7 +822,7 @@
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d",
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec",
     "core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d",
-    "core/solver/frame_kernel/tests/s11_site_table.rs": "28a33c0f17f0319bbcecb4496e850b16b281039a603671f6da0db2b31956cad6",
+    "core/solver/frame_kernel/tests/s11_site_table.rs": "60846bba47facb000044e1e87f68ac52df38bffbc0e9004954682b04d42b647c",
     "core/solver/linear_supports/.gitignore": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
     "core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
     "core/solver/linear_supports/Cargo.toml": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
@@ -929,7 +929,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "75a25caf12d3bd1154e10b898a197a0ec80e3193a9676d7dd697d5ead8fda703"
   },
-  "inventory_json_sha256": "e36fb7fe1fb674ad7c988de9e8accbebd3bf93909fb8a8d6c601d7afb6396d2b",
+  "inventory_json_sha256": "a3eb70b66ad739b9ef6ecf7e163da2aa4cadcc47c93ed3b53df3890f602afa27",
   "dependencies": [
     {
       "name": "block-buffer",
