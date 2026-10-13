@@ -161,11 +161,14 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("lib.rs", "exact_straight_summary_extrema", ("add",), "c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1"),
     ("lib.rs", "append_exact_pressure_results", ("divided",), "c65eecfd90235e5adf464f7149a377ac79ae9474cd99a2933405120b4b9d5f77"),
     ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
-    ("pressure_exact.rs", "lame_at_radius", ("mul",), "4cc46083ebb6e0a4ae0b1fdd58b9219cefd77f44ac81ca6021b77845c7cded64"),
     ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
-    ("preview_physics.rs", "render", ("divided",), "eb43e10bf8292eaf21706a887b4b28d6d616fc9216ef29ef86339dfad0a3f4db"),
+    # B7a E14/C5: row slots and arc metadata changed; the sole divided
+    # receiver remains frame_kernel::CertifiedRow, not FallbackError.
+    ("preview_physics.rs", "render", ("divided",), "1a0bdf5476a3d20f0fcf6a46a992725b6c49205a859b2b89fbb303a22e06da5f"),
     ("retained_memory.rs", "strings", ("add",), "b34bc5c8a6f6863d21fd93b87baae4f33e47467d1f639086650fe6a22bd1a585"),
-    ("retained_memory.rs", "retained_error_text", ("add",), "f50e721160819efd5fc3c5b4fb3dae56c70989cf4cea9d3dd75f6a546507a666"),
+    # The N06 capture adds pending error capacity positively. Every add
+    # receiver remains this module's Bytes accumulator, not FallbackError.
+    ("retained_memory.rs", "retained_error_text", ("add",), "9f62063575e9e1eb566d12bb66b0601b4a9f39fd37c552cb0ec721168082f3e9"),
     ("retained_memory.rs", "complete_observations", ("add",), "8f65af0bdd6c83d559966214eb77b308bea940f917ebb210e70d27e9bfef2fc2"),
     ("pressure_exact/source_geometry.rs", "from_od_wall", ("add", "mul"), "0c2ac197402cbbfb8ceae54cb1c18acaefbcb1a26f658c11f88b88d33e1e1df9"),
     ("pressure_exact/source_geometry.rs", "pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
@@ -210,8 +213,10 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError(f"KD5C5: private method/body changed: {name}")
         targets[name] = f"{file}:{line}:{name}"
     inventory = []
-    # 17 K-D5 pairs and the join's J7 census caller.
-    callers, expected = FALLBACK_OUTSIDE_CALLERS, 18
+    # B7a E11 retired the unused interior Lamé caller; its product surface
+    # stress path is already the separately pinned source_geometry caller.
+    # 16 surviving K-D5 pairs and the join's J7 census caller.
+    callers, expected = FALLBACK_OUTSIDE_CALLERS, 17
     bend_pressure = os.path.join(snapshot, "core/product_physics/src/bend_pressure.rs")
     if os.path.exists(bend_pressure):
         with open(bend_pressure, encoding="utf-8") as stream:
