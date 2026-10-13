@@ -339,7 +339,10 @@ else:
         O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"record.member": IN})]
 if not fnkey("member_record", _CP):
     O10_ID_AUDIT += [(site("solve_load_case_observed", PP_ + "lib.rs", "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
-O10_ID_AUDIT += [(site("check", FK_ + "structural/formation_check.rs", "family.clone()", full=True), {"family": ST})]
+# Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md section 1.5): the
+# unavailable-family label moved, unchanged, from `check` into its callee `check_at`.
+O10_ID_AUDIT += [(site("check_at" if fnkey("check_at", FK_ + "structural/formation_check.rs") else "check",
+                       FK_ + "structural/formation_check.rs", "family.clone()", full=True), {"family": ST})]
 
 
 if fnkey("member_group_fires", _FG):
@@ -424,6 +427,25 @@ if fnkey("member_group_fires", _FG):
         "evaluate": "4233fd8c95e578130216b2125cb2aa1d506fac5e114d556ec6c3a1ca01b141d4",
         "load_closure": "57481954c41488f9490f91070b4094e33fee8e12dad1acf61a05e686b9eb7275",
     }
+    _detail_from = "check"
+    if fnkey("check_at", _FC):
+        # Nonlinear K-D5 re-review (DEL-04-01 kd5-nonlinear-active-set.md
+        # section 1.5): `check` is now a pure delegation to `check_at`, which
+        # holds the former `check` body plus the `judged` flag and the
+        # per-attempt epsilon_E cache. `check_at` calls `evaluate` once and
+        # `detail` at most once on its Err arm, so the KD5M1 cap moves to
+        # `check_at` invocations. `evaluate` gained only the judged filter and
+        # the cache (no new allocation, error or detail call); `load_closure`
+        # gained the two friction formulas in the existing nodal binding arm
+        # (inventory still 15). `detail` is byte-identical.
+        _invocation_pins = {
+            "detail": "ae006b02fed244b2e77686378bdb17b87c442a1d4873add6f4b2129d3be1bc0f",
+            "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
+            "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
+            "evaluate": "89c4ab5160fad0545ea1311a358f416b57aadfd8f04e35c022b6f850dc68741b",
+            "load_closure": "179a7dcf215fda75e4f0fa124e85a1fdac284da65bf5044fcc7a2e8c6a0b22cf",
+        }
+        _detail_from = "check_at"
     _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
     _invocation_bodies = {}
     for _name, _digest in _invocation_pins.items():
@@ -435,7 +457,7 @@ if fnkey("member_group_fires", _FG):
             raise SystemExit(f"KD5M1/M2: source pin changed: {_FC}:{_name}; re-review per-invocation control flow")
         _invocation_bodies[_name] = (_start, _end)
     for _name, _from, _per, _expected, _why in [
-        ("detail", "check", "2", 7, "KD5M1: at most one inner Second detail and one outer detail per check/evaluate invocation; first-error returns prevent another inner detail; charge each exclusive allocation alternative separately"),
+        ("detail", _detail_from, "2", 7, "KD5M1: at most one inner Second detail and one outer detail per check/evaluate invocation; first-error returns prevent another inner detail; charge each exclusive allocation alternative separately"),
         ("load_closure", "load_closure", "1", 15, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately"),
     ]:
         _start, _end = _invocation_bodies[_name]
@@ -594,3 +616,18 @@ C7_INPUT_METADATA = [(site(_name, _c7_audit_file, _borrowed if _c7_audit_borrowe
                      for _name, _owned, _borrowed, _audit in _c7_audit_sites]
 if not _c7_audit_borrowed:
     O10_ID_AUDIT += C7_INPUT_METADATA
+
+# NLKD5 (DEL-04-01 kd5-nonlinear-active-set.md section 3.3, section 4): the
+# nonlinear K-D5 confirmation. The Passed evidence line finds the case's one
+# integrity diagnostic by id in the case's diagnostic Vec (one scan, <= D, as
+# KD5L8). The confirmation's gate-refusal reason prints the gate's
+# Option<f64> reciprocal condition estimate with Debug: "None", or "Some(" +
+# an f64 Debug (<= 24 B, composite_text F64D) + ")", <= 30 B.
+_NI_CONFIRMATION = "core/solver/nonlinear_integration/src/confirmation.rs"
+if fnkey("confirm_with_applied", _NI_CONFIRMATION):
+    O10_LOOPS_LAST += [
+        ("iter:diagnostics.iter_mut().find", "D", O10 + "NLKD5L1: the evidence line's one scan of the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:solve_load_case_observed"]),
+    ]
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^gate\.report\.reciprocal_condition_estimate$", "max": 30, "why": O10 + "NLKD5A1: Option<f64> Debug, 'None' or 'Some(' + f64 Debug 24 + ')' <= 30 B"},
+    ]
