@@ -1279,7 +1279,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     // R2 (§3.1): the nonlinear route's member bound is the confirmed state's
     // Stage B, present only for an established confirmation of a nonlinear
     // case, and its recovery view takes Stage B's force.
-    assert!(compact.contains("letconfirmed=match&confirmation{Some(Confirmation::Established(state))ifpre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty()=>Some(state.as_ref()),_=>None,};"));
+    assert!(compact.contains("letconfirmed=confirmed_state.as_deref().filter(|_|pre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty());"));
     assert!(compact.contains("letmember_bound=member_bound.or(confirmed.map(|state|&state.member_bound));"));
     assert!(compact.contains("letcertified_force=confirmed.map_or(&force,|state|&state.force);"));
     assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,certified_force,spring_entries));"));

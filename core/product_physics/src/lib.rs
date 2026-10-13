@@ -1186,6 +1186,13 @@ fn append_integrity_report(
     }
 }
 
+/// DEL-04-01 kd5-nonlinear-active-set.md §3.1, §2.4: what the nonlinear helper
+/// hands publication: a confirmed state, or the fail-closed sentence.
+enum NonlinearStanding {
+    Confirmed(Box<open_pipe_stress_nonlinear_integration::confirmation::ConfirmedState>),
+    NotEstablished(String),
+}
+
 /// DEL-04-01 kd5-nonlinear-active-set.md §2.4: the fail-closed sentence of a
 /// nonlinear case whose converged support state is not established.
 fn nonlinear_not_established_sentence(reason: &str) -> String {
@@ -5104,7 +5111,7 @@ fn solve_load_case_observed(
             vec![load_case.id.clone()],
         ));
     }
-    let (selected_nonlinear, confirmation) = match append_nonlinear_support_loop_results(
+    let (selected_nonlinear, nonlinear_standing) = match append_nonlinear_support_loop_results(
         &mut results,
         diagnostics,
         model,
@@ -5116,7 +5123,7 @@ fn solve_load_case_observed(
         spring_entries,
         load_row_finding.is_none(),
     ) {
-        Some((solve, confirmation)) => (Some(solve), confirmation),
+        Some((solve, standing)) => (Some(solve), Some(standing)),
         None => (None, None),
     };
     if !built.nonlinear_supports.is_empty() {
@@ -5221,19 +5228,20 @@ fn solve_load_case_observed(
     let member_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
     // the certified rows of its confirmed converged state (Stage B).
-    let confirmed = match &confirmation {
-        Some(Confirmation::Established(state)) if pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty() => Some(state.as_ref()),
-        _ => None,
+    let (confirmed_state, nonlinear_sentence) = match nonlinear_standing {
+        Some(NonlinearStanding::Confirmed(state)) => (Some(state), None),
+        Some(NonlinearStanding::NotEstablished(sentence)) => (None, Some(sentence)),
+        None => (None, None),
     };
+    let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
     let member_bound = member_bound.or(confirmed.map(|state| &state.member_bound));
     if member_bound.is_none() {
-        let sentence = if built.nonlinear_supports.is_empty() {
-            "the member-relative formation check is not available on this route; member rows are binary64 recoveries".to_string()
-        } else {
-            nonlinear_not_established_sentence(match &confirmation {
-                Some(Confirmation::NotEstablished { reason }) => reason,
-                _ => "confirmation attempt: not run",
-            })
+        let sentence = match nonlinear_sentence {
+            Some(sentence) => sentence,
+            None => {
+                let route = "on this route";
+                format!("the member-relative formation check is not available {route}; member rows are binary64 recoveries")
+            }
         };
         let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery, sentence, fired: Vec::new() };
         formation_guard::amend_integrity_report(diagnostics, &integrity_diagnostic_id(&load_case.id), &finding);
@@ -6381,7 +6389,7 @@ fn append_nonlinear_support_loop_results(
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
     confirm: bool,
-) -> Option<(NonlinearFrameSolveResult, Option<Confirmation>)> {
+) -> Option<(NonlinearFrameSolveResult, NonlinearStanding)> {
     if built.nonlinear_supports.is_empty() {
         return None;
     }
@@ -6706,7 +6714,18 @@ fn append_nonlinear_support_loop_results(
                 ),
                 vec![load_case.id.clone(), "DEC-046".to_string()],
             ));
-            Some((solve, confirmation))
+            // §2.4: the sentence is formed here, behind the helper's early
+            // return, so only a model with nonlinear supports forms it.
+            let standing = match confirmation {
+                Some(Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
+                Some(Confirmation::NotEstablished { reason }) => {
+                    NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(&reason))
+                }
+                None => NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(
+                    "confirmation attempt: not run",
+                )),
+            };
+            Some((solve, standing))
         }
         Err(error) => {
             if let NonlinearIntegrationError::Structural(structural) = &error {
