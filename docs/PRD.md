@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) and by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only) and by SCA-012 (2026-10-12, elastic tie rods)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -74,6 +74,8 @@ This PRD also incorporates the project intent that the software should implement
 This PRD retains and depends on the project governance boundaries defined by the IP/Data Boundary Policy and the Professional Boundary and Product Claims Policy.
 
 This PRD was amended on 2026-07-16 under D-47 Option O-A (codified as DEC-080, executed as SCA-007): the §24 R6 reproduction exit criterion became actor-neutral; §22.5 was retitled and re-weighted to name external-prover correlation the principal validation posture; §22.1 gained a verification-philosophy paragraph; and independent third-party reproduction was re-homed as a publication-era objective. The document was relocated to `docs/PRD.md`.
+
+This PRD was amended on 2026-10-12 by SCA-012 on the owner's choice "Lift for tie rods only": elastic tie rods on expansion joints, as explicit rod elements, left the §7 non-goals (item 19) and joined the §12.3 expansion-joint requirements; hinge and gimbal hardware remain non-goals.
 
 ---
 
@@ -250,7 +252,7 @@ In addition, the following special analysis domains are recorded as current non-
 16. Perform fatigue cycle counting.
 17. Provide first-class nozzle-flexibility objects.
 18. Provide mitered-bend or stepped-reducer element formulations.
-19. Model expansion-joint hardware kinematics (tie rod, hinge, gimbal) beyond the configuration metadata already specified for expansion joints.
+19. Model expansion-joint hinge or gimbal hardware kinematics beyond the configuration metadata already specified for expansion joints. Elastic tie rods are in scope as explicit rod elements (§12.3; SCA-012, owner 2026-10-12: "Lift for tie rods only").
 
 ---
 
@@ -687,7 +689,8 @@ Expansion joints shall support:
 - effective pressure area;
 - pressure thrust;
 - movement limits;
-- tie rod, hinge, gimbal, or limit rod metadata;
+- elastic tie rods as explicit axial rod elements, with each rod's force published;
+- hinge, gimbal, or limit rod metadata;
 - manufacturer data provenance.
 
 ### 12.4 Support and Restraint Types

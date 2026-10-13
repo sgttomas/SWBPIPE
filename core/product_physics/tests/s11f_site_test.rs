@@ -203,8 +203,7 @@ const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
     ("PP/lib.rs", "run_linear_static_preview_observed", "load_case_solves", "per-case result records, not a force vector"),
     ("PP/lib.rs", "legacy_observation_force", "observation", "observation lane (limit 2): T1's DEC050/053 observation force, K_fc g_c folded on purpose"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "global_forces", "E8/E9: the row loop writes each row's one exact sum"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the chord rotation of the recovered end forces (a formed transform, section 2.2)"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_force", "the chord rotation's element loop (a formed transform, section 2.2)"),
+    ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the selected end-frame rotation of the recovered global end forces (one formed transform, section 2.2; tangent on pressure-1, chord on staged preview)"),
     ("FK/lib.rs", "reduced_right_hand_side", "adjusted_force", "KS2: the legacy row expression, kept only for the option (c) binary64 variant and legacy rows with no nonzero prescribed product (b - (+-0) is exact); ledger rows are always exact"),
     ("FK/lib.rs", "solve_dense", "rhs", "generic linear-algebra kernel (limit 1)"),
     ("FK/lib.rs", "solve_dense", "sum", "generic linear-algebra kernel (limit 1): back substitution"),
@@ -626,6 +625,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/certified_recovery.rs", "certify_straight_section", "K-D5 §3.1: one straight section by the same recipe"),
     ("FK/structural/certified_recovery.rs", "certify_straight_stress_spans", "K-D5 §3.2: Bernstein stress controls from the certified recovery and the raw uniform primitives"),
     ("FK/structural/certified_recovery.rs", "certify_arc_recovery", "K-D5 §3.1: arc end and station rows through K_int,arc"),
+    ("FK/structural/certified_recovery.rs", "tangent_end_operator_and_loads", "U4a: rotate intended end loads in ball arithmetic before evaluating and publishing the certified tangent rows"),
     ("FK/structural/certified_recovery.rs", "certify_connector_recovery", "K-D5 §3.1: connector rows through connector_matrix"),
     (
         "FK/structural/certified_recovery.rs",
@@ -735,10 +735,11 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "max_abs_entry_residual", 3, "allow-listed DEC050/053 sparse parity observation lane (limit 2)"),
     ("PP/lib.rs", "max_abs_value", 1, "max fold of an observation"),
     ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
-    ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
+    ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the selected end-frame rotation after the E8/E9 exact sums; tangent on pressure-1, chord on staged preview"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
     ("PP/lib.rs", "run_linear_static_preview_observed", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
-    ("PP/lib.rs", "solve_load_case_observed", 2, "integer: source-budget attempts and component modifier count"),
+    ("PP/lib.rs", "solve_load_case_observed", 0, "validated pressure preparation and delegation to the private prepared solve; no force accumulation"),
+    ("PP/lib.rs", "solve_prepared_load_case", 2, "integer: source-budget attempts and component modifier count, moved unchanged from solve_load_case_observed"),
     ("PP/lib.rs", "straight_local_uniform_loads", 1, "declared formation: one load's local transform (section 2.5 PP:7479)"),
     ("PP/lib.rs", "straight_summary_extrema", 1, "declared: the stress bound's same-sign pattern sums (section 2.2)"),
     ("PP/lib.rs", "exact_straight_end_forces", 0, "E5"),
@@ -754,6 +755,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_constant_effort_support_loads", 0, "producer"),
     // ---- PP/pressure_runtime.rs
     ("PP/pressure_runtime.rs", "finish_source_groups", 1, "max fold of the pressure-RHS screen magnitude"),
+    ("PP/pressure_runtime.rs", "traverse_region", 2, "integer: reindex the two arc-junction member positions by subtracting counts of removed virtual joint edges; no load formation"),
     ("PP/pressure_runtime.rs", "collinear_run", 1, "geometry: chord projection (section 2.5; T4-U2 moved it from traverse_region, unchanged)"),
     // ---- PP/retained_product.rs (B1 SQ, RR "RV109 passes SP in RV-P round 2; …", ruling 3: E-12)
     ("PP/retained_product.rs", "check_support_maps", 1, "integer: one support's spring-map count"),
@@ -1375,7 +1377,23 @@ fn rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams() {
     assert!(linear.contains("assembly.solve_assembled_with_formation_check("));
     assert!(linear.contains("built.nonlinear_supports.is_empty()"));
     assert!(!linear.contains("assembly.solve_assembled("));
-    let case = body("solve_load_case_observed");
+    // U5a's dormant composition extracted the mechanics body after the
+    // document route's pressure preparation. Follow that one private call,
+    // preserving the validation gate as well as the typed seams below.
+    let wrapper = body("solve_load_case_observed");
+    assert_eq!(calls(&wrapper, "build_pressure_case_with_members(").count(), 1);
+    let prepared = call_arguments(&wrapper, "solve_prepared_load_case(");
+    assert_eq!(prepared.len(), 1);
+    assert!(prepared[0].contains("exact_pressure"));
+    assert!(wrapper.find("build_pressure_case_with_members(").unwrap()
+        < wrapper.find("solve_prepared_load_case(").unwrap());
+    let prepared_callers = items(&pp).into_iter().filter_map(|item| {
+        let count = calls(&item.body, "solve_prepared_load_case(").count();
+        (count > 0).then_some((item.name, count))
+    }).collect::<Vec<_>>();
+    assert_eq!(prepared_callers, vec![("solve_load_case_observed".to_string(), 1)]);
+    let case = body("solve_prepared_load_case");
+    assert_eq!(calls(&case, "build_pressure_case_with_members(").count(), 0);
     assert!(case.contains("reduce_assembled_system_with_prescribed_displacements("));
     assert!(case.contains("reduce_assembled_system("));
     // F1b (§4.8): the ordinary route's partition is the pattern's; the dense
@@ -1997,8 +2015,8 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
     ),
     (
         "push_exact_pressure_operands",
-        "formed: exact-pressure group operand, Bounded (gamma_20, counted from the source)",
-        &["Formation::Bounded", "exact_pressure_operand_bound("],
+        "formed: exact-pressure group operand, Bounded by its producer-owned gamma_20 bound or the nonzero joint product's absolute underflow reserve",
+        &["Formation::Bounded", "exact.assembled_operand_bounds[group_index]"],
         Some(&["false"]),
     ),
     (
@@ -2121,6 +2139,33 @@ fn t8_every_case_force_producer_is_classified() {
         .body;
     assert!(ledger_body.contains("certified_loads::nodal("));
     assert!(!ledger_body.contains("push_nodal_loads("));
+    // U5a moved pressure formation-bound selection into the source-group
+    // producer. The ledger must pair each operand with that same group's
+    // bound and closure, never with a pre-summed per-DOF force. Source-known
+    // zero retains the old zero bound; only a nonzero authored joint product
+    // whose binary64 result underflows to zero receives one Tiny reserve.
+    // Behavioural backing: joint_pressure_tests' source-underflow and
+    // closure controls, and formation_check_tests' exact three-factor control.
+    let pressure = pp_items.iter().find(|i| i.name == "push_exact_pressure_operands").unwrap();
+    assert!(pressure.body.contains("exact.assembled_operands.iter().enumerate()"));
+    assert!(pressure.body.contains("exact.closure_sources[group_index]"));
+    assert!(!pressure.body.contains("assembled_loads"));
+    let pressure_runtime = PRODUCT.iter().find(|s| s.name == "PP/pressure_runtime.rs").unwrap();
+    let source_items = items(&code_of(pressure_runtime.text));
+    let source = &source_items.iter().find(|i| i.name == "finish_source_groups").unwrap().body;
+    assert_eq!(calls(source, "output.assembled_operands.push(").count(), 1);
+    assert_eq!(calls(source, "output.assembled_operand_bounds.push(").count(), 1);
+    assert!(source.contains("output.assembled_operands.push((dof, value, source))"));
+    assert!(source.contains("output.assembled_operand_bounds.push(bound)"));
+    assert!(source.contains("pressure_group_value(group.pressure, coefficient, group.direction)"));
+    assert_eq!(calls(source, "super::exact_pressure_operand_bound(").count(), 1);
+    let compact = source.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    assert!(compact.contains("letbound=ifmatches!(area,FactorArea::Joint(_))&&value==0.0&&group.pressure.pressure_pa()!=0.0&&coefficient!=0.0&&group.direction!=0.0{f64::from_bits(1)}else{super::exact_pressure_operand_bound(value)}"));
+    let bound = &pp_items.iter().find(|i| i.name == "exact_pressure_operand_bound").unwrap().body;
+    assert!(bound.contains("product_upward(gamma(20), value.abs())"));
+    assert!(bound.contains("value != 0.0 && value.abs() < f64::MIN_POSITIVE"));
+    assert!(bound.contains("(relative + f64::from_bits(1)).next_up()"));
+    assert!(bound.contains("} else {\n        relative\n"));
     // Formed pushes occur nowhere else in the product or the kernel seams.
     let mut formed_sites = BTreeSet::new();
     for source in PRODUCT.iter().chain(KERNEL) {
@@ -2145,7 +2190,8 @@ fn t8_every_case_force_producer_is_classified() {
 }
 
 /// T10b (V1 DN-5; S11G_GUARD revision 2.2 with erratum E-1): the routing
-/// site in `solve_load_case` binds `source_eligible` by one call to main's
+/// site in the private prepared body of `solve_load_case` binds
+/// `source_eligible` by one call to main's
 /// predicate (no load-row finding in it: M19), binds `needs_source_recovery`
 /// by the tested predicate with the finding (M20), forms the receipt's
 /// ordinary attempt with the finding (M21), declines a Passed guard-fired case
@@ -2163,7 +2209,13 @@ fn t10b_routing_site_calls_the_tested_predicates() {
             .body
             .clone()
     };
-    let case = body("solve_load_case_observed");
+    // The document entry still prepares pressure once and enters this
+    // private body once; Rule 1 pins that call and its order. All routing
+    // predicates, declines and receipt formation remain in this body.
+    let wrapper = body("solve_load_case_observed");
+    assert_eq!(calls(&wrapper, "solve_prepared_load_case(").count(), 1);
+    assert_eq!(calls(&wrapper, "source_eligible(").count(), 0);
+    let case = body("solve_prepared_load_case");
     let statement = |binding: &str| {
         let at = case.find(binding).unwrap_or_else(|| panic!("{binding}"));
         let rest = &case[at + binding.len()..];

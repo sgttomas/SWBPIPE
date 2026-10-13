@@ -235,6 +235,15 @@ pub enum LoadFormula {
     ConnectorReference {
         connector: ObjectiveConnector,
     },
+    /// T4-U5a: dead generalized joint thrust, from authored binary64 operands.
+    JointEffectiveArea {
+        connector: ObjectiveConnector,
+        end: usize,
+        pressure: f64,
+        effective_area: f64,
+        axis: usize,
+        sign: f64,
+    },
     /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): an
     /// explicit-normal sliding friction force, -direction*coefficient*|normal|,
     /// re-formed as the exact product of the binary64 inputs (not fl(mu*N)).
@@ -515,6 +524,19 @@ fn load_closure(
             | LoadFormula::PressureFreeStrainCurved { arc, .. } => Some((arc.node_i, arc.node_j)),
             LoadFormula::ConnectorReference { connector } => {
                 Some((connector.node_i().index, connector.node_j().index))
+            }
+            LoadFormula::JointEffectiveArea { connector, end, axis, sign, .. } => {
+                let node = match end {
+                    0 => connector.node_i().index,
+                    1 => connector.node_j().index,
+                    _ => return Err(Failure::Closure("joint effective-area end binding".into())),
+                };
+                if *axis >= 3 || terms[p.term_index].dof != node * 6 + axis
+                    || p.local_row != *axis || !matches!(*sign, -1.0 | 1.0)
+                {
+                    return Err(Failure::Closure("joint effective-area DOF binding".into()));
+                }
+                None
             }
             LoadFormula::PressureOperand {
                 geometry,
@@ -1430,6 +1452,12 @@ impl LoadFormula {
                 }
                 bits(out, c.q_ref());
             }
+            Self::JointEffectiveArea { connector, end, pressure, effective_area, axis, sign } => {
+                out.push(10);
+                Self::ConnectorReference { connector: connector.clone() }.binding(out);
+                out.extend([*end as u64, *axis as u64]);
+                bits(out, [*pressure, *effective_area, *sign]);
+            }
             Self::SlidingFrictionExplicit {
                 global_dof,
                 coefficient,
@@ -1466,7 +1494,7 @@ fn bad_load(site: &'static str) -> LoadFailure {
 fn ball_lift3(b: &Balls, x: [f64; 3]) -> Result<[Ball; 3], LoadFailure> {
     Ok([b.lift(x[0])?, b.lift(x[1])?, b.lift(x[2])?])
 }
-fn ball_chord_axes(
+pub(super) fn ball_chord_axes(
     b: &mut Balls,
     xi: [f64; 3],
     xj: [f64; 3],
@@ -2039,6 +2067,20 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             };
             let value = b.mul(thrust, dir)?;
             [value; 12]
+        }
+        LoadFormula::JointEffectiveArea { connector, end, pressure, effective_area, axis, sign } => {
+            if *end >= 2 || *axis >= 3 || !matches!(*sign, -1.0 | 1.0)
+                || !effective_area.is_finite() || *effective_area <= 0.0
+            {
+                return Err(bad_load("joint effective-area operands"));
+            }
+            let pressure = b.lift(*pressure)?;
+            let area = b.lift(*effective_area)?;
+            let sign = b.lift(*sign)?;
+            let direction = b.lift(connector.axes()[*axis][0])?;
+            let thrust = b.mul(pressure, area)?;
+            let signed = b.mul(thrust, sign)?;
+            [b.mul(signed, direction)?; 12]
         }
         LoadFormula::ConnectorReference { connector } => {
             let mut a = WideArith::new(FORMATION_PRECISION)?;

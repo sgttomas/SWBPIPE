@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import {
-  CONNECTOR_CONTRACT_NOTICE, CONNECTOR_HARDWARE_KINDS, CONNECTOR_PRESSURE_MODELS, CONNECTOR_REFERENCE_STATES,
+  CONNECTOR_CONTRACT_NOTICE, CONNECTOR_HARDWARE_KINDS, connectorPressureModels, CONNECTOR_REFERENCE_STATES,
   connectorCreationAvailable, type ConnectorDraft
 } from "./componentIntent";
 import type { PreviewModel } from "../../types";
@@ -54,7 +54,13 @@ export function ConnectorDraftFields({ model, draft, prefix, TextInput, update }
       {text("Work matrix upper triangle (N*m)", "workMatrixUpperTriangle", "work-matrix")}
       {text("Installed geometry (calibration)", "installedGeometry", "installed-geometry")}
       {choice("Hardware", "hardwareKind", "hardware", CONNECTOR_HARDWARE_KINDS)}
-      {choice("Pressure model", "pressureModel", "pressure-model", CONNECTOR_PRESSURE_MODELS)}
+      {choice("Pressure model", "pressureModel", "pressure-model", connectorPressureModels(model))}
+      {model.schema_version === "0.5.0" && draft.pressureModel === "constant_effective_area_reference_v1" && <>
+        {text("Joint effective area", "effectiveArea", "effective-area")}
+        {text("Joint effective area unit", "effectiveAreaUnit", "effective-area-unit")}
+        {choice("Joint pressure basis", "pressureBasis", "pressure-basis", ["internal_differential_zero_external_v1"])}
+        {text("Joint pressure area source reference", "pressureSourceReference", "pressure-source")}
+      </>}
       {text("Stiffness source reference", "stiffnessSourceReference", "source")}
       {text("Measurement restraints", "measurementRestraints", "measurement")}
       {text("Basis transform reference", "basisTransformReference", "basis-transform")}

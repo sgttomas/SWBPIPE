@@ -1510,6 +1510,47 @@ fn kd5_connector_reference_and_thermal_laws_have_exact_family_controls() {
     .unwrap();
     assert_eq!(round(&v[6]), 4.0);
 }
+
+/// U5a's p-formation against an independently expanded exact dyadic triple
+/// product. The expansion has more than 128 significant bits, so a binary64
+/// midpoint with a narrow radius cannot pass even if its display rounds right.
+#[test]
+fn u5a_joint_effective_area_reformation_encloses_exact_three_factor_source_at_p() {
+    use crate::connector::{ConnectorAttachment, ScaledWorkMatrix};
+    use crate::exact_sum::ExactAccumulator;
+    let mut upper=[0.0;21];let mut at=0;
+    for r in 0..6 {for c in r..6 {upper[at]=if r==c {8.0}else{0.0};at+=1;}}
+    let connector=ObjectiveConnector::new(
+        FrameNode::new(0,[0.0;3]).unwrap(),FrameNode::new(1,[0.6,0.8,0.0]).unwrap(),
+        ConnectorAttachment::global([0.0;3]),ConnectorAttachment::global([0.0;3]),
+        [[0.6,-0.8,0.0],[0.8,0.6,0.0],[0.0,0.0,1.0]],
+        ScaledWorkMatrix{upper_triangle:upper,translation_scale:1.0},[0.0;6],
+    ).unwrap();
+    let dp=2.0_f64.powi(-51);let da=2.0_f64.powi(-50);
+    let pressure=1.0+dp;let area=1.0+da;
+    let mut nonzero_errors=0;
+    for end in 0..2 {for axis in 0..3 {for exponent in [-20,0,30] {
+        let sign=if end==0 {-1.0}else{1.0};
+        let mut operand=primitive(LoadFormula::JointEffectiveArea{connector:connector.clone(),end,pressure,effective_area:area,axis,sign},axis,0);
+        operand.force_scale_exponent=exponent;
+        let (midpoint,radius)=load_reformation(&operand).unwrap();
+        let d=sign*connector.axes()[axis][0]*2.0_f64.powi(exponent);
+        let split=midpoint[axis].split_binary64().unwrap();
+        // Exact identity: (1+dp)(1+da)d = d + dp*d + da*d + dp*da*d.
+        // ExactAccumulator's integer products/sums share no Balls/Wide law.
+        for side in [-1.0,1.0] {
+            let mut difference=ExactAccumulator::new();
+            for factor in [1.0,dp,da,dp*da] {difference.add_product(d,factor).unwrap();}
+            for term in split.terms() {difference.add(-term).unwrap();}
+            if !difference.is_zero() {nonzero_errors+=1;}
+            difference.add(side*radius[axis]).unwrap();
+            assert!(if side<0.0 {difference.signum()<=0}else{difference.signum()>=0},"end={end} axis={axis} W2=2^{exponent}: midpoint is outside the source enclosure");
+        }
+        let reference_scale=(d*pressure*area).abs();
+        assert!(radius[axis]<=2.0_f64.powi(-120)*reference_scale,"2^-120 source level: radius={:e} scale={reference_scale:e}",radius[axis]);
+    }}}
+    assert!(nonzero_errors>0,"the exact source extends below the midpoint precision");
+}
 #[test]
 fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
     let formula = LoadFormula::UniformStraight {

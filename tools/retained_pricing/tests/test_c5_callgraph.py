@@ -26,13 +26,11 @@ def snapshot_copy(tmp_path):
 
 def test_current_exact_inventory():
     rules = MODEL["inspect_fallback_boundary"](PIPING)
-    # The current source has U2's arc pressure rows and the join's J7 census
-    # caller: 17 + 1 + 2 caller/name pairs (KD5C5, JC5, KD5C5b) from 16 + 1 + 2
-    # callers.
-    assert len(rules) == 20
-    assert len({r["caller"] for r in rules}) == 19
+    # U2 adds two callers; batch 5 adds Scaled mul; J7 adds its exact census caller.
+    assert len(rules) == 21
+    assert len({r["caller"] for r in rules}) == 20
     assert {r["exclude_targets"][0] for r in rules} == {
-        CPP + ":746:add", CPP + ":749:mul", CPP + ":765:divided"}
+        CPP + ":753:add", CPP + ":756:mul", CPP + ":772:divided"}
     assert all(not r["caller"].startswith(CPP + ":") for r in rules)
 
 

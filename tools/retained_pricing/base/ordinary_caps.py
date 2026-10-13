@@ -168,6 +168,18 @@ def assembled_force():
     return (closure + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
             + B(8 * (4 * N + 2 * l)) + B(8 * pushcap(min(l, N))) + B(l * ID))
 add("AssembledForce, nodal family", "CasePrefix", assembled_force(), s("ForceTerm") * (pushcap(l) // 2))
+# B5O1: positive new carriers, including both return/move/argument slots.
+# D1.4 refuses every component; D1.5 requires absent/empty region lists with
+# capacity zero. Only their joint/region backing children are empty. The
+# owned carriers and prepared helper's argument/return staging are retained.
+if _snapshot:
+    from batch5_model import active as _batch5_active
+    if _batch5_active(_snapshot):
+        add("Prepared pressure case carriers and staging (B5O1)", "CasePrefix",
+            s("ExactPressureCaseOption") * 5 + s("PressureRegionInput") * 2
+            + s("LoadFormula") * 2 + s("PreparedCaseWorkspace")
+            + s("PreparedCaseResult") * 2 + s("BTreeMapHeader")
+            + HashReq("(&str,&T)", mats) + B(24 * N) + s("Vec") * (3 * N + 8))
 add("Sparse reduction (+ caller prescribed, observation force)", "CasePrefix",
     A("usize", F) + Xc("(usize,f64)", k) + B(8 * F) + Xc("Option<usize>", N) + B(8 * k)
     + Xc("Option<f64>", N) + Xc("(usize,f64)", k) + B(8 * k) + B(8 * N))
@@ -417,6 +429,8 @@ else:
     add("T25 selected source-blocks finalization (RESIDUALS_G3 T25)", "OldCaseStaging", atom("T25_PENDING"))
 
 PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal family', 'Sparse reduction (+ caller prescribed, observation force)', 'Formation-guard Bodies (build + resident)', 'Legacy profile observation', 'Straight member recovery (+ stress supplement)', 'Formation-guard late maps and RecoveryFinding', 'Ordinary scalar maximum (one helper at a time)', 'Source row qualification', 'Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)', 'Preview rewrite', 'Preview tree final copy (envelope evidence)', 'T07 generic deep legacy-exact (RESIDUALS_G3 T07)']
+if "Prepared pressure case carriers and staging (B5O1)" in fam:
+    PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
 for _f in PER_CASE_FAMILIES:                       # I82: one owner set per requested case, all counted live
     assert _f in fam, _f
     fam[_f] = fam[_f] * CC

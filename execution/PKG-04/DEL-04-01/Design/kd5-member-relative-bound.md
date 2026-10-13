@@ -89,7 +89,8 @@ Producers are in PP `lib.rs` unless named.
 | Free strain on straight members (eigen pair P·x_a) | `add_thermal_equivalent_loads` | DEL-05-01 (ε), DEL-04-02 | `FreeStrainStraight{frame, ε}`: ±E·A·ε along the chord | 2^-120 level |
 | Free strain on arcs, K_b·u_free(ε) | `add_curved_bend_thermal_equivalent_load` | DEL-05-01, DEL-04-07 | `FreeStrainCurved{arc, ε}`: K_int,arc·(ε·d) with the same arc matrix as ρ | 2^-120 level |
 | T4-U2 pressure free strain on arcs, K_b·u_free(ε_p) | exact-pressure route | DEL-04-07 | `FreeStrainCurved{arc, ε_p}`: ε_p = (1 − 2ν)·p·A_i/(E·A) at p | 2^-120 level |
-| T4-U2 pressure operand groups: terminal caps, bend terms −c_b, kink remainder, straight Poisson pairs (`poisson_eigen`) | `pressure_runtime` factor groups → `push_exact_pressure_operands` | DEL-04-07 | One `PressureOperand{kind, pipe, p, OD, t, coefficient, direction}` per summand: p·π·r_i²·c·d with r_i = OD/2 − t, π and the coefficient at p, and directions from the arc's (d, R, y) or the chord at p as K-D5 forms them. The ledger's γ₂₀ bound is not used | 2^-120 level |
+| T4-U2 pressure operand groups: terminal caps, bend terms −c_b, kink remainder, straight Poisson pairs (`poisson_eigen`), T4-U5a joint face caps (`joint_face_cap`) | `pressure_runtime` factor groups → `push_exact_pressure_operands` | DEL-04-07 | One `PressureOperand{kind, pipe, p, OD, t, coefficient, direction}` per summand: p·π·r_i²·c·d with r_i = OD/2 − t, π and the coefficient at p, and directions from the arc's (d, R, y) or the chord at p as K-D5 forms them. The ledger's γ₂₀ bound is not used | 2^-120 level |
+| T4-U5a joint effective-area terms | `pressure_runtime` factor groups → `push_exact_pressure_operands` | DEL-04-07 | `JointEffectiveArea{connector,end,p,Ae,axis,sign}`: p·Ae·sign·Q[axis][0] from authored binary64 operands. The expected binding carries the connector, end and axis; these are nodal pressure operands, never connector member loads. The source-known-zero rule and the complete manifest also apply on W2 | 2^-120 level |
 | Connector reference loads (T4-U3 q_ref) | `add_connector_reference_loads` | DEL-04-07 | `ConnectorReference{connector, q_ref}`: `connector_matrix`·q_ref | 2^-120 level |
 | W2 force-scaled terms | F1b/K2b | DEL-04-07 | The same primitives at 2^b, which is an exact scaling | as above |
 
@@ -213,6 +214,7 @@ The groups are every published member row, for straight members, realized arcs a
 
 - end rows, endpoint section cuts and the three interior stations;
 - per location, four groups: |N|, hypot(V_y, V_z), |T| and hypot(M_y, M_z).
+- On realized arcs, T4-U4a publishes the end rows in the tangent frame at each end, formed at p through the same certificate; the four end groups are formed from those rows and the law is unchanged ([DEL-04-07 Design, arc-frames-and-signs.md](../../DEL-04-07/Design/arc-frames-and-signs.md) §3).
 
 **Pipe-wall rows** form their own groups. The wall axial force is N_w = N_eff + p·A_i, formed at p from m_N and the input product p·A_i, and rounded once. Its group per location has q from the published wall value and B_w = ‖v_w − m_w‖ + r_w + R_N, where R_N is the effective axial row's remainder. The endpoint action rows (`pipe_wall_endpoint_action_v2`) follow the same rule. The membrane stress N_w/A_w is scaled at p and judged through N_w.
 

@@ -2,13 +2,12 @@
 
 |Field|Value|
 |---|---|
-|AmendmentID|SCA-011|
-|Snapshot|`execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/`|
+|AmendmentID|SCA-012|
+|Snapshot|`execution/_ScopeChange/SCA-012_2026-10-12_TIE_RODS/`|
 |Status|accepted|
-|Created|2026-09-22|
-|Decision|`execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DECISION.md`|
-|Closure|CLOSED_FOR_SCOPE_CHANGE_ONLY|
-|Summary|Four added delivery homes, two scope statements, named existing-owner clarifications and OBJ-018 summary parity; decomposition0.13 and adopted DAG-011. Existing dependency meanings, unsatisfied prerequisites, delivery states and protected holds remain.|
-|Postacceptance evidence|`execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/`|
+|Created|2026-10-12|
+|Decision|`execution/_ScopeChange/SCA-012_2026-10-12_TIE_RODS/DECISION.md`|
+|Closure|executed in place (PRD §7 item 19, PRD §12.3, DEC-069)|
+|Summary|The owner's "Lift for tie rods only": elastic tie rods on expansion joints, as explicit rod elements, enter scope; hinge and gimbal kinematics stay non-goals. No package, deliverable, ledger or graph change.|
 
-SCA-010 and earlier snapshots remain immutable historical authority under their own contracts. This pointer selects only the accepted SCA-011 amendment; it does not certify implementation, engineering, qualification or release.
+SCA-011 and earlier snapshots remain immutable historical authority under their own contracts. This pointer selects only the accepted SCA-012 amendment; it does not certify implementation, engineering, qualification or release.

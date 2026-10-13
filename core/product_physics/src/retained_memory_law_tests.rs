@@ -303,8 +303,13 @@ fn sha256_matches_the_sha2_dependency() {
 const PRESSURE_SOURCE_BINDING_INPUT: &str =
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 
+const PRESSURE_RESULT_SCHEMA_BINDING_INPUT: &str =
+    "../../schemas/results_pressure_1.v0.3.schema.json";
+const PRESSURE_RESULT_SCHEMA_BINDING_SHA256: &str =
+    "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5";
+
 fn reader_include_required(path: &str) -> bool {
-    path != PRESSURE_SOURCE_BINDING_INPUT
+    path != PRESSURE_SOURCE_BINDING_INPUT && path != PRESSURE_RESULT_SCHEMA_BINDING_INPUT
 }
 #[derive(Clone, Copy)]
 struct AuditedTestRegion {
@@ -381,7 +386,7 @@ fn actual_reader_include(reader: &str, input: &str) -> bool {
 }
 
 /// The full registration law and the focused pre-registration check share this
-/// guard. Only the exact appended binding path is exempt from resident includes.
+/// guard. Only the two exact appended definition paths are nonresident.
 fn assert_reviewed_reader_input_bindings() {
     const ORIGINAL: [&str; 17] = [
         "Cargo.lock",
@@ -403,8 +408,9 @@ fn assert_reviewed_reader_input_bindings() {
         "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
     ];
     assert_eq!(&build_identity::REVIEWED_INPUTS[..17], &ORIGINAL);
-    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 18);
+    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 19);
     assert_eq!(build_identity::REVIEWED_INPUTS[17], PRESSURE_SOURCE_BINDING_INPUT);
+    assert_eq!(build_identity::REVIEWED_INPUTS[18], PRESSURE_RESULT_SCHEMA_BINDING_INPUT);
     let audited = audited_reader_sources();
     let sources: Vec<_> = audited[..4].iter().map(|(source, region)|
         audited_reader_production(source, *region).expect("reader test region changed: re-audit before exclusion")
@@ -420,11 +426,12 @@ fn assert_reviewed_reader_input_bindings() {
             assert!(actual_reader_include(&reader, path), "{path} is a production reader include");
         } else {
             exemptions += 1;
-            assert_eq!(index, 17);
-            assert!(!actual_reader_include(&reader, path), "the binding is nonresident");
+            assert!(matches!((index, *path),
+                (17, PRESSURE_SOURCE_BINDING_INPUT) | (18, PRESSURE_RESULT_SCHEMA_BINDING_INPUT)));
+            assert!(!actual_reader_include(&reader, path), "the named definition is nonresident");
         }
     }
-    assert_eq!(exemptions, 1);
+    assert_eq!(exemptions, 2);
     let semantic = &sources[2];
     let verifier = semantic.split("pub fn verify_pressure_source_table(").nth(1).unwrap()
         .split("pub fn physics_source_contract(").next().unwrap();
@@ -442,6 +449,7 @@ fn assert_reviewed_reader_input_bindings() {
     assert!(signature.contains("crate::semantic_contract::physics_source_contract()"));
     let verdict = audited_reader_production(audited[4].0, audited[4].1).expect("verdict has no test region");
     assert!(!actual_reader_include(&verdict, PRESSURE_SOURCE_BINDING_INPUT));
+    assert!(!actual_reader_include(&verdict, PRESSURE_RESULT_SCHEMA_BINDING_INPUT));
     let findings = verdict.split("pub fn source_findings(").nth(1).unwrap().split("pub fn ").next().unwrap();
     assert!(findings.contains("if composite { sc::physics_source_contract() }"));
 }
@@ -507,14 +515,17 @@ fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
 }
 
 #[test]
-fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
+fn pressure_source_and_pressure_schema_are_the_two_nonresident_bindings() {
     use open_pipe_stress_result_export::{reader_verdict, semantic_contract as sc};
     use sha2::{Digest, Sha256};
     assert_reviewed_reader_input_bindings();
-    // A same-basename or similar family path does not acquire this exemption.
+    // Same-basename, directory and similar-family paths acquire no exemption.
     for path in ["../../schemas/semantic_contract_v0_3_pressure_source_1.json",
         "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
-        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"] {
+        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+        "../../fixtures/results/results_pressure_1.v0.3.schema.json",
+        "schemas/results_pressure_1.v0.3.schema.json",
+        "../../schemas/results_pressure_source_1.v0.3.schema.json"] {
         assert!(reader_include_required(path));
     }
     let bytes = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
@@ -525,33 +536,53 @@ fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":sc::PRESSURE_SOURCE_ID,"sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
+    let schema = include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json");
+    assert_eq!(format!("{:x}", Sha256::digest(schema)), PRESSURE_RESULT_SCHEMA_BINDING_SHA256);
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
-    assert_eq!(tokens.len(), 19);
+    assert_eq!(tokens.len(), 20);
     assert_eq!(tokens[0], "v1");
-    assert_eq!(tokens[18], format!("{PRESSURE_SOURCE_BINDING_INPUT}={}",sc::PRESSURE_SOURCE_TABLE_SHA256));
-    let digests = [Some([7; 32]); 18];
+    for (index, path, digest) in [
+        (17, PRESSURE_SOURCE_BINDING_INPUT, sc::PRESSURE_SOURCE_TABLE_SHA256),
+        (18, PRESSURE_RESULT_SCHEMA_BINDING_INPUT, PRESSURE_RESULT_SCHEMA_BINDING_SHA256),
+    ] {
+        assert_eq!(tokens[index + 1], format!("{path}={digest}"));
+        let removed = tokens.iter().enumerate().filter(|(i, _)| *i != index + 1)
+            .map(|(_, token)| *token).collect::<Vec<_>>().join(";");
+        assert!(!bindings_hold(true, Some(compiled), &removed, &READER_LAYOUTS, &READER_LAYOUTS));
+        let mut changed = tokens.clone();
+        let changed_digest = format!("{}{}", if digest.starts_with('a') { "b" } else { "a" }, &digest[1..]);
+        let changed_token = format!("{path}={changed_digest}");
+        changed[index + 1] = &changed_token;
+        assert!(!bindings_hold(true, Some(compiled), &changed.join(";"), &READER_LAYOUTS, &READER_LAYOUTS));
+    }
+    let digests = [Some([7; 32]); 19];
     let read = build_identity::encode_reviewed_inputs(&digests);
-    let (prefix, last) = read.rsplit_once(';').unwrap();
-    assert_eq!(last.len()+1, 134);
-    let mut unavailable = digests; unavailable[17] = None;
-    let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
-    assert_eq!(unavailable.len()-prefix.len(), 81);
-    assert_eq!(unavailable.rsplit_once(';').unwrap().0, prefix);
-    // Removing the current eighteenth token cannot bind a current registration.
-    assert!(!bindings_hold(true, Some(&read), prefix, &READER_LAYOUTS, &READER_LAYOUTS));
-    println!("pressure_source_binding_inputs=18,available_append=134,unavailable_append=81");
+    let fields: Vec<_> = read.split(';').collect();
+    for (index, available_bytes, unavailable_bytes) in [(17, 134, 81), (18, 115, 62)] {
+        assert_eq!(fields[index + 1].len() + 1, available_bytes);
+        let mut unavailable = digests; unavailable[index] = None;
+        let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
+        let unavailable_fields: Vec<_> = unavailable.split(';').collect();
+        assert_eq!(unavailable_fields[index + 1].len() + 1, unavailable_bytes);
+        for i in 0..fields.len() {
+            if i != index + 1 { assert_eq!(fields[i], unavailable_fields[i]); }
+        }
+        assert!(!bindings_hold(true, Some(&unavailable), &unavailable, &READER_LAYOUTS, &READER_LAYOUTS));
+    }
+    println!("nonresident_binding_inputs=19,pressure_source_append=134/81,pressure_schema_append=115/62");
+
 }
 
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
     // The 17 inputs at the K-D5 member-bound source basis, in the unchanged
-    // REVIEWED_INPUTS order, then B7's appended eighteenth (the nonresident
-    // pressure-source binding); all digests remain checked against actual bytes.
+    // REVIEWED_INPUTS order, then the pressure-source table and pressure-result
+    // schema definitions; all 19 digests remain checked against actual bytes.
     // The retained preview table (position 4) is the one bound to the current
     // inherited preview-physics-1 table (c915605a11).
-    const REVIEWED: [&str; 18] = [
+    const REVIEWED: [&str; 19] = [
         // The lock with the join's correct_norm crate, and the merged receipt
         // schema (B7's J6 contract-neutral definitions with K-D5's enclosure
         // constants); both are the actual bytes on the merged head.
@@ -574,9 +605,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
         // B7's independently reviewed nonresident binding; prior pins remain unchanged.
         "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61",
+        "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 18] = [
+    let files: [&[u8]; 19] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
@@ -595,12 +627,13 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
+        include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(18).enumerate() {
+    for (i, token) in tokens.by_ref().take(files.len()).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -1466,13 +1499,14 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The pressure-source join's record on T4 batch 4 priced at a5a4c96175:
-/// requested plus moving bytes without R, for the qualified build above. Each
-/// phase keeps its actual positive layout, source and TEXT charges; W3
-/// (publication with the staged copy) is the maximum in both modes.
+/// The record priced at source 15d75d7e14 (pressure-only U4a stage 1 and
+/// dormant U5a; DEL-05-02 retained-pricing-rules.md section H):
+/// requested plus moving bytes without R, for the qualified build above. Each phase keeps its actual
+/// positive layout, source and TEXT charges; W3 (publication with the staged
+/// copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_192_228_631, 5_515_660_593, 10_191_004_519, 9_966_957_656, 6_124_774_180, 9_989_373_579, 5_889_716_769],
-    [5_251_359_975, 5_574_791_937, 10_250_135_863, 10_026_089_000, 6_183_905_524, 10_048_504_923, 5_948_848_113],
+    [5_229_391_176, 5_552_823_138, 10_228_170_794, 10_004_112_863, 6_161_951_412, 10_026_554_767, 5_926_936_362],
+    [5_288_522_520, 5_611_954_482, 10_287_302_138, 10_063_244_207, 6_221_082_756, 10_085_686_111, 5_986_067_706],
 ];
 
 #[test]
@@ -1530,6 +1564,36 @@ fn maximum_takes_every_phase() {
 }
 
 #[test]
+fn profile_batch5_carriers_bind_actual_layouts_and_all_case_owners() {
+    use profile::{ATOM_BINDINGS, ATOM_NAMES, ATOM_VALUES, Binding, FORMS};
+    use std::mem::size_of;
+    use open_pipe_stress_frame_kernel::structural::LoadFormula;
+    let actual = [
+        ("s(ExactPressureCaseOption)", size_of::<Option<crate::pressure_runtime::ExactPressureCase>>()),
+        ("s(PressureRegionInput)", size_of::<crate::PressureRegionInput>()),
+        ("s(LoadFormula)", size_of::<LoadFormula>()),
+        ("s(PreparedCaseResult)", size_of::<Result<crate::LoadCaseSolve, open_pipe_stress_frame_kernel::FrameKernelError>>()),
+        ("s(BTreeMapHeader)", size_of::<std::collections::BTreeMap<usize, f64>>()),
+    ];
+    for (name, size) in actual {
+        let index = ATOM_NAMES.iter().position(|entry| *entry == name).expect("positive owned carrier");
+        assert_eq!(ATOM_BINDINGS[index], Binding::InBuild, "{name} is the actual build's type");
+        assert_eq!(ATOM_VALUES[index], size as u64, "{name} retains its complete owner layout");
+        assert!(size > 0);
+        for form in [profile::F_O_BASE_SPARSE, profile::F_O_BASE_DENSE] {
+            let coefficient = FORMS[form].terms.iter().find(|(atom, _)| *atom == index).expect("carrier cannot disappear from an ordinary case").1;
+            assert!(coefficient >= caps::LOAD_CASES as u64, "{name} retains every overlapping case owner");
+        }
+    }
+    let index = ATOM_NAMES.iter().position(|entry| *entry == "s(PreparedCaseWorkspace)").unwrap();
+    assert_eq!(ATOM_BINDINGS[index], Binding::SourceUpper);
+    assert!(ATOM_VALUES[index] > 0);
+    for (name, layout) in READER_LAYOUT_NAMES.iter().zip(READER_LAYOUTS) {
+        println!("I65_G5_READER_LAYOUT {name} size={} align={}", layout.size, layout.align);
+    }
+}
+
+#[test]
 fn profile_laws_hold_in_this_build() {
     use profile::btree_node_upper;
     use std::mem::{align_of, size_of};
@@ -1565,7 +1629,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
-    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (22, 6, 0));
+    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (23, 6, 0));
     assert_eq!(profile::ESTIMATES, 0, "G6 closed every Estimate");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::SparseInteractive), Ok(profile::SPARSE.unwrap().0), "priced in-build");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");
@@ -1693,17 +1757,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 18]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 19]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..18 {
-        let mut digests = [Some([7u8; 32]); 18];
+    for i in 0..19 {
+        let mut digests = [Some([7u8; 32]); 19];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 18]);
+    let none = build_identity::encode_reviewed_inputs(&[None; 19]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");

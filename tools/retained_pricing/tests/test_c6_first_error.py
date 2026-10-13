@@ -33,18 +33,20 @@ PAIRS = (("summary_row", "divided"), ("stress_mpa", "divided"),
     ("maximum_cover", "public_mpa_magnitude_in_pa_upper"), ("circular_maximum", "maximum_cover"))
 for caller, target in PAIRS:
     GRAPH["edges"][STATE["keys"][caller]].append(STATE["keys"][target])
-# Nonlinear K-D5 adds 25 lines in support() before every fixed site below.
-# The independent site/owner/kind inventory and its negative controls stay unchanged.
-SITE_INVENTORY = ((513,"format","maximum_cover"), (524,"format","maximum_cover"),
-    (537,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (540,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (543,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (639,"into_text","directed_transport_sum"), (643,"to_string","directed_transport_sum"),
-    (645,"to_string","directed_transport_sum"), (648,"to_string","directed_transport_sum"),
-    (650,"into_text","directed_transport_sum"), (653,"to_string","directed_transport_sum"),
-    (718,"into_text","checked"), (767,"into_text","divided"),
-    (980,"into_text","fallback_circular_maximum"), (992,"into_text","fallback_circular_maximum"),
-    (1109,"into_text","fallback_circular_maximum"), (1129,"format","fallback_circular_maximum"))
+# Lines at the reviewed batch 5 source: compared with batch 4, member's
+# frame parameter, the nonlinear support slot and effective connector group
+# add 32 lines above each unchanged allocation. This independent inventory
+# keeps all 14 capped and three uncapped allocation sites.
+SITE_INVENTORY = ((520,"format","maximum_cover"), (531,"format","maximum_cover"),
+    (544,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (547,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (550,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (646,"into_text","directed_transport_sum"), (650,"to_string","directed_transport_sum"),
+    (652,"to_string","directed_transport_sum"), (655,"to_string","directed_transport_sum"),
+    (657,"into_text","directed_transport_sum"), (660,"to_string","directed_transport_sum"),
+    (725,"into_text","checked"), (774,"into_text","divided"),
+    (987,"into_text","fallback_circular_maximum"), (999,"into_text","fallback_circular_maximum"),
+    (1116,"into_text","fallback_circular_maximum"), (1136,"format","fallback_circular_maximum"))
 FORMATS, LEX = [], []
 for line, kind, owner in SITE_INVENTORY:
     row = {"file": CPP, "line": line, "kind": kind, "fn": STATE["keys"][owner]}
@@ -99,10 +101,10 @@ def test_all_graph_parent_inventory_refuses(change):
 @pytest.mark.parametrize("change", ["missing", "duplicate", "new", "wrong_kind", "wrong_owner"])
 def test_exact_kind_site_inventory_refuses(change):
     lexical = copy.deepcopy(LEX)
-    index = next(i for i,r in enumerate(lexical) if r["file"] == CPP and r["line"] == 718)
+    index = next(i for i,r in enumerate(lexical) if r["file"] == CPP and r["line"] == 725)
     if change == "missing": lexical.pop(index)
     if change == "duplicate": lexical.append(copy.deepcopy(lexical[index]))
-    if change == "new": lexical.append(dict(lexical[index], line=719))
+    if change == "new": lexical.append(dict(lexical[index], line=726))
     if change == "wrong_kind": lexical[index]["kind"] = "clone_text"
     if change == "wrong_owner": lexical[index]["fn"] = STATE["keys"]["maximum_summary_mpa"]
     with pytest.raises(ValueError, match="kind\\+site|misqualified"): MODEL["verify_inventory"](STATE, FORMATS, lexical)
@@ -221,8 +223,8 @@ def test_actual_entry_gate_refuses_caps_with_all_table_markers_removed(tmp_path)
 
 @pytest.mark.parametrize("family", ["site_from", "site_zero", "site_total", "site_aggregate", "site_size", "lex_site_size"])
 @pytest.mark.parametrize("alias", [
-    "certified_publication.rs:718:into_text", "src/certified_publication.rs:718",
-    "product_physics/src/certified_publication.rs:718", "core/product_physics/src/certified_publication.rs:718",
+    "certified_publication.rs:725:into_text", "src/certified_publication.rs:725",
+    "product_physics/src/certified_publication.rs:725", "core/product_physics/src/certified_publication.rs:725",
 ])
 def test_all_count_and_byte_override_aliases_refuse(family, alias):
     rules = table()
@@ -241,10 +243,10 @@ def test_actual_post_rebind_count_must_match_positive_roots(mult):
 
 
 @pytest.mark.parametrize("family,alias,override", [
-    ("lex_site_size", "product_physics/src/certified_publication.rs:718", {"class":0}),
-    ("lex_site_size", "src/certified_publication.rs:718", {"class":0}),
-    ("site_zero", "certified_publication.rs:718:into_text", "untagged zero multiplier"),
-    ("site_from", "product_physics/src/certified_publication.rs:718", {"from":[],"per":"0","why":"untagged"}),
+    ("lex_site_size", "product_physics/src/certified_publication.rs:725", {"class":0}),
+    ("lex_site_size", "src/certified_publication.rs:725", {"class":0}),
+    ("site_zero", "certified_publication.rs:725:into_text", "untagged zero multiplier"),
+    ("site_from", "product_physics/src/certified_publication.rs:725", {"from":[],"per":"0","why":"untagged"}),
 ])
 def test_actual_entry_refuses_zero_byte_and_zero_count_aliases(tmp_path,family,alias,override):
     rules = table()

@@ -29,6 +29,7 @@ mod retained_semantics_binding;
 pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
 mod pressure_authoring;
+mod joint_pressure_authoring;
 mod section_bindings;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
@@ -1393,6 +1394,7 @@ fn run_with_context(
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
         ("Component", "bend_realization") => Some("set_field"),
+        ("Component", "objective_connector.pressure_model") => Some("set_field"),
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
@@ -1413,7 +1415,7 @@ fn run_with_context(
         checker.schema_blocked = true;
         checker.push("OP-BEND-MODEL-HASH-REQUIRED", "blocking", "Bend realization checks the span and its neighbours, so it requires the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
     }
-    if pressure_authoring::owns(&object_type, &field_path) && claimed_model_hash.is_none_or(Value::is_null) {
+    if (pressure_authoring::owns(&object_type, &field_path) || joint_pressure_authoring::owns(&object_type,&field_path)) && claimed_model_hash.is_none_or(Value::is_null) {
         checker.schema_blocked = true;
         checker.push("OP-PRESSURE-MODEL-HASH-REQUIRED", "blocking", "Explicit pressure/material replacements require the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
     }
@@ -1443,6 +1445,8 @@ fn run_with_context(
         } else if !checker.schema_blocked {
             let resolver = if pressure_authoring::owns(&object_type, &field_path) {
                 pressure_authoring::resolve
+            } else if joint_pressure_authoring::owns(&object_type,&field_path) {
+                joint_pressure_authoring::resolve
             } else if bend_authoring::owns(&object_type, &field_path) {
                 bend_authoring::resolve
             } else if load_state_authoring::owns(&object_type, &field_path) {
@@ -2650,6 +2654,26 @@ fn resolve_expansion_joint_creation(
         .and_then(Value::as_str);
     if v3 {
         let connector = record.get("objective_connector").filter(|c| c.is_object());
+        // U5a does not activate a document version. T3 owns the v3 selector
+        // above; this new-kind validation becomes reachable when B7b adds0.5.
+        if let Some(connector) = connector {
+            if connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1") {
+                if schema != "0.5.0" {
+                    checker.push("JOINT_PRESSURE_INTERFACE_UNRESOLVED","blocking","constant_effective_area_reference_v1 is defined only on model 0.5.0".into(),"Use the current model format before authoring a joint pressure model.",vec![target_ref.into()]);
+                    return None;
+                }
+                let mut candidate=model.clone();
+                candidate["components"].as_array_mut()?.push(Value::Object(record.clone()));
+                match open_pipe_stress_product_physics::validate_joint_pressure_authoring(&candidate) {
+                    Ok(findings) if findings.is_empty()=>{},
+                    findings=>{
+                        let message=match findings {Ok(findings)=>findings.iter().map(|finding|format!("{}: {}",finding.code,finding.message)).collect::<Vec<_>>().join("; "),Err(message)=>message};
+                        checker.push("OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID","blocking",message,"Review the explicitly authored joint pressure fields and participation.",vec![target_ref.into()]);
+                        return None;
+                    }
+                }
+            }
+        }
         let end = |key: &str| {
             connector
                 .and_then(|c| c.get(key))

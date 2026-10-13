@@ -107,6 +107,8 @@ export type EquivalentStaticGenerationInput = {
 export type PressureRegionInput = {
   id: string;
   member_pipe_ids: string[];
+  /** Defined only in model 0.5.0; old documents never author this member. */
+  member_connector_ids?: string[];
   pressure_basis: string;
   pressure: QuantityValue;
   terminals: Array<{

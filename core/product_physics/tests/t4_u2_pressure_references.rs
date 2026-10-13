@@ -195,11 +195,7 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
             for (key, kind, scale, group, end_row) in STATION {
                 let observed = if end_row && location.starts_with("end") {
                     // A straight's end station is the j-side action: -(end_i
-                    // row), +(end_j row). An arc publishes its end rows in the
-                    // chord frame only (checked below).
-                    if arc {
-                        continue;
-                    }
+                    // row), +(end_j row), in the section's own tangent frame.
                     let sign = if location == "end_i" { -1.0 } else { 1.0 };
                     rows.one(kind, pipe, location, "").map(|value| sign * value)
                 } else {
@@ -210,10 +206,10 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
         }
         for location in ["end_i", "end_j"] {
             let end = &member["end_rows"][location];
-            let block = if arc { "chord_frame_elastic" } else { "element_local" };
+            let block = if arc { "tangent_frame" } else { "element_local" };
             for (key, kind) in END_ROWS {
                 let group = match (key.starts_with('F'), arc) {
-                    (true, true) => "elastic_end_force_chord_frame",
+                    (true, true) => "shear_force",
                     (true, false) => "shear_force",
                     (false, _) => "section_moment",
                 };

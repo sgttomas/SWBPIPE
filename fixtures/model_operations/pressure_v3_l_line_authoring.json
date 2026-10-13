@@ -4990,10 +4990,10 @@
           "component": "shear_force_y",
           "coordinate_system": "element_local",
           "location": "end_i",
-          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
         },
         "unit": "N",
-        "value": -396.0816794927377
+        "value": 1458.8067020455544
       },
       {
         "basis_ref": {
@@ -5008,10 +5008,10 @@
           "component": "shear_force_y",
           "coordinate_system": "element_local",
           "location": "end_j",
-          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
         },
         "unit": "N",
-        "value": 396.0816794927377
+        "value": 898.6626190994114
       },
       {
         "basis_ref": {
@@ -5026,10 +5026,10 @@
           "component": "shear_force_z",
           "coordinate_system": "element_local",
           "location": "end_i",
-          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
         },
         "unit": "N",
-        "value": -375.02419909065924
+        "value": 375.02419909065924
       },
       {
         "basis_ref": {
@@ -5044,10 +5044,10 @@
           "component": "shear_force_z",
           "coordinate_system": "element_local",
           "location": "end_j",
-          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
         },
         "unit": "N",
-        "value": 205.79041217558236
+        "value": -205.79041217558236
       },
       {
         "basis_ref": {
@@ -5062,10 +5062,10 @@
           "component": "torsional_moment",
           "coordinate_system": "element_local",
           "location": "end_i",
-          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
         },
         "unit": "N*m",
-        "value": 35.041904871469384
+        "value": -307.4177970645814
       },
       {
         "basis_ref": {
@@ -5080,10 +5080,10 @@
           "component": "torsional_moment",
           "coordinate_system": "element_local",
           "location": "end_j",
-          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
         },
         "unit": "N*m",
-        "value": -43.21630018926154
+        "value": -435.3565309547918
       },
       {
         "basis_ref": {
@@ -5098,10 +5098,10 @@
           "component": "bending_moment_y",
           "coordinate_system": "element_local",
           "location": "end_i",
-          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
         },
         "unit": "N*m",
-        "value": -469.79632279506023
+        "value": 356.9745341852012
       },
       {
         "basis_ref": {
@@ -5116,10 +5116,10 @@
           "component": "bending_moment_y",
           "coordinate_system": "element_local",
           "location": "end_j",
-          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
         },
         "unit": "N*m",
-        "value": 572.4708103547072
+        "value": -374.2394531115512
       },
       {
         "basis_ref": {
@@ -5134,10 +5134,10 @@
           "component": "bending_moment_z",
           "coordinate_system": "element_local",
           "location": "end_i",
-          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
         },
         "unit": "N*m",
-        "value": 1679.497320769484
+        "value": -1679.497320769484
       },
       {
         "basis_ref": {
@@ -5152,10 +5152,10 @@
           "component": "bending_moment_z",
           "coordinate_system": "element_local",
           "location": "end_j",
-          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
         },
         "unit": "N*m",
-        "value": -1819.53334150602
+        "value": 1819.53334150602
       },
       {
         "basis_ref": {
@@ -6008,7 +6008,7 @@
         "id": "result:component-stiffness:component-bend-1:curved-bend-flexibility",
         "kind": "curved_bend_macro_element_review",
         "metadata": {
-          "basis": "component_family=bend;user_entered_flexibility=2;flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m=0.25;arc_included_angle_rad=1.5707963267948966;arc_length_m=0.39269908169872414;arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source=invented user value for this test (k = 2);solver_consumption=curved_bend_macro_element;macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=exact_pressure_v3_member_owned_bend_term_k_u_free_eps_p_minus_end_caps;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+          "basis": "component_family=bend;user_entered_flexibility=2;flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m=0.25;arc_included_angle_rad=1.5707963267948966;arc_length_m=0.39269908169872414;arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source=invented user value for this test (k = 2);solver_consumption=curved_bend_macro_element;macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=exact_pressure_v3_member_owned_bend_term_k_u_free_eps_p_minus_end_caps;recovery=node_on_element_end_actions_from_assembled_stiffness_in_end_tangent_frame;interior_stations=arc_section_equilibrium_stations",
           "component": "curved_bend_flexibility",
           "coordinate_system": "component_local_preview",
           "location": "pipe:BEND",
