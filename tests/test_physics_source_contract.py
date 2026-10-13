@@ -271,3 +271,11 @@ def test_public_rehashed_copy_cannot_hide_invalid_bracket_pair_behind_finite_sel
     reseal_negative(source,invocation)
     with pytest.raises(ValueError,match="ACTUAL_DERIVED_SHEAR_RANGE:"+("lower_bracket" if bad_endpoint==0 else "upper_bracket")):
         composite.validate_physics_source(source,invocation)
+
+
+def test_e15_composite_norms_are_the_correctly_rounded_value():
+    assert composite._norm([3.0, 4.0, 0.0]) == 5.0
+    assert composite._norm([-1.327, -8.603, -8.186]) == float.fromhex("0x1.7e5fc308f80edp+3")
+    assert composite._norm([7.944, 6.99]) == float.fromhex("0x1.529b4c153125ep+3")
+    with pytest.raises(ValueError):
+        composite._norm([1.0])

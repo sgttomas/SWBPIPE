@@ -263,7 +263,8 @@ fn norm(values: [f64; 3], intervals: [[f64; 2]; 3]) -> Result<Norm, ReceiptError
     });
     let lo = norm_corner(abs.map(|p| p[0]), false)?;
     let hi = norm_corner(abs.map(|p| p[1]), true)?;
-    let value = scaled_norm(values);
+    // E15: the representative is one correctly rounded norm3 of the checked values.
+    let value = norm3(values[0], values[1], values[2]);
     if !value.is_finite() || value < lo || value > hi {
         return Err(bad("support norm representative range"));
     }

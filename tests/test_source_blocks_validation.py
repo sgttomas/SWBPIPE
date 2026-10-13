@@ -199,7 +199,7 @@ class ReceivedSourceBlockArtifacts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"INVOCATION_WORK_LEDGER"):validate_source_blocks(source,context)
 
 
-class ScaledNormRecipe(unittest.TestCase):
+class NormRecipe(unittest.TestCase):
     def check(self, values, output, support=False):
         kinds=("global_nodal_displacement_x","global_nodal_displacement_y","global_nodal_displacement_z")
         components=("Fx","Fy","Fz")
@@ -214,6 +214,24 @@ class ScaledNormRecipe(unittest.TestCase):
             self.check([sys.float_info.min,0.0,0.0],sys.float_info.min,support)
             self.check([1.0,math.ulp(0.0),0.0],1.0,support)
             self.check([-0.0,0.0,-0.0],0.0,support)
+
+    def test_e15_recipe_binds_the_correctly_rounded_value(self):
+        # The published (3,4,0) control: the recipe gives exactly 5, so the
+        # independently single-rounded 5 + 1 ulp that G7 admits is refused by the
+        # exact value binding; where the former max-scaled recipe differs, its value is refused.
+        controls=json.loads((Path(__file__).resolve().parents[1]/"fixtures/results/preview_magnitude_controls.json").read_text())["controls"]
+        control=next(c for c in controls if c["id"]=="independent_single_rounding_one_ulp")
+        unpack=lambda bits: struct.unpack(">d",bytes.fromhex(bits))[0]
+        components=[unpack(b) for b in control["component_bits"]];one_ulp=unpack(control["magnitude_bits"])
+        self.assertEqual((components,one_ulp),([3.0,4.0,0.0],math.nextafter(5.0,math.inf)))
+        differing=[-1.327,-8.603,-8.186];correct=float.fromhex("0x1.7e5fc308f80edp+3")
+        scale=max(abs(v) for v in differing);n=[v/scale for v in differing];scaled=scale*math.sqrt((n[0]*n[0]+n[1]*n[1])+n[2]*n[2])
+        self.assertEqual(scaled,math.nextafter(correct,0.0))
+        for support in (False,True):
+            self.check(components,5.0,support)
+            with self.assertRaisesRegex(ValueError,"DERIVED_NORM_VALUE"):self.check(components,one_ulp,support)
+            self.check(differing,correct,support)
+            with self.assertRaisesRegex(ValueError,"DERIVED_NORM_VALUE"):self.check(differing,scaled,support)
 
     def test_range_bit_identity_and_order_are_enforced(self):
         for support in (False,True):

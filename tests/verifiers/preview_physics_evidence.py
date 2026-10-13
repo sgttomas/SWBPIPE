@@ -112,14 +112,14 @@ def _row_segments(*parts: str) -> str:
     return ":".join(f"{len(part.encode('utf-8'))}:{part}" for part in parts)
 
 
-def _consistent_norm(magnitude: float, components: list[float]) -> bool:
-    x, y, z = components
-    if magnitude < 0 or not all(math.isfinite(value) for value in (magnitude, x, y, z)):
-        return False
-    # Independent exact-integer oracle: align the published binary64 dyadics,
-    # square and sum exactly, then round the square root on the binary64 grid.
-    # This does not share the Rust implementation's FMA/expansion algorithm.
-    ratios = [float(value).as_integer_ratio() for value in (x, y, z)]
+def correctly_rounded_norm(components: list[float]) -> float:
+    """RN(sqrt(sum of squares)) of finite binary64 components, ties to even; +inf beyond range.
+
+    Independent exact-integer oracle: align the published binary64 dyadics,
+    square and sum exactly, then round the square root on the binary64 grid.
+    This does not share the Rust implementation's FMA/expansion algorithm.
+    """
+    ratios = [float(value).as_integer_ratio() for value in components]
     denominator_exponent = max(denominator.bit_length() - 1 for _, denominator in ratios)
     square_sum = sum((numerator << (denominator_exponent - (denominator.bit_length() - 1))) ** 2
                      for numerator, denominator in ratios)
@@ -143,6 +143,14 @@ def _consistent_norm(magnitude: float, components: list[float]) -> bool:
             expected = math.ldexp(float(rounded), grid_exponent)
         except OverflowError:
             expected = math.inf
+    return expected
+
+
+def _consistent_norm(magnitude: float, components: list[float]) -> bool:
+    x, y, z = components
+    if magnitude < 0 or not all(math.isfinite(value) for value in (magnitude, x, y, z)):
+        return False
+    expected = correctly_rounded_norm([x, y, z])
     return math.isfinite(expected) and abs(magnitude - expected) <= GUARD * max(abs(magnitude), TINY)
 
 

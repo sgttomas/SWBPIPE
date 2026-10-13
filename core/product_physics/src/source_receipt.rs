@@ -41,16 +41,6 @@ fn bits(value: f64) -> String {
 fn same(a: f64, b: f64) -> bool {
     a.to_bits() == b.to_bits()
 }
-/// Fixed arithmetic for the registered scaled norm recipes. The finalizer
-/// separately refuses nonfinite inputs and nonzero subnormal outputs.
-pub(super) fn scaled_norm(values: [f64; 3]) -> f64 {
-    let m = values.iter().map(|v| v.abs()).fold(0.0_f64, f64::max);
-    if m == 0.0 {
-        return 0.0;
-    }
-    let [a, b, c] = values.map(|v| v / m);
-    m * ((a * a + b * b) + c * c).sqrt()
-}
 fn serialized<T: Serialize>(v: &T) -> Result<Value, ReceiptError> {
     serde_json::to_value(v).map_err(|e| bad(e.to_string()))
 }

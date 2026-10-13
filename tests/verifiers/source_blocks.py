@@ -17,6 +17,7 @@ import struct
 import sys
 from typing import Any
 from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
+from .preview_physics_evidence import correctly_rounded_norm
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
@@ -196,21 +197,12 @@ def _derived(recipe: str, row: Mapping[str, Any], inputs: list[Mapping[str, Any]
     elif recipe == "reviewed_stress_summary_v1":
         _stress_summary_observation(row, inputs)
     if recipe in {"translation_norm_scaled_v1", "support_force_norm_scaled_v1"}:
-        # Match ordered max-scaled binary64 computation. One normalized
-        # component has magnitude one; underflow of smaller squares is allowed.
+        # E15: the declared recipe is one correctly rounded norm of the published
+        # components (independent exact-integer oracle); a nonzero result is finite and normal.
         values = [float(item["value"]) for item in inputs]
         _require(all(math.isfinite(value) for value in values), "DERIVED_NORM_RANGE")
-        scale = max(abs(value) for value in values)
-        if scale == 0.0:
-            expected = 0.0
-        else:
-            normalized = [value / scale for value in values]
-            squares = [value * value for value in normalized]
-            first_two = squares[0] + squares[1]
-            squared = first_two + squares[2]
-            root = math.sqrt(squared)
-            expected = scale * root
-            _require(all(math.isfinite(value) for value in [*normalized, *squares, first_two, squared, root, expected]) and expected >= sys.float_info.min, "DERIVED_NORM_RANGE")
+        expected = correctly_rounded_norm(values)
+        _require(expected == 0.0 or (math.isfinite(expected) and expected >= sys.float_info.min), "DERIVED_NORM_RANGE")
         # This binds the declared recipe, not an affine projection error bound.
         _require(_bits(row["value"]) == _bits(expected), "DERIVED_NORM_VALUE")
 

@@ -731,7 +731,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/source_receipt.rs", "check_input_with_physical", 1, "stiffness assembly (spring diagonal) of the replay"),
     ("PP/source_receipt.rs", "finalization_size", 2, "integer: byte sizes"),
     ("PP/source_receipt.rs", "finalize_for", 3, "integer: byte sizes and qualified count"),
-    ("PP/source_receipt.rs", "scaled_norm", 1, "max fold"),
     // ---- SP, CB, load_case_algebra (also in frame_kernel/tests/s11_site_table.rs)
     ("SP/lib.rs", "transform_global_displacements_to_local", 1, "formed transform (section 2.2)"),
     ("SP/lib.rs", "transform_local_element_vector_to_global", 1, "formed transform (section 2.2)"),

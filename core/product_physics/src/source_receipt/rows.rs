@@ -42,8 +42,10 @@ fn unit(u: FunctionalUnit) -> Result<&'static str, ReceiptError> {
         _ => return Err(bad("unsupported projection unit")),
     })
 }
+/// E15: the registered translation/support norm recipes are one correctly
+/// rounded `norm3` of the published components; the range refusals are unchanged.
 pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
-    let value = scaled_norm(values);
+    let value = norm3(values[0], values[1], values[2]);
     if values.iter().any(|x| !x.is_finite())
         || !value.is_finite()
         || (values.iter().any(|x| *x != 0.0) && !value.is_normal())

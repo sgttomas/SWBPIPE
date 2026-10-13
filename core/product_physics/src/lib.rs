@@ -38,7 +38,8 @@ mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame};
-// I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
+// I109 and E15: every published Euclidean magnitude is a correctly rounded norm (no libm `hypot`); a
+// displacement magnitude is `norm3` of its published mm components on every route.
 use open_pipe_stress_correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
@@ -5201,8 +5202,8 @@ fn solve_load_case_observed(
         let node_index = node_index(&model, &node.id).unwrap();
         let magnitude_mm = selected_source.as_ref().map(|recovery| {
             let values = &recovery.published_nodal_components()[node_index * DOF_PER_NODE..];
-            source_receipt::scaled_norm([values[0], values[1], values[2]])
-        }).unwrap_or_else(|| displacement_magnitude(&displacements, node_index) * 1000.0);
+            norm3(values[0], values[1], values[2])
+        }).unwrap_or_else(|| displacement_magnitude_mm(&displacements, node_index));
         let result_id = format!("result:disp:{}", stable_suffix(&node.id));
         if max_displacement
             .as_ref()
@@ -5356,8 +5357,6 @@ fn solve_load_case_observed(
             let force_vector = [vector[0], vector[1], vector[2]];
             let magnitude = if let Some(rows) = &certified_support {
                 open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified support magnitude", value:f64::NAN })?.published
-            } else if selected_source.is_some() {
-                source_receipt::scaled_norm(force_vector)
             } else {
                 norm3(force_vector[0], force_vector[1], force_vector[2])
             };
@@ -13597,12 +13596,16 @@ fn solver_blocked(
     blocked_envelope(model, diagnostics)
 }
 
-fn displacement_magnitude(displacements: &[f64], node_index: usize) -> f64 {
+/// E15: the correctly rounded norm of the node's published mm components
+/// (`append_node_displacement_component_results`' `value * 1000.0`), the same
+/// recipe as the selected-source and combination magnitudes.
+fn displacement_magnitude_mm(displacements: &[f64], node_index: usize) -> f64 {
     let base = node_index * DOF_PER_NODE;
-    (displacements[base + UX].powi(2)
-        + displacements[base + UY].powi(2)
-        + displacements[base + UZ].powi(2))
-    .sqrt()
+    norm3(
+        displacements[base + UX] * 1000.0,
+        displacements[base + UY] * 1000.0,
+        displacements[base + UZ] * 1000.0,
+    )
 }
 
 fn support_restraint_summary(restrained_dofs: &[usize]) -> (String, String) {
