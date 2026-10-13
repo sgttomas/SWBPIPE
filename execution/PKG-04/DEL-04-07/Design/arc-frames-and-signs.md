@@ -92,11 +92,20 @@ values or request bytes changed.
 **Remaining work.**
 1. The stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
 2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
-   status moves, targeted mutant runs, the VP-STATIC package's independent
-   mapping re-review, and independent scrutiny of the implementation.
-   The package is regenerated with tangent selectors and pending review
-   statuses; its historical RV28 admission does not cover this mapping.
-4. When B7 retires model versions, re-express the requests in model 0.5.0:
+   status moves and targeted mutant runs.
+   The VP-STATIC tangent mapping has its current independent review bound
+   by `ADMISSION.json`; the historical RV28 review is preserved for the
+   unchanged basis. The generator reproduces 841 files with zero differences,
+   all 24 package checks pass, and normalized numerical values and rules
+   remain identical across the review-binding regeneration.
+   Independent code review reported no blocking findings on stage 1
+   `51fa5e8ac4`, stage 2 `d253b5aea2` and the O-13 adapter-only repair
+   `1d3f1aeef0`. A separate 100-digit replay of six frozen O-13 entries and
+   48 groups measured at most 2.30e-7 of the unchanged 1e-9 criterion from
+   the adapter's rounding; product code and frozen bytes are unchanged.
+   The current VP mapping review is
+   `validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-U4A.md`.
+3. When B7 retires model versions, re-express the requests in model 0.5.0:
    B7a refuses the preview-physics-1 cases' 0.2.0 documents and B7b the
    pressure-1 cases' 0.4.0 documents. Only the request bytes and
    `requests_sha256` change (generator `--write`, then its verify mode and an

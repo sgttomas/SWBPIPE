@@ -89,6 +89,10 @@ STIFFNESS = 'recovered_from_local_element_stiffness'
 STRESS = 'recovered_from_open_mechanics_stress_components'
 END_SIGN = {'end_i': 'positive value follows the element-local DOF at the i-end force vector',
             'end_j': 'positive value follows the element-local DOF at the j-end force vector'}
+ARC_END_SIGN = {
+    'end_i': 'positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i',
+    'end_j': 'positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j',
+}
 STATION_SIGN = ('positive value follows the j-side section action in the element-local frame (x toward end j); '
                 'section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction')
 END_STRESS_SIGN = ('positive value follows the j-side section action in the element-local frame (local x toward end j); '
@@ -182,7 +186,7 @@ def metadata(kind: str, component: str, member: str, location: str) -> dict:
         return row('global', 'recovered_from_assembled_support_law', SUPPORT_SIGN)
     if kind in SECTION_ACTIONS:
         if location in END_SIGN:
-            return row('element_local', STIFFNESS, END_SIGN[location])
+            return row('element_local', STIFFNESS, (ARC_END_SIGN if member == 'arc' else END_SIGN)[location])
         return row('element_local', STIFFNESS, ARC_SECTION_SIGN if member == 'arc' else STATION_SIGN)
     if kind in SECTION_STRESSES:
         if member == 'arc':
@@ -419,8 +423,7 @@ I7_NODE_UNITS = {'ux': ('m', 'mm', 'displacement'), 'uy': ('m', 'mm', 'displacem
 # Withheld on realized arcs (plan section 4.3 item 1; the reference's lame_surface convention).
 I7_ARC_ABSENT = ('pipe_lame_radial_stress_v2', 'pipe_lame_hoop_stress_v2', 'pipe_elastic_normal_stress_maximum_v2',
                  'element_local_axial_force', 'element_local_axial_normal_stress')
-I7_NOT_PUBLISHED = ('not published: the arc end-station section actions (tangent frame) and tangent-frame end rows, whose '
-                    'end actions the chord-frame elastic end rows carry, and the axial end force F_x (element_local_axial_force '
+I7_NOT_PUBLISHED = ('not published: the axial end force F_x (element_local_axial_force '
                     'is replaced by the pressure family)')
 
 
@@ -470,32 +473,29 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
                 pointer = f'{base}/stations/{location}/{key}'
                 if key in I7_SECTION_ACTIONS and location in ('end_i', 'end_j'):
                     # The end station equals the node-on-element end row (end_i negated);
-                    # straights assert it through the end row, arcs do not publish it.
-                    (not_published if arc else implied).append(pointer)
+                    # All members assert it through their own end tangent frame.
+                    implied.append(pointer)
                     continue
                 add(pointer, station[key], reference_unit, kind, component, unit, pipe, location, kind_of, group)
         for location in ('end_i', 'end_j'):
-            block = 'chord_frame_elastic' if arc else 'element_local'
+            block = 'tangent_frame' if arc else 'element_local'
             end = member['end_rows'][location]
             for key, station_key in I7_END_ROWS:
                 kind, component = next((k, c) for q, k, c, *_ in I7_STATION if q == station_key)
-                group = 'section_moment' if key.startswith('M') else ('elastic_end_force_chord_frame' if arc else 'shear_force')
+                group = 'section_moment' if key.startswith('M') else 'shear_force'
                 unit = 'N*m' if key.startswith('M') else 'N'
                 pointer = f'{base}/end_rows/{location}/{block}/{key}'
                 add(pointer, end[block][key], unit, kind, component, unit, pipe, location, kind_of, group)
-                if not arc:
-                    station = Decimal(member['stations'][location][station_key])
-                    require(station == (-1 if location == 'end_i' else 1) * Decimal(end[block][key]),
-                            f'{case_key}: {pipe} {location} {station_key} differs from its end row')
-                    # A control listed at the station pointer scores this end row (end_i negated).
-                    aid, selector, rule, value, _ = out.by_origin[pointer]
-                    out.by_origin[f'{base}/stations/{location}/{station_key}'] = (aid, selector, rule, value, Decimal(-1 if location == 'end_i' else 1))
+                station = Decimal(member['stations'][location][station_key])
+                require(station == (-1 if location == 'end_i' else 1) * Decimal(end[block][key]),
+                        f'{case_key}: {pipe} {location} {station_key} differs from its end row')
+                # A control listed at the station pointer scores this end row (end_i negated).
+                aid, selector, rule, value, _ = out.by_origin[pointer]
+                out.by_origin[f'{base}/stations/{location}/{station_key}'] = (aid, selector, rule, value, Decimal(-1 if location == 'end_i' else 1))
             wall = 'tangent_frame' if arc else 'element_local'
             add(f'{base}/end_rows/{location}/{wall}/wall_axial_end_action', end[wall]['wall_axial_end_action'], 'N',
                 'pipe_wall_endpoint_action_v2', 'wall_axial_end_action', 'N', pipe, location, kind_of, 'wall_axial_force')
             not_published.append(f'{base}/end_rows/{location}/{block}/F_x')
-            if arc:
-                not_published.extend(f'{base}/end_rows/{location}/tangent_frame/{key}' for key in ('F_x', 'F_y', 'F_z', 'M_x', 'M_y', 'M_z'))
         if arc:
             out.absences.extend({'row': {'kind': kind, 'entity_ref': pipe}} for kind in I7_ARC_ABSENT)
         else:
@@ -532,7 +532,7 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
             out.assert_negative(control['id'], pointer, convert(Decimal(row['wrong_value']), reference_unit, unit, pointer),
                                 f'{pointer} wrong_value of control {control["id"]}')
     if implied:
-        out.gap('implied_by_positive', 'straight end-station section actions equal the asserted end rows (end_i negated); checked exactly by the generator', implied)
+        out.gap('implied_by_positive', 'end-station section actions equal the asserted tangent-frame end rows (end_i negated); checked exactly by the generator', implied)
     if not_published:
         out.gap('not_published', I7_NOT_PUBLISHED, not_published)
     out.gap('not_scored', 'geometry, derived section and arc blocks are inputs of the reference, not published rows',
