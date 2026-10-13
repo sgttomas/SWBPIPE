@@ -207,13 +207,18 @@ The case is `NUMERICAL_INTEGRITY_SENSITIVE` with one sentence; nothing is refuse
    - `support <id>: shares its DOF with another restraint` (two nonlinear supports, or a nonlinear support and a base restraint, on one DOF; review M5);
    - `support <id>: friction state active has no confirmation`;
    - `support <id>: friction normal source is not a base restraint` (manager's ruling; review I2);
+   - `support <id>: constrained state is not a prescribed row` (an active or sticking support whose DOF is not in the state's prescribed set C, where its reaction ball is formed);
    then `coupled friction with <k> derived-normal sliding supports is not supported` (k > 1).
 4. `confirmation attempt: <the gate's refusal or Sensitive>`.
 5. `formation check: <stage>: <kd5's rendered detail>` for any kd5 §2.3 unavailability or D5C-1 demotion on Stage A, the influence system or Stage B (closure failures included).
 6. `friction coupling not established` (0 ∈ M, a nonfinite ball).
-7. Per support, in support-id order, at most six named: `support <id>: contact force sign not established` (active unilateral); `separation not established` (inactive unilateral); `stick capacity not established`; `slip direction not established`; `friction normal not established` (derived ball contains 0, β mismatch, derived Inactive, or explicit Inactive with N > 0). A nonfinite ball fails its condition and is reported under the same name.
+7. Per support, in support-id order, at most six named: `support <id>: contact force sign not established` (active unilateral); `separation not established` (inactive unilateral); `stick capacity not established`; `slip direction not established`; `friction normal not established` (derived ball contains 0, β mismatch, derived Inactive, or explicit Inactive with N > 0). A nonfinite ball fails its condition and is reported under the same name. A support whose own ball (its reaction when constrained, its displacement when free) cannot be formed fails under the name of its kind and state; an inactive friction support, decided by its normal, fails under `friction normal not established`.
+
+**Stage order within items 5–7 (k = 1).** Stage A's two evaluations (A-1, then the influence system A-2) are made before β is decided, so a formation-check failure of either is reported before A-3's `friction normal not established`. Stage B's evaluation needs Stage A's ball, so A-3's β failure and A-4's `friction coupling not established` are reported before any Stage-B formation-check failure; that is the one exception to the item order.
 
 Rotational friction never reaches this list: it is refused at validation. A non-converged or unqualified case never reaches it either (§0).
+
+**Which reasons are exercised end to end.** Through the product route (PP solving a model), only `stick capacity not established` (F-1 BOUNDARY) and `separation not established` (U-1 IN-PLANE, and the constant-effort precedence variant of `invented-loop-01`) are reached; the committed models and references reach no other reason. NI's tests reach `shares its DOF with another restraint`, `rotational friction has no confirmation`, `friction normal source is not a base restraint`, the k > 1 reason, the gap branch and Stage A's and Stage B's load-closure failures on real converged solves (with a mutated applied-force list for the closure), and `contact force sign`, `stick capacity`, `slip direction` and `friction normal not established` on synthetic balls. The others are defensive branches that no test reaches end to end: `confirmation attempt: not run` (a case that would still be Passed without the confirmation), NI's `the converged state is not qualified` and gap returns (PP calls the confirmation only on a qualified non-gap state), `prescribed row mismatch` (pinned on its pure helper; the qualification's receipt binds u), `friction state active has no confirmation`, `constrained state is not a prescribed row`, the gate's refusal or Sensitive, a K-D5 estimate demotion or unavailability other than load closure, `friction coupling not established`, an unformed ball, and `gap clearance not established` (unreachable under R1). In the product, rotational friction is refused at validation before NI's defensive reason.
 
 **Sentence (product text, claims-checked):**
 
@@ -329,7 +334,7 @@ The 1e-9 criterion, RD(1e-9), the floor q̂ ≥ 2^-34·S* and the 2^-988 guard a
 | G-1 | Anchored cantilever with a tip gap (both closed and open loads) | R1 containment control: `RECOVERY_BASIS_UNQUALIFIED`, no confirmation, byte-identical rows |
 | F-1 | Anchored cantilever along X; tip linear UY restraint (normal source) and friction on UX with derived normal; tip loads P_y, P_x. Decoupled (g = 0): R_n = −P_y; stick iff \|P_x\| < μ\|P_y\|; slide u_x = (P_x − sign(P_x)·μ\|P_y\|)·L/(EA) | stick and slide certified, P_y of each sign; near-boundary \|P_x\| ≈ μ\|P_y\| fails closed ("stick capacity"); explicit-normal twin with μ·N inexact in binary64; μ = 0 sliding control |
 | F-2 | L-frame: anchored X leg, vertical Z leg, top restraint UZ (normal source) and friction on UX, μ = 0.5; strong coupling (\|c·g\| reported by the generator) | Stage A; the published friction force within B of the exact coupled force in both modes |
-| U-1 | One-way support on an L line, lifted (Inactive) and pressed (Active); a twin with a parallel spring on the same DOF; a zero-load control (u_d = 0, r = 0 exactly) | separation and contact sign; spring included in the contact force; the zero-load control fails closed (R3) |
+| U-1 | One-way support on an L line, lifted (Inactive) and pressed (Active); a twin with a parallel spring on the same DOF; a rotational twin with the support on RX (moment family); a zero-load control (u_d = 0, r = 0 exactly) | separation and contact sign; spring included in the contact force; the rotational twin's moment and rotation; the zero-load control fails closed (R3) |
 
 The committed demo models are natural positives (Passed in both modes).
 
@@ -358,7 +363,7 @@ The committed demo models are natural positives (Passed in both modes).
 
 - `structural_adapter.rs`: `AssemblyEvidence::confirm_with_formation_check`, the route's single formation-check entry, which prepares, factors, finishes and hands an evaluation context to its caller.
 - `confirmation.rs`: `confirm_converged_state(input, springs, solve, force, curved_sources, mode) -> Confirmation`, with the preconditions, the manifest, Stage A, the influence evaluation, Stage B, and the pure predicate `support_reason` with `certificate_reason`, unit-testable on synthetic balls. The loop, the classifier and `product_selected_state_is_qualified` are unchanged.
-- The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry; `confirm_converged_state` contains exactly one call to the confirmation entry; the product calls `confirm_converged_state` once, inside the nonlinear helper.
+- The S11-K pin is re-scoped (R2): the loop's functions contain no formation entry; `confirm_converged_state` contains exactly one call to the confirmation entry; the product calls `confirm_converged_state` once, inside the nonlinear helper, and names neither the adapter entry nor FK's confirmation plumbing (`finish_confirmation`, `ConfirmationAttempt`), which no non-adapter NI module names either (implementation review I1).
 
 **PP (DEL-04-07).**
 
@@ -400,6 +405,7 @@ Measured on the implementing head with an instrumented scratch copy of the code 
 | F-2 | SLIDE (strong coupling) | established | c·g = −0.748; φ⁰ miss 2.4e-13; r' = 1.6e-14 N; R_n = 1427.976 N, ρ 4.1e-9; v = −713.98800347588 N |
 | U-1 | PRESSED / LIFTED | established | contact 100 N, ρ 0; separation 6.67e-4 m, ρ 2.3e-42 |
 | U-1 spring twin | PRESSED / LIFTED | established | contact 100 N, ρ 0; separation 4.00e-4 m, ρ 1.2e-42 |
+| U-1 rotational twin (RX) | PRESSED / LIFTED | established | contact moment Mx = 1400/9 N·m exactly (oracle bounds 155.55555555555554 to 155.55555555555557); separation θx = 700/EI = 3.045e-4 rad |
 | U-1 | IN-PLANE (zero control, u_d = 0 exactly) | `separation not established` | margin exactly 0 (R3) |
 | G-1 | PRESSED / LIFTED with a gap | not run (R1) | `RECOVERY_BASIS_UNQUALIFIED`, rows byte-identical |
 
@@ -429,6 +435,7 @@ Measured on the implementing head with an instrumented scratch copy of the code 
 | M24 rotational friction admitted | PP `rotational_friction_is_refused_by_name_at_validation` |
 | M25 μ = 0 sliding given a friction term | NI `a_zero_coefficient_sliding_support_carries_no_term_and_is_established` |
 | M27 a second formation-check entry | NI `r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry` |
+| M29 the product calls the adapter entry directly (implementation review I1), or names FK's confirmation plumbing | NI `r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry` and `kd5_nonlinear_sources_name_no_formation_check_entry_point` (the reviewer's probe, which passed every S11-K test before the repair, now fails both) |
 
 **Pricing** (DEL-05-02 retained-pricing-rules.md §G). The static chain prices the confirmation's sites at multiplicity 0 under D1.6. The evidence-line site is charged positively (+15,309,300 B on TAV_text, TAV_W and TAV_X); 685 of 689 coefficients are unchanged. The block is regenerated and qualifies at the owner's M = 12 GiB (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). A per-diagnostic id allocation in the evidence line's scan (62 MB on route E) was found by the pricing run and removed in code.
 

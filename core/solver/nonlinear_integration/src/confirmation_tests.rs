@@ -128,6 +128,24 @@ fn at_most_six_supports_are_named_in_support_id_order() {
     assert_eq!(certificate_reason(&[]), None);
 }
 
+/// Review M2: a support whose own ball cannot be formed fails under the name
+/// of its kind and state (§2.4 item 7), not under one name for every support.
+#[test]
+fn an_unformed_ball_is_named_by_support_kind_and_state() {
+    use NonlinearSupportBehavior as B;
+    let one_way = B::OneWay { active_when: ActivationSense::PositiveReaction };
+    let lift_off = B::LiftOff { contact_when: ActivationSense::NegativeReaction };
+    for unilateral in [&one_way, &lift_off] {
+        assert_eq!(ball_failure_reason(unilateral, ActiveSetState::Active), "contact force sign not established");
+        assert_eq!(ball_failure_reason(unilateral, ActiveSetState::Inactive), "separation not established");
+    }
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Sticking), "stick capacity not established");
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Sliding), "slip direction not established");
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Inactive), "friction normal not established");
+    let gap = B::Gap { closes_when: GapDirection::NegativeDisplacement };
+    assert_eq!(ball_failure_reason(&gap, ActiveSetState::Active), "gap clearance not established");
+}
+
 #[test]
 fn prescribed_rows_must_match_bit_for_bit() {
     assert!(!prescribed_row_mismatch(&[0.0, 1.0], &[(0, 0.0)]));
@@ -308,11 +326,10 @@ fn named_preconditions_fail_closed_before_the_attempt() {
     let (s, st, d) = derived_friction("NL-F", FrameDof::Ux, FrameDof::Uz, 0.5);
     let (input, force) = cantilever(vec![s], vec![st], Vec::new(), vec![d], &[], &[(8, -100.0), (6, 80.0)]);
     let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
-    if solve.converged {
-        let c = confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap();
-        let r = reason(c);
-        assert!(r == "support NL-F: friction normal source is not a base restraint" || r.starts_with("confirmation attempt: the converged state is not qualified"), "{r}");
-    }
+    assert!(solve.converged, "{:?}", solve.diagnostics);
+    let c = confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap();
+    let r = reason(c);
+    assert_eq!(r, "support NL-F: friction normal source is not a base restraint");
     // A rotational friction support (refused at PP validation; NI is defensive).
     let (input, force) = cantilever(
         vec![NonlinearSupport::friction("NL-R", 1, FrameDof::Rx, 0.3).unwrap()],

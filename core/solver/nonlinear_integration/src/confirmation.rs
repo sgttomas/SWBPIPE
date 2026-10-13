@@ -203,6 +203,13 @@ pub(crate) fn confirm_with_applied(
                 }
             }
         }
+        // An active or sticking support's DOF is a prescribed row of the state
+        // (§1.1, C); the reaction ball is formed there (review M6).
+        if matches!(state, ActiveSetState::Active | ActiveSetState::Sticking)
+            && !last.active_restrained_dofs.contains(&dof)
+        {
+            return not_established(format!("support {id}: constrained state is not a prescribed row"));
+        }
     }
     // The sliding set L (mu > 0), enumerated from the converged state (§1.6).
     let mut sliding = Vec::new();
@@ -559,12 +566,8 @@ fn stage_a(
         }
         Err(error) => return Err(format!("formation check: stage A: {error}")),
     };
-    let normal = context
-        .reaction(stage_a_force, source_dof, u, &bound_a)
-        .map_err(|_| format!("support {id}: friction normal not established"))?;
-    let Some(beta) = normal.established_sign() else {
-        return Err(format!("support {id}: friction normal not established"));
-    };
+    // The influence evaluation precedes A-3, so every formation-check failure
+    // of Stage A's two evaluations is reported before β (§2.4 items 5 and 7).
     let mut unit = LoadLedger::new();
     unit.push("nonlinear influence unit", term.global_dof, 1.0);
     let unit = unit
@@ -577,6 +580,12 @@ fn stage_a(
             return Err(format!("formation check: influence: {}", render_check(check.as_ref())))
         }
         Err(error) => return Err(format!("formation check: influence: {error}")),
+    };
+    let normal = context
+        .reaction(stage_a_force, source_dof, u, &bound_a)
+        .map_err(|_| format!("support {id}: friction normal not established"))?;
+    let Some(beta) = normal.established_sign() else {
+        return Err(format!("support {id}: friction normal not established"));
     };
     let gain = context
         .reaction(&unit, source_dof, &zero, &bound_u)
@@ -751,6 +760,30 @@ pub(crate) fn certificate_reason(failures: &[(String, &'static str)]) -> Option<
     Some(items.join("; "))
 }
 
+/// §2.4 item 7: the name under which a support whose own ball (its reaction
+/// when constrained, its displacement when free) cannot be formed fails, by
+/// support kind and state (review M2). An inactive friction support is decided
+/// by its normal, so it fails under that name.
+pub(crate) fn ball_failure_reason(
+    behavior: &NonlinearSupportBehavior,
+    state: ActiveSetState,
+) -> &'static str {
+    match (behavior, state) {
+        (NonlinearSupportBehavior::Friction, ActiveSetState::Sticking) => {
+            "stick capacity not established"
+        }
+        (NonlinearSupportBehavior::Friction, ActiveSetState::Sliding) => {
+            "slip direction not established"
+        }
+        (NonlinearSupportBehavior::Friction, _) => "friction normal not established",
+        (NonlinearSupportBehavior::Gap { .. }, _) => "gap clearance not established",
+        (_, ActiveSetState::Active | ActiveSetState::Sticking) => {
+            "contact force sign not established"
+        }
+        _ => "separation not established",
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn certify_state(
     context: &ConfirmationContext<'_>,
@@ -780,7 +813,7 @@ fn certify_state(
             context.displacement(dof, u, &bound)
         };
         let Ok(ball) = ball else {
-            failures.push((id.to_string(), "contact force sign not established"));
+            failures.push((id.to_string(), ball_failure_reason(&support.behavior, state)));
             continue;
         };
         let (evidence, slot) = match support.behavior {

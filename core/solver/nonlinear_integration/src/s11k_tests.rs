@@ -1655,6 +1655,10 @@ fn k2b_blank_formation_siblings(code: &str) -> String {
 /// nonlinear route's single formation-check entry.
 const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
 
+/// FK's confirmation plumbing, which only the adapter's confirmation entry
+/// reaches (implementation review I1).
+const CONFIRMATION_PLUMBING: [&str; 2] = ["finish_confirmation", "ConfirmationAttempt"];
+
 /// R2's re-scope of `kd5_nonlinear_sources_name_no_formation_check_entry_point`:
 /// no formation-check entry inside the nonlinear iteration, and exactly one
 /// source-qualified confirmation entry after convergence.
@@ -1664,8 +1668,11 @@ const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
 ///   which is called once, from `fn confirm_converged_state(`.
 /// - No other non-test module of this crate (the loop's `lib.rs` included)
 ///   names the entry, `confirm_with_applied` or `confirm_converged_state`.
-/// - product_physics calls `confirm_converged_state` exactly once, inside
-///   `fn append_nonlinear_support_loop_results(`, after the loop's call.
+/// - No non-adapter module of this crate, and no product module, names FK's
+///   confirmation plumbing (`CONFIRMATION_PLUMBING`).
+/// - product_physics names neither the adapter entry nor
+///   `confirm_with_applied`, and calls `confirm_converged_state` exactly once,
+///   inside `fn append_nonlinear_support_loop_results(`, after the loop's call.
 fn r2_confirmation_entry_violations(
     modules: &[(String, String)],
     product: &[(String, String)],
@@ -1673,6 +1680,13 @@ fn r2_confirmation_entry_violations(
     let mut out = Vec::new();
     let count = |code: &str, token: &str| token_indices(code, token).len();
     for (name, code) in modules {
+        if name != "structural_adapter.rs" {
+            for token in CONFIRMATION_PLUMBING {
+                if count(code, token) != 0 {
+                    out.push(format!("{name} names {token}: confirmation plumbing outside the adapter's entry"));
+                }
+            }
+        }
         match name.as_str() {
             "structural_adapter.rs" => {
                 if count(code, CONFIRMATION_ENTRY) != 1
@@ -1711,6 +1725,13 @@ fn r2_confirmation_entry_violations(
     }
     let mut calls = 0;
     for (name, code) in product {
+        // I1: the product reaches the confirmation only through
+        // `confirm_converged_state`, never the adapter entry or its plumbing.
+        for token in [CONFIRMATION_ENTRY, "confirm_with_applied"].into_iter().chain(CONFIRMATION_PLUMBING) {
+            if count(code, token) != 0 {
+                out.push(format!("product_physics {name} names {token}: a confirmation entry outside confirm_converged_state"));
+            }
+        }
         let here = code.matches("confirm_converged_state(").count();
         if here == 0 {
             continue;
@@ -1734,7 +1755,8 @@ fn r2_confirmation_entry_violations(
 }
 
 /// R2's kept mutant: a second confirmation entry, or an entry inside the
-/// loop, fails the re-scoped pin.
+/// loop, fails the re-scoped pin; so does a product call of the adapter entry
+/// or a name of FK's confirmation plumbing outside the adapter (I1).
 #[test]
 fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
     let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -1778,6 +1800,27 @@ fn r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry() {
         1,
     );
     assert!(!r2_confirmation_entry_violations(&modules, &early).is_empty());
+    // I1: the product calls the adapter entry directly, or names FK's
+    // confirmation plumbing, beside its one `confirm_converged_state` call.
+    for inserted in [
+        "let _ = evidence.confirm_with_formation_check(); ",
+        "let _ = structural::finish_confirmation(&factor); ",
+        "let _: Option<ConfirmationAttempt> = None; ",
+    ] {
+        let mut direct = product.clone();
+        let (_, code) = direct.iter_mut().find(|(n, _)| n == "lib.rs").unwrap();
+        let anchor = "let certified_force = confirmed.map_or(&force, |state| &state.force);";
+        assert!(code.contains(anchor));
+        *code = code.replacen(anchor, &format!("{inserted}{anchor}"), 1);
+        assert!(!r2_confirmation_entry_violations(&modules, &direct).is_empty(), "{inserted}");
+    }
+    // I1: a non-adapter module of this crate names FK's confirmation plumbing.
+    let plumbing = mutate(
+        "confirmation.rs",
+        "let attempt = evidence.confirm_with_formation_check(",
+        "let _ = finish_confirmation(); let attempt = evidence.confirm_with_formation_check(",
+    );
+    assert!(!r2_confirmation_entry_violations(&plumbing, &product).is_empty());
 }
 
 /// K2b: the force-scaled entries are defined in the structural adapter only

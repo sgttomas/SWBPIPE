@@ -35,6 +35,7 @@ REQUESTS = [
     "f2_request.json",
     "u1_request.json",
     "u1_spring_request.json",
+    "u1_rx_request.json",
 ]
 # Normalized binary64 section leaves of the authored (OD, t) the requests use,
 # as the product forms them (checked bit for bit by the PP consumer).

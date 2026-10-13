@@ -14,7 +14,7 @@ struct Reference {
     expected: &'static [(&'static str, Option<&'static str>)],
 }
 
-const REFERENCES: [Reference; 6] = [
+const REFERENCES: [Reference; 7] = [
     Reference {
         request: include_str!("../../../validation/references/kd5_nonlinear/f1_request.json"),
         oracle: include_str!("../../../validation/references/kd5_nonlinear/f1_oracle.json"),
@@ -54,6 +54,14 @@ const REFERENCES: [Reference; 6] = [
     Reference {
         request: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_request.json"),
         oracle: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_oracle.json"),
+        expected: &[("load:PRESSED", None), ("load:LIFTED", None)],
+    },
+    // U-1's rotational twin (review M1): the one-way support on RX, in the
+    // moment family. PRESSED: Mx = 1400/9 N*m exactly; LIFTED: Inactive with
+    // theta_x = 700/EI rad.
+    Reference {
+        request: include_str!("../../../validation/references/kd5_nonlinear/u1_rx_request.json"),
+        oracle: include_str!("../../../validation/references/kd5_nonlinear/u1_rx_oracle.json"),
         expected: &[("load:PRESSED", None), ("load:LIFTED", None)],
     },
 ];

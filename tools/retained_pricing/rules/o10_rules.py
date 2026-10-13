@@ -629,5 +629,5 @@ if fnkey("confirm_with_applied", _NI_CONFIRMATION):
         ("iter:diagnostics.iter_mut().find", "D", O10 + "NLKD5L1: the evidence line's one scan of the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:solve_load_case_observed"]),
     ]
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
-        {"re": r"^gate\.report\.reciprocal_condition_estimate$", "max": 30, "why": O10 + "NLKD5A1: Option<f64> Debug, 'None' or 'Some(' + f64 Debug 24 + ')' <= 30 B"},
+        {"re": r"^gate\.report\.reciprocal_condition_estimate$", "max": 30, "why": O10 + "NLKD5A1: StructuralReport.reciprocal_condition_estimate is an f64; its Debug is <= 24 B, within the 30 B cap"},
     ]
