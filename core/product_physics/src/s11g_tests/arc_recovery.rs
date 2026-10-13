@@ -261,7 +261,7 @@ fn bending_rows(envelope: &MechanicsEnvelope, member: &str) -> [[f64; 2]; 2] {
 }
 
 /// T4-I34's exact published rows f* of one model arc (120-digit solve).
-fn exact_rows(label: &str, mode: PreviewSolverMode, pipe: &str) -> [f64; 12] {
+fn exact_rows(label: &str, mode: PreviewSolverMode, pipe: &str, request: &Value) -> [f64; 12] {
     let data: Value = serde_json::from_str(CANDIDATES).unwrap();
     let mode = format!("{mode:?}");
     let entry = data["model_rows"]
@@ -270,7 +270,27 @@ fn exact_rows(label: &str, mode: PreviewSolverMode, pipe: &str) -> [f64; 12] {
         .iter()
         .find(|r| r["label"] == json!(label) && r["mode"] == json!(mode) && r["pipe"] == json!(pipe))
         .unwrap_or_else(|| panic!("{label} {mode} {pipe}"));
-    std::array::from_fn(|k| entry["f_star"][k].as_str().unwrap().parse().unwrap())
+    let chord:[f64;12]=std::array::from_fn(|k| entry["f_star"][k].as_str().unwrap().parse().unwrap());
+    // Frozen O-13 f_star is in the historical chord frame. Re-express it
+    // with U4a Design §3's closed-form orthogonal end rotations; preserve
+    // the120digit reference bytes and the same group criterion. This is a
+    // test-reference adapter, never a coefficient source for the certificate.
+    let model=&request["model"];
+    let span=model["pipe_segments"].as_array().unwrap().iter().find(|p|p["id"]==pipe).unwrap();
+    let position=|node:&Value|-> [f64;3] {
+        let p=&model["nodes"].as_array().unwrap().iter().find(|n|n["id"]==*node).unwrap()["position"];
+        ["x","y","z"].map(|key|p[key].as_f64().unwrap())
+    };
+    let xi=position(&span["from"]);let xj=position(&span["to"]);
+    let length=(0..3).map(|k|(xj[k]-xi[k]).powi(2)).sum::<f64>().sqrt();
+    let bend=model["components"].as_array().unwrap().iter().find(|c|c["geometry"]["bend_pipe_ref"]==pipe).unwrap();
+    let radius=bend["geometry"]["bend_radius"]["value"].as_f64().unwrap();
+    let s=length/(2.0*radius);let c=(1.0-s*s).sqrt();
+    std::array::from_fn(|index| {
+        let end=index/6;let block=(index%6)/3;let base=6*end+3*block;
+        let sign=if end==0 {1.0} else {-1.0};
+        match index%3 {0=>c*chord[base]+sign*s*chord[base+1],1=>sign*s*chord[base]-c*chord[base+1],_=>-chord[base+2]}
+    })
 }
 
 /// The certified records of one run (K-D5's recovery probe).
@@ -299,7 +319,7 @@ fn p1_arc_bending_breach_is_never_published_passed() {
         assert!(records.iter().any(|r| r.member == "M2"), "{tag}: the arc carries a certified record");
         let d = integrity(&envelope, "case");
         if d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED" {
-            let exact = exact_rows(label, mode, "M2");
+            let exact = exact_rows(label, mode, "M2", &request);
             let published = bending_rows(&envelope, "M2");
             for end in 0..2 {
                 let [y, z] = published[end];
@@ -536,7 +556,7 @@ fn r1_short_bend_cases_take_the_unified_outcome() {
                 assert_eq!(d.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{tag}: {}", d.message);
                 assert!(!d.message.contains(SHORT) && !d.message.contains(RECOVERY), "{tag}");
                 if let Some(label) = reference {
-                    let exact = exact_rows(label, mode, "BC");
+                    let exact = exact_rows(label, mode, "BC", &request);
                     let published = end_rows(&envelope, "BC");
                     for end in 0..2 {
                         for group in [&[0][..], &[1, 2], &[3], &[4, 5]] {

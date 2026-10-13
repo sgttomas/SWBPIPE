@@ -99,6 +99,10 @@ values or request bytes changed.
    rows pass with T0R's original chord block kept as a negative control.
    Fifteen curved consumer tests, the six-resultant endpoint control and
    both governed accumulation-site suites (12 PP, 3 FK) pass.
+   The 57 S11-G controls and five nonlinear K-D5 controls pass. O-13's
+   frozen chord `f_star` rows in the P1 and R1 controls are re-expressed
+   by §3's closed-form rotation in the test adapter; the frozen bytes and
+   group criterion remain unchanged.
 2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
    status moves, targeted mutant runs, the VP-STATIC package's independent
    mapping re-review, and independent scrutiny of the implementation.
