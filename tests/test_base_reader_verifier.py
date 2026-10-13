@@ -95,7 +95,7 @@ def _strict_json(text):
 
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
-    assert [item.id for item in built] == list(committed) and len(built) == 560
+    assert [item.id for item in built] == list(committed) and len(built) == 559
     for item in built:
         entry = committed[item.id]
         if item.source is None:

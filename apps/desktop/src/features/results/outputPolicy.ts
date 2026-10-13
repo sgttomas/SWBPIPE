@@ -72,7 +72,6 @@ function everySurfaceRefused(): Readonly<Record<OutputSurface, SurfaceDecision>>
 }
 
 export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> = Object.freeze({
-  legacy: UNGATED,
   precision: UNGATED,
   physics: UNGATED,
   source_blocks: UNGATED,

@@ -7617,10 +7617,9 @@ const R1_SUCCESSORS: [(&str, &str); 12] = [
     ("w_c2_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json")),
 ];
 /// The carrier cases' fixtures, by their `path`.
-const R1_CARRIER_FIXTURES: [(&str, &str); 5] = [
+const R1_CARRIER_FIXTURES: [(&str, &str); 4] = [
     ("fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", R1_SUCCESSORS[9].1),
     ("fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json", R1_SUCCESSORS[8].1),
-    ("fixtures/product_preview/invented_demo_result_legacy_0_1.json", include_str!("../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json")),
     ("fixtures/results/preview_physics_invented_sparse.json", include_str!("../../../../fixtures/results/preview_physics_invented_sparse.json")),
     ("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")),
 ];

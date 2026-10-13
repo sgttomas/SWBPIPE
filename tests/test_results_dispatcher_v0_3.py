@@ -1,6 +1,6 @@
-"""T6S-1 (CQ-7 B; I74 decision 7): the results dispatcher's 0.3.0 arm is a $ref
-to results.v0.3.schema.yaml, so at 0.3.0 the dispatcher admits exactly what the
-version file admits (F-U6c-2: the old inline copy knew only precision-1).
+"""T6S-1 (CQ-7 B; I74 decision 7) and b7-plan E2: the results dispatcher is a $ref
+to results.v0.3.schema.yaml, the one result-export version, so it admits exactly
+what the version file admits; the retired 0.1.0/0.2.0 arms are gone.
 
 Validation goes through the registry helper (tests/schema_validation.py
 validate_instance), which resolves the version file and its own external
@@ -94,23 +94,6 @@ def coverage_documents():
     ]
 
 
-def legacy_documents():
-    """The two other arms' instances: the committed 0.1.0 documents and one
-    synthetic, shape-only 0.2.0 instance (no committed 0.2.0 document exists):
-    the first golden's envelope facts with the 0.3.0 members and every row removed."""
-    documents = [(name, document) for name, document in committed_documents() if document["schema_version"] == "0.1.0"]
-    shape = json.loads((RESULTS / GOLDENS[0]).read_text(encoding="utf-8"))
-    shape["schema_version"] = "0.2.0"
-    envelope = shape["result_envelope"]
-    envelope["schema_version"] = "0.2.0"
-    for key in ("producer", "semantic_contract_ref", "formulation_basis", "numerical_quality", "contract_evidence", "retained_precision"):
-        del envelope[key]
-    for key in ("review_evidence", "row_disclosures", "source_annotations", "row_accounting", "unit_preservation_witnesses"):
-        envelope[key] = []
-    envelope["result_sets"][0]["values"] = []
-    return documents + [("synthetic shape-only 0.2.0", shape)]
-
-
 def refused_variants(document):
     """Instances the version file refuses, for verdict equivalence on refusal."""
     extra = deepcopy(document)
@@ -138,10 +121,10 @@ def equivalence_failures(dispatcher, documents, *, first=False):
     return failures
 
 
-def test_dispatcher_arm_is_a_reference_to_the_version_file():
+def test_dispatcher_is_a_reference_to_the_version_file():
     dispatcher = schema("results.schema.yaml")
-    assert dispatcher["oneOf"][2] == {"$ref": VERSION_FILE}
-    assert len(dispatcher["oneOf"]) == 3
+    assert dispatcher["$ref"] == VERSION_FILE
+    assert set(dispatcher) == {"$schema", "$id", "title", "description", "$ref"}
     assert schema(VERSION_FILE)["$id"] == "https://openpipestress.org/schemas/results.v0.3.schema.yaml"
     assert schema(VERSION_FILE)["properties"]["schema_version"] == {"const": "0.3.0"}
     assert "results.v0.3.schema.yaml" in dispatcher["description"]
@@ -191,14 +174,9 @@ def test_dispatcher_admits_preview_physics_physics_and_the_successor(index):
     assert admits(schema(VERSION_FILE), document), label
 
 
-def test_other_arms_are_unchanged():
-    dispatcher = schema("results.schema.yaml")
-    for name, document in legacy_documents():
-        assert admits(dispatcher, document), name
-
-
 @pytest.mark.parametrize("outer,inner", [
     ("0.3.0", "0.2.0"), ("0.3.0", "0.1.0"), ("0.2.0", "0.3.0"), ("0.1.0", "0.3.0"),
+    ("0.1.0", "0.1.0"), ("0.2.0", "0.2.0"),
     ("0.4.0", "0.3.0"), ("0.3.0", "0.4.0"), ("0.4.0", "0.4.0"),
 ])
 def test_mixed_and_unknown_versions_are_refused(outer, inner):
@@ -212,33 +190,24 @@ def test_mixed_and_unknown_versions_are_refused(outer, inner):
 
 def wrong_reference(target):
     def mutate(dispatcher):
-        dispatcher["oneOf"][2] = {"$ref": target}
+        dispatcher["$ref"] = target
     return mutate
 
 
-def dropped_arm(index):
-    """The arm is replaced by a schema nothing satisfies: removing it from the
-    list would also break the inline 0.2.0 arm's positional local references."""
-    def mutate(dispatcher):
-        dispatcher["oneOf"][index] = {"not": {}}
-    return mutate
+def dropped_reference(dispatcher):
+    """The reference is replaced by a schema nothing satisfies."""
+    del dispatcher["$ref"]
+    dispatcher["not"] = {}
 
 
 @pytest.mark.parametrize("mutate", [
-    wrong_reference("results.v0.2.schema.yaml"),
-    wrong_reference("results.v0.1.schema.yaml"),
+    wrong_reference("rule_check_run_result.schema.json"),
     wrong_reference("analysis_run.v0.3.schema.json"),
-    dropped_arm(2),
-    dropped_arm(1),
-    dropped_arm(0),
-], ids=["ref-v0.2", "ref-v0.1", "ref-analysis-run", "drop-arm-0.3.0", "drop-arm-0.2.0", "drop-arm-0.1.0"])
+    dropped_reference,
+], ids=["ref-rule-check", "ref-analysis-run", "drop-ref"])
 def test_dispatcher_mutants_are_killed(mutate):
-    """Each mutant breaks an assertion above: the 0.3.0 equivalence or coverage,
-    or the other arms' admission."""
+    """Each mutant breaks the 0.3.0 equivalence or coverage above."""
     mutant = schema("results.schema.yaml")
     mutate(mutant)
-    killed = [name for name, document in legacy_documents() if not admits(mutant, document)][:1]
-    if not killed:
-        coverage = [(label, document) for label, _, document in coverage_documents()]
-        killed = equivalence_failures(mutant, coverage + committed_v03(), first=True)
-    assert killed
+    coverage = [(label, document) for label, _, document in coverage_documents()]
+    assert equivalence_failures(mutant, coverage + committed_v03(), first=True)

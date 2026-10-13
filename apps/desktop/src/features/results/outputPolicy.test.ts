@@ -49,7 +49,7 @@ async function eligible(mode: PreviewSolverMode) {
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
 
 /** Every SourceContract value, tied to the type in both directions by `tsc`. */
-const ROUTES: Record<SourceContract, true> = { legacy: true, precision: true, physics: true, source_blocks: true, physics_source: true, pressure_source: true, preview_physics: true, load_reference: true, load_reference_source: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
+const ROUTES: Record<SourceContract, true> = { precision: true, physics: true, source_blocks: true, physics_source: true, pressure_source: true, preview_physics: true, load_reference: true, load_reference_source: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
 /** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
 const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
@@ -58,7 +58,7 @@ describe("the output policy (T6S-3)", () => {
   it("has one deliberate entry per route and names every surface", () => {
     expect(Object.keys(OUTPUT_POLICY).sort()).toStrictEqual(Object.keys(ROUTES).sort());
     expect([...OUTPUT_SURFACES]).toStrictEqual([...GATED_PREFIXES, "report-package", ...PANELS]);
-    for (const route of ["legacy", "precision", "physics", "source_blocks", "physics_source", "preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
+    for (const route of ["precision", "physics", "source_blocks", "physics_source", "preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
     for (const route of ["load_reference", "load_reference_source"] as const) {
       const policy = OUTPUT_POLICY[route] as Json;
       expect([policy.gate, policy.reason]).toStrictEqual(["per_surface", LOAD_REFERENCE_OUTPUT_REFUSAL]);

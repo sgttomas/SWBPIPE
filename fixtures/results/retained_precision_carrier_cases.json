@@ -13,11 +13,6 @@
       "sha256": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
       "shape": "milestone"
     },
-    "legacy_preview_0_1": {
-      "path": "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
-      "sha256": "9100dae6c400dc367456945d32761e2e79b8a0ca8573dab316087612fa99dc15",
-      "shape": "raw"
-    },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
       "sha256": "cdaa8bf9bff5d9347f28bb61d530c6773f4f6728d5e349ff145dd5c30143b50e",
@@ -239,62 +234,6 @@
           ],
           "op": "set",
           "value": "product_preview_mechanics_v1"
-        }
-      ],
-      "expected_standing": "unsupported",
-      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
-    },
-    {
-      "id": "legacy_0_1:token_last_row_only",
-      "fixture": "legacy_preview_0_1",
-      "invocation": null,
-      "requested": [],
-      "edits": [
-        {
-          "target": "source",
-          "path": [
-            "results",
-            512,
-            "recovery_method"
-          ],
-          "op": "set",
-          "value": "contribution_preserving_multiprecision_v1"
-        }
-      ],
-      "expected_standing": "unsupported",
-      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
-    },
-    {
-      "id": "legacy_0_1:receipt_member_empty",
-      "fixture": "legacy_preview_0_1",
-      "invocation": null,
-      "requested": [],
-      "edits": [
-        {
-          "target": "source",
-          "path": [
-            "retained_precision"
-          ],
-          "op": "set",
-          "value": {}
-        }
-      ],
-      "expected_standing": "unsupported",
-      "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
-    },
-    {
-      "id": "legacy_0_1:receipt_member_null",
-      "fixture": "legacy_preview_0_1",
-      "invocation": null,
-      "requested": [],
-      "edits": [
-        {
-          "target": "source",
-          "path": [
-            "retained_precision"
-          ],
-          "op": "set",
-          "value": null
         }
       ],
       "expected_standing": "unsupported",
@@ -622,38 +561,6 @@
       "ruling": "ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\" (N-2 declared as a fifth entry; N-5 declared with it); RV92 u6f_01 N-2 (28 probes), N-5 (5 probes); TS expectation from RV92's probes (R/REVIEW_RV92/u6f_01 section 1)",
       "description": "A non-successor source with the W1 token on a row, or a receipt member. (N-2) Rust's and Python's header-only dispatch reads no rows and admits a token-row source (their raw dispatch refuses it); TS has one dispatch, which reads rows when present, and refuses it with RETAINED_PRECISION_DOWNGRADE_FORBIDDEN. Stricter; raw dispatch agrees in all three. (N-5) A source-blocks envelope carrying a receipt member or a token row: Rust and Python still refuse its summary stress row (open_formula_stress_summary or the max_open_formula_stress headline) with RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE, keyed on the producer id; TS keys that branch on the dispatched route, which is unsupported for the downgraded envelope, so it refuses no row there. No reliance differs: every language's standing for it is unsupported, so each rule gate refuses first.",
       "forms": [
-        {
-          "label": "header:token_row:legacy_0_1",
-          "fixtures": [
-            "legacy_preview_0_1"
-          ],
-          "invocation": null,
-          "requested": [],
-          "edits": [
-            {
-              "target": "source",
-              "path": [
-                "results",
-                0,
-                "recovery_method"
-              ],
-              "op": "set",
-              "value": "contribution_preserving_multiprecision_v1"
-            }
-          ],
-          "subject": "transport",
-          "expected": {
-            "rust": {
-              "transport": "ok"
-            },
-            "python": {
-              "transport": "ok"
-            },
-            "typescript": {
-              "transport": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
-            }
-          }
-        },
         {
           "label": "header:token_row:preview_physics_1",
           "fixtures": [

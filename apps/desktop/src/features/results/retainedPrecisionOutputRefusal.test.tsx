@@ -198,7 +198,7 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
     expect(model.project.id).toBe(result.model_ref);
     const run = { ...analysisRun.analysis_run, hashes: [] };
     const base = currentResultDocumentBase(model, result, run, "test:invented-refusal-manifest", { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:invented" });
-    const origin = await currentReceivedOrigin(model, result, "test:invented-refusal-manifest", false, "Test-built origin; not a qualified Current received carrier.");
+    const origin = await currentReceivedOrigin(model, result, "test:invented-refusal-manifest", "Test-built origin; not a qualified Current received carrier.");
     expect(origin.received_carrier_checksum.value).toBe(await resultDigest(result));
     expect((await deriveResultDocument(base, model, result, origin)).result_envelope.retained_precision).toStrictEqual(result.retained_precision);
     render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);

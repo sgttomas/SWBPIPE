@@ -669,7 +669,7 @@ def _results_document(source, contract_id):
                        "review_status": "pending"},
         "reproducibility": {
             "model_hash": {"algorithm": "sha256", "canonicalization": "openpipestress_jcs_ijson_v1",
-                           "payload_ref": model_ref, "value": "0" * 64},
+                           "payload_scope": "model_payload", "payload_ref": model_ref, "value": "0" * 64},
             "run_hashes": [], "audit_manifest_ref": ref("audit_manifest", "audit:schema-test"),
             "deterministic_ordering": True, "raw_source_hashes": [],
             "derivative_hash": scoped("derivative_document_excludes_own_hash", "result_envelope", "result-envelope:schema-test"),

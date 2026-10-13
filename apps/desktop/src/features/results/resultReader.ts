@@ -184,7 +184,7 @@ function rowText(row: SourceRow): string {
     ? Object.fromEntries(ROW_METADATA.filter(k => Object.hasOwn(metadata, k)).map(k => [k, metadata[k]])) : null;
   return writtenText({ kind: row?.kind, unit: row?.unit, metadata: picked });
 }
-/** The row semantics of this source's table (the legacy table without a source): a
+/** The row semantics of this source's table (no source is refused): a
  * function from a row to its signature, complete-metadata flag and canonical metadata.
  * It throws the reader's refusal: a source the dispatch refuses
  * (SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED), or a contradictory row. Call it once per
@@ -214,7 +214,7 @@ export function sourceContract(source: MechanicsResult): SourceContract {
   return readerDispatch(source).route;
 }
 /** The route's pinned table binding; throws SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED for a
- * legacy or unsupported statement. */
+ * statement the dispatch refuses. */
 export function sourceSemanticBinding(source: MechanicsResult): ContractBinding {
   const binding = readerDispatch(source).binding;
   if (!binding) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");

@@ -1,20 +1,29 @@
 import {it,expect} from 'vitest';
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
+import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json';
 import {buildHandoffPackage} from './HandoffPanel';
-import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
+import {buildAnalysisRunPreview,declaredSourceResultDimension} from '../../services/previewService';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import { PRECISION_CONTRACT_ID } from '../results/numericalResultQuality';
 import { sourceContract } from '../results/resultReader';
 import type {PreviewModel,MechanicsResult} from '../../types';
-// Historical-format protocol control only, as `precision()` in
-// resultExportAdapter.test.ts: the legacy rows, with or without their received
-// dimension declarations, carry a precision-1 header so that the supported
-// analysis record can be composed. They are never replayed as native output and
-// never qualify Current or numerical accuracy. The imported fixture is untouched.
+// Protocol control only, as `precision()` in resultExportAdapter.test.ts: the
+// bundled demo's rows, with or without received dimension declarations, carry a
+// precision-1 header so that the supported analysis record can be composed. They
+// are never replayed as native output and never qualify Current or numerical
+// accuracy. The imported fixture is untouched.
+// The demo rows whose kinds have a source dimension declaration (the v2 support and
+// maximum kinds have none), so that declarations can be received on every row.
+function declarableRows(result:MechanicsResult):MechanicsResult{
+ return {...result,results:result.results.filter(row=>{try{declaredSourceResultDimension(row);return true;}catch{return false;}})};
+}
+function withDeclaredDimensions(result:MechanicsResult):MechanicsResult{
+ const rows=declarableRows(result);
+ return {...rows,results:rows.results.map(row=>({...row,dimension:declaredSourceResultDimension(row)}))};
+}
 function precisionCarrier(result:MechanicsResult,model:PreviewModel):MechanicsResult{
  result.diagnostics=result.diagnostics.map((diagnostic,index)=>({...diagnostic,id:`test:synthetic-diagnostic:${index}:${diagnostic.id ?? 'missing'}`}));
- result.schema_version='0.2.0';
+ result.schema_version='0.2.0';delete (result as {contract_evidence?:unknown}).contract_evidence;
  result.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
  result.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['bounded pressure/component/stress/support preview']};
  result.diagnostics.push({id:'test:gate',code:'TEST_GATE',severity:'info',message:'Synthetic consumer gate evidence; not native proof'});
@@ -24,18 +33,20 @@ function precisionCarrier(result:MechanicsResult,model:PreviewModel):MechanicsRe
 // A supported analysis record binds the producer identity the carrier declares.
 const manifestFor=(model:PreviewModel)=>buildCurrentSessionInputManifest({model,solver:{solver_name:"open_pipe_stress_product_physics",solver_version:"0.2.0",solver_build_ref:"fixture",solver_mode:"sparse_interactive",settings:{}},active_rule_packs:[],external_assets:[]});
 it('reference-only handoff preserves received declarations and withholds absent dimension witnesses',async()=>{
- const model=modelJson as PreviewModel,result=precisionCarrier(bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult),model);
+ const model=modelJson as PreviewModel,result=precisionCarrier(withDeclaredDimensions(structuredClone(resultJson) as unknown as MechanicsResult),model);
  expect(sourceContract(result)).toBe('precision');
  const inputManifest=await manifestFor(model);const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  // Each received declaration is witnessed, so the preservation loop cannot pass vacuously.
  const declared=result.results.filter(row=>typeof row.dimension==='string'&&row.dimension);expect(declared.length).toBeGreaterThan(0);expect(packet.unit_preservation_witnesses).toHaveLength(declared.length);
  for(const witness of packet.unit_preservation_witnesses){const row=result.results.find(row=>row.id===witness.source_ref.ref)!;expect(witness.source_quantity.dimension).toBe(row.dimension);expect(witness.source_quantity.value).toBe(row.value);expect(witness.target_quantity).toEqual(witness.source_quantity);}
  // The same rows without received declarations: nothing is witnessed.
- const absent=precisionCarrier(structuredClone(resultJson) as unknown as MechanicsResult,model);expect(absent.results.some(row=>Object.hasOwn(row,'dimension'))).toBe(false);const unavailable=buildHandoffPackage({model,result:absent,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});expect(unavailable.unit_preservation_witnesses).toHaveLength(0);
+ const absent=precisionCarrier(declarableRows(structuredClone(resultJson) as unknown as MechanicsResult),model);expect(absent.results.some(row=>Object.hasOwn(row,'dimension'))).toBe(false);const unavailable=buildHandoffPackage({model,result:absent,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});expect(unavailable.unit_preservation_witnesses).toHaveLength(0);
 });
-it('refuses the legacy carrier as the handoff analysis basis without changing it',async()=>{
- const model=modelJson as PreviewModel,legacy=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult),before=JSON.stringify(legacy);
- expect(sourceContract(legacy)).toBe('legacy');
- await expect(buildAnalysisRunPreview(legacy,{inputManifest:await manifestFor(model)})).rejects.toThrow('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
- expect(JSON.stringify(legacy)).toBe(before);
+it('refuses the retired 0.1.0 carrier as the handoff analysis basis without changing it',async()=>{
+ const model=modelJson as PreviewModel,retired=structuredClone(resultJson) as unknown as MechanicsResult;
+ retired.schema_version='0.1.0';for(const key of ['producer','numerical_quality','formulation_basis','contract_evidence'])delete (retired as unknown as Record<string,unknown>)[key];
+ const before=JSON.stringify(retired);
+ expect(sourceContract(retired)).toBe('unsupported');
+ await expect(buildAnalysisRunPreview(retired,{inputManifest:await manifestFor(model)})).rejects.toThrow('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
+ expect(JSON.stringify(retired)).toBe(before);
 });

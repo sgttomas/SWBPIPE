@@ -47,12 +47,7 @@ fn explicit_dispatch_metadata_binding_and_unchanged_ijson_limit() {
     }
     let mut unknown=raw.clone();unknown["results"][0]["kind"]=json!("unknown_future_quantity");assert_eq!(derive(&unknown).unwrap()["result_envelope"]["row_disclosures"][0]["reason_code"],"unsupported_source_kind");
     assert!(derive(&source(9007199254740992.0)).unwrap_err().contains("UNSAFE_JSON_NUMBER"));
-    let mut legacy=raw;legacy["schema_version"]=json!("0.1.0");for key in ["producer","numerical_quality","formulation_basis"]{legacy.as_object_mut().unwrap().remove(key);}let old=derive(&legacy).unwrap();assert_eq!(old["schema_version"],"0.2.0");assert!(old["result_envelope"].get("producer").is_none());
-}
-#[test]
-fn historical_hash_vectors_and_rows_are_unchanged() {
-    assert_eq!(s::contract()["rows"],s::precision_contract()["rows"]);
-    for vector in s::contract()["hash_vectors"].as_array().unwrap(){assert_eq!(d::digest(&vector["input"]).unwrap(),vector["expected_sha256"]);}
+    let mut retired=raw;retired["schema_version"]=json!("0.1.0");for key in ["producer","numerical_quality","formulation_basis"]{retired.as_object_mut().unwrap().remove(key);}assert_eq!(derive(&retired).unwrap_err(),s::MECHANICS_RESULT_VERSION_RETIRED);
 }
 #[test]
 fn rule_eligibility_requires_actual_case_coverage_and_resolving_evidence() {

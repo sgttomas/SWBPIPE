@@ -62,17 +62,14 @@ def run_preview_mechanics(model: Mapping[str, Any] | None = None) -> dict[str, A
     """Return a deterministic mechanics/status envelope for the preview.
 
     The current technical preview returns a frozen invented result fixture,
-    ``invented_demo_result_legacy_0_1.json``: a carrier derived from the product's
-    sparse output for the demo model in the historical 0.1.0 result format this
-    service has always returned. Rows of kinds the 0.1.0 semantics do not define
-    are removed, and the summary members that describe them are withheld (see
-    ``fixtures/product_preview/DEMO_FIXTURES.md``). It is not a solve of the given
-    model, and it does not perform external solver/prover execution or rule-pack
-    checking.
+    ``invented_demo_result_preview_physics_1_sparse.json``: the product's own
+    preview-physics-1 output for the demo model (one current mechanics-result
+    version, b7-plan E2). It is not a solve of the given model, and it does not
+    perform external solver/prover execution or rule-pack checking.
     """
 
     model_record = deepcopy(dict(model or load_preview_model()))
-    result = _read_json(FIXTURE_DIR / "invented_demo_result_legacy_0_1.json")
+    result = _read_json(FIXTURE_DIR / "invented_demo_result_preview_physics_1_sparse.json")
     diagnostics = list(result.get("diagnostics", []))
     diagnostics.extend(validate_preview_model(model_record)["diagnostics"])
     result["diagnostics"] = _stable(diagnostics)
@@ -86,10 +83,9 @@ def build_analysis_run_preview(model: Mapping[str, Any] | None = None) -> dict[s
 
     Analysis runs keep one current version, so the record binds the product's
     verbatim preview-physics-1 output for the bundled demo model
-    (``invented_demo_result_preview_physics_1_sparse.json``), the statement the
-    historical-format carrier returned by ``run_preview_mechanics`` is derived
-    from; a historical-format result is never recorded. Like that carrier, it is
-    frozen and not a solve of the given model. Its input manifest states the demo
+    (``invented_demo_result_preview_physics_1_sparse.json``), the statement
+    ``run_preview_mechanics`` returns. Like that result, it is frozen and not a
+    solve of the given model. Its input manifest states the demo
     model and the result's producer, and is hashed with the checked profile.
     """
 

@@ -17,6 +17,7 @@
  * and gates' not-eligible branches stay exercised. With both false the wrapper
  * returns the reader's own frozen result unchanged.
  */
+import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResult";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -221,12 +222,12 @@ afterEach(() => {
 describe("the inputs and the pinned identity", () => {
   it("uses PP's byte-identical successors and the shared 20-case file (format v4)", () => {
     expect(caseFile.format).toBe("I66-U6-CARRIER-CASES-v4");
-    expect(caseFile.cases).toHaveLength(20);
-    expect(Object.keys(caseFile.fixtures).sort()).toStrictEqual(["legacy_preview_0_1", "milestone_dense_scrutiny", "milestone_sparse_interactive", "preview_physics_1_invented_sparse", "source_blocks_n05_sparse"]);
+    expect(caseFile.cases).toHaveLength(17);
+    expect(Object.keys(caseFile.fixtures).sort()).toStrictEqual(["milestone_dense_scrutiny", "milestone_sparse_interactive", "preview_physics_1_invented_sparse", "source_blocks_n05_sparse"]);
     for (const mode of MODES) expect(milestone(mode).source.producer!.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
   });
   it("the raw fixtures' guard cases are refused only through their edit (as Rust asserts)", () => {
-    for (const [id, route] of [["legacy_preview_0_1", "legacy"], ["preview_physics_1_invented_sparse", "preview_physics"], ["source_blocks_n05_sparse", "source_blocks"]] as const) {
+    for (const [id, route] of [["preview_physics_1_invented_sparse", "preview_physics"], ["source_blocks_n05_sparse", "source_blocks"]] as const) {
       const { source, invocation } = sharedFixture(id);
       expect(invocation).toBeNull();
       expect(sourceContract(source)).toBe(route);
@@ -614,9 +615,9 @@ describe("the downgrade guard (F-5)", () => {
     s.results[0].recovery_method = "some_other_method";
     expect(retainedPrecisionDowngrade(s)).toBe(false);
   });
-  it("applies to every other identity, including legacy 0.1.0 and an unparseable header", () => {
-    const legacy = JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_demo_result_legacy_0_1.json"), "utf8"));
-    expect(sourceContract(legacy)).toBe("legacy");
+  it("applies to every other identity, including the retired 0.1.0 carrier and an unparseable header", () => {
+    const legacy: Json = retiredMechanicsResult();
+    expect(sourceContract(legacy)).toBe("unsupported");
     expect(sourceContract({ ...legacy, retained_precision: {} })).toBe("unsupported");
     expect(numericalResultStanding({ ...legacy, retained_precision: {} }, null).findings).toStrictEqual([RETAINED_PRECISION_DOWNGRADE_FORBIDDEN]);
     const preview = JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_connected_sparse.json"), "utf8"));
@@ -625,7 +626,7 @@ describe("the downgrade guard (F-5)", () => {
     expect(sourceContract({ ...preview, results: preview.results.map((row: Json, i: number) => i ? row : { ...row, recovery_method: RETAINED_METHOD }) })).toBe("unsupported");
     expect(retainedPrecisionDowngrade({ ...legacy, results: [null, 3] })).toBe(false);
     expect(retainedPrecisionDowngrade({ ...legacy, results: "rows" })).toBe(false);
-    expect(numericalResultStanding({ ...legacy, producer: { semantic_contract_id: "unknown" } } as MechanicsResult, null).findings).toStrictEqual(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]);
+    expect(numericalResultStanding({ ...legacy, producer: { semantic_contract_id: "unknown" } } as MechanicsResult, null).findings).toStrictEqual(["MECHANICS_RESULT_VERSION_RETIRED"]);
   });
   it("the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt", () => {
     expect(sourceContract(source)).toBe("retained_preview_physics");
@@ -822,8 +823,8 @@ describe.each(MODES)("%s: the carrier transport route runs the reader's transpor
 });
 describe("the carrier transport route on other identities is the header route", () => {
   it("resolves each existing route, and refuses an unsupported or downgraded header with its standing code", async () => {
-    const legacy = sharedFixture("legacy_preview_0_1").source, preview = sharedFixture("preview_physics_1_invented_sparse").source, blocks = sharedFixture("source_blocks_n05_sparse").source;
-    expect(readerDispatch(structuredClone(legacy)).route).toBe("legacy");
+    const legacy = retiredMechanicsResult(), preview = sharedFixture("preview_physics_1_invented_sparse").source, blocks = sharedFixture("source_blocks_n05_sparse").source;
+    expect(readerDispatch(structuredClone(legacy))).toMatchObject({ route: "unsupported", error: { code: "MECHANICS_RESULT_VERSION_RETIRED" } });
     expect(readerDispatch(structuredClone(preview)).route).toBe("preview_physics");
     expect(readerDispatch(structuredClone(blocks)).route).toBe("source_blocks");
     expect(readerDispatch({ ...structuredClone(preview), retained_precision: null } as MechanicsResult)).toMatchObject({ route: "unsupported", error: { code: RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } });

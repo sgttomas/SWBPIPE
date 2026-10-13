@@ -392,7 +392,7 @@ fn golden_carries_the_receipt_evidence_and_class_disclosures(set: &'static Golde
         assert!(e["reproducibility"]["request_hash"].is_null());
         // The receipt's own `body.invocation` is its hash statement, not the invocation.
         assert!(no_invocation(&doc), "{}: no {{request, solver_mode}} in the export", m.mode);
-        assert_eq!(e["reproducibility"]["model_hash"], d::legacy_checksum(&m.model, d::reference("model_payload", m.source["model_ref"].as_str().unwrap())).unwrap());
+        assert_eq!(e["reproducibility"]["model_hash"], d::checksum(&m.model, "model_payload", d::reference("model_payload", m.source["model_ref"].as_str().unwrap())).unwrap());
         // The classes come from the accepted reader without an invocation.
         let validation = rp::validate(&m.source, None).unwrap();
         let classes = s::retained_row_classes(&m.source).unwrap().unwrap();

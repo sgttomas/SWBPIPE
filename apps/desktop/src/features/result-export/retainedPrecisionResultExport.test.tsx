@@ -73,7 +73,7 @@ function milestone(mode: PreviewSolverMode) {
 async function goldenInputs(source: MechanicsResult, model: PreviewModel) {
   const run = { ...structuredClone(RUN_STAND_IN), run_id: source.run_id, load_basis_refs: modelLoadBasisRefs(model) } as Json;
   const base = currentResultDocumentBase(model, source, run, MANIFEST_REF, { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: SOLVER_BUILD_REF });
-  const origin = await currentReceivedOrigin(model, source, MANIFEST_REF, false, ORIGIN_LIMIT);
+  const origin = await currentReceivedOrigin(model, source, MANIFEST_REF, ORIGIN_LIMIT);
   return { base, origin };
 }
 /** Every object key in a JSON value. */
@@ -230,12 +230,12 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
     const relabelled = structuredClone(source) as Json;
     relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
-    await expect(deriveResultDocument(base, model, relabelled, await currentReceivedOrigin(model, relabelled, MANIFEST_REF, false, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+    await expect(deriveResultDocument(base, model, relabelled, await currentReceivedOrigin(model, relabelled, MANIFEST_REF, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     await expect(validateResultDocument(doc, relabelled)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     // A statement the reader refuses derives nothing: R2's header dispatch runs the reader's transport checks
     // (G5), so it reads unsupported (TS: the reader's RETAINED_PRECISION_RECEIPT_MISMATCH).
     const unread = structuredClone(source) as Json; unread.retained_precision.receipt_sha256 = "0".repeat(64);
-    await expect(deriveResultDocument(base, model, unread, await currentReceivedOrigin(model, unread, MANIFEST_REF, false, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+    await expect(deriveResultDocument(base, model, unread, await currentReceivedOrigin(model, unread, MANIFEST_REF, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     await expect(validateResultDocument(doc, unread)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     // The receipt must bind the source, whole.
     const edit = async (change: (d: Json) => void) => { const d = structuredClone(doc); change(d); return rehashed(d); };
@@ -268,7 +268,7 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
     await expect(validateResultDocument(await rehashed(carried), result)).rejects.toThrow(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
     const base = currentResultDocumentBase(model, result, analysisRun.analysis_run, inputManifest.manifest_ref.ref, inputManifest.manifest.solver_basis);
     base.result_envelope.retained_precision = structuredClone(receipt);
-    await expect(deriveResultDocument(base, model, result, await currentReceivedOrigin(model, result, inputManifest.manifest_ref.ref, false, CURRENT_ORIGIN_LIMIT))).rejects.toThrow(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
+    await expect(deriveResultDocument(base, model, result, await currentReceivedOrigin(model, result, inputManifest.manifest_ref.ref, CURRENT_ORIGIN_LIMIT))).rejects.toThrow(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   });
 });
 
@@ -278,7 +278,7 @@ describe("a load/reference-state result keeps T1's refusal", () => {
     const model = structuredClone(json("fixtures/product_preview/load_reference/pressure.request.json").model) as PreviewModel;
     expect(surfaceOutputRefusal(result, model, "result-export")).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
     await expect(buildCurrentResultExport({ model, result, analysisRun: {} as Json, inputManifest: null })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    const origin = await currentReceivedOrigin(model, result, MANIFEST_REF, false, ORIGIN_LIMIT);
+    const origin = await currentReceivedOrigin(model, result, MANIFEST_REF, ORIGIN_LIMIT);
     await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
     await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
   });

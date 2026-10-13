@@ -25,8 +25,7 @@ use crate::semantic_contract as sc;
 use serde_json::{json, Value};
 
 /// The desktop's route names (its `SourceContract`), one per readable identity.
-pub const ROUTES: [&str; 11] = [
-    "legacy",
+pub const ROUTES: [&str; 10] = [
     "precision",
     "physics",
     "source_blocks",
@@ -49,7 +48,7 @@ pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE";
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
-/// `binding_hashes_are_the_table_files` checks them). Legacy has none.
+/// `binding_hashes_are_the_table_files` checks them).
 const BINDINGS: [(&str, &str, &str); 10] = [
     ("precision", sc::PRECISION_ID, "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"),
     ("physics", sc::PHYSICS_ID, "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"),
@@ -93,10 +92,7 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     if source.get("carrier_evidence").is_some() {
         return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
     }
-    let (table, version) = sc::for_source_metadata(source)?;
-    if version == "0.2.0" {
-        return Ok(("legacy", table));
-    }
+    let (table, _) = sc::for_source_metadata(source)?;
     let evidence_object = source.get("contract_evidence").is_some_and(Value::is_object);
     let receipt = &source["source_block_recovery"];
     let route = match source["producer"]["semantic_contract_id"].as_str() {
@@ -141,7 +137,7 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     };
     Ok((route, table))
 }
-/// A route's table binding `{id, sha256}`; null for legacy and unsupported.
+/// A route's table binding `{id, sha256}`; null for unsupported.
 pub fn binding(route: &str) -> Value {
     BINDINGS
         .iter()
@@ -368,7 +364,7 @@ pub fn source_findings(source: &Value, invocation: &Value, composite: bool) -> V
 /// findings}`. `token` is `numerical_use_standing_with_context` with the model's
 /// load cases as the requested refs and the caller's invocation, unchanged.
 /// `findings` are the TypeScript standing's codes in its order: a refusal's code;
-/// legacy's integrity reason; a source route's validation findings (or
+/// a source route's validation findings (or
 /// `SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED` without an invocation, G4); the
 /// joined route's validation code or its T1 reason; a successor's reader code or
 /// its not-eligible reason; otherwise the evidence reader's code, the historical
@@ -391,7 +387,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         Ok((route, _)) => route,
         Err(code) => {
             findings.push(
-                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) || code == sc::MECHANICS_RESULT_VERSION_RETIRED { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
             );
             UNSUPPORTED
         }
@@ -403,7 +399,6 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     };
     match route {
         UNSUPPORTED => {}
-        "legacy" => findings.push("LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED".into()),
         "physics_source" | "pressure_source" | "source_blocks" => match invocation {
             None => findings.push(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED.into()),
             Some(i) => {
@@ -560,16 +555,13 @@ pub fn dispatch(source: &Value, model: Option<&Value>, invocation: Option<&Value
         "error": refusal, "standing": standing(source, model, invocation)})
 }
 
-/// One result row's semantics under the source's table (the legacy table without
-/// a source): its signature or null, its complete-metadata flag and canonical
-/// metadata. A source the dispatch refuses, or a contradictory row, is refused.
+/// One result row's semantics under its source's table: its signature or null,
+/// its complete-metadata flag and canonical metadata. No source, a source the
+/// dispatch refuses, or a contradictory row, is refused.
 pub fn row_semantics(row: &Value, source: Option<&Value>) -> Value {
-    let table = match present(source) {
-        None => sc::contract(),
-        Some(source) => match route(source) {
-            Ok((_, table)) => table,
-            Err(_) => return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
-        },
+    let table = match present(source).map(route) {
+        Some(Ok((_, table))) => table,
+        _ => return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
     };
     match sc::signature_in(table, row) {
         Ok(signature) => json!({"ok": true, "signature": signature,

@@ -18,51 +18,50 @@ from .source_blocks import (CONTRACT_ID as SOURCE_BLOCKS_CONTRACT_ID,
     CONTRACT_SHA256 as SOURCE_BLOCKS_CONTRACT_SHA256, CONTRACT_PATH as _SOURCE_BLOCKS_CONTRACT_PATH,
     validate_source_blocks, validate_receipt_shape, domain_hash, ordinary_case_legacy_semantics)
 
-SEMANTIC_CONTRACT_SHA256 = "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
-SEMANTIC_CONTRACT_ID = "openpipestress_result_semantics_v0_2"
-_CONTRACT_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_2.json"
+_RESULTS_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "results"
+MECHANICS_RESULT_VERSION_RETIRED = "MECHANICS_RESULT_VERSION_RETIRED"
 
 
 PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
-_PRECISION_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_precision_1.json")
+_PRECISION_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_precision_1.json"
 PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 PHYSICS_CONTRACT_SHA256 = "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
-_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_1.json")
+_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_1.json"
 PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
 PHYSICS_SOURCE_CONTRACT_SHA256 = "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
-_PHYSICS_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_source_1.json")
+_PHYSICS_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_source_1.json"
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_SOURCE_CONTRACT_SHA256 = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61"
-_PRESSURE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_source_1.json")
+_PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 
 # Resolved load/reference-state method: one table, one profile; the AnalysisRun
 # record mirrors physics-1 and carries no contract_evidence.
 LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
-_LOAD_REFERENCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_1.json")
+_LOAD_REFERENCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_load_reference_1.json"
 LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1"
 # Joined load/reference-state method (retained-source receipt required): one
 # table, one profile, one receipt policy. The AnalysisRun record mirrors
 # physics-source-1 and carries source_block_recovery and contract_evidence.
 LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
 LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
-_LOAD_REFERENCE_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_source_1.json")
+_LOAD_REFERENCE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_load_reference_source_1.json"
 LOAD_REFERENCE_SOURCE_PROFILE = "resolved_straight_load_state_source_v1"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c"
-_PREVIEW_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_1.json")
+_PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_1.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ed1fc7fca562f26365157141f54c450cbfaf2ef65e689d37ff54086b70510357"
-_PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_retained_1.json")
+_PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor over physics-1. As the preview successor, its statements are checked
 # only by the accepted reader, which dispatches on this identity, and its standing comes only from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 PHYSICS_RETAINED_CONTRACT_SHA256 = "7f830a90e7a5f7e1ec279ae0c2bf0e622ff80f40ac283ae502096880d32b5eb9"
-_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_retained_1.json")
+_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
@@ -234,13 +233,9 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     # the unrelated carrier namespace remains unsupported for every profile.
     if "carrier_evidence" in source and not rust_header_order:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    # b7-plan E2: the producer-less 0.1.0 carrier is retired and refused by name.
     if version == "0.1.0":
-        if any(key in source for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery")):
-            raise ValueError("LEGACY_SOURCE_METADATA_CONTRADICTION")
-        # F-5, as in Rust and TS: a legacy row with the W1 token is refused too.
-        if check_receipt and _has_retained_rows(source):
-            raise ValueError(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
-        return SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
+        raise ValueError(MECHANICS_RESULT_VERSION_RETIRED)
     if version != "0.2.0":
         raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     producer = source.get("producer")

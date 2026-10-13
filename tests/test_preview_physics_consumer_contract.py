@@ -1051,8 +1051,7 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     """The recipe's default mode captures the valid demo model (no joint, no legacy
-    pressure): a solved preview-physics-1 result per mode, read as is, and its
-    historical-format carrier, derived from the sparse output as recorded."""
+    pressure): a solved preview-physics-1 result per mode, read as is."""
     source = actual(PROJECT / f"fixtures/product_preview/invented_demo_result_preview_physics_1_{mode}.json")
     record = json.loads((PROJECT / "fixtures/product_preview/demo_fixture_generation.json").read_text())
     output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))
@@ -1062,24 +1061,10 @@ def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     assert output["mechanics_status"] == source["status"]["mechanics"] == "MECHANICS_SOLVED"
     validate_preview_physics_evidence(source)
     assert verify_analysis_run_record(build(source)) == "match"
-    carrier = record["derived_outputs"][0]
-    carried = json.loads((PROJECT / carrier["path"]).read_text())
-    assert hashlib.sha256((PROJECT / carrier["path"]).read_bytes()).hexdigest() == carrier["sha256"]
-    assert carrier["derived_from"]["sha256"] == next(item["sha256"] for item in record["outputs"] if item["mode"] == "sparse_interactive")
-    sparse = json.loads((PROJECT / carrier["derived_from"]["path"]).read_text())
-    for key in carrier["removed_members"]:
-        del sparse[key]
-    sparse["schema_version"] = "0.1.0"
-    sparse["results"] = [row for row in sparse["results"] if row["kind"] not in carrier["removed_row_kinds"]]
-    # The summary members that describe removed rows are withheld (RV128 N-4).
-    assert carrier["nulled_summary_members"] == ["component_stress_modifier_count", "max_open_formula_stress"]
-    for key in carrier["nulled_summary_members"]:
-        sparse["summary"][key] = None
-    assert carried == sparse
+    # b7-plan E2: no historical-format carrier is derived.
+    assert "derived_outputs" not in record
     # The record is portable: no hash of cargo's checkout-dependent stderr (RV128 N-7).
     assert all("stderr_sha256" not in item for item in record["outputs"])
-    ids = {row["id"] for row in carried["results"]}
-    assert all(value["result_ref"] in ids for value in carried["summary"].values() if isinstance(value, dict) and "result_ref" in value)
 
 
 def test_shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required():

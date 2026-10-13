@@ -24,10 +24,16 @@ from schema_validation import (  # noqa: E402
     walk_keys,
 )
 
-SCHEMA_PATH = ROOT / "schemas" / "results.v0.1.schema.yaml"  # Exact legacy contract; version dispatch has its own focused tests.
-# The bundled demo's historical-format (0.1.0) carrier of the product's output.
+# b7-plan E2: one result-export version (0.3.0); the dispatcher has its own focused tests.
+SCHEMA_PATH = ROOT / "schemas" / "results.v0.3.schema.yaml"
+# The bundled demo's preview-physics-1 output (the current mechanics-result carrier).
 PRODUCT_PREVIEW_RESULT_PATH = (
-    ROOT / "fixtures" / "product_preview" / "invented_demo_result_legacy_0_1.json"
+    ROOT / "fixtures" / "product_preview" / "invented_demo_result_preview_physics_1_sparse.json"
+)
+# Committed 0.3.0 result-export documents, as derive_document writes them.
+CURRENT_EXPORT_PATHS = tuple(
+    ROOT / "fixtures" / "results" / name
+    for name in ("load_reference_connected_sparse.document.json", "load_reference_source_n05_sparse.document.json")
 )
 TP_PHYS_015_RESULT_ENVELOPE_PATH = (
     ROOT
@@ -239,7 +245,7 @@ def main():
     } <= set(defs["ResultTraceLink"]["properties"]["trace_type"]["enum"])
     assert (
         defs["ResultEnvelope"]["properties"]["unit_witness_policy"]["const"]
-        == "preserve_source_result_value_unit_and_dimension_per_exported_result_row"
+        == "preserve_received_value_and_unit_with_independent_semantic_dimension"
     )
     assert (
         defs["ResultEnvelope"]["properties"]["unit_preservation_witnesses"]["items"][
@@ -264,11 +270,11 @@ def main():
     witness = defs["UnitPreservationWitness"]["properties"]
     assert (
         witness["target_quantity_policy"]["const"]
-        == "exported_result_row_preserves_source_value_unit_and_dimension"
+        == "preserve_received_value_and_unit_with_independent_semantic_dimension"
     )
     assert (
         witness["export_unit_policy"]["const"]
-        == "preserve_source_result_unit_and_dimension"
+        == "no_numerical_conversion_preserve_received_unit"
     )
     assert witness["conversion_performed"]["const"] is False
     assert {
@@ -579,22 +585,15 @@ def main():
 
 def check_jsonschema_validation():
     schema = load_schema(SCHEMA_PATH)
-    fixture = load_tp_phys_015_result_envelope()
-    section_fixture = load_tp_phys_015_section_evidence_envelope()
     try:
         assert validate_schema_document(schema, schema_label=str(SCHEMA_PATH))
-        assert validate_instance(
-            schema,
-            fixture,
-            schema_label=str(SCHEMA_PATH),
-            instance_label=str(TP_PHYS_015_RESULT_ENVELOPE_PATH),
-        )
-        assert validate_instance(
-            schema,
-            section_fixture,
-            schema_label=str(SCHEMA_PATH),
-            instance_label=str(TP_PHYS_015_SECTION_EVIDENCE_ENVELOPE_PATH),
-        )
+        for path in CURRENT_EXPORT_PATHS:
+            assert validate_instance(
+                schema,
+                json.loads(path.read_text(encoding="utf-8")),
+                schema_label=str(SCHEMA_PATH),
+                instance_label=str(path),
+            )
     except JsonSchemaDependencyMissing as exc:
         _skip_or_note_missing_jsonschema(exc)
 

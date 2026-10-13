@@ -282,7 +282,6 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     ["../product_preview/invented_mechanics_result_preview_physics_1_dense", null],
     ["../product_preview/invented_demo_result_preview_physics_1_sparse", null],
     ["../product_preview/invented_demo_result_preview_physics_1_dense", null],
-    ["../product_preview/invented_demo_result_legacy_0_1", null],
   ];
   for (const [name, model] of results) {
     base(`results/${name.replace(/^(\.\.\/)+/, "")}`, fileText(`fixtures/results/${name}.json`), model === null ? undefined : modelAt(model));

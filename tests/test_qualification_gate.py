@@ -38,7 +38,10 @@ class GateTests(unittest.TestCase):
         self.payload = {'artifact': 'openpipestress.headless_runner_cli_output', 'schema_version': '1.0.0', 'command': 'solve', 'operation': 'solve',
                         'request_validation': {'diagnostics': []}, 'result_validation': {'diagnostics': []}, 'diagnostics': [],
                         'runner_result': {'run_id': 'run:headless-preview:invented-request', 'job': {'state': 'COMPLETED'}, 'analysis_status': ['MECHANICS_SOLVED'], 'diagnostics': []},
-                        'mechanics_envelope': {'schema_version': '0.1.0', 'document_kind': 'openpipestress.product_preview.mechanics_result',
+                        'mechanics_envelope': {'schema_version': '0.2.0', 'document_kind': 'openpipestress.product_preview.mechanics_result',
+                                              'producer': {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
+                                                           'semantic_contract_id': gate.PREVIEW_PHYSICS_ID},
+                                              'numerical_quality': {}, 'formulation_basis': {}, 'contract_evidence': {},
                                               'run_id': 'run:preview-linear-static-001', 'model_ref': 'invented-model',
                                               'status': {'mechanics': 'MECHANICS_SOLVED'}, 'accepted_model_state_mutated': False,
                                               'diagnostics': [], 'results': [self.mode, *self.rows]}}
@@ -98,7 +101,7 @@ class GateTests(unittest.TestCase):
         self.assertEqual((self.root / 'run-1/case-0000.reference.json').read_bytes(), (self.root / 'reference.json').read_bytes())
         self.assertEqual((self.root / 'run-1/case-0000.criterion.json').read_bytes(), (self.root / 'criterion.json').read_bytes())
         self.assertEqual(process['stdout_sha256'], sha256_bytes((self.root / 'run-1/case-0000/stdout.bin').read_bytes()))
-        self.assertIn('legacy raw0.1', result['execution_basis']['producer_precision'])
+        self.assertIn('preview-physics-1 raw0.2', result['execution_basis']['producer_precision'])
         self.assertIn('Required: 1 cases / 2 assertions', (self.root / 'run-1/summary.md').read_text())
         self.assertEqual(json.loads((self.root / 'run-1/ledger.json').read_text()), result)
 
@@ -145,7 +148,7 @@ class GateTests(unittest.TestCase):
             wrapper = deepcopy(self.wrapper); payload = wrapper['payload']
             if mutation == 'blocked': wrapper['blocked'] = True
             elif mutation == 'null': wrapper['payload'] = None
-            elif mutation == 'future': payload['mechanics_envelope']['schema_version'] = '0.2.0'
+            elif mutation == 'future': payload['mechanics_envelope']['schema_version'] = '0.3.0'
             elif mutation == 'failed': payload['runner_result']['job']['state'] = 'FAILED'
             elif mutation == 'nonconverged': payload['mechanics_envelope']['status']['mechanics'] = 'MECHANICS_UNRESOLVED'
             elif mutation == 'request_identity': payload['runner_result']['run_id'] = 'different'
@@ -215,7 +218,7 @@ class GateTests(unittest.TestCase):
             self.assertEqual(result['cases'][0]['process']['outcome'], outcome)
             self.assertTrue((self.root / f'run-{self.counter}/case-0000/stdout.bin').exists())
 
-    def test_actual_received_legacy_packet_is_not_silently_new_transport(self):
+    def test_actual_received_unwrapped_packet_is_not_silently_admitted(self):
         packet = (PROJECT / 'validation/witness/generated/tp_runner_015_final_cli_solve.json').read_bytes()
         self.assertEqual(json.loads(packet)['artifact'], 'openpipestress.headless_runner_cli_output')
         with self.assertRaisesRegex(gate.AdmissionError, 'unsupported controlled wrapper'):

@@ -758,7 +758,7 @@
       ],
       "properties": {
         "model_hash": {
-          "$ref": "#/$defs/Checksum"
+          "$ref": "#/$defs/ScopedChecksum"
         },
         "run_hashes": {
           "type": "array",
@@ -775,7 +775,7 @@
         "raw_source_hashes": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Checksum"
+            "$ref": "#/$defs/ScopedChecksum"
           }
         },
         "derivative_hash": {
@@ -2044,9 +2044,7 @@
             "derived_review_row",
             "derivative_document_excludes_own_hash",
             "received_current_dimension_absent_carrier",
-            "received_current_legacy_enriched_carrier",
             "received_current_dimension_absent_row",
-            "received_current_legacy_enriched_row",
             "attested_headless_producer_carrier",
             "request_payload",
             "derived_disclosure_row"
@@ -2497,7 +2495,6 @@
         "origin_class": {
           "enum": [
             "received_current_dimension_absent",
-            "received_current_qualified_legacy_enriched",
             "attested_headless_producer"
           ]
         },

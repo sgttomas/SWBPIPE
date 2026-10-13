@@ -338,28 +338,6 @@ export async function buildAnalysisRunPreview(
   return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
 }
 
-export function bindSourceResultDimensions(
-  result: MechanicsResult,
-): MechanicsResult {
-  // Precision carriers and unsupported historical headers retain exact received bytes.
-  if (sourceContract(result) !== "legacy") return result;
-  return {
-    ...result,
-    results: result.results.map((item) => {
-      const declared = declaredSourceResultDimension(item);
-      if (item.dimension && item.dimension !== declared) {
-        throw new Error(
-          `ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${item.id} declares ${item.dimension}; exact kind semantics require ${declared}.`,
-        );
-      }
-      return {
-        ...item,
-        dimension: declared,
-      };
-    }),
-  };
-}
-
 export function declaredSourceResultDimension(
   item: Omit<MechanicsResult["results"][number], "dimension"> &
     Partial<Pick<MechanicsResult["results"][number], "dimension">>,

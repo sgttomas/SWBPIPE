@@ -34,7 +34,7 @@ from . import load_reference_evidence as lr
 from . import load_reference_source as lrs
 from . import physics_evidence, physics_source, preview_physics_evidence, source_blocks
 
-ROUTES = ("legacy", "precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
+ROUTES = ("precision", "physics", "source_blocks", "physics_source", "pressure_source", "preview_physics", "load_reference",
           "load_reference_source", "retained_preview_physics", "retained_physics")
 UNSUPPORTED = "unsupported"
 SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
@@ -82,7 +82,7 @@ def _refusal(text: str) -> dict[str, Any]:
 
 def _table(identity: str | None) -> Any:
     if identity == c.PRESSURE_SOURCE_CONTRACT_ID: return physics_source.pressure_source_table()
-    path = _TABLE_PATHS[identity] if identity else c._CONTRACT_PATH
+    path = _TABLE_PATHS[identity]
     key = str(path)
     if key not in _TABLES:
         _TABLES[key] = json.loads(path.read_text(encoding="utf-8"))
@@ -118,9 +118,7 @@ def _metadata_header(source: Any) -> str:
         raise Refused(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
     version = source.get("schema_version")
     if version == "0.1.0":
-        if any(key in source for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery")):
-            raise Refused("LEGACY_SOURCE_METADATA_CONTRADICTION")
-        return "legacy"
+        raise Refused(c.MECHANICS_RESULT_VERSION_RETIRED)
     if version != "0.2.0":
         raise Refused("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     known = {*(set(_IDENTITY_ROUTES) - set(c.RETAINED_CONTRACTS)), PRESSURE_CONTRACT_ID}
@@ -385,14 +383,12 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name = route(source)
     except Refused as error:
         code = str(error)
-        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", physics_evidence.V3_READ_AS_V2, physics_evidence.V2_READ_AS_V3} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
+        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", physics_evidence.V3_READ_AS_V2, physics_evidence.V2_READ_AS_V3, c.MECHANICS_RESULT_VERSION_RETIRED} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         name = UNSUPPORTED
     def done(findings: list[str]) -> dict[str, Any]:
         eligible = not findings
         return {"route": name, "token": token, "status": "integrity_checked" if eligible else "needs_recompute", "eligible": eligible, "findings": findings}
-    if name == "legacy":
-        findings.append("LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED")
-    elif name in ("physics_source", "pressure_source", "source_blocks"):
+    if name in ("physics_source", "pressure_source", "source_blocks"):
         if invocation is None:
             findings.append(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED)
         else:
@@ -490,15 +486,14 @@ def canonical_metadata(table: Mapping[str, Any], row: Mapping[str, Any]) -> dict
 
 
 def row_semantics(row: Any, source: Any = None) -> dict[str, Any]:
-    """One row's semantics under the source's table (legacy's without a source)."""
+    """One row's semantics under its source's table; no source is refused."""
     if source is None:
-        table = _table(None)
-    else:
-        try:
-            name = route(source)
-        except Refused:
-            return _refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED")
-        table = _table(_BINDINGS.get(name))
+        return _refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED")
+    try:
+        name = route(source)
+    except Refused:
+        return _refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED")
+    table = _table(_BINDINGS.get(name))
     try:
         found = signature(table, row)
     except Refused as error:

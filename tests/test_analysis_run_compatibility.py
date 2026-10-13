@@ -19,7 +19,7 @@ from schema_validation import validate_instance
 PROJECT = Path(__file__).resolve().parents[1]
 MANIFEST_REF = {"object_type": "InputManifest", "ref": "input-manifest:model:test:fixture"}
 MANIFEST_HASH = "1" * 64
-HISTORICAL_RESULT = PROJECT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json"
+CURRENT_DEMO_RESULT = PROJECT / "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"
 
 
 def hash_by_scope(record: dict, scope: str) -> str:
@@ -50,13 +50,15 @@ def test_unknown_record_versions_are_unsupported(version) -> None:
         verify_analysis_run_record({"schema_version": version, "analysis_run": {"hashes": []}})
 
 
-def test_a_historical_result_is_never_recorded() -> None:
-    # The 0.1.0 result format has no current record contract: no record of it is
-    # built, in any version.
-    source = json.loads(HISTORICAL_RESULT.read_text())
+def test_a_retired_result_is_never_recorded() -> None:
+    # b7-plan E2: the producer-less 0.1.0 mechanics result is retired; the reader
+    # refuses it by name, so no record of it is built.
+    source = json.loads(CURRENT_DEMO_RESULT.read_text())
+    source["schema_version"] = "0.1.0"
+    for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence"):
+        del source[key]
     before = deepcopy(source)
-    assert source["schema_version"] == "0.1.0"
-    with pytest.raises(ValueError, match="^ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH$"):
+    with pytest.raises(ValueError, match="^MECHANICS_RESULT_VERSION_RETIRED$"):
         build_analysis_run(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
     assert source == before
 

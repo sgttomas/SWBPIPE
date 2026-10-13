@@ -56,16 +56,18 @@ fn g1_precision_requires_complete_requested_cases_and_emitted_ids() {
 }
 
 #[test]
-fn g1_legacy_unassessed_unknown_and_sensitive_are_never_eligible() {
+fn g1_retired_unassessed_unknown_and_sensitive_are_never_eligible() {
     let model = precision_model();
     let mut legacy = precision_source();
     legacy["schema_version"] = json!("0.1.0");
     for k in ["producer", "numerical_quality", "formulation_basis"] {
         legacy.as_object_mut().unwrap().remove(k);
     }
-    assert_eq!(route(&legacy), "legacy");
+    // b7-plan E2: the retired producer-less carrier is refused by name.
+    assert_eq!(route(&legacy), rv::UNSUPPORTED);
+    assert_eq!(rv::dispatch(&legacy, None, None)["error"]["code"], sc::MECHANICS_RESULT_VERSION_RETIRED);
     let s = standing(&legacy, Some(&model));
-    assert_eq!((s["status"].as_str(), findings(&s)), (Some("needs_recompute"), vec!["LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED"]));
+    assert_eq!((s["status"].as_str(), findings(&s)), (Some("needs_recompute"), vec![sc::MECHANICS_RESULT_VERSION_RETIRED]));
     for status in ["not_assessed", "unresolved", "failed"] {
         let mut c = precision_source();
         c["numerical_quality"]["status"] = json!(status);
@@ -94,7 +96,7 @@ fn g1_ambiguous_or_missing_emitted_ids() {
 }
 
 #[test]
-fn g5_present_falsy_precision_fields_on_legacy_are_unsupported() {
+fn g5_present_falsy_precision_fields_on_retired_are_unsupported() {
     let mut clean = precision_source();
     clean["schema_version"] = json!("0.1.0");
     for k in ["producer", "numerical_quality", "formulation_basis"] {
@@ -544,9 +546,9 @@ fn row_semantics_follow_the_dispatched_table() {
     let mut bad = raw.clone();
     bad["carrier_evidence"] = json!({});
     assert_eq!(rv::row_semantics(row, Some(&bad))["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-    // Without a source, the legacy table.
-    let legacy = json!({"id": "r", "kind": "global_nodal_rotation_x", "value": 0.0, "unit": "rad", "entity_ref": "n"});
-    assert_eq!(rv::row_semantics(&legacy, None)["ok"], true);
+    // b7-plan E2: no source names no table (the retired v0_2 table is gone).
+    let row = json!({"id": "r", "kind": "global_nodal_rotation_x", "value": 0.0, "unit": "rad", "entity_ref": "n"});
+    assert_eq!(rv::row_semantics(&row, None)["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
 }
 
 #[test]

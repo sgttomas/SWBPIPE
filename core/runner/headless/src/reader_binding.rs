@@ -315,9 +315,10 @@ mod tests {
             assert_eq!(output["outcome"], outcome, "{reader}");
             assert_eq!(code, if outcome["ok"] == true { EXIT_PASS } else { EXIT_REFUSED }, "{reader}");
         }
-        // A legacy header is admitted by the dispatch; its standing is not eligible.
+        // b7-plan E2: a retired 0.1.0 header is refused by name; its standing is not eligible.
         let (code, output) = read("dispatch", &json!({"source": source}).to_string()).unwrap();
-        assert_eq!((code, output["outcome"]["route"].as_str()), (EXIT_PASS, Some("legacy")));
+        assert_eq!((code, output["outcome"]["route"].as_str()), (EXIT_REFUSED, Some("unsupported")));
+        assert_eq!(output["outcome"]["error"]["code"], sc::MECHANICS_RESULT_VERSION_RETIRED);
         assert_eq!(output["outcome"]["standing"]["eligible"], false);
         // Every reader_verdict reader and transport has an entry.
         for name in rv::READERS {

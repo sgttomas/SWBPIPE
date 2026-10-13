@@ -415,7 +415,7 @@ function retainedLossCount(absolute: number, uncovered: number): string {
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const route = sourceContract(args.result);
   const utf8 = usesUtf8Csv(args.result);
-  if (route === "unsupported" || route === "legacy") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   // T1: not yet available on the desktop for load/reference-state results (T6).
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted
   // only at numerically eligible standing with the live native capture.
@@ -619,7 +619,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
   // package dispatches to its own route and a receipt on any other identity reads
   // unsupported (the downgrade guard).
   const header = { schema_version: "0.2.0", producer: packet.producer, numerical_quality: packet.numerical_quality, formulation_basis: packet.formulation_basis, ...(Object.hasOwn(packet,"source_block_recovery") ? {source_block_recovery:packet.source_block_recovery} : {}), ...(Object.hasOwn(packet,"contract_evidence") ? {contract_evidence:packet.contract_evidence} : {}), ...(Object.hasOwn(packet,"retained_precision") ? {retained_precision:packet.retained_precision} : {}) } as MechanicsResult;
-  if (sourceContract(header) === 'unsupported' || sourceContract(header) === 'legacy') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
+  if (sourceContract(header) === 'unsupported') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
   const semanticPath = semanticTablePath(header);
   const utf8 = usesUtf8Csv(header);
   if (utf8 ? packet.export_profile?.csv_encoding !== 'utf-8' || packet.export_profile?.csv_row_order !== 'unicode_scalar_value_result_id'
@@ -868,7 +868,7 @@ import { ControlledExportLink } from "../redaction-controls/ControlledExportLink
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
  * such a route refuses (load/reference-state routes refuse earlier by the policy). */
-const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported" | "legacy">, string | null>> = Object.freeze({
+const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
   precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json",
   source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json",
   preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
@@ -877,7 +877,7 @@ const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported
 });
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
-  if (route === "unsupported" || route === "legacy") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   refuseSurfaceRoute(source, "stress-neutral");
   const file = Object.hasOwn(SEMANTIC_TABLE_FILES, route) ? SEMANTIC_TABLE_FILES[route] : null;
   if (!file) throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");

@@ -15,7 +15,7 @@ import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {readRetainedPrecisionCorpus} from '../../test-support/retainedPrecisionCorpus';
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
+import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResult";
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
@@ -140,7 +140,7 @@ it('keeps preserved references out of export; the Sensitive demo is refused even
 });
 
 it('binds precision v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
- const model=structuredClone(modelJson) as PreviewModel,result=structuredClone(resultJson) as unknown as MechanicsResult;
+ const model=structuredClone(modelJson) as PreviewModel,result=retiredMechanicsResult();
  result.schema_version='0.2.0';result.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
  result.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['pressure/component/stress/support preview limitations retained']};
  // Explicit synthetic consumer semantics for transport vectors; no physical producer qualification.
@@ -293,7 +293,7 @@ it('binds precision v3 metadata and preserves shared f64 bits in CSV and JSON',a
 });
 
 it('projects precision location and missing component without guessed semantics',()=>{
- const source=structuredClone(resultJson) as unknown as MechanicsResult;
+ const source=retiredMechanicsResult();
  source.schema_version='0.2.0';source.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
  source.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['Synthetic consumer fixture']};source.numerical_quality={value_representation:'finite_binary64',publication_quantization:'none',integrity_policy:'M03-INTEGRITY-v1',status:'not_assessed',cases:[]};
  const row=structuredClone(source.results.find(r=>r.kind==='element_local_axial_force')!);

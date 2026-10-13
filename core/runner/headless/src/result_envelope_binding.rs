@@ -451,7 +451,7 @@ mod tests {
        && c["mechanics_interface"]["solver_consumption"] != "not_solver_consumed")
      .map(|c| c["id"].clone()).collect()
  }
- fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
+ fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/derivative_binding_producer_cases.json")).unwrap()}
  // These tests exercise source/proof/derivative binding. Pressure is not an
  // oracle for those assertions. Keep the historical fixtures unchanged and remove
  // the retired legacy pressure primitives (U3: any value is refused) before

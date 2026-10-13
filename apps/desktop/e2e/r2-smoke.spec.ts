@@ -39,14 +39,11 @@ const rehearsal = JSON.parse(
 // Immutable recorded-source oracles are separate from browser freshness.
 // No fixture headers, model references, quality flags or values are rewritten.
 // The bundled reference: the valid demo model (the invented loop without its legacy
-// pressure and its joint; also the default session model), its actual sparse output,
-// and that output's historical-format (0.1.0) carrier. Each source is read with its
-// own semantics.
+// pressure and its joint; also the default session model) and its actual sparse
+// output, read with its own semantics (b7-plan E2: no historical-format carrier).
 const demoModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
 const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json", import.meta.url), "utf8"));
-const historicalSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json", import.meta.url), "utf8"));
 const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json", import.meta.url), "utf8"));
-const historicalSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_2.json", import.meta.url), "utf8"));
 
 async function expectBackendRefusal(page: Page): Promise<void> {
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
@@ -70,10 +67,7 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
 // not evidence that bundled data was solved for the current browser model.
 test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
   // Per source: [semantics, rows, reaction rows, pipe-P-120 rows, summary quantities].
-  // The carrier keeps only the rows whose kinds its historical format defines, and
-  // withholds (null) the stress headline whose row it does not carry.
   for (const [source, semantics, rows, reactions, p120, headlines] of [
-    [historicalSource, historicalSemantics, 513, 6, 100, 1],
     [referenceSource, referenceSemantics, 625, 102, 102, 2],
   ] as const) {
     expect(source.model_ref).toBe(demoModel.project.id);
@@ -115,9 +109,7 @@ test("the pure recorded-source projection retains quantity unit oracles", async 
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   // This calls a pure projection in isolation. It neither registers a source nor
-  // puts a result into the App's Current state or export route. A historical
-  // carrier has no analysis record (one current record version), so no comparison
-  // is built from it.
+  // puts a result into the App's Current state or export route.
   const projection = await page.evaluate(async ({ model, result }) => {
     const modulePath = "/src/features/native-package/NativePackagePanel.tsx";
     const servicePath = "/src/services/previewService.ts";
@@ -126,10 +118,10 @@ test("the pure recorded-source projection retains quantity unit oracles", async 
     const before = JSON.stringify({ model, result });
     const evidence = buildUnitPreservationEvidence({ model, result });
     return { summary: evidence.summary, conversion: evidence.conversion_performed, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
-  }, { model: demoModel, result: historicalSource });
+  }, { model: demoModel, result: referenceSource });
   expect(projection.summary.project_unit_declaration_count).toBe(6);
   expect(projection.summary.model_quantity_witness_count).toBe(40);
-  expect(projection.summary.result_quantity_witness_count).toBe(514);
+  expect(projection.summary.result_quantity_witness_count).toBe(627);
   expect(projection.conversion).toBe(false);
   expect(projection.registered).toBe(false);
   expect(projection.unchanged).toBe(true);

@@ -1,18 +1,6 @@
 //! Exact current producer semantics. No ID substring or unit-only family inference.
 use serde_json::Value;
 use std::sync::OnceLock;
-pub fn contract() -> &'static Value {
-    static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| {
-        serde_json::from_str(include_str!(
-            "../../../../fixtures/results/semantic_contract_v0_2.json"
-        ))
-        .expect("pinned semantic contract")
-    })
-}
-pub fn signature(row: &Value) -> Result<Option<&'static Value>, String> {
-    signature_in(contract(), row)
-}
 pub fn signature_in(table: &'static Value, row: &Value) -> Result<Option<&'static Value>, String> {
     let kind = row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;
     let known: Vec<_> = table["rows"]
@@ -67,9 +55,6 @@ pub fn complete_metadata(row: &Value) -> bool {
     ]
     .iter()
     .all(|k| row["metadata"][k].as_str().is_some_and(|s| !s.is_empty()))
-}
-pub fn canonical_metadata(row: &Value) -> Option<Value> {
-    canonical_metadata_in(contract(), row)
 }
 pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
     if !complete_metadata(row) {
@@ -359,22 +344,43 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
     }
     forbid_retained_member(source)?;
     match source["schema_version"].as_str() {
-        Some("0.1.0") => {
-            if [
-                "producer",
-                "numerical_quality",
-                "formulation_basis",
-                "contract_evidence",
-                "source_block_recovery",
-            ]
-            .iter()
-            .any(|k| source.get(k).is_some())
-            {
-                return Err("LEGACY_SOURCE_METADATA_CONTRADICTION".into());
-            }
-            Ok((contract(), "0.2.0"))
-        }
-        Some("0.2.0") => {
+        Some(MECHANICS_RESULT_VERSION) => current_header(source),
+        Some(RETIRED_MECHANICS_RESULT_VERSION) => Err(MECHANICS_RESULT_VERSION_RETIRED.into()),
+        _ => Err("SOURCE_SCHEMA_VERSION_UNSUPPORTED".into()),
+    }
+}
+/// The one current mechanics-result carrier version (MechanicsEnvelope's
+/// `schema_version`). Its producer header names the semantic contract.
+pub const MECHANICS_RESULT_VERSION: &str = "0.2.0";
+/// The producer-less 0.1.0 carrier is retired (b7-plan E2): it has no producer
+/// or semantic contract and no current table reads it, so it is refused by
+/// name (re-solve the model), never read.
+pub const RETIRED_MECHANICS_RESULT_VERSION: &str = "0.1.0";
+pub const MECHANICS_RESULT_VERSION_RETIRED: &str = "MECHANICS_RESULT_VERSION_RETIRED";
+/// The one result-export version (b7-plan E2). Exports carry the source's
+/// producer header as copied members; their other versions are retired.
+pub const RESULT_EXPORT_VERSION: &str = "0.3.0";
+/// Header dispatch of a result export: the members the derivative copied from
+/// its source (producer, numerical quality, formulation basis, contract
+/// evidence and receipts) are read as the transported header of a current
+/// mechanics result, by the same checks as `for_source_metadata`, and the
+/// export's `semantic_contract_ref` must name that producer's contract.
+pub fn for_export_metadata(envelope: &Value) -> Result<(&'static Value, &'static str), String> {
+    if envelope["schema_version"] != RESULT_EXPORT_VERSION {
+        return Err("RESULT_EXPORT_VERSION_UNSUPPORTED".into());
+    }
+    let mut header = envelope.clone();
+    header["schema_version"] = Value::from(MECHANICS_RESULT_VERSION);
+    let selected = for_source_metadata(&header)?;
+    if envelope["semantic_contract_ref"]
+        != serde_json::json!({"ref_type": "semantic_contract", "ref_id": envelope["producer"]["semantic_contract_id"]})
+    {
+        return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into());
+    }
+    Ok(selected)
+}
+fn current_header(source: &Value) -> Result<(&'static Value, &'static str), String> {
+        {
             let p = &source["producer"];
             if !exact_keys(
                 p,
@@ -522,10 +528,8 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
-            Ok((table, "0.3.0"))
+            Ok((table, RESULT_EXPORT_VERSION))
         }
-        _ => Err("SOURCE_SCHEMA_VERSION_UNSUPPORTED".into()),
-    }
 }
 /// Raw dispatch validates the selected physical contract, never inferring it
 /// from a profile name or a numerical/accuracy label.

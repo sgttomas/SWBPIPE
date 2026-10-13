@@ -3086,7 +3086,7 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
             return Err(format!("RULE_NUMERICAL_NEEDS_RECOMPUTE: {reason}"));
         }
     }
-    // A legacy 0.1.0 source carries no producer id and stays needs_recompute below.
+    // A retired 0.1.0 source carries no producer id; its reader refuses it, so it is unsupported below.
     if !contract.is_empty() && !open_pipe_stress_result_export::semantic_contract::is_fresh_identity(contract) {
         return Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into());
     }
@@ -5357,12 +5357,18 @@ mod tests {
         // Canonical hashing may normalize -0 to +0; all shared nonzero vectors
         // above retain their exact bits, with no unsafe-integer guard relaxation.
         assert_eq!(model_payload_hash(&json!({"value": -0.0_f64})), model_payload_hash(&json!({"value": 0.0_f64})));
-        let historical = read_fixture("invented_demo_result_legacy_0_1.json").unwrap();
+        // b7-plan E2: the retired producer-less 0.1.0 carrier passes through unchanged
+        // and is never qualified (its reader refuses it by name).
+        let mut historical = read_fixture("invented_demo_result_preview_physics_1_sparse.json").unwrap();
+        historical["schema_version"] = json!("0.1.0");
+        for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
+            historical.as_object_mut().unwrap().remove(key);
+        }
         let mut historical_model = model.clone();
         historical_model["project"]["id"] = historical["model_ref"].clone();
         let output = precision_transport(&historical_model, &historical);
         assert_eq!(output, historical);
-        assert!(qualify_rule_mechanics(&historical_model, &output).unwrap_err().contains("NEEDS_RECOMPUTE"));
+        assert!(qualify_rule_mechanics(&historical_model, &output).unwrap_err().starts_with("RULE_NUMERICAL_SOURCE_UNSUPPORTED"));
     }
 
     #[test]

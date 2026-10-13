@@ -8,7 +8,7 @@ import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../resu
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
 import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from '../../services/hashService';
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
-import { bindSourceResultDimensions, hasNativeMechanicsInvocation } from '../../services/previewService';
+import { hasNativeMechanicsInvocation } from '../../services/previewService';
 import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
 // JSON assembly is independent of saved analysis/persistence types. Qualification
 // below owns Current authenticity; the pure projection never authenticates shape.
@@ -33,16 +33,9 @@ export function guardResultJson(value:unknown,seen=new Set<object>()):void {
 }
 export async function resultDigest(value:unknown):Promise<string>{guardResultJson(value);return canonicalSha256Hex(value);}
 async function scopedChecksum(value:unknown,payload_scope:string,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_scope,payload_ref,value:await resultDigest(value)};}
-async function checksum(value:unknown,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_ref,value:await resultDigest(value)};}
 export const derivativeProvenance = {source_name:'local qualified result derivative',source_location:'apps/desktop/src/features/result-export/resultExportAdapter.ts',source_license:'project-local',contributor:'SWBPIPE',contributor_certification:'local desktop session; human review required',redistribution_status:'private_only',review_status:'pending'};
-
-// Match the Rust legacy derivative gate: presence is contradictory even when
-// the field is null or falsy. Never silently strip a claimed precision field.
-function rejectLegacyDerivativeMetadata(envelope: JsonObject): void {
-  if (['producer', 'numerical_quality', 'formulation_basis', 'semantic_contract_ref', 'contract_evidence', 'source_block_recovery', 'carrier_evidence'].some(key => Object.hasOwn(envelope, key))) {
-    throw new Error('LEGACY_DERIVATIVE_METADATA_CONTRADICTION');
-  }
-}
+/** The one result-export version (b7-plan E2). */
+export const RESULT_EXPORT_VERSION = '0.3.0';
 
 /** Pure projection for already qualified evidence. It does not mint Current or
  * authentic producer proof and is not the product's canonical export entrypoint. */
@@ -53,17 +46,18 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   if(model.project.id!==source.model_ref)throw new Error('SOURCE_MODEL_IDENTITY_MISMATCH');
   if(origin.received_carrier_checksum.value!==await resultDigest(source))throw new Error('SOURCE_CARRIER_HASH_MISMATCH');
   if(!origin.authentic_producer_available&&origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
+  // b7-plan E2: a dimension-absent carrier declares no row dimension (no enriched carrier remains).
+  if(origin.received_carrier_checksum.payload_scope==='received_current_dimension_absent_carrier'&&source.results.some(row=>Object.hasOwn(row,'dimension')))throw new Error('CARRIER_DIMENSION_PRESENT');
   // T6S-3/T6S-4: this surface's policy entry, route level (a pure projection reads no standing).
-  const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');refuseSurfaceRoute(source,'result-export');const version=route!=='legacy'?'0.3.0':'0.2.0';
+  const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');refuseSurfaceRoute(source,'result-export');const version=RESULT_EXPORT_VERSION;
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
   if(route==='physics')readerValidate('physics',source,model);
   if(route==='preview_physics')readerValidate('preview-physics',source,model);
   if(route==='source_blocks'||route==='physics_source')await validateRetainedRecoverySource(source);
-  if(route==='legacy')rejectLegacyDerivativeMetadata(base.result_envelope);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
-  if(route!=='legacy'){e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);}
+  e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);
   if(route==='source_blocks'||route==='physics_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
   else if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
   if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
@@ -86,7 +80,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
     const classDisclosure=retainedClassDisclosure(row.kind,row.unit,classes?.get(row.id));
     const disposition=reviewMissing||physicalMissing||classDisclosure?'disclosed':s?.canonical_disposition??'disclosed';
     const observed={present:Object.hasOwn(row,'dimension'),value:row.dimension??null},sourcePath=`/results/${index}`;
-    const rowScope=origin.received_carrier_checksum.payload_scope==='received_current_legacy_enriched_carrier'?'received_current_legacy_enriched_row':origin.received_carrier_checksum.payload_scope==='received_current_dimension_absent_carrier'?'received_current_dimension_absent_row':'raw_source_row';
+    const rowScope=origin.received_carrier_checksum.payload_scope==='received_current_dimension_absent_carrier'?'received_current_dimension_absent_row':'raw_source_row';
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     const annotation_ref=ref('source_annotation',`source-annotation:${index}`),object_ref=ref('preview_entity',row.entity_ref);
     const basis_ref=row.basis_ref??(disposition==='exported_review'?ref('source_basis',row.metadata!.basis):e.run_ref);
@@ -107,7 +101,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
     if(disposition!=='disclosed')witnesses.push({witness_id:`value-unit-witness:${index}`,source_result_ref:ref('received_result',row.id),source_field_path:sourcePath,source_quantity:{value:row.value,unit:row.unit,observed_dimension:observed},target_result_ref:target_ref,target_field_path:targetPath,target_quantity:{value:row.value,unit:row.unit,dimension},target_quantity_policy:'preserve_received_value_and_unit_with_independent_semantic_dimension',export_unit_policy:'no_numerical_conversion_preserve_received_unit',conversion_performed:false,unit_system_ref:e.unit_system_ref,provenance:e.provenance,source_row_index:index,received_carrier_row_checksum:rowHash,original_producer_row_checksum:original,source_physical_semantic_dimension:math,source_origin_ref,target_row_checksum:await scopedChecksum(target,targetScope,ref('derivative_document',e.envelope_id))});
   }
   e.result_sets[0].values=values;e.review_evidence=reviews;e.row_disclosures=disclosures;e.source_annotations=annotations;e.row_accounting=accounts;e.unit_preservation_witnesses=witnesses;e.unit_witness_policy='preserve_received_value_and_unit_with_independent_semantic_dimension';
-  e.reproducibility.model_hash=await checksum(model,ref('model_payload',source.model_ref));e.reproducibility.raw_source_hashes=origin.authentic_producer_available?[await checksum(source,origin.original_producer_checksum.payload_ref)]:[];e.reproducibility.source_origin_bindings=[origin];e.reproducibility.request_hash=request===null?null:await scopedChecksum(request,'request_payload',ref('runner_request','request'));
+  e.reproducibility.model_hash=await scopedChecksum(model,'model_payload',ref('model_payload',source.model_ref));e.reproducibility.raw_source_hashes=origin.authentic_producer_available?[structuredClone(origin.original_producer_checksum)]:[];e.reproducibility.source_origin_bindings=[origin];e.reproducibility.request_hash=request===null?null:await scopedChecksum(request,'request_payload',ref('runner_request','request'));
   e.reproducibility.derivative_hash_excludes='result_envelope.reproducibility.derivative_hash';delete e.reproducibility.derivative_hash;e.reproducibility.derivative_hash=await scopedChecksum(doc,'derivative_document_excludes_own_hash',ref('derivative_document',e.envelope_id));await validateResultDocument(doc,source);return doc;
 }
 
@@ -129,8 +123,8 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   // D2 4.9.7: the copied receipt equals the source's, whole; no other identity's document carries one.
   if(isRetainedRoute(route))requireEqual(doc.result_envelope.retained_precision,source.retained_precision,'RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH');
   else if(Object.hasOwn(doc.result_envelope,'retained_precision'))throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
-  if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
-  if(route!=='legacy'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');}
+  if(resultSchemaVersion(doc)!==RESULT_EXPORT_VERSION)throw new Error("DERIVATIVE_VERSION_MISMATCH");
+  for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');
   if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
   if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route)){if(route==='physics')readerValidate('physics',source);if(route==='preview_physics')readerValidate('preview-physics',source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
@@ -141,8 +135,9 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   const origins=e.reproducibility.source_origin_bindings;if(!Array.isArray(origins)||origins.length!==1)throw new Error("ORIGIN_CARDINALITY");const origin=origins[0],originRef=ref('source_origin_binding',origin.origin_id);
   requireEqual(origin.actual_model_ref,ref('model_payload',source.model_ref),'ORIGIN_IDENTITY');requireEqual(e.model_ref,origin.actual_model_ref,'ORIGIN_IDENTITY');requireEqual(origin.mechanics_run_ref,ref('mechanics_run',source.run_id),'ORIGIN_IDENTITY');
   const scope=origin.received_carrier_checksum.payload_scope;
-  const rowScope=scope==='received_current_legacy_enriched_carrier'?'received_current_legacy_enriched_row':scope==='received_current_dimension_absent_carrier'?'received_current_dimension_absent_row':scope==='attested_headless_producer_carrier'?'raw_source_row':null;if(!rowScope)throw new Error('ORIGIN_SCOPE');
+  const rowScope=scope==='received_current_dimension_absent_carrier'?'received_current_dimension_absent_row':scope==='attested_headless_producer_carrier'?'raw_source_row':null;if(!rowScope)throw new Error('ORIGIN_SCOPE');
   requireEqual(origin.received_carrier_checksum,await scopedChecksum(source,scope,origin.received_carrier_checksum.payload_ref),'CARRIER_HASH');
+  if(scope==='received_current_dimension_absent_carrier'&&source.results.some(row=>Object.hasOwn(row,'dimension')))throw new Error('CARRIER_DIMENSION_PRESENT');
   if(origin.authentic_producer_available)requireEqual(origin.original_producer_checksum,origin.received_carrier_checksum,'PRODUCER_HASH_BINDING');else if(origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
   const pointers=new Set<string>(),ids=new Set<string>();let wi=0;const rowSemantics=readerRowSemantics(source);
   for(const [i,row] of source.results.entries()){
@@ -177,28 +172,21 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   requireEqual(e.reproducibility.derivative_hash,await scopedChecksum(payload,'derivative_document_excludes_own_hash',ref('derivative_document',e.envelope_id)),'DERIVATIVE_HASH');
 }
 
-// Dedicated verification of existing localeCompare legacy bytes. This neither
-// rehashes saved records nor equates their behavior with arbitrary wasm Unicode.
-function legacyJson(value:any):string {
-  function sort(v:any):any{if(Array.isArray(v))return v.map(sort);if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b)).map(([k,x])=>[k,sort(x)]));return v;}
-  return JSON.stringify(sort(value));
-}
-async function legacyDigest(value:unknown):Promise<string>{guardResultJson(value);const bytes=new TextEncoder().encode(legacyJson(value));const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 /** The origin limit of a qualified Current received carrier (the builder's own text). */
 export const CURRENT_ORIGIN_LIMIT='Qualified Current received carrier; independent authentic original producer bytes unavailable; dimension absence is not producer attestation';
 /** The received-carrier origin that `buildCurrentResultExport` binds, from its qualified inputs.
  * Exported, with the base below, so that the T6S golden test builds the same desktop-shaped origin
  * and base from fixed stand-ins (I76's inputs, with a test-labelled limit). Neither function
  * qualifies, authenticates or admits anything: only the Current builder's checks do. */
-export async function currentReceivedOrigin(model:PreviewModel,result:MechanicsResult,manifestRef:string,enriched:boolean,originLimit:string):Promise<JsonObject>{
-  const scope=enriched?'received_current_legacy_enriched_carrier':'received_current_dimension_absent_carrier';
-  return {origin_id:'source-origin:current-received',origin_class:enriched?'received_current_qualified_legacy_enriched':'received_current_dimension_absent',qualification_ref:ref('current_manifest',manifestRef),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:originLimit,actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
+export async function currentReceivedOrigin(model:PreviewModel,result:MechanicsResult,manifestRef:string,originLimit:string):Promise<JsonObject>{
+  const scope='received_current_dimension_absent_carrier';
+  return {origin_id:'source-origin:current-received',origin_class:'received_current_dimension_absent',qualification_ref:ref('current_manifest',manifestRef),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:originLimit,actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
 }
 type CurrentDocumentRun=Pick<AnalysisRunEnvelope['analysis_run'],'run_id'|'load_basis_refs'|'hashes'|'analysis_status'|'professional_boundary'>;
 /** The document base that `buildCurrentResultExport` derives from (see `currentReceivedOrigin`). */
 export function currentResultDocumentBase(model:PreviewModel,result:MechanicsResult,run:CurrentDocumentRun,manifestRef:string,solverBasis:{solver_name:string;solver_version:string;solver_build_ref:string}):JsonObject{
   const provenance=derivativeProvenance;
-  return {schema_version:'0.2.0',deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:'0.2.0',envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
+  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
@@ -213,7 +201,6 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   await verifyCurrentSessionInputManifest(inputManifest);
   if(await canonicalJsonString(model)!==await canonicalJsonString(inputManifest.manifest.model_basis.model_payload)||result.model_ref!==model.project.id)throw new Error('CURRENT_MODEL_PAYLOAD_MISMATCH');
   if(analysisRun.schema_version!=='0.3.0')throw new Error('CURRENT_ANALYSIS_VERSION_UNSUPPORTED');
-  const isV2=true; // Current precision records use the checked record/row binding path.
   const proofChecksum=(h:any,scope:string,type:string,id:string,profile:string='rfc8785_jcs')=>h?.algorithm==='sha256'&&h.canonicalization===profile&&h.payload_scope===scope&&h.payload_ref?.object_type===type&&h.payload_ref.ref===id&&/^[0-9a-f]{64}$/.test(h.value);
   const run=analysisRun.analysis_run;
   requireEqual(run.reproducibility.semantic_contract,sourceSemanticBinding(result),'CURRENT_SEMANTIC_CONTRACT_MISMATCH');
@@ -225,33 +212,24 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   if(analysisRun.deliverable_id!=='DEL-14-02'||run.model_state_ref.object_type!=='ModelState'||run.model_state_ref.ref!==expectedState)throw new Error('CURRENT_MODEL_STATE_BINDING_MISMATCH');if(run.run_id!==result.run_id||!run.analysis_status.includes('MECHANICS_SOLVED')||!run.analysis_status.includes('HUMAN_REVIEW_REQUIRED')||result.status.mechanics!=='MECHANICS_SOLVED')throw new Error('CURRENT_RUN_BINDING_MISMATCH');
   const hashes=run.reproducibility.input_manifest_hashes,refs=run.reproducibility.input_manifest_refs;
   if(hashes.length!==1||refs.length!==1||refs[0].object_type!=='InputManifest'||!proofChecksum(hashes[0],'input_manifest','InputManifest',inputManifest.manifest_ref.ref)||hashes[0].value!==inputManifest.manifest_sha256||hashes[0].payload_ref.ref!==inputManifest.manifest_ref.ref||refs[0].ref!==inputManifest.manifest_ref.ref)throw new Error('CURRENT_MANIFEST_BINDING_MISMATCH');
-  const presence=result.results.map(x=>Object.hasOwn(x,'dimension'));if(presence.some(Boolean)&&!presence.every(Boolean))throw new Error('MIXED_CARRIER_DIMENSIONS');
-  if(presence.some(Boolean)&&result.results.some(row=>typeof row.dimension!=="string"||!row.dimension))throw new Error("INVALID_CARRIER_DIMENSION_DECLARATION");
-  const rowSemantics=readerRowSemantics(result);
-  if(isV2)for(const row of result.results){
-    if(!Object.hasOwn(row,'dimension'))continue;
-    const semantic=rowSemantics(row).signature;
-    if(semantic&&row.dimension!==semantic.legacy_declared_dimension)throw new Error(`CURRENT_CARRIER_DIMENSION_CONTRADICTION: ${row.id}`);
-  }
-  const legacy=isV2?null:bindSourceResultDimensions(result); // 0.1 verification only; 0.2 binds the raw received carrier
+  // b7-plan E2: a current producer carrier declares no row dimension; a carrier that does is not current.
+  if(result.results.some(row=>Object.hasOwn(row,'dimension')))throw new Error('CURRENT_CARRIER_DIMENSION_PRESENT');
   if(run.hashes.length!==2)throw new Error('CURRENT_HASH_INVENTORY_MISMATCH');
-  const envelopeScope=isV2?'received_result':'result_envelope', profile=isV2?canonicalization:'rfc8785_jcs';
+  const envelopeScope='received_result';
   const envelopeHashes=run.hashes.filter(h=>h.payload_scope===envelopeScope);
-  const expectedEnvelope=isV2?await canonicalSha256HexCheckedV1(result):await legacyDigest(legacy!);
-  if(envelopeHashes.length!==1||!proofChecksum(envelopeHashes[0],envelopeScope,'ResultEnvelope',`result-envelope:${result.run_id}`,profile)||envelopeHashes[0].value!==expectedEnvelope||run.result_refs.length!==result.results.length)throw new Error('CURRENT_RESULT_BINDING_MISMATCH');
-  const seen=new Set<string>();for(const [index,row] of result.results.entries()){const rr=run.result_refs.find(x=>x.result_ref.ref===row.id);const expectedRow=isV2?await canonicalSha256HexCheckedV1(row):await legacyDigest(legacy!.results[index]);const scope=isV2?'result_row':'result_value';if(seen.has(row.id)||!rr||rr.result_ref.object_type!=='Result'||!proofChecksum(rr.hash_refs[0],scope,'Result',row.id,profile)||rr.hash_refs.length!==1||rr.hash_refs[0].value!==expectedRow)throw new Error('CURRENT_ROW_BINDING_MISMATCH');seen.add(row.id);}
+  const expectedEnvelope=await canonicalSha256HexCheckedV1(result);
+  if(envelopeHashes.length!==1||!proofChecksum(envelopeHashes[0],envelopeScope,'ResultEnvelope',`result-envelope:${result.run_id}`,canonicalization)||envelopeHashes[0].value!==expectedEnvelope||run.result_refs.length!==result.results.length)throw new Error('CURRENT_RESULT_BINDING_MISMATCH');
+  const seen=new Set<string>();for(const row of result.results){const rr=run.result_refs.find(x=>x.result_ref.ref===row.id);const expectedRow=await canonicalSha256HexCheckedV1(row);if(seen.has(row.id)||!rr||rr.result_ref.object_type!=='Result'||!proofChecksum(rr.hash_refs[0],'result_row','Result',row.id,canonicalization)||rr.hash_refs.length!==1||rr.hash_refs[0].value!==expectedRow)throw new Error('CURRENT_ROW_BINDING_MISMATCH');seen.add(row.id);}
   const ruleStatus=run.analysis_status.find(s=>['RULE_INPUTS_INCOMPLETE','USER_RULE_CHECKED','USER_RULE_FAILED'].includes(s));if(!ruleStatus||JSON.stringify([...run.analysis_status].sort())!==JSON.stringify(['HUMAN_REVIEW_REQUIRED','MECHANICS_SOLVED',ruleStatus].sort()))throw new Error('CURRENT_STATUS_BINDING_MISMATCH');
-  if(isV2){if(await verifyAnalysisRunRecord(analysisRun)!=='match')throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');}
-  else {const recordPayload={run_id:result.run_id,model_ref:result.model_ref,status:{...result.status,rule_check:ruleStatus},load_basis_refs:run.load_basis_refs,result_ids:result.results.map(x=>x.id).sort(),diagnostic_ids:result.diagnostics.map(x=>x.id??'diagnostic:unknown').sort(),input_manifest_ref:inputManifest.manifest_ref,input_manifest_sha256:inputManifest.manifest_sha256,result_dimensions:legacy!.results.map(x=>({result_id:x.id,dimension:x.dimension})).sort((a,b)=>a.result_id.localeCompare(b.result_id))};const recordHashes=run.hashes.filter(h=>h.payload_scope==='analysis_run_record');if(recordHashes.length!==1||!proofChecksum(recordHashes[0],'analysis_run_record','AnalysisRun',run.run_id)||recordHashes[0].value!==await legacyDigest(recordPayload))throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');}
+  if(await verifyAnalysisRunRecord(analysisRun)!=='match')throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');
   await validateAnalysisRunV03(analysisRun,result,modelLoadBasisRefs(model));
   if(run.professional_boundary.human_review_required!==true||Object.entries(run.professional_boundary).some(([k,v])=>k!=='human_review_required'&&v!==false))throw new Error('CURRENT_BOUNDARY_MISMATCH');
   if(!hasNativeMechanicsInvocation(result,model,solver.solver_mode))throw new Error('CURRENT_NATIVE_INVOCATION_REQUIRED');
-  const enriched=presence.every(Boolean);
-  const origin=await currentReceivedOrigin(model,result,inputManifest.manifest_ref.ref,enriched,CURRENT_ORIGIN_LIMIT);
+  const origin=await currentReceivedOrigin(model,result,inputManifest.manifest_ref.ref,CURRENT_ORIGIN_LIMIT);
   const base=currentResultDocumentBase(model,result,run,inputManifest.manifest_ref.ref,inputManifest.manifest.solver_basis);
   if(!hasNativeMechanicsInvocation(result,model,solver.solver_mode))throw new Error('CURRENT_NATIVE_INVOCATION_UNAVAILABLE');
   const document=await deriveResultDocument(base,model,result,origin);
   if(checkedJsonText({model,result,analysisRun,inputManifest})!==currentBindingText || !hasNativeMechanicsInvocation(result,model,solver.solver_mode) || !numericalResultStanding(result,model).eligible)throw new Error('CURRENT_BINDING_CHANGED_DURING_EXPORT');
   return document;
 }
-export function resultSchemaVersion(value:JsonObject):'0.1.0'|'0.2.0'|'0.3.0'{const v=value.schema_version;if((v!=='0.1.0'&&v!=='0.2.0'&&v!=='0.3.0')||value.result_envelope?.schema_version!==v)throw new Error('RESULT_VERSION_UNSUPPORTED_OR_MIXED');return v;}
+export function resultSchemaVersion(value:JsonObject):typeof RESULT_EXPORT_VERSION{const v=value.schema_version;if(v!==RESULT_EXPORT_VERSION||value.result_envelope?.schema_version!==v)throw new Error('RESULT_VERSION_UNSUPPORTED_OR_MIXED');return v;}

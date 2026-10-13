@@ -1,6 +1,6 @@
 import { solverDisplayWithToken } from "./features/workspace/statusLabels";
 import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
-import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import { retiredMechanicsResult } from "./test-support/retiredMechanicsResult";
 import refusedPreviewModel from "../../../fixtures/product_preview/invented_preview_model.json";
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
@@ -14220,7 +14220,7 @@ async function workflowStoredEnvelope() {
   const envelope = inventedOpenEnvelope(model);
   // A saved run with a current (0.3.0) record: the demo carrier's rows under a
   // synthetic precision-1 header (a header-only route), as saved history only.
-  const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+  const result = retiredMechanicsResult();
   Object.assign(result, {
     schema_version: "0.2.0", model_ref: envelope.model.project.id,
     producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: "openpipestress.result_semantics/0.3.0/precision-1" },
@@ -14606,7 +14606,7 @@ describe("workflow current and historical result boundaries", () => {
 
   it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("retains recorded %s through display-only helpers without fresh admission", async (mechanics) => {
     const model = await loadPreviewModel();
-    const recorded = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    const recorded = retiredMechanicsResult();
     recorded.status.mechanics = mechanics;
     recorded.diagnostics.push({ id: "diagnostic:recorded-display", code: "RECORDED_DISPLAY_DIAGNOSTIC", severity: "blocking", message: "Recorded display-only outcome retained" });
     // B3A preserves unregistered recorded tokens for presentation. No native job,

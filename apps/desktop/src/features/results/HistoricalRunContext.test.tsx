@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
 import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import historicalModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
-import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResult";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { PRECISION_CONTRACT_ID } from "./numericalResultQuality";
@@ -16,7 +16,7 @@ import type { LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../
  * saved-run integrity checks only. */
 async function savedEnvelope() {
   const model = structuredClone(historicalModel) as unknown as PreviewModel;
-  const mechanics_result = structuredClone(historicalResult) as unknown as MechanicsResult;
+  const mechanics_result = retiredMechanicsResult();
   Object.assign(mechanics_result, {
     schema_version: "0.2.0",
     producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID },

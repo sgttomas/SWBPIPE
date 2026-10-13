@@ -2,9 +2,9 @@
 // compiler and target identity the retained memory profile is qualified for.
 //
 // The script reads cargo-provided environment variables, `$RUSTC -vV`, and the
-// reviewed inputs: the PP lock, the precommit reader's 13 included statics,
+// reviewed inputs: the PP lock, the precommit reader's 12 included statics,
 // J1's three appended statics and B7's nonresident binding table, all bound by
-// SHA-256 (`REVIEWED_INPUTS` lists all 18). It never panics or fails the build: ordinary product builds are unaffected. Any read or
+// SHA-256 (`REVIEWED_INPUTS` lists all of them). It never panics or fails the build: ordinary product builds are unaffected. Any read or
 // parse failure of the identity emits the whole value `v1;unavailable`, and an
 // unreadable input its own `unavailable`; the crate treats either as a mismatch
 // (the profile is Stale and the ordinary path runs). An empty variable is a
@@ -30,7 +30,7 @@ fn main() {
     let _ = writeln!(out, "cargo:rustc-env={IDENTITY_VARIABLE}={identity}");
     // The reviewed inputs: the PP lock, reader statics and nonresident binding, by SHA-256.
     let root = std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from);
-    let digests: [Option<[u8; 32]>; 18] = std::array::from_fn(|i| {
+    let digests: [Option<[u8; 32]>; REVIEWED_INPUT_COUNT] = std::array::from_fn(|i| {
         let path = root.as_ref()?.join(REVIEWED_INPUTS[i]);
         std::fs::read(path).ok().map(|bytes| sha256(&bytes))
     });

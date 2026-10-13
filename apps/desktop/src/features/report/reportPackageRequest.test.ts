@@ -6,7 +6,7 @@ afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<st
 import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResult";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
@@ -61,7 +61,7 @@ async function currentSession(profile: "precision" | "physics" | "preview" = "pr
 // the given model's received result (its model_ref is bound to that model), with a
 // current 0.3.0 record; nothing else changes.
 async function syntheticPrecisionSession(model: PreviewModel) {
-  const result = structuredClone(historicalResult) as unknown as MechanicsResult;
+  const result = retiredMechanicsResult();
   Object.assign(result, {
     schema_version: "0.2.0", model_ref: model.project.id,
     producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID },
@@ -106,7 +106,7 @@ describe("report-package current-session request", () => {
     const recordedIdentity = inputManifest.manifest.solver_basis;
     expect(analysisRun.schema_version).toBe("0.3.0");
     expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: recordedIdentity.solver_name, solver_version: recordedIdentity.solver_version, build_ref: { ref: recordedIdentity.solver_build_ref } });
-    expect(result.results).toEqual(historicalResult.results);
+    expect(result.results).toEqual(retiredMechanicsResult().results);
     const sections = projected.report_sections;
     const presentId = componentProvenanceProjection.present_component.value.value_id;
     const missingId = componentProvenanceProjection.missing_component.value.value_id;

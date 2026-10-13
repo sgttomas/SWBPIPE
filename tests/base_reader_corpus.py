@@ -201,7 +201,6 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_demo_result_preview_physics_1_dense", None),
-        ("../product_preview/invented_demo_result_legacy_0_1", None),
     ]
     for name, model in results:
         base(f"results/{name.removeprefix('../')}", read(f"fixtures/results/{name}.json"), model_at(model) if model else None, None)
