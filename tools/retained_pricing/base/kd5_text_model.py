@@ -153,6 +153,19 @@ def primitive_lib_minmax_callers(snapshot):
     return ["build_curved_bend_macro_elements", "straight_summary_extrema"]
 
 
+# E13 uses the same exact current lib.rs binding as C4; remove one
+# complete decision preimage, never permit an arbitrary replaced key.
+def retire_combination_reaction_audit(snapshot, audits):
+    primitive_lib_minmax_callers(snapshot)
+    retired = ("core/product_physics/src/lib.rs:13085",
+               {"row.id": {"bytes": 1024, "source": "RES"}})
+    if audits.count(retired) != 1:
+        raise ValueError("B7a E13: exact retired reaction audit preimage changed")
+    current = list(audits)
+    current.remove(retired)
+    return current
+
+
 # KD5C5: only exact outside-caller candidates into the private non-escaping
 # FallbackError owner are removed; every other resolver candidate is retained.
 FALLBACK_METHOD_PINS = {

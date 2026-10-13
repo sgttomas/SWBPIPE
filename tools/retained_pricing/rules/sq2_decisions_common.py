@@ -376,3 +376,7 @@ SITE_FROM_REBIND = [("retained_precision.rs:223", "1+4*64*(att+z)", RSR + "g5_na
 # O-10 (T4's heads): rules keyed by name at the snapshot; their arguments are in DEL-05-02's
 # Design/retained-pricing-rules.md.
 exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules.py")).read())
+# B7a E13 leftover: the support-vector reaction arm no longer exists.
+# The complete current lib.rs pin guards this exact ID preimage removal;
+# all surviving displacement and other decision audits continue strict carry.
+ID_AUDIT = _labels_model["retire_combination_reaction_audit"](_SNAP, ID_AUDIT)

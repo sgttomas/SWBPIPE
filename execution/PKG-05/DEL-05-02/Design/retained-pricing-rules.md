@@ -648,6 +648,11 @@ pricing run and in-build atom evaluation.
   edit, including a test-only addition, requires re-audit of this source
   binding before pricing is reused; this is not a generic missing-name
   exemption.
+  E13's deleted support-vector reaction arm also uses this exact full-file
+  source binding. Its one complete decision preimage, basis lib.rs:13085
+  row.id RES1024, is removed before ordinary strict decision carry. The
+  component/operand/reference/qualified displacement-source audits remain.
+  A changed or duplicated preimage refuses; no replaced-key waiver is added.
 - **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
   source, the heuristic graph adds private FallbackError methods to outside
   callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
