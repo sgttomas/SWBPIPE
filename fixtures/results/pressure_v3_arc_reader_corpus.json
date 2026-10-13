@@ -3413,10 +3413,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -396.0816794927377
+            "value": 1458.8067020455544
           },
           {
             "basis_ref": {
@@ -3431,10 +3431,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 396.0816794927377
+            "value": 898.6626190994114
           },
           {
             "basis_ref": {
@@ -3449,10 +3449,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -375.02419909065924
+            "value": 375.02419909065924
           },
           {
             "basis_ref": {
@@ -3467,10 +3467,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 205.79041217558236
+            "value": -205.79041217558236
           },
           {
             "basis_ref": {
@@ -3485,10 +3485,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 35.041904871469384
+            "value": -307.4177970645814
           },
           {
             "basis_ref": {
@@ -3503,10 +3503,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -43.21630018926154
+            "value": -435.3565309547918
           },
           {
             "basis_ref": {
@@ -3521,10 +3521,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": -469.79632279506023
+            "value": 356.9745341852012
           },
           {
             "basis_ref": {
@@ -3539,10 +3539,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": 572.4708103547072
+            "value": -374.2394531115512
           },
           {
             "basis_ref": {
@@ -3557,10 +3557,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 1679.497320769484
+            "value": -1679.497320769484
           },
           {
             "basis_ref": {
@@ -3575,10 +3575,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -1819.53334150602
+            "value": 1819.53334150602
           },
           {
             "basis_ref": {
@@ -9618,10 +9618,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -396.0816794927377
+            "value": 1458.8067020455544
           },
           {
             "basis_ref": {
@@ -9636,10 +9636,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 396.0816794927377
+            "value": 898.6626190994114
           },
           {
             "basis_ref": {
@@ -9654,10 +9654,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -375.02419909065924
+            "value": 375.02419909065924
           },
           {
             "basis_ref": {
@@ -9672,10 +9672,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 205.79041217558236
+            "value": -205.79041217558236
           },
           {
             "basis_ref": {
@@ -9690,10 +9690,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 35.041904871469384
+            "value": -307.4177970645814
           },
           {
             "basis_ref": {
@@ -9708,10 +9708,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -43.21630018926154
+            "value": -435.3565309547918
           },
           {
             "basis_ref": {
@@ -9726,10 +9726,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": -469.79632279506023
+            "value": 356.9745341852012
           },
           {
             "basis_ref": {
@@ -9744,10 +9744,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": 572.4708103547072
+            "value": -374.2394531115512
           },
           {
             "basis_ref": {
@@ -9762,10 +9762,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 1679.497320769484
+            "value": -1679.497320769484
           },
           {
             "basis_ref": {
@@ -9780,10 +9780,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -1819.53334150602
+            "value": 1819.53334150602
           },
           {
             "basis_ref": {
@@ -15445,10 +15445,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -36.162038239379505
+            "value": 133.01707538654378
           },
           {
             "basis_ref": {
@@ -15463,10 +15463,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 36.162038239379505
+            "value": 81.87623046535882
           },
           {
             "basis_ref": {
@@ -15481,7 +15481,7 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
             "value": 0.0
@@ -15499,7 +15499,7 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
             "value": 0.0
@@ -15517,7 +15517,7 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
             "value": 0.0
@@ -15535,7 +15535,7 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
             "value": 0.0
@@ -15553,7 +15553,7 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
             "value": 0.0
@@ -15571,7 +15571,7 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
             "value": 0.0
@@ -15589,10 +15589,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 153.13187294116247
+            "value": -153.13187294116247
           },
           {
             "basis_ref": {
@@ -15607,10 +15607,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -165.91708417145873
+            "value": 165.91708417145873
           },
           {
             "basis_ref": {
@@ -20805,10 +20805,10 @@
               "component": "axial_force",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": 929.2012068965073
+            "value": 337.55167604142855
           },
           {
             "basis_ref": {
@@ -20823,10 +20823,10 @@
               "component": "axial_force",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": -929.2012068965073
+            "value": -976.5372729250604
           },
           {
             "basis_ref": {
@@ -20841,10 +20841,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -451.83104863694973
+            "value": 976.5372729250604
           },
           {
             "basis_ref": {
@@ -20859,10 +20859,10 @@
               "component": "shear_force_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 451.83104863694973
+            "value": 337.55167604142855
           },
           {
             "basis_ref": {
@@ -20877,10 +20877,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N",
-            "value": -845.5162197156569
+            "value": 845.5162197156569
           },
           {
             "basis_ref": {
@@ -20895,10 +20895,10 @@
               "component": "shear_force_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N",
-            "value": 676.2824328005801
+            "value": -676.2824328005801
           },
           {
             "basis_ref": {
@@ -20913,10 +20913,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 124.82293169546361
+            "value": -148.7290055747814
           },
           {
             "basis_ref": {
@@ -20931,10 +20931,10 @@
               "component": "torsional_moment",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -132.99732701325576
+            "value": -521.2602903995165
           },
           {
             "basis_ref": {
@@ -20949,10 +20949,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": -335.15750849758314
+            "value": 325.2552884736765
           },
           {
             "basis_ref": {
@@ -20967,10 +20967,10 @@
               "component": "bending_moment_y",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": 604.1760451962786
+            "value": -333.17366677800067
           },
           {
             "basis_ref": {
@@ -20985,10 +20985,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_i",
-              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector, in the arc tangent frame at end i (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals minus the j-side section action at end_i"
             },
             "unit": "N*m",
-            "value": 980.653785775575
+            "value": -980.653785775575
           },
           {
             "basis_ref": {
@@ -21003,10 +21003,10 @@
               "component": "bending_moment_z",
               "coordinate_system": "element_local",
               "location": "end_j",
-              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector, in the arc tangent frame at end j (local x is the arc tangent toward j; local z is the bend-plane normal; local y is z cross x toward the arc centre); it equals the j-side section action at end_j"
             },
             "unit": "N*m",
-            "value": -1140.400184996483
+            "value": 1140.400184996483
           },
           {
             "basis_ref": {

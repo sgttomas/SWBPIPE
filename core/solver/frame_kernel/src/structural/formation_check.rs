@@ -1466,7 +1466,7 @@ fn bad_load(site: &'static str) -> LoadFailure {
 fn ball_lift3(b: &Balls, x: [f64; 3]) -> Result<[Ball; 3], LoadFailure> {
     Ok([b.lift(x[0])?, b.lift(x[1])?, b.lift(x[2])?])
 }
-fn ball_chord_axes(
+pub(super) fn ball_chord_axes(
     b: &mut Balls,
     xi: [f64; 3],
     xj: [f64; 3],
