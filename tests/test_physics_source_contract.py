@@ -52,7 +52,7 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
 
 def test_inherited_table_identities_remain_pinned():
     # B1 deleted precision-1's table; the composite's two inherited tables stay pinned.
-    expected={"source_blocks_1":"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"}
+    expected={"source_blocks_1":"76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"}
     from core.analysis_runs.compatibility import PHYSICS_CONTRACT_SHA256
     expected["physics_1"]=PHYSICS_CONTRACT_SHA256
     for name,digest in expected.items():

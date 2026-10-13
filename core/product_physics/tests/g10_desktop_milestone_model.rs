@@ -18,10 +18,12 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
 /// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
 /// the bytes differ only by the two linear limitation sentences, the current
-/// maximum declaration literals and the fallback maximum's enclosure.
+/// maximum declaration literals and the fallback maximum's enclosure. B7a's H-4
+/// re-pinned them for the summary alone: the curved macro-element count's name
+/// and the deleted retired thrust count.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
-    ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
+    ("sparse_interactive", 68931, "2475e50ac8770270f4099989309732f6cade2adacec9c3be0d104982f5d053d1"),
+    ("dense_scrutiny", 70049, "d6f8570ca1145f31697a2878500838e8697a99b940f0f718f3e23087b28450a4"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

@@ -16,7 +16,7 @@ from core.analysis_runs import compatibility as c
 from core.analysis_runs import rust_reader
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-CONTRACT_SHA256 = "8a3e3ebb7df1d14bcc6ac4e31f23e865b1d0ded011832d29d97fa13a0f6f8681"
+CONTRACT_SHA256 = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803"
 BINDING = {"id": CONTRACT_ID, "sha256": CONTRACT_SHA256}
 
 

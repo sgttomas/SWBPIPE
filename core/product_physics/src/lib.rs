@@ -2080,8 +2080,7 @@ pub struct Summary {
     pub support_count: usize,
     pub load_case_count: usize,
     pub component_stress_modifier_count: usize,
-    pub component_user_stiffness_macro_element_count: usize,
-    pub component_pressure_thrust_load_count: usize,
+    pub curved_bend_macro_element_count: usize,
     pub spring_hanger_user_input_count: usize,
     pub max_displacement: Option<LocatedQuantity>,
     pub max_open_formula_stress: Option<LocatedQuantity>,
@@ -2194,7 +2193,6 @@ struct LoadCaseSolve {
     max_displacement: Option<LocatedQuantity>,
     max_stress: Option<LocatedQuantity>,
     component_stress_modifier_count: usize,
-    component_pressure_thrust_load_count: usize,
     preview: Option<preview_physics::CaseRecord>,
     /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): the named warning
     /// of each certified member whose open-formula (L1) summary row is
@@ -2868,10 +2866,6 @@ fn run_linear_static_preview_observed_inner(
         .iter()
         .map(|solve| solve.component_stress_modifier_count)
         .sum();
-    let component_pressure_thrust_load_count = load_case_solves
-        .iter()
-        .map(|solve| solve.component_pressure_thrust_load_count)
-        .sum();
     let mut results = Vec::new();
     let mut pressure_evidence = Vec::new();
     let mut exact_cases = Vec::new();
@@ -2934,9 +2928,7 @@ fn run_linear_static_preview_observed_inner(
         None => Vec::new(),
     };
     append_combination_modulus_basis_records(&model, &mut results);
-    // H-4: the key is kept; since T4-U3 it counts the curved macro-element rows
-    // only (the joint review rows are no longer produced).
-    let component_user_stiffness_macro_element_count =
+    let curved_bend_macro_element_count =
         append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
     let spring_hanger_user_input_count =
         append_spring_hanger_user_input_results(&model, &mut results);
@@ -3018,8 +3010,7 @@ fn run_linear_static_preview_observed_inner(
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count,
-            component_user_stiffness_macro_element_count,
-            component_pressure_thrust_load_count,
+            curved_bend_macro_element_count,
             spring_hanger_user_input_count,
             max_displacement,
             max_open_formula_stress: max_stress,
@@ -4526,7 +4517,6 @@ fn solve_load_case_observed(
             max_displacement: None,
             max_stress: None,
             component_stress_modifier_count: 0,
-            component_pressure_thrust_load_count: 0,
             preview: None,
             withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -4563,7 +4553,6 @@ fn solve_load_case_observed(
                 max_displacement: None,
                 max_stress: None,
                 component_stress_modifier_count: 0,
-                component_pressure_thrust_load_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -4671,7 +4660,6 @@ fn solve_load_case_observed(
                 max_displacement: None,
                 max_stress: None,
                 component_stress_modifier_count: 0,
-                component_pressure_thrust_load_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -4958,7 +4946,6 @@ fn solve_load_case_observed(
                 max_displacement: None,
                 max_stress: None,
                 component_stress_modifier_count: 0,
-                component_pressure_thrust_load_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -4991,7 +4978,6 @@ fn solve_load_case_observed(
                 max_displacement: None,
                 max_stress: None,
                 component_stress_modifier_count: 0,
-                component_pressure_thrust_load_count: 0,
                 preview: None,
                 withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -5120,7 +5106,6 @@ fn solve_load_case_observed(
                     max_displacement: None,
                     max_stress: None,
                     component_stress_modifier_count: 0,
-                    component_pressure_thrust_load_count: 0,
                     preview: None,
                     withheld_summaries: Vec::new(),
             source_blocks_diagnostics: Vec::new(),
@@ -5208,8 +5193,6 @@ fn solve_load_case_observed(
     let certified_source = member_bound.map(|_| certified_publication::source(built, &force, spring_entries));
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
-    // U3: legacy pressure thrust is retired; the published summary count stays 0.
-    let component_pressure_thrust_load_count = 0;
     let mut max_displacement = None;
     for node in &model.nodes {
         let node_index = node_index(&model, &node.id).unwrap();
@@ -6269,7 +6252,6 @@ fn solve_load_case_observed(
         max_displacement,
         max_stress,
         component_stress_modifier_count,
-        component_pressure_thrust_load_count,
         preview: preview_record,
         withheld_summaries,
         source_blocks_diagnostics,
@@ -13609,8 +13591,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count: 0,
-            component_user_stiffness_macro_element_count: 0,
-            component_pressure_thrust_load_count: 0,
+            curved_bend_macro_element_count: 0,
             spring_hanger_user_input_count: 0,
             max_displacement: None,
             max_open_formula_stress: None,
@@ -14061,7 +14042,6 @@ mod kd5_withheld_summary_tests {
                 result_ref: format!("result:stress:{member}"),
             }),
             component_stress_modifier_count: 0,
-            component_pressure_thrust_load_count: 0,
             preview: None,
             source_blocks_diagnostics: Vec::new(),
             withheld_summaries: if withheld {
@@ -18382,14 +18362,7 @@ mod tests {
     fn flexibility_joint_missing_a_user_stiffness_is_refused_not_dropped() {
         // G11 (I111), T4-U3 (D-4): a legacy joint with any subset of its four
         // rates is refused by the legacy code, never skipped or solved as pipe,
-        // and no joint review row is produced.
-        let consumed = |output: &MechanicsEnvelope| {
-            output
-                .results
-                .iter()
-                .filter(|row| row.kind == "component_user_stiffness_macro_element_review")
-                .count()
-        };
+        // and no row is produced (H-4: the joint review row kind is removed).
         let mut observed = Vec::new();
         for missing in ["lateral", "axial", "angular", "torsional"] {
             let mut input = request_with_refused_joint();
@@ -18423,15 +18396,14 @@ mod tests {
             observed.push((
                 missing,
                 output.status.mechanics.clone(),
-                consumed(&output),
                 output.results.is_empty(),
                 refused,
             ));
         }
         let expected = ["lateral", "axial", "angular", "torsional"]
-            .map(|missing| (missing, "MODEL_INCOMPLETE".to_string(), 0, true, true))
+            .map(|missing| (missing, "MODEL_INCOMPLETE".to_string(), true, true))
             .to_vec();
-        assert_eq!(observed, expected, "(missing value, status, consumed review rows, no results, refused by name)");
+        assert_eq!(observed, expected, "(missing value, status, no results, refused by name)");
     }
 
     #[test]
@@ -18439,13 +18411,6 @@ mod tests {
         // G11, T4-U3 (D-4): a legacy joint whose pipe or node does not resolve
         // is refused by the legacy code, refs [component, pipe] (or [component]
         // when it names no pipe), never skipped.
-        let consumed = |output: &MechanicsEnvelope| {
-            output
-                .results
-                .iter()
-                .filter(|row| row.kind == "component_user_stiffness_macro_element_review")
-                .count()
-        };
         let mut observed = Vec::new();
         for case in ["no pipe", "unknown pipe", "unknown node", "node not on the pipe"] {
             let mut input = request_with_refused_joint();
@@ -18483,7 +18448,6 @@ mod tests {
             observed.push((
                 case,
                 output.status.mechanics.clone(),
-                consumed(&output),
                 output.results.is_empty(),
                 refusal,
             ));
@@ -18494,12 +18458,12 @@ mod tests {
             Some(refs)
         };
         let expected = vec![
-            ("no pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(None)),
-            ("unknown pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:missing"))),
-            ("unknown node", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:P-130"))),
-            ("node not on the pipe", "MODEL_INCOMPLETE".to_string(), 0, true, refs(Some("pipe:P-130"))),
+            ("no pipe", "MODEL_INCOMPLETE".to_string(), true, refs(None)),
+            ("unknown pipe", "MODEL_INCOMPLETE".to_string(), true, refs(Some("pipe:missing"))),
+            ("unknown node", "MODEL_INCOMPLETE".to_string(), true, refs(Some("pipe:P-130"))),
+            ("node not on the pipe", "MODEL_INCOMPLETE".to_string(), true, refs(Some("pipe:P-130"))),
         ];
-        assert_eq!(observed, expected, "(case, status, consumed review rows, no results, mapping refusal refs)");
+        assert_eq!(observed, expected, "(case, status, no results, mapping refusal refs)");
     }
 
     #[test]
@@ -23012,7 +22976,7 @@ mod tests {
         let result = run_linear_static_preview(curved_bend_span_request());
 
         assert_eq!(
-            result.summary.component_user_stiffness_macro_element_count,
+            result.summary.curved_bend_macro_element_count,
             1
         );
         let review = result

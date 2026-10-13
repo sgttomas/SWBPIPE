@@ -3308,11 +3308,11 @@
         "publication_charged": 128116
       },
       "policy": "SOURCE-BLOCKS-1",
-      "publication_sha256": "0e92cc2db02242ff8b34c7f4d9d4d8b43e4b8a58ed2e87faaf0ae813513c284b",
+      "publication_sha256": "91693ac4cf067ba0a3dfc8fb21daa77fa544243a612834144a9716fd80c2019e",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "11a8ee5b5eab4e82b004263c52de4351b540edd205bb7489a3559a26223db3f4"
+    "receipt_sha256": "38c3fd3a3c6c9e5803f0d517e0e90b3bc2560adab4226a00b21cb4fd3cb5d166"
   },
   "status": {
     "mechanics": "MECHANICS_SOLVED",
@@ -3320,9 +3320,8 @@
     "rule_check": "RULE_INPUTS_INCOMPLETE"
   },
   "summary": {
-    "component_pressure_thrust_load_count": 0,
     "component_stress_modifier_count": 0,
-    "component_user_stiffness_macro_element_count": 0,
+    "curved_bend_macro_element_count": 0,
     "load_case_count": 1,
     "max_displacement": {
       "location_ref": "independent-root",

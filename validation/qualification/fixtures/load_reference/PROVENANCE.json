@@ -15,7 +15,7 @@
   },
   "producer_table": {
     "path": "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
-    "sha256": "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6"
+    "sha256": "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
   },
   "runner_input_template": {
     "path": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",

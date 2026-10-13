@@ -372,7 +372,7 @@ fn pinned_table_identity_profile_and_policy() {
     assert_eq!(sha(TABLE.as_bytes()), s::LOAD_REFERENCE_SOURCE_TABLE_SHA256);
     assert_eq!(
         s::LOAD_REFERENCE_SOURCE_TABLE_SHA256,
-        "9f41de5131b46cd6259933a2f596721cd6a739dd819d9446f7243ee6f9a117c1"
+        "e69e3eeafbd31e9b630a6797a7affaab6796212d8992f77bf2a4d2569a4fa096"
     );
     let table = s::load_reference_source_contract();
     assert_eq!(table["semantic_contract_id"], s::LOAD_REFERENCE_SOURCE_ID);

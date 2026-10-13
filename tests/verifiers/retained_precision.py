@@ -32,7 +32,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1"
-TABLE_HASH = "3c0216231a9b4fde531373ed6b9aec20de69098039d52960a9da3c1f87aac39f"
+TABLE_HASH = "9889e963fd8389de722ffa6bcf244fff686d2ff9af0279652de9a631ff687607"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d"
@@ -46,7 +46,7 @@ EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 EXACT_DEFINITION_HASH = "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc"
-EXACT_TABLE_HASH = "9865d9bfb9514bb6b207d6d5527b2987acba52b5710fdd618378910760ce03ac"
+EXACT_TABLE_HASH = "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -1403,7 +1403,7 @@ NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_li
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
 HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2"}
 NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
-INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "component_user_stiffness_macro_element_review", "constant_effort_user_input_review", "spring_hanger_user_input_review", "expansion_joint_pressure_thrust_load_review"}
+INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "constant_effort_user_input_review", "spring_hanger_user_input_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
 MOMENT = {"element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z", "support_reaction_moment_magnitude_v2"}
 STRESS = {"element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress", "pipe_axial_membrane_stress_v2", "pipe_elastic_normal_stress_maximum_v2", "component_equal_factor_intensified_bending_stress_v1", "open_formula_stress_summary"}

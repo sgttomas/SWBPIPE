@@ -47,8 +47,9 @@ class SourceBlockStatements(unittest.TestCase):
         # B1 deleted the precision-1 table these rows were frozen against; this table goes with B4/D1 (b).
         self.assertEqual(hashlib.sha256(CONTRACT_PATH.read_bytes()).hexdigest(), CONTRACT_SHA256)
         new = json.loads(CONTRACT_PATH.read_text())
-        self.assertEqual(new["source_signature_count"], 66)
-        self.assertEqual({r["component"] for r in new["rows"][60:]}, {"Fx","Fy","Fz","Mx","My","Mz"})
+        # H-4 removed the joint and thrust rows (five signatures) before them.
+        self.assertEqual(new["source_signature_count"], 61)
+        self.assertEqual({r["component"] for r in new["rows"][55:]}, {"Fx","Fy","Fz","Mx","My","Mz"})
 
     def test_valid_statements_need_independent_actual_context(self):
         source, context = control()

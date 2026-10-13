@@ -1119,7 +1119,7 @@
     {
       "mode": "sparse_interactive",
       "path": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
-      "sha256": "54bce1dc8add926a8c998aa10d754c952c1f983c14edb44ad68b8191b36734a9",
+      "sha256": "289d20e7c61bd8286ff3733209505ccc863abcea165750c789a8913e2d0a15f5",
       "command": [
         "cargo",
         "run",
@@ -1147,7 +1147,7 @@
     {
       "mode": "dense_scrutiny",
       "path": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_dense.json",
-      "sha256": "54bce1dc8add926a8c998aa10d754c952c1f983c14edb44ad68b8191b36734a9",
+      "sha256": "289d20e7c61bd8286ff3733209505ccc863abcea165750c789a8913e2d0a15f5",
       "command": [
         "cargo",
         "run",

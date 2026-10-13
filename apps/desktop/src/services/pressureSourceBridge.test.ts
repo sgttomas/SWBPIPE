@@ -68,7 +68,7 @@ import { canonicalSha256HexCheckedV1 } from "./hashService";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const MODE = "sparse_interactive" as const;
-const PRESSURE_SOURCE_CONTRACT_SHA256 = "8a3e3ebb7df1d14bcc6ac4e31f23e865b1d0ded011832d29d97fa13a0f6f8681";
+const PRESSURE_SOURCE_CONTRACT_SHA256 = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803";
 afterEach(() => {
   seam.invoke.mockReset(); seam.hashChecked.mockReset(); seam.plans.clear(); seam.reads.length = 0;
   delete (window as Json).__TAURI_INTERNALS__;
@@ -76,8 +76,8 @@ afterEach(() => {
 
 const SOURCE_ROUTES = ["source_blocks", "physics_source", "pressure_source"] as const;
 const SOURCE_BINDINGS = {
-  source_blocks: { id: SOURCE_BLOCKS_CONTRACT_ID, sha256: "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f", policy: "SOURCE-BLOCKS-1", profile: "product_preview_mechanics_v1" },
-  physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
+  source_blocks: { id: SOURCE_BLOCKS_CONTRACT_ID, sha256: "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b", policy: "SOURCE-BLOCKS-1", profile: "product_preview_mechanics_v1" },
+  physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
   pressure_source: { id: PRESSURE_SOURCE_CONTRACT_ID, sha256: PRESSURE_SOURCE_CONTRACT_SHA256, policy: "PRESSURE-SOURCE-1", profile: "exact_pressure_v3" },
 };
 function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number] = "pressure_source") {

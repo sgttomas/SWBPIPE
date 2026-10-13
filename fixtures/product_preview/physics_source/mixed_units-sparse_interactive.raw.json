@@ -4190,11 +4190,11 @@
         "publication_charged": 505188
       },
       "policy": "PHYSICS-SOURCE-1",
-      "publication_sha256": "7016d5ba0341eff54dfe815dbda64504282f071f979d4236fee3df1bf447784e",
+      "publication_sha256": "25486c5c3a71c9d431cad7241f92c1246f18722c61252b6ec1d87bb687872e45",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "9266f5458836be7ddeff84d779e0f17ed3acaf0cbac2b54411a603bfcb010f19"
+    "receipt_sha256": "9db99d85264314609744ddafaec6579614aaef9efd6d3d6a7f3191b97ace3c56"
   },
   "formulation_basis": {
     "profile_id": "exact_straight_pressure_v2",
@@ -4224,8 +4224,7 @@
     "support_count": 2,
     "load_case_count": 2,
     "component_stress_modifier_count": 0,
-    "component_user_stiffness_macro_element_count": 0,
-    "component_pressure_thrust_load_count": 0,
+    "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
       "value": 0.000021315789473684212,

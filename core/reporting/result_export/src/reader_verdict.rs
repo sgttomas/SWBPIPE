@@ -50,15 +50,15 @@ pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
 /// `binding_hashes_are_the_table_files` checks them). Legacy has none.
 const BINDINGS: [(&str, &str, &str); 9] = [
-    ("physics", sc::PHYSICS_ID, "bf355681b69c6939c2f07c20d6e56f8bc4f1dbad4a3716becbea74e0ea0de3c6"),
-    ("source_blocks", crate::source_blocks::CONTRACT_ID, "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"),
-    ("physics_source", sc::PHYSICS_SOURCE_ID, "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94"),
+    ("physics", sc::PHYSICS_ID, "2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd"),
+    ("source_blocks", crate::source_blocks::CONTRACT_ID, "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"),
+    ("physics_source", sc::PHYSICS_SOURCE_ID, "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"),
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
-    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "e18be07932ae0f1d77138c3ddf06646c5762ee0eedb8f4ad74db24b7a0e039e0"),
-    ("load_reference", sc::LOAD_REFERENCE_ID, "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6"),
-    ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "9f41de5131b46cd6259933a2f596721cd6a739dd819d9446f7243ee6f9a117c1"),
-    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "3c0216231a9b4fde531373ed6b9aec20de69098039d52960a9da3c1f87aac39f"),
-    ("retained_physics", sc::PHYSICS_RETAINED_ID, "9865d9bfb9514bb6b207d6d5527b2987acba52b5710fdd618378910760ce03ac"),
+    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "7dc3fec2884ed5ddc60ecaf208207132ddc103bce4f4d0ff4d443b67704cdcd9"),
+    ("load_reference", sc::LOAD_REFERENCE_ID, "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"),
+    ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "e69e3eeafbd31e9b630a6797a7affaab6796212d8992f77bf2a4d2569a4fa096"),
+    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "9889e963fd8389de722ffa6bcf244fff686d2ff9af0279652de9a631ff687607"),
+    ("retained_physics", sc::PHYSICS_RETAINED_ID, "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"),
 ];
 
 /// A reader's error text as `{code, detail}`: the code is the leading

@@ -15,17 +15,17 @@
     },
     "legacy_preview_0_1": {
       "path": "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
-      "sha256": "9100dae6c400dc367456945d32761e2e79b8a0ca8573dab316087612fa99dc15",
+      "sha256": "29fb7f684217da9cfcc2413fb49398406c778e3ca9c7b5a1ea5506d0fc9cd2bc",
       "shape": "raw"
     },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
-      "sha256": "cdaa8bf9bff5d9347f28bb61d530c6773f4f6728d5e349ff145dd5c30143b50e",
+      "sha256": "df20a8af2053e3ad6e549d0abac070c3e0f8535e13515ab2a34d40d526b029cd",
       "shape": "raw"
     },
     "source_blocks_n05_sparse": {
       "path": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
-      "sha256": "b8ac8eccef35a800fab7aaad71e107ed6c441d30aa2d2412176f7cb8e493965b",
+      "sha256": "5bebe342604c61814f99885eee1442fffe1ac5426d5443fb3b62bd1ded768ded",
       "shape": "raw"
     }
   },

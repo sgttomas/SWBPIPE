@@ -28,7 +28,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_physics_1.json'
 # selects its source with the table and unit authority. Re-pin deliberately whenever the reader changes.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
-TABLE_SHA256 = 'bf355681b69c6939c2f07c20d6e56f8bc4f1dbad4a3716becbea74e0ea0de3c6'
+TABLE_SHA256 = '2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd'
 DEPENDENCIES = {
     MODULE: 'eb51da2456754047f798dbf6d090f356d005de6afc27e3142458437054409bf4',
     TABLE: TABLE_SHA256,

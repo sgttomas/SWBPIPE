@@ -7124,8 +7124,8 @@ mod tests {
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
-            ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
+            ("sparse_interactive", 68931, "2475e50ac8770270f4099989309732f6cade2adacec9c3be0d104982f5d053d1"),
+            ("dense_scrutiny", 70049, "d6f8570ca1145f31697a2878500838e8697a99b940f0f718f3e23087b28450a4"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(

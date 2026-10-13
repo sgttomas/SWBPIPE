@@ -371,20 +371,6 @@ export function declaredSourceResultDimension(
     throw new Error("SUPPORT_COMPONENT_UNSUPPORTED");
   }
   const component = item.metadata?.component;
-  if (kind === "component_user_stiffness_macro_element_review") {
-    if (
-      component === "axial_user_stiffness" ||
-      component === "lateral_user_stiffness"
-    ) {
-      return "linear_stiffness";
-    }
-    if (
-      component === "angular_user_stiffness" ||
-      component === "torsional_user_stiffness"
-    ) {
-      return "rotational_stiffness";
-    }
-  }
   if (kind === "constant_effort_user_input_review") {
     if (component === "constant_effort_support_constant_load") return "force";
     if (component === "constant_effort_support_travel_range") return "length";
@@ -414,7 +400,6 @@ export function declaredSourceResultDimension(
     element_local_shear_force_z: "force",
     element_local_torsional_moment: "moment",
     element_local_torsional_shear_stress: "stress",
-    expansion_joint_pressure_thrust_load_review: "force",
     global_nodal_displacement_x: "length",
     global_nodal_displacement_y: "length",
     global_nodal_displacement_z: "length",

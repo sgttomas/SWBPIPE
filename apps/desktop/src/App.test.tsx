@@ -10638,11 +10638,8 @@ describe("SWBPIPE desktop preview", () => {
         }),
       ]),
     );
-    // No joint and no legacy pressure: no user-stiffness element and no thrust.
-    expect(exportPacket.component_user_stiffness_macro_element_count).toBe(0);
-    expect(exportPacket.component_user_stiffness_macro_element_evidence).toEqual([]);
-    expect(exportPacket.component_pressure_thrust_load_count).toBe(0);
-    expect(exportPacket.component_pressure_thrust_evidence).toEqual([]);
+    // H-4: the joint review and thrust row kinds are removed, and so are their packet sections.
+    for (const key of ["component_user_stiffness_macro_element_count", "component_user_stiffness_macro_element_evidence", "component_pressure_thrust_load_count", "component_pressure_thrust_evidence"]) expect(exportPacket).not.toHaveProperty(key);
     expect(exportPacket.spring_hanger_evidence_count).toBe(2);
     expect(exportPacket.spring_hanger_evidence).toEqual(
       expect.arrayContaining([

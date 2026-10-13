@@ -19,7 +19,7 @@ from typing import Any
 from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
-CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+CONTRACT_SHA256 = "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_source_blocks_1.json"
 SCHEMA_PATH = ROOT / "schemas/source_block_recovery.schema.json"

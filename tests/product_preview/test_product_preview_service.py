@@ -64,9 +64,9 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     # The demo's mechanics combination is withheld for its nonlinear supports.
     assert "NONLINEAR_COMBINATION_REQUIRES_SOLVE" in {item["code"] for item in result["diagnostics"]}
     assert result["summary"]["load_case_count"] == 2
-    # The demo has no legacy pressure and no expansion joint.
-    assert result["summary"]["component_pressure_thrust_load_count"] == 0
-    assert result["summary"]["component_user_stiffness_macro_element_count"] == 0
+    # The demo has no curved bend macro-element; H-4 removed the retired thrust count.
+    assert "component_pressure_thrust_load_count" not in result["summary"]
+    assert result["summary"]["curved_bend_macro_element_count"] == 0
     assert result["summary"]["max_displacement"]["result_ref"] == "result:disp:node-N-140"
     assert "result:force:pipe-P-120:axial" in result_ids
     assert "result:force:pipe-P-120:axial:end-j" in result_ids

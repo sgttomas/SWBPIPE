@@ -9,7 +9,7 @@ use std::sync::OnceLock;
 
 pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub const CONTRACT_SHA256: &str =
-    "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f";
+    "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b";
 // The fixed 64ε recipe envelope is separate from affine input uncertainty.
 // It covers divides, squares, ordered additions, sqrt, multiplication and tiny
 // normalized underflows with a unit largest component and normal final output.

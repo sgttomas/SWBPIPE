@@ -49,8 +49,6 @@ export function ReportPanel({
   const unitSystemDisclosure = result ? reportUnitSystemDisclosure(model, result) : null;
   const componentProvenance = result ? reportComponentProvenance(model, result) : [];
   const componentStressModifierEvidence = result ? reportComponentStressModifierEvidence(model, result) : [];
-  const componentUserStiffnessEvidence = result ? reportComponentUserStiffnessEvidence(model, result) : [];
-  const componentPressureThrustEvidence = result ? reportComponentPressureThrustEvidence(model, result) : [];
   const springHangerEvidence = result ? reportSpringHangerEvidence(model, result) : [];
   const severitySummary = countDiagnosticsBySeverity(diagnostics);
   const run = analysisRun?.analysis_run;
@@ -81,8 +79,6 @@ export function ReportPanel({
         unitSystemDisclosure,
 	        componentProvenance,
 	        componentStressModifierEvidence,
-	        componentUserStiffnessEvidence,
-	        componentPressureThrustEvidence,
 	        springHangerEvidence,
 	        resultRefs,
 	        diagnostics
@@ -145,16 +141,6 @@ export function ReportPanel({
               label="Component stress modifiers"
               value={formatComponentStressModifierSummary(componentStressModifierEvidence, result)}
               testId="report-component-stress-modifiers"
-            />
-            <ReportLine
-              label="Component stiffness inputs"
-              value={formatComponentUserStiffnessSummary(componentUserStiffnessEvidence)}
-              testId="report-component-stiffness-inputs"
-            />
-            <ReportLine
-              label="Component pressure thrust"
-              value={formatComponentPressureThrustSummary(componentPressureThrustEvidence)}
-              testId="report-component-pressure-thrust"
             />
             <ReportLine
               label="Spring hanger inputs"
@@ -330,12 +316,6 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
     const modifierRows = result.results.filter(
       (item) => item.kind === "component_user_stress_multiplier_review" && item.entity_ref === component.id
     );
-    const stiffnessRows = result.results.filter(
-      (item) => item.kind === "component_user_stiffness_macro_element_review" && item.entity_ref === component.id
-    );
-    const pressureThrustRows = result.results.filter(
-      (item) => item.kind === "expansion_joint_pressure_thrust_load_review" && item.entity_ref === component.id
-    );
     return {
       component_ref: component.id,
       component_kind: component.kind,
@@ -368,8 +348,6 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
       user_entered_angular_stiffness: component.modifiers?.angular_stiffness_user_value ?? null,
       user_entered_torsional_stiffness: component.modifiers?.torsional_stiffness_user_value ?? null,
       stress_modifier_result_refs: modifierRows.map((item) => item.id),
-      user_stiffness_result_refs: stiffnessRows.map((item) => item.id),
-      pressure_thrust_result_refs: pressureThrustRows.map((item) => item.id),
       private_payload_included: false,
       protected_content_included: false,
       release_or_professional_claim: false
@@ -392,56 +370,6 @@ function reportComponentStressModifierEvidence(model: PreviewModel, result: Mech
         recovery_basis: item.metadata?.basis ?? "not provided",
         sign_convention: item.metadata?.sign_convention ?? "not provided",
         modifier_source_ref: component?.modifiers?.source_reference ?? "not provided",
-        solver_consumption: component?.mechanics_interface?.solver_consumption ?? "not provided",
-        private_payload_included: false,
-        protected_content_included: false,
-        release_or_professional_claim: false
-      };
-    });
-}
-
-function reportComponentUserStiffnessEvidence(model: PreviewModel, result: MechanicsResult) {
-  return result.results
-    .filter((item) => item.kind === "component_user_stiffness_macro_element_review")
-    .map((item) => {
-      const component = model.components.find((candidate) => candidate.id === item.entity_ref);
-      return {
-        result_ref: item.id,
-        component_ref: item.entity_ref,
-        component_kind: component?.kind ?? "component",
-        value: item.value,
-        unit: item.unit,
-        source_result_refs: item.source_result_refs ?? [],
-        recovery_basis: item.metadata?.basis ?? "not provided",
-        sign_convention: item.metadata?.sign_convention ?? "not provided",
-        modifier_source_ref: component?.modifiers?.source_reference ?? "not provided",
-        solver_consumption: component?.mechanics_interface?.solver_consumption ?? "not provided",
-        pressure_thrust_reference: component?.geometry?.pressure_thrust_reference ?? "not provided",
-        private_payload_included: false,
-        protected_content_included: false,
-        release_or_professional_claim: false
-      };
-    });
-}
-
-function reportComponentPressureThrustEvidence(model: PreviewModel, result: MechanicsResult) {
-  return result.results
-    .filter((item) => item.kind === "expansion_joint_pressure_thrust_load_review")
-    .map((item) => {
-      const component = model.components.find((candidate) => candidate.id === item.entity_ref);
-      return {
-        result_ref: item.id,
-        component_ref: item.entity_ref,
-        component_kind: component?.kind ?? "component",
-        value: item.value,
-        unit: item.unit,
-        mapped_pipe_ref: component?.geometry?.expansion_joint_pipe_ref ?? item.metadata?.location ?? "not provided",
-        effective_area: component?.geometry?.effective_area ?? null,
-        source_result_refs: item.source_result_refs ?? [],
-        recovery_basis: item.metadata?.basis ?? "not provided",
-        sign_convention: item.metadata?.sign_convention ?? "not provided",
-        geometry_source_ref: component?.geometry?.expansion_joint_source_reference ?? "not provided",
-        pressure_thrust_reference: component?.geometry?.pressure_thrust_reference ?? "not provided",
         solver_consumption: component?.mechanics_interface?.solver_consumption ?? "not provided",
         private_payload_included: false,
         protected_content_included: false,
@@ -497,8 +425,6 @@ function reportSpringHangerEvidence(model: PreviewModel, result: MechanicsResult
 function formatComponentProvenanceSummary(records: ReturnType<typeof reportComponentProvenance>): string {
   if (records.length === 0) return "0 components";
   const stressRows = records.reduce((count, item) => count + item.stress_modifier_result_refs.length, 0);
-  const stiffnessRows = records.reduce((count, item) => count + item.user_stiffness_result_refs.length, 0);
-  const pressureThrustRows = records.reduce((count, item) => count + item.pressure_thrust_result_refs.length, 0);
   const bendRecords = records.filter((item) => item.component_kind === "bend" || item.component_kind === "elbow");
   const rigidRecords = records.filter((item) => isRigidComponentKind(item.component_kind));
   const expansionJointRecords = records.filter((item) => item.component_kind === "expansion_joint");
@@ -514,8 +440,6 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   return [
     `${records.length} component${records.length === 1 ? "" : "s"}`,
     `${stressRows} stress modifier row${stressRows === 1 ? "" : "s"}`,
-    `${stiffnessRows} stiffness input row${stiffnessRows === 1 ? "" : "s"}`,
-    `${pressureThrustRows} pressure thrust row${pressureThrustRows === 1 ? "" : "s"}`,
     `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}${expansionJointSummary}`
   ].join("; ");
 }
@@ -539,20 +463,6 @@ export function formatComponentStressModifierSummary(
     parts.push(`${intensified.length} intensified measure row${intensified.length === 1 ? "" : "s"} (${N_INTENSIFIED}); components=${components}`);
   }
   return parts.join("; ");
-}
-
-function formatComponentUserStiffnessSummary(records: ReturnType<typeof reportComponentUserStiffnessEvidence>): string {
-  if (records.length === 0) return "none supplied";
-  const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
-  const units = [...new Set(records.map((item) => item.unit))].join(", ");
-  return `${records.length} user-entered stiffness row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
-}
-
-function formatComponentPressureThrustSummary(records: ReturnType<typeof reportComponentPressureThrustEvidence>): string {
-  if (records.length === 0) return "none generated";
-  const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
-  const units = [...new Set(records.map((item) => item.unit))].join(", ");
-  return `${records.length} load-side pressure thrust row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
 }
 
 function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
@@ -653,8 +563,6 @@ function reportExportPacket({
   unitSystemDisclosure,
   componentProvenance,
   componentStressModifierEvidence,
-  componentUserStiffnessEvidence,
-  componentPressureThrustEvidence,
   springHangerEvidence,
   resultRefs,
   diagnostics
@@ -670,8 +578,6 @@ function reportExportPacket({
   unitSystemDisclosure: ReturnType<typeof reportUnitSystemDisclosure> | null;
   componentProvenance: ReturnType<typeof reportComponentProvenance>;
   componentStressModifierEvidence: ReturnType<typeof reportComponentStressModifierEvidence>;
-  componentUserStiffnessEvidence: ReturnType<typeof reportComponentUserStiffnessEvidence>;
-  componentPressureThrustEvidence: ReturnType<typeof reportComponentPressureThrustEvidence>;
   springHangerEvidence: ReturnType<typeof reportSpringHangerEvidence>;
   resultRefs: string[];
   diagnostics: Diagnostic[];
@@ -726,10 +632,6 @@ function reportExportPacket({
     component_provenance: componentProvenance,
     component_stress_modifier_evidence: componentStressModifierEvidence,
     component_stress_modifier_count: componentStressModifierEvidence.length,
-	    component_user_stiffness_macro_element_evidence: componentUserStiffnessEvidence,
-	    component_user_stiffness_macro_element_count: componentUserStiffnessEvidence.length,
-	    component_pressure_thrust_evidence: componentPressureThrustEvidence,
-	    component_pressure_thrust_load_count: componentPressureThrustEvidence.length,
 	    spring_hanger_evidence: springHangerEvidence,
 	    spring_hanger_evidence_count: springHangerEvidence.length,
 	    diagnostic_refs: diagnostics.map((item) => item.id ?? item.code),

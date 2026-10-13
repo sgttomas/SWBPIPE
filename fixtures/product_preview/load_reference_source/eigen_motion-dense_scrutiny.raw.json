@@ -3529,11 +3529,11 @@
         "publication_charged": 277284
       },
       "policy": "LOAD-REFERENCE-SOURCE-1",
-      "publication_sha256": "e500f8b651e8a345c5cf3bf06f5479c0e39f2708f7e8c77008dd253f8a5f7ff1",
+      "publication_sha256": "f7cd02701a2442b939fa469e8f9f0e369452e6fb2bd6879317b894e35b7e4597",
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "3248dd708f25377a848b4ef90c0d130a24eb8727ed0ee4c8d7e969ac0a991526"
+    "receipt_sha256": "97ee1c6899c8d8d993bd062f89d3eb7e4725a63b78cf81504a628823caf29dd6"
   },
   "formulation_basis": {
     "profile_id": "resolved_straight_load_state_source_v1",
@@ -3562,8 +3562,7 @@
     "support_count": 3,
     "load_case_count": 1,
     "component_stress_modifier_count": 0,
-    "component_user_stiffness_macro_element_count": 0,
-    "component_pressure_thrust_load_count": 0,
+    "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
       "value": 1.2010412149464313,

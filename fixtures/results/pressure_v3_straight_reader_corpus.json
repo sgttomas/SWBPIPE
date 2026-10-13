@@ -3747,9 +3747,8 @@
           "rule_check": "RULE_INPUTS_INCOMPLETE"
         },
         "summary": {
-          "component_pressure_thrust_load_count": 0,
           "component_stress_modifier_count": 0,
-          "component_user_stiffness_macro_element_count": 0,
+          "curved_bend_macro_element_count": 0,
           "load_case_count": 2,
           "max_displacement": {
             "location_ref": "node:fixture-tip",
@@ -7555,9 +7554,8 @@
           "rule_check": "RULE_INPUTS_INCOMPLETE"
         },
         "summary": {
-          "component_pressure_thrust_load_count": 0,
           "component_stress_modifier_count": 0,
-          "component_user_stiffness_macro_element_count": 0,
+          "curved_bend_macro_element_count": 0,
           "load_case_count": 2,
           "max_displacement": {
             "location_ref": "node:fixture-tip",
@@ -12436,9 +12434,8 @@
           "rule_check": "RULE_INPUTS_INCOMPLETE"
         },
         "summary": {
-          "component_pressure_thrust_load_count": 0,
           "component_stress_modifier_count": 0,
-          "component_user_stiffness_macro_element_count": 0,
+          "curved_bend_macro_element_count": 0,
           "load_case_count": 2,
           "max_displacement": {
             "location_ref": "node:middle",
@@ -17353,9 +17350,8 @@
           "rule_check": "RULE_INPUTS_INCOMPLETE"
         },
         "summary": {
-          "component_pressure_thrust_load_count": 0,
           "component_stress_modifier_count": 0,
-          "component_user_stiffness_macro_element_count": 0,
+          "curved_bend_macro_element_count": 0,
           "load_case_count": 2,
           "max_displacement": {
             "location_ref": "node:middle",

@@ -1211,18 +1211,20 @@ fn full_envelope_sha256(envelope: &MechanicsEnvelope) -> String {
 /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6 TEXT) re-pinned both
 /// modes: against main's envelope the only differences are the two linear
 /// limitation sentences and the source-recovery receipt's publication and
-/// receipt hashes, which bind those bytes.
+/// receipt hashes, which bind those bytes. B7a's H-4 re-pinned both modes for the
+/// summary (the curved macro-element count's name, the deleted retired thrust
+/// count) and the same two receipt hashes.
 #[test]
 fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes() {
     let request = coexistence_cx_f();
     for (mode, main_sha256) in [
         (
             PreviewSolverMode::SparseInteractive,
-            "6b2264e785db54403a4da04ece366a76b6db7ac95aabaed2629b594dd093f0f0",
+            "34bf67d3121a6cf37d548cf871dd916da425bd59b58e47634f351fa58d465767",
         ),
         (
             PreviewSolverMode::DenseScrutiny,
-            "9b7eb7e38759fa8353f093d04754d9b3978d912d7d2d8fc2d31bbc94a3b403c5",
+            "bfa30b77dc1a4214e08b449eb9a61fbb3831dcd735dbb8b03f262456d32e4a01",
         ),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
@@ -1317,7 +1319,9 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // Main's bytes plus K-D5's two linear-profile limitation
                 // sentences (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6
                 // TEXT): removing them recovers main's a29e29f2..., exactly.
-                "449b2786608ecf155f5f4d3faa5e0975615ae45cd0f125ba3e5c6713c51f005e",
+                // B7a's H-4 then changed the summary only (the curved
+                // macro-element count's name, the deleted retired thrust count).
+                "21c3117fa587dd0f89efbe17870f342781013bed76abf350c4e77827790768b4",
                 "{ctx}"
             );
         }

@@ -2434,7 +2434,7 @@ fn i51_c0_envelope(mut mode:ResultItem)->MechanicsEnvelope {
         run_id:"isolated_C0_no_solve".into(),model_ref:"fixture".into(),
         status:StatusEnvelope{mechanics:"MECHANICS_SOLVED".into(),rule_check:"not_performed".into(),professional_acceptance:"not_provided".into()},
         summary:Summary{node_count:2,segment_count:1,support_count:4,load_case_count:1,component_stress_modifier_count:0,
-            component_user_stiffness_macro_element_count:0,component_pressure_thrust_load_count:0,spring_hanger_user_input_count:0,
+            curved_bend_macro_element_count:0,spring_hanger_user_input_count:0,
             max_displacement:None,max_open_formula_stress:None},results:vec![mode],diagnostics:Vec::new(),
         professional_boundary:professional_boundary(),accepted_model_state_mutated:false}
 }

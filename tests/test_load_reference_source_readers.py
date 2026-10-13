@@ -46,8 +46,8 @@ NAMES = ["n05", "n06", "fields", "mixed", "eigen_motion"]
 MODES = {"sparse": "sparse_interactive", "dense": "dense_scrutiny"}
 JOINED = [f"{name}-{mode}" for name in NAMES for mode in MODES]
 FROZEN = {
-    "fixtures/results/semantic_contract_v0_3_load_reference_source_1.json": "9f41de5131b46cd6259933a2f596721cd6a739dd819d9446f7243ee6f9a117c1",
-    "fixtures/results/semantic_contract_v0_3_physics_source_1.json": "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94",
+    "fixtures/results/semantic_contract_v0_3_load_reference_source_1.json": "e69e3eeafbd31e9b630a6797a7affaab6796212d8992f77bf2a4d2569a4fa096",
+    "fixtures/results/semantic_contract_v0_3_physics_source_1.json": "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352",
 }
 INHERITED = "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
 MANIFEST = {"object_type": "InputManifest", "ref": "manifest:load-reference-source-reader-test"}

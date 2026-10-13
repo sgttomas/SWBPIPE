@@ -149,8 +149,9 @@ fn additive_signatures_follow_the_base_rows() {
     // B1 deleted the precision-1 table these rows were frozen against; the
     // non-composite table itself goes with B4/D1 (b).
     let new = semantic_contract::source_blocks_contract();
-    assert_eq!(new["source_signature_count"], 66);
-    for row in &new["rows"].as_array().unwrap()[60..] {
+    // H-4 removed the joint and thrust rows (five signatures) before them.
+    assert_eq!(new["source_signature_count"], 61);
+    for row in &new["rows"].as_array().unwrap()[55..] {
         assert_eq!(row["family"], "reaction");
         assert_eq!(row["kind"], "support_reaction_component_v2");
     }

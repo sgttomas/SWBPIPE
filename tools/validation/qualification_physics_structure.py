@@ -435,8 +435,8 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
         summary(details, 'max_displacement', 'result:disp:tip', 'displacement_magnitude', 'mm', 'tip')
         _input_model(request, case_binding['case_id'])
         for name, count in {'node_count': 2, 'segment_count': 1, 'support_count': 1, 'load_case_count': 1,
-                            'component_stress_modifier_count': 0, 'component_user_stiffness_macro_element_count': 0,
-                            'component_pressure_thrust_load_count': 0, 'spring_hanger_user_input_count': 0}.items():
+                            'component_stress_modifier_count': 0, 'curved_bend_macro_element_count': 0,
+                            'spring_hanger_user_input_count': 0}.items():
             _require(type(raw['summary'].get(name)) is int and raw['summary'][name] == count,
                      'summary count differs: ' + name)
 

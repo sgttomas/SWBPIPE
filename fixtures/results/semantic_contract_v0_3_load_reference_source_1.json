@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 75,
-  "source_kind_count": 54,
+  "source_signature_count": 70,
+  "source_kind_count": 52,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -594,76 +594,6 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-038",
-      "kind": "expansion_joint_pressure_thrust_load_review",
-      "unit": "N",
-      "component": "expansion_joint_pressure_thrust",
-      "source_physical_semantic_dimension": "force",
-      "derivative_target_dimension": "force",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "force",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-039",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N/m",
-      "component": "axial_user_stiffness",
-      "source_physical_semantic_dimension": "linear_stiffness",
-      "derivative_target_dimension": "linear_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "linear_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-040",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N/m",
-      "component": "lateral_user_stiffness",
-      "source_physical_semantic_dimension": "linear_stiffness",
-      "derivative_target_dimension": "linear_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "linear_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-041",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N*m/rad",
-      "component": "angular_user_stiffness",
-      "source_physical_semantic_dimension": "rotational_stiffness",
-      "derivative_target_dimension": "rotational_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "rotational_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-042",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N*m/rad",
-      "component": "torsional_user_stiffness",
-      "source_physical_semantic_dimension": "rotational_stiffness",
-      "derivative_target_dimension": "rotational_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "rotational_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
       "signature_id": "supported-source-043",
       "kind": "spring_hanger_user_input_review",
       "unit": "N/m",
@@ -1219,11 +1149,11 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94"
+      "sha256": "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
     },
     {
       "id": "openpipestress.result_semantics/0.3.0/load-reference-1",
-      "sha256": "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6"
+      "sha256": "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
     }
   ],
   "source_block_policy": "LOAD-REFERENCE-SOURCE-1",

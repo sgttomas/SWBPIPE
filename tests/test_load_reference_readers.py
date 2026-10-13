@@ -39,12 +39,12 @@ CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_referen
 CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
     "fixtures/product_preview/load_reference/connected.request.json": "ff0ce8724d7734c2cd8d10ce866085d80741adadc0da529521084dc8382453a2",
-    "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json": "7c61890113c0eb2fff897a90c2203fa441c9c171b4075458b5d04c1c80132a2a",
-    "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json": "e8d9a710d8f6168caae6617641875210906d84b9da717b8b187c2189e0122545",
+    "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json": "1215e981f8e011723fe9da632c8a3f3903675bad870aba3d5db32ff96fe8aad7",
+    "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json": "1e056fbf0235d4ed7201069a844224b5342969da6fcea3485ec272716637be48",
     "fixtures/product_preview/load_reference/pressure.request.json": "52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69",
-    "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "f903b96676baba1e0e4928c213aea5de0ed7d8900f784eedb6c787b9435dc99d",
-    "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "65111179cb376ea9849107e91720a93313cfb1a7979f16a506e0b0b1f55b5fbf",
-    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6",
+    "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": "0086998e6f2c8a381686d06a467f73d82e8723a8bd4aad3e77673f2e4e93ea02",
+    "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": "d0f2c85fb1fe186d14adcd10c35d94313cee017f4af9e0051a08b8bce94f3be3",
+    "fixtures/results/semantic_contract_v0_3_load_reference_1.json": "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4",
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]

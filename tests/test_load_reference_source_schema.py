@@ -48,13 +48,13 @@ LRSCHEMA = "load_reference_state.schema.json"
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 SOURCE_BLOCKS_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 PS_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PS_SHA = "5dd0614fe485a89f6c184be152d2d580a4deb9c85e88090a4f21a26ccc686a94"
+PS_SHA = "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
 PS_PROFILE = "exact_straight_pressure_v2"
 LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LR_SHA = "a2195fceaa2c5e490d9ab75c49193ee6dc807818eac48caf16c9d2190fa3f9a6"
+LR_SHA = "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
 LR_PROFILE = "resolved_straight_load_state_v1"
 LRS_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-LRS_SHA = "9f41de5131b46cd6259933a2f596721cd6a739dd819d9446f7243ee6f9a117c1"
+LRS_SHA = "e69e3eeafbd31e9b630a6797a7affaab6796212d8992f77bf2a4d2569a4fa096"
 LRS_PROFILE = "resolved_straight_load_state_source_v1"
 LRS_POLICY = "LOAD-REFERENCE-SOURCE-1"
 RETAINED = "retained_source_blocks_exact_v1"
@@ -63,17 +63,17 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "3c0216231a9b4fde531373ed6b9aec20de69098039d52960a9da3c1f87aac39f"
+SUCCESSOR_SHA = "9889e963fd8389de722ffa6bcf244fff686d2ff9af0279652de9a631ff687607"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "9865d9bfb9514bb6b207d6d5527b2987acba52b5710fdd618378910760ce03ac"
+EXACT_SHA = "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1 in the
 # results and analysis-run carriers; its export is refused by name (b7-plan D6), so the
 # stress-neutral package keeps the other nine branches.
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRS_SHA = "8a3e3ebb7df1d14bcc6ac4e31f23e865b1d0ded011832d29d97fa13a0f6f8681"
+PRS_SHA = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803"
 CARRIER_ORDER = [PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
 EXPORT_ORDER = [contract_id for contract_id in CARRIER_ORDER if contract_id != PRS_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 73,
-  "source_kind_count": 49,
+  "source_signature_count": 68,
+  "source_kind_count": 47,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -661,76 +661,6 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-038",
-      "kind": "expansion_joint_pressure_thrust_load_review",
-      "unit": "N",
-      "component": "expansion_joint_pressure_thrust",
-      "source_physical_semantic_dimension": "force",
-      "derivative_target_dimension": "force",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "force",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-039",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N/m",
-      "component": "axial_user_stiffness",
-      "source_physical_semantic_dimension": "linear_stiffness",
-      "derivative_target_dimension": "linear_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "linear_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-040",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N/m",
-      "component": "lateral_user_stiffness",
-      "source_physical_semantic_dimension": "linear_stiffness",
-      "derivative_target_dimension": "linear_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "linear_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-041",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N*m/rad",
-      "component": "angular_user_stiffness",
-      "source_physical_semantic_dimension": "rotational_stiffness",
-      "derivative_target_dimension": "rotational_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "rotational_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-042",
-      "kind": "component_user_stiffness_macro_element_review",
-      "unit": "N*m/rad",
-      "component": "torsional_user_stiffness",
-      "source_physical_semantic_dimension": "rotational_stiffness",
-      "derivative_target_dimension": "rotational_stiffness",
-      "category": "review_evidence",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": "rotational_stiffness",
-      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false
     },
     {
