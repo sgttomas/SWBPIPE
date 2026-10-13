@@ -1220,8 +1220,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current T4 batch-4 TEXT closure at C_eq = 3, maximum over the L/E routes.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 195_663_556, "current T4 batch-4 text closure at C_eq = 3, maximum over routes");
+    // Current TEXT closure (the join on T4 batch 4) at C_eq = 3, maximum over the L/E routes.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 195_666_497, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -1230,7 +1230,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_600_699, 2_330, 16_384, 24_558, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (2_600_699, 2_330, 16_384, 24_556, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1455,13 +1455,13 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The T4 batch-4 record on K-D5 priced at 9b128d5ed0: requested plus moving
-/// bytes without R, for the qualified build above. Each phase keeps its actual
-/// positive layout, source and TEXT charges; W3 (publication with the staged
-/// copy) is the maximum in both modes.
+/// The pressure-source join's record on T4 batch 4 priced at a5a4c96175:
+/// requested plus moving bytes without R, for the qualified build above. Each
+/// phase keeps its actual positive layout, source and TEXT charges; W3
+/// (publication with the staged copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_191_982_163, 5_515_414_125, 10_190_761_781, 9_966_703_850, 6_124_542_399, 9_989_145_754, 5_889_527_349],
-    [5_251_113_507, 5_574_545_469, 10_249_893_125, 10_025_835_194, 6_183_673_743, 10_048_277_098, 5_948_658_693],
+    [5_192_228_631, 5_515_660_593, 10_191_004_519, 9_966_957_656, 6_124_774_180, 9_989_373_579, 5_889_716_769],
+    [5_251_359_975, 5_574_791_937, 10_250_135_863, 10_026_089_000, 6_183_905_524, 10_048_504_923, 5_948_848_113],
 ];
 
 #[test]
@@ -1550,7 +1550,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 24_558, "current T4 batch-4 D_env at C_eq = 3");
+    assert_eq!(caps.complete[3], 24_556, "current D_env at C_eq = 3 (the join on T4 batch 4)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
