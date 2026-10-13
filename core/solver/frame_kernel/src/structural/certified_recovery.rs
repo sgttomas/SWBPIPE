@@ -448,7 +448,11 @@ fn member_pair(formula: &LoadFormula) -> Option<(usize, usize)> {
         }
         // Effective-force pressure nodal operands do not subtract from member
         // recovery; its mechanical wall action has its own pAi group.
-        LoadFormula::PressureOperand { .. } | LoadFormula::NodalProduct { .. } => None,
+        // Nonlinear sliding friction forces are nodal (kd5-nonlinear-active-set.md §3.1).
+        LoadFormula::PressureOperand { .. }
+        | LoadFormula::NodalProduct { .. }
+        | LoadFormula::SlidingFrictionExplicit { .. }
+        | LoadFormula::SlidingFrictionCoupled { .. } => None,
     }
 }
 impl<'a> CertifiedMemberLoads<'a> {
@@ -1335,6 +1339,147 @@ pub fn certify_support_reaction(
     }
     CertifiedRow::finish(sum_ball(&sum, radius)?, remainder, scale)
 }
+/// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §2.1): the ball of
+/// the displacement or rotation at `dof`, m = u + w + w2 as one exact sum and
+/// remainder 2^{exp}*LambdaSigma (A_r = e_dof). At a prescribed DOF there is
+/// no correction and no remainder.
+pub fn certify_displacement(
+    dof: usize,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, RecoveryFailure> {
+    evaluate_row(&[Ball::ONE], &[dof], Ball::ZERO, 0.0, u, bound)
+}
+/// Nonlinear K-D5 (§1.6, §3.1): one load primitive's re-formation at its
+/// row as a published scalar, fl(m) with B = |fl(m) - m| + r. The explicit
+/// sliding force has r = 0; the coupled force is its Stage-A ball.
+pub fn certify_load_primitive(primitive: &LoadPrimitive) -> Result<CertifiedRow, RecoveryFailure> {
+    let (m, r) = load_reformation(primitive)?;
+    let row = primitive.local_row;
+    if row >= 12 {
+        return Err(shape("load primitive row"));
+    }
+    let ball = Ball {
+        m: m[row],
+        r: finite(r[row], "load primitive radius")?,
+    };
+    CertifiedRow::finish(ball, 0.0, ball_magnitude(ball)?)
+}
+/// Exact sign of sum_i c_i*m_i + sum_k a_k*b_k + sum_j x_j (binary64 c, a,
+/// b, x; p=128 m). `None` when a midpoint's split truncates below the
+/// subnormal range, an operand is not finite or an exact sum leaves its
+/// range: no decision is then made, and every caller fails closed.
+fn exact_sign(terms: &[(f64, Wide2)], products: &[(f64, f64)], addends: &[f64]) -> Option<i8> {
+    let mut sum = ExactAccumulator::new();
+    for &(c, m) in terms {
+        let split = m.split_binary64().ok()?;
+        if split.truncated_below_min_subnormal() {
+            return None;
+        }
+        for &part in split.terms() {
+            sum.add_product(c, part).ok()?;
+        }
+    }
+    for &(a, b) in products {
+        if !(a.is_finite() && b.is_finite()) {
+            return None;
+        }
+        sum.add_product(a, b).ok()?;
+    }
+    for &x in addends {
+        if !x.is_finite() {
+            return None;
+        }
+        sum.add(x).ok()?;
+    }
+    Some(sum.signum())
+}
+impl CertifiedRow {
+    /// The decision radius of the true value about the midpoint: the
+    /// evaluation radius plus the remainder, upward (§2.1). The publication
+    /// rounding gap is not part of it: decisions use the midpoint m.
+    pub fn decision_radius(&self) -> f64 {
+        add_up(self.radius, self.remainder)
+    }
+    /// m - rho > x, decided exactly (§2.2).
+    pub fn lower_exceeds(&self, x: f64) -> bool {
+        exact_sign(&[(1.0, self.value.m)], &[], &[-self.decision_radius(), -x]) == Some(1)
+    }
+    /// m + rho < x, decided exactly (§2.2).
+    pub fn upper_below(&self, x: f64) -> bool {
+        exact_sign(&[(-1.0, self.value.m)], &[], &[-self.decision_radius(), x]) == Some(1)
+    }
+    /// +1 or -1 when the whole ball lies strictly on one side of zero.
+    pub fn established_sign(&self) -> Option<f64> {
+        if self.lower_exceeds(0.0) {
+            Some(1.0)
+        } else if self.upper_below(0.0) {
+            Some(-1.0)
+        } else {
+            None
+        }
+    }
+    fn midpoint_sign(&self) -> f64 {
+        if self.value.m.is_sign_negative() {
+            -1.0
+        } else {
+            1.0
+        }
+    }
+    /// Derived-normal stick capacity (§2.2): mu*(|m_n| - rho_n) > |m_t| + rho_t,
+    /// decided exactly in one exact sum; 0 must lie outside the normal ball.
+    pub fn stick_capacity_exceeds(normal: &Self, coefficient: f64, tangential: &Self) -> bool {
+        if !(coefficient.is_finite() && coefficient > 0.0) || normal.established_sign().is_none() {
+            return false;
+        }
+        exact_sign(
+            &[
+                (coefficient * normal.midpoint_sign(), normal.value.m),
+                (-tangential.midpoint_sign(), tangential.value.m),
+            ],
+            &[(-coefficient, normal.decision_radius())],
+            &[-tangential.decision_radius()],
+        ) == Some(1)
+    }
+    /// Explicit-normal stick capacity (§2.2): mu*N > |m_t| + rho_t with
+    /// N > 0, decided exactly.
+    pub fn stick_capacity_exceeds_explicit(coefficient: f64, normal: f64, tangential: &Self) -> bool {
+        if !(coefficient.is_finite() && coefficient > 0.0 && normal.is_finite() && normal > 0.0) {
+            return false;
+        }
+        exact_sign(
+            &[(-tangential.midpoint_sign(), tangential.value.m)],
+            &[(coefficient, normal)],
+            &[-tangential.decision_radius()],
+        ) == Some(1)
+    }
+    /// The enclosure of the true value as a ball: midpoint m, radius
+    /// evaluation radius + remainder (upward), for further ball arithmetic.
+    pub fn enclosure(&self) -> CertifiedValue {
+        CertifiedValue {
+            ball: Ball {
+                m: self.value.m,
+                r: self.decision_radius(),
+            },
+        }
+    }
+}
+impl CertifiedValue {
+    /// A binary64 midpoint with a binary64 radius.
+    pub fn with_radius(value: f64, radius: f64) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            ball: Ball {
+                m: Wide2::from_f64(value)?,
+                r: finite(radius, "certified value radius")?,
+            },
+        })
+    }
+    /// The published scalar of this ball: fl(m) with B = |fl(m) - m| + r.
+    pub fn into_row(self) -> Result<CertifiedRow, RecoveryFailure> {
+        CertifiedRow::finish(self.ball, 0.0, ball_magnitude(self.ball)?)
+    }
+}
+
 /// Spring support-on-pipe sign is negative on ordinary and W2 routes.
 pub fn certify_spring_reaction(
     dof: usize,

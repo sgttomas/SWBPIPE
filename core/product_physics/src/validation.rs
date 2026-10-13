@@ -90,6 +90,18 @@ fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Ve
                 vec![nonlinear_support.id.clone(), nonlinear.dof.clone()],
             ));
         }
+        // DEL-04-01 kd5-nonlinear-active-set.md (manager's ruling, 2026-10-12):
+        // a rotational friction support would apply mu*N, a force, as a
+        // moment; it is unit-inconsistent and refused by name.
+        if nonlinear.behavior == "friction" && !nonlinear_dof.is_translational() {
+            diagnostics.push(diag(
+                &format!("diagnostic:support:{}:rotational-friction", nonlinear_support.id),
+                "NONLINEAR_ROTATIONAL_FRICTION_UNSUPPORTED",
+                "blocking",
+                "a friction support acts on a translational DOF: its force mu*N cannot act on a rotation. This record remains editable, but solving is blocked",
+                vec![nonlinear_support.id.clone(), nonlinear.dof.clone()],
+            ));
+        }
         for linear_support in model
             .supports
             .iter()

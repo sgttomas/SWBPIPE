@@ -199,10 +199,13 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert nonlinear_friction_state["metadata"]["basis"].endswith("final_state=sliding")
     assert nonlinear_friction_displacement["value"] != 0
     # Generated-fixture parity plus the accepted same-iterate current-normal law.
-    # The joint-free normal is the independent record's 52.37 N (I111 O6).
-    assert nonlinear_friction_reaction["value"] == 0.5237328200600512
+    # The joint-free normal is the independent record's 52.37 N (I111 O6). The
+    # confirmed case publishes the certified coupled friction force and the
+    # source restraint's certified reaction (DEL-04-01
+    # kd5-nonlinear-active-set.md section 3.1 and section 3.4, R4).
+    assert nonlinear_friction_reaction["value"] == 0.5237328198735871
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 52.373281987314456
+    assert nonlinear_friction_normal["value"] == 52.373281987358716
     assert round(nonlinear_friction_reaction["value"], 6) == round(
         0.01 * nonlinear_friction_normal["value"], 6
     )

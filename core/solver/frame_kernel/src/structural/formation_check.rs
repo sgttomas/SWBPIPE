@@ -235,6 +235,27 @@ pub enum LoadFormula {
     ConnectorReference {
         connector: ObjectiveConnector,
     },
+    /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): an
+    /// explicit-normal sliding friction force, -direction*coefficient*|normal|,
+    /// re-formed as the exact product of the binary64 inputs (not fl(mu*N)).
+    SlidingFrictionExplicit {
+        global_dof: usize,
+        coefficient: f64,
+        normal: f64,
+        direction: f64,
+    },
+    /// Nonlinear K-D5 (§1.4, Stage B): a derived-normal sliding friction force,
+    /// re-formed as the Stage-A ball (midpoint, radius) that contains the
+    /// coupled force; the radius is a load enclosure radius in psi.
+    SlidingFrictionCoupled {
+        global_dof: usize,
+        coefficient: f64,
+        direction: f64,
+        beta: f64,
+        source_dof: usize,
+        midpoint: f64,
+        radius: f64,
+    },
 }
 /// One supplied primitive; `local_row` selects its component in a member vector.
 #[derive(Debug, Clone, PartialEq)]
@@ -390,6 +411,42 @@ where
     A: Fn(usize, usize) -> f64,
     P: Fn(usize, usize) -> f64,
 {
+    check_at(
+        system,
+        source,
+        ledger,
+        scale_exponents,
+        u,
+        condition,
+        assembled,
+        projected,
+        solve,
+        true,
+        None,
+    )
+}
+/// `check` at a supplied u with the D5C-1 rule on or off and an optional
+/// per-attempt epsilon_E cache (kd5-nonlinear-active-set.md §1.5): the
+/// confirmation attempt evaluates several systems that share one factor.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn check_at<F, A, P>(
+    system: &StructuralSystem<'_>,
+    source: &FormationSource,
+    ledger: Option<&crate::load_ledger::AssembledForce>,
+    scale_exponents: &[i32],
+    u: &[f64],
+    condition: (f64, f64, f64),
+    assembled: &A,
+    projected: &P,
+    solve: &F,
+    judged: bool,
+    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
+) -> (Option<FormationCheck>, Option<MemberBoundInputs>)
+where
+    F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
+    A: Fn(usize, usize) -> f64,
+    P: Fn(usize, usize) -> f64,
+{
     if let Some(family) = source.unavailable.first() {
         return (Some(FormationCheck::unavailable(family.clone())), None);
     }
@@ -403,6 +460,8 @@ where
         assembled,
         projected,
         solve,
+        judged,
+        epsilon_cache,
     ) {
         Ok(result) => result,
         Err(failure) => (Some(FormationCheck::unavailable(failure.detail())), None),
@@ -436,7 +495,9 @@ fn load_closure(
             )));
         }
         let pair = match &p.formula {
-            LoadFormula::NodalProduct { global_dof, .. } => {
+            LoadFormula::NodalProduct { global_dof, .. }
+            | LoadFormula::SlidingFrictionExplicit { global_dof, .. }
+            | LoadFormula::SlidingFrictionCoupled { global_dof, .. } => {
                 if *global_dof != terms[p.term_index].dof || p.local_row != global_dof % 6 {
                     return Err(Failure::Closure(format!(
                         "{}: nodal source DOF binding",
@@ -774,6 +835,8 @@ fn evaluate<F, A, P>(
     assembled: &A,
     projected: &P,
     solve: &F,
+    judged: bool,
+    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
 ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), Failure>
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -821,9 +884,15 @@ where
     }
     subtract_action(source, &index, u, &mut rho, &mut psi)?;
     let w = correction(&rho, free, scale_exponents, n, solve)?;
-    let scales = body_scales(source, free, u);
+    let scales = if judged {
+        body_scales(source, free, u)
+    } else {
+        Vec::new()
+    };
     let mut worst: Option<FormationCheck> = None;
-    for &i in free {
+    // An unjudged evaluation (the nonlinear influence system, §1.4 A-2)
+    // publishes nothing: D5C-1 does not apply to it.
+    for &i in free.iter().filter(|_| judged) {
         let (tr, ro) = scales[i / 6];
         let scale = u[i].abs().max(if i % 6 >= 3 { ro } else { tr });
         let doubled = FORMATION_FACTOR * w[i].abs();
@@ -886,14 +955,23 @@ where
         sigma = sigma.max(add_up(magnitude, scale_up(p, e)));
     }
     drop(rho);
-    let epsilon = epsilon_e(
-        system,
-        source,
-        &index,
-        scale_exponents,
-        assembled,
-        projected,
-    )?;
+    let epsilon = match epsilon_cache.and_then(std::cell::Cell::get) {
+        Some(epsilon) => epsilon,
+        None => {
+            let epsilon = epsilon_e(
+                system,
+                source,
+                &index,
+                scale_exponents,
+                assembled,
+                projected,
+            )?;
+            if let Some(cache) = epsilon_cache {
+                cache.set(Some(epsilon));
+            }
+            epsilon
+        }
+    };
     let (_rcond, est, _norm) = condition;
     let inverse = mul_up(1024.0, est);
     let neumann = mul_up(inverse, epsilon);
@@ -1351,6 +1429,27 @@ impl LoadFormula {
                     bits(out, r);
                 }
                 bits(out, c.q_ref());
+            }
+            Self::SlidingFrictionExplicit {
+                global_dof,
+                coefficient,
+                normal,
+                direction,
+            } => {
+                out.extend([8, *global_dof as u64]);
+                bits(out, [*coefficient, *normal, *direction]);
+            }
+            Self::SlidingFrictionCoupled {
+                global_dof,
+                coefficient,
+                direction,
+                beta,
+                source_dof,
+                midpoint,
+                radius,
+            } => {
+                out.extend([9, *global_dof as u64, *source_dof as u64]);
+                bits(out, [*coefficient, *direction, *beta, *midpoint, *radius]);
             }
         }
     }
@@ -1964,6 +2063,33 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             }
             out
         }
+        LoadFormula::SlidingFrictionExplicit {
+            coefficient,
+            normal,
+            direction,
+            ..
+        } => [sliding_friction_exact(&mut b, *coefficient, *normal, *direction)?; 12],
+        LoadFormula::SlidingFrictionCoupled {
+            coefficient,
+            direction,
+            beta,
+            midpoint,
+            radius,
+            ..
+        } => {
+            if !(coefficient.is_finite() && *coefficient > 0.0)
+                || !matches!(*direction, 1.0 | -1.0)
+                || !matches!(*beta, 1.0 | -1.0)
+                || !midpoint.is_finite()
+                || !(radius.is_finite() && *radius >= 0.0)
+            {
+                return Err(bad_load("coupled sliding friction operands"));
+            }
+            [Ball {
+                m: Wide2::from_f64(*midpoint)?,
+                r: *radius,
+            }; 12]
+        }
     };
     for value in &mut out {
         value.m = value.m.mul_pow2(i64::from(p.force_scale_exponent))?;
@@ -1971,6 +2097,38 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
         finite(value.r, "scaled load radius")?;
     }
     Ok((out.map(|v| v.m), out.map(|v| v.r)))
+}
+/// -direction*coefficient*|normal| as the exact product of two binary64
+/// values (kd5-nonlinear-active-set.md §1.3): its two-product hi + lo is
+/// exact whenever lo cannot underflow, and then the radius is 0. A product
+/// near the subnormal range falls back to the ball product with its radius.
+fn sliding_friction_exact(
+    b: &mut Balls,
+    coefficient: f64,
+    normal: f64,
+    direction: f64,
+) -> Result<Ball, LoadFailure> {
+    if !(coefficient.is_finite() && coefficient > 0.0)
+        || !normal.is_finite()
+        || !matches!(direction, 1.0 | -1.0)
+    {
+        return Err(bad_load("explicit sliding friction operands"));
+    }
+    let magnitude = normal.abs();
+    let hi = coefficient * magnitude;
+    let value = if hi.is_finite() && (hi == 0.0 || hi >= 2.0_f64.powi(-900)) {
+        let lo = coefficient.mul_add(magnitude, -hi);
+        let mut a = WideArith::new(FORMATION_PRECISION)?;
+        Ball {
+            m: a.add(&Wide2::from_f64(hi)?, &Wide2::from_f64(lo)?)?,
+            r: 0.0,
+        }
+    } else {
+        let c = b.lift(coefficient)?;
+        let n = b.lift(magnitude)?;
+        b.mul(c, n)?
+    };
+    Ok(if direction > 0.0 { value.neg() } else { value })
 }
 fn pressure_force(b: &mut Balls, p: f64, od: f64, t: f64) -> Result<Ball, LoadFailure> {
     let pi = ball_pi(b)?;

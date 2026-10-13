@@ -228,14 +228,11 @@
         "ok": true,
         "route": "preview_physics",
         "standing": {
-          "eligible": false,
-          "findings": [
-            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
-            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
-          ],
+          "eligible": true,
+          "findings": [],
           "route": "preview_physics",
-          "status": "needs_recompute",
-          "token": "needs_recompute"
+          "status": "integrity_checked",
+          "token": "numerically_eligible"
         }
       },
       "id": "results/preview_physics_invented_sparse",
@@ -890,14 +887,11 @@
         "ok": true,
         "route": "preview_physics",
         "standing": {
-          "eligible": false,
-          "findings": [
-            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
-            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
-          ],
+          "eligible": true,
+          "findings": [],
           "route": "preview_physics",
-          "status": "needs_recompute",
-          "token": "needs_recompute"
+          "status": "integrity_checked",
+          "token": "numerically_eligible"
         }
       },
       "id": "results/preview_physics_invented_dense",
@@ -3514,10 +3508,8 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
             "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-            "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
-            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
           ],
           "route": "preview_physics",
           "status": "needs_recompute",
@@ -4178,10 +4170,8 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
             "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
-            "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
-            "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
           ],
           "route": "preview_physics",
           "status": "needs_recompute",
