@@ -1219,9 +1219,9 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The record priced at ba5dddd098 (nonlinear K-D5 on T4 batch 4; DEL-05-02
-/// retained-pricing-rules.md section G): requested plus moving bytes without
-/// R, for the qualified build above. Each phase keeps its actual
+/// The record priced at e0ec460bf3 (nonlinear K-D5 on T4 batch 4, merged with
+/// main's memory pool; DEL-05-02 retained-pricing-rules.md section G):
+/// requested plus moving bytes without R, for the qualified build above. Each phase keeps its actual
 /// positive layout, source and TEXT charges; W3 (publication with the staged
 /// copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
