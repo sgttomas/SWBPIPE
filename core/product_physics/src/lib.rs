@@ -21,6 +21,11 @@ pub use case_state::{
     LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID,
     LOAD_STATE_SOURCE_PROFILE_ID,
 };
+mod model_format;
+pub use model_format::{
+    is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
+    MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
+};
 mod pressure_sum;
 pub mod self_weight;
 mod source_recovery;
@@ -13732,7 +13737,7 @@ mod tests {
         assert!(force.closure_records()[0].formed);
         assert!(matches!(force.load_primitives()[0].formula,LoadFormula::NodalProduct {global_dof:7,magnitude:0.1,factor:1.1}));
         // An un-factored authored nodal term stays an input term.
-        model.schema_version="0.2.0".into();nodal.nodal_loads[0].value=0.1;
+        model.schema_version=crate::MODEL_SCHEMA_VERSION.into();nodal.nodal_loads[0].value=0.1;
         let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
         let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
     }
@@ -14074,7 +14079,7 @@ mod tests {
     fn precision_request(length: f64, torque: f64) -> LinearStaticPreviewRequest {
         // Reuse authored shape/provenance only; independent annulus/TL/GJ is below.
         let mut input = dec092_temperature_g_request();
-        input.model.schema_version = "0.2.0".to_string();
+        input.model.schema_version = crate::MODEL_SCHEMA_VERSION.to_string();
         input.model.nodes[1].position.x = length;
         input.model.pipe_segments[0].section.outside_diameter.value = 0.20;
         input.model.load_cases.truncate(1);

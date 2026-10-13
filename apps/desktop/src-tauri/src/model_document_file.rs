@@ -3,8 +3,8 @@
 //!
 //! The native side reads the file the user chose, parses it and applies the
 //! file-level checks: readable, bounded size, one JSON object, the product's
-//! model document kind, and a `schema_version` that the existing model-document
-//! evaluation does not refuse. The webview then checks the desktop document
+//! model document kind, and a `schema_version` that the model-document version
+//! check does not refuse. The webview then checks the desktop document
 //! shape (`src/features/model-file/modelDocumentShape.ts`) before the session
 //! adopts the document.
 //!
@@ -12,7 +12,7 @@
 //! normalization is applied here, so the session's model hash is the hash of
 //! the file's document. Every refusal is named.
 
-use crate::model_document_migration::{evaluate_model_document, model_document_migrations};
+use crate::model_document_version::evaluate_model_document;
 use serde::Serialize;
 use serde_json::Value;
 use std::{fs, io::Read, path::Path};
@@ -21,8 +21,6 @@ use std::{fs, io::Read, path::Path};
 pub const MODEL_DOCUMENT_KIND: &str = "openpipestress.product_preview.model";
 /// Upper bound on a model document file. Larger files are refused before parsing.
 pub const MAX_MODEL_DOCUMENT_BYTES: u64 = 64 * 1024 * 1024;
-/// `evaluate_model_document` statuses that project open also refuses.
-const REFUSED_SCHEMA_STATUSES: [&str; 3] = ["newer_than_supported", "unsupported_schema", "failed"];
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct ModelFileDiagnostic {
@@ -123,22 +121,22 @@ pub fn read_model_document_bytes(file_name: String, bytes: &[u8]) -> ModelDocume
             );
         }
     }
-    let evaluated = evaluate_model_document(&document, &model_document_migrations());
-    if REFUSED_SCHEMA_STATUSES.contains(&evaluated.status.status.as_str()) {
+    let evaluated = evaluate_model_document(&document);
+    if evaluated.is_refused() {
         return refused(
             file_name,
             "MODEL-FILE-SCHEMA-REFUSED",
             "schema_version",
             format!(
                 "schema_version `{}` refused ({}): {}",
-                evaluated.status.source_schema_version, evaluated.status.status, evaluated.status.detail
+                evaluated.source_schema_version, evaluated.status, evaluated.detail
             ),
         );
     }
     ModelDocumentOpenOutcome::Opened {
         file_name,
         byte_count,
-        schema_status: evaluated.status.status,
+        schema_status: evaluated.status,
         document,
     }
 }
@@ -181,6 +179,20 @@ mod tests {
             let mut document: Value = serde_json::from_str(DEMO).unwrap();
             document["schema_version"] = json!(version);
             assert_eq!(named(document.to_string().as_bytes()), "MODEL-FILE-SCHEMA-REFUSED", "{version}");
+        }
+        // B7a: the retired 0.1.0 and 0.2.0 are refused by name with the re-author
+        // diagnostic, never migrated.
+        for version in ["0.1.0", "0.2.0"] {
+            let mut document: Value = serde_json::from_str(DEMO).unwrap();
+            document["schema_version"] = json!(version);
+            let outcome = read_model_document_bytes("m.json".into(), document.to_string().as_bytes());
+            let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
+                panic!("{version} opened: {outcome:?}");
+            };
+            assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED", "{version}");
+            assert_eq!(diagnostics[0].path, "schema_version");
+            let message = &diagnostics[0].message;
+            assert!(message.contains("retired_schema") && message.contains("MODEL_SCHEMA_VERSION_RETIRED") && message.contains("re-author"), "{message}");
         }
         let mut document: Value = serde_json::from_str(DEMO).unwrap();
         document.as_object_mut().unwrap().remove("schema_version");

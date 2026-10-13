@@ -123,7 +123,7 @@ describe("File > Open Model Document…", () => {
     let solved: unknown = null;
     invokeMock.mockImplementation((command: string, args?: { model?: unknown }) => {
       if (command === "open_model_document_file") {
-        return Promise.resolve({ outcome: "opened", file_name: "opened.json", byte_count: 1234, schema_status: "migrated", document: clone(document) });
+        return Promise.resolve({ outcome: "opened", file_name: "opened.json", byte_count: 1234, schema_status: "current", document: clone(document) });
       }
       if (command === "start_preview_mechanics_job_with_solver_mode") {
         solved = args?.model;
@@ -135,7 +135,7 @@ describe("File > Open Model Document…", () => {
     await renderApp();
     act(() => nativeMenuCommand("file.open-model"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent(
-      "Opened model document opened.json (1234 bytes; schema_version 0.1.0, migrated when saved as a project). Not saved as a local project yet."
+      "Opened model document opened.json (1234 bytes; schema_version 0.5.0, current). Not saved as a local project yet."
     ));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(document.project.id)}`)).toBeInTheDocument();
     expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`)).not.toBeInTheDocument();
@@ -166,7 +166,7 @@ describe("File > Open Model Document…", () => {
   it("leaves the session as it was on a named refusal and on a cancelled chooser", async () => {
     const answers = [
       { outcome: "refused", file_name: "new.json", diagnostics: [{ code: "MODEL-FILE-SCHEMA-REFUSED", path: "schema_version", message: "schema_version `9.0.0` refused (newer_than_supported)." }] },
-      { outcome: "opened", file_name: "request.json", byte_count: 10, schema_status: "migrated", document: clone(milestoneRequest.model) },
+      { outcome: "opened", file_name: "request.json", byte_count: 10, schema_status: "current", document: clone(milestoneRequest.model) },
       { outcome: "cancelled" }
     ];
     invokeMock.mockImplementation((command: string) => {

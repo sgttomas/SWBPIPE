@@ -806,7 +806,8 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
 /// `PressureContract`, as any other contract outside L and E.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum NamespaceBranch {
-    /// L, the pressure-free preview route: schema 0.1.0 or 0.2.0, no pressure contract.
+    /// L, the pressure-free preview route: a current-version (0.5.0) document that carries no
+    /// pressure contract (`model_format::is_pressure_free`). The contract's absence selects it.
     Preview,
     /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
     /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
@@ -819,10 +820,12 @@ fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &st
 }
 /// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
 pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
+    if crate::model_format::is_pressure_free(m) {
+        return Ok(NamespaceBranch::Preview);
+    }
     match (m.schema_version.as_str(), &m.pressure_contract) {
-        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Preview),
         ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
-        ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
+        (crate::MODEL_SCHEMA_VERSION | "0.3.0", _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),
     }
 }
@@ -861,7 +864,7 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
     // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
-    // branch L, 0.1.0 or 0.2.0 with no pressure contract; or branch E (B3b), 0.3.0 with
+    // branch L, a pressure-free 0.5.0 document (no pressure contract); or branch E (B3b), 0.3.0 with
     // exactly `{version "2.0.0", mode "exact_straight_pressure_v2"}` (0.4.0 stays out). A
     // schema in no branch refuses with `SchemaVersion`, a contract that does not match its
     // schema's branch with `PressureContract`. Then, on every branch, no sections (S-4).

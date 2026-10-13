@@ -123,10 +123,10 @@ pub(crate) fn refuse_legacy_joints(model: &PreviewModel, diagnostics: &mut Vec<D
     }
 }
 
-/// The annotation disclosure, on the pressure-free route only (model documents
-/// 0.1.0 and 0.2.0): the joint is analysed as the pipe it sits on.
+/// The annotation disclosure, on the pressure-free route only (a model document
+/// without a pressure contract): the joint is analysed as the pipe it sits on.
 pub(crate) fn disclose_annotation_joints(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
-    if !matches!(model.schema_version.as_str(), "0.1.0" | "0.2.0") {
+    if !crate::model_format::is_pressure_free(model) {
         return;
     }
     for component in &model.components {

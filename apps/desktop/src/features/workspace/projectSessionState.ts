@@ -3,9 +3,8 @@ import type {
   LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
-  ModelDocumentMigrationStatus,
+  ModelDocumentVersionStatus,
   ModelHashIntegrityEvidence,
-  ModelMigrationLedgerRecord,
   ProjectEnvelopeHashEvidence,
   ProjectEnvelopeHashIntegrityEvidence
 } from "../../types";
@@ -13,7 +12,7 @@ import type {
 /**
  * The project cells of the workspace session: the project request counter, the
  * storage capability, the project summary and index, the hash, integrity and
- * migration evidence of the open project, and the project message, operation
+ * version evidence of the open project, and the project message, operation
  * and busy flag. It declares no effect and no handler.
  *
  * Called only by the session, which is `useWorkspaceSession` in
@@ -29,8 +28,7 @@ export function useProjectSessionState() {
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
   const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
   const [projectEnvelopeHash, setProjectEnvelopeHash] = useState<ProjectEnvelopeHashEvidence | null>(null);
-  const [modelDocumentMigration, setModelDocumentMigration] = useState<ModelDocumentMigrationStatus | null>(null);
-  const [modelMigrationLedger, setModelMigrationLedger] = useState<ModelMigrationLedgerRecord[]>([]);
+  const [modelDocumentVersion, setModelDocumentVersion] = useState<ModelDocumentVersionStatus | null>(null);
   const [projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity] =
     useState<ProjectEnvelopeHashIntegrityEvidence | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
@@ -44,8 +42,7 @@ export function useProjectSessionState() {
     projectIndex, setProjectIndex,
     modelHashIntegrity, setModelHashIntegrity,
     projectEnvelopeHash, setProjectEnvelopeHash,
-    modelDocumentMigration, setModelDocumentMigration,
-    modelMigrationLedger, setModelMigrationLedger,
+    modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
     projectMessage, setProjectMessage,
     projectOperation, setProjectOperation,

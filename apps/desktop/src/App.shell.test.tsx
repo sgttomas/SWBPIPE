@@ -126,8 +126,7 @@ function inventedOpenEnvelope(model: PreviewModel): LocalProjectEnvelope {
     analysis_run: null,
     model_hash: null,
     project_envelope_hash: null,
-    model_document_migration: null,
-    model_migration_ledger: [],
+    model_document_version: null,
   };
 }
 

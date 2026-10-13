@@ -139,7 +139,7 @@ fn captured_context_does_not_infer_a_contract_from_a_publication_claim() {
         );
     }
     let mut preview = request(false, false);
-    preview["model"]["schema_version"] = json!("0.1.0");
+    preview["model"]["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
     preview["model"]
         .as_object_mut()
         .unwrap()
@@ -545,7 +545,7 @@ fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
             assert_eq!(capture.context,Some(selected));
             // The caller's typed half may be normalized/changed later. Neither
             // it nor an envelope label can redefine this capture's context.
-            typed.model.schema_version="0.1.0".into();
+            typed.model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
             typed.model.pressure_contract=None;
             for _ in 0..8 { assert_eq!(capture.composite_context(),Ok(selected)); }
             assert_eq!(capture.borrowed_raw(),&before);

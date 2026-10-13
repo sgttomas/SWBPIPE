@@ -1,15 +1,12 @@
 mod atomic_report_package_save;
 mod model_document_file;
-mod model_document_migration;
+mod model_document_version;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 
-use model_document_migration::{
-    evaluate_model_document, migration_ledger_record, model_document_migrations,
-    EvaluatedModelDocument, ModelDocumentMigrationStatus,
-};
+use model_document_version::{evaluate_model_document, ModelDocumentVersionStatus};
 use open_pipe_stress_library_import_document as library_import_document;
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::PreviewSolverMode;
@@ -516,8 +513,9 @@ struct LocalProjectEnvelope {
     analysis_run: Value,
     model_hash: Value,
     project_envelope_hash: Value,
-    model_document_migration: Value,
-    model_migration_ledger: Value,
+    /// The document's version status (DEL-02-05 CLM-003): always `current` for an
+    /// envelope the store returns, since every other version is refused.
+    model_document_version: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -539,10 +537,6 @@ struct SaveLocalProjectRequest {
     model_hash: Value,
     #[serde(default)]
     project_envelope_hash: Value,
-    /// Open-time migration status passed back by the UI so persisting a
-    /// migrated document can write its ledger record (DEC-019).
-    #[serde(default)]
-    model_document_migration: Value,
     /// The stored revision the user chose to Replace in the prompt, if any.
     /// See `refuse_unconfirmed_replacement`.
     #[serde(default)]
@@ -1008,11 +1002,10 @@ fn upsert_project(
     analysis_run: &Value,
     model_hash: &Value,
     project_envelope_hash: &Value,
-    model_migration_ledger: &Value,
 ) -> Result<(), String> {
     let transaction = immediate_transaction(connection)?;
     write_project_rows(&transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
-        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger,)?;
+        mechanics_result, analysis_run, model_hash, project_envelope_hash)?;
     transaction.commit().map_err(|error| error.to_string())
 }
 
@@ -1035,11 +1028,10 @@ fn guarded_write_project_rows(
     analysis_run: &Value,
     model_hash: &Value,
     project_envelope_hash: &Value,
-    model_migration_ledger: &Value,
 ) -> Result<(), String> {
     refuse_unconfirmed_replacement(transaction, project_id, confirmed_revision, expected_base)?;
     write_project_rows(transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
-        mechanics_result, analysis_run, model_hash, project_envelope_hash, model_migration_ledger)
+        mechanics_result, analysis_run, model_hash, project_envelope_hash)
 }
 
 fn immediate_transaction(connection: &mut Connection) -> Result<rusqlite::Transaction<'_>, String> {
@@ -1060,7 +1052,6 @@ fn write_project_rows(
     analysis_run: &Value,
     model_hash: &Value,
     project_envelope_hash: &Value,
-    model_migration_ledger: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
@@ -1075,8 +1066,6 @@ fn write_project_rows(
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let project_envelope_hash_json =
         serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
-    let model_migration_ledger_json =
-        serde_json::to_string(model_migration_ledger).map_err(|error| error.to_string())?;
     let search_text = format!(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
@@ -1084,8 +1073,8 @@ fn write_project_rows(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?11)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
@@ -1096,7 +1085,6 @@ fn write_project_rows(
                 analysis_run_json = excluded.analysis_run_json,
                 model_hash_json = excluded.model_hash_json,
                 project_envelope_hash_json = excluded.project_envelope_hash_json,
-                model_migration_ledger_json = excluded.model_migration_ledger_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -1110,7 +1098,6 @@ fn write_project_rows(
                 analysis_run_json,
                 model_hash_json,
                 project_envelope_hash_json,
-                model_migration_ledger_json,
                 now
             ],
         )
@@ -1144,7 +1131,6 @@ struct StoredProjectRecord {
     analysis_run: Value,
     model_hash: Value,
     project_envelope_hash: Value,
-    model_migration_ledger: Value,
 }
 
 fn load_project(
@@ -1152,7 +1138,6 @@ fn load_project(
     project_id: Option<&str>,
 ) -> Result<Option<StoredProjectRecord>, String> {
     type StoredRow = (
-        String,
         String,
         String,
         String,
@@ -1176,14 +1161,13 @@ fn load_project(
             row.get::<_, String>(7)?,
             row.get::<_, String>(8)?,
             row.get::<_, String>(9)?,
-            row.get::<_, String>(10)?,
         ))
     }
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -1195,7 +1179,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -1218,7 +1202,6 @@ fn load_project(
             analysis_run_json,
             model_hash_json,
             project_envelope_hash_json,
-            model_migration_ledger_json,
         )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
@@ -1237,9 +1220,6 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let project_envelope_hash = serde_json::from_str::<Value>(&project_envelope_hash_json)
                 .map_err(|error| error.to_string())?;
-            let model_migration_ledger =
-                serde_json::from_str::<Value>(&model_migration_ledger_json)
-                    .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -1251,7 +1231,6 @@ fn load_project(
                 analysis_run,
                 model_hash,
                 project_envelope_hash,
-                model_migration_ledger,
             })
         },
     )
@@ -1315,7 +1294,7 @@ fn stored_revision(connection: &Connection, entry: &LocalProjectIndexEntry) -> R
             "SELECT model_json || char(31) || editor_intents_json || char(31) || proposal_json || char(31) ||
                     selected_review_target_json || char(31) || mechanics_result_json || char(31) ||
                     analysis_run_json || char(31) || model_hash_json || char(31) ||
-                    project_envelope_hash_json || char(31) || model_migration_ledger_json
+                    project_envelope_hash_json
              FROM local_projects WHERE project_id = ?1",
             params![entry.project_id],
             |row| row.get(0),
@@ -2241,13 +2220,26 @@ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, Str
     })
 }
 
-fn refuse_model_document(status: &ModelDocumentMigrationStatus) -> String {
+fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
     format!(
         "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
         status.status, status.source_schema_version, status.target_schema_version, status.detail
     )
 }
 
+/// The version check for create/save (DEL-02-05 CLM-003): a document that is
+/// not current is refused by name. A current document is persisted exactly as
+/// received, with the received hash evidence; nothing is migrated, normalized
+/// or re-stamped.
+fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
+    let status = evaluate_model_document(model);
+    if status.is_refused() {
+        return Err(refuse_model_document(&status));
+    }
+    Ok(status)
+}
+
+#[cfg(test)]
 fn hash_value_string(hash: &Value) -> String {
     hash.get("value")
         .and_then(Value::as_str)
@@ -2255,15 +2247,7 @@ fn hash_value_string(hash: &Value) -> String {
         .to_string()
 }
 
-#[derive(Debug)]
-struct ModelNormalizationTransition {
-    source_model: Value,
-    source_payload_basis: &'static str,
-    status: ModelDocumentMigrationStatus,
-    prior_stored_model_hash: Option<Value>,
-    prior_stored_project_envelope_hash: Option<Value>,
-}
-
+#[cfg(test)]
 fn model_payload_hash(model: &Value) -> String {
     format!(
         "sha256:{}",
@@ -2273,6 +2257,7 @@ fn model_payload_hash(model: &Value) -> String {
     )
 }
 
+#[cfg(test)]
 fn computed_model_hash(model: &Value, project_id: &str) -> Value {
     json!({
         "algorithm": "sha256",
@@ -2284,6 +2269,7 @@ fn computed_model_hash(model: &Value, project_id: &str) -> Value {
     })
 }
 
+#[cfg(any(test, feature = "native-smoke"))]
 fn computed_project_envelope_hash(
     project_id: &str,
     model: &Value,
@@ -2318,187 +2304,6 @@ fn computed_project_envelope_hash(
         "value": value,
         "hash_status": "computed_local_preview"
     })
-}
-
-/// Resolve the model document, migration status, and ledger array to persist
-/// for create/save (DEC-019): refuse unsupported/newer documents, migrate
-/// older ones through the published chain, and append a ledger record when a
-/// migrated document is being persisted (whether migrated here or at open).
-fn prepare_model_document_for_persist(
-    connection: &Connection,
-    project_id: &str,
-    model: Value,
-    open_time_status: &Value,
-) -> Result<
-    (
-        Value,
-        ModelDocumentMigrationStatus,
-        Value,
-        Option<ModelNormalizationTransition>,
-    ),
-    String,
-> {
-    let EvaluatedModelDocument {
-        migrated_document,
-        status,
-    } = evaluate_model_document(&model, &model_document_migrations());
-    if matches!(
-        status.status.as_str(),
-        "newer_than_supported" | "unsupported_schema" | "failed"
-    ) {
-        return Err(refuse_model_document(&status));
-    }
-
-    let prior = load_project(connection, Some(project_id))?;
-    let ledger = prior
-        .as_ref()
-        .map(|record| record.model_migration_ledger.clone())
-        .filter(Value::is_array)
-        .unwrap_or_else(|| Value::Array(Vec::new()));
-    let open_time_migrated =
-        open_time_status.get("status").and_then(Value::as_str) == Some("migrated");
-    let (model_to_persist, mut persisted_status, transition) = if status.status == "migrated" {
-        let migrated = migrated_document
-            .ok_or_else(|| "migrated status without a migrated document".to_string())?;
-        (
-            migrated,
-            status.clone(),
-            Some(ModelNormalizationTransition {
-                source_model: model,
-                source_payload_basis: "incoming_pre_migration_model",
-                status,
-                prior_stored_model_hash: prior.as_ref().map(|record| record.model_hash.clone()),
-                prior_stored_project_envelope_hash: prior
-                    .as_ref()
-                    .map(|record| record.project_envelope_hash.clone()),
-            }),
-        )
-    } else if open_time_migrated {
-        // An open-time status is only a hint. A transition exists only when
-        // the actual previously stored document walks the published chain to
-        // the exact incoming current document.
-        let verified_prior_transition = prior.as_ref().and_then(|record| {
-            let evaluated =
-                evaluate_model_document(&record.model, &model_document_migrations());
-            match evaluated.migrated_document {
-                Some(ref migrated) if evaluated.status.status == "migrated" && migrated == &model => {
-                    Some(ModelNormalizationTransition {
-                        source_model: record.model.clone(),
-                        source_payload_basis: "stored_pre_open_migration_model",
-                        status: evaluated.status,
-                        prior_stored_model_hash: Some(record.model_hash.clone()),
-                        prior_stored_project_envelope_hash: Some(
-                            record.project_envelope_hash.clone(),
-                        ),
-                    })
-                }
-                _ => None,
-            }
-        });
-        (model, status, verified_prior_transition)
-    } else {
-        (model, status, None)
-    };
-
-    if let Some(transition) = transition.as_ref() {
-        persisted_status = transition.status.clone();
-        persisted_status.persistence_state = "persisted_with_ledger_record".to_string();
-        persisted_status.product_schema_migration_status = "migrated".to_string();
-        persisted_status.status = "migrated".to_string();
-        persisted_status.detail =
-            "Migrated model document persisted with a ledger record (DEC-019).".to_string();
-    } else {
-        persisted_status.persistence_state = "stored_document_current".to_string();
-    }
-
-    Ok((model_to_persist, persisted_status, ledger, transition))
-}
-
-#[allow(clippy::too_many_arguments)]
-fn prepare_project_persistence_tuple(
-    connection: &Connection,
-    project_id: &str,
-    model: Value,
-    open_time_status: &Value,
-    editor_intents: &Value,
-    proposal: &Value,
-    selected_review_target: &Value,
-    mechanics_result: &Value,
-    analysis_run: &Value,
-    received_model_hash: Value,
-    received_project_envelope_hash: Value,
-) -> Result<
-    (
-        Value,
-        ModelDocumentMigrationStatus,
-        Value,
-        Value,
-        Value,
-    ),
-    String,
-> {
-    let (model, status, mut ledger, transition) =
-        prepare_model_document_for_persist(connection, project_id, model, open_time_status)?;
-    let Some(transition) = transition else {
-        return Ok((
-            model,
-            status,
-            ledger,
-            received_model_hash,
-            received_project_envelope_hash,
-        ));
-    };
-
-    let model_hash = computed_model_hash(&model, project_id);
-    let project_envelope_hash = computed_project_envelope_hash(
-        project_id,
-        &model,
-        editor_intents,
-        proposal,
-        selected_review_target,
-        mechanics_result,
-        analysis_run,
-        &model_hash,
-    );
-    let pre_migration_model_hash = model_payload_hash(&transition.source_model);
-    let post_migration_model_hash = hash_value_string(&model_hash);
-    let prior_stored = match (
-        transition.prior_stored_model_hash,
-        transition.prior_stored_project_envelope_hash,
-    ) {
-        (Some(model_hash), Some(project_envelope_hash)) => Some(json!({
-            "model_hash": model_hash,
-            "project_envelope_hash": project_envelope_hash
-        })),
-        _ => None,
-    };
-    let hash_evidence = json!({
-        "schema": "model_migration_hash_evidence_v1",
-        "source_payload_basis": transition.source_payload_basis,
-        "received": {
-            "model_hash": received_model_hash,
-            "project_envelope_hash": received_project_envelope_hash
-        },
-        "prior_stored": prior_stored,
-        "computed": {
-            "pre_migration_model_hash": pre_migration_model_hash,
-            "post_migration_model_hash": post_migration_model_hash,
-            "post_migration_project_envelope_hash": hash_value_string(&project_envelope_hash)
-        },
-        "received_claim_verification": "not_asserted"
-    });
-    let record = migration_ledger_record(
-        &transition.status,
-        &pre_migration_model_hash,
-        &post_migration_model_hash,
-        now_unix_seconds()?,
-        Some(hash_evidence),
-    );
-    ledger
-        .as_array_mut()
-        .expect("ledger normalized to array above")
-        .push(record);
-    Ok((model, status, ledger, model_hash, project_envelope_hash))
 }
 
 #[tauri::command]
@@ -2543,22 +2348,9 @@ fn create_project_in_store(
     let selected_review_target = normalized_selected_review_target(selected_review_target);
     let mechanics_result = mechanics_result.unwrap_or(Value::Null);
     let analysis_run = analysis_run.unwrap_or(Value::Null);
-    let received_model_hash = model_hash.unwrap_or(Value::Null);
-    let received_project_envelope_hash = project_envelope_hash.unwrap_or(Value::Null);
-    let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
-        prepare_project_persistence_tuple(
-        &transaction,
-        &project_id,
-        model,
-        &Value::Null,
-        &editor_intents,
-        &proposal,
-        &selected_review_target,
-        &mechanics_result,
-        &analysis_run,
-        received_model_hash,
-        received_project_envelope_hash,
-    )?;
+    let model_hash = model_hash.unwrap_or(Value::Null);
+    let project_envelope_hash = project_envelope_hash.unwrap_or(Value::Null);
+    let document_version = check_model_document_for_persist(&model)?;
     guarded_write_project_rows(
         &transaction,
         confirmed_revision.as_deref(),
@@ -2573,7 +2365,6 @@ fn create_project_in_store(
         &analysis_run,
         &model_hash,
         &project_envelope_hash,
-        &model_migration_ledger,
     )?;
     transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
@@ -2600,9 +2391,8 @@ fn create_project_in_store(
         analysis_run,
         model_hash,
         project_envelope_hash,
-        model_document_migration: serde_json::to_value(document_migration)
+        model_document_version: serde_json::to_value(document_version)
             .map_err(|error| error.to_string())?,
-        model_migration_ledger,
     })
 }
 
@@ -2615,19 +2405,14 @@ fn open_local_project(
     let (connection, migration) = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
         .map(|record| {
-            // DEC-019: evaluate the restored document; migrate in memory when
-            // a chain applies; refuse newer/unsupported documents for editing.
-            let EvaluatedModelDocument {
-                migrated_document,
-                status,
-            } = evaluate_model_document(&record.model, &model_document_migrations());
-            if matches!(
-                status.status.as_str(),
-                "newer_than_supported" | "unsupported_schema" | "failed"
-            ) {
+            // DEL-02-05 CLM-003: the restored document is opened exactly as
+            // stored when its version is current; any other version is refused
+            // by name (re-author), never migrated.
+            let status = evaluate_model_document(&record.model);
+            if status.is_refused() {
                 return Err(refuse_model_document(&status));
             }
-            let model = migrated_document.unwrap_or(record.model);
+            let model = record.model;
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
                     record.project_id,
@@ -2652,9 +2437,8 @@ fn open_local_project(
                 analysis_run: record.analysis_run,
                 model_hash: record.model_hash,
                 project_envelope_hash: record.project_envelope_hash,
-                model_document_migration: serde_json::to_value(status)
+                model_document_version: serde_json::to_value(status)
                     .map_err(|error| error.to_string())?,
-                model_migration_ledger: record.model_migration_ledger,
             })
         })
         .transpose()
@@ -2687,22 +2471,10 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
         normalized_selected_review_target(Some(request.selected_review_target));
     let mechanics_result = request.mechanics_result;
     let analysis_run = request.analysis_run;
-    let received_model_hash = request.model_hash;
-    let received_project_envelope_hash = request.project_envelope_hash;
-    let (model, document_migration, model_migration_ledger, model_hash, project_envelope_hash) =
-        prepare_project_persistence_tuple(
-        &transaction,
-        &request.project_id,
-        request.model,
-        &request.model_document_migration,
-        &editor_intents,
-        &proposal,
-        &selected_review_target,
-        &mechanics_result,
-        &analysis_run,
-        received_model_hash,
-        received_project_envelope_hash,
-    )?;
+    let model = request.model;
+    let model_hash = request.model_hash;
+    let project_envelope_hash = request.project_envelope_hash;
+    let document_version = check_model_document_for_persist(&model)?;
     guarded_write_project_rows(
         &transaction,
         request.confirmed_revision.as_deref(),
@@ -2717,7 +2489,6 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
         &analysis_run,
         &model_hash,
         &project_envelope_hash,
-        &model_migration_ledger,
     )?;
     transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
@@ -2744,9 +2515,8 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
         analysis_run,
         model_hash,
         project_envelope_hash,
-        model_document_migration: serde_json::to_value(document_migration)
+        model_document_version: serde_json::to_value(document_version)
             .map_err(|error| error.to_string())?,
-        model_migration_ledger,
     })
 }
 
@@ -4611,9 +4381,9 @@ fn packaged_saved_edited_load_intent() -> Value {
 
 fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
     // Embedded frozen synthetic model: the executable never reads repository
-    // fixtures. Current document version prevents an incidental migration.
+    // fixtures. The document is the current version, saved as authored.
     let model: Value = serde_json::from_str(r#"{
-  "schema_version": "0.2.0",
+  "schema_version": "0.5.0",
   "document_kind": "openpipestress.product_preview.model",
   "data_boundary": {
     "public_examples_policy": "invented_or_cleared_data_only",
@@ -4756,8 +4526,8 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c" {
-        return Err("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH".into());
+    if baseline_hash != "sha256:19bae883722d9d955c8dfee56c5cfb6b3029f111f7952efcb784a4b84136e0f5" {
+        return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
     let human_intent = packaged_saved_edited_load_intent();
@@ -4776,7 +4546,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb" {
+    if edited_hash != "sha256:303f2a38b2242d83c71164c2d50229e140ff9c0df654b4ce7a21deee0a3fed00" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -4853,15 +4623,11 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let received_model_hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"project:workflow-cantilever","value":edited_hash,"hash_status":"computed_local_preview"});
     let store_migration = {
         let (mut connection, migration) = open_project_store(store_path)?;
-        let (model_to_persist, document_status, ledger, model_hash, envelope_hash) =
-            prepare_project_persistence_tuple(
-            &connection, "project:workflow-cantilever", edited_model.clone(), &Value::Null,
-            &json!([]), &Value::Null, &Value::Null, &edited_result, &Value::Null,
-            received_model_hash.clone(), Value::Null)?;
+        let document_status = check_model_document_for_persist(&edited_model)?;
         upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
-            &model_to_persist, &json!([]), &Value::Null, &Value::Null, &edited_result,
-            &Value::Null, &model_hash, &envelope_hash, &ledger)?;
-        json!({"store_schema_version":migration.store_schema_version,"document_status":document_status.status,"persistence_state":document_status.persistence_state})
+            &edited_model, &json!([]), &Value::Null, &Value::Null, &edited_result,
+            &Value::Null, &received_model_hash, &Value::Null)?;
+        json!({"store_schema_version":migration.store_schema_version,"document_status":document_status.status,"document_version":document_status.source_schema_version})
     };
     let (connection, reopen_migration) = open_project_store(store_path)?;
     let restored = load_project(&connection, Some("project:workflow-cantilever"))?
@@ -4886,7 +4652,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
         upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
             &restored.model, &restored.editor_intents, &restored.proposal, &restored.selected_review_target,
             &restored.mechanics_result, &restored.analysis_run, &restored.model_hash,
-            &restored.project_envelope_hash, &restored.model_migration_ledger)?;
+            &restored.project_envelope_hash)?;
     }
     let (connection, _) = open_project_store(store_path)?;
     let resaved = load_project(&connection, Some("project:workflow-cantilever"))?
@@ -5238,7 +5004,7 @@ mod tests {
     fn precision_model() -> Value {
         let rehearsal = read_fixture("r2_from_blank_rehearsal.json").unwrap();
         let (mut model, _) = apply_rehearsal_steps(&rehearsal);
-        model["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        model["schema_version"] = json!(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION);
         model
     }
 
@@ -5311,9 +5077,9 @@ mod tests {
         for _ in 0..2 {
             let mut connection = Connection::open(&db).unwrap();
             apply_store_migrations(&connection).unwrap();
-            let (persisted, _, ledger, saved_mh, saved_eh) = prepare_project_persistence_tuple(&connection, project, model.clone(), &Value::Null, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, mh.clone(), eh.clone()).unwrap();
-            assert_eq!(saved_mh, mh); assert_eq!(saved_eh, eh);
-            upsert_project(&mut connection, project, "Invented precision witness", &persisted, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh, &ledger).unwrap();
+            assert_eq!(check_model_document_for_persist(model).unwrap().status, "current");
+            let (persisted, saved_mh, saved_eh) = (model.clone(), mh.clone(), eh.clone());
+            upsert_project(&mut connection, project, "Invented precision witness", &persisted, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh).unwrap();
             connection.close().unwrap();
             let reopened = Connection::open(&db).unwrap();
             let loaded = load_project(&reopened, Some(project)).unwrap().unwrap();
@@ -5374,7 +5140,8 @@ mod tests {
     #[test]
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
-        // control reads physics-source-1's committed (current-schema) request.
+        // control reads physics-source-1's committed request (an exact pressure
+        // model, 0.3.0, which stays accepted until B7b's contract-present 0.5.0).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -6218,7 +5985,6 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
-            &json!([]),
         )
         .expect("A12 authored model saves to local project store");
 
@@ -6289,32 +6055,27 @@ mod tests {
     }
 
     #[test]
-    fn explicit_exact_model_round_trips_native_store_and_unit_metadata_without_migration() {
+    fn explicit_exact_model_round_trips_native_store_and_unit_metadata_unchanged() {
         let mut connection = Connection::open_in_memory().unwrap();
         apply_store_migrations(&connection).unwrap();
         let model: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
         )).unwrap();
         let project_id = model["project"]["id"].as_str().unwrap();
-        let (prepared, migration, ledger, transition) = prepare_model_document_for_persist(
-            &connection, project_id, model.clone(), &Value::Null,
-        ).unwrap();
-        assert_eq!(prepared, model);
-        assert_eq!(migration.status, "current");
-        assert_eq!(migration.target_schema_version, "0.3.0");
-        assert!(transition.is_none());
-        assert_eq!(ledger, json!([]));
+        let version = check_model_document_for_persist(&model).unwrap();
+        assert_eq!(version.status, "current");
+        assert_eq!(version.target_schema_version, "0.3.0");
+        let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
             &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &ledger,
+            &Value::Null, &Value::Null,
         ).unwrap();
         let loaded = load_project(&connection, Some(project_id)).unwrap().unwrap();
         assert_eq!(loaded.model, model);
-        let reopened = evaluate_model_document(&loaded.model, &model_document_migrations());
-        assert_eq!(reopened.status.status, "current");
-        assert_eq!(reopened.status.target_schema_version, "0.3.0");
-        assert!(reopened.migrated_document.is_none());
+        let reopened = evaluate_model_document(&loaded.model);
+        assert_eq!(reopened.status, "current");
+        assert_eq!(reopened.target_schema_version, "0.3.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6375,42 +6136,31 @@ mod tests {
         ));
         std::fs::create_dir(&root).unwrap();
         let db = root.join("isolated.sqlite");
-        let mut open_status = Value::Null;
         let mut bridge = result.clone();
         let mut current = model.clone();
         for _ in 0..2 {
             let mut connection = Connection::open(&db).unwrap();
             apply_store_migrations(&connection).unwrap();
-            let (persisted, status, ledger, saved_mh, saved_eh) = prepare_project_persistence_tuple(
-                &connection, &project, current.clone(), &open_status, &json!([]), &Value::Null,
-                &Value::Null, &bridge, &Value::Null, mh.clone(), eh.clone(),
-            ).unwrap();
-            assert_eq!(persisted, model);
+            let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
             assert_eq!(status.source_schema_version, "0.4.0");
             assert_eq!(status.target_schema_version, "0.4.0");
-            assert_eq!(status.persistence_state, "stored_document_current");
-            assert!(status.applied_migration_ids.is_empty());
-            assert_eq!(ledger, json!([]));
-            assert_eq!(saved_mh, mh);
-            assert_eq!(saved_eh, eh);
+            let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
+            assert_eq!(persisted, model);
             upsert_project(
                 &mut connection, &project, "Invented load-reference witness", &persisted, &json!([]),
-                &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh, &ledger,
+                &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh,
             ).unwrap();
             connection.close().unwrap();
 
             let reopened = Connection::open(&db).unwrap();
             assert_eq!(stored_json_column(&reopened, "model_json", &project), model_bytes);
             assert_eq!(stored_json_column(&reopened, "mechanics_result_json", &project), result_bytes);
-            assert_eq!(stored_json_column(&reopened, "model_migration_ledger_json", &project), "[]");
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
-            let EvaluatedModelDocument { migrated_document, status } =
-                evaluate_model_document(&loaded.model, &model_document_migrations());
+            let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
             assert_eq!(status.target_schema_version, "0.4.0");
-            assert!(migrated_document.is_none());
-            let opened = migrated_document.unwrap_or(loaded.model);
+            let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
             assert_eq!(model_payload_hash(&opened), hash_value_string(&mh));
@@ -6421,8 +6171,6 @@ mod tests {
                 serde_json::to_string(&loaded.mechanics_result["contract_evidence"]["load_reference_states"]).unwrap(),
                 evidence_bytes
             );
-            assert_eq!(loaded.model_migration_ledger, json!([]));
-            open_status = serde_json::to_value(status).unwrap();
             bridge = loaded.mechanics_result;
             current = opened;
             reopened.close().unwrap();
@@ -6443,33 +6191,28 @@ mod tests {
         );
     }
 
-    /// T1 WP2 (D3): pre-0.4 and 0.3.0 documents persist unchanged with no
-    /// 0.4.0 key added; an earlier document that carries 0.4.0 keys is kept as
-    /// authored (not stripped, not re-stamped) and the product blocks on solve.
+    /// T1 WP2 (D3): pressure-free 0.5.0 and 0.3.0 documents persist unchanged
+    /// with no 0.4.0 key added; a 0.3.0 document that carries 0.4.0 keys is kept
+    /// as authored (not stripped, not re-stamped) and the product blocks on solve.
     #[test]
     fn earlier_documents_persist_unchanged_and_carried_load_reference_keys_block_on_solve() {
-        fn round_trip(model: &Value) -> (Value, ModelDocumentMigrationStatus) {
+        fn round_trip(model: &Value) -> (Value, ModelDocumentVersionStatus) {
             let mut connection = Connection::open_in_memory().unwrap();
             apply_store_migrations(&connection).unwrap();
             let project = model["project"]["id"].as_str().unwrap().to_string();
-            let (persisted, status, ledger, transition) =
-                prepare_model_document_for_persist(&connection, &project, model.clone(), &Value::Null)
-                    .unwrap();
-            assert!(transition.is_none());
-            assert_eq!(ledger, json!([]));
+            let status = check_model_document_for_persist(model).unwrap();
+            let persisted = model.clone();
             upsert_project(
                 &mut connection, &project, "Invented earlier-version witness", &persisted, &json!([]),
                 &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null,
-                &ledger,
             ).unwrap();
             assert_eq!(
                 stored_json_column(&connection, "model_json", &project),
                 serde_json::to_string(model).unwrap()
             );
             let loaded = load_project(&connection, Some(&project)).unwrap().unwrap();
-            let reopened = evaluate_model_document(&loaded.model, &model_document_migrations());
-            assert_eq!(reopened.status.status, "current");
-            assert!(reopened.migrated_document.is_none());
+            let reopened = evaluate_model_document(&loaded.model);
+            assert_eq!(reopened.status, "current");
             (loaded.model, status)
         }
         fn carries_load_reference_keys(model: &Value) -> bool {
@@ -6487,7 +6230,7 @@ mod tests {
         )).unwrap();
         assert_eq!(exact["schema_version"], "0.3.0");
         let mut legacy = exact.clone();
-        legacy["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        legacy["schema_version"] = json!(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION);
         legacy.as_object_mut().unwrap().remove("pressure_contract");
         for model in [&exact, &legacy] {
             assert!(!carries_load_reference_keys(model));
@@ -6528,7 +6271,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -6660,7 +6403,6 @@ mod tests {
             &analysis_run,
             &model_hash,
             &project_envelope_hash,
-            &serde_json::json!([]),
         )
         .expect("project snapshot saves");
 
@@ -6983,7 +6725,6 @@ mod tests {
         assert_eq!(loaded.project_id, "project:v7-local");
         assert_eq!(loaded.model_hash, Value::Null);
         assert_eq!(loaded.project_envelope_hash, Value::Null);
-        assert_eq!(loaded.model_migration_ledger, json!([]));
     }
 
     #[test]
@@ -7013,7 +6754,6 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
-            &serde_json::json!([]),
         )
         .expect("first project saves");
         upsert_project(
@@ -7028,7 +6768,6 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
-            &serde_json::json!([]),
         )
         .expect("second project saves");
         connection
@@ -7249,10 +6988,9 @@ mod tests {
             case.as_object_mut().unwrap().remove("pressure_regions");
         }
         let before = labelled.clone();
-        let opened = evaluate_model_document(&labelled, &model_document_migrations());
-        assert_eq!(opened.status.status, "current");
-        assert_eq!(opened.status.target_schema_version, "0.3.0");
-        assert!(opened.migrated_document.is_none());
+        let opened = evaluate_model_document(&labelled);
+        assert_eq!(opened.status, "current");
+        assert_eq!(opened.target_schema_version, "0.3.0");
         assert_eq!(labelled, before);
 
         let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7268,7 +7006,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.1.0",
+            "schema_version": "0.5.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -7701,70 +7439,18 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        let (model_to_persist, document_status, ledger, model_hash, envelope_hash) =
-            prepare_project_persistence_tuple(
-            &connection,
-            "project:edited-load-roundtrip",
-            edited_model,
-            &Value::Null,
-            &json!([]),
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            received_model_claim.clone(),
-            received_envelope_claim.clone(),
-        )
-        .expect("edited 0.1.0-era model document is ready to persist");
-        // The derived fixture is a 0.1.0-era document: persisting it walks the
-        // published DEC-033 no-op chain entry and appends a ledger record.
-        assert_eq!(document_status.status, "migrated");
+        // The derived fixture is a current (0.5.0) document: it persists exactly
+        // as edited, with the received hash claims kept raw; nothing is migrated
+        // and no evidence is minted.
+        let document_status = check_model_document_for_persist(&edited_model)
+            .expect("edited current model document is ready to persist");
+        assert_eq!(document_status.status, "current");
         assert_eq!(
-            document_status.persistence_state,
-            "persisted_with_ledger_record"
+            edited_model["schema_version"],
+            json!(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION)
         );
-        assert_eq!(
-            model_to_persist["schema_version"],
-            json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION)
-        );
-        let ledger_records = ledger.as_array().expect("ledger array");
-        assert_eq!(ledger_records.len(), 1);
-        assert_eq!(
-            ledger_records[0]["applied_migration_ids"],
-            json!(["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"])
-        );
-        assert_eq!(
-            ledger_records[0]["hash_evidence"]["source_payload_basis"],
-            json!("incoming_pre_migration_model")
-        );
-        assert_eq!(
-            ledger_records[0]["hash_evidence"]["received"]["model_hash"],
-            received_model_claim
-        );
-        assert_eq!(
-            ledger_records[0]["hash_evidence"]["received"]["project_envelope_hash"],
-            received_envelope_claim
-        );
-        assert!(ledger_records[0]["hash_evidence"]["prior_stored"].is_null());
-        assert_eq!(model_hash["value"], json!(model_payload_hash(&model_to_persist)));
-        let seven_field_payload = json!({
-            "model": model_to_persist.clone(),
-            "editor_intents": [],
-            "proposal": null,
-            "selected_review_target": null,
-            "mechanics_result": null,
-            "analysis_run": null,
-            "model_hash": model_hash.clone()
-        });
-        assert_eq!(
-            envelope_hash["value"],
-            json!(format!(
-                "sha256:{}",
-                open_pipe_stress_operation_applier::sha256_hex(
-                    &open_pipe_stress_operation_applier::canonical_json(&seven_field_payload)
-                )
-            ))
-        );
+        let (model_to_persist, model_hash, envelope_hash) =
+            (edited_model, received_model_claim, received_envelope_claim);
 
         upsert_project(
             &mut connection,
@@ -7778,7 +7464,6 @@ mod tests {
             &Value::Null,
             &model_hash,
             &envelope_hash,
-            &ledger,
         )
         .expect("edited load model persists to the local store");
 
@@ -7813,177 +7498,81 @@ mod tests {
     }
 
     #[test]
-    fn persist_preparation_refuses_newer_and_unsupported_model_documents() {
-        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        apply_store_migrations(&connection).expect("store migrations apply");
-        let _ = &mut connection;
-
-        let newer = json!({ "schema_version": "0.3.1", "project": { "id": "project:newer", "name": "Newer" } });
-        let error = prepare_model_document_for_persist(
-            &connection,
-            "project:newer",
-            newer,
-            &Value::Null,
-        )
-        .expect_err("newer-than-supported documents must be refused");
+    fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
+        for version in ["0.1.0", "0.2.0"] {
+            let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
+            let error = check_model_document_for_persist(&retired)
+                .expect_err("retired documents must be refused by name");
+            assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
+            assert!(error.contains(version) && error.contains("re-author"), "{error}");
+        }
+        let newer = json!({ "schema_version": "0.5.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let error = check_model_document_for_persist(&newer)
+            .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
 
         let unsupported =
             json!({ "project": { "id": "project:unversioned", "name": "Unversioned" } });
-        let error = prepare_model_document_for_persist(
-            &connection,
-            "project:unversioned",
-            unsupported,
-            &Value::Null,
-        )
-        .expect_err("documents without a valid schema_version must be refused");
+        let error = check_model_document_for_persist(&unsupported)
+            .expect_err("documents without a valid schema_version must be refused");
         assert!(error.contains("unsupported_schema"), "{error}");
     }
 
     #[test]
-    fn persist_preparation_keeps_current_documents_without_ledger_records() {
-        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        apply_store_migrations(&connection).expect("store migrations apply");
-        let model = json!({ "schema_version": model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
-        let (persisted, status, ledger, transition) = prepare_model_document_for_persist(
-            &connection,
-            "project:current",
-            model.clone(),
-            &Value::Null,
-        )
-        .expect("current documents persist");
-        assert_eq!(persisted, model);
+    fn persist_preparation_keeps_current_documents_unchanged() {
+        let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
+        let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.persistence_state, "stored_document_current");
-        assert_eq!(ledger, json!([]));
-        assert!(transition.is_none());
+        assert_eq!(status.source_schema_version, "0.5.0");
+        assert_eq!(status.target_schema_version, "0.5.0");
+    }
+
+    /// B7a: a project stored as a retired version (here a 0.1.0 row a previous
+    /// build wrote) is refused by name on open and on save; its stored bytes are
+    /// never rewritten, and no migration evidence is written.
+    #[test]
+    fn stored_retired_documents_are_refused_on_open_and_save_without_rewrite() {
+        let root = std::env::temp_dir().join(format!(
+            "ops-retired-model-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let stored_model = json!({ "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model", "project": { "id": "project:retired", "name": "Retired" } });
+        {
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            upsert_project(&mut connection, "project:retired", "Retired", &stored_model, &json!([]),
+                &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null).unwrap();
+        }
+        let (connection, _) = open_project_store(&db).unwrap();
+        let record = load_project(&connection, Some("project:retired")).unwrap().unwrap();
+        let status = evaluate_model_document(&record.model);
+        assert!(status.is_refused());
+        let refusal = refuse_model_document(&status);
+        assert!(refusal.contains("retired_schema") && refusal.contains("re-author"), "{refusal}");
+        drop(connection);
+        let error = save_project_in_store(db.clone(), serde_json::from_value(json!({
+            "project_id": "project:retired", "project_name": "Retired", "model": stored_model.clone(),
+            "expected_base": null
+        })).unwrap()).expect_err("a retired document is not saved");
+        assert!(error.contains("retired_schema"), "{error}");
+        let (connection, _) = open_project_store(&db).unwrap();
+        let after = load_project(&connection, Some("project:retired")).unwrap().unwrap();
+        assert_eq!(after.model, stored_model, "the stored bytes are never rewritten");
+        drop(connection);
+        std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
-    fn saving_an_open_time_migrated_document_appends_a_ledger_record_with_pre_and_post_hashes() {
+    fn a_current_document_persists_with_its_raw_received_claims() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
-        let stored_model = json!({ "schema_version": "0.1.0", "project": { "id": "project:migrated", "name": "Migrated" } });
-        let mut incoming_model = stored_model.clone();
-        incoming_model["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
-        let prior_model_claim = json!({ "algorithm": "sha512", "value": "received-prior-model-claim", "extra": true });
-        let prior_envelope_claim = json!("malformed-prior-envelope-claim");
-        upsert_project(
-            &mut connection,
-            "project:migrated",
-            "Migrated",
-            &stored_model,
-            &json!([]),
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &prior_model_claim,
-            &prior_envelope_claim,
-            &serde_json::json!([]),
-        )
-        .expect("seed row persists");
-
-        let open_time_status = json!({
-            "status": "migrated",
-            "source_schema_version": "0.1.0",
-            "target_schema_version": "0.2.0",
-            "applied_migration_ids": ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"]
-        });
-        let received_model_claim = json!("malformed-received-model-claim");
-        let received_envelope_claim = json!({ "value": "received-envelope-claim", "label": "historical" });
-        let (persisted, status, ledger, model_hash, envelope_hash) =
-            prepare_project_persistence_tuple(
-            &connection,
-            "project:migrated",
-            incoming_model.clone(),
-            &open_time_status,
-            &json!([]),
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            received_model_claim.clone(),
-            received_envelope_claim.clone(),
-        )
-        .expect("migrated document persists with evidence");
-
-        assert_eq!(persisted, incoming_model);
-        assert_eq!(status.status, "migrated");
-        assert_eq!(status.persistence_state, "persisted_with_ledger_record");
-        let records = ledger.as_array().expect("ledger array");
-        assert_eq!(records.len(), 1);
-        assert_eq!(
-            records[0]["pre_migration_model_hash"],
-            json!(model_payload_hash(&stored_model))
-        );
-        assert_eq!(
-            records[0]["post_migration_model_hash"],
-            model_hash["value"]
-        );
-        assert_eq!(records[0]["source_schema_version"], json!("0.1.0"));
-        assert_eq!(
-            records[0]["applied_migration_ids"],
-            json!(["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"])
-        );
-        assert_eq!(records[0]["destructive_rewrite"], json!(false));
-        assert_eq!(
-            records[0]["professional_boundary"]["software_makes_compliance_claim"],
-            json!(false)
-        );
-        assert_eq!(records[0]["hash_evidence"]["received"]["model_hash"], received_model_claim);
-        assert_eq!(records[0]["hash_evidence"]["received"]["project_envelope_hash"], received_envelope_claim);
-        assert_eq!(records[0]["hash_evidence"]["prior_stored"]["model_hash"], prior_model_claim);
-        assert_eq!(records[0]["hash_evidence"]["prior_stored"]["project_envelope_hash"], prior_envelope_claim);
-        assert_eq!(records[0]["hash_evidence"]["computed"]["post_migration_project_envelope_hash"], envelope_hash["value"]);
-        assert_eq!(records[0]["hash_evidence"]["received_claim_verification"], json!("not_asserted"));
-
-        upsert_project(
-            &mut connection,
-            "project:migrated",
-            "Migrated",
-            &persisted,
-            &json!([]),
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &model_hash,
-            &envelope_hash,
-            &ledger,
-        )
-        .expect("normalized tuple persists atomically");
-        let (_, repeat_status, repeat_ledger, repeat_model_hash, repeat_envelope_hash) =
-            prepare_project_persistence_tuple(
-                &connection,
-                "project:migrated",
-                incoming_model,
-                &open_time_status,
-                &json!([]),
-                &Value::Null,
-                &Value::Null,
-                &Value::Null,
-                &Value::Null,
-                model_hash.clone(),
-                envelope_hash.clone(),
-            )
-            .expect("repeat save is unchanged");
-        assert_eq!(repeat_status.status, "current");
-        assert_eq!(repeat_ledger, ledger);
-        assert_eq!(repeat_model_hash, model_hash);
-        assert_eq!(repeat_envelope_hash, envelope_hash);
-    }
-
-    #[test]
-    fn stale_status_on_current_document_preserves_raw_claims_and_existing_ledger() {
-        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        apply_store_migrations(&connection).expect("store migrations apply");
-        let model = json!({ "schema_version": model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION, "project": { "id": "project:unchanged-history", "name": "Unchanged History" } });
-        let old_ledger = json!([{
-            "record_kind": "legacy-record-preserved-byte-for-byte",
-            "post_migration_model_hash": "received-old-value",
-            "unknown_legacy_member": [1, true, null]
-        }]);
+        let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:unchanged-history", "name": "Unchanged History" } });
+        let raw_model_claim = json!(["received", { "algorithm": "sha512" }]);
+        let raw_envelope_claim = json!("received-malformed-envelope");
+        let status = check_model_document_for_persist(&model).expect("current document persists");
+        assert_eq!(status.status, "current");
         upsert_project(
             &mut connection,
             "project:unchanged-history",
@@ -7992,41 +7581,16 @@ mod tests {
             &json!([]),
             &Value::Null,
             &Value::Null,
-            &json!("malformed-stored-result"),
-            &json!(["malformed-stored-analysis"]),
-            &json!("malformed-stored-model-hash"),
-            &json!(["malformed-stored-envelope-hash"]),
-            &old_ledger,
+            &json!("malformed-received-result"),
+            &json!(["malformed-received-analysis"]),
+            &raw_model_claim,
+            &raw_envelope_claim,
         )
-        .expect("current historical row seeds");
-        let stale_status = json!({
-            "status": "migrated",
-            "source_schema_version": "0.1.0",
-            "target_schema_version": "0.2.0",
-            "applied_migration_ids": ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"]
-        });
-        let raw_model_claim = json!(["received", { "algorithm": "sha512" }]);
-        let raw_envelope_claim = json!("received-malformed-envelope");
-        let (persisted, status, ledger, model_hash, envelope_hash) =
-            prepare_project_persistence_tuple(
-                &connection,
-                "project:unchanged-history",
-                model.clone(),
-                &stale_status,
-                &json!([]),
-                &Value::Null,
-                &Value::Null,
-                &json!("malformed-received-result"),
-                &json!(["malformed-received-analysis"]),
-                raw_model_claim.clone(),
-                raw_envelope_claim.clone(),
-            )
-            .expect("stale status alone does not mint new evidence");
-        assert_eq!(persisted, model);
-        assert_eq!(status.status, "current");
-        assert_eq!(ledger, old_ledger);
-        assert_eq!(model_hash, raw_model_claim);
-        assert_eq!(envelope_hash, raw_envelope_claim);
+        .expect("current row persists");
+        let loaded = load_project(&connection, Some("project:unchanged-history")).unwrap().unwrap();
+        assert_eq!(loaded.model, model);
+        assert_eq!(loaded.model_hash, raw_model_claim);
+        assert_eq!(loaded.project_envelope_hash, raw_envelope_claim);
     }
 
     #[test]
@@ -9020,7 +8584,7 @@ mod replace_confirmation_tests {
         std::thread::sleep(std::time::Duration::from_millis(300));
         assert!(!second.is_finished(), "B must wait for A's write lock before it can check");
         write_project_rows(&transaction, id, "Writer A", &invented_model(id, "Writer A"), &json!([]), &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null).unwrap();
         transaction.commit().unwrap();
         let refused = second.join().unwrap().expect_err("B is refused");
         assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-race` (\"Writer A\""), "{refused}");
@@ -9064,7 +8628,7 @@ mod replace_confirmation_tests {
         // Nothing stored yet: a first save needs no confirmation.
         refuse_unconfirmed_replacement(&connection, &id, None, None).expect("first save");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null).unwrap();
         let refused = refuse_unconfirmed_replacement(&connection, &id, None, None).expect_err("unconfirmed replacement");
         assert!(refused.starts_with("PROJECT-ID-EXISTS: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{refused}");
         let entry = stored_project_entry(&connection, &id).unwrap().unwrap();
@@ -9074,7 +8638,7 @@ mod replace_confirmation_tests {
         // A save in place is admitted only from the stored revision.
         let base = json!({"algorithm": "sha256", "value": "sha256:base"});
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &base).unwrap();
         refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:base")).expect("save in place");
         let moved = refuse_unconfirmed_replacement(&connection, &id, None, Some("sha256:older")).expect_err("stale base");
         assert!(moved.starts_with("PROJECT-BASE-MOVED: project `project:invented-demo-loop-01` (\"Invented demo\", last saved at unix "), "{moved}");
@@ -9085,17 +8649,17 @@ mod replace_confirmation_tests {
         // Two different writes in the same second have different revisions (the
         // row fingerprint), even without an envelope hash.
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!(["edited"]), &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &base).unwrap();
         let after_edit = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
         assert_ne!(after_edit, current);
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &base, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &base).unwrap();
         let current = stored_revision(&connection, &stored_project_entry(&connection, &id).unwrap().unwrap()).unwrap();
         refuse_unconfirmed_replacement(&connection, &id, Some(&current), Some("sha256:older")).expect("Replace of the shown revision");
         let replaced_unseen = refuse_unconfirmed_replacement(&connection, &id, Some(&shown), None).expect_err("revision saved after the prompt");
         assert!(replaced_unseen.starts_with("PROJECT-BASE-MOVED") && replaced_unseen.contains("after the replace prompt showed it"), "{replaced_unseen}");
         upsert_project(&mut connection, &id, "Invented demo", &model, &json!([]), &Value::Null, &Value::Null,
-            &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!([])).unwrap();
+            &Value::Null, &Value::Null, &Value::Null, &Value::Null).unwrap();
         assert!(refuse_unconfirmed_replacement(&connection, &id, None, Some("")).unwrap_err().starts_with("PROJECT-BASE-MOVED"), "no stored hash: asks");
         let entry = stored_project_entry(&connection, &id).unwrap().expect("entry");
         assert_eq!((entry.project_id.as_str(), entry.project_name.as_str()), (id.as_str(), "Invented demo"));

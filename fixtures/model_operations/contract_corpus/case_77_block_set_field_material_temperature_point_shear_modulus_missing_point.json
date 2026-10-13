@@ -34,7 +34,7 @@
         ]
       }
     ],
-    "schema_version": "0.1.0"
+    "schema_version": "0.5.0"
   },
   "case_id": "block-set-field-material-temperature-point-shear-modulus-missing-point",
   "claimed_model_hash": null,
@@ -79,7 +79,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:d4a5ca06c22c4e0e367819b22ddd09e43344618325207c26dd87d4617e6d0616",
+        "backend_model_hash": "sha256:bfa4529fc3666cbe8f7ed65b9f027dd3ce244205926de932b71fcfc83906bd38",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

@@ -891,7 +891,7 @@ fn specimen(loaded: bool) -> serde_json::Value {
         "../../../fixtures/product_preview/invented_dec092_temperature_g_request.json"
     ))
     .unwrap();
-    v["model"]["schema_version"] = serde_json::json!("0.2.0");
+    v["model"]["schema_version"] = serde_json::json!(crate::MODEL_SCHEMA_VERSION);
     v["model"]["nodes"][1]["position"] = serde_json::json!({"x":1.0,"y":0.0,"z":0.0});
     v["model"]["pipe_segments"][0]["section"] = serde_json::json!({"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"}});
     v["materials"][0]["elastic_modulus"] = serde_json::json!({"value":210e9,"unit":"Pa"});

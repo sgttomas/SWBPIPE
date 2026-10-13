@@ -585,11 +585,10 @@ fn prepare_sources(
         if input.built.exact_sections.len() != member_count {
             return Err(mismatch("exact source geometry inventory"));
         }
-    } else if !matches!(input.model.schema_version.as_str(), "0.1.0" | "0.2.0")
-        || input.model.pressure_contract.is_some()
+    } else if !crate::model_format::is_pressure_free(input.model)
         || input.load_case.pressure_regions.is_some()
     {
-        return Err(unsupported("legacy source-blocks namespace requires model0.1/0.2 without pressure contract or regions"));
+        return Err(unsupported("preview source-blocks namespace requires a pressure-free model without pressure contract or regions"));
     }
     if input.load_case.equivalent_static.is_some()
         || !input.load_application.element_uniform_loads.is_empty()
@@ -1698,7 +1697,7 @@ mod tests {
     // it is pinned here at unit level (U3).
     #[test]
     fn non_exact_source_blocks_gate_refuses_a_later_version_a_contract_or_regions() {
-        const GATE: &str = "legacy source-blocks namespace requires model0.1/0.2 without pressure contract or regions";
+        const GATE: &str = "preview source-blocks namespace requires a pressure-free model without pressure contract or regions";
         let refuse = |fixture: &Fixture| {
             prepare_sources(
                 &fixture.input(),
@@ -1707,11 +1706,14 @@ mod tests {
             .err()
         };
         let fixture = Fixture::new(Fixture::model());
-        assert_eq!(fixture.model.schema_version, "0.1.0");
+        assert_eq!(fixture.model.schema_version, crate::MODEL_SCHEMA_VERSION);
         assert_eq!(refuse(&fixture), None);
-        let mut later = Fixture::new(Fixture::model());
-        later.model.schema_version = "0.3.0".into();
-        assert_eq!(refuse(&later), Some(RecoveryError::Unsupported(GATE)));
+        // Another version (an exact one, or a retired one) is outside the pressure-free namespace.
+        for version in ["0.3.0", "0.2.0", "0.1.0"] {
+            let mut later = Fixture::new(Fixture::model());
+            later.model.schema_version = version.into();
+            assert_eq!(refuse(&later), Some(RecoveryError::Unsupported(GATE)), "{version}");
+        }
         for (version, mode) in [
             ("1.0.0", "legacy_pressure_v1"),
             ("2.0.0", "exact_straight_pressure_v2"),

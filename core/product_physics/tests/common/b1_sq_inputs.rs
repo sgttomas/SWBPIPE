@@ -25,15 +25,15 @@ pub const MILESTONE: &str = include_str!("../../../../fixtures/product_preview/r
 const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`).
-pub const W2B_SHA256: &str = "d74d01ce1bc33244796877890ad134dd8476beb059bd82f26f2e004f8af619cb";
-pub const B2_K1E3_SHA256: &str = "1ea4a168b40fd0c5a35c056c93c29b8b562eb739b7a5a09c1f888271f39d67a0";
-pub const C1_SHA256: &str = "c5d2e93240b421092550097f8d1926d75be864df997a37a1901fe25a106388ed";
+pub const W2B_SHA256: &str = "c7bbf1727f1a73927c47a9ae15af1aeb60813476ffabf6f01e81e046a346f79a";
+pub const B2_K1E3_SHA256: &str = "2fab880567fcdf5f73cc78f56fe37ed5bc1a25c3bfda693362c3596df6b5d0c5";
+pub const C1_SHA256: &str = "74a8faca515f1cfb29611dd9ebbdefa741c4a49cf54cd3bcc511231287beed13";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "8756006a612b6ed66c1dd01b2af228b339b6b51cd43a6fd416638c6f87c215b0"),
-    ("case:b", "c533f5674753a880f6a7b83839b4d1957d32834570133ea27fd5821ddfa65e24"),
-    ("case:c", "b4a22b37f452dfd12449fac41ef86fb4d13ad0dbb23cac0d4e321dd9a38092fb"),
+    ("case:a", "ff6cb511c3d999e42eecfe5fb684326e42692febea461b261523df92eb78c20d"),
+    ("case:b", "5eaaa15c44dafa777dd729a067a488f5d5b0a5d24792fb7392d0d1a53386dfea"),
+    ("case:c", "b1addc0e3e2b4bcf0b8588b7f3d421603ef7bd7ecdf75419abd60d0bac16d08d"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "2ca29f02fc1bc96d0b30133951516bbe59abd5495b4a4e7cebde479bcbc4c508";
+pub const I3_THREE_CASE_SHA256: &str = "d63de8d34cbf798c9afcc36df18259ba72484dba90af3caab81a4fd1054f7e32";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -100,7 +100,7 @@ pub fn law_cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.1.0",
+            "schema_version": "0.5.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},

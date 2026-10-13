@@ -42,7 +42,7 @@ fn projection(value: &Value, keys: &[&str]) -> Value {
 }
 fn legacy_authoring_model(expected: &Value) -> Value {
     let mut model = expected.clone();
-    model["schema_version"] = json!("0.2.0");
+    model["schema_version"] = json!("0.5.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     model["materials"][0]
         .as_object_mut()
@@ -92,7 +92,7 @@ fn exact_authoring_review_apply_serialization_and_real_solve() {
         "Model",
         expected["project"]["id"].as_str().unwrap(),
         "pressure_profile",
-        Some(&json!({"schema_version":"0.2.0"})),
+        Some(&json!({"schema_version":"0.5.0"})),
         &projection(&expected, &["schema_version", "pressure_contract"]),
     );
     model = apply(&model, &op);
@@ -356,7 +356,7 @@ fn exact_authoring_atomic_batch_late_invalid_profile_rolls_back_every_edit() {
             .any(|d| d["code"] == "OP-PRESSURE-PAYLOAD-INVALID"));
     }
     assert_eq!(model, original);
-    assert_eq!(model["schema_version"], "0.2.0");
+    assert_eq!(model["schema_version"], "0.5.0");
     assert!(model["materials"][0].get("poisson_ratio").is_none());
     assert!(model["load_cases"]
         .as_array()

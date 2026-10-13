@@ -104,16 +104,16 @@ def check_schema_contract():
     assert {"status", "source_schema_version", "target_schema_version"} <= set(
         migration["required"]
     )
-    assert {
+    # DEL-02-05 CLM-003: one current version; every other version is refused by name, never migrated.
+    assert set(migration["properties"]["status"]["enum"]) == {
         "current",
-        "migration_needed",
-        "stale",
-        "migrated",
+        "retired_schema",
         "unsupported_schema",
-        "failed",
         "newer_than_supported",
-        "TBD",
-    } <= set(migration["properties"]["status"]["enum"])
+    }
+    assert set(migration["properties"]["product_schema_migration_status"]["enum"]) == set(
+        migration["properties"]["status"]["enum"]
+    )
     assert "db_migration_status" in migration["properties"]
     assert "product_schema_migration_status" in migration["properties"]
     assert {
@@ -209,9 +209,9 @@ def check_schema_contract():
         "save_project",
         "validate_project",
         "version_check",
-        "migrate_project",
         "TBD",
     } <= set(operation["properties"]["operation"]["enum"])
+    assert "migrate_project" not in operation["properties"]["operation"]["enum"]
     assert operation["properties"]["boundary"]["const"] == "application_service"
     assert operation["properties"]["bypass_prohibited"]["const"] is True
     assert {

@@ -958,3 +958,18 @@ def test_repair03_n2b_reads_the_cases_in_array_order(shape):
         assert read(True, False) == case
         assert read(False, False) == case
         assert read(False, True) == ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID", "SOURCE_PHYSICS_EVIDENCE_INVALID: transport evidence shape")
+
+
+def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
+    """B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace is the current model version 0.5.0
+    without a pressure contract. Keying it on the version string alone (a 0.5.0 model with a contract would pass) or
+    on the retired 0.1.0/0.2.0 fails here."""
+    def model(version, **extra):
+        return {"schema_version": version, "project": {"id": "p"}, **extra}
+    assert rp._preview_namespace(model("0.5.0"))
+    assert rp._preview_namespace(model("0.5.0", pressure_contract=None))
+    for contract in ({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}, {}, False):
+        assert not rp._preview_namespace(model("0.5.0", pressure_contract=contract)), contract
+    for version in ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.1"):
+        assert not rp._preview_namespace(model(version)), version
+    assert not rp._preview_namespace({"project": {"id": "p"}})

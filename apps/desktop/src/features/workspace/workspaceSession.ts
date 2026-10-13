@@ -94,8 +94,7 @@ import {
   ownsOpenPersistenceObservation,
   verifiedWriteBasis, isLocalModelEdited,
   deriveModelHashIntegrity,
-  deriveProjectEnvelopeHashIntegrity,
-  isSupportedChangedModelPersistenceResponse
+  deriveProjectEnvelopeHashIntegrity
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useProjectSessionState } from "./projectSessionState";
@@ -357,8 +356,7 @@ export function useWorkspaceSession() {
     projectIndex, setProjectIndex,
     modelHashIntegrity, setModelHashIntegrity,
     projectEnvelopeHash, setProjectEnvelopeHash,
-    modelDocumentMigration, setModelDocumentMigration,
-    modelMigrationLedger, setModelMigrationLedger,
+    modelDocumentVersion, setModelDocumentVersion,
     projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity,
     projectMessage, setProjectMessage,
     projectOperation, setProjectOperation,
@@ -1532,45 +1530,6 @@ export function useWorkspaceSession() {
     setReportPackageRoute(null);
   }
 
-  function adoptNormalizedPersistenceModel(
-    envelope: LocalProjectEnvelope,
-    returnedHistory: HistoricalRunContext | null,
-    returnedModelHash: ModelHashEvidence | null
-  ) {
-    commitModel(envelope.model);
-    const normalizedIndex = modelIndexFor(
-      envelope.model,
-      projectSessionGenerationRef.current,
-      uiModelRevisionRef.current
-    );
-    commitSelectionState(
-      pruneSelection(
-        orderedSelectionRef.current,
-        new Set(normalizedIndex.entities.keys()),
-        { type: "project", id: envelope.model.project.id }
-      ),
-      envelope.model
-    );
-    setUndoStack([]);
-    setRedoStack([]);
-    setAppliedOperations([]);
-    setQueuedBatches([]);
-    setBatchOutcomes({});
-    setBatchReceipts([]);
-    setBatchMessage(null);
-    setOperationOutcomes({});
-    setOperationMessage(null);
-    setResult(null);
-    setAnalysisRun(null);
-    setInputManifest(null);
-    setRuleCheckAggregate(null);
-    setHistoricalRun(returnedHistory);
-    setRetainedReviewContext(envelope.editor_intents ?? []);
-    setEditorIntents([]);
-    setSolveJob(initialSolveJob());
-    setModelHash(envelope.model_hash ?? returnedModelHash);
-  }
-
   const latestIntegrityObservation = useRef(0);
   function recordPersistenceObservation(envelope: LocalProjectEnvelope, modelHash: ModelHashEvidence | null,
     envelopeHash: ProjectEnvelopeHashEvidence | null, source: "save" | "create", generation: number,
@@ -1666,7 +1625,6 @@ export function useWorkspaceSession() {
     setRedoStack([]);
     setProjectSummary(null);
     setProjectEnvelopeHash(null);
-    setModelMigrationLedger([]);
     setResult(null);
     setAnalysisRun(null);
     setInputManifest(null);
@@ -1702,8 +1660,6 @@ export function useWorkspaceSession() {
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const retainedRun = dropRun ? null : retainedReferencePersistence(requestModel);
     const requestHistoricalRun = dropRun ? null : historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
-    // A renamed document has no stored ledger of its own yet.
-    const requestMigrationLedgerCount = dropRun ? 0 : modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -1765,18 +1721,11 @@ export function useWorkspaceSession() {
       });
       if (!sameProjectSession()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
-      const modelChanged = isSupportedChangedModelPersistenceResponse(
-        created,
-        actualRequestModelHash,
-        returnedModelHash,
-        recomputedReturnedEnvelopeHash,
-        requestMigrationLedgerCount
-      );
       const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
         created.model.project.id === requestModel.project.id &&
         created.summary.project_id === requestModel.project.id &&
         persistenceHashesMatch(created, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
-        (!responseModelChanged || modelChanged));
+        !responseModelChanged);
       recordPersistenceObservation(created, returnedModelHash, recomputedReturnedEnvelopeHash, "create", generation, writeObservation, verifiedResponse, requestModel.project.id, Boolean(verifiedResponse && requestHistoricalRun && !responseModelChanged));
       pendingObservation = null;
       if (created.model.project.id !== requestModel.project.id || created.summary.project_id !== requestModel.project.id) {
@@ -1785,9 +1734,9 @@ export function useWorkspaceSession() {
         setProjectOperation("create_failed");
         return;
       }
-      if (responseModelChanged && !modelChanged) {
+      if (responseModelChanged) {
         if (!stillCurrent()) return;
-        setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
+        setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: the returned model differs from the requested model; the store never rewrites a model document.");
         setProjectOperation("create_failed");
         return;
       }
@@ -1802,23 +1751,18 @@ export function useWorkspaceSession() {
         setSavedModelBasis(verifiedBasis);
       }
       if (!stillCurrent()) return;
-      const returnedHistory = modelChanged || requestHistoricalRun
+      const returnedHistory = requestHistoricalRun
         ? await buildHistoricalRunContext(created)
         : null;
       if (!stillCurrent()) return;
-      if (modelChanged) {
-        adoptNormalizedPersistenceModel(created, returnedHistory, returnedModelHash);
-        epoch = requestEpochRef.current;
-        if (verifiedResponse && writeObservation === latestVerifiedWriteObservation.current) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "create" });
-      } else if (requestHistoricalRun) {
+      if (requestHistoricalRun) {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
       setProjectSummary(created.summary);
       setProposal(created.proposal ?? null);
       setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
-      setModelDocumentMigration(created.model_document_migration ?? null);
-      setModelMigrationLedger(created.model_migration_ledger ?? []);
+      setModelDocumentVersion(created.model_document_version ?? null);
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
@@ -1901,7 +1845,7 @@ export function useWorkspaceSession() {
         created.model.project.id === blankModel.project.id &&
         created.summary.project_id === blankModel.project.id &&
         persistenceHashesMatch(created, returnedHash, returnedEnvelopeHash) &&
-        (returnedHash.value === blankModelHash.value || isSupportedChangedModelPersistenceResponse(created, blankModelHash, returnedHash, returnedEnvelopeHash, 0)));
+        returnedHash.value === blankModelHash.value);
       const createdSummary = {
         ...created.summary,
         message: createdMessage
@@ -1955,8 +1899,7 @@ export function useWorkspaceSession() {
       setProjectSummary(createdSummary);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
       setModelHash(created.model_hash ?? blankModelHash);
-      setModelDocumentMigration(created.model_document_migration ?? null);
-      setModelMigrationLedger(created.model_migration_ledger ?? []);
+      setModelDocumentVersion(created.model_document_version ?? null);
       setProjectMessage(createdSummary.message);
       setProjectOperation("create_blank");
     } catch (error) {
@@ -2029,8 +1972,7 @@ export function useWorkspaceSession() {
       setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
-      setModelDocumentMigration(opened.model_document_migration ?? null);
-      setModelMigrationLedger(opened.model_migration_ledger ?? []);
+      setModelDocumentVersion(opened.model_document_version ?? null);
       setProjectMessage(opened.summary.message);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
@@ -2127,10 +2069,8 @@ export function useWorkspaceSession() {
       setSolveJob(initialSolveJob());
       setProjectSummary(null);
       setProjectEnvelopeHash(null);
-      setModelDocumentMigration(null);
-      setModelMigrationLedger([]);
-      const schemaNote = opened.schema_status === "migrated" ? "migrated when saved as a project" : opened.schema_status;
-      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${schemaNote}). Not saved as a local project yet.`);
+      setModelDocumentVersion(null);
+      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.`);
       setProjectOperation("open_model");
       setActiveSection(null);
       const hash = await computeModelHash(document);
@@ -2172,8 +2112,6 @@ export function useWorkspaceSession() {
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
     const retainedRun = dropRun ? null : retainedReferencePersistence(requestModel);
     const requestHistoricalRun = dropRun ? null : historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
-    // A renamed document has no stored ledger of its own yet.
-    const requestMigrationLedgerCount = dropRun ? 0 : modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
@@ -2203,7 +2141,6 @@ export function useWorkspaceSession() {
           snapshotAnalysisRun,
           snapshotModelHash,
           envelopeHash,
-          modelDocumentMigration,
           confirmedRevision,
           // The session's own stored project: a save in place from the revision it
           // last opened or wrote. Without a recorded hash there is no base to
@@ -2240,18 +2177,11 @@ export function useWorkspaceSession() {
       });
       if (!sameProjectSession()) return;
       const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
-      const modelChanged = isSupportedChangedModelPersistenceResponse(
-        saved,
-        actualRequestModelHash,
-        returnedModelHash,
-        recomputedReturnedEnvelopeHash,
-        requestMigrationLedgerCount
-      );
       const verifiedResponse = Boolean(actualRequestModelHash && returnedModelHash &&
         saved.model.project.id === requestModel.project.id &&
         saved.summary.project_id === requestModel.project.id &&
         persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
-        (!responseModelChanged || modelChanged));
+        !responseModelChanged);
       recordPersistenceObservation(saved, returnedModelHash, recomputedReturnedEnvelopeHash, "save", generation, writeObservation, verifiedResponse, requestModel.project.id, Boolean(verifiedResponse && requestHistoricalRun && !responseModelChanged));
       pendingObservation = null;
       if (saved.model.project.id !== requestModel.project.id || saved.summary.project_id !== requestModel.project.id) {
@@ -2260,9 +2190,9 @@ export function useWorkspaceSession() {
         setProjectOperation("save_failed");
         return;
       }
-      if (responseModelChanged && !modelChanged) {
+      if (responseModelChanged) {
         if (!stillCurrent()) return;
-        setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
+        setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: the returned model differs from the requested model; the store never rewrites a model document.");
         setProjectOperation("save_failed");
         return;
       }
@@ -2277,15 +2207,11 @@ export function useWorkspaceSession() {
         setSavedModelBasis(verifiedBasis);
       }
       if (!stillCurrent()) return;
-      const returnedHistory = modelChanged || requestHistoricalRun
+      const returnedHistory = requestHistoricalRun
         ? await buildHistoricalRunContext(saved)
         : null;
       if (!stillCurrent()) return;
-      if (modelChanged) {
-        adoptNormalizedPersistenceModel(saved, returnedHistory, returnedModelHash);
-        epoch = requestEpochRef.current;
-        if (verifiedResponse && writeObservation === latestVerifiedWriteObservation.current) setSavedModelBasis({ generation, revision: uiModelRevisionRef.current, hash: returnedModelHash!.value, source: "save" });
-      } else if (requestHistoricalRun) {
+      if (requestHistoricalRun) {
         // Preserve a fresh Current solve that completed while the native save
         // was pending. Only the still-owned Historical snapshot may refresh.
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
@@ -2294,8 +2220,7 @@ export function useWorkspaceSession() {
       setProposal(saved.proposal ?? null);
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
-      setModelDocumentMigration(saved.model_document_migration ?? null);
-      setModelMigrationLedger(saved.model_migration_ledger ?? []);
+      setModelDocumentVersion(saved.model_document_version ?? null);
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {
@@ -3009,8 +2934,7 @@ export function useWorkspaceSession() {
       modelHashIntegrity,
       projectEnvelopeHash,
       projectEnvelopeHashIntegrity,
-      modelDocumentMigration,
-      modelMigrationLedger,
+      modelDocumentVersion,
       projectMessage,
       projectOperation,
       projectBusy,

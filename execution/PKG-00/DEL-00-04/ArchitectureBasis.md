@@ -43,7 +43,7 @@ The anticipated `docs/architecture/persistence_versioning.md` was never created.
 |---|---|---|
 | `docs/architecture/persistence_contract.md` | Canonical persistence contract document | DEL-02-05 (not DEL-00-04) |
 | `execution/_Coordination/_DECISIONS/D-08_model_document_schema_migration.md` | Migration-policy decision packet (accepted as proposed 2026-06-10) | Decision record (coordination surface) |
-| `apps/desktop/src-tauri/src/model_document_migration.rs` | Implemented model-document migration chain | Implementation packages (not DEL-00-04) |
+| `apps/desktop/src-tauri/src/model_document_version.rs` | Model-document version check (one current version; the migration chain was removed in B7a) | Implementation packages (not DEL-00-04) |
 | `apps/desktop/src/services/hashService.ts` | Frontend seam to the Rust canonical JSON / SHA-256 implementation through the WebAssembly engine (REQ-04-03) | Implementation packages (not DEL-00-04) |
 
 ## Open holds and routed questions

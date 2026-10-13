@@ -34,7 +34,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > - Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, or newer) is refused by name with a diagnostic that names the document's version and says to re-author it. Nothing is migrated, upgraded or down-migrated, and no migration code is kept.
 > - Version-check states: `current` for `0.5.0`; otherwise `unsupported_schema` (missing or non-semver version), `newer_than_supported`, or the named re-author refusal for an older version. There is no `stale`, `migrated` or `failed` state.
 > - UI evidence consumers (Project Validation, Export Review, Report persistence context) use one version evaluator.
-> - The code does not meet this yet: it still migrates `0.1.0 -> 0.2.0`, keeps `0.2.0`, `0.3.0` and `0.4.0` current, and mirrors the chain in TypeScript. B7 removes them (`0.1.0`/`0.2.0` in B7a, `0.3.0`/`0.4.0` in B7b), as planned in DEL-05-02 Design (`b7-plan.md`).
+> - The code does not meet this fully yet: B7a refuses `0.1.0`/`0.2.0` by name and removed the migration chain and its TypeScript mirror; `0.3.0` and `0.4.0` stay current until B7b, as planned in DEL-05-02 Design (`b7-plan.md`).
 >
 
 ### CLM-004 — Identification
@@ -172,7 +172,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### Version Contract Integration
 >
-> The runtime authoring version is the single current model-document version in CLM-003. UI version checks consume one shared evaluator: `current` identifies that version; `unsupported_schema`, `newer_than_supported`, and the named re-author refusal for an older version are explicit refusal states. No migration runs. Until B7 removes it, the code still reports `0.1.0` as `stale` and migrates it in memory to `0.2.0` (DEL-05-02 Design, `b7-plan.md`).
+> The runtime authoring version is the single current model-document version in CLM-003. UI version checks consume one shared evaluator: `current` identifies that version; `unsupported_schema`, `newer_than_supported`, and the named re-author refusal for an older version are explicit refusal states. No migration runs. Until B7b, the exact pressure model versions `0.3.0` and `0.4.0` also report `current` (DEL-05-02 Design, `b7-plan.md`).
 >
 
 ### CLM-014 — Requirements

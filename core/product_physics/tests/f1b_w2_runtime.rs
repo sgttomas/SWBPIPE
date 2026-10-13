@@ -58,7 +58,7 @@ fn frame(
     loads: Vec<Value>,
 ) -> Value {
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -295,7 +295,7 @@ fn t0r(
     loads: Value,
     modulus_scale: f64,
 ) -> Value {
-    json!({"model": {"schema_version": "0.2.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:t3-f1b-w2", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
@@ -1035,7 +1035,7 @@ fn rv17_member(
 ) -> Value {
     let label = project.rsplit(':').next().unwrap();
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},

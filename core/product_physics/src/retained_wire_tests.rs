@@ -50,11 +50,11 @@ fn sha(bytes: &[u8]) -> String {
 fn milestone_raw() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
 }
-/// The private prepared driver on the unchanged 0.1.0 milestone: the candidate,
+/// The private prepared driver on the unchanged 0.5.0 milestone: the candidate,
 /// its captured invocation and the bytes of its single ordinary run.
 fn milestone_candidate(mode: PreviewSolverMode) -> (rp::PrivatePreparedCandidate, source_receipt::CapturedInvocation, Vec<u8>) {
     let raw = milestone_raw();
-    assert_eq!(raw["model"]["schema_version"], json!("0.1.0"), "milestone request unchanged at 0.1.0");
+    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.5.0");
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
     let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
     let ordinary = serde_json::to_vec(prepared.ordinary()).unwrap();

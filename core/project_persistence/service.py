@@ -341,34 +341,37 @@ def save_project_store(store_path: str | Path, envelope: Mapping[str, Any]) -> d
     }
 
 
+def _version_status(raw: Any) -> str:
+    """One current version (DEL-02-05 CLM-003): every other version is refused by name, never migrated."""
+
+    def parse(value: Any) -> tuple[int, ...] | None:
+        parts = value.split(".") if isinstance(value, str) else []
+        return tuple(int(part) for part in parts) if len(parts) == 3 and all(part.isdigit() for part in parts) else None
+
+    version, current = parse(raw), parse(SCHEMA_VERSION)
+    if version is None:
+        return "unsupported_schema"
+    if version == current:
+        return "current"
+    return "newer_than_supported" if version > current else "retired_schema"
+
+
 def version_check_project_store(store_path: str | Path) -> dict[str, Any]:
-    """Return separate DB and product schema migration status for a store."""
+    """Return the store's DB migration status and the product schema's version status (no product migration)."""
 
     opened = open_project_store(store_path)
     envelope = opened.get("envelope")
     if not isinstance(envelope, Mapping):
         return {
             "db_migration_status": "failed",
-            "product_schema_migration_status": "TBD",
+            "product_schema_migration_status": "unsupported_schema",
             "diagnostics": opened.get("diagnostics", []),
         }
-    product_status = "current" if envelope.get("schema_version") == SCHEMA_VERSION else "migration_needed"
     return {
         "db_migration_status": "current",
-        "product_schema_migration_status": product_status,
+        "product_schema_migration_status": _version_status(envelope.get("schema_version")),
         "diagnostics": opened.get("diagnostics", []),
     }
-
-
-def migrate_project_store(store_path: str | Path) -> dict[str, Any]:
-    """Classify migration state; no silent product migration is performed."""
-
-    status = version_check_project_store(store_path)
-    if status["product_schema_migration_status"] != "current":
-        status["diagnostics"] = list(status.get("diagnostics", [])) + [
-            _diagnostic("PERSISTENCE_PRODUCT_SCHEMA_MIGRATION_REQUIRED", "PRODUCT_SCHEMA_MIGRATION", "schema_version")
-        ]
-    return status
 
 
 def rebuild_retrieval_sidecars(store_path: str | Path) -> dict[str, Any]:
@@ -758,5 +761,5 @@ def _service_operations() -> list[dict[str, Any]]:
             "diagnostic_classes": diagnostic_classes,
             "bypass_prohibited": True,
         }
-        for operation in ("create_project", "open_project", "save_project", "validate_project", "version_check", "migrate_project")
+        for operation in ("create_project", "open_project", "save_project", "validate_project", "version_check")
     ]

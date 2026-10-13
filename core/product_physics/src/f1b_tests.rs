@@ -48,7 +48,7 @@ fn frame_request(
         })
         .collect();
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -118,7 +118,7 @@ fn curved_elbow_request() -> Value {
                "direction": dof, "magnitude": {"value": 1.0, "unit": "N*m"}, "dimension": "moment", "provenance": p})
     };
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},

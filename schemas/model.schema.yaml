@@ -11,8 +11,16 @@
   ],
   "properties": {
     "schema_version": {
+      "description": "Model document version (DEL-02-05 CLM-003; DEL-05-02 Design b7-plan.md, Current model format). 0.5.0 is the one current version: pressure_contract is optional, and its absence makes the document pressure-free; behaviour keys on what the document carries, never on this string. 0.1.0 and 0.2.0 are retired and refused by name with a re-author diagnostic; nothing is migrated. Until B7b gives 0.5.0 its contract-present form and re-authors them, 0.3.0 and 0.4.0 remain accepted for exact pressure models.",
       "type": "string",
-      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      "enum": [
+        "0.5.0",
+        "0.3.0",
+        "0.4.0"
+      ]
+    },
+    "pressure_contract": {
+      "$ref": "#/$defs/PressureContract"
     },
     "project": {
       "$ref": "#/$defs/Project"
@@ -924,6 +932,25 @@
           }
         }
       ]
+    },
+    "PressureContract": {
+      "description": "Optional on model document 0.5.0. Absent: the document is pressure-free, and pressure_regions and every pressure primitive are refused by name. The contract-present 0.5.0 form lands with B7b: it names the current exact contract and, on an exact-contract document, requires the corrosion-allowance (zero allowed) and shear-model fields (owner, 2026-10-12, O2/O3), whose field specification T4 supplies. Until then a 0.5.0 document that declares a contract is refused by name.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "mode"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     },
     "PressureQuantity": {
       "allOf": [

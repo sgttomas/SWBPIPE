@@ -1778,12 +1778,14 @@ def _pressure_contract_is(model, expected):
 
 
 def _preview_namespace(model):
-    """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, schema 0.1.0 or
-    0.2.0 with `pressure_contract` absent or JSON null. Anything else is refused: any 0.3.0 model, the retired
+    """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
+    document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
+    0.5.0 with `pressure_contract` absent or JSON null. Anything else is refused: a 0.5.0 model with any contract
+    (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
-    contract product-wide), and B3D-10's tightenings (0.3.0 without a contract; `{}` and other falsy values) stay."""
+    contract product-wide)."""
     version = model.get("schema_version")
-    return type(version) is str and version in ("0.1.0", "0.2.0") and model.get("pressure_contract") is None
+    return type(version) is str and version == "0.5.0" and model.get("pressure_contract") is None
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}

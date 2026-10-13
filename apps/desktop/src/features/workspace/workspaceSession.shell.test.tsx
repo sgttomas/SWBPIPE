@@ -131,7 +131,6 @@ function spine(session: WorkspaceSession) {
     projectIndex: project.projectIndex,
     projectMessage: project.projectMessage,
     projectEnvelopeHash: project.projectEnvelopeHash,
-    modelMigrationLedger: project.modelMigrationLedger,
     selection: selection.selection,
     orderedSelection: selection.orderedSelection
   };

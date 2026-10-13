@@ -101,8 +101,7 @@ function inventedOpenEnvelope(model: PreviewModel): LocalProjectEnvelope {
     analysis_run: null,
     model_hash: null,
     project_envelope_hash: null,
-    model_document_migration: null,
-    model_migration_ledger: [],
+    model_document_version: null,
   };
 }
 
@@ -923,54 +922,30 @@ describe("B3A baseline ownership after asynchronous persistence", () => {
   });
 });
 
-describe("B3A persisted normalization comparison", () => {
-  it.each([true, false])("clears only a verified supported normalization (ledger=%s)", async (supported) => {
+describe("B3A persisted model comparison", () => {
+  // DEL-02-05 CLM-003: the store never rewrites a model document, so a save
+  // response whose model differs from the request is refused, never adopted.
+  it("refuses a save response whose model differs from the request", async () => {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     await applyGridEditWhilePending();
     invokeMock.mockImplementation(async (command: string, args?: { request?: Record<string, unknown> }) => {
       if (command !== "save_local_project") return {};
-      const returned = savedEnvelopeFor(model, args!.request!, "Normalized saved model");
-      const beforeHash = await hashService.computeModelHash(returned.model);
-      returned.model = { ...returned.model, schema_version: "0.2.0" };
+      const returned = savedEnvelopeFor(model, args!.request!, "Rewritten saved model");
+      returned.model = { ...returned.model, schema_version: "0.4.0" };
       returned.model_hash = await hashService.computeModelHash(returned.model);
       returned.project_envelope_hash = await hashService.computeProjectEnvelopeHash({
         model: returned.model, editor_intents: returned.editor_intents, proposal: returned.proposal,
         selected_review_target: returned.selected_review_target, mechanics_result: returned.mechanics_result,
         analysis_run: returned.analysis_run, model_hash: returned.model_hash
       });
-      if (supported) {
-        const ids = ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"];
-        returned.model_document_migration = {
-          status: "migrated", source_schema_version: "0.1.0", target_schema_version: "0.2.0",
-          migration_framework: "application_service_separate_db_and_product_schema",
-          db_migration_status: "store_user_version_ledger_separate_ddl_only", product_schema_migration_status: "migrated",
-          applied_migration_ids: ids, persistence_state: "persisted_with_ledger_record", detail: "Invented supported normalization"
-        };
-        returned.model_migration_ledger = [{
-          record_kind: "model_document_migration_ledger_record", recorded_at_unix: 1,
-          source_schema_version: "0.1.0", target_schema_version: "0.2.0", applied_migration_ids: ids,
-          migration_framework: "application_service_separate_db_and_product_schema",
-          pre_migration_model_hash: beforeHash!.value, post_migration_model_hash: returned.model_hash!.value,
-          trigger: "migrate_in_memory_on_open_persisted_on_save", destructive_rewrite: false,
-          professional_boundary: { human_review_required: true, software_makes_compliance_claim: false },
-          hash_evidence: {
-            schema: "model_migration_hash_evidence_v1", source_payload_basis: "incoming_pre_migration_model",
-            received: { model_hash: beforeHash, project_envelope_hash: null }, prior_stored: null,
-            computed: { pre_migration_model_hash: beforeHash!.value, post_migration_model_hash: returned.model_hash!.value,
-              post_migration_project_envelope_hash: returned.project_envelope_hash!.value }, received_claim_verification: "not_asserted"
-          }
-        }];
-      }
       return returned;
     });
     act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(projectMessage()).toHaveTextContent(supported ? "Normalized saved model" : "Save failed:"));
-    if (supported) {
-      expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
-      expect(screen.getByTestId("workspace-undo")).toBeDisabled();
-    } else expect(screen.getByTestId("project-edited")).toBeInTheDocument();
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed:"));
+    expect(projectMessage()).toHaveTextContent("the store never rewrites a model document");
+    expect(screen.getByTestId("project-edited")).toBeInTheDocument();
   });
 });
 

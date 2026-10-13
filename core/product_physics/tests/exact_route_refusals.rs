@@ -345,14 +345,14 @@ fn a1_objective_connector_codes_precede_the_composition_code() {
     }
 }
 
-/// A1.9: on the pressure-free route (0.2.0, no pressure contract) the connector
+/// A1.9: on the pressure-free route (0.5.0, no pressure contract) the connector
 /// is refused as a contract-version mismatch, and no exact composition code
 /// applies.
 #[test]
 fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
     let mut document = Base::X0.document();
     let model = &mut document["model"];
-    model["schema_version"] = json!("0.2.0");
+    model["schema_version"] = json!("0.5.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     for case in model["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");

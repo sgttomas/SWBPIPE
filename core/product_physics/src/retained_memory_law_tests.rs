@@ -118,7 +118,7 @@ pub(super) fn cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.1.0",
+            "schema_version": "0.5.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -755,7 +755,8 @@ fn every_family_clause_refuses_with_its_fact() {
     // without one refuses with `PressureContract`; a schema in no branch with `SchemaVersion`.
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.4.0")), family(C::Namespace, F::SchemaVersion));
-    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), None, "0.2.0 is in the namespace");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.5.0")), None, "0.5.0 without a contract is in the namespace");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::SchemaVersion), "0.2.0 is retired");
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({})), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["reference_configurations"] = Value::Null), family(C::Namespace, F::ReferenceConfigurations));
     assert_eq!(with(&|r| r["model"]["materials"][0]["expansion_laws"] = Value::Null), family(C::Namespace, F::MaterialExpansionLaw));
@@ -1755,11 +1756,20 @@ pub(super) fn attempted_examples() -> Vec<(&'static str, Value)> {
         ("milestone", milestone()),
         ("failed attempt", failed),
         (DEFERRED_FORMATION, k2a_partial_underflow()),
-        ("rejected_stress_range sparse", serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/sparse_interactive.request.json")).unwrap()),
-        ("rejected_stress_range dense", serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/dense_scrutiny.request.json")).unwrap()),
+        ("rejected_stress_range sparse", current_rejected_stress_range(include_str!(
+            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/sparse_interactive.request.json"))),
+        ("rejected_stress_range dense", current_rejected_stress_range(include_str!(
+            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/dense_scrutiny.request.json"))),
     ]
+}
+/// The rejected_stress_range pair is a pinned historical capture (its CAPTURE/ORACLE records bind
+/// the request and raw bytes), so its request stays the 0.1.0 document it was captured with. B7a
+/// retired 0.1.0: the live examples re-author it to the current version, changing nothing else.
+pub(super) fn current_rejected_stress_range(captured: &str) -> Value {
+    let mut request: Value = serde_json::from_str(captured).unwrap();
+    assert_eq!(request["model"]["schema_version"], json!("0.1.0"), "the historical capture");
+    request["model"]["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
+    request
 }
 /// The attempted example whose seed is F1b's deferred formation (`FormationFailure`).
 pub(super) const DEFERRED_FORMATION: &str = "deferred formation (K2a partial underflow)";
@@ -1773,7 +1783,7 @@ pub(super) fn k2a_partial_underflow() -> Value {
     let anchored: Vec<&str> = all.iter().copied().filter(|d| *d != "UY").collect();
     json!({
         "model": {
-            "schema_version": "0.1.0",
+            "schema_version": "0.5.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {
                 "mechanics": "ready_for_preview_diagnostics",
@@ -2244,6 +2254,34 @@ fn legacy3(mut raw: Value) -> Value {
     raw
 }
 
+/// B7a (b7-plan "Model format, pressure-free half"): branch L keys on the pressure contract's
+/// absence, not on the version string. A current-version (0.5.0) document is on branch L only
+/// while it carries no contract; the same document with a contract is refused by its contract
+/// (`PressureContract`), and the retired 0.1.0/0.2.0 are on no branch (`SchemaVersion`), with
+/// or without a contract. Keying branch L on the version string alone (`schema == 0.5.0`) or on
+/// the retired versions fails this test.
+#[test]
+fn b7a_branch_l_keys_on_the_contracts_absence_not_the_version() {
+    use FamilyFact as F;
+    let branch = |schema: &str, contract: Value| {
+        let mut raw = milestone();
+        raw["model"]["schema_version"] = json!(schema);
+        raw["model"]["pressure_contract"] = contract;
+        let (request, _) = CapturedInvocation::parse(raw, PreviewSolverMode::SparseInteractive).unwrap();
+        namespace_branch(&request.model)
+    };
+    assert_eq!(milestone()["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "the milestone is current");
+    assert_eq!(branch("0.5.0", Value::Null), Ok(NamespaceBranch::Preview), "pressure-free 0.5.0");
+    for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({"version": "3.0.0", "mode": "exact_pressure_v3"}), json!({"version": "1.0.0", "mode": "legacy_pressure_v1"})] {
+        assert_eq!(branch("0.5.0", contract.clone()), Err(F::PressureContract), "0.5.0 with {contract}: the contract's presence leaves branch L");
+    }
+    for retired in crate::RETIRED_MODEL_SCHEMA_VERSIONS {
+        assert_eq!(branch(retired, Value::Null), Err(F::SchemaVersion), "retired {retired} without a contract");
+    }
+    assert_eq!(branch("0.3.0", Value::Null), Err(F::PressureContract), "0.3.0 requires its contract");
+    assert_eq!(branch("0.4.0", Value::Null), Err(F::SchemaVersion), "0.4.0 stays outside D1");
+}
+
 /// B3a's drop: 0.3.0 with exactly `{1.0.0, legacy_pressure_v1}` is on no D1.3 branch, so it
 /// refuses with `PressureContract`, alone and with C cases, in both modes, and no build grants
 /// it a permit. Every contract that does not match its schema's branch refuses with
@@ -2283,8 +2321,9 @@ fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract_on_0_3_0() {
         ("0.3.0, empty contract", "0.3.0", json!({}), F::PressureContract),
         ("0.3.0, another mode", "0.3.0", json!({"version": "1.0.0", "mode": "exact_straight_pressure_v2"}), F::PressureContract),
         ("0.3.0, the mode's case", "0.3.0", json!({"version": "1.0.0", "mode": "Legacy_pressure_v1"}), F::PressureContract),
-        ("0.2.0 with the legacy contract", "0.2.0", legacy.clone(), F::PressureContract),
-        ("0.1.0 with the legacy contract", "0.1.0", legacy.clone(), F::PressureContract),
+        ("0.5.0 with the legacy contract", "0.5.0", legacy.clone(), F::PressureContract),
+        ("0.2.0 with the legacy contract (retired)", "0.2.0", legacy.clone(), F::SchemaVersion),
+        ("0.1.0 with the legacy contract (retired)", "0.1.0", legacy.clone(), F::SchemaVersion),
         ("0.4.0 with the legacy contract", "0.4.0", legacy.clone(), F::SchemaVersion),
         ("0.3 with the legacy contract", "0.3", legacy.clone(), F::SchemaVersion),
     ] {
@@ -2641,7 +2680,8 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     assert_eq!(with(&|r| r["model"]["pressure_contract"]["version"] = json!("2.0.1")), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["pressure_contract"]["mode"] = json!("legacy_pressure_v1")), family(C::Namespace, F::PressureContract),
         "2.0.0 with the legacy mode");
-    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::PressureContract));
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.5.0")), family(C::Namespace, F::PressureContract), "0.5.0 with a contract");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::SchemaVersion), "0.2.0 is retired");
     // A combination on L is still inside D1 (B2-C's clauses apply there only; B3a's L3 is dropped).
     let mut l = milestone();
     l["model"]["combinations"] = json!([{"id": "combination", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);

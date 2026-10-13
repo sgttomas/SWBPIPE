@@ -236,7 +236,6 @@ describe("product-shaped documents: the workspace crash writes no stored state (
       expect(after!.mechanics_result).toBeNull();
       expect(after!.analysis_run).toBeNull();
       expect(after!.editor_intents).toEqual([]);
-      expect(after!.model_migration_ledger).toEqual(JSON.parse(stored).model_migration_ledger);
       expect(JSON.stringify(await listLocalProjects())).toBe(listed);
       expect(JSON.stringify(model)).toBe(bytes);
     });
