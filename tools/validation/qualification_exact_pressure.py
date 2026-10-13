@@ -69,7 +69,7 @@ TABLE_SHA256 = '2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1
 # of this conversion (the former pin was the test-only verifier's, 0a0192ee...);
 # re-pin deliberately whenever the reader changes.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
-MODULE_SHA256 = 'a1cc623714d6a98f1dac2481b65baa6272bf76dca25a9c1bcfa12e011625631c'
+MODULE_SHA256 = 'df1d5e4ed531f68d47ab6318b602cc73d3da78891caf83cfb27f9b03f4934d42'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
