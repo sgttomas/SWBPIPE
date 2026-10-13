@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
 import { createSolveJobTransport, REPLAY_RESOURCE_GRANT, resultArrayBuffer, startRequestModel } from "../../test/nativeMechanicsReplay";

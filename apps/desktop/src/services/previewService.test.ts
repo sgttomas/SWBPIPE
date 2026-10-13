@@ -14,7 +14,7 @@ import { numericalResultStanding } from "../features/results/resultStanding";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 afterEach(() => {
   invokeMock.mockReset();
   resetSessionResultCustodyForTests();
@@ -592,7 +592,7 @@ describe("native mechanics failure boundary", () => {
   it("reads a typed start refusal as ResourceUnavailableError carrying the refusal and pool", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const pool = { capacity_bytes: 16 * 2 ** 30, recommended_pool_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, pool_above_recommended: false,
-      invocation_budget_bytes: 12 * 2 ** 30, qualified_invocation_budget_bytes: 12 * 2 ** 30, reserved_bytes: 0,
+      invocation_budget_bytes: 12 * 2 ** 30, default_invocation_budget_bytes: 12 * 2 ** 30, max_invocation_budget_bytes: 12 * 2 ** 30, reserved_bytes: 0,
       reserved_by_purpose: { ingress: 0, worker: 0, result: 0, custody: 0 }, running_workers: 0, queued_jobs: 0, running_jobs: 0, limits: { max_running_workers: 8 },
       retained_results: 0, webview_custody_results: 0, headroom: { available_bytes: 2 * 2 ** 30, pressure: "normal", sample_age_ms: 20 },
       ordinary_route_pricing: "worker_capped", last_refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 } };

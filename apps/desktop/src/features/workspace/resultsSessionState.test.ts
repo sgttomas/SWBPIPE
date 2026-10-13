@@ -5,7 +5,7 @@ import { numericalResultStanding } from "../results/resultStanding";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });

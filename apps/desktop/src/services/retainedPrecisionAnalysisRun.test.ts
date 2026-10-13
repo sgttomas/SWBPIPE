@@ -12,7 +12,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../types";
 import {
   ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN, ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, analysisRecordProjection, buildAnalysisRunV02, buildAnalysisRunV03,

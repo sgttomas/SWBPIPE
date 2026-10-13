@@ -1,7 +1,7 @@
 import { describe, expect, it, afterEach, vi } from "vitest";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";

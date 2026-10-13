@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { PoolStatus } from "../../types";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 
@@ -16,7 +16,8 @@ function poolStatus(overrides: Partial<PoolStatus> = {}): PoolStatus {
     pool_bytes: 48 * GiB,
     pool_above_recommended: false,
     invocation_budget_bytes: 12 * GiB,
-    qualified_invocation_budget_bytes: 12 * GiB,
+    default_invocation_budget_bytes: 12 * GiB,
+    max_invocation_budget_bytes: 48 * GiB,
     reserved_bytes: 18.5 * GiB,
     reserved_by_purpose: { ingress: 0.5 * GiB, worker: 6 * GiB, result: 0, custody: 12 * GiB },
     running_workers: 2,
@@ -61,7 +62,11 @@ describe("the memory pool panel", () => {
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
-    expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
+    expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; any budget up to 48 GiB, the pool size, can be selected)");
+    expect(line("memory-pool-budget-larger")).toBe("each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose memory is not free when it needs it is still refused");
+    // Interactive requests are admitted by pool, free memory and budget, not refused for macOS memory pressure.
+    expect(line("memory-pool-interactive")).toBe("each request is admitted by the pool, free memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure");
+    expect(screen.getByTestId("memory-pool-panel").textContent).not.toMatch(/qualif/i);
     // The budget bounds the request intake and each ordinary solve's worker, not held results.
     expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the free memory macOS reports at that moment, is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget");
     expect(screen.getByTestId("memory-pool-status").textContent).not.toMatch(/qualified up to|guarantee/i);
@@ -149,7 +154,7 @@ describe("the memory pool panel", () => {
     nativeRuntime();
     invokeMock.mockImplementation(async (command: string, args?: { poolBytes: number; invocationBudgetBytes: number }) => {
       if (command === "get_memory_pool_status") return poolStatus();
-      if (command === "configure_memory_pool") return poolStatus({ pool_bytes: args!.poolBytes, invocation_budget_bytes: args!.invocationBudgetBytes });
+      if (command === "configure_memory_pool") return poolStatus({ pool_bytes: args!.poolBytes, max_invocation_budget_bytes: args!.poolBytes, invocation_budget_bytes: args!.invocationBudgetBytes });
       throw new Error(`unexpected ${command}`);
     });
     render(<MemoryPoolPanel active={false} />);
@@ -160,11 +165,45 @@ describe("the memory pool panel", () => {
     fireEvent.click(screen.getByTestId("memory-pool-apply"));
     expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent("Applied: pool 24 GiB; per-invocation budget 8 GiB.");
     expect(invokeMock).toHaveBeenCalledWith("configure_memory_pool", { poolBytes: 24 * GiB, invocationBudgetBytes: 8 * GiB, acknowledgeAboveRecommended: false });
-    expect(line("memory-pool-budget")).toBe("8 GiB (default 12 GiB; a lower budget can be selected; a larger one is refused because no larger budget is qualified)");
+    expect(line("memory-pool-budget")).toBe("8 GiB (default 12 GiB; any budget up to 24 GiB, the pool size, can be selected)");
+  });
+
+  it("accepts a per-invocation budget above the 12 GiB default up to the pool, and holds a larger one back", async () => {
+    nativeRuntime();
+    invokeMock.mockImplementation(async (command: string, args?: { poolBytes: number; invocationBudgetBytes: number }) => {
+      if (command === "get_memory_pool_status") return poolStatus();
+      if (command === "configure_memory_pool") return poolStatus({ pool_bytes: args!.poolBytes, invocation_budget_bytes: args!.invocationBudgetBytes });
+      throw new Error(`unexpected ${command}`);
+    });
+    render(<MemoryPoolPanel active={false} />);
+    await screen.findByTestId("memory-pool-status");
+    const budget = screen.getByLabelText("Per-invocation budget (GiB)");
+    expect(budget).toHaveAttribute("max", "48");
+    const apply = screen.getByTestId("memory-pool-apply");
+    fireEvent.change(budget, { target: { value: "48.5" } });
+    expect(screen.getByTestId("memory-pool-budget-above-max")).toHaveTextContent("48.5 GiB is above the largest per-invocation budget, 48 GiB (the pool size).");
+    expect(apply).toBeDisabled();
+    fireEvent.submit(apply.closest("form")!);
+    expect(invokeMock.mock.calls.some(([command]) => command === "configure_memory_pool")).toBe(false);
+    fireEvent.change(budget, { target: { value: "48" } });
+    expect(screen.queryByTestId("memory-pool-budget-above-max")).toBeNull();
+    fireEvent.change(budget, { target: { value: "20" } });
+    expect(apply).toBeEnabled();
+    fireEvent.click(apply);
+    expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent("Applied: pool 48 GiB; per-invocation budget 20 GiB.");
+    expect(invokeMock).toHaveBeenCalledWith("configure_memory_pool", { poolBytes: 48 * GiB, invocationBudgetBytes: 20 * GiB, acknowledgeAboveRecommended: false });
+    expect(line("memory-pool-budget")).toBe("20 GiB (default 12 GiB; any budget up to 48 GiB, the pool size, can be selected)");
+  });
+
+  it("limits the budget input to the largest budget rounded down", async () => {
+    nativeRuntime();
+    invokeMock.mockResolvedValue(poolStatus({ pool_bytes: 12 * GiB - 1, max_invocation_budget_bytes: 12 * GiB - 1 }));
+    render(<MemoryPoolPanel active={false} />);
+    await screen.findByTestId("memory-pool-status");
+    expect(screen.getByLabelText("Per-invocation budget (GiB)")).toHaveAttribute("max", "11.99");
   });
 
   it.each([
-    [{ kind: "budget_unqualified", requested_bytes: 16 * GiB, qualified_bytes: 12 * GiB }, "16", "48", "A per-invocation budget of 16 GiB is above the qualified budget of 12 GiB; only qualified budgets can be selected."],
     [{ kind: "pool_above_capacity", pool_bytes: 80 * GiB, capacity_bytes: 64 * GiB }, "12", "80", "A pool of 80 GiB is larger than this Mac's physical memory (64 GiB)."],
     [{ kind: "budget_exceeds_pool", budget_bytes: 12 * GiB, pool_bytes: 8 * GiB }, "12", "8", "The per-invocation budget of 12 GiB is larger than the 8 GiB pool."]
   ])("shows the native %s refusal in plain language", async (refusal, budget, pool, text) => {

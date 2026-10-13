@@ -85,7 +85,9 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
   const budgetBytes = bytesFromGib(budgetInput);
   const recommended = status?.recommended_pool_bytes ?? null;
   const aboveRecommended = poolBytes !== null && recommended !== null && poolBytes > recommended;
-  const canApply = !!status && poolBytes !== null && budgetBytes !== null && !submitting && (!aboveRecommended || acknowledged);
+  const maxBudget = status?.max_invocation_budget_bytes ?? null;
+  const budgetAboveMax = budgetBytes !== null && maxBudget !== null && budgetBytes > maxBudget;
+  const canApply = !!status && poolBytes !== null && budgetBytes !== null && !budgetAboveMax && !submitting && (!aboveRecommended || acknowledged);
 
   async function apply(event: FormEvent) {
     event.preventDefault();
@@ -131,12 +133,22 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="Per-invocation budget"
             testId="memory-pool-budget"
-            value={`${formatBytes(status.invocation_budget_bytes)} (default ${formatBytes(status.qualified_invocation_budget_bytes)}; a lower budget can be selected; a larger one is refused because no larger budget is qualified)`}
+            value={`${formatBytes(status.invocation_budget_bytes)} (default ${formatBytes(status.default_invocation_budget_bytes)}; any budget up to ${formatBytes(status.max_invocation_budget_bytes)}, the pool size, can be selected)`}
+          />
+          <PoolLine
+            label="Budgets above the default"
+            testId="memory-pool-budget-larger"
+            value="each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose memory is not free when it needs it is still refused"
           />
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
             value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the free memory macOS reports at that moment, is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget"
+          />
+          <PoolLine
+            label="Edits, conversions and saves"
+            testId="memory-pool-interactive"
+            value="each request is admitted by the pool, free memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure"
           />
           <PoolLine
             label="Memory pool"
@@ -205,6 +217,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <input
             data-testid="memory-pool-input-budget"
             inputMode="decimal"
+            max={maxBudget === null ? undefined : gibMax(maxBudget)}
             min="0"
             step="0.25"
             type="number"
@@ -216,6 +229,12 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
             }}
           />
         </label>
+        {budgetAboveMax ? (
+          <p className="memory-pool-message warning" role="alert" data-testid="memory-pool-budget-above-max">
+            <AlertTriangle size={14} aria-hidden="true" /> {formatBytes(budgetBytes)} is above the largest per-invocation budget,{" "}
+            {formatBytes(maxBudget)} (the pool size). Choose a budget no larger than the pool.
+          </p>
+        ) : null}
         {aboveRecommended ? (
           <div className="memory-pool-message warning" role="alert" data-testid="memory-pool-recommended-warning">
             <p>
@@ -230,8 +249,8 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
                 onChange={(event) => setAcknowledged(event.target.checked)}
               />
               <span>
-                I acknowledge the pool is above the recommended size. The native side still refuses it when free memory,
-                capacity or qualification does not admit it.
+                I acknowledge the pool is above the recommended size. The native side still refuses it when free memory
+                or capacity does not admit it.
               </span>
             </label>
           </div>
@@ -268,6 +287,11 @@ function PoolLine({ label, value, testId }: { label: string; value: string; test
 function gibInput(bytes: number): string {
   const value = bytes / GIB;
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+/** The largest whole hundredth of a GiB not above `bytes`, for the input's limit. */
+function gibMax(bytes: number): string {
+  return String(Math.floor((bytes / GIB) * 100) / 100);
 }
 
 function bytesFromGib(input: string): number | null {

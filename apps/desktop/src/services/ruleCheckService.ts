@@ -3,7 +3,7 @@ import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
 import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, retainedRowClassLabel, N_P1, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
 import { disposeDeliveredMechanicsResult, hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
@@ -154,7 +154,7 @@ async function checkSolvedSource(
     invokeArgs.suppliedValueBindings = args.suppliedValueBindings;
   }
   if (args.projectId) invokeArgs.projectId = args.projectId;
-  const result = await invoke<RuleCheckRunResult>("run_rule_checks", invokeArgs);
+  const result = await invokeWithIngress<RuleCheckRunResult>("run_rule_checks", invokeArgs);
   return { route: "tauri_backend", result };
 }
 

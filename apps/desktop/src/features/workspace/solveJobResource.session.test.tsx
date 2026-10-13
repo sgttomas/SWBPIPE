@@ -2,7 +2,7 @@ import { act, fireEvent, render, renderHook, waitFor, within } from "@testing-li
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 // This file verifies the memory-pool session path (queue reasons, typed
 // refusals, grant recording and native custody), not the preview-physics
 // reader: that reader's verdict and the standing read from it are held
@@ -231,7 +231,7 @@ it.each([
 it("records a refused start with the pool status the native side reported", async () => {
   const pool = {
     capacity_bytes: 16 * GiB, recommended_pool_bytes: 12 * GiB, pool_bytes: 12 * GiB, pool_above_recommended: false,
-    invocation_budget_bytes: 10 * GiB, qualified_invocation_budget_bytes: 12 * GiB, reserved_bytes: 0,
+    invocation_budget_bytes: 10 * GiB, default_invocation_budget_bytes: 12 * GiB, max_invocation_budget_bytes: 12 * GiB, reserved_bytes: 0,
     reserved_by_purpose: { ingress: 0, worker: 0, result: 0, custody: 0 }, running_workers: 0, queued_jobs: 0, running_jobs: 0, limits: { max_running_workers: 8 },
     retained_results: 0, webview_custody_results: 0, headroom: { available_bytes: null, pressure: "unknown", sample_age_ms: null },
     ordinary_route_pricing: "worker_capped", last_refusal: { kind: "headroom_unknown" }

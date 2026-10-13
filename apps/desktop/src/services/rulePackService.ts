@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 
 // Rule-pack backend seam (Phase C2, TP-MAC-147). Validation, checksum
 // computation, and local persistence route through the desktop (Tauri)
@@ -140,7 +141,7 @@ export async function validateRulePack(
   publicExportRequested = false
 ): Promise<RulePackValidationRoute> {
   if (!isTauriRuntime()) return unavailable();
-  const validation = await invoke<RulePackDocumentValidation>("validate_rule_pack", {
+  const validation = await invokeWithIngress<RulePackDocumentValidation>("validate_rule_pack", {
     document,
     publicExportRequested
   });
@@ -151,7 +152,7 @@ export async function computeRulePackChecksum(
   document: RulePackDocument
 ): Promise<RulePackChecksumRoute> {
   if (!isTauriRuntime()) return unavailable();
-  const computed = await invoke<RulePackComputedChecksum>("compute_rule_pack_document_checksum", {
+  const computed = await invokeWithIngress<RulePackComputedChecksum>("compute_rule_pack_document_checksum", {
     document
   });
   return { route: "tauri_backend", computed };
@@ -162,7 +163,7 @@ export async function saveLocalRulePack(
   document: RulePackDocument
 ): Promise<RulePackSaveRoute> {
   if (!isTauriRuntime()) return unavailable();
-  const envelope = await invoke<LocalRulePackEnvelope>("save_local_rule_pack", {
+  const envelope = await invokeWithIngress<LocalRulePackEnvelope>("save_local_rule_pack", {
     projectId,
     document
   });

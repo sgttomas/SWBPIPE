@@ -771,7 +771,6 @@ export type ResourceRefusal =
   | { kind: "pressure_unknown" }
   | { kind: "pressure_elevated"; level: "warning" | "critical" }
   | { kind: "pool_exhausted"; requested_bytes: number; reserved_bytes: number; pool_bytes: number }
-  | { kind: "budget_unqualified"; requested_bytes: number; qualified_bytes: number }
   | { kind: "budget_exceeds_pool"; budget_bytes: number; pool_bytes: number }
   | { kind: "pool_above_capacity"; pool_bytes: number; capacity_bytes: number }
   | { kind: "pool_above_recommended_unacknowledged"; pool_bytes: number; recommended_bytes: number }
@@ -817,7 +816,10 @@ export type PoolStatus = {
   pool_bytes: number;
   pool_above_recommended: boolean;
   invocation_budget_bytes: number;
-  qualified_invocation_budget_bytes: number;
+  /** The default per-invocation budget (12 GiB). */
+  default_invocation_budget_bytes: number;
+  /** The largest per-invocation budget that can be selected (the pool size). */
+  max_invocation_budget_bytes: number;
   reserved_bytes: number;
   reserved_by_purpose: { ingress: number; worker: number; result: number; custody: number };
   /** Ordinary solve worker processes currently running. */

@@ -3,7 +3,7 @@ import { REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes, startRequestModel
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import modelFixture from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { getLocalStorageCapability } from "../../services/projectService";

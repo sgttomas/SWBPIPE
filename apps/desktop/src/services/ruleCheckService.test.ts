@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
 import { loadBundledMechanicsReference, loadPreviewModel, runPreviewMechanics } from "./previewService";
 import {
@@ -25,8 +24,8 @@ import type { RulePackDocument } from "./rulePackService";
 // UI qualification or rule-evaluation evidence. The
 // binding-plan deriver is pure and tested directly.
 
-vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
-const invokeMock = vi.mocked(invoke);
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 beforeEach(() => {
   invokeMock.mockReset();
@@ -197,7 +196,8 @@ describe("runRuleChecks", () => {
     expect(command).toBe("run_rule_checks");
     expect(args).toHaveProperty("rulePackDocument");
     expect(args).toHaveProperty("model", pair.model);
-    expect(args).toHaveProperty("solvedEnvelope", pair.source);
+    // The envelope travels as the JSON text Tauri itself sent for it.
+    expect(args).toHaveProperty("solvedEnvelope", JSON.parse(JSON.stringify(pair.source)));
     // Empty binding arrays are omitted (backend treats absent as unsupplied).
     expect(args).not.toHaveProperty("solverResultBindings");
     expect(args).not.toHaveProperty("suppliedValueBindings");
@@ -231,7 +231,7 @@ describe("runRuleChecks", () => {
     const typed = args as Record<string, unknown>;
     expect(typed).toHaveProperty("solvedEnvelope");
     expect(typed).toHaveProperty("model", pair.model);
-    expect(typed.solvedEnvelope).toBe(solvedEnvelope);
+    expect(typed.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(solvedEnvelope)));
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(typed.solverResultBindings).toEqual([{ input_id: "actual", result_id: "result:stress:demo" }]);
     expect(typed.suppliedValueBindings).toEqual([

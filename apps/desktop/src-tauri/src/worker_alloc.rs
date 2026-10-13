@@ -338,6 +338,17 @@ pub(crate) fn refuse_need_above_budget(needed_grant: u64, max_grant: u64) -> ! {
     refuse_and_exit(TAG_CAP_EXCEEDED, needed_grant, max_grant)
 }
 
+/// A growth exchange's terms for a counted heap of `counted` bytes:
+/// (requested, needed) grants, where needed = counted + reserve and requested
+/// = min(budget, max(needed, 2 * grant, footprint + reserve)). Saturating and
+/// allocation-free, so exact for every budget up to u64::MAX.
+#[inline]
+pub(crate) fn growth_request(counted: u64, reserve: u64, grant: u64, max_grant: u64, footprint: u64) -> (u64, u64) {
+    let needed_grant = counted.saturating_add(reserve);
+    let requested = max_grant.min(needed_grant.max(grant.saturating_mul(2)).max(footprint.saturating_add(reserve)));
+    (requested, needed_grant)
+}
+
 /// The slow path: under the channel lock, grows the grant until the counted
 /// heap fits or ends the process. Never allocates.
 #[cold]
@@ -352,14 +363,13 @@ fn grow_or_exit() {
         let reserve = RESERVE.load(Ordering::Relaxed);
         let max_grant = MAX_GRANT.load(Ordering::Relaxed);
         let grant = GRANT.load(Ordering::Relaxed);
-        let needed_grant = needed.saturating_add(reserve);
-        if needed_grant > max_grant {
-            refuse_and_exit(TAG_CAP_EXCEEDED, needed_grant, max_grant);
+        if needed.saturating_add(reserve) > max_grant {
+            refuse_and_exit(TAG_CAP_EXCEEDED, needed.saturating_add(reserve), max_grant);
         }
         // The measured footprint is a growth need too: memory the count does
         // not see (allocator-retained freed blocks, metadata) is still resident.
         let footprint = phys_footprint();
-        let requested = max_grant.min(needed_grant.max(grant.saturating_mul(2)).max(footprint.saturating_add(reserve)));
+        let (requested, needed_grant) = growth_request(needed, reserve, grant, max_grant, footprint);
         #[cfg(unix)]
         {
             let out = CONTROL_OUT.load(Ordering::Relaxed);

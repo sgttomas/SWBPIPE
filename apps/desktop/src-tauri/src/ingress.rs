@@ -1,6 +1,7 @@
-//! Allocation-free ingress prescan for a solve request's raw body (DEL-04-07
-//! memory-budget decision: "An ingress byte limit/reservation must precede
-//! native Value materialization").
+//! Allocation-free ingress prescan for a raw request body: a solve's model
+//! document, or an interactive command's arguments (`crate::command_ingress`)
+//! (DEL-04-07 memory-budget decision: "An ingress byte limit/reservation must
+//! precede native Value materialization").
 //!
 //! [`prescan`] validates the raw bytes as exactly one JSON value under the
 //! grammar `serde_json::from_slice::<Value>` accepts (UTF-8, structure, the

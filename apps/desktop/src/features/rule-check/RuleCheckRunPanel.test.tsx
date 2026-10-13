@@ -1,6 +1,5 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
 import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { numericalResultStanding } from "../results/resultStanding";
@@ -16,8 +15,8 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 // rule responses here are unit simulations, NOT native UI qualification or
 // rule-evaluation evidence.
 
-vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
-const invokeMock = vi.mocked(invoke);
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import sourceBlocksMulticase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import previewInvented from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { N_RULE_RETIRED, N_SB } from "../results/knownSemanticLimitations";

@@ -1,4 +1,5 @@
 mod atomic_report_package_save;
+mod command_ingress;
 mod host_memory;
 mod ingress;
 mod memory_pool;
@@ -14,6 +15,7 @@ mod worker_alloc;
 
 pub use solve_worker::{run_solve_worker, WORKER_FLAG as SOLVE_WORKER_FLAG};
 
+use command_ingress::{respond, Args, ArgsDecoding, CommandError, NoCommandError};
 use model_document_migration::{
     evaluate_model_document, migration_ledger_record, model_document_migrations,
     EvaluatedModelDocument, ModelDocumentMigrationStatus,
@@ -180,6 +182,32 @@ impl From<atomic_report_package_save::AtomicSaveError> for ReportPackageSaveComm
 // command async places the blocking dialog call on the async command runtime
 // and leaves the native modal responsive.
 async fn save_report_package(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
+    // The typed request rebuilds its `Value` fields and builds typed vectors.
+    let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_report_package", decoding)?;
+    let (request, redaction_evidence, local_first_evidence) = save_report_package_args(&mut args)?;
+    drop(args);
+    // The lease is held through assembly and the save dialog.
+    respond(
+        save_report_package_decoded(app, request, redaction_evidence, local_first_evidence)
+            .await
+            .map_err(CommandError::Command),
+    )
+}
+
+type ReportPackageArgs =
+    (report_package_bridge::ReportPackageRequest, ReportPackageRedactionEvidence, Option<ReportPackageLocalFirstEvidence>);
+
+/// `{request, redactionEvidence, localFirstEvidence?}`.
+fn save_report_package_args(args: &mut Args) -> Result<ReportPackageArgs, solve_jobs::SolveJobError> {
+    Ok((args.decode("request")?, args.decode("redactionEvidence")?, args.decode("localFirstEvidence")?))
+}
+
+async fn save_report_package_decoded(
     app: AppHandle,
     request: report_package_bridge::ReportPackageRequest,
     redaction_evidence: ReportPackageRedactionEvidence,
@@ -528,37 +556,54 @@ struct LocalProjectEnvelope {
     model_migration_ledger: Value,
 }
 
-#[derive(Debug, Deserialize)]
+/// The `save_local_project` request. Decoded by
+/// [`SaveLocalProjectRequest::from_value`], which moves the documents it
+/// carries out of the parsed body instead of rebuilding them.
+#[derive(Debug)]
 struct SaveLocalProjectRequest {
     project_id: String,
     project_name: String,
     model: Value,
-    #[serde(default)]
     editor_intents: Value,
-    #[serde(default)]
     proposal: Value,
-    #[serde(default)]
     selected_review_target: Value,
-    #[serde(default)]
     mechanics_result: Value,
-    #[serde(default)]
     analysis_run: Value,
-    #[serde(default)]
     model_hash: Value,
-    #[serde(default)]
     project_envelope_hash: Value,
     /// Open-time migration status passed back by the UI so persisting a
     /// migrated document can write its ledger record (DEC-019).
-    #[serde(default)]
     model_document_migration: Value,
     /// The stored revision the user chose to Replace in the prompt, if any.
     /// See `refuse_unconfirmed_replacement`.
-    #[serde(default)]
     confirmed_revision: Option<String>,
     /// The stored envelope hash value this session last opened or saved, sent
     /// when the session is that stored project (an ordinary save in place).
-    #[serde(default)]
     expected_base: Option<String>,
+}
+
+impl SaveLocalProjectRequest {
+    /// The serde semantics the derived decoding had (required `project_id`,
+    /// `project_name` and `model`; every other field defaults to `null` or
+    /// `None`; unknown fields ignored), with every field moved.
+    fn from_value(value: Value) -> Result<Self, command_ingress::ArgsError> {
+        let mut fields = command_ingress::Fields::of(value, "struct SaveLocalProjectRequest")?;
+        Ok(Self {
+            project_id: fields.required("project_id")?,
+            project_name: fields.required("project_name")?,
+            model: fields.required_value("model")?,
+            editor_intents: fields.value_or_null("editor_intents"),
+            proposal: fields.value_or_null("proposal"),
+            selected_review_target: fields.value_or_null("selected_review_target"),
+            mechanics_result: fields.value_or_null("mechanics_result"),
+            analysis_run: fields.value_or_null("analysis_run"),
+            model_hash: fields.value_or_null("model_hash"),
+            project_envelope_hash: fields.value_or_null("project_envelope_hash"),
+            model_document_migration: fields.value_or_null("model_document_migration"),
+            confirmed_revision: fields.optional("confirmed_revision")?,
+            expected_base: fields.optional("expected_base")?,
+        })
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -1705,8 +1750,26 @@ fn get_unit_catalog() -> UnitCatalogResponse {
     desktop_unit_catalog()
 }
 
+/// Model-sized commands take their arguments as a raw body admitted under an
+/// interactive ingress lease (`command_ingress`): header
+/// `x-swbpipe-ingress: args-json-v1`, body = the UTF-8 JSON object of the
+/// camelCase arguments. Each command's arguments are decoded by its `*_args`
+/// function; the response is serialized while the lease is held.
 #[tauri::command]
-fn render_calculation_report(input: Value) -> Result<Value, String> {
+fn render_calculation_report(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    respond(render_calculation_report_args(&mut args))
+}
+
+fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
+    let input = args.value("input")?;
+    render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
+fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
@@ -1982,6 +2045,20 @@ fn build_sample_agent_proposal(
 
 #[tauri::command]
 fn sample_agent_proposal(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "sample_agent_proposal", ArgsDecoding::Moved)?;
+    respond(sample_agent_proposal_args(&mut args))
+}
+
+fn sample_agent_proposal_args(args: &mut Args) -> Result<Value, CommandError> {
+    let mechanics_result = args.opt_value("mechanicsResult");
+    let selected_target = args.decode::<Option<SelectedReviewTarget>>("selectedTarget")?;
+    sample_agent_proposal_value(mechanics_result, selected_target).map_err(CommandError::Command)
+}
+
+fn sample_agent_proposal_value(
     mechanics_result: Option<Value>,
     selected_target: Option<SelectedReviewTarget>,
 ) -> Result<Value, String> {
@@ -1995,6 +2072,24 @@ fn sample_agent_proposal(
 
 #[tauri::command]
 fn validate_model_operation(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "validate_model_operation", ArgsDecoding::Moved)?;
+    respond(validate_model_operation_args(&mut args))
+}
+
+/// `{model, intent, claimedModelHash?}`.
+fn model_operation_args(args: &mut Args) -> Result<(Value, Value, Option<Value>), CommandError> {
+    Ok((args.value("model")?, args.value("intent")?, args.opt_value("claimedModelHash")))
+}
+
+fn validate_model_operation_args(args: &mut Args) -> Result<Value, CommandError> {
+    let (model, intent, claimed_model_hash) = model_operation_args(args)?;
+    validate_model_operation_value(model, intent, claimed_model_hash).map_err(CommandError::Command)
+}
+
+fn validate_model_operation_value(
     model: Value,
     intent: Value,
     claimed_model_hash: Option<Value>,
@@ -2005,6 +2100,19 @@ fn validate_model_operation(
 
 #[tauri::command]
 fn apply_model_operation(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "apply_model_operation", ArgsDecoding::Moved)?;
+    respond(apply_model_operation_args(&mut args))
+}
+
+fn apply_model_operation_args(args: &mut Args) -> Result<Value, CommandError> {
+    let (model, intent, claimed_model_hash) = model_operation_args(args)?;
+    apply_model_operation_value(model, intent, claimed_model_hash).map_err(CommandError::Command)
+}
+
+fn apply_model_operation_value(
     model: Value,
     intent: Value,
     claimed_model_hash: Option<Value>,
@@ -2014,23 +2122,61 @@ fn apply_model_operation(
 }
 
 #[tauri::command]
-fn generate_self_weight_operation_plan(model: Value, request: Value) -> Value {
-    open_pipe_stress_self_weight_wasm::generate_plan(&model, &request)
+fn generate_self_weight_operation_plan(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) =
+        command_ingress::admit(&registry, &invoke, "generate_self_weight_operation_plan", ArgsDecoding::Moved)?;
+    respond(generate_self_weight_operation_plan_args(&mut args))
+}
+
+fn generate_self_weight_operation_plan_args(args: &mut Args) -> Result<Value, CommandError<NoCommandError>> {
+    let (model, request) = (args.value("model")?, args.value("request")?);
+    Ok(open_pipe_stress_self_weight_wasm::generate_plan(&model, &request))
 }
 
 #[tauri::command]
-fn validate_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
-    open_pipe_stress_operation_applier::validate_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+fn validate_model_operation_batch(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) =
+        command_ingress::admit(&registry, &invoke, "validate_model_operation_batch", ArgsDecoding::Moved)?;
+    respond(model_operation_batch_args(&mut args, false))
 }
 
 #[tauri::command]
-fn apply_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
-    open_pipe_stress_operation_applier::apply_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+fn apply_model_operation_batch(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "apply_model_operation_batch", ArgsDecoding::Moved)?;
+    respond(model_operation_batch_args(&mut args, true))
+}
+
+/// `{model, batch, claimedModelHash?}`, validated or applied.
+fn model_operation_batch_args(args: &mut Args, apply: bool) -> Result<Value, CommandError<NoCommandError>> {
+    let (model, batch, claimed_model_hash) = (args.value("model")?, args.value("batch")?, args.opt_value("claimedModelHash"));
+    Ok(if apply {
+        open_pipe_stress_operation_applier::apply_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+    } else {
+        open_pipe_stress_operation_applier::validate_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+    })
 }
 
 #[tauri::command]
-fn convert_display_quantities(input: Value) -> Value {
-    open_pipe_stress_operation_applier::convert_display_quantities(&input)
+fn convert_display_quantities(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "convert_display_quantities", ArgsDecoding::Moved)?;
+    respond(convert_display_quantities_args(&mut args))
+}
+
+fn convert_display_quantities_args(args: &mut Args) -> Result<Value, CommandError<NoCommandError>> {
+    let input = args.value("input")?;
+    Ok(open_pipe_stress_operation_applier::convert_display_quantities(&input))
 }
 
 #[tauri::command]
@@ -2319,19 +2465,34 @@ fn prepare_project_persistence_tuple(
 
 #[tauri::command]
 fn create_local_project(
-
     app: AppHandle,
-    model: Value,
-    editor_intents: Option<Value>,
-    proposal: Option<Value>,
-    selected_review_target: Option<Value>,
-    mechanics_result: Option<Value>,
-    analysis_run: Option<Value>,
-    model_hash: Option<Value>,
-    project_envelope_hash: Option<Value>,
-    confirmed_revision: Option<String>,
-) -> Result<LocalProjectEnvelope, String> {
-    create_project_in_store(app_store_path(&app)?, model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash, project_envelope_hash, confirmed_revision)
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "create_local_project", ArgsDecoding::Moved)?;
+    respond(create_local_project_args(&mut args, || app_store_path(&app)))
+}
+
+/// `{model, editorIntents?, proposal?, selectedReviewTarget?, mechanicsResult?,
+/// analysisRun?, modelHash?, projectEnvelopeHash?, confirmedRevision?}`.
+fn create_local_project_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+) -> Result<LocalProjectEnvelope, CommandError> {
+    let model = args.value("model")?;
+    let editor_intents = args.opt_value("editorIntents");
+    let proposal = args.opt_value("proposal");
+    let selected_review_target = args.opt_value("selectedReviewTarget");
+    let mechanics_result = args.opt_value("mechanicsResult");
+    let analysis_run = args.opt_value("analysisRun");
+    let model_hash = args.opt_value("modelHash");
+    let project_envelope_hash = args.opt_value("projectEnvelopeHash");
+    let confirmed_revision = args.decode::<Option<String>>("confirmedRevision")?;
+    store()
+        .and_then(|path| {
+            create_project_in_store(path, model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash, project_envelope_hash, confirmed_revision)
+        })
+        .map_err(CommandError::Command)
 }
 
 /// `create_local_project` on a given store: one `BEGIN IMMEDIATE` transaction
@@ -2486,9 +2647,20 @@ fn list_local_projects(app: AppHandle) -> Result<Vec<LocalProjectIndexEntry>, St
 #[tauri::command]
 fn save_local_project(
     app: AppHandle,
-    request: SaveLocalProjectRequest,
-) -> Result<LocalProjectEnvelope, String> {
-    save_project_in_store(app_store_path(&app)?, request)
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_project", ArgsDecoding::Moved)?;
+    respond(save_local_project_args(&mut args, || app_store_path(&app)))
+}
+
+/// `{request}` (snake_case fields, see `SaveLocalProjectRequest`).
+fn save_local_project_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+) -> Result<LocalProjectEnvelope, CommandError> {
+    let request = args.decode_with("request", SaveLocalProjectRequest::from_value)?;
+    store().and_then(|path| save_project_in_store(path, request)).map_err(CommandError::Command)
 }
 
 /// `save_local_project` on a given store, with the same single transaction as
@@ -2792,6 +2964,20 @@ fn delete_rule_pack(
 
 #[tauri::command]
 fn validate_rule_pack(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "validate_rule_pack", ArgsDecoding::Moved)?;
+    respond(validate_rule_pack_args(&mut args))
+}
+
+fn validate_rule_pack_args(args: &mut Args) -> Result<Value, CommandError> {
+    let document = args.value("document")?;
+    let public_export_requested = args.decode::<Option<bool>>("publicExportRequested")?;
+    validate_rule_pack_value(document, public_export_requested).map_err(CommandError::Command)
+}
+
+fn validate_rule_pack_value(
     document: Value,
     public_export_requested: Option<bool>,
 ) -> Result<Value, String> {
@@ -2814,6 +3000,39 @@ fn validate_rule_pack(
 #[tauri::command]
 fn run_rule_checks(
     app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
+    respond(run_rule_checks_args(&mut args, &|| app_store_path(&app)))
+}
+
+/// `{rulePackDocument, model?, solvedEnvelope?, solverResultBindings?,
+/// suppliedValueBindings?, projectId?, sourceBlockInvocation?}`.
+fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>) -> Result<Value, CommandError> {
+    let rule_pack_document = args.value("rulePackDocument")?;
+    let model = args.opt_value("model");
+    let solved_envelope = args.opt_value("solvedEnvelope");
+    let solver_result_bindings = args.opt_value("solverResultBindings");
+    let supplied_value_bindings = args.opt_value("suppliedValueBindings");
+    let project_id = args.decode::<Option<String>>("projectId")?;
+    let source_block_invocation = args.opt_value("sourceBlockInvocation");
+    run_rule_checks_value(
+        store,
+        rule_pack_document,
+        model,
+        solved_envelope,
+        solver_result_bindings,
+        supplied_value_bindings,
+        project_id,
+        source_block_invocation,
+    )
+    .map_err(CommandError::Command)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn run_rule_checks_value(
+    store: &dyn Fn() -> Result<PathBuf, String>,
     rule_pack_document: Value,
     model: Option<Value>,
     solved_envelope: Option<Value>,
@@ -2844,7 +3063,7 @@ fn run_rule_checks(
     );
     let library_value_bindings = match resolved_project {
         Some(project) => Some(resolve_library_value_bindings(
-            &app,
+            store,
             &project,
             &rule_pack_document,
         )?),
@@ -3025,7 +3244,7 @@ fn resolve_rule_check_project_id(
 /// Unresolvable references are omitted (the input then blocks, never a silent
 /// pass). Returns a JSON array consumed by `parse_library_value_bindings`.
 fn resolve_library_value_bindings(
-    app: &AppHandle,
+    store: &dyn Fn() -> Result<PathBuf, String>,
     project_id: &str,
     document: &Value,
 ) -> Result<Value, String> {
@@ -3040,7 +3259,7 @@ fn resolve_library_value_bindings(
         return Ok(Value::Array(Vec::new()));
     }
 
-    let path = app_store_path(app)?;
+    let path = store()?;
     let (connection, _migration) = open_project_store(&path)?;
     resolve_library_value_bindings_with_connection(&connection, project_id, document)
 }
@@ -3442,7 +3661,21 @@ fn parse_supplied_value_bindings(
 }
 
 #[tauri::command]
-fn compute_rule_pack_document_checksum(document: Value) -> Result<Value, String> {
+fn compute_rule_pack_document_checksum(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) =
+        command_ingress::admit(&registry, &invoke, "compute_rule_pack_document_checksum", ArgsDecoding::Moved)?;
+    respond(compute_rule_pack_document_checksum_args(&mut args))
+}
+
+fn compute_rule_pack_document_checksum_args(args: &mut Args) -> Result<Value, CommandError> {
+    let document = args.value("document")?;
+    compute_rule_pack_document_checksum_value(document).map_err(CommandError::Command)
+}
+
+fn compute_rule_pack_document_checksum_value(document: Value) -> Result<Value, String> {
     rule_pack_document::compute_rule_pack_checksum(&document)
         .map_err(|error| error.to_string())
         .and_then(|computed| serde_json::to_value(computed).map_err(|error| error.to_string()))
@@ -3451,6 +3684,25 @@ fn compute_rule_pack_document_checksum(document: Value) -> Result<Value, String>
 #[tauri::command]
 fn save_local_rule_pack(
     app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_rule_pack", ArgsDecoding::Moved)?;
+    respond(save_local_rule_pack_args(&mut args, || app_store_path(&app)))
+}
+
+/// `{projectId, document}`.
+fn save_local_rule_pack_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+) -> Result<LocalRulePackEnvelope, CommandError> {
+    let project_id = args.decode::<String>("projectId")?;
+    let document = args.value("document")?;
+    save_local_rule_pack_value(store, project_id, document).map_err(CommandError::Command)
+}
+
+fn save_local_rule_pack_value(
+    store: impl FnOnce() -> Result<PathBuf, String>,
     project_id: String,
     document: Value,
 ) -> Result<LocalRulePackEnvelope, String> {
@@ -3459,7 +3711,7 @@ fn save_local_rule_pack(
         return Err("project_id must be non-empty".to_string());
     }
     let rule_pack_id = rule_pack_id_from_document(&document)?;
-    let path = app_store_path(&app)?;
+    let path = store()?;
     let (connection, _migration) = open_project_store(&path)?;
     let (created_at_unix, updated_at_unix) =
         upsert_rule_pack(&connection, &project_id, &rule_pack_id, &document)?;
@@ -3589,6 +3841,22 @@ fn library_import_validation_value(
 
 #[tauri::command]
 fn validate_library_import(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "validate_library_import", ArgsDecoding::Moved)?;
+    respond(validate_library_import_args(&mut args))
+}
+
+/// `{payload, libraryKind, intendedVisibility}`.
+fn validate_library_import_args(args: &mut Args) -> Result<Value, CommandError> {
+    let payload = args.value("payload")?;
+    let library_kind = args.decode::<String>("libraryKind")?;
+    let intended_visibility = args.decode::<String>("intendedVisibility")?;
+    validate_library_import_value(payload, library_kind, intended_visibility).map_err(CommandError::Command)
+}
+
+fn validate_library_import_value(
     payload: Value,
     library_kind: String,
     intended_visibility: String,
@@ -3857,6 +4125,26 @@ fn delete_library(
 #[tauri::command]
 fn save_local_library(
     app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_library", ArgsDecoding::Moved)?;
+    respond(save_local_library_args(&mut args, || app_store_path(&app)))
+}
+
+/// `{projectId, libraryKind, document}`.
+fn save_local_library_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+) -> Result<LocalLibrarySaveResult, CommandError> {
+    let project_id = args.decode::<String>("projectId")?;
+    let library_kind = args.decode::<String>("libraryKind")?;
+    let document = args.value("document")?;
+    save_local_library_value(store, project_id, library_kind, document).map_err(CommandError::Command)
+}
+
+fn save_local_library_value(
+    store: impl FnOnce() -> Result<PathBuf, String>,
     project_id: String,
     library_kind: String,
     document: Value,
@@ -3886,7 +4174,7 @@ fn save_local_library(
                 .to_string(),
         });
     }
-    let path = app_store_path(&app)?;
+    let path = store()?;
     let (connection, _migration) = open_project_store(&path)?;
     let (created_at_unix, updated_at_unix) = upsert_library(
         &connection,
@@ -4573,11 +4861,11 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     if human_intent_hash != "sha256:a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401" {
         return Err("PACKAGED-SMOKE-FROZEN-HUMAN-INTENT-HASH-MISMATCH".into());
     }
-    let human_review = validate_model_operation(model.clone(), human_intent.clone(), None)?;
+    let human_review = validate_model_operation_value(model.clone(), human_intent.clone(), None)?;
     if human_review["validation"]["schema_validation"] != json!("passed") {
         return Err("PACKAGED-SMOKE-HUMAN-REVIEW-FAILED".into());
     }
-    let applied = apply_model_operation(model.clone(), human_intent, None)?;
+    let applied = apply_model_operation_value(model.clone(), human_intent, None)?;
     if applied["validation"]["application_status"] != json!("applied_to_session_model")
         || applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
         return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".into());
@@ -4634,8 +4922,8 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     if agent_intent_hash != "sha256:89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336" {
         return Err("PACKAGED-SMOKE-FROZEN-AGENT-INTENT-HASH-MISMATCH".into());
     }
-    let agent_review = validate_model_operation(model.clone(), agent_intent.clone(), None)?;
-    let agent_applied = apply_model_operation(model.clone(), agent_intent, None)?;
+    let agent_review = validate_model_operation_value(model.clone(), agent_intent.clone(), None)?;
+    let agent_applied = apply_model_operation_value(model.clone(), agent_intent, None)?;
     if agent_review["validation"]["schema_validation"] != json!("passed")
         || hash(&agent_applied["applied_model"]) != edited_hash {
         return Err("PACKAGED-SMOKE-AGENT-HUMAN-EQUIVALENCE-FAILED".into());
@@ -4776,17 +5064,27 @@ pub fn run_packaged_saved_edited_load_self_test() -> Result<Value, String> {
 async fn save_local_result_json(
     app: AppHandle,
     admission: tauri::State<'_, native_result_download::SaveAdmission>,
-    request: native_result_download::SaveRequest,
-) -> Result<native_result_download::SaveReceipt, native_result_download::SaveError> {
-    // The worker owns admission until completion/drop, independently of the
-    // awaiting command or frontend component lifetime.
-    let permit = admission.admit()?;
-    tauri::async_runtime::spawn_blocking(move || {
-        let _permit = permit;
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_local_result_json", ArgsDecoding::Moved)?;
+    let request = save_local_result_json_args(&mut args)?;
+    drop(args);
+    // The worker owns admission and the ingress lease until completion/drop,
+    // independently of the awaiting command or frontend component lifetime.
+    let permit = admission.admit().map_err(CommandError::Command)?;
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let (_permit, _lease) = (permit, lease);
         native_result_download::save_request(request, || app.path().download_dir())
     })
     .await
-    .map_err(|_| native_result_download::SaveError::worker())?
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{request}` (snake_case fields, see `native_result_download::SaveRequest`).
+fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download::SaveRequest, solve_jobs::SolveJobError> {
+    args.decode("request")
 }
 
 /// The app's commands; the `native-smoke` build appends the harness's own.
@@ -5598,7 +5896,7 @@ mod tests {
             ]
         });
 
-        let outcome = render_calculation_report(input).expect("command renders");
+        let outcome = render_calculation_report_value(input).expect("command renders");
 
         assert_eq!(outcome["export_blocked"], Value::Bool(false));
         assert_eq!(outcome["sha256_hex"].as_str().expect("hash").len(), 64);
@@ -5616,7 +5914,7 @@ mod tests {
         assert!(derived.contains("DERIVED VIEW"));
         assert!(derived.contains(outcome["sha256_hex"].as_str().expect("hash")));
 
-        let rejected = render_calculation_report(json!({"report_title": "broken"}));
+        let rejected = render_calculation_report_value(json!({"report_title": "broken"}));
         assert!(rejected
             .expect_err("invalid input")
             .starts_with("RENDER-INPUT-INVALID"));
@@ -5690,7 +5988,7 @@ mod tests {
             .expect("rehearsal steps array");
         for step in steps {
             let intent = rehearsal_intent(step);
-            let outcome = apply_model_operation(model, intent, None)
+            let outcome = apply_model_operation_value(model, intent, None)
                 .unwrap_or_else(|error| panic!("rehearsal operation command failed: {error}"));
             assert_eq!(
                 outcome["validation"]["application_status"],
@@ -5977,7 +6275,7 @@ mod tests {
 
         let report_input = rehearsal_report_input(&model, &solved);
         let rendered =
-            render_calculation_report(report_input).expect("A7 renderer accepts rehearsal report");
+            render_calculation_report_value(report_input).expect("A7 renderer accepts rehearsal report");
         assert_eq!(
             rendered["export_blocked"],
             expected["report_export_blocked"]
@@ -6054,7 +6352,7 @@ mod tests {
                     .unwrap() as usize
         );
 
-        let rendered = render_calculation_report(rehearsal_report_input(&loaded.model, &solved))
+        let rendered = render_calculation_report_value(rehearsal_report_input(&loaded.model, &solved))
             .expect("saved-project report renders");
         assert_eq!(
             rendered["export_blocked"],
@@ -7344,7 +7642,7 @@ mod tests {
             read_fixture("invented_demo_model.json").expect("bundled preview model loads");
         let intent = fixture_inspector_intent("200000000000", "195000000000");
         let outcome =
-            apply_model_operation(model.clone(), intent, None).expect("command returns outcome");
+            apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
 
         assert_eq!(
             outcome["validation"]["application_status"],
@@ -7390,7 +7688,7 @@ mod tests {
         model["project"]["name"] = json!("Edited Load Roundtrip");
 
         let outcome =
-            apply_model_operation(model, fixture_load_magnitude_intent("350", "425"), None)
+            apply_model_operation_value(model, fixture_load_magnitude_intent("350", "425"), None)
                 .expect("load magnitude operation applies");
         assert_eq!(
             outcome["validation"]["application_status"],
@@ -7746,7 +8044,7 @@ mod tests {
             read_fixture("invented_demo_model.json").expect("bundled preview model loads");
         let intent = fixture_inspector_intent("123", "195000000000");
         let outcome =
-            validate_model_operation(model, intent, None).expect("command returns outcome");
+            validate_model_operation_value(model, intent, None).expect("command returns outcome");
 
         assert_eq!(outcome["validation"]["application_status"], "not_applied");
         assert_eq!(
@@ -8383,7 +8681,7 @@ mod tests {
     #[test]
     fn validate_rule_pack_command_reports_example_pack_clean_and_draft_findings() {
         let document = example_rule_pack_document();
-        let outcome = validate_rule_pack(document, Some(true)).expect("validation runs");
+        let outcome = validate_rule_pack_value(document, Some(true)).expect("validation runs");
         assert_eq!(outcome["has_blocking_findings"], json!(false));
         assert_eq!(outcome["checksum"]["match_status"], json!("match"));
         assert_eq!(outcome["grammar_version_supported"], json!(true));
@@ -8405,7 +8703,7 @@ mod tests {
             .as_object_mut()
             .expect("object")
             .remove("grammar_version");
-        let draft_outcome = validate_rule_pack(draft, None).expect("draft validation runs");
+        let draft_outcome = validate_rule_pack_value(draft, None).expect("draft validation runs");
         assert_eq!(draft_outcome["has_blocking_findings"], json!(true));
         let codes: Vec<&str> = draft_outcome["document_findings"]
             .as_array()
@@ -8424,7 +8722,7 @@ mod tests {
             .and_then(Value::as_str)
             .expect("stamped value present")
             .to_string();
-        let computed = compute_rule_pack_document_checksum(document).expect("checksum computes");
+        let computed = compute_rule_pack_document_checksum_value(document).expect("checksum computes");
         assert_eq!(computed["value"], json!(stamped));
         assert_eq!(computed["payload_excludes"], json!(["checksums"]));
         assert_eq!(computed["grammar_version_bound"], json!(true));
@@ -8472,7 +8770,7 @@ mod tests {
 
     #[test]
     fn validate_library_import_command_accepts_private_payload_and_carries_boundary_notice() {
-        let outcome = validate_library_import(
+        let outcome = validate_library_import_value(
             valid_private_material_payload(),
             "material".to_string(),
             "private".to_string(),
@@ -8498,7 +8796,7 @@ mod tests {
     #[test]
     fn validate_library_import_command_blocks_missing_metadata_with_diagnostics() {
         let outcome =
-            validate_library_import(json!({}), "material".to_string(), "private".to_string())
+            validate_library_import_value(json!({}), "material".to_string(), "private".to_string())
                 .expect("validation runs");
         assert_eq!(outcome["outcome"], json!("REJECTED"));
         assert_eq!(outcome["accepted"], json!(false));
@@ -8525,11 +8823,11 @@ mod tests {
     #[test]
     fn validate_library_import_command_rejects_unsupported_tokens() {
         let kind_err =
-            validate_library_import(json!({}), "widget".to_string(), "private".to_string())
+            validate_library_import_value(json!({}), "widget".to_string(), "private".to_string())
                 .expect_err("unsupported kind must reject");
         assert!(kind_err.contains("widget"));
         let visibility_err =
-            validate_library_import(json!({}), "material".to_string(), "secret".to_string())
+            validate_library_import_value(json!({}), "material".to_string(), "secret".to_string())
                 .expect_err("unsupported visibility must reject");
         assert!(visibility_err.contains("secret"));
     }
@@ -8694,6 +8992,353 @@ mod tests {
         let unsupported = library_metadata_key("widget").expect_err("unsupported kind must reject");
         assert!(unsupported.contains("widget"));
     }
+
+    /// Every converted command through the shared ingress helper with a raw
+    /// args body (`command_ingress::admit_body`), decoded by the command's own
+    /// `*_args` function, against the command's plain function.
+    mod ingress_commands {
+        use super::*;
+        use crate::command_ingress::test_support::{admit_json, check_decode_bound, registry};
+        use crate::memory_pool::test_host::ScriptedHost;
+        use crate::solve_jobs::SolveJobError;
+        use tauri::ipc::IpcResponse;
+
+        fn admit(command: &'static str, args: Value) -> (Args, memory_pool::Lease) {
+            let registry = registry(ScriptedHost::normal());
+            admit_json(&registry, command, ArgsDecoding::Moved, &args).unwrap_or_else(|e| panic!("{command}: {e:?}"))
+        }
+
+        fn invalid_args(error: CommandError<impl std::fmt::Debug>) -> String {
+            match error {
+                CommandError::Ingress(SolveJobError::InvalidRequest { message }) => message,
+                other => panic!("not an invalid argument: {other:?}"),
+            }
+        }
+
+        fn command_error<E: std::fmt::Debug>(error: CommandError<E>) -> E {
+            match error {
+                CommandError::Command(error) => error,
+                other => panic!("not a command error: {other:?}"),
+            }
+        }
+
+        fn response_json(response: tauri::ipc::Response) -> Value {
+            match response.body().unwrap() {
+                tauri::ipc::InvokeResponseBody::Json(text) => serde_json::from_str(&text).unwrap(),
+                tauri::ipc::InvokeResponseBody::Raw(_) => panic!("raw response"),
+            }
+        }
+
+        fn scratch_store(label: &str) -> PathBuf {
+            let root = std::env::temp_dir().join(format!(
+                "swbpipe-ingress-{label}-{}-{}",
+                std::process::id(),
+                SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+            ));
+            fs::create_dir_all(&root).unwrap();
+            root.join(PROJECT_STORE_FILE)
+        }
+
+        #[test]
+        fn model_operation_and_quantity_commands_decode_raw_bodies() {
+            let model = load_preview_model().unwrap();
+            let intent = fixture_load_magnitude_intent("350", "425");
+            let body = json!({"model": model, "intent": intent, "claimedModelHash": null});
+            let (mut args, _lease) = admit("validate_model_operation", body.clone());
+            let validated = validate_model_operation_args(&mut args).unwrap();
+            assert_eq!(validated, validate_model_operation_value(model.clone(), intent.clone(), None).unwrap());
+            let (mut args, _lease) = admit("apply_model_operation", body);
+            let applied = apply_model_operation_args(&mut args).unwrap();
+            assert_eq!(applied, apply_model_operation_value(model.clone(), intent.clone(), None).unwrap());
+            // The response is the same JSON Tauri would have sent.
+            let response = respond::<_, String>(Ok(applied.clone())).unwrap();
+            assert_eq!(response_json(response), applied);
+            // A missing required argument is a typed invalid request.
+            let (mut args, _lease) = admit("apply_model_operation", json!({"model": model}));
+            let message = invalid_args(apply_model_operation_args(&mut args).unwrap_err());
+            assert!(message.contains("invalid args `intent` for command `apply_model_operation`"), "{message}");
+
+            let batch = json!({"batch_id": "batch:test", "operations": [intent]});
+            for apply in [false, true] {
+                let command = if apply { "apply_model_operation_batch" } else { "validate_model_operation_batch" };
+                let (mut args, _lease) = admit(command, json!({"model": model, "batch": batch, "claimedModelHash": {"value": "x"}}));
+                let direct = if apply {
+                    open_pipe_stress_operation_applier::apply_operation_batch(&model, &batch, Some(&json!({"value": "x"})))
+                } else {
+                    open_pipe_stress_operation_applier::validate_operation_batch(&model, &batch, Some(&json!({"value": "x"})))
+                };
+                assert_eq!(model_operation_batch_args(&mut args, apply).unwrap(), direct, "{command}");
+            }
+            let request = json!({"gravity": "default"});
+            let (mut args, _lease) = admit("generate_self_weight_operation_plan", json!({"model": model, "request": request}));
+            assert_eq!(
+                generate_self_weight_operation_plan_args(&mut args).unwrap(),
+                open_pipe_stress_self_weight_wasm::generate_plan(&model, &request)
+            );
+            let input = json!({"model": model, "quantities": []});
+            let (mut args, _lease) = admit("convert_display_quantities", json!({"input": input}));
+            assert_eq!(
+                convert_display_quantities_args(&mut args).unwrap(),
+                open_pipe_stress_operation_applier::convert_display_quantities(&input)
+            );
+        }
+
+        #[test]
+        fn report_rendering_and_sample_proposal_commands_decode_raw_bodies() {
+            let broken = json!({"report_title": "broken"});
+            let (mut args, _lease) = admit("render_calculation_report", json!({"input": broken}));
+            let error = command_error(render_calculation_report_args(&mut args).unwrap_err());
+            assert_eq!(Err(error), render_calculation_report_value(broken));
+
+            let result = json!({"result_kind": "invented", "nodes": []});
+            let target = json!({"target_type": "node", "id": "N1"});
+            let (mut args, _lease) = admit("sample_agent_proposal", json!({"mechanicsResult": result, "selectedTarget": target}));
+            let direct = sample_agent_proposal_value(
+                Some(result.clone()),
+                Some(SelectedReviewTarget { target_type: "node".into(), id: "N1".into() }),
+            );
+            assert_eq!(sample_agent_proposal_args(&mut args).unwrap(), direct.unwrap());
+            let (mut args, _lease) = admit("sample_agent_proposal", json!({"selectedTarget": null}));
+            let error = command_error(sample_agent_proposal_args(&mut args).unwrap_err());
+            assert!(error.starts_with("PREVIEW-SOLVE-MODEL-REQUIRED"));
+            // The command's own failure still serializes as a plain string.
+            assert_eq!(serde_json::to_value(CommandError::<String>::Command(error.clone())).unwrap(), json!(error));
+            let (mut args, _lease) = admit("sample_agent_proposal", json!({"mechanicsResult": result, "selectedTarget": "N1"}));
+            let message = invalid_args(sample_agent_proposal_args(&mut args).unwrap_err());
+            assert!(message.contains("`selectedTarget`") && message.contains("invalid type: string"), "{message}");
+        }
+
+        #[test]
+        fn project_store_commands_decode_raw_bodies() {
+            let store = scratch_store("projects");
+            let mut model = load_preview_model().unwrap();
+            model["project"]["id"] = json!("project:ingress-create");
+            let (mut args, _lease) = admit("create_local_project", json!({"model": model, "confirmedRevision": null}));
+            let created = create_local_project_args(&mut args, || Ok(store.clone())).unwrap();
+            assert_eq!(created.model["project"]["id"], json!("project:ingress-create"));
+            assert_eq!(serde_json::to_value(&created).unwrap()["editor_intents"], json!([]));
+
+            let mut saved_model = model.clone();
+            saved_model["project"]["id"] = json!("project:ingress-save");
+            let request = json!({"project_id": "project:ingress-save", "project_name": "Saved", "model": saved_model, "unknown": 1});
+            let (mut args, _lease) = admit("save_local_project", json!({"request": request}));
+            let saved = save_local_project_args(&mut args, || Ok(store.clone())).unwrap();
+            assert_eq!(saved.model["project"]["id"], json!("project:ingress-save"));
+            assert_eq!(saved.summary.project_name, "Saved");
+            // The command's own refusal (an unconfirmed replacement) stays a plain string.
+            let (mut args, _lease) = admit("save_local_project", json!({"request": request}));
+            let refused = command_error(save_local_project_args(&mut args, || Ok(store.clone())).unwrap_err());
+            assert!(refused.starts_with("PROJECT-ID-EXISTS"), "{refused}");
+            let (mut args, _lease) = admit("create_local_project", json!({"model": model, "confirmedRevision": 7}));
+            let message = invalid_args(create_local_project_args(&mut args, || Ok(store.clone())).unwrap_err());
+            assert!(message.contains("`confirmedRevision`"), "{message}");
+            fs::remove_dir_all(store.parent().unwrap()).unwrap();
+        }
+
+        /// `SaveLocalProjectRequest::from_value` keeps the derived decoding's
+        /// semantics while moving its documents.
+        #[test]
+        fn save_local_project_request_decoding_keeps_its_field_semantics() {
+            let request = SaveLocalProjectRequest::from_value(json!({
+                "project_id": "p", "project_name": "n", "model": {"m": 1}, "proposal": null,
+                "confirmed_revision": null, "expected_base": "h", "extra": [1]
+            }))
+            .unwrap();
+            assert_eq!((request.project_id.as_str(), request.project_name.as_str()), ("p", "n"));
+            assert_eq!(request.model, json!({"m": 1}));
+            assert_eq!((request.editor_intents, request.proposal), (Value::Null, Value::Null));
+            assert_eq!((request.confirmed_revision, request.expected_base.as_deref()), (None, Some("h")));
+            for (value, expected) in [
+                (json!({"project_name": "n", "model": {}}), "missing field `project_id`"),
+                (json!({"project_id": "p", "project_name": "n"}), "missing field `model`"),
+                (json!({"project_id": 1, "project_name": "n", "model": {}}), "invalid type: integer `1`, expected a string"),
+                (json!({"project_id": "p", "project_name": "n", "model": {}, "expected_base": []}), "invalid type: sequence"),
+                (json!("text"), "invalid type: string \"text\", expected struct SaveLocalProjectRequest"),
+            ] {
+                let error = SaveLocalProjectRequest::from_value(value).unwrap_err().to_string();
+                assert!(error.starts_with(expected), "{error}");
+            }
+        }
+
+        #[test]
+        fn rule_pack_and_rule_check_commands_decode_raw_bodies() {
+            let document = example_rule_pack_document();
+            let (mut args, _lease) = admit("validate_rule_pack", json!({"document": document, "publicExportRequested": true}));
+            assert_eq!(validate_rule_pack_args(&mut args).unwrap(), validate_rule_pack_value(document.clone(), Some(true)).unwrap());
+            let (mut args, _lease) = admit("validate_rule_pack", json!({"document": document, "publicExportRequested": "yes"}));
+            assert!(invalid_args(validate_rule_pack_args(&mut args).unwrap_err()).contains("`publicExportRequested`"));
+            let (mut args, _lease) = admit("compute_rule_pack_document_checksum", json!({"document": document}));
+            assert_eq!(
+                compute_rule_pack_document_checksum_args(&mut args).unwrap(),
+                compute_rule_pack_document_checksum_value(document.clone()).unwrap()
+            );
+            let store = scratch_store("rule-packs");
+            let (mut args, _lease) = admit("save_local_rule_pack", json!({"projectId": " project:ingress ", "document": document}));
+            let saved = save_local_rule_pack_args(&mut args, || Ok(store.clone())).unwrap();
+            assert_eq!((saved.project_id.as_str(), saved.document.clone()), ("project:ingress", document.clone()));
+            let (mut args, _lease) = admit("save_local_rule_pack", json!({"projectId": " ", "document": document}));
+            assert_eq!(command_error(save_local_rule_pack_args(&mut args, || Ok(store.clone())).unwrap_err()), "project_id must be non-empty");
+
+            let (mut args, _lease) =
+                admit("run_rule_checks", json!({"rulePackDocument": document, "solvedEnvelope": {}, "projectId": null}));
+            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err());
+            assert!(error.starts_with("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE"), "{error}");
+            let (mut args, _lease) = admit("run_rule_checks", json!({"rulePackDocument": document, "projectId": 5}));
+            assert!(invalid_args(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err()).contains("`projectId`"));
+            fs::remove_dir_all(store.parent().unwrap()).unwrap();
+        }
+
+        #[test]
+        fn library_commands_decode_raw_bodies() {
+            let payload = valid_private_material_payload();
+            let (mut args, _lease) =
+                admit("validate_library_import", json!({"payload": payload, "libraryKind": "material", "intendedVisibility": "private"}));
+            assert_eq!(
+                validate_library_import_args(&mut args).unwrap(),
+                validate_library_import_value(payload.clone(), "material".into(), "private".into()).unwrap()
+            );
+            let store = scratch_store("libraries");
+            let document = storable_material_payload("matlib.invented.ingress");
+            let (mut args, _lease) =
+                admit("save_local_library", json!({"projectId": "project:ingress", "libraryKind": "material", "document": document}));
+            let saved = save_local_library_args(&mut args, || Ok(store.clone())).unwrap();
+            assert!(saved.stored);
+            assert_eq!(saved.library_id, "matlib.invented.ingress");
+            let (mut args, _lease) = admit("save_local_library", json!({"projectId": "project:ingress", "document": document}));
+            assert!(invalid_args(save_local_library_args(&mut args, || Ok(store.clone())).unwrap_err()).contains("`libraryKind`"));
+            fs::remove_dir_all(store.parent().unwrap()).unwrap();
+        }
+
+        fn witness_report_request() -> Value {
+            let witness: Value = serde_json::from_str(include_str!(
+                "../../../../validation/witness/inputs/del1005_export_results_success_input.json"
+            ))
+            .unwrap();
+            witness["export_results"].clone()
+        }
+
+        fn redaction_evidence() -> Value {
+            json!({"route_id": "DREP-PACKAGE-SAVE-009", "decision_count": 1, "finding_count": 0, "blocking_count": 0})
+        }
+
+        fn local_first_evidence() -> Value {
+            json!({
+                "route_id": "DREP-PACKAGE-SAVE-009", "export_context": "local_private", "storage_context": "local_private",
+                "action": "include_metadata_only", "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED", "blocked": false,
+                "metadata_only": true, "explicit_local_private_intent": true
+            })
+        }
+
+        #[test]
+        fn report_package_command_decodes_its_typed_request() {
+            let request = witness_report_request();
+            let registry = registry(ScriptedHost::normal());
+            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
+            let body = json!({"request": request, "redactionEvidence": redaction_evidence(), "localFirstEvidence": local_first_evidence()});
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &body).unwrap();
+            let (decoded, redaction, local_first) = save_report_package_args(&mut args).unwrap();
+            assert_eq!(redaction.route_id, "DREP-PACKAGE-SAVE-009");
+            validate_report_package_local_first_evidence(local_first.as_ref()).unwrap();
+            // The same typed request serde_json's own decoding gives.
+            let direct: report_package_bridge::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
+            assert_eq!(format!("{decoded:?}"), format!("{direct:?}"));
+            // Absent local-first evidence decodes as None (the command then refuses it).
+            let (mut args, _lease) =
+                admit_json(&registry, "save_report_package", decoding, &json!({"request": request, "redactionEvidence": redaction_evidence()}))
+                    .unwrap();
+            assert!(save_report_package_args(&mut args).unwrap().2.is_none());
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &json!({"request": {}})).unwrap();
+            let message = match save_report_package_args(&mut args).unwrap_err() {
+                SolveJobError::InvalidRequest { message } => message,
+                other => panic!("{other:?}"),
+            };
+            assert!(message.contains("`request`") && message.contains("missing field"), "{message}");
+        }
+
+        #[test]
+        fn local_result_save_command_decodes_its_typed_request() {
+            let dir = scratch_store("result-save").parent().unwrap().to_path_buf();
+            let text = "{\"value\":350}";
+            let href = format!(
+                "data:application/json;charset=utf-8,{}",
+                text.bytes().map(|b| format!("%{b:02X}")).collect::<String>()
+            );
+            let request = json!({
+                "href": href, "file_name": "openpipestress-preview-results-run-1.json",
+                "screening": {"route_id": "DOTH-JSON-001", "export_context": "local_private", "explicit_local_private_intent": true,
+                    "blocked": false, "materialization_withheld": false, "lossless_required": true, "exact_payload_match": true,
+                    "blocking_count": 0},
+                "local_first": {"route_id": "DOTH-JSON-001", "export_context": "local_private", "storage_context": "local_private",
+                    "action": "include_metadata_only", "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED", "blocked": false,
+                    "metadata_only": true, "explicit_local_private_intent": true}
+            });
+            let (mut args, _lease) = admit("save_local_result_json", json!({"request": request}));
+            let decoded = save_local_result_json_args(&mut args).unwrap();
+            let receipt = native_result_download::save_request(decoded, || Ok::<_, ()>(dir.clone())).unwrap();
+            assert_eq!(fs::read(dir.join(&receipt.file_name)).unwrap(), text.as_bytes());
+            // deny_unknown_fields still refuses, with a bounded message.
+            let mut unknown = request.clone();
+            unknown["directory"] = json!("/tmp");
+            let (mut args, _lease) = admit("save_local_result_json", json!({"request": unknown}));
+            let message = match save_local_result_json_args(&mut args).unwrap_err() {
+                SolveJobError::InvalidRequest { message } => message,
+                other => panic!("{other:?}"),
+            };
+            assert!(message.contains("unknown field `directory`"), "{message}");
+            fs::remove_dir_all(&dir).unwrap();
+        }
+
+        /// The typed decodings of the moved commands allocate within their
+        /// lease for representative and adversarial bodies (long strings in
+        /// refused positions, long valid strings).
+        #[test]
+        fn typed_argument_decodings_stay_within_the_moved_lease() {
+            let long = "\u{85}\u{1}".repeat(30_000);
+            let model = load_preview_model().unwrap();
+            let project_bodies = [
+                json!({"request": {"project_id": "p", "project_name": "n", "model": model, "mechanics_result": {"r": [1.5, 2.5]}}}),
+                json!({"request": long.clone()}),
+                json!({"request": {"project_id": long.clone(), "project_name": [long.clone()], "model": {}}}),
+                json!({"request": {"project_id": "p", "project_name": "n", "model": {}, "confirmed_revision": {"k": long.clone()}}}),
+            ];
+            for body in &project_bodies {
+                let raw = serde_json::to_vec(body).unwrap();
+                check_decode_bound(&raw, ArgsDecoding::Moved, |args| {
+                    let _ = save_local_project_args(args, || Err("no store in the bound test".to_string()));
+                });
+            }
+            for target in [json!({"target_type": "node", "id": long.clone()}), json!(long.clone()), json!([long.clone()]), json!({"id": 1})] {
+                let raw = serde_json::to_vec(&json!({"mechanicsResult": {"a": 1}, "selectedTarget": target})).unwrap();
+                check_decode_bound(&raw, ArgsDecoding::Moved, |args| {
+                    let _ = args.decode::<Option<SelectedReviewTarget>>("selectedTarget");
+                });
+            }
+            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
+            let mut refused_evidence = redaction_evidence();
+            refused_evidence["blocking_count"] = json!(long.clone());
+            let mut refused_local_first = local_first_evidence();
+            refused_local_first["blocked"] = json!(long.clone());
+            for (redaction, local_first) in [
+                (redaction_evidence(), local_first_evidence()),
+                (refused_evidence, local_first_evidence()),
+                (redaction_evidence(), refused_local_first),
+            ] {
+                let body = json!({"request": witness_report_request(), "redactionEvidence": redaction, "localFirstEvidence": local_first});
+                let raw = serde_json::to_vec(&body).unwrap();
+                let _ = check_decode_bound(&raw, decoding, |args| save_report_package_args(args).map(drop));
+            }
+            let screening = json!({"route_id": "DOTH-JSON-001", "export_context": "local_private",
+                "explicit_local_private_intent": true, "blocked": false, "materialization_withheld": false,
+                "lossless_required": true, "exact_payload_match": true, "blocking_count": 0});
+            for (href, blocked) in [(json!(format!("data:application/json;charset=utf-8,{}", "%7B%7D".repeat(50_000))), json!(false)), (json!("x"), json!(long.clone()))] {
+                let mut screening = screening.clone();
+                screening["blocked"] = blocked;
+                let request = json!({"href": href, "file_name": "f.json", "screening": screening, "local_first": screening});
+                let raw = serde_json::to_vec(&json!({"request": request})).unwrap();
+                let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| save_local_result_json_args(args).map(drop));
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -8724,7 +9369,7 @@ mod replace_confirmation_tests {
     fn unconfirmed_write(store: &Path, id: &str, name: &str, save: bool) -> Result<(), String> {
         let model = invented_model(id, name);
         if save {
-            let request: SaveLocalProjectRequest = serde_json::from_value(json!({
+            let request = SaveLocalProjectRequest::from_value(json!({
                 "project_id": id, "project_name": name, "model": model
             })).unwrap();
             save_project_in_store(store.to_path_buf(), request).map(|_| ())

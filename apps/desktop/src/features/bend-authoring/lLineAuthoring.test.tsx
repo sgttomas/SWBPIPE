@@ -11,7 +11,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import fixture from "../../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
 import { BendAuthoringForms } from "./BendAuthoringForms";
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";

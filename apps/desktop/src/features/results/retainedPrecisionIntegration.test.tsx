@@ -25,7 +25,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisionCorpus";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 const u7 = vi.hoisted(() => ({ simulate: false, held: false, notCovered: null as string | null, noAbsolute: false }));
 vi.mock("./retainedPrecisionReader", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./retainedPrecisionReader")>();
@@ -498,7 +498,8 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     invokeMock.mockImplementation(async (command: string, args: Json) => {
       expect(command).toBe("run_rule_checks");
       expect(args.sourceBlockInvocation).toStrictEqual(invocation);
-      expect(args.solvedEnvelope).toBe(received);
+      // The envelope travels as the JSON text Tauri itself sent for it.
+      expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(received)));
       return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
     });
     const route = await runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received });

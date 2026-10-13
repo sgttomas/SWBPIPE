@@ -4,6 +4,7 @@ import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceC
 import { registerSourceRecovery, sameModelData, validateLoadReferenceSourceEvidence } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -876,7 +877,7 @@ export async function loadSampleProposal(
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     try {
       return (
-        await invoke<{ proposal: AgentProposal }>("sample_agent_proposal", {
+        await invokeWithIngress<{ proposal: AgentProposal }>("sample_agent_proposal", {
           mechanicsResult,
           selectedTarget,
         })

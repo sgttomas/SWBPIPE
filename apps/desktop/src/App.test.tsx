@@ -24,7 +24,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import {
   App,
@@ -12944,6 +12944,25 @@ describe("existing toolkit v2", () => {
     expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id);
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
+  });
+  it("surfaces a native memory-pool refusal of an apply instead of a silent no-op", async () => {
+    render(<App />); await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
+    fireEvent.change(reviewEditor("node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    invokeMock.mockImplementation((command: string) => command === "apply_model_operation"
+      ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 ** 30 }, pool: null })
+      : Promise.reject(new Error(`Unexpected command ${command}`)));
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(screen.getByTestId("operation-apply-message")).toHaveTextContent(
+      "Operation apply failed to run: Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available."
+    ));
+    expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
+    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    // The intent stays queued for a later attempt.
+    expect(screen.getByTestId("apply-intent-editor-intent-1")).toBeInTheDocument();
   });
   it("limits section type choices to pipe", async () => {
     const geometry = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 400));

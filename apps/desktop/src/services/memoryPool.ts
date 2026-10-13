@@ -29,11 +29,11 @@ const PRESSURE_LEVELS: readonly MemoryPressureLevel[] = ["normal", "warning", "c
 export function describeResourceRefusal(refusal: ResourceRefusal): string {
   switch (refusal.kind) {
     case "capacity_unknown":
-      return "This Mac's physical memory could not be read, so no new solve is admitted.";
+      return "This Mac's physical memory could not be read, so no new memory reservation is admitted.";
     case "headroom_unknown":
-      return "Free memory on this Mac could not be read right now, so no new solve is admitted.";
+      return "Free memory on this Mac could not be read right now, so no new memory reservation is admitted.";
     case "headroom_stale":
-      return `The free-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new solve is admitted until it refreshes.`;
+      return `The free-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new memory reservation is admitted until it refreshes.`;
     case "headroom_insufficient":
       return `Not enough free memory on this Mac right now: needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
     case "pressure_unknown":
@@ -42,8 +42,6 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
       return `macOS reports memory pressure (${refusal.level}), so no new solve is admitted until it returns to normal.`;
     case "pool_exhausted":
       return `The memory pool is fully reserved: this request needs ${formatBytes(refusal.requested_bytes)}, and ${formatBytes(refusal.reserved_bytes)} of the ${formatBytes(refusal.pool_bytes)} pool is already reserved.`;
-    case "budget_unqualified":
-      return `A per-invocation budget of ${formatBytes(refusal.requested_bytes)} is above the qualified budget of ${formatBytes(refusal.qualified_bytes)}; only qualified budgets can be selected.`;
     case "budget_exceeds_pool":
       return `The per-invocation budget of ${formatBytes(refusal.budget_bytes)} is larger than the ${formatBytes(refusal.pool_bytes)} pool.`;
     case "pool_above_capacity":
@@ -51,9 +49,9 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "pool_above_recommended_unacknowledged":
       return `A pool of ${formatBytes(refusal.pool_bytes)} is above the recommended ${formatBytes(refusal.recommended_bytes)} for this Mac; the request needs an explicit acknowledgement.`;
     case "ingress_exceeds_budget":
-      return `Receiving the model document needs ${formatBytes(refusal.required_bytes)}, more than the per-invocation budget of ${formatBytes(refusal.budget_bytes)}.`;
+      return `Receiving the request needs ${formatBytes(refusal.required_bytes)}, more than the per-invocation budget of ${formatBytes(refusal.budget_bytes)}.`;
     case "ingress_invalid":
-      return `The model document could not be received: ${refusal.reason}.`;
+      return `The request could not be received: ${refusal.reason}.`;
     case "queue_full":
       return `The solve queue is full (${refusal.queued} of ${refusal.limit} waiting).`;
     case "retention_full":
@@ -110,8 +108,6 @@ export function parseResourceRefusal(value: unknown, depth = 0): ResourceRefusal
       return value.level === "warning" || value.level === "critical" ? { kind, level: value.level } : null;
     case "pool_exhausted":
       return counts("requested_bytes", "reserved_bytes", "pool_bytes") ? { kind, ...pick("requested_bytes", "reserved_bytes", "pool_bytes") } : null;
-    case "budget_unqualified":
-      return counts("requested_bytes", "qualified_bytes") ? { kind, ...pick("requested_bytes", "qualified_bytes") } : null;
     case "budget_exceeds_pool":
       return counts("budget_bytes", "pool_bytes") ? { kind, ...pick("budget_bytes", "pool_bytes") } : null;
     case "pool_above_capacity":
@@ -177,7 +173,7 @@ export function parsePoolStatus(value: unknown): PoolStatus | null {
   const last = value.last_refusal === null ? null : parseResourceRefusal(value.last_refusal);
   if (
     !countOrNull(value.capacity_bytes) || !countOrNull(value.recommended_pool_bytes)
-    || ![value.pool_bytes, value.invocation_budget_bytes, value.qualified_invocation_budget_bytes, value.reserved_bytes,
+    || ![value.pool_bytes, value.invocation_budget_bytes, value.default_invocation_budget_bytes, value.max_invocation_budget_bytes, value.reserved_bytes,
       purpose.ingress, purpose.worker, purpose.result, purpose.custody, value.queued_jobs, value.running_jobs,
       value.running_workers, limits.max_running_workers, value.retained_results, value.webview_custody_results].every(isCount)
     || typeof value.pool_above_recommended !== "boolean"
@@ -192,7 +188,8 @@ export function parsePoolStatus(value: unknown): PoolStatus | null {
     pool_bytes: value.pool_bytes as number,
     pool_above_recommended: value.pool_above_recommended,
     invocation_budget_bytes: value.invocation_budget_bytes as number,
-    qualified_invocation_budget_bytes: value.qualified_invocation_budget_bytes as number,
+    default_invocation_budget_bytes: value.default_invocation_budget_bytes as number,
+    max_invocation_budget_bytes: value.max_invocation_budget_bytes as number,
     reserved_bytes: value.reserved_bytes as number,
     reserved_by_purpose: { ingress: purpose.ingress as number, worker: purpose.worker as number, result: purpose.result as number, custody: purpose.custody as number },
     running_workers: value.running_workers as number,
@@ -251,7 +248,7 @@ export async function getMemoryPoolStatus(): Promise<PoolStatus> {
 
 /** Requests a pool size and a per-invocation budget. The acknowledgement only
  * answers the above-recommended warning; the native host still refuses any
- * request that its capacity, headroom or qualification checks do not admit. */
+ * request that its capacity, headroom or pool checks do not admit. */
 export async function configureMemoryPool(request: {
   poolBytes: number;
   invocationBudgetBytes: number;

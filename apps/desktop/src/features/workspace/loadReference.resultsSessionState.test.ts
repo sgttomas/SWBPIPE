@@ -5,7 +5,7 @@ import { act, renderHook } from "@testing-library/react";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { runPreviewMechanics, buildAnalysisRunPreview, hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -106,7 +106,7 @@ describe("rule binding on the reachable desktop path", () => {
     expect(command).toBe("run_rule_checks");
     // The physics-1 argument shape: envelope and model, no source-block invocation.
     expect(Object.keys(args).sort()).toEqual(["model", "rulePackDocument", "solvedEnvelope"]);
-    expect(args.solvedEnvelope).toBe(source);
+    expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(source)));
   });
 
   it.each(["n05", "mixed"])("a registered joined %s result is refused through standing and never reaches the rule panel", async name => {

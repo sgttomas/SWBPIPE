@@ -2,19 +2,26 @@
 //! owner-adopted 2026-10-11).
 //!
 //! Policy (fixed by the owner): a nominal pool of floor(3 * physical / 4)
-//! bytes; a qualified per-invocation default of 12 GiB; a lower user budget is
-//! allowed and a larger one is refused as unqualified; the budget never exceeds
-//! the pool; a pool above the recommended fraction needs an explicit
-//! acknowledgement and never exceeds physical capacity. Acknowledgement never
-//! bypasses headroom, pressure or qualification refusals.
+//! bytes; a per-invocation default of 12 GiB (min(12 GiB, pool)); a lower or
+//! larger user budget is allowed up to the pool and never above it; a pool
+//! above the recommended fraction needs an explicit acknowledgement and never
+//! exceeds physical capacity. Acknowledgement never bypasses headroom or
+//! pressure refusals. A budget above 12 GiB needs no separate numerical
+//! qualification: the ordinary route runs in the capped worker, whose cap is
+//! enforced, and the route, model family and predicates do not change with the
+//! budget (the worker's grant arithmetic and protocol are checked up to
+//! u64::MAX by `large_budgets_keep_grant_frame_lease_and_envelope_arithmetic_exact`).
+//! The retained route (core D1) is not used by the desktop and stays at its
+//! registered 12 GiB.
 //!
 //! What the per-invocation budget bounds: each ordinary solve's worker grant
 //! (owner decision 2026-10-12, "(c) Capped worker process"). The solve runs in
 //! a local child process whose allocator is capped at its grant; the grant
 //! starts at the worker's process reserve plus the request's ingress bound and
 //! grows on demand, each step an atomic admission with a fresh headroom
-//! verdict, never above the budget (`crate::solve_worker`). Result and custody
-//! leases are bounded by the pool, a fresh headroom verdict and the
+//! verdict, never above the budget (`crate::solve_worker`); and each
+//! interactive command's ingress lease (`crate::command_ingress`). Result and
+//! custody leases are bounded by the pool, a fresh headroom verdict and the
 //! retention/custody count limits, not by the budget.
 //!
 //! Every priced admission is atomic: under one lock it checks capacity, the
@@ -22,6 +29,17 @@
 //! records the reservation, so racing admissions serialize and cannot both
 //! consume the same pool bytes or headroom. A [`Lease`] releases exactly once
 //! when dropped, including during unwinding.
+//!
+//! Admission classes ([`AdmissionClass`]). Adaptive heavy work (solve intake,
+//! worker grants and their growth, results, custody) is refused unless the
+//! host's pressure state is normal. Interactive commands (model edits,
+//! saves, rule checks, report rendering: `crate::command_ingress`) are not
+//! gated by the pressure state: refusing every edit and save at each macOS
+//! pressure warning would remove current capability. They still need the
+//! aggregate pool reservation, a known capacity, a fresh known headroom
+//! covering the request plus the outstanding unrealized reservations (the same
+//! rule as every other lease), and their lease must fit the per-invocation
+//! budget.
 //!
 //! Residency credit: a running worker's pages that are already resident were
 //! taken from the free queue when they were touched, so the headroom verdict
@@ -37,9 +55,11 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
-/// The owner-authorized, qualified per-invocation budget: 12 GiB. It caps each
-/// ordinary solve's worker grant; it does not bound result retention or custody.
-pub(crate) const QUALIFIED_INVOCATION_BUDGET_BYTES: u64 = 12_884_901_888;
+/// The owner-authorized default per-invocation budget: 12 GiB (or the pool,
+/// if smaller). A configured budget may be lower or larger, up to the pool. It
+/// caps each ordinary solve's worker grant and each interactive command's
+/// ingress lease; it does not bound result retention or custody.
+pub(crate) const DEFAULT_INVOCATION_BUDGET_BYTES: u64 = 12_884_901_888;
 /// A host sample older than this cannot admit work.
 pub(crate) const HEADROOM_SAMPLE_MAX_AGE: Duration = Duration::from_secs(1);
 /// How often a queued job re-samples the host while waiting for its grant.
@@ -130,7 +150,6 @@ pub(crate) enum ResourceRefusal {
     /// Pressure is `warning` or `critical`.
     PressureElevated { level: PressureLevel },
     PoolExhausted { requested_bytes: u64, reserved_bytes: u64, pool_bytes: u64 },
-    BudgetUnqualified { requested_bytes: u64, qualified_bytes: u64 },
     BudgetExceedsPool { budget_bytes: u64, pool_bytes: u64 },
     PoolAboveCapacity { pool_bytes: u64, capacity_bytes: u64 },
     PoolAboveRecommendedUnacknowledged { pool_bytes: u64, recommended_bytes: u64 },
@@ -152,10 +171,23 @@ pub(crate) enum ResourceRefusal {
     WorkerLimitReached { running: usize, limit: usize },
 }
 
+/// How an admission treats the host's pressure state (see the module docs).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum AdmissionClass {
+    /// Heavy adaptive work: refused unless pressure is normal.
+    Adaptive,
+    /// An interactive command's ingress lease: the pressure state does not
+    /// gate it; capacity, pool, headroom freshness and amount, and the
+    /// per-invocation budget do.
+    Interactive,
+}
+
 /// What a lease's bytes cover.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum LeasePurpose {
-    /// The buffered raw body and its native materialization while queued/solving.
+    /// A solve's buffered raw body while queued (its materialization happens
+    /// in the worker), or an interactive command's raw body, its
+    /// materialization and decoded arguments while the command runs.
     Ingress = 0,
     /// A published native result not yet taken.
     Result = 1,
@@ -204,7 +236,7 @@ impl PoolState {
         if !self.defaults_applied {
             self.defaults_applied = true;
             self.pool_bytes = recommended_pool_bytes(capacity).unwrap_or(0);
-            self.invocation_budget_bytes = QUALIFIED_INVOCATION_BUDGET_BYTES.min(self.pool_bytes);
+            self.invocation_budget_bytes = DEFAULT_INVOCATION_BUDGET_BYTES.min(self.pool_bytes);
         }
     }
 }
@@ -265,7 +297,10 @@ pub(crate) struct PoolStatus {
     pub pool_bytes: u64,
     pub pool_above_recommended: bool,
     pub invocation_budget_bytes: u64,
-    pub qualified_invocation_budget_bytes: u64,
+    /// The budget a fresh pool starts with: 12 GiB (the pool, if smaller).
+    pub default_invocation_budget_bytes: u64,
+    /// The largest budget `configure_memory_pool` accepts: the pool.
+    pub max_invocation_budget_bytes: u64,
     pub reserved_bytes: u64,
     pub reserved_by_purpose: ReservedByPurpose,
     pub running_workers: usize,
@@ -335,7 +370,7 @@ impl MemoryPool {
     }
 
     /// The atomic verdict for `bytes` more reserved bytes, under the lock.
-    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64) -> Result<(), ResourceRefusal> {
+    fn admit_bytes_locked(&self, state: &mut PoolState, bytes: u64, class: AdmissionClass) -> Result<(), ResourceRefusal> {
         let sample = self.host.sample();
         state.observe(&sample);
         if sample.capacity_bytes.is_none() {
@@ -350,7 +385,9 @@ impl MemoryPool {
             });
         }
         check_fresh(&sample)?;
-        check_pressure(&sample)?;
+        if class == AdmissionClass::Adaptive {
+            check_pressure(&sample)?;
+        }
         let available = sample.headroom_bytes.ok_or(ResourceRefusal::HeadroomUnknown)?;
         // Deliberately conservative double counting: bytes already reserved may
         // not yet be resident, so the host's headroom must cover them as well
@@ -374,7 +411,7 @@ impl MemoryPool {
         let verdict = if purpose == LeasePurpose::Worker && state.workers.len() >= limit {
             Err(ResourceRefusal::WorkerLimitReached { running: state.workers.len(), limit })
         } else {
-            self.admit_bytes_locked(state, bytes)
+            self.admit_bytes_locked(state, bytes, AdmissionClass::Adaptive)
         };
         if let Err(refusal) = verdict {
             state.last_refusal = Some(refusal.clone());
@@ -387,7 +424,43 @@ impl MemoryPool {
             state.workers.insert(id, WorkerEntry { bytes, probe: None });
             id
         });
-        Ok(Lease { pool: Arc::clone(self), bytes, purpose, worker_id })
+        Ok(Lease { pool: Arc::clone(self), bytes, purpose, class: AdmissionClass::Adaptive, worker_id })
+    }
+
+    /// Admits an interactive command's ingress lease of `bytes` in one
+    /// critical section ([`AdmissionClass::Interactive`]): a known capacity,
+    /// `bytes` within the per-invocation budget (`ingress_exceeds_budget`),
+    /// the pool, and a fresh known headroom covering `bytes` plus the
+    /// outstanding unrealized reservations. The pressure state is not
+    /// consulted.
+    pub(crate) fn acquire_interactive(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+        let mut state = self.lock();
+        let verdict = (|| {
+            let sample = self.host.sample();
+            state.observe(&sample);
+            if sample.capacity_bytes.is_none() {
+                return Err(ResourceRefusal::CapacityUnknown);
+            }
+            if bytes > state.invocation_budget_bytes {
+                return Err(ResourceRefusal::IngressExceedsBudget {
+                    required_bytes: bytes,
+                    budget_bytes: state.invocation_budget_bytes,
+                });
+            }
+            self.admit_bytes_locked(&mut state, bytes, AdmissionClass::Interactive)
+        })();
+        if let Err(refusal) = verdict {
+            state.last_refusal = Some(refusal.clone());
+            return Err(refusal);
+        }
+        state.reserved[LeasePurpose::Ingress as usize] += bytes;
+        Ok(Lease {
+            pool: Arc::clone(self),
+            bytes,
+            purpose: LeasePurpose::Ingress,
+            class: AdmissionClass::Interactive,
+            worker_id: None,
+        })
     }
 
     /// Releases `bytes` of `purpose`; a worker lease's entry is updated to
@@ -473,12 +546,6 @@ impl MemoryPool {
                     recommended_bytes: recommended,
                 });
             }
-            if invocation_budget_bytes > QUALIFIED_INVOCATION_BUDGET_BYTES {
-                return Err(ResourceRefusal::BudgetUnqualified {
-                    requested_bytes: invocation_budget_bytes,
-                    qualified_bytes: QUALIFIED_INVOCATION_BUDGET_BYTES,
-                });
-            }
             if invocation_budget_bytes > pool_bytes {
                 return Err(ResourceRefusal::BudgetExceedsPool { budget_bytes: invocation_budget_bytes, pool_bytes });
             }
@@ -514,7 +581,8 @@ impl MemoryPool {
             pool_bytes: state.pool_bytes,
             pool_above_recommended: recommended.is_some_and(|r| state.pool_bytes > r),
             invocation_budget_bytes: state.invocation_budget_bytes,
-            qualified_invocation_budget_bytes: QUALIFIED_INVOCATION_BUDGET_BYTES,
+            default_invocation_budget_bytes: DEFAULT_INVOCATION_BUDGET_BYTES,
+            max_invocation_budget_bytes: state.pool_bytes,
             reserved_bytes: state.reserved_total(),
             reserved_by_purpose: ReservedByPurpose {
                 ingress: state.reserved[LeasePurpose::Ingress as usize],
@@ -574,6 +642,8 @@ pub(crate) struct Lease {
     pool: Arc<MemoryPool>,
     bytes: u64,
     purpose: LeasePurpose,
+    /// The class its admission (and any growth) is judged under.
+    class: AdmissionClass,
     /// A worker lease's entry in the pool's worker ledger.
     worker_id: Option<u64>,
 }
@@ -596,7 +666,7 @@ impl Lease {
         }
         let delta = new_bytes - self.bytes;
         let mut state = self.pool.lock();
-        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta) {
+        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, self.class) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
@@ -720,11 +790,11 @@ mod tests {
     }
 
     #[test]
-    fn defaults_follow_capacity_and_qualified_budget() {
+    fn defaults_follow_capacity_and_default_budget() {
         for (capacity, pool_bytes, budget) in [
-            (16 * GIB, 12 * GIB, QUALIFIED_INVOCATION_BUDGET_BYTES),
+            (16 * GIB, 12 * GIB, DEFAULT_INVOCATION_BUDGET_BYTES),
             (8 * GIB, 6 * GIB, 6 * GIB),
-            (64 * GIB, 48 * GIB, QUALIFIED_INVOCATION_BUDGET_BYTES),
+            (64 * GIB, 48 * GIB, DEFAULT_INVOCATION_BUDGET_BYTES),
         ] {
             let host = ScriptedHost::with(Some(capacity), Some(capacity), PressureLevel::Normal);
             let status = pool(&host).status(JobCounts::default());
@@ -740,7 +810,7 @@ mod tests {
         // A later known capacity applies the defaults once.
         host.set(|s| s.capacity_bytes = Some(16 * GIB));
         assert!(unknown.acquire(1, LeasePurpose::Ingress).is_ok());
-        assert_eq!(unknown.settings(), (12 * GIB, QUALIFIED_INVOCATION_BUDGET_BYTES));
+        assert_eq!(unknown.settings(), (12 * GIB, DEFAULT_INVOCATION_BUDGET_BYTES));
     }
 
     #[test]
@@ -890,17 +960,20 @@ mod tests {
             ResourceRefusal::PoolAboveRecommendedUnacknowledged { pool_bytes: 14 * GIB, recommended_bytes: 12 * GIB }
         );
         assert_eq!(
-            pool.configure(14 * GIB, QUALIFIED_INVOCATION_BUDGET_BYTES + 1, true).unwrap_err(),
-            ResourceRefusal::BudgetUnqualified {
-                requested_bytes: QUALIFIED_INVOCATION_BUDGET_BYTES + 1,
-                qualified_bytes: QUALIFIED_INVOCATION_BUDGET_BYTES
-            }
-        );
-        assert_eq!(
             pool.configure(4 * GIB, 5 * GIB, false).unwrap_err(),
             ResourceRefusal::BudgetExceedsPool { budget_bytes: 5 * GIB, pool_bytes: 4 * GIB }
         );
-        assert_eq!(pool.settings(), (12 * GIB, QUALIFIED_INVOCATION_BUDGET_BYTES), "refusals change nothing");
+        assert_eq!(
+            pool.configure(14 * GIB, 14 * GIB + 1, true).unwrap_err(),
+            ResourceRefusal::BudgetExceedsPool { budget_bytes: 14 * GIB + 1, pool_bytes: 14 * GIB }
+        );
+        assert_eq!(pool.settings(), (12 * GIB, DEFAULT_INVOCATION_BUDGET_BYTES), "refusals change nothing");
+        // A budget above 12 GiB is accepted up to the pool (one current
+        // contract: no separate qualification refusal).
+        pool.configure(14 * GIB, 14 * GIB, true).unwrap();
+        let status = pool.status(JobCounts::default());
+        assert_eq!((status.invocation_budget_bytes, status.max_invocation_budget_bytes), (14 * GIB, 14 * GIB));
+        assert_eq!(status.default_invocation_budget_bytes, DEFAULT_INVOCATION_BUDGET_BYTES);
         // A lower budget is allowed; an acknowledged pool above 3/4 is allowed.
         pool.configure(16 * GIB, 2 * GIB, true).unwrap();
         let status = pool.status(JobCounts::default());
@@ -1069,6 +1142,55 @@ mod tests {
         assert!(pool.lock().workers.is_empty());
     }
 
+    /// The interactive class: pressure does not gate it (warning, critical or
+    /// unknown), while capacity, budget, pool and headroom (fresh, known and
+    /// covering the outstanding unrealized reservations) do. Adaptive
+    /// admissions are unchanged.
+    #[test]
+    fn interactive_admission_ignores_pressure_but_not_budget_pool_or_headroom() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(8 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(12 * GIB, 2 * GIB, false).unwrap();
+        for level in [PressureLevel::Warning, PressureLevel::Critical, PressureLevel::Unknown] {
+            host.set(|s| s.pressure = level);
+            let lease = pool.acquire_interactive(GIB).unwrap();
+            assert_eq!((lease.purpose(), pool.reserved(LeasePurpose::Ingress)), (LeasePurpose::Ingress, GIB));
+            assert!(pool.acquire(1, LeasePurpose::Ingress).is_err(), "adaptive admission still refuses at {level:?}");
+            assert!(pool.acquire(1, LeasePurpose::Worker).is_err());
+            drop(lease);
+        }
+        host.set(|s| s.pressure = PressureLevel::Warning);
+        assert_eq!(
+            pool.acquire_interactive(2 * GIB + 1).unwrap_err(),
+            ResourceRefusal::IngressExceedsBudget { required_bytes: 2 * GIB + 1, budget_bytes: 2 * GIB }
+        );
+        // Outstanding reservations count against headroom (8 GiB): 7 + 2 > 8.
+        host.set(|s| s.pressure = PressureLevel::Normal);
+        let held = pool.acquire(7 * GIB, LeasePurpose::Result).unwrap();
+        host.set(|s| s.pressure = PressureLevel::Critical);
+        assert_eq!(
+            pool.acquire_interactive(2 * GIB).unwrap_err(),
+            ResourceRefusal::HeadroomInsufficient { required_bytes: 9 * GIB, available_bytes: 8 * GIB }
+        );
+        let fits = pool.acquire_interactive(GIB).unwrap();
+        // The pool: 7 + 1 held of 12; 5 more would exceed it.
+        host.set(|s| s.headroom_bytes = Some(64 * GIB));
+        pool.configure(12 * GIB, 12 * GIB, false).unwrap();
+        assert!(matches!(pool.acquire_interactive(5 * GIB).unwrap_err(), ResourceRefusal::PoolExhausted { .. }));
+        drop((held, fits));
+        host.set(|s| s.headroom_bytes = None);
+        assert_eq!(pool.acquire_interactive(1).unwrap_err(), ResourceRefusal::HeadroomUnknown);
+        host.set(|s| {
+            s.headroom_bytes = Some(GIB);
+            s.age = Duration::from_secs(5);
+        });
+        assert!(matches!(pool.acquire_interactive(1).unwrap_err(), ResourceRefusal::HeadroomStale { .. }));
+        host.set(|s| s.capacity_bytes = None);
+        assert_eq!(pool.acquire_interactive(1).unwrap_err(), ResourceRefusal::CapacityUnknown);
+        assert!(matches!(pool.status(JobCounts::default()).last_refusal, Some(ResourceRefusal::CapacityUnknown)));
+        assert_eq!(pool.reserved_total(), 0, "every refusal reserved nothing");
+    }
+
     #[test]
     fn refusals_and_status_serialize_with_stable_names() {
         let refusal = serde_json::to_value(ResourceRefusal::PressureElevated { level: PressureLevel::Warning }).unwrap();
@@ -1099,7 +1221,7 @@ mod tests {
         let status = serde_json::to_value(pool(&host).status(JobCounts { queued: 1, running: 1, retained: 0, custody: 2 })).unwrap();
         for key in [
             "capacity_bytes", "recommended_pool_bytes", "pool_bytes", "pool_above_recommended", "invocation_budget_bytes",
-            "qualified_invocation_budget_bytes", "reserved_bytes", "reserved_by_purpose", "running_workers",
+            "default_invocation_budget_bytes", "max_invocation_budget_bytes", "reserved_bytes", "reserved_by_purpose", "running_workers",
             "queued_jobs", "running_jobs", "retained_results", "webview_custody_results", "headroom",
             "ordinary_route_pricing", "last_refusal",
         ] {
@@ -1107,6 +1229,9 @@ mod tests {
         }
         assert_eq!(status["ordinary_route_pricing"], "worker_capped");
         assert!(status.get("unpriced_solve_running").is_none());
+        assert!(status.get("qualified_invocation_budget_bytes").is_none(), "one current contract");
+        assert_eq!(status["default_invocation_budget_bytes"], DEFAULT_INVOCATION_BUDGET_BYTES);
+        assert_eq!(status["max_invocation_budget_bytes"], 12 * GIB);
         assert_eq!(status["headroom"]["pressure"], "normal");
         assert_eq!(status["reserved_by_purpose"], serde_json::json!({"ingress":0,"result":0,"custody":0,"worker":0}));
         assert_eq!(status["running_workers"], 0);

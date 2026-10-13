@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import type { MechanicsResult, PreviewModel } from "../types";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { pollPreviewMechanicsJob, receivedResultBytes, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult } from "./previewService";
 import { createSolveJobTransport, resultArrayBuffer } from "../test/nativeMechanicsReplay";
 

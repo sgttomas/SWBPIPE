@@ -390,6 +390,18 @@ impl SolveJobRegistry {
         self.unavailable_locked(&table, refusal)
     }
 
+    /// A typed resource refusal carrying the pool's status (also recorded as
+    /// the pool's last refusal).
+    pub(crate) fn refuse(&self, refusal: ResourceRefusal) -> SolveJobError {
+        self.unavailable(refusal)
+    }
+
+    /// Admits an interactive command's ingress lease
+    /// ([`crate::memory_pool::AdmissionClass::Interactive`]).
+    pub(crate) fn acquire_interactive_ingress(&self, bytes: u64) -> Result<Lease, SolveJobError> {
+        self.pool.acquire_interactive(bytes).map_err(|refusal| self.unavailable(refusal))
+    }
+
     pub(crate) fn pool_status(&self) -> PoolStatus {
         let counts = self.table().counts();
         self.pool.status(counts)
@@ -954,7 +966,7 @@ mod tests {
             let direct = crate::solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
             let receipt = registry.start(&body, Some(mode.as_str())).unwrap();
             assert_eq!((receipt.state, receipt.resource.route_pricing), ("queued", "ordinary_worker_capped"));
-            assert_eq!(receipt.resource.invocation_budget_bytes, crate::memory_pool::QUALIFIED_INVOCATION_BUDGET_BYTES);
+            assert_eq!(receipt.resource.invocation_budget_bytes, crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES);
             assert_eq!(receipt.resource.ingress_reserved_bytes, ingress::allocation_envelope(body.len() as u64).unwrap());
             assert_eq!((receipt.resource.worker_grant_bytes, receipt.resource.worker_peak_grant_bytes), (None, None));
             let status = wait_terminal(&registry, &receipt.job_id);
@@ -962,7 +974,7 @@ mod tests {
             assert_eq!(status.result_bytes, Some(direct.len() as u64));
             assert_eq!(status.resource.worker_grant_bytes, None, "released once the worker was reaped");
             let peak = status.resource.worker_peak_grant_bytes.unwrap();
-            assert!(peak >= start && peak <= crate::memory_pool::QUALIFIED_INVOCATION_BUDGET_BYTES, "{peak}");
+            assert!(peak >= start && peak <= crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES, "{peak}");
             let footprint = status.resource.worker_peak_footprint_bytes.unwrap();
             assert!(footprint > 0 && footprint <= peak, "{footprint}");
             eprintln!(
@@ -1653,5 +1665,30 @@ mod tests {
         drop(table);
         registry.dispose_result(&kept.job_id).unwrap();
         assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// A configured budget above 12 GiB (96 GiB on an injected 1 TiB host)
+    /// runs the real ordinary solve in a capped worker to the in-process
+    /// producer's exact bytes; the grant grows on demand from the intake size
+    /// and nothing is allocated toward the budget.
+    #[test]
+    fn a_budget_above_twelve_gib_runs_the_real_solve_with_exact_bytes() {
+        const TIB: u64 = 1 << 40;
+        let registry = real_registry(ScriptedHost::with(Some(TIB), Some(TIB), PressureLevel::Normal));
+        let status = registry.configure_pool(768 * GIB, 96 * GIB, false).unwrap();
+        assert_eq!((status.invocation_budget_bytes, status.max_invocation_budget_bytes), (96 * GIB, 768 * GIB));
+        let model = crate::load_preview_model().unwrap();
+        let body = serde_json::to_vec(&model).unwrap();
+        let direct = crate::solve_preview_mechanics_with_mode(model, PreviewSolverMode::default()).unwrap();
+        let receipt = registry.start(&body, None).unwrap();
+        assert_eq!(receipt.resource.invocation_budget_bytes, 96 * GIB);
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(status.state, "completed", "{status:?}");
+        let peak = status.resource.worker_peak_grant_bytes.unwrap();
+        // On demand from the intake size: far below the 12 GiB default, let alone the budget.
+        assert!(peak < crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES, "{peak}");
+        assert_eq!(registry.take_result(&receipt.job_id).unwrap(), direct.as_bytes(), "the producer's exact bytes");
+        registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 }

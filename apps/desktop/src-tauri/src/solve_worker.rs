@@ -46,7 +46,7 @@
 //!
 //! Residual: the footprint is sampled, not continuous. Memory outside the
 //! counted heap can exceed the lease (or the budget) for at most one poll
-//! interval (200 ms) plus the time to measure and kill; the counted heap
+//! interval (100 ms) plus the time to measure and kill; the counted heap
 //! itself never exceeds its cap. The result is also not polled while its
 //! bytes are read (the worker has finished computing). At the result frame
 //! the parent reads the worker's lifetime-maximum footprint, which covers
@@ -521,7 +521,25 @@ fn protocol(message: impl std::fmt::Display) -> WorkerOutcome {
 /// How often the supervisor measures a worker's physical footprint while no
 /// frame arrives: the bound on how long memory outside the counted heap can
 /// exceed the grant (or the budget) unnoticed.
-pub(crate) const FOOTPRINT_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_millis(200);
+pub(crate) const FOOTPRINT_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_millis(100);
+
+/// The lease growth a measured footprint above the lease asks for between
+/// exchanges: (preferred, minimal) = (min(budget, max(minimal, 2 * lease)),
+/// min(budget, footprint + reserve)). Saturating, so exact for every budget up
+/// to u64::MAX.
+pub(crate) fn poll_growth(current: u64, footprint: u64, reserve: u64, max_grant: u64) -> (u64, u64) {
+    let minimal = max_grant.min(footprint.saturating_add(reserve));
+    let preferred = max_grant.min(minimal.max(current.saturating_mul(2)));
+    (preferred, minimal)
+}
+
+/// The lease growth a `GROW {requested, needed, footprint}` asks for: the
+/// lease also covers the footprint plus the reserve (capped at the budget).
+/// Returns (preferred, minimal).
+pub(crate) fn exchange_growth(requested: u64, needed: u64, footprint: u64, reserve: u64, max_grant: u64) -> (u64, u64) {
+    let footprint_need = max_grant.min(footprint.saturating_add(reserve));
+    (requested.max(footprint_need), needed.max(footprint_need))
+}
 
 /// Grows the worker's lease to `preferred` (the doubling step) or, if that is
 /// refused, to `minimal` (the need); each try is one atomic admission with a
@@ -629,8 +647,7 @@ pub(crate) fn supervise(
                 break;
             }
             if footprint > current {
-                let minimal = terms.max_grant.min(footprint.saturating_add(terms.reserve));
-                let preferred = terms.max_grant.min(minimal.max(current.saturating_mul(2)));
+                let (preferred, minimal) = poll_growth(current, footprint, terms.reserve, terms.max_grant);
                 match grow_grant(grant, preferred, minimal) {
                     Ok(bytes) if bytes != current => hooks.grant_changed(bytes),
                     Ok(_) => {}
@@ -666,16 +683,15 @@ pub(crate) fn supervise(
                     encode_frame(TAG_DENIED, 0, 0, 0)
                 } else {
                     // The footprint is a need too: the lease also covers it plus the reserve.
-                    let footprint_need = terms.max_grant.min(footprint.saturating_add(terms.reserve));
-                    let minimal = needed.max(footprint_need);
-                    match grow_grant(grant, requested.max(footprint_need), minimal) {
+                    let (preferred, minimal) = exchange_growth(requested, needed, footprint, terms.reserve, terms.max_grant);
+                    match grow_grant(grant, preferred, minimal) {
                         Ok(bytes) => {
                             if bytes != current {
                                 hooks.grant_changed(bytes);
                             }
                             // The child's heap grows to the doubling step if the
                             // lease covers it, else to its need.
-                            child_grant = if bytes >= requested.max(footprint_need) { requested } else { needed };
+                            child_grant = if bytes >= preferred { requested } else { needed };
                             encode_frame(TAG_GRANTED, child_grant, 0, 0)
                         }
                         Err(cause) => {
@@ -1735,5 +1751,103 @@ pub(crate) mod tests {
         assert!(idle * 2 <= PROCESS_RESERVE_BYTES, "idle footprint {idle}");
         assert!(max.saturating_sub(peak) * 2 <= PROCESS_RESERVE_BYTES, "lifetime max {max} vs counted peak {peak}");
         assert!(max <= grant, "the footprint stayed within the grant");
+    }
+
+    /// Larger per-invocation budgets (owner policy: any budget up to the
+    /// pool) keep the worker's grant arithmetic, request and control frames,
+    /// lease growth and envelopes exact, checked and overflow-free at 16, 48
+    /// and 96 GiB, 1 TiB and near u64::MAX. Pure arithmetic and pool
+    /// bookkeeping on an injected host: nothing is allocated toward these sizes.
+    #[test]
+    fn large_budgets_keep_grant_frame_lease_and_envelope_arithmetic_exact() {
+        use crate::ingress::{allocation_envelope, IngressBound};
+        use crate::worker_alloc::growth_request;
+        const TIB: u64 = 1 << 40;
+        let reserve = PROCESS_RESERVE_BYTES;
+        let largest_whole_mib = u64::MAX / GRANT_GRANULE_BYTES * GRANT_GRANULE_BYTES;
+        for budget in [16 * GIB, 48 * GIB, 96 * GIB, TIB, largest_whole_mib, u64::MAX] {
+            let whole_mib = budget % GRANT_GRANULE_BYTES == 0;
+            // Starting grants: reserve + bound rounded up to whole MiB, or None.
+            assert_eq!(initial_grant(reserve, budget - reserve), whole_mib.then_some(budget), "{budget}");
+            let above = initial_grant(reserve, budget - reserve + 1);
+            assert_eq!(above, budget.checked_add(GRANT_GRANULE_BYTES).filter(|_| whole_mib), "{budget}");
+            assert_eq!(initial_grant(u64::MAX, 1), None);
+            assert_eq!(initial_grant(reserve, u64::MAX - reserve + 1), None);
+
+            // The request header round-trips every field exactly.
+            for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                let request = Request { mode, initial_grant: budget / 2, max_grant: budget, reserve, raw_len: budget - reserve };
+                assert_eq!(decode_request(&encode_request(&request)), Some(request));
+                let at_budget = Request { initial_grant: budget, ..request };
+                assert_eq!(decode_request(&encode_request(&at_budget)), Some(at_budget));
+                let invalid = Request { initial_grant: budget, max_grant: budget - 1, ..request };
+                assert_eq!(decode_request(&encode_request(&invalid)), None);
+            }
+            // Control frames carry every u64 exactly.
+            for (tag, a, b, c) in [
+                (TAG_GROW, budget, budget - 1, u64::MAX),
+                (TAG_GRANTED, budget, 0, 0),
+                (TAG_CAP_EXCEEDED, budget.saturating_add(1), budget, 0),
+                (TAG_RESULT, budget - reserve, budget, 0),
+            ] {
+                assert_eq!(decode_frame(&encode_frame(tag, a, b, c)), (tag, a, b, c));
+            }
+
+            // The child's growth request: needed = counted + reserve, the
+            // request capped at the budget, saturating at u64::MAX.
+            assert_eq!(growth_request(budget - reserve, reserve, budget / 2, budget, 0), (budget, budget));
+            assert_eq!(growth_request(budget / 4, reserve, budget / 2 + 1, budget, 0), (budget, budget / 4 + reserve));
+            assert_eq!(growth_request(1, reserve, u64::MAX, budget, u64::MAX), (budget, 1 + reserve));
+            assert_eq!(growth_request(u64::MAX, reserve, 0, budget, 0), (budget, u64::MAX));
+            let (requested, needed) = growth_request(budget - reserve + 1, reserve, 0, budget, 0);
+            assert_eq!(needed, budget.saturating_add(1), "a need above the budget is visible (refused CAPX)");
+            assert!(requested <= budget);
+            // The parent's poll and exchange growth, capped at the budget.
+            assert_eq!(poll_growth(budget / 2, budget - 1, reserve, budget), (budget, budget));
+            assert_eq!(poll_growth(budget / 8, budget / 8 + 1, reserve, budget), (budget / 8 * 2, budget / 8 + 1 + reserve));
+            assert_eq!(poll_growth(u64::MAX, u64::MAX, reserve, budget), (budget, budget));
+            assert_eq!(exchange_growth(budget, budget - 1, u64::MAX, reserve, budget), (budget, budget));
+            assert_eq!(exchange_growth(budget / 2, budget / 4, 0, reserve, budget), (budget / 2, (budget / 4).max(reserve)));
+
+            // Lease admission and growth on an injected host of u64::MAX bytes.
+            let host = ScriptedHost::with(Some(u64::MAX), Some(u64::MAX), PressureLevel::Normal);
+            let pool = MemoryPool::with_wait_tick(host, Duration::from_millis(5));
+            pool.configure(u64::MAX, budget, true).unwrap();
+            assert_eq!(pool.settings(), (u64::MAX, budget));
+            let start = initial_grant(reserve, 4096).unwrap();
+            let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
+            assert_eq!(grow_grant(&mut grant, budget, budget / 2), Ok(budget));
+            assert_eq!((grant.bytes(), pool.reserved(LeasePurpose::Worker)), (budget, budget));
+            assert_eq!(grow_grant(&mut grant, budget, budget - 1), Ok(budget), "a need within the lease is no growth");
+            let extra = pool.acquire(u64::MAX - budget, LeasePurpose::Result).unwrap();
+            assert_eq!(pool.reserved_total(), u64::MAX);
+            assert!(matches!(pool.acquire(1, LeasePurpose::Result).unwrap_err(), ResourceRefusal::PoolExhausted { .. }));
+            assert!(matches!(pool.acquire_interactive(1).unwrap_err(), ResourceRefusal::PoolExhausted { .. }));
+            drop((grant, extra));
+            assert_eq!(pool.reserved_total(), 0);
+            pool.configure(budget / 2, budget / 2, true).unwrap();
+            assert_eq!(
+                pool.configure(budget / 2, budget, true).unwrap_err(),
+                ResourceRefusal::BudgetExceedsPool { budget_bytes: budget, pool_bytes: budget / 2 }
+            );
+
+            // Envelopes: exact for page multiples, checked (None) or saturating above.
+            if budget % (16 * 1024) == 0 {
+                assert_eq!(resident_envelope(budget), budget);
+            }
+            assert!(resident_envelope(budget) >= budget);
+            assert_eq!(allocation_envelope(budget), budget.checked_next_power_of_two());
+            let bound = IngressBound { raw_len: budget - reserve, materialization_bytes: budget };
+            assert_eq!(
+                bound.lease_bytes(),
+                allocation_envelope(budget - reserve).and_then(|raw| raw.checked_add(budget))
+            );
+            assert_eq!(
+                crate::command_ingress::lease_bytes(bound, crate::command_ingress::ArgsDecoding::Moved),
+                bound.lease_bytes().and_then(|l| l.checked_add(crate::command_ingress::ARGS_ERROR_ALLOWANCE_BYTES))
+            );
+        }
+        assert_eq!(resident_envelope(u64::MAX), u64::MAX, "saturates");
+        assert_eq!(allocation_envelope(u64::MAX), None);
     }
 }

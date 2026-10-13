@@ -121,7 +121,7 @@ describe("the worker-capped grant", () => {
 describe("the pool status with solve workers", () => {
   const status = (overrides: Record<string, unknown> = {}) => ({
     capacity_bytes: 16 * GiB, recommended_pool_bytes: 12 * GiB, pool_bytes: 12 * GiB, pool_above_recommended: false,
-    invocation_budget_bytes: 12 * GiB, qualified_invocation_budget_bytes: 12 * GiB, reserved_bytes: 5 * GiB,
+    invocation_budget_bytes: 12 * GiB, default_invocation_budget_bytes: 12 * GiB, max_invocation_budget_bytes: 12 * GiB, reserved_bytes: 5 * GiB,
     reserved_by_purpose: { ingress: GiB, worker: 4 * GiB, result: 0, custody: 0 }, running_workers: 2, queued_jobs: 0, running_jobs: 2,
     limits: { max_queued_jobs: 4, max_retained_results: 4, max_webview_custody_results: 4, max_terminal_records: 64, max_running_workers: 8 },
     retained_results: 0, webview_custody_results: 0, headroom: { available_bytes: 6 * GiB, pressure: "normal", sample_age_ms: 10 },
@@ -143,10 +143,40 @@ describe("the pool status with solve workers", () => {
     ["no worker reservation", { reserved_by_purpose: { ingress: 0, result: 0, custody: 0 } }],
     ["no running-worker limit", { limits: { max_queued_jobs: 4 } }],
     ["no limits", { limits: undefined }],
-    ["an unreadable last refusal", { last_refusal: { kind: "solve_slot_busy" } }]
+    ["an unreadable last refusal", { last_refusal: { kind: "solve_slot_busy" } }],
+    ["no default budget", { default_invocation_budget_bytes: undefined }],
+    ["no largest budget", { max_invocation_budget_bytes: undefined }],
+    ["the retired qualified budget in place of the default and largest budgets", { default_invocation_budget_bytes: undefined, max_invocation_budget_bytes: undefined, qualified_invocation_budget_bytes: 12 * GiB }],
+    ["a retired budget_unqualified last refusal", { last_refusal: { kind: "budget_unqualified", requested_bytes: 16 * GiB, qualified_bytes: 12 * GiB } }]
   ])("refuses a status with %s", (_label, overrides) => {
     const value: Record<string, unknown> = status(overrides);
     for (const key of Object.keys(overrides)) if (overrides[key as keyof typeof overrides] === undefined) delete value[key];
     expect(parsePoolStatus(value)).toBeNull();
+  });
+});
+
+describe("budgets above the default", () => {
+  it("reads the default and the largest per-invocation budget, and a selected budget above 12 GiB", () => {
+    const read = parsePoolStatus({
+      capacity_bytes: 64 * GiB, recommended_pool_bytes: 48 * GiB, pool_bytes: 48 * GiB, pool_above_recommended: false,
+      invocation_budget_bytes: 40 * GiB, default_invocation_budget_bytes: 12 * GiB, max_invocation_budget_bytes: 48 * GiB, reserved_bytes: 0,
+      reserved_by_purpose: { ingress: 0, worker: 0, result: 0, custody: 0 }, running_workers: 0, queued_jobs: 0, running_jobs: 0,
+      limits: { max_running_workers: 8 }, retained_results: 0, webview_custody_results: 0,
+      headroom: { available_bytes: 30 * GiB, pressure: "warning", sample_age_ms: 10 }, ordinary_route_pricing: "worker_capped", last_refusal: null
+    });
+    expect(read).toMatchObject({ invocation_budget_bytes: 40 * GiB, default_invocation_budget_bytes: 12 * GiB, max_invocation_budget_bytes: 48 * GiB });
+    expect(read).not.toHaveProperty("qualified_invocation_budget_bytes");
+  });
+
+  it("no longer reads the retired budget_unqualified refusal", () => {
+    expect(parseResourceRefusal({ kind: "budget_unqualified", requested_bytes: 16 * GiB, qualified_bytes: 12 * GiB })).toBeNull();
+  });
+
+  it("states capacity, headroom and intake refusals without naming a solve, since edits and saves meet them too", () => {
+    expect(describeResourceRefusal({ kind: "capacity_unknown" })).toBe("This Mac's physical memory could not be read, so no new memory reservation is admitted.");
+    expect(describeResourceRefusal({ kind: "headroom_unknown" })).toBe("Free memory on this Mac could not be read right now, so no new memory reservation is admitted.");
+    expect(describeResourceRefusal({ kind: "headroom_stale", age_ms: 2500 })).toBe("The free-memory reading is out of date (2.5 s old), so no new memory reservation is admitted until it refreshes.");
+    expect(describeResourceRefusal({ kind: "ingress_exceeds_budget", required_bytes: 13 * GiB, budget_bytes: 12 * GiB })).toBe("Receiving the request needs 13 GiB, more than the per-invocation budget of 12 GiB.");
+    expect(describeResourceRefusal({ kind: "ingress_invalid", reason: "the body is not valid JSON" })).toBe("The request could not be received: the body is not valid JSON.");
   });
 });

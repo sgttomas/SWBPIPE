@@ -34,6 +34,7 @@ import {
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
+import { nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -1143,7 +1144,7 @@ export function useWorkspaceSession() {
       setToolkitFocus({ testId: "", elementId: "batch-review" });
     } catch (error) {
       if (revision === modelRevision.current && epoch === requestEpochRef.current) {
-        setBatchMessage(`Batch could not be queued: ${String(error)}`);
+        setBatchMessage(`Batch could not be queued: ${nativeFailureText(error)}`);
       }
     }
   }
@@ -1213,7 +1214,7 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(null);
       setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
     } catch (error) {
-      if (stillCurrent()) setBatchMessage(`Batch request failed: ${String(error)}`);
+      if (stillCurrent()) setBatchMessage(`Batch request failed: ${nativeFailureText(error)}`);
     } finally {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -1265,7 +1266,7 @@ export function useWorkspaceSession() {
       directDraftReviews.current.set(review.reviewId, review);
       return structuredClone(review);
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Draft validation failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Draft validation failed to run: ${nativeFailureText(error)}`);
       return null;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1394,7 +1395,7 @@ export function useWorkspaceSession() {
       setOperationMessage(`Applied reviewed ${outcome.operation_id}; previous solve results were cleared.`);
       return true;
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${nativeFailureText(error)}`);
       return false;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1417,7 +1418,7 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${nativeFailureText(error)}`);
     } finally {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -1507,7 +1508,7 @@ export function useWorkspaceSession() {
       );
       return true;
     } catch (error) {
-      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${nativeFailureText(error)}`);
       return false;
     } finally {
       if (operationRequest.current.sequence === request) {
@@ -1890,7 +1891,7 @@ export function useWorkspaceSession() {
           pendingObservation.ordinal, false, requestModel.project.id);
       }
       if (!stillCurrent()) return;
-      setProjectMessage(`Create failed: ${String(error)}`);
+      setProjectMessage(`Create failed: ${nativeFailureText(error)}`);
       setProjectOperation("create_failed");
     } finally {
       releaseProjectOperation(owner);
@@ -2022,7 +2023,7 @@ export function useWorkspaceSession() {
       setProjectOperation("create_blank");
     } catch (error) {
       if (!stillCurrent()) return;
-      setProjectMessage(`Blank create failed: ${String(error)}`);
+      setProjectMessage(`Blank create failed: ${nativeFailureText(error)}`);
       setProjectOperation("create_blank_failed");
     } finally {
       releaseProjectOperation(owner);
@@ -2367,7 +2368,7 @@ export function useWorkspaceSession() {
           pendingObservation.ordinal, false, requestModel.project.id);
       }
       if (!stillCurrent()) return;
-      setProjectMessage(`Save failed: ${String(error)}`);
+      setProjectMessage(`Save failed: ${nativeFailureText(error)}`);
       setProjectOperation("save_failed");
     } finally {
       releaseProjectOperation(owner);

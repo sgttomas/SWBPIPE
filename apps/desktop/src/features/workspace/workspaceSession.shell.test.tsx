@@ -2,7 +2,7 @@ import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { buildGuardedRemoval } from "../toolkit/GuardedRemoval";

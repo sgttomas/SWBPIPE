@@ -9,7 +9,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
