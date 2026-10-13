@@ -127,13 +127,12 @@ it('saves native stress JSON after validation and intent and invalidates a pendi
  await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).toBeEmptyDOMElement();
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(secondButton).not.toHaveAttribute('href');
 });
-it('keeps preserved references out of export; the Sensitive demo is refused even by the pure packet projector',async()=>{
+it('keeps preserved references available only to the pure packet projector',async()=>{
  const {model,source:result}=await loadBundledMechanicsReference();
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
- // The demo's nonlinear-support cases are published Sensitive (DEL-04-01 kd5-member-relative-bound.md §5);
- // the pure projector admits a reference only at full numerical standing.
- await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE');
+ // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+ expect((await buildStressNeutralExportPacket({model,result,analysisRun})).result_rows).toHaveLength(result.results.length);
  render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
  expect(screen.getByTestId('stress-neutral-empty')).toHaveTextContent('Bundled references');
  expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();

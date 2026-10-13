@@ -702,6 +702,48 @@ pricing run and in-build atom evaluation.
   without this producer do not gain this lexical row or these rules.
 
 
+## G. Nonlinear K-D5 at `ba5dddd098`
+
+The nonlinear K-D5 confirmation (DEL-04-01
+[kd5-nonlinear-active-set.md](../../../PKG-04/DEL-04-01/Design/kd5-nonlinear-active-set.md)
+§1.5, §3, §4) adds a confirmation attempt behind the nonlinear helper's early
+return, two friction load formulas, a supplied-u K-D5 evaluation and the
+nonlinear support slot in certified publication. No count, owner, margin,
+reserve or policy changes. The rules and re-reviewed pins:
+
+| Label | Rule and code argument |
+|---|---|
+| **KD5A3 (re-key)** | The unavailable-family label `family.clone()` moved, unchanged, from `formation_check::check` into its callee `check_at`; its STATIC class is kept and keyed by whichever function holds it. |
+| **KD5M1 (re-review)** | `check` is now a pure delegation to `check_at(…, judged = true, epsilon_cache = None)`; `check_at` holds the former `check` body, calls `evaluate` once and `Failure::detail` at most once on its Err arm. The KD5M1 cap (two detail allocations per invocation, each of the seven exclusive sites charged) moves from `check` to `check_at` invocations, which also counts the confirmation's `evaluate_at` calls. `evaluate` gained only the judged filter (D5C-1 and body scales skipped when unjudged) and the per-attempt ε_E cache: no allocation, error or detail call. `detail` is byte-identical. Pins: `detail` ae006b02…, `check` d22bba23…, `check_at` 29c96900…, `evaluate` 89c4ab51…, `load_closure` 179a7dcf…. |
+| **KD5M2 (re-review)** | `load_closure` gained only the two friction formulas in the existing nodal DOF-binding arm; its 15 error allocation sites are unchanged. |
+| **KD5T2 pins (re-review)** | `certified_publication.rs` production prefix 5e440b80… and whole file 5824b14d…: `support` gains an optional map of confirmed nonlinear rows and copies one row into its slot; both refusals are static `WideError::CountRange` literals; no String, format site, label literal or first-return allocation. `certified_recovery.rs` production prefix 45e90a6e…: `certify_displacement`, `certify_load_primitive`, the exact sign helper (one stack `ExactAccumulator`, as the eight-accumulator census) and `CertifiedRow` decision methods; the friction formulas return `None` from the member pair. No String, format site or owned layout change. `lib.rs` `solve_load_case_observed` 273d31e0… (both models): the confirmed state's `member_bound`, Stage-B force and nonlinear rows, the route literal now the single "on this route" (KD5A3's two literals become one; the route bound is the text model's measured maximum), and the evidence-line site below. |
+| **NLKD5L1** | The Passed evidence line finds the case's one integrity diagnostic by id: `iter:diagnostics.iter_mut().find` is one scan of the case's diagnostic Vec, bounded by D (as KD5L8). The id is formed once before the scan (`ba5dddd098`); at `fb3609f8e1` it was formed inside the closure, one String per scanned diagnostic (62.1 MB of TAV on route E), which was a real per-diagnostic allocation and was removed in code rather than bounded. |
+| **NLKD5A1** | The gate-refusal reason prints the gate's reciprocal condition estimate with Debug. It is an `f64` (FK `StructuralReport.reciprocal_condition_estimate`), whose Debug is at most 24 B (for example "-2.2250738585072014e-308"); the 30 B cap is kept and is sound. |
+
+**What the chain charges.** The confirmation's functions are reached
+through `append_nonlinear_support_loop_results`; their text sites carry the
+computed multiplicity of that helper's body after its early return (0 under
+D1.6, which admits no nonlinear support), with their honest classes (support
+ids IN128, kd5 details and structural errors the existing 8192-B class). No
+zero rule is added for them. The evidence-line site in
+`solve_load_case_observed` (`format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}",
+record.message)`) is charged positively at the chain's computed multiplicity
+with the integrity message's class, although under D1.6 it is never entered
+(it needs a confirmed state); this is a conservative charge, not a claimed
+zero.
+
+**A spurious edge removed at the source.** A binding named `standing` in
+`solve_load_case_observed` matched `reader_verdict::standing` by name, so the
+chain's function-value resolution reached the whole RE reader graph (43
+unmapped loop headers). `fb3609f8e1` renames the binding; no rule hides the
+edge.
+
+**Compare and registration.** `run ba5dddd098` is complete on all four points (no unmapped header, no unclassified argument; both o10 checks 0; the six pruned rules are main's). Against the registered tree (main `745f55f918`, the committed block at `9b128d5ed0`), 685 coefficients are equal and 4 are higher: TAV_text_requested 6,715,665,264 → 6,730,974,564 and TAV_text_moving, TAV_W and TAV_X each by the same 15,309,300 B, which is the evidence-line site's conservative charge. With these rules and the KD5 source pins restored to the registered revision's values (a scratch copy of the tool), `745f55f918` still reproduces the registered tree exactly (689 of 689 coefficients). The block is regenerated from the new tree; the pinned in-build record and the challenge binary's W1 and maximum phase literals move by the same 15,309,300 B in every phase and both modes (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). The 17 reviewed inputs and the reader layouts are unchanged. Qualification at the owner's M = 12 GiB with the existing 0.9 margin and 5 % reserve passes: the nine library filters of the batch-4 qualification (`profile_` included) and the challenge binary's `retained_direct_peak_is_within_the_profiles_bounds` are green at `ba5dddd098` plus the regenerated block.
+
+**Re-registration on the merge with main (`e0ec460bf3`).** The merge brings main's memory pool and memory ingress: the caller's limit L (`RetainedByteLimit`, `limited_bound`, `qualified_required`, `retained_profile`) in `retained_memory.rs` and `lib.rs`, and the desktop host's pool and capped worker. Main's memory lane added no pricing rule and did not re-register; its registered tree is still `745f55f918`'s. No rule or pin is added or changed here. `run e0ec460bf3` is complete on all four points (no stale pin, no unmapped header, no unclassified argument; both o10 checks 0), and its six pruned rules are the same six as at `ba5dddd098`. Against this section's registered tree (`ba5dddd098`) all 689 coefficients are equal (only the basis differs): L's checks add nothing that the chain charges on D1's graph. Against main's registered tree the comparison is the one above (685 equal, the same four higher by 15,309,300 B). The block is regenerated for the basis line only; the 17 reviewed inputs hash to their bound values, the reader layouts and the in-build record are unchanged, and the pinned record and challenge literals stay as above. Qualification at M = 12 GiB with the 0.9 margin and 5 % reserve passes with main's limit tests included; the least headroom after the reserve is dense W3's 1,045,167,427 B below ⌊0.9 M⌋.
+
+**Re-run on the implementation review's repairs (`be03ccfb0e`).** The repairs change priced NI source (`confirmation.rs`: the named prescribed-row precondition, an unformed ball's per-kind name, and Stage A's influence evaluation ahead of β) and NLKD5A1's wording above (the estimate is an `f64`; the 30 B cap is unchanged). No other rule or pin is added or changed. After the merge with main at `3c95a9de85`, which touches no piping file, `run be03ccfb0e` is complete on all four points (no unmapped header, no unclassified argument; both o10 checks 0) with the same six pruned rules. Against the registered tree (`e0ec460bf3`) all 689 coefficients are equal and only the basis differs, so the block is not regenerated and keeps its `e0ec460bf3` basis line. The 17 reviewed inputs hash to their bound values, and the qualification at M = 12 GiB (the twelve library filters with `profile_` and main's limit tests, the challenge peak test and both admission suites) passes at `be03ccfb0e` with the in-build record unchanged (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R).
+
 ## C7. Borrowed prescribed keys, positive overlapping owners
 
 The released retained_precision NumericCase prescribed field and its four

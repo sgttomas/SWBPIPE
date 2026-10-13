@@ -30,10 +30,10 @@ practitioner remain to be demonstrated.
 This essay develops the evaluative view of the work introduced in the
 [shared introduction][S1]. SWBPIPE is a domain software instance in which
 Root's normative orientation and the App's operative hypotheses meet physical
-referents and engineering consequences. Evaluation here includes inquiry into
-representations, evidence, action and values; it is not confined to testing
-software after design is complete. The [support-arrangement example][S2]
-connects those questions across the three views through an illustrative revision.
+referents and engineering consequences. Evaluation concerns the adequacy of
+the design environment throughout engineering inquiry. The
+[support-arrangement example][S2] connects the three views through an
+illustrative revision.
 
 ## 1. Why the design environment matters
 
@@ -51,7 +51,7 @@ requires every decision to be settled before any useful examination can occur
 can make this development unnecessarily difficult. An environment that silently
 completes the missing decisions can make it deceptively easy.
 
-**why and under what conditions can an open,
+**Why and under what conditions can an open,
 agent-enabled piping design environment expand useful engineering inquiry
 while preserving the meaning, evidence and human responsibility needed for
 subsequent reliance?**
@@ -70,6 +70,16 @@ already serves the activity well, replacing it may add little value.
 Design iteration, downstream validation and professional acceptance serve
 different purposes. That distinction does not excuse weak mechanics: wrong
 feedback can redirect a design long before final review.[P1]
+
+The operation engine provides a concrete example of a related problem. Native
+and browser editing once used separate Rust and TypeScript implementations;
+tests of each did not establish agreement between their validation and model
+hashes. The browser path could therefore supply reassuring evidence about a
+different implementation. The decision to use the same Rust crate through a
+WebAssembly build addressed that source of divergence.[P2]
+[Section 4.1](#41-common-semantics-must-reach-the-exercised-engine) examines the
+change and its limits. A useful design environment needs the work being
+examined to remain connected to the work actually performed.
 
 ## 2. Shared orientation, engineering subject
 
@@ -158,6 +168,8 @@ The internal solver-boundary adapter requires explicit properties, quantities,
 units, dimensions and provenance. Its tests expect missing shear modulus to
 leave the property binding absent, unrecognized loads to produce diagnostics,
 and invalid orientations and reversed load spans to be refused.[I1][T1]
+This internal path does not establish the behaviour of every graphical or
+agent route.
 
 The useful behaviour is the preservation of an unanswered question. Other
 parts of the model can remain available while the missing ground is exposed.
@@ -170,9 +182,6 @@ therefore locate sources, suggest a value with its basis or identify a suitable
 library binding. The essential distinction is whether the value and its source
 remain inspectable and appropriately adopted, rather than whether automation
 was involved in obtaining it.
-
-This internal path does not establish the behaviour of every graphical or
-agent route.
 
 ## 4. Agent capability becomes useful through domain meaning
 
@@ -229,13 +238,15 @@ Here operation validation asks whether an edit meets defined model-operation
 conditions. It does not validate the physical model for engineering use.
 Implementation verification examines specified behaviour; numerical verification
 examines the calculation against suitable independent reference grounds within
-its stated scope. Model applicability asks
-whether the idealization represents the intended conditions. Engineering
-adequacy asks whether the resulting design and evidence serve the undertaking.
+its stated scope.
+
+Model applicability asks whether the idealization represents the intended
+conditions. Engineering adequacy asks whether the resulting design and evidence
+serve the undertaking.
 Acceptance concerns what a person accepts within their authority; professional
 authentication concerns their attributable commitment to accountable reliance
-within a defined scope and purpose. Neither is a solver output. These relations can inform each
-other without becoming one ascending software status.
+within a defined scope and purpose. Neither is a solver output. These relations
+can inform each other without becoming one ascending software status.
 
 A shared defect can affect every consumer of that engine. Reference evidence
 and examination of the underlying assumptions remain necessary. Native/browser

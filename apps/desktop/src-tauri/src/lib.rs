@@ -7250,15 +7250,20 @@ mod tests {
     fn assert_bundled_demo_solved(solved: &Value) {
         assert_eq!(solved["model_ref"], json!("project:invented-demo-loop-01"));
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
-        // K-D5 Design §5: the invented demo's nonlinear-support cases fail closed
-        // to Sensitive (two non-blocking NUMERICAL_INTEGRITY_SENSITIVE warnings);
-        // the model still solves and publishes rows.
-        assert_eq!(solved["numerical_quality"]["status"], json!("sensitive"));
+        // DEL-04-01 kd5-nonlinear-active-set.md §5: the invented demo's converged
+        // nonlinear-support cases are confirmed and published CHECKS_PASSED (two
+        // info diagnostics, each with the confirmation's evidence line).
+        assert_eq!(solved["numerical_quality"]["status"], json!("checks_passed"));
         let diagnostics = solved["diagnostics"].as_array().expect("diagnostics");
         assert_eq!(
-            diagnostics.iter().filter(|d| d["code"] == json!("NUMERICAL_INTEGRITY_SENSITIVE") && d["severity"] == json!("warning")).count(),
+            diagnostics
+                .iter()
+                .filter(|d| d["code"] == json!("NUMERICAL_INTEGRITY_CHECKS_PASSED")
+                    && d["message"].as_str().is_some_and(|m| m.contains("Converged support state: established at 128-bit precision")))
+                .count(),
             2
         );
+        assert!(!diagnostics.iter().any(|d| d["code"] == json!("NUMERICAL_INTEGRITY_SENSITIVE")));
         assert!(!diagnostics.iter().any(|d| d["severity"] == json!("blocking")));
         assert!(!solved["results"].as_array().expect("result rows").is_empty());
     }

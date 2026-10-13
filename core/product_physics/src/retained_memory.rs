@@ -1170,6 +1170,8 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // Historical pressure-source join profile only: B7a's changed reviewed inputs
+    // do not match this record, so the current build remains Stale until B7a D3.
     // The pressure-source join's registration on T4 batch 4 (b7-plan D3): the
     // 18 reviewed inputs (the 17 in their unchanged order and B7's appended
     // pressure-source-1 binding table) at their actual digests, current reader

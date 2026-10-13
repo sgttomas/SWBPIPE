@@ -71,7 +71,7 @@ pub use formation_check::{
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
-pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_support_reaction, certify_spring_reaction};
+pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_support_reaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
 // O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
 pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{
@@ -1976,6 +1976,81 @@ pub fn finish_structural(
         label,
         |rhs| factor.solve(rhs),
     )
+}
+/// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5): the
+/// confirmation attempt's one factor of the converged state's matrix. Its
+/// gate (`finish_confirmation`), scale exponents, prepared matrix, Hager
+/// estimate and epsilon_E serve every K-D5 evaluation of the attempt.
+pub struct ConfirmationAttempt<'f, 'p, 's> {
+    factor: &'f PositiveFactor<'p, 's>,
+    condition: (f64, f64, f64),
+    epsilon: std::cell::Cell<Option<f64>>,
+}
+/// Completes the confirmation gate exactly as `finish_structural` does, on a
+/// system prepared without a formation source (the gate's own solution is
+/// not judged by K-D5 and is discarded by the caller), and returns the
+/// attempt whose factor `ConfirmationAttempt::evaluate_at` reuses.
+pub fn finish_confirmation<'f, 'p, 's>(
+    factor: &'f PositiveFactor<'p, 's>,
+) -> Result<(StructuralSolution, ConfirmationAttempt<'f, 'p, 's>), StructuralError> {
+    if factor.prepared.formation.is_some() {
+        return Err(StructuralError::InvalidInput(
+            "confirmation gate carries a formation source",
+        ));
+    }
+    let solution = finish_structural(factor)?;
+    let condition = factor.prepared.gate_condition(&|rhs: &[f64]| factor.solve(rhs))?;
+    Ok((
+        solution,
+        ConfirmationAttempt {
+            factor,
+            condition,
+            epsilon: std::cell::Cell::new(None),
+        },
+    ))
+}
+impl ConfirmationAttempt<'_, '_, '_> {
+    /// K-D5 (kd5 §2) on `system` evaluated at the supplied `u`, with this
+    /// attempt's factor. `system` must have the gate's stiffness (the same
+    /// slice), free map and contributions; its force and formation source
+    /// may differ (Stage A, the influence system, Stage B). `judged` turns
+    /// the D5C-1 per-row rule on; the unpublished influence system is
+    /// evaluated unjudged (§1.4 A-2).
+    pub fn evaluate_at(
+        &self,
+        system: &FormationCheckedSystem<'_>,
+        u: &[f64],
+        judged: bool,
+    ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), StructuralError> {
+        let gate = self.factor.prepared.source;
+        let s = &system.system;
+        let same_contributions = match (s.contributions, gate.contributions) {
+            (Some(a), Some(b)) => std::ptr::eq(a, b),
+            _ => false,
+        };
+        if s.free_dofs != gate.free_dofs
+            || !std::ptr::eq(s.stiffness, gate.stiffness)
+            || !same_contributions
+            || s.force.len() != gate.force.len()
+            || u.len() != gate.force.len()
+        {
+            return Err(StructuralError::InvalidInput("confirmation system"));
+        }
+        let prepared = self.factor.prepared;
+        Ok(formation_check::check_at(
+            s,
+            system.source,
+            system.force,
+            &prepared.scale_exponents,
+            u,
+            self.condition,
+            &|i, j| s.stiffness[i][j],
+            &|r, c| prepared.matrix[r][c],
+            &|rhs: &[f64]| self.factor.solve(rhs),
+            judged,
+            Some(&self.epsilon),
+        ))
+    }
 }
 pub fn solve_structural_dense(
     system: &StructuralSystem<'_>,

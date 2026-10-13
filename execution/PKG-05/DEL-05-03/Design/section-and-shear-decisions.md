@@ -1,20 +1,31 @@
 # Section bases and shear model
 
-The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents. `2.0.0/exact_straight_pressure_v2`, until B7b deletes it, and pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design).
+The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents. `2.0.0/exact_straight_pressure_v2`, until B7b deletes it, and pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1); the PRD amendment is prepared on branch `codex/piping-t4-u5a-20261013` and is not yet on main.
+
+## The two fields (O2, O3, H1)
+
+Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0"), which B7 defines ([DEL-05-02 Design, b7-plan.md](../../DEL-05-02/Design/b7-plan.md)). They are required on every exact-contract document from the start, and T4-U6 and T4-U8 then only widen what is admitted (H1).
+
+- **Corrosion allowance** (owner, O2: "Required; absent = refused"). `section.corrosion_allowance`, a length Quantity ≥ 0, is required on every member's pipe section when `pressure_contract` is present; zero is allowed. Absence is refused by name as incomplete (`EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED`); the field on a document without a pressure contract is refused (`CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT`); until T4-U6 lands, a nonzero value is refused by name as not yet supported (`EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`). Mill tolerance plus corrosion allowance must be less than the wall. The allowance is user data with no default; a missing value is never assumed.
+- **Shear model** (owner, O3: "Refuse by name"). A document-level `shear_model`, `euler_bernoulli` or `timoshenko_annulus_energy_v1`, is required with `pressure_contract`. Absence is refused by name (`EXACT_PRESSURE_SHEAR_MODEL_REQUIRED`); the field without a pressure contract is refused (`SHEAR_MODEL_WITHOUT_PRESSURE_CONTRACT`); until T4-U8 only `euler_bernoulli` is admitted (`EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED`). When T4-U8 lands, authoring writes `timoshenko_annulus_energy_v1` by default, per D-6.
 
 ## D-5: section bases (T4-U6)
 
-- **Stiffness and mass** use the nominal wall.
-- **Stresses** are published on both the nominal section and the reduced section (nominal wall minus mill tolerance and a new corrosion-allowance input). Each row names its basis; the user's rule pack selects which governs.
+- **Stiffness and pipe metal mass** use the nominal wall. **Contents mass** uses the reduced (pressure-path) bore (H4).
+- **Stresses** are published on both the nominal section and the reduced section (nominal wall minus mill tolerance and the corrosion allowance). Each row names its basis. Each basis has its own maximum and headline; the product does not choose a governing basis, the user's rule pack does. Where the bases coincide, both families are still published (H4).
 - **Pressure load path:** the end-cap area Ai uses the bore of the reduced wall (internal corrosion enlarges it). The area As in ε_p = (1−2ν)pAi/(E·As) is the stiffness section, so the ledger stays self-consistent.
-- The corrosion allowance is user data with no default; a missing value is reported, not assumed.
 - MILLTOL and other references whose basis changes are re-frozen deliberately, never loosened.
 
 ## D-6: shear model (T4-U8)
 
-- The shear model is an explicit v3 field that authoring always writes. Its default is Timoshenko straight pipe with the energy-matched annular shear factor (SHEAR_REFERENCE). Euler–Bernoulli remains a legitimate explicit modelling choice.
-- The field arrives with T4-U8 (Timoshenko). Until then v3 has the single Euler–Bernoulli formulation, and its formulation evidence names it.
+- The shear model is the explicit field above, which authoring always writes. Its default is Timoshenko straight pipe with the energy-matched annular shear factor (SHEAR_REFERENCE). Euler–Bernoulli remains a legitimate explicit modelling choice.
+- Until T4-U8 the field admits only `euler_bernoulli`, and the formulation evidence names it.
+- **Implementation (H5).** The selection is per document. Whether Timoshenko is a new FK element type or a re-priced `s(FrameElement)` is the implementer's choice; either way it is priced positively. Realized arcs stay Euler–Bernoulli, with a disclosure.
 - References T4-RV4 marked as shear-affected are re-frozen deliberately.
+
+## Retained-source and W1-E publication (O4)
+
+The owner chose "Scope extension after B7b" (O4). Until then, named declines are the interim: `prepare_sources` declines a Timoshenko case and a case with nonzero mill tolerance or corrosion allowance by name, so the case publishes on the ordinary route without retained-source or W1-E publication. Once T4-U8 makes Timoshenko the authoring default, default-authored documents take that decline. A source-method/W1 extension that restores retained-source and W1-E publication for default-authored documents is T3 work after B7b (DEL-04-07 Design, "T3 coexistence and B7").
 
 ## SP-1 scope after D-5 and D-6
 

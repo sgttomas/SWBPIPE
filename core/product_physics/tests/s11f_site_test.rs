@@ -155,6 +155,13 @@ const KERNEL: &[Source] = &[
         name: "FK/structural/certified_recovery.rs",
         text: include_str!("../../solver/frame_kernel/src/structural/certified_recovery.rs"),
     },
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): the
+    // confirmation appends the sliding-friction terms to the case ledger;
+    // appended so the indices above are unchanged.
+    Source {
+        name: "nonlinear_integration/confirmation.rs",
+        text: include_str!("../../solver/nonlinear_integration/src/confirmation.rs"),
+    },
 ];
 
 const RECOVERY: &[Source] = &[
@@ -258,6 +265,10 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/certified_loads.rs", "nodal", "live nodal producer (`case_force_ledger`): an unscaled authored load is a plain input term; a load-source-factored load is a formed RoundedProduct term with its NodalProduct summand"),
     ("PP/certified_loads.rs", "attach", "closure metadata (§1 complete summands): installs the term's source-enumerated manifest, then attaches the supplied primitives; pushes no term"),
     ("PP/certified_loads.rs", "attach_last", "closure metadata: `attach` on the last pushed term (forwards its ledger)"),
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.4, §1.6): the
+    // confirmation's appended ledgers, never the case force the loop solves.
+    ("nonlinear_integration/confirmation.rs", "appended_ledger", "the sliding-friction terms appended after the case ledger: a formed RoundedProduct (explicit) or Bounded (coupled Stage-B ball) term with its source-enumerated manifest, or the Stage-A input φ⁰"),
+    ("nonlinear_integration/confirmation.rs", "stage_a", "the influence system's unit right-hand side e_d, an input term of its own ledger"),
 ];
 
 /// Rule 6: the functions of `FK`, `SA`, `nonlinear_integration` and
@@ -625,6 +636,25 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "SA/structural_adapter.rs",
         "solve_force_scaled_with_formation_check",
         "K-D5 §2.2: the W2 entry; attaches the primitives (rescaled with their terms by force_scaled) to FormationSource::loads; read-only",
+    ),
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5, §1.6).
+    (
+        "SA/structural_adapter.rs",
+        "confirm_with_formation_check",
+        "nonlinear K-D5 §1.5: the confirmation entry; prepares the gate exactly as solve_assembled and attaches each evaluated ledger's primitives to FormationSource::loads; read-only",
+    ),
+    (
+        "FK/structural.rs",
+        "evaluate_at",
+        "nonlinear K-D5 §1.5: hands the evaluated system's ledger to the closed check (formation_check::check_at); read-only",
+    ),
+    ("nonlinear_integration/confirmation.rs", "friction_primitive", "nonlinear K-D5 §1.6: one sliding-friction summand's identity and row; forms no value"),
+    ("nonlinear_integration/confirmation.rs", "explicit_formula", "nonlinear K-D5 §1.6: the explicit-normal friction formula's operands; forms no value"),
+    ("nonlinear_integration/confirmation.rs", "coupled_formula", "nonlinear K-D5 §1.6: the coupled friction formula's operands (the Stage-A ball); forms no value"),
+    (
+        "FK/structural/certified_recovery.rs",
+        "certify_load_primitive",
+        "nonlinear K-D5 §3.1: one sliding-friction primitive re-formed at p and rounded once; read-only",
     ),
     ("PP/certified_loads.rs", "constant_alpha", "K-D5 §1: a constant-alpha eigenstrain primitive from its authored operands"),
     ("PP/certified_loads.rs", "eigenstrain", "K-D5 §1: the resolved eigenstrain primitive from the case's thermal and fit inputs"),
@@ -2100,6 +2130,9 @@ fn t8_every_case_force_producer_is_classified() {
         .filter(|s| s.3.is_some())
         .map(|s| ("PP/lib.rs".to_string(), s.0.to_string()))
         .chain([("PP/certified_loads.rs".to_string(), "nodal".to_string())])
+        // Nonlinear K-D5 (kd5-nonlinear-active-set.md §1.6): the confirmation's
+        // appended sliding-friction terms, outside the case force.
+        .chain([("nonlinear_integration/confirmation.rs".to_string(), "appended_ledger".to_string())])
         .collect();
     assert_eq!(formed_sites, expected, "formed push sites");
 }

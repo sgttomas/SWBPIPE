@@ -628,10 +628,16 @@ fn the_registered_profile_is_the_only_permit_source() {
     refused.law.refusal = Some(AdmissionRefusal::Bound(BoundRefusal::Unpriced));
     refused.law.registered = Some(0);
     assert!(admission(refused).is_err());
-    // This build is the registered one, or Stale: never Missing now.
-    match COMPILED_IDENTITY {
-        Some(id) if id == REGISTERED_PROFILES[0].identity => assert_eq!(build_status(), Ok(0)),
-        _ => assert_eq!(build_status(), Err(ProfileStatus::Stale)),
+    // Toolchain identity alone does not bind changed reviewed inputs or reader layouts.
+    // This build is registered only when that complete binding holds, else Stale.
+    let profile = &REGISTERED_PROFILES[0];
+    let registered = COMPILED_IDENTITY == Some(profile.identity)
+        && bindings_hold(LAYOUT_WITNESSES, COMPILED_REVIEWED_INPUTS, profile.reviewed_inputs,
+            &READER_LAYOUTS, &profile.reader_layouts);
+    if registered {
+        assert_eq!(build_status(), Ok(0));
+    } else {
+        assert_eq!(build_status(), Err(ProfileStatus::Stale));
     }
 }
 
@@ -639,7 +645,10 @@ fn the_registered_profile_is_the_only_permit_source() {
 /// milestone Direct invocation in both modes; Headless and out-of-domain requests stay refused.
 #[test]
 fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let profile = &REGISTERED_PROFILES[0];
+    let registered = COMPILED_IDENTITY == Some(profile.identity)
+        && bindings_hold(LAYOUT_WITNESSES, COMPILED_REVIEWED_INPUTS, profile.reviewed_inputs,
+            &READER_LAYOUTS, &profile.reader_layouts);
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
         let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
@@ -1484,6 +1493,7 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// Historical registered profile only; B7a's current build remains Stale until D3.
 /// The pressure-source join's record on T4 batch 4 priced at a5a4c96175:
 /// requested plus moving bytes without R, for the qualified build above. Each
 /// phase keeps its actual positive layout, source and TEXT charges; W3

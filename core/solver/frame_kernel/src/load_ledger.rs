@@ -353,6 +353,30 @@ impl AssembledForce {
             .collect()
     }
 
+    /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): this
+    /// force with `extra`'s terms appended after its own. Every original term
+    /// keeps its index, formation record, closure record and primitives;
+    /// `extra`'s primitives are re-indexed past them. Each DOF's net is the
+    /// exact sum of all its terms, rounded once, as `LoadLedger::finish` forms it.
+    pub fn with_appended(&self, extra: LoadLedger) -> Result<AssembledForce, LedgerError> {
+        let size = self.values.len();
+        let offset = self.terms.len();
+        let mut ledger = LoadLedger {
+            terms: self.terms.clone(),
+            formations: self.formations.clone(),
+            closures: self.closures.clone(),
+            loads: self.loads.clone(),
+        };
+        ledger.terms.extend(extra.terms);
+        ledger.formations.extend(extra.formations);
+        ledger.closures.extend(extra.closures);
+        ledger.loads.extend(extra.loads.into_iter().map(|mut primitive| {
+            primitive.term_index += offset;
+            primitive
+        }));
+        ledger.finish(size)
+    }
+
     /// True when any term carries a formation record.
     pub fn has_formation_records(&self) -> bool {
         self.formations.iter().any(Option::is_some)

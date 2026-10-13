@@ -36,6 +36,7 @@ use b1_sq_inputs as inputs;
 
 /// The profile's in-build W1 phase (requested + moving, without R), sparse and dense, in the
 /// pinned record's build (the lib test `challenge_bounds_are_the_profile` checks it there).
+// Historical profile bounds only; B7a's current build remains Stale until D3.
 const W1_PHASE_BYTES: [u64; 2] = [5_192_228_631, 5_251_359_975];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6).
