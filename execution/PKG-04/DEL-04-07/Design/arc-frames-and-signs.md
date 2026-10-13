@@ -89,26 +89,57 @@ values or request bytes changed.
   seven marked arcs retain the frozen 45-digit pins. This changes no bound
   or product comparison criterion.
 
+**M3 re-measurement (2026-10-13).** The independently audited public-status
+census compares the retained B4 `norule` captures with the immutable
+evidence-only C5 tree `54334bccd60f3b94b8f52f2e93fcf9160f8a6ccb`.
+It covers 22,560 RV30 arc models, 492 realistic arc models and 1,422 W1
+straight models, each through the genuine typed and captured public entries
+in both modes: 97,896 records with no duplicate or missing key. There are
+88,716 Passed, 7,904 Sensitive and 1,276 refused records. Every status,
+integrity-code, blocking-code and diagnostic-code list matches the retained
+baseline: **zero Passed ↔ Sensitive moves** in either mode and zero
+missing, other-integrity or runtime-error records. Refusals remain separate:
+4 `PIPE_ELEMENT_INPUT_INVALID`, 216 `LOAD_INPUT_MISSING` and 1,056
+`PRESSURE_REGION_NONCOLLINEAR`.
+
+The 3,952 typed/captured differences are inherited diagnostic-code-only
+Sensitive/Sensitive pairs, with zero new or changed pairs. The captured
+entry adds `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` in 2,937 pairs and
+`EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED` in 1,015 pairs, exactly as
+the retained baseline does. All 63 retained raw captures, frozen inputs,
+normalized projections, candidate records and source/binary bindings were
+independently checked. The census report SHA256 is
+`7a2d0aa68afff9fea370bba0bf24e259eb0afdb706df229fb38d682b44c79477`.
+
+This is a status/diagnostic comparison against retained B4 evidence. Both
+public entries use `retained_entry=None`; W1 names the frozen straight-model
+corpus here, and retained admission/certificates are not exercised. It is
+not a current-main re-run or a full envelope/physical-value comparison.
+The old full Decimal comparison helpers were unavailable. Numerical accuracy
+continues to rest on the independently reviewed frozen references,
+coefficient enclosures, actual group checks, closure checks and U5a's separate
+unchanged-path preservation comparisons. C5 and O-13 remain in B7a's H-4
+wave; this evidence tree does not activate them in the pressure-only batch.
+
+Thirteen seeded representatives covering M1–M12 were behaviorally killed
+and restored at `da6aa10898`; independent scrutiny checked their actual
+production patches, failures and source restoration. No test seam or oracle
+change remains. The VP-STATIC tangent mapping has its current independent
+review bound by `ADMISSION.json`; the historical RV28 review is preserved
+for the unchanged basis. The generator reproduces 841 files with zero
+differences, all 24 package checks pass, and normalized numerical values and
+rules remain identical across the review-binding regeneration. Independent
+review reported no blocking findings on stage 1 `51fa5e8ac4`, stage 2
+`d253b5aea2` and the O-13 adapter-only repair `1d3f1aeef0`. A separate
+100-digit replay of six frozen O-13 entries and 48 groups measured at most
+2.30e-7 of the unchanged 1e-9 criterion from the adapter's rounding; product
+code and frozen bytes are unchanged. The current VP mapping review is
+`validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-U4A.md`.
+
 **Remaining work.**
-1. The stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
-2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
-   status moves. Thirteen seeded representatives covering M1–M12 were
-   behaviorally killed and restored at `da6aa10898`; independent scrutiny
-   checked their actual production patches, failures and source restoration.
-   No test seam or oracle change remains.
-   The VP-STATIC tangent mapping has its current independent review bound
-   by `ADMISSION.json`; the historical RV28 review is preserved for the
-   unchanged basis. The generator reproduces 841 files with zero differences,
-   all 24 package checks pass, and normalized numerical values and rules
-   remain identical across the review-binding regeneration.
-   Independent code review reported no blocking findings on stage 1
-   `51fa5e8ac4`, stage 2 `d253b5aea2` and the O-13 adapter-only repair
-   `1d3f1aeef0`. A separate 100-digit replay of six frozen O-13 entries and
-   48 groups measured at most 2.30e-7 of the unchanged 1e-9 criterion from
-   the adapter's rounding; product code and frozen bytes are unchanged.
-   The current VP mapping review is
-   `validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-U4A.md`.
-3. When B7 retires model versions, re-express the requests in model 0.5.0:
+1. T3's integration of the reviewed stage-2 commit and O-13 adapter with
+   B7a's H-4 C4–C6 (§§5, 8).
+2. When B7 retires model versions, re-express the requests in model 0.5.0:
    B7a refuses the preview-physics-1 cases' 0.2.0 documents and B7b the
    pressure-1 cases' 0.4.0 documents. Only the request bytes and
    `requests_sha256` change (generator `--write`, then its verify mode and an
