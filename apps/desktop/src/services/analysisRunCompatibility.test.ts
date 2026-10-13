@@ -132,8 +132,9 @@ it("distinguishes independent explicit basis from source available scope, includ
   await expect(validateAnalysisRunV03(broad, raw)).rejects.toThrow("LOAD_BASIS_MISMATCH");
   await expect(buildAnalysisRunV03(raw, input, undefined, [])).rejects.toThrow("SOURCE_SCOPE_MISMATCH");
   for (const basis of [{}, { ref_type: "", ref_id: "x" }, { ref_type: 3, ref_id: "x" }, { ref_type: "load_case", ref_id: "" }]) {
+    // The preview reader refuses a malformed basis first; the record builder refuses the rest.
     const bad = structuredClone(raw); bad.results[0].basis_ref = basis as never;
-    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow("SOURCE_REFERENCE_INVALID");
+    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow(/SOURCE_PREVIEW_PHYSICS_ROW_BASIS|SOURCE_REFERENCE_INVALID/);
   }
   raw.results[0].basis_ref = { ref_type: "generic", ref_id: "basis:generic" };
   expect((await buildAnalysisRunV03(raw, input)).analysis_run.load_basis_refs).toEqual([{ object_type: "ResultBasis", ref: "basis:generic" }]);
@@ -157,7 +158,8 @@ it("validates source identities and requires explicit basis to cover emitted num
   for (const key of ["run_id", "model_ref", "row_id"]) for (const value of ["", 0, null]) {
     const bad = structuredClone(raw);
     if (key === "row_id") bad.results[0].id = value as never; else (bad as any)[key] = value;
-    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow("ANALYSIS_SOURCE_REFERENCE_INVALID");
+    // The preview reader refuses a non-string identity first; the record builder an empty one.
+    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow(/SOURCE_PREVIEW_PHYSICS_STRING_INVALID|ANALYSIS_SOURCE_REFERENCE_INVALID/);
   }
   raw.numerical_quality!.cases = [{ basis_ref: { ref_type: "load_case", ref_id: "load:without-row" }, structural_status: "numerically_unresolved", solve_quality: "unresolved", model_matrix_fidelity: "not_assessed", accuracy_evidence: "unresolved", evidence_refs: [] }];
   syncPreviewCases(raw);

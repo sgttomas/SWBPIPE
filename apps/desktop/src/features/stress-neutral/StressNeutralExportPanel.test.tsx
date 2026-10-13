@@ -189,15 +189,16 @@ it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',asy
  const wrongQuantity=structuredClone(canonicalDecoded);wrongQuantity.unit_preservation_witnesses[0].target_quantity.unit='wrong';await rehash(wrongQuantity);
  await expect(validateStressNeutralExportPacket(wrongQuantity)).rejects.toThrow('SN-UNIT-WITNESS-BINDING-MISMATCH');
  for(const value of [true,'1',null]) {
+   // The source reader refuses a non-number row value before any record or packet exists.
    const invalidSource=structuredClone(result);invalidSource.results[0].value=value as never;
-   const invalidAnalysis=await buildAnalysisRunPreview(invalidSource,{inputManifest});
-   await expect(buildStressNeutralExportPacket({model,result:invalidSource,analysisRun:invalidAnalysis})).rejects.toThrow('SN-PRECISION-ROW-VALUE-INVALID');
+   await expect(buildAnalysisRunPreview(invalidSource,{inputManifest})).rejects.toThrow('SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID');
    const invalidPacket=structuredClone(packet);invalidPacket.result_rows[0].value=value;
    for(const witness of invalidPacket.unit_preservation_witnesses)if(witness.result_id===invalidPacket.result_rows[0].result_id){witness.source_quantity.value=value;witness.target_quantity.value=value;}
    const encode=(v:any)=>{const text=v!==null&&typeof v==='object'?v.ref:String(v);return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
    invalidPacket.csv_text=invalidPacket.export_profile.csv_columns.join(',')+'\n'+invalidPacket.result_rows.map((r:any)=>invalidPacket.export_profile.csv_columns.map((c:string)=>encode(r[c])).join(',')).join('\n')+'\n';
    await rehash(invalidPacket);
-   await expect(validateStressNeutralExportPacket(invalidPacket)).rejects.toThrow('SN-PRECISION-ROW-VALUE-INVALID');
+   // The source-row annotation (the received value) binds the row first.
+   await expect(validateStressNeutralExportPacket(invalidPacket)).rejects.toThrow('SN-SOURCE-ANNOTATION-ROW-BINDING');
  }
 
  await expect(validateStressNeutralExportPacket(decoded,undefined,analysisRun)).rejects.toThrow('SN-PRECISION-ANALYSIS-SOURCE-REQUIRED');

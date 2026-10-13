@@ -272,8 +272,9 @@ def test_current_validator_refuses_coherently_rehashed_csv_shape_or_field_attack
     (lambda p: p["unit_preservation_witnesses"][0].update(conversion_performed=True), "UNIT-WITNESS-BINDING"),
     (lambda p: p["loss_report"][0]["target_artifact_ref"].update(ref="package:wrong"), "LOSS-REPORT-BINDING"),
     (lambda p: p["source_result_ref"].update(ref="result-envelope:wrong"), "CARRIER-BINDING"),
-    (lambda p: p["source_run_ref"].update(ref="run:wrong"), "SOURCE-RUN-REF-UNBOUND"),
-    (lambda p: p["result_rows"][1].update(result_id=p["result_rows"][0]["result_id"], canonical_ref=deepcopy(p["result_rows"][0]["canonical_ref"]), source_result_ref=deepcopy(p["result_rows"][0]["source_result_ref"])), "RESULT-ROW-IDENTITY"),
+    # The source-row annotations every current packet carries bind the run and the row identities first.
+    (lambda p: p["source_run_ref"].update(ref="run:wrong"), "SOURCE-ANNOTATION-ROW-BINDING"),
+    (lambda p: p["result_rows"][1].update(result_id=p["result_rows"][0]["result_id"], canonical_ref=deepcopy(p["result_rows"][0]["canonical_ref"]), source_result_ref=deepcopy(p["result_rows"][0]["source_result_ref"])), "SOURCE-ANNOTATION-COVERAGE"),
     (lambda p: p["stable_id_map"][1].update(canonical_ref=deepcopy(p["stable_id_map"][0]["canonical_ref"])), "STABLE-ID-MAP-BINDING"),
     (lambda p: p["stable_id_map"].pop(), "STABLE-ID-MAP-BINDING"),
     (lambda p: p["validation_report"].update(validation_status="blocked"), "VALIDATION-STATUS-BINDING"),

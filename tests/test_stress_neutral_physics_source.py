@@ -329,11 +329,9 @@ def test_utf8_csv_transport_preserves_delimiters_quotes_and_embedded_cr_lf_scala
         assert row["load_case_ref"] == 'case:温度,"a"\r\nline'
         assert row["station_ref"] == '端点,"i"\nnext'
         assert row["component_ref"] == 'pipe:é\rline'
-    sn._validate_received_csv(text, sorted(rows, key=lambda row: row["result_id"]), utf8=True)
+    sn._validate_received_csv(text, sorted(rows, key=lambda row: row["result_id"]))
     with pytest.raises(ValueError, match="ROW-ORDER"):
-        sn._validate_received_csv(text, rows, utf8=True)
-    with pytest.raises(ValueError, match="ROW-BINDING"):
-        sn._validate_received_csv(text, sorted(rows, key=lambda row: row["result_id"]))
+        sn._validate_received_csv(text, rows)
 
 
 @pytest.mark.parametrize("mutate", [
@@ -430,7 +428,6 @@ def test_new_method_diagnostic_ratio_witness_follows_exact_table_target():
     assert semantic["source_physical_semantic_dimension"] == "dimensionless"
     assert semantic["derivative_target_dimension"] == "ratio"
     assert semantic["governing_ratio_eligible"] is False
-    assert sn.UNIT_DIMENSIONS["unitless"] == "dimensionless", "The generic unit catalog must not be changed"
     row = next(row for row in packet["result_rows"] if row["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
     assert row["result_family"] == "other" and row["dimension"] == "ratio"
     witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)

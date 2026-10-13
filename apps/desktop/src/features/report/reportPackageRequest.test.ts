@@ -423,11 +423,16 @@ describe("report-package current-session request", () => {
   });
 
   it("discloses a synthetic unknown row on the unqualified historical projection without inferring force from N", async () => {
-    const { model, result, inputManifest } = await syntheticPreviewSession(await loadDemoModel());
+    const { model, result, inputManifest, analysisRun: recorded } = await syntheticPreviewSession(await loadDemoModel());
     const annotated = structuredClone(result);
     const unknownId = "result:test:unregistered-source";
     annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });
-    const analysisRun = await buildAnalysisRunV03(annotated, inputManifest);
+    // The preview reader refuses an unregistered kind, so no record admits it (B1 retired the
+    // header-only precision-1 route that did); the pure projection reads the rest's record
+    // with a dimensionless entry for it.
+    await expect(buildAnalysisRunV03(annotated, inputManifest)).rejects.toThrow("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE");
+    const analysisRun = structuredClone(recorded);
+    analysisRun.analysis_run.result_refs.push({ ...structuredClone(analysisRun.analysis_run.result_refs[0]), result_ref: { object_type: "Result", ref: unknownId }, source_dimension: null });
     const before = JSON.stringify(annotated);
     const projection = projectReceivedReportResults(annotated, analysisRun);
     expect(projection.resultSets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);

@@ -149,8 +149,9 @@ def test_independent_model_basis_override_and_finite_rule_revisions():
 def test_malformed_source_basis_rejected_without_reference_coercion(basis):
     from core.analysis_runs.compatibility import validate_analysis_run_v0_3
     raw=source();record=build(raw);raw['results'][0]['basis_ref']=basis;before=deepcopy(raw)
-    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID'):build(raw)
-    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID'):validate_analysis_run_v0_3(record,raw)
+    # The preview reader refuses a basis that is not a closed reference first; the record contract the rest.
+    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID|SOURCE_PREVIEW_PHYSICS_ROW_BASIS'):build(raw)
+    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID|SOURCE_PREVIEW_PHYSICS_ROW_BASIS'):validate_analysis_run_v0_3(record,raw)
     assert raw==before
 
 
@@ -159,7 +160,8 @@ def test_source_reference_identifiers_are_nonempty_strings(field,value):
     raw=source()
     if field=='result_id':raw['results'][0]['id']=value
     else:raw[field]=value
-    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID'):build(raw)
+    # The preview reader refuses a non-string or empty row id first; the record contract the rest.
+    with pytest.raises(ValueError,match='SOURCE_REFERENCE_INVALID|SOURCE_PREVIEW_PHYSICS_STRING_INVALID'):build(raw)
 
 
 @pytest.mark.parametrize('basis,expected', [(None,[]),({'ref_type':'custom_basis','ref_id':'basis:actual'},[{'object_type':'ResultBasis','ref':'basis:actual'}])])

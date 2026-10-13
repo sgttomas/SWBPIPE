@@ -11,7 +11,7 @@ from core.handoff.stress_neutral.package import (
     write_materialized_members, read_materialized_members, MEMBERS,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
-from preview_transport_source import source, sync_headline
+from preview_transport_source import DISPLACEMENT_X_METADATA, WORK_RESIDUAL_METADATA, source, sync_headline
 from test_stress_neutral_export_package import source_payload
 from schema_validation import validate_instance
 
@@ -19,7 +19,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 
 def prepare():
     raw=source();base=source_payload()
-    raw['results']=[{'id':f'result:{index}', 'kind':'global_nodal_displacement_x', 'value':value, 'unit':'mm', 'entity_ref':'node:transport'} for index,value in enumerate([1.2345678901234567e-7,-1.0000000000000002])]
+    raw['results']=[{'id':f'result:{index}', 'kind':'global_nodal_displacement_x', 'value':value, 'unit':'mm', 'entity_ref':'node:transport', 'metadata':deepcopy(DISPLACEMENT_X_METADATA)} for index,value in enumerate([1.2345678901234567e-7,-1.0000000000000002])]
     sync_headline(raw)
     analysis=build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'manifest:transport'},input_manifest_hash='1'*64)
     base['source_result_ref']={'object_type':'ResultEnvelope','ref':f"result-envelope:{raw['run_id']}"}
@@ -63,9 +63,9 @@ def test_rehashed_metadata_and_source_mismatch_are_not_authenticated():
     raw,analysis,args=prepare();packet=build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**args)
     bad=deepcopy(packet);bad['formulation_basis']['limitations']=['forged but well-shaped limitation']
     bad['package_checksum']['value']=canonical_sha256_checked_v1(package_projection(bad))
-    # Standalone checks only packet consistency; actual source binding is separate.
-    validate_stress_neutral_export_package(bad)
-    with pytest.raises(ValueError,match='SOURCE-BINDING'):validate_stress_neutral_export_package(bad,source_envelope=raw)
+    # The preview reader binds the limitations to its table, so even the standalone check refuses them.
+    with pytest.raises(ValueError,match='SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'):validate_stress_neutral_export_package(bad)
+    with pytest.raises(ValueError,match='SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'):validate_stress_neutral_export_package(bad,source_envelope=raw)
     wrong=deepcopy(raw);wrong['results'][0]['value']*=2
     with pytest.raises(ValueError,match='SOURCE'):validate_analysis_run_v0_3(analysis,wrong)
     old=deepcopy(raw)
@@ -113,7 +113,8 @@ def test_full_row_projection_rejects_wrong_identity_even_after_rehash(field,valu
         build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**wrong)
     packet['result_rows'][0][field]=value
     rehash_packet(packet)
-    with pytest.raises(ValueError,match='ROW-SOURCE'):
+    # The source-row annotations bind the row projection first (every current packet carries them).
+    with pytest.raises(ValueError,match='ROW-SOURCE|SOURCE-ANNOTATION-ROW-BINDING'):
         validate_stress_neutral_export_package(packet,source_envelope=raw,analysis_record=analysis)
 
 
@@ -123,17 +124,16 @@ def test_projection_requires_presence_and_preserves_unknown_withholding():
         wrong=deepcopy(args);del wrong['result_rows'][0][field]
         with pytest.raises(ValueError,match='ROW-SOURCE'):
             build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**wrong)
-    raw['results'][0]['kind']='future_unknown_kind'
-    raw['results'][0]['metadata']={'location':None}
-    projected=source_row_projection(raw,raw['results'][0])
+    # The projection of a row of unknown kind, read against the readable statement.
+    unknown=deepcopy(raw['results'][0]);unknown['kind']='future_unknown_kind';unknown['metadata']={'location':None}
+    projected=source_row_projection(raw,unknown)
     assert projected['result_family']=='other' and projected['dimension']=='TBD'
     assert projected['station_ref']=={'object_type':'Station','ref':'summary'}
     assert projected['correlation_status']=='unit_or_dimension_blocking_review_required'
-    args['result_rows'][0].update(projected)
-    analysis=build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
-    args['source_hashes']=deepcopy(analysis['analysis_run']['hashes'])
-    packet=build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**args)
-    assert not any(w['result_id']=='result:0' for w in packet['unit_preservation_witnesses'])
+    # The preview reader refuses a kind without a row signature, so no record or package exists for it.
+    raw['results'][0]=unknown
+    with pytest.raises(ValueError,match='SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE'):
+        build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
 
 
 @pytest.mark.parametrize('field,object_type', [('source_model_ref','Model'),('source_run_ref','AnalysisRun'),('source_result_ref','ResultEnvelope')])
@@ -158,7 +158,7 @@ def test_transport_tamper_and_metadata_collision_rejected(tmp_path):
     manifest=tmp_path/'manifest.json'; transport=json.loads(manifest.read_text())
     transport['package_metadata']['formulation_basis']['limitations']=['tamper']
     manifest.write_text(json.dumps(transport))
-    with pytest.raises(ValueError,match='SOURCE-BINDING'):
+    with pytest.raises(ValueError,match='SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'):
         read_materialized_members(tmp_path,source_envelope=raw)
     transport['package_metadata']['result_rows']=[];manifest.write_text(json.dumps(transport))
     with pytest.raises(ValueError,match='COLLISION'):read_materialized_members(tmp_path)
@@ -181,16 +181,16 @@ def test_source_location_and_basis_null_projection_and_witness_identity():
 
 def test_diagnostic_work_and_missing_component_remain_withheld():
     raw,_,args=prepare()
-    raw['results'][0].update(kind='nonlinear_support_free_dof_work_residual',unit='N*m',metadata={'component':'free_dof_work_residual'})
-    raw['results'][1].update(kind='nonlinear_support_free_dof_work_residual',unit='N*m')
+    for row in raw['results']:row.update(kind='nonlinear_support_free_dof_work_residual',unit='N*m',entity_ref='nonlinear_supports',metadata=deepcopy(WORK_RESIDUAL_METADATA))
+    del raw['results'][1]['metadata']['component']
+    sync_headline(raw)
     for row,original in zip(args['result_rows'],raw['results']):row.update(source_row_projection(raw,original))
     analysis=build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
     args['source_hashes']=deepcopy(analysis['analysis_run']['hashes'])
     packet=build_stress_neutral_export_package(source_envelope=raw,analysis_record=analysis,**args)
     assert packet['unit_preservation_witnesses']==[]
     findings={item['source']['ref']:item['code'] for item in packet['diagnostics'] if item['code'].startswith('SN-UNIT-WITNESS-WITHHELD')}
-    assert findings['result:0']=='SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK'
-    assert findings['result:1']=='SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC'
+    assert findings=={'result:0':'SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK','result:1':'SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC'}
 
 
 @pytest.mark.parametrize('change', ['missing','extra','duplicate_key','version','manifest_shape'])
@@ -229,7 +229,9 @@ def test_invalid_source_location_rejected_by_complete_builder(location):
 @pytest.mark.parametrize('mode', ['absent','null','nonempty'])
 def test_supported_source_location_complete_package_is_schema_valid(mode):
     raw,_,args=prepare()
-    if mode!='absent':raw['results'][0]['metadata']={'location':None if mode=='null' else 'end_i'}
+    if mode=='absent':del raw['results'][0]['metadata']['location']
+    else:raw['results'][0]['metadata']['location']=None if mode=='null' else 'end_i'
+    args['result_rows'][0].update(source_row_projection(raw,raw['results'][0]))
     before=deepcopy(raw)
     analysis=build_analysis_run_v0_3(raw,input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
     args['source_hashes']=deepcopy(analysis['analysis_run']['hashes'])
