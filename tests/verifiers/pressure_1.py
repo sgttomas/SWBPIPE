@@ -55,7 +55,7 @@ PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json"
-TABLE_SHA256 = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+TABLE_SHA256 = "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
 
 # Refusals by name.
 V3_READ_AS_V2 = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2"

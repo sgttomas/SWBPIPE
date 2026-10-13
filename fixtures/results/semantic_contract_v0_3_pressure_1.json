@@ -1370,7 +1370,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd",
+  "inherited_semantic_contract_sha256": "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1",
   "formulation_profile_id": "exact_pressure_v3",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_with_load_reference_state_binding_on_0_4_0_v1",
   "supported_profile_limitations": [

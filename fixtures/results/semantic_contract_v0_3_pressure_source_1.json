@@ -1133,7 +1133,7 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
+      "sha256": "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
     }
   ],
   "source_block_policy": "PRESSURE-SOURCE-1",

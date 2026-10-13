@@ -68,7 +68,7 @@ import { canonicalSha256HexCheckedV1 } from "./hashService";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const MODE = "sparse_interactive" as const;
-const PRESSURE_SOURCE_CONTRACT_SHA256 = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803";
+const PRESSURE_SOURCE_CONTRACT_SHA256 = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf";
 afterEach(() => {
   seam.invoke.mockReset(); seam.hashChecked.mockReset(); seam.plans.clear(); seam.reads.length = 0;
   delete (window as Json).__TAURI_INTERNALS__;
@@ -76,7 +76,7 @@ afterEach(() => {
 
 const SOURCE_ROUTES = ["physics_source", "pressure_source"] as const;
 const SOURCE_BINDINGS = {
-  physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
+  physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
   pressure_source: { id: PRESSURE_SOURCE_CONTRACT_ID, sha256: PRESSURE_SOURCE_CONTRACT_SHA256, policy: "PRESSURE-SOURCE-1", profile: "exact_pressure_v3" },
 };
 function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number] = "pressure_source") {

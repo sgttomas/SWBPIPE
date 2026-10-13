@@ -1135,11 +1135,11 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
+      "sha256": "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
     },
     {
       "id": "openpipestress.result_semantics/0.3.0/load-reference-1",
-      "sha256": "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
+      "sha256": "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
     }
   ],
   "source_block_policy": "LOAD-REFERENCE-SOURCE-1",

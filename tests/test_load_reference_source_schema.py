@@ -47,13 +47,13 @@ LRSCHEMA = "load_reference_state.schema.json"
 
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 PS_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PS_SHA = "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
+PS_SHA = "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
 PS_PROFILE = "exact_straight_pressure_v2"
 LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LR_SHA = "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
+LR_SHA = "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
 LR_PROFILE = "resolved_straight_load_state_v1"
 LRS_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-LRS_SHA = "e69e3eeafbd31e9b630a6797a7affaab6796212d8992f77bf2a4d2569a4fa096"
+LRS_SHA = "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
 LRS_PROFILE = "resolved_straight_load_state_source_v1"
 LRS_POLICY = "LOAD-REFERENCE-SOURCE-1"
 RETAINED = "retained_source_blocks_exact_v1"
@@ -62,11 +62,11 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "976ee83e7b73dfd37461f8ab5deaa8db96b0bc986e5a93f230b4008a38904158"
+SUCCESSOR_SHA = "95e6ecc1169834184b66f2462d72183b2a639a003468a974a96f1730f6eb6a2c"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"
+EXACT_SHA = "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 # T4-U2's pressure-1 branch follows T1's and precedes the retained successors.
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
@@ -74,7 +74,7 @@ PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 # results and analysis-run carriers. The stress-neutral package has no pressure-source-1
 # branch (b7-plan D6/MJ8: its export is the result document's), so it keeps the others.
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRS_SHA = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803"
+PRS_SHA = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
 CARRIER_ORDER = [PHYSICS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, PRESSURE_ID, SUCCESSOR_ID, EXACT_ID]
 EXPORT_ORDER = [contract_id for contract_id in CARRIER_ORDER if contract_id != PRS_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
@@ -331,7 +331,7 @@ def test_joined_branches_are_appended_with_pinned_identities():
     run = schema(RUN)["$defs"]
     # T4-U2's pressure-1 (its pinned table) sits between T1's joined method and the successors;
     # the join's pressure-source-1 registry entry is appended after them.
-    pressure_sha = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+    pressure_sha = "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
     assert run["SemanticContract"]["oneOf"][-5:] == [{"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}},
                                                      {"properties": {"id": {"const": PRESSURE_ID}, "sha256": {"const": pressure_sha}}},
                                                      {"properties": {"id": {"const": SUCCESSOR_ID}, "sha256": {"const": SUCCESSOR_SHA}}},

@@ -60,7 +60,7 @@ CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
 PROFILE = 'exact_pressure_v3'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
-TABLE_SHA256 = '2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1'
+TABLE_SHA256 = '07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742'
 # The owned reader is the Rust product reader of pressure-1 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (a 0.4.0
 # envelope takes its load/reference-state pre-pass), reached through

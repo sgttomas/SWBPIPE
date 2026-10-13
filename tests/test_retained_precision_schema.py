@@ -91,20 +91,20 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-SUCC_SHA = "976ee83e7b73dfd37461f8ab5deaa8db96b0bc986e5a93f230b4008a38904158"
-PREVIEW_SHA = "7f693f06b7f975010ad0c8079242feb328fead3f57e0491d05ac8e09994b8209"
+SUCC_SHA = "95e6ecc1169834184b66f2462d72183b2a639a003468a974a96f1730f6eb6a2c"
+PREVIEW_SHA = "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"
+EXACT_SHA = "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
 # registry entry is appended after the exact successor's.
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_SHA = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803"
+PRESSURE_SOURCE_SHA = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
 MILESTONES = {
     "sparse_interactive": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
     "dense_scrutiny": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",

@@ -46,7 +46,7 @@ LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE = "LOAD_REFERENCE_SOURCE_NOT_NUME
 RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
-PRESSURE_CONTRACT_SHA256 = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+PRESSURE_CONTRACT_SHA256 = "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
                  "load_reference": "load-reference", "load_reference_source": "load-reference-source",

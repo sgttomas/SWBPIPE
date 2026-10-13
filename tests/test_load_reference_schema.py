@@ -27,11 +27,11 @@ CARRIERS = ("results.v0.3.schema.yaml", "analysis_run.v0.3.schema.json", "stress
 
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
 LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LR_SHA = "4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4"
+LR_SHA = "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
 LR_PROFILE = "resolved_straight_load_state_v1"
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PHYSICS_SHA = "2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd"
+PHYSICS_SHA = "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"
 PHYSICS_PROFILE = "exact_straight_pressure_v2"
 LR_EVIDENCE_REF = {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}
 PHYSICS_RAW = PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json"

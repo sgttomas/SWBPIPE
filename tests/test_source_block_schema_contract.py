@@ -41,7 +41,7 @@ def require_schema(name, instance):
     validate_instance(schema(name), instance, instance_label="actual source-bound artifact")
 
 COMPOSITE_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-COMPOSITE_SHA256 = "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
+COMPOSITE_SHA256 = "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
 COMPOSITE_RECEIPT = "physics_source_recovery.schema.json"
 COMPOSITE_ROOT = PROJECT / "fixtures/product_preview/physics_source"
 COMPOSITE_PAIRS = tuple(f"{case}-{mode}" for case in ("n05", "n06", "mixed", "fields") for mode in MODES)
