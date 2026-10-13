@@ -59,8 +59,12 @@ describe("G10 desktop-shaped milestone model", () => {
     expect(evidence.manifest.load_basis.load_cases.map((item) => item.status)).toEqual(["preview_only"]);
   });
 
-  it("opens as the 0.1.0 document it is, migrated in memory only", () => {
-    expect(evaluateModelDocumentLocal(desktopModel())).toMatchObject({ status: "migrated", source_schema_version: "0.1.0" });
+  it("opens as the current 0.5.0 document it is, unchanged", () => {
+    const model = desktopModel();
+    const before = JSON.stringify(model);
+    expect(evaluateModelDocumentLocal(model)).toMatchObject({ status: "current", source_schema_version: "0.5.0", target_schema_version: "0.5.0" });
+    expect(model.pressure_contract).toBeUndefined();
+    expect(JSON.stringify(model)).toBe(before);
   });
 
   it("control: the request's bare model is refused on both paths", async () => {

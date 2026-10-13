@@ -30,7 +30,6 @@ import {
   RuleRevisionGenerationGate,
   SolveRunGenerationGate,
   commitModelAfterSolveInvalidation,
-  isSupportedChangedModelPersistenceResponse,
   solveProofStatus,
   type SolveProofEvidence,
 } from "./App";
@@ -482,8 +481,7 @@ function inventedOpenEnvelope(model: PreviewModel): LocalProjectEnvelope {
     analysis_run: null,
     model_hash: null,
     project_envelope_hash: null,
-    model_document_migration: null,
-    model_migration_ledger: [],
+    model_document_version: null,
   };
 }
 
@@ -3820,7 +3818,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
-    ).toContain("version=stale");
+    ).toContain("version=current");
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
@@ -3849,7 +3847,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-schema")
         .textContent,
-    ).toContain("schema_version=0.1.0");
+    ).toContain("schema_version=0.5.0");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -3912,7 +3910,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-operations")
         .textContent,
-    ).toContain("version_check=stale");
+    ).toContain("version_check=current");
     expect(
       within(projectValidation).getByTestId("project-validation-boundary")
         .textContent,
@@ -3940,13 +3938,13 @@ describe("SWBPIPE desktop preview", () => {
       "preview_not_persisted",
     );
     expect(validationPacket.summary.version_check_status).toBe(
-      "stale",
+      "current",
     );
     expect(
       validationPacket.diagnostics.map(
         (item: { code: string }) => item.code,
       ),
-    ).toContain("PROJECT-VALIDATION-STALE-SCHEMA");
+    ).not.toContain("PROJECT-VALIDATION-RETIRED-SCHEMA");
     expect(
       validationPacket.diagnostics.map(
         (item: { code: string }) => item.code,
@@ -4007,30 +4005,27 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
     );
-    expect(validationPacket.model_document_migration.status).toBe("migrated");
-    expect(validationPacket.model_document_migration.evidence_source).toBe(
+    expect(validationPacket.model_document_version.status).toBe("current");
+    expect(validationPacket.model_document_version.evidence_source).toBe(
       "session_document_local_evaluation",
     );
-    expect(validationPacket.model_document_migration.version_authority).toBe(
+    expect(validationPacket.model_document_version.version_authority).toBe(
       "in_document_schema_version_semver",
     );
-    expect(validationPacket.model_document_migration.decision_basis).toBe(
-      "DEC-019_model_document_schema_migration_policy",
+    expect(validationPacket.model_document_version.decision_basis).toBe(
+      "DEL-02-05_CLM-003_one_current_model_document_version",
     );
-    expect(validationPacket.model_document_migration.ledger_record_count).toBe(
-      0,
+    expect(validationPacket.model_document_version.migration_performed).toBe(
+      false,
     );
-    expect(
-      validationPacket.model_document_migration.down_migration_performed,
-    ).toBe(false);
     expect(
       validationPacket.service_operations.find(
         (operation: { operation: string }) => operation.operation === "migrate",
       ).operation_status,
     ).toBe("not_run_no_local_snapshot_this_session");
     expect(
-      validationPacket.validation_profile.model_document_migration_status,
-    ).toBe("migrated");
+      validationPacket.validation_profile.model_document_version_status,
+    ).toBe("current");
     expect(validationPacket.summary.round_trip_status).toBe(
       "semantic_categories_declared",
     );
@@ -8963,18 +8958,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     );
-    // DEC-033: the bundled preview model is a 0.1.0-era document; under the
-    // supported 0.2.0 version it carries migrated in-memory evidence and the
-    // browser preview keeps stored bytes unchanged (no ledger exists here).
-    expect(validationPacket.model_document_migration.status).toBe("migrated");
-    expect(validationPacket.model_document_migration.evidence_source).toBe(
+    // DEL-02-05 CLM-003: the bundled preview model is the current 0.5.0
+    // document; the browser preview stores its bytes unchanged.
+    expect(validationPacket.model_document_version.status).toBe("current");
+    expect(validationPacket.model_document_version.evidence_source).toBe(
       "persistence_operation_envelope",
     );
-    expect(validationPacket.model_document_migration.persistence_state).toBe(
-      "in_memory_only_not_yet_saved",
-    );
-    expect(validationPacket.model_document_migration.ledger_record_count).toBe(
-      0,
+    expect(validationPacket.model_document_version.source_schema_version).toBe(
+      "0.5.0",
     );
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
@@ -9002,7 +8993,7 @@ describe("SWBPIPE desktop preview", () => {
         (operation: { operation: string }) =>
           operation.operation === "version_check",
       ).operation_status,
-    ).toBe("stale");
+    ).toBe("current");
     expect(
       validationPacket.service_operations.find(
         (operation: { operation: string }) => operation.operation === "migrate",
@@ -9281,7 +9272,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("validation=preview_current");
     expect(
       within(projectValidation).getByTestId(
-        "project-validation-model-document-migration",
+        "project-validation-model-document-version",
       ).textContent,
     ).toContain("status=current");
     expect(
@@ -11049,17 +11040,15 @@ describe("SWBPIPE desktop preview", () => {
       ),
     );
 
-    // DEC-019/DEC-033 evidence: the saved (edited) 0.1.0-era model document
-    // carries migrated in-memory schema-version evidence with the in-document
-    // version authority; the browser preview has no migration ledger.
-    const documentMigrationLine = within(
+    // DEL-02-05 CLM-003 evidence: the saved (edited) model document is the
+    // current 0.5.0 version, with the in-document version authority; nothing
+    // is migrated.
+    const documentVersionLine = within(
       openWorkspaceSection("project"),
-    ).getByTestId("project-validation-model-document-migration");
-    expect(documentMigrationLine.textContent).toContain("status=migrated");
-    expect(documentMigrationLine.textContent).toContain(
-      "framework=application_service_separate_db_and_product_schema",
-    );
-    expect(documentMigrationLine.textContent).toContain("ledger_records=0");
+    ).getByTestId("project-validation-model-document-version");
+    expect(documentVersionLine.textContent).toContain("status=current");
+    expect(documentVersionLine.textContent).toContain("source=0.5.0");
+    expect(documentVersionLine.textContent).toContain("target=0.5.0");
   });
 
   it("queues and applies explicit material creation through the structured operation seam", async () => {
@@ -12768,7 +12757,7 @@ describe("SWBPIPE desktop preview", () => {
 
   // T4-U3 (D-4): the applier refuses the legacy four-rate joint this form
   // still authors; its own test below pins the refusal until the desktop
-  // offers connector (v3) and annotation (0.1.0/0.2.0) creation.
+  // offers connector (v3) and annotation (pressure-free 0.5.0) creation.
   it.each(["tee", "reducer", "valve", "flange", "bend"])(
     "creates a %s end-to-end from the explicit viewport component tool",
     async (kind) => {
@@ -15063,24 +15052,9 @@ describe("historical lifecycle history transitions", () => {
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
   });
 
-  it("refreshes only the still-owned same-model Historical context after a normalization save", async () => {
+  it("refreshes only the still-owned same-model Historical context after a hash-refreshing save", async () => {
     const opened = await workflowStoredEnvelope();
-    opened.model_document_migration = {
-      status: "migrated",
-      source_schema_version: "0.1.0",
-      target_schema_version: "0.2.0",
-      migration_framework: "application_service_separate_db_and_product_schema",
-      db_migration_status: "store_user_version_ledger_separate_ddl_only",
-      product_schema_migration_status: "migrated",
-      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
-      persistence_state: "in_memory_only_not_yet_saved",
-      detail: "Invented open-time normalization",
-    };
     const refreshed = await withCurrentPersistenceHashes(opened);
-    refreshed.model_document_migration = {
-      ...opened.model_document_migration,
-      persistence_state: "persisted_with_ledger_record",
-    };
     const saveRequests: Array<Record<string, unknown>> = [];
     invokeMock.mockImplementation((command: string, args?: { request: Record<string, unknown> }) => {
       if (command === "open_local_project") return Promise.resolve(opened);
@@ -15141,106 +15115,6 @@ describe("historical lifecycle history transitions", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
-  });
-
-  it("adopts a changed native persistence model and retains returned results as Historical", async () => {
-    const opened = await workflowStoredEnvelope();
-    const changed = structuredClone(opened);
-    changed.model.schema_version = "0.2.0";
-    changed.model.project.name = "Normalized returned model";
-    changed.model.nodes[0].label = "Normalized returned node";
-    const normalized = await withCurrentPersistenceHashes(changed);
-    normalized.summary.project_name = changed.model.project.name;
-    normalized.summary.message = "Saved normalized returned model.";
-    normalized.model_document_migration = {
-      status: "migrated",
-      source_schema_version: "0.1.0",
-      target_schema_version: "0.2.0",
-      migration_framework: "application_service_separate_db_and_product_schema",
-      db_migration_status: "store_user_version_ledger_separate_ddl_only",
-      product_schema_migration_status: "migrated",
-      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
-      persistence_state: "persisted_with_ledger_record",
-      detail: "Actual normalization transition persisted",
-    };
-    const requestModelHash = await computeModelHash(opened.model);
-    const currentTransition: LocalProjectEnvelope["model_migration_ledger"][number] = {
-      record_kind: "model_document_migration_ledger_record",
-      recorded_at_unix: 1,
-      source_schema_version: "0.1.0",
-      target_schema_version: "0.2.0",
-      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
-      migration_framework: "application_service_separate_db_and_product_schema",
-      pre_migration_model_hash: requestModelHash!.value,
-      post_migration_model_hash: normalized.model_hash!.value,
-      trigger: "migrate_in_memory_on_open_persisted_on_save",
-      destructive_rewrite: false,
-      professional_boundary: { human_review_required: true, software_makes_compliance_claim: false },
-      hash_evidence: {
-        schema: "model_migration_hash_evidence_v1",
-        source_payload_basis: "incoming_pre_migration_model",
-        received: { model_hash: opened.model_hash, project_envelope_hash: opened.project_envelope_hash },
-        prior_stored: null,
-        computed: {
-          pre_migration_model_hash: requestModelHash!.value,
-          post_migration_model_hash: normalized.model_hash!.value,
-          post_migration_project_envelope_hash: normalized.project_envelope_hash!.value,
-        },
-        received_claim_verification: "not_asserted",
-      },
-    };
-    // A recreated renderer can have no in-session ledger while the fixed native
-    // project already has older records. Admission is bound to the exact final
-    // transition, rather than requiring a globally contiguous session count.
-    normalized.model_migration_ledger = [{
-      ...currentTransition,
-      recorded_at_unix: 0,
-      pre_migration_model_hash: "sha256:prior-source",
-      post_migration_model_hash: "sha256:prior-target",
-      hash_evidence: undefined,
-    }, currentTransition];
-    expect(requestModelHash?.value).not.toBe(normalized.model_hash?.value);
-    const recomputedNormalizedEnvelope = await computeProjectEnvelopeHash({
-      model: normalized.model,
-      editor_intents: normalized.editor_intents,
-      proposal: normalized.proposal,
-      selected_review_target: normalized.selected_review_target,
-      mechanics_result: normalized.mechanics_result,
-      analysis_run: normalized.analysis_run,
-      model_hash: normalized.model_hash,
-    });
-    const selfConsistentButFalseEnvelope = structuredClone(normalized);
-    selfConsistentButFalseEnvelope.project_envelope_hash!.value = "sha256:false-returned-envelope";
-    selfConsistentButFalseEnvelope.model_migration_ledger.at(-1)!.hash_evidence!.computed.post_migration_project_envelope_hash = "sha256:false-returned-envelope";
-    expect(isSupportedChangedModelPersistenceResponse(
-      selfConsistentButFalseEnvelope,
-      requestModelHash,
-      normalized.model_hash,
-      recomputedNormalizedEnvelope,
-      0,
-    )).toBe(false);
-    invokeMock.mockImplementation((command: string) => {
-      if (command === "open_local_project") return Promise.resolve(opened);
-      if (command === "save_local_project") return Promise.resolve(normalized);
-      return Promise.reject(new Error(command));
-    });
-    render(<App />);
-    await screen.findByTestId("desktop-preview-shell");
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    act(() => nativeMenuCommand("file.open-local"));
-    await screen.findByTestId("historical-run-context");
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
-    fireEvent.click(screen.getByTestId("viewport-box-select"));
-    expect(screen.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "true");
-    act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
-    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved normalized returned model"), { timeout: 10000 });
-    await waitFor(() => expect(screen.getByText("Normalized returned model", { selector: ".titlebar p" })).toBeInTheDocument(), { timeout: 10000 });
-    expect(screen.getByTestId(typedTreeRowTestId("node", changed.model.nodes[0].id))).toHaveTextContent("Normalized returned node");
-    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(normalized.mechanics_result!.run_id);
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
-    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
-    expect(screen.getByTestId("viewport-box-select")).toHaveAttribute("aria-pressed", "true");
   });
 
   it("rejects an unrelated differing persistence response without accepting its metadata", async () => {

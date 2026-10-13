@@ -4,9 +4,8 @@ import type {
   EditorOperationIntent,
   LocalProjectSummary,
   LocalStorageCapability,
-  ModelDocumentMigrationStatus,
+  ModelDocumentVersionStatus,
   ModelHashEvidence,
-  ModelMigrationLedgerRecord,
   ModelHashIntegrityEvidence,
   ObjectRef,
   PreviewModel,
@@ -39,8 +38,7 @@ export function ProjectValidationPanel({
   modelHashIntegrity,
   projectEnvelopeHash,
   projectEnvelopeHashIntegrity,
-  modelDocumentMigration,
-  modelMigrationLedger
+  modelDocumentVersion
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -52,8 +50,7 @@ export function ProjectValidationPanel({
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
   projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
-  modelDocumentMigration: ModelDocumentMigrationStatus | null;
-  modelMigrationLedger: ModelMigrationLedgerRecord[];
+  modelDocumentVersion: ModelDocumentVersionStatus | null;
 }) {
   const packet = buildProjectValidationPacket({
     model,
@@ -66,8 +63,7 @@ export function ProjectValidationPanel({
     modelHashIntegrity,
     projectEnvelopeHash,
     projectEnvelopeHashIntegrity,
-    modelDocumentMigration,
-    modelMigrationLedger
+    modelDocumentVersion
   });
 
   return (
@@ -154,15 +150,11 @@ export function ProjectValidationPanel({
           testId="project-validation-store-migration"
         />
         <ValidationLine
-          label="Model document migration"
-          value={`status=${packet.model_document_migration.status}; source=${
-            packet.model_document_migration.source_schema_version
-          }; target=${packet.model_document_migration.target_schema_version}; framework=${
-            packet.model_document_migration.migration_framework
-          }; persistence=${packet.model_document_migration.persistence_state}; ledger_records=${
-            packet.model_document_migration.ledger_record_count
-          }`}
-          testId="project-validation-model-document-migration"
+          label="Model document version"
+          value={`status=${packet.model_document_version.status}; source=${
+            packet.model_document_version.source_schema_version
+          }; target=${packet.model_document_version.target_schema_version}`}
+          testId="project-validation-model-document-version"
         />
         <ValidationLine
           label="Persistence operations"
@@ -220,8 +212,7 @@ function buildProjectValidationPacket({
   modelHashIntegrity,
   projectEnvelopeHash,
   projectEnvelopeHashIntegrity,
-  modelDocumentMigration,
-  modelMigrationLedger
+  modelDocumentVersion
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -233,8 +224,7 @@ function buildProjectValidationPacket({
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
   projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
-  modelDocumentMigration: ModelDocumentMigrationStatus | null;
-  modelMigrationLedger: ModelMigrationLedgerRecord[];
+  modelDocumentVersion: ModelDocumentVersionStatus | null;
 }) {
   const modelHashStatus = modelHashEvidenceStatus({
     modelHash,
@@ -258,7 +248,7 @@ function buildProjectValidationPacket({
   });
   const versionCheckStatus = modelDocumentVersionCheckStatus(
     model,
-    modelDocumentMigration?.status
+    modelDocumentVersion?.status
   );
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
   const proposalCount = proposal ? 1 : 0;
@@ -325,11 +315,7 @@ function buildProjectValidationPacket({
       project_envelope_hash_scope: "persisted_envelope_payload_excluding_storage_summary_and_hash_carrier",
       physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session",
       store_migration_framework_status: storeMigration.migration_framework,
-      model_document_migration_status: modelDocumentMigrationEvidence(
-        model,
-        modelDocumentMigration,
-        modelMigrationLedger
-      ).status
+      model_document_version_status: modelDocumentVersionEvidence(model, modelDocumentVersion).status
     },
     round_trip_manifest: {
       category_count: categories.length,
@@ -357,7 +343,7 @@ function buildProjectValidationPacket({
       versionCheckStatus
     }),
     store_migration: storeMigration,
-    model_document_migration: modelDocumentMigrationEvidence(model, modelDocumentMigration, modelMigrationLedger),
+    model_document_version: modelDocumentVersionEvidence(model, modelDocumentVersion),
     storage_capability: storageCapability,
     project_summary: projectSummary,
     model_hash: modelHash,
@@ -571,30 +557,22 @@ function buildServiceOperations({
   ];
 }
 
-// DEC-019 evidence: in-document semver is the version authority; migration
-// runs in memory on open and persists on save with a ledger record. Before a
-// persistence operation runs this session, the current session document is
-// evaluated locally so the surface is never a hardcoded TBD marker.
-function modelDocumentMigrationEvidence(
-  model: PreviewModel,
-  status: ModelDocumentMigrationStatus | null,
-  ledger: ModelMigrationLedgerRecord[]
-) {
+// DEL-02-05 CLM-003 evidence: the in-document semver is the version authority
+// and one current version is accepted; every other version is refused by name
+// and nothing is migrated. Before a persistence operation runs this session, the
+// session document is evaluated locally so the surface is never a TBD marker.
+function modelDocumentVersionEvidence(model: PreviewModel, status: ModelDocumentVersionStatus | null) {
   const evaluated = status ?? evaluateModelDocumentLocal(model);
   return {
-    decision_basis: "DEC-019_model_document_schema_migration_policy",
+    decision_basis: "DEL-02-05_CLM-003_one_current_model_document_version",
     version_authority: "in_document_schema_version_semver",
     evidence_source: status ? "persistence_operation_envelope" : "session_document_local_evaluation",
     status: evaluated.status,
     source_schema_version: evaluated.source_schema_version,
     target_schema_version: evaluated.target_schema_version,
-    migration_framework: evaluated.migration_framework,
-    persistence_state: status?.persistence_state ?? evaluated.persistence_state,
-    applied_migration_ids: evaluated.applied_migration_ids,
-    ledger_record_count: ledger.length,
-    ledger_records: ledger,
-    destructive_rewrite: false,
-    down_migration_performed: false
+    detail: evaluated.detail,
+    migration_performed: false,
+    destructive_rewrite: false
   };
 }
 
@@ -905,7 +883,7 @@ function storeMigrationDiagnostic({
   return diagnostic(
     "PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY",
     "info",
-    "Store migration evidence covers the local store schema ledger only; model document migrations remain TBD and no migration claim exceeds the local store."
+    "Store migration evidence covers the local store schema ledger only; model documents are never migrated (one current version) and no migration claim exceeds the local store."
   );
 }
 

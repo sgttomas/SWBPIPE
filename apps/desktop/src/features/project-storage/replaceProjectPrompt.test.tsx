@@ -83,8 +83,7 @@ function stored(args: WriteArgs, message: string): LocalProjectEnvelope {
     analysis_run: (args.analysisRun ?? null) as LocalProjectEnvelope["analysis_run"],
     model_hash: (args.modelHash ?? null) as LocalProjectEnvelope["model_hash"],
     project_envelope_hash: (args.projectEnvelopeHash ?? null) as LocalProjectEnvelope["project_envelope_hash"],
-    model_document_migration: null,
-    model_migration_ledger: []
+    model_document_version: null
   };
 }
 

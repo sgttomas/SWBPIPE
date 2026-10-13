@@ -600,7 +600,7 @@
           "id": "unit:si_preview"
         }
       },
-      "schema_version": "0.1.0"
+      "schema_version": "0.5.0"
     },
     "rule_pack_refs": [],
     "provenance_manifest": [
@@ -874,32 +874,6 @@
         "PROFESSIONAL_BOUNDARY"
       ],
       "bypass_prohibited": true
-    },
-    {
-      "operation": "migrate_project",
-      "boundary": "application_service",
-      "minimum_inputs": [
-        "project_envelope"
-      ],
-      "minimum_outputs": [
-        "project_envelope",
-        "diagnostics",
-        "hash_manifest"
-      ],
-      "diagnostic_classes": [
-        "SCHEMA_VALIDATION",
-        "MIGRATION",
-        "DB_MIGRATION",
-        "PRODUCT_SCHEMA_MIGRATION",
-        "UNIT_METADATA",
-        "PROVENANCE_WARNING",
-        "RULE_CHECK_BLOCKING",
-        "IP_BOUNDARY_WARNING",
-        "PRIVATE_DATA",
-        "EXTERNAL_ARTIFACT",
-        "PROFESSIONAL_BOUNDARY"
-      ],
-      "bypass_prohibited": true
     }
   ],
   "professional_boundary": {
@@ -921,7 +895,7 @@
         "ref": "project-payload"
       },
       "payload_scope": "project_payload",
-      "value": "419a8e59283546cdfbf865e0ed34aa3bb1f327bca28410299315b8b8090525e3"
+      "value": "136285b5724e87286c9b169ef2d5c0d9e569f31854a7e2ffa4c4973b9d6e04ff"
     },
     "hash_manifest": [
       {
@@ -932,7 +906,7 @@
           "ref": "project-payload"
         },
         "payload_scope": "project_payload",
-        "value": "419a8e59283546cdfbf865e0ed34aa3bb1f327bca28410299315b8b8090525e3"
+        "value": "136285b5724e87286c9b169ef2d5c0d9e569f31854a7e2ffa4c4973b9d6e04ff"
       },
       {
         "algorithm": "sha256",
@@ -942,7 +916,7 @@
           "ref": "model-payload"
         },
         "payload_scope": "model_payload",
-        "value": "4e0359bf65b2cde55e15ea01751f5967c9412f17ac5373e50cf7f360181aebbc"
+        "value": "981f196c1ab5c49ed79d8dc0d005995591e412f4c55596b72717a489fa5d7f12"
       },
       {
         "algorithm": "sha256",
@@ -952,7 +926,7 @@
           "ref": "project-envelope-without-hash"
         },
         "payload_scope": "project_envelope",
-        "value": "6d4a1a7cfc03ab99be55735f967f67d620d247e593a43d32137f09ce2efe28fe"
+        "value": "e546f79a319e3995ca78814cbcbdd5392ab99af1b1b220a64c2bcc48bad582f5"
       }
     ],
     "payload_partition_status": "json_payloads_defined",

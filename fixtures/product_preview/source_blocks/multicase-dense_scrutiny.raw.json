@@ -1647,12 +1647,12 @@
               11
             ],
             "functional_count": 67,
-            "functional_plan_sha256": "4115c792826df06e0ccde7db88c36e5279fd28f0645e42bfdfb22b8f5e00d1c2",
+            "functional_plan_sha256": "3c4d4d9a31f6a266b8ce7e62b39038eef4941dd3fc5b641bcaf0267c34d97c76",
             "level": "complete_identified_represented_contributions",
             "member_ids": [
               "pipe"
             ],
-            "normalized_source_sha256": "ec3dd29ad4ffcc6f396b7f03c7ef92de1edb2d9b8d9a18de7b9ea7d793814118",
+            "normalized_source_sha256": "affd6e7199e0f4f419bbde3bffb27a9b324ed8fa5994ca0b352d6582b603442d",
             "prescribed_dofs": [
               0,
               1,
@@ -3441,12 +3441,12 @@
               11
             ],
             "functional_count": 67,
-            "functional_plan_sha256": "f6c5e0ff6146232838b4049fa01ed60dfb501f1c5608e1c1c1aa4cbf8b3ee58a",
+            "functional_plan_sha256": "f4fa2898eb3ad4ece4106548f959a8c383de74008671b1eb101319804501e013",
             "level": "complete_identified_represented_contributions",
             "member_ids": [
               "pipe"
             ],
-            "normalized_source_sha256": "7de17bcb5e4138706e86bcd05ff8f4a3f90f178408e34893d95b44f015e1ecc9",
+            "normalized_source_sha256": "746fe4050d0547b11abcf93c3ae072901a0d6bd2a083f92d4df0144671f04c46",
             "prescribed_dofs": [
               0,
               1,
@@ -3636,7 +3636,7 @@
         "algorithm": "sha256",
         "canonicalization": "openpipestress_jcs_ijson_v1",
         "payload_scope": "source_blocks_invocation_v1",
-        "value": "a1500f5b44f28e9491ccae5ce6ee0333cb3135e216eae2882602c4e1341233c1"
+        "value": "440d33029db937d5ab4bdaeece737e93abf07dee1c6d1ac0a161c8f9cbe703e3"
       },
       "invocation_work": {
         "charged": 6906170,
@@ -3648,7 +3648,7 @@
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "1976c55a222c3aa50b69518a2e81b42ae40223f975e12a20ee5cb9eff2523c6f"
+    "receipt_sha256": "e199be574ad421de7744482799b86ef052f009b9d35118e7542ea1c59106676c"
   },
   "formulation_basis": {
     "profile_id": "product_preview_mechanics_v1",

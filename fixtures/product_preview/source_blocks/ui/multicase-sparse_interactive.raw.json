@@ -4522,12 +4522,12 @@
               11
             ],
             "functional_count": 67,
-            "functional_plan_sha256": "d8dde866cdfa38c5b8dc1542481762711bd8165d6c745e2f1955ed2956fbf73d",
+            "functional_plan_sha256": "45cd2e672c4ae87037106b03a61b826a16a42cd47238a85eb9fd94200090bd2f",
             "level": "complete_identified_represented_contributions",
             "member_ids": [
               "pipe"
             ],
-            "normalized_source_sha256": "e98e5e5638b23ff659aca1f0797534636e6077025c2223b16ec3c441d86a101f",
+            "normalized_source_sha256": "a57f647dfb7abced2c622b0271412b897b373bb1a1581a92be4a61c89356b2a8",
             "prescribed_dofs": [
               0,
               1,
@@ -6309,12 +6309,12 @@
               11
             ],
             "functional_count": 67,
-            "functional_plan_sha256": "723d7ded9384809b7cfb2299e0798eea4cc453ecdb6c5a2c6664090f03310b3d",
+            "functional_plan_sha256": "f463a831bfc550f038163fd004bb32dbc43140c2d42b44c835be8ccff971cb30",
             "level": "complete_identified_represented_contributions",
             "member_ids": [
               "pipe"
             ],
-            "normalized_source_sha256": "79bf2c41a3c9ee9eca2ab07fbe07b46d6d92d187c92bc8011f0b33ce1e5f790b",
+            "normalized_source_sha256": "7d336e52955819d2b239abef0de938683cde8d05c84117bb3abd5a34ecf7857e",
             "prescribed_dofs": [
               0,
               1,
@@ -6504,7 +6504,7 @@
         "algorithm": "sha256",
         "canonicalization": "openpipestress_jcs_ijson_v1",
         "payload_scope": "source_blocks_invocation_v1",
-        "value": "57f9e15c111e7dd2d142eceb4b0b24cbf50c73ef7343799f9abad42725214620"
+        "value": "25f87ca717274cb2f295c3cfec8aa3c67d6a190a3de80814ff9b4511b9c9c427"
       },
       "invocation_work": {
         "charged": 6934982,
@@ -6516,7 +6516,7 @@
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "967104d01f14ce3e385368f8ddeb5b62b6e38df003237822f1a14169fcdf1a79"
+    "receipt_sha256": "015cd42ae1fc61856c64bfd95089ee110d12c36cf039b7da09e19dc7c0c65192"
   },
   "status": {
     "mechanics": "MECHANICS_SOLVED",

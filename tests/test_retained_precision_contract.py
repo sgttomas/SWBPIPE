@@ -867,13 +867,17 @@ def test_integers_by_value_at_every_site_d32():
 
 
 def test_model_schema_versions_d31():
-    """D31: G8 admits model schema_version 0.1.0 and 0.2.0; 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a
-    contract is refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too."""
+    """D31, as B7a keys it: G8's preview namespace is the current model version 0.5.0 without a pressure contract; the
+    retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a contract is
+    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.5.0 with
+    any contract."""
     expected = _cases()[O_BASE]["expected_classifications"]
     version_edit = lambda version: {"path": ["request", "model", "schema_version"], "op": "set", "value": version}
     legacy = {"path": ["request", "model", "pressure_contract"], "op": "set", "value": {"version": "1.0.0", "mode": "legacy_pressure_v1"}}
+    assert _validate_entry(O_BASE, [], [version_edit("0.5.0")])["classifications"] == expected
     for version in ("0.1.0", "0.2.0"):
-        assert _validate_entry(O_BASE, [], [version_edit(version)])["classifications"] == expected
+        _raises(lambda: _validate_entry(O_BASE, [], [version_edit(version)]), "G8", "INVOCATION_MISMATCH")
+    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.5.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0")]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")

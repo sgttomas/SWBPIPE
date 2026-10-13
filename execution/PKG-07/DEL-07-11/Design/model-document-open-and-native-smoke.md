@@ -23,13 +23,14 @@ export use their existing routes unchanged.
   - `MODEL-FILE-NOT-A-DOCUMENT`;
   - `MODEL-FILE-DOCUMENT-KIND` (`openpipestress.product_preview.model` only, so a
     solve request `{model, materials}` is refused);
-  - `MODEL-FILE-SCHEMA-REFUSED`, for the statuses that project open also refuses:
-    `newer_than_supported`, `unsupported_schema` and `failed` from the existing
-    `evaluate_model_document`.
-
-  When the one-current-version rule lands (B7), older versions are refused here
-  through that same evaluation. This path adds no migration or compatibility
-  code.
+  - `MODEL-FILE-SCHEMA-REFUSED`, for the statuses that project open and save
+    also refuse: `retired_schema` (an older version, with the
+    `MODEL_SCHEMA_VERSION_RETIRED` re-author diagnostic for 0.1.0 and 0.2.0),
+    `newer_than_supported` and `unsupported_schema` from the one version check,
+    `evaluate_model_document` (`src-tauri/src/model_document_version.rs`;
+    DEL-02-05 CLM-003). Model document 0.5.0 is current; until B7b re-authors
+    them, 0.3.0 and 0.4.0 are also current. This path adds no migration or
+    compatibility code.
 - **Shape check (webview).** `MODEL-FILE-SHAPE` with the JSON path of each
   missing or mistyped member that the desktop's `PreviewModel` requires, the
   desktop dereferences, and the desktop always writes:
@@ -50,9 +51,11 @@ export use their existing routes unchanged.
   filled in, no in-memory migration is applied, and nothing is normalized. The
   solve proof's `model_sha256` is therefore the RFC 8785 JCS SHA-256 of the
   file's document. The document starts unsaved, like the bundled demo. New
-  Local Project saves it, and the existing persistence normalization still
-  applies on save (for example 0.1.0 → 0.2.0 with its ledger record). A refusal,
-  a cancelled chooser or a superseded request leaves the session as it was.
+  Local Project saves it exactly as adopted: save applies the same version
+  check and never rewrites the document. A save response whose model differs
+  from the request is refused (`PROJECT-PERSISTENCE-RESPONSE-INTEGRITY`). A
+  refusal, a cancelled chooser or a superseded request leaves the session as it
+  was.
 - **Project identity: never a silent replacement.** Local projects are keyed by
   `project.id`. HELP_HUMAN ruled on 2026-10-10: "the app never silently
   replaces a stored project". The bundled demo is no exception.
@@ -86,8 +89,8 @@ export use their existing routes unchanged.
 
     `create_project_in_store` and `save_project_in_store` (the Tauri commands
     are thin wrappers around them) each open one `BEGIN IMMEDIATE`
-    transaction before preparing the write (schema checks, migration ledger,
-    hashes). They keep it through the check (`guarded_write_project_rows`)
+    transaction before preparing the write (the version check and the
+    replacement check). They keep it through the check (`guarded_write_project_rows`)
     and the commit. The store's write lock
     is therefore held from the first read. A second writer, such as another
     window or process, waits on the lock (a 5 s busy timeout), then sees the
@@ -100,15 +103,13 @@ export use their existing routes unchanged.
     (`ReplaceProjectPrompt`, a modal alert dialog). It names the stored project
     and when it was last saved. For a moved base, it says the stored copy has
     been saved since this session last saw it.
-    - **Replace "name"** resends the write, confirming the revision shown. The
-      stored migration ledger is kept, as before.
+    - **Replace "name"** resends the write, confirming the revision shown.
     - **Save as a new project** gives the document an id unused in the store:
       `<id>:copy-<timestamp>`, with `-N` appended if that is taken. Nothing else
       in the document changes. The session adopts the renamed document with a
       fresh undo history, so its model hash and the next solve proof's
       `model_sha256` change with the id. Editor intents, the proposal and the
-      review target are carried over. The run solved under the old id is not,
-      and neither is the old id's migration ledger.
+      review target are carried over. The run solved under the old id is not.
     - **Cancel** is the default: it has focus, and Escape chooses it. The
       stored project is kept, and the status line says so.
   - **Modality.** While the prompt is open, the workspace is `inert`, Tab
@@ -116,8 +117,10 @@ export use their existing routes unchanged.
     ignored. When the prompt closes, focus returns to where it was.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
-  - **Normalization.** The existing 0.1.0 → 0.2.0 normalization on save is
-    unchanged; B7 removes it.
+  - **No normalization.** Save never rewrites a model document; B7a removed the
+    0.1.0 → 0.2.0 normalization and its migration ledger records. The store's
+    `model_migration_ledger_json` column (store v9) is no longer read or
+    written; older rows keep their bytes.
   - **Browser preview store.** It keeps one snapshot per project id, as the
     native store does, so saving one project never discards another. This was
     HELP_HUMAN's direction of 2026-10-10. The multi-project store was chosen

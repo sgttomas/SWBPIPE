@@ -2599,7 +2599,7 @@ fn resolve_expansion_joint_creation(
             "OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED",
             "blocking",
             "Legacy four-rate expansion-joint creation (a pipe reference with scalar stiffness rates) is retired: such a joint is neither solved nor converted.".to_string(),
-            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a 0.1.0/0.2.0 document create the annotation mode (not_solver_consumed).",
+            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free 0.5.0 document (no pressure contract) create the annotation mode (not_solver_consumed).",
             vec![target_ref.to_string()],
         );
         return None;
@@ -2655,12 +2655,14 @@ fn resolve_expansion_joint_creation(
             "provenance": provenance,
         }));
     }
-    if matches!(schema, "0.1.0" | "0.2.0") {
+    // A pressure-free document: the current version without a pressure contract.
+    // The contract's absence selects the annotation mode, not the version string.
+    if schema == open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION && contract.is_none() {
         if consumption != Some("not_solver_consumed") || record.get("objective_connector").is_some() {
             checker.push(
                 "OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY",
                 "blocking",
-                "On a 0.1.0/0.2.0 document an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
+                "On a pressure-free 0.5.0 document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
                 "Create the annotation, or move the model to a 3.0.0/exact_pressure_v3 document and author an objective connector.",
                 vec![target_ref.to_string()],
             );
@@ -2679,7 +2681,7 @@ fn resolve_expansion_joint_creation(
     checker.push(
         "OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED",
         "blocking",
-        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on 0.1.0/0.2.0 documents; this document's contract admits neither.".to_string(),
+        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free 0.5.0 documents (no pressure contract); this document's contract admits neither.".to_string(),
         "Use a 3.0.0/exact_pressure_v3 document for a solved joint.",
         vec![target_ref.to_string()],
     );
@@ -8828,7 +8830,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.1.0",
+            "schema_version": "0.5.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -13304,11 +13306,24 @@ mod tests {
         assert_eq!(outcome.validation.application_status, "applied_to_session_model");
         let applied = outcome.applied_model.expect("applied model");
         assert_eq!(applied["components"][1], annotation);
-        // Anything other than the annotation is refused on 0.1.0/0.2.0.
+        // Anything other than the annotation is refused on a pressure-free document.
         let mut not_annotation = annotation.clone();
         not_annotation["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
+        // B7a: the contract's absence selects the annotation, not the version string. A
+        // 0.5.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // take neither form.
+        let mut with_contract = model.clone();
+        with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
+        let outcome = apply_operation(&with_contract, &expansion_joint_intent(&annotation), None);
+        assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"]);
+        for retired in ["0.1.0", "0.2.0"] {
+            let mut retired_model = model.clone();
+            retired_model["schema_version"] = json!(retired);
+            let outcome = apply_operation(&retired_model, &expansion_joint_intent(&annotation), None);
+            assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"], "{retired}");
+        }
     }
 
     /// A v3 document: the objective connector for the replaced span between

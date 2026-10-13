@@ -664,7 +664,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "supports": [
           {
             "family": "anchor",

@@ -3083,12 +3083,12 @@
               11
             ],
             "functional_count": 67,
-            "functional_plan_sha256": "bf05673b5af5701cc220365b6ac2a62ce218056654354d1116d91b0a8e481ab2",
+            "functional_plan_sha256": "536911c92460e0c0080ed41a35d594bf617704885df1b95219a6b94d72157bf5",
             "level": "complete_identified_represented_contributions",
             "member_ids": [
               "independent-member"
             ],
-            "normalized_source_sha256": "f92db2510c01f45591c7e1fd072232c4da72f68db37b63bdd51bb5d2633656f3",
+            "normalized_source_sha256": "1a805664b409fa7c615507b8a4e7bc8cb78d3392515bdaf8c44b1e280cf5ffac",
             "prescribed_dofs": [
               0,
               1,
@@ -3278,7 +3278,7 @@
         "algorithm": "sha256",
         "canonicalization": "openpipestress_jcs_ijson_v1",
         "payload_scope": "source_blocks_invocation_v1",
-        "value": "a6ae9a505e517ca05bd50bf8c529aea090464534881395c5dc332ee3ba10ece9"
+        "value": "4ee802da66b98474cb2e7762ab7254630e0ca1efcc6672f7b79c020a049d27d6"
       },
       "invocation_work": {
         "charged": 3025904,
@@ -3290,7 +3290,7 @@
       "receipt_version": "1.0.0",
       "status": "qualified"
     },
-    "receipt_sha256": "2a0e09ebaedd7f99db86f51904ccf6e235432c28990391a8cf4f31beafc794d4"
+    "receipt_sha256": "8432ec45c27d1da2d72d718f7a6443543c2f852786f0404ca816f6c8055b8410"
   },
   "status": {
     "mechanics": "MECHANICS_SOLVED",

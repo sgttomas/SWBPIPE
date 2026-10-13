@@ -12,7 +12,7 @@ import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, PreviewModel } from "../types";
 import { clonePreviewModel } from "../features/workspace/sessionModel";
 import { createLocalProject,
-  findLocalProject, evaluateModelDocumentLocal, LOAD_REFERENCE_MODEL_SCHEMA_VERSION, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
+  findLocalProject, evaluateModelDocumentLocal, modelDocumentVersionCheckStatus, openLocalProject, saveLocalProject } from "./projectService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { runPreviewMechanics, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation } from "./previewService";
 import { applyModelOperation } from "./operationService";
@@ -41,10 +41,12 @@ const loadStateKeys = (model: PreviewModel) => text({ references: model.referenc
 describe("0.4.0 documents in the browser persistence mirror", () => {
   it("mirrors native: 0.4.0 is current and retained as authored; 0.4.1 is refused and 0.3.0 is the explicit pressure namespace", () => {
     const status = evaluateModelDocumentLocal(model040());
-    expect(status).toMatchObject({ status: "current", source_schema_version: "0.4.0", target_schema_version: LOAD_REFERENCE_MODEL_SCHEMA_VERSION, product_schema_migration_status: "current", persistence_state: "stored_document_current", applied_migration_ids: [] });
-    expect(status.detail).toBe("Explicit model 0.4.0 is retained without migration or upgrade; load/reference-state records, pressure-profile inputs and solve eligibility are validated separately.");
+    expect(status).toMatchObject({ status: "current", source_schema_version: "0.4.0", target_schema_version: "0.4.0" });
+    expect(status.detail).toBe("Exact pressure model 0.4.0 is accepted without migration until B7b; pressure-profile inputs and solve eligibility are validated separately.");
     expect(modelDocumentVersionCheckStatus(model040())).toBe("current");
-    expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.4.1" }).status).toBe("newer_than_supported");
+    // An unknown version below the current 0.5.0 is refused by name (re-author); one above is newer.
+    expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.4.1" }).status).toBe("retired_schema");
+    expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.5.1" }).status).toBe("newer_than_supported");
     expect(evaluateModelDocumentLocal({ ...model040(), schema_version: "0.3.0" })).toMatchObject({ status: "current", target_schema_version: "0.3.0" });
   });
 
@@ -52,12 +54,12 @@ describe("0.4.0 documents in the browser persistence mirror", () => {
     const model = model040(), before = text(model);
     const created = await createLocalProject(model);
     expect(text(created.model)).toBe(before);
-    expect(created.model_document_migration?.status).toBe("current");
+    expect(created.model_document_version?.status).toBe("current");
     const raw = json("fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json") as MechanicsResult;
     const run = json("fixtures/results/load_reference_source_mixed_sparse.analysis_run.json") as AnalysisRunEnvelope;
     // Saves over its own stored snapshot (no envelope hash here); the replacement
     // guard is covered in projectService.test.ts.
-    await saveLocalProject(model, [], null, null, raw, run, null, null, null, (await findLocalProject(model.project.id))!.revision);
+    await saveLocalProject(model, [], null, null, raw, run, null, null, (await findLocalProject(model.project.id))!.revision);
     const opened = await openLocalProject(model.project.id);
     expect(text(opened!.model)).toBe(before);
     expect(loadStateKeys(opened!.model)).toBe(loadStateKeys(model));

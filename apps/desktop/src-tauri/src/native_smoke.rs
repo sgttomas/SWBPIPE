@@ -69,7 +69,7 @@ pub fn native_smoke_external_save(app: AppHandle, project_id: String) -> Result<
     crate::upsert_project(
         &mut connection, &project_id, &record.project_name, &record.model, &record.editor_intents,
         &record.proposal, &record.selected_review_target, &none, &none, &record.model_hash,
-        &envelope_hash, &record.model_migration_ledger,
+        &envelope_hash,
     )
 }
 

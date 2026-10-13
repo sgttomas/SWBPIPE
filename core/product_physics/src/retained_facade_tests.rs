@@ -928,8 +928,8 @@ pub(super) fn w_c2_case_c() -> Value {
     raw
 }
 /// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
-pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "3649b4dcb96ecb9e8a32ee9ae95bddea65648d3d6aff10860785cb95f73306b3";
-const TWO_BODY_B_INPUT_SHA256: &str = "cf688351686bbaff9843052438479a9b5410d0e722245375b1d2aa729f21a406";
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "9389f2367470eb005618aed46918490f38d458d00959e3e2b3b8ba97cc5cacd5";
+const TWO_BODY_B_INPUT_SHA256: &str = "e14a8278ce227c2ce68ef662218f38755d5e8682d9c2fca8e1d5b5a10506d973";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -3858,9 +3858,10 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
         "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap()
 }
 /// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
-/// `r7_cb1_halfb` and `r7_cb1`, checked on the records).
-const W_CB1_INPUT_SHA256: &str = "c1b85bd47605ca0df6f847be1b2b23b91c544d6981c4208f68b67d2c499a7ceb";
-const W_CB1Z_INPUT_SHA256: &str = "9c21d45e0ee9314946a7f2a7e88e55f73488d8cb1af0efd4912eb0a07399d3c1";
+/// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
+/// re-authored the witnesses' model to 0.5.0, which moved all four input pins).
+const W_CB1_INPUT_SHA256: &str = "1fbcb0d606901d123ddac189483203a6598175281a4fae058d0aac80af0dd2ae";
+const W_CB1Z_INPUT_SHA256: &str = "7aa1a3273940d5cc694a0faaf1d0f4a1a3619b202741fbd6b1594495e6ae261d";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
@@ -3869,8 +3870,8 @@ fn b2p_witness_inputs() {
     let out = std::env::var("I105_B2P_OUT").ok();
     let mut got = Vec::new();
     for (name, raw, expected) in [("w_cb1", w_cb1(), W_CB1_INPUT_SHA256), ("w_cb1z", w_cb1z(), W_CB1Z_INPUT_SHA256),
-        ("w_cb2", w_cb2(), "7f07d08e694947addf9e90f023fee9080b8b2a71d647260d528ce01c44c509a0"),
-        ("w_cb3", w_cb3(), "05e9ae15f4b6155b5907dec9ed6a56084b511d26777cfd6c7e2ea8ebe998d28d")] {
+        ("w_cb2", w_cb2(), "8638db6e126abd7da0f0449f5993879a803e91c08af5fa9806e58b101f916622"),
+        ("w_cb3", w_cb3(), "4e0fc2363b3f9a11af5830ba896c773d1e26ca65f95d9549b60805dab5fbd994")] {
         let value_sha = sha(&serde_json::to_vec(&raw).unwrap());
         println!("B2P_INPUT {name} value_sha={value_sha}");
         if let (Some(dir), true) = (&out, name.starts_with("w_cb1")) {

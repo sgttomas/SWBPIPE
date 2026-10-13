@@ -39,12 +39,12 @@ Every persisted project envelope must include:
 - `schema_version`: semantic version for this persistence envelope.
 - `project`: project identity, declared unit-system reference, canonical model payload, rule-pack references when present, provenance manifest when present, and private-data marker.
 - `hash`: canonicalization and checksum metadata for the project payload and hash manifest.
-- `migration`: the document's version status. The contract (DEL-02-05 CLM-003) has `current`, `unsupported_schema`, `newer_than_supported` and a named re-author refusal for an older version. The schema enum still also lists stale, migrated, failed and `TBD` until B7a removes them (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`).
+- `migration`: the document's version status (DEL-02-05 CLM-003): `current`, `retired_schema` (the named re-author refusal for an older version), `unsupported_schema` or `newer_than_supported`. There is no stale, migrated or failed state.
 
 Optional but expected fields include `document_kind`, `physical_container`, `round_trip_manifest`, and `diagnostics`.
 `validation_profile` records the required validation gates, and
 `service_operations` records the application-service operation contract for
-create/open/save/validate/version-check behavior; its `migrate` entry remains in the schema until B7a.
+create/open/save/validate/version-check behavior; there is no migrate operation.
 
 ## Deterministic Serialization
 
@@ -94,11 +94,13 @@ from model content (DEL-02-05 CLM-003):
 - `current`: the document is the one current model-document version.
 - `unsupported_schema`: the version is missing or not semver.
 - `newer_than_supported`: the document was created by a newer schema than this implementation supports.
-- an older version is refused by name with a diagnostic that says to re-author it.
+- `retired_schema`: an older version is refused by name with a diagnostic that says to re-author it (`MODEL_SCHEMA_VERSION_RETIRED` for 0.1.0 and 0.2.0).
 
-There is no product-schema migration. Until B7 removes it, the code still
-classifies 0.1.0 as stale and migrates it in memory to 0.2.0, with `migrated`
-and `failed` states (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`).
+There is no product-schema migration: open and save never rewrite a model
+document, and no migration ledger record is written. The current model
+document version is 0.5.0 (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`,
+"Current model format"); until B7b re-authors them, the exact pressure model
+versions 0.3.0 and 0.4.0 also report `current`.
 
 DB migrations of the local SQLite store are a separate concern: they may
 change local tables, indexes, projections, or sidecar metadata without
@@ -121,8 +123,8 @@ Persistence operations are application-service boundaries:
 - Open project: accepts a project artifact reference; returns parsed canonical payload, schema/version result, DB migration status, product schema version status, validation diagnostics, and hash evidence where available.
 - Save project: accepts a validated envelope and target artifact reference; writes canonical JSON/JCS-compatible payload bytes into the local SQLite store and returns hash/manifest evidence plus diagnostics.
 - Validate project: checks schema shape, model schema delegation, unit metadata, provenance, rule-pack references, private-data markers, protected-content boundary, and professional-boundary language.
-- Version check: classifies `current`, `unsupported_schema`, `newer_than_supported`, or the named re-author refusal.
-- There is no product-schema migrate operation (the code keeps one until B7a); SQLite store migrations stay internal to open and are reported as DB migration status.
+- Version check: classifies `current`, `retired_schema` (the named re-author refusal), `unsupported_schema` or `newer_than_supported`.
+- There is no product-schema migrate operation; SQLite store migrations stay internal to open and are reported as DB migration status.
 
 Adapters and plugins may translate import/export formats, but they must not
 open the SQLite store directly, receive raw SQLite handles, issue SQL, depend

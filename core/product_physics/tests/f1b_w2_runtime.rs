@@ -58,7 +58,7 @@ fn frame(
     loads: Vec<Value>,
 ) -> Value {
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -295,7 +295,7 @@ fn t0r(
     loads: Value,
     modulus_scale: f64,
 ) -> Value {
-    json!({"model": {"schema_version": "0.2.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:t3-f1b-w2", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
@@ -1070,7 +1070,7 @@ fn rv17_member(
 ) -> Value {
     let label = project.rsplit(':').next().unwrap();
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -1218,11 +1218,11 @@ fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes(
     for (mode, main_sha256) in [
         (
             PreviewSolverMode::SparseInteractive,
-            "6b2264e785db54403a4da04ece366a76b6db7ac95aabaed2629b594dd093f0f0",
+            "3ab1315348cdd48f1bc3d90914ef49dc699b2ba74dc59a2e6803f2d5b63a4c96",
         ),
         (
             PreviewSolverMode::DenseScrutiny,
-            "9b7eb7e38759fa8353f093d04754d9b3978d912d7d2d8fc2d31bbc94a3b403c5",
+            "86760ecb5ff995d7da46562ca9e07c90224e3f2e2535be620567c61ed2d8f0b1",
         ),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();

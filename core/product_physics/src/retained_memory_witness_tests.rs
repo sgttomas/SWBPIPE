@@ -221,8 +221,8 @@ fn w2b_input() -> Value {
     raw
 }
 /// The PROBE pins (R/I81/b1_probe_01, `input_sha` lines) of W2b's and W6's PHYS-R4 inputs.
-const W2B_INPUT_SHA256: &str = "d74d01ce1bc33244796877890ad134dd8476beb059bd82f26f2e004f8af619cb";
-const W6_PHYS_R4_INPUT_SHA256: &str = "19a424c5ff064fa0010bcbb95b437e87092605e322f405e8252066995795e8f5";
+const W2B_INPUT_SHA256: &str = "c7bbf1727f1a73927c47a9ae15af1aeb60813476ffabf6f01e81e046a346f79a";
+const W6_PHYS_R4_INPUT_SHA256: &str = "b70cd154f1558fc562eec79525291ac1755f774bc3f0e9f157ad20988c74e89b";
 
 per_mode! {
     /// W3: an in-domain request whose legacy exact recovery selects (the X branch: T25's
@@ -256,7 +256,7 @@ pub(super) fn w6_input() -> Value {
     let tip = f64::from_bits(0x0031fa182c40c60d);
     let p = "invented_t3_g5_witness_input_no_library_data";
     let raw = json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "nodes": [{"id": a, "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": p},

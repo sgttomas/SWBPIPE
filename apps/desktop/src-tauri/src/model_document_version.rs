@@ -1,0 +1,199 @@
+//! Model-document version check (DEL-02-05 CLM-003; DEL-05-02 Design
+//! `b7-plan.md`, "Current model format").
+//!
+//! The in-document `schema_version` is the sole authority for the model-document
+//! version. Model document 0.5.0 is the one current version; its
+//! `pressure_contract` is optional and its absence makes the document
+//! pressure-free. Every other version is refused by name, and nothing is
+//! migrated, upgraded or down-migrated:
+//! - `retired_schema`: an older version (0.1.0, 0.2.0 or any other version
+//!   below 0.5.0 that is not accepted), with a re-author diagnostic;
+//! - `newer_than_supported`: a version above 0.5.0;
+//! - `unsupported_schema`: a missing or non-semver version.
+//!
+//! B7a interim: the exact pressure model versions 0.3.0 and 0.4.0 stay
+//! `current` until B7b gives 0.5.0 its contract-present form and re-authors
+//! them. The stored bytes are never rewritten by an open or a save.
+
+use open_pipe_stress_product_physics::{
+    is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
+    MODEL_SCHEMA_VERSION_RETIRED,
+};
+use serde::Serialize;
+use serde_json::Value;
+
+/// Exact pressure model versions accepted until B7b re-authors them to 0.5.0.
+pub const EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS: [&str; 2] = ["0.3.0", "0.4.0"];
+
+/// The version statuses that refuse a document for editing.
+pub const REFUSED_MODEL_DOCUMENT_STATUSES: [&str; 3] =
+    ["retired_schema", "newer_than_supported", "unsupported_schema"];
+
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct ModelDocumentVersionStatus {
+    /// `current`, `retired_schema`, `newer_than_supported` or `unsupported_schema`.
+    pub status: String,
+    pub source_schema_version: String,
+    /// The version the document is accepted as: its own when current, otherwise
+    /// the one current version (the re-author target).
+    pub target_schema_version: String,
+    pub detail: String,
+}
+
+impl ModelDocumentVersionStatus {
+    pub fn is_refused(&self) -> bool {
+        REFUSED_MODEL_DOCUMENT_STATUSES.contains(&self.status.as_str())
+    }
+}
+
+fn parse_semver(raw: &str) -> Option<(u64, u64, u64)> {
+    let mut parts = raw.split('.');
+    let major = parts.next()?.parse::<u64>().ok()?;
+    let minor = parts.next()?.parse::<u64>().ok()?;
+    let patch = parts.next()?.parse::<u64>().ok()?;
+    if parts.next().is_some() {
+        return None;
+    }
+    Some((major, minor, patch))
+}
+
+fn status(status: &str, source: &str, target: &str, detail: String) -> ModelDocumentVersionStatus {
+    ModelDocumentVersionStatus {
+        status: status.to_string(),
+        source_schema_version: source.to_string(),
+        target_schema_version: target.to_string(),
+        detail,
+    }
+}
+
+/// Check a model document's version. Never mutates or rewrites the document.
+pub fn evaluate_model_document(document: &Value) -> ModelDocumentVersionStatus {
+    let raw = document
+        .get("schema_version")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    if raw == MODEL_SCHEMA_VERSION {
+        return status(
+            "current",
+            raw,
+            raw,
+            "Model document 0.5.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.".to_string(),
+        );
+    }
+    if EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS.contains(&raw) {
+        return status(
+            "current",
+            raw,
+            raw,
+            format!("Exact pressure model {raw} is accepted without migration until B7b; pressure-profile inputs and solve eligibility are validated separately."),
+        );
+    }
+    let Some(version) = parse_semver(raw) else {
+        return status(
+            "unsupported_schema",
+            if raw.is_empty() { "missing_schema_version" } else { raw },
+            MODEL_SCHEMA_VERSION,
+            "Model document has no valid semver schema_version; refusing to open it for editing without coercion.".to_string(),
+        );
+    };
+    let current = parse_semver(MODEL_SCHEMA_VERSION).expect("the current version is semver");
+    if version > current {
+        return status(
+            "newer_than_supported",
+            raw,
+            MODEL_SCHEMA_VERSION,
+            format!("Model document schema_version {raw} is newer than the current {MODEL_SCHEMA_VERSION}; refusing to open it for editing (no down-migration)."),
+        );
+    }
+    let detail = if is_retired_model_schema_version(raw) {
+        retired_model_schema_message(raw)
+    } else {
+        format!("model document {raw} is not a supported version; re-author it as model document {MODEL_SCHEMA_VERSION}. Nothing is migrated.")
+    };
+    status(
+        "retired_schema",
+        raw,
+        MODEL_SCHEMA_VERSION,
+        format!("{MODEL_SCHEMA_VERSION_RETIRED}: {detail}"),
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn document(version: &str) -> Value {
+        json!({
+            "schema_version": version,
+            "document_kind": "openpipestress.product_preview.model",
+            "project": { "id": "project:test", "name": "Test" },
+            "nodes": []
+        })
+    }
+
+    #[test]
+    fn the_current_version_is_current_and_never_rewritten() {
+        let doc = document(MODEL_SCHEMA_VERSION);
+        let before = doc.clone();
+        let evaluated = evaluate_model_document(&doc);
+        assert_eq!(evaluated.status, "current");
+        assert_eq!(evaluated.source_schema_version, "0.5.0");
+        assert_eq!(evaluated.target_schema_version, "0.5.0");
+        assert!(!evaluated.is_refused());
+        assert_eq!(doc, before);
+    }
+
+    #[test]
+    fn retired_versions_are_refused_by_name_with_a_re_author_diagnostic() {
+        for version in ["0.1.0", "0.2.0"] {
+            let mut doc = document(version);
+            // A carried contract or load/reference key changes nothing: the version refuses.
+            doc["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+            let evaluated = evaluate_model_document(&doc);
+            assert_eq!(evaluated.status, "retired_schema", "{version}");
+            assert!(evaluated.is_refused());
+            assert_eq!(evaluated.source_schema_version, version);
+            assert_eq!(evaluated.target_schema_version, MODEL_SCHEMA_VERSION);
+            assert!(evaluated.detail.starts_with(MODEL_SCHEMA_VERSION_RETIRED), "{}", evaluated.detail);
+            assert!(evaluated.detail.contains(version) && evaluated.detail.contains("re-author"), "{}", evaluated.detail);
+            assert!(!evaluated.detail.contains("migrated in memory"));
+        }
+        // Any other older version is refused the same way, never migrated.
+        for version in ["0.0.9", "0.3.1", "0.4.9"] {
+            let evaluated = evaluate_model_document(&document(version));
+            assert_eq!(evaluated.status, "retired_schema", "{version}");
+            assert!(evaluated.detail.contains("re-author"), "{version}");
+        }
+    }
+
+    #[test]
+    fn exact_pressure_versions_stay_current_until_b7b() {
+        for version in EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS {
+            let evaluated = evaluate_model_document(&document(version));
+            assert_eq!(evaluated.status, "current", "{version}");
+            assert_eq!(evaluated.target_schema_version, version);
+        }
+    }
+
+    #[test]
+    fn newer_versions_are_refused_without_down_migration() {
+        for version in ["0.5.1", "0.6.0", "1.0.0"] {
+            let evaluated = evaluate_model_document(&document(version));
+            assert_eq!(evaluated.status, "newer_than_supported", "{version}");
+            assert!(evaluated.is_refused());
+            assert!(evaluated.detail.contains("no down-migration"));
+        }
+    }
+
+    #[test]
+    fn invalid_or_missing_versions_are_unsupported_not_coerced() {
+        let mut missing = document("x");
+        missing.as_object_mut().unwrap().remove("schema_version");
+        for doc in [document("not-semver"), document("1.2"), document(" 0.5.0"), missing] {
+            let evaluated = evaluate_model_document(&doc);
+            assert_eq!(evaluated.status, "unsupported_schema");
+            assert!(evaluated.is_refused());
+        }
+    }
+}

@@ -2707,17 +2707,17 @@ fn negative_legacy_version_documents_carrying_load_state_block() {
     strip_cases(&mut only_laws);
     strip_configurations(&mut only_laws);
     blocked_with(&only_laws, "0.3.0_with_expansion_laws", VERSION_MISMATCH);
-    let mut legacy_020 = only_state.clone();
-    legacy_020["model"]["schema_version"] = json!("0.2.0");
-    legacy_020["model"]
+    let mut pressure_free = only_state.clone();
+    pressure_free["model"]["schema_version"] = json!("0.5.0");
+    pressure_free["model"]
         .as_object_mut()
         .unwrap()
         .remove("pressure_contract");
-    legacy_020["model"]["load_cases"][0]
+    pressure_free["model"]["load_cases"][0]
         .as_object_mut()
         .unwrap()
         .remove("pressure_regions");
-    blocked_with(&legacy_020, "0.2.0_with_analysis_state", VERSION_MISMATCH);
+    blocked_with(&pressure_free, "0.5.0_with_analysis_state", VERSION_MISMATCH);
 }
 
 #[test]

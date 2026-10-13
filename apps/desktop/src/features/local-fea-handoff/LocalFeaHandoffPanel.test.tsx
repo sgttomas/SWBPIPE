@@ -15,7 +15,7 @@ import { LocalFeaHandoffPanel, buildLocalFeaHandoffPacket } from "./LocalFeaHand
 
 function inventedModel(): PreviewModel {
   return {
-    schema_version: "0.1.0",
+    schema_version: "0.5.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
     project: {

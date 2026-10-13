@@ -797,7 +797,7 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
         "provenance":"explicit_invalid_legacy_pressure_in_exact_model"}]);
     rejected(exact_primitive.clone(), "EXACT_PRESSURE_REQUIRES_REGION");
     let mut legacy = exact_primitive;
-    legacy["model"]["schema_version"] = json!("0.2.0");
+    legacy["model"]["schema_version"] = json!("0.5.0");
     legacy["model"]
         .as_object_mut()
         .unwrap()
@@ -807,9 +807,16 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
         .unwrap()
         .remove("pressure_regions");
     legacy["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
-    rejected(legacy, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
+    rejected(legacy.clone(), "PRESSURE_MODEL_REAUTHOR_REQUIRED");
+    // B7a: the retired 0.1.0 and 0.2.0 are refused by name (re-author), never solved.
+    for retired in ["0.1.0", "0.2.0"] {
+        let mut old = legacy.clone();
+        old["model"]["schema_version"] = json!(retired);
+        old["model"]["load_cases"][0]["primitive_loads"] = json!([]);
+        rejected(old, "MODEL_SCHEMA_VERSION_RETIRED");
+    }
     let mut mismatch = model(false, true, 0.0);
-    mismatch["model"]["schema_version"] = json!("0.2.0");
+    mismatch["model"]["schema_version"] = json!("0.5.0");
     rejected(mismatch, "PREVIEW_CONTRACT_VERSION_MISMATCH");
     let mut unknown = model(false, true, 0.0);
     unknown["model"]["pressure_contract"]["version"] = json!("99.0.0");
@@ -818,8 +825,8 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
 
 /// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A model
 /// declaring 1.0.0/legacy_pressure_v1 is refused with zero pressure, with and
-/// without a combination (a feature the exact contract refuses); a 0.2.0 model with
-/// a zero-valued pressure primitive is refused; the same 0.2.0 model without the
+/// without a combination (a feature the exact contract refuses); a 0.5.0 model with
+/// a zero-valued pressure primitive is refused; the same 0.5.0 model without the
 /// primitive is pressure-free and solves.
 #[test]
 fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {
@@ -856,7 +863,7 @@ fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {
     only(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
 
     let mut free = labelled;
-    free["model"]["schema_version"] = json!("0.2.0");
+    free["model"]["schema_version"] = json!("0.5.0");
     free["model"].as_object_mut().unwrap().remove("pressure_contract");
     let mut zero = free.clone();
     zero["model"]["load_cases"][0]["primitive_loads"]
@@ -1033,7 +1040,7 @@ fn thermal_alpha_is_required_on_the_selected_basis_not_unused_base() {
 #[test]
 fn legacy_missing_g_remains_an_input_error() {
     let mut input = model(false, true, 0.0);
-    input["model"]["schema_version"] = json!("0.2.0");
+    input["model"]["schema_version"] = json!("0.5.0");
     input["model"]
         .as_object_mut()
         .unwrap()

@@ -4610,14 +4610,14 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
     })
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
-/// L, schema 0.1.0 or 0.2.0 with `pressure_contract` absent or JSON null.
-/// Anything else (any 0.3.0 model, the retired `legacy_pressure_v1` contract
-/// included; `{}`, `false`, any contract on 0.1.0 or 0.2.0; 0.4.0) is outside
-/// the namespace. B3a's branch L3 is dropped (the owner retired that contract
-/// product-wide); B3D-10's tightenings stay.
+/// L, a pressure-free document, keyed on the contract's absence (b7-plan
+/// "Model format, pressure-free half"): the current model version 0.5.0 with
+/// `pressure_contract` absent or JSON null. Anything else (a 0.5.0 model with
+/// any contract, `{}` or `false` included; the retired 0.1.0 and 0.2.0; any
+/// 0.3.0 or 0.4.0 model) is outside the namespace. B3a's branch L3 is dropped
+/// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
-    matches!(model["schema_version"].as_str(), Some("0.1.0" | "0.2.0"))
-        && model["pressure_contract"].is_null()
+    model["schema_version"].as_str() == Some("0.5.0") && model["pressure_contract"].is_null()
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
@@ -4644,9 +4644,9 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         "INVOCATION_MISMATCH",
     )?;
     need(
-        // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
-        // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
-        // D1.3's namespace, type-strict (B3-D REVISION_01 §3, N-4; B3a's L3
+        // B7a: the producer's pressure-free branch is the current version
+        // without a contract (`model_format::is_pressure_free`); 0.4.0 stays
+        // excluded. D1.3's namespace, type-strict (B3-D REVISION_01 §3, N-4; B3a's L3
         // dropped); B3b: the exact route's own branch.
         if route.exact { exact_namespace(model) } else { preview_namespace(model) }
             // B1's alignment set, item 2 (g), PP's acceptance: no
@@ -6496,6 +6496,34 @@ mod b3b_table_binding_tests {
             }
         }
         assert!(drifted.is_empty(), "{drifted:?}");
+    }
+}
+
+/// B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace keys
+/// on the pressure contract's absence on the current model version. Keying it on
+/// the version string alone (a 0.5.0 model with a contract would pass) or on the
+/// retired 0.1.0/0.2.0 fails this test.
+#[cfg(test)]
+mod b7a_preview_namespace_tests {
+    use super::*;
+    #[test]
+    fn preview_namespace_keys_on_the_contracts_absence_not_the_version() {
+        let model = |version: &str, contract: Option<Value>| {
+            let mut m = json!({"schema_version": version, "project": {"id": "p"}});
+            if let Some(contract) = contract {
+                m["pressure_contract"] = contract;
+            }
+            m
+        };
+        assert!(preview_namespace(&model("0.5.0", None)));
+        assert!(preview_namespace(&model("0.5.0", Some(Value::Null))));
+        for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({}), json!(false)] {
+            assert!(!preview_namespace(&model("0.5.0", Some(contract.clone()))), "0.5.0 with {contract}");
+        }
+        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.1"] {
+            assert!(!preview_namespace(&model(version, None)), "{version}");
+        }
+        assert!(!preview_namespace(&json!({"project": {"id": "p"}})), "a missing version");
     }
 }
 

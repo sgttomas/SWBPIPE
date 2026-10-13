@@ -25,7 +25,7 @@
     },
     "source_blocks_n05_sparse": {
       "path": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
-      "sha256": "b8ac8eccef35a800fab7aaad71e107ed6c441d30aa2d2412176f7cb8e493965b",
+      "sha256": "aaa5b49512962616f6ba2e4758d464f5ba96821af95fbe248bdfb1cfee50389c",
       "shape": "raw"
     }
   },

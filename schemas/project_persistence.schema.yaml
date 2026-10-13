@@ -263,6 +263,7 @@
       "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
     },
     "MigrationStatus": {
+      "description": "The document's version status (DEL-02-05 CLM-003). One current version is accepted; every other version is refused by name: retired_schema for an older version (re-author), newer_than_supported, or unsupported_schema for a missing or non-semver version. There is no product-schema migration. Migrations of the local SQLite store are a separate concern, reported as db_migration_status.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -275,13 +276,9 @@
           "type": "string",
           "enum": [
             "current",
-            "migration_needed",
-            "stale",
-            "migrated",
+            "retired_schema",
             "unsupported_schema",
-            "failed",
-            "newer_than_supported",
-            "TBD"
+            "newer_than_supported"
           ]
         },
         "source_schema_version": {
@@ -305,15 +302,13 @@
           ]
         },
         "product_schema_migration_status": {
+          "description": "The product schema's version status; no product-schema migration exists, so it takes the same values as status.",
           "type": "string",
           "enum": [
             "current",
-            "migration_needed",
-            "migrated",
+            "retired_schema",
             "unsupported_schema",
-            "failed",
-            "newer_than_supported",
-            "TBD"
+            "newer_than_supported"
           ]
         },
         "migration_framework": {
@@ -550,7 +545,6 @@
             "save_project",
             "validate_project",
             "version_check",
-            "migrate_project",
             "TBD"
           ]
         },

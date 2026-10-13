@@ -156,7 +156,7 @@ fn f1b_frame(
     loads: Vec<Value>,
 ) -> Value {
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -217,7 +217,7 @@ fn rv17_member(
 ) -> Value {
     let label = project.rsplit(':').next().unwrap();
     json!({"model": {
-        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -291,6 +291,16 @@ fn source_budget_request() -> serde_json::Value {
     serde_json::json!({"model":model,"materials":[]})
 }
 
+/// The rejected_stress_range requests are a pinned historical capture (0.1.0, bound by their
+/// CAPTURE/ORACLE records); B7a retired 0.1.0, so the census re-authors them to the current
+/// version, changing nothing else.
+fn current_rejected_stress_range(captured: &str) -> Value {
+    let mut request: Value = serde_json::from_str(captured).unwrap();
+    assert_eq!(request["model"]["schema_version"], serde_json::json!("0.1.0"), "the historical capture");
+    request["model"]["schema_version"] = serde_json::json!(crate::MODEL_SCHEMA_VERSION);
+    request
+}
+
 fn controls() -> Vec<Control> {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../fixtures/product_preview/source_blocks");
@@ -310,7 +320,7 @@ fn controls() -> Vec<Control> {
     }
     for mode in MODES {
         let file = format!("rejected_stress_range/{}.request.json", mode.as_str());
-        cases.push(Control { name: format!("committed/{file}"), recipe: "tests/source_block_recovery.rs::derived_stress_unit_range_cannot_mint_source_qualification", raw: serde_json::from_slice(&std::fs::read(base.join(&file)).unwrap()).unwrap(), modes: vec![mode] });
+        cases.push(Control { name: format!("committed/{file}"), recipe: "tests/source_block_recovery.rs::derived_stress_unit_range_cannot_mint_source_qualification", raw: current_rejected_stress_range(&std::fs::read_to_string(base.join(&file)).unwrap()), modes: vec![mode] });
     }
     let original: Value = serde_json::from_str(include_str!(
         "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"

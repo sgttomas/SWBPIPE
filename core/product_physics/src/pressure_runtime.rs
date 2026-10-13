@@ -181,12 +181,21 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     // T4-U3 (D-4): legacy joints are refused first, on every route and version.
     super::joint::refuse_legacy_joints(model, diagnostics);
     match model.schema_version.as_str() {
-        "0.1.0" | "0.2.0" => {
+        // The current version: an absent contract makes the document pressure-free
+        // (the preview route). Its contract-present form lands with B7b; until then
+        // an exact pressure model is authored as 0.3.0 or 0.4.0.
+        crate::MODEL_SCHEMA_VERSION => {
             if model.pressure_contract.is_some() {
                 problem(diagnostics, "PREVIEW_CONTRACT_VERSION_MISMATCH", &["pressure_contract"],
-                    "pressure contracts require model document 0.3.0 or 0.4.0, and the supported contracts are 2.0.0/exact_straight_pressure_v2 and 3.0.0/exact_pressure_v3 (1.0.0/legacy_pressure_v1 is retired); old inputs are not reinterpreted");
+                    "a pressure contract is not accepted on model document 0.5.0 yet: author an exact pressure model as model document 0.3.0 or 0.4.0 with 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 (1.0.0/legacy_pressure_v1 is retired); old inputs are not reinterpreted");
             }
         }
+        version if crate::is_retired_model_schema_version(version) => problem(
+            diagnostics,
+            crate::MODEL_SCHEMA_VERSION_RETIRED,
+            &["schema_version"],
+            crate::retired_model_schema_message(version),
+        ),
         "0.4.0" => {
             if ExactContract::of(model).is_none() {
                 problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
@@ -215,7 +224,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
             "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
             &["schema_version"],
-            "direct mechanics solves support exactly model versions 0.1.0, 0.2.0, 0.3.0 and 0.4.0",
+            "direct mechanics solves support exactly model versions 0.5.0, 0.3.0 and 0.4.0",
         ),
     }
 
@@ -229,7 +238,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             {
                 continue;
             }
-            let code = if !matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0") {
+            let code = if model.pressure_contract.is_none() {
                 "PREVIEW_CONTRACT_VERSION_MISMATCH"
             } else if contract.get("version").and_then(Value::as_str) != Some("1.0.0") {
                 "OBJECTIVE_CONNECTOR_VERSION_UNSUPPORTED"
@@ -1558,10 +1567,10 @@ mod tests {
         empty["load_cases"][0]["pressure_regions"] = json!([]);
         assert!(assemble(empty).0.unwrap().pipe_states.is_empty());
         let mut old = input();
-        old["schema_version"] = json!("0.2.0");
+        old["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
         expect_rejected(old, "PREVIEW_CONTRACT_VERSION_MISMATCH");
         let mut old = input();
-        old["schema_version"] = json!("0.2.0");
+        old["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
         old.as_object_mut().unwrap().remove("pressure_contract");
         old["load_cases"][0]
             .as_object_mut()
@@ -1582,11 +1591,22 @@ mod tests {
         assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
         assert_eq!(diagnostics[0].code, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
         assert!(diagnostics[0].message.contains("2.0.0/exact_straight_pressure_v2"));
-        // Without the primitive, the 0.2.0 document is pressure-free and admitted.
+        // Without the primitive, the 0.5.0 document is pressure-free and admitted.
         old["load_cases"][0]["primitive_loads"] = json!([]);
         diagnostics.clear();
-        validate_profile(&parse(old), &mut diagnostics);
+        validate_profile(&parse(old.clone()), &mut diagnostics);
         assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        // B7a: the retired 0.1.0 and 0.2.0 are refused by name with the re-author text,
+        // with or without a contract; nothing is migrated or reinterpreted.
+        for retired in crate::RETIRED_MODEL_SCHEMA_VERSIONS {
+            let mut value = old.clone();
+            value["schema_version"] = json!(retired);
+            diagnostics.clear();
+            validate_profile(&parse(value), &mut diagnostics);
+            assert_eq!(diagnostics.iter().map(|d| d.code.as_str()).collect::<Vec<_>>(), [crate::MODEL_SCHEMA_VERSION_RETIRED], "{retired}: {diagnostics:?}");
+            assert_eq!(diagnostics[0].affected_refs, ["schema_version"]);
+            assert!(diagnostics[0].message.contains(retired) && diagnostics[0].message.contains("re-author"), "{}", diagnostics[0].message);
+        }
         // The retired 1.0.0/legacy_pressure_v1 label is refused with the re-author code;
         // any other contract stays unsupported.
         let mut labelled = input();
@@ -1606,7 +1626,7 @@ mod tests {
         expect_rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
         // RV127 N-7: the namespace refusals name the exact contract too.
         for (schema, contract, code) in [
-            ("0.2.0", Some(json!({"version":"1.0.0","mode":"legacy_pressure_v1"})), "PREVIEW_CONTRACT_VERSION_MISMATCH"),
+            ("0.5.0", Some(json!({"version":"1.0.0","mode":"legacy_pressure_v1"})), "PREVIEW_CONTRACT_VERSION_MISMATCH"),
             ("0.3.0", None, "PRESSURE_CONTRACT_REQUIRED"),
         ] {
             let mut value = input();
