@@ -20,7 +20,7 @@
     },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
-      "sha256": "df20a8af2053e3ad6e549d0abac070c3e0f8535e13515ab2a34d40d526b029cd",
+      "sha256": "6041281c915aed65735ea896895d23485bc6e8dda3a7c7b7824cc0fa8255ab93",
       "shape": "raw"
     },
     "source_blocks_n05_sparse": {

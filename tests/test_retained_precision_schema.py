@@ -91,8 +91,8 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-SUCC_SHA = "9889e963fd8389de722ffa6bcf244fff686d2ff9af0279652de9a631ff687607"
-PREVIEW_SHA = "7dc3fec2884ed5ddc60ecaf208207132ddc103bce4f4d0ff4d443b67704cdcd9"
+SUCC_SHA = "976ee83e7b73dfd37461f8ab5deaa8db96b0bc986e5a93f230b4008a38904158"
+PREVIEW_SHA = "7f693f06b7f975010ad0c8079242feb328fead3f57e0491d05ac8e09994b8209"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow

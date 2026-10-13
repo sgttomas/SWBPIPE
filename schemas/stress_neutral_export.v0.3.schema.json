@@ -3735,7 +3735,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
             },
             "sha256": {
-              "const": "7dc3fec2884ed5ddc60ecaf208207132ddc103bce4f4d0ff4d443b67704cdcd9"
+              "const": "7f693f06b7f975010ad0c8079242feb328fead3f57e0491d05ac8e09994b8209"
             }
           }
         },
@@ -4037,7 +4037,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "9889e963fd8389de722ffa6bcf244fff686d2ff9af0279652de9a631ff687607"
+              "const": "976ee83e7b73dfd37461f8ab5deaa8db96b0bc986e5a93f230b4008a38904158"
             }
           }
         },

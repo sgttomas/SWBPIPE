@@ -1119,7 +1119,7 @@
     {
       "mode": "sparse_interactive",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
-      "sha256": "e111f6c1c052a2630cc50786322c5437071e59134bff6376506759c7553ad4d9",
+      "sha256": "541fe51ee4eea85968c781225bb0d0c06a9e1605c740e67497feb03dd1878c51",
       "command": [
         "cargo",
         "run",
@@ -1147,7 +1147,7 @@
     {
       "mode": "dense_scrutiny",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json",
-      "sha256": "bc8f2ffabe3c7fc3b2982ff06b75b59c46edef0cbd0352b074e45b257e82caa4",
+      "sha256": "f0ae90de5c988b1137f76d6d158c28f333b770a2f21903b68c8f8e3af33d047d",
       "command": [
         "cargo",
         "run",
@@ -1179,7 +1179,7 @@
       "sha256": "29fb7f684217da9cfcc2413fb49398406c778e3ca9c7b5a1ea5506d0fc9cd2bc",
       "derived_from": {
         "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
-        "sha256": "e111f6c1c052a2630cc50786322c5437071e59134bff6376506759c7553ad4d9"
+        "sha256": "541fe51ee4eea85968c781225bb0d0c06a9e1605c740e67497feb03dd1878c51"
       },
       "schema_version": "0.1.0",
       "removed_members": [

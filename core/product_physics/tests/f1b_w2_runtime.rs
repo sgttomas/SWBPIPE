@@ -1319,9 +1319,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // Main's bytes plus K-D5's two linear-profile limitation
                 // sentences (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6
                 // TEXT): removing them recovers main's a29e29f2..., exactly.
-                // B7a's H-4 then changed the summary only (the curved
-                // macro-element count's name, the deleted retired thrust count).
-                "21c3117fa587dd0f89efbe17870f342781013bed76abf350c4e77827790768b4",
+                // B7a's H-4 then changed the summary (the curved macro-element
+                // count's name, the deleted retired thrust count) and reworded
+                // the pressure/imposed-displacement limitation sentence.
+                "762cf9ca637b610d05274fe53d3b4e2972f4c2d35786f7b50ec496650c72a08a",
                 "{ctx}"
             );
         }
