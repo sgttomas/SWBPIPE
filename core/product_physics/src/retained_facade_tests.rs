@@ -3895,7 +3895,7 @@ fn b2p_constants_bound_to_in_tree_fixtures() {
     let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json")).unwrap();
     let h = wire::domain_hash("retained_precision_formation_v1", &definition).unwrap();
     assert_eq!(definition["id"], json!(wire::COMBINATION_DEFINITION_ID));
-    assert_eq!(h, "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d");
+    assert_eq!(h, "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a");
     assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
 }
 

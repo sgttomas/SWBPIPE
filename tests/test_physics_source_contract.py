@@ -51,7 +51,7 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
 
 
 def test_previous_three_table_identities_remain_frozen():
-    expected={"precision_1":"d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e", "source_blocks_1":"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"}
+    expected={"precision_1":"0649e4e4e627e105a3d96a14187c359078d987225d3eec936846986a5ad75f3a", "source_blocks_1":"a43f74ad3565722e2521277d8b8c9d3a9831b7630b94550408842cfd7fbee001"}
     from core.analysis_runs.compatibility import PHYSICS_CONTRACT_SHA256
     expected["physics_1"]=PHYSICS_CONTRACT_SHA256
     for name,digest in expected.items():

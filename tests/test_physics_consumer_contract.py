@@ -51,7 +51,7 @@ def test_actual_physics_source_analysis_round_trip(mode):
 
 def test_physics_table_identity_and_frozen_precision_table():
     assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_bytes()).hexdigest() == PHYSICS_CONTRACT_SHA256
-    assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_precision_1.json").read_bytes()).hexdigest() == "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_precision_1.json").read_bytes()).hexdigest() == "0649e4e4e627e105a3d96a14187c359078d987225d3eec936846986a5ad75f3a"
 
 
 @pytest.mark.parametrize("change", [

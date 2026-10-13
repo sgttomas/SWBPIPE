@@ -11,8 +11,9 @@ fn project(row:Value)->Result<(Value,Value),String>{
 }
 fn capture(name:&str,doc:&Value,source:&Value){if let Ok(dir)=std::env::var("RESULTS_RUST_CONTRACT_OUTPUT_DIR"){let dir=std::path::Path::new(&dir);std::fs::create_dir_all(dir).unwrap();std::fs::write(dir.join(format!("{name}.document.json")),serde_json::to_vec_pretty(doc).unwrap()).unwrap();std::fs::write(dir.join(format!("{name}.received.json")),serde_json::to_vec_pretty(source).unwrap()).unwrap();}}
 
-#[test]fn all60_independent_semantics_metadata_and_missing_cases(){
- let cases:Value=serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap();assert_eq!(cases["fixtures"].as_array().unwrap().len(),60);
+#[test]fn all59_independent_semantics_metadata_and_missing_cases(){
+ // E14: the retired parity signature's fixture is gone (60 -> 59).
+ let cases:Value=serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap();assert_eq!(cases["fixtures"].as_array().unwrap().len(),59);
  for f in cases["fixtures"].as_array().unwrap(){
   let row=f["input_row"].clone();let(doc,source)=project(row.clone()).unwrap_or_else(|e|panic!("{} {e}",f["signature_id"]));capture(f["signature_id"].as_str().unwrap(),&doc,&source);let e=&doc["result_envelope"];let expected=&f["expected"];let account=&e["row_accounting"][0];assert_eq!(account["disposition"],expected["disposition"],"{}",f["signature_id"]);
   let target=doc.pointer(account["target_field_path"].as_str().unwrap()).unwrap();let actual_value=if account["disposition"]=="disclosed"{&target["source_value"]}else{&target["magnitude"]};assert_eq!(actual_value,&row["value"]);assert_eq!(e["source_annotations"][0]["metadata"],row.get("metadata").cloned().unwrap_or(Value::Null));assert_eq!(e["source_annotations"][0]["source_physical_semantic_dimension"],expected["source_physical_semantic_dimension"]);assert_eq!(e["source_annotations"][0]["derivative_target_dimension"],expected["derivative_target_dimension"]);

@@ -4304,12 +4304,20 @@ fn b1_rows(source: &Value, extra: Vec<Value>) -> Value {
     rows.extend(extra);
     set(serde_json::json!(["results"]), Value::Array(rows))
 }
-/// The dense base's parity row, moved to `case` with a fresh id. A non-selected
-/// case's row carries no recovery method (G6).
+/// E14: a row of the retired DEC-050/053 parity kind for `case` with a fresh id,
+/// shaped as the lane published it. A non-selected case's row carries no
+/// recovery method (G6).
 fn b1_parity_row(shared: &Value, case: &str, id: &str) -> Value {
-    let mut row = base_source(shared, "ordinary_prepared_dense_synthetic")["results"][1].clone();
-    assert_eq!(row["kind"], "sparse_live_path_dense_parity_relative_delta");
+    let dense = base_source(shared, "ordinary_prepared_dense_synthetic");
+    let mut row = dense["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "linear_solver_mode_basis").unwrap().clone();
     row["id"] = serde_json::json!(id);
+    row["kind"] = serde_json::json!("sparse_live_path_dense_parity_relative_delta");
+    row["unit"] = serde_json::json!("unitless");
+    row["entity_ref"] = serde_json::json!("solver:sparse_direct");
+    row["value"] = serde_json::json!(0.0);
+    row["metadata"]["component"] = serde_json::json!("sparse_live_path");
+    row["metadata"]["location"] = serde_json::json!("load_case");
     row["basis_ref"]["ref_id"] = serde_json::json!(case);
     row.as_object_mut().unwrap().remove("recovery_method");
     row
@@ -4652,15 +4660,12 @@ fn b1_g8_mode_row_and_requested_mode_for_every_case() {
     assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
 
-/// F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made
-/// dense (the invocation's mode, both requested modes and both mode rows; it has no parity
-/// row): the selected dense case at b = 0 without a parity row is admitted (before B1 it
-/// needed exactly one), and so is a not_required case's single parity row at b = 0. Two
-/// parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
-/// W2-published case (P4) are refused at G8; a parity row beside a W2 that failed (so
-/// published nothing) is admitted, since P4 reads published, not triggered.
+/// E14 (replacing F-1 text B's P2-P4): the DEC-050/053 parity observation is retired and
+/// no table carries its kind. 07j's two-case statement is made dense (the invocation's mode,
+/// both requested modes and both mode rows): without a parity row it is admitted, with or
+/// without W2; any parity row, on either case, in either mode, is refused.
 #[test]
-fn b1_g8_parity_rows_p2_to_p4_for_every_case() {
+fn e14_retired_parity_rows_are_refused_for_every_case() {
     use serde_json::json;
     let shared = corpus();
     let p = base_source(&shared, P_BASE);
@@ -4694,31 +4699,36 @@ fn b1_g8_parity_rows_p2_to_p4_for_every_case() {
     };
     // Dense, ordinary only: the selected source, then the dense base's selected case with W2.
     let d = base_source(&shared, "ordinary_prepared_dense_synthetic");
-    let mut parity_twice = d["results"][1].clone();
-    parity_twice["id"] = json!("result:b1:parity-twice");
-    let dense_w2 = vec![
-        set(rb(json!(["ordinary_attempts", 0, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
-        set(rb(json!(["ordinary_attempts", 0, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]})),
-    ];
+    let selected_case = d["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "linear_solver_mode_basis").unwrap()["basis_ref"]["ref_id"].as_str().unwrap().to_owned();
+    let parity_selected = b1_parity_row(&shared, &selected_case, "result:b1:parity-selected");
     let f = base_source(&shared, F_BASE);
-    let cases = [
-        ("dense b = 0, no parity row on either case", on_dense(vec![], vec![]), admitted(true)),
-        ("dense b = 0, one parity row on the not_required case", on_dense(vec![one.clone()], vec![]), admitted(true)),
-        ("dense, W2-published not_required case without a parity row", on_dense(vec![], w2.clone()), admitted(true)),
-        // RV113 N-3: P4 reads W2 published, not W2 triggered.
-        ("dense b = 0, one parity row on a not_required case whose W2 failed", on_dense(vec![one.clone()], w2_failed), admitted(true)),
-        ("P2: two parity rows on the not_required case", on_dense(vec![one.clone(), two], vec![]), gate("G8", PREP)),
-        ("P4: a parity row on the W2-published not_required case", on_dense(vec![one], w2), gate("G8", PREP)),
-        ("P2: two parity rows on the dense selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, vec![b1_rows(&d, vec![parity_twice])], vec![]), gate("G8", PREP)),
-        ("P4: a parity row on a W2-published selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, dense_w2, vec![]), gate("G8", PREP)),
-        ("P3: a parity row on the sparse unavailable case", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:sparse-parity")])], vec![]), gate("G8", PREP)),
+    let admitted_cases = [
+        ("dense b = 0, no parity row on either case", on_dense(vec![], vec![])),
+        ("dense, W2-published not_required case", on_dense(vec![], w2.clone())),
+        ("dense, not_required case whose W2 failed", on_dense(vec![], w2_failed.clone())),
+    ];
+    let refused_cases = [
+        ("one parity row on the not_required case", on_dense(vec![one.clone()], vec![])),
+        ("one parity row on a not_required case whose W2 failed", on_dense(vec![one.clone()], w2_failed)),
+        ("two parity rows on the not_required case", on_dense(vec![one.clone(), two], vec![])),
+        ("a parity row on the W2-published not_required case", on_dense(vec![one], w2)),
+        ("a parity row on the dense selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, vec![b1_rows(&d, vec![parity_selected])], vec![])),
+        ("a parity row on the sparse unavailable case", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:sparse-parity")])], vec![])),
     ];
     let mut misses = Vec::new();
-    for (name, entry, want) in cases {
+    for (name, entry) in admitted_cases {
         let got = b1_verdict(&shared, &entry);
-        if got != want {
-            misses.push(format!("{name}: got {got} want {want}"));
+        if got != admitted(true) {
+            misses.push(format!("{name}: got {got}, want admitted"));
         }
+    }
+    for (name, entry) in refused_cases {
+        let got = b1_verdict(&shared, &entry);
+        if got == admitted(true) {
+            misses.push(format!("{name}: admitted, want refused"));
+        }
+        println!("E14_PARITY_REFUSAL {name}: {got}");
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
 }

@@ -161,7 +161,13 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
     assert_eq!(p["source_kind_count"], q["source_kind_count"].as_u64().unwrap() + 6);
-    for (i, r) in rows.iter().enumerate() {
-        assert_eq!(r["signature_id"], format!("supported-source-{i:03}"));
-    }
+    // Signature ids are identities, not positions: the inherited rows keep
+    // physics-1's ids, and E14's retired parity signature leaves its id
+    // (supported-source-037) unused. The connector ids continue the sequence.
+    let mut ids = rows.iter().map(|r| r["signature_id"].as_str().unwrap()).collect::<Vec<_>>();
+    assert!(!ids.contains(&"supported-source-037"));
+    ids.dedup();
+    assert_eq!(ids.len(), rows.len());
+    let numbers: Vec<usize> = ids.iter().map(|id| id.strip_prefix("supported-source-").unwrap().parse().unwrap()).collect();
+    assert_eq!(numbers, (0..=rows.len()).filter(|n| *n != 37).collect::<Vec<_>>());
 }

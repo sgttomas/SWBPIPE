@@ -2029,59 +2029,6 @@
       }
     },
     {
-      "signature_id": "supported-source-037",
-      "status": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
-      "input_row": {
-        "id": "result:sparse-live:dense-parity-relative-delta",
-        "kind": "sparse_live_path_dense_parity_relative_delta",
-        "value": 0.0,
-        "unit": "unitless",
-        "entity_ref": "solver:sparse_direct",
-        "basis_ref": {
-          "ref_type": "load_case",
-          "ref_id": "load:L-100"
-        },
-        "metadata": {
-          "component": "sparse_live_path",
-          "coordinate_system": "reduced_system",
-          "location": "load_case",
-          "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=21; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-          "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-        }
-      },
-      "expected": {
-        "disposition": "disclosed",
-        "category": "diagnostic_relative_ratio",
-        "family": null,
-        "source_physical_semantic_dimension": "dimensionless",
-        "derivative_target_dimension": "ratio",
-        "value": 0.0,
-        "unit": "unitless",
-        "observed_carrier_dimension_present": false,
-        "observed_carrier_dimension": null,
-        "source_annotation_metadata": {
-          "component": "sparse_live_path",
-          "coordinate_system": "reduced_system",
-          "location": "load_case",
-          "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=21; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-          "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-        },
-        "canonical_metadata": null,
-        "governing_ratio_eligible": false
-      },
-      "negative_unit": {
-        "replacement": "Pa",
-        "expected": "known_kind_unit_contradiction_blocks_canonical"
-      },
-      "negative_component": {
-        "replacement": "contradictory_source_component",
-        "expected": "known_kind_component_contradiction_blocks_canonical"
-      },
-      "missing_metadata": {
-        "expected": "retain_source_annotation_and_disposition"
-      }
-    },
-    {
       "signature_id": "supported-source-038",
       "status": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
       "input_row": {

@@ -254,7 +254,7 @@ def test_actual_derivative_rejects_missing_mismatched_or_foreign_receipt_method(
 
 
 COMPOSITE_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-COMPOSITE_SHA256 = "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+COMPOSITE_SHA256 = "ecb3f70f9508123604b60b6f1d333863cd0ab8296e3d5b5eede173bf62dd0579"
 COMPOSITE_RECEIPT = "physics_source_recovery.schema.json"
 COMPOSITE_ROOT = PROJECT / "fixtures/product_preview/physics_source"
 COMPOSITE_PAIRS = tuple(f"{case}-{mode}" for case in ("n05", "n06", "mixed", "fields") for mode in MODES)

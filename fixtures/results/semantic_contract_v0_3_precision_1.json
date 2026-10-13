@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 60,
-  "source_kind_count": 47,
+  "source_signature_count": 59,
+  "source_kind_count": 46,
   "pinned_source_sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
   "canonical_metadata_vocabulary": {
     "component": {
@@ -600,20 +600,6 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-037",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "unit": "unitless",
-      "component": "sparse_live_path",
-      "source_physical_semantic_dimension": "dimensionless",
-      "derivative_target_dimension": "ratio",
-      "category": "diagnostic_relative_ratio",
-      "family": null,
-      "canonical_disposition": "disclosed",
-      "legacy_declared_dimension": null,
-      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false
     },
     {

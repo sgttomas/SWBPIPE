@@ -178,7 +178,6 @@ const RECOVERY: &[Source] = &[
 /// `.iter().copied()` / `.iter().cloned()` with a `.collect` in the same
 /// statement. (file, function, disposition).
 const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
-    ("PP/lib.rs", "legacy_observation_force", "observation lane (S11 section 4.3 limit 2): T1's DEC050/053 observation force; it never reaches a solve seam"),
     ("PP/lib.rs", "append_nonlinear_support_loop_results", "the loop's `input.force` copy; the typed entry `solve_active_set_frame_with_mode_and_springs_assembled` refuses it unless it equals the ledger's values bit for bit"),
 ];
 
@@ -188,7 +187,6 @@ const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
 /// (file, function, binding, disposition).
 const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
     ("PP/lib.rs", "run_linear_static_preview_observed", "load_case_solves", "per-case result records, not a force vector"),
-    ("PP/lib.rs", "legacy_observation_force", "observation", "observation lane (limit 2): T1's DEC050/053 observation force, K_fc g_c folded on purpose"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "global_forces", "E8/E9: the row loop writes each row's one exact sum"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the chord rotation of the recovered end forces (a formed transform, section 2.2)"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "local_force", "the chord rotation's element loop (a formed transform, section 2.2)"),
@@ -200,12 +198,9 @@ const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
     ("nonlinear_integration/lib.rs", "add_applied_forces", "force", "T5's: E14 in-loop sliding-friction forces (S11 section 10 item 1)"),
 ];
 
-/// Rule 4: product calls to the generic linear-algebra kernels (limit 1).
-const ALLOW_GENERIC_KERNEL: &[(&str, &str, &str)] = &[
-    ("PP/lib.rs", "legacy_dense_observation", "observation lane: DEC050/053 legacy unscaled LU reference on the reduced system; never selects a solution"),
-    ("PP/lib.rs", "solve_preview_reduced_system", "observation lane: DEC050/053 raw sparse observation of `observation_force`; never selects a solution"),
-    ("PP/lib.rs", "append_sparse_live_path_evidence", "observation lane: DEC050/053 sparse live-path parity evidence"),
-];
+/// Rule 4: product calls to the generic linear-algebra kernels (limit 1). E14
+/// retired the DEC-050/053 observation lane, their only product callers.
+const ALLOW_GENERIC_KERNEL: &[(&str, &str, &str)] = &[];
 const GENERIC_KERNELS: &[&str] = &[
     "solve_dense(",
     "solve_symmetric_system(",
@@ -693,11 +688,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "compute_pipe_mass_per_length", 2, "declared formation: same-sign mass terms (section 2.2, as self_weight)"),
     ("PP/lib.rs", "curved_bend_section_resultants", 1, "formed transform: chord frame back to global (section 2.2); E11 is the terms API call"),
     ("PP/lib.rs", "debit", 2, "integer: budget charge"),
-    ("PP/lib.rs", "legacy_observation_force", 1, "allow-listed observation lane (limit 2)"),
-    ("PP/lib.rs", "max_abs_delta", 1, "max fold of an observation"),
-    ("PP/lib.rs", "max_abs_entry_residual", 3, "allow-listed DEC050/053 sparse parity observation lane (limit 2)"),
-    ("PP/lib.rs", "max_abs_value", 1, "max fold of an observation"),
-    ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
     ("PP/lib.rs", "run_linear_static_preview_observed", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
@@ -1337,10 +1327,11 @@ fn rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams() {
     assert!(linear.contains("built.nonlinear_supports.is_empty()"));
     assert!(!linear.contains("assembly.solve_assembled("));
     let case = body("solve_load_case_observed");
-    assert!(case.contains("reduce_assembled_system_with_prescribed_displacements("));
-    assert!(case.contains("reduce_assembled_system("));
-    // F1b (§4.8): the ordinary route's partition is the pattern's; the dense
-    // reductions above remain only for dense scrutiny's protected LU lane.
+    // E14: the DEC-050/053 LU lane is retired, and with it the dense
+    // reductions it alone formed; the ordinary route's partition is the
+    // pattern's (F1b §4.8).
+    assert!(!case.contains("reduce_assembled_system_with_prescribed_displacements("));
+    assert!(!case.contains("reduce_assembled_system("));
     assert!(case.contains("reduce_assembled_sparse_system("));
     assert!(case.contains("finish_case_ledger("));
     assert!(body("append_nonlinear_support_loop_results")
@@ -1388,7 +1379,7 @@ fn rule_3_force_bindings_are_mutated_only_in_allow_listed_functions() {
 }
 
 #[test]
-fn rule_4_generic_kernels_are_called_only_by_observation_lanes() {
+fn rule_4_the_product_calls_no_generic_kernel() {
     let mut actual = BTreeSet::new();
     for source in PRODUCT {
         for item in items(&code_of(source.text)) {

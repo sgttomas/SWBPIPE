@@ -33,7 +33,7 @@ TABLE = json.loads((ROOT / "fixtures/results/semantic_contract_v0_3_physics_sour
 SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
-PRESSURE_TABLE_SHA256 = "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61"
+PRESSURE_TABLE_SHA256 = "d7e7988382c0c758bbd51f7793b3f4d1376a970a82ceec0b7109aca44f3e41f4"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 
 

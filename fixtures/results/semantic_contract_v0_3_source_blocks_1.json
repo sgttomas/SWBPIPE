@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 66,
-  "source_kind_count": 48,
+  "source_signature_count": 65,
+  "source_kind_count": 47,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -609,20 +609,6 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-037",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "unit": "unitless",
-      "component": "sparse_live_path",
-      "source_physical_semantic_dimension": "dimensionless",
-      "derivative_target_dimension": "ratio",
-      "category": "diagnostic_relative_ratio",
-      "family": null,
-      "canonical_disposition": "disclosed",
-      "legacy_declared_dimension": null,
-      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
-    },
-    {
       "signature_id": "supported-source-038",
       "kind": "expansion_joint_pressure_thrust_load_review",
       "unit": "N",
@@ -1068,6 +1054,6 @@
     "openpipestress.result_semantics/0.3.0/stress-1"
   ],
   "base_semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1",
-  "base_contract_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+  "base_contract_sha256": "0649e4e4e627e105a3d96a14187c359078d987225d3eec936846986a5ad75f3a",
   "base_pinned_source_sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"
 }

@@ -1039,19 +1039,25 @@ fn material_records_keep_typed_duplicate_key_refusal_with_positions() {
 }
 
 #[test]
-fn dense_observation_lanes_observe_the_prescribed_boundary_system() {
-    // DEC050/053 observation parity at round-off under prescribed root motion:
-    // an uncoupled f_f or a zero-boundary reduced system differs by O(1).
-    let envelope = run(&two_bar(), PreviewSolverMode::DenseScrutiny);
-    let parity = envelope
-        .results
-        .iter()
-        .find(|r| r.kind == "sparse_live_path_dense_parity_relative_delta")
-        .expect("dense scrutiny publishes the parity observation")
-        .value;
-    assert!(parity <= 1.0e-12, "{parity:e}");
-    assert!(!envelope
-        .diagnostics
-        .iter()
-        .any(|d| d.code == "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE"));
+fn dense_and_sparse_solves_agree_on_the_prescribed_boundary_system() {
+    // E14: the DEC-050/053 observation lane is retired. Under prescribed root
+    // motion the two current solves' published displacements still agree at
+    // round-off (an uncoupled f_f or a zero-boundary system differs by O(1)),
+    // and neither mode publishes a parity row.
+    let dense = run(&two_bar(), PreviewSolverMode::DenseScrutiny);
+    let sparse = run(&two_bar(), PreviewSolverMode::SparseInteractive);
+    let displacements = |e: &MechanicsEnvelope| e.results.iter()
+        .filter(|r| r.kind.starts_with("global_nodal_displacement_"))
+        .map(|r| (r.id.clone(), r.value)).collect::<Vec<_>>();
+    let (d, s) = (displacements(&dense), displacements(&sparse));
+    assert!(!d.is_empty() && d.len() == s.len());
+    let scale = d.iter().map(|(_, v)| v.abs()).fold(0.0_f64, f64::max);
+    assert!(scale > 0.0);
+    for ((id, a), (other, b)) in d.iter().zip(&s) {
+        assert_eq!(id, other);
+        assert!((a - b).abs() <= 1.0e-12 * scale, "{id}: {a:e} vs {b:e}");
+    }
+    for envelope in [&dense, &sparse] {
+        assert!(envelope.results.iter().all(|r| r.kind != "sparse_live_path_dense_parity_relative_delta"));
+    }
 }

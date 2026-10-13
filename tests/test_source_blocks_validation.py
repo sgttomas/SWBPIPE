@@ -45,12 +45,13 @@ def control():
 class SourceBlockStatements(unittest.TestCase):
     def test_pinned_additive_table_preserves_immutable_p1_rows(self):
         p1 = ROOT / "fixtures/results/semantic_contract_v0_3_precision_1.json"
-        self.assertEqual(hashlib.sha256(p1.read_bytes()).hexdigest(), "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e")
+        self.assertEqual(hashlib.sha256(p1.read_bytes()).hexdigest(), "0649e4e4e627e105a3d96a14187c359078d987225d3eec936846986a5ad75f3a")
         self.assertEqual(hashlib.sha256(CONTRACT_PATH.read_bytes()).hexdigest(), CONTRACT_SHA256)
         old, new = json.loads(p1.read_text()), json.loads(CONTRACT_PATH.read_text())
         self.assertEqual(new["rows"][:len(old["rows"])], old["rows"])
-        self.assertEqual(new["source_signature_count"], 66)
-        self.assertEqual({r["component"] for r in new["rows"][60:]}, {"Fx","Fy","Fz","Mx","My","Mz"})
+        # E14: one signature fewer (the retired parity observation).
+        self.assertEqual(new["source_signature_count"], 65)
+        self.assertEqual({r["component"] for r in new["rows"][59:]}, {"Fx","Fy","Fz","Mx","My","Mz"})
 
     def test_valid_statements_need_independent_actual_context(self):
         source, context = control()

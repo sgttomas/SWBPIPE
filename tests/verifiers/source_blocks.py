@@ -20,7 +20,7 @@ from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
 from .preview_physics_evidence import correctly_rounded_norm
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
-CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+CONTRACT_SHA256 = "a43f74ad3565722e2521277d8b8c9d3a9831b7630b94550408842cfd7fbee001"
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_source_blocks_1.json"
 SCHEMA_PATH = ROOT / "schemas/source_block_recovery.schema.json"

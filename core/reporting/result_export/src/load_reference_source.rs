@@ -37,7 +37,7 @@ type Check = Result<(), String>;
 
 pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 pub const PROFILE: &str = "resolved_straight_load_state_source_v1";
-pub const TABLE_SHA256: &str = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337";
+pub const TABLE_SHA256: &str = "ae6d356a654b77ec459ba8afec7d4efec355db3a6e59cc7a6b1b622c0430ae7a";
 pub const POLICY: &str = "LOAD-REFERENCE-SOURCE-1";
 pub const CASE_EVIDENCE_DOMAIN: &str = "load_reference_source_case_evidence_v1";
 const PHYSICS_SOURCE_POLICY: &str = "PHYSICS-SOURCE-1";

@@ -149,11 +149,12 @@ fn additive_signatures_leave_precision_table_unchanged() {
     let old = semantic_contract::precision_contract();
     let new = semantic_contract::source_blocks_contract();
     assert_eq!(
-        &new["rows"].as_array().unwrap()[..60],
+        &new["rows"].as_array().unwrap()[..59],
         old["rows"].as_array().unwrap()
     );
-    assert_eq!(new["source_signature_count"], 66);
-    for row in &new["rows"].as_array().unwrap()[60..] {
+    // E14: one signature fewer (the retired parity observation).
+    assert_eq!(new["source_signature_count"], 65);
+    for row in &new["rows"].as_array().unwrap()[59..] {
         assert_eq!(row["family"], "reaction");
         assert_eq!(row["kind"], "support_reaction_component_v2");
     }

@@ -323,14 +323,15 @@ fn additive_table_retains_frozen_precision_bytes_and_semantics() {
                 "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json"
             ))
         ),
-        "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+        "0649e4e4e627e105a3d96a14187c359078d987225d3eec936846986a5ad75f3a"
     );
     assert_eq!(
-        &s::physics_contract()["rows"].as_array().unwrap()[..60],
+        &s::physics_contract()["rows"].as_array().unwrap()[..59],
         s::precision_contract()["rows"].as_array().unwrap()
     );
-    assert_eq!(s::physics_contract()["source_signature_count"], 77);
-    assert_eq!(s::physics_contract()["source_kind_count"], 57);
+    // E14: one signature fewer (the retired parity observation) in both tables.
+    assert_eq!(s::physics_contract()["source_signature_count"], 76);
+    assert_eq!(s::physics_contract()["source_kind_count"], 56);
 }
 
 #[test]

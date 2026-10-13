@@ -10,7 +10,7 @@ use std::sync::OnceLock;
 
 pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub const CONTRACT_SHA256: &str =
-    "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f";
+    "a43f74ad3565722e2521277d8b8c9d3a9831b7630b94550408842cfd7fbee001";
 // The fixed 64ε recipe envelope is separate from affine input uncertainty.
 // It is an arithmetic-error reserve, not a comparison tolerance: the norm
 // recipe (E15: one correctly rounded norm3, at most half an ulp) and its

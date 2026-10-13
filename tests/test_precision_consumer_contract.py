@@ -76,7 +76,7 @@ def test_immutable_tables_and_historical_schema_bytes():
     assert hashlib.sha256(table.read_bytes()).hexdigest()==PRECISION_CONTRACT_SHA256
     old=json.loads((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_text())
     assert json.loads(table.read_text())['rows']==old['rows']
-    assert hashlib.sha256((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_bytes()).hexdigest()=='4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da'
+    assert hashlib.sha256((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_bytes()).hexdigest()=='ac9569f0d93d54355f91d654073feef384e2a3f897afb3eb3bfd17d16144da7e'
 
 
 def test_actual_headless_source_to_analysis_and_derivative_hash_binding():

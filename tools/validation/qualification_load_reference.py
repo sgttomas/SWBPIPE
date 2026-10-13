@@ -58,7 +58,7 @@ ENTRYPOINT = 'validate_load_reference_evidence'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/load-reference-1'
 PROFILE = 'resolved_straight_load_state_v1'
 TABLE = 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'
-TABLE_SHA256 = '44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d'
+TABLE_SHA256 = 'a40c7719fac57e7c5e89e356d9381f8f7f696ead266d1353ac5dfcda8651d84c'
 # b7-plan R2: the owned reader is Rust's load-reference-1 reader (`validate_load_reference_evidence`), over
 # its physics-1 reader. Re-pin deliberately whenever the owned reader source changes.
 MODULE = 'core/reporting/result_export/src/load_reference.rs'

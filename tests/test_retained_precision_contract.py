@@ -1103,12 +1103,15 @@ def _b1_row(base, kind, case):
 
 
 def _b1_parity_row(case, row_id):
-    """The dense base's parity row, moved to `case` with a fresh id; a non-selected case's row
-    carries no recovery method (G6)."""
+    """E14: a row of the retired DEC-050/053 parity kind for `case` with a fresh id, shaped as the
+    lane published it; a non-selected case's row carries no recovery method (G6)."""
     rows = _cases()["ordinary_prepared_dense_synthetic"]["source"]["results"]
-    row = deepcopy(next(r for r in rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta"))
+    row = deepcopy(next(r for r in rows if r["kind"] == "linear_solver_mode_basis"))
     row.pop("recovery_method", None)
-    return dict(row, id=row_id, basis_ref=dict(row["basis_ref"], ref_id=case))
+    metadata = dict(row["metadata"], component="sparse_live_path", location="load_case")
+    return dict(row, id=row_id, kind="sparse_live_path_dense_parity_relative_delta", unit="unitless",
+                entity_ref="solver:sparse_direct", value=0.0, metadata=metadata,
+                basis_ref=dict(row["basis_ref"], ref_id=case))
 
 
 def _d38_edits():
@@ -1288,12 +1291,11 @@ def test_b1_g8_mode_row_and_requested_mode_for_every_case():
     assert _b1_verdict(F_BASE, [], [_set(["solver_mode"], "dense_scrutiny")]) == PREP
 
 
-def test_b1_g8_parity_rows_p2_to_p4_for_every_case():
-    """F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made dense (the
-    invocation's mode, both requested modes and both mode rows; it has no parity row): the selected dense
-    case at b = 0 without a parity row is admitted, and so is the not_required case's single parity row
-    at b = 0. Two parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
-    W2-published case (P4) are refused at G8."""
+def test_e14_retired_parity_rows_are_refused_for_every_case():
+    """E14 (replacing F-1 text B's P2-P4): the DEC-050/053 parity observation is retired and no table
+    carries its kind. 07j's two-case statement is made dense (the invocation's mode, both requested
+    modes and both mode rows): without a parity row it is admitted, with or without W2; any parity row,
+    on either case, in either mode, is refused."""
     p = _cases()[P_BASE]["source"]
     to_dense = [_set(["solver_mode"], "dense_scrutiny")]
     dense = [_set(B + ["ordinary_attempts", k, "requested_mode"], "dense_scrutiny") for k in (0, 1)]
@@ -1303,32 +1305,21 @@ def test_b1_g8_parity_rows_p2_to_p4_for_every_case():
     one, two = (_b1_parity_row(UNAVAILABLE_ROW, f"result:b1:parity-{k}") for k in (1, 2))
     on_dense = lambda extra_rows, extra=(): _b1_verdict(P_BASE, dense + [_set(["results"], dense_rows + extra_rows)] + list(extra), to_dense, NOT_REQUIRED)
     d = _cases()["ordinary_prepared_dense_synthetic"]["source"]
-    parity = next(i for i, r in enumerate(d["results"]) if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
-    twice = dict(deepcopy(d["results"][parity]), id="result:b1:parity-twice")
-    d_report = _cases()["ordinary_prepared_dense_synthetic"]["source"]["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]
-    d_w2 = [_set(B + ["ordinary_attempts", 0, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None}),
-            _set(B + ["ordinary_attempts", 0, "w2"], {"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d_report})]
+    selected_case = next(r for r in d["results"] if r["kind"] == "linear_solver_mode_basis")["basis_ref"]["ref_id"]
     f_rows = _cases()[F_BASE]["source"]["results"]
-    got = {
+    admitted = {
         "dense b = 0, no parity row on either case": on_dense([]),
-        "dense b = 0, one parity row on the not_required case": on_dense([one]),
-        "dense, a W2-published not_required case without a parity row": on_dense([], _w2_published(1)),
-        "P2: two parity rows on the not_required case": on_dense([one, two]),
-        "P4: a parity row on the W2-published not_required case": on_dense([one], _w2_published(1)),
-        "P2: two parity rows on the dense selected case": _b1_verdict("ordinary_prepared_dense_synthetic", [_set(["results"], deepcopy(d["results"]) + [twice])]),
-        "P4: a parity row on a W2-published selected case": _b1_verdict("ordinary_prepared_dense_synthetic", d_w2),
-        "P3: a parity row on the sparse unavailable case": _b1_verdict(F_BASE, [_set(["results"], deepcopy(f_rows) + [_b1_parity_row(UNAVAILABLE_ROW, "result:b1:sparse-parity")])]),
+        "dense, a W2-published not_required case": on_dense([], _w2_published(1)),
     }
-    assert got == {
-        "dense b = 0, no parity row on either case": ("admitted", True, "eligible"),
-        "dense b = 0, one parity row on the not_required case": ("admitted", True, "eligible"),
-        "dense, a W2-published not_required case without a parity row": ("admitted", True, "eligible"),
-        "P2: two parity rows on the not_required case": PREP,
-        "P4: a parity row on the W2-published not_required case": PREP,
-        "P2: two parity rows on the dense selected case": PREP,
-        "P4: a parity row on a W2-published selected case": PREP,
-        "P3: a parity row on the sparse unavailable case": PREP,
+    refused = {
+        "one parity row on the not_required case": on_dense([one]),
+        "two parity rows on the not_required case": on_dense([one, two]),
+        "a parity row on the W2-published not_required case": on_dense([one], _w2_published(1)),
+        "a parity row on the dense selected case": _b1_verdict("ordinary_prepared_dense_synthetic", [_set(["results"], deepcopy(d["results"]) + [_b1_parity_row(selected_case, "result:b1:parity-selected")])]),
+        "a parity row on the sparse unavailable case": _b1_verdict(F_BASE, [_set(["results"], deepcopy(f_rows) + [_b1_parity_row(UNAVAILABLE_ROW, "result:b1:sparse-parity")])]),
     }
+    assert admitted == dict.fromkeys(admitted, ("admitted", True, "eligible"))
+    assert all(verdict != ("admitted", True, "eligible") for verdict in refused.values()), refused
 
 
 def test_b1_rv108_n2_a_missing_verdict_is_g5_attempt():

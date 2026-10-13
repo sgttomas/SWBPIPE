@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 78,
-  "source_kind_count": 57,
+  "source_signature_count": 77,
+  "source_kind_count": 56,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -619,20 +619,6 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
-    },
-    {
-      "signature_id": "supported-source-037",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "unit": "unitless",
-      "component": "sparse_live_path",
-      "source_physical_semantic_dimension": "dimensionless",
-      "derivative_target_dimension": "ratio",
-      "category": "diagnostic_relative_ratio",
-      "family": null,
-      "canonical_disposition": "disclosed",
-      "legacy_declared_dimension": null,
-      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false
     },
     {
@@ -1263,7 +1249,7 @@
   "inherited_semantic_contracts": [
     {
       "id": "openpipestress.result_semantics/0.3.0/physics-source-1",
-      "sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+      "sha256": "ecb3f70f9508123604b60b6f1d333863cd0ab8296e3d5b5eede173bf62dd0579"
     }
   ],
   "source_block_policy": "PRESSURE-SOURCE-1",

@@ -717,13 +717,6 @@ pub(super) fn observation(row: &ResultItem) -> bool {
                 && m.coordinate_system == "reduced_system"
                 && matches!(row.value, 1.0 | 2.0 | 3.0)
         }
-        "sparse_live_path_dense_parity_relative_delta" => {
-            row.unit == "unitless"
-                && row.entity_ref == "solver:sparse_direct"
-                && m.component == "sparse_live_path"
-                && m.coordinate_system == "reduced_system"
-                && row.value >= 0.0
-        }
         "modulus_basis_record" | "combination_modulus_basis_record" => {
             row.unit == "record"
                 && row.value == 1.0
