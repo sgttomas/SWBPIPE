@@ -204,7 +204,7 @@ it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',asy
  await expect(validateStressNeutralExportPacket(decoded,undefined,analysisRun)).rejects.toThrow('SN-PRECISION-ANALYSIS-SOURCE-REQUIRED');
  const imported=structuredClone(packet);
  imported.provenance={source_name:'Python style fixture exporter',source_location:'interop-fixture',source_license:'project-governed',review_status:'pending',professional_claim:false};
- imported.result_rows.reverse();
+ // Rows keep the UTF-8 CSV's scalar result-id order (every current route); the exporter differs in provenance, witness and export ids.
  imported.result_rows.forEach((r:any)=>{r.provenance=structuredClone(imported.provenance);});
  imported.unit_preservation_witnesses=imported.result_rows.map((r:any,index:number)=>({witness_id:`unit-witness:${index}`,source_row_index:index,result_id:r.result_id,source_quantity:{value:r.value,unit:r.unit,dimension:r.dimension},target_quantity:{value:r.value,unit:r.unit,dimension:r.dimension},conversion_performed:false,policy:'preserve_received_value_and_unit'}));
  imported.stable_id_map.reverse();
@@ -276,7 +276,8 @@ it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',asy
  await expect(buildStressNeutralExportPacket({model,result,analysisRun:wrongModelRun})).rejects.toThrow('ANALYSIS_SOURCE_MODEL_STATE_MISMATCH');
  const bad=structuredClone(packet);bad.producer.semantic_contract_id='unknown';await expect(validateStressNeutralExportPacket(bad)).rejects.toThrow('SN-PRECISION-CONTRACT-MISMATCH');
  const withheldSource=structuredClone(result);
- withheldSource.results=[{id:'unknown:interop',entity_ref:'node:interop',kind:'unknown_quantity',value:1,unit:'mm'}];
+ // A row the reader admits without a resolvable signature (no component): an unknown semantic, withheld.
+ withheldSource.results=[{id:'unknown:interop',entity_ref:'nonlinear_supports',kind:'nonlinear_support_free_dof_work_residual',value:1,unit:'N*m',metadata:{coordinate_system:'solver_iteration',location:'final_iteration',basis:'invented transport fixture',sign_convention:'nonnegative max absolute free-DOF residual work product in the final linearized solve'}} as never];
  const withheldAnalysis=await buildAnalysisRunPreview(withheldSource,{inputManifest});
  const withheldPacket=await buildStressNeutralExportPacket({model,result:withheldSource,analysisRun:withheldAnalysis});
  withheldPacket.provenance=structuredClone(imported.provenance);
