@@ -11,6 +11,13 @@ This is the governing plan for B7. Two of its legacy items were done ahead of it
 - **B7b.** Not started: D4 (a), v2 deletion (A4, A5), B5's last entry, and the exact half of model 0.5.0 with the field specification below.
 - **After B7b** (each under its own design and independent review): the RF source-method extension, the W1 member-load certification unit (group 3 stage 2) and the Timoshenko and corrosion-allowance source extension (O4).
 
+**Pending owner confirmations (2026-10-13).** Authorized implementation and verification continue while these choices remain with the owner; no confirmation has yet been received.
+- The four frozen 0.2.0 models under `apps/desktop/e2e/ui-foundation/fixtures/`: `ui-foundation-1000.model.json`, `ui-foundation-10000.model.json`, `precision-origin-base.model.json` and `precision-origin-translated.model.json`. Their models, generator and frozen `fixture-manifest.json` bindings are unchanged; the ordinary B7a regeneration does not rewrite or repin this benchmark.
+- Confirmation of the existing canonical-document version edits to 0.5.0: `fixtures/domain/invented_minimal_project_model.json`, `examples/models/invented/mechanics_only_toy_span.json`, `examples/models/invented/fake_rule_pack_toy_model.json`, and the nested model in `fixtures/persistence/invented_persisted_preview_project.json` with its binding hashes. The companion expected version in `tests/test_model_schema.py::check_domain_fixtures` follows the same pending confirmation. The persisted fixture's removal of the retired `migrate_project` operation is a separate already-authorized change. `fixtures/domain/invented_physical_source_of_truth_model.json` is an unchanged bare Model fragment with no document-version header; no 0.5.0 header was added to it.
+- Confirmation of the two existing status-sentence edits in DEL-02-05 `ScopeOfWork.md`: CLM-003's sentence beginning "The code does not meet this fully yet" and CLM-013's Version Contract Integration sentence beginning "Until B7b, the exact pressure model versions". Their current requirement text is unchanged; these status edits do not establish owner acceptance.
+
+The pending authored hunks are preserved for manager coordination; this plan records no approval to integrate them and no new numerical or acceptance criterion.
+
 This file lives with DEL-05-02 because DEL-05-02 owns the result readers and their conformance corpora (`retained-combinations.md`; `deliverable.yaml` points to every reader source in all three languages; `compatibility.py`'s record builder stays with DEL-14-02). The retained-combinations contract stays in its own file.
 
 ## Decisions applied
