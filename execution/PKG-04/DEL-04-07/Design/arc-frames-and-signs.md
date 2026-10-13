@@ -7,6 +7,91 @@ code by itself. The frozen independent references are in
 [`validation/references/t4_u4a/`](../../../../validation/references/t4_u4a/README.md).
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
+## Status (2026-10-13, controlled pause)
+
+The owner has called a controlled pause on T4-U4a: no further
+implementation. This section carries the unit's continuity; the sections
+below remain its design.
+
+**Designed.** Sections 1–10: the tangent-frame, node-on-element convention
+for arc end rows (§2), the closed-form chord-to-tangent rotation and its
+formation on the certified route at p and on the binary64 route (§3), the
+K-D5 group changes, the metadata and the retirement of `arc_chord_frame`
+(§4), the two-stage landing (§5), consumers and blast radius (§§6–7), the
+B7a H-4 delta for T3 (§8), what stays for U4b and the open directional-k
+unit (§9), and the evidence plan with mutants M1–M12 (§10).
+
+**Frozen and independently verified.** The references in
+`validation/references/t4_u4a/` (frozen at `f7b1996a73`: 20 invented cases,
+SHA-bound requests and oracle) were refuted by a separate TASK that did not
+write them, using a different method: a direct-stiffness solve written from
+the mechanics, reading the request documents directly, with member
+flexibilities and load resultants by Clenshaw–Curtis quadrature (not
+Gauss–Legendre) at 60 digits and its own arc frames. Result: all 20 cases
+CONFIRMED. The worst agreement is 4.6e-13 tolerances (about 4.6e-22
+relative). Independence and the conventions are confirmed: end_i = −cut(0),
+end_j = +cut(1), y toward the centre, R_i and R_j as in §3 to 1.5e-59, and on
+pressure-1 S = N_w − pA_i. Mutant separation: M1–M6 at least 4.0e8
+tolerances (M6, `full_angle_instead_of_half`, is the smallest, 4.0e8 on
+`U4A-PR1-Z-ANCH-NEGP`); M7 is not value-discriminable, as §10 declares; M12
+is caught by the absent axial row.
+
+**Not started.** No U4a product code exists. Neither stage of §5 is
+implemented. In particular, the stage-2 preview-physics-1 commit that T3's
+B7a H-4 C4–C6 wave is to carry does not exist; §8 gives only its sentence,
+table and schema delta.
+
+**Open condition: stage 1 alone is not admissible** (T4 manager, 2026-10-13).
+No pressure-1 case runs the binary64 route: pressure-1 refuses nonlinear
+supports, so all eight PR1 cases are certified, and in stage 1 the gap case
+(preview-physics-1) stays byte-identical. M8 and M9 therefore have no value
+control on pressure-1 in stage 1. Stage 1 may land alone only once a
+pressure-1 control on the binary64 route exists: a pressure-1 case that
+publishes binary64 recovery, or a forced-demotion test hook on the pressure-1
+route. Such a case is an intended change of the references, made by their
+author and refuted independently. Otherwise stages 1 and 2 land together, and
+the gap case controls the shared binary64 rotation.
+
+**Minor findings of the refutation and where they are handled.** None blocks.
+- Fixed in the references' README (text only; no request, oracle value or
+  generator byte changed; only the README line of `SHA256SUMS` is
+  regenerated): there are twelve preview-physics-1 cases (eleven linear and
+  the gap case), not eleven; the 5e6 m case sits at the objectivity edge on
+  purpose (one input ulp is about 1.2 tolerances); step 5 states that
+  `element_local_axial_force` is absent on pressure-1 straights too
+  (`bend_pressure.rs` retain filter), so the oracle's elastic F_x there is not
+  asserted; the pressure-1 member `zero_scale` uses S, not N_w; the T0R cases
+  reproduce `arc_model`'s mechanics but are not literal copies of it (no
+  `sif_user_value` 1.3, orientation text or component node); verification is
+  run as `python3 -I -B`; M6's separation is 4.0e8, not 1e9.
+- Fixed in this Design: §2 item 2's wording (only F_x and M_x are shared
+  directly across a tangent node).
+- Left for the next intended rewrite of the reference set, because it would
+  change generator bytes: the unused `Fraction` import in `u4a_engine.py`.
+
+**Remaining work when the pause lifts.**
+1. The pressure-1 binary64-route control above, or the decision to land both
+   stages together.
+2. Stage 1 per §§3–6, and the stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
+3. The §10 evidence: the PP U4a reference test, the T4-I7 switch, the FK
+   enclosure and record checks, the K-D5 M3 re-measurement with declared
+   status moves, the VP-STATIC package regeneration and its independent
+   re-review, and independent scrutiny of the implementation.
+4. When B7 retires model versions, re-express the requests in model 0.5.0:
+   B7a refuses the preview-physics-1 cases' 0.2.0 documents and B7b the
+   pressure-1 cases' 0.4.0 documents. Only the request bytes and
+   `requests_sha256` change (generator `--write`, then its verify mode and an
+   independent value check); the oracle values do not.
+
+**Dependencies.**
+- DEL-04-01 (FK): the certified tangent end operator in
+  `certify_arc_recovery`; nonlinear K-D5 (batch 5) adopts the same law when it
+  certifies arcs.
+- T3, DEL-05-02 B7a: the H-4 C4–C6 wave that carries stage 2, its
+  registration and re-pinning (§8); B7a and B7b for the model 0.5.0
+  re-expression of the requests.
+- Batch 5 (nonlinear K-D5, U4a, U5a) re-registers once (H7).
+
 **Owner.** DEL-04-07 owns the unit.
 
 - DEL-04-07's code path `core/product_physics/src/lib.rs` forms and
@@ -102,8 +187,11 @@ node-on-element action in the member's local frame at that end.
 2. **One frame per location.** The end rows then agree with the end stresses,
    the endpoint cuts and the wall end action, which are already in the
    tangent frame, and with the adjacent straight's end row at the shared node.
-   With exact tangency, the two members share x, so node equilibrium can be
-   read across members.
+   With exact tangency, the two members share x at that node, so F_x and M_x
+   can be compared directly across members. Their y and z axes differ by a
+   rotation about the shared x unless the straight's y_reference makes them
+   coincide, so node equilibrium of the shear and bending rows is read after
+   that rotation.
 3. **K-D5's groups mean what they say.** The groups |N|, hypot(V_y, V_z), |T|
    and hypot(M_y, M_z) are section quantities. In the chord frame, the "axial"
    group of an arc end holds shear.
@@ -447,8 +535,8 @@ separate from the implementer.
 | M5 in-plane rotation without the half-turn about x (y away from the centre, chord z) | `inplane_rotation_without_flip` |
 | M6 φ instead of φ/2 | `full_angle_instead_of_half` |
 | M7 binary64 tangent in place of the p-formed one | Not value-discriminable (at most 1e-7 tolerances); the FK enclosure control on `binary64_tangent_axes_inexact` arcs |
-| M8 station or cut rows rotated, or the chord transpose left in the binary64 inverse | The unchanged cut and stress families, on the binary64 gap case and on the certified cases |
-| M9 rotation on one route only (certified or binary64) | The gap case (binary64) together with the Passed cases (certified) |
+| M8 station or cut rows rotated, or the chord transpose left in the binary64 inverse | The unchanged cut and stress families, on the binary64 gap case and on the certified cases. The gap case is preview-physics-1, so on pressure-1 in stage 1 this needs the binary64 control of the Status section |
+| M9 rotation on one route only (certified or binary64) | The gap case (binary64) together with the Passed cases (certified); on pressure-1 in stage 1, as for M8 |
 | M10 relabel without rotation | M1's control with the metadata assertion |
 | M11 end groups formed from chord rows while tangent rows are published | The FK record check (3) |
 | M12 wall force or cap folded into the published elastic end rows | Pressure-1 tangent `F_y`…`M_z` (the cap is axial in the tangent frame and is not published), with the `element_local_axial_force` absence on arcs |
@@ -460,6 +548,8 @@ separate from the implementer.
    the j-side convention at the ends, it would apply to every member type, so
    straight end rows would move too. This design does not recommend it.
 2. **Staging.** Two stages or one change depends on B7a's timing (§5). This
-   is the T4 manager's call, not a reserved choice.
+   is the T4 manager's call, not a reserved choice. The manager has set its
+   condition: stage 1 alone needs the pressure-1 binary64-route control
+   (Status section).
 3. **Reader enforcement.** Making the pressure-1 readers enforce the arc
    end-row sign texts in stage 1 is recommended but optional.

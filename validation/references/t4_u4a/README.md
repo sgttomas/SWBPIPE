@@ -16,14 +16,16 @@ taxonomy per DEC-081): invented models, internal verification evidence only.
 | `oracle.json` | Expected rows per case, the discriminators, and the cross-checks; `requests_sha256` binds the exact bytes of `requests.json` |
 | `SHA256SUMS` | Digests of the five files above |
 
-Verify with `python3 -I u4a_generate.py` in this directory (it regenerates both
-JSON files in memory and compares them byte for byte, about 20 s) and
+Verify with `python3 -I -B u4a_generate.py` in this directory (it regenerates
+both JSON files in memory and compares them byte for byte, about 20 s; `-B`
+keeps the engine's import from writing `__pycache__` here) and
 `shasum -a 256 -c SHA256SUMS`. `--write` replaces them and is used only for an
 intended change of the references, never to absorb a product result.
 
 ## Cases
 
-Eleven preview-physics-1 cases and eight pressure-1 cases cover planar
+Twelve preview-physics-1 cases (eleven linear and the gap case) and eight
+pressure-1 cases cover planar
 left-turn and right-turn L lines, an L with the arc and a straight authored
 against the traversal, rigidly rotated ("skew") L and U lines (including one
 at 5e6 m coordinates), a U (two left turns), a Z (a left and a right turn) and
@@ -33,9 +35,14 @@ nodal force, uniform temperature change and, on pressure-1, 4 MPa or -0.6 MPa
 with transferring or separately supported closures. Free-tip lines are
 statically determinate; anchored lines are indeterminate and depend on the
 bends' k. `U4A-PP1-L-LEFT-GAP` closes a one-way vertical contact at its gap
-(the nonlinear route, which publishes binary64 recovery).
-`U4A-PP1-T0R-B1-K2` and `-K4` reproduce the product preview test model
-`arc_model` (k = 2, 4), so that test's end-row assertion can move here.
+(the nonlinear route, which publishes binary64 recovery). It is the only
+binary64-route case: pressure-1 refuses nonlinear supports, so all eight
+pressure-1 cases are certified (see the Design's Status section).
+`U4A-PP1-T0R-B1-K2` and `-K4` reproduce the mechanics of the product preview
+test model `arc_model` (k = 2, 4), so that test's end-row assertion can move
+here. They are not literal copies of its request: they omit its
+`sif_user_value` 1.3, its orientation text and its component node, none of
+which enters these rows.
 
 ## Basis and independence
 
@@ -102,13 +109,21 @@ bends' k. `U4A-PP1-L-LEFT-GAP` closes a one-way vertical contact at its gap
   - `end_rows_swapped`;
   - `inplane_rotation_without_flip`;
   - `full_angle_instead_of_half`.
-  Each reaches about 1e9 tolerances in every case.
+  In every case each reaches at least 1.16e9 tolerances, except
+  `full_angle_instead_of_half`, whose smallest is 4.0e8 tolerances
+  (`U4A-PR1-Z-ANCH-NEGP`).
 - `binary64_tangent_axes`: CB's binary64 tangent used in place of the
   p-formed one. It is 1e-7 tolerances at most, so the values cannot
   discriminate it. The control for that mutant is the FK enclosure test below.
 - `objectivity_controls`: a rigidly rotated model with rotated loads has the
   same frame-local rows to about 5e-16. The 5e6 m case differs by 1.2e-9:
-  one ulp of 5e6 m is 9.3e-10 m against R = 0.375 m.
+  one ulp of 5e6 m is 9.3e-10 m against R = 0.375 m. That case sits at the
+  objectivity edge on purpose: one ulp of an input coordinate moves its rows
+  by about 1.2 tolerances. Its expectations are for the authored binary64
+  coordinates taken as exact, so the case tests that frames are formed from
+  those coordinates with no further loss of the order of an input ulp. A
+  miss of about one tolerance there is investigated as coordinate rounding,
+  never absorbed by relaxing the criterion.
 
 ## Criterion
 
@@ -116,7 +131,9 @@ A row passes when |observed − expected| ≤ 1e-9 · max(|expected|, zero_scale
 in both solver modes and through both entries.
 
 - `zero_scale` is per member and per family: the largest force (N, S, V) or
-  moment (T, M) over its five cuts.
+  moment (T, M) over its five cuts. On pressure-1 the member force scale uses
+  S, not N_w; N_w enters only the case-wide fallback used when a member's own
+  scale is zero.
 - Displacements and supports use the case's largest value of that family.
 - The product publishes translations in mm and element stresses in MPa;
   compare after exact conversion.
@@ -144,10 +161,15 @@ the criterion. A mismatch is the product's to fix, never the reference's.
    1e3 tolerances of today's `chord_frame` value.
 5. Assert the unchanged families at the same criterion: station cuts,
    endpoint stresses, pressure-family rows including the wall end action,
-   straight members' end rows, displacements and support reactions. This
-   catches a rotation leaking into the stations (for example a wrong inverse
-   where the binary64 path rebuilds the global end-j force), or one applied on
-   only one route. The gap case is the binary64 route; the others are certified.
+   straight members' end rows, displacements and support reactions. On
+   pressure-1, `element_local_axial_force` is absent on straights as well as
+   on arcs (the `bend_pressure.rs` retain filter), so the oracle's elastic F_x
+   end rows of pressure-1 straights are not asserted. This step catches a
+   rotation leaking into the stations (for example a wrong inverse where the
+   binary64 path rebuilds the global end-j force), or one applied on only one
+   route. The gap case is the binary64 route; the others are certified. The
+   gap case is preview-physics-1, so it controls pressure-1's binary64 route
+   only through code shared by both routes.
 6. FK enclosure control for `binary64_tangent_axes`, on arcs with
    `binary64_tangent_axes_inexact`. Each tangent-axis coefficient the certified
    arc recovery uses must be a ball containing the 45-digit value. A binary64
