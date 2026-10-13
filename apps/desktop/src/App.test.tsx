@@ -10569,18 +10569,105 @@ describe("SWBPIPE desktop preview", () => {
     expect(e.reproducibility.source_origin_bindings[0].origin_limit).toContain("no native invocation or Current export");
   });
 
-  it("refuses the Sensitive demo reference in the pure stress-neutral projector", async () => {
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §5): the demo has nonlinear supports, so its converged
-    // cases are published NUMERICAL_INTEGRITY_SENSITIVE. The pure packet projection admits a reference only
-    // at full numerical standing (apart from precision-1's historical reason), so the demo reference that
-    // projected to the 625-row format is now refused, and the reference is not changed.
+  it("preserves the 625-row stress-neutral format as a pure reference projection", async () => {
+    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5),
+    // so the pure packet projection admits the reference again.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
     const before = JSON.stringify(basis);
     const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
     expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
     expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
     expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
-    await expect(buildStressNeutralExportPacket(basis)).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
+    const stressNeutralPacket = await buildStressNeutralExportPacket(basis);
+    expect(stressNeutralPacket.document_kind).toBeUndefined();
+    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
+    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
+    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
+    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
+    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PREVIEW_PHYSICS_CONTRACT_ID, sha256: PREVIEW_PHYSICS_CONTRACT_SHA256 });
+    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
+    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
+    expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+    expect(stressNeutralPacket.package_id).toBe("PKG-17");
+    expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
+    expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
+    expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+    expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
+    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
+    expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
+      object_type: "StressNeutralExportProfile",
+      ref: "ops.stress_neutral.v3",
+    });
+    expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
+    expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
+    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display",
+    );
+    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("rad");
+    expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
+    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
+    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
+    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
+    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
+    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
+    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
+    for (const row of expectedSource.results) {
+      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
+      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
+    }
+    expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
+      "manifest.json",
+      "stress_neutral_results.csv",
+      "result_rows.json",
+      "unit_system_disclosure.json",
+      "unit_preservation_witnesses.json",
+      "stable_id_map.json",
+      "loss_report.json",
+      "validation_report.json",
+      "diagnostics.json",
+    ]);
+    expect(stressNeutralPacket.manifest.checksums).toHaveLength(9);
+    expect(new Set(stressNeutralPacket.manifest.checksums.map(
+      (item: { payload_ref: { ref: string } }) => item.payload_ref.ref,
+    )).size).toBe(9);
+    const stressNeutralUnitWitness = stressNeutralPacket.unit_preservation_witnesses[0];
+    expect(stressNeutralUnitWitness.source_row_index).toBe(0);
+    expect(stressNeutralUnitWitness.result_id).toBe(stressNeutralPacket.result_rows[0].result_id);
+    expect(stressNeutralUnitWitness.target_quantity).toEqual(stressNeutralUnitWitness.source_quantity);
+    expect(stressNeutralUnitWitness.policy).toBe("preserve_received_value_and_unit");
+    expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.result_rows).toHaveLength(625);
+    expect(stressNeutralPacket.stable_id_map).toHaveLength(625);
+    expect(stressNeutralPacket.csv_text).toContain("result_id,canonical_ref");
+    expect(stressNeutralPacket.loss_report).toHaveLength(3);
+    expect(stressNeutralPacket.loss_report.map(
+      (entry: { category: string }) => entry.category,
+    )).toContain("exported");
+    expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
+    const stressDigestPayload = structuredClone(stressNeutralPacket);
+    delete stressDigestPayload.package_checksum;
+    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
+    expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
+      "complete_package_excluding_self_checksum",
+    );
+    expect(stressNeutralPacket.validation_report.validation_status).toBe("blocked");
+    expect(stressNeutralPacket.validation_report.checks.map(
+      (item: { check_id: string }) => item.check_id,
+    )).toContain("csv_json_row_sync");
+    expect(stressNeutralPacket.result_rows.every(
+      (row: { unit: string; dimension: string }) => row.unit && row.dimension,
+    )).toBe(true);
+    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);
     expect(JSON.stringify(basis)).toBe(before);
   });
 
@@ -10763,9 +10850,8 @@ describe("SWBPIPE desktop preview", () => {
     const { model, source } = await loadBundledMechanicsReference();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
-    // The demo has nonlinear supports, so its converged cases are published Sensitive
-    // (DEL-04-01 kd5-member-relative-bound.md §5).
-    expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_SENSITIVE")).toHaveLength(model.load_cases.length);
+    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+    expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     const selected = vi.fn();
     const view = render(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={null} onSelectDiagnostic={selected} />);
     expect(
@@ -10783,9 +10869,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-      // The two cases' integrity diagnostics are now NUMERICAL_INTEGRITY_SENSITIVE warnings, not
-      // CHECKS_PASSED infos (DEL-04-01 kd5-member-relative-bound.md §5).
-    ).toContain("8 Warnings");
+    ).toContain("6 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
