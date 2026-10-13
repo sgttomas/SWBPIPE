@@ -6,6 +6,9 @@ import { afterEach } from "vitest";
 // case's first save a replacement (HELP_HUMAN ruling 2026-10-10). Imported
 // lazily so a test file's own module mocks are in place first.
 afterEach(async () => (await import("../services/projectService")).clearBrowserPreviewStore());
+// Likewise each case starts as a fresh webview session for native result
+// custody: its startup release has not run and no job has been released yet.
+afterEach(async () => (await import("../services/previewService")).resetSessionResultCustodyForTests?.());
 
 // Pre-warm the wasm operation engine (DEC-020 / ADR-0001) so jsdom suites
 // that exercise the edit loop start with the engine ready. An absent

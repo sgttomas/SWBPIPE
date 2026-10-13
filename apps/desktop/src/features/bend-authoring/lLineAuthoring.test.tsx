@@ -11,14 +11,15 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import fixture from "../../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
 import { BendAuthoringForms } from "./BendAuthoringForms";
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { applyModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
-import { startPreviewMechanicsJob } from "../../services/previewService";
+import { startPreviewMechanicsJob, takePreviewMechanicsJobResult } from "../../services/previewService";
+import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
 import { awaitBackendSolveJob } from "../workspace/solveJobAudit";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
@@ -100,18 +101,19 @@ describe("the L line authored on the desktop (T4-U2)", () => {
 
     // Solve through the native job path: the producer returns pressure-1.
     (window as Json).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(async (command: string, args: Json) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") {
-        expect(args.model).toEqual(expected);
-        return { job_id: "job:l-line", backend_cancellation_token: "job:l-line:token", state: "queued", cancellation_scope: "unit_test" };
-      }
-      if (command === "poll_preview_mechanics_job") return { job_id: "job:l-line", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_test", result: JSON.stringify(pressure1), error_message: null };
-      throw new Error(`unexpected command ${command}`);
+    // The native job contract: raw model bytes in, the producer's bytes taken once (DEL-04-07).
+    const transport = createSolveJobTransport(({ model, mode }) => {
+      expect(model).toEqual(expected);
+      expect(mode).toBe("sparse_interactive");
+      return JSON.stringify(pressure1);
     });
+    invokeMock.mockImplementation(transport.invoke);
     const receipt = await startPreviewMechanicsJob(model, "sparse_interactive");
     expect(receipt.mode).toBe("backend_job");
-    const terminal = await awaitBackendSolveJob("job:l-line");
+    if (receipt.mode !== "backend_job") return;
+    const terminal = await awaitBackendSolveJob(receipt.job_id);
     expect(terminal.state).toBe("completed");
+    expect(await takePreviewMechanicsJobResult(receipt.job_id)).toEqual(pressure1);
   });
 
   it("reads a pressure-1 result through the Rust reader's pressure route, with its standing and no output (b7-plan R2)", () => {

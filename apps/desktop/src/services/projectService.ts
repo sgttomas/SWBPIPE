@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -609,7 +610,7 @@ export async function createLocalProject(
       "Created local browser-preview project snapshot without external file copies."
     ));
   }
-  return invoke<LocalProjectEnvelope>("create_local_project", {
+  return invokeWithIngress<LocalProjectEnvelope>("create_local_project", {
     model,
     editorIntents,
     proposal,
@@ -719,7 +720,7 @@ export async function saveLocalProject(
       "Saved local browser-preview project snapshot without external file copies."
     ));
   }
-  return invoke<LocalProjectEnvelope>("save_local_project", {
+  return invokeWithIngress<LocalProjectEnvelope>("save_local_project", {
     request: {
       project_id: model.project.id,
       project_name: model.project.name,

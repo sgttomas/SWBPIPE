@@ -5,8 +5,8 @@ import { numericalResultStanding } from "../results/resultStanding";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { useResultsSessionState } from "./resultsSessionState";
@@ -145,12 +145,11 @@ it.each([["physics_source", "physics_source", "n05.request.json"], ["source_bloc
  const model = request.model as PreviewModel;
  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
  // Unit transport replay of the captured producer bytes; not a native UI witness.
- invokeMock.mockImplementation(async (command: string, args: { model: unknown; solverMode: string }) => {
-   expect(command).toBe("run_preview_mechanics_with_solver_mode");
-   expect(args.solverMode).toBe(mode);
-   expect(args.model).toEqual(request.model);
+ invokeMock.mockImplementation(createSolveJobTransport((sent) => {
+   expect(sent.mode).toBe(mode);
+   expect(sent.model).toEqual(request.model);
    return originalText; // the producer's bytes, as captured
- });
+ }).invoke);
  const source = await runPreviewMechanics(model, mode);
  const manifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:retained-source-mode-control",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
  const analysis = await buildAnalysisRunPreview(source,{inputManifest:manifest});

@@ -18,14 +18,14 @@
  * returns the reader's own frozen result unchanged.
  */
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { solveBytes } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, resultArrayBuffer, solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readRetainedPrecisionCorpus } from "../../test-support/retainedPrecisionCorpus";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 const u7 = vi.hoisted(() => ({ simulate: false, held: false, notCovered: null as string | null, noAbsolute: false }));
 vi.mock("./retainedPrecisionReader", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./retainedPrecisionReader")>();
@@ -84,7 +84,7 @@ import previewPhysicsSemanticContract from "../../../../../fixtures/results/sema
 import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
-import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, type PreviewSolverMode } from "../../services/previewService";
+import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
 import { ruleBindingPrecheck, runRuleChecks, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
 import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
@@ -176,31 +176,37 @@ async function applyShared(c: Json, fixtureId: string) {
 }
 const OTHER: Record<PreviewSolverMode, PreviewSolverMode> = { sparse_interactive: "dense_scrutiny", dense_scrutiny: "sparse_interactive" };
 let jobSequence = 0;
-/** Mocked direct IPC: the native command returns these bytes for this mode. */
+/** Mocked job IPC run to completion: the native job hands over these bytes for
+ * this mode. Without a model nothing was captured: the bytes are delivered by an
+ * unknown job's take, so nothing can register. */
 async function deliverDirect(source: MechanicsResult, model: PreviewModel | null, mode: PreviewSolverMode): Promise<MechanicsResult> {
   (window as Json).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async (command: string, args: Json) => {
-    expect(command).toBe("run_preview_mechanics_with_solver_mode");
-    expect(args.solverMode).toBe(mode);
+  const transport = createSolveJobTransport((request) => {
+    expect(request.mode).toBe(mode);
     return solveBytes(source);
   });
+  if (!model) {
+    invokeMock.mockImplementation(async (command: string) => {
+      expect(command).toBe("take_preview_mechanics_job_result");
+      return resultArrayBuffer(solveBytes(source));
+    });
+    return takePreviewMechanicsJobResult(`unit-transport-replay:uncaptured:${++jobSequence}`);
+  }
+  invokeMock.mockImplementation(transport.invoke);
   return runPreviewMechanics(model, mode);
 }
-/** Mocked job IPC: start, then one completed poll delivering these bytes. */
+/** Mocked job IPC step by step: start, one completed poll, then the take of these bytes. */
 async function deliverJob(source: MechanicsResult, model: PreviewModel, mode: PreviewSolverMode): Promise<MechanicsResult> {
   (window as Json).__TAURI_INTERNALS__ = {};
-  const jobId = `unit-transport-replay:retained:${++jobSequence}`;
-  invokeMock.mockImplementation(async (command: string, args: Json) => {
-    if (command === "start_preview_mechanics_job_with_solver_mode") {
-      expect(args.solverMode).toBe(mode);
-      return { job_id: jobId, backend_cancellation_token: `${jobId}:token`, state: "queued", cancellation_scope: "unit_transport_replay_not_native_ui_qualification" };
-    }
-    expect(command).toBe("poll_preview_mechanics_job");
-    expect(args.jobId).toBe(jobId);
-    return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification", result: solveBytes(source), error_message: null };
-  });
-  await startPreviewMechanicsJob(model, mode);
-  return (await pollPreviewMechanicsJob(jobId)).result!;
+  const transport = createSolveJobTransport((request) => {
+    expect(request.mode).toBe(mode);
+    return solveBytes(source);
+  }, { jobIdPrefix: `unit-transport-replay:retained:${++jobSequence}` });
+  invokeMock.mockImplementation(transport.invoke);
+  const start = await startPreviewMechanicsJob(model, mode);
+  if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
+  expect((await pollPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+  return takePreviewMechanicsJobResult(start.job_id);
 }
 function setPath(target: Json, path: (string | number)[], value: unknown) {
   let at = target;
@@ -492,7 +498,8 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     invokeMock.mockImplementation(async (command: string, args: Json) => {
       expect(command).toBe("run_rule_checks");
       expect(args.sourceBlockInvocation).toStrictEqual(invocation);
-      expect(args.solvedEnvelope).toBe(received);
+      // The envelope travels as the JSON text Tauri itself sent for it.
+      expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(received)));
       return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
     });
     const route = await runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received });
@@ -865,15 +872,17 @@ describe.each(MODES)("%s: standing is bound to the live native capture and the c
     (window as Json).__TAURI_INTERNALS__ = {};
     const jobId = `unit-transport-replay:retained:cancel:${++jobSequence}`;
     invokeMock.mockImplementation(async (command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: jobId, backend_cancellation_token: "t", state: "queued", cancellation_scope: "unit" };
-      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit", result: solveBytes(source), error_message: null };
+      if (command === "start_preview_mechanics_job") return { job_id: jobId, backend_cancellation_token: "t", state: "queued", cancellation_scope: "unit" };
+      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit", result_available: true, result_bytes: 1, error_message: null, resource_refusal: null, resource: null };
+      if (command === "take_preview_mechanics_job_result") return resultArrayBuffer(solveBytes(source));
       expect(command).toBe("cancel_preview_mechanics_job");
       return { job_id: jobId, accepted: true, cancellation_status: "accepted", job_state: "completed", cancellation_scope: "unit", cancellation_success_claimed: false };
     });
     await startPreviewMechanicsJob(model, mode);
-    const polling = pollPreviewMechanicsJob(jobId);
+    expect((await pollPreviewMechanicsJob(jobId)).state).toBe("completed");
+    const taking = takePreviewMechanicsJobResult(jobId);
     await cancelPreviewMechanicsJob(jobId, "t"); // accepted while the reader awaits
-    const received = (await polling).result!;
+    const received = await taking;
     // The reader's own validation is recorded, but the capture was invalidated.
     expect(retainedPrecisionRegistration(received)?.validation?.numerical_eligible).toBe(true);
     expect(hasNativeMechanicsInvocation(received, model)).toBe(false);

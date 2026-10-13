@@ -3,6 +3,9 @@ use serde_json::Value;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::cell::Cell;
 
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
+
 struct CountAlloc;
 thread_local! { static ALLOCATIONS: Cell<Option<usize>> = const { Cell::new(None) }; }
 fn entered_allocation() {
@@ -63,7 +66,7 @@ fn retained_direct_preserves_actual_ordinary_both_modes_and_generic_identity() {
                 raw["model"]["project"]["id"] = Value::String("admission-generic-project".into());
             }
             let expected = run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap();
-            let actual = run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            let actual = run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
             assert_eq!(bytes(actual.envelope()), bytes(&expected));
             let report = actual.admission().unwrap();
             assert_eq!(report.caller, RetainedCaller::Direct);
@@ -94,7 +97,7 @@ fn exact_and_invalid_ordinary_results_are_preserved() {
     ] {
         let expected = run_linear_static_preview_value_with_mode(exact.clone(), mode).unwrap();
         let actual =
-            run_linear_static_preview_value_with_retained_direct(exact.clone(), mode).unwrap();
+            run_linear_static_preview_value_with_retained_direct(exact.clone(), mode, RETAINED_LIMIT).unwrap();
         assert_eq!(bytes(actual.envelope()), bytes(&expected));
         // The pressure fixture's legacy route need not select source blocks.
         // Use the maintained explicit-material companion for that positive gate.
@@ -104,13 +107,13 @@ fn exact_and_invalid_ordinary_results_are_preserved() {
         .unwrap();
         let selected = run_linear_static_preview_value_with_mode(source.clone(), mode).unwrap();
         assert!(selected.source_block_recovery.is_some());
-        let refused = run_linear_static_preview_value_with_retained_direct(source, mode).unwrap();
+        let refused = run_linear_static_preview_value_with_retained_direct(source, mode, RETAINED_LIMIT).unwrap();
         assert_eq!(bytes(refused.envelope()), bytes(&selected));
         assert_eq!(refused.admission().unwrap().profile, expected_profile());
         let mut invalid = ordinary();
         invalid["model"]["document_kind"] = Value::String("invalid-kind".into());
         let expected = run_linear_static_preview_value_with_mode(invalid.clone(), mode).unwrap();
-        let actual = run_linear_static_preview_value_with_retained_direct(invalid, mode).unwrap();
+        let actual = run_linear_static_preview_value_with_retained_direct(invalid, mode, RETAINED_LIMIT).unwrap();
         // G6 (ROOT): the invalid document's ordinary route returns before attempting the
         // case's solve, so G-C declines W1 and the bytes are the value route's exactly,
         // with no notice, registered or not.
@@ -127,7 +130,8 @@ fn exact_and_invalid_ordinary_results_are_preserved() {
         .err(),
         run_linear_static_preview_value_with_retained_direct(
             bad,
-            PreviewSolverMode::SparseInteractive
+            PreviewSolverMode::SparseInteractive,
+            RETAINED_LIMIT
         )
         .err()
     );
@@ -177,6 +181,7 @@ fn deep_unknown_raw_field_declines_census_without_restricting_ordinary() {
     let actual = run_linear_static_preview_value_with_retained_direct(
         raw,
         PreviewSolverMode::SparseInteractive,
+        RETAINED_LIMIT,
     )
     .unwrap();
     assert_eq!(bytes(actual.envelope()), bytes(&expected));
@@ -227,12 +232,14 @@ fn legacy_native_and_typed_call_graphs_cannot_acquire_retained_admission() {
     ] {
         assert!(!dispatch.contains(forbidden));
     }
+    // The desktop solves only in its capped worker (DEL-04-07), through the ordinary facade.
     let native = include_str!("../../../apps/desktop/src-tauri/src/lib.rs");
+    let worker = include_str!("../../../apps/desktop/src-tauri/src/solve_worker.rs");
     assert!(native.contains("run_linear_static_preview_value_with_mode(request, solver_mode)"));
-    assert!(native.contains(
-        "model_payload.and_then(|payload| solve_preview_mechanics_with_mode(payload, solver_mode))"
-    ));
-    assert!(!native.contains("with_retained_direct") && !native.contains("with_retained_headless"));
+    assert!(worker.contains("crate::solve_preview_mechanics_with_mode(model, mode)"));
+    for source in [native, worker] {
+        assert!(!source.contains("with_retained_direct") && !source.contains("with_retained_headless"));
+    }
     let typed: LinearStaticPreviewRequest = serde_json::from_value(ordinary()).unwrap();
     let output = run_linear_static_preview_with_mode(typed, PreviewSolverMode::SparseInteractive);
     assert!(serde_json::to_value(output)

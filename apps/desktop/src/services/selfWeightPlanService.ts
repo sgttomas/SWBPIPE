@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type { PreviewModel } from "../types";
 import { loadSelfWeightEngine } from "./wasmEngine/loadSelfWeightEngine";
 export type SelfWeightRequest = {
@@ -59,7 +59,7 @@ export async function generateSelfWeightPlan(
   request: SelfWeightRequest | SelfWeightRefreshRequest
 ): Promise<SelfWeightPlanOutcome> {
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
-    return invoke("generate_self_weight_operation_plan", { model, request });
+    return invokeWithIngress<SelfWeightPlanOutcome>("generate_self_weight_operation_plan", { model, request });
   }
   const engine = await loadSelfWeightEngine();
   return JSON.parse(engine.generateSelfWeightPlanJson(

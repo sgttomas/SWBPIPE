@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { saveNativeResultJson, type NativeResultSaveRequest } from "./nativeResultSave";
+import { ingressArgs } from "../../test/nativeIngress";
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 afterEach(() => { delete (window as any).__TAURI_INTERNALS__; vi.mocked(invoke).mockReset(); });
 const request: NativeResultSaveRequest = {
@@ -24,14 +25,17 @@ describe("private native result service", () => {
   it("forwards the original screened request/href unchanged and accepts only typed completion", async () => {
     (window as any).__TAURI_INTERNALS__ = {}; vi.mocked(invoke).mockResolvedValue(receipt);
     expect(await saveNativeResultJson(request)).toEqual(receipt);
-    expect(invoke).toHaveBeenCalledExactlyOnceWith("save_local_result_json", { request });
-    expect((vi.mocked(invoke).mock.calls[0][1] as { request: NativeResultSaveRequest }).request).toBe(request);
+    expect(invoke).toHaveBeenCalledOnce();
+    expect(vi.mocked(invoke).mock.calls[0][0]).toBe("save_local_result_json");
+    // The screened request travels as the exact JSON of { request }, href unchanged.
+    expect(ingressArgs(vi.mocked(invoke).mock.calls[0])).toStrictEqual(JSON.parse(JSON.stringify({ request })));
+    expect((ingressArgs(vi.mocked(invoke).mock.calls[0]).request as NativeResultSaveRequest).href).toBe(request.href);
   });
   it("admits the paired stress route and filename and rejects both cross-pairs", async () => {
     (window as any).__TAURI_INTERNALS__ = {};
     vi.mocked(invoke).mockResolvedValue(stressReceipt);
     expect(await saveNativeResultJson(stressRequest)).toEqual(stressReceipt);
-    expect(invoke).toHaveBeenCalledWith("save_local_result_json", { request: stressRequest });
+    expect(ingressArgs(vi.mocked(invoke).mock.calls[0])).toEqual({ request: stressRequest });
     vi.mocked(invoke).mockReset();
     for (const denied of [
       { ...request, file_name: stressRequest.file_name },
@@ -81,5 +85,13 @@ describe("private native result service", () => {
     await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "IPC_REJECTED", partial_file_name: null, cleanup: "unknown" });
     vi.mocked(invoke).mockRejectedValue({ ...error, partial_file_name: receipt.file_name });
     await expect(saveNativeResultJson(stressRequest)).rejects.toMatchObject({ code: "IPC_REJECTED", partial_file_name: null, cleanup: "unknown" });
+  });
+  it("reports a native memory-pool refusal as a request-stage failure that wrote nothing", async () => {
+    (window as any).__TAURI_INTERNALS__ = {};
+    vi.mocked(invoke).mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "ingress_exceeds_budget", required_bytes: 2 * 1024 ** 3, budget_bytes: 1024 ** 3 }, pool: null });
+    await expect(saveNativeResultJson(request)).rejects.toEqual({
+      code: "RESOURCE_UNAVAILABLE", stage: "request", cleanup: "not_needed", partial_file_name: null,
+      message: "Refused by the native memory pool: Receiving the request needs 2 GiB, more than the per-invocation budget of 1 GiB."
+    });
   });
 });

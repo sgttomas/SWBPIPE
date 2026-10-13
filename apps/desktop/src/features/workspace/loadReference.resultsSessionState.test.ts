@@ -2,10 +2,10 @@
  * edit, and rule binding (T1 WP2). Unit transport replay of committed producer
  * bytes through mocked IPC; NOT a native UI qualification witness. */
 import { act, renderHook } from "@testing-library/react";
-import { solveBytes } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { runPreviewMechanics, buildAnalysisRunPreview, hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -28,12 +28,11 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
   const model = structuredClone(request.model) as PreviewModel;
   for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async (command: string, args: { model: unknown; solverMode: string }) => {
-    if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`unexpected ${command}`);
-    expect(args.solverMode).toBe(mode);
-    expect(args.model).toEqual(model);
+  invokeMock.mockImplementation(createSolveJobTransport((sent) => {
+    expect(sent.mode).toBe(mode);
+    expect(sent.model).toEqual(model);
     return originalText; // the producer's bytes, as captured
-  });
+  }).invoke);
   const source = await runPreviewMechanics(model, mode);
   const manifestFor = (m: PreviewModel) => buildCurrentSessionInputManifest({ model: m, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:load-reference-unit-transport-replay", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });
   const manifest = await manifestFor(model);
@@ -78,7 +77,7 @@ describe("load-reference-1 Current and its invalidation by a 0.4.0 edit", () => 
     const tampered = json("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json");
     tampered.contract_evidence.load_reference_states[0].members[0].fit_strain = 0.5; // invented tamper
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockImplementation(async () => solveBytes(tampered));
+    invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(tampered)).invoke);
     const source = await runPreviewMechanics(model, "sparse_interactive");
     expect(source).toEqual(tampered); // preserved for inspection
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(false);
@@ -107,7 +106,7 @@ describe("rule binding on the reachable desktop path", () => {
     expect(command).toBe("run_rule_checks");
     // The physics-1 argument shape: envelope and model, no source-block invocation.
     expect(Object.keys(args).sort()).toEqual(["model", "rulePackDocument", "solvedEnvelope"]);
-    expect(args.solvedEnvelope).toBe(source);
+    expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(source)));
   });
 
   it.each(["n05", "mixed"])("a registered joined %s result is refused through standing and never reaches the rule panel", async name => {

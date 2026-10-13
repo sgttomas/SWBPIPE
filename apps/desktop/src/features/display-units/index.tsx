@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { convertDisplayQuantities, type DisplayQuantityRequest, type DisplayQuantityResult } from "../../services/displayQuantityService";
 import { DISPLAY_TARGETS, type DisplayUnitPreference } from "./targets";
+import { describeResourceRefusal, ResourceUnavailableError } from "../../services/memoryPool";
 export { DISPLAY_TARGETS, type DisplayUnitPreference } from "./targets";
 
 export type DisplaySourceQuantity = Readonly<{ value: number | string; unit: string; dimension_id: string }>;
@@ -23,14 +24,18 @@ function makeBatcher(converter: Converter) {
         const batch = pending;
         pending = [];
         let results: DisplayQuantityResult[];
+        let unavailable = "Conversion service unavailable or returned an incomplete response.";
         try {
           results = await converter(batch.map((entry) => entry.request));
           if (!Array.isArray(results)) results = [];
         }
-        catch { results = []; }
+        catch (error) {
+          results = [];
+          if (error instanceof ResourceUnavailableError) unavailable = `conversion refused by the native memory pool: ${describeResourceRefusal(error.refusal)}`;
+        }
         for (const { request, resolve: finish } of batch) {
           const matches = results.filter((result) => result && result.id === request.id);
-          finish(matches.length === 1 ? matches[0] : { id: request.id, status: "unavailable", message: "Conversion service unavailable or returned an incomplete response." });
+          finish(matches.length === 1 ? matches[0] : { id: request.id, status: "unavailable", message: unavailable });
         }
       });
     });

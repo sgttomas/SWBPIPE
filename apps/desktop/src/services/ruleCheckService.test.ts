@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
 import { loadBundledMechanicsReference, loadPreviewModel, runPreviewMechanics } from "./previewService";
 import {
@@ -25,8 +24,8 @@ import type { RulePackDocument } from "./rulePackService";
 // UI qualification or rule-evaluation evidence. The
 // binding-plan deriver is pure and tested directly.
 
-vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
-const invokeMock = vi.mocked(invoke);
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 beforeEach(() => {
   invokeMock.mockReset();
@@ -173,7 +172,7 @@ describe("runRuleChecks", () => {
       checks: [],
       professional_boundary_notice: "notice"
     };
-    invokeMock.mockImplementation(async (command, args) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args));
+    invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args, options));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
 
     const route = await runRuleChecks({
@@ -184,13 +183,21 @@ describe("runRuleChecks", () => {
     });
 
     expect(route.route).toBe("tauri_backend");
-    expect(invokeMock).toHaveBeenCalledTimes(2);
-    expect(invokeMock.mock.calls[0]).toEqual(["run_preview_mechanics_with_solver_mode", { model: pair.model, solverMode: "sparse_interactive" }]);
-    const [command, args] = invokeMock.mock.calls[1];
+    // The transient solve goes through the job path and is released after the rule run used it.
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
+      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result",
+      "run_rule_checks", "dispose_preview_mechanics_result"
+    ]);
+    const [, body, options] = invokeMock.mock.calls[0];
+    expect(JSON.parse(new TextDecoder().decode(body as Uint8Array))).toEqual(pair.model);
+    expect(options).toEqual({ headers: { "x-swbpipe-solver-mode": "sparse_interactive" } });
+    expect(replay.custody()).toEqual([]);
+    const [command, args] = invokeMock.mock.calls[3];
     expect(command).toBe("run_rule_checks");
     expect(args).toHaveProperty("rulePackDocument");
     expect(args).toHaveProperty("model", pair.model);
-    expect(args).toHaveProperty("solvedEnvelope", pair.source);
+    // The envelope travels as the JSON text Tauri itself sent for it.
+    expect(args).toHaveProperty("solvedEnvelope", JSON.parse(JSON.stringify(pair.source)));
     // Empty binding arrays are omitted (backend treats absent as unsupplied).
     expect(args).not.toHaveProperty("solverResultBindings");
     expect(args).not.toHaveProperty("suppliedValueBindings");
@@ -206,7 +213,7 @@ describe("runRuleChecks", () => {
       checks: [],
       professional_boundary_notice: "notice"
     };
-    invokeMock.mockImplementation(async (command, args) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args));
+    invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args, options));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
 
     const solvedEnvelope = await runPreviewMechanics(pair.model);
@@ -224,7 +231,7 @@ describe("runRuleChecks", () => {
     const typed = args as Record<string, unknown>;
     expect(typed).toHaveProperty("solvedEnvelope");
     expect(typed).toHaveProperty("model", pair.model);
-    expect(typed.solvedEnvelope).toBe(solvedEnvelope);
+    expect(typed.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(solvedEnvelope)));
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(typed.solverResultBindings).toEqual([{ input_id: "actual", result_id: "result:stress:demo" }]);
     expect(typed.suppliedValueBindings).toEqual([
@@ -280,7 +287,20 @@ describe("rule source provenance boundary in unit transport replay", () => {
     (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockRejectedValue(new Error("simulated native solve failure"));
     await expect(runRuleChecks({rulePackDocument,model:pair.model})).rejects.toThrow("simulated native solve failure");
-    expect(invokeMock).toHaveBeenCalledExactlyOnceWith("run_preview_mechanics_with_solver_mode", {model:pair.model,solverMode:"sparse_interactive"});
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+    expect(invokeMock.mock.calls[0][0]).toBe("start_preview_mechanics_job");
+  });
+  it("releases the transient solve result even when the rule backend fails", async () => {
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(async (command, args, options) => {
+      if (command === "run_rule_checks") throw new Error("simulated rule backend failure");
+      return replay.invoke(command, args, options);
+    });
+    await expect(runRuleChecks({rulePackDocument,model:pair.model})).rejects.toThrow("simulated rule backend failure");
+    expect(invokeMock.mock.calls.at(-1)?.[0]).toBe("dispose_preview_mechanics_result");
+    expect(replay.custody()).toEqual([]);
+    expect(replay.disposed()).toHaveLength(1);
   });
 });
 

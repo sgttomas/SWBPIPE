@@ -4,7 +4,9 @@ import sparseMechanicsFixtureText from "../../../../fixtures/product_preview/inv
 import denseMechanicsFixtureText from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json?raw";
 const sparseMechanicsFixture = JSON.parse(sparseMechanicsFixtureText), denseMechanicsFixture = JSON.parse(denseMechanicsFixtureText);
 import inventedPreviewModel from "../../../../fixtures/product_preview/invented_preview_model.json";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, resultArrayBuffer, solveBytes } from "../test/nativeMechanicsReplay";
+import { checkedJsonText } from "./hashService";
+import { ResourceUnavailableError } from "./memoryPool";
 import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
 import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
@@ -12,9 +14,10 @@ import { numericalResultStanding } from "../features/results/resultStanding";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 afterEach(() => {
   invokeMock.mockReset();
+  resetSessionResultCustodyForTests();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 import type { MechanicsResult, PreviewModel } from "../types";
@@ -28,9 +31,17 @@ import {
   hasNativeMechanicsInvocation,
   retainedNativeMechanicsInvocation,
   pollPreviewMechanicsJob,
+  awaitPreviewMechanicsJob,
+  beginSessionResultCustodyReset,
+  disposeAllPreviewMechanicsResults,
+  resetSessionResultCustodyForTests,
   cancelPreviewMechanicsJob,
+  deliveredMechanicsResultJob,
+  discardPreviewMechanicsJobResult,
+  disposeDeliveredMechanicsResult,
   runPreviewMechanics,
   startPreviewMechanicsJob,
+  takePreviewMechanicsJobResult,
   validateBrowserMechanicsFixture,
   type PreviewSolverMode,
 } from "./previewService";
@@ -534,33 +545,292 @@ describe("native loader fallback compatibility", () => {
   });
 });
 
+/** The model and solver mode a start command carried: the UTF-8 JSON body and the mode header. */
+function startRequest(call: unknown[]): { model: unknown; text: string; mode: unknown } {
+  const [command, body, options] = call as [string, Uint8Array, { headers: Record<string, string> }];
+  expect(command).toBe("start_preview_mechanics_job");
+  expect(ArrayBuffer.isView(body)).toBe(true);
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(body);
+  return { model: JSON.parse(text), text, mode: options.headers["x-swbpipe-solver-mode"] };
+}
+const startCalls = () => invokeMock.mock.calls.filter(([command]) => command === "start_preview_mechanics_job");
+
 describe("native mechanics failure boundary", () => {
-  it("forwards the exact requested mode in an explicitly simulated native transport", async () => {
+  it("sends the captured model as raw UTF-8 bytes with the exact requested mode header", async () => {
     const { model, source } = nativeMechanicsReplayPair("dense_scrutiny");
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(createNativeMechanicsReplay().invoke);
     expect(await runPreviewMechanics(model, "dense_scrutiny")).toEqual(source);
-    expect(invokeMock).toHaveBeenCalledExactlyOnceWith("run_preview_mechanics_with_solver_mode", { model, solverMode: "dense_scrutiny" });
+    expect(startCalls()).toHaveLength(1);
+    const sent = startRequest(startCalls()[0]);
+    expect(sent.mode).toBe("dense_scrutiny");
+    expect(sent.model).toEqual(model);
+    expect(sent.text).toBe(checkedJsonText(model));
+    // No JSON-args model and no budget/pool policy travel with the model document.
+    expect(sent.text).not.toMatch(/budget|pool_bytes/);
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result"]);
   });
-  it("propagates direct native solve rejection without a bundled result", async () => {
+  it("propagates native job-start rejection without a bundled result", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const failure = new Error("invented native IPC solve failure");
     invokeMock.mockRejectedValue(failure);
-    await expect(runPreviewMechanics()).rejects.toBe(failure);
-    expect(invokeMock).toHaveBeenCalledTimes(1);
+    await expect(runPreviewMechanics(nativeMechanicsReplayPair().model)).rejects.toBe(failure);
+    await expect(startPreviewMechanicsJob(nativeMechanicsReplayPair().model)).rejects.toBe(failure);
+    expect(invokeMock).toHaveBeenCalledTimes(2);
   });
 
-  it("propagates native job-start rejection without browser designation", async () => {
+  it("refuses a native solve without a model document before any IPC", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    const failure = new Error("invented native IPC start failure");
-    invokeMock.mockRejectedValue(failure);
-    await expect(startPreviewMechanicsJob()).rejects.toBe(failure);
-    expect(invokeMock).toHaveBeenCalledTimes(1);
+    await expect(runPreviewMechanics()).rejects.toThrow("PREVIEW-SOLVE-MODEL-REQUIRED");
+    await expect(startPreviewMechanicsJob(null)).rejects.toThrow("PREVIEW-SOLVE-MODEL-REQUIRED");
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 
   it("refuses browser job start rather than inventing a backend job", async () => {
     await expect(startPreviewMechanicsJob()).rejects.toThrow("BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("reads a typed start refusal as ResourceUnavailableError carrying the refusal and pool", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pool = { capacity_bytes: 16 * 2 ** 30, recommended_pool_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, pool_above_recommended: false,
+      invocation_budget_bytes: 12 * 2 ** 30, default_invocation_budget_bytes: 12 * 2 ** 30, max_invocation_budget_bytes: 12 * 2 ** 30, reserved_bytes: 0,
+      reserved_by_purpose: { ingress: 0, worker: 0, result: 0, custody: 0 }, running_workers: 0, queued_jobs: 0, running_jobs: 0, limits: { max_running_workers: 8 },
+      retained_results: 0, webview_custody_results: 0, headroom: { available_bytes: 2 * 2 ** 30, pressure: "normal", sample_age_ms: 20 },
+      ordinary_route_pricing: "worker_capped", last_refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 } };
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 }, pool });
+    const failure = await runPreviewMechanics(nativeMechanicsReplayPair().model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 });
+    expect((failure as ResourceUnavailableError).pool?.pool_bytes).toBe(12 * 2 ** 30);
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 3 GiB, 2 GiB available.");
+    invokeMock.mockRejectedValue({ code: "INVALID_REQUEST", message: "solver mode header missing" });
+    await expect(runPreviewMechanics(nativeMechanicsReplayPair().model)).rejects.toThrow("INVALID_REQUEST: solver mode header missing");
+  });
+
+  it("rejects a refused terminal job with its typed refusal and takes nothing", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await replay.invoke(command, args, options);
+      return command === "poll_preview_mechanics_job"
+        ? { ...answer, state: "refused", result_available: false, result_bytes: null, resource_refusal: { kind: "pressure_elevated", level: "critical" } }
+        : answer;
+    });
+    const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "pressure_elevated", level: "critical" });
+    expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+  });
+
+  it("reads an unreported pressure state as its own refusal, distinct from elevated pressure", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pressure_unknown" }, pool: null });
+    const failure = await startPreviewMechanicsJob(nativeMechanicsReplayPair().model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "pressure_unknown" });
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: macOS did not report a memory-pressure state, so no new solve is admitted.");
+    // Elevated pressure is warning or critical; any other level is not a readable refusal.
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pressure_elevated", level: "unknown" }, pool: null });
+    await expect(startPreviewMechanicsJob(nativeMechanicsReplayPair().model)).rejects.toThrow("RESOURCE_UNAVAILABLE: the native refusal could not be read.");
+  });
+
+  it("reports the queue reason of a waiting job before it completes", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    let polls = 0;
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await replay.invoke(command, args, options);
+      if (command !== "poll_preview_mechanics_job" || ++polls > 1) return answer;
+      return { ...answer, state: "queued", result_available: false, result_bytes: null, queue_reason: { kind: "pool_exhausted", requested_bytes: 2 ** 20, reserved_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30 } };
+    });
+    const seen: Array<[string, unknown]> = [];
+    const result = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push([status.state, status.queue_reason]) });
+    expect(seen).toEqual([["queued", { kind: "pool_exhausted", requested_bytes: 2 ** 20, reserved_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30 }], ["completed", null]]);
+    expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
+  });
+
+  it("rejects a job refused while its worker ran with the typed worker refusal, nested cause included, and takes nothing", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const refusal = { kind: "worker_growth_refused", granted_bytes: 4 * 2 ** 30, requested_bytes: 6 * 2 ** 30, cause: { kind: "pressure_elevated", level: "warning" } };
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await replay.invoke(command, args, options);
+      return command === "poll_preview_mechanics_job"
+        ? { ...answer, state: "refused", result_available: false, result_bytes: null, resource_refusal: refusal,
+          resource: { ...answer.resource, worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 } }
+        : answer;
+    });
+    const seen: unknown[] = [];
+    const failure = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push(status.resource) }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual(refusal);
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal.");
+    expect(seen.at(-1)).toMatchObject({ route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 });
+    expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+  });
+
+  it.each(["SOLVE_WORKER_EXITED: the worker process ended (signal 9)", "SOLVE_WORKER_PROTOCOL: the worker reply could not be decoded"])(
+    "rejects a job whose worker failed (%s) as a failure carrying the native message, not a refusal",
+    async (message) => {
+      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+      const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+      invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+        const answer = await replay.invoke(command, args, options);
+        return command === "poll_preview_mechanics_job"
+          ? { ...answer, state: "failed", result_available: false, result_bytes: null, error_message: message }
+          : answer;
+      });
+      const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(Error);
+      expect(failure).not.toBeInstanceOf(ResourceUnavailableError);
+      expect((failure as Error).message).toBe(message);
+      expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+    }
+  );
+});
+
+describe("delivered result custody", () => {
+  it("disposes a delivered result once, by its job, and ignores results it did not deliver", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(replay.invoke);
+    const result = await runPreviewMechanics(pair.model);
+    const jobId = deliveredMechanicsResultJob(result);
+    expect(jobId).toEqual(expect.any(String));
+    expect(replay.custody()).toEqual([jobId]);
+    expect(await disposeDeliveredMechanicsResult(structuredClone(result))).toBe(false);
+    expect(await disposeDeliveredMechanicsResult(result)).toBe(true);
+    expect(await disposeDeliveredMechanicsResult(result)).toBe(false);
+    expect(invokeMock.mock.calls.filter(([command]) => command === "dispose_preview_mechanics_result")).toEqual([["dispose_preview_mechanics_result", { jobId }]]);
+    expect(replay.custody()).toEqual([]);
+    expect(deliveredMechanicsResultJob(result)).toBeNull();
+    // Disposal releases native custody only; the held value and its registration are unchanged.
+    expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
+  });
+
+  it("keeps the capture when a take is refused (custody_full), so a later take of the retained result registers", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    let refuseTake = true;
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "take_preview_mechanics_job_result" && refuseTake) {
+        refuseTake = false;
+        throw { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "custody_full", delivered: 4, limit: 4 }, pool: null };
+      }
+      return replay.invoke(command, args, options);
+    });
+    const start = await startPreviewMechanicsJob(pair.model);
+    if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
+    expect((await awaitPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+    const failure = await takePreviewMechanicsJobResult(start.job_id).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "custody_full", delivered: 4, limit: 4 });
+    // The take alone releases nothing: the result stayed with the native host, and the app takes it once custody allows.
+    expect(invokeMock.mock.calls.some(([command]) => command === "dispose_preview_mechanics_result")).toBe(false);
+    const taken = await takePreviewMechanicsJobResult(start.job_id);
+    expect(taken).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(taken, pair.model)).toBe(true);
+  });
+
+  it("runPreviewMechanics releases the job's result unread when its take is refused", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "take_preview_mechanics_job_result") throw { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "custody_full", delivered: 4, limit: 4 }, pool: null };
+      return replay.invoke(command, args, options);
+    });
+    const failure = await runPreviewMechanics(pair.model).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(ResourceUnavailableError);
+    const { job_id } = await (invokeMock.mock.results[0].value as Promise<{ job_id: string }>);
+    await vi.waitFor(() => expect(replay.disposed()).toEqual([job_id]));
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
+      "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result",
+    ]);
+    expect(replay.custody()).toEqual([]);
+    // The retired capture can never register a later delivery.
+    invokeMock.mockImplementation(async (command: string) =>
+      command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : undefined);
+    expect(hasNativeMechanicsInvocation(await takePreviewMechanicsJobResult(job_id), pair.model)).toBe(false);
+  });
+
+  it("runPreviewMechanics abandons a started job whose poll fails: cancellation, then release", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "poll_preview_mechanics_job") throw new Error("invented poll IPC failure");
+      return replay.invoke(command, args, options);
+    });
+    await expect(runPreviewMechanics(pair.model)).rejects.toThrow("invented poll IPC failure");
+    const { job_id, backend_cancellation_token } = await (invokeMock.mock.results[0].value as Promise<{ job_id: string; backend_cancellation_token: string }>);
+    await vi.waitFor(() => expect(invokeMock.mock.calls.map(([command]) => command)).toContain("dispose_preview_mechanics_result"));
+    expect(invokeMock.mock.calls.slice(2)).toEqual([
+      ["cancel_preview_mechanics_job", { jobId: job_id, cancellationToken: backend_cancellation_token }],
+      ["dispose_preview_mechanics_result", { jobId: job_id }],
+    ]);
+    expect(replay.custody()).toEqual([]);
+  });
+
+  it("discards a superseded completed job's result without registering it", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(replay.invoke);
+    const start = await startPreviewMechanicsJob(pair.model);
+    if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
+    expect(start.resource).toEqual({ invocation_budget_bytes: 12 * 2 ** 30, pool_bytes: 12 * 2 ** 30, route_pricing: "ordinary_worker_capped", ingress_reserved_bytes: expect.any(Number), worker_grant_bytes: null, worker_peak_grant_bytes: null, worker_peak_footprint_bytes: null });
+    expect(await discardPreviewMechanicsJobResult(start.job_id)).toBe(true);
+    // Released natively without a copy to the app: no take.
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["start_preview_mechanics_job", "dispose_preview_mechanics_result"]);
+    expect(invokeMock).toHaveBeenLastCalledWith("dispose_preview_mechanics_result", { jobId: start.job_id });
+    // The retired capture can never register a later delivery.
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : replay.invoke(command, args, options));
+    expect(hasNativeMechanicsInvocation(await takePreviewMechanicsJobResult(start.job_id), pair.model)).toBe(false);
+  });
+});
+
+describe("session-start release of earlier native custody", () => {
+  it("releases every native result once per webview session in the Tauri runtime, and a start waits for it", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    let finishReset!: () => void;
+    const resetGate = new Promise<void>((resolve) => { finishReset = resolve; });
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "dispose_all_preview_mechanics_results") await resetGate;
+      return replay.invoke(command, args, options);
+    });
+    const first = beginSessionResultCustodyReset();
+    expect(beginSessionResultCustodyReset()).toBe(first);
+    const starting = startPreviewMechanicsJob(pair.model);
+    await Promise.resolve();
+    // No start reaches the native host before the release completes.
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results"]);
+    finishReset();
+    expect(await first).toEqual({ released_results: 0, released_bytes: 0, abandoned_jobs: 0 });
+    await starting;
+    void beginSessionResultCustodyReset();
+    expect(invokeMock.mock.calls.map(([command]) => command)).toEqual(["dispose_all_preview_mechanics_results", "start_preview_mechanics_job"]);
+    expect(replay.disposeAllCount()).toBe(1);
+  });
+
+  it("issues no release in the browser fixture mode", async () => {
+    expect(await beginSessionResultCustodyReset()).toBeNull();
+    expect(await disposeAllPreviewMechanicsResults()).toBeNull();
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("never rejects: a failed or unreadable release reads as null and a later start proceeds", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "dispose_all_preview_mechanics_results") throw new Error("command not found");
+      return replay.invoke(command, args, options);
+    });
+    expect(await beginSessionResultCustodyReset()).toBeNull();
+    const result = await runPreviewMechanics(pair.model);
+    expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(true);
+    invokeMock.mockResolvedValueOnce({ released_results: "two" });
+    expect(await disposeAllPreviewMechanicsResults()).toBeNull();
   });
 });
 
@@ -633,11 +903,14 @@ describe("native invocation provenance under bounded unit transport replay", () 
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
-  it("does not treat an omitted-model native response as a captured model invocation", async () => {
+  it("does not register a delivered result that answers an uncaptured (unchecked) model", async () => {
     const pair = nativeMechanicsReplayPair();
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(pair.bytes);
-    const received = await runPreviewMechanics();
+    const transport = createSolveJobTransport(() => pair.bytes);
+    invokeMock.mockImplementation(transport.invoke);
+    // A non-finite number cannot be captured as checked JSON: the model still travels, nothing registers.
+    const unchecked = structuredClone(pair.model); unchecked.nodes[0].position.x = Number.NaN;
+    const received = await runPreviewMechanics(unchecked);
     expect(received).toEqual(pair.source);
     expect(hasNativeMechanicsInvocation(received, pair.model)).toBe(false);
     expect(retainedNativeMechanicsInvocation(received, pair.model)).toBeNull();
@@ -665,8 +938,8 @@ describe("native invocation provenance under bounded unit transport replay", () 
     const replay = installReplay();
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve; });
-    invokeMock.mockImplementation(async (command: string, args?: unknown) => {
-      const response = await replay.invoke(command, args);
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const response = await replay.invoke(command, args, options);
       await gate;
       return response;
     });
@@ -678,89 +951,95 @@ describe("native invocation provenance under bounded unit transport replay", () 
     // acquire fresh standing even when queried using a copy of the old model.
     expect(hasNativeMechanicsInvocation(result, expectedModel)).toBe(false);
     expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(false);
-    expect(invokeMock.mock.calls[0][1].model).toEqual(expectedModel);
-    expect(invokeMock.mock.calls[0][1].model).not.toBe(pair.model);
+    expect(startRequest(invokeMock.mock.calls[0]).model).toEqual(expectedModel);
   });
 
-  it("retains a native response for inspection but refuses registration if the submitted request was mutated in transit", async () => {
+  it("sends a byte copy of the capture: a transport that rewrites the sent bytes cannot reach the captured invocation", async () => {
     const pair = nativeMechanicsReplayPair(), replay = installReplay();
-    invokeMock.mockImplementation(async (command: string, args?: { model: PreviewModel }) => {
-      const response = await replay.invoke(command, args);
-      args!.model.nodes[0].position.x += 1;
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const response = await replay.invoke(command, args, options);
+      if (command === "start_preview_mechanics_job") (args as Uint8Array).fill(0x20);
       return response;
     });
     const result = await runPreviewMechanics(pair.model);
     expect(result).toEqual(pair.source);
-    expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(false);
+    expect(retainedNativeMechanicsInvocation(result, pair.model)).toEqual({ request: { model: pair.model, materials: [] }, solver_mode: "sparse_interactive" });
   });
 
   it("the replay refuses a different model, omitted request, wrong mode and unknown commands/jobs", async () => {
     const pair = nativeMechanicsReplayPair(), replay = installReplay();
     const changed = structuredClone(pair.model); changed.materials![0].elastic_modulus.value += 1;
     await expect(runPreviewMechanics(changed)).rejects.toThrow("NATIVE_REPLAY_MODEL_MISMATCH");
-    await expect(runPreviewMechanics()).rejects.toThrow("NATIVE_REPLAY_REQUEST_INVALID");
-    await expect(replay.invoke("run_preview_mechanics_with_solver_mode", { model: pair.model, solverMode: "unregistered" })).rejects.toThrow("NATIVE_REPLAY_MODE_UNSUPPORTED");
+    await expect(replay.invoke("start_preview_mechanics_job", { model: pair.model }, { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } })).rejects.toThrow("NATIVE_REPLAY_REQUEST_INVALID");
+    await expect(replay.invoke("start_preview_mechanics_job", new TextEncoder().encode(checkedJsonText(pair.model)))).rejects.toThrow("NATIVE_REPLAY_REQUEST_INVALID");
+    await expect(replay.invoke("start_preview_mechanics_job", new TextEncoder().encode(checkedJsonText(pair.model)), { headers: { "x-swbpipe-solver-mode": "unregistered" } })).rejects.toThrow("NATIVE_REPLAY_MODE_UNSUPPORTED");
+    await expect(replay.invoke("run_preview_mechanics_with_solver_mode", { model: pair.model, solverMode: "sparse_interactive" })).rejects.toThrow("NATIVE_REPLAY_COMMAND_UNSUPPORTED");
     await expect(replay.invoke("not-an-engine-command")).rejects.toThrow("NATIVE_REPLAY_COMMAND_UNSUPPORTED");
     await expect(pollPreviewMechanicsJob("unknown-replay-job")).rejects.toThrow("NATIVE_REPLAY_JOB_UNKNOWN");
   });
 
-  it("registers the first completed known job without registering unknown or replayed terminal objects", async () => {
-    const pair = nativeMechanicsReplayPair("dense_scrutiny"); installReplay();
+  it("registers the first taken result of a completed known job, never a poll or an unknown job's bytes", async () => {
+    const pair = nativeMechanicsReplayPair("dense_scrutiny"), replay = installReplay();
     const start = await startPreviewMechanicsJob(pair.model, pair.mode);
     expect(start.mode).toBe("backend_job");
     if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
     const first = await pollPreviewMechanicsJob(start.job_id);
-    expect(first.state).toBe("completed"); expect(first.result).toEqual(pair.source);
-    expect(hasNativeMechanicsInvocation(first.result, pair.model, pair.mode)).toBe(true);
-    const duplicate = await pollPreviewMechanicsJob(start.job_id);
-    expect(duplicate.result).toEqual(pair.source);
-    expect(duplicate.result).not.toBe(first.result);
-    expect(hasNativeMechanicsInvocation(duplicate.result, pair.model, pair.mode)).toBe(false);
-    expect(hasNativeMechanicsInvocation(first.result, pair.model, pair.mode)).toBe(true);
-    invokeMock.mockResolvedValue({ ...first, job_id: "unknown-terminal", result: pair.bytes });
-    const unknown = await pollPreviewMechanicsJob("unknown-terminal");
-    expect(unknown.result).toEqual(pair.source);
-    expect(hasNativeMechanicsInvocation(unknown.result, pair.model, pair.mode)).toBe(false);
+    expect(first.state).toBe("completed");
+    expect(first).not.toHaveProperty("result");
+    expect(first.result_available).toBe(true);
+    const taken = await takePreviewMechanicsJobResult(start.job_id);
+    expect(taken).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(taken, pair.model, pair.mode)).toBe(true);
+    // A second take is refused by the native host; no duplicate object is minted.
+    await expect(takePreviewMechanicsJobResult(start.job_id)).rejects.toThrow("NATIVE_REPLAY_RESULT_UNAVAILABLE");
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : replay.invoke(command, args, options));
+    const unknown = await takePreviewMechanicsJobResult("unknown-terminal");
+    expect(unknown).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(unknown, pair.model, pair.mode)).toBe(false);
+    expect(hasNativeMechanicsInvocation(taken, pair.model, pair.mode)).toBe(true);
   });
 
-  it("does not register a running job payload before the completed terminal", async () => {
+  it("does not register anything from a running poll before the completed take", async () => {
     const pair = nativeMechanicsReplayPair(), replay = installReplay();
     const start = await startPreviewMechanicsJob(pair.model);
     if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
     const terminal = await replay.invoke("poll_preview_mechanics_job", { jobId: start.job_id });
-    invokeMock.mockResolvedValueOnce({ ...terminal, state: "running" });
+    invokeMock.mockResolvedValueOnce({ ...terminal, state: "running", result_available: false, result_bytes: null });
     const running = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(running.result, pair.model)).toBe(false);
+    expect(running.state).toBe("running");
+    expect(running).not.toHaveProperty("result");
     invokeMock.mockImplementation(replay.invoke);
-    const complete = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(complete.result, pair.model)).toBe(true);
+    expect((await pollPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+    expect(hasNativeMechanicsInvocation(await takePreviewMechanicsJobResult(start.job_id), pair.model)).toBe(true);
   });
 
-  it.each(["cancelled", "failed"] as const)("keeps %s job data inspectable without registering later terminal replays", async state => {
+  it.each(["cancelled", "failed", "refused"] as const)("retires the capture of a %s job so later delivered bytes never register", async state => {
     const pair = nativeMechanicsReplayPair(), replay = installReplay();
     const start = await startPreviewMechanicsJob(pair.model);
     if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
     const terminal = await replay.invoke("poll_preview_mechanics_job", { jobId: start.job_id });
-    invokeMock.mockResolvedValueOnce({ ...terminal, state });
+    invokeMock.mockResolvedValueOnce({ ...terminal, state, result_available: false, result_bytes: null, resource_refusal: state === "refused" ? { kind: "queue_full", queued: 8, limit: 8 } : null });
     const stopped = await pollPreviewMechanicsJob(start.job_id);
-    expect(stopped.result).toEqual(pair.source);
-    expect(hasNativeMechanicsInvocation(stopped.result, pair.model)).toBe(false);
+    expect(stopped.state).toBe(state);
+    if (state === "refused") expect(stopped.resource_refusal).toEqual({ kind: "queue_full", queued: 8, limit: 8 });
     invokeMock.mockImplementation(replay.invoke);
-    const late = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(late.result, pair.model)).toBe(false);
+    const late = await takePreviewMechanicsJobResult(start.job_id);
+    expect(late).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(late, pair.model)).toBe(false);
   });
 
-  it("invalidates an accepted cancellation before a late completed response", async () => {
+  it("invalidates an accepted cancellation before a late completed take", async () => {
     const pair = nativeMechanicsReplayPair(), replay = installReplay();
     const start = await startPreviewMechanicsJob(pair.model);
     if (start.mode !== "backend_job") throw new Error("expected simulated backend job");
-    const late = await replay.invoke("poll_preview_mechanics_job", { jobId: start.job_id });
     const cancellation = await cancelPreviewMechanicsJob(start.job_id, start.backend_cancellation_token);
     expect(cancellation.accepted).toBe(true);
-    invokeMock.mockResolvedValueOnce(late);
-    const returned = await pollPreviewMechanicsJob(start.job_id);
-    expect(returned.result).toEqual(pair.source);
-    expect(hasNativeMechanicsInvocation(returned.result, pair.model)).toBe(false);
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "take_preview_mechanics_job_result" ? resultArrayBuffer(pair.bytes) : replay.invoke(command, args, options));
+    const returned = await takePreviewMechanicsJobResult(start.job_id);
+    expect(returned).toEqual(pair.source);
+    expect(hasNativeMechanicsInvocation(returned, pair.model)).toBe(false);
   });
 
   it("invalidates a mismatched terminal identity and cannot revive the original job capture", async () => {
@@ -770,10 +1049,9 @@ describe("native invocation provenance under bounded unit transport replay", () 
     const terminal = await replay.invoke("poll_preview_mechanics_job", { jobId: start.job_id });
     invokeMock.mockResolvedValueOnce({ ...terminal, job_id: `${start.job_id}:wrong` });
     await expect(pollPreviewMechanicsJob(start.job_id)).rejects.toThrow("SOLVE-JOB-IDENTITY-MISMATCH");
-    expect(hasNativeMechanicsInvocation(terminal.result, pair.model)).toBe(false);
     invokeMock.mockImplementation(replay.invoke);
-    const later = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(later.result, pair.model)).toBe(false);
+    const later = await takePreviewMechanicsJobResult(start.job_id);
+    expect(hasNativeMechanicsInvocation(later, pair.model)).toBe(false);
   });
 });
 
@@ -804,12 +1082,12 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-1 re
   expect(hasNativeMechanicsInvocation(received, pair.model, mode)).toBe(true);
   expect(numericalResultStanding(received, pair.model).eligible).toBe(true);
   // A dangling result: reference fails the preview-evidence check, so no registration is minted.
-  invokeMock.mockImplementation(async (command: string, args?: unknown) => {
-    const answer = await replay.invoke(command, args);
-    if (command !== "run_preview_mechanics_with_solver_mode") return answer;
-    const edited = JSON.parse(answer);
+  invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+    const answer = await replay.invoke(command, args, options);
+    if (command !== "take_preview_mechanics_job_result") return answer;
+    const edited = JSON.parse(new TextDecoder().decode(answer));
     edited.diagnostics[0].affected_refs = [...(edited.diagnostics[0].affected_refs ?? []), "result:reaction:support-fixture-root"];
-    return solveBytes(edited);
+    return resultArrayBuffer(solveBytes(edited));
   });
   const tampered = await runPreviewMechanics(pair.model, mode);
   expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);

@@ -16,7 +16,7 @@ import { RenderedReportPanel } from "./RenderedReportPanel";
 import * as reportRedactionProjector from "./reportRedactionProjector";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 function inventedModel(): PreviewModel {
   return {

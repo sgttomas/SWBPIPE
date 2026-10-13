@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 export type DisplayQuantityRequest = {
   id: string;
@@ -22,7 +22,7 @@ export async function convertDisplayQuantities(
 ): Promise<DisplayQuantityResult[]> {
   const input = { items };
   const result = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
-    ? await invoke<{
+    ? await invokeWithIngress<{
       items: DisplayQuantityResult[];
       error?: {
         code: string;

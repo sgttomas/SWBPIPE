@@ -7,6 +7,7 @@ vi.mock("./wasmEngine/loadSelfWeightEngine",()=>({loadSelfWeightEngine:async()=>
 import { applyOperationBatch, validateOperationBatch } from "./operationBatchService";
 import { convertDisplayQuantities } from "./displayQuantityService";
 import { generateSelfWeightPlan, type SelfWeightRequest } from "./selfWeightPlanService";
+import { ingressArgs } from "../test/nativeIngress";
 const model = {nodes:[]} as unknown as PreviewModel;
 const batch = {batch_id:"offline",operations:[{author_type:"agent",rationale:"retained",source:{source_ref:"import:1",source_channel:"offline",source_role:"agent"}} as unknown as EditorOperationIntent]};
 const claim = {value:"sha256:source"} as ModelHashEvidence;
@@ -16,7 +17,8 @@ describe("shared capability transports",()=>{
  it("preserves metadata and exact native camelCase batch args",async()=>{
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={}; mocks.invoke.mockResolvedValue({status:"sentinel"});
   await validateOperationBatch(model,batch,claim); await applyOperationBatch(model,batch,claim);
-  expect(mocks.invoke.mock.calls).toEqual([["validate_model_operation_batch",{model,batch,claimedModelHash:claim}],["apply_model_operation_batch",{model,batch,claimedModelHash:claim}]]);
+  expect(mocks.invoke.mock.calls.map(([command])=>command)).toEqual(["validate_model_operation_batch","apply_model_operation_batch"]);
+  expect(mocks.invoke.mock.calls.map(ingressArgs)).toEqual([{model,batch,claimedModelHash:claim},{model,batch,claimedModelHash:claim}]);
  });
  it("uses Wasm JSON exports and retains honest route and rollback envelope",async()=>{
   const blocked={application_route:"local_wasm_engine",simulation_disposition:"rolled_back_no_model_published",applied_model:null,acceptance:null};
@@ -35,12 +37,12 @@ describe("shared capability transports",()=>{
   const result=[{id:"q",status:"unavailable",message:"sentinel"}];mocks.display.mockReturnValue(JSON.stringify({items:result}));
   expect(await convertDisplayQuantities(items)).toEqual(result);expect(mocks.display).toHaveBeenCalledWith(JSON.stringify({items}));
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};mocks.invoke.mockResolvedValue({items:result});
-  expect(await convertDisplayQuantities(items)).toEqual(result);expect(mocks.invoke).toHaveBeenCalledWith("convert_display_quantities",{input:{items}});
+  expect(await convertDisplayQuantities(items)).toEqual(result);expect(mocks.invoke.mock.calls[0][0]).toBe("convert_display_quantities");expect(ingressArgs(mocks.invoke.mock.calls[0])).toEqual({input:{items}});
  });
  it("preserves blocked selfweight plan and original hash through both routes",async()=>{
   const result={status:"blocked",plan:null,input_model_unchanged:true};mocks.plan.mockReturnValue(JSON.stringify(result));
   expect(await generateSelfWeightPlan(model,request)).toEqual(result);expect(mocks.plan).toHaveBeenCalledWith(JSON.stringify(model),JSON.stringify(request));
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};mocks.invoke.mockResolvedValue(result);
-  expect(await generateSelfWeightPlan(model,request)).toEqual(result);expect(mocks.invoke).toHaveBeenCalledWith("generate_self_weight_operation_plan",{model,request});
+  expect(await generateSelfWeightPlan(model,request)).toEqual(result);expect(mocks.invoke.mock.calls[0][0]).toBe("generate_self_weight_operation_plan");expect(ingressArgs(mocks.invoke.mock.calls[0])).toEqual({model,request});
  });
 });

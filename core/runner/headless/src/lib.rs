@@ -736,6 +736,10 @@ fn run_preview_model_value_mode(request: RunnerRequest, solve_payload: Value, ag
         .map(|outcome| outcome.output)
 }
 
+/// This host's per-invocation retained byte limit: the owner-adopted 12 GiB default, never read from the machine.
+const RETAINED_INVOCATION_LIMIT: open_pipe_stress_product_physics::RetainedByteLimit =
+    open_pipe_stress_product_physics::RetainedByteLimit::new(12_884_901_888);
+
 /// Explicit prospective retained route. Its current admission always refuses
 /// W1 and preserves the ordinary output, including non-wire export availability.
 pub fn run_preview_model_value_with_retained_headless(
@@ -772,7 +776,7 @@ fn run_preview_model_value_dispatch(request: RunnerRequest, solve_payload: Value
             PreviewProducerEntry::RetainedHeadless => {
                 use open_pipe_stress_product_physics::{RetainedHeadlessContext, run_linear_static_preview_value_with_retained_headless};
                 let context = RetainedHeadlessContext::from_borrowed_roots(&solve_payload, &actual_invocation, &retained_request.request_id);
-                let (envelope, report) = run_linear_static_preview_value_with_retained_headless(solve_payload.clone(), mode, context)?.into_parts();
+                let (envelope, report) = run_linear_static_preview_value_with_retained_headless(solve_payload.clone(), mode, context, RETAINED_INVOCATION_LIMIT)?.into_parts();
                 admission = report;
                 Ok(envelope)
             }

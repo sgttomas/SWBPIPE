@@ -137,6 +137,7 @@ pub use retained_memory::{
     BorrowedValueFacts, CapacityFact, CensusStatus, HeadlessRootFacts, MissingAdmissionTerm,
     ProfileStatus, RetainedAdmissionReport, RetainedCaller, RetainedHeadlessContext,
 };
+pub use retained_memory::{retained_profile, RetainedByteLimit, RetainedPricingError, RetainedProfileFacts};
 #[cfg(test)]
 mod retained_product_tests;
 #[cfg(test)]
@@ -2432,25 +2433,29 @@ impl RetainedPreviewOutput {
     }
 }
 
+/// `limit` is the caller's immutable per-invocation byte limit; admission refuses a limit
+/// above the registered profile's qualified M and never rewrites it.
 pub fn run_linear_static_preview_value_with_retained_direct(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
+    limit: RetainedByteLimit,
 ) -> Result<RetainedPreviewOutput, String> {
-    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some(retained_memory::Entry::Direct))
+    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some((retained_memory::Entry::Direct, limit)))
 }
 
 pub fn run_linear_static_preview_value_with_retained_headless(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
     context: RetainedHeadlessContext<'_>,
+    limit: RetainedByteLimit,
 ) -> Result<RetainedPreviewOutput, String> {
-    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some(retained_memory::Entry::Headless(context)))
+    run_linear_static_preview_value_dispatch(actual_request, solver_mode, Some((retained_memory::Entry::Headless(context), limit)))
 }
 
 fn run_linear_static_preview_value_dispatch(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
-    retained_entry: Option<retained_memory::Entry<'_>>,
+    retained_entry: Option<(retained_memory::Entry<'_>, RetainedByteLimit)>,
 ) -> Result<RetainedPreviewOutput, String> {
     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
         return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
@@ -2460,7 +2465,7 @@ fn run_linear_static_preview_value_dispatch(
     // G-A (API.md §2): census, then admission, before any ProductCapture can be
     // installed. A refusal is private evidence only; the once-only ordinary route
     // below is unchanged. Only D1 Direct calls in the registered build get a permit.
-    let admission = match retained_entry.map(|entry| retained_memory::admit(&capture, &request, entry)) {
+    let admission = match retained_entry.map(|(entry, limit)| retained_memory::admit(&capture, &request, entry, limit)) {
         Some(Ok((permit, report))) => return permitted_dispatch(permit, report, request, capture, solver_mode),
         Some(Err(report)) => Some(report),
         None => None,
