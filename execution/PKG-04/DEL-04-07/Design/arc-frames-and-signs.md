@@ -92,7 +92,10 @@ values or request bytes changed.
 **Remaining work.**
 1. The stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
 2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
-   status moves and targeted mutant runs.
+   status moves. Thirteen seeded representatives covering M1–M12 were
+   behaviorally killed and restored at `da6aa10898`; independent scrutiny
+   checked their actual production patches, failures and source restoration.
+   No test seam or oracle change remains.
    The VP-STATIC tangent mapping has its current independent review bound
    by `ADMISSION.json`; the historical RV28 review is preserved for the
    unchanged basis. The generator reproduces 841 files with zero differences,
@@ -544,7 +547,10 @@ separate from the implementer.
    U4a engine reproduces both T4-I7 blocks to 4.7e-20.
 3. **FK.**
    - On arcs whose binary64 tangents are inexact, each tangent-axis
-     coefficient ball contains the oracle's 45-digit axis.
+     coefficient ball contains the independently calculated axis for its
+     exact authored binary64 operands. The frozen 45-digit pins apply where
+     that operand basis agrees; the two T0R decimal-radius targets use the
+     independent exact-binary64 supplements described in Status instead.
    - ‖end_i + cut_i‖ ≤ B(end_i) + B(cut_i) at both ends (certified element
      equilibrium).
    - The force and moment 3-norms of the end rows equal the chord rows' norms

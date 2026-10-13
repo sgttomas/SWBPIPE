@@ -25,6 +25,15 @@ fn close(label: &str, got: f64, expected: f64, scale: f64) {
 fn check(out: &MechanicsEnvelope, case: &Value, label: &str) {
     assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{label}: {:?}", out.diagnostics);
     let pressure = case["route"] == "pressure-1";
+    for review in out.results.iter().filter(|r| r.kind == "curved_bend_macro_element_review") {
+        let expected = if pressure || TANGENT_PREVIEW {
+            "recovery=node_on_element_end_actions_from_assembled_stiffness_in_end_tangent_frame"
+        } else {
+            "recovery=end_forces_from_assembled_stiffness_in_chord_frame"
+        };
+        assert!(review.metadata.as_ref().unwrap().basis.split(';').any(|part| part == expected),
+            "{label}: macro review describes the published end frame");
+    }
     for (pipe, member) in case["members"].as_object().unwrap() {
         let arc = member["kind"] == "arc";
         let tangent = !arc || pressure || TANGENT_PREVIEW;

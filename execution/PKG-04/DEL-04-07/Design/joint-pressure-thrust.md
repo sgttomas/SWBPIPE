@@ -2,15 +2,15 @@
 
 This governs T4-U5a, which admits pressure on an untied expansion joint authored as an objective connector (T4-U3). It runs in batch 5 with the nonlinear K-D5 unit and T4-U4a. T4-U5b (batch 7, with T4-U4b) adds elastic tie rods. This design is not an implementation claim; the code is another agent's work.
 
-## Status (2026-10-13, controlled pause)
+## Status (2026-10-13, resumed batch 5)
 
-The owner has called a controlled pause on T4-U5a: no further implementation. This section carries the unit's continuity; the sections below remain its design.
+The owner resumed T4-U5a on 2026-10-13. Batch 5 carries its engine, result readers and authoring validation while document admission remains inactive until B7b supplies the exact-contract 0.5.0 form. The existing 0.3.0/0.4.0 shapes and joint-with-pressure refusals remain in force during that staging.
 
 **Designed.** The admitted configuration, the region-chain edge and the classifier's precedence (§1); representation B's two summands (§2); the K-D5 closure (§3); recovery and the two new row families (§4); schema, readers and authoring, with the field specification of the two model items (§5); refusals (§6); the blast radius (§7); evidence and mutants (§8); and what T4-U5b adds (§9). The rulings it applies are recorded at `e0b83676af` (O1–O4, H1, H4, H5; SCA-012 lifts PRD non-goal 19 for tie rods).
 
 **Frozen and independently verified.** The references in `validation/references/t4_u5a/` (frozen at `1bd57e429e`: 19 SHA-bound requests, their oracle and 17 refusal variants) were refuted by a separate TASK that did not write them and shares no code with their generator. Its method: the force method on the axial free bodies, with its own derivation, plus an independent nodal stiffness solve with its own equivalent pressure loads, both at 70 digits. Result: every expected value CONFIRMED (2127 checks, worst 3.8e-30 relative); representations A and B identical; the sign conventions confirmed; the four ledger mutants all killed, the smallest separation about 1e6 tolerances.
 
-**Not started.** No U5a product code exists.
+**Implemented, awaiting public activation.** The dormant implementation is sealed at `5979187253eea2068ac4257c81eba0216c54cbf6`. The public solve retains its admission and preparation checks before the private prepared-case implementation; its participating-joint reader control comes from a test-constructed classified supplier input, not public 0.5.0 admission. Focused mechanics, formation, closure, reader and authoring checks pass, including the seven restored producer mutations. Independent scrutiny and batch qualification remain part of integration. The full nineteen-case public reference path, headless export and live authoring path are still B7b-dependent duties below, not completed by these dormant controls.
 
 **DEC-033 (HELP_HUMAN ruling, 2026-10-12).** The T4-U3 precedent does not extend to new content in 0.3.0/0.4.0. DEC-033's owner ruling of 2026-06-12 ("Additive bumps too") applies: any change to what a document can contain, including a new optional member or a new kind value, bumps the minor version. Consequences, applied in the body below:
 - Both U5a document items, the connector pressure-model kind `constant_effective_area_reference_v1` and the region field `member_connector_ids`, are defined only in model 0.5.0 (T3's B7). Their field specification is in §5.
@@ -25,10 +25,10 @@ The owner has called a controlled pause on T4-U5a: no further implementation. Th
 - Fixed in the references' README, as text only: a key-to-floor-family map, including areas and unitless fields, and the same id, J3-R, `sign_flip` and 0.5.0 notes. No request, oracle value or generator byte changed; only the README line of `SHA256SUMS` is regenerated.
 - Named as required unit tests in §8, because the oracle has no patch for them and adding patches would change the oracle: a duplicate `member_connector_ids` entry; a connector listed by two regions; a negative, nonfinite or wrongly dimensioned area; a face pipe that is not a straight member, beside the realized-arc case already named.
 
-**Remaining work when the pause lifts.**
+**Remaining work for public activation and integration.**
 1. T3 defines the two items in 0.5.0 from §5's field specification, with H1's fields (B7b's contract-present form).
 2. The requests are re-expressed in 0.5.0 (above).
-3. Implementation per §§1–6, landing unactivated if batch 5 precedes B7b.
+3. Integrate and qualify the dormant implementation with U4a in batch 5; activate its document and live authoring path only with B7b.
 4. The §8 evidence. Checks 1–3 need 0.5.0 documents, so they run once B7b's form exists.
 5. Open question 2 (VP-STATIC). The scope question on the blanket-refusal lift is resolved in §1.
 
