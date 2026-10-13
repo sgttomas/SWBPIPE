@@ -600,7 +600,23 @@ fn body<'a>(text: &'a str, name: &str) -> &'a str {
 fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     let lib = product_text(include_str!("../lib.rs"));
     let guard = product_text(include_str!("../formation_guard.rs"));
-    let solve = body(&lib, "solve_load_case_observed");
+    let wrapper = body(&lib, "solve_load_case_observed");
+    let selection = "let load_case = load_state.map_or(load_case, |state| &state.effective_case);";
+    let preparation = "let exact_pressure = pressure_runtime::build_pressure_case_with_members(";
+    let delegation = "solve_prepared_load_case(";
+    assert_eq!(wrapper.matches(selection).count(), 1);
+    assert_eq!(wrapper.matches(preparation).count(), 1);
+    assert_eq!(wrapper.matches(delegation).count(), 1);
+    // Local cardinality: one private definition and the wrapper's one call.
+    // S11-K's cfg-aware module inventory also pins the sole production caller.
+    assert_eq!(lib.matches("\nfn solve_prepared_load_case(").count(), 1);
+    assert_eq!(lib.matches(delegation).count(), 2);
+    assert!(wrapper.find(selection).unwrap() < wrapper.find(preparation).unwrap());
+    assert!(wrapper.find(preparation).unwrap() < wrapper.find(delegation).unwrap());
+    let wrapper_compact = wrapper.split_whitespace().collect::<String>();
+    assert!(wrapper_compact.contains("letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);"));
+    assert!(wrapper_compact.contains("solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)"));
+    let solve = body(&lib, "solve_prepared_load_case");
     assert!(solve.contains("certified_publication::member(pipe, macro_bend, &force, &displacements, bound)"));
     let site = &solve[solve.find("let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);").expect("the decision site")..];
     for call in [

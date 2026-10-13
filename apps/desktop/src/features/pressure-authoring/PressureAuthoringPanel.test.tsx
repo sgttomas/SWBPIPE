@@ -101,6 +101,19 @@ it("queues explicit empty regions for an undeclared case without changing its lo
   expect(queue.mock.calls[0][0].change.before).toBe("not_present"); expect(queue.mock.calls[0][0].change.after).toBe("[]");
   expect(input.load_cases[1].primitive_loads).toEqual(model.load_cases[1].primitive_loads);
 });
+it("preserves explicit connector membership on 0.5.0 and never offers it on old documents", async () => {
+  const current = structuredClone(model); current.schema_version = "0.5.0"; current.pressure_contract = V3;
+  current.load_cases[0].pressure_regions![0].member_connector_ids = ["component:J"];
+  const queue = vi.fn();
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: current.load_cases[0].id }} loadCaseId={current.load_cases[0].id} onQueueIntent={queue} />);
+  expect(screen.getByLabelText("Region 1 member connectors")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Queue pressure regions" }));
+  await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  expect(JSON.parse(queue.mock.calls[0][0].change.after)[0].member_connector_ids).toEqual(["component:J"]);
+  cleanup();
+  render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={queue} />);
+  expect(screen.queryByLabelText("Region 1 member connectors")).toBeNull();
+});
 it("allows explicit negative nu and does not synthesize G", async () => {
   const queue = vi.fn(); render(<MaterialConstitutiveForm model={model} selection={{ type: "material", id: model.materials![0].id }} onQueueIntent={queue} />);
   change("Poisson ratio nu value", "-0.2"); fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());

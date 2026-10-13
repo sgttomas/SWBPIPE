@@ -219,6 +219,12 @@ ASSUMED.update({
 # KD5 illustrative layouts only; g5_profile binds actual in-build sizes.
 import os as _pricing_os
 _pricing_snapshot = _pricing_os.environ.get("RP_SNAPSHOT")
+if _pricing_snapshot:
+    from batch5_model import active as _batch5_active
+    if _batch5_active(_pricing_snapshot):
+        ASSUMED.update({"s(ExactPressureCaseOption)": 272, "s(PressureRegionInput)": 192,
+                        "s(LoadFormula)": 768, "s(PreparedCaseWorkspace)": 1028,
+                        "s(PreparedCaseResult)": 256, "s(BTreeMapHeader)": 24})
 _pricing_fc = _pricing_os.path.join(_pricing_snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs") if _pricing_snapshot else None
 if _pricing_fc and _pricing_os.path.exists(_pricing_fc) and "pub struct MemberBoundInputs" in open(_pricing_fc, encoding="utf-8").read():
     ASSUMED.update({"s(MemberBoundInputs)": 80, "s(LoadClosureRecord)": 32,

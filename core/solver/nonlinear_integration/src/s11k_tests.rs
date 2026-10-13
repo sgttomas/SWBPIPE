@@ -1273,7 +1273,23 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     // names primitives, not a formation-check invocation. Its only product
     // constructor call is gated by an existing member bound on a linear solve.
     let (_,product_lib)=product.iter().find(|(name,_)|name=="lib.rs").unwrap();
-    let case_body=function_body(product_lib,"fn solve_load_case_observed(");
+    let wrapper=function_body(product_lib,"fn solve_load_case_observed(");
+    let wrapper_compact=wrapper.split_whitespace().collect::<String>();
+    let selection="letload_case=load_state.map_or(load_case,|state|&state.effective_case);";
+    let preparation="letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);";
+    let delegation="solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product)";
+    assert_eq!(wrapper_compact.matches(selection).count(),1);
+    assert_eq!(wrapper_compact.matches(preparation).count(),1);
+    assert_eq!(wrapper_compact.matches(delegation).count(),1);
+    assert!(wrapper_compact.find(selection).unwrap()<wrapper_compact.find(preparation).unwrap());
+    assert!(wrapper_compact.find(preparation).unwrap()<wrapper_compact.find(delegation).unwrap());
+    assert_eq!(product_lib.matches("\nfn solve_prepared_load_case(").count(),1);
+    let prepared_sites:Vec<_>=product.iter().filter_map(|(name,code)| {
+        let count=token_indices(code,"solve_prepared_load_case").len();
+        (count>0).then_some((name.as_str(),count))
+    }).collect();
+    assert_eq!(prepared_sites,vec![("lib.rs",2)]);
+    let case_body=function_body(product_lib,"fn solve_prepared_load_case(");
     let compact=case_body.split_whitespace().collect::<String>();
     assert!(compact.contains("letmember_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
     // R2 (§3.1): the nonlinear route's member bound is the confirmed state's
@@ -1949,7 +1965,7 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
     ("lib.rs", "fn force_scaled_publication", "ForceScale", 8),
     ("lib.rs", "fn force_scaling_attempt", "ForceScale", 3),
     ("lib.rs", "fn range_scaling_evidence_line", "ForceScale", 1),
-    ("lib.rs", "fn solve_load_case_observed", "ForceScale", 1),
+    ("lib.rs", "fn solve_prepared_load_case", "ForceScale", 1),
     ("lib.rs", "impl ForceScaledPublication", "ForceScale", 1),
     ("lib.rs", "struct ForceScaledPublication", "ForceScale", 1),
     (

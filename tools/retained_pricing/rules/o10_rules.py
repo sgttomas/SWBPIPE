@@ -46,6 +46,13 @@ def site(name, f, text, full=False, row=None):
 
 PP_ = "core/product_physics/src/"
 FK_ = "core/solver/frame_kernel/src/"
+# B5K1: U5a extracts the mechanics body without deleting its priced sites.
+_CASE_FN = "solve_prepared_load_case" if fnkey("solve_prepared_load_case", PP_ + "lib.rs") else "solve_load_case_observed"
+_PRESSURE_FN = "assemble_pressure_case" if fnkey("assemble_pressure_case", PP_ + "pressure_runtime.rs") else "build_pressure_case_with_members"
+B5_FUNCTION_REKEY = []
+if _PRESSURE_FN == "assemble_pressure_case":
+    B5_FUNCTION_REKEY = [(fnkey("build_pressure_case_with_members", PP_ + "pressure_runtime.rs"), fnkey(_PRESSURE_FN, PP_ + "pressure_runtime.rs"),
+        "B5K1: retained route-L zero edges follow the extracted pressure body; route-E's removal still counts the historical wrapper edges before the migration")]
 CE = RE_ + "connector_evidence.rs"
 D14 = ("D1.4 (retained_memory.rs D1.4: `if !m.components.is_empty() { return refuse(C::Invocation, F::Components) }`): an admitted "
        "model has no components")
@@ -55,6 +62,11 @@ NOV3 = ("D1.3 (namespace_branch) admits only schema 0.1.0/0.2.0 with no pressure
         "when exact_contract(model) == PressureV3 (3.0.0/exact_pressure_v3), and iterates model.components")
 # O10_LOOPS_LAST: (exact loop header, bound, why, the only functions it may match: checked after the run by o10_check.py).
 O10_LOOPS_LAST = []
+if _PRESSURE_FN == "assemble_pressure_case":
+    O10_LOOPS_LAST += [
+        ("for ((dof, pbits, area, _), group) in groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; retains the former factor-group zero on the new key shape", ["pressure_runtime.rs:finish_source_groups"]),
+        ("for edge in edges", "0", O10 + "B5L2: connector pressure edges exist only in pressure regions with built connectors; D1.4/5 have neither and project(successor) retains empty pressure evidence; keeps outer scans and every reader owner", ["connector_evidence.rs:validate_pressure"]),
+    ]
 if fnkey("append_connector_results", PP_ + "lib.rs"):
     O10_LOOPS_LAST += [
         ("for (connector, record) in built.connectors.iter().zip(&built.connector_records)", "0",
@@ -174,7 +186,7 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
         ("for (local_row, &global_row) in dof_map.iter().enumerate()", "12", O10 + "U2L2: element_dof_map returns [usize; ELEMENT_DOF], ELEMENT_DOF = 12", ["lib.rs:add_curved_bend_thermal_equivalent_load", "lib.rs:add_curved_bend_pressure_equivalent_load"]),
         ("for (local_col, &free_value) in free_expansion.iter().enumerate()", "12", O10 + "U2L3: curved_bend_free_expansion_displacements returns [f64; ELEMENT_DOF], ELEMENT_DOF = 12", ["lib.rs:add_curved_bend_thermal_equivalent_load", "lib.rs:add_curved_bend_pressure_equivalent_load"]),
     ]
-    O10_LOOPS_LAST += [("for junction in &junctions", "m", O10 + "U2E2: checked traversal's junction list has one entry per adjacent member pair, <= traversal length <= m", ["pressure_runtime.rs:build_pressure_case_with_members"])]
+    O10_LOOPS_LAST += [("for junction in &junctions", "m", O10 + "U2E2: checked traversal's junction list has one entry per adjacent member pair, <= traversal length <= m", ["pressure_runtime.rs:" + _PRESSURE_FN])]
     O10_LOOPS_LAST += [("for (kind, component, stations) in crate::arc_evidence::ROWS", "4", O10 + "U2E1: arc_evidence::ROWS is a fixed array of four row families", ["physics_evidence.rs:validate_physics_evidence_in"])]
     _LL = FK_ + "load_ledger.rs"
     O10_ID_AUDIT += [(site("push_product", _LL, "source: source.into()", full=True), {"source": IN})]
@@ -213,10 +225,10 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
     O10_ID_AUDIT += [
-        (site("solve_load_case_observed", _L, 'last.id = format!("diagnostic:exact-stress:', full=True), {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
+        (site(_CASE_FN, _L, 'last.id = format!("diagnostic:exact-stress:', full=True), {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
     ]
     if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
-        O10_ID_AUDIT += [(site("solve_load_case_observed", _L, "project: model.project.id.clone()", full=True), {"model.project.id": IN})]
+        O10_ID_AUDIT += [(site(_CASE_FN, _L, "project: model.project.id.clone()", full=True), {"model.project.id": IN})]
     if fnkey("arc_recovery_record", _L):
         O10_ID_AUDIT += [(site("arc_recovery_record", _L, "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
     # U2C: keep this conservative callgraph site's computed multiplicity.
@@ -338,7 +350,7 @@ else:
     for _text in ['"{}.{end}: q={q:e}', '"{}.{end}: the formation bound is unavailable']:
         O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"record.member": IN})]
 if not fnkey("member_record", _CP):
-    O10_ID_AUDIT += [(site("solve_load_case_observed", PP_ + "lib.rs", "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
+    O10_ID_AUDIT += [(site(_CASE_FN, PP_ + "lib.rs", "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
 # Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md section 1.5): the
 # unavailable-family label moved, unchanged, from `check` into its callee `check_at`.
 O10_ID_AUDIT += [(site("check_at" if fnkey("check_at", FK_ + "structural/formation_check.rs") else "check",
@@ -351,9 +363,9 @@ if fnkey("member_group_fires", _FG):
         ("for (i, (term, record)) in terms.iter().zip(records).enumerate()", "l", O10 + "KD5L4: exactly one trusted closure record per nodal ledger term, <= l", ["structural/formation_check.rs:load_closure"]),
         ("for (j, expected) in manifest.iter().enumerate()", "0", O10 + "KD5L5: every D1 nodal record is input (formed=false); no manifest is installed; loop only after formed guard", ["structural/formation_check.rs:load_closure"]),
         ('for (location, rows) in locations.into_iter().chain( [" ", " ", " ", " ", " "] .iter() .zip(effective.sections.iter()) .map(|(l, r)| (*l, r.as_slice())), )', "7", O10 + "KD5L6: two end rows plus five fixed CertifiedMemberRecovery sections", ["certified_publication.rs:member_record"]),
-        ("iter:station_resultants.iter().enumerate().map", "3", O10 + "KD5L7: quarter_1, midspan and quarter_3 station rows, exactly three", ["lib.rs:solve_load_case_observed"]),
-        ("iter:diagnostics.iter().position", "D", O10 + "KD5L8: one scan bounded by the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:solve_load_case_observed"]),
-        ("for rows in &member.sections", "5", O10 + "KD5L9: CertifiedMemberRecovery sections is [..;5]", ["lib.rs:solve_load_case_observed"]),
+        ("iter:station_resultants.iter().enumerate().map", "3", O10 + "KD5L7: quarter_1, midspan and quarter_3 station rows, exactly three", ["lib.rs:" + _CASE_FN]),
+        ("iter:diagnostics.iter().position", "D", O10 + "KD5L8: one scan bounded by the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:" + _CASE_FN]),
+        ("for rows in &member.sections", "5", O10 + "KD5L9: CertifiedMemberRecovery sections is [..;5]", ["lib.rs:" + _CASE_FN]),
         ("iter:exact.closure_sources[group_index].iter().enumerate().map", "0", O10 + "KD5L10: D1.5 requires absent/empty pressure regions, so no assembled pressure group or closure_source summand", ["lib.rs:push_exact_pressure_operands"]),
         ("for (i, term) in ledger.terms().iter().enumerate()", "l", O10 + "KD5L11: one input term per admitted nodal primitive, <= l", ["structural/formation_check.rs:evaluate"]),
         ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", O10 + "KD5L12: supplied load primitive list is empty by KD5L3", ["structural/formation_check.rs:evaluate"]),
@@ -364,12 +376,14 @@ if fnkey("member_group_fires", _FG):
     _CL = PP_ + "certified_loads.rs"
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
         (site("summand", _CL, "source: source.into()", full=True), {"source": CP}),
-        (site("solve_load_case_observed", PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
+        (site(_CASE_FN, PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
         # KD5A3 (batch 4 re-key): the pressure closure label moved, unchanged,
         # from finish_source_groups' map closure into its callee closure_source.
         (site("closure_source" if fnkey("closure_source", PP_ + "pressure_runtime.rs") else "finish_source_groups",
-              PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+              PP_ + "pressure_runtime.rs", ('        format!("{}:{}:{}", term.1, term.2, term.3)' if _PRESSURE_FN == "assemble_pressure_case" else 'format!("{}:{}:{}", term.1, term.2, term.3)'), full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
     ]
+    if _PRESSURE_FN == "assemble_pressure_case":
+        O10_ID_AUDIT += [(site("closure_source", PP_ + "pressure_runtime.rs", 'return (format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST})]
     _LL = FK_ + "load_ledger.rs"
     CG_RULES += [{"caller": Resolved(_LL + ":" + fnkey("force_scaled", _LL).split(":",1)[1]), "name": "force_scaled",
         "targets": [Resolved(FK_ + "structural/formation_check.rs:" + fnkey("force_scaled", FK_ + "structural/formation_check.rs").split(":",1)[1])],
@@ -443,7 +457,7 @@ if fnkey("member_group_fires", _FG):
             "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
             "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
             "evaluate": "89c4ab5160fad0545ea1311a358f416b57aadfd8f04e35c022b6f850dc68741b",
-            "load_closure": "179a7dcf215fda75e4f0fa124e85a1fdac284da65bf5044fcc7a2e8c6a0b22cf",
+            "load_closure": "6bfe5799af60c5d13745d67a5828fe1d07b2b295dd51fd60be8371196ac8fb9b",
         }
         _detail_from = "check_at"
     _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
@@ -458,7 +472,7 @@ if fnkey("member_group_fires", _FG):
         _invocation_bodies[_name] = (_start, _end)
     for _name, _from, _per, _expected, _why in [
         ("detail", _detail_from, "2", 7, "KD5M1: at most one inner Second detail and one outer detail per check/evaluate invocation; first-error returns prevent another inner detail; charge each exclusive allocation alternative separately"),
-        ("load_closure", "load_closure", "1", 15, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately"),
+        ("load_closure", "load_closure", "1", 17 if _PRESSURE_FN == "assemble_pressure_case" else 15, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately; B5 adds two returning joint-binding literals"),
     ]:
         _start, _end = _invocation_bodies[_name]
         _sites = [Resolved(_FC.split("/src/")[-1] + f":{i + 1}") for i in range(_start, _end + 1)
@@ -569,8 +583,8 @@ if fnkey("append_stress_mpa", _CP):
 # Its {error} operand and the diagnostic's multiplicity are not narrowed.
 if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
     _L = PP_ + "lib.rs"
-    _kd5a8_id = site("solve_load_case_observed", _L, '"diagnostic:stress:{}:summary-unavailable"', full=True)
-    _kd5a8_msg = site("solve_load_case_observed", _L, "the open-formula stress summary of {} is unavailable", full=True)
+    _kd5a8_id = site(_CASE_FN, _L, '"diagnostic:stress:{}:summary-unavailable"', full=True)
+    _kd5a8_msg = site(_CASE_FN, _L, "the open-formula stress summary of {} is unavailable", full=True)
     _kd5a8_file, _kd5a8_line = _kd5a8_msg.rsplit(":", 1)
     if open(_os.path.join(_SNAP, _L), encoding="utf-8").read().split("\n")[int(_kd5a8_line)].strip() != "vec![pipe.element_id.clone()],":
         raise SystemExit("KD5A8: withheld summary affected-ref site changed; re-review")
@@ -579,6 +593,17 @@ if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
         (_kd5a8_msg, {"pipe.element_id": IN}),
         (Resolved(f"{_kd5a8_file}:{int(_kd5a8_line) + 1}"), {"pipe.element_id": IN}),
     ]
+
+# B5A1/C5: authored connector identity and the fixed inline recovery literal.
+if _PRESSURE_FN == "assemble_pressure_case":
+    O10_ID_AUDIT += [(site("pressure_finding", PP_ + "joint.rs", 'format!("load case {case}, region {region}, connector {connector}: {reason}")', full=True), {"connector": IN})]
+    import runpy as _b5_audit_runpy
+    _b5_audit = _b5_audit_runpy.run_path(_os.path.join(_os.path.dirname(__file__), "../base/batch5_model.py"))
+    _b5_audit["descriptor_recovery_bytes"](_SNAP)
+    # C5 puts the same 73 tangent-label bytes directly in the basis format!
+    # template: its literal portion is now 631 B (previously 558 B + the
+    # 73-B borrowed recovery operand). Existing literal TEXT accounting
+    # charges those bytes once; there is no recovery_treatment operand.
 
 # KD5A9 (T4 batch 4): certified_loads::member_source's ledger source label.
 # Batch 4's pressure closure binding (arc pressure free strain, region id)
@@ -794,7 +819,7 @@ if fnkey("shape_in_resources", _SBK):
 _NI_CONFIRMATION = "core/solver/nonlinear_integration/src/confirmation.rs"
 if fnkey("confirm_with_applied", _NI_CONFIRMATION):
     O10_LOOPS_LAST += [
-        ("iter:diagnostics.iter_mut().find", "D", O10 + "NLKD5L1: the evidence line's one scan of the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:solve_load_case_observed"]),
+        ("iter:diagnostics.iter_mut().find", "D", O10 + "NLKD5L1: the evidence line's one scan of the case's diagnostic Vec, <= the full diagnostic fixpoint D", ["lib.rs:" + _CASE_FN]),
     ]
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
         {"re": r"^gate\.report\.reciprocal_condition_estimate$", "max": 30, "why": O10 + "NLKD5A1: StructuralReport.reciprocal_condition_estimate is an f64; its Debug is <= 24 B, within the 30 B cap"},

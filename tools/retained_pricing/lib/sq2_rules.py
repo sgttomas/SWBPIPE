@@ -108,6 +108,13 @@ for pat, b, why in D.get("REBIND", []):
 # (written at the basis) is reduced by exactly those (env SQ2_LM: the line map's g7_linemap.out.json).
 _PRUNED = json.load(open(os.environ["SQ2_LM"]))["summary"].get("pruned_deleted", []) if os.environ.get("SQ2_LM") else []
 LOG["other"] += remove_caller_zero_edges(LB["edge_zero"], D.get("EDGE_ZERO_REMOVE_CALLER", []), _PRUNED)
+# B5K1: after route-E's exact-count removal, migrate surviving route-L
+# edge bounds to the extracted body. No bound is pruned or replaced by zero.
+for old, new, why in D.get("B5_FUNCTION_REKEY", []):
+    for entry in LB["edge_zero"]:
+        if entry["caller"] == old:
+            entry["caller"] = new
+            LOG["other"].append(["source body re-key", old, new, entry["callee"], why])
 for pat, b, why in D.get("LOOPS_LAST", []):
     LB["loops"].append({"re": pat, "bound": b, "why": "SQ2 G5 (appended last: only headers no earlier rule matches): " + why})
     LOG["other"].append(["loop last", pat, b])

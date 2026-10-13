@@ -96,6 +96,8 @@ CONNECTOR_KINDS = {
     "connector_generalized_moment_v1": ("N*m", ("gr_x", "gr_y", "gr_z"), ("connector_local",)),
     "connector_endpoint_force_v1": ("N", ("Fx", "Fy", "Fz"), ("end_i", "end_j")),
     "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
+    "connector_pressure_force_v1": ("N", ("pe_x",), ("connector_local",)),
+    "connector_effective_axial_force_v1": ("N", ("s_x",), ("connector_local",)),
 }
 CONNECTOR_ROWS_PER_CASE = 24
 CONNECTOR_ROW_BASIS = "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
@@ -109,6 +111,8 @@ CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m",
 # record (the bend term).
 ARC_MEMBER_KIND = "realized_arc"
 ARC_APPROXIMATION = "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3"
+JOINT_APPROXIMATION = "straight_lame_annulus_and_joint_area_difference_h2_small_strain_v3"
+ARC_JOINT_APPROXIMATION = "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
 ARC_TANGENCY_TOLERANCE_RAD = 1e-3
 ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)"
 ARC_WITHHELD_REASON = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc"
@@ -333,7 +337,7 @@ def _bits(vector: list[Any]) -> list[float]:
 def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
     """Region-level arc statements, arc applied loads and junctions."""
     withheld = region["withheld_on_arcs"]
-    _require(region["approximation"] == ARC_APPROXIMATION and region["tangency_tolerance_rad"] == ARC_TANGENCY_TOLERANCE_RAD and type(region["tangency_tolerance_rad"]) is float
+    _require(region["approximation"] in {ARC_APPROXIMATION, ARC_JOINT_APPROXIMATION} and region["tangency_tolerance_rad"] == ARC_TANGENCY_TOLERANCE_RAD and type(region["tangency_tolerance_rad"]) is float
              and region["tangency_rule"] == ARC_TANGENCY_RULE and isinstance(withheld, Mapping) and set(withheld) == {"result_kinds", "reason"}
              and withheld["reason"] == ARC_WITHHELD_REASON and withheld["result_kinds"] == ARC_WITHHELD_KINDS, "arc region profile")
     geometry = {g["pipe_id"]: g for g in region["geometry"]}
@@ -455,14 +459,15 @@ def _physics(source: Mapping[str, Any]) -> None:
     _require(not geometries or all(set(members) == set(next(iter(geometries.values()))) for members in geometries.values()), "active member coverage across cases")
     for region in evidence["pressure"]:
         arcs = arc_members(region)
-        _shape(region, REGION_KEYS | (ARC_REGION_KEYS if arcs else set()), "region shape")
+        joints = region["approximation"] in {JOINT_APPROXIMATION, ARC_JOINT_APPROXIMATION}
+        _shape(region, REGION_KEYS | (ARC_REGION_KEYS if arcs else set()) | ({"member_connector_ids", "joint_edges"} if joints else set()), "region shape")
         cid, rid = region["load_case_id"], region["region_id"]
         _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
         regions.add((cid, rid))
         region_pressures[cid, rid] = region["p_pa"]
         # Signed p_pa under v3.
         _require(region["profile_mode"] == PRESSURE_V3[1] and region["profile_version"] == PRESSURE_V3[0] and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]), "region pressure basis")
-        _require(_text(region["provenance"]) and (bool(arcs) or region["approximation"] == "long_straight_annulus_small_strain_v2") and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
+        _require(_text(region["provenance"]) and (bool(arcs) or region["approximation"] in {"long_straight_annulus_small_strain_v2", JOINT_APPROXIMATION}) and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
         members = region["member_pipe_ids"]
         _require(_strings(members, True) and set(members) <= set(geometries[cid]), "region members")
         for pid in members:
@@ -545,7 +550,7 @@ def _physics(source: Mapping[str, Any]) -> None:
                 _require(row["id"] in extrema_ids, "unbound extrema row")
             else:
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
-    _validate_connectors(evidence["connector"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
+    _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     headline = source.get("summary", {}).get("max_open_formula_stress")
@@ -559,8 +564,20 @@ def _physics(source: Mapping[str, Any]) -> None:
         _require(bool(maximum_rows) and selected in maximum_rows and headline.get("value") == selected["value"] == max(row["value"] for row in maximum_rows) and headline.get("unit") == selected["unit"] and headline.get("location_ref") == selected["entity_ref"], "stress maximum headline binding")
     for cid, case in cases.items():
         arcs = arcs_by_case.get(cid, set())
+        joint_face_sources: set[tuple[str, str, str, str]] = set()
         for group in case["pressure_rhs_assembly"]["groups"]:
             for term in group["terms"]:
+                if term["kind"] == "joint_effective_area":
+                    region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
+                    joint = next((record for record in evidence["connector"] if record["component_id"] == term["connector_id"]), None)
+                    _require(joint is not None and term["connector_id"] in region["member_connector_ids"] and joint["pressure_model"] == "constant_effective_area_reference_v1", "RHS joint binding")
+                    axis = ["Fx", "Fy", "Fz"].index(group["component"])
+                    direction = joint["connector_axes_global"][axis][0]
+                    _require(group["node_ref"] in (joint["node_i"], joint["node_j"]), "RHS joint node")
+                    sign = -1 if group["node_ref"] == joint["node_i"] else 1
+                    _require(group["direction_component_magnitude"] == abs(direction) and term["coefficient"] == sign * (-1 if direction < 0 else 1), "RHS joint direction")
+                    _require(group["pressure_bits"] == struct.pack(">d", region["p_pa"]).hex() and group["effective_area_bits"] == struct.pack(">d", joint["effective_area_m2"]).hex(), "RHS joint source bits")
+                    continue
                 _require(owners.get((cid, term["pipe_id"])) == term["region_id"], "RHS term region/member binding")
                 if term["kind"] == "bend_cap_removed":
                     _require(term["pipe_id"] in arcs and abs(term["coefficient"]) == 1, "arc RHS term")
@@ -569,8 +586,19 @@ def _physics(source: Mapping[str, Any]) -> None:
                     _require(any(term["pipe_id"] in (j["pipe_in"], j["pipe_out"]) for j in region.get("bend_adjacent_junctions", [])) and abs(term["coefficient"]) == 1, "arc RHS term")
                 else:
                     _require(not (term["kind"] == "poisson_eigen" and term["pipe_id"] in arcs), "arc RHS term")
-                    expected_magnitude = 1 if term["kind"] == "terminal_cap" else abs(2 * materials[cid][term["pipe_id"]]["nu"])
+                    expected_magnitude = 1 if term["kind"] in {"terminal_cap", "joint_face_cap"} else abs(2 * materials[cid][term["pipe_id"]]["nu"])
                     _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
+                    if term["kind"] == "joint_face_cap":
+                        region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
+                        node = group["node_ref"]
+                        identity = (term["region_id"], term["pipe_id"], node, group["component"])
+                        _require(identity not in joint_face_sources, "duplicate RHS joint face")
+                        joint_face_sources.add(identity)
+                        edge = next((edge for edge in region.get("joint_edges", []) if (edge["face_i_pipe_id"] == term["pipe_id"] and edge["node_i_ref"] == node) or (edge["face_j_pipe_id"] == term["pipe_id"] and edge["node_j_ref"] == node)), None)
+                        _require(edge is not None, "RHS joint face binding")
+                        joint = next(record for record in evidence["connector"] if record["component_id"] == edge["connector_id"])
+                        expected = joint["connector_axes_global"][["Fx", "Fy", "Fz"].index(group["component"])][0] * (1 if edge["node_i_ref"] == node else -1)
+                        _require(abs(term["coefficient"] * group["direction_component_magnitude"] - expected) <= 64 * math.ulp(1.0), "RHS joint face direction")
                 _require(group["pressure_bits"] == struct.pack(">d", region_pressures[cid, term["region_id"]]).hex(), "RHS source pressure bits")
                 geometry = geometries[cid][term["pipe_id"]]
                 a, b = geometry["outside_diameter_m"] * 0.5, geometry["effective_wall_thickness_m"]
@@ -595,15 +623,18 @@ def _connector_matrix3(value: Any) -> bool:
     return isinstance(value, list) and len(value) == 3 and all(_vector(row, 3) for row in value)
 
 
-def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool) -> None:
+def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool) -> None:
     """``contract_evidence.connector`` records and the rows bound to them."""
     _require(isinstance(records, list), "unsupported connector")
     spans: dict[str, str] = {}
     for record in records:
-        _shape(record, CONNECTOR_RECORD, "connector record shape")
+        constant = record.get("pressure_model") == "constant_effective_area_reference_v1"
+        _shape(record, CONNECTOR_RECORD | ({"effective_area_m2", "pressure_basis", "pressure_source_reference"} if constant else set()), "connector record shape")
+        if constant:
+            _require(_number(record["effective_area_m2"]) and record["effective_area_m2"] > 0 and record["pressure_basis"] == "internal_differential_zero_external_v1" and _text(record["pressure_source_reference"]), "connector pressure model")
         _require(all(_text(record[k]) for k in ("component_id", "replaced_pipe_id", "node_i", "node_j", "provenance")) and record["node_i"] != record["node_j"], "connector record identity")
         _require(record["topology"] == "replaces_span" and record["motion_basis"] == "symmetric_midpoint_small_rotation_v1" and record["calibration"] == "constant_structural_elasticity_v1"
-                 and record["hardware"] == "untied" and record["pressure_model"] == "unpressurized" and record["temperature_applicability"] == "fixed_installed_parameters_v1"
+                 and record["hardware"] == "untied" and record["pressure_model"] in {"unpressurized", "constant_effective_area_reference_v1"} and record["temperature_applicability"] == "fixed_installed_parameters_v1"
                  and record["reference_state"] in {"stress_free", "prestressed"}, "connector record law")
         _require(all(_connector_matrix3(record[k]) for k in ("connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global"))
                  and _vector(record["end_i_offset_local_m"], 3) and _vector(record["end_j_offset_local_m"], 3) and _vector(record["q_ref"], 6)
@@ -642,7 +673,60 @@ def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str
         slots.add(slot)
         counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
     if solved:
-        _require(all(counts.get((case, component)) == CONNECTOR_ROWS_PER_CASE for case in cases for component in spans), "connector row coverage")
+        _require(all(counts.get((case, record["component_id"])) == CONNECTOR_ROWS_PER_CASE + (2 if record["pressure_model"] == "constant_effective_area_reference_v1" else 0) for case in cases for record in records), "connector row coverage")
+    _joint_pressure_bindings(records, regions, rows, cases, solved)
+
+
+def _joint_projection(value: float, expected: float, first: float, second: float, tiny_count: int) -> bool:
+    tolerance = (64 * math.ulp(1.0) * abs(first) + 64 * math.ulp(1.0) * abs(second) + tiny_count * math.ulp(0.0))
+    return math.isfinite(value) and math.isfinite(expected) and math.isfinite(tolerance) and abs(value - expected) <= tolerance
+
+
+def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any], cases: set[str], solved: bool) -> None:
+    by_id = {record["component_id"]: record for record in records}
+    participation: dict[tuple[str, str], Any] = {}
+    for region in regions:
+        if "member_connector_ids" not in region and "joint_edges" not in region:
+            continue
+        ids, edges = region.get("member_connector_ids"), region.get("joint_edges")
+        _require(_strings(ids, True) and isinstance(edges, list) and len(ids) == len(edges), "joint edge coverage")
+        seen: set[str] = set()
+        for edge in edges:
+            _shape(edge, {"connector_id", "node_i_ref", "node_j_ref", "face_i_pipe_id", "face_j_pipe_id", "p_pa", "effective_area_m2", "face_bore_area_m2", "joint_pressure_force_n", "area_difference_force_n", "attachment_pair_global_n", "representation"}, "joint edge shape")
+            cid, jid = region["load_case_id"], edge["connector_id"]
+            _require(jid in ids and jid in by_id and jid not in seen and (cid, jid) not in participation, "joint edge binding")
+            seen.add(jid)
+            record = by_id[jid]
+            _require(record["pressure_model"] == "constant_effective_area_reference_v1", "joint edge law")
+            pressure, ae = region["p_pa"], record["effective_area_m2"]
+            pe = pressure * ae
+            _require(edge["p_pa"] == pressure and edge["effective_area_m2"] == ae and _number(edge["joint_pressure_force_n"]) and edge["joint_pressure_force_n"] == pe and record["pressure_basis"] == region["pressure_basis"]
+                     and edge["node_i_ref"] == record["node_i"] and edge["node_j_ref"] == record["node_j"] and edge["representation"] == "B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap", "joint edge law")
+            _require(_vector(edge["face_bore_area_m2"], 2) and _vector(edge["area_difference_force_n"], 2) and isinstance(edge["attachment_pair_global_n"], list) and len(edge["attachment_pair_global_n"]) == 2 and all(_vector(pair, 3) for pair in edge["attachment_pair_global_n"]), "joint pair shape")
+            _require(all(value == 0 for key in ("end_i_offset_local_m", "end_j_offset_local_m") for value in record[key]), "joint pressure offset")
+            geometry = _indexed(region["geometry"], "pipe_id", "joint face geometry")
+            for end, face in enumerate((edge["face_i_pipe_id"], edge["face_j_pipe_id"])):
+                _require(face in region["member_pipe_ids"] and face in geometry and "member_kind" not in geometry[face] and not any(terminal["node_ref"] == edge["node_i_ref" if end == 0 else "node_j_ref"] for terminal in region["terminals"]), "joint face binding")
+                ai = geometry[face]["Ai_m2"]
+                _require(edge["face_bore_area_m2"][end] == ai, "joint face area")
+                pi = pressure * ai
+                _require(_joint_projection(edge["area_difference_force_n"][end], pe - pi, pe, pi, 2), "joint area difference")
+                _require(all(_joint_projection(edge["attachment_pair_global_n"][end][axis], (-1 if end == 0 else 1) * (pe - pi) * record["connector_axes_global"][axis][0], pe, pi, 2) for axis in range(3)), "joint attachment pair")
+            participation[cid, jid] = edge
+    if solved:
+        for record in records:
+            for case in cases:
+                lookup = lambda kind, component: next((row for row in rows.values() if row["entity_ref"] == record["component_id"] and row["kind"] == kind and row["metadata"]["component"] == component and row["basis_ref"]["ref_id"] == case), None)
+                pe_row, s_row = lookup("connector_pressure_force_v1", "pe_x"), lookup("connector_effective_axial_force_v1", "s_x")
+                if record["pressure_model"] == "unpressurized":
+                    _require(pe_row is None and s_row is None, "unpressurized joint pressure rows")
+                    continue
+                edge = participation.get((case, record["component_id"]))
+                pe = edge["joint_pressure_force_n"] if edge else 0.0
+                gx = lookup("connector_generalized_force_v1", "gt_x")
+                _require(pe_row is not None and s_row is not None and gx is not None, "joint pressure rows missing")
+                _require(pe_row["value"] == pe, "joint pressure row binding")
+                _require(_joint_projection(s_row["value"], gx["value"] - pe, gx["value"], pe, 1), "joint effective row binding")
 
 
 def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
@@ -670,6 +754,26 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
         _require(all(value == 0 for index, value in enumerate(rhs[key]) if index % 6 >= 3), "unsupported pressure moment")
     groups: set[tuple[Any, ...]] = set()
     for group in rhs["groups"]:
+        if "effective_area_bits" in group:
+            _shape(group, {"node_ref", "component", "pressure_bits", "effective_area_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "joint RHS group")
+            _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "joint RHS group values")
+            _require(all(isinstance(group[key], str) and len(group[key]) == 16 and all(character in "0123456789abcdef" for character in group[key]) and math.isfinite(struct.unpack(">d", bytes.fromhex(group[key]))[0]) for key in ("pressure_bits", "effective_area_bits")), "joint RHS source bits")
+            key = (group["node_ref"], group["component"], group["pressure_bits"], group["effective_area_bits"], "joint", group["direction_component_magnitude"])
+            _require(key not in groups, "duplicate joint RHS group")
+            groups.add(key)
+            identities: set[tuple[str, str]] = set()
+            for term in group["terms"]:
+                _shape(term, {"coefficient", "region_id", "connector_id", "kind"}, "joint RHS term")
+                _require(term["kind"] == "joint_effective_area" and _text(term["region_id"]) and _text(term["connector_id"]) and term["coefficient"] in (-1, 1), "joint RHS term values")
+                identity = (term["region_id"], term["connector_id"])
+                _require(identity not in identities, "duplicate joint RHS source")
+                identities.add(identity)
+            coefficient = sum(term["coefficient"] for term in group["terms"])
+            _require(len(group["terms"]) == 1, "joint RHS source cardinality")
+            pressure, area = (struct.unpack(">d", bytes.fromhex(group[key]))[0] for key in ("pressure_bits", "effective_area_bits"))
+            expected = pressure * area * group["direction_component_magnitude"] * coefficient
+            _require(group["coefficient_sum"] == coefficient and _joint_projection(group["assembled_force_n"], expected, expected, 0.0, 1), "joint RHS formed value")
+            continue
         _shape(group, {"node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "pressure RHS group")
         _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and all(isinstance(group[k], str) and len(group[k]) == 16 and all(c in "0123456789abcdef" for c in group[k]) for k in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "pressure RHS group source")
         _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
@@ -679,7 +783,7 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
         _require(all(math.isfinite(struct.unpack(">d", bytes.fromhex(group[field]))[0]) for field in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "nonfinite pressure RHS source bits")
         for term in group["terms"]:
             _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
-            _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap", "bend_cap_removed", "kink_remainder"}, "pressure RHS term values")
+            _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap", "bend_cap_removed", "kink_remainder", "joint_face_cap"}, "pressure RHS term values")
 
 
 # --------------------------------------------------------------------------

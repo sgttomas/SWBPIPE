@@ -28,6 +28,73 @@ def first_connector_row(envelope):
     return next(r for r in envelope["results"] if r["kind"].startswith("connector_"))
 
 
+def u5a_remote_control():
+    """Result-reader control only; no new model version is admitted here."""
+    envelope = deepcopy(CASES[0][1])
+    envelope["contract_evidence"]["connector"][0].update(pressure_model="constant_effective_area_reference_v1", effective_area_m2=0.004,
+        pressure_basis="internal_differential_zero_external_v1", pressure_source_reference="invented U5a reader control")
+    generalized = [row for row in envelope["results"] if row["kind"] == "connector_generalized_force_v1" and row["metadata"]["component"] == "gt_x"]
+    for generalized_row in generalized:
+        for kind, component, value in [("connector_pressure_force_v1", "pe_x", 0.0), ("connector_effective_axial_force_v1", "s_x", generalized_row["value"])]:
+            row = deepcopy(generalized_row)
+            row.update(id=f'{row["id"]}:{component}', kind=kind, value=value)
+            row["metadata"]["component"] = component
+            envelope["results"].append(row)
+    return envelope
+
+
+def test_u5a_remote_reader_control_and_zero_pressure_tamper():
+    import math
+    envelope = u5a_remote_control()
+    validate_pressure_evidence(envelope)
+    forged = deepcopy(envelope)
+    next(row for row in forged["results"] if row["kind"] == "connector_pressure_force_v1")["value"] = math.ulp(0.0)
+    with pytest.raises(ValueError, match="joint pressure row binding"):
+        validate_pressure_evidence(forged)
+    for field in ["effective_area_m2", "pressure_basis", "pressure_source_reference"]:
+        missing = deepcopy(envelope)
+        del missing["contract_evidence"]["connector"][0][field]
+        with pytest.raises(ValueError):
+            validate_pressure_evidence(missing)
+
+
+def test_u5a_projection_guard_stays_finite_and_does_not_widen_direct_product():
+    import math
+    from tests.verifiers.pressure_1 import _joint_projection
+    assert _joint_projection(0.0, 0.0, 1e308, 1e308, 0)
+    assert not _joint_projection(1e300, 0.0, 1e308, 1e308, 0)
+    tiny = math.ulp(0.0)
+    assert _joint_projection(0.0, tiny, tiny, 0.0, 1)
+    assert not _joint_projection(2 * tiny, 0.0, tiny, 0.0, 1)
+
+
+def test_u5a_participating_producer_control_and_tampered_edges_and_groups():
+    envelope = json.loads((PROJECT / "fixtures/results/pressure_v3_joint_reader_control.json").read_text())["envelope"]
+    from tests.schema_validation import schema_for_definition, validate_instance, validate_schema_document
+    schema = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
+    validate_schema_document(schema)
+    validate_instance(schema_for_definition(schema, "PressureContractEvidence"), envelope["contract_evidence"])
+    validate_pressure_evidence(envelope)
+    for field, value in [("connector_id", "component:wrong"), ("face_i_pipe_id", "pipe:wrong"), ("effective_area_m2", 0.005), ("p_pa", 1.0), ("area_difference_force_n", [0.0, 0.0]), ("attachment_pair_global_n", [[0.0] * 3, [0.0] * 3])]:
+        forged = deepcopy(envelope)
+        forged["contract_evidence"]["pressure"][0]["joint_edges"][0][field] = value
+        with pytest.raises(ValueError):
+            validate_pressure_evidence(forged)
+    for field in ["effective_area_bits", "pressure_bits", "direction_component_magnitude"]:
+        forged = deepcopy(envelope)
+        group = next(group for group in forged["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"] if "effective_area_bits" in group)
+        group[field] = 0.5 if field == "direction_component_magnitude" else "0000000000000000"
+        with pytest.raises(ValueError):
+            validate_pressure_evidence(forged)
+    forged = deepcopy(envelope)
+    group = next(group for group in forged["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"] if "effective_area_bits" in group)
+    group["terms"].append(deepcopy(group["terms"][0]))
+    group["coefficient_sum"] *= 2
+    group["assembled_force_n"] *= 2
+    with pytest.raises(ValueError, match="duplicate joint RHS source"):
+        validate_pressure_evidence(forged)
+
+
 def record(envelope):
     return envelope["contract_evidence"]["connector"][0]
 

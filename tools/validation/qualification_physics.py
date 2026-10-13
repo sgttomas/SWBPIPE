@@ -30,7 +30,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 TABLE_SHA256 = 'a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1'
 DEPENDENCIES = {
-    MODULE: '3ce755a2e05c738965e6e655fcb6918c0054b7588e7c437fda13259c5341c542',
+    MODULE: '8e05867a62aeeb6086e9ec865c5ff9586b3642151722632763bf2312fd05aa58',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

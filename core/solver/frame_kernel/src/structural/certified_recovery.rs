@@ -450,6 +450,7 @@ fn member_pair(formula: &LoadFormula) -> Option<(usize, usize)> {
         // recovery; its mechanical wall action has its own pAi group.
         // Nonlinear sliding friction forces are nodal (kd5-nonlinear-active-set.md §3.1).
         LoadFormula::PressureOperand { .. }
+        | LoadFormula::JointEffectiveArea { .. }
         | LoadFormula::NodalProduct { .. }
         | LoadFormula::SlidingFrictionExplicit { .. }
         | LoadFormula::SlidingFrictionCoupled { .. } => None,

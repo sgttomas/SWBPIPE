@@ -3,7 +3,8 @@
 //
 // The script reads cargo-provided environment variables, `$RUSTC -vV`, and the
 // reviewed inputs: the PP lock, the precommit reader's current included statics,
-// J1's three appended statics and B7's nonresident binding table, all bound by
+// J1's three appended statics, B7's nonresident binding table and batch 5's
+// nonresident pressure result schema definition, all bound by
 // SHA-256 (`REVIEWED_INPUTS` lists all of them; B7a removed the retired ones). It never panics or fails the build: ordinary product builds are unaffected. Any read or
 // parse failure of the identity emits the whole value `v1;unavailable`, and an
 // unreadable input its own `unavailable`; the crate treats either as a mismatch
@@ -28,7 +29,7 @@ fn main() {
         let _ = writeln!(out, "cargo:rerun-if-env-changed={variable}");
     }
     let _ = writeln!(out, "cargo:rustc-env={IDENTITY_VARIABLE}={identity}");
-    // The reviewed inputs: the PP lock, reader statics and nonresident binding, by SHA-256.
+    // The reviewed inputs: the PP lock, reader statics and both exact nonresident bindings, by SHA-256.
     let root = std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from);
     let digests: [Option<[u8; 32]>; REVIEWED_INPUT_COUNT] = std::array::from_fn(|i| {
         let path = root.as_ref()?.join(REVIEWED_INPUTS[i]);

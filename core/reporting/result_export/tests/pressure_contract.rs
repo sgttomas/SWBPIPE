@@ -117,11 +117,10 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     assert_eq!(pressure["semantic_contract_id"], s::PRESSURE_ID);
     assert_eq!(pressure["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(!pressure["reserved_inactive_successors"].as_array().unwrap().contains(&json!(s::PRESSURE_ID)));
-    // Every member the reader consults (vocabulary, hash vectors, and the
-    // rows of physics-1's kinds) is physics-1's; only identity, profile,
-    // lineage, policy text, limitations and T4-U3's connector rows (with the
-    // counts) differ. This is what lets the reader resolve pressure-1 rows
-    // against physics-1's table and the connector rows against code constants.
+    // The ordinary table stays staged, nonresident and unreviewed through
+    // batch 5, the join and B7a; B7b D4 owns its synchronization and binding.
+    // Preserve its complete pre-U5 extension, independently of the current
+    // reader/schema's exact two-family delta. No current row is filtered out.
     let own = [
         "semantic_contract_id",
         "formulation_profile_id",
@@ -138,19 +137,61 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     // pressure-1 carries an inherited pin.
     let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
     assert!(!q.contains_key("inherited_semantic_contract_sha256"));
-    // T4-U2: the vocabulary is physics-1's, each enum extended by exactly the
-    // connector entries the exporter holds as code (components, frame,
-    // location, the stable basis).
+    // Immutable pre-U5 constants from connector_evidence.rs at
+    // f79493a7215f798e5d0328d52e5f461ee9065eff, not inferred from today's reader.
+    const LEGACY_KINDS: [(&str, &str, [&str; 3], &[&str]); 6] = [
+        ("connector_generalized_translation_v1", "m", ["qt_x", "qt_y", "qt_z"], &["connector_local"]),
+        ("connector_generalized_rotation_v1", "rad", ["qr_x", "qr_y", "qr_z"], &["connector_local"]),
+        ("connector_generalized_force_v1", "N", ["gt_x", "gt_y", "gt_z"], &["connector_local"]),
+        ("connector_generalized_moment_v1", "N*m", ["gr_x", "gr_y", "gr_z"], &["connector_local"]),
+        ("connector_endpoint_force_v1", "N", ["Fx", "Fy", "Fz"], &["end_i", "end_j"]),
+        ("connector_endpoint_moment_v1", "N*m", ["Mx", "My", "Mz"], &["end_i", "end_j"]),
+    ];
+    const LEGACY_COMPONENTS: [&str; 12] = [
+        "qt_x", "qt_y", "qt_z", "qr_x", "qr_y", "qr_z", "gt_x", "gt_y", "gt_z", "gr_x", "gr_y", "gr_z",
+    ];
+    const LOCAL_FRAME: &str = "connector_axes_q";
+    const LOCAL: &str = "connector_local";
+    const BASIS: &str = "objective_connector_v1;symmetric_midpoint_small_rotation_v1";
+    // U5a Design sections 4-5: exactly two scalar signatures. The reader's
+    // fixed-width array padding is membership storage, not three table rows.
+    const U5_SIGNATURES: [(&str, &str, &str); 2] = [
+        ("connector_pressure_force_v1", "N", "pe_x"),
+        ("connector_effective_axial_force_v1", "N", "s_x"),
+    ];
+    let mut current_kinds = LEGACY_KINDS.to_vec();
+    for (kind, unit, component) in U5_SIGNATURES {
+        current_kinds.push((kind, unit, [component; 3], &[LOCAL]));
+    }
+    assert_eq!(s::CONNECTOR_ROW_KINDS.as_slice(), current_kinds.as_slice());
+    let mut current_components = LEGACY_COMPONENTS.to_vec();
+    current_components.extend(["pe_x", "s_x"]);
+    assert_eq!(s::CONNECTOR_VOCABULARY_COMPONENTS.as_slice(), current_components.as_slice());
+    assert_eq!(s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS, [LOCAL_FRAME]);
+    assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL]);
+    assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
+    // The staged table's entire vocabulary is physics-1's plus the legacy
+    // components, frame, location and basis, with no extra or missing member.
     let mut vocabulary = q["canonical_metadata_vocabulary"].clone();
     let extend = |v: &mut Value, key: &str, extra: &[&str]| {
         let list = v[key]["enum"].as_array_mut().unwrap();
         list.extend(extra.iter().map(|x| json!(x)));
     };
-    extend(&mut vocabulary, "component", &s::CONNECTOR_VOCABULARY_COMPONENTS);
-    extend(&mut vocabulary, "coordinate_system", &s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS);
-    extend(&mut vocabulary, "location", &s::CONNECTOR_VOCABULARY_LOCATIONS);
-    extend(&mut vocabulary, "basis", &[s::CONNECTOR_ROW_BASIS]);
+    extend(&mut vocabulary, "component", &LEGACY_COMPONENTS);
+    extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
+    extend(&mut vocabulary, "location", &[LOCAL]);
+    extend(&mut vocabulary, "basis", &[BASIS]);
     assert_eq!(p["canonical_metadata_vocabulary"], vocabulary);
+    let mut current_vocabulary = vocabulary.clone();
+    extend(&mut current_vocabulary, "component", &["pe_x", "s_x"]);
+    let schema: Value = serde_json::from_str(include_str!(
+        "../../../../schemas/results_pressure_1.v0.3.schema.json"
+    ))
+    .unwrap();
+    assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], current_vocabulary);
+    assert_eq!(schema["$defs"]["PressureResultMetadata"]["required"],
+        json!(["component", "coordinate_system", "location", "basis", "sign_convention"]));
+    assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
     assert_eq!(
         p.keys().filter(|k| *k != "inherited_semantic_contract_sha256").collect::<Vec<_>>(),
         q.keys().collect::<Vec<_>>()
@@ -161,7 +202,8 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
         }
     }
     // T4-U3: the rows are physics-1's, in order, then exactly one signature
-    // per connector (kind, unit, component) of the reader's code constants.
+    // per legacy connector (kind, unit, component), not the reader's padded
+    // scalar entries. B7b will add exactly the two U5_SIGNATURES above.
     let (rows, inherited) = (p["rows"].as_array().unwrap(), q["rows"].as_array().unwrap());
     assert_eq!(&rows[..inherited.len()], &inherited[..]);
     let connector: Vec<(String, String, String)> = rows[inherited.len()..]
@@ -172,7 +214,7 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
             (r["kind"].as_str().unwrap().into(), r["unit"].as_str().unwrap().into(), r["component"].as_str().unwrap().into())
         })
         .collect();
-    let expected: Vec<(String, String, String)> = s::CONNECTOR_ROW_KINDS
+    let expected: Vec<(String, String, String)> = LEGACY_KINDS
         .iter()
         .flat_map(|(kind, unit, components, _)| {
             components.iter().map(move |c| (kind.to_string(), unit.to_string(), c.to_string()))

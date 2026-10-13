@@ -1,4 +1,4 @@
-# VP-STATIC exact_pressure_1 cases (T4-U2; admitted after T4-RV28)
+# VP-STATIC exact_pressure_1 cases (T4-U2; U4a tangent mapping)
 
 This package scores the `exact_pressure_1_cli_1.0_raw0.2` transport
 (`tools/validation/qualification_exact_pressure.py`) against the frozen,
@@ -10,10 +10,12 @@ independently refuted T4-U2 references:
 - `validation/references/t4_i8/rebuilt_reference_cases.json` (T4-I8, the
   rebuilt straight cases; sha256 `838578ab…724b`).
 
-**Status: admitted.** The references are frozen and refuted (T4-RV3,
-T4-RV4). The independent review T4-RV28 (`INDEPENDENT_REVIEW_T4-RV28.md`,
-verdict ADMIT) checked this package's mapping of them onto rows, evidence,
-criteria and absences, and `ADMISSION.json` names that review by sha256.
+**Status: admitted for development comparison after independent review of the U4a tangent mapping.**
+The references are frozen and refuted (T4-RV3, T4-RV4). The current
+`INDEPENDENT_REVIEW_T4-U4A.md` checks arc end selectors, their sign metadata
+and implied endpoint section actions, reusing the unchanged warrants of
+the historical `INDEPENDENT_REVIEW_T4-RV28.md`. `ADMISSION.json` binds the
+current review by SHA-256.
 Without `ADMISSION.json`, every generated reference is
 `pending_independent_review` and every profile a draft, so the gate refuses
 the package. Admission changes statuses only, never a value or rule. It is a
@@ -30,7 +32,8 @@ material-library, component-library or code-rule data.
 | `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
 | `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the review by path and sha256. |
-| `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The independent admission review, verbatim. |
+| `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The current independent tangent-mapping review, bound by `ADMISSION.json`. |
+| `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The preserved historical review of the unchanged basis. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
 
 The case files total about 72 MB, mostly selectors, so they are generated
@@ -60,20 +63,24 @@ Case IDs are `<reference case>@<version>`.
 
 | Family | Cases per version | Positive per version | Negative per version | Absences per version |
 |---|---|---|---|---|
-| L-FREE (I7) | 26 | 6614 | 33 | 170 |
-| L-ANCH (I7) | 25 | 6508 | 127 | 164 |
-| U-ANCH (I7) | 18 | 12576 | 44 | 386 |
-| CBPT (I7) | 8 | 696 | 29 | 56 |
+| L-FREE (I7) | 26 | 6614 | 34 | 170 |
+| L-ANCH (I7) | 25 | 6508 | 133 | 164 |
+| U-ANCH (I7) | 18 | 12576 | 48 | 386 |
+| CBPT (I7) | 8 | 696 | 31 | 56 |
 | KINK (I7) | 2 | 512 | 13 | 14 |
 | milltol_lame_membrane (I8, two variants) | 2 | 204 | 13 | 8 |
 | tp_phys_pressure_halves (I8) | 1 | 548 | 11 | 12 |
 | pressure_membrane_thin_wall_limit (I8) | 1 | 98 | 4 | 4 |
 | v3_straight_twin_separate_closures (I8) | 1 | 106 | 0 | 4 |
-| **Total** | **84** | **27862** | **274** | **818** |
+| **Total** | **84** | **27862** | **287** | **818** |
 
 Totals:
 
-- **Per mode:** 168 cases, 55,724 positive and 548 negative assertions.
+- **Per mode:** 168 cases, 55,724 positive and 574 negative assertions.
+- **U4a tangent mapping:** 2,660 tangent arc end assertions; 1,798 values
+  differ from the former chord mapping. Twenty-six formerly unscored arc
+  endpoint negative controls now score the end rows. These counts come from
+  the generated selectors and reference files.
 - **Terminal evidence:** 2,094 of the positive assertions are terminal-evidence
   selectors.
 - **I8 rows:** every row is asserted, 956 per version. That includes the 150
@@ -129,15 +136,15 @@ absence. The gate's `declared_absences` obligation checks both.
     asserted; stresses are converted from Pa to MPa.
   - The section actions are not asserted at the end stations (see end rows).
 - **End rows.**
-  - A straight's end station action equals its element-local end row: end_i
+  - Every member's end station action equals its element-local end row: end_i
     negated, end_j as is. The generator checks this equality exactly, so it is
     asserted once, through the end row. The station pointers are recorded as an
     `implied_by_positive` gap.
-  - Arc end rows are the reference's `chord_frame_elastic` block.
+  - Arc end rows are the reference's `tangent_frame` block, with the
+    tangent-frame node-on-element sign texts of U4a Design §4.
   - The wall end action is along the end tangent (`tangent_frame`).
-  - Not published, recorded as a `not_published` gap: the arc end-station
-    section actions, the tangent-frame end rows and the element-local axial
-    end force.
+  - Not published, recorded as a `not_published` gap: the element-local axial
+    end force, replaced by the pressure family.
 - **Lamé values.** Straights only, at all five stations.
 - **Arc absences.** Five kinds are withheld on every arc, each a declared
   absence:
@@ -149,7 +156,7 @@ absence. The gate's `declared_absences` obligation checks both.
 - **Negative controls.** Every listed row of every
   `wrong_result_discriminators` control is asserted under the positive
   assertion's rule.
-  - A control at a straight end-station pointer scores the end row with that
+  - A control at an end-station pointer scores the end row with that
     sign.
   - Identical (selector, wrong value) pairs are scored once.
 

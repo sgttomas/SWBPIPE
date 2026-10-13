@@ -7,23 +7,9 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '195b0ec1b1d66c2512cd41541f8fc4ba6bfe08b2e7806a64057600f3974f2313', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '9784ff5d4d4e1b36574e45b811a6f6ef103975bcd6c96ddadf3a53bfa4babea5'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '9b6c0a2a68029af3f190eaa905693d0ad7b9f2bfd62ba19671921f16d9fe9674', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '87e62f4554b7ef5cb1a270f6a81b6235770c77121134bf1d2f4ffe7cb63777d6'}}
 
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '5e440b80f81188e40e495a47a8dfac89b1bb81aec3bb1664c6d9bea9323d36c6', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'ab13de1984dc6a8c578506b1f4318547bdc40e6a2c1aa9d8699526646647b56b', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
-
-# The pressure-source join (on batch 4) re-reviewed three pins against
-# batch 4's bytes (retained-pricing-rules.md §J, JP1): certified_recovery.rs's
-# production prefix differs only in its four norm2/norm3 call paths
-# (crate::correct_norm -> open_pipe_stress_correct_norm, the same functions);
-# solve_load_case_observed only in the removed not-joined diagnostic call
-# (route strings, record labels and attempt/clone consumers unchanged); and
-# stress_recovery's non-test source only in the removed `#[path]` correct_norm
-# module (the closed StressFinding subject producer and its one copy site are
-# unchanged).
-# The B7a main fan-in additionally carries #1327's nonlinear confirmation.
-# Independent source review verified the merged body/prefix hashes and their
-# unchanged private FallbackError boundary; NLKD5L1/A1 price its added scan and
-# Option<f64> text. These source pins do not refresh the stale registered profile.
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '965647cc57fbbc336dc380d0f942222c9c636bc62048d91a59dee740575bd9a9', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '473277410897bbf21565d1a5e0134ea0be0f4b61c2c9a69d99b2e342f820c62c', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -57,6 +43,10 @@ def inspect(snapshot):
             if hashlib.sha256(body.encode()).hexdigest() != digest:
                 raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
             bodies[name] = body
+    # B5K1: the pinned wrapper prepares pressure; the extracted mechanics
+    # body still owns every route/maximum consumer literal.
+    if "solve_prepared_load_case" in bodies:
+        bodies["solve_load_case_observed"] = bodies["solve_prepared_load_case"]
     constructors = ("member_record", "support_record", "unavailable_record", "connector_record")
     labels = sorted(set(value for name in constructors for value in literals(bodies[name])))
     if not labels:
@@ -187,6 +177,12 @@ FALLBACK_OUTSIDE_CALLERS_U2 = (
     ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "bbd3035a888811f15632e2c6bdaf72ba3ec2fcacecd33c1d07920a44f36cb280"),
     ("pressure_exact/source_geometry.rs", "arc_pressure_strain", ("mul",), "db9c1caeb47d37a3864bfb926a41cc37c6a6a713ae1c7c99b3d823fdb30ffd4a"),
 )
+# B5C1: the new effective-area expression's receiver is Scaled. Only
+# subtract the unrelated private FallbackError::mul candidate, keeping
+# every actual Scaled target and all original conservative candidates.
+FALLBACK_OUTSIDE_CALLERS_B5 = (
+    ("pressure_runtime.rs", "finish_source_groups", ("mul",), "c1a88878b2f10038e0b1f446f0c0fbf02b34bd1fba84cef3cd2770e98ee624fa"),
+)
 
 def _indented_function(text, name):
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -222,6 +218,11 @@ def inspect_fallback_boundary(snapshot):
         with open(bend_pressure, encoding="utf-8") as stream:
             if re.search(r"^pub\(super\) fn append_arc_pressure_results\(", stream.read(), re.M):
                 callers, expected = callers + FALLBACK_OUTSIDE_CALLERS_U2, expected + len(FALLBACK_OUTSIDE_CALLERS_U2)
+    pressure_source = os.path.join(snapshot, "core/product_physics/src/pressure_runtime.rs")
+    if os.path.exists(pressure_source):
+        with open(pressure_source, encoding="utf-8") as stream:
+            if re.search(r"^fn assemble_pressure_case\b", stream.read(), re.M):
+                callers, expected = callers + FALLBACK_OUTSIDE_CALLERS_B5, expected + len(FALLBACK_OUTSIDE_CALLERS_B5)
     for relative, name, methods, digest in callers:
         caller_file = "core/product_physics/src/" + relative
         with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:

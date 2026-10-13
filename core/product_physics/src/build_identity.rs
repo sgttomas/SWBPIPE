@@ -134,8 +134,9 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 // ---- D-6's reviewed inputs (RR "U4 G4: the margin rule trips") ----------------
 // The reviewed-lock record binds REVIEWED_INPUT_COUNT inputs by SHA-256: the
 // PP lock, precommit reader statics and J1 appended statics in their order
-// (I93 REVISION_01 §1.4), then B7's one nonresident pressure-source binding
-// table. B7a removed four retired inputs and kept the others' relative order:
+// (I93 REVISION_01 §1.4), then B7's nonresident pressure-source binding
+// table and batch 5's nonresident pressure result schema definition. B7a
+// removed four retired inputs and kept the others' relative order:
 // E2 the v0_2 semantic table, B1 the precision-1 table, and B4/D1 (b) the
 // source-blocks-1 table and its receipt schema. build.rs hashes them (no build-dependency:
 // the digest below is self-contained) and emits one line,
@@ -148,9 +149,9 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS";
 /// The reviewed inputs, relative to this package's manifest directory: the PP
 /// lock, then the reader's statics in G4's ORIGINS.json order, followed by B7's
-/// source-qualified nonresident binding table.
+/// source-qualified nonresident binding table, then the pressure result schema.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUT_COUNT: usize = 14;
+pub(crate) const REVIEWED_INPUT_COUNT: usize = 15;
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "Cargo.lock",
@@ -172,6 +173,8 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
     // B7 D2/D3: append the nonresident binding; rows remain physics_source_contract().
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
+    // U5a: nonresident definition of the pressure joint record, evidence and row shapes.
+    "../../schemas/results_pressure_1.v0.3.schema.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).

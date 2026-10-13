@@ -302,9 +302,16 @@ fn sha256_matches_the_sha2_dependency() {
 
 const PRESSURE_SOURCE_BINDING_INPUT: &str =
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
+const PRESSURE_SCHEMA_BINDING_INPUT: &str =
+    "../../schemas/results_pressure_1.v0.3.schema.json";
+const NONRESIDENT_BINDING_INPUTS: [(usize, &str); 2] = [
+    (13, PRESSURE_SOURCE_BINDING_INPUT),
+    (14, PRESSURE_SCHEMA_BINDING_INPUT),
+];
+const SEMANTIC_E14_TEST_ITEM: &str = "#[cfg(test)]\nmod e14_tests {";
 
 fn reader_include_required(path: &str) -> bool {
-    path != PRESSURE_SOURCE_BINDING_INPUT
+    !matches!(path, PRESSURE_SOURCE_BINDING_INPUT | PRESSURE_SCHEMA_BINDING_INPUT)
 }
 #[derive(Clone, Copy)]
 struct AuditedTestRegion {
@@ -320,23 +327,28 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited on the K-D5 merge: the suffix gained only K-D5's closed
             // `c7_prescribed_key_controls` test module after the trailing
             // production functions; it has no include and stays inspected.
-            complete_suffix_sha256: "3cfdd9e4f67ecceac4f4de1bd50fd1a2d02c6356042f72861ba3e378875c4b51",
+            complete_suffix_sha256: "f4848039951bba08eabd6f59d99ae9c49964eb3d0f90da31f3ccb67e9a97a6af",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
         })),
         (include_str!("../../reporting/result_export/src/physics_source.rs"), Some(AuditedTestRegion {
             first_item: "#[cfg(test)]\nmod review_repair_tests {",
-            complete_suffix_sha256: "a88a6e171b399851e9c3506dd127438c8c4bfddcab2d0792db23e6c59ba4fc6d",
+            complete_suffix_sha256: "655a01a8aa82af00737e17ed325c683194c559fc5d8874d510f1f81c74f32f66",
             production_resume: None,
         })),
-        (include_str!("../../reporting/result_export/src/semantic_contract.rs"), None),
+        (include_str!("../../reporting/result_export/src/semantic_contract.rs"), Some(AuditedTestRegion {
+            first_item: SEMANTIC_E14_TEST_ITEM,
+            // Exact closed E14 test suffix, audited before exclusion.
+            complete_suffix_sha256: "c7792b80111f83b6fd690cc129f8d1bdc437496095a23db8631107457ddc62cb",
+            production_resume: None,
+        })),
         (include_str!("../../reporting/result_export/src/source_blocks.rs"), Some(AuditedTestRegion {
             first_item: "#[cfg(test)]\nmod norm_tests {",
-            // B4/D1 (b) re-pin: the test region's calls moved from the retired
-            // non-composite wrappers (`derived`, `summary(.., false)`) to the shared
-            // functions; it gained no include and no production.
-            complete_suffix_sha256: "e2dcf91d72b8ed98abd199411f503aaf2f1caad4ea5aaef3834e3773f8b83aa5",
+            // B4/D1 (b) and E15: the closed test suffix uses the shared
+            // composite helpers and a test-only preview_magnitude_controls include.
+            // The audited suffix contains no ungated production or resident include.
+            complete_suffix_sha256: "4351176434917f137997591b059e6c208eda9905c8c66fd953ba1836edd5b544",
             production_resume: None,
         })),
         (include_str!("../../reporting/result_export/src/reader_verdict.rs"), None),
@@ -384,7 +396,7 @@ fn actual_reader_include(reader: &str, input: &str) -> bool {
 }
 
 /// The full registration law and the focused pre-registration check share this
-/// guard. Only the exact appended binding path is exempt from resident includes.
+/// guard. Only the two exact appended binding paths are exempt from resident includes.
 fn assert_reviewed_reader_input_bindings() {
     const ORIGINAL: [&str; 13] = [
         "Cargo.lock",
@@ -405,8 +417,9 @@ fn assert_reviewed_reader_input_bindings() {
     // B4/D1 (b): the source-blocks-1 table and its receipt schema left; every
     // other input keeps its order.
     assert_eq!(&build_identity::REVIEWED_INPUTS[..13], &ORIGINAL);
-    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 14);
+    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 15);
     assert_eq!(build_identity::REVIEWED_INPUTS[13], PRESSURE_SOURCE_BINDING_INPUT);
+    assert_eq!(build_identity::REVIEWED_INPUTS[14], PRESSURE_SCHEMA_BINDING_INPUT);
     let audited = audited_reader_sources();
     let sources: Vec<_> = audited[..4].iter().map(|(source, region)|
         audited_reader_production(source, *region).expect("reader test region changed: re-audit before exclusion")
@@ -422,11 +435,13 @@ fn assert_reviewed_reader_input_bindings() {
             assert!(actual_reader_include(&reader, path), "{path} is a production reader include");
         } else {
             exemptions += 1;
-            assert_eq!(index, build_identity::REVIEWED_INPUT_COUNT - 1);
+            let expected = NONRESIDENT_BINDING_INPUTS.iter()
+                .find(|(_, binding)| *binding == *path).expect("only the exact closed binding paths are exempt");
+            assert_eq!(index, expected.0);
             assert!(!actual_reader_include(&reader, path), "the binding is nonresident");
         }
     }
-    assert_eq!(exemptions, 1);
+    assert_eq!(exemptions, 2);
     let semantic = &sources[2];
     let verifier = semantic.split("pub fn verify_pressure_source_table(").nth(1).unwrap()
         .split("pub fn physics_source_contract(").next().unwrap();
@@ -443,7 +458,9 @@ fn assert_reviewed_reader_input_bindings() {
     let signature = sources[3].split("fn signature(").nth(1).unwrap().split("pub fn ").next().unwrap();
     assert!(signature.contains("crate::semantic_contract::physics_source_contract()"));
     let verdict = audited_reader_production(audited[4].0, audited[4].1).expect("verdict has no test region");
-    assert!(!actual_reader_include(&verdict, PRESSURE_SOURCE_BINDING_INPUT));
+    for (_, path) in NONRESIDENT_BINDING_INPUTS {
+        assert!(!actual_reader_include(&verdict, path), "the verdict has no resident binding include");
+    }
     let findings = verdict.split("pub fn source_findings(").nth(1).unwrap().split("pub fn ").next().unwrap();
     assert!(findings.contains("let table = sc::physics_source_contract();"));
 }
@@ -463,7 +480,10 @@ fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
     for (source, region) in audited_reader_sources() {
         let production = audited_reader_production(source, region).unwrap();
         unchanged += 1;
-        if let Some(region) = region {
+        // Preserve the historical 5/29/2 controls. The semantic marker-free
+        // fixture is now the production projection, only after the full actual
+        // E14 suffix passed the exact audit above; the file itself is not marker-free.
+        if let Some(region) = region.filter(|r| r.first_item != SEMANTIC_E14_TEST_ITEM) {
             let start = source.find(region.first_item).unwrap();
             let (prefix, suffix) = source.split_at(start);
             assert!(production.starts_with(prefix));
@@ -494,12 +514,13 @@ fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
                 assert_eq!(production.len(), prefix.len());
             }
         } else {
-            assert!(production == source, "marker-free source remains complete production");
+            let marker_free = if region.is_some() { production.as_str() } else { source };
+            assert!(production == marker_free, "the concrete marker-free fixture remains complete production");
             for inserted in ["// #[cfg(test)] in a comment\n",
                 "const EARLY_MARKER: &str = \"#[cfg(test)]\";\n"] {
-                refuses(&format!("{source}{inserted}"), None, "UNKNOWN_TEST_MARKER"); refused += 1;
+                refuses(&format!("{marker_free}{inserted}"), None, "UNKNOWN_TEST_MARKER"); refused += 1;
             }
-            let appended = audited_reader_production(&format!("{source}{LATE_PRODUCTION}"), None).unwrap();
+            let appended = audited_reader_production(&format!("{marker_free}{LATE_PRODUCTION}"), None).unwrap();
             assert!(actual_reader_include(&appended, PRESSURE_SOURCE_BINDING_INPUT), "late production remains visible to the real include guard");
             visible += 1;
         }
@@ -509,14 +530,48 @@ fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
 }
 
 #[test]
-fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
+fn semantic_e14_reviewed_guard_refuses_changed_or_hidden_production() {
+    let (source, region) = audited_reader_sources()[2];
+    let region = region.expect("the exact E14 suffix is audited");
+    assert_eq!(region.first_item, SEMANTIC_E14_TEST_ITEM);
+    let production = audited_reader_production(source, Some(region)).unwrap();
+    let start = source.find(region.first_item).unwrap();
+    let (prefix, suffix) = source.split_at(start);
+    assert_eq!(production, prefix);
+    assert!(suffix.contains("fn e14_no_table_carries_the_retired_parity_kind()"));
+    let refuses = |candidate: String, expected| {
+        assert_eq!(audited_reader_production(&candidate, Some(region)).unwrap_err(), expected);
+    };
+    for inserted in ["// #[cfg(test)] in a comment\n",
+        "const EARLY_MARKER: &str = \"#[cfg(test)]\";\n",
+        "#[cfg(test)]\nmod early_test_module {}\n"] {
+        refuses(format!("{prefix}{inserted}{suffix}"), "EARLIER_TEST_MARKER");
+    }
+    refuses(format!("{prefix}// {suffix}"), "TEST_BOUNDARY_NOT_ITEM_LINE");
+    refuses(source.replacen(region.first_item, "#[cfg(not(test))]\nmod changed_test_module {", 1), "MISSING_OR_AMBIGUOUS_TEST_BOUNDARY");
+    refuses(format!("{prefix}{}\n}}\n{suffix}", region.first_item), "MISSING_OR_AMBIGUOUS_TEST_BOUNDARY");
+    refuses(format!("{source}\n// altered audited suffix\n"), "CHANGED_AUDITED_SUFFIX");
+    for path in [PRESSURE_SOURCE_BINDING_INPUT, PRESSURE_SCHEMA_BINDING_INPUT] {
+        let late = format!("\nconst LATE_REVIEWED_TABLE: &str = include_str!(\"../../{path}\");\n");
+        refuses(format!("{source}{late}"), "CHANGED_AUDITED_SUFFIX");
+        let visible = audited_reader_production(&format!("{production}{late}"), None).unwrap();
+        assert!(actual_reader_include(&visible, path), "actual late production stays visible");
+    }
+    println!("semantic_e14_guard_controls=1unchanged,9refused,2visible_late_production");
+}
+
+#[test]
+fn pressure_source_and_schema_are_the_only_nonresident_bindings() {
     use open_pipe_stress_result_export::{reader_verdict, semantic_contract as sc};
     use sha2::{Digest, Sha256};
     assert_reviewed_reader_input_bindings();
     // A same-basename or similar family path does not acquire this exemption.
     for path in ["../../schemas/semantic_contract_v0_3_pressure_source_1.json",
         "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
-        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"] {
+        "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+        "../../fixtures/results/results_pressure_1.v0.3.schema.json",
+        "schemas/results_pressure_1.v0.3.schema.json",
+        "../../schemas/results_pressure_1.v0.3.schema.yaml"] {
         assert!(reader_include_required(path));
     }
     let bytes = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
@@ -527,54 +582,65 @@ fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":sc::PRESSURE_SOURCE_ID,"sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
+    let schema_bytes = include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json");
+    let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
+    assert_eq!(schema_hash, "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
     assert_eq!(tokens[0], "v1");
-    assert_eq!(tokens[build_identity::REVIEWED_INPUT_COUNT], format!("{PRESSURE_SOURCE_BINDING_INPUT}={}",sc::PRESSURE_SOURCE_TABLE_SHA256));
+    for (index, path, hash) in [(13, PRESSURE_SOURCE_BINDING_INPUT, sc::PRESSURE_SOURCE_TABLE_SHA256),
+        (14, PRESSURE_SCHEMA_BINDING_INPUT, schema_hash.as_str())] {
+        assert_eq!(tokens[index + 1], format!("{path}={hash}"));
+    }
     let digests = [Some([7; 32]); build_identity::REVIEWED_INPUT_COUNT];
     let read = build_identity::encode_reviewed_inputs(&digests);
-    let (prefix, last) = read.rsplit_once(';').unwrap();
-    assert_eq!(last.len()+1, 134);
-    let mut unavailable = digests; unavailable[build_identity::REVIEWED_INPUT_COUNT - 1] = None;
-    let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
-    assert_eq!(unavailable.len()-prefix.len(), 81);
-    assert_eq!(unavailable.rsplit_once(';').unwrap().0, prefix);
-    // Removing the current last token cannot bind a current registration.
-    assert!(!bindings_hold(true, Some(&read), prefix, &READER_LAYOUTS, &READER_LAYOUTS));
-    println!("pressure_source_binding_inputs={},available_append=134,unavailable_append=81", build_identity::REVIEWED_INPUT_COUNT);
+    assert!(bindings_hold(true, Some(&read), &read, &READER_LAYOUTS, &READER_LAYOUTS));
+    for (index, path) in NONRESIDENT_BINDING_INPUTS {
+        let token = read.split(';').nth(index + 1).unwrap();
+        assert_eq!(token, format!("{path}={}", "07".repeat(32)));
+        // Retain the pressure-source 134/81 token-byte proof and add the
+        // actual schema path's same wire-byte accounting.
+        let available_bytes = token.len() + 1;
+        assert_eq!(available_bytes, path.len() + 66);
+        let mut unavailable = digests; unavailable[index] = None;
+        let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
+        let unavailable_bytes = unavailable.split(';').nth(index + 1).unwrap().len() + 1;
+        assert_eq!(unavailable_bytes, path.len() + 13);
+        if index == 13 { assert_eq!((available_bytes, unavailable_bytes), (134, 81)); }
+        assert!(!bindings_hold(true, Some(&unavailable), &read, &READER_LAYOUTS, &READER_LAYOUTS));
+        let removed = read.split(';').enumerate().filter(|(i, _)| *i != index + 1)
+            .map(|(_, token)| token).collect::<Vec<_>>().join(";");
+        assert!(!bindings_hold(true, Some(&removed), &read, &READER_LAYOUTS, &READER_LAYOUTS));
+        let mut changed = digests; changed[index] = Some([8; 32]);
+        let changed = build_identity::encode_reviewed_inputs(&changed);
+        assert!(!bindings_hold(true, Some(&changed), &read, &READER_LAYOUTS, &READER_LAYOUTS));
+        println!("nonresident_binding_index={index},available_bytes={available_bytes},unavailable_bytes={unavailable_bytes}");
+    }
 }
-
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // The inputs at the K-D5 member-bound source basis, in the unchanged
-    // REVIEWED_INPUTS order (B7a E2 removed the retired v0_2 table, B1 the
-    // precision-1 table, B4/D1 (b) the source-blocks-1 table and receipt schema;
-    // the other digests, moved by B7a, are D3's to re-record), then B7's
-    // appended nonresident pressure-source binding; all digests remain checked
-    // against actual bytes.
-    // The retained preview table (position 4) is the one bound to the current
-    // inherited preview-physics-1 table (c915605a11).
+    // Current assembled B7a inputs: the original 13 lock/resident obligations
+    // in their preserved order, then the exact pressure-source table and
+    // pressure result schema bindings. Every digest below checks actual bytes;
+    // these test witnesses do not qualify the historical registered profile.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
-        // The lock with the join's correct_norm crate, and the merged receipt
-        // schema (B7's J6 contract-neutral definitions with K-D5's enclosure
-        // constants); both are the actual bytes on the merged head.
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
         "3fad3156fac2f8e9fd21418bb8d79678b7e969a5d9a6dd6942f613ab0c5f1729",
-        "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
-        "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
-        "7cff3e9fe0c29a5b34d1762662e71ad58f00bb2993e9a3f1893323c0d64161e0",
-        "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
-        "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
-        "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337",
-        "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c",
-        "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
-        "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
-        "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
-        "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
-        // B7's independently reviewed nonresident binding; prior pins remain unchanged.
-        "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61",
+        "f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9",
+        "9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6",
+        "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53",
+        "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1",
+        "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09",
+        "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924",
+        "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3",
+        "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53",
+        "8d00e0622777fe01d8886a90371393ee5189c18800adb6d203e60c35f9e2485a",
+        "0eeb9e49a5e1659ccfe2b12ce19af65d2819f0594832300513f34c066b84bc7e",
+        "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886",
+        "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf",
+        "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -592,6 +658,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
+        include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
@@ -1493,14 +1560,12 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// Historical registered profile only; B7a's current build remains Stale until D3.
-/// The pressure-source join's record on T4 batch 4 priced at a5a4c96175:
-/// requested plus moving bytes without R, for the qualified build above. Each
-/// phase keeps its actual positive layout, source and TEXT charges; W3
-/// (publication with the staged copy) is the maximum in both modes.
+/// Historical immutable main batch-5 record priced at source 15d75d7e14,
+/// retained as an internally coherent source carrier while B7a is explicitly
+/// UNREGISTERED. This is not B7a qualification; actual-source D3 follows final join.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_192_228_631, 5_515_660_593, 10_191_004_519, 9_966_957_656, 6_124_774_180, 9_989_373_579, 5_889_716_769],
-    [5_251_359_975, 5_574_791_937, 10_250_135_863, 10_026_089_000, 6_183_905_524, 10_048_504_923, 5_948_848_113],
+    [5_229_391_176, 5_552_823_138, 10_228_170_794, 10_004_112_863, 6_161_951_412, 10_026_554_767, 5_926_936_362],
+    [5_288_522_520, 5_611_954_482, 10_287_302_138, 10_063_244_207, 6_221_082_756, 10_085_686_111, 5_986_067_706],
 ];
 
 #[test]
@@ -1558,6 +1623,36 @@ fn maximum_takes_every_phase() {
 }
 
 #[test]
+fn profile_batch5_carriers_bind_actual_layouts_and_all_case_owners() {
+    use profile::{ATOM_BINDINGS, ATOM_NAMES, ATOM_VALUES, Binding, FORMS};
+    use std::mem::size_of;
+    use open_pipe_stress_frame_kernel::structural::LoadFormula;
+    let actual = [
+        ("s(ExactPressureCaseOption)", size_of::<Option<crate::pressure_runtime::ExactPressureCase>>()),
+        ("s(PressureRegionInput)", size_of::<crate::PressureRegionInput>()),
+        ("s(LoadFormula)", size_of::<LoadFormula>()),
+        ("s(PreparedCaseResult)", size_of::<Result<crate::LoadCaseSolve, open_pipe_stress_frame_kernel::FrameKernelError>>()),
+        ("s(BTreeMapHeader)", size_of::<std::collections::BTreeMap<usize, f64>>()),
+    ];
+    for (name, size) in actual {
+        let index = ATOM_NAMES.iter().position(|entry| *entry == name).expect("positive owned carrier");
+        assert_eq!(ATOM_BINDINGS[index], Binding::InBuild, "{name} is the actual build's type");
+        assert_eq!(ATOM_VALUES[index], size as u64, "{name} retains its complete owner layout");
+        assert!(size > 0);
+        for form in [profile::F_O_BASE_SPARSE, profile::F_O_BASE_DENSE] {
+            let coefficient = FORMS[form].terms.iter().find(|(atom, _)| *atom == index).expect("carrier cannot disappear from an ordinary case").1;
+            assert!(coefficient >= caps::LOAD_CASES as u64, "{name} retains every overlapping case owner");
+        }
+    }
+    let index = ATOM_NAMES.iter().position(|entry| *entry == "s(PreparedCaseWorkspace)").unwrap();
+    assert_eq!(ATOM_BINDINGS[index], Binding::SourceUpper);
+    assert!(ATOM_VALUES[index] > 0);
+    for (name, layout) in READER_LAYOUT_NAMES.iter().zip(READER_LAYOUTS) {
+        println!("I65_G5_READER_LAYOUT {name} size={} align={}", layout.size, layout.align);
+    }
+}
+
+#[test]
 fn profile_laws_hold_in_this_build() {
     use profile::btree_node_upper;
     use std::mem::{align_of, size_of};
@@ -1593,7 +1688,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
-    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (22, 6, 0));
+    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (23, 6, 0));
     assert_eq!(profile::ESTIMATES, 0, "G6 closed every Estimate");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::SparseInteractive), Ok(profile::SPARSE.unwrap().0), "priced in-build");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");

@@ -53,6 +53,10 @@ pub struct PressureContractInput {
 pub struct PressureRegionInput {
     pub id: Option<String>,
     pub member_pipe_ids: Option<Vec<String>>,
+    /// Internal U5a participation; B7b owns versioned document admission.
+    /// Until then, the public decoder refuses this key rather than ignoring it.
+    #[serde(skip)]
+    pub member_connector_ids: Option<Vec<String>>,
     pub pressure_basis: Option<String>,
     pub pressure: Option<Quantity>,
     pub terminals: Option<Vec<PressureTerminalInput>>,
@@ -78,10 +82,12 @@ pub(crate) struct ExactPressureCase {
     /// group order. The case ledger pushes these operands, never the
     /// pre-summed `assembled_loads` total (kept as evidence).
     pub assembled_operands: Vec<(usize, f64, String)>,
+    pub assembled_operand_bounds: Vec<f64>,
     /// Complete original factor-group source operands, before primitive collection.
     pub closure_sources: Vec<Vec<(String, open_pipe_stress_frame_kernel::structural::LoadFormula)>>,
     pub assembly_evidence: Value,
     pub evidence: Vec<Value>,
+    pub joint_pressures: BTreeMap<String, f64>,
 }
 
 #[derive(Debug, Clone)]
@@ -604,6 +610,19 @@ pub(crate) fn build_pressure_case_with_members(
     if has_blocking(diagnostics) || !is_exact(model) {
         return None;
     }
+    assemble_pressure_case(model, built, materials, case, member_pairs, diagnostics)
+}
+
+/// The pressure producer after profile and connector classification. Kept
+/// separate from document admission: B7b owns the 0.5.0 activation boundary.
+fn assemble_pressure_case(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    materials: &[MaterialInput],
+    case: &PreviewLoadCase,
+    member_pairs: Option<&HashMap<String, IsotropicENu>>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<ExactPressureCase> {
     let Some(regions) = &case.pressure_regions else {
         problem(
             diagnostics,
@@ -619,9 +638,11 @@ pub(crate) fn build_pressure_case_with_members(
         cap_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         assembled_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         assembled_operands: Vec::new(),
+        assembled_operand_bounds: Vec::new(),
         closure_sources: Vec::new(),
         assembly_evidence: Value::Null,
         evidence: Vec::new(),
+        joint_pressures: BTreeMap::new(),
     };
     let mut factor_groups = BTreeMap::new();
     let mut cap_terms = vec![Vec::new(); output.cap_loads.len()];
@@ -1000,7 +1021,7 @@ pub(crate) fn build_pressure_case_with_members(
                 );
             }
         }
-        let contract = exact_contract(model).expect("exact pressure cases have a contract");
+        let contract = model.pressure_contract.as_ref().and_then(|contract| ExactContract::from_declared(contract.version.as_deref(), contract.mode.as_deref())).expect("classified exact pressure contract");
         output.evidence.push(json!({"region_id":id,"load_case_id":case.id,"profile_version":contract.version(),
             "profile_mode":contract.mode(),"member_pipe_ids":traversal.iter().map(|step| built.pipes[step.pipe_index].element_id.as_str()).collect::<Vec<_>>(),
             "terminals":terminal_evidence,"pressure_basis":PRESSURE_BASIS,"p_pa":pressure.pressure_pa(),"geometry":geometry,
@@ -1017,6 +1038,7 @@ pub(crate) fn build_pressure_case_with_members(
             evidence["bend_adjacent_junctions"] = json!(junction_evidence);
             evidence["withheld_on_arcs"] = json!({"result_kinds":["pipe_lame_radial_stress_v2","pipe_lame_hoop_stress_v2","pipe_elastic_normal_stress_maximum_v2"],"reason":ARC_WITHHELD_REASON});
         }
+        add_joint_terms(model, built, case, region, pressure, &mut output, &mut factor_groups, diagnostics);
     }
     for dof in 0..output.cap_loads.len() {
         match (
@@ -1056,12 +1078,97 @@ pub(crate) fn build_pressure_case_with_members(
     }
 }
 
-type FactorKey = (usize, u64, u64, u64, u64);
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum FactorArea { Bore(u64, u64), Joint(u64) }
+type FactorKey = (usize, u64, FactorArea, u64);
 struct FactorGroup {
-    geometry: SourceAnnulus,
+    geometry: Option<SourceAnnulus>,
     pressure: InternalDifferentialPressure,
     direction: f64,
     terms: Vec<(f64, String, String, &'static str)>,
+}
+
+fn add_joint_terms(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    case: &PreviewLoadCase,
+    region: &PressureRegionInput,
+    pressure: InternalDifferentialPressure,
+    output: &mut ExactPressureCase,
+    groups: &mut BTreeMap<FactorKey, FactorGroup>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let Some(ids) = region.member_connector_ids.as_ref().filter(|ids| !ids.is_empty()) else { return; };
+    let region_id = region.id.as_deref().expect("classified region");
+    let mut edges = Vec::new();
+    for id in ids {
+        let Some(index) = built.connector_records.iter().position(|record| &record.component_id == id) else {
+            problem(diagnostics, super::joint::PRESSURE_INTERFACE_UNRESOLVED, &[&case.id, region_id, id], "listed joint was not built");
+            continue;
+        };
+        let connector = &built.connectors[index];
+        let Some(area) = built.connector_records[index].pressure.as_ref() else {
+            problem(diagnostics, super::joint::PRESSURE_INTERFACE_UNRESOLVED, &[&case.id, region_id, id], "listed joint has no effective-area law");
+            continue;
+        };
+        let mut faces = Vec::new();
+        for node in [connector.node_i().index, connector.node_j().index] {
+            let face = output.pipe_states.iter().filter(|(index, state)| {
+                let pipe = &built.pipes[**index];
+                state.region_id == region_id && state.arc.is_none() && [pipe.node_i.index, pipe.node_j.index].contains(&node)
+            }).map(|(index, _)| *index).collect::<Vec<_>>();
+            if face.len() != 1 { break; }
+            faces.push(face[0]);
+        }
+        if faces.len() != 2 {
+            problem(diagnostics, super::joint::PRESSURE_INTERFACE_UNRESOLVED, &[&case.id, region_id, id], "each joint face needs exactly one built straight pressure member");
+            continue;
+        }
+        let pe = pressure.pressure_pa() * area.effective_area;
+        if !pe.is_finite() {
+            problem(diagnostics, "EXACT_PRESSURE_OUTPUT_UNREPRESENTABLE", &[&case.id, region_id, id], "joint pressure force is not representable");
+            continue;
+        }
+        let mut pair = [[0.0; 3]; 2];
+        let mut differences = [0.0; 2];
+        let mut bore = [0.0; 2];
+        for (end, node) in [connector.node_i().index, connector.node_j().index].into_iter().enumerate() {
+            let sign = if end == 0 { -1.0 } else { 1.0 };
+            let face_index = faces[end];
+            let pipe = &built.pipes[face_index];
+            let state = &output.pipe_states[&face_index];
+            let direction = pipe.frame_element().expect("classified face frame").orientation().expect("classified face orientation").local_axes[0];
+            let face_sign = if node == pipe.node_i.index { -1.0 } else { 1.0 };
+            let source_zero = source_zero_axes(built, face_index);
+            bore[end] = state.annulus.internal_area_m2();
+            let cap = state.annulus.pressure_group_value(pressure, 1.0, 1.0).expect("validated face cap");
+            differences[end] = crate::pressure_sum::exact_sum([pe, -cap]).expect("finite area difference");
+            for axis in 0..3 {
+                let dof = node * DOF_PER_NODE + axis;
+                let d = connector.axes()[axis][0];
+                // Authored zero only. A nonzero source whose fold is zero
+                // retains the complete source and its closure identity.
+                if d != 0.0 {
+                    groups.entry((dof, pressure.pressure_pa().to_bits(), FactorArea::Joint(area.effective_area.to_bits()), d.abs().to_bits()))
+                        .or_insert_with(|| FactorGroup { geometry: None, pressure, direction: d.abs(), terms: Vec::new() })
+                        .terms.push((sign * if d.is_sign_negative() { -1.0 } else { 1.0 }, region_id.into(), id.clone(), "joint_effective_area"));
+                }
+                add_factor_term(groups, dof, state, direction[axis], source_zero[axis], face_sign, region_id, &pipe.element_id, "joint_face_cap");
+                pair[end][axis] = crate::pressure_sum::exact_sum([sign * pe * d, face_sign * cap * direction[axis]]).expect("finite attachment pair");
+            }
+        }
+        output.joint_pressures.insert(id.clone(), pressure.pressure_pa());
+        edges.push(json!({"connector_id":id,"node_i_ref":model.nodes[connector.node_i().index].id,"node_j_ref":model.nodes[connector.node_j().index].id,
+            "face_i_pipe_id":built.pipes[faces[0]].element_id,"face_j_pipe_id":built.pipes[faces[1]].element_id,"p_pa":pressure.pressure_pa(),
+            "effective_area_m2":area.effective_area,"face_bore_area_m2":bore,"joint_pressure_force_n":pe,"area_difference_force_n":differences,
+            "attachment_pair_global_n":pair,"representation":"B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap"}));
+    }
+    let evidence = output.evidence.last_mut().expect("region evidence");
+    evidence["member_connector_ids"] = json!(ids);
+    evidence["joint_edges"] = json!(edges);
+    evidence["approximation"] = json!(if evidence.get("bend_adjacent_junctions").is_some() {
+        "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
+    } else { "straight_lame_annulus_and_joint_area_difference_h2_small_strain_v3" });
 }
 /// The global axes on which a member's direction component is source-known
 /// exactly zero: its chord has a zero component there and, on a realized
@@ -1110,14 +1217,13 @@ fn add_factor_term(
     let key = (
         dof,
         state.pressure.pressure_pa().to_bits(),
-        hi,
-        lo,
+        FactorArea::Bore(hi, lo),
         magnitude.to_bits(),
     );
     groups
         .entry(key)
         .or_insert_with(|| FactorGroup {
-            geometry: state.annulus,
+            geometry: Some(state.annulus),
             pressure: state.pressure,
             direction: magnitude,
             terms: Vec::new(),
@@ -1159,6 +1265,20 @@ fn closure_source(
     use open_pipe_stress_frame_kernel::structural::{
         LoadFormula, PressureCoefficient, PressureDirection, PressureGeometry,
     };
+    if term.3 == "joint_effective_area" {
+        let index = built.connector_records.iter().position(|record| record.component_id == term.2).expect("classified joint pressure source");
+        let connector = &built.connectors[index];
+        let model = built.connector_records[index].pressure.as_ref().expect("classified joint area");
+        let axis = dof % DOF_PER_NODE;
+        let end = usize::from(dof / DOF_PER_NODE == connector.node_j().index);
+        let direction = connector.axes()[axis][0];
+        let sign = if term.0.is_sign_negative() == direction.is_sign_negative() { 1.0 } else { -1.0 };
+        // The case's owning region is the sole pressure authority.
+        let pressure = output.evidence.iter().find(|region| region["region_id"] == term.1).and_then(|region| region["p_pa"].as_f64()).expect("joint pressure region");
+        return (format!("{}:{}:{}", term.1, term.2, term.3), LoadFormula::JointEffectiveArea {
+            connector: connector.clone(), end, pressure, effective_area: model.effective_area, axis, sign,
+        });
+    }
     let pipe_index = built
         .pipes
         .iter()
@@ -1219,7 +1339,7 @@ fn finish_source_groups(
 ) {
     let mut by_dof = vec![Vec::new(); output.assembled_loads.len()];
     let mut evidence = Vec::new();
-    for ((dof, pbits, hi, lo, _), group) in groups {
+    for ((dof, pbits, area, _), group) in groups {
         let coefficient =
             match crate::pressure_sum::exact_sum(group.terms.iter().map(|term| term.0)) {
                 Ok(value) => value,
@@ -1233,11 +1353,15 @@ fn finish_source_groups(
                     continue;
                 }
             };
-        let value =
-            match group
-                .geometry
-                .pressure_group_value(group.pressure, coefficient, group.direction)
-            {
+        let formed = match area {
+            FactorArea::Bore(..) => group.geometry.expect("bore geometry").pressure_group_value(group.pressure, coefficient, group.direction),
+            FactorArea::Joint(bits) => {
+                use super::pressure_exact::{Scaled, ExactPressureError};
+                let value = Scaled::from_f64(group.pressure.pressure_pa()).mul(Scaled::from_f64(f64::from_bits(bits))).mul(Scaled::from_f64(coefficient)).mul(Scaled::from_f64(group.direction)).to_f64();
+                if value.is_finite() { Ok(value) } else { Err(ExactPressureError::NonRepresentableLoad) }
+            }
+        };
+        let value = match formed {
                 Ok(value) => value,
                 Err(error) => {
                     problem(
@@ -1259,6 +1383,14 @@ fn finish_source_groups(
         let sources = group.terms.iter().map(|term| closure_source(built, output, dof, term)).collect();
         output.closure_sources.push(sources);
         output.assembled_operands.push((dof, value, source));
+        let bound = if matches!(area, FactorArea::Joint(_)) && value == 0.0
+            && group.pressure.pressure_pa() != 0.0 && coefficient != 0.0 && group.direction != 0.0
+        {
+            // A nonzero authored product may underflow at its final binary64
+            // fold. Retain its source and one absolute subnormal reserve.
+            f64::from_bits(1)
+        } else { super::exact_pressure_operand_bound(value) };
+        output.assembled_operand_bounds.push(bound);
         // The published groups observe the binary64 RHS. A formed group whose
         // binary64 direction folds to zero (K-D5 "One ε") adds exactly zero
         // to it: it stays a formed ledger term with its closure operands
@@ -1267,10 +1399,22 @@ fn finish_source_groups(
         if group.direction == 0.0 {
             continue;
         }
-        evidence.push(json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
-            "pressure_bits":format!("{pbits:016x}"),"source_inner_radius_hi_bits":format!("{hi:016x}"),"source_inner_radius_lo_bits":format!("{lo:016x}"),
+        let mut group_evidence = json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
+            "pressure_bits":format!("{pbits:016x}"),
             "direction_component_magnitude":group.direction,"coefficient_sum":coefficient,"assembled_force_n":value,
-            "terms":group.terms.iter().map(|term|json!({"coefficient":term.0,"region_id":term.1,"pipe_id":term.2,"kind":term.3})).collect::<Vec<_>>()}));
+            "terms":group.terms.iter().map(|term| {
+                let mut evidence = json!({"coefficient":term.0,"region_id":term.1,"kind":term.3});
+                evidence[if term.3 == "joint_effective_area" { "connector_id" } else { "pipe_id" }] = json!(term.2);
+                evidence
+            }).collect::<Vec<_>>()});
+        match area {
+            FactorArea::Bore(hi, lo) => {
+                group_evidence["source_inner_radius_hi_bits"] = json!(format!("{hi:016x}"));
+                group_evidence["source_inner_radius_lo_bits"] = json!(format!("{lo:016x}"));
+            }
+            FactorArea::Joint(bits) => group_evidence["effective_area_bits"] = json!(format!("{bits:016x}")),
+        }
+        evidence.push(group_evidence);
     }
     for (dof, values) in by_dof.iter().enumerate() {
         match crate::pressure_sum::exact_sum(values.iter().copied()) {
@@ -1342,7 +1486,13 @@ fn traverse_region(
 ) -> Option<(Vec<TraversedPipe>, Vec<Junction>)> {
     let id = region.id.as_deref()?;
     let refs = [&*case.id, id];
-    let members = region.member_pipe_ids.as_ref()?;
+    let pipe_members = region.member_pipe_ids.as_ref()?;
+    // A joint is a graph edge, represented here only by its replaced span's
+    // endpoints. The span never becomes a member pipe or a load producer.
+    let joint_records = built.connector_records.iter().filter(|record| region.member_connector_ids.as_ref().is_some_and(|ids| ids.contains(&record.component_id))).collect::<Vec<_>>();
+    let joint_spans = joint_records.iter().map(|record| record.span_index).collect::<HashSet<_>>();
+    let mut members = pipe_members.clone();
+    members.extend(joint_records.iter().map(|record| record.span_id.clone()));
     let terminals = region.terminals.as_ref()?;
     if members.is_empty() || terminals.len() != 2 {
         return None;
@@ -1389,7 +1539,7 @@ fn traverse_region(
         .collect::<HashMap<_, _>>();
     let mut adjacency: BTreeMap<usize, Vec<usize>> = BTreeMap::new();
     let member_set = members.iter().map(String::as_str).collect::<HashSet<_>>();
-    for member in members {
+    for member in &members {
         let Some(&index) = pipe_map.get(member.as_str()) else {
             problem(
                 diagnostics,
@@ -1485,7 +1635,7 @@ fn traverse_region(
     }
     if arc_tangents.is_empty() {
         collinear_run(built, &traversal, terminal_nodes[0], terminal_nodes[1], &refs, diagnostics)?;
-        return Some((traversal, Vec::new()));
+        return Some((traversal.into_iter().filter(|step| !joint_spans.contains(&step.pipe_index)).collect(), Vec::new()));
     }
     // Straight runs between arcs: each keeps the collinearity guard (D-E).
     let mut run_start = None;
@@ -1555,7 +1705,13 @@ fn traverse_region(
         }
         junctions.push(Junction { node: incoming.end_node, before, after, t_in, t_out, theta });
     }
-    Some((traversal, junctions))
+    // No joint is arc-adjacent (classifier). Reindex each arc junction after
+    // removing the virtual edges so the remaining member-state list stays exact.
+    for junction in &mut junctions {
+        junction.before -= traversal[..junction.before].iter().filter(|step| joint_spans.contains(&step.pipe_index)).count();
+        junction.after -= traversal[..junction.after].iter().filter(|step| joint_spans.contains(&step.pipe_index)).count();
+    }
+    Some((traversal.into_iter().filter(|step| !joint_spans.contains(&step.pipe_index)).collect(), junctions))
 }
 
 /// One collinear chain of straight members between two nodes: today's
@@ -1605,6 +1761,10 @@ fn collinear_run(
     }
     Some(())
 }
+
+#[cfg(test)]
+#[path = "joint_pressure_tests.rs"]
+mod joint_pressure_tests;
 
 #[cfg(test)]
 mod tests {

@@ -851,3 +851,154 @@ zero rule or waiver. The old155934720B site volume is attribution, not an actual
 phase/peak saving. All counts, visits, criteria and failed936 evidence remain;
 immutable-source/full pricing/native confirmation is still required before any
 registration or budget claim.
+
+## H. T4 batch 5: pressure-only U4a stage 1 and dormant U5a
+
+The source basis is `15d75d7e143b00b8759714c5bd08f3bfb8e9ea72`.
+The retained domain remains D1: at most three case owners, no components,
+and absent pressure regions on L or an explicitly empty region list with
+capacity zero on E. This does not admit the 0.5.0 document seam. Pressure-1
+uses tangent end frames; preview retains chord end frames until C5. The
+pricing below retains existing positive counts, owners, library allowances,
+kernel and product workspaces, R, the 0.9 margin and the upward-rounded
+5% applicable-TAV reserve. Pricing completeness does not qualify a build.
+
+**B5K1 (extracted bodies).** `solve_load_case_observed` now prepares pressure
+and calls `solve_prepared_load_case` once. The former mechanics body, its
+site audits, KD5L7–L9 and NLKD5L1 bounds, and the E-route exact/ordinary
+publication edges follow that helper. The wrapper's cases cap remains;
+the helper has the actual incoming call count. `build_pressure_case_with_members`
+retains classification and its early refusal and delegates once to
+`assemble_pressure_case`. U2E2 and the E-route materials-error per-call
+bound follow the extracted body. After E's original exact-count removal,
+L's surviving historical pressure-body zero edges move to the new body.
+No extracted-function bound is pruned. Both wrapper and mechanics helper
+are hash-pinned; the pressure production prefix is separately pinned.
+
+**B5O1 (positive carriers and overlapping staging).** Add a separate
+CasePrefix family, multiplied by the full CC case-owner count:
+
+`5*s(Option<ExactPressureCase>) + 2*s(PressureRegionInput)`
+`+ 2*s(LoadFormula) + 2*s(Result<LoadCaseSolve,FrameKernelError>)`
+`+ s(PreparedCaseWorkspace) + s(BTreeMapHeader)`
+`+ HashReq((&str,&T),mats) + 24*N + (3*N+8)*s(Vec)`.
+
+All carrier strides bind to actual in-build types. Five complete pressure
+Option carriers conservatively cover the assembly output/Some return,
+public preparation wrapper return, solve-wrapper assignment and prepared
+argument, without move elision or compiler slot reuse. Two complete solve
+Result carriers cover the extra wrapper return/staging. Two complete input
+and LoadFormula carriers retain the added serde-skipped connector-id Vec
+owner and new JointEffectiveArea variant positively, including alignment
+and padding; this is an additional conservative charge, not a replacement
+of typed request or existing primitive owners. The pressure Option includes
+the new assembled_operand_bounds Vec and joint_pressures map headers.
+
+The three N-element f64 backings are eigenloads, cap_loads and
+assembled_loads. cap_terms and eigen_terms each allocate N empty Vec
+headers and remain in scope while finish_source_groups allocates by_dof,
+the third N-header backing. Eight more Vec headers cover those three root
+vectors and evidence/local return staging conservatively. The separately
+built material_map is charged at mats; the empty factor_groups map retains
+its actual standard map header. No early drop or allocation reuse is assumed.
+
+PreparedCaseWorkspace is a source upper of 64 usize-width scalar/reference/
+index/return slots, 16 borrowed-slice views, 16 Option-reference slots and
+four u8 bytes retaining the historical ArcEndFrame-slot allowance after
+B7a C5 retires the selector and its API. The qualified batch-5 native witness
+reports SourceUpper PreparedCaseWorkspace 900 and estimate 1028: 64*usize8 +
+16*slice16 + 16*Option-reference8 = 896, plus four one-byte enum slots. Four
+u8 bytes preserve the same native 900 and the unchanged estimate 1028,
+conservatively retaining the complete positive allowance; no other slot,
+coefficient, R, M or margin changes. The two wrapper/helper signatures together
+contain 16 thin references (model, built, stiffness, case, budget and
+diagnostics), eight material/restraint/spring slices, eight optional
+capture/load-state/product references and two optional string views. Their
+argument/move copies fit the stated slice/optional union; the remaining
+thin/scalar allowance covers the current pressure call's references,
+indices, flag/comparison and return staging. Complete owned returns are
+charged separately. This is a conservative source union, not a measured
+compiler frame, and leaves the prior R and helper allowances in place.
+
+Only backing children forced empty by the actual D1 guards are zero:
+components and region lists (also capacity), therefore connector records,
+joint pressures, factor groups, assembled operand bounds and supplied
+joint primitives. No whole pressure-producer zero follows on E; its three
+node vectors, nested headers, materials map and evidence construction
+remain priced. `batch5_model.py` pins the whole pressure production prefix
+(including both input/output declarations, assembly and finish-source
+producers), the wrapper/helper bodies and namespace/family refusal bodies.
+The no-feature branch requires the exact reviewed old pressure prefix and
+case body, not merely helper-name absence. Changed producers, declarations,
+allocations or refusal predicates stop for renewed review.
+
+**B5C1 (actual multiplication receiver).** The joint-area branch in
+finish_source_groups calls Scaled::mul. The heuristic graph also adds the
+unrelated private FallbackError::mul; the exact caller body is hash-pinned
+and joins KD5C5's outside-receiver inventory. Subtract only that qualified
+private candidate, preserving the actual Scaled target and all other
+conservative candidates. KD5C6's complete incoming cutset still must hold.
+
+**B5M2 (first closure error).** load_closure adds two static, immediately
+returning joint end/DOF binding errors. Its source pin is re-reviewed to
+`6bfe5799…`; all 17 exclusive allocations keep a positive per-invocation
+bound of one. The source-loop and full case/replay counts remain. The
+new joint closure label has the same authored region/connector ID bounds
+and static kind class as the existing pressure label; both sites are audited.
+
+**B5L1/L2 and B5A1 (changed inventories).** The bore/joint FactorArea key
+changes the factor-group loop header; its zero follows the same D1.5
+region producer, and both new group families require such a region. The
+reader's `for edge in edges` walks connector edges emitted only for a
+pressure region with built connectors. D1.4/5 exclude both; the actual
+projected E source retains empty pressure evidence. This child loop is zero
+under those predicates, while the outer reader scans and owners remain.
+Each rule is checked against its one named function. pressure_finding's
+connector operand is the authored component ID (IN128). B7a C5 removes
+the recovery selector and embeds the unconditional 73-byte tangent label
+directly in the descriptor's basis format template. The template's literal
+charge is 631 bytes, replacing the former 558 literal bytes plus the
+73-byte maximum borrowed recovery operand; all other seven operands remain
+priced. The whole descriptor body and its one exact inline label are
+source-bound, with missing, changed and duplicate-label refusals. The
+existing literal TEXT accounting charges the same 73 output bytes once;
+no obsolete operand or empty alternative is credited.
+
+The CPP whole/prefix and FK certified-recovery prefix pins are re-reviewed:
+the optional effective-axial group retains its real label/record ownership;
+the closed label maximum stays 24 bytes. The new tangent kernels operate
+on fixed arrays, with the pressure-only frame parameter passed into both
+binary64 and certified publication. Existing kernel/PP workspace charges
+remain. The mid-file U4 test module is moved unchanged after all production
+so the production-prefix pin includes every later constructor and helper.
+The wrapper and prepared mechanics helper are both guarded by KD5T2/KD5C6;
+the route and maximum literal inventory is read from the prepared body.
+
+Registration adds the pressure result schema as input 18, after the old 17
+positions. This is a governed contract definition, distinct from the reader's
+include_str inputs. Its actual bytes and all original inputs must bind, and
+actual reader layouts and native phase values must be checked before the
+new record qualifies. The previous record is stale while these differ.
+
+**Comparison and native law evaluation.** All four source-basis points are
+complete (including all TEXT variants and the diagnostic fixed point), with
+no unmapped header or unclassified argument; both O-10 checks pass. The six
+prunes are the same inherited deleted rules as nonlinear main. Restoring
+only reviewed KD5/text/C6/closure source pins in a scratch tool reproduces
+the registered e0ec460bf3 tree byte for byte, all 689 coefficients unchanged.
+Against it, the batch 5 tree has 679 equal and 22 higher union coefficients,
+none lower: 12 entries introduce six positive carrier atoms in the two
+O_base forms, and ten existing coefficients increase. TAV requested/moving
+each rise 22,081,536 bytes, and TAV_W/X each rise 22,020,096 bytes.
+
+The one generated profile has 277 atoms, 47 forms and no Estimate. Its actual
+native additional carriers are 248/176/744/1744/900/24 bytes for pressure
+Option/input/LoadFormula/solve Result/prepared workspace/map header.
+B5O1 is 26,539 bytes per case, 79,617 bytes at CC=3. Every native phase's
+requested-plus-moving value rises 22,099,713 bytes; the actual maxima without
+R remain W3, sparse 10,228,170,794 and dense 10,287,302,138 bytes. Dense W3's
+E+R is 10,354,411,002 and its upward-rounded 5% reserve is 220,033,988 bytes,
+leaving 1,021,966,709 bytes below floor(0.9 M), the least of all fourteen
+phase/mode headrooms. The original 17 input hashes are unchanged; input 18
+is `774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5`.
+The actual reader size/alignment pairs remain 56/8, 64/8, 96/8 and 16/8.

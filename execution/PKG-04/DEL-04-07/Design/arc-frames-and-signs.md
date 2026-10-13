@@ -10,10 +10,12 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 ## Status (2026-10-13, resumed implementation)
 
 The owner resumed T4-U4a from the controlled pause. Stage 1 is implemented
-and checked; the separate stage-2 preview flip is implemented for B7a's
-H-4 wave. Its code, sentence, schema and table delta travel together;
-fixture regeneration and registration remain stale until the owning batch's review and
-re-registration; these checks do not establish acceptance.
+and checked; the independently reviewed stage-2 preview flip and O-13
+adapter are implemented in B7a's H-4 wave. Their source, sentence, schema
+and live table linkage travel together. The current B7a assembly remains
+UNREGISTERED; its actual source D3 precedes the one public corpus regeneration,
+D8 and consuming checks because the W1 public corpus writers require G0 admission.
+These checks do not establish acceptance.
 
 **Designed.** Sections 1–10: the tangent-frame, node-on-element convention
 for arc end rows (§2), the closed-form chord-to-tangent rotation and its
@@ -90,29 +92,66 @@ values or request bytes changed.
   seven marked arcs retain the frozen 45-digit pins. This changes no bound
   or product comparison criterion.
 
+**M3 re-measurement (2026-10-13).** The independently audited public-status
+census compares the retained B4 `norule` captures with the immutable
+evidence-only C5 tree `54334bccd60f3b94b8f52f2e93fcf9160f8a6ccb`.
+It covers 22,560 RV30 arc models, 492 realistic arc models and 1,422 W1
+straight models, each through the genuine typed and captured public entries
+in both modes: 97,896 records with no duplicate or missing key. There are
+88,716 Passed, 7,904 Sensitive and 1,276 refused records. Every status,
+integrity-code, blocking-code and diagnostic-code list matches the retained
+baseline: **zero Passed ↔ Sensitive moves** in either mode and zero
+missing, other-integrity or runtime-error records. Refusals remain separate:
+4 `PIPE_ELEMENT_INPUT_INVALID`, 216 `LOAD_INPUT_MISSING` and 1,056
+`PRESSURE_REGION_NONCOLLINEAR`.
+
+The 3,952 typed/captured differences are inherited diagnostic-code-only
+Sensitive/Sensitive pairs, with zero new or changed pairs. The captured
+entry adds `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` in 2,937 pairs and
+`EXACT_PRESSURE_V3_RETAINED_SOURCE_NOT_JOINED` in 1,015 pairs, exactly as
+the retained baseline does. All 63 retained raw captures, frozen inputs,
+normalized projections, candidate records and source/binary bindings were
+independently checked. The census report SHA256 is
+`7a2d0aa68afff9fea370bba0bf24e259eb0afdb706df229fb38d682b44c79477`.
+
+This is a status/diagnostic comparison against retained B4 evidence. Both
+public entries use `retained_entry=None`; W1 names the frozen straight-model
+corpus here, and retained admission/certificates are not exercised. It is
+not a current-main re-run or a full envelope/physical-value comparison.
+The old full Decimal comparison helpers were unavailable. Numerical accuracy
+continues to rest on the independently reviewed frozen references,
+coefficient enclosures, actual group checks, closure checks and U5a's separate
+unchanged-path preservation comparisons. C5 and O-13 remain in B7a's H-4
+wave; this evidence tree does not activate them in the pressure-only batch.
+
+Thirteen seeded representatives covering M1–M12 were behaviorally killed
+and restored at `da6aa10898`; independent scrutiny checked their actual
+production patches, failures and source restoration. No test seam or oracle
+change remains. The VP-STATIC tangent mapping has its current independent
+review bound by `ADMISSION.json`; the historical RV28 review is preserved
+for the unchanged basis. The generator reproduces 841 files with zero
+differences, all 24 package checks pass, and normalized numerical values and
+rules remain identical across the review-binding regeneration. Independent
+review reported no blocking findings on stage 1 `51fa5e8ac4`, stage 2
+`d253b5aea2` and the O-13 adapter-only repair `1d3f1aeef0`. A separate
+100-digit replay of six frozen O-13 entries and 48 groups measured at most
+2.30e-7 of the unchanged 1e-9 criterion from the adapter's rounding; product
+code and frozen bytes are unchanged. The current VP mapping review is
+`validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-U4A.md`.
+
 **Remaining work.**
-1. B7a completes the stage-2 H-4 C4–C6 wave (§§5, 8): single corpus
-   regeneration, the remaining minified fixture sentence copies, reviewed
-   table digests/hash vectors and pinning. Both stages' product code is
-   implemented; the stage-2 U4a suite passes all 20 cases in both modes and
-   entries, including the ordinary binary64 gap case. Preview B1 tangent
-   rows pass with T0R's original chord block kept as a negative control.
-   Fifteen curved consumer tests, the six-resultant endpoint control and
-   both governed accumulation-site suites (12 PP, 3 FK) pass.
-   The 57 S11-G controls and five nonlinear K-D5 controls pass. O-13's
-   frozen chord `f_star` rows in the P1 and R1 controls are re-expressed
-   by §3's closed-form rotation in the test adapter; the frozen bytes and
-   group criterion remain unchanged.
-2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
-   status moves, targeted mutant runs, the VP-STATIC package's independent
-   mapping re-review, and independent scrutiny of the implementation.
-   The package is regenerated with tangent selectors and pending review
-   statuses; its historical RV28 admission does not cover this mapping.
-4. When B7 retires model versions, re-express the requests in model 0.5.0:
-   B7a refuses the preview-physics-1 cases' 0.2.0 documents and B7b the
-   pressure-1 cases' 0.4.0 documents. Only the request bytes and
-   `requests_sha256` change (generator `--write`, then its verify mode and an
-   independent value check); the oracle values do not.
+1. T3 completes B7a's integration of the reviewed stage-2 commit and O-13
+   adapter with H-4 C4–C6 (§§5, 8), actual source D3, the single public corpus
+   regeneration and consuming checks. The remaining fixture sentence copies
+   and public arc/L-line outputs are regenerated from that actual source;
+   historical stored outputs are not current producer evidence.
+2. B7a's test-only current-format helper verifies the frozen request SHA,
+   then re-authors only each copied preview invocation's version to 0.5.0.
+   The frozen requests, oracle, physical operands, group criteria and
+   mandatory pressure-1 binary64 controls remain unchanged. B7b must likewise
+   express the pressure-1 invocations in its one current format after the
+   pressure-format retirement; it does not imply a product compatibility
+   path or permission to change the frozen reference values.
 
 **Dependencies.**
 - DEL-04-01 (FK): the certified tangent end operator in
@@ -547,7 +586,10 @@ separate from the implementer.
    U4a engine reproduces both T4-I7 blocks to 4.7e-20.
 3. **FK.**
    - On arcs whose binary64 tangents are inexact, each tangent-axis
-     coefficient ball contains the oracle's 45-digit axis.
+     coefficient ball contains the independently calculated axis for its
+     exact authored binary64 operands. The frozen 45-digit pins apply where
+     that operand basis agrees; the two T0R decimal-radius targets use the
+     independent exact-binary64 supplements described in Status instead.
    - ‖end_i + cut_i‖ ≤ B(end_i) + B(cut_i) at both ends (certified element
      equilibrium).
    - The force and moment 3-norms of the end rows equal the chord rows' norms
