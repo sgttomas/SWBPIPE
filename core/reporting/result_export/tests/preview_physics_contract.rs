@@ -509,11 +509,13 @@ fn a_stored_precision_1_result_is_refused_by_name() {
         s::LOAD_REFERENCE_ID,
         s::LOAD_REFERENCE_SOURCE_ID,
         s::PREVIEW_PHYSICS_RETAINED_ID,
+        // T4-U2: pressure-1, with its export chain.
+        s::PRESSURE_ID,
     ];
     expected.sort_unstable();
     assert_eq!(
         fresh, expected,
-        "T1 and U6a extend the set only with their activated identities"
+        "T1, U6a and T4-U2 extend the set only with their activated identities"
     );
     // B4/D1 (b): the retired source-blocks-1 identity is not fresh.
     assert!(!s::is_fresh_identity(s::RETIRED_SOURCE_BLOCKS_ID));

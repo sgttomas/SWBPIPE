@@ -13,7 +13,8 @@ import {
 import physicsSourceMixed from "../../../../fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { retiredPrecisionStatement } from "../test-support/retiredPrecision";
-import type { MechanicsResult } from "../types";
+import lLine from "../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
+import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
 
 // Phase C4 GUI slice (TP-C4-CHECKGUI-001). jsdom has no Tauri runtime, so the
@@ -310,6 +311,14 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     const source = retiredPrecisionStatement();
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+  it("refuses a pressure-1 source, which the Rust reader names no route for (b7-plan R2)", async () => {
+    // T4-U2: the L line's pressure-1 result (invented data).
+    const source = structuredClone(lLine.sparse_result) as unknown as MechanicsResult;
+    const model = structuredClone(lLine.authored_model) as unknown as PreviewModel;
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model, solvedEnvelope: source })).rejects.toThrow(/^RULE_/);
     expect(invokeMock).not.toHaveBeenCalled();
   });
 });

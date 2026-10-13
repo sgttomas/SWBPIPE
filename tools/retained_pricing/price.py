@@ -12,7 +12,7 @@ Environment (all optional): RP_REPO (the repository to read revisions from; defa
 RP_OUT (default --out), RP_JOB_WRAPPER (a command each point runs under, e.g. a host's job-slot wrapper; split
 like a shell word list). See README.md for inputs, outputs, exit codes and limits.
 """
-import argparse, difflib, json, os, shlex, shutil, subprocess, sys, tempfile
+import argparse, difflib, json, os, re, shlex, shutil, subprocess, sys, tempfile
 
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
@@ -62,10 +62,32 @@ def snapshot(repo, rev, dst):
     return os.path.join(dst, P)
 
 
+CORRECT_NORM = ("core/numerics/correct_norm", "open_pipe_stress_correct_norm")
+
+
+def chain_crates(chain, W):
+    """The chain's crate source directories at the snapshot, and the dependency edges they add to the call graph.
+
+    JN1 (retained-pricing-rules.md): the pressure-source join moved frame_kernel's `correct_norm` module, unchanged,
+    into its own crate. Where the snapshot has that crate, its source is scanned and each scanned crate whose
+    Cargo.toml depends on it gets the dependency edge, so `norm2`/`norm3` calls keep resolving to those functions.
+    A snapshot without it prices exactly as before."""
+    crates = open(os.path.join(chain, "crate_dirs.txt")).read().split()
+    deps = []
+    crate, package = CORRECT_NORM
+    if os.path.isfile(os.path.join(W, crate, "src", "lib.rs")):
+        for c in crates:
+            manifest = os.path.join(W, os.path.dirname(c), "Cargo.toml")
+            if os.path.isfile(manifest) and re.search(r"^\s*" + re.escape(package) + r"\s*=", open(manifest).read(), re.M):
+                deps.append(os.path.dirname(c) + ":" + crate)
+        crates = crates + [crate + "/src"]
+    return crates, deps
+
+
 def template_inventory(W, chain):
     """The chain's template inventory regenerated on the snapshot (production .rs files of the chain's crates)."""
     files = []
-    for c in open(os.path.join(chain, "crate_dirs.txt")).read().split():
+    for c in chain_crates(chain, W)[0]:
         for d, _, fs in os.walk(os.path.join(W, c)):
             if "/tests" in d or "/bin" in d:
                 continue
@@ -80,9 +102,10 @@ def point(chain, O, caps, W, looplog=True):
     if os.path.exists(O):
         shutil.rmtree(O)
     os.makedirs(O)
-    e = chain_env(CG_REPAIR="1", CG_EXTRA_DEPS="core/product_physics:core/reporting/result_export", CG_RULES=os.path.join(chain, "callgraph_rules.g4.json"),
+    crates, extra_deps = chain_crates(chain, W)
+    e = chain_env(CG_REPAIR="1", CG_EXTRA_DEPS=",".join(["core/product_physics:core/reporting/result_export"] + extra_deps),
+                  CG_RULES=os.path.join(chain, "callgraph_rules.g4.json"),
                   CG_EDGES_OUT=os.path.join(O, "edges.json"), CG_AUDIT_OUT=os.path.join(O, "audit.json"))
-    crates = open(os.path.join(chain, "crate_dirs.txt")).read().split()
     for args, env in (([os.path.join(chain, "callgraph_g5.py"), ".", os.path.join(O, "cg.out.json"), ROOT_FN, *crates], e),
                       ([os.path.join(chain, "text_lexicon.py"), ".", os.path.join(O, "edges.json"), ROOT_FN, os.path.join(O, "lexicon.json")], None)):
         r = py(args, env=env, cwd=W)

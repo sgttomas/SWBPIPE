@@ -102,6 +102,25 @@ const GEOMETRY_KEYS: &[&str] = &[
     "Z_m3",
 ];
 const STATIONS: &[&str] = &["end_i", "end_j", "quarter_1", "midspan", "quarter_3"];
+/// A straight pressure region's keys (an arc region adds `arc_evidence::REGION_KEYS`).
+pub(crate) const REGION_KEYS: &[&str] = &[
+    "profile_version",
+    "profile_mode",
+    "load_case_id",
+    "region_id",
+    "member_pipe_ids",
+    "pressure_basis",
+    "p_pa",
+    "external_pressure_increment_pa",
+    "approximation",
+    "geometry_representation_guard",
+    "geometry",
+    "materials",
+    "applied_loads",
+    "terminals",
+    "provenance",
+    "result_ids",
+];
 
 fn require(ok: bool, code: &str) -> Check {
     if ok {
@@ -261,9 +280,14 @@ fn temperature(v: &Value, case_basis: &str, material_id: &str) -> Check {
     }
 }
 fn without(v: &Value, key: &str) -> Value {
+    without_all(v, &[key])
+}
+fn without_all(v: &Value, removed: &[&str]) -> Value {
     let mut copy = v.clone();
     if let Some(o) = copy.as_object_mut() {
-        o.remove(key);
+        for key in removed {
+            o.remove(*key);
+        }
     }
     copy
 }
@@ -274,6 +298,12 @@ fn case_basis(row: &Value) -> Result<&str, String> {
         "CASE_BASIS",
     )?;
     text(&b["ref_id"])
+}
+/// A row's load case, which must be one of the evidence's exact cases.
+fn row_case<'a>(row: &'a Value, cases: &HashMap<&str, &Value>) -> Result<&'a str, String> {
+    let case = case_basis(row)?;
+    require(cases.contains_key(case), "ROW_CASE_UNRESOLVED")?;
+    Ok(case)
 }
 fn pressure_kind(kind: &str) -> bool {
     matches!(
@@ -290,21 +320,15 @@ fn pipe_kind(kind: &str) -> bool {
     pressure_kind(kind) || kind == "pipe_elastic_normal_stress_maximum_v2"
 }
 
+/// One published row's declared semantics; `signature` is the row's signature
+/// under the reader's table (taken once per row by the caller).
 fn physical_row(
     row: &Value,
+    kind: &str,
+    signature: Option<&'static Value>,
     source_selected: bool,
-    composite: bool,
-    contract: PressureContract,
+    arc: bool,
 ) -> Check {
-    let kind = text(&row["kind"])?;
-    let signature = crate::semantic_contract::signature_in(
-        if composite {
-            crate::semantic_contract::physics_source_contract()
-        } else {
-            contract.table()
-        },
-        row,
-    )?;
     if !kind.ends_with("_v2") {
         return Ok(());
     }
@@ -384,6 +408,14 @@ fn physical_row(
             sign,
         )
     };
+    // T4-U2: a pressure row on a realized arc (pressure-1 only) states the
+    // arc's own convention; the straight Lame rows and maximum are withheld.
+    let sign = if arc {
+        require(!crate::arc_evidence::WITHHELD_KINDS.contains(&kind), "ARC_WITHHELD")?;
+        crate::arc_evidence::sign(kind).unwrap_or(sign)
+    } else {
+        sign
+    };
     require(
         md["coordinate_system"] == frame
             && md["basis"] == basis
@@ -443,6 +475,18 @@ pub(crate) fn validate_physics_evidence_in(
         "CONNECTOR_UNSUPPORTED",
     )?;
     let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
+    // T4-U2: the realized-arc members of each case's pressure regions.
+    let mut arc_members: HashSet<(&str, &str)> = HashSet::new();
+    for region in array(&evidence["pressure"])? {
+        let case = region["load_case_id"].as_str().unwrap_or_default();
+        for pipe in crate::arc_evidence::members(region, contract == PressureContract::PressureV3)? {
+            arc_members.insert((case, pipe));
+        }
+    }
+    // RV23 NOTE-4: a case's structural members are its published pipes and
+    // its objective connectors (pressure-1); a model whose only pipes are
+    // replaced spans has no published pipe and is still covered.
+    let has_connector = !array(&evidence["connector"])?.is_empty();
     let rows = indexed(&source["results"], "id")?;
     let mut all_ids: HashSet<&str> = rows.keys().copied().collect();
     for diagnostic in array(&source["diagnostics"])? {
@@ -521,7 +565,7 @@ pub(crate) fn validate_physics_evidence_in(
         let sections = indexed(&case["pipe_sections"], "pipe_id")?;
         let members: HashSet<_> = materials.keys().copied().collect();
         require(
-            !members.is_empty() && members == sections.keys().copied().collect(),
+            (!members.is_empty() || has_connector) && members == sections.keys().copied().collect(),
             "MEMBER_COVERAGE",
         )?;
         if let Some(expected) = &all_members {
@@ -545,6 +589,13 @@ pub(crate) fn validate_physics_evidence_in(
             unavailable.is_subset(&members)
                 && coverage["complete"].as_bool() == Some(unavailable.is_empty()),
             "STRESS_COVERAGE",
+        )?;
+        require(
+            arc_members
+                .iter()
+                .filter(|(c, _)| *c == case_id)
+                .all(|(_, pipe)| unavailable.contains(pipe)),
+            "ARC_WITHHELD",
         )?;
         coverage_complete &= unavailable.is_empty();
         let extrema = indexed(&case["pipe_stress_extrema"], "pipe_id")?;
@@ -629,19 +680,39 @@ pub(crate) fn validate_physics_evidence_in(
         number(&row["value"])?;
         text(&row["unit"])?;
         text(&row["entity_ref"])?;
-        let case = case_basis(row)?;
-        require(cases.contains_key(case), "ROW_CASE_UNRESOLVED")?;
         require(
             row.get("source_result_refs")
                 .is_none_or(|v| v.as_array().is_some_and(|a| a.is_empty())),
             "DERIVED_ROWS_UNSUPPORTED",
         )?;
+        // T4-U2 (pressure-1): an input review row (a realized bend's
+        // flexibility, a hanger's or a component's entered values) is model
+        // scoped and states no load case. Only a pressure-1 row without
+        // `basis_ref` whose signature is `review_evidence` qualifies; every
+        // other row stays case scoped, and physics-1 keeps its case-scoped
+        // rule. The contract is checked before the row's one signature lookup.
+        let scoped = contract == PressureContract::PressureV3 && row.get("basis_ref").is_none();
+        let case = if scoped { None } else { Some(row_case(row, &cases)?) };
         let kind = text(&row["kind"])?;
+        let signature = crate::semantic_contract::signature_in(
+            if composite {
+                crate::semantic_contract::physics_source_contract()
+            } else {
+                contract.table()
+            },
+            row,
+        )?;
+        let case = match case {
+            Some(case) => case,
+            None if signature.is_some_and(|s| s["category"] == "review_evidence") => continue,
+            None => row_case(row, &cases)?,
+        };
         physical_row(
             row,
+            kind,
+            signature,
             composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
-            composite,
-            contract,
+            arc_members.contains(&(case, text(&row["entity_ref"])?)),
         )?;
         if pipe_kind(kind) {
             require(
@@ -715,28 +786,9 @@ pub(crate) fn validate_physics_evidence_in(
         let exact = cases
             .get(case)
             .ok_or("SOURCE_PHYSICS_REGION_CASE_UNRESOLVED")?;
+        let arcs = crate::arc_evidence::members(region, contract == PressureContract::PressureV3)?;
         require(
-            keys(
-                region,
-                &[
-                    "profile_version",
-                    "profile_mode",
-                    "load_case_id",
-                    "region_id",
-                    "member_pipe_ids",
-                    "pressure_basis",
-                    "p_pa",
-                    "external_pressure_increment_pa",
-                    "approximation",
-                    "geometry_representation_guard",
-                    "geometry",
-                    "materials",
-                    "applied_loads",
-                    "terminals",
-                    "provenance",
-                    "result_ids",
-                ],
-            ),
+            crate::arc_evidence::region_shape(region, REGION_KEYS, !arcs.is_empty()),
             "REGION_SHAPE",
         )?;
         require(
@@ -744,7 +796,8 @@ pub(crate) fn validate_physics_evidence_in(
                 && region["profile_mode"] == contract.mode()
                 && region["pressure_basis"] == "internal_differential_zero_external_v1"
                 && region["external_pressure_increment_pa"] == 0.0
-                && region["approximation"] == "long_straight_annulus_small_strain_v2",
+                && (!arcs.is_empty()
+                    || region["approximation"] == "long_straight_annulus_small_strain_v2"),
             "REGION_PROFILE",
         )?;
         let p = number(&region["p_pa"])?;
@@ -779,10 +832,15 @@ pub(crate) fn validate_physics_evidence_in(
             )?;
             for duplicate in array(&region[field])? {
                 let member = text(&duplicate["pipe_id"])?;
+                let dropped: Vec<&str> = if field == "geometry" && arcs.contains(member) {
+                    [extra].into_iter().chain(crate::arc_evidence::GEOMETRY_KEYS).collect()
+                } else {
+                    vec![extra]
+                };
                 require(
                     if resolved && field == "materials" {
                         MATERIAL_KEYS.iter().all(|key| duplicate[*key] == basis[member][*key])
-                    } else { without(duplicate, extra) == *basis[member] },
+                    } else { without_all(duplicate, &dropped) == *basis[member] },
                     "REGION_DUPLICATE_CONTRADICTION",
                 )?;
                 if field == "geometry" {
@@ -804,6 +862,10 @@ pub(crate) fn validate_physics_evidence_in(
             "APPLIED_MEMBER_COVERAGE",
         )?;
         for item in array(&region["applied_loads"])? {
+            // An arc member's record is the bend term's (checked below).
+            if arcs.contains(text(&item["pipe_id"])?) {
+                continue;
+            }
             require(
                 keys(
                     item,
@@ -878,6 +940,9 @@ pub(crate) fn validate_physics_evidence_in(
                 _ => return Err("SOURCE_PHYSICS_TERMINAL_CLOSURE".into()),
             }
         }
+        if !arcs.is_empty() {
+            crate::arc_evidence::region(region, &arcs, p)?;
+        }
         let actual = strings(&region["result_ids"])?;
         let expected: HashSet<_> = rows
             .iter()
@@ -894,6 +959,17 @@ pub(crate) fn validate_physics_evidence_in(
         }
         for member in array(&region["member_pipe_ids"])? {
             let member = text(member)?;
+            if arcs.contains(member) {
+                for (kind, component, stations) in crate::arc_evidence::ROWS {
+                    for station in stations {
+                        require(
+                            slots.contains(&(case, member, kind, component, *station)),
+                            "PRESSURE_ROW_COVERAGE",
+                        )?;
+                    }
+                }
+                continue;
+            }
             for (kind, components) in [
                 (
                     "pipe_wall_endpoint_action_v2",
@@ -944,6 +1020,7 @@ pub(crate) fn validate_physics_evidence_in(
             &case["pressure_rhs_assembly"],
             text(&case["load_case_id"])?,
             &regions,
+            contract,
         )?;
     }
     let headline = &source["summary"]["max_open_formula_stress"];
@@ -975,7 +1052,12 @@ pub(crate) fn validate_physics_evidence_in(
     Ok(())
 }
 
-fn assembly(v: &Value, case: &str, regions: &HashMap<(&str, &str), &Value>) -> Check {
+fn assembly(
+    v: &Value,
+    case: &str,
+    regions: &HashMap<(&str, &str), &Value>,
+    contract: PressureContract,
+) -> Check {
     require(
         keys(
             v,
@@ -1118,6 +1200,20 @@ fn assembly(v: &Value, case: &str, regions: &HashMap<(&str, &str), &Value>) -> C
                 u64::from_str_radix(text(&group["pressure_bits"])?, 16).ok() == Some(p.to_bits()),
                 "RHS_PRESSURE_BINDING",
             )?;
+            // T4-U2: the bend and junction terms of a realized arc (v3 only).
+            if contract == PressureContract::PressureV3 {
+                let arcs = crate::arc_evidence::members(region, true)?;
+                if let Some(check) = crate::arc_evidence::rhs_term(
+                    term["kind"].as_str().unwrap_or_default(),
+                    pipe,
+                    coefficient,
+                    region,
+                    &arcs,
+                ) {
+                    check?;
+                    continue;
+                }
+            }
             match term["kind"].as_str() {
                 Some("terminal_cap") => require(coefficient.abs() == 1.0, "RHS_CAP_COEFFICIENT")?,
                 Some("poisson_eigen") => {
@@ -1209,7 +1305,7 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
             .filter(|p| p["load_case_id"] == cid)
             .map(|p| Ok(((text(&p["load_case_id"])?, text(&p["region_id"])?), p)))
             .collect::<Result<HashMap<_, _>, String>>()?;
-        assembly(&case["pressure_rhs_assembly"], cid, &regions)?;
+        assembly(&case["pressure_rhs_assembly"], cid, &regions, PressureContract::StraightV2)?;
     }
     let mut regions = HashSet::new();
     for region in array(&evidence["pressure"])? {

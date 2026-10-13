@@ -115,7 +115,7 @@ fn pressure_v3_formulation_basis_in(
     let identity = if selected == Some(true) {
         "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = match selected {
         None => "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
@@ -224,7 +224,7 @@ impl ExactFamily {
                 "realized curved bend (curved_bend_macro_element) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
             }
             ExactFamily::GeometryOnlyBend => {
-                "geometry-only bend (a straight chord with no flexibility) is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe; geometry-only bends never carry pressure on the exact route (D-2) and remain on the pressure-free route"
+                "geometry-only bend (a straight chord with no flexibility) is not admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe; realize this bend (mechanics_interface.solver_consumption curved_bend_macro_element, with its bend radius and the user's flexibility factor k) to analyse it on the exact route; geometry-only bends never carry pressure on the exact route (D-2) and remain on the pressure-free route"
             }
             ExactFamily::Valve => {
                 "valve is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
@@ -280,12 +280,16 @@ pub(crate) enum Admission {
 }
 
 /// The admission table. Under v2 it reproduces v2's existing codes and texts
-/// (SP-1). Under v3 the objective connector is admitted (T4-U3).
+/// (SP-1). Under v3 the objective connector (T4-U3) and the realized bend
+/// (T4-U2) are admitted.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // T4-U3: an explicit objective connector on v3, with its own
         // classifier (`joint::classify_connectors`), mechanics and evidence.
         (ExactContract::PressureV3, ExactFamily::ObjectiveConnector) => Admission::Admitted,
+        // T4-U2: a realized curved bend on v3, with its member-owned pressure
+        // term, chain topology and arc recovery (`bend_pressure`).
+        (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
         (ExactContract::StraightV2, _) => {
             let (code, message) = straight_v2_refusal(family);
             Admission::Refused { code, message }
@@ -386,10 +390,20 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_is_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_and_the_realized_bend_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
-                Admission::Admitted if family == ExactFamily::ObjectiveConnector => {}
+                Admission::Admitted
+                    if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend) => {}
+                // T4-U2 (D-2): a chord bend is never admitted; its text asks
+                // the user to realize the bend.
+                Admission::Refused { code, message } if family == ExactFamily::GeometryOnlyBend => {
+                    assert_eq!(code, FAMILY_NOT_ADMITTED);
+                    assert!(message.starts_with(family.name()), "{message}");
+                    assert!(message.contains("is not admitted under 3.0.0/exact_pressure_v3"));
+                    assert!(message.contains("realize this bend"));
+                    assert!(message.ends_with(family.note()), "{message}");
+                }
                 Admission::Refused { code, message } => {
                     assert_eq!(code, FAMILY_NOT_ADMITTED);
                     assert!(message.starts_with(family.name()), "{message}");

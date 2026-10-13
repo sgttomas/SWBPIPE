@@ -180,8 +180,28 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
     O10_ID_AUDIT += [(site("push_product", _LL, "source: source.into()", full=True), {"source": IN})]
     _BP = PP_ + "bend_pressure.rs"
     if fnkey("append_arc_pressure_results", _BP):
+        # U2A2 (batch 4, review M-2): the function now holds two blocking
+        # diagnostics with the same affected-ref line, the unknown-location
+        # refusal and the unrepresentable-section diagnostic. Each is keyed
+        # by its own unique preceding line and checked; both stay priced.
+        _bp_lines = open(_os.path.join(_SNAP, _BP), encoding="utf-8").read().split("\n")
+        for _before in ['format!("arc section location {location:?} is not one of', "RECOVERY_UNREPRESENTABLE,"]:
+            _prev = site("append_arc_pressure_results", _BP, _before, full=True)
+            _prev_file, _prev_line = _prev.rsplit(":", 1)
+            if _bp_lines[int(_prev_line)].strip() != "vec![case.id.clone(), pipe_id.to_string()],":
+                raise SystemExit("U2A2: arc pressure affected-ref site changed; re-review")
+            O10_ID_AUDIT += [(Resolved(f"{_prev_file}:{int(_prev_line) + 1}"), {"case.id": IN, "pipe_id": IN})]
+        # U2L4 (batch 4, review I-1/M-2): the per-section recovery loop runs
+        # over the two ends plus the caller's station rows, which every
+        # solve_load_case_observed branch forms as at most three (quarter_1,
+        # midspan, quarter_3; KD5L7, curved_bend_station_resultants -> [_; 3]).
+        O10_LOOPS_LAST += [("for (location, elastic) in sections", "5", O10 + "U2L4: sections = [end_i, end_j] + stations, stations <= 3", ["bend_pressure.rs:append_arc_pressure_results"])]
+        # U2A3: the unknown-location refusal's {location:?} is a &'static str
+        # of `sections`: the literals end_i/end_j or StationResultants.location
+        # (&'static str; quarter_1/midspan/quarter_3). STATIC; the site stays priced.
+        O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, 'format!("arc section location {location:?} is not one of', full=True),
+                          {"location|?": ST})]
         for _text, _values in [
-            ("vec![case.id.clone(), pipe_id.to_string()]", {"case.id": IN, "pipe_id": IN}),
             ('"result:pressure-exact:{}:{}:{}:{}:{}:{}"', {"case.id.len()": NUM_, "case.id": IN, "pipe_id.len()": NUM_, "pipe_id": IN,
                 "location": ST, "component": ST}),
             ("kind: kind.to_string()", {"kind": ST}),
@@ -240,6 +260,29 @@ if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
             {"re": r"^phi$|^factor$", "max": 327, "why": O10 + "O13T: f64 Display maximum is 327"},
             {"re": r"^line$", "max": _SRC_BYTES, "why": O10 + "O13T: product_text copies a line of its include_str source; one line <= combined source bytes, measured at snapshot"},
         ]
+
+# O13T2 (T4 batch 4): O-13's arc predicate is removed (the unified K-D5
+# predicate decides), so the block above is inert, but `s11g_tests/arc_recovery.rs`
+# remains, rewritten. It is still a module of the cfg(test) `s11g_tests`; the
+# chain reaches some of its helpers only through conservative name candidates.
+# The same honest test-only classes as O13T; never a guessed zero size.
+_AR = PP_ + "s11g_tests/arc_recovery.rs"
+if not fnkey("arc_recovery_finding", PP_ + "formation_guard.rs") and _os.path.exists(_os.path.join(_SNAP, _AR)):
+    for _fn, _text, _values in [
+        # Literal kinds only: "axial", "shear", "torsion", "bending" (g2 iterates the same four).
+        ("group", "kind: kind.into()", {"kind": ST}),
+        # Test project ids: the fixed invented:o13:* ids, the longest 42 B with phi's Display; <= IN128.
+        ("p2_realistic_arcs_are_not_demoted", 'let tag = format!("{} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+        ("p5_an_already_sensitive_case_is_left_untouched", 'let tag = format!("P5 {} {entry:?} {mode:?}"', {"project_of(request)": IN}),
+    ]:
+        if fnkey(_fn, _AR):
+            O10_ID_AUDIT += [(site(_fn, _AR, _text, full=True), _values)]
+    _SRC_BYTES = sum(_os.path.getsize(_os.path.join(_SNAP, PP_ + f)) for f in ("lib.rs", "formation_guard.rs"))
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^mode$", "max": 17, "why": O10 + "O13T2: PreviewSolverMode Debug is SparseInteractive (17) or DenseScrutiny (13)"},
+        {"re": r"^phi$", "max": 327, "why": O10 + "O13T2: f64 Display maximum is 327"},
+        {"re": r"^line$", "max": _SRC_BYTES, "why": O10 + "O13T2: product_text copies a line of its include_str source (lib.rs, formation_guard.rs); one line <= combined source bytes, measured at snapshot"},
+    ]
 
 
 # KD5L1: current unified RecoveryRecord includes supports. Rebind the
@@ -319,7 +362,10 @@ if fnkey("member_group_fires", _FG):
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
         (site("summand", _CL, "source: source.into()", full=True), {"source": CP}),
         (site("solve_load_case_observed", PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
-        (site("finish_source_groups", PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+        # KD5A3 (batch 4 re-key): the pressure closure label moved, unchanged,
+        # from finish_source_groups' map closure into its callee closure_source.
+        (site("closure_source" if fnkey("closure_source", PP_ + "pressure_runtime.rs") else "finish_source_groups",
+              PP_ + "pressure_runtime.rs", 'format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
     ]
     _LL = FK_ + "load_ledger.rs"
     CG_RULES += [{"caller": Resolved(_LL + ":" + fnkey("force_scaled", _LL).split(":",1)[1]), "name": "force_scaled",
@@ -409,7 +455,10 @@ if fnkey("member_group_fires", _FG):
 # named callers' primitive numbers, not that new private method owner.
 if fnkey("fallback_circular_maximum", _CP):
     _primitive_minmax_callers = {
-        "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales", "moment_scales", "stress_free_notice"],
+        # Batch 4 renamed moment_scales to action_scales (O-13's coupled
+        # ActionScales); its min/max receivers are still the f64 scales.
+        "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales",
+            "action_scales" if fnkey("action_scales", PP_ + "formation_guard.rs") else "moment_scales", "stress_free_notice"],
         "lib.rs": ["observation_lane_profile", "build_curved_bend_macro_elements", "straight_summary_extrema"],
         "pressure_exact.rs": ["fused_mul_add"], "pressure_runtime.rs": ["finish_source_groups"],
         "retained_memory.rs": ["string", "material", "walk", "combination_census", "longest_string", "complete_observations"],
@@ -509,6 +558,17 @@ if fnkey("withhold_certified_summaries", PP_ + "lib.rs"):
         (Resolved(f"{_kd5a8_file}:{int(_kd5a8_line) + 1}"), {"pipe.element_id": IN}),
     ]
 
+# KD5A9 (T4 batch 4): certified_loads::member_source's ledger source label.
+# Batch 4's pressure closure binding (arc pressure free strain, region id)
+# gives the site a positive multiplicity. `member` is a pipe or connector
+# component's authored id (IN128). `source` is an authored load or region id,
+# the static "reference", or on the 0.4.0 route source_recovery::eigen_source_id
+# ("load_state_eigenstrain:{len}:{pipe_id}", <= 23+20+1+128 B): the composite
+# class (600) covers every caller. The site keeps its full multiplicity.
+if fnkey("member_source", PP_ + "certified_loads.rs") and fnkey("closure_source", PP_ + "pressure_runtime.rs"):
+    O10_ID_AUDIT += [(site("member_source", PP_ + "certified_loads.rs", 'format!("member:{}:{member}:{source}", member.len())', full=True),
+                      {"member": IN, "source": CP})]
+
 # C7A1: move only the five replaced owned-key audit lines to source-bound
 # name keys. Borrowed input metadata is resolved without an allocation row.
 import runpy as _c7_audit_runpy
@@ -534,3 +594,171 @@ C7_INPUT_METADATA = [(site(_name, _c7_audit_file, _borrowed if _c7_audit_borrowe
                      for _name, _owned, _borrowed, _audit in _c7_audit_sites]
 if not _c7_audit_borrowed:
     O10_ID_AUDIT += C7_INPUT_METADATA
+
+
+# ---- The pressure-source join (b7-plan; Design retained-pricing-rules.md §J). Each rule applies only where the
+# join's code exists, so earlier revisions price as before.
+
+# JN1: frame_kernel's correct_norm module moved, byte-identical, into the open_pipe_stress_correct_norm crate (price.py
+# scans it and adds each dependent crate's edge). A crate-qualified `open_pipe_stress_correct_norm::normN(` keeps only
+# its last qualifier, so by name it would also reach frame_kernel's same-crate private `final_case.rs:norm2` and
+# `formation_check.rs:norm3`. Each frame_kernel caller is bound to the crate's function it names, as
+# `crate::correct_norm::normN(` resolved before the move; every other candidate keeps its by-name resolution.
+_CN = "core/numerics/correct_norm/src/lib.rs"
+if _os.path.exists(_os.path.join(_SNAP, _CN)):
+    _JN1 = {
+        (FK_ + "rigid_body.rs", "assess_rigid_body"): {
+            "open_pipe_stress_correct_norm::norm3(r[0], r[1], r[2])": "norm3",
+            "open_pipe_stress_correct_norm::norm2(zeta, 1.0)": "norm2"},
+        (FK_ + "structural/certified_recovery.rs", "norm_up"): {
+            "open_pipe_stress_correct_norm::norm2(norm, v)": "norm2"},
+        (FK_ + "structural/certified_recovery.rs", "certified_group"): {
+            "open_pipe_stress_correct_norm::norm2(a.published, b.published)": "norm2",
+            "open_pipe_stress_correct_norm::norm3(a.published, b.published, c.published)": "norm3",
+            "open_pipe_stress_correct_norm::norm2(midpoint_norm, v)": "norm2"},
+        (FK_ + "structural/retained/product_certificate/final_case.rs", "support_hypot"): {
+            "open_pipe_stress_correct_norm::norm3(v[0],v[1],v[2])": "norm3"},
+    }
+    _jn1_found = []
+    for _d, _, _fs in _os.walk(_os.path.join(_SNAP, FK_)):
+        for _f in sorted(_fs):
+            if _f.endswith(".rs") and "test" not in _f and "/tests" not in _d:
+                _p = _os.path.join(_d, _f)
+                _jn1_found += [(_os.path.relpath(_p, _SNAP), _l.strip()) for _l in open(_p, encoding="utf-8") if "open_pipe_stress_correct_norm::" in _l]
+    if len(_jn1_found) != sum(len(_v) for _v in _JN1.values()):
+        raise SystemExit(f"JN1: frame_kernel's crate-qualified correct_norm call inventory changed; re-review: {_jn1_found}")
+    for (_file, _caller), _calls in _JN1.items():
+        for _text in _calls:
+            site(_caller, _file, _text)  # exactly once inside the caller, else stop
+        for _name in sorted(set(_calls.values())):
+            CG_RULES += [{"caller": _fn_n(_caller, _file, 1, 1), "name": _name, "targets": [_fn_n(_name, _CN, 1, 1)],
+                "added": "JN1", "evidence": "the crate-qualified call names open_pipe_stress_correct_norm's pub fn (frame_kernel's former "
+                "correct_norm module, moved unchanged); the same-crate private final_case.rs:norm2/formation_check.rs:norm3 are not that path"}]
+
+# J1: the join's PRESSURE_SOURCE_ID arm of for_source (physics_source::validate_in under SourceContract::PressureV3).
+# for_source's only D1 caller is retained_precision::validate's G7 on project(source), which sets
+# producer.semantic_contract_id to route.base_id, one of two literals (preview-physics-1 on route L, physics-1 on
+# route E; retained_precision.rs ROUTE base_id). So the arm is never taken: R1's and G4 (T17)'s argument for the
+# sibling arms.
+_SC = RE_ + "semantic_contract.rs"
+if fnkey("for_source", _SC) and fnkey("validate_in", RE_ + "physics_source.rs"):
+    site("for_source", _SC, "Some(PRESSURE_SOURCE_ID) =>")
+    _rp = open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()
+    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != ["openpipestress.result_semantics/0.3.0/physics-1",
+                                                           "openpipestress.result_semantics/0.3.0/preview-physics-1"] \
+            or 'projected["producer"]["semantic_contract_id"] = json!(route.base_id);' not in _rp:
+        raise SystemExit("J1: retained_precision's G7 projection no longer pins the two base identities; re-review")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("for_source", _SC), fnkey("validate_in", RE_ + "physics_source.rs"),
+        O10 + "J1: the precommit reader validates project(successor), whose producer.semantic_contract_id is the route's "
+        "base id (preview-physics-1 on route L, physics-1 on route E; retained_precision project()), never pressure-source-1, "
+        "so for_source never takes the PRESSURE_SOURCE_ID arm; R1's argument")]
+
+# J2: `attempted.push(request, id)` in lib.rs CaseSet::attempted passes the loop's pattern binding `(&request, &id)`, not
+# a function; the by-name function-as-value scan picks the join's `fn request()` in source_recovery/j7_t4_consequences.rs,
+# a private fn of a `#[cfg(test)]` child module of source_recovery, which lib.rs cannot name. Only that one edge is
+# zeroed (the value scan's edges bypass callgraph exclusions); attempted's other edges stay.
+_J7T = PP_ + "source_recovery/j7_t4_consequences.rs"
+if _os.path.exists(_os.path.join(_SNAP, _J7T)) and fnkey("attempted", PP_ + "lib.rs"):
+    site("attempted", PP_ + "lib.rs", "attempted.push(request, id)")
+    if "#[cfg(test)]\n#[path = \"source_recovery/j7_t4_consequences.rs\"]\nmod j7_t4_consequences;" not in \
+            open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read():
+        raise SystemExit("J2: j7_t4_consequences is no longer a #[cfg(test)] module; re-review")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("attempted", PP_ + "lib.rs"), fnkey("request", _J7T),
+        O10 + "J2: `request` in `attempted.push(request, id)` is attempted's for-pattern binding `(&request, &id)`; "
+        "j7_t4_consequences::request is a private fn of a #[cfg(test)] module, not nameable from lib.rs")]
+
+# J3 (test code): source_recovery/j7_rf_census.rs is the J7 RF census, a child module that source_recovery.rs declares only
+# under #[cfg(test)]; the template inventory's name filter does not see it as test code. Its format sites whose arguments
+# have no class (Debug of diagnostic-code vectors, findings and failures; census labels and the expected-file writer) are
+# sized 0 as O-10 J's multiplicity-0 sites: no site_zero, so the chain still computes each site's multiplicity and
+# o10_check.py fails the run if any is ever positive or no longer present.
+_J7C = PP_ + "source_recovery/j7_rf_census.rs"
+if _os.path.exists(_os.path.join(_SNAP, _J7C)):
+    if "#[cfg(test)]\n#[path = \"source_recovery/j7_rf_census.rs\"]\nmod j7_rf_census;" not in \
+            open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read():
+        raise SystemExit("J3: j7_rf_census is no longer a #[cfg(test)] module; re-review")
+    _J3W = (O10 + "J3 (test code, multiplicity 0): source_recovery.rs declares j7_rf_census only under #[cfg(test)]; "
+            "size 0 with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
+    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(site(_fn, _J7C, _t, row=_row), 0, _J3W) for _fn, _t, _row in (
+        ("actual", 'format!("normalization/admission: {:?}", blocking(&diagnostics))', None),
+        ("actual", '.ok_or_else(|| format!("model build: {:?}", blocking(&diagnostics)))?', None),
+        ("actual", 'return Err(format!("model build: {:?}", blocking(&diagnostics)));', None),
+        ("actual", 'format!("actual boundary: {:?}", boundary.findings)', None),
+        ("actual", 'format!("actual loads: {:?}", blocking(&diagnostics))', None),
+        ("method_row_holds", 'format!("spring:{node}:{ordinal}")', None),
+        ("leaf_diff", 'format!("{path}/{k}")', None),
+        ("method_value", 'format!("{:?}", f.helper_stage)', None),
+        ("method_value", 'format!("{:?}", f.error)', None),
+        ("public_value", 'format!("{}: {}", d["code"].as_str().unwrap(), d["message"].as_str().unwrap())', None),
+        ("census_entry", 'did not produce a selected response: {f:?}")', None),
+        ("j7_rf_census_expected_write", 'sha(INPUTS.as_bytes()), REFERENCES_SHA256, lines.join(",\\n")', "format!("))]
+    # Two of these sites also hold an identifier placeholder (`node`, `path`), so the chain still evaluates their format;
+    # their other arguments get honest classes (unused at multiplicity 0).
+    _j7c = open(_os.path.join(_SNAP, _J7C), encoding="utf-8").read()
+    if 'const REFERENCES_SHA256: &str = "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9";' not in _j7c:
+        raise SystemExit("J3: the census's pinned references.json changed; re-measure its longest reference key")
+    O10_ID_AUDIT = O10_ID_AUDIT + [
+        (site("method_row_holds", _J7C, 'format!("spring:{node}:{ordinal}")', full=True),
+         {"ordinal": {"bytes": 13, "source": O10 + "J3: a '.'-part of a reference key r[0] of references.json (sha 7b176dbb..., "
+                      "pinned and asserted by the census); its longest key is 13 B"}}),
+        (site("leaf_diff", _J7C, 'format!("{path}/{k}")', full=True),
+         {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
+                "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
+    ]
+
+# J4: the v3 formulation basis's first and selection limitations are `identity.to_string()` and `source.to_string()`,
+# each a whole &'static str chosen from literals in pressure_v3_formulation_basis_in (2 identity texts; 3 source texts by
+# `selected`). Each is bounded by its longest literal, read at the snapshot (the raw literal's length bounds the decoded one).
+_EA = PP_ + "exact_admission.rs"
+if fnkey("pressure_v3_formulation_basis_in", _EA):
+    _ea = open(_os.path.join(_SNAP, _EA), encoding="utf-8").read()
+    def _j4_literals(start, count):
+        i = _ea.index(start); j = _ea.index("\n    };", i)
+        lits = _re.findall(r'"((?:[^"\\]|\\.)*)"', _ea[i:j])
+        if len(lits) != count or _ea.count(start) != 1:
+            raise SystemExit(f"J4: {start!r} no longer selects exactly {count} literals; re-review")
+        return max(len(l.encode()) for l in lits)
+    _J4I, _J4S = _j4_literals("let identity = if selected == Some(true) {", 2), _j4_literals("let source = match selected {", 3)
+    O10_ID_AUDIT = O10_ID_AUDIT + [
+        (site("pressure_v3_formulation_basis_in", _EA, "identity.to_string(),", full=True),
+         {"identity": {"bytes": _J4I, "source": O10 + "J4: the longer of the two static identity literals"}}),
+        (site("pressure_v3_formulation_basis_in", _EA, "source.to_string(),", full=True),
+         {"source": {"bytes": _J4S, "source": O10 + "J4: the longest of the three static source-selection literals"}}),
+    ]
+
+# J5: validate_physics_evidence_in calls load_reference::prepass only under `if resolved`, where `resolved = composite &&
+# contract == PressureContract::PressureV3 && ...`. The one call passing composite = true is physics_source::validate_in
+# (physics_source.rs), which is unreached on both routes (its only reached caller's edge, for_source -> validate_in, is J1's
+# zero; G4 (T17) for its PhysicsV2 sibling). Every other call passes composite = false (physics_evidence.rs
+# validate_physics_evidence and validate_pressure_evidence, load_reference.rs validate), so the edge is never taken.
+_PE = RE_ + "physics_evidence.rs"
+if fnkey("validate_physics_evidence_in", _PE) and fnkey("prepass", RE_ + "load_reference.rs"):
+    _pe_txt = open(_os.path.join(_SNAP, _PE), encoding="utf-8").read()
+    if not _re.search(r"let resolved = composite && contract == PressureContract::PressureV3\s*\n\s*&& evidence\.get\(\"load_reference_states\"\)\.is_some\(\);\s*\n\s*if resolved \{\s*\n(\s*//[^\n]*\n)*\s*crate::load_reference::prepass\(", _pe_txt) \
+            or _pe_txt.count("crate::load_reference::prepass(") != 1:
+        raise SystemExit("J5: validate_physics_evidence_in's prepass call is no longer only under `resolved`; re-review")
+    _j5_calls = []
+    for _d, _, _fs in _os.walk(_os.path.join(_SNAP, RE_)):
+        for _f in sorted(_fs):
+            if _f.endswith(".rs"):
+                _src = open(_os.path.join(_d, _f), encoding="utf-8").read()
+                _j5_calls += [(_f, _m) for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
+    if sorted((_f, _m[1]) for _f, _m in _j5_calls) != [("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
+                                                       ("physics_evidence.rs", "false"), ("physics_source.rs", "true")]:
+        raise SystemExit(f"J5: validate_physics_evidence_in's call inventory changed; re-review: {_j5_calls}")
+    site("validate_in", RE_ + "physics_source.rs", "crate::physics_evidence::validate_physics_evidence_in(source, true, contract.pressure())?;")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate_physics_evidence_in", _PE), fnkey("prepass", RE_ + "load_reference.rs"),
+        O10 + "J5: prepass is called only when resolved (composite && PressureV3 && load_reference_states); the only composite "
+        "caller is physics_source::validate_in, unreached on both routes (J1; G4 (T17)); every reached caller passes composite = false")]
+
+# J6: the join moved shape_in's body, unchanged but for an explicit `resources` list consulted for a non-local `$ref`, into
+# shape_in_resources; shape_in now only delegates with no resources. The registered review of shape_in's bounded self-
+# recursion (loop_bounds recursion_reviewed: multiplicity 0 on D1, the source-block shape check is not on the D1 path; text
+# only on its error path) applies to the function that now recurses. Its callers on the graph are shape_in (whose D1 reach
+# was only through prepass, J5) and physics_source's receipt and transport-metadata checks (unreached).
+_SBK = RE_ + "source_blocks.rs"
+if fnkey("shape_in_resources", _SBK):
+    site("shape_in", _SBK, "shape_in_resources(v, s, root, &[])")
+    site("shape_in_resources", _SBK, ".is_some_and(|target| shape_in_resources(v, target, target_root, resources));")
+    O10_RECURSION_REVIEWED = [(fnkey("shape_in_resources", _SBK), "J6: shape_in's reviewed recursion moved here with its body; "
+        "multiplicity 0 on D1 (the source-block shape check is not on the D1 path; J5); text only on its error path")]

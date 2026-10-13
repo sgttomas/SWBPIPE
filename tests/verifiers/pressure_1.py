@@ -1,0 +1,1392 @@
+"""Independent test-only verifier of pressure-1 publications (3.0.0/exact_pressure_v3).
+
+The Rust reader (``core/reporting/result_export``: ``physics_evidence``,
+``arc_evidence``, ``connector_evidence``, ``load_reference``) is the only
+product reader of ``openpipestress.result_semantics/0.3.0/pressure-1`` (owner,
+2026-10-10: "move to one product reader in Rust"; "All readers."). The
+desktop, Python product paths and the VP-STATIC ``exact_pressure_1`` gate take
+that reader's verdict (``reader_verdict``'s ``pressure`` route, through
+``openpipestress-runner read pressure``). This module checks the same
+publications independently, for the shared corpora tests and the test-only
+reader-verdict verifier only.
+
+Independence: standard-library imports only. It imports no product module and
+no producer crate, neither directly nor through the subprocess bridges
+(``core/serialization/canonical_json/adapter.py``, ``core/units/adapter.py``):
+it needs neither canonical JSON nor unit conversion. It reads the pinned
+pressure-1 table and, for transported statements only, the results 0.3 and
+load/reference-state schemas, by path relative to the project root.
+
+What it verifies (internal source consistency only; never producer origin,
+numerical accuracy or model freshness):
+
+- the header: raw 0.2.0, the exact producer, the profile and limitations,
+  numerical quality, and the foreign namespaces refused by name;
+- straight pressure regions, sections, materials, the stress maxima and the
+  v3 pressure RHS ledger (``poisson_eigen``, ``terminal_cap``,
+  ``bend_cap_removed``, ``kink_remainder``), with signed ``p_pa``;
+- realized arcs: region and member keys, the bend term, junctions, withheld
+  rows and arc signs;
+- objective connector records and their 24 rows per case;
+- model-scoped review rows, the evidence keys and the 0.4.0
+  load/reference-state pre-pass;
+- the cross-reads by name: v2 evidence offered as pressure-1
+  (``V2_READ_AS_V3``) and pressure-1 evidence under a v2 identity
+  (``V3_READ_AS_V2``).
+"""
+from __future__ import annotations
+
+from collections.abc import Mapping
+from copy import deepcopy
+import hashlib
+import json
+import math
+from pathlib import Path
+import struct
+from typing import Any
+
+PROJECT = Path(__file__).resolve().parents[2]
+
+CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PROFILE = "exact_pressure_v3"
+PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
+STRAIGHT_V2 = ("2.0.0", "exact_straight_pressure_v2")
+PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
+PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
+TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json"
+TABLE_SHA256 = "2ff945ac9e4360984f300fcfaaa4c5890bac7797f94fe70f82f9f8a1e1f89af1"
+
+# Refusals by name.
+V3_READ_AS_V2 = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2"
+V2_READ_AS_V3 = "SOURCE_PHYSICS_EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3"
+CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
+# A straight-v2 identity whose evidence names no v3 contract: a v2 reader's
+# publication, which this verifier does not read.
+NOT_PRESSURE_1 = "SOURCE_PHYSICS_PRESSURE_1_REQUIRED"
+RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
+RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+
+# --------------------------------------------------------------------------
+# Row and evidence vocabulary
+# --------------------------------------------------------------------------
+
+PIPE_KINDS = {
+    "pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2",
+    "pipe_effective_axial_force_v2", "pipe_axial_membrane_stress_v2",
+    "pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2",
+    "pipe_elastic_normal_stress_maximum_v2",
+}
+SIGNS = {
+    "pipe_wall_endpoint_action_v2": "node-on-element wall action, positive along authored local x toward end j; cap transfer is not subtracted from wall recovery",
+    "pipe_wall_axial_force_v2": "tension-positive material wall section resultant Nw",
+    "pipe_effective_axial_force_v2": "effective wall-fluid resultant S=Nw-pAi; not material stress or a support reaction",
+    "pipe_elastic_normal_stress_maximum_v2": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim",
+    "pipe_axial_membrane_stress_v2": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar",
+    "pipe_lame_radial_stress_v2": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment",
+    "pipe_lame_hoop_stress_v2": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment",
+}
+SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+
+# Objective connector rows and records: kind -> (unit, components, locations).
+CONNECTOR_KINDS = {
+    "connector_generalized_translation_v1": ("m", ("qt_x", "qt_y", "qt_z"), ("connector_local",)),
+    "connector_generalized_rotation_v1": ("rad", ("qr_x", "qr_y", "qr_z"), ("connector_local",)),
+    "connector_generalized_force_v1": ("N", ("gt_x", "gt_y", "gt_z"), ("connector_local",)),
+    "connector_generalized_moment_v1": ("N*m", ("gr_x", "gr_y", "gr_z"), ("connector_local",)),
+    "connector_endpoint_force_v1": ("N", ("Fx", "Fy", "Fz"), ("end_i", "end_j")),
+    "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
+}
+CONNECTOR_ROWS_PER_CASE = 24
+CONNECTOR_ROW_BASIS = "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
+CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
+CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
+CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
+CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
+
+# Realized-arc members of a pressure region. A region with an arc adds
+# ARC_REGION_KEYS; an arc member adds ARC_GEOMETRY_KEYS and its own applied-load
+# record (the bend term).
+ARC_MEMBER_KIND = "realized_arc"
+ARC_APPROXIMATION = "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3"
+ARC_TANGENCY_TOLERANCE_RAD = 1e-3
+ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)"
+ARC_WITHHELD_REASON = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc"
+ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2"]
+ARC_BEND_TERM = "K_b*u_free(eps_p)-c_b"
+ARC_STRAIN_DEFINITION = "(1-2nu)pAi/(E As)"
+ARC_REGION_KEYS = {"tangency_tolerance_rad", "tangency_rule", "bend_adjacent_junctions", "withheld_on_arcs"}
+ARC_GEOMETRY_KEYS = {"member_kind", "arc_end_tangents_global"}
+ARC_APPLIED_KEYS = {"pipe_id", "bend_term", "arc_pressure_strain", "arc_pressure_strain_definition", "mathematical_cap_pair_local_n", "arc_end_tangents_global", "bend_cap_pair_removed_global_n", "thermal_included"}
+ARC_JUNCTION_KEYS = {"node_ref", "pipe_in", "pipe_out", "t_in_global", "t_out_global", "theta_rad"}
+ARC_SIGNS = {
+    "pipe_wall_endpoint_action_v2": "node-on-element wall action along the arc end tangent (local x toward end j at that end); N_w = N_el + pAi; cap transfer is not subtracted from wall recovery",
+    "pipe_wall_axial_force_v2": "tension-positive material wall section resultant Nw = N_el + pAi along the arc tangent; shear and moments are the elastic section actions",
+    "pipe_effective_axial_force_v2": "effective wall-fluid resultant S=Nw-pAi (the arc's elastic axial force); not material stress or a support reaction",
+    "pipe_axial_membrane_stress_v2": "tension-positive axial wall membrane stress Nw/As on the arc section; no added longitudinal pressure scalar",
+}
+STATIONS = ("end_i", "end_j", "quarter_1", "midspan", "quarter_3")
+ARC_STATIONS = {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")} | {(station, component) for station in STATIONS for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress")}
+STRAIGHT_STATIONS = {(station, component) for station in STATIONS for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
+REGION_KEYS = {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids"}
+GEOMETRY = {"pipe_id", "geometry_basis", "outside_diameter_m", "effective_wall_thickness_m", "ri_m", "ro_m", "Ai_m2", "As_m2", "I_m4", "J_m4", "Z_m3"}
+MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
+EVIDENCE_KEYS_0_3_0 = {"pressure", "connector", "exact_cases"}
+EVIDENCE_KEYS_0_4_0 = EVIDENCE_KEYS_0_3_0 | {"load_reference_states"}
+
+
+# --------------------------------------------------------------------------
+# Entry points
+# --------------------------------------------------------------------------
+
+def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
+    """The whole pressure-1 publication: header, then the raw evidence (or, for
+    transported statements without raw rows, the closed transport shape)."""
+    _header(source, raw=raw)
+    if raw:
+        validate_pressure_evidence(source)
+    else:
+        validate_pressure_transport_metadata(source)
+
+
+def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
+    """Raw pressure-1 evidence. A 0.4.0 envelope carries ``load_reference_states``
+    and takes the load/reference-state pre-pass first; a 0.3.0 envelope takes the
+    physics checks directly."""
+    evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
+    if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
+        _load_state_evidence(source)
+        return
+    try:
+        _physics(source)
+    except (TypeError, KeyError, AttributeError, OverflowError) as error:
+        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+
+
+def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
+    """Identity dispatch. pressure-1 is verified; pressure-1 evidence under a
+    straight-v2 identity is refused as ``V3_READ_AS_V2``; any other identity is
+    refused by name."""
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
+    if identity == CONTRACT_ID:
+        basis = source.get("formulation_basis")
+        _require(isinstance(basis, Mapping) and basis.get("profile_id") == PROFILE, "pressure-1 formulation profile")
+        validate_pressure_evidence(source)
+    elif identity in (PHYSICS_ID, LOAD_REFERENCE_ID):
+        if _names_contract(source.get("contract_evidence"), PRESSURE_V3):
+            raise ValueError(V3_READ_AS_V2)
+        raise ValueError(f"{NOT_PRESSURE_1}: {identity!r}")
+    else:
+        raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
+
+
+def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
+    """pressure-1 statements without raw rows: closed shape against the results
+    0.3 ``PressureContractEvidence`` (held in ``results_pressure_1.v0.3``; 0.4.0
+    records against the frozen load/reference-state schema) and internal joins
+    only; never raw row evidence."""
+    try:
+        _transport(source)
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed transport evidence") from error
+
+
+def pressure_table() -> dict[str, Any]:
+    data = TABLE_PATH.read_bytes()
+    if hashlib.sha256(data).hexdigest() != TABLE_SHA256:
+        raise ValueError("SOURCE_PHYSICS_PRESSURE_TABLE_HASH")
+    table = json.loads(data)
+    if not isinstance(table, Mapping) or table.get("semantic_contract_id") != CONTRACT_ID or table.get("formulation_profile_id") != PROFILE:
+        raise ValueError("SOURCE_PHYSICS_PRESSURE_TABLE_IDENTITY")
+    return table
+
+
+# --------------------------------------------------------------------------
+# Header
+# --------------------------------------------------------------------------
+
+QUALITY_STATUSES = {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"}
+
+
+def _header(source: Any, *, raw: bool) -> None:
+    if not isinstance(source, Mapping):
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    if "retained_precision" in source:
+        raise ValueError(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
+    if "carrier_evidence" in source:
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    if source.get("schema_version") != "0.2.0":
+        raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
+    if source.get("producer") != PRODUCER:
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    if "source_block_recovery" in source:
+        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+    quality = source.get("numerical_quality")
+    if (not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"}
+            or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none"
+            or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or not _member(quality.get("status"), QUALITY_STATUSES)
+            or not isinstance(quality.get("cases"), list)):
+        raise ValueError("SOURCE_NUMERICAL_QUALITY_INVALID")
+    for case in quality["cases"]:
+        basis = case.get("basis_ref") if isinstance(case, Mapping) else None
+        if (not isinstance(case, Mapping) or set(case) != {"basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"}
+                or not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(_text(value) for value in basis.values())
+                or not _member(case.get("solve_quality"), QUALITY_STATUSES)
+                or not _member(case.get("structural_status"), {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"})
+                or not _member(case.get("model_matrix_fidelity"), {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"})
+                or not _member(case.get("accuracy_evidence"), {"not_claimed", "reference_verified", "unresolved"})
+                or not isinstance(case.get("evidence_refs"), list) or not all(_text(item) for item in case["evidence_refs"])):
+            raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
+    formulation = source.get("formulation_basis")
+    if (not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != PROFILE
+            or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(_text(item) for item in formulation["limitations"])):
+        raise ValueError("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    rows = source.get("results")
+    if raw and isinstance(rows, list) and any(isinstance(row, Mapping) and row.get("recovery_method") == RETAINED_METHOD for row in rows):
+        raise ValueError(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
+
+
+def _member(value: Any, allowed: set[str]) -> bool:
+    return isinstance(value, str) and value in allowed
+
+
+# --------------------------------------------------------------------------
+# Physics evidence (straight, arcs, connectors), contract 3.0.0/exact_pressure_v3
+# --------------------------------------------------------------------------
+
+def _require(condition: bool, detail: str) -> None:
+    if not condition:
+        raise ValueError(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}")
+
+
+def _shape(value: Any, keys: set[str], detail: str) -> None:
+    _require(isinstance(value, Mapping) and set(value) == keys, detail)
+
+
+def _text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value)
+
+
+def _number(value: Any) -> bool:
+    return type(value) in (int, float) and math.isfinite(value)
+
+
+def _finite_tree(value: Any) -> None:
+    if type(value) in (int, float):
+        _require(math.isfinite(value), "nonfinite evidence")
+    elif isinstance(value, Mapping):
+        for item in value.values():
+            _finite_tree(item)
+    elif isinstance(value, list):
+        for item in value:
+            _finite_tree(item)
+
+
+def _strings(value: Any, nonempty: bool = False) -> bool:
+    return isinstance(value, list) and (not nonempty or bool(value)) and all(_text(x) for x in value) and len(set(value)) == len(value)
+
+
+def _indexed(value: Any, key: str, detail: str) -> dict[str, Any]:
+    _require(isinstance(value, list), detail)
+    _require(all(isinstance(row, Mapping) and _text(row.get(key)) for row in value), detail)
+    indexed = {row[key]: row for row in value}
+    _require(len(indexed) == len(value), f"duplicate {detail}")
+    return indexed
+
+
+def _vector(value: Any, size: int) -> bool:
+    return isinstance(value, list) and len(value) == size and all(_number(x) for x in value)
+
+
+def _float_bits(value: float) -> int:
+    return int.from_bytes(struct.pack(">d", value), "big")
+
+
+def _names_contract(evidence: Any, contract: tuple[str, str]) -> bool:
+    """Whether the evidence names ``contract`` on any exact case or region."""
+    if not isinstance(evidence, Mapping):
+        return False
+    cases = evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []
+    regions = evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []
+    return any(isinstance(c, Mapping) and c.get("profile_mode") == contract[1] for c in cases) or any(
+        isinstance(r, Mapping) and (r.get("profile_mode") == contract[1] or r.get("profile_version") == contract[0]) for r in regions)
+
+
+def arc_members(region: Any) -> set[str]:
+    """The realized-arc members of one region; refused when malformed."""
+    arcs: set[str] = set()
+    for geometry in region.get("geometry", []) if isinstance(region, Mapping) and isinstance(region.get("geometry"), list) else []:
+        if not isinstance(geometry, Mapping) or not ARC_GEOMETRY_KEYS & set(geometry):
+            continue
+        tangents = geometry.get("arc_end_tangents_global")
+        _require(geometry.get("member_kind") == ARC_MEMBER_KIND and isinstance(tangents, list) and len(tangents) == 2 and all(_vector(t, 3) for t in tangents), "arc geometry")
+        arcs.add(geometry.get("pipe_id"))
+    return arcs
+
+
+def _bits(vector: list[Any]) -> list[float]:
+    """Exact binary64 values (a signed zero equals zero, as in Rust)."""
+    return [float(x) for x in vector]
+
+
+def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
+    """Region-level arc statements, arc applied loads and junctions."""
+    withheld = region["withheld_on_arcs"]
+    _require(region["approximation"] == ARC_APPROXIMATION and region["tangency_tolerance_rad"] == ARC_TANGENCY_TOLERANCE_RAD and type(region["tangency_tolerance_rad"]) is float
+             and region["tangency_rule"] == ARC_TANGENCY_RULE and isinstance(withheld, Mapping) and set(withheld) == {"result_kinds", "reason"}
+             and withheld["reason"] == ARC_WITHHELD_REASON and withheld["result_kinds"] == ARC_WITHHELD_KINDS, "arc region profile")
+    geometry = {g["pipe_id"]: g for g in region["geometry"]}
+    loads = {item["pipe_id"]: item for item in region["applied_loads"]}
+    directions = []
+    for pid in region["member_pipe_ids"]:
+        load, forward = loads[pid], geometry[pid]["traversal_forward"]
+        if pid in arcs:
+            tangents = geometry[pid]["arc_end_tangents_global"]
+            _arc_applied(load, tangents, p)
+            t_i, t_j = tangents
+        else:
+            _require(_vector(load.get("local_x_global"), 3), "arc applied load")
+            t_i = t_j = load["local_x_global"]
+        directions.append((pid, t_i, t_j) if forward else (pid, [-x for x in t_j], [-x for x in t_i]))
+    expected = [k for k in range(1, len(directions)) if directions[k - 1][0] in arcs or directions[k][0] in arcs]
+    junctions = region["bend_adjacent_junctions"]
+    _require(isinstance(junctions, list) and len(junctions) == len(expected), "arc junctions")
+    for junction, k in zip(junctions, expected):
+        _require(isinstance(junction, Mapping) and set(junction) == ARC_JUNCTION_KEYS and _text(junction["node_ref"])
+                 and junction["pipe_in"] == directions[k - 1][0] and junction["pipe_out"] == directions[k][0]
+                 and _number(junction["theta_rad"]) and 0 <= junction["theta_rad"] <= ARC_TANGENCY_TOLERANCE_RAD, "arc junctions")
+        _require(_vector(junction["t_in_global"], 3) and _vector(junction["t_out_global"], 3)
+                 and _bits(junction["t_in_global"]) == _bits(directions[k - 1][2]) and _bits(junction["t_out_global"]) == _bits(directions[k][1]), "arc junction tangent")
+
+
+def _arc_applied(load: Any, tangents: list[list[float]], p: float) -> None:
+    _require(isinstance(load, Mapping) and set(load) == ARC_APPLIED_KEYS and load["bend_term"] == ARC_BEND_TERM and load["arc_pressure_strain_definition"] == ARC_STRAIN_DEFINITION
+             and load["thermal_included"] is False and _vector(load["mathematical_cap_pair_local_n"], 2) and _number(load["arc_pressure_strain"])
+             # (1-2nu) > 0 for an admitted nu, so eps_p has the sign of p.
+             and (load["arc_pressure_strain"] > 0) == (p > 0) and (load["arc_pressure_strain"] < 0) == (p < 0), "arc applied load")
+    given = load["arc_end_tangents_global"]
+    _require(isinstance(given, list) and len(given) == 2 and all(_vector(t, 3) for t in given) and [_bits(t) for t in given] == [_bits(t) for t in tangents], "arc applied load")
+    caps = load["mathematical_cap_pair_local_n"]
+    removed = [[-v * caps[0] for v in tangents[0]], [-v * caps[1] for v in tangents[1]]]
+    given = load["bend_cap_pair_removed_global_n"]
+    _require(isinstance(given, list) and len(given) == 2 and all(_vector(t, 3) for t in given) and [_bits(t) for t in given] == [_bits(t) for t in removed], "arc applied load")
+
+
+def _model_scoped_review(row: Mapping[str, Any], table: Mapping[str, Any]) -> bool:
+    """An input review row without ``basis_ref`` whose pressure-1 signature is
+    ``review_evidence`` is model scoped; every other row is case scoped."""
+    if "basis_ref" in row:
+        return False
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
+    matches = [entry for entry in table["rows"] if entry["kind"] == row.get("kind") and entry["unit"] == row.get("unit") and entry.get("component") in (None, metadata.get("component"))]
+    return bool(matches) and all(entry["category"] == "review_evidence" for entry in matches)
+
+
+def _physics(source: Mapping[str, Any]) -> None:
+    if _names_contract(source.get("contract_evidence"), STRAIGHT_V2):
+        raise ValueError(V2_READ_AS_V3)
+    _require(not any(key in source for key in ("source_block_recovery", "carrier_evidence")), "unsupported source namespace")
+    evidence = source.get("contract_evidence")
+    _shape(evidence, EVIDENCE_KEYS_0_3_0, "namespace")
+    _finite_tree(evidence)
+    _require(isinstance(evidence["connector"], list) and isinstance(evidence["pressure"], list), "unsupported connector")
+    cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
+    arcs_by_case: dict[str, set[str]] = {}
+    for region in evidence["pressure"]:
+        arcs_by_case.setdefault(region.get("load_case_id") if isinstance(region, Mapping) else None, set()).update(arc_members(region))
+    # A case's structural members are its pipes and its objective connectors;
+    # a replaced-span-only model is still covered.
+    has_connector = bool(evidence["connector"])
+    rows = _indexed(source.get("results"), "id", "result IDs")
+    quality = source.get("numerical_quality", {}).get("cases", [])
+    numerical_ids = [case.get("basis_ref", {}).get("ref_id") for case in quality]
+    _require(all(case.get("basis_ref", {}).get("ref_type") == "load_case" for case in quality) and len(set(numerical_ids)) == len(numerical_ids), "numerical case scope")
+    if source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED":
+        _require(bool(cases) and set(cases) == set(numerical_ids), "case coverage")
+    materials: dict[str, dict[str, Any]] = {}
+    geometries: dict[str, dict[str, Any]] = {}
+    extrema_ids: set[str] = set()
+    for cid, case in cases.items():
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"}, "case shape")
+        _require(case["profile_mode"] == PRESSURE_V3[1] and _text(case["material_basis"]), "case profile/material basis")
+        materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
+        geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
+        _require((bool(geometries[cid]) or has_connector) and set(materials[cid]) == set(geometries[cid]), "material/geometry coverage")
+        for material in materials[cid].values():
+            _shape(material, MATERIAL, "material shape")
+            _require(_text(material["material_id"]) and _text(material["provenance"]) and material["constitutive_basis"] == "homogeneous_isotropic_E_nu_v1", "material basis")
+            _require(all(_number(material[k]) for k in ("E_pa", "G_pa", "nu")) and material["E_pa"] > 0 and material["G_pa"] > 0 and -1 < material["nu"] < 0.5, "material range")
+            expected_g = material["E_pa"] / (2 * (1 + material["nu"]))
+            # The producer uses scaled arithmetic; permit only its final binary64
+            # representation difference. Duplicated source records agree exactly.
+            _require(math.isfinite(expected_g) and expected_g > 0 and abs(_float_bits(material["G_pa"]) - _float_bits(expected_g)) <= 2, "derived shear modulus")
+            _require(type(material["thermal_consumed"]) is bool and (_number(material["alpha_per_kelvin"]) if material["thermal_consumed"] else material["alpha_per_kelvin"] is None), "thermal alpha")
+        for geometry in geometries[cid].values():
+            _shape(geometry, GEOMETRY, "geometry shape")
+            _require(geometry["geometry_basis"] == "authored_normalized_od_wall_v1" and all(_number(geometry[k]) and geometry[k] > 0 for k in GEOMETRY - {"pipe_id", "geometry_basis"}), "source geometry")
+            _require(geometry["ri_m"] < geometry["ro_m"] and geometry["effective_wall_thickness_m"] < geometry["outside_diameter_m"] / 2 and geometry["ro_m"] == geometry["outside_diameter_m"] * 0.5 and geometry["ri_m"] == geometry["outside_diameter_m"] * 0.5 - geometry["effective_wall_thickness_m"], "source annulus")
+        coverage = case["stress_maximum_coverage"]
+        _shape(coverage, {"complete", "unavailable_pipe_ids"}, "maximum coverage")
+        _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]), "maximum coverage values")
+        missing = set(coverage["unavailable_pipe_ids"])
+        _require(missing <= set(geometries[cid]) and coverage["complete"] == (not missing), "maximum coverage contradiction")
+        _require(arcs_by_case.get(cid, set()) <= missing, "arc withheld")
+        extrema = _indexed(case["pipe_stress_extrema"], "pipe_id", "extrema")
+        _require(set(extrema) == set(geometries[cid]) - missing, "maximum member coverage")
+        for pid, extremum in extrema.items():
+            _shape(extremum, {"pipe_id", "result_id", "approximation", "coefficient_basis", "enclosure_scope", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions"}, "extrema shape")
+            _require(_text(extremum["result_id"]) and extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
+            extrema_ids.add(extremum["result_id"])
+            row = rows.get(extremum["result_id"], {})
+            _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}, "extrema result binding")
+            _require(row.get("value") == extremum["value_lower_pa"] + 0.5 * (extremum["value_upper_pa"] - extremum["value_lower_pa"]), "extrema published witness")
+            _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
+            _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
+            # K-D5 (DEL-04-01 kd5-member-relative-bound.md section 3.2): the public
+            # upper bound is the global maximum enclosure's.
+            _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
+            _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "extrema witness")
+        _validate_rhs(case["pressure_rhs_assembly"], cid)
+    owners: dict[tuple[str, str], str] = {}
+    bindings: set[str] = set()
+    regions: set[tuple[str, str]] = set()
+    region_pressures: dict[tuple[str, str], float] = {}
+    _require(not geometries or all(set(members) == set(next(iter(geometries.values()))) for members in geometries.values()), "active member coverage across cases")
+    for region in evidence["pressure"]:
+        arcs = arc_members(region)
+        _shape(region, REGION_KEYS | (ARC_REGION_KEYS if arcs else set()), "region shape")
+        cid, rid = region["load_case_id"], region["region_id"]
+        _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
+        regions.add((cid, rid))
+        region_pressures[cid, rid] = region["p_pa"]
+        # Signed p_pa under v3.
+        _require(region["profile_mode"] == PRESSURE_V3[1] and region["profile_version"] == PRESSURE_V3[0] and region["pressure_basis"] == "internal_differential_zero_external_v1" and region["external_pressure_increment_pa"] == 0 and _number(region["p_pa"]), "region pressure basis")
+        _require(_text(region["provenance"]) and (bool(arcs) or region["approximation"] == "long_straight_annulus_small_strain_v2") and region["geometry_representation_guard"] == {"epsilon_multiplier": 64, "meaning": "arithmetic_representation_only"}, "region provenance/guard")
+        members = region["member_pipe_ids"]
+        _require(_strings(members, True) and set(members) <= set(geometries[cid]), "region members")
+        for pid in members:
+            _require((cid, pid) not in owners, "overlapping pressure regions")
+            owners[cid, pid] = rid
+        gm = _indexed(region["geometry"], "pipe_id", "region geometry")
+        mm = _indexed(region["materials"], "pipe_id", "region materials")
+        loads = _indexed(region["applied_loads"], "pipe_id", "region loads")
+        _require(set(gm) == set(mm) == set(loads) == set(members), "region evidence coverage")
+        for pid in members:
+            _shape(gm[pid], GEOMETRY | {"traversal_forward"} | (ARC_GEOMETRY_KEYS if pid in arcs else set()), "region geometry shape")
+            _require(type(gm[pid]["traversal_forward"]) is bool and {k: v for k, v in gm[pid].items() if k not in {"traversal_forward"} | ARC_GEOMETRY_KEYS} == geometries[cid][pid], "geometry disagreement")
+            _shape(mm[pid], MATERIAL | {"temperature_basis"}, "region material shape")
+            _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
+            _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
+            if pid in arcs:
+                continue  # the bend term's record (``_arc_region``)
+            _shape(loads[pid], {"pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"}, "applied load shape")
+            _require(_vector(loads[pid]["local_x_global"], 3) and all(_vector(loads[pid][k], 2) for k in ("eigenload_pair_local_n", "mathematical_cap_pair_local_n")) and loads[pid]["thermal_included"] is False, "applied load vectors")
+        terminals = region["terminals"]
+        _require(isinstance(terminals, list) and len(terminals) == 2 and _strings([terminal.get("node_ref") for terminal in terminals]), "closure terminals")
+        for terminal in terminals:
+            _shape(terminal, {"node_ref", "closure_transfer", "provenance", "closure_pressure_load_global_n", "pipe_cap_transfer_global_n", "remote_closure_excluded_from_pipe_solve", "remote_closure_support_reaction_global_n"}, "terminal shape")
+            _require(_text(terminal["node_ref"]) and _text(terminal["provenance"]) and terminal["closure_transfer"] in {"transfers_to_wall", "separately_supported_or_compensated"} and all(_vector(terminal[k], 3) for k in ("closure_pressure_load_global_n", "pipe_cap_transfer_global_n")), "terminal closure")
+            remote = terminal["closure_transfer"] == "separately_supported_or_compensated"
+            _require(terminal["remote_closure_excluded_from_pipe_solve"] is remote and (_vector(terminal["remote_closure_support_reaction_global_n"], 3) if remote else terminal["remote_closure_support_reaction_global_n"] is None), "terminal remote closure")
+            if remote:
+                _require(all(value == 0 for value in terminal["pipe_cap_transfer_global_n"]) and terminal["remote_closure_support_reaction_global_n"] == [-value for value in terminal["closure_pressure_load_global_n"]], "terminal remote transfer disagreement")
+            else:
+                _require(terminal["pipe_cap_transfer_global_n"] == terminal["closure_pressure_load_global_n"], "terminal wall transfer disagreement")
+        if arcs:
+            _arc_region(region, arcs, region["p_pa"])
+            _require(not any(row.get("kind") in ARC_WITHHELD_KINDS and row.get("entity_ref") in arcs and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} for row in rows.values()), "arc withheld")
+        for pid in members:
+            physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
+            observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component")) for row in physical]
+            expected_locations = ARC_STATIONS if pid in arcs else STRAIGHT_STATIONS
+            _require(len(observed) == len(expected_locations) and set(observed) == expected_locations, "pressure station coverage")
+        ids = region["result_ids"]
+        expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
+        _require(_strings(ids, True) and set(ids) == expected and not bindings.intersection(ids), "region result binding")
+        bindings.update(ids)
+    table = pressure_table()
+    support_components: dict[tuple[str, str], list[str]] = {}
+    physical_slots: set[tuple[str, str, str, str, str]] = set()
+    for row in rows.values():
+        _require(_number(row.get("value")), "nonfinite source row")
+        if _model_scoped_review(row, table):
+            _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")) and row.get("source_result_refs", []) == [], "source row identity")
+            continue
+        basis = row.get("basis_ref")
+        _shape(basis, {"ref_type", "ref_id"}, "row case reference")
+        _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
+        _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")), "source row identity")
+        _require(row.get("source_result_refs", []) == [], "unsupported direct-row derivation")
+        if row.get("kind", "").endswith("_v2"):
+            _require(row.get("kind") in PIPE_KINDS or row.get("kind", "").startswith("support_reaction_"), "unknown physical kind")
+            metadata = row.get("metadata")
+            _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "physical metadata shape")
+            _require(_text(metadata["sign_convention"]) and len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata["component"] and ("source_basis" not in entry or entry["source_basis"] == metadata["basis"])]) == 1, "physical signature")
+            support = row["kind"].startswith("support_reaction_")
+            arc = row["entity_ref"] in arcs_by_case.get(basis["ref_id"], set())
+            _require(not (arc and row["kind"] in ARC_WITHHELD_KINDS), "arc withheld")
+            _require(metadata["sign_convention"] == (ARC_SIGNS[row["kind"]] if arc else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
+            force = row["kind"] in {"pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2"}
+            _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and metadata["basis"] == ("recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
+            locations = {"node"} if support else {"governing_station"} if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else {"end_i", "end_j"} if row["kind"] == "pipe_wall_endpoint_action_v2" else set(STATIONS)
+            _require(metadata["location"] in locations, "physical location/derivation")
+            slot = (basis["ref_id"], row["entity_ref"], row["kind"], metadata["component"], metadata["location"])
+            _require(slot not in physical_slots, "duplicate physical result slot")
+            physical_slots.add(slot)
+            if support:
+                support_components.setdefault((basis["ref_id"], row["entity_ref"]), []).append(metadata["component"])
+                if metadata["component"] in {"force_magnitude", "moment_magnitude"}:
+                    _require(row["value"] >= 0, "support magnitude sign")
+        if row.get("kind") in PIPE_KINDS:
+            cid, pid = basis["ref_id"], row.get("entity_ref")
+            _require(pid in geometries[cid], "row member scope")
+            if row["kind"] == "pipe_elastic_normal_stress_maximum_v2":
+                _require(row["id"] in extrema_ids, "unbound extrema row")
+            else:
+                _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
+    _validate_connectors(evidence["connector"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
+    for components in support_components.values():
+        _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
+    headline = source.get("summary", {}).get("max_open_formula_stress")
+    complete = bool(cases) and all(case["stress_maximum_coverage"]["complete"] for case in cases.values())
+    if not complete:
+        _require(headline is None, "incomplete stress maximum headline")
+    elif headline is not None:
+        _shape(headline, {"value", "unit", "location_ref", "result_ref"}, "stress maximum headline")
+        maximum_rows = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2"]
+        selected = rows.get(headline.get("result_ref"), {})
+        _require(bool(maximum_rows) and selected in maximum_rows and headline.get("value") == selected["value"] == max(row["value"] for row in maximum_rows) and headline.get("unit") == selected["unit"] and headline.get("location_ref") == selected["entity_ref"], "stress maximum headline binding")
+    for cid, case in cases.items():
+        arcs = arcs_by_case.get(cid, set())
+        for group in case["pressure_rhs_assembly"]["groups"]:
+            for term in group["terms"]:
+                _require(owners.get((cid, term["pipe_id"])) == term["region_id"], "RHS term region/member binding")
+                if term["kind"] == "bend_cap_removed":
+                    _require(term["pipe_id"] in arcs and abs(term["coefficient"]) == 1, "arc RHS term")
+                elif term["kind"] == "kink_remainder":
+                    region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
+                    _require(any(term["pipe_id"] in (j["pipe_in"], j["pipe_out"]) for j in region.get("bend_adjacent_junctions", [])) and abs(term["coefficient"]) == 1, "arc RHS term")
+                else:
+                    _require(not (term["kind"] == "poisson_eigen" and term["pipe_id"] in arcs), "arc RHS term")
+                    expected_magnitude = 1 if term["kind"] == "terminal_cap" else abs(2 * materials[cid][term["pipe_id"]]["nu"])
+                    _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
+                _require(group["pressure_bits"] == struct.pack(">d", region_pressures[cid, term["region_id"]]).hex(), "RHS source pressure bits")
+                geometry = geometries[cid][term["pipe_id"]]
+                a, b = geometry["outside_diameter_m"] * 0.5, geometry["effective_wall_thickness_m"]
+                hi = a - b
+                b_virtual = a - hi
+                a_virtual = hi + b_virtual
+                lo = (a - a_virtual) + (b_virtual - b)
+                _require(group["source_inner_radius_hi_bits"] == struct.pack(">d", hi).hex() and group["source_inner_radius_lo_bits"] == struct.pack(">d", 0.0 if lo == 0 else lo).hex(), "RHS source bore bits")
+    diagnostics = _indexed(source.get("diagnostics"), "id", "diagnostic IDs")
+    _require(not set(diagnostics).intersection(rows), "ambiguous numerical evidence ID")
+    for case in quality:
+        cid = case["basis_ref"]["ref_id"]
+        _require(_strings(case["evidence_refs"]), "duplicate numerical evidence refs")
+        for ref in case["evidence_refs"]:
+            if ref in rows:
+                _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
+            else:
+                _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
+
+
+def _connector_matrix3(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 3 and all(_vector(row, 3) for row in value)
+
+
+def _validate_connectors(records: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool) -> None:
+    """``contract_evidence.connector`` records and the rows bound to them."""
+    _require(isinstance(records, list), "unsupported connector")
+    spans: dict[str, str] = {}
+    for record in records:
+        _shape(record, CONNECTOR_RECORD, "connector record shape")
+        _require(all(_text(record[k]) for k in ("component_id", "replaced_pipe_id", "node_i", "node_j", "provenance")) and record["node_i"] != record["node_j"], "connector record identity")
+        _require(record["topology"] == "replaces_span" and record["motion_basis"] == "symmetric_midpoint_small_rotation_v1" and record["calibration"] == "constant_structural_elasticity_v1"
+                 and record["hardware"] == "untied" and record["pressure_model"] == "unpressurized" and record["temperature_applicability"] == "fixed_installed_parameters_v1"
+                 and record["reference_state"] in {"stress_free", "prestressed"}, "connector record law")
+        _require(all(_connector_matrix3(record[k]) for k in ("connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global"))
+                 and _vector(record["end_i_offset_local_m"], 3) and _vector(record["end_j_offset_local_m"], 3) and _vector(record["q_ref"], 6)
+                 and _number(record["installed_reference_temperature_k"]) and record["installed_reference_temperature_k"] > 0, "connector record frame")
+        matrix = record["work_matrix"]
+        _require(isinstance(matrix, Mapping) and set(matrix) == CONNECTOR_MATRIX and matrix["representation"] == "scaled_work_coefficients_v1"
+                 and matrix["coordinate_order"] == ["tx", "ty", "tz", "rx", "ry", "rz"] and _number(matrix["translation_scale_m"]) and matrix["translation_scale_m"] > 0
+                 and _number(matrix["rotation_scale_rad"]) and matrix["rotation_scale_rad"] == 1 and matrix["coefficient_unit"] == "N*m"
+                 and _vector(matrix["upper_triangle"], 21) and _text(matrix["source_reference"]), "connector work matrix")
+        _require(record["component_id"] not in spans, "duplicate connector record")
+        _require(record["replaced_pipe_id"] not in spans.values(), "duplicate connector replaced span")
+        _require(record["replaced_pipe_id"] not in members, "connector replaced span published")
+        spans[record["component_id"]] = record["replaced_pipe_id"]
+    replaced = set(spans.values())
+    slots: set[tuple[str, str, str, str, str]] = set()
+    counts: dict[tuple[str, str], int] = {}
+    for row in rows.values():
+        _require(row.get("entity_ref") not in replaced, "connector replaced span published")
+        kind = row.get("kind", "")
+        if not kind.startswith("connector_"):
+            continue
+        _require(kind in CONNECTOR_KINDS, "unknown connector kind")
+        _require(row.get("entity_ref") in spans, "unbound connector row")
+        unit, components, locations = CONNECTOR_KINDS[kind]
+        metadata = row.get("metadata")
+        _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "connector metadata shape")
+        local = metadata["location"] == "connector_local"
+        _require(row.get("unit") == unit and metadata["component"] in components and metadata["location"] in locations
+                 and metadata["coordinate_system"] == ("connector_axes_q" if local else "global")
+                 and metadata["basis"] == CONNECTOR_ROW_BASIS
+                 and metadata["sign_convention"] == (CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
+        case = row["basis_ref"]["ref_id"]
+        _require(case in cases, "connector row case")
+        slot = (case, row["entity_ref"], kind, metadata["component"], metadata["location"])
+        _require(slot not in slots, "duplicate connector row")
+        slots.add(slot)
+        counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
+    if solved:
+        _require(all(counts.get((case, component)) == CONNECTOR_ROWS_PER_CASE for case in cases for component in spans), "connector row coverage")
+
+
+def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
+    _require(isinstance(basis, Mapping), "temperature basis")
+    selection = basis.get("selection")
+    if selection == "base_material":
+        _shape(basis, {"selection"}, "temperature basis")
+        _require(case_basis == "base_material_common_E_nu", "temperature case basis")
+    elif selection == "exact_point":
+        _shape(basis, {"selection", "point_id"}, "temperature basis")
+        _require(_text(basis["point_id"]) and f"material={material_id};common_E_nu_basis=point:{basis['point_id']};G=E/[2(1+nu)];alpha_same_basis=" in case_basis, "temperature point binding")
+    elif selection == "interpolation":
+        _shape(basis, {"selection", "temperature_value", "temperature_unit"}, "temperature basis")
+        _require(_number(basis["temperature_value"]) and basis["temperature_unit"] in {"K", "degC", "degF"} and f"material={material_id};common_E_nu_basis=interpolated:" in case_basis and ";temperature_kelvin=" in case_basis, "temperature interpolation binding")
+    else:
+        _require(False, "temperature selection")
+
+
+def _validate_rhs(rhs: Any, cid: str) -> None:
+    _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
+    _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
+    _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
+    _require(all(_vector(rhs[k], 6 * len(rhs["node_order"])) for k in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global")) and isinstance(rhs["groups"], list), "pressure RHS vectors")
+    for key in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"):
+        _require(all(value == 0 for index, value in enumerate(rhs[key]) if index % 6 >= 3), "unsupported pressure moment")
+    groups: set[tuple[Any, ...]] = set()
+    for group in rhs["groups"]:
+        _shape(group, {"node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "pressure RHS group")
+        _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and all(isinstance(group[k], str) and len(group[k]) == 16 and all(c in "0123456789abcdef" for c in group[k]) for k in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "pressure RHS group source")
+        _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
+        key = (group["node_ref"], group["component"], group["pressure_bits"], group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"], group["direction_component_magnitude"])
+        _require(key not in groups, "duplicate pressure RHS group")
+        groups.add(key)
+        _require(all(math.isfinite(struct.unpack(">d", bytes.fromhex(group[field]))[0]) for field in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "nonfinite pressure RHS source bits")
+        for term in group["terms"]:
+            _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
+            _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap", "bend_cap_removed", "kink_remainder"}, "pressure RHS term values")
+
+
+# --------------------------------------------------------------------------
+# Transported statements (no raw rows)
+# --------------------------------------------------------------------------
+
+def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]) -> bool:
+    """The closed JSON-schema vocabulary the committed schemas use; nothing else is interpreted."""
+    if "$ref" in schema:
+        return _schema_shape(value, root["$defs"][schema["$ref"].split("#/$defs/", 1)[1]], root)
+    if "anyOf" in schema and not any(_schema_shape(value, branch, root) for branch in schema["anyOf"]):
+        return False
+    if "oneOf" in schema and sum(_schema_shape(value, branch, root) for branch in schema["oneOf"]) != 1:
+        return False
+    if "allOf" in schema and not all(_schema_shape(value, branch, root) for branch in schema["allOf"]):
+        return False
+    if "const" in schema and (value != schema["const"] or (type(value) is bool) != (type(schema["const"]) is bool)):
+        return False
+    if "enum" in schema and not any(value == allowed and (type(value) is bool) == (type(allowed) is bool) for allowed in schema["enum"]):
+        return False
+    kind = schema.get("type", "object" if "properties" in schema else "array" if "items" in schema else None)
+    if isinstance(kind, list):
+        return any(_schema_shape(value, {**schema, "type": item}, root) for item in kind)
+    if kind == "null":
+        return value is None
+    if kind == "boolean":
+        return type(value) is bool
+    if kind == "object":
+        if type(value) is not dict:
+            return False
+        properties = schema.get("properties", {})
+        if not set(schema.get("required", [])) <= set(value):
+            return False
+        if schema.get("additionalProperties") is False and not set(value) <= set(properties):
+            return False
+        return all(_schema_shape(item, properties[key], root) for key, item in value.items() if key in properties)
+    if kind == "array":
+        return type(value) is list and schema.get("minItems", 0) <= len(value) <= schema.get("maxItems", 16384) and all(_schema_shape(item, schema["items"], root) for item in value)
+    if kind == "string":
+        if type(value) is not str or len(value) < schema.get("minLength", 0):
+            return False
+        if "pattern" in schema:
+            import re  # deferred: the raw path never needs it
+            return re.fullmatch(schema["pattern"], value) is not None
+        return True
+    if kind in {"number", "integer"}:
+        return (type(value) in {int, float} and math.isfinite(value) and (kind != "integer" or float(value).is_integer())
+                and schema.get("minimum", -math.inf) <= value <= schema.get("maximum", math.inf) and value > schema.get("exclusiveMinimum", -math.inf))
+    return True
+
+
+def _transport(source: Mapping[str, Any]) -> None:
+    results = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
+    pressure = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
+    # The pressure-1 definitions name the shared ones as `results.v0.3.schema.yaml#/$defs/<name>`;
+    # every definition name is unique across the two files.
+    root = {"$defs": {**results["$defs"], **pressure["$defs"]}}
+    evidence = source.get("contract_evidence")
+    _require(isinstance(evidence, Mapping), "transport evidence shape")
+    records = evidence.get("load_reference_states")
+    body = {key: value for key, value in evidence.items() if key != "load_reference_states"}
+    _require(_schema_shape(body, root["$defs"]["PressureContractEvidence"], root), "transport evidence shape")
+    if records is not None:
+        frozen = json.loads((PROJECT / "schemas/load_reference_state.schema.json").read_text())
+        _require(isinstance(records, list) and all(_schema_shape(r, frozen["$defs"]["LoadReferenceStateRecord"], frozen) for r in records), "transport evidence shape")
+    _finite_tree(evidence)
+    cases = _indexed(evidence["exact_cases"], "load_case_id", "transport cases")
+    has_connector = bool(evidence["connector"])
+    resolved = {"material_selection_kind", "resolved_eigenstrain"}
+    for case in cases.values():
+        materials = _indexed(case["pipe_materials"], "pipe_id", "transport materials")
+        sections = _indexed(case["pipe_sections"], "pipe_id", "transport sections")
+        _require((bool(materials) or has_connector) and set(materials) == set(sections), "transport member coverage")
+        missing = set(case["stress_maximum_coverage"]["unavailable_pipe_ids"])
+        _require(missing <= set(sections) and case["stress_maximum_coverage"]["complete"] == (not missing), "transport maximum coverage")
+        _require({ex["pipe_id"] for ex in case["pipe_stress_extrema"]} == set(sections) - missing, "transport maximum members")
+    regions: set[tuple[str, str]] = set()
+    for region in evidence["pressure"]:
+        cid, rid = region["load_case_id"], region["region_id"]
+        _require(cid in cases and (cid, rid) not in regions, "transport pressure region")
+        regions.add((cid, rid))
+        arcs = arc_members(region)
+        _require(arcs <= set(cases[cid]["stress_maximum_coverage"]["unavailable_pipe_ids"]), "arc withheld")
+        sections = _indexed(cases[cid]["pipe_sections"], "pipe_id", "transport sections")
+        materials = _indexed(cases[cid]["pipe_materials"], "pipe_id", "transport materials")
+        gm = _indexed(region["geometry"], "pipe_id", "transport region geometry")
+        mm = _indexed(region["materials"], "pipe_id", "transport region materials")
+        _require(_strings(region["member_pipe_ids"], True) and set(gm) == set(mm) == set(region["member_pipe_ids"]) and set(gm) <= set(sections), "transport region members")
+        for pid in gm:
+            _require({k: v for k, v in gm[pid].items() if k not in {"traversal_forward"} | ARC_GEOMETRY_KEYS} == sections[pid]
+                     and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == {k: v for k, v in materials[pid].items() if k not in resolved}, "transport region member facts")
+        if arcs:
+            _arc_region(region, arcs, region["p_pa"])
+
+
+# --------------------------------------------------------------------------
+# 0.4.0: the load/reference-state pre-pass, then the physics checks on a
+# projection. The pre-pass names its own codes (SOURCE_LOAD_REFERENCE_*).
+# --------------------------------------------------------------------------
+
+class LoadStateError(ValueError):
+    """A pre-pass refusal; ``str(error)`` names its code."""
+
+
+RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
+RECORD_PROFILE = "resolved_straight_load_state_v1"
+MATERIAL_BASIS = "resolved_per_member_load_reference_state_v1"
+NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+REGION_TEMPERATURE_BASIS = "resolved_member_state"
+G_BASIS = "E/[2(1+nu)] from the selected pair"
+COMPOSITION = "lambda_fit*lambda_thermal-1"
+BOUNDARY = "every restrained DOF prescribed; reduced K_ff u_f = f_f - K_fc g_c; complete u includes g; reactions from unreduced K u - f"
+EIGENLOAD = "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery"
+LS_EVIDENCE_KEYS = ["pressure", "connector", "exact_cases", "load_reference_states"]
+LS_CASE_KEYS = ["load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"]
+LS_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "material_selection_kind", "thermal_consumed", "alpha_per_kelvin", "resolved_eigenstrain", "provenance"]
+LS_RECORD_KEYS = ["load_case_id", "contract", "profile", "reference_configuration_id", "provenance", "reference_geometry", "history", "solve", "source_recovery", "members", "support_components", "contributions", "excluded_sources"]
+LS_MEMBER_KEYS = [
+    "pipe_id", "material_id", "material_selection_kind", "consumed_material_points", "interpolation_fraction",
+    "applicability_reference", "analysis_basis_override", "selected_E_pa", "selected_nu", "derived_G_pa", "G_basis",
+    "retained_G_ignored", "operating_temperature_k", "material_selection_temperature_k", "reference_basis",
+    "installation_temperature_k", "thermal_definition", "expansion_law_id", "coefficient_datum_k",
+    "consumed_law_point_indices", "consumed_law_segments", "consulted_law_point_indices", "consulted_law_segments",
+    "installation_datum_stretch", "operating_datum_stretch", "thermal_strain", "thermal_stretch", "fit_strain",
+    "fit_stretch", "total_eigenstrain", "eigenstrain_composition", "fit_kind", "fit_input", "reference_length_m",
+]
+LS_POINT_KEYS = ["point_id", "temperature_k", "E_pa", "nu", "retained_G_ignored"]
+LS_SEGMENT_KEYS = ["use", "lower_index", "upper_index", "start_k", "end_k"]
+LS_SUPPORT_KEYS = ["support_id", "node_id", "dof", "global_dof", "law_kind", "prescribed_value", "unit", "meaning", "physical_state_source"]
+LS_STORED_KEYS = ["source_id", "owner_kind", "classification", "factor", "category", "dimension", "authored_normalized_magnitude", "applied_magnitude"]
+LS_MEMBER_STATE_KEYS = ["source_id", "owner_kind", "classification", "consumed_input_refs", "value"]
+LS_SUPPORT_STATE_KEYS = ["source_id", "owner_kind", "classification", "value"]
+LS_PRESSURE_REGION_KEYS = ["source_id", "owner_kind", "classification", "factor"]
+LS_EXCLUDED_KEYS = ["source_id", "owner_kind", "classification", "category", "reason"]
+LS_REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids"]
+LS_REGION_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance", "temperature_basis"]
+DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+LAW_DEFINITIONS = ["engineering_secant", "engineering_dilation", "differential_per_datum_length", "logarithmic_per_current_length"]
+DIRECT_DEFINITIONS = ["unchanged_reference", "explicit_interval_strain", "constant_alpha_interval"]
+U64_MAX = (1 << 64) - 1
+
+
+def _load_state_evidence(source: Mapping[str, Any]) -> None:
+    try:
+        _ls_prepass(source)
+        projected = _ls_project(source)
+        try:
+            _physics(projected)
+        except ValueError as error:
+            raise LoadStateError(f"{_ls_code('PHYSICS_EVIDENCE')}: {error}") from error
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise LoadStateError(f"{_ls_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise LoadStateError("SOURCE_LOAD_REFERENCE_MALFORMED") from error
+
+
+def _ls_code(name: str) -> str:
+    return f"SOURCE_LOAD_REFERENCE_{name}"
+
+
+def _ls_fail(name: str) -> LoadStateError:
+    return LoadStateError(_ls_code(name))
+
+
+def _ls_require(ok: bool, name: str) -> None:
+    if not ok:
+        raise _ls_fail(name)
+
+
+def _ls_get(value: Any, key: str) -> Any:
+    """Missing key or non-object reads as null."""
+    return value.get(key) if isinstance(value, Mapping) else None
+
+
+def _ls_keys(value: Any, required: list[str]) -> bool:
+    return isinstance(value, Mapping) and len(value) == len(required) and all(key in value for key in required)
+
+
+def _ls_is_number(value: Any) -> bool:
+    return type(value) in (int, float)
+
+
+def _ls_as_f64(value: Any) -> float | None:
+    """The binary64 value of a JSON number (an integer rounds to nearest), else ``None``."""
+    if type(value) is float:
+        return value
+    if type(value) is int:
+        try:
+            return float(value)
+        except OverflowError:
+            return None
+    return None
+
+
+def _ls_text(value: Any) -> str:
+    if not (isinstance(value, str) and value):
+        raise _ls_fail("STRING_INVALID")
+    return value
+
+
+def _ls_number(value: Any) -> float:
+    number = _ls_as_f64(value)
+    if number is None or not math.isfinite(number):
+        raise _ls_fail("NUMBER_INVALID")
+    return number
+
+
+def _ls_opt_number(value: Any) -> float | None:
+    return None if value is None else _ls_number(value)
+
+
+def _ls_opt_text(value: Any) -> str | None:
+    return None if value is None else _ls_text(value)
+
+
+def _ls_boolean(value: Any) -> bool:
+    if type(value) is not bool:
+        raise _ls_fail("BOOLEAN_INVALID")
+    return value
+
+
+def _ls_index(value: Any) -> int:
+    if not (type(value) is int and 0 <= value <= U64_MAX):
+        raise _ls_fail("INTEGER_INVALID")
+    return value
+
+
+def _ls_array(value: Any) -> list[Any]:
+    if not isinstance(value, list):
+        raise _ls_fail("ARRAY_INVALID")
+    return value
+
+
+def _ls_num_eq(a: Any, b: Any) -> bool:
+    x, y = _ls_as_f64(a), _ls_as_f64(b)
+    return x is not None and y is not None and math.isfinite(x) and math.isfinite(y) and x == y
+
+
+def _ls_same(a: Any, b: Any) -> bool:
+    """Structural equality comparing numbers by binary64 value."""
+    if type(a) is bool or type(b) is bool:
+        return type(a) is bool and type(b) is bool and a == b
+    if _ls_is_number(a) and _ls_is_number(b):
+        return _ls_num_eq(a, b)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_ls_same(x, y) for x, y in zip(a, b))
+    if isinstance(a, Mapping) and isinstance(b, Mapping):
+        return len(a) == len(b) and all(key in b and _ls_same(value, b[key]) for key, value in a.items())
+    if _ls_is_number(a) or _ls_is_number(b) or isinstance(a, (list, Mapping)) or isinstance(b, (list, Mapping)):
+        return False
+    return type(a) is type(b) and a == b
+
+
+def _ls_eq(value: Any, expected: Any) -> bool:
+    """Equality with a string, bool or null literal."""
+    if type(expected) is bool or type(value) is bool:
+        return type(value) is type(expected) and value == expected
+    if expected is None:
+        return value is None
+    return isinstance(value, str) and value == expected
+
+
+def _ls_without(value: Any, removed: list[str]) -> Any:
+    if not isinstance(value, Mapping):
+        return deepcopy(value)
+    return {key: deepcopy(item) for key, item in value.items() if key not in removed}
+
+
+def _ls_sha64(value: Any) -> bool:
+    return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def _ls_finite_tree(value: Any) -> None:
+    if type(value) is bool or value is None or isinstance(value, str):
+        return
+    if type(value) in (int, float):
+        _ls_number(value)
+    elif isinstance(value, Mapping):
+        for item in value.values():
+            _ls_finite_tree(item)
+    elif isinstance(value, list):
+        for item in value:
+            _ls_finite_tree(item)
+    else:
+        raise _ls_fail("NUMBER_INVALID")
+
+
+def _ls_bits(value: float) -> int:
+    return struct.unpack(">Q", struct.pack(">d", value))[0]
+
+
+def _ls_positive(value: float | None) -> bool:
+    return value is None or value > 0
+
+
+def _ls_prepass(source: Mapping[str, Any]) -> None:
+    """Steps S1-S13 of the not-joined load/reference-state pre-pass, with
+    connector records and realized-arc region keys admitted (pressure-1)."""
+    # S1 foreign method namespaces.
+    _ls_require(not isinstance(source, Mapping) or ("source_block_recovery" not in source and "carrier_evidence" not in source), "FOREIGN_METHOD_EVIDENCE")
+    # S2 finite numbers everywhere.
+    _ls_finite_tree(source)
+    evidence = _ls_get(source, "contract_evidence")
+    # S3-S5 namespace; connector records are left to the physics pass.
+    _ls_require(_ls_keys(evidence, LS_EVIDENCE_KEYS), "EVIDENCE_SHAPE")
+    _ls_array(evidence["connector"])
+    pressure = _ls_array(evidence["pressure"])
+    exact = _ls_array(evidence["exact_cases"])
+    records = _ls_array(evidence["load_reference_states"])
+    # S6 numerical case identities.
+    quality_ids: list[str] = []
+    for case in _ls_array(_ls_get(_ls_get(source, "numerical_quality"), "cases")):
+        basis = _ls_get(case, "basis_ref")
+        _ls_require(_ls_keys(basis, ["ref_type", "ref_id"]) and _ls_eq(basis["ref_type"], "load_case"), "NUMERICAL_CASE_BASIS")
+        case_id = _ls_text(basis["ref_id"])
+        _ls_require(case_id not in quality_ids, "NUMERICAL_CASE_DUPLICATE")
+        quality_ids.append(case_id)
+    # S7 exact cases, their resolved materials and section identities.
+    cases: list[tuple[str, Mapping[str, Any]]] = []
+    for case in exact:
+        _ls_require(_ls_keys(case, LS_CASE_KEYS), "CASE_SHAPE")
+        case_id = _ls_text(case["load_case_id"])
+        _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
+        _ls_require(_ls_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
+        pipes: list[str] = []
+        for material in _ls_array(case["pipe_materials"]):
+            _ls_require(_ls_keys(material, LS_MATERIAL_KEYS), "MATERIAL_SHAPE")
+            pipe = _ls_text(material["pipe_id"])
+            _ls_require(pipe not in pipes, "MATERIAL_DUPLICATE")
+            pipes.append(pipe)
+        sections: list[str] = []
+        for section in _ls_array(case["pipe_sections"]):
+            pipe = _ls_text(_ls_get(section, "pipe_id"))
+            _ls_require(pipe not in sections, "SECTION_DUPLICATE")
+            sections.append(pipe)
+        cases.append((case_id, case))
+    # S8 record identities.
+    record_ids: list[str] = []
+    for record in records:
+        _ls_require(_ls_keys(record, LS_RECORD_KEYS), "RECORD_SHAPE")
+        case_id = _ls_text(record["load_case_id"])
+        _ls_require(case_id not in record_ids, "RECORD_DUPLICATE")
+        record_ids.append(case_id)
+    # S9 case trijection. An unsolved envelope retains the empty namespace.
+    solved = _ls_eq(_ls_get(_ls_get(source, "status"), "mechanics"), "MECHANICS_SOLVED")
+    if solved:
+        quality = set(quality_ids)
+        _ls_require(bool(record_ids) and set(record_ids) == quality and {case_id for case_id, _ in cases} == quality, "CASE_COVERAGE")
+    else:
+        _ls_require(not records and not exact and not pressure, "UNSOLVED_EVIDENCE")
+    # S10 each record in document order.
+    for record in records:
+        _ls_record(record, cases, pressure)
+    # S11 one model geometry and one requested mode per envelope.
+    if records:
+        first = records[0]
+        for record in records:
+            _ls_require(_ls_same(_ls_get(record["reference_geometry"], "projection_sha256"), _ls_get(first["reference_geometry"], "projection_sha256")), "REFERENCE_GEOMETRY_CONSISTENCY")
+            _ls_require(_ls_same(_ls_get(record["solve"], "requested_mode"), _ls_get(first["solve"], "requested_mode")), "SOLVE_CONSISTENCY")
+    # S12 pressure-region materials are the resolved member pair of their case;
+    # a region with a realized arc adds the arc keys (checked by the physics pass).
+    for region in pressure:
+        arcs = arc_members(region)
+        _ls_require(_ls_keys(region, LS_REGION_KEYS + (sorted(ARC_REGION_KEYS) if arcs else [])), "REGION_SHAPE")
+        case_id = _ls_text(region["load_case_id"])
+        _ls_text(region["region_id"])
+        case = next((value for known, value in cases if known == case_id), None)
+        if case is None:
+            raise _ls_fail("REGION_CASE_UNRESOLVED")
+        for material in _ls_array(region["materials"]):
+            _ls_require(_ls_keys(material, LS_REGION_MATERIAL_KEYS), "REGION_MATERIAL_SHAPE")
+            _ls_require(_ls_eq(material["temperature_basis"], REGION_TEMPERATURE_BASIS), "REGION_TEMPERATURE_BASIS")
+            pipe = _ls_text(material["pipe_id"])
+            member = next((m for m in _ls_array(case["pipe_materials"]) if _ls_eq(_ls_get(m, "pipe_id"), pipe)), None)
+            if member is None:
+                raise _ls_fail("REGION_MATERIAL_BINDING")
+            _ls_require(_ls_same(_ls_without(material, ["temperature_basis"]), _ls_without(member, ["material_selection_kind", "resolved_eigenstrain"])), "REGION_MATERIAL_BINDING")
+    # S13 exactly one not-joined info diagnostic per resolved case.
+    if solved:
+        diagnostics = _ls_array(_ls_get(source, "diagnostics"))
+        for case_id in record_ids:
+            expected = f"diagnostic:load-state:{case_id.replace(':', '-')}:source-recovery-not-joined"
+            hits = [d for d in diagnostics if _ls_eq(_ls_get(d, "code"), NOT_JOINED) and _ls_eq(_ls_get(d, "id"), expected)]
+            _ls_require(len(hits) == 1 and _ls_eq(_ls_get(hits[0], "severity"), "info") and _ls_same(_ls_get(hits[0], "affected_refs"), [case_id]), "NOT_JOINED_DIAGNOSTIC")
+        _ls_require(sum(1 for d in diagnostics if _ls_eq(_ls_get(d, "code"), NOT_JOINED)) == len(record_ids), "NOT_JOINED_DIAGNOSTIC")
+
+
+def _ls_project(source: Mapping[str, Any]) -> dict[str, Any]:
+    """Removes or neutralizes only fields the pre-pass has bound."""
+    projected = deepcopy(dict(source)) if isinstance(source, Mapping) else deepcopy(source)
+    evidence = projected.get("contract_evidence") if isinstance(projected, dict) else None
+    if isinstance(evidence, dict):
+        evidence.pop("load_reference_states", None)
+        for case in evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []:
+            if isinstance(case, dict):
+                case["material_basis"] = "base_material_common_E_nu"
+                for material in case.get("pipe_materials") if isinstance(case.get("pipe_materials"), list) else []:
+                    if isinstance(material, dict):
+                        material.pop("material_selection_kind", None)
+                        material.pop("resolved_eigenstrain", None)
+        for region in evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []:
+            if isinstance(region, dict):
+                for material in region.get("materials") if isinstance(region.get("materials"), list) else []:
+                    if isinstance(material, dict):
+                        material["temperature_basis"] = {"selection": "base_material"}
+    return projected
+
+
+def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, Any]]], pressure: list[Any]) -> None:
+    case_id = _ls_text(record["load_case_id"])
+    # R1-R7 record-level closed statements.
+    _ls_require(_ls_eq(record["contract"], RECORD_CONTRACT), "RECORD_CONTRACT")
+    _ls_require(_ls_eq(record["profile"], RECORD_PROFILE), "RECORD_PROFILE")
+    configuration = _ls_text(record["reference_configuration_id"])
+    _ls_text(record["provenance"])
+    geometry = record["reference_geometry"]
+    _ls_require(_ls_keys(geometry, ["kind", "projection_sha256"]), "REFERENCE_GEOMETRY_SHAPE")
+    _ls_require(_ls_eq(geometry["kind"], "authored_model_geometry") and _ls_sha64(geometry["projection_sha256"]), "REFERENCE_GEOMETRY")
+    history = record["history"]
+    _ls_require(_ls_keys(history, ["kind"]), "HISTORY_SHAPE")
+    _ls_require(_ls_eq(history["kind"], "independent_equilibrium"), "HISTORY")
+    solve = record["solve"]
+    _ls_require(_ls_keys(solve, ["requested_mode", "recovery_method", "boundary", "eigenload"]), "SOLVE_SHAPE")
+    pair = (solve["requested_mode"], solve["recovery_method"])
+    _ls_require(
+        all(isinstance(item, str) for item in pair)
+        and pair in {("sparse_interactive", "ordinary_sparse_structural_v1"), ("dense_scrutiny", "ordinary_dense_structural_v1")}
+        and _ls_eq(solve["boundary"], BOUNDARY) and _ls_eq(solve["eigenload"], EIGENLOAD),
+        "SOLVE",
+    )
+    recovery = record["source_recovery"]
+    _ls_require(_ls_keys(recovery, ["status", "code"]), "SOURCE_RECOVERY_SHAPE")
+    _ls_require(_ls_eq(recovery["status"], "not_joined") and _ls_eq(recovery["code"], NOT_JOINED), "SOURCE_RECOVERY")
+    # R8 members.
+    members = _ls_array(record["members"])
+    member_ids: list[str] = []
+    for member in members:
+        _ls_member(member)
+        pipe = _ls_text(member["pipe_id"])
+        _ls_require(pipe not in member_ids, "MEMBER_DUPLICATE")
+        member_ids.append(pipe)
+    # R9 prescribed support components.
+    components = _ls_array(record["support_components"])
+    component_ids: list[tuple[str, str]] = []
+    support_nodes: dict[str, str] = {}
+    node_bases: dict[str, int] = {}
+    for component in components:
+        _ls_support_component(component)
+        support = _ls_text(component["support_id"])
+        node = _ls_text(component["node_id"])
+        dof = _ls_text(component["dof"])
+        _ls_require((support, dof) not in component_ids, "SUPPORT_COMPONENT_DUPLICATE")
+        component_ids.append((support, dof))
+        base = _ls_index(component["global_dof"]) // 6
+        _ls_require(support_nodes.setdefault(support, node) == node and node_bases.setdefault(node, base) == base, "SUPPORT_COMPONENT_NODE")
+    # R10 contributions.
+    contributions = _ls_array(record["contributions"])
+    contribution_ids: list[str] = []
+    for contribution in contributions:
+        _ls_contribution(contribution)
+        source_id = _ls_text(contribution["source_id"])
+        _ls_require(source_id not in contribution_ids, "CONTRIBUTION_DUPLICATE")
+        contribution_ids.append(source_id)
+    # R11 excluded sources.
+    excluded_ids: list[str] = []
+    for excluded in _ls_array(record["excluded_sources"]):
+        _ls_require(_ls_keys(excluded, LS_EXCLUDED_KEYS), "EXCLUDED_SHAPE")
+        _ls_require(_ls_eq(excluded["owner_kind"], "stored_primitive") and _ls_eq(excluded["classification"], "excluded"), "EXCLUDED_CLASSIFICATION")
+        source_id = _ls_text(excluded["source_id"])
+        _ls_text(excluded["category"])
+        _ls_text(excluded["reason"])
+        _ls_require(source_id not in contribution_ids and source_id not in excluded_ids, "EXCLUDED_OVERLAP")
+        excluded_ids.append(source_id)
+    # R12-R14 binding to the exact case of the same load case.
+    case = next((value for known, value in cases if known == case_id), None)
+    if case is None:
+        raise _ls_fail("RECORD_CASE_UNRESOLVED")
+    sections = {s["pipe_id"] if isinstance(_ls_get(s, "pipe_id"), str) else "" for s in _ls_array(case["pipe_sections"])}
+    _ls_require(bool(member_ids) and set(member_ids) == sections, "MEMBER_COVERAGE")
+    materials = _ls_array(case["pipe_materials"])
+    _ls_require({m["pipe_id"] if isinstance(_ls_get(m, "pipe_id"), str) else "" for m in materials} == set(member_ids), "MEMBER_MATERIAL_COVERAGE")
+    for member in members:
+        material = next((m for m in materials if _ls_same(_ls_get(m, "pipe_id"), member["pipe_id"])), None)
+        if material is None:
+            raise _ls_fail("MEMBER_MATERIAL_COVERAGE")
+        _ls_require(
+            _ls_num_eq(material["E_pa"], member["selected_E_pa"])
+            and _ls_num_eq(material["nu"], member["selected_nu"])
+            and _ls_num_eq(material["G_pa"], member["derived_G_pa"])
+            and _ls_same(material["material_id"], member["material_id"])
+            and _ls_same(material["material_selection_kind"], member["material_selection_kind"])
+            and _ls_num_eq(material["resolved_eigenstrain"], member["total_eigenstrain"])
+            and _ls_eq(material["thermal_consumed"], False)
+            and material["alpha_per_kelvin"] is None,
+            "MEMBER_MATERIAL_BINDING",
+        )
+        _ls_text(material["provenance"])
+
+    # R15 contribution ledgers are bijections with their owners.
+    def of_kind(kind: str) -> set[str]:
+        return {c["source_id"] for c in contributions if _ls_eq(_ls_get(c, "owner_kind"), kind) and isinstance(_ls_get(c, "source_id"), str)}
+
+    def find(source_id: str) -> Any:
+        return next((c for c in contributions if _ls_eq(_ls_get(c, "source_id"), source_id)), None)
+
+    _ls_require(of_kind("resolved_member_state") == {f"member_state:{pipe}" for pipe in member_ids}, "MEMBER_CONTRIBUTION_COVERAGE")
+    for member in members:
+        pipe = _ls_text(member["pipe_id"])
+        contribution = find(f"member_state:{pipe}")
+        if contribution is None:
+            raise _ls_fail("MEMBER_CONTRIBUTION_COVERAGE")
+        _ls_require(
+            _ls_num_eq(_ls_get(contribution, "value"), member["total_eigenstrain"])
+            and _ls_same(_ls_get(contribution, "consumed_input_refs"), [f"{configuration}:{pipe}", f"{case_id}:element_state:{pipe}"]),
+            "MEMBER_CONTRIBUTION_BINDING",
+        )
+    _ls_require(of_kind("support_state") == {f"support_state:{support}:{dof}" for support, dof in component_ids}, "SUPPORT_CONTRIBUTION_COVERAGE")
+    for component in components:
+        source_id = f"support_state:{_ls_text(component['support_id'])}:{_ls_text(component['dof'])}"
+        contribution = find(source_id)
+        if contribution is None:
+            raise _ls_fail("SUPPORT_CONTRIBUTION_COVERAGE")
+        _ls_require(_ls_num_eq(_ls_get(contribution, "value"), component["prescribed_value"]), "SUPPORT_CONTRIBUTION_BINDING")
+    expected_regions: set[str] = set()
+    for region in pressure:
+        if _ls_eq(_ls_get(region, "load_case_id"), case_id):
+            expected_regions.add(f"pressure_region:{_ls_text(_ls_get(region, 'region_id'))}")
+    _ls_require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
+
+
+def _ls_member(member: Any) -> None:
+    # M1-M3 shape, identity and fixed statements.
+    _ls_require(_ls_keys(member, LS_MEMBER_KEYS), "MEMBER_SHAPE")
+    _ls_text(member["pipe_id"])
+    _ls_text(member["material_id"])
+    _ls_require(_ls_eq(member["G_basis"], G_BASIS) and _ls_eq(member["eigenstrain_composition"], COMPOSITION), "MEMBER_BASIS")
+    # M4 selected pair and derived G.
+    e = _ls_number(member["selected_E_pa"])
+    nu = _ls_number(member["selected_nu"])
+    g = _ls_number(member["derived_G_pa"])
+    _ls_require(e > 0 and -1 < nu < 0.5 and g > 0, "MEMBER_MATERIAL_RANGE")
+    direct = e / (2.0 * (1.0 + nu))
+    _ls_require(math.isfinite(direct) and abs(_ls_bits(g) - _ls_bits(direct)) <= 2, "MEMBER_G_BINDING")
+    retained = _ls_boolean(member["retained_G_ignored"])
+    # M6 consumed material points.
+    consumed: list[tuple[float | None, float, float, bool]] = []
+    for point in _ls_array(member["consumed_material_points"]):
+        _ls_require(_ls_keys(point, LS_POINT_KEYS), "MATERIAL_POINT_SHAPE")
+        _ls_text(point["point_id"])
+        temperature = _ls_opt_number(point["temperature_k"])
+        _ls_require(_ls_positive(temperature), "TEMPERATURE_RANGE")
+        pe = _ls_number(point["E_pa"])
+        pnu = _ls_number(point["nu"])
+        _ls_require(pe > 0 and -1 < pnu < 0.5, "MATERIAL_POINT_RANGE")
+        consumed.append((temperature, pe, pnu, _ls_boolean(point["retained_G_ignored"])))
+    # M7-M9 optional selection data and temperatures.
+    fraction = _ls_opt_number(member["interpolation_fraction"])
+    applicability = _ls_opt_text(member["applicability_reference"])
+    override = member["analysis_basis_override"]
+    if override is not None:
+        _ls_require(_ls_keys(override, ["reason", "provenance"]), "OVERRIDE_SHAPE")
+        _ls_text(override["reason"])
+        _ls_text(override["provenance"])
+    operating = _ls_opt_number(member["operating_temperature_k"])
+    selection = _ls_opt_number(member["material_selection_temperature_k"])
+    installation = _ls_opt_number(member["installation_temperature_k"])
+    datum = _ls_opt_number(member["coefficient_datum_k"])
+    _ls_require(all(_ls_positive(value) for value in (operating, selection, installation, datum)), "TEMPERATURE_RANGE")
+    # M10 material selection.
+    kind = member["material_selection_kind"]
+    if _ls_eq(kind, "explicit_base_properties"):
+        selected = not consumed and fraction is None and applicability is not None and selection is None
+    elif _ls_eq(kind, "exact_point"):
+        selected = len(consumed) == 1 and fraction is None and applicability is None and e == consumed[0][1] and nu == consumed[0][2] and selection == consumed[0][0] and retained == consumed[0][3]
+    elif _ls_eq(kind, "temperature_interpolation"):
+        if len(consumed) == 1:
+            shape = fraction is None and e == consumed[0][1] and nu == consumed[0][2] and selection == consumed[0][0]
+        elif len(consumed) == 2:
+            shape = fraction is not None and 0 < fraction < 1 and all(point[0] is not None for point in consumed)
+        else:
+            shape = False
+        selected = applicability is None and selection is not None and retained == any(point[3] for point in consumed) and shape
+    else:
+        raise _ls_fail("MATERIAL_SELECTION_KIND")
+    _ls_require(selected, "MATERIAL_SELECTION")
+    # M11 reference basis.
+    basis = member["reference_basis"]
+    _ls_require((_ls_eq(basis, "temperature_reference") and installation is not None) or (_ls_eq(basis, "direct_strain_reference") and installation is None), "REFERENCE_BASIS")
+    # M12 strains and stretches.
+    thermal_strain = _ls_number(member["thermal_strain"])
+    thermal_stretch = _ls_number(member["thermal_stretch"])
+    fit_strain = _ls_number(member["fit_strain"])
+    fit_stretch = _ls_number(member["fit_stretch"])
+    total = _ls_number(member["total_eigenstrain"])
+    _ls_require(thermal_stretch > 0 and fit_stretch > 0 and thermal_stretch == 1.0 + thermal_strain and fit_stretch == 1.0 + fit_strain and 1.0 + total > 0, "STRETCH_BINDING")
+    # M13 consumed and consulted law data: adjacent indices, a sample at one
+    # temperature, an interval over start < end, and no repeated entry within
+    # one list. The consumed and consulted lists may share entries.
+    law_data_empty = True
+    for key in ("consumed_law_point_indices", "consulted_law_point_indices"):
+        previous: int | None = None
+        for item in _ls_array(member[key]):
+            index = _ls_index(item)
+            _ls_require(previous is None or previous < index, "LAW_INDICES")
+            previous = index
+            law_data_empty = False
+    for key in ("consumed_law_segments", "consulted_law_segments"):
+        entries: list[tuple[bool, int, int, float, float]] = []
+        for segment in _ls_array(member[key]):
+            _ls_require(_ls_keys(segment, LS_SEGMENT_KEYS), "LAW_SEGMENT_SHAPE")
+            if _ls_eq(segment["use"], "interpolation_sample"):
+                sample = True
+            elif _ls_eq(segment["use"], "integration_interval"):
+                sample = False
+            else:
+                raise _ls_fail("LAW_SEGMENT")
+            lower = _ls_index(segment["lower_index"])
+            upper = _ls_index(segment["upper_index"])
+            start = _ls_number(segment["start_k"])
+            end = _ls_number(segment["end_k"])
+            _ls_require(upper == lower + 1 and (start == end if sample else start < end), "LAW_SEGMENT")
+            entry = (sample, lower, upper, start, end)
+            _ls_require(entry not in entries, "LAW_SEGMENT_DUPLICATE")
+            entries.append(entry)
+            law_data_empty = False
+    installation_stretch = _ls_opt_number(member["installation_datum_stretch"])
+    operating_stretch = _ls_opt_number(member["operating_datum_stretch"])
+    law_id = _ls_opt_text(member["expansion_law_id"])
+    # M14 thermal definition.
+    definition = member["thermal_definition"] if isinstance(member["thermal_definition"], str) else ""
+    if definition in LAW_DEFINITIONS:
+        _ls_require(
+            law_id is not None and datum is not None
+            and installation_stretch is not None and installation_stretch > 0
+            and operating_stretch is not None and operating_stretch > 0
+            and installation is not None and operating is not None,
+            "THERMAL_LAW_BINDING",
+        )
+    elif definition in DIRECT_DEFINITIONS:
+        _ls_require(
+            law_id is None and datum is None and installation_stretch is None and operating_stretch is None
+            and law_data_empty and (definition != "unchanged_reference" or thermal_strain == 0),
+            "THERMAL_LAW_BINDING",
+        )
+    else:
+        raise _ls_fail("THERMAL_DEFINITION")
+    # M15-M16 reference length and fit.
+    length = _ls_number(member["reference_length_m"])
+    _ls_require(length > 0, "REFERENCE_LENGTH")
+    fit = member["fit_input"]
+    fit_kind = member["fit_kind"]
+    if _ls_eq(fit_kind, "none"):
+        fitted = fit is None and fit_strain == 0
+    elif _ls_eq(fit_kind, "natural_length_change"):
+        change = _ls_as_f64(_ls_get(fit, "length_change_m"))
+        fitted = _ls_keys(fit, ["length_change_m"]) and change is not None and math.isfinite(change) and fit_strain == change / length and length + change > 0
+    elif _ls_eq(fit_kind, "fit_strain"):
+        strain = _ls_as_f64(_ls_get(fit, "strain"))
+        fitted = _ls_keys(fit, ["strain"]) and strain is not None and math.isfinite(strain) and fit_strain == strain
+    else:
+        raise _ls_fail("FIT_KIND")
+    _ls_require(fitted, "FIT_BINDING")
+
+
+def _ls_support_component(component: Any) -> None:
+    _ls_require(_ls_keys(component, LS_SUPPORT_KEYS), "SUPPORT_COMPONENT_SHAPE")
+    _ls_text(component["support_id"])
+    _ls_text(component["node_id"])
+    dof = component["dof"]
+    if not (isinstance(dof, str) and dof in DOFS):
+        raise _ls_fail("SUPPORT_COMPONENT_DOF")
+    position = DOFS.index(dof)
+    global_dof = _ls_index(component["global_dof"])
+    _ls_require(global_dof % 6 == position, "SUPPORT_COMPONENT_DOF")
+    _ls_require(_ls_eq(component["law_kind"], "rigid_prescribed") and _ls_eq(component["meaning"], "absolute_reference_displacement") and _ls_eq(component["physical_state_source"], "support_state.boundary_motion"), "SUPPORT_COMPONENT_LAW")
+    _ls_require(_ls_eq(component["unit"], "m" if position < 3 else "rad"), "SUPPORT_COMPONENT_UNIT")
+    _ls_number(component["prescribed_value"])
+
+
+def _ls_contribution(contribution: Any) -> None:
+    kind = _ls_get(contribution, "owner_kind")
+    shapes = {
+        "stored_primitive": (LS_STORED_KEYS, "ordinary_applied"),
+        "resolved_member_state": (LS_MEMBER_STATE_KEYS, "eigenstrain"),
+        "support_state": (LS_SUPPORT_STATE_KEYS, "prescribed_boundary"),
+        "pressure_region": (LS_PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
+    }
+    if not (isinstance(kind, str) and kind in shapes):
+        raise _ls_fail("CONTRIBUTION_KIND")
+    shape, classification = shapes[kind]
+    _ls_require(_ls_keys(contribution, shape), "CONTRIBUTION_SHAPE")
+    _ls_require(_ls_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
+    _ls_text(contribution["source_id"])
+    if kind == "stored_primitive":
+        factor = _ls_as_f64(contribution["factor"])
+        if not (factor is not None and math.isfinite(factor) and factor != 0):
+            raise _ls_fail("CONTRIBUTION_FACTOR")
+        _ls_text(contribution["category"])
+        _ls_text(contribution["dimension"])
+        authored = _ls_number(contribution["authored_normalized_magnitude"])
+        applied = _ls_number(contribution["applied_magnitude"])
+        _ls_require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+    elif kind == "resolved_member_state":
+        for reference in _ls_array(contribution["consumed_input_refs"]):
+            _ls_text(reference)
+        _ls_number(contribution["value"])
+    elif kind == "support_state":
+        _ls_number(contribution["value"])
+    else:
+        _ls_require(contribution["factor"] is None, "CONTRIBUTION_FACTOR")

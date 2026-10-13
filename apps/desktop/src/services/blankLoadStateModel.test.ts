@@ -21,19 +21,19 @@ describe("blank model 0.4.0 (T1 WP3 item 2)", () => {
     expect(await canonicalSha256Hex(buildBlankLocalModelDocument(AT))).toBe(BASE_BLANK_SHA256);
   });
 
-  it("builds a 0.4.0 document with the exact pressure contract and no engineering content", async () => {
+  it("builds a 0.4.0 document with the current pressure contract (3.0.0/exact_pressure_v3) and no engineering content", async () => {
     const blank = buildBlankLocalModelDocument(AT);
     const model = buildBlankLoadStateModelDocument(AT);
     expect(model.schema_version).toBe(BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION);
     expect(model.schema_version).toBe("0.4.0");
-    expect(model.pressure_contract).toEqual({ version: "2.0.0", mode: "exact_straight_pressure_v2" });
+    expect(model.pressure_contract).toEqual({ version: "3.0.0", mode: "exact_pressure_v3" });
     for (const key of ["materials", "sections", "nodes", "pipe_segments", "supports", "components", "load_cases", "combinations"] as const)
       expect(model[key]).toEqual([]);
     for (const key of ["reference_configurations", "rule_packs", "library_refs"]) expect(Object.hasOwn(model, key)).toBe(false);
     // Only the version, the contract and the project name differ from the blank path.
     const { schema_version, pressure_contract, project, ...rest } = model;
     const { schema_version: blankVersion, project: blankProject, ...blankRest } = blank;
-    expect([schema_version, pressure_contract, blankVersion]).toEqual(["0.4.0", { version: "2.0.0", mode: "exact_straight_pressure_v2" }, MODEL_SCHEMA_VERSION]);
+    expect([schema_version, pressure_contract, blankVersion]).toEqual(["0.4.0", { version: "3.0.0", mode: "exact_pressure_v3" }, MODEL_SCHEMA_VERSION]);
     expect(rest).toEqual(blankRest);
     expect({ ...project, name: blankProject.name }).toEqual(blankProject);
     expect(project.name).toBe("Blank Local Model 0.4.0");
@@ -66,7 +66,7 @@ describe("blank model 0.4.0 (T1 WP3 item 2)", () => {
     await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
     await act(async () => { await hook.result.current.project.handleCreateBlankLoadStateProject(); });
     await waitFor(() => expect(hook.result.current.model.model?.schema_version).toBe("0.4.0"));
-    expect(hook.result.current.model.model?.pressure_contract).toEqual({ version: "2.0.0", mode: "exact_straight_pressure_v2" });
+    expect(hook.result.current.model.model?.pressure_contract).toEqual({ version: "3.0.0", mode: "exact_pressure_v3" });
     expect(hook.result.current.project.projectMessage).toBe("Created blank local model 0.4.0 document without fixture entities, engineering values or external file copies.");
     expect(hook.result.current.project.projectOperation).toBe("create_blank");
     await act(async () => { await hook.result.current.project.handleCreateBlankProject(); });

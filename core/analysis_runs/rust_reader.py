@@ -42,11 +42,12 @@ RULE_BINDING = "rule-binding"
 ROW_SEMANTICS = "row-semantics"
 # The desktop's route names (`reader_verdict::ROUTES`); a refused header reads unsupported.
 ROUTES = frozenset({"physics", "physics_source", "pressure_source", "preview_physics", "load_reference",
-                    "load_reference_source", "retained_preview_physics", "retained_physics"})
+                    "load_reference_source", "pressure", "retained_preview_physics", "retained_physics"})
 UNSUPPORTED = "unsupported"
 # Each base route's reader; its transport checks are `<reader>-transport`.
 ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
-                 "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
+                 "load_reference": "load-reference", "load_reference_source": "load-reference-source",
+                 "pressure": "pressure"}
 STANDING_TOKENS = frozenset({"numerically_eligible", "needs_recompute", "unsupported"})
 # The runner's diagnostic, exit 2, for input its JSON parser refuses.
 INPUT_NOT_JSON = "openpipestress-runner: input is not JSON: "
@@ -182,7 +183,7 @@ def validate(reader: str, source: Any, *, model: Any = None, invocation: Any = N
     """`reader_verdict::validate`: one base reader's raw validation; `{ok, eligible?, findings?}` or its refusal raised."""
     if reader not in ROUTE_READERS.values():
         raise ValueError(f"RUST-READER-UNKNOWN: {reader}")
-    members = {"preview-physics": set(), "physics": set(), "load-reference": set(), "load-reference-source": {"eligible"},
+    members = {"preview-physics": set(), "physics": set(), "load-reference": set(), "pressure": set(), "load-reference-source": {"eligible"},
                "physics-source": {"eligible", "findings"}, "pressure-source": {"eligible", "findings"}}[reader]
     outcome = _base(reader, _optional({"source": source}, model=model, invocation=invocation), members)
     if "eligible" in members and not isinstance(outcome["eligible"], bool):

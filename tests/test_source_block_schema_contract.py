@@ -19,7 +19,7 @@ from core.analysis_runs.compatibility import (
     numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
-from schema_validation import validate_instance, validate_schema_document, schema_for_definition
+from schema_validation import envelope_branches, validate_instance, validate_schema_document, schema_for_definition
 
 PROJECT = Path(__file__).resolve().parents[1]
 MODES = ("sparse_interactive", "dense_scrutiny")
@@ -148,9 +148,10 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     with pytest.raises(AssertionError): validate_instance(schema_for_definition(results, "ResultMetadata"), actual)
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
-    branches = results["$defs"]["ResultEnvelope"]["oneOf"]
-    # B1 removed precision-1's branch and B4/D1 (b) source-blocks-1's.
-    assert len(branches) == 8
+    branches = envelope_branches(results)
+    # T4-U2 added pressure-1 (its branch held in results_pressure_1.v0.3); the join added
+    # pressure-source-1; B1 removed precision-1's branch and B4/D1 (b) source-blocks-1's.
+    assert len(branches) == 9
     for branch in branches:
         # Keyed by the branch's pinned producer identity, not by position: T0R
         # appended preview-physics-1 and T1 appended load-reference-1 and
@@ -163,7 +164,9 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
                   "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet",
                   # T3's F2a successor inherits the preview result sets (reader fan-in);
                   # B3b's exact successor keeps physics-1's (the default).
-                  "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": "PreviewPhysicsResultSet"}.get(identity, "ResultSet")
+                  "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": "PreviewPhysicsResultSet",
+                  # T4-U2: pressure-1's result sets add the connector vocabulary.
+                  "openpipestress.result_semantics/0.3.0/pressure-1": "PressureResultSet"}.get(identity, "ResultSet")
         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}

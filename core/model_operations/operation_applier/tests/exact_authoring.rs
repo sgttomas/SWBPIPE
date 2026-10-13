@@ -6,11 +6,19 @@ use open_pipe_stress_product_physics::{
     run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
 };
 use serde_json::{json, Value};
-fn fixture() -> Value {
+/// The committed exact authoring document declares
+/// `2.0.0/exact_straight_pressure_v2` (an existing document, still solvable).
+fn v2_fixture() -> Value {
     serde_json::from_str(include_str!(
         "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
     ))
     .unwrap()
+}
+/// What authoring now produces from the same inputs: `3.0.0/exact_pressure_v3`.
+fn fixture() -> Value {
+    let mut model = v2_fixture();
+    model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
+    model
 }
 fn hash(model: &Value) -> Value {
     json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",sha256_hex(&canonical_json(model)))})
@@ -111,6 +119,10 @@ fn exact_authoring_review_apply_serialization_and_real_solve() {
             result.status.mechanics, "MECHANICS_SOLVED",
             "{:?}",
             result.diagnostics
+        );
+        assert_eq!(
+            serde_json::to_value(&result).unwrap()["producer"]["semantic_contract_id"],
+            "openpipestress.result_semantics/0.3.0/pressure-1"
         );
         let row = result
             .results
@@ -353,7 +365,7 @@ fn exact_authoring_atomic_batch_late_invalid_profile_rolls_back_every_edit() {
             .as_array()
             .unwrap()
             .iter()
-            .any(|d| d["code"] == "OP-PRESSURE-PAYLOAD-INVALID"));
+            .any(|d| d["code"] == "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"));
     }
     assert_eq!(model, original);
     assert_eq!(model["schema_version"], "0.5.0");
@@ -557,4 +569,52 @@ fn pressure_terminal_nodes_block_direct_and_batch_delete_in_incomplete_models() 
         json!([])
     );
     assert_eq!(model, original);
+}
+
+/// O3: new authoring writes only `3.0.0/exact_pressure_v3`. A v2 write is
+/// refused (from a pressure-free document and as a downgrade); an existing v2
+/// document is upgraded explicitly; a 0.4.0 document changes its contract only.
+#[test]
+fn pressure_profile_writes_only_the_current_contract() {
+    let v3 = fixture();
+    let v2 = v2_fixture();
+    let profile = |m: &Value| projection(m, &["schema_version", "pressure_contract"]);
+    let id = v3["project"]["id"].as_str().unwrap().to_string();
+    let code = |model: &Value, before: &Value, after: &Value| {
+        let outcome = apply_operation(model, &intent("Model", &id, "pressure_profile", Some(before), after), Some(&hash(model)));
+        assert!(outcome.applied_model.is_none());
+        outcome.diagnostics.iter().map(|d| d.code.clone()).collect::<Vec<_>>()
+    };
+    // v2 is never written: not from v3, and not as a re-selection on a v2 document.
+    assert!(code(&v3, &profile(&v3), &profile(&v2)).contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED".to_string()));
+    assert!(code(&v2, &profile(&v2), &profile(&v2)).contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED".to_string()));
+    // v2 -> v3 on 0.3.0: the explicit upgrade keeps every other byte.
+    let upgraded = apply(&v2, &intent("Model", &id, "pressure_profile", Some(&profile(&v2)), &profile(&v3)));
+    assert_eq!(canonical_json(&upgraded), canonical_json(&v3));
+    // 0.4.0: the contract changes and the version stays; a version change is locked.
+    let mut v2_load_state = v2.clone();
+    v2_load_state["schema_version"] = json!("0.4.0");
+    let mut v3_load_state = v3.clone();
+    v3_load_state["schema_version"] = json!("0.4.0");
+    let upgraded = apply(
+        &v2_load_state,
+        &intent("Model", &id, "pressure_profile", Some(&profile(&v2_load_state)), &profile(&v3_load_state)),
+    );
+    assert_eq!(upgraded["pressure_contract"], v3["pressure_contract"]);
+    assert_eq!(upgraded["schema_version"], "0.4.0");
+    assert!(code(&v2_load_state, &profile(&v2_load_state), &profile(&v3))
+        .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()));
+}
+
+/// O4: signed pressure is admitted under v3 only.
+#[test]
+fn signed_region_pressure_follows_the_document_contract() {
+    for (model, admitted) in [(fixture(), true), (v2_fixture(), false)] {
+        let case = &model["load_cases"][0];
+        let mut regions = case["pressure_regions"].clone();
+        regions[0]["pressure"]["value"] = json!(-1.0e5);
+        let op = intent("Load", case["id"].as_str().unwrap(), "pressure_regions", Some(&case["pressure_regions"]), &regions);
+        let outcome = apply_operation(&model, &op, Some(&hash(&model)));
+        assert_eq!(outcome.applied_model.is_some(), admitted, "{:?}", outcome.diagnostics);
+    }
 }

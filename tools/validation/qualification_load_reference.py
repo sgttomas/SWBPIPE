@@ -62,7 +62,7 @@ TABLE_SHA256 = '4174554dd73409bdc0d5fac52cbbbb3e5b4babcc372c336aa69cce33ffd376f4
 # b7-plan R2: the owned reader is Rust's load-reference-1 reader (`validate_load_reference_evidence`), over
 # its physics-1 reader. Re-pin deliberately whenever the owned reader source changes.
 MODULE = 'core/reporting/result_export/src/load_reference.rs'
-MODULE_SHA256 = '0765e1626fc4d4df871f0cc2301885771399750df94efe2747d63d01f8ff6681'
+MODULE_SHA256 = 'ce039fc8e3a0235248b8349c516120a5876e443cca94144a9522f1e442d88eb6'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,

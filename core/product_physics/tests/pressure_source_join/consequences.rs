@@ -244,6 +244,33 @@ fn reseal_receipt(source: &mut Value) {
         &source["source_block_recovery"]["body"]
     ));
 }
+/// b7-plan MJ8 (D6 lapsed with T4-U2's export, #1314): the genuine joined
+/// source exports through the derivative, which carries its received v3
+/// evidence and receipt whole and refuses a changed, resealed receipt.
+fn check_export_binds_the_received_receipt(source: &Value, model: &Value, label: &str) {
+    let base: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json"
+    ))
+    .unwrap();
+    let carrier = derivative::checksum(source, "attested_headless_producer_carrier", derivative::reference("test_carrier", "genuine-pressure-source-producer-output")).unwrap();
+    let origin = json!({"origin_id":"pressure-source-export-consequence","origin_class":"attested_headless_producer","qualification_ref":derivative::reference("test_fixture","not-authentication"),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Genuine producer twin; consumer consequence test only","actual_model_ref":derivative::reference("model_payload",source["model_ref"].as_str().unwrap_or("")),"mechanics_run_ref":derivative::reference("mechanics_run",source["run_id"].as_str().unwrap_or("")),"request_model_ref":null,"request_run_ref":null,"request_alias_disclosure":null});
+    let doc = derivative::derive_document(base, model, source, origin, None).unwrap_or_else(|e| panic!("{label}: {e}"));
+    derivative::validate_document(&doc, source).unwrap_or_else(|e| panic!("{label}: {e}"));
+    let envelope = &doc["result_envelope"];
+    assert_eq!(envelope["semantic_contract_ref"]["ref_id"], sc::PRESSURE_SOURCE_ID, "{label}");
+    assert_eq!(envelope["source_block_recovery"], source["source_block_recovery"], "{label}");
+    assert_eq!(envelope["contract_evidence"], source["contract_evidence"], "{label}");
+    let mut changed = doc.clone();
+    changed["result_envelope"]["source_block_recovery"]["body"]["invocation_work"]["charged"] = json!(
+        source["source_block_recovery"]["body"]["invocation_work"]["charged"].as_u64().unwrap() + 1
+    );
+    reseal_receipt(&mut changed["result_envelope"]);
+    assert_eq!(
+        derivative::validate_document(&changed, source).unwrap_err(),
+        "SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH",
+        "{label}"
+    );
+}
 fn reseal_publication(source: &mut Value) {
     let mut publication = source.clone();
     publication
@@ -535,21 +562,7 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         "PHYSICS_SOURCE_ACTUAL_LOAD_REFERENCE_CONTEXT",
         entries,
     );
-    assert_eq!(
-        derivative::derive_document(
-            json!({}),
-            &invocation["request"]["model"],
-            source,
-            json!({}),
-            None
-        )
-        .unwrap_err(),
-        derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE
-    );
-    assert_eq!(
-        derivative::validate_document(&json!({}), source).unwrap_err(),
-        derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE
-    );
+    check_export_binds_the_received_receipt(source, &invocation["request"]["model"], &prefix);
 }
 fn add_context_entry(
     id: String,
@@ -1075,29 +1088,21 @@ fn pressure_source_receipt_cannot_downgrade_to_pressure_1() {
     named_corpus_controls("MJ7-downgrade");
 }
 #[test]
-fn pressure_source_export_is_refused_until_u2() {
+fn pressure_source_export_binds_the_v3_receipt_after_u2() {
     let corpus = read_corpus();
+    let mut exported = 0;
     for entry in corpus["entries"]
         .as_array()
         .unwrap()
         .iter()
         .filter(|entry| entry.get("raw_fixture").is_some())
     {
-        let source = &entry["source"];
-        assert_eq!(
-            derivative::derive_document(
-                json!({}),
-                &entry["invocation"]["request"]["model"],
-                source,
-                json!({}),
-                None
-            )
-            .unwrap_err(),
-            derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE
+        check_export_binds_the_received_receipt(
+            &entry["source"],
+            &entry["invocation"]["request"]["model"],
+            entry["id"].as_str().unwrap_or("corpus entry"),
         );
-        assert_eq!(
-            derivative::validate_document(&json!({}), source).unwrap_err(),
-            derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE
-        );
+        exported += 1;
     }
+    assert_eq!(exported, 24, "every genuine joined publication exports");
 }

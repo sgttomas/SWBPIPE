@@ -508,6 +508,19 @@ fn prepare_sources(
     {
         return Err(exact::Error::Budget.into());
     }
+    // D7 (DEL-04-07 `pressure-contract.md`, "T3 coexistence and B7"): each
+    // family a T4 unit admits under v3 that this straight source method does
+    // not extend is declined by its own name, ahead of the dimension closure
+    // (a realized arc or a connector-replaced span has no straight frame, so
+    // that closure would otherwise decline it as a source mismatch).
+    if !input.built.curved_bend_elements.is_empty() {
+        return Err(unsupported(
+            "realized curved bend (curved_bend_macro_element) is not a straight source family",
+        ));
+    }
+    if !input.built.connectors.is_empty() {
+        return Err(unsupported("objective connector is not a straight source family"));
+    }
     if input.force.len() != n
         || input.stiffness.len() != n
         || input.stiffness.iter().any(|row| row.len() != n)
@@ -1690,6 +1703,74 @@ mod tests {
         assert_eq!(sources.spring_ids[0].1, sources.spring_ids[1].1);
         assert_ne!(sources.spring_ids[0].0, sources.spring_ids[1].0);
         assert_eq!(sources.descriptors.len(), 42 + 12 + 2 + 18);
+    }
+
+    /// D7 (DEL-04-07 `pressure-contract.md`, "T3 coexistence and B7";
+    /// HELP_HUMAN 2026-10-10): the v3 family T4-U2 admits, the realized bend
+    /// under `3.0.0/exact_pressure_v3`, never reaches a retained source
+    /// solve, since T4-U2 does not extend the source method. In
+    /// `prepare_sources` it fails closed before any source is formed, by its
+    /// own family name and ahead of the actual-dimensions check (frames =
+    /// members), which a realized arc or a connector-replaced span would
+    /// otherwise fail as a source mismatch; T4-U3's objective connector is
+    /// declined the same way. A straight v3 model is declined by the
+    /// not-joined name.
+    #[test]
+    fn d7_realized_bend_v3_family_never_reaches_a_source_solve() {
+        let documents: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../validation/references/t4_i7/u2_document_sketches.json"
+        ))
+        .unwrap();
+        let mut model: PreviewModel = serde_json::from_value(
+            documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone(),
+        )
+        .unwrap();
+        // The product's own preparation: units, then the exact route's derived G.
+        let (mut materials, mut diagnostics) = (model.materials.clone(), Vec::new());
+        super::super::normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        super::super::pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        model.materials = materials;
+        let refuse = |fixture: &Fixture| {
+            prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err()
+        };
+        let bend = Fixture::new(model.clone());
+        assert!(!bend.built.curved_bend_elements.is_empty(), "precondition: a realized bend");
+        assert_eq!(bend.built.frame_elements.len() + bend.built.curved_bend_elements.len(), bend.built.pipes.len());
+        const BEND: &str = "realized curved bend (curved_bend_macro_element) is not a straight source family";
+        assert_eq!(refuse(&bend), Some(RecoveryError::Unsupported(BEND)));
+        // The family decline precedes the dimension closure: with the
+        // stiffness dimension broken too, the family name still decides.
+        let mut broken = Fixture::new(model.clone());
+        broken.stiffness.pop();
+        assert_eq!(refuse(&broken), Some(RecoveryError::Unsupported(BEND)));
+        // T4-U3's objective connector: its replaced span has no straight frame.
+        let references: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../validation/references/t4_i12/u3_reference_cases.json"
+        ))
+        .unwrap();
+        let mut connector: PreviewModel = serde_json::from_value(
+            references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"]["model"].clone(),
+        )
+        .unwrap();
+        let (mut materials, mut diagnostics) = (connector.materials.clone(), Vec::new());
+        super::super::normalize_model_units(&mut connector, &mut materials, &mut diagnostics);
+        super::super::pressure_material::resolve_base(&connector, &mut materials, &mut diagnostics);
+        connector.materials = materials;
+        let joint = Fixture::new(connector);
+        assert!(!joint.built.connectors.is_empty(), "precondition: an objective connector");
+        assert!(joint.built.frame_elements.len() < joint.built.pipes.len(), "precondition: a replaced span");
+        assert_eq!(
+            refuse(&joint),
+            Some(RecoveryError::Unsupported("objective connector is not a straight source family"))
+        );
+        // The pressure-source join (b7-plan): a straight v3 model is joined, so
+        // no family decline applies and its sources prepare.
+        let mut straight_model = Fixture::model();
+        straight_model.pressure_contract = model.pressure_contract.clone();
+        straight_model.schema_version = model.schema_version.clone();
+        straight_model.load_cases[0].pressure_regions = Some(Vec::new());
+        let straight = Fixture::new(straight_model);
+        assert_eq!(refuse(&straight), None);
     }
 
     // RV127 N-4: `validate_profile` refuses every one of these documents before

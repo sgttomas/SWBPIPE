@@ -70,12 +70,70 @@ fn pressure_source_receipt_cannot_downgrade_to_pressure_1() {
     assert_eq!(reader_verdict::dispatch(&source, None, None)["error"]["code"], "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN");
 }
 
+/// The committed joined pressure-source-1 producer raw (both modes) and its request's model.
+fn joined(name: &str, mode: &str) -> (Value, Value) {
+    let (raw, request) = match (name, mode) {
+        ("n05", "sparse_interactive") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")),
+        ("n05", "dense_scrutiny") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")),
+        ("n06", "sparse_interactive") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json")),
+        ("n06", "dense_scrutiny") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06-dense_scrutiny.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json")),
+        ("mixed", "sparse_interactive") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json")),
+        ("mixed", "dense_scrutiny") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json")),
+        ("fields", "sparse_interactive") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields-sparse_interactive.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json")),
+        ("fields", "dense_scrutiny") => (include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json"), include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json")),
+        other => panic!("no committed joined fixture {other:?}"),
+    };
+    (serde_json::from_str(raw).unwrap(), serde_json::from_str::<Value>(request).unwrap()["model"].clone())
+}
+fn derive(raw: &Value, model: &Value) -> Result<Value, String> {
+    let base: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json"
+    ))
+    .unwrap();
+    let carrier = derivative::checksum(raw, "attested_headless_producer_carrier", derivative::reference("test_carrier", "committed-pressure-source-producer-output"))?;
+    let origin = json!({"origin_id":"pressure-source-export-test","origin_class":"attested_headless_producer","qualification_ref":derivative::reference("test_fixture","not-authentication"),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Committed producer bytes; consumer contract test only","actual_model_ref":derivative::reference("model_payload",raw["model_ref"].as_str().unwrap_or("")),"mechanics_run_ref":derivative::reference("mechanics_run",raw["run_id"].as_str().unwrap_or("")),"request_model_ref":null,"request_run_ref":null,"request_alias_disclosure":null});
+    derivative::derive_document(base, model, raw, origin, None)
+}
+/// Changes the receipt's invocation commitment (no invocation is supplied, so the
+/// reader cannot recompute it) and reseals the receipt hash: a self-consistent
+/// receipt that is not the one received.
+fn resealed_change(receipt: &mut Value) {
+    receipt["body"]["invocation"]["value"] = json!("0".repeat(64));
+    receipt["receipt_sha256"] = json!(open_pipe_stress_result_export::source_blocks::domain_hash("source_blocks_receipt_v1", &receipt["body"]).unwrap());
+}
+
 #[test]
-fn pressure_source_export_is_refused_until_u2() {
-    // This is only an export refusal control, never a fabricated admission.
-    let source = json!({"producer":{"semantic_contract_id":ps::PRESSURE_CONTRACT_ID}});
-    assert_eq!(derivative::derive_document(json!({}), &json!({}), &source, json!({}), None).unwrap_err(), derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE);
-    assert_eq!(derivative::validate_document(&json!({}), &source).unwrap_err(), derivative::PRESSURE_1_EXPORT_NOT_AVAILABLE);
+fn pressure_source_export_binds_the_v3_receipt_after_u2() {
+    // b7-plan MJ8 (D6 lapsed with T4-U2's export, #1314): the admitted export
+    // carries the received v3 evidence and receipt whole, and binds them.
+    let mut checked = 0;
+    for name in ["n05", "n06", "mixed", "fields"] {
+        for mode in ["sparse_interactive", "dense_scrutiny"] {
+            let (raw, model) = joined(name, mode);
+            assert_eq!(raw["producer"]["semantic_contract_id"], ps::PRESSURE_CONTRACT_ID, "{name}-{mode}");
+            let doc = derive(&raw, &model).unwrap_or_else(|e| panic!("{name}-{mode}: {e}"));
+            derivative::validate_document(&doc, &raw).unwrap_or_else(|e| panic!("{name}-{mode}: {e}"));
+            let envelope = &doc["result_envelope"];
+            assert_eq!(envelope["semantic_contract_ref"]["ref_id"], ps::PRESSURE_CONTRACT_ID);
+            assert_eq!(envelope["source_block_recovery"], raw["source_block_recovery"], "{name}-{mode}");
+            assert_eq!(envelope["contract_evidence"], raw["contract_evidence"], "{name}-{mode}");
+            // A changed, resealed receipt in the document is refused by the binding.
+            let mut changed = doc.clone();
+            resealed_change(&mut changed["result_envelope"]["source_block_recovery"]);
+            assert_eq!(derivative::validate_document(&changed, &raw).unwrap_err(), "SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH", "{name}-{mode}");
+            // A source whose receipt was changed and resealed still reads without its
+            // invocation, but the document exported from the received source does not
+            // bind it, and its own export carries the changed receipt.
+            let mut other = raw.clone();
+            resealed_change(&mut other["source_block_recovery"]);
+            assert_eq!(derivative::validate_document(&doc, &other).unwrap_err(), "SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH", "{name}-{mode}");
+            let other_doc = derive(&other, &model).unwrap_or_else(|e| panic!("{name}-{mode}: {e}"));
+            assert_eq!(other_doc["result_envelope"]["source_block_recovery"], other["source_block_recovery"]);
+            assert_eq!(derivative::validate_document(&other_doc, &raw).unwrap_err(), "SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH", "{name}-{mode}");
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 8);
 }
 
 #[test]

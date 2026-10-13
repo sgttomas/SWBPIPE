@@ -30,7 +30,16 @@
 //!   wall and support group. It fires for a nonfinite bound or exactly
 //!   `B > RD(1e-9) q` with `S* >= 2^-988` and `q_hat >= 2^-34 S*`.
 //!   The force and moment body scales are coupled; the floor uses the
-//!   certified upper magnitude. No resolution conjunct applies.
+//!   certified upper magnitude. No resolution conjunct applies. It is the
+//!   one unified predicate for straight members, realized arcs, connectors
+//!   and supports (DEL-04-01 `kd5-member-relative-bound.md` section 3.3); it
+//!   replaces O-13's arc predicate and its B_u. S* is O-13's coupled
+//!   [`ActionScales`] over the repaired published groups.
+//! - **O-13's short-bend rule** (HELP_HUMAN's R-1, option (c)) is removed:
+//!   K-D5 supersedes it (section 4.3), and batch 4 removed it after M3 on the
+//!   integrated closed recovery. A short bend's verdict is the solver's gate
+//!   and this predicate's outcome; the pivot-screen refusal
+//!   (`CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS`) stays.
 
 use super::{Diagnostic, ResultItem, DOF_PER_NODE};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
@@ -351,8 +360,9 @@ pub(crate) struct RecoveryRecord {
     pub(crate) groups: Vec<RecoveryGroup>,
 }
 
-/// Coupled force and moment scales over every repaired published group.
-pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, (f64, f64)> {
+/// Coupled force and moment scales (O-13's [`ActionScales`]) over every
+/// repaired published group.
+pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, ActionScales> {
     let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
     for record in records {
         let Some(body) = record.body else { continue };
@@ -365,8 +375,8 @@ pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> Hash
     maxima.into_iter().map(|(body, (force, moment))| {
         let extent = bodies.extent(body);
         let scales = if extent > 0.0 && extent.is_finite() {
-            (force.max(moment / extent), moment.max(extent * force))
-        } else { (force, moment) };
+            ActionScales { force: force.max(moment / extent), moment: moment.max(extent * force) }
+        } else { ActionScales { force, moment } };
         (body, scales)
     }).collect()
 }
@@ -404,17 +414,25 @@ fn action_class(kind: &str, unit: &str) -> Option<(bool, f64)> {
     }
 }
 
-/// S*_moment per body over the case's published rows (DESIGN section
-/// 4.1.6.1): S(force) and S(moment) are the largest |row| of each class in
-/// the body; mo = max(S(moment), L_b S(force)). Rows of `excluded` members
-/// (curved spans, entity rule 2b) and rows whose entity has no body are not
-/// covered.
-pub(crate) fn moment_scales(
+/// A body's coupled scales over the case's published rows (DESIGN section
+/// 4.1.6.1 items 5 and 6): fo = max(S(force), fl(S(moment)/L_b)) and
+/// mo = max(S(moment), fl(L_b S(force))).
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub(crate) struct ActionScales {
+    pub(crate) force: f64,
+    pub(crate) moment: f64,
+}
+
+/// The coupled scales per body: S(force) and S(moment) are the largest |row|
+/// of each class in the body. Rows of `excluded` members (realized arcs
+/// without an arc recovery record, entity rule 2b) and rows whose entity has
+/// no body are not covered.
+pub(crate) fn action_scales(
     results: &[ResultItem],
     body_of_entity: &HashMap<String, usize>,
     excluded: &HashSet<String>,
     bodies: &Bodies,
-) -> HashMap<usize, f64> {
+) -> HashMap<usize, ActionScales> {
     let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
     for row in results {
         let Some((moment, factor)) = action_class(&row.kind, &row.unit) else {
@@ -437,14 +455,16 @@ pub(crate) fn moment_scales(
     maxima
         .into_iter()
         .map(|(body, (force, moment))| {
-            // DESIGN item 6: mo = max(S_mo, fl(L_b S_fo)).
             let extent = bodies.extent(body);
-            let mo = if extent > 0.0 {
-                moment.max(extent * force)
+            let scales = if extent > 0.0 {
+                ActionScales {
+                    force: force.max(moment / extent),
+                    moment: moment.max(extent * force),
+                }
             } else {
-                moment
+                ActionScales { force, moment }
             };
-            (body, mo)
+            (body, scales)
         })
         .collect()
 }
@@ -470,14 +490,14 @@ pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) ->
 /// Unified finding over all member locations, wall rows and support groups.
 pub(crate) fn recovery_finding(
     records: &[RecoveryRecord],
-    scales: &HashMap<usize, (f64, f64)>,
+    scales: &HashMap<usize, ActionScales>,
     case_id: &str,
 ) -> Option<FormationFinding> {
     let mut fired = Vec::new();
     for record in records {
-        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or((0.0, 0.0));
+        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or_default();
         for group in &record.groups {
-            let scale = if group.moment { scales.1 } else { scales.0 };
+            let scale = if group.moment { scales.moment } else { scales.force };
             match &group.bound {
                 Ok(bound) => match member_group_decision(group.q,group.q_hat,*bound,scale) {
                     Ok(true) => fired.push(format!("{}.{}.{}: q={:e}, B={bound:e}",record.member,group.location,group.kind,group.q)),

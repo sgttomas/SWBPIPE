@@ -5,7 +5,7 @@
 - The D1.4 combination zero rules are removed; each loop they bounded on the reached graph gets an exact-header rule
   (decisions file NEW, PREFIX), placed first. Further loop, edge and text_args rules come from the decisions file's
   optional lists (LOOPS_FIRST, EDGE_ZERO, EDGE_PER_CALL, FN_CAP, SITE_TOTAL, SITE_FROM, SITE_ZERO, ID_AUDIT, ARGS_FIRST,
-  RECURSION, LOOP_TOTAL, EDGE_ONCE, FN_ZERO, FILE_ZERO_REMOVE, EDGE_ZERO_REMOVE, CG_RULES).
+  RECURSION, LOOP_TOTAL, EDGE_ONCE, FN_ZERO, FILE_ZERO_REMOVE, EDGE_ZERO_REMOVE, CG_RULES, O10_RECURSION_REVIEWED).
 Every action is logged to SQ2_RULES.json in the output chain. Each removed pattern must match exactly one rule.
 Usage: python3 sq2_rules.py <chain in> <chain out> <decisions.py>
 """
@@ -122,6 +122,10 @@ for pat, why in D.get("LOOP_ZERO_RESTATE", []):
     hits = [r for r in LB["loops"] if r["re"] == pat]
     if len(hits) != 1 or str(hits[0]["bound"]) != "0": raise SystemExit(f"LOOP_ZERO_RESTATE {pat}")
     hits[0]["why"] = "SQ2 G5 restated (0 kept): " + why + " | was: " + hits[0]["why"]; LOG["other"].append(["loop zero restated", pat, why])
+# O-10: a reviewed bounded self-recursion whose body moved to a function the basis does not have (o10_rules.py, by name).
+for fn, why in D.get("O10_RECURSION_REVIEWED", []):
+    if any(e["fn"] == fn for e in LB.get("recursion_reviewed", [])): raise SystemExit(f"O10_RECURSION_REVIEWED DUPLICATE {fn}")
+    LB.setdefault("recursion_reviewed", []).append({"fn": fn, "why": "O-10: " + why}); LOG["other"].append(["recursion_reviewed", fn, why])
 json.dump(LB, open(lbp, "w"), indent=1)
 tap = os.path.join(dst, "text_args.g4.json"); TA = json.load(open(tap))
 for key, bytes_, why in D.get("SITE_TOTAL", []):

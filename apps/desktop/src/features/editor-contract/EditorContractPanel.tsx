@@ -1,3 +1,4 @@
+import { isExactPressureContract } from "../pressure-authoring/pressureContract";
 import { Download, SlidersHorizontal } from "lucide-react";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 
@@ -207,7 +208,7 @@ function materialEditors(model: PreviewModel) {
       ),
       field(
         "shear_modulus",
-        !material.shear_modulus && model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "Shear modulus (derived from selected E and nu)" : "Shear modulus",
+        !material.shear_modulus && isExactPressureContract(model) ? "Shear modulus (derived from selected E and nu)" : "Shear modulus",
         material.shear_modulus?.value ?? "TBD",
         "stress",
         material.shear_modulus?.unit ?? "TBD",
@@ -256,14 +257,6 @@ function componentEditors(model: PreviewModel) {
           component.geometry?.bend_angle?.value ?? "TBD",
           "angle",
           component.geometry?.bend_angle?.unit ?? "TBD",
-          component.id
-        ),
-        field(
-          "geometry.bend_plane_orientation",
-          "Bend plane",
-          component.geometry?.bend_plane_orientation ?? "TBD",
-          "dimensionless",
-          "none",
           component.id
         ),
         field(

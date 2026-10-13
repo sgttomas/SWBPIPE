@@ -84,8 +84,7 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 - **The pressure-source join (33218f87c4).**
   - The join deletes `append_retained_source_not_joined` and `RETAINED_SOURCE_NOT_JOINED_TEXT`. N1 and N2 are guarded by that function's name, so they add nothing at join heads; KD5A3's `route` class no longer assumes N2 created `O10_ARGS_FIRST`.
   - The join removes stress_recovery's `#[path]` `correct_norm` module (four lines). The basis key `lib.rs:179:new` named both load_case_algebra's `AlgebraFinding::new` and a stress_recovery line, and the shift makes it ambiguous. The five `AlgebraFinding::new` per-call bounds now resolve that function by name in load_case_algebra (unchanged there); their counts and arguments are unchanged.
-  - On the join merged with K-D5, three K-D5 source pins see only join edits, re-reviewed in `kd5_text_model.JOIN_REVIEWED`: `certified_recovery.rs`'s production (four `norm2`/`norm3` paths now name the shared `correct_norm` crate, the same functions), `solve_load_case_observed` (the removed not-joined call only; route strings, labels and KD5C6's attempt/clone consumers unchanged) and stress_recovery's non-test source (the removed `#[path]` module only; KD5T3's subject producer unchanged). The K-D5 digests remain accepted, so the registered revision `3903ab6f28` still prices and `generate --check` reproduces its block.
-  - KD5C5 binds an eighteenth caller/name pair where the join's file exists: the J7 census's `#[cfg(test)]` `method_row_holds` calls `.mul(` only on the validation crate's exact rational `Exact` (its own `Exact::mul`), never `FallbackError::mul`. K-D5 snapshots keep the exact 17 pairs.
+  - The join's re-reviewed source pins, its eighteenth KD5C5 caller and its rules on batch 4 are in §J.
 - **`g5_native_combinations`' operand loop (99cb958e85).**
   - 99cb958e85 zipped the loop with the combination's terms. Both header forms are bound at 3, one per term.
   - The pre-99cb958e85 form is kept so that the registered tree's revision (`f78f52b7e2`) still prices.
@@ -96,7 +95,13 @@ D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 
 These additions close the new header and argument inventory. They do not
 zero a newly reached branch. D1 still admits no components and no pressure-v3
 namespace (§B P1–P3); true array and collection bounds are used even when the
-chain conservatively reaches an arc helper.
+chain conservatively reaches an arc helper. One exception: the chain charges a
+named closure's body sites once per enclosing call, so the text rows of the
+`append` closure in `append_arc_pressure_results` (called 2 + 3·|sections| ≤ 17
+times per call) are charged at the call's multiplicity, not up to 17 times it.
+This is safe on D1, which forms no realized bend and no exact-pressure state, so
+the closure is unreachable; a domain that admits them must charge the closure
+per call first.
 
 | Label | Rule and code argument |
 |---|---|
@@ -110,10 +115,42 @@ chain conservatively reaches an arc helper.
 | **O13A1** | A fired item is bounded by the existing F_len = max(id+34+3·24, id+41+8192): numeric items fit the first/unavailable upper, and an unavailable certificate carries the 8192 B error class. Each finding has at most six named items. A sentence is bounded by 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1. The merge receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B. `composite_text.py` uses this whole-sentence bound for `evidence_line`; the per-site `merged.sentence` is classed by the same bound. The old formula remains on revisions without the arc finding, preserving the registered tree. |
 | **O13T** | `s11g_tests/arc_recovery.rs` is included only with `#[cfg(test)]`; no test function is on the product graph. These arguments nevertheless receive honest bounds: mode Debug ≤17 B, f64 Display ≤327 B, project/member ids IN128, each sentence ≤50,955 B, and a copied source line no longer than the total included source bytes measured at the snapshot. No test site is assigned a fabricated zero. |
 
+Batch 4 on K-D5 (`9b128d5ed0`) adds:
+
+| Label | Rule and code argument |
+|---|---|
+| **U2A2** | Review M-2 gives `append_arc_pressure_results` a second blocking diagnostic (an unknown section location is refused, never read as end_j) whose affected-ref line equals the unrepresentable-section diagnostic's. Each `vec![case.id.clone(), pipe_id.to_string()]` is keyed by its own unique preceding line and checked; both keep U2A's IN128 classes and both sites stay priced. |
+| **U2A3** | That refusal's `{location:?}` is one of `sections`' locations: the literals end_i/end_j or a `StationResultants.location`, a `&'static str` (quarter_1, midspan, quarter_3). STATIC (128). |
+| **U2L4** | The per-section recovery loop `for (location, elastic) in sections` runs over the two ends plus the caller's station rows; every `solve_load_case_observed` branch forms at most three (two fixed arrays of three, `curved_bend_station_resultants -> [_; 3]`, or none; KD5L7). Bounded at 5. |
+| **O13T2** | O-13's arc predicate is gone (the O13 rows above stay for historical snapshots), but `s11g_tests/arc_recovery.rs` remains, rewritten, inside the cfg(test) `s11g_tests`. The chain reaches some of its helpers through conservative name candidates, so its arguments keep honest classes: the test `group`'s kind (callers pass only axial/shear/torsion/bending) STATIC, the P2/P5 tags' project ids (fixed `invented:o13:*` ids, longest 42 B) IN128, mode Debug ≤17 B, f64 Display ≤327 B and a copied source line ≤ the included lib.rs + formation_guard.rs bytes at the snapshot. No zero. |
+| **KD5A9** | `certified_loads::member_source` formats `member:{len}:{member}:{source}`. Batch 4's pressure closure binding (the arc pressure free strain keyed by region id) gives the site a positive multiplicity. `member` is a pipe or connector component id (IN128). `source` is an authored load or region id, the static `reference`, or on the 0.4.0 route `source_recovery::eigen_source_id` (≤ 23 + 20 + 1 + 128 B), so it takes the existing 600-B composite class. The full multiplicity stays. |
+
 U2 deletes `connector_evidence::row_basis`; its E4 edge and A3 audit are added
 only when that function is present. This avoids a null stale key without
 weakening a surviving function's rule. The registered revision still carries
 the original E4/A3 entries.
+
+
+## J. The pressure-source join on batch 4
+
+The join (b7-plan) merged with T4 batch 4 (#1314, `745f55f918`). Each rule
+applies only where the join's code exists, so earlier revisions price as
+before, except JP1's pins, which are now the join's bytes. Every zero below is
+a dead edge or a guarded multiplicity-0 site; no reached branch is zeroed and
+no bound is unbounded.
+
+| Label | Rule | Code argument and guard |
+|---|---|---|
+| **JN1** | `price.py` scans `core/numerics/correct_norm` where the snapshot has it and adds each dependent crate's edge. The seven crate-qualified `open_pipe_stress_correct_norm::norm2/norm3(` calls in frame_kernel are bound to that crate's functions: `rigid_body.rs assess_rigid_body` (norm3, norm2), `certified_recovery.rs norm_up` (norm2) and `certified_group` (norm2, norm3, norm2), `final_case.rs support_hypot` (norm3). | frame_kernel's `correct_norm` module moved byte-identical into the crate. A crate-qualified call keeps only its last qualifier, so by name it would also reach the same-crate private `final_case.rs:norm2` and `formation_check.rs:norm3`, which those paths do not name. Before the move, `crate::correct_norm::normN(` resolved the same way. **Guard:** the run stops unless frame_kernel's non-test files hold exactly these seven calls, each found once in its caller. |
+| **J1** | `EDGE_ZERO` `semantic_contract.rs for_source` → `physics_source.rs validate_in` (its `PRESSURE_SOURCE_ID` arm) | for_source's only D1 caller is `retained_precision::validate`'s G7 on `project(source)`. project() sets `producer.semantic_contract_id` to `route.base_id`, either preview-physics-1 (route L) or physics-1 (route E). So the arm is never taken; this is R1's argument. **Guard:** the run stops unless `retained_precision.rs` holds exactly those two `base_id` literals and the projection line, and the arm text is found once. |
+| **J2** | `EDGE_ZERO` `lib.rs CaseSet::attempted` → `source_recovery/j7_t4_consequences.rs request` | `attempted.push(request, id)` passes the loop's pattern binding `(&request, &id)`. The function-as-value scan picks the J7 test module's private `fn request()` by name. That module is declared only under `#[cfg(test)]`, so lib.rs cannot name it. Only this edge is zeroed. A callgraph exclusion cannot remove it, because the value scan's edges bypass exclusions. **Guard:** the call is found once, and `source_recovery.rs` declares the module under `#[cfg(test)]`. |
+| **J3** | `site_size` 0 at twelve `source_recovery/j7_rf_census.rs` format sites: five in `actual` (Debug of `blocking(&diagnostics)` and `boundary.findings`), `method_row_holds` (`ordinal`), `leaf_diff` (`k`), two in `method_value` (Debug of `f.helper_stage`, `f.error`), `public_value` (`d["code"]`, `d["message"]`), `census_entry` (Debug of `f`), and the expected-file writer (`sha(..)`, `lines.join(..)`) | The J7 RF census is a child module that `source_recovery.rs` declares only under `#[cfg(test)]`. The template inventory's file-name filter does not see it as test code. None of its rows is reached on either route. Across both J7 test modules, the one reached row (`j7_t4_consequences.rs sha`, a by-name candidate) has multiplicity 0. This is O-10 J's form: **no `site_zero`**, so the chain still computes each multiplicity. **Guard:** `o10_check` fails the run if any J3 site has a positive multiplicity or is no longer found, and the run stops if the module is no longer `#[cfg(test)]`. Unlike O13T, the Debug vectors and the joined census have no finite type class, so these sites take J's guarded size rather than per-argument classes. |
+| **J3'** | Classes for J3's composed arguments at the two sites that also hold an identifier placeholder (`node`, `path`), which the chain still evaluates: `ordinal` ≤ 13 B; `k` ≤ 1,024 B (RES) | **`ordinal`:** a '.'-separated part of a reference key `r[0]` from `references.json`. The census pins that file by sha `7b176dbb…` and asserts the pin. Its longest key is 13 B. **Guard:** the run stops if the census's pin changes.<br>**`k`:** a JSON object key of the twin's produced public envelope, or of the test's own literals. These are schema field names or entity-keyed maps of D1-capped ids, so the class is RES. The longest key in the committed raw fixtures is 47 B.<br>Both classes are unused at multiplicity 0 and keep the class honest if the J3 guard ever trips. |
+| **J4** | `ID_AUDIT` `exact_admission.rs pressure_v3_formulation_basis_in`: `identity.to_string()` ≤ the longer of 2 literals; `source.to_string()` ≤ the longest of 3 literals | The two limitations are whole `&'static str` selections. `identity` is chosen by `selected == Some(true)` between the pressure-source-1 and pressure-1 texts. `source` is chosen by `match selected` among None, Some(false) and Some(true). Each bound is the raw literal length read at the snapshot (≥ the decoded length). **Guard:** the run stops unless each `let` selects exactly that number of literals. |
+| **J5** | `EDGE_ZERO` `physics_evidence.rs validate_physics_evidence_in` → `load_reference.rs prepass` | `prepass(source, true, Method::PressureJoined)` runs only under `if resolved`, where `resolved = composite && contract == PressureV3 && evidence has load_reference_states`. The one call passing `composite = true` is `physics_source::validate_in`. It is unreached on both routes: its only reached caller's edge is J1's zero, and its PhysicsV2 sibling is covered by G4 (T17). Every other call passes `false`: `validate_physics_evidence` (route E's reached caller, StraightV2), `validate_pressure_evidence` and `load_reference::validate`. Zeroing the edge removes route E's reach into `prepass`/`validate_record`, along with their `shape_in_resources` recursion, nine load-reference loop headers and the `support_state`/`member_state` id arguments. None of these is reachable on D1. **Guard:** the run stops unless the call sits under that `resolved` test and is the file's only prepass call, and unless the `validate_physics_evidence_in(` call inventory is exactly three `false` calls and physics_source.rs's one `true` call. |
+| **J6** | `recursion_reviewed` (via the new `O10_RECURSION_REVIEWED` family in `sq2_rules.py`): `source_blocks.rs shape_in_resources` | The join moved `shape_in`'s body into `shape_in_resources`. The only change is an explicit `resources` list, consulted for a non-local `$ref`; an unknown name or missing fragment fails closed. `shape_in` now only delegates with no resources. The registered review of `shape_in`'s bounded self-recursion applies to the function that now recurses: multiplicity 0 on D1, because the source-block shape check is not on the D1 path, and text only on its error path. Its graph callers are `shape_in`, whose D1 reach was only through `prepass` (J5), and physics_source's receipt and transport-metadata checks, which are unreached. **Guard:** `shape_in`'s delegation and the self-call are each found once. |
+| **JP1** | K-D5's three source pins are re-pinned to the join's bytes on batch 4: `certified_recovery.rs`'s production prefix, `lib.rs solve_load_case_observed` (in `kd5_text_model.PINS` and `kd5_first_error_model.LIB_PINS`), and stress_recovery's non-test source (`STRESS_SUBJECT_SOURCE_PIN`). `JOIN_REVIEWED` and its alternative-acceptance helper are removed. | Each digest was reviewed against batch 4's bytes (`745f55f918`). `certified_recovery.rs` differs only in its four `norm2`/`norm3` call paths: `crate::correct_norm` became `open_pipe_stress_correct_norm`, the same functions (JN1). `solve_load_case_observed` differs only by the removed not-joined diagnostic call; its route strings, record labels and KD5C6's attempt/clone consumers are unchanged. stress_recovery differs only by the removed `#[path]` `correct_norm` module; KD5T3's closed subject producer and its one copy site are unchanged. The pins are exact, so revisions before the join no longer price with this tool. The registration moves to the join head (D3). |
+| **JC5** | KD5C5's outside-caller inventory is a fixed 18 pairs: the 17 K-D5 pairs and the J7 census's `method_row_holds` `.mul(` (plus U2's pairs where `bend_pressure.rs` exists). `JOIN_ONLY_CALLER_FILES` is removed. | The census calls `.mul(` only on the validation crate's exact rational `Exact`, its own `Exact::mul`, never `FallbackError::mul`. The caller body is digest-pinned. |
 
 
 ## F. K-D5 actual owned layouts (KD5O1–KD5O6)
@@ -182,8 +219,9 @@ Final completeness and budget claims require the implementing commit's full
 pricing run and in-build atom evaluation.
 
 
-- **KD5T1/T2 (unified fixed text).** Final source basis 3903ab6f28 (re-reviewed
-  from c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
+- **KD5T1/T2 (unified fixed text).** Final source basis 9b128d5ed0, T4 batch 4
+  merged onto K-D5 (re-reviewed from 3903ab6f28 and before it from
+  c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
   has source-pinned record constructors, group/magnitude_group helpers,
   member_group_decision, the D1 case consumer and both maximum evidence
   producers. Production-prefix pins protect the certified-publication,
@@ -224,6 +262,29 @@ pricing run and in-build atom evaluation.
     allocation site; its {error} copy is priced as a TEXT site.
   - preview_physics.rs render eb43e10b…: a cfg(test) witness hook only,
     with no `divided` call.
+  Pins re-reviewed at 9b128d5ed0 (batch 4: U2 arc pressure, O-13's arc
+  predicate and short-bend rule removed, review repairs):
+  - certified_publication.rs production prefix ea24eab4… (text model,
+    KD5C5 and KD5C6) and whole file b54ebf46… (KD5C6): one new function,
+    `arc_pressure_wall`, adds pAi to each section's axial row of a cloned
+    CertifiedMemberRecovery (fixed `[CertifiedRow; 12]` and `[[_; 6]; 5]`
+    arrays) and negates/copies the two wall end rows. It is stack-only, its
+    errors are FK's static RecoveryFailure, and it adds no String, format
+    site, label literal, FallbackError use or first-return allocation; the
+    test module adds `arc: None` to a fixture. The KD5T2 inventory and the
+    KD5C6 site rules are unchanged apart from line numbers (checked by
+    evaluating both models at 3903ab6f28 and 9b128d5ed0).
+  - formation_guard.rs recovery_finding c499ed59…: the scales map's value
+    type is O-13's `ActionScales { force, moment }` instead of a tuple
+    (`unwrap_or_default`, `.force`/`.moment`); its three format templates
+    and their arguments are unchanged.
+  - lib.rs solve_load_case_observed 435591f5… (both models): the realized
+    arc branches of U2 (arc free expansion with the pressure strain, the
+    certified arc wall rows, `append_arc_pressure_results`), the
+    case-qualified arc extrema id (already audited, §E U2A) and the removal
+    of the short-bend finding. It adds no route string or maximum literal
+    and no CPP first-return allocation site; `wall.clone()` and the new
+    `Option<CertifiedMemberRecovery>` are stack values.
 - **KD5A8 (withheld summary ids).** The certified summary-error arm's
   warning copies only the pipe's own authored id: the stable_suffix id
   suffix, the message's member id and the affected ref (IN128). Its
@@ -280,7 +341,10 @@ pricing run and in-build atom evaluation.
   are static ≤128. The finite-a notice copies a capped case id. Summand
   family is a static token, source is at most the existing 600-B composite
   class (two capped ids and a length or pressure source tuple). Pressure
-  closure identities use capped region/pipe ids and a fixed kind token.
+  closure identities use capped region/pipe ids and a fixed kind token;
+  batch 4 moves that `format!("{}:{}:{}", term.1, term.2, term.3)` site,
+  unchanged, from finish_source_groups' map closure into its new callee
+  `closure_source`, and the audit follows it there by name.
   Unavailable-route text selects one of two ≤128-B literals. The earlier
   `formation_entity_bodies` map is no longer called on the unified graph;
   its three copy audits remain on historical snapshots where the old guard
@@ -536,6 +600,10 @@ pricing run and in-build atom evaluation.
   The current production-prefix pin protects that typed boundary.
   Existing true visits and R2 call paths remain; this is a type binding,
   not a fixture-derived multiplicity or an unpriced-site waiver.
+  Batch 4 renames formation_guard `moment_scales` to `action_scales`
+  (O-13's coupled ActionScales); the binding follows the name. Its min/max
+  receivers are still the f64 scales (`entry.*.max(value)`,
+  `force.max(moment / extent)`, `moment.max(extent * force)`).
 - **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
   source, the heuristic graph adds private FallbackError methods to outside
   callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
@@ -555,6 +623,15 @@ pricing run and in-build atom evaluation.
   (add); pressure_exact/source_geometry from_od_wall (add and mul),
   pressure_group_value (mul) and surface_stresses (add); and
   case_state/temperature exact_kelvin (mul).
+  KD5C5b (batch 4): on a snapshot whose bend_pressure.rs defines
+  `append_arc_pressure_results`, two more outside callers join the
+  inventory (17 + 2 pairs, FALLBACK_OUTSIDE_CALLERS_U2, body-pinned):
+  bend_pressure `append_arc_pressure_results` (divided; receiver
+  `wall.sections[index][0]`, FK's CertifiedRow) and source_geometry
+  `arc_pressure_strain` (mul; receivers Scaled). At 9b128d5ed0 the
+  production prefix is ea24eab4… (the new `arc_pressure_wall` uses no
+  FallbackError). Without the two exclusions KD5C6's cutset check stops,
+  because the name resolver adds these false private candidates.
   The new `exclude_targets` mechanism subtracts only the qualified CPP
   add/mul/divided target from each existing candidate list after any existing
   replacement rule. Every other candidate and every inside-CPP caller is

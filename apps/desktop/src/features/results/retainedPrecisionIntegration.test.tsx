@@ -629,20 +629,22 @@ describe("the downgrade guard (F-5)", () => {
   });
   it("the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt", () => {
     expect(sourceContract(source)).toBe("retained_preview_physics");
-    for (const edit of [
-      (s: Json) => { s.formulation_basis.profile_id = "product_preview_mechanics_v1"; },
-      (s: Json) => { delete s.contract_evidence; },
-      (s: Json) => { s.retained_precision = null; },
-      (s: Json) => { s.retained_precision = [s.retained_precision]; },
-      (s: Json) => { s.retained_precision = "receipt"; },
-      (s: Json) => { delete s.retained_precision; },
-      (s: Json) => { s.source_block_recovery = {}; },
-      (s: Json) => { s.carrier_evidence = {}; },
-      (s: Json) => { s.producer.component_version = "0.1.0"; },
-    ]) {
+    // The pressure-source join's Rust standing names a source-block receipt on a
+    // non-source identity (SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN, B6's name) instead of the generic code.
+    for (const [edit, finding] of [
+      [(s: Json) => { s.formulation_basis.profile_id = "product_preview_mechanics_v1"; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { delete s.contract_evidence; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { s.retained_precision = null; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { s.retained_precision = [s.retained_precision]; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { s.retained_precision = "receipt"; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { delete s.retained_precision; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { s.source_block_recovery = {}; }, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"],
+      [(s: Json) => { s.carrier_evidence = {}; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+      [(s: Json) => { s.producer.component_version = "0.1.0"; }, "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"],
+    ] as const) {
       const s = structuredClone(source) as Json; edit(s);
       expect(sourceContract(s)).toBe("unsupported");
-      expect(numericalResultStanding(s, null).findings).toStrictEqual(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]);
+      expect(numericalResultStanding(s, null).findings).toStrictEqual([finding]);
       // RV91 N-3 (RV08): binding selects the successor by producer id, as Rust does,
       // so a header-broken successor still has no validated class and every row is refused.
       for (const row of s.results.slice(0, 3)) expect(ruleBindingRefusal(s, row)).toBe(RULE_QUANTITY_NOT_COVERED);

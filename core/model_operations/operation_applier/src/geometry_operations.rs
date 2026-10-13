@@ -190,7 +190,7 @@ fn endpoints(model: &Value, pipes: &[Value]) -> Result<Vec<Value>> {
         })
         .collect()
 }
-fn global_ids(v: &Value, ids: &mut BTreeSet<String>) {
+pub(crate) fn global_ids(v: &Value, ids: &mut BTreeSet<String>) {
     match v {
         Value::Object(m) => {
             if let Some(id) = m.get("id").and_then(Value::as_str) {
@@ -208,7 +208,7 @@ fn global_ids(v: &Value, ids: &mut BTreeSet<String>) {
         _ => {}
     }
 }
-fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Result<()> {
+pub(crate) fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Result<()> {
     fields(
         v,
         if copy {
@@ -228,7 +228,7 @@ fn metadata(v: &Value, ids: &mut BTreeSet<String>, copy: bool) -> Result<()> {
 }
 // Detect any exact selected reference outside understood records. Text metadata
 // is not a link; all other selected-ID occurrences fail closed, including aliases.
-fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
+pub(crate) fn references(v: &Value, ids: &BTreeSet<String>, path: &str, out: &mut Vec<String>) {
     match v {
         Value::String(s) if ids.contains(s) => out.push(path.into()),
         Value::Array(a) => {
@@ -332,7 +332,7 @@ fn frame(model: &Value, pipe: &Value, unit: &str, require_y: bool) -> Result<()>
     }
     Ok(())
 }
-fn diff(
+pub(crate) fn diff(
     id: &str,
     ty: &str,
     path: &str,

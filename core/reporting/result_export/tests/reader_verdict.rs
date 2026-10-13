@@ -519,6 +519,7 @@ fn binding_hashes_are_the_table_files() {
         ("preview_physics", "semantic_contract_v0_3_preview_physics_1.json"),
         ("load_reference", "semantic_contract_v0_3_load_reference_1.json"),
         ("load_reference_source", "semantic_contract_v0_3_load_reference_source_1.json"),
+        ("pressure", "semantic_contract_v0_3_pressure_1.json"),
         ("retained_preview_physics", "semantic_contract_v0_3_preview_physics_retained_1.json"),
         ("retained_physics", "semantic_contract_v0_3_physics_retained_1.json"),
     ];
@@ -578,4 +579,57 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
         assert_eq!(rv::validate("physics-source", &changed, None, None)["ok"], false);
     }
     assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
+}
+
+/// pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its
+/// own route and table binding, read by `validate_pressure_evidence` with G2's
+/// model checks and the ordinary standing, so every caller takes one verdict
+/// and one standing. Straight (0.3.0 and 0.4.0), arc and connector corpora.
+#[test]
+fn pressure_1_dispatches_to_its_reader_and_ordinary_standing() {
+    for corpus in ["straight", "arc", "connector"] {
+        let corpus = read(&format!("fixtures/results/pressure_v3_{corpus}_reader_corpus.json"));
+        for case in corpus["cases"].as_array().unwrap() {
+            let (label, raw) = (case["label"].as_str().unwrap(), &case["envelope"]);
+            assert_eq!(route(raw), "pressure", "{label}");
+            let d = rv::dispatch(raw, None, None);
+            assert_eq!((d["ok"].as_bool(), d["route"].as_str()), (Some(true), Some("pressure")), "{label}");
+            assert_eq!(d["binding"], json!({"id": sc::PRESSURE_ID, "sha256": rv::binding("pressure")["sha256"]}), "{label}");
+            assert_eq!(rv::validate("pressure", raw, None, None), json!({"ok": true}), "{label}");
+            // The standing is the reader's verdict plus the ordinary checks of
+            // `numerical_quality` against the model's cases.
+            let cases: Vec<Value> = raw["numerical_quality"]["cases"].as_array().unwrap().iter()
+                .map(|c| json!({"id": c["basis_ref"]["ref_id"]})).collect();
+            let model = json!({"load_cases": cases});
+            let s = standing(raw, Some(&model));
+            let passed = raw["numerical_quality"]["status"] == "checks_passed";
+            assert_eq!(findings(&s).is_empty(), passed, "{label}: {s}");
+            assert_eq!((s["route"].as_str(), s["eligible"].as_bool()), (Some("pressure"), Some(passed)), "{label}");
+            // G2: a model that lacks a solved case is a finding of the reader.
+            let short = json!({"load_cases": [{"id": "load:not-solved"}]});
+            assert_eq!(
+                rv::validate("pressure", raw, Some(&short), None)["error"]["code"],
+                "SOURCE_PHYSICS_MODEL_CASE_COVERAGE",
+                "{label}"
+            );
+            assert!(findings(&standing(raw, Some(&short))).contains(&"SOURCE_PHYSICS_MODEL_CASE_COVERAGE"), "{label}");
+            // A reader refusal is the standing's finding.
+            let mut broken = raw.clone();
+            broken["contract_evidence"]["exact_cases"] = json!([]);
+            assert_eq!(rv::validate("pressure", &broken, None, None)["ok"], false, "{label}");
+            assert_eq!(standing(&broken, Some(&model))["eligible"], false, "{label}");
+            // No pressure-1 transport reader: a transported statement is refused by name.
+            assert_eq!(rv::transport("pressure", raw)["error"]["code"], rv::PRESSURE_TRANSPORT_UNSUPPORTED, "{label}");
+            // The pressure-1 header requires its evidence object.
+            let mut bare = raw.clone();
+            bare.as_object_mut().unwrap().remove("contract_evidence");
+            assert_eq!(route(&bare), rv::UNSUPPORTED, "{label}");
+        }
+    }
+    // The arc corpus carries its documents: their models pass G2.
+    let arc = read("fixtures/results/pressure_v3_arc_reader_corpus.json");
+    for case in arc["cases"].as_array().unwrap() {
+        let model = &case["document"]["model"];
+        assert_eq!(rv::validate("pressure", &case["envelope"], Some(model), None), json!({"ok": true}), "{}", case["label"]);
+    }
 }
